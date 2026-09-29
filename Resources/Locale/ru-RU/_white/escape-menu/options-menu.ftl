@@ -1,6 +1,4 @@
-ui-options-log-in-chat = Логировать действия в чат
-
-ui-options-function-open-emotions-menu = Открыть меню эмоций
-ui-options-function-look-up = Присмотреться/Прицелиться
-ui-options-function-auto-get-up = Автоматически вставать при падении
-ui-options-function-hold-look-up = Удерживать клавишу для прицеливания
+ui-options-function-auto-get-up = Automatically get up after falling
+ui-options-log-in-chat = Log actions in the chat
+ui-options-coalesce-identical-messages = Coalesce identical messages in chat
+ui-options-detailed-examine = Show detailed examine text
