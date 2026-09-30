@@ -1,24 +1,25 @@
 <Document>
-## Anomaly Scanner
+## Сканер аномалий
+</Document>
 
-The Anomaly Scanner is used to gather various information on anomalies. They can be found inside of the lockers in the science department.
+Аномальный сканер используется для получения различной информации об аномалиях. Можно найти в шкафчиках науки.
 
 <Box>
 <GuideEntityEmbed Entity="AnomalyScanner"/>
 </Box>
 
-Scanning an anomaly shows the severity, general stability, approximate point output, reactions with particle types, and time until the next pulse. The reaction types, specifically, can be used in conjunction with the A.P.E. to manipulate anomalies.
+Сканирование аномалии показывает уровень опасности, общую стабильность, примерный уровень выброса точек, реакции с типами частиц и время до следующего импульса. Конкретные типы реакций могут быть использованы совместно с А.П.Э. для манипуляции аномалиями.
 
-## Anomaly Vessel
+## Аномальный корабль
 
-The anomaly vessel is a machine that generates points from anomalies. Use the anomaly scanner on an empty vessel, and the anomaly that was last scanned will be synced with the vessel.
+Аномальный корабль — это машина, которая генерирует очки из аномалий. Используйте сканер аномалий на пустом корабле, и аномалия, которая была последней отсканирована, будет синхронизирована с кораблем.
 
 <Box>
 <GuideEntityEmbed Entity="MachineAnomalyVessel"/>
 </Box>
 
-The amount of points a vessel generates per second is based on the severity, stability, and health of an anomaly. The higher each of these values, the higher the point output will be.
+Количество очков, генерируемых кораблём в секунду, зависит от серьёзности, стабильности и состояния здоровья аномалии. Чем выше каждое из этих значений, тем выше будет выход очков.
 
-Be careful: if an anomaly goes [color=#a4885c]supercritical[/color], the vessel it is linked to will explode. This may damage the station and nearby equipment.
+Будьте осторожны: если аномалия становится [color=#a4885c]сверхкритической[/color], то судно, с которым она связана, взорвётся. Это может повредить станцию и оборудование поблизости.
 
 </Document>

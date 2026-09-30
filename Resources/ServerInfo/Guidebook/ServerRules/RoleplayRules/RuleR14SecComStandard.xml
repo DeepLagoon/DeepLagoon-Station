@@ -1,37 +1,37 @@
-﻿<Document>
-  # Roleplay Rule 14 - Set an example if playing command or security
-  All command and security roles are held to stricter interpretations of the rules.
-  - Command roles are not learning roles. Members of command must be competent.
-  - Security roles are not for inexperienced players. Members of security are expected to know game basics and be more familiar with server rules than a new player.
-  - Do not hinder or cause overall negative effects to the station or crew as a member of command or security.
-  - Do not abuse your power as command or security.
-
-  ## Why
-  Members of command and security can often have a larger impact on the nature of the round than other players. For example, a captain who tries to bend or break the rules will often cause many others on the station to do the same. Memey station announcements from members of command also often result in the rest of the station acting the same way. When command and security members hold themselves to high standards, the rest of the station often naturally follows to a significant degree.
-
-  ## Examples
-  Acceptable:
-  - A member of security accepts a bribe to deliver safe donuts to a prisoner who the HoS has ordered should only be given donk pockets.
-  - A captain uses a station announcement to confess to an embarrassing mistake that they made during the shift.
-  - In coordination with the head of security, a captain declares that the station will recognize the right to bear arms, so all crew can pick up a disabler at security.
-  - The chief medical officer gives a paramedic their portable crew monitor to help them complete their job.
-  - A syndicate agent is holding a crewmember hostage and threatens to kill them if the head of security doesn't give them their ID. Seeing no other safe option, the head of security hands over their ID to the syndicate agent, then begins working to re-secure it and capture the agent as soon as the hostage is safe.
-  - Nuclear operatives are attacking the station, so the captain and head of personnel both go to the armory and take a weapon.
-  - A majority of command votes to demote the captain for taking actions harmful to the station, then the head of security demotes the captain.
-  - The captain promotes the head of personnel to captain.
-  - Security releases an antagonist from the brig in exchange for the identities of other traitors.
-
-  Prohibited:
-  - A member of security accepts a bribe to ignore a crime or help a prisoner escape.
-  - A captain sends a ASCII art trollface over station announcements or as a fax to central command.
-  - A captain declares that all contraband is legal.
-  - Command or security allow the use of Syndicate items outside extreme emergencies.
-  - The chief medical officer knowingly helps a syndicate agent complete their objectives.
-  - A syndicate agent has killed 3 members of security so the head of security makes them an offer saying that they will space all the weapons in the armory if the syndicate agent stops killing.
-  - The captain goes to the armory and takes a gun to display in his office without asking anyone, and orders anyone who questions him not to interfere.
-  - Members of command decide to demote the captain to gain more power for themselves, or in retaliation for a decision that they didn't personally like or agree with, rather than because the decision was actually harmful to the station.
-  - The captain promotes a random crewmember to captain.
-  - A member of command gives a random crewmember substantial additional access for no reason, unnecessarily, or for a poor reason.
-  - A member of command gives a random crewmember access to a high security area, like the armory or another member of command's office, for no reason, unnecessarily, or for a poor reason.
-  - Security releases an antagonist from the brig in exchange for the antagonist buying them contraband.
+<Document>
+  # Правило ролеплея 14 - Демонстрируйте пример, если вы играете за командование или безопасность
+  Все роли в командовании и безопасности подвержены более строгому толкованию правил.
+  - Роли в командовании не являются обучающими. Члены командования должны быть компетентными.
+  - Роли в безопасности не для неопытных игроков. Члены безопасности должны знать основы игры и быть более знакомыми с правилами сервера, чем новый игрок.
+  - Не мешайте и не наносите общего негативного эффекта станции или экипажу, будучи членом командования или безопасности.
+  - Не злоупотребляйте своим влиянием в качестве командования или безопасности.
 </Document>
+
+## Зачем
+  Члены команды и службы безопасности часто могут оказать больший влияние на характер раунда, чем другие игроки. Например, капитан, который пытается нарушать или изгибать правила, часто заставляет многих других на станции поступать так же. Мемные объявления со стороны членов команды также часто приводят к тому, что остальная часть станции действует одинаково. Когда члены команды и службы безопасности придерживаются высоких стандартов, остальная часть станции часто естественным образом следует им в значительной степени.
+
+## Примеры
+Допустимо:
+- Член службы безопасности принимает взятку, чтобы доставить безопасные пончики заключённому, которому ГСБ приказал выдавать только пончики с начинкой.
+- Капитан использует объявление на станции, чтобы признаться в стыдном ошибке, допущенной во время смены.
+- В согласовании с ГСБ, капитан объявляет, что станция признаёт право носить оружие, поэтому весь экипаж может взять ослабляющий пистолет в службе безопасности.
+- СМО передаёт параметриста свой портативный монитор экипажа, чтобы помочь ему выполнить свою работу.
+- Агент синдиката держит члена экипажа в заложниках и угрожает убить его, если ГСБ не передаст ему его ID. Не видя других безопасных вариантов, ГСБ передаёт ID агенту синдиката, а затем начинает работать над тем, чтобы вернуть его и арестовать агента, как только заложник будет в безопасности.
+- Ядерные оперативники атакуют станцию, поэтому капитан и ГП оба идут в оружейную и берут оружие.
+- Большинство командных голосов отдаётся за понижение капитана за действия, вредные для станции, затем ГСБ понижает капитана.
+- Капитан повышает ГП до капитана.
+- Служба безопасности освобождает антагониста из тюрьмы в обмен на личности других предателей.
+
+Запрещено:
+- Член службы безопасности принимает взятку, чтобы игнорировать преступление или помогать заключённому сбежать.
+- Капитан отправляет ASCII-арт с толстым носом через объявления станции или в виде факса в центральное командование.
+- Капитан объявляет, что вся контрабанда легальна.
+- Команда или служба безопасности разрешают использование синдикатских предметов вне крайних чрезвычайных ситуаций.
+- Главный медицинский врач осознанно помогает агенту синдиката выполнить его цели.
+- Агент синдиката убивает 3 члена службы безопасности, и потому глава службы безопасности предлагает ему сделку: если агент перестанет убивать, он уничтожит все оружие в оружейной комнате.
+- Капитан направляется в оружейную комнату и берёт оружие, чтобы показать его в своём кабинете, не спрашивая никого, и приказывает всем, кто его спрашивает, не вмешиваться.
+- Члены командования решают понизить капитана, чтобы получить больше власти для себя или в ответ на решение, которое им лично не понравилось или с которым они не согласны, а не потому, что решение действительно вредно для станции.
+- Капитан повышает случайного члена экипажа до капитана.
+- Член командования предоставляет случайному члену экипажа существенный дополнительный доступ без причины, по ненужной или плохой причине.
+- Член командования даёт случайному члену экипажа доступ в высокозащищённую зону, такую как оружейная комната или кабинет другого члена командования, без причины, по ненужной или плохой причине.
+- Служба безопасности освобождает антагониста из тюрьмы в обмен на то, чтобы антагонист купил им контрабанду.

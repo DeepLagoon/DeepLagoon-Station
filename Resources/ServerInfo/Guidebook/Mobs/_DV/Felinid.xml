@@ -1,32 +1,33 @@
 <Document>
-  # Felinids
+  # Фелиниды
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobFelinidDummy" Caption=""/>
   </Box>
 
-  Small and mischievous cat-eared people. Being small in itself has lots of upsides and downsides. They can hide inside duffelbags.
+Маленькие и коварные люди с кошачьими ушами. Быть маленьким уже само по себе имеет множество плюсов и минусов. Они могут прятаться внутри чемоданов.
 
-  ## Diet
+## Питание
 
-  - Can eat raw meat.
-  - Will get poisoned by Theobromine (Chocolate, Tea, Coffee) and Allicin (Onion, Garlic).
+- Может есть сырую мясо.
+- Отравится теобромином (Шоколад, Чай, Кофе) и аллицинами (Лук, Чеснок).
 
-  ## Benefits
+## Преимущества
 
-  - They are smaller than Humans, making them harder to hit.
-  - Can fit in duffelbags.
-  - Have the ability to throw up an hairball to get rid of some of the chemicals from their bloodstream.
-  - Able to eat mice and rats after picking them up. This has the benefit of regenerating the hairball ability and feeding them.
-  - Uses their claws to do Slashing damage and Piercing damage.
-  - Can walk completely silently, but only while barefooted.
-  - Immunity to the OwOnavirus disease.
+- Они меньше людей, поэтому их труднее поразить.
+- Могут поместиться в чемоданах.
+- Имеют возможность бросать шерстяной ком, чтобы избавиться от некоторых химических веществ из крови.
+- Могут есть мышей и крыс после их подбора. Это восстанавливает способность формирования шерстяного кома и питает их.
+- Наносят урон рассекающим и проткывающим типами атак с помощью когтей.
+- Могут полностью бесшумно ходить, но только босиком.
+- Иммунитет к болезни OwOnavirus.
 
-  ## Drawbacks
+## Недостатки
 
-  - Takes 10% more Blunt and Slash damage.
-  - Are easily shoved, pushed and carried around by every other morphotypes due to their small size.
-  - They are weaker and struggle to carry and pull things due to their small size. They are unable to carry an Oni.
-  - They have slightly less stamina than Humans.
+- Получают на 10% больше урона от дробящей и рассекающей атаки.
+- Легко отталкиваются, толкаются и переносятся другими морфотипами из-за своего маленького размера.
+- Они слабее и испытывают трудности с переноской и тягой вещей из-за своего маленького размера. Они не могут переносить Они.
+- У них немного меньше выносливости, чем у людей.
 
 </Document>

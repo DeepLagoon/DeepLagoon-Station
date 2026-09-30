@@ -1,26 +1,27 @@
 <Document>
   # Vox
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobVox" Caption=""/>
   </Box>
 
-  [color=#ffa500]Warning! This species is not recommended for new players due to their fatal allergy to oxygen![/color]
+[color=#ffa500]Внимание! Этот вид не рекомендуется новым игрокам из-за смертельного аллергического реакция на кислород![/color]
 
-  Vox breathe nitrogen, and [color=#ffa500] oxygen is toxic to them.[/color]
-  Unfortunately, space stations tend to be full of oxygen,
-  so Vox must use an internal nitrogen supply at almost all times to avoid fatal exposure.
+Воксы дышат азотом, и [color=#ffa500] кислород для них токсичен.[/color]
+  К сожалению, космические станции, как правило, наполнены кислородом,
+  поэтому Воксы должны использовать внутренний запас азота почти всегда, чтобы избежать смертельного воздействия.
 
-  Vox always spawn wearing working nitrogen internals equipment.
-  A spare breathing mask and an emergency nitrogen canister is provided in their survival box.
+Вокс всегда появляются, надетыми на рабочие дыхательные приборы азота.
+Запасная маска и аварийный баллон с азотом размещены в их спасательном ящике.
 
-  Vox [color=#1e90ff]slowly recover from low levels of poison damage[/color] on their own,
-  so long as they are careful not to exceed 20 poison damage.
-  This allows them to endure breathing station air for up to thirty seconds at a time without lasting damage,
-  letting them quickly eat, drink, take oral medication, and so on.
-  A thirty second oxygen exposure takes them two minutes to recover from.
-  If their health does not seem to improve within a minute of oxygen exposure, they should seek medical attention.
+Вокс [color=#1e90ff]медленно восстанавливаются от низкого уровня ядовитого урона[/color] самостоятельно,
+при условии, что они не превышают 20 единиц ядовитого урона.
+Это позволяет им пережить воздействие воздуха станции до тридцати секунд подряд без последствий,
+позволяя быстро есть, пить, принимать лекарства внутрь и так далее.
+Тридцатисекундное воздействие кислорода требует двух минут на восстановление.
+Если их здоровье не улучшается в течение минуты после воздействия кислорода, им следует обратиться за медицинской помощью.
 
-  Vox deal Slash damage with their unarmed attack.
+Вокс наносят урон от рубящей атаки без оружия.
 
 </Document>

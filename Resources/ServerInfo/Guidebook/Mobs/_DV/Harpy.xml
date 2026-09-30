@@ -1,39 +1,40 @@
 <Document>
-  # Harpies
+  # Сирены
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobHarpyDummy" Caption=""/>
   </Box>
 
-  An avian humanoid species that features colorful feathered wings and tails that can mimic almost any sound.
+Авиано-гуманоидный вид, обладающий окрашенными перьевыми крыльями и хвостами, способными имитировать почти любой звук.
 
-  They are quite sensitive to the air quality, and when exposed to low quality air, they will begin to visibly gasp, and eventually start choking.
-  When this happens, a Harpy should either move away from sources of bad air, stand on top of a scrubber for a few seconds, or take a few breaths from a pure oxygen tank in order to restore their blood-oxygen levels. Only three seconds of being on pure oxygen is enough to completely restore a Harpy's blood oxygen saturation.
+Они очень чувствительны к качеству воздуха, и когда они подвержены воздействию низкокачественного воздуха, они начнут видимо задыхаться и в конечном итоге начнут хрипеть.
+Когда это происходит, Сирена должна либо уйти от источников плохого воздуха, встать на верхнюю часть очистителя на несколько секунд, либо сделать несколько вдохов из баллона с чистым кислородом, чтобы восстановить уровень кислорода в крови. Три секунды на чистом кислороде достаточно, чтобы полностью восстановить насыщение крови кислородом у Сирены.
 
-  ## Diet
+## Питание
 
-  - Can eat raw meat.
-  - Will get poisoned by Theobromine (Chocolate, Tea, Coffee) and Allicin (Onion, Garlic).
+- Может есть сырую мясо.
+- Отравится теобромином (Шоколад, Чай, Кофе) и аллицинами (Лук, Чеснок).
 
-  ## Benefits
+## Преимущества
 
-  - Somewhat smaller than Humans, although not as small as Felinids
-  - Uses their talons to deal Piercing damage
-  - Can imitate around 70% of the game's sound library through a huge list of voice emotes
-  - They can "Sing" midis by imitating instruments. Right click yourself to select an instrument
+- Немного меньше людей, хотя и не так малы, как фелиниды
+- Используют когти для нанесения колющего урона
+- Могут имитировать около 70% звуковой библиотеки игры через обширный список эмоциональных голосовых выражений
+- Они могут "петь" миди, имитируя инструменты. Правый клик по себе, чтобы выбрать инструмент
 
-  ## Special
+## Специальные
 
-  - Comes with the Ultraviolet Vision trait by default. This can be disabled via accessibility options.
-  - Cannot wear Jumpsuits, and will automatically start with a Jumpskirt instead.
-  - While singing, musical notes appear floating around their head.
+- По умолчанию имеет черту Видимости в ультрафиолете. Это можно отключить в настройках доступности.
+- Не может носить костюмы (Jumpsuits), вместо этого автоматически будет начинать с юбки-костюма (Jumpskirt).
+- Во время пения вокруг головы появляются плавающие ноты.
 
-  ## Drawbacks
+## Недостатки
 
-  - Takes 10% more Blunt and Slash damage.
-  - Extreme low density, Harpies are lighter than even Felinids, and weigh half as much as a Human.
-  - A Harpy breathes in air twice as often as Humans, inhaling and exhaling every 3 seconds.
-  - - Air tanks last half as long and Harpies are more susceptible than usual to low air quality.
-  - - If a Harpy is exposed to at least 0.2 moles of combined CO2 and/or Miasma, they start struggling to take in oxygen.
+- Получает на 10% больше урона от дробящего и рассекающего воздействия.
+- Очень низкая плотность, гарпии легче даже фелинидов и весят вдвое меньше человека.
+- Гарпия дышит воздухом вдвое чаще, чем люди, вдыхая и выдыхая каждые 3 секунды.
+  - Баллоны с воздухом служат вдвое меньше, и гарпии более уязвимы к низкому качеству воздуха, чем обычно.
+  - - Если гарпия подвергается воздействию как минимум 0.2 молей совместного CO2 и/или миазмы, она начинает испытывать трудности с вдохом кислорода.
 
 </Document>

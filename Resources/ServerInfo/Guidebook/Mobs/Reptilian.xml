@@ -1,16 +1,17 @@
-<Document>
-  # Reptilians
+<document>
+  # Рептилоиды
+</document>
 
   <Box>
     <GuideEntityEmbed Entity="MobReptilian" Caption=""/>
   </Box>
 
-  They can ONLY eat fruits and meat, but can eat raw meat and drink blood without any ill effects.
-  They prefer a somewhat higher temperature range than humans.
-  They can drag objects with their tail, keeping both their hands free.
+Они МОГУТ есть ТОЛЬКО фрукты и мясо, но могут есть сырую мясо и пить кровь без каких-либо негативных последствий.
+Они предпочитают немного более высокий диапазон температур по сравнению с людьми.
+Они могут тащить предметы с помощью хвоста, при этом освобождая обе руки.
 
-  Their unarmed claw attacks deal Slash damage instead of Blunt.
+Их безоружные атаки когтями наносят урон рассечения вместо дробящего урона.
 
-  They take [color=#ffa500]30% more Cold damage.[/color]
+Они получают [color=#ffa500]на 30% больше холода.[/color]
 
 </Document>

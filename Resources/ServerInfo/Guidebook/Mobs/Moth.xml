@@ -1,15 +1,16 @@
-<Document>
-  # Moth People
+<Документ>
+  # Мольюки
+</Документ>
 
   <Box>
     <GuideEntityEmbed Entity="MobMoth" Caption=""/>
   </Box>
 
-  They can eat cotton, fabrics and clothing, but virtually none of the food that others would consider "edible". They prefer a somewhat lower temperature range than humans.
-  Their Insect Blood can't be metabolised from Iron like normal blood.
+Они могут есть хлопок, ткани и одежду, но практически ни одно из блюд, которое другие сочли бы «съедобным». Им предпочтительнее немного более низкий температурный диапазон, чем у людей.
+Их насекомое-кровь не может быть метаболизирована из железа, как обычная кровь.
 
-  Their wings give them better acceleration if there is no gravity on the station, but they still can't move without equipment when floating out in space.
+Их крылья дают им лучшее ускорение, если на станции нет гравитации, но они все еще не могут двигаться без оборудования, когда парят в космосе.
 
-  They take [color=#1e90ff]30% less Cold damage[/color] but [color=#ffa500]15% more Heat damage, and catch on fire more easily[/color].
+Они получают [color=#1e90ff]на 30% меньше холодного урона[/color], но [color=#ffa500]на 15% больше теплового урона[/color] и чаще загораются.
 
 </Document>

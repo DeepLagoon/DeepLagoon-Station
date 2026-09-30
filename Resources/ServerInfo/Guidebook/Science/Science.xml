@@ -1,35 +1,36 @@
 <Document>
-# Science
-[color=#c96dbf]Science[/color], often called Research and Development, is a job made up of both generating research points to unlock new technologies as well as using said technologies to produce new items at lathes to help out the sector.
+# Наука
+[color=#c96dbf]Наука[/color], часто называемая Исследованиями и Разработками, — это должность, состоящая как из получения очков исследований для разблокировки новых технологий, так и из использования этих технологий для производства новых предметов на станках, чтобы помочь сектору.
   
-## Technologies
+## Технологии
   <Box>
     <GuideEntityEmbed Entity="ComputerResearchAndDevelopment"/>
     <GuideEntityEmbed Entity="ResearchAndDevelopmentServer"/>
   </Box>
-The most important thing inside your department is the R&D server, which stores unlocked technologies, and the R&D computer, which allows you to unlock [color=#a4885c]technologies[/color].
+Самое важное внутри вашего отдела — это сервер ИС, который хранит разблокированные технологии, и компьютер ИС, с помощью которого вы можете разблокировать [color=#a4885c]технологии[/color].
+</Document>
 
-Each technology costs [color=#a4885c]Research Points[/color] and unlocks recipes at lathes. Some technologies will also have prerequisites you have to unlock before you can research them.
+Каждая технология стоит [color=#a4885c]Очков исследований[/color] и разблокирует рецепты на станках. Некоторые технологии также имеют предварительные требования, которые нужно разблокировать до их изучения.
 
 [textlink="Click here to see a list of technologies." link="Technologies"].
 
-## Disciplines
-Technologies are spread over 4 different Disciplines:
+## Дисциплины
+Технологии распределены по 4 разным дисциплинам:
   <Box>
-    <GuideEntityEmbed Entity="Wrench" Caption="Industrial"/>
-    <GuideEntityEmbed Entity="WeaponTetherGun" Caption="Experimental"/>
-    <GuideEntityEmbed Entity="ComputerTelevision" Caption="Civil Services"/>
-    <GuideEntityEmbed Entity="WeaponXrayCannon" Caption="Arsenal"/>
+    <GuideEntityEmbed Entity="Wrench" Caption="Промышленность"/>
+    <GuideEntityEmbed Entity="WeaponTetherGun" Caption="Экспериментальные"/>
+    <GuideEntityEmbed Entity="ComputerTelevision" Caption="Гражданские службы"/>
+    <GuideEntityEmbed Entity="WeaponXrayCannon" Caption="Арсенал"/>
   </Box>
 
-<GuideEntityEmbed Entity="ComputerResearchAndDevelopment"/> Use your nearest R&D console to take note of which kind of research is locked behind each Discipline tree.
+<GuideEntityEmbed Entity="ComputerResearchAndDevelopment"/> Используйте ближайший консоль R&D, чтобы записать, какой вид исследований заблокирован за каждой ветвью Дисциплин.
 
-## Tiers
-Each Discipline tree has up to 3 tiers of technologies. At the start the only tier that is open and available for you is tier 1.
+## Уровни
+У каждого дерева Дисциплин есть до 3 уровней технологий. В начале игры открыт и доступен только 1 уровень.
 
-In order to progress further, you have to research up to [color=brown]75%[/color] of the current tier to move to the next one. So in order to unlock T2 researches you need to research 75% of T1.
+Чтобы продвинуться дальше, необходимо исследовать [color=brown]75%[/color] текущего уровня, чтобы перейти к следующему. Таким образом, чтобы разблокировать исследования T2, необходимо исследовать 75% от T1.
 
-## Lathes
+## Латени
   <Box>
     <GuideEntityEmbed Entity="Protolathe"/>
     <GuideEntityEmbed Entity="CircuitImprinter"/>
@@ -39,6 +40,6 @@ In order to progress further, you have to research up to [color=brown]75%[/color
     <GuideEntityEmbed Entity="MedicalTechFab"/>
     <GuideEntityEmbed Entity="SecurityTechFab"/>
   </Box>
-At a lathe, you can choose a server to allow it print whatever recipes you have unlocked. Recipes require various materials (steel, glass, plastic, gold, plasma) which can be acquired from miners or salvagers.
+На латени вы можете выбрать сервер, чтобы он печатал любые рецепты, которые вы разблокировали. Рецепты требуют различных материалов (сталь, стекло, пластик, золото, плазма), которые можно получить у шахтеров или сортировщиков.
 
 </Document>

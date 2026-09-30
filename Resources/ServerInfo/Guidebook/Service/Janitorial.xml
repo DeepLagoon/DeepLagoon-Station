@@ -1,9 +1,10 @@
 <Document>
-# Janitorial
+# Уборка
+Translation:
 
-You keep things clean, it's a rough job sometimes, but someone's gotta do it. This will walk you through the tools of the trade, and how they're used.
+Вы держите порядок, это непростая работа, но кто-то должен это делать. Здесь вы узнаете о инструментах профессии и их использовании.
 
-## Basic Equipment
+## Основное оборудование
 <Box>
 <GuideEntityEmbed Entity="MopItem"/>
 <GuideEntityEmbed Entity="JanitorialTrolley"/>
@@ -18,40 +19,40 @@ You keep things clean, it's a rough job sometimes, but someone's gotta do it. Th
 <GuideEntityEmbed Entity="Mousetrap"/>
 </Box>
 
-## Additional Equipment
+## Дополнительное оборудование
 <Box>
 <GuideEntityEmbed Entity="NFVehicleJanicart"/>
 <GuideEntityEmbed Entity="WetFloorSign"/>
-<GuideEntityEmbed Entity="Holoprojector" Caption="holosign projector"/>
+<GuideEntityEmbed Entity="Holoprojector" Caption="проектор голосign"/>
 <GuideEntityEmbed Entity="LightReplacer"/>
 </Box>
 <Box>
-<GuideEntityEmbed Entity="AdvMopItem" Caption="Advanced mop, ask in R&D"/>
+<GuideEntityEmbed Entity="AdvMopItem" Caption="Улучшенная швабра, спросите в ОиР"/>
 </Box>
 
-## Fluid Acquisition and Disposal
+## Приобретение и утилизация жидкостей
 <Box>
 <GuideEntityEmbed Entity="WaterTankFull"/>
 <GuideEntityEmbed Entity="Sink"/>
 <GuideEntityEmbed Entity="FloorDrain"/>
 </Box>
 
-## Tidying up.
-Now, onto the (figurative) meat and potatoes. We're here to clean, right? Lets keep it simple. The main tools you'll be putting to use are the trusty mop, a trash bag, space cleaner, and one of the three different buckets.
+## Приведение в порядок.
+Теперь перейдем к (фигурально) сути дела. Мы здесь для уборки, верно? Давайте оставим все просто. Основные инструменты, которые вы будете использовать - это надежная швабра, мешок для мусора, очиститель космоса и один из трех различных ведер.
 
-Mopping: Fill your cart up with water, then, find some puddles! Wet your mop, and wipe them up, the resulting water puddle will dry after a short time. Don't forget the wet floor signs!
-- To drain your cart, drag it (with your cursor) onto a floor drain. This will dump all the fluids inside! Floor drains can usually be found somewhere in medical, the kitchen freezer, and of course, the janitor closet.
+Опрокидывание: Наполните тележку водой, а затем найдите лужи! Намочите швабру и протрите их, образующаяся лужа высохнет через некоторое время. Не забудьте о знаках "ВНИМАНИЕ! Мокрый пол!"
+- Чтобы опустошить тележку, перетащите её (курсором) на слив. Все жидкости внутри будут вылиты! Сливы обычно можно найти в медицинском отделении, в морозильной камере кухни, и, конечно, в гардеробе уборщика.
 
-Trash: Place it in the bag directly, or hold it in your hand. Click -near- trash to scoop -all- nearby junk up, or click on each piece individually. Using the bag on a disposal will empty it.
-- Cargo might want some of your trash, it might be worthwhile to check in from time to time!
+Мусор: Положите его в мешок напрямую или держите в руке. Нажмите на мусор рядом с вами, чтобы собрать -всё- ближайшее мусор, или нажмите на каждую часть отдельно. Используйте мешок на урне, чтобы опустошить её.
+- Грузовой отдел может захотеть часть вашего мусора, стоит время от времени проверять!
 
-Space Cleaner: This miracle spray can do two things, clean graffiti, and in a pinch, clean up puddles!
-- You might be able to get more of this from chemistry.
+Space Cleaner: Этот чудо-спрей может делать две вещи: очищать граффити и, в крайнем случае, подметать лужи!
+- Возможно, вы сможете получить больше этого из химии.
 
-## Extra Duties
-A good janitor is always on the lookout for a bit more to do, and there are plenty of tools at your disposal. Keep an eye out for broken lights, help the chef take care of mice in the kitchen, and if you're feeling -really- generous, try to restock the vending machines and emergency closets around the station!
+## Дополнительные обязанности
+Хороший уборщик всегда следит за тем, чтобы заняться чем-нибудь ещё, и у него есть множество инструментов для этого. Следите за перегоревшими лампами, помогайте повару избавляться от мышей на кухне, а если вы хотите быть -очень- щедрым, попробуйте пополнять запасы в торговых автоматах и аварийных кладовках по станции!
 
-##Additional Information:
+## Дополнительная информация:
 <GuideReagentEmbed Reagent="SpaceCleaner"/>
 <GuideReagentEmbed Reagent="Ammonia"/>
 

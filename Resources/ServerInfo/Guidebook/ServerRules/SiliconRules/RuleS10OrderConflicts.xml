@@ -1,9 +1,10 @@
-﻿<Document>
-  # Silicon Rule 10 - You may determine how you resolve conflicts between orders
-  If your laws do not make clear how you should deal with conflicting orders, then it is up to you to determine how to do so. This is considered an interpretation of your laws, so you must stay consistent with whatever method you choose.
+<Document>
+  # Правило 10 Силикона - Вы можете определять, как разрешать конфликты между приказами
+  Если ваши законы не указывают чётко, как следует поступать в случае противоречивых приказов, то вы сами должны решить, как поступить в таком случае. Это считается толкованием ваших законов, поэтому вы должны оставаться последовательным при выборе любого метода.
+</Document>
 
-  ## Recommended Methods
-  The following are easy to follow and recommended ways to resolve conflicts in orders:
-  - If two orders conflict, I will follow the most recently given order.
-  - If two orders conflict, I will follow the order from the highest ranking crewmember. If the orders are from equal rank crewmembers, I will follow the most recently given order.
+## Рекомендуемые методы
+Следующие способы разрешения конфликтующих приказов просты в выполнении и рекомендуются:
+- Если два приказа конфликтуют, я выполню последний по времени приказ.
+- Если два приказа конфликтуют, я выполню приказ от члена экипажа с более высоким рангом. Если приказы от членов экипажа одного ранга, я выполню последний по времени приказ.
 </Document>

@@ -1,52 +1,53 @@
 <Document>
   # I.P.C.
   <GuideEntityEmbed Entity="MobIPCDummy" Caption="I.P.C."/>
-  An IPC (short for Integrated Positronic Chassis) is a type of sentient robot and is considered an [color=yellow]independent individual[/color], meaning [color=red]they are not guided by any laws of robotics[/color]. IPCs cannot be hacked by Emags because they do not have to follow any predefined directives in their system. [color=red]IPCs are silicon-based beings, so doctors do not have the skills to repair them.[/color]
+  IPC (от англ. Integrated Positronic Chassis — интегрированная позитронная платформа) — это тип чувствующих роботов, который считается [color=yellow]независимым индивидом[/color], то есть [color=red]не подчиняется никаким законам робототехники[/color]. IPC нельзя взломать с помощью Emag, поскольку они не обязаны следовать каким-либо предварительно заданным директивам в своей системе. [color=red]IPC являются силиконовыми существами, поэтому врачи не обладают навыками их ремонта.[/color]
+</Document>
 
+<Box>
+    <GuideEntityEmbed Entity="PositronicBrain" Caption="Позитронный мозг"/>
+  </Box>
+  Как и борги, ИИ-существа используют позитронный мозг в качестве источника обработки данных. Однако, в отличие от них, ИИ-существа собрать нельзя. «Дешевле создать оболочку, которая слушается тебя, чем ту, которая не слушается! *подмигивание*»
+
+## Зарядка IPC
+<Box>
+    <GuideEntityEmbed Entity="APCBasic" Caption="Терминал APC"/>
+    <GuideEntityEmbed Entity="BorgCharger" Caption="Зарядное устройство"/>
+    <GuideEntityEmbed Entity="PowerCellMedium" Caption="Энергетическая ячейка"/>
+  </Box>
+IPC можно заряжать тремя различными способами:
+
+Терминал APC: ИИ могут использовать терминалы APC для зарядки. Нажмите [color=yellow]Alt + левый клик[/color] по терминалу столько раз, сколько необходимо для полной зарядки.
+
+<GuideEntityEmbed entity="borg_recharger" />: IPC могут использовать зарядные устройства для восстановления энергии. Всегда приоритезируйте те, что находятся за пределами науки, чтобы избежать проблем.
+
+Батарея: У IPC есть внутренняя батарея, которая служит их аккумулятором. Они могут просто заменить ее, открыв люк и вручную установив новую.
+
+## Интегрированный Радио
   <Box>
-    <GuideEntityEmbed Entity="PositronicBrain" Caption="Positronic Brain"/>
-  </Box>
-  Like borgs, IPCs have a positronic brain as their processing source. However, unlike them, IPCs can't be assembled. "It's cheaper to create a shell that obeys you than one that doesn't! *wink*"
-
-  ## Recharging an IPC
-   <Box>
-    <GuideEntityEmbed Entity="APCBasic" Caption="APC Terminal"/>
-    <GuideEntityEmbed Entity="BorgCharger" Caption="Borg Charger"/>
-    <GuideEntityEmbed Entity="PowerCellMedium" Caption="Power Cell"/>
-  </Box>
-  IPCs can be recharged in three different ways:
-
-  APC Terminal: IPCs can use APC terminals to recharge. Press [color=yellow]Alt + left click[/color] on a terminal as many times as needed to fully recharge.
-
-  Borg Rechargers: IPCs can use borg rechargers to recharge. Always prioritize the ones outside of the Sci area to avoid headaches.
-
-  Power Cell: IPCs have an internal power cell that serves as their battery. They can simply swap it out by opening the hatch and manually replacing it.
-
-  ## Integrated Radio
-  <Box>
-    <GuideEntityEmbed Entity="EncryptionKeyScience" Caption="Encryption key"/>
+    <GuideEntityEmbed Entity="EncryptionKeyScience" Caption="Ключ шифрования"/>
   </Box>
 
-  IPCs do [bold]not[/bold] use external radios because they already have one built in. They only need to get an encryption key from a radio. By clicking on an IPC with a [color=yellow]wire cutter[/color], you can remove their keys.
-  You can find new keys around the station or remove one from a sector radio using a [color=yellow]screwdriver[/color].
+IPC не используют [bold]внешние[/bold] радиостанции, потому что у них уже есть встроенная. Им нужно только получить ключ шифрования с радиостанции. Щёлкнув по IPC с [color=yellow]отвёрткой[/color], вы можете снять с них ключи.
+Новые ключи можно найти по станции или снять с радиостанции сектора при помощи [color=yellow]отвёртки[/color].
 
-  ## Repairing
-  <Box HorizontalAlignment="Stretch">
-    <GuideEntityEmbed Entity="WelderIndustrialAdvanced" Caption="Welder"/>
-    Welders can be used to repair [color=yellow]Brute[/color] damage.
-  </Box>
-  <Box HorizontalAlignment="Stretch">
-    <GuideEntityEmbed Entity="CableApcStack" Caption="Cables (any type)"/>
-    Cables can be used to repair [color=yellow]Burns[/color].
-  </Box>
-  <Box HorizontalAlignment="Stretch">
-    <GuideEntityEmbed Entity="SheetGlass" Caption="Glass Sheets (any type)"/>
-    Glass Sheets can be used to repair [color=yellow]Blindness[/color].
-  </Box>
-  <Box HorizontalAlignment="Stretch">
-    In the event an IPC dies, after being fully repaired, it should be restarted using the [color=yellow]"Restart"[/color] button (located by right-clicking).
+## Ремонт
+<Box HorizontalAlignment="Stretch">
+<GuideEntityEmbed Entity="WelderIndustrialAdvanced" Caption="Сварочный аппарат"/>
+С помощью сварочного аппарата можно восстановить [color=yellow]физический урон[/color].
+</Box>
+<Box HorizontalAlignment="Stretch">
+<GuideEntityEmbed Entity="CableApcStack" Caption="Кабели (любого типа)"/>
+Кабели можно использовать для восстановления [color=yellow]ожогов[/color].
+</Box>
+<Box HorizontalAlignment="Stretch">
+<GuideEntityEmbed Entity="SheetGlass" Caption="Стеклянные листы (любого типа)"/>
+Стеклянные листы можно использовать для восстановления [color=yellow]слепоты[/color].
+</Box>
+<Box HorizontalAlignment="Stretch">
+В случае смерти IPC после полного восстановления его необходимо перезапустить с помощью кнопки [color=yellow]"Перезапуск"[/color] (расположена при щелчке правой кнопкой мыши).
 
-    [color=red]NEVER ELECTROCUTE AN IPC with a defibrillator or in any other way while it is dead, as this will cause the battery to discharge energy rays outward![/color]
-  </Box>
+[color=red]НИКОГДА не используйте дефибриллятор или каким-либо другим образом не электризуйте мертвого IPC, поскольку это приведёт к разряду энергетических лучей из аккумулятора![/color]
+</Box>
 
 </Document>

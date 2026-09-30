@@ -1,29 +1,30 @@
-﻿<Document>
-  # Core Rule 10 - Do not abuse or ignore admin messages
-  Admin help, or "ahelp", is the system used by admins to communicate with specific players in the game. Only use admin help for things requiring admin attention. If you ignore messages admins send to you via ahelp, or disconnect during an ahelp, you may be banned. If you urgently need to leave during an ahelp, you may do so but will likely need to continue the ahelp on the forums. Do not admin check, be hostile/aggressive, request events, or spam. IC methods of contacting admins, like prayers, faxes, red phones, and banana phones, should be used when there is not an issue.
+<Document>
+  # Основное правило 10 - Не используйте сообщения администраторов вредно или игнорируйте их
+  Система помощи администраторов, или "ahelp", — это система, с помощью которой администраторы связываются с конкретными игроками в игре. Используйте ahelp только для вещей, требующих участия администратора. Если вы игнорируете сообщения, присланные вам администраторами через ahelp, или отключаетесь во время ahelp, вас могут забанить. Если вам срочно нужно уйти во время ahelp, вы можете это сделать, но, скорее всего, вам придётся продолжить ahelp на форуме. Не используйте ahelp для проверки, не будьте враждебны/агрессивны, не запрашивайте события и не спамьте. IC-методы связи с администраторами, такие как молитвы, факсы, красные телефоны и банановые телефоны, следует использовать, когда нет никаких проблем.
+</Document>
 
-  Admins are not always online, but all ahelps are automatically relayed to discord. For various reasons, admins might not respond to an ahelp even if they've handled it. A lack of response does not necessarily mean that an ahelp was ignored.
+Администраторы не всегда онлайн, но все ahelp автоматически пересылаются на Discord. По различным причинам администраторы могут не отвечать на ahelp, даже если они его обработали. Отсутствие ответа не обязательно означает, что ahelp был проигнорирован.
 
-  ## Should I ahelp X?
-  You can ahelp anytime you genuinely think a player is breaking a rule. Not all ahelps end up being for something that an admin needs to intervene in, but that's ok, admins would rather have people occasionally report things that turn out to not be an issue than miss reports for actual issues because someone was unsure, or get those reports late because someone waited until the end of the round to be more sure.
+## Should I ahelp X?
+Вы можете использовать ahelp в любой момент, если действительно считаете, что игрок нарушает правила. Не все ahelp-сообщения заканчиваются на то, что админу нужно вмешиваться, но это нормально, админы предпочитают, чтобы люди время от времени сообщали о вещах, которые потом оказались не проблемой, а не пропускали сообщения о реальных проблемах, потому что кто-то был неуверен, или получали эти сообщения поздно, потому что кто-то ждал конца раунда, чтобы быть более уверенным.
 
-  The most common reason players give for not ahelping issues is that they don't want to waste admin time, but it only takes a few seconds for an admin to check if someone is an antagonist. If you are ahelping too many things, an admin will let you know. If you're not being told to stop reporting something or to report less things, then you can safely assume that you aren't causing any issues.
+Наиболее распространённая причина, по которой игроки не сообщают о проблемах, — это желание не тратить время администраторов, но на проверку, является ли кто-то антагонистом, уходит всего несколько секунд. Если вы сообщаете слишком часто, администратор обязательно сообщит вам об этом. Если же вам не говорят прекратить сообщать о чём-либо или сообщать меньше, можно с уверенностью предположить, что вы не доставляете никаких неудобств.
 
-  # What should I include in an ahelp?
-  At a minimum, admins need to know what the issue is to be able to address an ahelp. Don't send ahelp messages with no information about what your question or the issue is. Messages like "hello" are often considered admin checking.
+# Что нужно включать в ahelp?
+По минимуму, админам нужно знать, в чём проблема, чтобы иметь возможность отреагировать на ahelp. Не отправляйте сообщения в ahelp без информации о вашем вопросе или проблеме. Сообщения вроде «hello» часто считаются проверкой админов.
 
-  If you can, an ideal ahelp message includes what the issue is along with who is causing it and their character's name if possible.
+Если это возможно, идеальное сообщение в ahelp должно включать в себя описание проблемы, а также указание на того, кто её вызвал, и имя персонажа, если это возможно.
 
-  # Examples
-  Appropriate uses of ahelp:
-  - reporting people who you think are violating rules,
-  - asking questions about rules,
-  - asking for a temporary exemption from a rule, and
-  - request a minor gimmick, like a TC trade or item spawn.
+# Примеры
+Подходящие случаи использования ahelp:
+- сообщать о людях, которые, по вашему мнению, нарушают правила,
+- задавать вопросы о правилах,
+- просить временное исключение из правила, и
+- запрашивать небольшой трюк, например, обмен TC или спавн предмета.
 
-  Inappropriate uses of ahelp:
-  - checking if an admin is online, including sending messages without any information about the issue like "hello" or incomprehensible messages,
-  - being hostile or aggressive,
-  - requesting events, and
-  - spamming messages about the same issue.
+Неподходящее использование ahelp:
+  - проверка на наличие администратора онлайн, включая отправку сообщений без какой-либо информации о проблеме, такой как "привет" или непонятные сообщения,
+  - проявление враждебности или агрессии,
+  - запросы событий, и
+  - спам сообщениями об одном и том же вопросе.
 </Document>

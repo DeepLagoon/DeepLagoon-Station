@@ -1,15 +1,16 @@
-﻿<Document>
-  # Core Rule 6 - Do not attempt to evade bans
-  This is a zero tolerance rule.
+<Document>
+  # Основное Правило 6 - Не пытайтесь обойти баны
+  Это правило нулевой терпимости.
+</Document>
 
-  Almost all bans may be appealed on our forums at forum.ss14.io in the ban appeals section. This is generally the only acceptable way to contact the administration team to discuss your ban and revise it if it is inappropriate, including if it is mistakenly applied.
+Почти все баны можно обжаловать на наших форумах по адресу forum.ss14.io в разделе обжалования банов. Обычно это единственный приемлемый способ связаться с администрацией для обсуждения вашего бана и его пересмотра, если он неправомерен, включая случайное применение.
 
-  Any attempt to circumvent or bypass a game ban will result in a voucher ban. Attempting to evade role bans by gaining access to or working in the capacity of a job you are banned from will result in a game ban. These bans are applied even if the evasion attempt is unsuccessful.
+Любая попытка обойти или обойти игровой бан приведет к бану ваучера. Попытка избежать бана по роли, получив доступ к работе или работая в должности, запрещенной для вас, также повлечет за собой игровой бан. Эти баны применяются даже в случае, если попытка обхода окажется неудачной.
 
-  ## Exceptions
-  There are no exemptions for evading or attempting to evade game bans. Antagonists who impersonate or take over a role which they are banned from to aid in their goals are not considered to be evading their role ban.
+## Исключения
+Исключений из правил избегания или попыток избежать банов в игре не существует. Антагонисты, которые выдают себя за роль, либо захватывают её, с которой они забанены, чтобы достичь своих целей, не считаются избегающими своего бан-роли.
 
-  ## Additional Information
-  - [textlink="Ban Types" link="BanTypes"]
-  - [textlink="Ban Durations" link="BanDurations"]
+## Дополнительная информация
+  - [textlink="Типы банов" link="BanTypes"]
+  - [textlink="Длительность банов" link="BanDurations"]
 </Document>

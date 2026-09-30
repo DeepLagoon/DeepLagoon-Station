@@ -1,70 +1,71 @@
 <Document>
-# Important Character Creation Tips
-This is a guide for the parts of character creation that effect gameplay.
+# Важные советы по созданию персонажа
+Это руководство по частям создания персонажа, влияющим на геймплей.
+</Document>
 
 [textlink="For a guide on making cosmetic changes, click here." link="YourFirstCharacter"]
 
-## Spawn Priority
-This affects where you spawn in upon joining the game after the round has already started.
+## Приоритет появления
+Это влияет на то, где вы появитесь при присоединении к игре после начала раунда.
 
-Choosing "Arrivals" will spawn you on a separate station where you wait for a shuttle to arrive to ship you to the main station.
+Выбрав "Прибытия", вы появитесь на отдельной станции, где будете ждать шаттла, чтобы быть отправленным на главную станцию.
 
-Choosing "Cryosleep" will have you wake up in a cryosleep chamber already on the station.
+Выбрав "Криосон", вы проснётесь в камере криосна в уже находящемся на станции.
 
-Choosing "None" will either pick for you or choose the only spawn option available for the current station.
+Выбрав "Нет", вы автоматически получите случайный вариант или же вариант, доступный на текущей станции.
 
-This is a mostly arbitrary choice. You can safely leave this on "None" and you won't suffer any real inconveniences.
+Это в основном произвольный выбор. Можно спокойно оставить значение "None" и никаких реальных неудобств не возникнет.
 
-## Jobs
-You can set your job preferences in the lobby. While these don't [color=#a4885c]guarantee[/color] your position, someone who wants the job will be [color=#a4885c]randomly[/color] selected at the start of the round.
-You are given a chance at being chosen for your high priority job first, then your medium priorities, then your low priorities.
-You also given an option to automatically be a passenger or to be sent back to the lobby if you don't get chosen for any of your preferred jobs.
+## Работы
+Вы можете установить свои предпочтения по работе в лобби. Хотя они не [color=#a4885c]гарантируют[/color] вашу должность, кто-то, кто хочет эту работу, будет [color=#a4885c]случайным[/color] образом выбран в начале раунда.
+Вам даётся шанс быть выбранным для вашей работы высокого приоритета сначала, затем работы среднего приоритета, а затем работы низкого приоритета.
+Вам также даётся возможность автоматически стать пассажиром или быть отправленным обратно в лобби, если вы не будете выбраны для какой-либо из ваших предпочтительных работ.
 
-Some jobs are locked until you've played long enough as other entry level jobs.
+Некоторые должности заблокированы, пока вы не проведете достаточно времени, играя за другие должности уровня "новичок".
 
 [textlink="For more infomation about jobs, click here." link="Jobs"]
 
-## Job Loadouts
-You may also choose [color=#a4885c]loadouts[/color] for each job. Loadouts are the clothing items and trinkets that you spawn with upon joining the game. Some loadout items are locked behind playtime restrictions.
-This may have various effects on gameplay, as some clothing items have [color=#a4885c]armor protection[/color] or [color=#a4885c]slow down your movement speed[/color]. This applies especially to Command and Security.
+## Нагрузки профессий
+Вы также можете выбрать [color=#a4885c]нагрузки[/color] для каждой профессии. Нагрузки — это предметы одежды и сувениры, с которыми вы появляетесь при входе в игру. Некоторые предметы нагрузки заблокированы ограничениями игрового времени.
+Это может повлиять на игровой процесс, поскольку некоторые предметы одежды обеспечивают [color=#a4885c]защиту брони[/color] или [color=#a4885c]замедляют вашу скорость передвижения[/color]. Это особенно относится к командному и службе безопасности.
 
-You may also choose what bag you spawn in with.
-[color=#a4885c]Backpacks[/color] are medium sized but can carry large items easier. [color=#a4885c]Satchels[/color] have more total space than backpacks but have trouble carrying large items. [color=#a4885c]Duffel bags[/color] are large but incur a movement penalty.
+Вы также можете выбрать, с каким рюкзаком вы появитесь.
+[color=#a4885c]Рюкзаки[/color] имеют средний размер, но позволяют переносить большие предметы проще. [color=#a4885c]Чемоданчики[/color] имеют больше общего объема, чем рюкзаки, но испытывают трудности с переноской больших предметов. [color=#a4885c]Портфели[/color] большие, но имеют штраф к скорости передвижения.
 
-## Antags
-Turning on an [color=#a4885c]antagonist[/color] toggle will put you on the list of potentional antags at the start of the round. They do not guarantee your antagonist role, don't use this as an excuse to self-antag!
-Instead, like job priorities, a handful of players are chosen randomly from eligible players. If you are a command member or security officer, you cannot be chosen for an antag role.
+## Антаги
+Включение переключателя [color=#a4885c]антагониста[/color] добавит вас в список потенциальных антагонистов в начале раунда. Это не гарантирует вам антагонистическую роль, не используйте это как оправдание для самантага!
+Вместо этого, как и приоритеты должностей, небольшое количество игроков выбирается случайным образом из подходящих игроков. Если вы являетесь командиром или офицером безопасности, вы не можете быть выбраны для антагонистической роли.
 
 [textlink="For more information about antagonists, click here." link="Antagonists"]
 
-Joining multiple games or ghosting/disconnecting/commiting suicide upon not being chosen for an antag role is referred to as "antag-rolling" and it is against the rules.
-Plenty of people patiently wait for their turn to be antagonists, so [color=#a4885c]we kindly ask you to refrain from opting-in to an antagonist role if you aren't ready[/color].
+Присоединение к нескольким играм или гостование/отключение/суицид в случае, если вас не выбрали для роли антагониста, называется "антаг-ролингом" и противоречит правилам.
+Многие игроки терпеливо ждут своей очереди стать антагонистами, поэтому [color=#a4885c]мы просим вас воздержаться от выбора роли антагониста, если вы не готовы[/color].
 
-## Traits
-Speech traits alter your speech, sometimes to an extreme degree.
+## Особенности
+Особенности речи изменяют вашу речь, иногда до крайней степени.
 
-They include:
-- Accentless (disables the accent of your selected species)
-- Cowboy accent (word replacement, partner)
-- Frontal lisp ("s" is replaced with "th")
-- Italian accent (Mamma-mia, word replacement)
-- Pathological liar (word replacement, changes words like "yes" to "no")
-- Pirate accent (Arrgh, word replacement)
-- Social anxiety (s-s-stutter)
-- Southern Drawl (replaces "-ing" with "-in'" and similar changes)
+Они включают:
+- Без акцента (отключает акцент выбранной расы)
+- Ковбойский акцент (замена слов, партнёр)
+- Передний лисп ("s" заменяется на "th")
+- Итальянский акцент (Мамма-мия, замена слов)
+- Патологический лжец (замена слов, изменяет слова вроде "да" на "нет")
+- Пиратский акцент (Арргх, замена слов)
+- Социальная тревожность (с-с-с-пропаивание)
+- Южный диалект (заменяет "-ing" на "-in'" и подобные изменения)
 
-You should be comfortable with talking normally or with a minor accent such as Social anxiety or Southern drawl before taking heavy accents like Italian or Cowboy.
+Вы должны чувствовать себя уверенно при нормальном общении или с небольшим акцентом, таким как социальная тревожность или южный разговор, прежде чем браться за сильные акценты, такие как итальянский или ковбойский.
 
-There are also disabilty traits. Familiarize yourself with the game and the game's flow before taking one of these, as some may become difficult for beginners to deal with.
+Также существуют особенности, связанные с ограниченными возможностями. Ознакомьтесь с игрой и её механикой перед тем, как выбрать одну из них, поскольку некоторые из них могут быть сложны для новичков.
 
-They include:
-- Blindness (severely limits your vision)
-- Lightweight drunk (you get drunk faster and you suffer more from the ill-effects of alcohol)
-- Muted (you cannot talk or whisper, but you can still communicate via emotes and pen and paper)
-- Narcolepsy (you randomly fall asleep at unpredictable and often inconvenient times)
-- Pacifist (you cannot hit, shoot, or throw sharp objects at people)
-- Paracusia (you sometimes hear noises that aren't real)
-- Short-sighted (somewhat limits your vision without prescription glasses)
-- Snoring (you make loud snoring sounds when asleep)
-- Unrevivable (you cannot be resuscitated when you meet your untimely demise)
+Они включают:
+- Слепоту (сильно ограничивает ваше зрение)
+- Легкое опьянение (вы быстро опьяневаете и больше страдаете от последствий алкоголя)
+- Заглушение (вы не можете говорить или шептать, но всё ещё можете общаться с помощью эмоций и бумаги с карандашом)
+- Нарколалию (вы случайным образом засыпаете в непредсказуемые и часто неудобные моменты)
+- Пацифизм (вы не можете бить, стрелять или бросать острые предметы в людей)
+- Паракузию (иногда вы слышите шумы, которых на самом деле нет)
+- Близорукость (незначительно ограничивает ваше зрение без очков)
+- Храп (вы издаёте громкие храпящие звуки во время сна)
+- Невозможность воскрешения (вы не можете быть воскрешены, когда встретите неожиданную смерть)
 </Document>

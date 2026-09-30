@@ -1,20 +1,21 @@
 <Document>
-# Technologies
+# Технологии
+</Document>
 
-All technologies have a cost and a tier requirement in order to be researched. Unlocking them adds a variety of recipes that can be printed at various lathes.
+Все технологии имеют стоимость и уровень, необходимый для их изучения. Разблокировка их добавляет различные рецепты, которые можно напечатать на различных токарных станках.
 
-The different technologies and their respective discipline are listed below.
+Различные технологии и их соответствующие дисциплины перечислены ниже.
 
-## Industrial
+## Промышленность
 <GuideTechDisciplineEmbed Discipline="Industrial"/>
 
-## Arsenal
+## Арсенал
 <GuideTechDisciplineEmbed Discipline="Arsenal"/>
 
-## Experimental
+## Экспериментальный
 <GuideTechDisciplineEmbed Discipline="Experimental"/>
 
-## Civilian Services
+## Гражданские службы
 <GuideTechDisciplineEmbed Discipline="CivilianServices"/>
 
 </Document>

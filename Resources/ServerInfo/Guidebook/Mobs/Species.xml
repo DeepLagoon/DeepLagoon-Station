@@ -1,7 +1,8 @@
 <Document>
-  # Species
+  # Виды
+</Document>
 
-  Nanotrasen employs a variety of sapient species.
+Нанотрейзен нанимает различные разумные виды.
 
   <Box>
     <GuideEntityEmbed Entity="MobArachnid" Caption="Arachnid"/>
@@ -18,28 +19,28 @@
     <GuideEntityEmbed Entity="MobIPCDummy" Caption="I.P.C."/>
   </Box>
 
-  # Frontier specific species
-  <Box>
-    <GuideEntityEmbed Entity="MobGoblin" Caption="Goblin"/>
-  </Box>
-  # Delta-V specific species
-  <Box>
-    <GuideEntityEmbed Entity="MobVulpkanin" Caption="Vulpkanin"/>
-    <GuideEntityEmbed Entity="MobFelinid" Caption="Felinid"/>
-    <GuideEntityEmbed Entity="MobHarpy" Caption="Harpy"/>
-    <GuideEntityEmbed Entity="MobOni" Caption="Oni"/>
-    <GuideEntityEmbed Entity="MobChitinid" Caption="Chitinid"/>
-  </Box>
+# Особые виды для Фронтэра
+<Box>
+<GuideEntityEmbed Entity="MobGoblin" Caption="Гоблин"/>
+</Box>
+# Особые виды для Дельта-В
+<Box>
+<GuideEntityEmbed Entity="MobVulpkanin" Caption="Вульпканин"/>
+<GuideEntityEmbed Entity="MobFelinid" Caption="Фелинид"/>
+<GuideEntityEmbed Entity="MobHarpy" Caption="Гарпия"/>
+<GuideEntityEmbed Entity="MobOni" Caption="Они"/>
+<GuideEntityEmbed Entity="MobChitinid" Caption="Хитинид"/>
+</Box>
 
-  # Monolith specific species
-  <Box>
-    <GuideEntityEmbed Entity="MobProtogen" Caption="Protogen"/>
-  </Box>
+# Монолитные виды
+<Box>
+    <GuideEntityEmbed Entity="MobProtogen" Caption="Протоген"/>
+</Box>
 
-  # Goobstation specific species
-  <Box>
-    <GuideEntityEmbed Entity="MobTajaran" Caption="Tajaran"/>
-    <GuideEntityEmbed Entity="MobYowie" Caption="Yowie"/>
-  </Box>
+# Специфичные для Goobstation виды
+<Box>
+<GuideEntityEmbed Entity="MobTajaran" Caption="Таджар"/>
+<GuideEntityEmbed Entity="MobYowie" Caption="Йови"/>
+</Box>
 
 </Document>

@@ -1,60 +1,113 @@
-﻿<Document>
-  # Space Law
-  On Space Station 14, stations operate under abbreviated space law. All crew, passengers, and visitors aboard the station are expected to follow these laws.
+<Document>
+  # Космическое право
+  На Космической Станции 14 действуют сокращённые космические законы. Весь экипаж, пассажиры и посетители, находящиеся на станции, должны соблюдать эти законы.
+</Document>
 
-  Foreign invaders, such as nuclear operatives, ninjas, and pirates, are not protected under space law. Traitors are not foreign invaders so are usually protected by space law.
+Иностранные захватчики, такие как ядерные агенты, ниндзя и пираты, не защищены космическим законом. Предатели не являются иностранными захватчиками, поэтому обычно защищены космическим законом.
 
-  Space Law is not the server rules, but some rules reference Space Law and require it to be followed by certain people or to some degree.
+Пространственный закон не является правилами сервера, но некоторые правила ссылаются на Пространственный закон и требуют его соблюдения определёнными людьми или в определённой степени.
 
-  ## Treatment Of Prisoners
-  Prisoners still have certain rights that must be upheld by law enforcement:
-  - Prisoners must be granted adequate medical care.
-  - Prisoners must be allowed access to basic communications equipment (Radios) so long as they are not abused.
-  - Prisoners must be granted clothing, food, water, shelter and safety. If the brig is no longer safe, confinement must be established in another location.
-  - Prisoners must be given access to legal counsel during an interrogation if requested and available.
-  - Prisoners must be given their shift mandated PDA after confinement has finished, unless there is solid proof of PDA tampering. In case of tampering, the PDA is to be secured and replaced with a new unit.
-  - Prisoners must be granted freedom of movement, and should not be restrained with handcuffs or other devices after incarceration unless there is an undue risk to life and limb. Similarly, any prisoners held for permanent confinement should be held in the communal brig, and should not be confined to a solitary cell unless they pose a risk to life and limb.
+## Правила обращения с заключёнными
+Заключённые по-прежнему обладают определёнными правами, которые должны соблюдаться правоохранительными органами:
+- Заключённым необходимо предоставлять достаточную медицинскую помощь.
+- Заключённым необходимо разрешить доступ к базовому коммуникационному оборудованию (Рациям), при условии, что оно не будет использоваться с нарушением прав.
+- Заключённым необходимо обеспечить одежду, еду, воду, укрытие и безопасность. Если в тюрьме больше не обеспечена безопасность, заключённых необходимо переместить в другое место.
+- Заключённым необходимо предоставить доступ к юридической помощи во время допроса, если они этого запросили и юрист доступен.
+- Заключённым необходимо вернуть их PDA после завершения заключения, если только нет достоверных доказательств его подделки. В случае подделки PDA должен быть изолирован и заменён на новый.
+- Заключённым необходимо обеспечить свободу передвижения, и их не следует связывать наручниками или другими устройствами после ареста, если только это не создаёт угрозы для жизни и здоровья. Аналогично, все заключённые, находящиеся в режиме постоянного заключения, должны находиться в общей тюрьме, и не должны быть помещены в одиночную камеру, если они не представляют угрозы для жизни и здоровья.
 
-  ## Search and Seizure
-  A personnel search is a seizure of the objects in a person's backpack, hands, coat, belt, and pockets. If any contraband is found during a search, the officer may choose to further the search into a detainment or simply confiscate the restricted items. After the search is conducted, all legal items are to be returned to the person. A crewmate may legally decline any search conducted without probable cause or a warrant while the alert level is green. It should be noted that if the alert level is blue or above, all personnel searches are legal.
+## Поиск и конфискация
+Проверка персонала — это изъятие предметов из рюкзака, рук, пальто, пояса и карманов человека. Если во время проверки будет обнаружено контрабанда, офицер может продолжить проверку, задержав человека, или просто конфисковать запрещённые предметы. После завершения проверки все законные предметы должны быть возвращены человеку. Член экипажа может законно отказать в любой проверке, проведённой без достаточных улик или ордера, пока уровень тревоги зелёный. Следует отметить, что если уровень тревоги синий или выше, все проверки персонала являются законными.
 
-  A departmental search is the sweep of an entire area or department for contraband. It is recommended that the officers be extremely thorough, checking all lockers, crates, and doors. These can only be done with permission or, ideally, a warrant signed by the department head or highest-ranking command staff, which is the captain in most cases.
+Поиск в рамках отдела — это обыск всей территории или отдела на предмет контрабанды. Рекомендуется, чтобы офицеры были чрезвычайно тщательны, проверяя все шкафчики, ящики и двери. Такие поиски могут проводиться только с разрешения или, в идеале, с ордером, подписанном руководителем отдела или старшим командным персоналом, что в большинстве случаев — капитаном.
 
-  ## Implantation
-  Any prisoner in custody can be subjected to implantation or implant removal procedures, so long as it's within reason. The process of adding an implant should not prolong the detainees sentence, meaning you can not hold them longer to administer the implant, unless stated otherwise. A former inmate can be requested to undergo implantation at a later point in time if they fit the circumstances during their confinement, they must comply. The following have been listed out with special circumstances, anything not in this list can still be applied, given proper legal context. A prisoner can still receive implantation procedures without meeting the circumstances if they give their clear permission.
+## Имплантирование
+Любой заключённый под стражей может быть подвергнут процедуре имплантирования или удаления импланта, при условии, что это разумно. Процесс добавления импланта не должен продлевать срок заключения, то есть вы не можете удерживать их дольше, чем необходимо, чтобы провести имплантирование, если только не указано иное. Бывший заключённый может быть попросен пройти имплантирование позже, если он соответствует обстоятельствам во время своего заключения, он обязан согласиться. Ниже перечислены особые случаи, любые другие случаи также могут быть применены при наличии соответствующего юридического контекста. Заключённый может пройти имплантирование даже если не соответствует обстоятельствам, если он дал явное согласие.
 
-  [color=#a4885c]Tracking Implants:[/color] Trackers can be applied to any suspect that has been convicted of a violent crime (the red linked crimes).
+[color=#a4885c]Трекинговые импланты:[/color] Трекеры могут быть установлены любому подозреваемому, признанному виновным в насильственном преступлении (красные связанные преступления).
 
-  [color=#a4885c]Mind Shields:[/color] Shields can be administered to any inmate who has been clearly mind controlled, lost control of themselves, or a suspect charged with unlawful control. Unlike standard implantation you may hold a prisoner until you finish issuing Mind Shields, so long as it's done in a timely fashion. If a suspect refuses to cooperate or the implant fails to function they can be charged with Refusal of Mental Shielding.
+[color=#a4885c]Ментальные щиты:[/color] Щиты могут быть применены к любому заключенному, который был явно подвергнут ментальному контролю, потерял самообладание или является подозреваемым по делу о незаконном контроле. В отличие от стандартной имплантации, вы можете удерживать заключенного до завершения нанесения Ментальных щитов, при условии, что это будет сделано в разумные сроки. Если подозреваемый отказывается сотрудничать или имплантат не функционирует, его можно обвинить в Помешательстве ментального контроля.
 
-  ## Implant Removal
-  A suspect can be forced to receive implant removal if there is strong, reasonable proof that they have been implanted, such as an officer seeing them use one or their prints being on a discarded injector. Unlike the implantation procedure, a prisoner can have their sentence entirely delayed or extended until they comply with the procedure, as long as security is actively making attempts to perform it. Akin to implanting, if an inmate gives their clear permission, implant removal can proceed without proof.
+## Удаление имплантов
+Подозреваемого можно заставить удалить имплант, если есть сильные и обоснованные доказательства того, что он был имплантирован, например, офицер увидел, как он использовал имплант, или отпечатки его пальцев находятся на заброшенном инъекторе. В отличие от процедуры имплантации, приговор заключённого может быть полностью отложен или продлён до тех пор, пока он не выполнит процедуру, при условии, что СБ активно пытается её провести. Как и при имплантации, если заключённый дает явное разрешение, удаление импланта может быть проведено без доказательств.
 
-  ## Sentencing
-  From a server rules perspective, security officers are only responsible for ensuring that they only place sentences over 15 minutes where space law would allow permanent confinement. Informing the Warden is highly recommended, even for timed sentences. As long as those requirements are met, security officers not giving inappropriate sentence lengths is considered an in-character issue, not a rule issue.
+## Наказание
+С точки зрения правил сервера, сотрудники службы безопасности несут ответственность за то, чтобы они накладывали только такие наказания, которые превышают 15 минут, где это разрешено космическим законами для постоянного заключения. Настоятельно рекомендуется информировать Тюремщика, даже если наказание временно. Пока эти требования соблюдены, сотрудники службы безопасности, которые не выдают неправильную продолжительность наказания, считаются не в рамках правил, а в рамках ролевой игры.
 
-  The captain, HOS, and warden are responsible, within reason, for ensuring security officers place appropriate sentences that follow space law. If they are aware of an inappropriate sentence, including excessively long sentences, and if there is not an urgent threat or danger that they must prioritize, then they must work to correct that sentence. Unreasonable failures, as determined by game admins, of the captain, HOS, or warden to ensure space law is followed will be considered a rule issue, not an in-character issue.
+Капитан, ГСБ и смотритель несут, при разумных обстоятельствах, ответственность за то, чтобы сотрудники службы безопасности накладывали соответствующие наказания, следуя законам космоса. Если они осведомлены о несоответствующем наказании, включая чрезмерно длинные сроки, и если отсутствует срочная угроза или опасность, которую необходимо преодолеть, они обязаны работать над исправлением этого наказания. Несоответствие нормам, определённое администраторами игры, со стороны капитана, ГСБ или смотрителя в обеспечении соблюдения законов космоса, будет рассматриваться как нарушение правил, а не как проблема в рамках игры.
 
-  Use common sense and humanity when issuing punishments. You should not always seek out the highest punishment you can, you don't have to always give the maximum time or always look to demote someone. Prisoners cooperating and on good behavior should have their sentences reduced. Always take in account the severity and only charge for what is needed for someone to learn their lesson.
+Используйте общий смысл и гуманность при вынесении наказаний. Вам не следует всегда стремиться к самому строгому наказанию, не обязательно всегда выдавать максимальный срок или всегда пытаться понизить кого-то в должности. Заключённые, проявляющие сотрудничество и ведущие себя хорошо, должны иметь уменьшенные сроки заключения. Всегда учитывайте степень тяжести правонарушения и приговаривайте только то, что необходимо для того, чтобы человек понял свой урок.
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
+<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
 
-  [color=#a4885c]Stackable Crimes:[/color] Crimes are to be considered 'stackable' in the sense that if you charge someone with two or more different crimes, you should combine the times you would give them for each crime. Linked crimes, shown in matching colors and suffixes on the Quick Crime Guide, can not be stacked and instead override each other, you should pick the highest crime that matches the case.
+[color=#a4885c]Накапливающиеся преступления:[/color] Преступления считаются «накапливающимися» в том смысле, что если вы приговорите кого-либо к двум или более разным преступлениям, вы должны сложить наказания, которые вы бы дали за каждое преступление. Связанные преступления, обозначенные одинаковыми цветами и суффиксами на Быстром Путеводителе по Преступлениям, не могут быть накаплены и вместо этого заменяют друг друга, вы должны выбрать наиболее тяжелое преступление, соответствующее случаю.
 
-  - Example: A suspect has committed a 2-01 (possession: major) and a 3-01 (possession: syndicate). The maximum sentence here would be 10 minutes due to them being linked crimes, and 3-01 is the greater crime.
-  - Example 2: A suspect commits a 3-04 (Secure trespassing) and a 3-06 (manslaughter). Those crimes stack since they are not linked crimes. You could sentence for a maximum of 20 minutes, but context matters heavily, and maximum sentences should only be used for the worst offenders.
+- Пример: Подозреваемый совершил преступление 2-01 (содержание: серьезное) и 3-01 (содержание: синдикат). Максимальный срок здесь составит 10 минут из-за того, что это связаные преступления, а 3-01 является более тяжелым преступлением.
+  - Пример 2: Подозреваемый совершил преступления 3-04 (незаконное проникновение) и 3-06 (убийство). Эти преступления суммируются, поскольку они не связаны. Вы можете назначить максимальный срок в 20 минут, но контекст имеет большое значение, и максимальные сроки следует применять только к худшим преступникам.
 
-  [color=#a4885c]Repeater Offenders:[/color] Repeated crimes are when someone is released for a crime and then goes to commit the same crime within the same shift. Repeated crimes can be charged with tacked-on time; first repeat: 3:00, second repeat: 6:00, third repeat: permanent confinement. It should be noted each tacked-on time is directly linked to one type of crime, so for example, if someone does their first repeat of trespass and petty theft, you can charge them with an extra 6 minutes.
+[color=#a4885c]Повторные правонарушители:[/color] Повторные преступления — это когда кто-то освобождается за преступление, а затем совершает то же преступление в течение одной смены. Повторные преступления могут быть наказаны дополнительным сроком; первый повтор: 3:00, второй повтор: 6:00, третий повтор: постоянное заключение. Следует отметить, что каждый дополнительный срок напрямую связан с одним типом преступления, так что, например, если кто-то совершает первый повтор за нарушение правил пребывания и кражу мелких предметов, вы можете добавить ему дополнительные 6 минут.
 
-  [color=#a4885c]Accessory, Attempting, And Intention:[/color] If someone intentionally, knowingly and substantially assists someone in enacting a crime they can be charged with the relevant crimes, such as an engineer giving someone tools, who says they are going to break into an area. Same goes for a clear and solid attempt at a crime, or a person who shows clear intent to act out a crime, such as a syndicate nuclear operative arming a nuke but getting arrested before it goes off, they can still be charged with terrorism. Does not apply to crimes that have an attempted listing already, like attempted murder.
+[color=#a4885c]Причастность, Попытка и Намерение:[/color] Если кто-то намеренно, осознанно и существенно помогает совершить преступление, он может быть привлечен к ответственности по соответствующим статьям, например, инженер, который предоставляет кому-то инструменты, чтобы тот проник в запретную зону. То же самое касается явной и твердой попытки совершить преступление, или человека, который проявляет явное намерение совершить преступление, например, агент Синдиката, который готовит ядерное оружие, но его арестовывают до взрыва — его всё равно можно обвинить в терроризме. Не применяется к преступлениям, для которых уже имеется статья о попытке, например, покушении на убийство.
 
-  ## Normal Punishments
-  - [color=#a4885c]Warning:[/color] For minor crimes, fix the issue, then warn the person not to attempt the crime again. If they still proceed to do it at a later date, a brig time may be better.
-  - [color=#a4885c]Confinement:[/color] The typical punishment, being confined in a cell for a temporary amount of time according to the crimes.
-  - [color=#a4885c]Demotion:[/color] Entails removing all departmental gear they have on their person and revoking the involved department access off their ID. This requires the captain's or involved department head's approval. Demotions should only be issued if the person pose a threat to their own department or are in a position where they have/can abuse their job's gear to commit further crimes.
+## Обычные наказания
+- [color=#a4885c]Предупреждение:[/color] За мелкие преступления, исправьте проблему, а затем предупредите человека, чтобы он больше не совершал преступление. Если он всё же продолжит это делать позже, лучше будет отправить его в тюрьму.
+- [color=#a4885c]Арест:[/color] Стандартное наказание, заключение в камере на определённое время в зависимости от тяжести преступления.
+- [color=#a4885c]Понижение в должности:[/color] Подразумевает изъятие всего специального оборудования отдела, находящегося на человеке, а также отзыв доступа к отделу с его ID. Требует одобрения капитана или руководителя соответствующего отдела. Понижение в должности должно выдаваться только в случае, если человек представляет угрозу для своего отдела или находится в должности, где он может/может злоупотреблять своим оборудованием, чтобы совершать новые преступления.
 
-  ## Major Punishments
-  [color=#a4885c]Permanent Confinement:[/color] Being held in the permanent brig for the entire duration of the shift. A person is eligible for permanent confinement if their timed sentence would exceed 15 minutes. Any persons subject to this punishment are required to be transported in cuffs to CentComm at the end of the shift. A permanent prisoner can not be deprived of anything covered by the section "Treatment Of Prisoners".
-  [color=#a4885c]Execution:[/color] A humane way of dealing with extremely unruly crewmates. Within reason, a prisoner who has been given the death sentence may pick how they wish to be killed, common methods are firing line, lethal injection, exile, and high voltage electrocution. Another alternate method of "execution" is the process of placing a staff's mind into a borg, this is allowed so long as it is lawful. Execution can only be issued with the captain's or acting captain's approval; if the HoS is acting captain or there is no acting captain, all heads of staff are to hold a vote on the matter.
+## Основные наказания
+[color=#a4885c]Постоянное заключение:[/color] Находится в постоянной тюрьме на протяжении всего времени смены. Лицо может быть помещено в постоянное заключение, если его наказание превышает 15 минут. Все лица, находящиеся под этим наказанием, должны быть доставлены в наручниках в Центральный Комитет (CentComm) в конце смены. Постоянный заключённый не может быть лишен ничего, что описано в разделе «Условия содержания заключённых».
+[color=#a4885c]Экзекуция:[/color] Гуманный способ избавления от крайне беспокойного члена экипажа. В разумных пределах, заключённый, получивший смертный приговор, может выбрать способ своей смерти. Распространённые методы: стрельба в ряд, смертельная инъекция, изгнание и высоковольтный электрический удар. Альтернативный способ «экзекуции» — помещение сознания персонала в борга, что допускается при условии законности. Экзекуция может быть вынесена только с одобрения капитана или временно исполняющего обязанности капитана; если ГСБ является временным капитаном или отсутствует временный капитан, все начальники персонала должны провести голосование по данному вопросу.
 
-  ## Crime Listing
-  - [textlink="Crime Listing" link="SpaceLawCrimeList"]
+## Список преступлений
+- [textlink="Список преступлений" link="SpaceLawCrimeList"]
 </Document>

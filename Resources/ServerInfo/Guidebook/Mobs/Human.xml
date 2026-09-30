@@ -1,13 +1,14 @@
 <Document>
-  # Humans
+  # Люди
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobHumanDummy" Caption=""/>
   </Box>
 
-  Depending on who you ask, humans are either unremarkable or the universal standard to which everything else is compared.
-  They have no special mechanics or notable attributes.
+Зависит от того, к кому вы обратитесь, люди либо незаметны, либо являются универсальной стандартной мерой, по которой всё остальное сравнивается.
+У них нет особых механик или примечательных атрибутов.
 
-  They interact [color=#ffa500]about 20% faster[/color] compared to other species.
+Они взаимодействуют [color=#ffa500]на 20% быстрее[/color] других видов.
 
 </Document>

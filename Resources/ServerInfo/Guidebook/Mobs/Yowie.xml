@@ -1,24 +1,23 @@
 <Document>
-  # Yowie
+  # Йови
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobYowie" Caption=""/>
   </Box>
 
-  Yowie are a once-thought urban myth, turned newly discovered mystical species of bipedal hairy creature.
-  Their body is larger than most other species in stature, with the downside of them [color=#AAFF00]not being able to fit into most Nanotrasen external wear or shoes[/color], or [color=#AAFF00]being able to be carried by others[/color].
-  Their fur also allows them to take [color=#baf2ef]less cold damage[/color] but suffer [color=#ec3a3a]slightly more heat damage[/color].
+Йови — это когда-то считавшаяся урбанистической легендой, а теперь вновь обнаруженная мистическая разновидность двуногих волосатых существ.
+Их тело больше, чем у большинства других видов, но [color=#AAFF00]они не могут надеть большинство внешних вещей или обуви Нанотрасен[/color], или [color=#AAFF00]быть перенесёнными другими персонажами[/color].
+Их шерсть также позволяет им получать [color=#baf2ef]меньше урона от холода[/color], но получать [color=#ec3a3a]немного больше урона от жары[/color].
 
+Их размеры позволяют наносить [color=#ec3a3a]вдвое больше урона[/color] голым кулаком по сравнению с человеческим ударом
 
-  Their stature makes their unarmed punch deal [color=#ec3a3a]2x the damage[/color] of a human punch
+## Чёрт возьми, сучка, чувак
+<Box>
+<GuideEntityEmbed Entity="Joint" Caption=""/>
+</Box>
 
-  ## Fuckin' skiz, mate
-  <Box>
-    <GuideEntityEmbed Entity="Joint" Caption=""/>
-  </Box>
-
-  From discussions had between our species, it seems historically they were living beside humanity during its existence on Earth in parts of Australia, lending them to develop a thick australian accent with slang included.
-  They seem to have spent most of their time experimenting with some of the most dangerous and experimental drugs, and on review, they've built up a bigger tolerance to most chemicals.
-
+Из проведённых обсуждений с нашим видом, кажется, что исторически они жили рядом с человечеством во время его существования на Земле в некоторых частях Австралии, что привело к тому, что у них сформировался сильный австралийский акцент с жаргонизмами.
+Они, похоже, проводили большую часть времени, экспериментируя с одними из самых опасных и экспериментальных препаратов, и, как оказалось, у них сформировалась большая толерантность ко многим химическим веществам.
 
 </Document>

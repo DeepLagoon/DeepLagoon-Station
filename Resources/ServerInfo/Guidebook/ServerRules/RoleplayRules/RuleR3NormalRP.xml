@@ -1,20 +1,21 @@
-﻿<Document>
-  # Roleplay Rule 3 - Roleplay a normal person
-  - Do not use texting/messaging acronyms (ex: "lol", "wtf", "brb", "lmao", "thx", "sgtm") or emoticons (ex: ":)", "xD") in-character.
-  - Do not mention out-of-character (OOC) concepts like game admins or developers in character.
-  - Do not use emotes to bypass muted or accented speech.
-  - Do not use extremely low effort or impossible emotes.
+<Document>
+  # Правило ролеплея 3 - Игрок должен играть обычного человека
+  - Не используйте акронимы для общения в чате (например: "lol", "wtf", "brb", "lmao", "thx", "sgtm") или смайлики (например: ":)", "xD") в рамках персонажа.
+  - Не упоминайте концепции вне персонажа (OOC), такие как администраторы или разработчики игры, в рамках игры.
+  - Не используйте эмоции, чтобы обойти заглушку или акцент в речи.
+  - Не используйте слишком простые или невозможные эмоции.
+</Document>
 
-  ## Examples
-  Things you should not do:
-  - Say "lol did u c wat just happened" using in-character chat.
-  - Say "an admin exploded him" using in-character chat.
-  - Emote "can you give me some cheese" as a mouse.
-  - Emote "motions for you to order guns" or "asks you to order guns in sign language" as a mime.
+## Примеры
+Вещи, которые вы не должны делать:
+- Писать "лол видел ли ты что произошло" в чате в роли персонажа.
+- Писать "админ его взорвал" в чате в роли персонажа.
+- Эмотить "можно ли мне немного сыра" будучи мышью.
+- Эмотить "делает жест, чтобы ты заказал оружие" или "спрашивает тебя о заказе оружия с помощью жестов" будучи мимом.
 
-  Things you could do instead:
-  - Say "haha did you see what just happened?"
-  - Say "god blew him up" or "centcomm must have bluespaced a bomb to him"
-  - Point at cheese
-  - Point at the cargo order console then emote "shoots finger guns"
+Возможные варианты действий:
+  - Сказать "ха-ха, ты видел, что только что произошло?"
+  - Сказать "бог взорвал его" или "Центкомм, должно быть, засунул ему бомбу в блюспейс"
+  - Указать на сыр
+  - Указать на консоль заказа груза, а затем эмоционально "стрелять пистолетом из пальцев"
 </Document>

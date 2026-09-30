@@ -1,32 +1,33 @@
 <Document>
-  # Rodentia
+  # Грызуны
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobRodentiaDummy" Caption=""/>
   </Box>
 
-  Rodentia are a race of humanoid beings resembling rodents. Resourceful, evasive, sneaky, but fragile.
+Родентия — это раса гуманоидных существ, напоминающих грызунов. Умелые, хитрые, скрытные, но хрупкие.
 
-  ## Diet
+## Питание
 
-  - Can eat raw meat.
-  - Will get poisoned by Theobromine (Chocolate, Tea, Coffee) and Allicin (Onion, Garlic).
+- Может есть сырую мясо.
+- Отравится теобромином (Шоколад, Чай, Кофе) и аллицинами (Лук, Чеснок).
 
-  ## Benefits
+## Преимущества
 
-  - Uses their claws to do some Slashing and Blunt damage.
-  - Smaller than humans.
-  - Can fit in duffelbags.
+- Используют свои когти для нанесения урона от рассечения и дробящего урона.
+- Меньше людей.
+- Вмещаются в рюкзаки.
 
-  ## Special
+## Специальные
 
-  - Can Rummage in disposal chutes, which can dig up trash.
-  - Can "sneak" underneath tables, but not doors.
+- Может копаться в мусоропроводах, из которых можно выкопать мусор.
+- Может "пролезать" под столами, но не под дверями.
 
-  ## Drawbacks
+## Недостатки
 
-  - Takes 30% more Blunt damage, and 15% more Slash and Piercing damage.
-  - Always triggers mousetraps, regardless of whether or not they are wearing shoes.
-  - Gets hungry 33% faster.
+- Получает на 30% больше урона от дробящего удара и на 15% больше урона от рассекающего и колющего удара.
+- Всегда активирует манежки, независимо от того, надеты ли на них обувь.
+- Чувствует голод в 33% большей степени.
 
 </Document>

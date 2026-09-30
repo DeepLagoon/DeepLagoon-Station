@@ -1,76 +1,76 @@
 <Document>
-  # Airlock Upgrades
-  It is not uncommon for plucky individuals to try and bypass an airlock by meddling with its internal wiring.
-
-  Fortunately, certain countermeasures can be installed into airlocks to inconvenience any would-be trespassers.
-
-  ## Medium security airlocks
-  The most basic form of intrusion deterrence is to install a secured steel plating that will prevent access to internal wiring of the airlock.
-
-  To upgrade a basic airlock to a medium security airlock, you will require the following materials:
-  <Box HorizontalAlignment="Stretch">
-	  <Box>
-		  <GuideEntityEmbed Entity="SheetSteel" Caption="2 steel sheets"/>
-	  </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Screwdriver" Caption="Screwdriver"/>
-	  </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Welder" Caption="Welder"/>
-	  </Box>
-  </Box>
-
-  To upgrade a basic airlock:
-  -	Use the screwdriver to open the airlock maintenance panel.
-  -	Add the steel sheets to the airlock.
-  -	Weld the steel sheets into place.
-  -	Close the maintenance panel using the screwdriver.
-
-  ## High security airlocks
-  For airlocks leading to the more sensitive areas of the space station, the use of stronger deterrents are advised. High security airlocks have improved armor plating to protect its internal wiring.
-
-  To upgrade a medium security airlock to a high security airlock, you will require the following materials:
-  <Box HorizontalAlignment="Stretch">
-	  <Box>
-		  <GuideEntityEmbed Entity="SheetPlasteel" Caption="2 plasteel sheets"/>
-	  </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Screwdriver" Caption="Screwdriver"/>
-	  </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Welder" Caption="Welder"/>
-	  </Box>
-  </Box>
-
-  To upgrade a medium security airlock:
-  - Use the screwdriver to open the airlock maintenance panel.
-  - Add the plasteel sheets to the airlock.
-  - Weld the plasteel sheets into place.
-  - Close the maintenance panel using the screwdriver.
-
-  ## Maximum security airlocks
-  You can optionally upgrade a high security airlock to a maximum security airlock. Maximum security airlocks possess an additional layer of electrified wire mesh on top of its other protections, which can shock any unauthorized personnel attempting to tamper with the airlock.
-
-  To upgrade a high security airlock to a maximum security airlock, you will require the following materials:
-  <Box HorizontalAlignment="Stretch">
-	  <Box>
-		  <GuideEntityEmbed Entity="SheetPlasteel" Caption="2 plasteel sheets"/>
-	  </Box>
-    <Box>
-      <GuideEntityEmbed Entity="PartRodMetal" Caption="2 metal rods"/>
-    </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Screwdriver" Caption="Screwdriver"/>
-	  </Box>
-	  <Box>
-		  <GuideEntityEmbed Entity="Welder" Caption="Welder"/>
-	  </Box>
-  </Box>
-
-  To upgrade a high security airlock:
-  -	Use the screwdriver to open the airlock maintenance panel.
-  -	Add the plasteel sheets to the airlock.
-  -	Weld the plasteel sheets into place.
-  - Add the metal rods to the airlock.
-  -	Close the maintenance panel using the screwdriver.
+  # Улучшения шлюзов
+  Не редкость, когда ловкие люди пытаются обойти шлюз, лезая в его внутреннюю проводку.
 </Document>
+
+К счастью, в шлюзы можно установить определённые противодействующие меры, чтобы затруднить жизнь любым злоумышленникам.
+
+## Среднее уровень защиты воздушных шлюзов
+Самый простой способ предотвратить проникновение – установить защищённое стальное покрытие, которое будет препятствовать доступу к внутренним проводам шлюза.
+
+Чтобы улучшить стандартный воздухопровод до воздухопровода средней безопасности, вам понадобятся следующие материалы:
+<Box HorizontalAlignment="Stretch">
+	<Box>
+		<GuideEntityEmbed Entity="SheetSteel" Caption="2 листа стали"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Screwdriver" Caption="Отвёртка"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Welder" Caption="Сварочный аппарат"/>
+	</Box>
+</Box>
+
+Чтобы улучшить стандартный воздухопровод:
+- Используйте отвёртку, чтобы открыть доступ к техобслуживанию воздухопровода.
+- Установите стальные листы в воздухопровод.
+- Заплавьте стальные листы на место.
+- Закройте панель техобслуживания с помощью отвёртки.
+
+## Высокообеспеченные шлюзы
+Для шлюзов, ведущих в более чувствительные участки космической станции, рекомендуется использовать более сильные средства пресечения. Высокообеспеченные шлюзы имеют улучшенную броню для защиты внутренней проводки.
+
+Чтобы усилить средний защитный люк до высокого уровня защиты, вам понадобятся следующие материалы:
+<Box HorizontalAlignment="Stretch">
+	<Box>
+		<GuideEntityEmbed Entity="SheetPlasteel" Caption="2 листа пластеля"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Screwdriver" Caption="Отвёртка"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Welder" Caption="Сварочный аппарат"/>
+	</Box>
+</Box>
+
+Чтобы улучшить среднесекретный воздушный люк:
+- Используйте отвёртку, чтобы открыть люк технического обслуживания.
+- Установите пластилиновые листы в воздушный люк.
+- Заплавьте пластилиновые листы на место.
+- Закройте панель технического обслуживания с помощью отвёртки.
+
+## Максимально защищённые шлюзы
+Вы можете дополнительно усилить защиту высокой безопасности, чтобы получить максимально защищённый шлюз. Максимально защищённые шлюзы обладают дополнительным слоем электрической проводной сетки поверх других защит, которая может шокировать любых неавторизованных лиц, пытающихся взломать шлюз.
+
+Чтобы усилить уровень безопасности воздухопропускной двери с высокого до максимального, вам понадобятся следующие материалы:
+<Box HorizontalAlignment="Stretch">
+	<Box>
+		<GuideEntityEmbed Entity="SheetPlasteel" Caption="2 листа пластеля"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="PartRodMetal" Caption="2 металлических стержня"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Screwdriver" Caption="Отвёртка"/>
+	</Box>
+	<Box>
+		<GuideEntityEmbed Entity="Welder" Caption="Сварочный аппарат"/>
+	</Box>
+</Box>
+
+Чтобы усилить защиту воздушных шлюзов:
+- Используйте отвёртку, чтобы открыть панель техобслуживания шлюза.
+- Установите пластилиновые листы в шлюз.
+- Заплавьте пластилиновые листы на место.
+- Установите металлические стержни в шлюз.
+- Закройте панель техобслуживания с помощью отвёртки.

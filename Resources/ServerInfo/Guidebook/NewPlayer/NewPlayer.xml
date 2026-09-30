@@ -1,42 +1,43 @@
 <Document>
-# Welcome to Space Station 14!
+# Добро пожаловать на Космическую Станцию 14!
+</Document>
 
-You've just begun your shift aboard an TSF colonial station.
-You and your fellow crewmates are tasked with working together, surviving, and having fun!
+Вы только что начали свою смену на колониальной станции TSF.
+Вы и ваши коллеги из экипажа получили задание работать вместе, выживать и веселиться!
 
-[bold]Make sure to follow all server rules.[/bold] You can ask questions or report rule breaks to the [color=#EB2D3A][bold]admin team[/bold][/color] by using the [bold]admin help menu[/bold]. ([italic]accessible by pressing [/italic][color=yellow][bold][keybind="OpenAHelp"/][/bold][/color])
+[bold]Обязательно соблюдайте все правила сервера.[/bold] Задавать вопросы или сообщать о нарушениях правил можно [color=#EB2D3A][bold]администрации[/bold][/color], используя [bold]меню помощи администраторам[/bold]. ([italic]доступно нажатием [/italic][color=yellow][bold][keybind="OpenAHelp"/][/bold][/color])
 
-More detailed guides about [italic]specific jobs[/italic] and [italic]mechanics[/italic] can be found [textlink="here." link="SS14"/]
+Более подробные руководства по [italic]конкретным профессиям[/italic] и [italic]механикам[/italic] можно найти [textlink="здесь." link="SS14"/]
 
-This guide can be reopened at any time using [color=yellow][bold][keybind="OpenGuidebook"][/bold][/color].
+Это руководство можно открыть снова в любое время, используя [color=yellow][bold][keybind="OpenGuidebook"][/bold][/color].
 
-## Basic Controls
-The following are the controls you'll need for regular gameplay:
+## Основные элементы управления
+Следующие элементы управления вам понадобятся для обычной игры:
 
-- Run using [color=yellow][bold][keybind="MoveUp"][keybind="MoveLeft"][keybind="MoveDown"][keybind="MoveRight"][/bold][/color]. Hold down [color=yellow][bold][keybind="Walk"][/bold][/color] to walk
+- Управление осуществляется при помощи [color=yellow][bold][keybind="MoveUp"][keybind="MoveLeft"][keybind="MoveDown"][keybind="MoveRight"][/bold][/color]. Зажмите [color=yellow][bold][keybind="Walk"][/bold][/color] для ходьбы
 
-- Examine the world around you with [color=yellow][bold][keybind="ExamineEntity"][/bold][/color]
+- Осмотрите окружающий мир с помощью [color=yellow][bold][keybind="ExamineEntity"][/bold][/color]
 
-- Interact with the world using [color=yellow][bold][keybind="Use"][/bold][/color]
+- Взаимодействуйте с миром, используя [color=yellow][bold][keybind="Use"][/bold][/color]
 
-- Hovering over an entity and pressing [color=yellow][bold][keybind="UseSecondary"][/bold][/color] shows the [italic]context menu[/italic], which contains additional interactions
+- Наведя курсор на объект и нажав [color=yellow][bold][keybind="UseSecondary"][/bold][/color], вы откроете [italic]контекстное меню[/italic], содержащее дополнительные варианты взаимодействия
 
-- Swap hands using [color=yellow][bold][keybind="SwapHands"][/bold][/color] and activate the currently held item with [color=yellow][bold][keybind="ActivateItemInHand"][/bold][/color]
+- Поменять предметы в руках с помощью [color=yellow][bold][keybind="SwapHands"][/bold][/color] и активировать находящийся в руках предмет с помощью [color=yellow][bold][keybind="ActivateItemInHand"][/bold][/color]
 
-- Drop held items with [color=yellow][bold][keybind="Drop"][/bold][/color] or throw them using [color=yellow][bold][keybind="ThrowItemInHand"][/bold][/color]
+- Бросить предметы в руках можно с помощью [color=yellow][bold][keybind="Drop"][/bold][/color], а бросить их наружу — с помощью [color=yellow][bold][keybind="ThrowItemInHand"][/bold][/color]
 
-- Pull and release things with [color=yellow][bold][keybind="TryPullObject"][/bold][/color] and [color=yellow][bold][keybind="ReleasePulledObject"][/bold][/color]
+- Тянуть и отпустить предметы с помощью [color=yellow][bold][keybind="TryPullObject"][/bold][/color] и [color=yellow][bold][keybind="ReleasePulledObject"][/bold][/color]
 
-A more comprehensive list can be found on the [textlink="controls" link="Controls"] page.
+Более подробный список можно найти на странице [textlink="controls" link="Controls"].
 
-## What is SS14?
-Space Station 14 is a multiplayer game about paranoia and chaos on a space station and a remake of the cult-classic Space Station 13.
+## Что такое SS14?
+Space Station 14 — это многопользовательская игра о паранойе и хаосе на космической станции и ремейк культового классика Space Station 13.
 
-Join dozens of other players on an intricately designed and simulated space station, immersing yourself in roleplay and dealing with threats along the way.
+Присоединяйтесь к десяткам других игроков на тщательно спроектированной и смоделированной космической станции, погрузитесь в ролеплеи и сталкивайтесь с угрозами по пути.
 
-SS14 is an [italic]open-source game[/italic] developed by people [bold]just like you![/bold]
-It receives [color=lime]daily updates[/color] and may at times be [color=#EB2D3A][bold]unstable.[/bold][/color]
+SS14 — [italic]игру с открытым исходным кодом[/italic], разработанную людьми, [bold]такими же, как вы![/bold]  
+Она получает [color=lime]ежедневные обновления[/color] и может быть [color=#EB2D3A][bold]нестабильной[/bold][/color] время от времени.
 
-[italic]If you want to report bugs or help with development, join the discord and learn how to get started.[/italic]
+[italic]Если вы хотите сообщить об ошибках или помочь в разработке, присоединяйтесь к Discord и узнайте, как начать.[/italic]
 
 </Document>

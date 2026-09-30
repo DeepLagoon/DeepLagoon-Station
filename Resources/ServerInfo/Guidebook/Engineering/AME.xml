@@ -1,26 +1,27 @@
 <Document>
-  # Antimatter Engine (AME)
-  The Antimatter Engine is a short-term support generator for the station, providing a sizable chunk of power for a limited time.
+  # Антиматерия (AME)
+  Антиматерия — это временный генератор энергии для станции, обеспечивающий значительное количество энергии на ограниченное время.
+</Document>
 
-  It's mainly used to assist engineers in starting up bigger engines like the [textlink="Singularity Engine" link="SingularityEngine"] or [textlink="Tesla Engine" link="TeslaEngine"], by supplementing the station's [textlink="batteries" link="PowerStorage"] with partial power to extend their runtime.
+Основным образом используется для помощи инженерам в запуске более крупных двигателей, таких как [textlink="Двигатель сингулярности" link="SingularityEngine"] или [textlink="Двигатель Теслы" link="TeslaEngine"], путём дополнительного снабжения [textlink="батарей" link="PowerStorage"] станции частичным источником энергии с целью увеличения времени их работы.
 
-  ## Construction
-  <Box>Required parts:</Box>
+## Строительство
+  <Box>Необходимые части:</Box>
   <Box>
   <GuideEntityEmbed Entity="AmeController"/>
   <GuideEntityEmbed Entity="AmePartFlatpack"/>
   <GuideEntityEmbed Entity="AmeJar"/>
   </Box>
 
-  The AME Controller is the part of the AME that outputs power to the station's grid through an [textlink="HV connection" link="VoltageNetworks"].
-  Because of this, you'll want to start your AME construction with the controller on top of an [color=orange]HV wire[/color].
+Контроллер AME — это часть AME, которая выводит энергию в энергосеть станции через [textlink="HV connection" link="VoltageNetworks"].
+По этой причине при создании AME вы захотите начать с размещения контроллера поверх [color=orange]HV провода[/color].
 
-  Most stations have exposed [color=orange]HV wiring[/color] or designated spots to wrench an AME controller, so that it connects to the grid.
+Большинство станций имеют открытые [color=orange]HV провода[/color] или обозначенные места для того, чтобы подключить AME контроллер, чтобы он подключился к сети.
 
-  AME shielding is the physical structure that makes the antimatter engine. It's made by converting AME flatpacks into shielding using a multitool.
+Щит AME — это физическая конструкция, из которой состоит антиматерия-двигатель. Она создаётся путём преобразования плоских блоков AME в щит с помощью многофункционального инструмента.
 
-  To construct an AME, start putting down a 3x3 or larger square of AME flatpacks in preparation for construction, making sure to maximize the number of "center" pieces that are surrounded on all eight sides.
-  The greater amount of center pieces, the more cores your AME will have, and the more power it will be able to output safely.
+Чтобы построить AME, начните расставлять 3x3 или более крупную квадратную область из плоских AME для подготовки к строительству, убедившись, что вы максимизируете количество «центральных» блоков, которые будут окружены со всех восьми сторон.
+Чем больше центральных блоков, тем больше ядер будет у вашего AME, и тем больше энергии он сможет безопасно выдавать.
 
   <Box>
     <GuideEntityEmbed Entity="AmePartFlatpack" Caption=""/>
@@ -38,39 +39,39 @@
     <GuideEntityEmbed Entity="AmePartFlatpack" Caption=""/>
   </Box>
 
-  Once this is done, you can use a multitool to convert each AME flatpack into shielding, which should form a finished AME configuration.
+После этого вы можете использовать многофункциональный инструмент для преобразования каждого AME флатпака в защиту, что должно образовать готовую AME конфигурацию.
 
-  <GuideEntityEmbed Entity="AmeController" Caption=""/>
-  <Box>
+<GuideEntityEmbed Entity="AmeController" Caption=""/>
+<Box>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
-  </Box>
-  <Box>
+</Box>
+<Box>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
-  </Box>
-  <Box>
+</Box>
+<Box>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
     <GuideEntityEmbed Entity="AmeShielding" Caption="" Margin="0"/>
-  </Box>
-  <Box>
-    [color=#999999][italic]An example of a one core setup[italic][/color]
-  </Box>
+</Box>
+<Box>
+    [color=#999999][italic]Пример конфигурации с одним ядром[/italic][/color]
+</Box>
 
-  ## Operation
-  To start the AME, insert a fuel jar into the AME controller, and set the safe injection rate.
+## Операции
+Чтобы включить AME, вставьте банку топлива в контроллер AME и установите безопасную скорость закачки.
 
-  The safe injection rate is the point where the AME can safely run without overheating, while maximizing power output.
+Безопасная скорость инъекции — это точка, при которой AME может безопасно работать без перегрева, при этом максимизируя отдачу мощности.
 
-  This rate is always twice the core count.
+Этот показатель всегда в два раза превышает количество ядер.
 
-  For example, an AME with one core will have a safe injection rate of 2. With two cores, the safe injection rate would be 4, and so on.
+Например, AME с одним ядром будет иметь безопасную скорость закачки 2. С двумя ядрами безопасная скорость закачки будет 4, и так далее.
 
-  Any more than this ratio will eventually result in the engine [color=#ff0000]overheating[/color] and, shortly afterwards, [color=#ff0000]exploding[/color].
+Любое превышение этой пропорции в конечном итоге приведёт к [color=#ff0000]перегреву[/color] двигателя и, вскоре после этого, к его [color=#ff0000]взрыву[/color].
 
-  The AME controller will [textlink="report" link="InspectingPower"] on both the amount of power it is providing to the grid, and the theoretical maximum power it could provide if demanded.
+Контроллер AME будет [textlink="report" link="InspectingPower"] как по количеству энергии, которую он поставляет в сеть, так и по теоретическому максимальному значению энергии, которое он может поставить при необходимости.
 
 </Document>

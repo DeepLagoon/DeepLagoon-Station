@@ -1,28 +1,29 @@
 <Document>
-  # Vulpkanin
+  # Вулпканин
+</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobVulpkaninDummy" Caption=""/>
   </Box>
 
-  The Vulpkanin (vulp-ka-nin) are a race of humanoid canine-like beings.
+Вульпканы (вульп-ка-нин) — это раса гуманоидных собачьих существ.
 
-  ## Diet
+## Питание
 
-  - Can eat raw meat.
-  - Will get poisoned by Theobromine (Chocolate, Tea, Coffee) and Allicin (Onion, Garlic).
+- Может есть сырую мясо.
+- Отравится теобромином (Шоколад, Чай, Кофе) и аллицинами (Лук, Чеснок).
 
-  ## Benefits
+## Преимущества
 
-  - Uses their claws to do some Slashing and Blunt damage.
-  - Their fur makes them able to withstand cold environments without the need of a coat.
+- Используют свои когти для нанесения урона от рассечения и дробления.
+- Их шерсть позволяет выдерживать холодные условия без необходимости в пальто.
 
-  ## Special
+## Специальные
 
-  - Comes with the Deuteranopia trait by default. This can be disabled via accessibility options.
+- По умолчанию даёт черту Дейтеранопии. Может быть отключено в настройках доступности.
 
-  ## Drawbacks
+## Недостатки
 
-  - They take 10% more Heat damage.
+- Они получают на 10% больше урона от тепла.
 
 </Document>

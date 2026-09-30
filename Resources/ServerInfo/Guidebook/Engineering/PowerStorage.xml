@@ -1,20 +1,225 @@
-﻿<Document>
-  # Power Storage
-  Because of [textlink="Power Ramping" link="Ramping"], it is important to have power storage devices to help flatten out spikes and dips in power usage, as well as to provide power in the event of a power deficit.
+<Document>
+  # Хранение энергии
+  Из-за [textlink="Увеличения мощности" link="Ramping"] важно иметь устройства хранения энергии, чтобы сгладить пиковые и пониженные значения потребления энергии, а также обеспечить питание в случае дефицита энергии.
+</Document>
 
-  Each transformer for its respective power level ([color=orange]HV[/color], [color=yellow]MV[/color], and [color=green]LV[/color]) has an attached small battery to handle minor spikes and dips; however, this is not viable in the case of a large grid deficit.
+Каждый трансформатор соответствующего уровня мощности ([color=orange]HV[/color], [color=yellow]MV[/color] и [color=green]LV[/color]) оснащён прикреплённым небольшим аккумулятором для компенсации незначительных перепадов напряжения; однако, это невозможно при большой недостаточности в сети.
 
-  ## SMES
+## SMES
 
-  The Superconducting Magnetic Energy Storage (SMES) unit is a device that can store a large amount of power and release it quickly.
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed entity="smes" />
+
+<GuideEntityEmbed
 
   <Box>
     <GuideEntityEmbed Entity="SMESBasic"/>
   </Box>
 
-  In order to charge the SMES unit, [color=orange]HV[/color] power must be provided to a cable terminal pointing at the SMES unit. The SMES will draw power from the terminal and send power out from underneath.
+Чтобы зарядить SMES-блок, [color=orange]HV[/color] питание должно быть подано на кабельный терминал, направленный на SMES. Блок будет забирать энергию с терминала и отдавать её снизу.
 
-  The terminal will ensure that the [color=orange]HV input[/color] and [color=orange]HV output[/color] do not connect.
+Терминал обеспечит неподключённость [color=orange]HV input[/color] и [color=orange]HV output[/color].
 
   <Box HorizontalAlignment="Stretch">
     <Box>
@@ -29,22 +234,22 @@
     </Box>
   </Box>
 
-  SMESes can store [color=orange][protodata="SMESBasic" comp="Battery" member="MaxCharge" format="N0"/] J[/color] of energy and can output a maximum [color=orange][protodata="SMESBasic" comp="PowerNetworkBattery" member="MaxSupply" format="N0"/] W[/color] of power.
+SMES может хранить [color=orange][protodata="SMESBasic" comp="Battery" member="MaxCharge" format="N0"/] Дж[/color] энергии и может отдавать максимум [color=orange][protodata="SMESBasic" comp="PowerNetworkBattery" member="MaxSupply" format="N0"/] Вт[/color] мощности.
 
-  If the battery is full, the SMES will pass through the power it receives from the input cable to the output cable. In the event of a power deficit, the SMES will ramp up to supplement the power draw.
+Если батарея полностью заряжена, SMES будет передавать электроэнергию, полученную от кабеля питания, на кабель выхода. В случае недостатка электроэнергии SMES будет увеличивать подачу энергии для компенсации потребления.
 
-  ## Advanced SMES
-  The Advanced SMES unit is a more advanced version of the SMES unit that can store even more power.
+## Продвинутый SMES
+Продвинутый SMES — это более совершенная версия SMES-блока, способная хранить ещё больший объём энергии.
 
   <Box>
     <GuideEntityEmbed Entity="SMESAdvanced"/>
   </Box>
 
-  They're primarily used in station SMES arrays to store large amounts of power for the station's power grid.
-  They help to buy engineers time to setup power at roundstart or to provide power in the event of a power deficit for extended periods of time.
+Они в основном используются в SMES-массивах станции для хранения большого количества энергии для энергосети станции.
+Они помогают инженерам купить время для настройки энергии при запуске раунда или обеспечить энергией в случае дефицита энергии на протяжении длительного времени.
 
-  Advanced SMESes can store [color=orange][protodata="SMESAdvanced" comp="Battery" member="MaxCharge" format="N0"/] J[/color] of energy and can output a maximum [color=orange][protodata="SMESAdvanced" comp="PowerNetworkBattery" member="MaxSupply" format="N0"/] W[/color] of power.
+Продвинутые SMES могут хранить [color=orange][protodata="SMESAdvanced" comp="Battery" member="MaxCharge" format="N0"/] Дж[/color] энергии и могут отдавать максимум [color=orange][protodata="SMESAdvanced" comp="PowerNetworkBattery" member="MaxSupply" format="N0"/] Вт[/color] мощности.
 
-  Keep in mind that these aren't a magic solution to power deficits and they can't store infinite energy.
-  A station load will drain these battries quickly if there is no power source partially supporting them.
+Имейте в виду, что это не волшебное решение для дефицита энергии, и они не могут хранить бесконечное количество энергии.
+Нагрузка станции быстро разрядит эти батареи, если источник энергии частично их не поддерживает.
 </Document>

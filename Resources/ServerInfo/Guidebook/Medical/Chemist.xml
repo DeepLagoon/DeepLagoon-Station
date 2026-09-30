@@ -1,12 +1,13 @@
 <Document>
-# Chemist
-Now you've done it. You picked the one job where -math- is mandatory. Grab your beaker, pull up a chair, and get cracking, it's time to cook up some chems.
+# Химик
+Теперь ты сделал это. Ты выбрал одну из профессий, где -математика- обязательна. Захвати свою колбу, подними стул и приступай к работе, пора готовить химикаты.
+</Document>
 
-While chemists primarily make medications, there's a very wide variety of chemicals that can be made, all of which are showcased in the Chemicals entry of the Guidebook.
+Хотя химики в основном занимаются производством лекарств, существует очень большой выбор химикатов, которые можно создать, и все они представлены в разделе «Химикаты» путеводителя.
 
 [textlink="Click here to see a complete list of chemicals." link="Chemicals"]
 
-## Equipment:
+## Оборудование:
 
   <Box>
     <GuideEntityEmbed Entity="ChemDispenser"/>
@@ -22,25 +23,26 @@ While chemists primarily make medications, there's a very wide variety of chemic
     <GuideEntityEmbed Entity="PillCanister"/>
   </Box>
 
-## The Basics:
-Chemistry is fairly straightforward once you know what to expect. Here's a simple, step-by-step process on how to begin.
+## Основы:
+Химия довольно проста, как только вы узнаете, чего ожидать. Вот простой пошаговый процесс, как начать.
 
-- Grab a beaker, Pill Canister, and if desired, some Bottles.
-- Place the beaker in the Chemical Dispenser, and Pill Canister (or bottle) in the Chem Master.
-- Open the Chemical Dispenser UI, and make your mix. Recipes are in other sections of the guidebook.
-- Alt-click the dispenser to remove your beaker, and place it in the Chem Master.
-- Open the Chem Master UI. On the Input tab, move your mix into the buffer.
-- Move to the Output tab, customise your pill, and press the Create button.
-- Alt-click the Chem Master to get the pill bottle out. You may have to remove the beaker first.
-- Click on a table, crate, or another surface to empty the pill bottle if desired. Alternatively, store or empty it into another storage container.
+- Возьмите пробирку, пузырек с таблетками и, при желании, несколько бутылок.
+- Поместите пробирку в Химический Раздатчик, а пузырек с таблетками (или бутылку) — в Химический Мастер.
+- Откройте интерфейс Химического Раздатчика и приготовьте смесь. Рецепты находятся в других разделах руководства.
+- Alt-кликните по раздатчику, чтобы извлечь пробирку, и поместите её в Химический Мастер.
+- Откройте интерфейс Химического Мастера. На вкладке Ввод переместите вашу смесь в буфер.
+- Перейдите на вкладку Вывод, настройте вашу таблетку и нажмите кнопку Создать.
+- Alt-кликните по Химическому Мастеру, чтобы вынуть бутылку с таблетками. Возможно, вам придётся сначала удалить пробирку.
+- Кликните по столу, ящику или другой поверхности, чтобы опустошить бутылку с таблетками, если это необходимо. В качестве альтернативы, можно сохранить или опустошить её в другую ёмкость для хранения.
 
-That's it, you've made your first set of pills! Consider checking with Medical Doctors and other crew to see what else may be requested, refilling the medical kits in medbay storage, or just experimenting!
+Вот и всё, вы приготовили свои первые таблетки! Попробуйте уточнить у врачей и других членов экипажа, что ещё может понадобиться, пополнить медикаменты в хранилище медотдела или просто поэкспериментировать!
 
-You can also use the hand labeler to organize individual bottles or bags without using the Chem Master labeling system.
+Вы также можете использовать маркеры для разметки рук, чтобы организовать отдельные бутылки или пакеты без использования системы маркировки Chem Master.
 
-## Extra Content:
+## Дополнительный контент:
+Перевод:
 
-Speaking of experimentation, there are a few more toy you can use when it comes to chemistry. This job requires a lot of trial and error, but it was worth mentioning that these things exist! It's up to you to figure out what to make with them.
+Говоря о экспериментах, есть несколько дополнительных игрушек, которые можно использовать в химии. Эта работа требует много проб и ошибок, но стоит упомянуть, что такие вещи существуют! Осталось только вам выяснить, что с ними можно сделать.
 
   <Box>
     <GuideEntityEmbed Entity="ModularGrenade"/>

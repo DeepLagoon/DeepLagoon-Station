@@ -1,104 +1,106 @@
-﻿<Document>
-  # Roleplay Rule 4 - Do not metagame, obey the Metashield
-  Something that is "shielded" cannot be known by your character during a round until the "revealing condition" happens. This also means that your character cannot do things based on "shielded" information. Knowing or acting on something that is shielded before the revealing condition is met is referred to as metagaming.
+<Document>
+  # Правило ролеплея 4 - Не метаиграйте, соблюдайте меташield
+  То, что находится "за шилдом", не может быть известно вашему персонажу во время раунда, пока не произойдет "условие раскрытия". Это также означает, что ваш персонаж не может предпринимать действия, основанные на "зашищенной" информации. Знание или действие на основе чего-либо, что защищено, до выполнения условия раскрытия, называется метаиграйном.
+</Document>
 
-  Revealing conditions reveal the shielded information for the round, not for a specific instance. This means that once a revealing condition is met in a round, the shield no longer applies in any case for the remainder of the round.
+Признаки раскрытия раскрывают информацию щита для раунда, а не для конкретного случая. Это означает, что как только признак раскрытия будет выполнен в раунде, щит больше не применяется ни при каких обстоятельствах до конца раунда.
 
-  ## Never Revealed IC
-  Some shields are never revealed IC. This means that your character can never act as if they know about that shielded thing.
+## Никогда не раскрытые IC
+Некоторые щиты никогда не раскрываются IC. Это означает, что ваш персонаж никогда не сможет вести себя так, как будто он знает о защищённом предмете.
 
-  The following are shielded:
-  - Current game mode and possible antags during the current game mode.
-  - Events from previous rounds.
-  - Events you experienced as a different character.
-  - All information related to the player of a character rather than the character itself. (See "Metafriending and Metagrudging" below.)
-  - All information gained while dead or a ghost.
-  - The fact that a round will end.
+Вот что скрыто:
+- Текущий игровой режим и возможные антагонисты в рамках текущего режима.
+- События из предыдущих раундов.
+- События, которые вы пережили, играя за другого персонажа.
+- Вся информация, связанная с игроком персонажа, а не с самим персонажем. (См. раздел «Метадружба и метаненавистничество» ниже.)
+- Вся информация, полученная при состоянии мёртвого тела или при виде призрака.
+- Информация о том, что раунд закончится.
 
-  This does not prevent knowing that a shift will end, but does prohibit things like preparing to kill people at central command when roleplay rules stop being enforced on LRP.
+Это не мешает знать, что смена подходит к концу, но запрещает такие вещи, как подготовка к убийству людей в центральной команде, когда правила ролеплея перестают применяться к LRP.
 
-  ## Nuclear Operatives
+## Ядерные оперативники
 
-  The existence of Nuclear Operatives beyond a myth that no one would act on is shielded.
+Существование ядерных оперативников, вне зависимости от того, является ли оно мифом или реальностью, защищено тем, что никто не решится на действия.
 
-  The fact that the nuke disk must be protected and could be used by a bad actor to try to destroy the station is not shielded.
+Факт того, что ядерный диск должен быть защищен и может быть использован плохим игроком для попытки уничтожить станцию, не защищён.
 
-  The revealing condition for this shield is any of the following:
-  - discovering a blood red hardsuit
-  - discovering a nuclear operative's shuttle
-  - an operative name
-  - a War Ops announcement
-  - being a nuclear operative
+Условие раскрытия щита выполняется при наличии любого из следующих факторов:
+- обнаружение костюма красного цвета
+- обнаружение шаттла ядерного оператива
+- имя оператива
+- объявление War Ops
+- быть ядерным оперативом
 
-  ## Implanted Implants
+## Вживленные импланты
 
-  Implanted implants are shielded.
+Вживленные импланты защищены.
 
-  Implanters themselves and un-implanted implants are not shielded. This prohibits implant checking.
+Импланты и неимплантированные импланты не защищены. Это запрещает проверку имплантов.
 
-  The revealing condition for this shield is any of the following:
-  - discovering a non-NT implanter, used or unused
-  - discovering a non-NT implant box
-  - discovering use of a non-NT implant by anyone
-  - experiencing a situation where absolutely no other explanation is possible
-  - discovering an unlocked uplink
+Условие раскрытия этого щита следующее:
+- обнаружение не-NT имплантера, использованного или неиспользованного
+- обнаружение коробки с не-NT имплантами
+- обнаружение использования не-NT импланта кем-либо
+- возникновение ситуации, при которой абсолютно невозможно другое объяснение
+- обнаружение разблокированного уплайна
 
-  ## Chameleon Items
+## Хameleon Items
+Translation: ## Хамелеонные предметы
 
-  Chameleon items are shielded.
+Элементы хамелеона защищены.
 
-  Being suspicious of an item being fake or stolen is not shielded, but testing items or calling them chameleon is covered by this shield.
+Быть подозрительным в том, что предмет подделка или украден, не защищено этим щитом, но проверка предметов или вызов их "хамелеоном" защищена данным щитом.
 
-  The revealing condition for this shield is any of the following:
-  - seeing someone else cause any chameleon item to change
-  - finding holographic nanomachine fibers
-  - experiencing a situation where absolutely no other explanation is possible
-  - discovering an unlocked uplink
+Условие раскрытия для этого щита — любое из следующего:
+  - наблюдение, как кто-то другой заставляет любой предмет хамелеона меняться
+  - нахождение голографических наномашинных волокон
+  - переживание ситуации, при которой абсолютно нет другого возможного объяснения
+  - обнаружение разблокированного аплинка
 
-  ## Stealth Items
+## Скрытые предметы
 
-  The fact that an item can be something other than what its visual appearance and examine description indicate is shielded.
+Факт того, что предмет может быть чем-то большим, чем то, что указывает его визуальный облик и описание при осмотре, защищён.
 
-  This shield protects stealth items, including protecting them from being tested.
+Этот щит защищает скрытые предметы, включая защиту от их проверки.
 
-  The revealing condition for this shield is any of the following:
-  - seeing the item behave differently than the expected behavior for the item
-  - seeing the item used for its hidden purpose
-  - experiencing a situation where absolutely no other explanation is possible
-  - discovering an unlocked uplink
+Условие раскрытия для этого щита — любое из следующих:
+- наблюдение за предметом, ведущим себя иначе, чем ожидалось
+- наблюдение за использованием предмета в его скрытом предназначении
+- ситуация, в которой абсолютно невозможно другое объяснение
+- обнаружение разблокированного узла связи
 
-  ## MRP Amendment 1
-  A shield prevents your character from remembering anything that happened while unconscious. This shield is never revealed IC.
+## Поправка MRP №1
+Щит предотвращает запоминание персонажем всего, что произошло во время без сознания. Этот щит никогда не раскрывается в IC.
 
-  ## MRP Amendment 2
-  There is a "New Life Rule" shield. It prevents you from remembering anything that lead to your death, even if you are put into an MMI. If you are cloned, it also prevents you from remembering everything from that round. This shield is never revealed IC.
+## Исправление MRP 2
+Существует защита "Правило Новой Жизни". Она не позволяет вам вспомнить ничего, что привело к вашей смерти, даже если вы будете помещены в MMI. Если вы клонированы, она также не позволит вам вспомнить всё, что происходило в этом раунде. Эта защита никогда не раскрывается в IC.
 
-  ## Metafriending and Metagrudging
-  This section provides additional information on a concept that is prohibited by multiple metashield items that are never revealed IC. Giving a person or character preferential treatment based on something that your character should not know is considered metafriending. Treating a person or character negatively based on something that your character should not know is considered metagrudging.
+## Метадружба и метанеприязнь
+В этом разделе представлены дополнительные сведения о концепции, запрещённой множеством меташield-предметов, которые никогда не раскрываются в IC-контексте. Оказание предпочтительного отношения к персонажу или человеку на основе чего-либо, что ваш персонаж не должен знать, считается метадружбой. Отрицательное отношение к персонажу или человеку на основе чего-либо, что ваш персонаж не должен знать, считается метанеприязнью.
 
-  ## Metafriending Examples
-  These are all examples of things that are prohibited by at least one metashield item that is never revealed IC.
-  - Giving a character additional access or a job because you are friends with the player who is playing that character.
-  - Trusting a character because you are friends with the player who is playing that character.
-  - Not fighting a character because you are friends with the player who is playing that character.
-  - Ignoring your objective to kill a character because your character and theirs became friends in a previous round.
+## Примеры метадружбы
+Все это примеры вещей, которые запрещены как минимум одним меташield-предметом, который никогда не раскрывается IC.
+- Выдача персонажу дополнительного доступа или работы, потому что вы дружите с игроком, играющим за этого персонажа.
+- Доверие персонажу, потому что вы дружите с игроком, играющим за этого персонажа.
+- Не бойся с персонажем, потому что вы дружите с игроком, играющим за этого персонажа.
+- Игнорирование вашего задания убить персонажа, потому что ваш персонаж и их стали друзьями в предыдущем раунде.
 
-  ## Metagrudging Examples
-  These are all examples of things that are prohibited by at least one metashield item that is never revealed IC.
-  - Not giving a character additional access or a job because you are mad at or don't like the player who is playing that character.
-  - Not trusting a character because you are mad at or don't like the player who is playing that character.
-  - Starting a fight with a character because of something that they did last round.
-  - Starting a fight with a character because they killed you while you were playing a different character.
-  - Targeting or harassing a character based on anything which that character did outside the current round.
-  - Targeting or harassing a character based on anything which the character's player did while not playing the character.
+## Примеры метагрудинга
+Все это примеры того, что запрещено по крайней мере одним меташield-предметом, который никогда не раскрывается в IC.
+- Не давать персонажу дополнительного доступа или должности, потому что вы злы или не любите игрока, который играет за этого персонажа.
+- Не доверять персонажу, потому что вы злы или не любите игрока, который играет за этого персонажа.
+- Начинать драку с персонажем из-за чего-то, что он сделал в прошлой раунде.
+- Начинать драку с персонажем, потому что он убил вас, пока вы играли другим персонажем.
+- Направлять или преследовать персонажа на основании чего-либо, что он сделал вне текущего раунда.
+- Направлять или преследовать персонажа на основании чего-либо, что сделал игрок персонажа, пока он не играл за этого персонажа.
 
-  ## Explicitly Not Shielded
-  The following is a list of things that are explicitly not shielded. If something is not on this list, it doesn't mean that it is shielded, but if something is on it then it definitely is not shielded.
-  - The fact that the nuke disk must be protected and could be used by a bad actor to try to destroy the station.
-  - Items that are of high value or are desired by the Syndicate, and therefore are likely targets of theft.
-  - The idea that any Syndicate agent or other bad actor has goals or objectives that they are attempting to accomplish.
-  - The number of goals or objectives that a Syndicate agent or other bad actor has.
-  - The fact that the Syndicate are enemies of Nanotrasen and the TSF, and that they regularly attempt to send covert agents to spy on, sabotage, or attack in the colonial space.
-  - A character's typical appearance. Though you should keep in mind that multiple characters can share the same name.
-  - The fact that the Syndicate have covert items capable of getting items to them, and that these items are known as uplinks.
+## Явно не защищено
+Следующий список содержит вещи, которые явно не защищены. Если чего-то нет в этом списке, это не означает, что оно защищено, но если что-то есть в этом списке, то это точно не защищено.
+- Факт, что ядерный диск должен быть защищён и может быть использован плохим игроком для уничтожения станции.
+- Предметы высокой стоимости или желаемые Синдикатом, и потому вероятные цели кражи.
+- Идея, что любой агент Синдиката или другой плохой игрок имеет цели или задачи, которые он пытается выполнить.
+- Количество целей или задач, которые имеет агент Синдиката или другой плохой игрок.
+- Факт, что Синдикат является врагом Nanotrasen и TSF, и они регулярно посылают скрытых агентов шпионить, саботировать или атаковать в колониальном пространстве.
+- Типичный внешний вид персонажа. Хотя следует учитывать, что несколько персонажей могут иметь одно и то же имя.
+- Факт, что у Синдиката есть скрытые предметы, способные доставлять им предметы, и эти предметы известны как аплинки.
 </Document>

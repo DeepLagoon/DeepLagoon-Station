@@ -1,6 +1,6 @@
-﻿<Document>
-  # Valves
-  Valves are a quick way to halt or permit gas flow through a [textlink="pipenet" link="PipeNetworks"].
+<Document>
+  # Клапаны
+  Клапаны — это быстрый способ остановить или позволить газу течь через [textlink="pipenet" link="PipeNetworks"].
   <Box>
     <GuideEntityEmbed Entity="GasValve"/>
     <GuideEntityEmbed Entity="SignalControlledValve"/>
@@ -8,9 +8,87 @@
     <GuideEntityEmbed Entity="GasPassiveGate"/>
     <GuideEntityEmbed Entity="GasPressureRegulator"/>
   </Box>
-  All valves do not require [textlink="power" link="Power"] to operate.
-
-  Valves may look simple, but they can enable a wide variety of complex pipe systems, including:
-  - Signal valves responding to air alarm or logic gate outputs
-  - Pneumatic valves controlling variable venting of waste gasses from a burn chamber
+  Все клапаны работают без [textlink="power" link="Power"].
 </Document>
+
+<DocTitle>Клапаны</DocTitle>
+<DocSubtitle>Использование клапанов в сложных трубопроводных системах</DocSubtitle>
+
+Клапаны могут выглядеть просто, но они позволяют создавать широкий спектр сложных трубопроводных систем, включая:
+
+- Сигнальные клапаны, реагирующие на сигналы тревоги или логических вентилей
+- Пневматические клапаны, управляющие переменным отводом отработанных газов из жаровни
+
+<GuideEntityEmbed entity="pipe_valve" />
+<GuideEntityEmbed entity="pipe_filter" />
+<GuideEntityEmbed entity="pipe_meter" />
+<GuideEntityEmbed entity="pipe_pump" />
+<GuideEntityEmbed entity="pipe_switch" />
+<GuideEntityEmbed entity="pipe_junction" />
+<GuideEntityEmbed entity="pipe_manifold" />
+<GuideEntityEmbed entity="pipe_t" />
+<GuideEntityEmbed entity="pipe_corner" />
+<GuideEntityEmbed entity="pipe_end" />
+<GuideEntityEmbed entity="pipe_bend" />
+<GuideEntityEmbed entity="pipe_straight" />
+<GuideEntityEmbed entity="pipe_vent" />
+<GuideEntityEmbed entity="pipe_vent_cap" />
+<GuideEntityEmbed entity="pipe_vent_pump" />
+<GuideEntityEmbed entity="pipe_vent_filter" />
+<GuideEntityEmbed entity="pipe_vent_meter" />
+<GuideEntityEmbed entity="pipe_vent_switch" />
+<GuideEntityEmbed entity="pipe_vent_junction" />
+<GuideEntityEmbed entity="pipe_vent_manifold" />
+<GuideEntityEmbed entity="pipe_vent_t" />
+<GuideEntityEmbed entity="pipe_vent_corner" />
+<GuideEntityEmbed entity="pipe_vent_end" />
+<GuideEntityEmbed entity="pipe_vent_bend" />
+<GuideEntityEmbed entity="pipe_vent_straight" />
+<GuideEntityEmbed entity="pipe_vent_valve" />
+<GuideEntityEmbed entity="pipe_vent_filter" />
+<GuideEntityEmbed entity="pipe_vent_meter" />
+<GuideEntityEmbed entity="pipe_vent_pump" />
+<GuideEntityEmbed entity="pipe_vent_switch" />
+<GuideEntityEmbed entity="pipe_vent_junction" />
+<GuideEntityEmbed entity="pipe_vent_manifold" />
+<GuideEntityEmbed entity="pipe_vent_t" />
+<GuideEntityEmbed entity="pipe_vent_corner" />
+<GuideEntityEmbed entity="pipe_vent_end" />
+<GuideEntityEmbed entity="pipe_vent_bend" />
+<GuideEntityEmbed entity="pipe_vent_straight" />
+<GuideEntityEmbed entity="pipe_vent_valve" />
+<GuideEntityEmbed entity="pipe_vent_filter" />
+<GuideEntityEmbed entity="pipe_vent_meter" />
+<GuideEntityEmbed entity="pipe_vent_pump" />
+<GuideEntityEmbed entity="pipe_vent_switch" />
+<GuideEntityEmbed entity="pipe_vent_junction" />
+<GuideEntityEmbed entity="pipe_vent_manifold" />
+<GuideEntityEmbed entity="pipe_vent_t" />
+<GuideEntityEmbed entity="pipe_vent_corner" />
+<GuideEntityEmbed entity="pipe_vent_end" />
+<GuideEntityEmbed entity="pipe_vent_bend" />
+<GuideEntityEmbed entity="pipe_vent_straight" />
+<GuideEntityEmbed entity="pipe_vent_valve" />
+<GuideEntityEmbed entity="pipe_vent_filter" />
+<GuideEntityEmbed entity="pipe_vent_meter" />
+<GuideEntityEmbed entity="pipe_vent_pump" />
+<GuideEntityEmbed entity="pipe_vent_switch" />
+<GuideEntityEmbed entity="pipe_vent_junction" />
+<GuideEntityEmbed entity="pipe_vent_manifold" />
+<GuideEntityEmbed entity="pipe_vent_t" />
+<GuideEntityEmbed entity="pipe_vent_corner" />
+<GuideEntityEmbed entity="pipe_vent_end" />
+<GuideEntityEmbed entity="pipe_vent_bend" />
+<GuideEntityEmbed entity="pipe_vent_straight" />
+<GuideEntityEmbed entity="pipe_vent_valve" />
+<GuideEntityEmbed entity="pipe_vent_filter" />
+<GuideEntityEmbed entity="pipe_vent_meter" />
+<GuideEntityEmbed entity="pipe_vent_pump" />
+<GuideEntityEmbed entity="pipe_vent_switch" />
+<GuideEntityEmbed entity="pipe_vent_junction" />
+<GuideEntityEmbed entity="pipe_vent_manifold" />
+<GuideEntityEmbed entity="pipe_vent_t" />
+<GuideEntityEmbed entity="pipe_vent_corner" />
+<GuideEntityEmbed entity="pipe_vent_end" />
+<GuideEntityEmbed entity="pipe_vent_bend" />
+<GuideEntityEmbed entity="pipe_vent_straight

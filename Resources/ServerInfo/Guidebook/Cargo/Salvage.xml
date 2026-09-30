@@ -1,13 +1,14 @@
 <Document>
-  # Salvage
+  # Спасение
+</Document>
 
-  [color=cyan]Salvage[/color] is one of Cargo's key, but also most dangerous, sources of income. Salvage extracts money from [color=cyan]Space Debris[/color] and going on [color=cyan]Planetary Expeditions[/color].
+[color=green]Спасение[/color] — один из ключевых, но также самых опасных источников дохода ОтрядаЗагрузки. Спасение извлекает деньги из [color=green]Космических обломков[/color] и отправляясь в [color=green]Планетарные экспедиции[/color].
 
-  While risky because of the dangers of space and alien planets, with the proper preparation and teamwork, any Salvage Team can make a lot of money for Cargo.
+Хотя это может быть рискованно из-за опасностей космоса и чужих планет, при должной подготовке и командной работе любая команда по спасению может заработать много денег для отдела Грузоперевозок.
 
-  ## Preperations
+## Подготовка
 
-  Before embarking on a Salvage mission, ensure you are prepared with all the required equipment. Otherwise, you will die before seeing any profits!
+Прежде чем отправиться в миссию по спасению, убедитесь, что вы оснащены всем необходимым оборудованием. В противном случае вы умрёте, прежде чем получить какие-либо выгоды!
 
   <Box>
     <GuideEntityEmbed Entity="SuitStorageSalv"/>
@@ -15,7 +16,7 @@
     <GuideEntityEmbed Entity="VendingMachineSalvage"/>
   </Box>
 
-  Everything needed before leaving the station is provided inside Salvage's starting room. While Science can research better weapons and equipment, it is best to be equipped with something rather than nothing.
+Всё необходимое до выхода со станции содержится внутри начального помещения Спасателей. Пока Наука может исследовать лучшие оружие и снаряжение, лучше быть вооружённым чем-нибудь, чем вообще не вооружённым.
 
   <Box>
     <GuideEntityEmbed Entity="ClothingOuterHardsuitSpatio"/>
@@ -23,39 +24,39 @@
     <GuideEntityEmbed Entity="VendingMachineTankDispenserEVA"/>
   </Box>
 
-  The most basic equipment you need is the EVA setup.
+Базовое оборудование, которое вам нужно — это комплект EVA.
 
-  - [color=cyan]Spationaut Hardsuit[/color]: This keeps you alive in space. [italic]Remember to activate the helmet so you can breathe and turn on its built-in flashlight[/italic].
-  - [color=cyan]Magboots[/color]: These provide you with gravity when exploring space debris while also making you slip-proof.
-  - [color=cyan]Oxygen/Nitrogen[/color]: Depending on your species, you will need [color=cyan]Nitrogen[/color] (slimes) or [color=cyan]Oxygen[/color] (every other species). The [color=cyan]Gas Tank Dispenser[/color] has all the tanks needed, so stock up. Be warned that the Salvage Shuttle doesn't always have air, so you might start asphyxiating before even getting to space
+- [color=cyan]Космический скафандр[/color]: Он сохраняет вашу жизнь в космосе. [italic]Не забудьте включить шлем, чтобы дышать, и включить встроенный фонарь[/italic].
+- [color=cyan]Магнитные ботинки[/color]: Они обеспечивают вам гравитацию при исследовании космических обломков, а также делают вас непод滑ющим.
+- [color=cyan]Кислород/Азот[/color]: В зависимости от вашего вида, вам понадобится [color=cyan]Азот[/color] (слизы) или [color=cyan]Кислород[/color] (все остальные виды). [color=cyan]Распределитель баллонов с газом[/color] содержит все необходимые баллоны, поэтому пополните запасы. Имейте в виду, что в шаттле поиска и спасения не всегда есть воздух, поэтому вы можете начать задыхаться еще до выхода в космос.
 
   <Box>
     <GuideEntityEmbed Entity="WeaponProtoKineticAccelerator"/>
   </Box>
 
-  All Salvage Specialists must be armed, in case they need to defend themselves from hostiles.
+Все специалисты по сносу должны быть вооружены на случай, если им придется защищаться от врагов.
 
-  - [color=cyan]Proto-Kinetic Accelerator[/color]: This gun has infinite ammunition, allowing you to slowly mine and fly through space.
+- [color=cyan]Прото-кинетический ускоритель[/color]: Эта пушка имеет бесконечный запас патронов, позволяя вам медленно добывать ресурсы и летать по космосу.
 
   <Box>
     <GuideEntityEmbed Entity="Pickaxe"/>
     <GuideEntityEmbed Entity="OreBag"/>
   </Box>
 
-  Mining (on asteroids or expeditions) requires its own basic set.
+Добыча полезных ископаемых (на астероидах или на экспедициях) требует собственного базового набора инструментов.
 
-  - [color=cyan]Pickaxe[/color]: This is required for mining at any reasonable speed when wielded. Also, it works as a melee weapon!
-  - [color=cyan]Ore Bag[/color]: When equipped with the belt, this magnetizes nearby ore and automatically picks it up for you.
+- [color=cyan]Кирка[/color]: Необходима для добычи руды с разумной скоростью при использовании. Также может служить оружием ближнего боя!
+- [color=cyan]Мешок для руды[/color]: При надетой на пояс, магнитизирует ближайшую руду и автоматически подбирает её за вас.
 
   <Box>
     <GuideEntityEmbed Entity="FultonBeacon"/>
     <GuideEntityEmbed Entity="Fulton"/>
   </Box>
 
-  Before looting (space wrecks or expeditions), set up Fultons to transport large objects or dead Salvage Technicians.
+Прежде чем приступить к разбору (космических обломков или экспедиций), установите Фальтоны для транспортировки больших объектов или тел Погрузчиков-спасателей.
 
-  - [color=cyan]Fulton Beacon[/color]: Unfold this to the shuttle, and all Fulton-attached objects will fly to it within 15 tiles.
-  - [color=cyan]Fulton[/color]: After linking with the Fulton Beacon, attach a Fulton to the object, and after one minute, it will fly to the Fulton Beacon.
+- [color=cyan]Фултоновы маяк[/color]: Разверните его к шатлу, и все прикреплённые к нему объекты полетят к нему в течение 15 клеток.
+- [color=cyan]Фултон[/color]: После соединения с Фултоновым маяком прикрепите Фултон к объекту, и через одну минуту он полетит к Фултонову маяку.
 
   <Box>
     <GuideEntityEmbed Entity="RadioHandheld"/>
@@ -63,33 +64,260 @@
     <GuideEntityEmbed Entity="ClothingBeltUtilityFilled"/>
   </Box>
 
-  Finally, there are also some helpful but not required equipment that is available to Salvage.
+Наконец, существует также несколько полезных, но необязательных предметов снаряжения, доступных для Спасателей.
 
-  - [color=cyan]Handheld Radio[/color]: This lets you communicate with other Salvage Specialists even if regular radio communications are unavailable. It is essential for Salvage coordination while in space or on expeditions.
-  - [color=cyan]Global Positioning System[/color]: This gives you an absolute position of yourself, allowing you to pinpoint your exact location. If you get lost in space, this can let you organize a rescue mission or can help you get back to the shuttle when lost on an expedition.
-  - [color=cyan]Utility Belt[/color]: This holds all the equipment you will need to loot machines and the like from space wrecks and expeditions.
+- [color=cyan]Ручной радио-передатчик[/color]: Позволяет вам общаться с другими Специалистами по спасению, даже если обычные радиосвязи недоступны. Необходим для координации спасательных работ во время космических миссий или экспедиций.
+- [color=cyan]Глобальная система позиционирования[/color]: Предоставляет точные координаты вашего местоположения, позволяя точно определить ваше положение. Если вы заблудились в космосе, это может помочь организовать спасательную миссию или вернуться на шаттл, если вы потерялись во время экспедиции.
+- [color=cyan]Консольное устройство[/color]: Хранит всё оборудование, необходимое для обыска машин и прочего в космических обломках и во время экспедиций.
 
-  ## Space Debris
+## Космические обломки
 
-  Once prepared, it is time to go and explore the stars.
+После подготовки пришло время отправиться и исследовать звезды.
 
-  Before immediately doing expeditions, it is good practice to start with space debris so that the crew gets used to their job.
+Прежде чем сразу отправляться в экспедиции, хорошо бы начать с работы со старыми обломками, чтобы экипаж привык к своей работе.
 
-  [color=cyan]Space Debris[/color] is generally much safer than expeditions and provides many basic materials (such as steel, glass, etc) in short supply at the start of the shift.
+[color=cyan]Космические обломки[/color] обычно намного безопаснее экспедиций и обеспечивают множество базовых материалов (таких как сталь, стекло и т.д.), которые в начале смены находятся в дефиците.
 
   <Box>
     <GuideEntityEmbed Entity="SalvageMagnet"/>
   </Box>
 
-  The [color=cyan]Salvage Magnet[/color] is the machine that brings space debris into nearby space.
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed ...]
+[Box]
+[GuideEntityEmbed
 
-  The Salvage Magnet provides six offers: the first 3 are [color=cyan]Asteroids[/color], and the last 3 are [color=cyan]Space Wrecks[/color]. The offers then refresh every 3 minutes until claimed, after which the space debris is brought in for the next [bold]6 minutes[/bold].
+Спасательный магнит предоставляет шесть предложений: первые 3 — [color=cyan]астероиды[/color], а последние 3 — [color=cyan]космические обломки[/color]. Предложения обновляются каждые 3 минуты до момента их принятия, после чего космические обломки доставляются в течение следующих [bold]6 минут[/bold].
 
-  The Salvage Magnet provides information on the types of resources on an asteroid, which can help you decide which to prioritize based on the current needs of the station.
+Спасательный магнит предоставляет информацию о типах ресурсов на астероиде, что может помочь вам решить, какие из них стоит приоритизировать в соответствии с текущими потребностями станции.
 
-  During the 6 minutes, fly to the debris, extract all profit possible, and then fly back to the station. [italic]You will die if you don't return to the shuttle in time[/italic]!
+В течение 6 минут полетите к обломкам, извлеките из них максимальную выгоду и возвращайтесь на станцию. [italic]Вы умрёте, если не вернётесь в шаттл вовремя[/italic]!
 
-  There are two main activities that you do with the Salvage Magnet:
+Существует два основных способа использования Магнита для спасения:
 
   <Box>
     <GuideEntityEmbed Entity="Pickaxe"/>
@@ -97,7 +325,7 @@
     <GuideEntityEmbed Entity="OreProcessor"/>
   </Box>
 
-  - [color=cyan]Asteroid Mining[/color]: This is the safest option for money as there are no hostiles. All you need to do is fly around and mine the ore with your [color=cyan]Pickaxe[/color] and [color=cyan]Ore Bag[/color]. Once you have collected all the ore, you can refine it into materials through the [color=cyan]Ore Processor[/color].
+- [color=cyan]Добыча на астероиде[/color]: Это самый безопасный способ заработка, так как враждебных существ нет. Всё, что вам нужно сделать, — это летать вокруг и добывать руду с помощью [color=cyan]Кирки[/color] и [color=cyan]Мешка для руды[/color]. Как только вы соберёте всю руду, вы сможете переработать её в материалы через [color=cyan]Рудообрабатывающий комплекс[/color].
 
   <Box>
     <GuideEntityEmbed Entity="Wrench"/>
@@ -105,11 +333,11 @@
     <GuideEntityEmbed Entity="WeaponProtoKineticAccelerator"/>
   </Box>
 
-  - [color=cyan]Space Wreck Salvaging[/color]: These are slightly more dangerous as there are hostiles. Keep your distance from hostiles and shoot at them with the [color=cyan]Proto-Kinetic Accelerator[/color]. You will mainly be looting equipment and machines through [color=cyan]Wrenches[/color] and [color=cyan]Fultons[/color].
+- [color=cyan]Сборка обломков космического корабля[/color]: Они немного опаснее, поскольку там находятся враги. Держитесь на расстоянии от врагов и стреляйте в них с помощью [color=cyan]прото-кинетического ускорителя[/color]. Основной способ добычи оборудования и машин — с помощью [color=cyan]гаечных ключей[/color] и [color=cyan]фальтона[/color].
 
-  ## Planetary Expeditions
+## Планетарные экспедиции
 
-  Finally, [color=cyan]Planetary Expeditions[/color] are the most dangerous but profitable way for Salvage to make money.
+Наконец, [color=cyan]Планетарные экспедиции[/color] — самый опасный, но прибыльный способ заработка для Спасателей.
 
   <Box>
     <GuideEntityEmbed Entity="ComputerSalvageExpedition"/>
@@ -117,18 +345,16 @@
     <GuideEntityEmbed Entity="ComputerShuttle"/>
   </Box>
 
+Во-первых, используйте [color=cyan]Компьютер спасательной экспедиции[/color], чтобы выбрать экспедицию. Каждые 30 секунд миссии циклически меняются и предоставляют определенную информацию, такую как [color=yellow]сложность[/color] и [color=yellow]типы врагов[/color].
 
-  First, use the [color=cyan]Salvage Expedition Computer[/color] to select an expedition. Every 30 seconds, the missions cycle and provide certain information like the [color=yellow]difficulty[/color] and [color=yellow]types of enemies[/color].
+После того как вы взвесите все варианты, выберите экспедицию, которая лучше всего соответствует нуждам станции и возможностям экипажа.
 
-  After weighing your options, pick the expedition that best suits the station's needs and the crew's abilities.
+После того как вы возьмете на себя экспедиционную миссию, будет выпущен [color=cyan]Координатный диск[/color], который нужно вставить в [color=cyan]Консоль шаттла[/color].
 
-  Once you claim the expedition mission, a [color=cyan]Coordinates Disk[/color] will be ejected, which needs to be inserted into the [color=cyan]Shuttle Console[/color].
+После входа в консоль шаттла переключитесь в [color=yellow]режим карты[/color]. Затем нажмите "[color=yellow]Сканировать ближайшие объекты[/color]". Теперь в выпадающем меню в левом нижнем углу интерфейса консоли нажмите [color=yellow]на имя планеты[/color]. Наконец, включите [color=yellow]FTL[/color], кликните по [color=yellow]планете на карте[/color], и вы начнете FTL-путешествие.
 
-  Once inside the Shuttle Console, switch to [color=yellow]Map mode[/color]. Then, click "[color=yellow]Scan for Nearby Objects[/color]". Now, on the drop-down menu on the bottom left of the console UI, click on [color=yellow]the planet's name[/color]. Finally, enable [color=yellow]FTL[/color], click on the [color=yellow]planet on the map[/color], and you will begin FTL travel.
+После того как вы приземлитесь на планету, у вас будет [bold]11 минут[/bold], чтобы потратить время между [color=cyan]Шахтными[/color] и [color=cyan]Подземельными[/color] активностями
 
-  Once you have landed on the planet, you will have [bold]11 minutes[/bold] to spend between [color=cyan]Mining[/color] and [color=cyan]Dungeon Looting[/color]
+- [color=cyan]Экспедиционная добыча[/color]: Добыча полезных ископаемых во время экспедиций предоставляет доступ к широкому спектру ресурсов, но также увеличивает риск заблудиться или столкнуться с экологическими и враждебными угрозами.
 
-  - [color=cyan]Expedition Mining[/color]: Mining during expeditions provides access to a wide range of resources, but also increases the risk of getting lost or encountering environmental and hostile threats.
-
-  - [color=cyan]Dungeon Looting[/color]: Dungeon Looting is where you make the most profit. When you touch down on the planet, the direction of the dungeon will be announced over the radio. Next, break into the dungeon, kill all the hostiles, and secure any loot. [color=cyan]Fultons[/color] become especially handy as you will be transferring whole machines and anomalies. The rewards from Dungeon Looting are expensive equipment to sell and exclusive technologies, such as [color=yellow]cloning[/color]. As an addition, the corpses of the hostiles can also be used and sold!
-</Document>
+- [color=cyan]Залежи подземелья[/color]: Залежи подземелья — это самое прибыльное. Когда вы приземлитесь на планету, направление подземелья будет объявлено по радио. Далее, проникните в подземелье, убейте всех врагов и захватите всё добытое. [color=cyan]Фултон[/color] особенно пригодится, ведь вы будете переносить целые машины и аномалии. Награды за Залежи подземелья — это дорогая техника, которую можно продать, и эксклюзивные технологии, такие как [color=yellow]клонирование[/color]. Кроме того, тела врагов тоже можно использовать и продавать!

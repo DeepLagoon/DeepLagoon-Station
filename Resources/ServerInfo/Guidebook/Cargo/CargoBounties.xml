@@ -1,21 +1,22 @@
 <Document>
-  # Cargo Bounties
-  While [textlink="Cargo" link="Cargo"] can make [color=cyan]spesos[color] selling just about anything, more spesos can be made by fulfilling [color=cyan]bounties[/color] found through the Cargo Bounty Computer.
+  # Награды за грузы
+  Хотя [textlink="Грузовой" link="Cargo"] отдел может принести [color=cyan]спесосов[/color], продавая практически всё, больше спесосов можно заработать, выполняя [color=cyan]награды[/color], найденные через Компьютер грузовых наград.
+</Document>
 
-  ## Starting Bounties
+## Начальные награды
 
   <Box>
     <GuideEntityEmbed Entity="ComputerCargoBounty"/>
     <GuideEntityEmbed Entity="PaperCargoBountyManifest"/>
   </Box>
 
-  To start a bounty, open the bounty screen by interacting with the [color=cyan]Cargo Bounty Computer[/color]. The Cargo Bounty Computer maintains a list of all the current bounties and lets you either print out a label or skip it.
+Чтобы начать охоту, откройте экран наград, взаимодействуя с [color=cyan]Компьютером грузовых наград[/color]. Компьютер грузовых наград поддерживает список всех текущих наград и позволяет либо распечатать этикетку, либо пропустить её.
 
-  - Printing the label gives you a [color=cyan]Bounty Manifest[/color] listing the goods that need to be acquired. You can print out infinite Bounty Manifests, so ensure you are not repeating the same work as another Cargo Technician.
+- Распечатка этикетки даёт вам [color=cyan]Паспорт награды[/color], в котором перечислены товары, которые нужно приобрести. Вы можете распечатать неограниченное количество Паспортов наград, поэтому убедитесь, что вы не повторяете одни и те же задачи, что и другой Специалист по грузоперевозкам.
 
-  - Skipping a bounty replaces that bounty with a new one, as there can only be six active bounties at any time. Skipping has a 15-minute cooldown and voids that bounty, which may anger other Cargo Technicians working on it.
+- Пропуск награды заменяет её новой, так как одновременно может быть активно только шесть наград. Пропуск имеет перезарядку в 15 минут и аннулирует награду, что может разозлить других Техников Грузоперевозок, работающих с ней.
 
-  ## Fulfilling Bounties
+## Выполнение Наград
 
   <Box>
     <GuideEntityEmbed Entity="PaperCargoBountyManifest"/>
@@ -23,13 +24,13 @@
     <GuideEntityEmbed Entity="AppraisalTool"/>
   </Box>
 
-  With the [color=cyan]Bounty Manifest[/color], it is now up to you to collect the required goods. Most departments will give you what you need by asking for it with a Bounty Manifest.
+С [color=cyan]Приказом на награду[/color] вы теперь сами должны собрать необходимые предметы. Большинство отделов предоставят вам то, что вам нужно, если вы запросите это с помощью Приказа на награду.
 
-  Once you have collected the goods, return to the cargo bay and put the goods inside an empty [color=cyan]Crate[/color]. After everything is in the crate, close it, and then apply the Bounty Manifest to it.
+После того как вы соберете предметы, вернитесь в отсек груза и поместите их в пустую [color=cyan]Ящик[/color]. После того как все будет находиться в ящике, закройте его, а затем примените к нему [color=orange]Приказ на вознаграждение[/color].
 
-  To verify the completion of a bounty, use the [color=cyan]Appraisal Tool[/color] on it. It should say that it confirms that the bounty has been completed.
+Чтобы проверить выполнение награды, используйте [color=cyan]Инструмент оценки[/color] на ней. Должно появиться сообщение о том, что награда выполнена.
 
-  ## Selling Bounties
+## Продажа наград
 
   <Box>
     <GuideEntityEmbed Entity="PaperCargoBountyManifest"/>
@@ -37,9 +38,68 @@
     <GuideEntityEmbed Entity="CargoPalletSell"/>
   </Box>
 
-  Once you have verified that you have completed the bounty, follow the same steps as selling anything else.
+После того как вы убедитесь, что награда выполнена, выполните те же действия, что и при продаже чего-либо еще.
 
-  Just transport it to the [color=cyan]Trading Station[/color], sell it, and you are done!
+Просто перевези это на [color=cyan]Торговую Станцию[/color], продай, и всё!
 
-  When you return, there should be a new bounty to take its place.
-</Document>
+<GuideEntityEmbed type="Bounty" id="Bounty1" />
+<GuideEntityEmbed type="Bounty" id="Bounty2" />
+<GuideEntityEmbed type="Bounty" id="Bounty3" />
+<GuideEntityEmbed type="Bounty" id="Bounty4" />
+<GuideEntityEmbed type="Bounty" id="Bounty5" />
+<GuideEntityEmbed type="Bounty" id="Bounty6" />
+<GuideEntityEmbed type="Bounty" id="Bounty7" />
+<GuideEntityEmbed type="Bounty" id="Bounty8" />
+<GuideEntityEmbed type="Bounty" id="Bounty9" />
+<GuideEntityEmbed type="Bounty" id="Bounty10" />
+<GuideEntityEmbed type="Bounty" id="Bounty11" />
+<GuideEntityEmbed type="Bounty" id="Bounty12" />
+<GuideEntityEmbed type="Bounty" id="Bounty13" />
+<GuideEntityEmbed type="Bounty" id="Bounty14" />
+<GuideEntityEmbed type="Bounty" id="Bounty15" />
+<GuideEntityEmbed type="Bounty" id="Bounty16" />
+<GuideEntityEmbed type="Bounty" id="Bounty17" />
+<GuideEntityEmbed type="Bounty" id="Bounty18" />
+<GuideEntityEmbed type="Bounty" id="Bounty19" />
+<GuideEntityEmbed type="Bounty" id="Bounty20" />
+<GuideEntityEmbed type="Bounty" id="Bounty21" />
+<GuideEntityEmbed type="Bounty" id="Bounty22" />
+<GuideEntityEmbed type="Bounty" id="Bounty23" />
+<GuideEntityEmbed type="Bounty" id="Bounty24" />
+<GuideEntityEmbed type="Bounty" id="Bounty25" />
+<GuideEntityEmbed type="Bounty" id="Bounty26" />
+<GuideEntityEmbed type="Bounty" id="Bounty27" />
+<GuideEntityEmbed type="Bounty" id="Bounty28" />
+<GuideEntityEmbed type="Bounty" id="Bounty29" />
+<GuideEntityEmbed type="Bounty" id="Bounty30" />
+<GuideEntityEmbed type="Bounty" id="Bounty31" />
+<GuideEntityEmbed type="Bounty" id="Bounty32" />
+<GuideEntityEmbed type="Bounty" id="Bounty33" />
+<GuideEntityEmbed type="Bounty" id="Bounty34" />
+<GuideEntityEmbed type="Bounty" id="Bounty35" />
+<GuideEntityEmbed type="Bounty" id="Bounty36" />
+<GuideEntityEmbed type="Bounty" id="Bounty37" />
+<GuideEntityEmbed type="Bounty" id="Bounty38" />
+<GuideEntityEmbed type="Bounty" id="Bounty39" />
+<GuideEntityEmbed type="Bounty" id="Bounty40" />
+<GuideEntityEmbed type="Bounty" id="Bounty41" />
+<GuideEntityEmbed type="Bounty" id="Bounty42" />
+<GuideEntityEmbed type="Bounty" id="Bounty43" />
+<GuideEntityEmbed type="Bounty" id="Bounty44" />
+<GuideEntityEmbed type="Bounty" id="Bounty45" />
+<GuideEntityEmbed type="Bounty" id="Bounty46" />
+<GuideEntityEmbed type="Bounty" id="Bounty47" />
+<GuideEntityEmbed type="Bounty" id="Bounty48" />
+<GuideEntityEmbed type="Bounty" id="Bounty49" />
+<GuideEntityEmbed type="Bounty" id="Bounty50" />
+<GuideEntityEmbed type="Bounty" id="Bounty51" />
+<GuideEntityEmbed type="Bounty" id="Bounty52" />
+<GuideEntityEmbed type="Bounty" id="Bounty53" />
+<GuideEntityEmbed type="Bounty" id="Bounty54" />
+<GuideEntityEmbed type="Bounty" id="Bounty55" />
+<GuideEntityEmbed type="Bounty" id="Bounty56" />
+<GuideEntityEmbed type="Bounty" id="Bounty57" />
+<GuideEntityEmbed type="Bounty" id="Bounty58" />
+<GuideEntityEmbed type="Bounty" id="Bounty59" />
+<GuideEntityEmbed type="Bounty" id="Bounty60" />
+<GuideEntityEmbed type="Bounty" id="Bounty
