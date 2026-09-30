@@ -1,5 +1,5 @@
 # Names
-delta-chat-emote-name-honk = Сигналить
+delta-chat-emote-name-honk = Хонкать
 delta-chat-emote-name-ring = Кольцо
 delta-chat-emote-name-pew = Пиу
 delta-chat-emote-name-bang = Бум
