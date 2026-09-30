@@ -1,7 +1,7 @@
 chat-emote-name-spin = Крутить
 chat-emote-name-jump = Прыгать
 chat-emote-msg-spin = вращается!
-chat-emote-msg-jump = прыжки!
+chat-emote-msg-jump = прыгает!
 
 # Names
 chat-emote-name-trill = Трель

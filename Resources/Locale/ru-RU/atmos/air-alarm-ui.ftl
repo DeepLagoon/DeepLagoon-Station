@@ -23,7 +23,7 @@ air-alarm-ui-window-alarm-state = [color={$color}]{$state}[/color]
 air-alarm-ui-window-alarm-state-indicator = Статус: [color={$color}]{$state}[/color]
 
 air-alarm-ui-window-tab-vents = Вентиляция
-air-alarm-ui-window-tab-scrubbers = Аппараты очистки
+air-alarm-ui-window-tab-scrubbers = Скрубберы
 air-alarm-ui-window-tab-sensors = Сенсоры
 
 air-alarm-ui-gases = {$gas}: {$amount} моль ({$percentage}%)

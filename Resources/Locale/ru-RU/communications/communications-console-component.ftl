@@ -9,9 +9,9 @@ comms-console-menu-broadcast-button = Трансляция
 comms-console-menu-broadcast-button-tooltip = Отправьте сообщение на экраны на стенах по сектору. Внимание: помещается только десять символов!
 # Frontier: station<sector
 comms-console-menu-alert-level-button-tooltip = Изменить уровень тревоги сектора. Применяется немедленно при выборе.
-comms-console-menu-call-shuttle = Позвать экстренный трансформатор
-comms-console-menu-recall-shuttle = Вызвать экстренный шаттл
-comms-console-menu-emergency-shuttle-button-tooltip = Вызывает экстренный шатл. Можно отменить вызов только при наличии времени.
+comms-console-menu-call-shuttle = Вызвать шаттл
+comms-console-menu-recall-shuttle = Отозвать шаттл
+comms-console-menu-emergency-shuttle-button-tooltip = Вызывает шатл. Можно отменить вызов только при наличии времени.
 comms-console-menu-time-remaining = Времени осталось: {$time}
 
 # Popup

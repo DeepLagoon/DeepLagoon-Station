@@ -1,37 +1,70 @@
 ﻿<Document>
-# Chemicals
+# Химикаты
 
-Chemicals are a powerful tool that can cause a variety of effects when consumed. Some can be found in plants, purchased from cargo, or be synthesized through combination with other chemicals.
+Химические вещества – это мощный инструмент, который может вызывать различные эффекты при употреблении. Некоторые из них можно найти в растениях, приобрести в поставках или синтезировать путем комбинации с другими химическими веществами.
 
-Knowing different types of chemicals and their effects is important for being able to manage injury and danger.
+Знание различных типов химических веществ и их эффектов важно для умения управлять повреждениями и опасностями.
+<GuideEntityEmbed type="Chemical" id="1" />
+<GuideEntityEmbed type="Chemical" id="2" />
+<GuideEntityEmbed type="Chemical" id="3" />
+<GuideEntityEmbed type="Chemical" id="4" />
+<GuideEntityEmbed type="Chemical" id="5" />
+<GuideEntityEmbed type="Chemical" id="6" />
+<GuideEntityEmbed type="Chemical" id="7" />
+<GuideEntityEmbed type="Chemical" id="8" />
+<GuideEntityEmbed type="Chemical" id="9" />
+<GuideEntityEmbed type="Chemical" id="10" />
+<GuideEntityEmbed type="Chemical" id="11" />
+<GuideEntityEmbed type="Chemical" id="12" />
+<GuideEntityEmbed type="Chemical" id="13" />
+<GuideEntityEmbed type="Chemical" id="14" />
+<GuideEntityEmbed type="Chemical" id="15" />
+<GuideEntityEmbed type="Chemical" id="16" />
+<GuideEntityEmbed type="Chemical" id="17" />
+<GuideEntityEmbed type="Chemical" id="18" />
+<GuideEntityEmbed type="Chemical" id="19" />
+<GuideEntityEmbed type="Chemical" id="20" />
+<GuideEntityEmbed type="Chemical" id="21" />
+<GuideEntityEmbed type="Chemical" id="22" />
+<GuideEntityEmbed type="Chemical" id="23" />
+<GuideEntityEmbed type="Chemical" id="24" />
+<GuideEntityEmbed type="Chemical" id="25" />
+<GuideEntityEmbed type="Chemical" id="26" />
+<GuideEntityEmbed type="Chemical" id="27" />
+<GuideEntityEmbed type="Chemical" id="28" />
+<GuideEntityEmbed type="Chemical" id="29" />
+<GuideEntityEmbed type="Chemical" id="30" />
+<GuideEntityEmbed type="Chemical" id="31" />
+<GuideEntityEmbed type="Chemical" id="32" />
+<GuideEntityEmbed type="Chem
 
-## Elements
+## Элементы
 <GuideReagentGroupEmbed Group="Elements"/>
 
-## Medicine
+## Медицина
 <GuideReagentGroupEmbed Group="Medicine"/>
 
-## Narcotics
+## Наркотики
 <GuideReagentGroupEmbed Group="Narcotics"/>
 
-## Pyrotechnics
+## Пиротехника
 <GuideReagentGroupEmbed Group="Pyrotechnic"/>
 
-## Toxins
+## Токсины
 <GuideReagentGroupEmbed Group="Toxins"/>
 
-## Foods
+## Еда
 <GuideReagentGroupEmbed Group="Foods"/>
 
-## Botanical
+## Ботаника
 <GuideReagentGroupEmbed Group="Botanical"/>
 
-## Biological
+## Биологические
 <GuideReagentGroupEmbed Group="Biological"/>
 
-## Special
+## Специальные
 <GuideReagentGroupEmbed Group="Special"/>
 
-## Other
+## Другое
 <GuideReagentGroupEmbed Group="Unknown"/>
 </Document>
