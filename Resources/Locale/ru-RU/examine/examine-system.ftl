@@ -6,6 +6,6 @@ examine-system-cant-see-entity = Невозможно разглядеть, чт
 
 examine-verb-name = Основной
 
-examinable-anchored = Он [color=darkgreen]закреплён[/color] за полом.
+examinable-anchored = Он [color=darkgreen]закреплён[/color] к полу.
 
-examinable-unanchored = Он [color=darkred]не закреплён[/color] за полом.
+examinable-unanchored = Он [color=darkred]не закреплён[/color] к полу.
