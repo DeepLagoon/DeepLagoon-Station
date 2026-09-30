@@ -28,7 +28,7 @@ humanoid-profile-editor-height-label = Высота:
 humanoid-profile-editor-width-label = Ширина:
 # Mono End
 humanoid-profile-editor-eyes-label = Цвет глаз:
-humanoid-profile-editor-jobs-tab = Работы
+humanoid-profile-editor-jobs-tab = Профессии
 humanoid-profile-editor-preference-unavailable-stay-in-lobby-button = Останьтесь в лобби, если предпочтение недоступно.
 # Frontier: we have multiple overflow job types, so we change this message.
 # humanoid-profile-editor-preference-unavailable-spawn-as-overflow-button = Будет {INDEFINITE($overflowJob)} {$overflowJob}, если предпочтение недоступно.
@@ -60,8 +60,8 @@ humanoid-profile-editor-markings-tab = Маркировка
 humanoid-profile-editor-flavortext-tab = Описание
 
 # Company
-humanoid-profile-editor-company-tab = Компания
-humanoid-profile-editor-company-label = Компания:
+humanoid-profile-editor-company-tab = Фракция
+humanoid-profile-editor-company-label = Фракция:
 
 # Traits
 humanoid-profile-editor-traits-tab = Черты
@@ -74,7 +74,7 @@ humanoid-profile-editor-trait-count-hint = Доступные очки: [{$curre
 humanoid-profile-editor-clear-all-traits-button = Очистить все черты
 humanoid-profile-editor-clear-all-traits-confirm = Подтвердить очистку
 
-trait-category-disabilities = Нарушения функций
+trait-category-disabilities = Недостатки
 trait-category-speech = Акценты
 trait-category-quirks = Особенности
 # Mono

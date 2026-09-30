@@ -1,5 +1,5 @@
 lobby-state-paused = Пауза
-lobby-state-soon = Бой скоро начнется
+lobby-state-soon = Раунд скоро начнется
 lobby-state-right-now-question = Сейчас?
 lobby-state-right-now-confirmation = Сейчас же
 lobby-state-round-start-countdown-text = Раунд начинается через: {$timeLeft}
@@ -9,7 +9,7 @@ lobby-state-player-status-not-ready = Не готов
 lobby-state-player-status-ready = Готов
 lobby-state-player-status-observer = Наблюдатель
 lobby-state-player-status-round-not-started = Раунд еще не начался
-lobby-state-player-status-round-time = 
+lobby-state-player-status-round-time =
     The round time is: {$hours} {$hours ->
     [1]hour
     *[other]hours
