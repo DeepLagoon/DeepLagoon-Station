@@ -1,4 +1,4 @@
-machine-insert-item = {CAPITALIZE(ИГРОК)} вставил {ПРЕДМЕТ($item)} в {ПРЕДМЕТ($machine)}.
+machine-insert-item = {CAPITALIZE(THE($user))} вставляет {THE($item)} в {THE($machine)}.
 
 machine-upgrade-examinable-verb-text = Улучшения
 machine-upgrade-examinable-verb-message = Изучите улучшения машины.
@@ -26,4 +26,4 @@ two-way-lever-cant = Нельзя толкать рычаг в этом напр
 
 recycler-count-items = Переработано {$items} предметов.
 
-machine-already-in-use = {CAPITALIZE(МАШИНА)} уже используется.
+machine-already-in-use = {CAPITALIZE($machine)} уже используется.

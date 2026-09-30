@@ -1,4 +1,4 @@
-contraband-price-gun-pricing-result = Устройство определяет ценность {THE($object)} в {$price
+contraband-price-gun-pricing-result = The device deems {THE($object)} to be worth {$price ->
     [0] no FMCs.
     [one] {$price} FMC.
     *[other] {$price} FMCs.
