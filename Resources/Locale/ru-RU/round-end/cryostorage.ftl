@@ -1,10 +1,10 @@
-cryostorage-insert-message-permanent = [color=white]You are now inside of a [bold][color=cyan]cryogenic sleep unit[/color][/bold]. If you [bold]disconnect[/bold], [bold]ghost[/bold], or [bold]wait {$time} minutes[/bold], [color=red]your body will be removed[/color] and your job slot will be opened. You can exit at any time to prevent this.[/color]
-cryostorage-insert-message-temp = [color=white]You are now inside of a [bold][color=cyan]cryogenic sleep unit[/color][/bold]. If you [bold]ghost[/bold] or [bold]wait {$time} minutes[/bold], [color=red]your body will be removed[/color] and your job slot will be opened. If you [bold][color=cyan]disconnect[/color][/bold], your body will be safely held until you rejoin.[/color]
+cryostorage-insert-message-permanent = [color=white]Вы находитесь внутри [bold][color=cyan]криогенного узла[/color][/bold]. Если вы [bold]отключитесь[/bold], [bold]засветите[/bold] или [bold]подождете {$time} минут[/bold], [color=red]ваше тело будет изъято[/color] и ваш рабочий слот будет освобожден. Выйти можно в любое время, чтобы этого не произошло.[/color]
+cryostorage-insert-message-temp = [color=white]Вы находитесь внутри [bold][color=cyan]криогенного узла[/color][/bold]. Если вы [bold]превратитесь в призрака[/bold] или [bold]подождете {$time} минут[/bold], [color=red]ваше тело будет изъято[/color], и ваш рабочий слот освободится. Если вы [bold][color=cyan]отключитесь[/color][/bold], ваше тело будет надежно сохранено до вашего возвращения.[/color]
 
-cryostorage-ui-window-title = Cryogenic Sleep Unit
+cryostorage-ui-window-title = Криогенная спальная установка
 cryostorage-ui-label-slot-name = [bold]{CAPITALIZE($slot)}:[/bold]
-cryostorage-ui-button-remove = Remove
-cryostorage-ui-filler-hand = inhand
-cryostorage-ui-label-no-bodies = No bodies in cryostorage
+cryostorage-ui-button-remove = Удалить
+cryostorage-ui-filler-hand = в руках
+cryostorage-ui-label-no-bodies = В криогенном хранилище нет тел
 
-cryostorage-popup-access-denied = Access denied!
+cryostorage-popup-access-denied = Доступ запрещен!

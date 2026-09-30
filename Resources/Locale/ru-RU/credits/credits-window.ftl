@@ -1,12 +1,12 @@
-credits-window-title = Credits
-credits-window-patrons-tab = Patrons
-credits-window-ss14contributorslist-tab = Credits
-credits-window-licenses-tab = Open Source Licenses
-credits-window-become-patron-button = Become a Patron
-credits-window-contributor-encouragement-label = Want to get on this list?
-credits-window-contribute-button = Contribute!
+credits-window-title = Кредиты
+credits-window-patrons-tab = Покупатели
+credits-window-ss14contributorslist-tab = Кредиты
+credits-window-licenses-tab = Лицензии открытого исходного кода
+credits-window-become-patron-button = Стать покровителем
+credits-window-contributor-encouragement-label = Хочешь попасть в этот список?
+credits-window-contribute-button = Внести вклад!
 # Frontier: "Space Station 14"<"Monolith"
-credits-window-contributors-section-title = Frontier Station Contributors
-credits-window-codebases-section-title = Space Station 13 Codebases
-credits-window-original-remake-team-section-title = Original Space Station 13 Remake Team
-credits-window-special-thanks-section-title = Special Thanks
+credits-window-contributors-section-title = Участники Станции
+credits-window-codebases-section-title = Кодовые базы Стациона 13
+credits-window-original-remake-team-section-title = Оригинальная команда ремейка Space Station 13
+credits-window-special-thanks-section-title = Особая благодарность

@@ -1,21 +1,21 @@
-cmd-mapping-desc = Create or load a map and teleports you to it.
-cmd-mapping-help = Usage: mapping [MapID] [Path] [Grid]
-cmd-mapping-server = Only players can use this command.
-cmd-mapping-error = An error occurred when creating the new map.
-cmd-mapping-try-grid = Failed to load the file as a map. Attempting to load the file as a grid...
-cmd-mapping-success-load = Created uninitialized map from file {$path} with id {$mapId}.
-cmd-mapping-success-load-grid = Loaded uninitialized grid from file {$path} onto a new map with id {$mapId}.
-cmd-mapping-success = Created uninitialized map with id {$mapId}.
-cmd-mapping-warning = WARNING: The server is using a debug build. You are risking losing your changes.
+cmd-mapping-desc = Создайте или загрузите карту, и вы будете телепортированы на неё.
+cmd-mapping-help = Использование: mapping [MapID] [Path] [Grid]
+cmd-mapping-server = Только игроки могут использовать эту команду.
+cmd-mapping-error = Произошла ошибка при создании новой карты.
+cmd-mapping-try-grid = Не удалось загрузить файл как карту. Попытка загрузить файл как сетку...
+cmd-mapping-success-load = Создана неинициализированная карта из файла {$path} с идентификатором {$mapId}.
+cmd-mapping-success-load-grid = Загружен неинициализированный grid из файла {$path} на новую карту с id {$mapId}.
+cmd-mapping-success = Создана неинициализированная карта с ID {$mapId}.
+cmd-mapping-warning = ВНИМАНИЕ: Сервер использует отладочную сборку. Вашы изменения могут быть потеряны.
 
 
 # duplicate text from engine load/save map commands.
 # I CBF making this PR depend on that one.
-cmd-mapping-failure-integer = {$arg} is not a valid integer.
-cmd-mapping-failure-float = {$arg} is not a valid float.
-cmd-mapping-failure-bool = {$arg} is not a valid bool.
-cmd-mapping-nullspace = You cannot load into map 0.
+cmd-mapping-failure-integer = {$arg} не является допустимым целым числом.
+cmd-mapping-failure-float = {$arg} не является допустимым числом с плавающей точкой.
+cmd-mapping-failure-bool = {$arg} не является допустимым булевым значением.
+cmd-mapping-nullspace = Невозможно загрузиться на карте 0.
 cmd-hint-mapping-id = [MapID]
-cmd-mapping-hint-grid = [Grid]
-cmd-hint-mapping-path = [Path]
-cmd-mapping-exists = Map {$mapId} already exists.
+cmd-mapping-hint-grid = [Сетка]
+cmd-hint-mapping-path = [Путь]
+cmd-mapping-exists = Карта {$mapId} уже существует.

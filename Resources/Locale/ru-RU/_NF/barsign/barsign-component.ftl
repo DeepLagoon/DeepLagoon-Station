@@ -1,23 +1,23 @@
 ## Little Treats
-barsign-prototype-name-little-treats = Little Treats Tea Room
-barsign-prototype-description-little-treats = A delightfully relaxing tearoom for all the fancy lads in the cosmos.
+barsign-prototype-name-little-treats = Комната чая "Маленькие угощения"
+barsign-prototype-description-little-treats = Уютная чайная комната для всех благородных леди космоса.
 
 ## Maltroach
-barsign-prototype-name-nf-maltroach = Maltroach
-barsign-prototype-description-nf-maltroach = Mothroaches politely greet you into the bar, or are they greeting each other?
+barsign-prototype-name-nf-maltroach = Мальчоуф
+barsign-prototype-description-nf-maltroach = Мошары вежливо приветствуют вас в баре, или они приветствуют друг друга?
 
 ## Neon Flamingos
-barsign-prototype-name-neon-flamingos = Neon Flamingos
-barsign-prototype-description-neon-flamingos = You doubt you'll be able to stand on one leg after you're done here.
+barsign-prototype-name-neon-flamingos = Неоновые фламинго
+barsign-prototype-description-neon-flamingos = Сомневаешься, что удастся встать на одну ногу после завершения задания.
 
 ## The Rune
-barsign-prototype-name-the-rune = The Rune
-barsign-prototype-description-the-rune = Reality-shifting drinks.
+barsign-prototype-name-the-rune = Руна
+barsign-prototype-description-the-rune = Напитки, меняющие реальность.
 
 ## Whiskey Echoes
-barsign-prototype-name-whiskey-echoes = Whiskey Echoes
-barsign-prototype-description-whiskey-echoes = Wew lad! Sit down and have a drink! No matter your affiliation, the slogan here is 'Death to sobriety!'
+barsign-prototype-name-whiskey-echoes = Виски Эхо
+barsign-prototype-description-whiskey-echoes = Эй, чувак! Садись и выпей! Кто бы ни был твоим начальником, здесь девиз: «Смерть опьянению!»
 
 ## Wyvern Shipyards
-barsign-prototype-name-wyvern-shipyards = Wyvern Shipyards
-barsign-prototype-description-wyvern-shipyards = Have a seat, relax and don't worry, the future can't come any faster!
+barsign-prototype-name-wyvern-shipyards = Порт вайвернов
+barsign-prototype-description-wyvern-shipyards = Садитесь поудобнее, расслабьтесь и не переживайте — будущее не придет быстрее!

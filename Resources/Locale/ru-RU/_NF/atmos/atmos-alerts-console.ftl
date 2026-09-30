@@ -1,15 +1,15 @@
-atmos-alerts-window-tab-gaslocks = Gaslocks
+atmos-alerts-window-tab-gaslocks = Газовые клапаны
 
-atmos-alerts-window-direction-label = Direction
-atmos-alerts-window-direction-outwards = Out
-atmos-alerts-window-direction-inwards = In
+atmos-alerts-window-direction-label = Направление
+atmos-alerts-window-direction-outwards = Выход
+atmos-alerts-window-direction-inwards = В
 
-atmos-alerts-window-enabled-label = Status
-atmos-alerts-window-enabled-on = Running
-atmos-alerts-window-enabled-off = Off
+atmos-alerts-window-enabled-label = Статус
+atmos-alerts-window-enabled-on = Бег
+atmos-alerts-window-enabled-off = Выкл.
 
-atmos-alerts-window-docked-label = Docked?
-atmos-alerts-window-docked-on = Undock
-atmos-alerts-window-docked-off = No
+atmos-alerts-window-docked-label = Стоп, сброс, и катись?
+atmos-alerts-window-docked-on = Отстыковаться
+atmos-alerts-window-docked-off = Нет
 
-atmos-alerts-window-gaslock-gases-label = Interior gases
+atmos-alerts-window-gaslock-gases-label = Внутренние газы

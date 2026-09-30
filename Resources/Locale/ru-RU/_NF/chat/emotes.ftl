@@ -1,9 +1,9 @@
 # Names
-chat-emote-name-goblin-muttering = Mutter
-chat-emote-name-goblin-throat-singing = Sing
+chat-emote-name-goblin-muttering = Бормотать
+chat-emote-name-goblin-throat-singing = Петь
 
 # Message
-chat-emote-msg-goblin-muttering = mutters.
-chat-emote-msg-goblin-throat-singing = sings.
-chat-emote-name-belch = Belch
-chat-emote-msg-belch = belches.
+chat-emote-msg-goblin-muttering = Произносит слова.
+chat-emote-msg-goblin-throat-singing = поёт.
+chat-emote-name-belch = Спрятаться
+chat-emote-msg-belch = Разбрасывается.

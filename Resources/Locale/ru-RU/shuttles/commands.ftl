@@ -1,14 +1,14 @@
 # FTLdiskburner
-cmd-ftldisk-desc = Creates an FTL coordinates disk to sail to the map the given EntityID is/on
+cmd-ftldisk-desc = Создает диск координат FTL для путешествия к карте, на которой находится указанный EntityID
 cmd-ftldisk-help = ftldisk [EntityID]
 
-cmd-ftldisk-no-transform = Entity {$destination} has no Transform Component!
-cmd-ftldisk-no-map = Entity {$destination} has no map!
-cmd-ftldisk-no-map-comp = Entity {$destination} is somehow on map {$map} with no map component.
-cmd-ftldisk-map-not-init = Entity {$destination} is on map {$map} which is not initialized! Check it's safe to initialize, then initialize the map first or the players will be stuck in place!
-cmd-ftldisk-map-paused = Entity {$desintation} is on map {$map} which is paused! Please unpause the map first or the players will be stuck in place.
-cmd-ftldisk-planet = Entity {$desintation} is on planet map {$map} and will require an FTL point. It may already exist.
-cmd-ftldisk-already-dest-not-enabled = Entity {$destination} is on map {$map} that already has an FTLDestinationComponent, but it is not Enabled! Set this manually for safety.
-cmd-ftldisk-requires-ftl-point = Entity {$destination} is on map {$map} that requires a FTL point to travel to! It may already exist.
+cmd-ftldisk-no-transform = Сущность {$destination} не имеет компонента преобразования!
+cmd-ftldisk-no-map = У объекта {$destination} нет карты!
+cmd-ftldisk-no-map-comp = Сущность {$destination} каким-то образом находится на карте {$map} без компонента карты.
+cmd-ftldisk-map-not-init = Сущность {$destination} находится на карте {$map}, которая не инициализирована! Проверьте, безопасно ли инициализировать карту, и инициализируйте её сначала, иначе игроки застрянут на месте!
+cmd-ftldisk-map-paused = Сущность {$desintation} находится на карте {$map}, которая приостановлена! Пожалуйста, сначала возобновите работу карты, иначе игроки застрянут на месте.
+cmd-ftldisk-planet = Сущность {$destination} находится на карте планеты {$map} и потребует точку FTL. Она уже может существовать.
+cmd-ftldisk-already-dest-not-enabled = Сущность {$destination} находится на карте {$map}, которая уже содержит компонент FTLDestinationComponent, но он не включен! Установите его вручную для безопасности.
+cmd-ftldisk-requires-ftl-point = Сущность {$destination} находится на карте {$map}, для перемещения на которую требуется точка сверхсветового передвижения! Возможно, она уже существует.
 
-cmd-ftldisk-hint = Map netID
+cmd-ftldisk-hint = ID карты

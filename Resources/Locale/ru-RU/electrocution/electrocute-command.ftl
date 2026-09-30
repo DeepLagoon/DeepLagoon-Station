@@ -1,2 +1,2 @@
-electrocute-command-description = Electrocutes the specified entity, defaults to 10 seconds and 10 damage. Shocking!
-electrocute-command-entity-cannot-be-electrocuted = You cannot electrocute that entity!
+electrocute-command-description = Электризует указанную сущность, по умолчанию 10 секунд и 10 единиц урона. Шокирующий эффект!
+electrocute-command-entity-cannot-be-electrocuted = Вы не можете поразить эту сущность электричеством!

@@ -1,6 +1,6 @@
 ## Entity
 
-seed-extractor-component-interact-message = You extract some seeds from the { THE($name) }.
-seed-extractor-component-no-seeds = { CAPITALIZE(THE($name)) } has no seeds!
+seed-extractor-component-interact-message = Из { THE($name) } вы получаете несколько семян.
+seed-extractor-component-no-seeds = У { CAPITALIZE(THE($name)) } нет семян!
 
-seed-extractor-component-upgrade-seed-yield = seed yield
+seed-extractor-component-upgrade-seed-yield = урожай семян

@@ -1,17 +1,17 @@
-signal-linker-component-saved = Successfully saved link to {$machine}!
-signal-linker-component-linked-port = Successfully linked {$machine1}:{$port1} to {$machine2}:{$port2}!
-signal-linker-component-unlinked-port = Successfully unlinked {$machine1}:{$port1} from {$machine2}:{$port2}!
-signal-linker-component-connection-refused = {$machine} refused the connection!
-signal-linker-component-max-connections-receiver = Maximum connections reached on the receiver!
-signal-linker-component-max-connections-transmitter = Maximum connections reached on the transmitter!
+signal-linker-component-saved = Успешно сохранена ссылка на {$machine}!
+signal-linker-component-linked-port = Успешно подключено {$machine1}:{$port1} к {$machine2}:{$port2}!
+signal-linker-component-unlinked-port = Успешно отключено {$machine1}:{$port1} от {$machine2}:{$port2}!
+signal-linker-component-connection-refused = {$machine} отклонил подключение!
+signal-linker-component-max-connections-receiver = Достигнуто максимальное количество подключений на приемнике!
+signal-linker-component-max-connections-transmitter = Достигнуто максимальное количество подключений на передатчике!
 
-signal-linker-component-type-mismatch = The port's type does not match the type of the saved port!
+signal-linker-component-type-mismatch = Тип порта не соответствует типу сохранённого порта!
 
-signal-linker-component-out-of-range = Connection is out of range!
+signal-linker-component-out-of-range = Связь вне зоны действия!
 
 # Verbs
-signal-linking-verb-text-link-default = Link default ports
-signal-linking-verb-success = Connected all default {$machine} links.
-signal-linking-verb-fail = Failed to connect all default {$machine} links.
-signal-linking-verb-disabled-no-transmitter = First interact with a transmitter, then link default ports.
-signal-linking-verb-disabled-no-receiver = First interact with a receiver, then link default ports.
+signal-linking-verb-text-link-default = Связать порты по умолчанию
+signal-linking-verb-success = Подключены все стандартные ссылки {$machine}.
+signal-linking-verb-fail = Не удалось подключить все стандартные ссылки {$machine}.
+signal-linking-verb-disabled-no-transmitter = Сначала взаимодействуйте с передатчиком, затем свяжите порты по умолчанию.
+signal-linking-verb-disabled-no-receiver = Сначала взаимодействуйте с приемником, а затем свяжите стандартные порты.

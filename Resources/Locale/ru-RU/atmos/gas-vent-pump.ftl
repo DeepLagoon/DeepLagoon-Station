@@ -1,2 +1,2 @@
-gas-vent-pump-uvlo = It is in [color=red]under-pressure lock out[/color].
-gas-vent-pump-release-lockout = Release pressure lock out
+gas-vent-pump-uvlo = Он находится в [color=red]блокировке под давлением[/color].
+gas-vent-pump-release-lockout = Освободить блокировку давления

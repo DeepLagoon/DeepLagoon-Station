@@ -1,6 +1,6 @@
-﻿advertisement-theater-1 = Dress for success!
-advertisement-theater-2 = Suited and booted!
-advertisement-theater-3 = It's show time!
-advertisement-theater-4 = Why leave style up to fate? Use AutoDrobe!
-advertisement-theater-5 = All wacky outfits and clothes, from gladiator robes to who knows what!
-advertisement-theater-6 = The clown will appreciate your outfit!
+﻿advertisement-theater-1 = Одевайтесь для успеха!
+advertisement-theater-2 = Готов к бою!
+advertisement-theater-3 = Пора показывать свои навыки!
+advertisement-theater-4 = Зачем оставлять стиль на воле судьбы? Используйте AutoDrobe!
+advertisement-theater-5 = Все странные костюмы и одежда, от дорианских мантий до всего, кого только можно вообразить!
+advertisement-theater-6 = Клоун оценит ваш наряд!

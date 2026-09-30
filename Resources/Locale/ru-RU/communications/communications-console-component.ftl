@@ -1,34 +1,34 @@
 # User interface
-comms-console-menu-title = Communications Console
-comms-console-menu-announcement-placeholder = Announcement text...
-comms-console-menu-announcement-button = Announce
+comms-console-menu-title = Консоль связи
+comms-console-menu-announcement-placeholder = Текст объявления...
+comms-console-menu-announcement-button = Объявить
 # Frontier: station<sector
-comms-console-menu-announcement-button-tooltip = Send your message as a sector-wide radio announcement.
-comms-console-menu-broadcast-button = Broadcast
+comms-console-menu-announcement-button-tooltip = Отправить сообщение как радиообъявление для всего сектора.
+comms-console-menu-broadcast-button = Трансляция
 # Frontier: station<sector
-comms-console-menu-broadcast-button-tooltip = Broadcast your message to wall-mounted screens around the sector. Note: They fit only ten characters!
+comms-console-menu-broadcast-button-tooltip = Отправьте сообщение на экраны на стенах по сектору. Внимание: помещается только десять символов!
 # Frontier: station<sector
-comms-console-menu-alert-level-button-tooltip = Change the sector alert level. Applies immediately on selecting.
-comms-console-menu-call-shuttle = Call emergency shuttle
-comms-console-menu-recall-shuttle = Recall emergency shuttle
-comms-console-menu-emergency-shuttle-button-tooltip = Calls or recalls the emergency shuttle. You can only recall when there's enough time left.
-comms-console-menu-time-remaining = Time remaining: {$time}
+comms-console-menu-alert-level-button-tooltip = Изменить уровень тревоги сектора. Применяется немедленно при выборе.
+comms-console-menu-call-shuttle = Позвать экстренный трансформатор
+comms-console-menu-recall-shuttle = Вызвать экстренный шаттл
+comms-console-menu-emergency-shuttle-button-tooltip = Вызывает экстренный шатл. Можно отменить вызов только при наличии времени.
+comms-console-menu-time-remaining = Времени осталось: {$time}
 
 # Popup
-comms-console-permission-denied = Permission denied
-comms-console-shuttle-unavailable = Shuttle is currently unavailable
-comms-console-message-too-long = Message is too long
+comms-console-permission-denied = Доступ запрещён
+comms-console-shuttle-unavailable = Шаттл в данный момент недоступен
+comms-console-message-too-long = Сообщение слишком длинное
 
 # Placeholder values
-comms-console-announcement-sent-by = Sent by
-comms-console-announcement-unknown-sender = Unknown
+comms-console-announcement-sent-by = Отправлено
+comms-console-announcement-unknown-sender = Неизвестно
 
 # Comms console variant titles
-comms-console-announcement-title-station = Communications Console
-comms-console-announcement-title-centcom = Central Command
-comms-console-announcement-title-nukie = Syndicate Nuclear Operative
-comms-console-announcement-title-station-ai = Station AI
-comms-console-announcement-title-wizard = Wizard
+comms-console-announcement-title-station = Консоль связи
+comms-console-announcement-title-centcom = Центральная Команда
+comms-console-announcement-title-nukie = Сотрудник ядерной группы "Синдикат"
+comms-console-announcement-title-station-ai = ИИ станции
+comms-console-announcement-title-wizard = Волшебник
 
 # Mono
-comms-console-announcement-title-rogue = Ashen Republic Insurgency
+comms-console-announcement-title-rogue = Восстание Пепельной Республики

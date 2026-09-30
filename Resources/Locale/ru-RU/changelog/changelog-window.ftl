@@ -1,16 +1,16 @@
 ### ChangelogWindow.xaml.cs
 
-changelog-window-title = Changelog
-changelog-author-changed = [color=#EEE]{ $author }[/color] changed:
-changelog-today = Today
-changelog-yesterday = Yesterday
-changelog-new-changes = new changes
-changelog-version-unknown = Unknown Version
+changelog-window-title = Список изменений
+changelog-author-changed = [color=#EEE]{ $author }[/color] изменил(а):
+changelog-today = Сегодня
+changelog-yesterday = Вчера
+changelog-new-changes = новые изменения
+changelog-version-unknown = Неизвестная версия
 changelog-version-tag = { $fork }/{ $version }
 
-changelog-button = Changelog
-changelog-button-new-entries = Changelog (new!)
+changelog-button = Список изменений
+changelog-button-new-entries = Список изменений (новое!)
 
 # Frontier: Changelog<Upstream
-changelog-tab-title-Changelog = Upstream
-changelog-tab-title-Admin = Admin
+changelog-tab-title-Changelog = Апстрим
+changelog-tab-title-Admin = Админ

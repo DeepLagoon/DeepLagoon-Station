@@ -1,88 +1,93 @@
-card-examined = This is the {$target}.
-cards-verb-shuffle = Shuffle
-card-verb-shuffle-success = Cards shuffled
-cards-verb-draw = Draw card
-cards-verb-flip = Flip cards
-card-verb-join = Join cards
-card-verb-organize-success = Cards flipped face { $facedown ->
+card-examined = Это {$target}.
+cards-verb-shuffle = Перемещаться
+card-verb-shuffle-success = Карты перетасованы
+cards-verb-draw = Взять карту
+cards-verb-flip = Перевернуть карты
+card-verb-join = Соединить карты
+card-verb-organize-success = Карты перевернуты рубашкой { $facedown ->
     [true]   down
     *[false] up
 }
-cards-verb-organize-up = Flip cards face up
-cards-verb-organize-down = Flip cards face down
-cards-verb-pickcard = Pick a card
+cards-verb-organize-up = Переверни карты рубашкой вверх
+cards-verb-organize-down = Переверни карты рубашкой вниз
+cards-verb-pickcard = Выберите карту
 card-stack-examine = { $count ->
+    [one] {0} раз
+    [few] {0} раза
+    [many] {0} раз
+    *[other] {0} раз
+}
     [one] There is {$count} card in this stack.
     *[other] There are {$count} cards in this stack.
 }
-cards-stackquantitychange-added = Card was added (Total cards: {$quantity})
-cards-stackquantitychange-removed = Card was removed (Total cards: {$quantity})
-cards-stackquantitychange-joined = Stack was merged (Total cards: {$quantity})
-cards-stackquantitychange-split = Stack was split (Total cards: {$quantity})
-cards-stackquantitychange-unknown = Stack count changed (Total cards: {$quantity})
-cards-verb-convert-to-deck = Convert to deck
-cards-verb-split = Split in half
+cards-stackquantitychange-added = Карта добавлена (всего карт: {$quantity})
+cards-stackquantitychange-removed = Карта удалена (всего карт: {$quantity})
+cards-stackquantitychange-joined = Стопка была объединена (всего карт: {$quantity})
+cards-stackquantitychange-split = Стоп, урон, и катись (всего карт: {$quantity})
+cards-stackquantitychange-unknown = Количество карт в стопке изменено (всего карт: {$quantity})
+cards-verb-convert-to-deck = Преобразовать в колоду
+cards-verb-split = Разделиться пополам
 
-card-base-name = card
-card-deck-name = deck of cards
+card-base-name = карточка
+card-deck-name = колода карт
 
-card-sc-2-clubs = 2 of clubs
-card-sc-3-clubs = 3 of clubs
-card-sc-4-clubs = 4 of clubs
-card-sc-5-clubs = 5 of clubs
-card-sc-6-clubs = 6 of clubs
-card-sc-7-clubs = 7 of clubs
-card-sc-8-clubs = 8 of clubs
-card-sc-9-clubs = 9 of clubs
-card-sc-10-clubs = 10 of clubs
-card-sc-ace-clubs = ace of clubs
-card-sc-jack-clubs = jack of clubs
-card-sc-king-clubs = king of clubs
-card-sc-queen-clubs = queen of clubs
+card-sc-2-clubs = Двойка треф
+card-sc-3-clubs = 3 бубен
+card-sc-4-clubs = 4 бубен
+card-sc-5-clubs = 5 бубен
+card-sc-6-clubs = 6 бубен
+card-sc-7-clubs = 7 бубен
+card-sc-8-clubs = Восемь бубен
+card-sc-9-clubs = 9 бубен
+card-sc-10-clubs = 10 бубен
+card-sc-ace-clubs = Туз пик
+card-sc-jack-clubs = Джек треф
+card-sc-king-clubs = Король треф
+card-sc-queen-clubs = Королева пик
 
-card-sc-2-diamonds = 2 of diamonds
-card-sc-3-diamonds = 3 of diamonds
-card-sc-4-diamonds = 4 of diamonds
-card-sc-5-diamonds = 5 of diamonds
-card-sc-6-diamonds = 6 of diamonds
-card-sc-7-diamonds = 7 of diamonds
-card-sc-8-diamonds = 8 of diamonds
-card-sc-9-diamonds = 9 of diamonds
-card-sc-10-diamonds = 10 of diamonds
-card-sc-ace-diamonds = ace of diamonds
-card-sc-jack-diamonds = jack of diamonds
-card-sc-king-diamonds = king of diamonds
-card-sc-queen-diamonds = queen of diamonds
+card-sc-2-diamonds = Две бубен
+card-sc-3-diamonds = 3 бубен
+card-sc-4-diamonds = 4 червей
+card-sc-5-diamonds = 5 бубен
+card-sc-6-diamonds = 6 бубен
+card-sc-7-diamonds = 7 червей
+card-sc-8-diamonds = Восемь бубен
+card-sc-9-diamonds = 9 бубен
+card-sc-10-diamonds = 10 бубен
+card-sc-ace-diamonds = Ас крести
+card-sc-jack-diamonds = Джек бубен
+card-sc-king-diamonds = Король бубен
+card-sc-queen-diamonds = Королева бубен
 
-card-sc-2-hearts = 2 of hearts
-card-sc-3-hearts = 3 of hearts
-card-sc-4-hearts = 4 of hearts
-card-sc-5-hearts = 5 of hearts
-card-sc-6-hearts = 6 of hearts
-card-sc-7-hearts = 7 of hearts
-card-sc-8-hearts = 8 of hearts
-card-sc-9-hearts = 9 of hearts
-card-sc-10-hearts = 10 of hearts
-card-sc-ace-hearts = ace of hearts
-card-sc-jack-hearts = jack of hearts
-card-sc-king-hearts = king of hearts
-card-sc-queen-hearts = queen of hearts
+card-sc-2-hearts = Два червей
+card-sc-3-hearts = Три червей
+card-sc-4-hearts = 4 червей
+card-sc-5-hearts = 5 червей
+card-sc-6-hearts = 6 червей
+card-sc-7-hearts = Семь червей
+card-sc-8-hearts = Восемь червей
+card-sc-9-hearts = 9 червей
+card-sc-10-hearts = Десять червей
+card-sc-ace-hearts = сердце с тузом
+card-sc-jack-hearts = Джек червей
+card-sc-king-hearts = Король червей
+card-sc-queen-hearts = Королева Червей
 
-card-sc-2-spades = 2 of spades
-card-sc-3-spades = 3 of spades
-card-sc-4-spades = 4 of spades
-card-sc-5-spades = 5 of spades
-card-sc-6-spades = 6 of spades
-card-sc-7-spades = 7 of spades
-card-sc-8-spades = 8 of spades
-card-sc-9-spades = 9 of spades
-card-sc-10-spades = 10 of spades
-card-sc-ace-spades = ace of spades
-card-sc-jack-spades = jack of spades
-card-sc-king-spades = king of spades
-card-sc-queen-spades = queen of spades
+card-sc-2-spades = Два пики
+card-sc-3-spades = Тройка пик
+card-sc-4-spades = 4♠
+card-sc-5-spades = 5♠
+card-sc-6-spades = 6 треф
+card-sc-7-spades = 7♠
+card-sc-8-spades = Восемь пик
+card-sc-9-spades = 9♠
+card-sc-10-spades = 10 пик
+card-sc-ace-spades = Ас пики
+card-sc-jack-spades = Джек пик
+card-sc-king-spades = Король пик
+card-sc-queen-spades = дама пик
 
-card-sc-joker = joker
+card-sc-joker = Джокер
 
-container-sealed = A holographic security seal is on it. Opening it will have the seal dissipate.
-container-unsealed = The seal attached to it dissipates.
+container-sealed = На нем находится голограммная защитная пломба. При открытии пломба исчезнет.
+container-unsealed = Прикреплённая к нему печать рассеивается.

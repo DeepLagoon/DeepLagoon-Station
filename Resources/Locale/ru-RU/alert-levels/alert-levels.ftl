@@ -1,57 +1,57 @@
 # Frontier: Station<Sector
-alert-level-announcement = Attention! Sector alert level is now {$name}! {$announcement}
+alert-level-announcement = Внимание! Уровень тревоги сектора теперь {$name}! {$announcement}
 
-alert-level-unknown = Unknown.
-alert-level-unknown-instructions = Unknown.
+alert-level-unknown = Неизвестно.
+alert-level-unknown-instructions = Неизвестно.
 
 # Frontier: added Frontier-specific alert text
 
-alert-level-green = Green
-# alert-level-green-announcement = It is now safe to return to your workplaces.
-# alert-level-green-instructions = Do your job.
-alert-level-green-announcement = The sector is now considered safe, return to operations as normal.
-alert-level-green-instructions = Do your job.
+alert-level-green = Зелёный
+# alert-level-green-announcement = Теперь можно возвращаться на рабочие места.
+# alert-level-green-instructions = Сделай свою работу.
+alert-level-green-announcement = Сектор считается безопасным. Возобновить нормальную работу.
+alert-level-green-instructions = Сделай свою работу.
 
-alert-level-blue = Blue
-# alert-level-blue-announcement = There is a confirmed threat to TSF rogue space. Security should perform random checks. Crewmembers are advised to be vigilant and report suspicious activity.
-# alert-level-blue-instructions = Crewmembers are advised to be vigilant and report suspicious activity.
-alert-level-blue-announcement = There is a confirmed threat to TSF rogue space. Crews are advised to be vigilant and report suspicious activity to TSFMC officers.
-alert-level-blue-instructions = Crews are advised to be vigilant and report suspicious activity to TSFMC officers.
+alert-level-blue = Синий
+# alert-level-blue-announcement = В зоне операций ТСФ зафиксирована угроза. Служба безопасности должна проводить случайные проверки. Членам экипажа рекомендуется проявлять бдительность и сообщать о подозрительной активности.
+# alert-level-blue-instructions = Члены экипажа должны быть бдительны и сообщать о подозрительной активности.
+alert-level-blue-announcement = В зоне операций ТСФ зафиксирована угроза. Экипажам рекомендуется проявлять бдительность и сообщать о подозрительной активности в управление ТСФ.
+alert-level-blue-instructions = Члены экипажей должны быть бдительны и сообщать о подозрительной активности офицерам TSFMC.
 
-alert-level-red = Red
-# alert-level-red-announcement = There is an immediate threat to the station. Security should prepare to use lethal force if necessary. Crewmembers should find a safe place to shelter in, and are advised to follow any present authorities.
-# alert-level-red-instructions = Crewmembers should find a safe place to shelter in, and are advised to follow any present authorities.
-alert-level-red-announcement = There is an immediate threat to the sector. Security should prepare to use lethal force if necessary. Crews should cooperate to ensure mutual safety, and are advised to follow any present authorities.
-alert-level-red-instructions = Crews should cooperate to ensure mutual safety, and are advised to follow any present authorities.
+alert-level-red = Красный
+# alert-level-red-announcement = Станция находится под непосредственной угрозой. Служба безопасности должна быть готова к применению смертельной силы при необходимости. Члены экипажа должны найти безопасное укрытие и следовать указаниям авторитетов.
+# alert-level-red-instructions = Члены экипажа должны найти безопасное укрытие и следовать указаниям имеющихся в наличии авторитетов.
+alert-level-red-announcement = В секторе существует непосредственная угроза. Службе безопасности следует подготовиться к применению смертельной силы при необходимости. Экипажи должны сотрудничать для обеспечения взаимной безопасности и рекомендуется следовать указаниям действующих лиц.
+alert-level-red-instructions = Экипажи должны сотрудничать для обеспечения взаимной безопасности и следовать указаниям присутствующих авторитетов.
 
-alert-level-violet = Violet
-# alert-level-violet-announcement = There is a viral threat on the station. Medical staff are advised to isolate crewmembers with any symptoms. Crewmembers are advised to distance themselves from others and perform safety measures to prevent further spread.
-# alert-level-violet-instructions = Crewmembers are advised to distance themselves from others and perform safety measures to prevent further spread.
-alert-level-violet-announcement = There is a viral threat in the sector. Medical staff are advised to isolate individuals showing symptoms. Crews are advised to limit interaction with others and enforce safety measures to prevent further spread.
-alert-level-violet-instructions = Crews are advised to limit interaction with others and enforce safety measures to prevent further spread.
+alert-level-violet = Фиолетовый
+# alert-level-violet-announcement = На борту произошла вирусная угроза. Медицинскому персоналу рекомендуется изолировать членов экипажа с симптомами заболевания. Членам экипажа рекомендуется дистанцироваться от других лиц и принимать меры безопасности для предотвращения дальнейшего распространения инфекции.
+# alert-level-violet-instructions = Члены экипажа должны держаться на безопасном расстоянии друг от друга и выполнять меры безопасности для предотвращения дальнейшего распространения.
+alert-level-violet-announcement = В секторе обнаружен вирусный фактор опасности. Медицинский персонал рекомендуется изолировать лиц, проявляющих симптомы. Экипажам рекомендуется ограничить взаимодействие с другими лицами и применять меры безопасности для предотвращения дальнейшего распространения.
+alert-level-violet-instructions = Члены экипажа должны ограничивать контакт с другими и соблюдать меры безопасности, чтобы предотвратить дальнейшее распространение.
 
-alert-level-yellow = Yellow
-# alert-level-yellow-announcement = There is a structural or atmospheric threat within the station. Engineering staff are advised to immediately respond and perform safety measures. Crewmembers are advised to stay away from the threat, and stay in their workplaces if necessary.
-# alert-level-yellow-instructions = Crewmembers are advised to stay away from the threat, and stay in their workplaces if necessary.
-alert-level-yellow-announcement = Sector infrastructure has been structurally or atmospherically compromised. Engineering staff are advised to immediately respond and assist where possible. Crews are advised to stay away from the threat and cooperate with sector command.
-alert-level-yellow-instructions = Crews are advised to stay away from the threat and cooperate with sector command.
+alert-level-yellow = Желтый
+# alert-level-yellow-announcement = Внутри станции обнаружена структурная или атмосферная угроза. Специалистам службы эксплуатации рекомендуется немедленно отреагировать и принять меры безопасности. Членам экипажа рекомендуется уйти с пути угрозы и, при необходимости, остаться на своих рабочих местах.
+# alert-level-yellow-instructions = Члены экипажа должны избегать угрозы и, при необходимости, оставаться на своих рабочих местах.
+alert-level-yellow-announcement = Инфраструктура сектора была структурно или атмосферно повреждена. Инженерному персоналу рекомендуется немедленно откликнуться и оказать помощь, где это возможно. Экипажам рекомендуется избегать угрозы и сотрудничать с командованием сектора.
+alert-level-yellow-instructions = Экипажам рекомендуется держаться подальше от угрозы и сотрудничать с командованием сектора.
 
-alert-level-gamma = Gamma
-# alert-level-gamma-announcement = Central Command has ordered the Gamma security level on the station. Security is to have weapons equipped at all times, and all civilians are to immediately seek their nearest head for transportation to a secure location.
-# alert-level-gamma-instructions = All civilians are to immediately seek their nearest head for transportation to a secure location.
-alert-level-gamma-announcement = Central Command has ordered the Gamma security level in the sector. TSFMC officers are to be on high alert, and crews are to avoid areas of conflict where possible.
-alert-level-gamma-instructions = Crews are to avoid areas of conflict where possible.
+alert-level-gamma = Гамма
+# alert-level-gamma-announcement = Центральная команда установила уровень безопасности гамма на станции. Вся безопасность должна быть вооружена в любое время, а все гражданские лица должны немедленно направиться к ближайшему штабу для транспортировки в безопасное место.
+# alert-level-gamma-instructions = Все гражданские должны немедленно направиться к ближайшему транспортному средству для эвакуации в безопасное место.
+alert-level-gamma-announcement = Центральная команда установила уровень безопасности гамма в секторе. Офицеры ТСФМК должны находиться в состоянии повышенной готовности, а экипажи должны избегать зон конфликта, когда это возможно.
+alert-level-gamma-instructions = Экипажи должны избегать зон конфликта, если это возможно.
 
-alert-level-delta = Delta
-# alert-level-delta-announcement = The station is currently under threat of imminent destruction. Crewmembers are advised to listen to heads of staff for more information.
-# alert-level-delta-instructions = Crewmembers are advised to listen to heads of staff for more information.
-alert-level-delta-announcement = Sector infrastructure is currently under threat of imminent destruction. Crews are advised to listen to sector command for more information.
-alert-level-delta-instructions = Crews are advised to listen to sector command for more information.
+alert-level-delta = Дельта
+# alert-level-delta-announcement = Станция находится под угрозой немедленного уничтожения. Члены экипажа советуются слушать руководителей персонала для получения дополнительной информации.
+# alert-level-delta-instructions = Члены экипажа получают информацию от руководителей персонала.
+alert-level-delta-announcement = Инфраструктура сектора находится под угрозой немедленного уничтожения. Члены экипажа должны следить за сообщениями командования сектора для получения дополнительной информации.
+alert-level-delta-instructions = Члены экипажей рекомендуется слушать командование сектора для получения дополнительной информации.
 
-alert-level-epsilon = Epsilon
-# alert-level-epsilon-announcement = Central Command has ordered the Epsilon security level on the station. Consider all contracts terminated.
-# alert-level-epsilon-instructions = Consider all contracts terminated.
-alert-level-epsilon-announcement = Central Command has ordered the Epsilon security level in the sector. Consider all contracts terminated.
-alert-level-epsilon-instructions = Consider all contracts terminated.
+alert-level-epsilon = Эпсилон
+# alert-level-epsilon-announcement = Централизованное командование приказало ввести уровень безопасности Эпсилон на станции. Все контракты считаются расторгнутыми.
+# alert-level-epsilon-instructions = Все контракты считаются расторгнутыми.
+alert-level-epsilon-announcement = Централизованное командование приказало установить уровень безопасности Эпсилон в секторе. Все контракты считаются расторгнутыми.
+alert-level-epsilon-instructions = Все контракты считаются расторгнутыми.
 
 # End Frontier

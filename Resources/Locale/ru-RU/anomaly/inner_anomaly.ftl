@@ -1,18 +1,18 @@
-inner-anomaly-start-message-pyro = You can feel the insane flame inside of you. You became the host of a pyroclastic anomaly.
-inner-anomaly-start-message-shock = Lightning bolts quivering at your fingertips! You became the host of a electric anomaly.
-inner-anomaly-start-message-shadow = There's an impenetrable darkness oozing out of you... You became the host of a shadow anomaly.
-inner-anomaly-start-message-frost = The icy frost is binding your bones. You became the host of a ice anomaly.
-inner-anomaly-start-message-flora = Leaves and flowers sprout through your skin! You became the host of a floral anomaly.
-inner-anomaly-start-message-bluespace = Your thoughts are racing like mad! You became the host of a bluespace anomaly.
-inner-anomaly-start-message-flesh = Your body is growing frantically. You became the host of a flesh anomaly.
-inner-anomaly-start-message-grav = Everything becames unnaturally heavy and light at the same time... You became the host of a gravity anomaly.
-inner-anomaly-start-message-tech = Your head is buzzing with the amount of chaotic information! You became the host of a tech anomaly.
-inner-anomaly-start-message-rock = The crystals are growing through your bones! You became the host of a rock anomaly.
-inner-anomaly-start-message-santa = You're becoming obsessed with the Christmas spirit! You became the host of a Christmas anomaly.
+inner-anomaly-start-message-pyro = Вы чувствуете безумный огонь внутри себя. Вы стали хозяином пирокластической аномалии.
+inner-anomaly-start-message-shock = Молнии дрожат у вашей команды! Вы стали хозяином электрического аномального явления.
+inner-anomaly-start-message-shadow = Из вас выходит непроницаемая тьма... Вы стали хозяином теневой аномалии.
+inner-anomaly-start-message-frost = Ледяная стужа сковывает ваши суставы. Вы стали носителем ледяной аномалии.
+inner-anomaly-start-message-flora = Листья и цветы прорастают сквозь вашу кожу! Вы стали хозяином цветочного аномального явления.
+inner-anomaly-start-message-bluespace = Ваши мысли мчатся, как сумасшедшие! Вы стали хозяином аномалии синего пространства.
+inner-anomaly-start-message-flesh = Ваше тело безумно растет. Вы стали хозяином аномалии плоти.
+inner-anomaly-start-message-grav = Всё одновременно становилось чрезмерно тяжёлым и лёгким... Вы стали хозяином аномалии гравитации.
+inner-anomaly-start-message-tech = Ваша голова гудит от количества хаотичной информации! Вы стали хозяином технического аномального явления.
+inner-anomaly-start-message-rock = Кристаллы прорастают вам сквозь кости! Вы стали носителем каменной аномалии.
+inner-anomaly-start-message-santa = Вы становитесь одержимы рождественским духом! Вы стали хозяином рождественской аномалии.
 
-inner-anomaly-end-message = The abnormal activity within you disappears without a trace....
+inner-anomaly-end-message = Аномальная активность внутри вас исчезает без следа...
 
-inner-anomaly-severity-info-50 = You feel that the anomaly is taking over half your body.
-inner-anomaly-severity-info-75 = You feel that the anomaly is taking over a large part of your body.
-inner-anomaly-severity-info-90 = You feel that the anomaly has almost completely taken over your body.
-inner-anomaly-severity-info-100 = The anomaly inside you is growing uncontrollably, causing immense pain, and tearing you apart!
+inner-anomaly-severity-info-50 = Вы чувствуете, как аномалия захватывает половину вашего тела.
+inner-anomaly-severity-info-75 = Вы чувствуете, как аномалия захватывает большую часть вашего тела.
+inner-anomaly-severity-info-90 = Вы чувствуете, как аномалия почти полностью захватила ваше тело.
+inner-anomaly-severity-info-100 = Аномалия внутри вас неумолимо растет, вызывая невыносимую боль и разрывающая вас на части!

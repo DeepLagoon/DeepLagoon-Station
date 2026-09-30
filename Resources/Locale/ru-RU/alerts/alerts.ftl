@@ -1,115 +1,115 @@
-alerts-low-oxygen-name = [color=red]Low Oxygen[/color]
-alerts-low-oxygen-desc = There is [color=red]not enough oxygen[/color] in the air you are breathing. Put on [color=green]internals[/color].
+alerts-low-oxygen-name = [color=red]Низкий уровень кислорода[/color]
+alerts-low-oxygen-desc = В воздухе, который вы дышите, [color=red]недостаточно кислорода[/color]. Наденьте [color=green]внутренние органы[/color].
 
-alerts-low-nitrogen-name = [color=red]Low Nitrogen[/color]
-alerts-low-nitrogen-desc = There is [color=red]not enough nitrogen[/color] in the air you are breathing. Put on [color=green]internals[/color].
+alerts-low-nitrogen-name = [color=red]Низкое содержание азота[/color]
+alerts-low-nitrogen-desc = В воздухе, который вы дышите, [color=red]недостаточно азота[/color]. Наденьте [color=green]внутренние органы[/color].
 
-alerts-high-toxin-name = [color=red]High Toxin Level[/color]
-alerts-high-toxin-desc = There are [color=red]too many toxins[/color] in the air you are breathing. Put on [color=green]internals[/color] or get away.
+alerts-high-toxin-name = [color=red]Высокий уровень токсинов[/color]
+alerts-high-toxin-desc = В воздухе, который вы дышите, слишком много токсинов. Наденьте [color=green]внутреннюю защиту[/color] или уйдите отсюда.
 
-alerts-low-pressure-name = [color=red]Low Pressure[/color]
-alerts-low-pressure-desc = The air around you is [color=red]hazardously thin[/color]. A [color=green]space suit[/color] would protect you.
+alerts-low-pressure-name = [color=red]Низкое давление[/color]
+alerts-low-pressure-desc = Вокруг вас [color=red]чрезвычайно разреженный[/color] воздух. [color=green]Космический скафандр[/color] защитит вас.
 
-alerts-high-pressure-name = [color=red]High Pressure[/color]
-alerts-high-pressure-desc = The air around you is [color=red]hazardously thick[/color]. A [color=green]pressurized suit[/color] would be enough protect you.
+alerts-high-pressure-name = [color=red]Высокое давление[/color]
+alerts-high-pressure-desc = Вокруг вас [color=red]опасно плотный[/color] воздух. [color=green]Плотный костюм[/color] защитит вас.
 
-alerts-on-fire-name = [color=red]On Fire[/color]
-alerts-on-fire-desc = You're [color=red]on fire[/color]. Click the alert to stop, drop and roll to put the fire out or move to a vacuum area.
+alerts-on-fire-name = [color=red]Горит[/color]
+alerts-on-fire-desc = Вы [color=red]в огне[/color]. Нажмите на оповещение, чтобы остановиться, упасть и покатиться, чтобы потушить огонь, или переместитесь в вакуумную зону.
 
-alerts-too-cold-name = [color=cyan]Too Cold[/color]
-alerts-too-cold-desc = You're [color=cyan]freezing cold![/color] Get somewhere warmer and take off any insulating clothing like a space suit.
+alerts-too-cold-name = [color=cyant]Слишком холодно[/color]
+alerts-too-cold-desc = Ты [/color]очень холодный![/color] Сходи в более тёплое место и сними утепляющую одежду, как скафандр.
 
-alerts-too-hot-name = [color=red]Too Hot[/color]
-alerts-too-hot-desc = It's [color=red]too hot![/color] Get somewhere colder, take off any insulating clothing like a space suit, or at least get away from the flames.
+alerts-too-hot-name = [color=red]Слишком жарко[/color]
+alerts-too-hot-desc = Слишком жарко! Скорей уйдите в более прохладное место, снимите всю изолирующую одежду, например, скафандр, или хотя бы отойдите от пламени.
 
-alerts-weightless-name = Weightless
-alerts-weightless-desc =
+alerts-weightless-name = Без веса
+alerts-weightless-desc = 
     Gravity has ceased affecting you, and you're floating around aimlessly. Find something sturdy to hold onto, or throw or shoot something in a direction opposite of you.
     Mag-boots or jetpacks would help you move with more control.
 
-alerts-walking-name = Walking
-alerts-walking-desc = You are walking, moving at a slow pace.
+alerts-walking-name = Ходьба
+alerts-walking-desc = Вы идете, двигаясь медленно.
 
-alerts-stunned-name = [color=yellow]Stunned[/color]
-alerts-stunned-desc = You're [color=yellow]stunned[/color]! Something is impairing your ability to move or interact with objects.
+alerts-stunned-name = [color=yellow]Ошеломлен[/color]
+alerts-stunned-desc = Вы [color=yellow]ошеломлены[/color]! Что-то мешает вам двигаться или взаимодействовать с объектами.
 
-alerts-handcuffed-name = [color=yellow]Handcuffed[/color]
-alerts-handcuffed-desc = You're [color=yellow]handcuffed[/color] and can't use your hands. If anyone drags you, you won't be able to resist.
+alerts-handcuffed-name = [color=yellow]В наручниках[/color]
+alerts-handcuffed-desc = Вы [color=yellow]наручники[/color] и не можете использовать свои руки. Если вас захватят, вы не сможете сопротивляться.
 
-alerts-ensnared-name = [color=yellow]Ensnared[/color]
-alerts-ensnared-desc = You're [color=yellow]ensnared[/color] and is impairing your ability to move.
+alerts-ensnared-name = [color=yellow]В западне[/color]
+alerts-ensnared-desc = Вы [color=yellow]запутались[/color] и это мешает вам двигаться.
 
-alerts-buckled-name = [color=yellow]Buckled[/color]
-alerts-buckled-desc = You've been [color=yellow]buckled[/color] to something. Click the alert to unbuckle unless you're [color=yellow]handcuffed.[/color]
+alerts-buckled-name = [color=yellow]Пристегнут[/color]
+alerts-buckled-desc = Вы были [color=yellow]привязаны[/color] к чему-то. Нажмите на оповещение, чтобы отвязаться, если только вы не [color=yellow]находитесь в наручниках[/color].
 
-alerts-crit-name = [color=red]Critical Condition[/color]
-alerts-crit-desc = You're severely injured and unconscious.
+alerts-crit-name = [color=red]Критическое состояние[/color]
+alerts-crit-desc = Вы серьезно ранены и потеряли сознание.
 
-alerts-dead-name = Dead
-alerts-dead-desc = You're dead, note that you can still be revived!
+alerts-dead-name = Мертв
+alerts-dead-desc = Ты мертв, обрати внимание, что ты всё ещё можешь быть воскрешён!
 
-alerts-health-name = Health
-alerts-health-desc = [color=green]Green[/color] good. [color=red]Red[/color] bad.
+alerts-health-name = Здоровье
+alerts-health-desc = [color=green]Зелёный[/color] хорошо. [color=red]Красный[/color] плохо.
 
-alerts-battery-name = Battery
-alerts-battery-desc = If your battery depletes, you will be unable to use your abilities.
+alerts-battery-name = Батарея
+alerts-battery-desc = Если ваш батарей разрядится, вы не сможете использовать свои способности.
 
-alerts-no-battery-name = No Battery
-alerts-no-battery-desc = You don't have a battery, rendering you unable to charge or use your abilities.
+alerts-no-battery-name = Нет батареи
+alerts-no-battery-desc = У вас нет батареи, из-за чего вы не можете заряжать оружие или использовать способности.
 
-alerts-internals-name = Toggle internals
-alerts-internals-desc = Toggles your gas tank internals on or off.
+alerts-internals-name = Переключить внутренности
+alerts-internals-desc = Переключает внутреннюю систему бака на или от.
 
-alerts-piloting-name = Piloting Shuttle
-alerts-piloting-desc = You are piloting a shuttle. Click the alert to stop.
+alerts-piloting-name = Пилотирование шаттла
+alerts-piloting-desc = Вы управляете шаттлом. Нажмите на тревогу, чтобы остановиться.
 
-alerts-hunger-name = [color=yellow]Peckish[/color]
-alerts-hunger-desc = Some food would be good right about now.
+alerts-hunger-name = [color=yellow]В голодном состоянии[/color]
+alerts-hunger-desc = Пища в данный момент была бы кстати.
 
-alerts-stamina-name = Stamina
-alerts-stamina-desc = Stuns you if it is too low.
+alerts-stamina-name = Выносливость
+alerts-stamina-desc = Оглушает вас, если слишком низкий уровень.
 
-alerts-starving-name = [color=red]Starving[/color]
-alerts-starving-desc = You're severely malnourished. The hunger pains make moving around a chore.
+alerts-starving-name = [color=red]С голоду[/color]
+alerts-starving-desc = Вы серьезно недоедаете. Боли от голода делают передвижение невыносимой обязанностью.
 
-alerts-thirsty-name = [color=yellow]Thirsty[/color]
-alerts-thirsty-desc = Something to drink would be good right about now.
+alerts-thirsty-name = [color=yellow]Жаждущий[/color]
+alerts-thirsty-desc = Питьё не помешает прямо сейчас.
 
-alerts-parched-name = [color=red]Parched[/color]
-alerts-parched-desc = You're severely thirsty. The thirst makes moving around a chore.
+alerts-parched-name = [color=red]Высохший[/color]
+alerts-parched-desc = Вы сильнее всего испытываете жажду. Жажда делает передвижение делом, которое требует усилий.
 
-alerts-muted-name = Muted
-alerts-muted-desc = You have lost the ability to speak.
+alerts-muted-name = Без звука
+alerts-muted-desc = Вы потеряли способность говорить.
 
-alerts-vow-silence-name = Vow of Silence
-alerts-vow-silence-desc = You have taken a vow forbidding verbal or written communication as part of initiation into the Mystiko Tagma Mimon. Click to break your vow.
+alerts-vow-silence-name = Клятва молчания
+alerts-vow-silence-desc = Вы взяли клятву, запрещающую вам говорить или писать что-либо, как часть инициации в Mystiko Tagma Mimon. Нажмите, чтобы нарушить клятву.
 
-alerts-vow-broken-name = Vow Broken
-alerts-vow-broken-desc = You've broken your vows to Mimes everywhere. You can speak and write, but you've lost your powers for at least 5 entire minutes!!! Click to try and retake your vow.
+alerts-vow-broken-name = Клятва нарушена
+alerts-vow-broken-desc = Вы нарушили клятву перед всеми мимами. Теперь вы можете говорить и писать, но потеряли свои способности как минимум на 5 минут! Кликните, чтобы попытаться снова отречься.
 
-alerts-pulled-name = Pulled
-alerts-pulled-desc = You're being pulled. Move to break free.
+alerts-pulled-name = Вытянуто
+alerts-pulled-desc = Вас тянут. Двигайтесь, чтобы освободиться.
 
-alerts-pulling-name = Pulling
-alerts-pulling-desc = You're pulling something. Click the alert to stop.
+alerts-pulling-name = Тянутся
+alerts-pulling-desc = Вы что-то затягиваете. Нажмите на оповещение, чтобы остановиться.
 
-alerts-bleed-name = [color=red]Bleed[/color]
-alerts-bleed-desc = You're [color=red]bleeding[/color].
+alerts-bleed-name = [color=red]Кровотечение[/color]
+alerts-bleed-desc = У вас [color=red]кровотечение[/color].
 
-alerts-pacified-name = [color=green]Pacified[/color]
-alerts-pacified-desc = You're pacified; you won't be able to harm living creatures.
+alerts-pacified-name = [color=green]Успокоен[/color]
+alerts-pacified-desc = Вы успокоены; вы не сможете навредить живым существам.
 
-alerts-adrenaline-name = [color=red]Adrenaline[/color]
-alerts-adrenaline-desc = You're full of adrenaline: pain won't slow you down.
+alerts-adrenaline-name = [color=red]Адреналин[/color]
+alerts-adrenaline-desc = Ты наполнен адреналином — боль не сможет тебя остановить.
 
-alerts-suit-power-name = Suit Power
-alerts-suit-power-desc = How much power your space ninja suit has.
+alerts-suit-power-name = Сила костюма
+alerts-suit-power-desc = Сколько энергии имеет ваш костюм космического ниндзя
 
-alerts-magboots-name = Magboots
-alerts-magboots-desc = You are immune to airflow, but slightly slower.
+alerts-magboots-name = Магнитные ботинки
+alerts-magboots-desc = Вы иммунны к воздушному потоку, но двигаетесь медленнее.
 
-alerts-revenant-essence-name = Essence
-alerts-revenant-essence-desc = The power of souls. It sustains you and is used for abilities. It regenerates slowly over time.
+alerts-revenant-essence-name = Суть
+alerts-revenant-essence-desc = Сила душ. Она поддерживает вас и используется для способностей. Медленно восстанавливается со временем.
 
-alerts-revenant-corporeal-name = Corporeal
-alerts-revenant-corporeal-desc = You have manifested physically. People around you can see and hurt you.
+alerts-revenant-corporeal-name = Телесный
+alerts-revenant-corporeal-desc = Вы обрели физическую форму. Люди поблизости могут видеть вас и наносить вам урон.

@@ -1,49 +1,49 @@
-game-ticker-restart-round = Restarting round...
-game-ticker-start-round = The round is starting now...
-game-ticker-start-round-cannot-start-game-mode-fallback = Failed to start {$failedGameMode} mode! Defaulting to {$fallbackMode}...
-game-ticker-start-round-cannot-start-game-mode-restart = Failed to start {$failedGameMode} mode! Restarting round...
-game-ticker-start-round-invalid-map = Selected map {$map} is inelligible for gamemode {$mode}. Gamemode may not function as intended...
-game-ticker-unknown-role = Unknown
-game-ticker-delay-start = Round start has been delayed for {$seconds} seconds.
-game-ticker-pause-start = Round start has been paused.
-game-ticker-pause-start-resumed = Round start countdown is now resumed.
-game-ticker-player-join-game-message = Welcome to Space Station 14! If this is your first time playing, be sure to read the game rules, and don't be afraid to ask for help in LOOC (local OOC) or OOC (usually available only between rounds).
-game-ticker-get-info-text = Hi and welcome to [color=white]Space Station 14![/color]
-                            The current round is: [color=white]#{$roundId}[/color]
-                            The current player count is: [color=white]{$playerCount}[/color]
-                            The current map is: [color=white]{$mapName}[/color]
-                            The current game mode is: [color=white]{$gmTitle}[/color]
-                            >[color=yellow]{$desc}[/color]
-game-ticker-get-info-preround-text = Hi and welcome to [color=white]Space Station 14![/color]
-                            The current round is: [color=white]#{$roundId}[/color]
-                            The current player count is: [color=white]{$playerCount}[/color] ([color=white]{$readyCount}[/color] {$readyCount ->
+game-ticker-restart-round = Перезапуск раунда...
+game-ticker-start-round = Раунд начинается...
+game-ticker-start-round-cannot-start-game-mode-fallback = Не удалось запустить режим {$failedGameMode}! Переключаемся на режим {$fallbackMode}...
+game-ticker-start-round-cannot-start-game-mode-restart = Не удалось запустить режим {$failedGameMode}! Перезапуск раунда...
+game-ticker-start-round-invalid-map = Выбранная карта {$map} не подходит для режима игры {$mode}. Режим игры может работать некорректно...
+game-ticker-unknown-role = Неизвестно
+game-ticker-delay-start = Старт раунда отложен на {$seconds} секунд.
+game-ticker-pause-start = Старт раунда приостановлен.
+game-ticker-pause-start-resumed = Обратный отсчет до начала раунда возобновлен.
+game-ticker-player-join-game-message = Добро пожаловать на Космическую Станцию 14! Если вы впервые играете, обязательно ознакомьтесь с правилами игры, и не стесняйтесь просить помощи в LOOC (локальный OOC) или OOC (обычно доступен только между раундами).
+game-ticker-get-info-text = Привет! Добро пожаловать на [color=white]Космическую станцию 14![/color]
+                            The current round is: [color = Белый]#{$roundId}[/color]
+                            The current player count is: [color = [color=white]{$playerCount}[/color]
+                            The current map is: [color = [colort=white]{$mapName}[/color]
+                            The current game mode is: [color = [color=white]{$gmTitle}[/color]
+                            >[color = [color=yellow]{$desc}[/color]
+game-ticker-get-info-preround-text = Привет! Добро пожаловать на [color=white]Космическую станцию 14![/color]
+                            The current round is: [color = белый]#{$roundId}[/color]
+                            The current player count is: [color = [color=white]{$playerCount}[/color] ([color=white]{$readyCount}[/color] {$readyCount ->
                                 [one] is
                                 *[other] are
                             } ready)
-                            The current map is: [color=white]{$mapName}[/color]
-                            The current game mode is: [color=white]{$gmTitle}[/color]
-                            >[color=yellow]{$desc}[/color]
-game-ticker-no-map-selected = [color=yellow]Map not yet selected![/color]
-game-ticker-player-no-jobs-available-when-joining = When attempting to join to the game, no jobs were available.
+                            The current map is: [color = белый]{$mapName}[/color]
+                            The current game mode is: [color = [color=white]{$gmTitle}[/color]
+                            >[color = [spoiler]{$desc}[/spoiler]
+game-ticker-no-map-selected = [color=yellow]Карта еще не выбрана![/color]
+game-ticker-player-no-jobs-available-when-joining = При попытке присоединиться к игре доступных заданий не нашлось.
 
 # Displayed in chat to admins when a player joins
-player-join-message = Player {$name} joined.
-player-first-join-message = Player {$name} joined for the first time.
+player-join-message = Игрок {$name} присоединился.
+player-first-join-message = Игрок {$name} присоединился впервые.
 
 # Displayed in chat to admins when a player leaves
-player-leave-message = Player {$name} left.
+player-leave-message = Игрок {$name} вышел.
 
-latejoin-arrival-announcement = {$character} ({$job}) { CONJUGATE-HAVE($entity) } arrived at the station!
-latejoin-arrival-announcement-special = {$job} {$character} on deck!
-latejoin-arrival-sender = Station
-latejoin-arrivals-direction = A shuttle transferring you to your station will arrive shortly.
-latejoin-arrivals-direction-time = A shuttle transferring you to your station will arrive in {$time}.
-latejoin-arrivals-dumped-from-shuttle = A mysterious force prevents you from leaving with the arrivals shuttle.
-latejoin-arrivals-teleport-to-spawn = A mysterious force teleports you off the arrivals shuttle. Have a safe shift!
+latejoin-arrival-announcement = {$character} ({$job}) {CONJUGATE-HAVE($entity)} прибыл на станцию!
+latejoin-arrival-announcement-special = {$job} {$character} в экипаже!
+latejoin-arrival-sender = Станция
+latejoin-arrivals-direction = Шаттл, перевозящий вас на вашу станцию, скоро прибудет.
+latejoin-arrivals-direction-time = Шаттл, доставляющий вас на вашу станцию, прибудет через {$time}.
+latejoin-arrivals-dumped-from-shuttle = Загадочная сила не дает вам покинуть базу на шаттле прибытия.
+latejoin-arrivals-teleport-to-spawn = Таинственная сила телепортирует вас из шаттла прибытия. Приятной смены!
 
-preset-not-enough-ready-players = Can't start {$presetName}. Requires {$minimumPlayers} players but we have {$readyPlayersCount}.
-preset-no-one-ready = Can't start {$presetName}. No players are ready.
+preset-not-enough-ready-players = Не удаётся запустить {$presetName}. Требуется {$minimumPlayers} игроков, а у нас {$readyPlayersCount}
+preset-no-one-ready = Не удаётся запустить {$presetName}. Нет готовых игроков.
 
-game-run-level-PreRoundLobby = Pre-round lobby
-game-run-level-InRound = In round
-game-run-level-PostRound = Post round
+game-run-level-PreRoundLobby = Пре-раунд лобби
+game-run-level-InRound = В раунде
+game-run-level-PostRound = Построение

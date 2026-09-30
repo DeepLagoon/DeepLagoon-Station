@@ -1,5 +1,5 @@
 # Metals
-materials-scrap = scrap
+materials-scrap = луна
 
 # Ores
-materials-raw-scrap = unsorted scrap
+materials-raw-scrap = разнородные обломки

@@ -1,1 +1,1 @@
-plant-holder-component-cannot-be-sampled-message = This plant cannot be sampled!
+plant-holder-component-cannot-be-sampled-message = Эту растительность нельзя анализировать!

@@ -1,5 +1,5 @@
-rat-king-domain-popup = A cloud of ammonia is released into the air!
+rat-king-domain-popup = Из баллона вырывается облако аммиака!
 
-rat-king-too-hungry = You are too hungry to use this ability!
+rat-king-too-hungry = Вы слишком голодны, чтобы использовать это умение!
 
-rat-king-rummage-text = Rummage
+rat-king-rummage-text = Потрошить

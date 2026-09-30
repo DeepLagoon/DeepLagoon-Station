@@ -1,2 +1,2 @@
 # Frontier: shift time
-clock-examine = The current shift time is: [color=white]{$time}[/color]
+clock-examine = Текущее время смены: [color=white]{$time}[/color]

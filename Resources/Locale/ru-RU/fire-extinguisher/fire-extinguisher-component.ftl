@@ -1,4 +1,4 @@
-fire-extinguisher-component-after-interact-refilled-message = {$owner} is now refilled
-fire-extinguisher-component-safety-on-message = Its safety is on!
-fire-extinguisher-component-verb-remove = Remove safety
-fire-extinguisher-component-verb-engage = Engage safety
+fire-extinguisher-component-after-interact-refilled-message = {$owner} пополнил(а) запасы
+fire-extinguisher-component-safety-on-message = Безопасность включена!
+fire-extinguisher-component-verb-remove = Снять предохранитель
+fire-extinguisher-component-verb-engage = Защелкнуть предохранитель

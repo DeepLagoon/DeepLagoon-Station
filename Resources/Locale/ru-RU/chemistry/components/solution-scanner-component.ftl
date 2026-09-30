@@ -1,6 +1,6 @@
-scannable-solution-verb-text = Solution
-scannable-solution-verb-message = Examine the chemical composition.
-scannable-solution-main-text = It contains the following chemicals:
-scannable-solution-empty-container = It contains no chemicals.
-scannable-solution-chemical = - {$amount}u [color={$color}]{$type}[/color]
-scannable-solution-temperature = Solution temperature: {$temperature}K
+scannable-solution-verb-text = Ёмкость
+scannable-solution-verb-message = Изучите химический состав.
+scannable-solution-main-text = Содержит следующие химические вещества:
+scannable-solution-empty-container = В нем нет никаких химикатов.
+scannable-solution-chemical = {$amount} ед. [color={$color}]{$type}[/color]
+scannable-solution-temperature = Температура ёмкости: {$temperature}K

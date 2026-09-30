@@ -1,30 +1,30 @@
 ## UI
 
-injector-draw-text = Draw
-injector-inject-text = Inject
-injector-invalid-injector-toggle-mode = Invalid
-injector-volume-label = Volume: [color=white]{$currentVolume}/{$totalVolume}[/color]
-    Mode: [color=white]{$modeString}[/color] ([color=white]{$transferVolume}u[/color])
+injector-draw-text = Забор
+injector-inject-text = Ввод
+injector-invalid-injector-toggle-mode = Недопустимо
+injector-volume-label = Громкость: [color=white]{$currentVolume}/{$totalVolume}[/color]
+    Mode: [color = [color=white]{$modeString}[/color] ([color=white]{$transferVolume} ед.[/color])
 
 ## Entity
 
-injector-component-drawing-text = Now drawing
-injector-component-injecting-text = Now injecting
-injector-component-cannot-transfer-message = You aren't able to transfer to {$target}!
-injector-component-cannot-draw-message = You aren't able to draw from {$target}!
-injector-component-cannot-inject-message = You aren't able to inject to {$target}!
-injector-component-inject-success-message = You inject {$amount}u into {$target}!
-injector-component-transfer-success-message = You transfer {$amount}u into {$target}.
-injector-component-draw-success-message = You draw {$amount}u from {$target}.
-injector-component-target-already-full-message = {$target} is already full!
-injector-component-target-is-empty-message = {$target} is empty!
-injector-component-cannot-toggle-draw-message = Too full to draw!
-injector-component-cannot-toggle-inject-message = Nothing to inject!
+injector-component-drawing-text = Сейчас забираются
+injector-component-injecting-text = Сейчас вводятся
+injector-component-cannot-transfer-message = Вы не можете передать в {$target}!
+injector-component-cannot-draw-message = Вы не можете забирать из {$target}!
+injector-component-cannot-inject-message = Вы не можете инъецировать {$target}!
+injector-component-inject-success-message = Вы ввели {$amount} ед. в {$target}!
+injector-component-transfer-success-message = Вы перевели {$amount}u в {$target}.
+injector-component-draw-success-message = Вы тянете {$amount} ед. от {$target}.
+injector-component-target-already-full-message = {$target} уже полон!
+injector-component-target-is-empty-message = {$target} пусто!
+injector-component-cannot-toggle-draw-message = Слишком полный, чтобы тянуть!
+injector-component-cannot-toggle-inject-message = Нечего впрыскивать!
 
 ## mob-inject doafter messages
 
-injector-component-drawing-user = You start drawing the needle.
-injector-component-injecting-user = You start injecting the needle.
-injector-component-drawing-target = {CAPITALIZE(THE($user))} is trying to use a needle to draw from you!
-injector-component-injecting-target = {CAPITALIZE(THE($user))} is trying to inject a needle into you!
-injector-component-deny-user = Exoskeleton too thick!
+injector-component-drawing-user = Вы начали проводить иглой.
+injector-component-injecting-user = Вы начинаете вводить иглу.
+injector-component-drawing-target = {CAPITALIZE(THE($user))} пытается использовать иглу, чтобы уколоть тебя!
+injector-component-injecting-target = {CAPITALIZE(THE($user))} пытается воткнуть вам иглу!
+injector-component-deny-user = слишком толстое покрытие!

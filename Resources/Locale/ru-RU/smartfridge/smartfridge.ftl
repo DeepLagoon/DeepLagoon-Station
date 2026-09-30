@@ -1,10 +1,10 @@
-smart-fridge-component-try-eject-unknown-entry = Invalid selection!
-smart-fridge-component-try-eject-out-of-stock = Out of stock!
-smart-fridge-component-try-eject-access-denied = Access denied!
-smart-fridge-component-search-filter = Search...
-smart-fridge-component-title = SmartFridge
+smart-fridge-component-try-eject-unknown-entry = Неверный выбор!
+smart-fridge-component-try-eject-out-of-stock = Нет в наличии!
+smart-fridge-component-try-eject-access-denied = Доступ запрещен!
+smart-fridge-component-search-filter = Искать...
+smart-fridge-component-title = Умный холодильник
 smart-fridge-list-item = {$item} [{$amount}]
 #Mono
-smart-fridge-request-generic = Freshness not guaranteed
+smart-fridge-request-generic = Свежесть не гарантируется
 #Mono
-smart-fridge-request-chemistry = Request refills from your chemist
+smart-fridge-request-chemistry = Запрашивайте дозаказы у аптекаря

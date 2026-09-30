@@ -1,8 +1,8 @@
-reagent-name-pesto = pesto
-reagent-desc-pesto = A combination of salt, herbs, garlic, oil, and pine nuts.
+reagent-name-pesto = песто
+reagent-desc-pesto = Смесь соли, трав, чеснока, масла и сосновых орехов.
 
-reagent-name-tomatosauce = tomato sauce
-reagent-desc-tomatosauce = Tomato with salt and herbs.
+reagent-name-tomatosauce = томатный соус
+reagent-desc-tomatosauce = Помидор с солью и травами.
 
-reagent-name-bechamel = bechamel
-reagent-desc-bechamel = A classic white sauce common to several cultures.
+reagent-name-bechamel = Бехамель
+reagent-desc-bechamel = Классический белый соус, распространённый в нескольких культурах.

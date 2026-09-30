@@ -1,5 +1,5 @@
-advertisement-janidrobe-1 = Come and get your janitorial clothing, now endorsed by lizard janitors everywhere!
-advertisement-janidrobe-2 = Here to keep you clean as you clean up non-clean things!
-advertisement-janidrobe-3 = Stylishly yellow!
-advertisement-janidrobe-4 = Polish your appearance with JaniDrobe!
-advertisement-janidrobe-5 = Shine like a shiny floor!
+advertisement-janidrobe-1 = Приходите и получайте свою уборочную форму — теперь одобренную лягушечьими уборщиками по всему миру!
+advertisement-janidrobe-2 = Здесь, чтобы вы всегда были чисты, даже когда убираетесь после грязного дела!
+advertisement-janidrobe-3 = Стильно желтый!
+advertisement-janidrobe-4 = Отдоны ваш внешний вид с помощью JaniDrobe!
+advertisement-janidrobe-5 = Сияй, как новоочищенный пол!

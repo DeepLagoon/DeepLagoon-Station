@@ -1,7 +1,7 @@
 ### Udder system
 
-udder-system-already-milking = The udder is already being milked.
-udder-system-success = You fill {THE($target)} with {$amount}u from the udder.
-udder-system-dry = The udder is dry.
+udder-system-already-milking = Четверть уже доить начали.
+udder-system-success = Вы наполняете {THE($target)} на {$amount} единиц из молочной железы.
+udder-system-dry = Корова сухая.
 
-udder-system-verb-milk = Milk
+udder-system-verb-milk = Молоко

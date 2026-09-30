@@ -1,8 +1,8 @@
 # Blocking examines
-blocking-examinable-verb-text = Protection
-blocking-examinable-verb-message = Examine the protection values.
-blocking-fraction = It blocks [color=lightblue]{$value}%[/color] of incoming damage and:
-blocking-coefficient-value = - It takes [color=lightblue]{$value}%[/color] of [color=yellow]{$type}[/color] damage.
-blocking-reduction-value = - It takes [color=lightblue]{$value}[/color] less [color=yellow]{$type}[/color] damage.
+blocking-examinable-verb-text = Защита
+blocking-examinable-verb-message = Изучите значения защиты.
+blocking-fraction = Оно блокирует [color=lightblue]{$value}%[/color] входящего урона и:
+blocking-coefficient-value = Получаете [color=lightblue]{$value}%[/color] урона [color=yellow]{$type}[/color].
+blocking-reduction-value = Получаем урон [-color=cyan]{$value}[/color] меньше [-color=yellow]{$type}[/color].
 # Mono
-blocking-fraction-armor = The armor's inbuilt shielding blocks [color=lightblue]{$value}%[/color] of incoming damage and:
+blocking-fraction-armor = Броня обладает встроенной защитой, блокирующей [color=lightblue]{$value}%[/color] входящего урона, а также:

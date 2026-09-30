@@ -1,1 +1,1 @@
-flammable-component-resist-message = You stop, drop, and roll!
+flammable-component-resist-message = Ты остановись, упали и катайся!

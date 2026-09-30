@@ -1,8 +1,8 @@
-materials-synthalloy = synthalloy
-stack-synthalloy = synthalloy
+materials-synthalloy = синталлои
+stack-synthalloy = синталлои
 
-materials-iridite = iridite
-stack-iridite = iridite
+materials-iridite = иритидит
+stack-iridite = иритидит
 
-materials-plastitanium = plastitanium
-stack-plastitanium = plastitanium
+materials-plastitanium = пластиатаний
+stack-plastitanium = пластиатаний

@@ -1,4 +1,4 @@
-advertisement-chemdrobe-1 = Our clothes are 0.5% more resistant to acid spills! Get yours now!
-advertisement-chemdrobe-2 = Professional laboratory clothing, standardized by the TSF!
-advertisement-chemdrobe-3 = I'm pretty sure these will protect you against acid spills!
-advertisement-chemdrobe-4 = The best fashion formula!
+advertisement-chemdrobe-1 = Наши вещи на 0,5% более устойчивы к разливам кислоты! Получите свои уже сейчас!
+advertisement-chemdrobe-2 = Профессиональная лабораторная одежда, стандартизированная ТСФ!
+advertisement-chemdrobe-3 = Я уверена, что эти штуки защитят тебя от кислотных разливов!
+advertisement-chemdrobe-4 = Лучшая формула моды!

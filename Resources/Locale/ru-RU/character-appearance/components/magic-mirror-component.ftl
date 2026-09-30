@@ -1,15 +1,15 @@
-magic-mirror-component-activate-user-has-no-hair = You can't have any hair!
+magic-mirror-component-activate-user-has-no-hair = У тебя не может быть никаких волос!
 
-magic-mirror-window-title = Magic Mirror
-magic-mirror-add-slot-self = You're giving yourself some hair.
-magic-mirror-remove-slot-self = You're removing some of your hair.
-magic-mirror-change-slot-self = You're changing your hairstyle.
-magic-mirror-change-color-self = You're changing your hair color.
+magic-mirror-window-title = Волшебное зеркало
+magic-mirror-add-slot-self = У тебя начинает расти волос.
+magic-mirror-remove-slot-self = Вы убираете часть своих волос.
+magic-mirror-change-slot-self = Вы меняете прическу.
+magic-mirror-change-color-self = Вы меняете цвет волос.
 
-magic-mirror-add-slot-target = Hair is being added to you by {$user}.
-magic-mirror-remove-slot-target = Your hair is being cut off by {$user}.
-magic-mirror-change-slot-target = Your hairstyle is being changed by {$user}.
-magic-mirror-change-color-target = Your hair color is being changed by {$user}.
+magic-mirror-add-slot-target = Волосы добавлены вам пользователем {$user}.
+magic-mirror-remove-slot-target = Вашу волосы стрижет {$user}.
+magic-mirror-change-slot-target = Вашу прическу меняет {$user}.
+magic-mirror-change-color-target = Ваш цвет волос изменен пользователем {$user}.
 
-magic-mirror-blocked-by-hat-self = You need to take off your hat before changing your hair.
-magic-mirror-blocked-by-hat-self-target = You try to change their hair but their clothes gets in the way.
+magic-mirror-blocked-by-hat-self = Сначала снимите шляпу, потом меняйте прическу.
+magic-mirror-blocked-by-hat-self-target = Вы пытаетесь изменить их прическу, но одежда мешает.

@@ -1,3 +1,3 @@
 ### Change Reagent Whitelist component
 
-comp-change-reagent-whitelist-verb-filter = Set Reagent Filter
+comp-change-reagent-whitelist-verb-filter = Настройка фильтра реагентов

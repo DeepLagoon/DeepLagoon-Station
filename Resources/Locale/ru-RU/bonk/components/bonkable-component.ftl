@@ -1,4 +1,4 @@
-forced-bonkable-success-message = { CAPITALIZE($bonker) } bonks {$victim}s head against { THE($bonkable) }!
+forced-bonkable-success-message = { CAPITALIZE($bonker) } бонкнул {$victim} головой о { THE($bonkable) }!
 
-bonkable-success-message-user = You bonk your head against { THE($bonkable) }!
-bonkable-success-message-others = {$victim} bonks their head against { THE($bonkable) }!
+bonkable-success-message-user = Вы получаете оглушающий удар головой о { THE($bonkable) }!
+bonkable-success-message-others = {$victim} бонкнулся головой о { THE($bonkable) }!

@@ -1,15 +1,15 @@
-lobby-state-paused = Paused
-lobby-state-soon = Round starting soon
-lobby-state-right-now-question = Right Now?
-lobby-state-right-now-confirmation = Right Now
-lobby-state-round-start-countdown-text = Round starts In: {$timeLeft}
-lobby-state-ready-button-join-state = Join
-lobby-state-ready-button-ready-up-state = Ready Up
-lobby-state-player-status-not-ready = Not Ready
-lobby-state-player-status-ready = Ready
-lobby-state-player-status-observer = Observer
-lobby-state-player-status-round-not-started = The round hasn't started yet
-lobby-state-player-status-round-time =
+lobby-state-paused = Пауза
+lobby-state-soon = Бой скоро начнется
+lobby-state-right-now-question = Сейчас?
+lobby-state-right-now-confirmation = Сейчас же
+lobby-state-round-start-countdown-text = Раунд начинается через: {$timeLeft}
+lobby-state-ready-button-join-state = Присоединиться
+lobby-state-ready-button-ready-up-state = Готовы
+lobby-state-player-status-not-ready = Не готов
+lobby-state-player-status-ready = Готов
+lobby-state-player-status-observer = Наблюдатель
+lobby-state-player-status-round-not-started = Раунд еще не начался
+lobby-state-player-status-round-time = 
     The round time is: {$hours} {$hours ->
     [1]hour
     *[other]hours
@@ -17,7 +17,7 @@ lobby-state-player-status-round-time =
     [1]minute
     *[other]minutes
     }
-lobby-state-song-text = Playing: [color=white]{$songTitle}[/color] by [color=white]{$songArtist}[/color]
-lobby-state-song-no-song-text = No lobby song playing.
-lobby-state-song-unknown-title = [color=dimgray]Unknown title[/color]
-lobby-state-song-unknown-artist = [color=dimgray]Unknown artist[/color]
+lobby-state-song-text = Сейчас играет: [color=white]{$songTitle}[/color] от [color=white]{$songArtist}[/color]
+lobby-state-song-no-song-text = В лобби не играет ни одной песни.
+lobby-state-song-unknown-title = [color=dimgray]Неизвестный заголовок[/color]
+lobby-state-song-unknown-artist = [color=dimgray]Неизвестный исполнитель[/color]

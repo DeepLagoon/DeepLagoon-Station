@@ -1,20 +1,20 @@
-chat-emote-name-spin = Spin
-chat-emote-name-jump = Jump
-chat-emote-msg-spin = spins!
-chat-emote-msg-jump = jumps!
+chat-emote-name-spin = Крутить
+chat-emote-name-jump = Прыгать
+chat-emote-msg-spin = вращается!
+chat-emote-msg-jump = прыжки!
 
 # Names
-chat-emote-name-trill = Trill
-chat-emote-name-warble = Warble
-chat-emote-name-wurble = Wurble
-chat-emote-name-mars = Mars
-chat-emote-name-bagawk = Bagawk
-chat-emote-name-yip = Yip
+chat-emote-name-trill = Трель
+chat-emote-name-warble = Пищать
+chat-emote-name-wurble = Вурбл
+chat-emote-name-mars = Марс
+chat-emote-name-bagawk = Багавк
+chat-emote-name-yip = Ип
 
 # Message
-chat-emote-msg-trill = trills!
-chat-emote-msg-warble = warbles!
-chat-emote-msg-wurble = wurbles!
-chat-emote-msg-mars = mars.
-chat-emote-msg-bagawk = bagawks!
-chat-emote-msg-yip = Yips!
+chat-emote-msg-trill = триллеры!
+chat-emote-msg-warble = трель!
+chat-emote-msg-wurble = вурблы!
+chat-emote-msg-mars = марс
+chat-emote-msg-bagawk = багавки!
+chat-emote-msg-yip = Ипс!
