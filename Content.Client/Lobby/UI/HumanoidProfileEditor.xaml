@@ -79,6 +79,22 @@
                                     <Control HorizontalExpand="True"/>
                                     <OptionButton Name="PronounsButton" HorizontalAlignment="Right" />
                                 </BoxContainer>
+                                <!-- DeepLagoon: interaction panel preferences -->
+                                <BoxContainer HorizontalExpand="True">
+                                    <Label Text="{Loc 'dl-interaction-panel-category-erp'}" />
+                                    <Control HorizontalExpand="True" />
+                                    <OptionButton Name="ERPConsentButton" HorizontalAlignment="Right" />
+                                </BoxContainer>
+                                <BoxContainer HorizontalExpand="True">
+                                    <Label Text="{Loc 'dl-interaction-panel-category-noncon'}" />
+                                    <Control HorizontalExpand="True" />
+                                    <OptionButton Name="NonConConsentButton" HorizontalAlignment="Right" />
+                                </BoxContainer>
+                                <BoxContainer HorizontalExpand="True">
+                                    <Label Text="{Loc 'dl-interaction-panel-category-vore'}" />
+                                    <Control HorizontalExpand="True" />
+                                    <OptionButton Name="VoreConsentButton" HorizontalAlignment="Right" />
+                                </BoxContainer>
                                 <!-- Show clothing -->
                                 <BoxContainer HorizontalExpand="True">
                                     <Label Text="{Loc 'humanoid-profile-editor-clothing'}" />

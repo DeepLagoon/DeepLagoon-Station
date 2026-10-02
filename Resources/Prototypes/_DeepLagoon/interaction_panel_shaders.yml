@@ -1,0 +1,7 @@
+# UI keeps clothing displacement, but must not depend on the world's light/stencil state.
+- type: shader
+  id: DeepLagoonInteractionPanelDisplacement
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/interaction_panel_displacement.swsl
+  params:
+    displacementSize: 127

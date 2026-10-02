@@ -462,6 +462,8 @@ public abstract class SharedHumanoidAppearanceSystem : EntitySystem
             _appearance.SetData(uid, ScaleVisuals.Scale, new Vector2(profile.Appearance.Width, profile.Appearance.Height), appearance);
         }
 
+        var interactionPanelProfile = new Content.Shared._DeepLagoon.InteractionPanel.InteractionPanelProfileLoadedEvent(profile);
+        RaiseLocalEvent(uid, ref interactionPanelProfile);
         RaiseLocalEvent(uid, new ProfileLoadFinishedEvent()); // Shitmed Change
         Dirty(uid, humanoid);
     }

@@ -1,3 +1,4 @@
+using Content.Shared._DeepLagoon.InteractionPanel;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -25,7 +26,7 @@ using Robust.Shared.Utility;
 
 namespace Content.Server.Database
 {
-    public abstract class ServerDbBase
+    public abstract partial class ServerDbBase
     {
         private readonly ISawmill _opsLog;
 
@@ -277,7 +278,10 @@ namespace Content.Server.Database
                 antags.ToHashSet(),
                 traits.ToHashSet(),
                 loadouts,
-                company);
+                company)
+                .WithInteractionPanelConsent(InteractionPanelCategory.Erotic, (InteractionPanelConsent) profile.ERPConsent)
+                .WithInteractionPanelConsent(InteractionPanelCategory.NonCon, (InteractionPanelConsent) profile.NonConConsent)
+                .WithInteractionPanelConsent(InteractionPanelCategory.Vore, (InteractionPanelConsent) profile.VoreConsent);
         }
 
         private static Profile ConvertProfiles(HumanoidCharacterProfile humanoid, int slot, Profile? profile = null)
@@ -311,6 +315,9 @@ namespace Content.Server.Database
             profile.Slot = slot;
             profile.PreferenceUnavailable = (DbPreferenceUnavailableMode) humanoid.PreferenceUnavailable;
             profile.Company = humanoid.Company;
+            profile.ERPConsent = (int) humanoid.ERPConsent;
+            profile.NonConConsent = (int) humanoid.NonConConsent;
+            profile.VoreConsent = (int) humanoid.VoreConsent;
 
             profile.Jobs.Clear();
             profile.Jobs.AddRange(

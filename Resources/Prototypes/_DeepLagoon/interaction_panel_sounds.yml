@@ -1,0 +1,121 @@
+# Вместо path можно задать paths: [/Audio/...ogg, /Audio/...ogg].
+# Один файл выбирается случайно. Такой набор доступен и пользовательским действиям.
+# volume — громкость в дБ: 0 исходная, -5 тише; допустимый диапазон -40…6.
+# Добавьте новую запись с уникальным id и существующим .ogg. Пути выбирает сервер.
+# category — ключ локализации категории в выпадающем списке, name — название звука.
+- type: interactionPanelSound
+  id: clap
+  name: dl-interaction-panel-sound-clap
+  category: dl-interaction-panel-sounds-gestures
+  path: /Audio/Effects/Emotes/clap-single.ogg
+  volume: -5
+
+- type: interactionPanelSound
+  id: snap
+  name: dl-interaction-panel-sound-snap
+  category: dl-interaction-panel-sounds-gestures
+  path: /Audio/Effects/Emotes/snap1.ogg
+
+- type: interactionPanelSound
+  id: salute
+  name: dl-interaction-panel-sound-salute
+  category: dl-interaction-panel-sounds-clothing
+  path: /Audio/Effects/Emotes/salute.ogg
+
+
+- type: interactionPanelSound
+  id: insert
+  name: dl-interaction-panel-sound-insert
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/bang1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bang2.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bang3.ogg
+
+- type: interactionPanelSound
+  id: dildo_insert
+  name: dl-interaction-panel-sound-dildo-insert
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/bang4.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bang5.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bang6.ogg
+
+- type: interactionPanelSound
+  id: lick_nice
+  name: dl-interaction-panel-sound-lick
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/bj1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj2.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj3.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj4.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj5.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj6.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj7.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj8.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj9.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj10.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/bj11.ogg
+
+- type: interactionPanelSound
+  id: insert_wet
+  name: dl-interaction-panel-sound-insert-ver2
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/champ1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/champ2.ogg
+
+- type: interactionPanelSound
+  id: came_f
+  name: dl-interaction-panel-sound-female-final
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/final_f1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/final_f2.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/final_f3.ogg
+
+- type: interactionPanelSound
+  id: came_m
+  name: dl-interaction-panel-sound-female-final-m
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/final_m1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/final_m2.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/final_m3.ogg
+
+- type: interactionPanelSound
+  id: just_kiss
+  name: dl-interaction-panel-sound-kiss
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/kiss5.ogg
+
+- type: interactionPanelSound
+  id: moan_f
+  name: dl-interaction-panel-sound-moan-f
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f2.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f3.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f4.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f5.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f6.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/moan_f7.ogg
+
+- type: interactionPanelSound
+  id: oral_sex
+  name: dl-interaction-panel-sound-oral
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/oral1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/oral2.ogg
+
+- type: interactionPanelSound
+  id: bite_lewd
+  name: dl-interaction-panel-sound-bite
+  category: dl-interaction-panel-sounds-lewd
+  paths:
+  - /Audio/_DeepLagoon/Interaction_Panel/squelch1.ogg
+  - /Audio/_DeepLagoon/Interaction_Panel/squelch1.ogg

@@ -1,0 +1,4 @@
+light_mode unshaded;
+
+// Use the same species/sex displacement and alpha mask as clothing in the world.
+#include "/Textures/Shaders/displacement.swsl"

@@ -1,0 +1,106 @@
+# manaGain: 10 — мана цели за успешный запуск, по умолчанию 0.
+# sounds: [clap, snap] — случайный ID звука; имеет приоритет над sound.
+# Ограничения пола тела (НЕ местоимений) — необязательные списки:
+#   userSexes: [Male]           # пол инициатора
+#   targetSexes: [Female]      # пол цели
+# Можно несколько: [Male, Female, Unsexed]. Без поля — любой пол, включая мобов без пола.
+# Пустой список [] не допускает никого. При ограничении моб без данных пола не подходит.
+# На себе оба ограничения проверяются на одном персонаже. Dev их НЕ отключает.
+# ДЕЙСТВИЯ ПАНЕЛИ. Скопируйте блок, задайте уникальный id и тексты в interaction_panel.ftl.
+# category: Neutral (без проверки настроек) / Erotic / NonCon / Vore. body: all/head/hands/shoulders/torso/groin/legs.
+# flags: минимум один SELF/OTHER и один HUMANOID/NON_HUMANOID.
+# Для негуманоидов используйте body: all. order — порядок в списке.
+# sound — ID из interaction_panel_sounds.yml, effect — ID сущности из interaction_panel.yml.
+# Без звука/эффекта/анимации просто не указывайте соответствующее поле.
+# animation: {} — стандартное движение; параметры в примере hug ниже.
+# chatColor — цвет сообщения этого действия в чате (HEX в кавычках).
+
+- type: interactionPanel
+  id: wave
+  order: 10
+  body: hands
+  category: Neutral
+  flags: [INTERACTION_SELF, INTERACTION_OTHER, INTERACTION_HUMANOID]
+  chatColor: "#A8E6CF"
+
+- type: interactionPanel
+  id: high-five
+  order: 20
+  body: hands
+  category: Neutral
+  flags: [INTERACTION_OTHER, INTERACTION_HUMANOID]
+  chatColor: "#FFD580"
+  sound: "clap"
+
+- type: interactionPanel
+  id: pat
+  order: 30
+  body: shoulders
+  category: Neutral
+  flags: [INTERACTION_OTHER, INTERACTION_HUMANOID]
+  chatColor: "#BCE2BE"
+
+- type: interactionPanel
+  id: hug
+  order: 40
+  body: torso
+  category: Neutral
+  flags: [INTERACTION_OTHER, INTERACTION_HUMANOID]
+  chatColor: "#F0B9D7"
+  effect: "DeepLagoonInteractionPanelHearts"
+  animation:
+    distance: 0.15
+    selfDistance: 0.12
+    forwardSeconds: 0.225
+    returnSeconds: 0.225
+
+- type: interactionPanel
+  id: nod
+  order: 50
+  body: head
+  category: Neutral
+  flags: [INTERACTION_SELF, INTERACTION_OTHER, INTERACTION_HUMANOID]
+  chatColor: "#AEDBEF"
+  animation:
+    distance: 0.15
+    selfDistance: 0.12
+    forwardSeconds: 0.225
+    returnSeconds: 0.225
+
+- type: interactionPanel
+  id: pet
+  order: 60
+  body: all
+  category: Neutral
+  flags: [INTERACTION_OTHER, INTERACTION_NON_HUMANOID]
+  chatColor: "#B8E8C3"
+
+- type: interactionPanel
+  id: animal-play
+  order: 70
+  body: all
+  category: Neutral
+  flags: [INTERACTION_OTHER, INTERACTION_NON_HUMANOID]
+  chatColor: "#FFE3A6"
+
+- type: interactionPanel
+  id: animal-rest
+  order: 80
+  body: all
+  category: Neutral
+  flags: [INTERACTION_SELF, INTERACTION_NON_HUMANOID]
+  chatColor: "#BFDCCA"
+
+- type: interactionPanel
+  id: stretch
+  order: 90
+  body: legs
+  category: Neutral
+  flags: [INTERACTION_SELF, INTERACTION_HUMANOID]
+  chatColor: "#D4C7FA"
+  animation:
+    distance: 0.15
+    selfDistance: 0.12
+    forwardSeconds: 0.225
+    returnSeconds: 0.225
+

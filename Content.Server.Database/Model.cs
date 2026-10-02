@@ -381,7 +381,7 @@ namespace Content.Server.Database
         public abstract int CountAdminLogs();
     }
 
-    public class Preference
+    public partial class Preference
     {
         // NOTE: on postgres there SHOULD be an FK ensuring that the selected character slot always exists.
         // I had to use a migration to implement it and as a result its creation is a finicky mess.
@@ -396,7 +396,7 @@ namespace Content.Server.Database
         public List<Profile> Profiles { get; } = new();
     }
 
-    public class Profile
+    public partial class Profile
     {
         public int Id { get; set; }
         public int Slot { get; set; }

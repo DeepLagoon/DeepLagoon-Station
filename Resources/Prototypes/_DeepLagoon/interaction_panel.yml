@@ -1,0 +1,17 @@
+# ЭФФЕКТЫ ДЕЙСТВИЙ. Скопируйте блок и задайте уникальный id.
+# Этот id укажите в effect в interaction_panel_actions.yml. offset: X, Y (тайлы).
+- type: entity
+  id: DeepLagoonInteractionPanelHearts
+  parent: EffectHearts
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    offset: 0, 0.9
+  # Для своего эффекта можно добавить в Sprite:
+  #   color: "#A8E6CF"
+  #   sprite: Effects/YourEffect.rsi
+  #   state: your_state
+  # lifetime — время жизни сущности, не скорость анимации RSI.
+  - type: TimedDespawn
+    lifetime: 0.85
+

@@ -257,6 +257,13 @@ binds:
   key: MouseLeft
   mod1: Shift
   canFocus: true
+- function: DeepLagoonOpenInteractions
+  type: State
+  key: MouseLeft
+  mod1: Control
+  mod2: Shift
+  canFocus: true
+  allowSubCombs: false
 - function: ExamineEntity
   type: State
   key: MouseLeft

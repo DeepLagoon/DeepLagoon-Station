@@ -187,6 +187,7 @@ namespace Content.Client.Lobby.UI
             MarkingManager markings)
         {
             RobustXamlLoader.Load(this);
+            InitializeInteractionPanelPreferences();
             _sawmill = logManager.GetSawmill("profile.editor");
             _cfgManager = configurationManager;
             _entManager = entManager;
@@ -616,6 +617,7 @@ namespace Content.Client.Lobby.UI
 
             UpdateSpeciesGuidebookIcon();
             UpdateCompanyControls();
+            UpdateInteractionPanelPreferences();
             IsDirty = false;
         }
 
@@ -1267,6 +1269,7 @@ namespace Content.Client.Lobby.UI
             UpdateCMarkingsHair();
             UpdateCMarkingsFacialHair();
             UpdateCompanyControls();
+            UpdateInteractionPanelPreferences();
 
             RefreshAntags();
             RefreshJobs();

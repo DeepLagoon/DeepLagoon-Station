@@ -223,6 +223,7 @@ namespace Content.Client.Options.UI.Tabs
             AddButton(ContentKeyFunctions.AltActivateItemInWorld);
             AddButton(ContentKeyFunctions.Drop);
             AddButton(ContentKeyFunctions.ExamineEntity);
+            AddButton(Content.Shared._DeepLagoon.InteractionPanel.InteractionPanelKeyFunctions.OpenInteractions);
             AddButton(ContentKeyFunctions.SwapHands);
             AddButton(ContentKeyFunctions.SwapHandsPrevious); // Frontier
             AddButton(ContentKeyFunctions.MoveStoredItem);

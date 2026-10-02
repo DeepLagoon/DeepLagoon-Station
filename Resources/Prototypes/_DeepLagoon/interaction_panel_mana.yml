@@ -1,0 +1,16 @@
+# Глобальные настройки маны. Максимум = порог смерти моба * healthMultiplier.
+# Если порога смерти нет, используется fallbackHealth. Текущий урон максимум не уменьшает.
+- type: interactionPanelMana
+  id: InteractionPanelMana
+  healthMultiplier: 1
+  fallbackHealth: 100
+  resetMessage: dl-interaction-panel-mana-reset
+  chatColor: "#80BFFF"
+  vignetteColor: "#287FE8"
+  vignetteMaxAlpha: 0.65
+  # Списки ID из interaction_panel_sounds.yml. Пусто = без звука.
+  # Один ID = один звук, несколько = случайный выбор при каждом сбросе.
+  maleSounds: []
+  femaleSounds: []
+  unsexedSounds: []
+  unknownSounds: [] # Мобы без HumanoidAppearance / известного пола.
