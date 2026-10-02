@@ -11,6 +11,9 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <!-- These tests initialize SQLite directly, including in Release builds. -->
+    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Condition="'$(UseSystemSqlite)' == 'True'" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Condition="'$(UseSystemSqlite)' != 'True'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Content.Client\Content.Client.csproj" />

@@ -18,7 +18,11 @@ public sealed class DiscordLinkStoreTests
     [SetUp]
     public void Setup()
     {
+#if USE_SYSTEM_SQLITE
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+#else
         SQLitePCL.Batteries_V2.Init();
+#endif
         _directory = Path.Combine(Path.GetTempPath(), "ss14-discord-link-" + Guid.NewGuid());
         _path = Path.Combine(_directory, "discord-links.db");
         _now = 10000;
