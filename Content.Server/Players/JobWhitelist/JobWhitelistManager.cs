@@ -174,10 +174,16 @@ public sealed class JobWhitelistManager : IPostInjectInit
 
     public async void AddGlobalWhitelist(NetUserId player)
     {
+        await AddGlobalWhitelistAsync(player);
+    }
+
+    // Awaitable entry point for integrations that must confirm persistence.
+    public async Task AddGlobalWhitelistAsync(NetUserId player)
+    {
+        await _db.AddToWhitelistAsync(player);
+
         if (_globalWhitelists.ContainsKey(player))
             _globalWhitelists[player] = true;
-
-        await _db.AddToWhitelistAsync(player);
 
         if (_player.TryGetSessionById(player, out var session))
             SendWhitelist(session);

@@ -153,15 +153,17 @@ namespace Content.Server.GameTicking
             var status = ready ? PlayerGameStatus.ReadyToPlay : PlayerGameStatus.NotReadyToPlay;
             foreach (var playerUserId in _playerGameStatuses.Keys)
             {
-                _playerGameStatuses[playerUserId] = status;
                 if (!_playerManager.TryGetSessionById(playerUserId, out var playerSession))
                     continue;
+                _playerGameStatuses[playerUserId] = ready && !DiscordAdmission.CanEnterRound(playerSession) ? PlayerGameStatus.NotReadyToPlay : status;
                 RaiseNetworkEvent(GetStatusMsg(playerSession), playerSession.Channel);
             }
         }
 
         public void ToggleReady(ICommonSession player, bool ready)
         {
+            if (ready && !CheckDiscordRoundAdmission(player))
+                return;
             if (!_playerGameStatuses.ContainsKey(player.UserId))
                 return;
 

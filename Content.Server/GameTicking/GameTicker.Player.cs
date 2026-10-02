@@ -88,6 +88,18 @@ namespace Content.Server.GameTicking
                 case SessionStatus.InGame:
                 {
                     _userDb.ClientConnected(session);
+                    if (_cfg.GetCVar(CCVars.DiscordLinkEnabled))
+                    {
+                        await DiscordAdmission.RefreshAdmission(session);
+                        if (session.Status != SessionStatus.InGame)
+                            break;
+                        if (!CheckDiscordRoundAdmission(session))
+                        {
+                            _playerManager.SetAttachedEntity(session, null);
+                            PlayerJoinLobby(session);
+                            break;
+                        }
+                    }
 
                     if (mind == null)
                     {
@@ -189,6 +201,8 @@ namespace Content.Server.GameTicking
 
         public void PlayerJoinGame(ICommonSession session, bool silent = false)
         {
+            if (!CheckDiscordRoundAdmission(session))
+                return;
             if (!silent)
                 _chatManager.DispatchServerMessage(session, Loc.GetString("game-ticker-player-join-game-message"));
 
@@ -209,7 +223,7 @@ namespace Content.Server.GameTicking
 
         private void PlayerJoinLobby(ICommonSession session)
         {
-            _playerGameStatuses[session.UserId] = LobbyEnabled ? PlayerGameStatus.NotReadyToPlay : PlayerGameStatus.ReadyToPlay;
+            _playerGameStatuses[session.UserId] = LobbyEnabled || !DiscordAdmission.CanEnterRound(session) ? PlayerGameStatus.NotReadyToPlay : PlayerGameStatus.ReadyToPlay;
             _db.AddRoundPlayers(RoundId, session.UserId);
 
             var client = session.Channel;

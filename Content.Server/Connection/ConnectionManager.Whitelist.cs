@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Content.Server.Connection.Whitelist;
 using Content.Server.Connection.Whitelist.Conditions;
@@ -40,6 +40,27 @@ public sealed partial class ConnectionManager
         }
 
         _whitelists = list.ToArray();
+    }
+
+    // Linking mode defers admission to the lobby, without bypassing the configured whitelist rules.
+    public async Task<bool> CheckDiscordLobbyWhitelist(NetUserData data)
+    {
+        if (!await _db.GetWhitelistStatusAsync(data.UserId))
+            return false;
+        if (!_cfg.GetCVar(CCVars.WhitelistEnabled))
+            return true;
+        if (_whitelists == null)
+            return false;
+        var count = _plyMgr.PlayerCount;
+        if (!_cfg.GetCVar(CCVars.AdminsCountForMaxPlayers))
+            count -= _adminManager.ActiveAdmins.Count();
+        foreach (var whitelist in _whitelists)
+        {
+            if (!IsValid(whitelist, count))
+                continue;
+            return (await IsWhitelisted(whitelist, data, _sawmill)).isWhitelisted;
+        }
+        return true;
     }
 
     private bool IsValid(PlayerConnectionWhitelistPrototype whitelist, int playerCount)

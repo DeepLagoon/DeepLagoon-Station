@@ -158,6 +158,9 @@ namespace Content.Server.GameTicking
             bool lateJoin = true,
             bool silent = false)
         {
+            if (!CheckDiscordRoundAdmission(player))
+                return;
+
             // Can't spawn players with a dummy ticker!
             if (DummyTicker)
                 return;
@@ -341,6 +344,8 @@ namespace Content.Server.GameTicking
         /// <param name="silent">Whether or not the player should be greeted upon joining</param>
         public void MakeJoinGame(ICommonSession player, EntityUid station, string? jobId = null, bool silent = false)
         {
+            if (!CheckDiscordRoundAdmission(player))
+                return;
             if (!_playerGameStatuses.ContainsKey(player.UserId))
                 return;
 
@@ -355,6 +360,9 @@ namespace Content.Server.GameTicking
         /// </summary>
         public void JoinAsObserver(ICommonSession player)
         {
+            if (!CheckDiscordRoundAdmission(player))
+                return;
+
             // Can't spawn players with a dummy ticker!
             if (DummyTicker)
                 return;
@@ -369,6 +377,8 @@ namespace Content.Server.GameTicking
         /// </summary>
         public void SpawnObserver(ICommonSession player)
         {
+            if (!CheckDiscordRoundAdmission(player))
+                return;
             if (DummyTicker)
                 return;
 

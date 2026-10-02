@@ -44,6 +44,8 @@ namespace Content.Server.Connection
         /// <param name="duration">How long the bypass should last for.</param>
         void AddTemporaryConnectBypass(NetUserId user, TimeSpan duration);
 
+        Task<bool> CheckDiscordLobbyWhitelist(NetUserData data);
+
         void Update();
     }
 
@@ -322,7 +324,7 @@ namespace Content.Server.Connection
             }
 
             // Checks for whitelist IF it's enabled AND the user isn't an admin. Admins are always allowed.
-            if (_cfg.GetCVar(CCVars.WhitelistEnabled) && !wasInGame && adminData is null) // Frontier: allow users who joined before panic bunker was enforced to reconnect
+            if (_cfg.GetCVar(CCVars.WhitelistEnabled) && !_cfg.GetCVar(CCVars.DiscordLinkEnabled) && !wasInGame && adminData is null) // Frontier: allow users who joined before panic bunker was enforced to reconnect
             {
                 if (_whitelists is null)
                 {
