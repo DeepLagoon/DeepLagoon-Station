@@ -4,7 +4,6 @@ namespace Content.Shared.Speech.EntitySystems;
 
 public abstract class SharedStutteringSystem : EntitySystem
 {
-    [ValidatePrototypeId<StatusEffectPrototype>]
     public const string StutterKey = "Stutter";
 
     [Dependency] private readonly StatusEffectsSystem _statusEffectsSystem = default!;

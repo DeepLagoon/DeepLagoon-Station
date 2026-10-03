@@ -1,7 +1,6 @@
 <Document>
   # Космическое право
   На Космической Станции 14 действуют сокращённые космические законы. Весь экипаж, пассажиры и посетители, находящиеся на станции, должны соблюдать эти законы.
-</Document>
 
 Иностранные захватчики, такие как ядерные агенты, ниндзя и пираты, не защищены космическим законом. Предатели не являются иностранными захватчиками, поэтому обычно защищены космическим законом.
 
@@ -37,59 +36,6 @@
 Капитан, ГСБ и смотритель несут, при разумных обстоятельствах, ответственность за то, чтобы сотрудники службы безопасности накладывали соответствующие наказания, следуя законам космоса. Если они осведомлены о несоответствующем наказании, включая чрезмерно длинные сроки, и если отсутствует срочная угроза или опасность, которую необходимо преодолеть, они обязаны работать над исправлением этого наказания. Несоответствие нормам, определённое администраторами игры, со стороны капитана, ГСБ или смотрителя в обеспечении соблюдения законов космоса, будет рассматриваться как нарушение правил, а не как проблема в рамках игры.
 
 Используйте общий смысл и гуманность при вынесении наказаний. Вам не следует всегда стремиться к самому строгому наказанию, не обязательно всегда выдавать максимальный срок или всегда пытаться понизить кого-то в должности. Заключённые, проявляющие сотрудничество и ведущие себя хорошо, должны иметь уменьшенные сроки заключения. Всегда учитывайте степень тяжести правонарушения и приговаривайте только то, что необходимо для того, чтобы человек понял свой урок.
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-<GuideEntityEmbed entity="obj/item/weapon/storage/box/pen" />
-
 [color=#a4885c]Накапливающиеся преступления:[/color] Преступления считаются «накапливающимися» в том смысле, что если вы приговорите кого-либо к двум или более разным преступлениям, вы должны сложить наказания, которые вы бы дали за каждое преступление. Связанные преступления, обозначенные одинаковыми цветами и суффиксами на Быстром Путеводителе по Преступлениям, не могут быть накаплены и вместо этого заменяют друг друга, вы должны выбрать наиболее тяжелое преступление, соответствующее случаю.
 
 - Пример: Подозреваемый совершил преступление 2-01 (содержание: серьезное) и 3-01 (содержание: синдикат). Максимальный срок здесь составит 10 минут из-за того, что это связаные преступления, а 3-01 является более тяжелым преступлением.

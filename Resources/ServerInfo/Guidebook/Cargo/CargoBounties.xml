@@ -1,7 +1,6 @@
 <Document>
   # Награды за грузы
   Хотя [textlink="Грузовой" link="Cargo"] отдел может принести [color=cyan]спесосов[/color], продавая практически всё, больше спесосов можно заработать, выполняя [color=cyan]награды[/color], найденные через Компьютер грузовых наград.
-</Document>
 
 ## Начальные награды
 
@@ -42,64 +41,65 @@
 
 Просто перевези это на [color=cyan]Торговую Станцию[/color], продай, и всё!
 
-<GuideEntityEmbed type="Bounty" id="Bounty1" />
-<GuideEntityEmbed type="Bounty" id="Bounty2" />
-<GuideEntityEmbed type="Bounty" id="Bounty3" />
-<GuideEntityEmbed type="Bounty" id="Bounty4" />
-<GuideEntityEmbed type="Bounty" id="Bounty5" />
-<GuideEntityEmbed type="Bounty" id="Bounty6" />
-<GuideEntityEmbed type="Bounty" id="Bounty7" />
-<GuideEntityEmbed type="Bounty" id="Bounty8" />
-<GuideEntityEmbed type="Bounty" id="Bounty9" />
-<GuideEntityEmbed type="Bounty" id="Bounty10" />
-<GuideEntityEmbed type="Bounty" id="Bounty11" />
-<GuideEntityEmbed type="Bounty" id="Bounty12" />
-<GuideEntityEmbed type="Bounty" id="Bounty13" />
-<GuideEntityEmbed type="Bounty" id="Bounty14" />
-<GuideEntityEmbed type="Bounty" id="Bounty15" />
-<GuideEntityEmbed type="Bounty" id="Bounty16" />
-<GuideEntityEmbed type="Bounty" id="Bounty17" />
-<GuideEntityEmbed type="Bounty" id="Bounty18" />
-<GuideEntityEmbed type="Bounty" id="Bounty19" />
-<GuideEntityEmbed type="Bounty" id="Bounty20" />
-<GuideEntityEmbed type="Bounty" id="Bounty21" />
-<GuideEntityEmbed type="Bounty" id="Bounty22" />
-<GuideEntityEmbed type="Bounty" id="Bounty23" />
-<GuideEntityEmbed type="Bounty" id="Bounty24" />
-<GuideEntityEmbed type="Bounty" id="Bounty25" />
-<GuideEntityEmbed type="Bounty" id="Bounty26" />
-<GuideEntityEmbed type="Bounty" id="Bounty27" />
-<GuideEntityEmbed type="Bounty" id="Bounty28" />
-<GuideEntityEmbed type="Bounty" id="Bounty29" />
-<GuideEntityEmbed type="Bounty" id="Bounty30" />
-<GuideEntityEmbed type="Bounty" id="Bounty31" />
-<GuideEntityEmbed type="Bounty" id="Bounty32" />
-<GuideEntityEmbed type="Bounty" id="Bounty33" />
-<GuideEntityEmbed type="Bounty" id="Bounty34" />
-<GuideEntityEmbed type="Bounty" id="Bounty35" />
-<GuideEntityEmbed type="Bounty" id="Bounty36" />
-<GuideEntityEmbed type="Bounty" id="Bounty37" />
-<GuideEntityEmbed type="Bounty" id="Bounty38" />
-<GuideEntityEmbed type="Bounty" id="Bounty39" />
-<GuideEntityEmbed type="Bounty" id="Bounty40" />
-<GuideEntityEmbed type="Bounty" id="Bounty41" />
-<GuideEntityEmbed type="Bounty" id="Bounty42" />
-<GuideEntityEmbed type="Bounty" id="Bounty43" />
-<GuideEntityEmbed type="Bounty" id="Bounty44" />
-<GuideEntityEmbed type="Bounty" id="Bounty45" />
-<GuideEntityEmbed type="Bounty" id="Bounty46" />
-<GuideEntityEmbed type="Bounty" id="Bounty47" />
-<GuideEntityEmbed type="Bounty" id="Bounty48" />
-<GuideEntityEmbed type="Bounty" id="Bounty49" />
-<GuideEntityEmbed type="Bounty" id="Bounty50" />
-<GuideEntityEmbed type="Bounty" id="Bounty51" />
-<GuideEntityEmbed type="Bounty" id="Bounty52" />
-<GuideEntityEmbed type="Bounty" id="Bounty53" />
-<GuideEntityEmbed type="Bounty" id="Bounty54" />
-<GuideEntityEmbed type="Bounty" id="Bounty55" />
-<GuideEntityEmbed type="Bounty" id="Bounty56" />
-<GuideEntityEmbed type="Bounty" id="Bounty57" />
-<GuideEntityEmbed type="Bounty" id="Bounty58" />
-<GuideEntityEmbed type="Bounty" id="Bounty59" />
-<GuideEntityEmbed type="Bounty" id="Bounty60" />
-<GuideEntityEmbed type="Bounty" id="Bounty
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <GuideEntityEmbed Entity="CargoPalletSell"/>
+</Document>

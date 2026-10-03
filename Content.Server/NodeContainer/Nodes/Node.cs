@@ -12,6 +12,8 @@ namespace Content.Server.NodeContainer.Nodes
     [ImplicitDataDefinitionForInheritors]
     public abstract partial class Node
     {
+        protected static SharedMapSystem MapSystem => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
+
         /// <summary>
         ///     An ID used as a criteria for combining into groups. Determines which <see cref="INodeGroup"/>
         ///     implementation is used as a group, detailed in <see cref="INodeGroupFactory"/>.

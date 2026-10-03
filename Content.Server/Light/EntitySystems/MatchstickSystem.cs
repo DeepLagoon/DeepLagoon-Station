@@ -1,3 +1,4 @@
+using Robust.Shared.Timing;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Light.Components;
 using Content.Shared.Audio;
@@ -86,7 +87,7 @@ namespace Content.Server.Light.EntitySystems
             // Change state
             SetState(matchstick, component, SmokableState.Lit);
             _litMatches.Add(matchstick);
-            matchstick.Owner.SpawnTimer(component.Duration * 1000, delegate
+            Timer.Spawn(TimeSpan.FromSeconds(component.Duration), delegate
             {
                 SetState(matchstick, component, SmokableState.Burnt);
                 _litMatches.Remove(matchstick);

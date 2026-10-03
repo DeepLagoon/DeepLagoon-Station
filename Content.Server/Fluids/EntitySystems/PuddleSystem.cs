@@ -92,13 +92,10 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly AtmosphereSystem _atmos = default!;
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string Blood = "Blood";
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string Slime = "Slime";
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string CopperBlood = "CopperBlood";
 
     private static string[] _standoutReagents = [Blood, Slime, CopperBlood];

@@ -1,6 +1,5 @@
 <Document>
   # Грызуны
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobRodentiaDummy" Caption=""/>

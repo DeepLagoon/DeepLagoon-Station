@@ -67,7 +67,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
 {
     private readonly IEntityManager _entManager;
     private readonly IGameTiming _timing;
-    private readonly IMapManager _mapManager;
+    private readonly SharedMapSystem _mapManager;
     private readonly IPrototypeManager _prototypeManager;
     private readonly AnchorableSystem _anchorable;
     private readonly BiomeSystem _biome;
@@ -101,7 +101,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         double maxTime,
         IEntityManager entManager,
         IGameTiming timing,
-        IMapManager mapManager,
+        SharedMapSystem mapManager,
         IPrototypeManager protoManager,
         AnchorableSystem anchorable,
         BiomeSystem biome,
@@ -237,8 +237,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
             }
         }
 
-        _mapManager.DoMapInitialize(mapId);
-        _mapManager.SetMapPaused(mapId, true);
+        _mapManager.InitializeMap(mapId, unpause: false);
 
         // Setup expedition
         var expedition = _entManager.AddComponent<SalvageExpeditionComponent>(mapUid);
@@ -246,7 +245,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         expedition.EndTime = _timing.CurTime + mission.Duration;
         expedition.MissionParams = _missionParams;
         expedition.Difficulty = _missionParams.Difficulty;
-        expedition.Rewards = mission.Rewards;
+        expedition.Rewards = mission.Rewards.Select(x => (EntProtoId) x).ToList();
 
         // On Frontier, we cant share our locations it breaks ftl in a bad bad way
         // Don't want consoles to have the incorrect name until refreshed.
@@ -444,7 +443,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         var structureComp = _entManager.EnsureComponent<SalvageStructureExpeditionComponent>(gridUid);
         var availableRooms = dungeon.Rooms.ToList();
         var faction = _prototypeManager.Index<SalvageFactionPrototype>(mission.Faction);
-        await SpawnMobsRandomRooms(mission, dungeon, faction, grid, random);
+        await SpawnMobsRandomRooms(mission, dungeon, faction, gridUid, grid, random);
 
         var structureCount = _salvage.GetStructureCount(mission.Difficulty);
         var shaggy = faction.Configs["DefenseStructure"];
@@ -463,7 +462,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                 var spawnTile = validSpawns[^1];
                 validSpawns.RemoveAt(validSpawns.Count - 1);
 
-                if (!_anchorable.TileFree(grid, spawnTile, (int) CollisionGroup.MachineLayer,
+                if (!_anchorable.TileFree(gridUid, grid, spawnTile, (int) CollisionGroup.MachineLayer,
                         (int) CollisionGroup.MachineMask)) // Frontier: MachineLayer<MachineMask
                 {
                     continue;
@@ -499,10 +498,10 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         eliminationComp.Megafauna.Add(uid);
 
         // spawn less mobs than usual since there's megafauna to deal with too
-        await SpawnMobsRandomRooms(mission, dungeon, faction, grid, random, 0.5f);
+        await SpawnMobsRandomRooms(mission, dungeon, faction, gridUid, grid, random, 0.5f);
     }
 
-    private async Task SpawnMobsRandomRooms(SalvageMission mission, Dungeon dungeon, SalvageFactionPrototype faction, MapGridComponent grid, Random random, float scale = 1f)
+    private async Task SpawnMobsRandomRooms(SalvageMission mission, Dungeon dungeon, SalvageFactionPrototype faction, EntityUid gridUid, MapGridComponent grid, Random random, float scale = 1f)
     {
         // scale affects how many groups are spawned, not the size of the groups themselves
         var groupSpawns = _salvage.GetSpawnCount(mission.Difficulty) * scale;
@@ -537,7 +536,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                         var spawnTile = validSpawns[^1];
                         validSpawns.RemoveAt(validSpawns.Count - 1);
 
-                        if (!_anchorable.TileFree(grid, spawnTile, (int)CollisionGroup.MachineLayer,
+                        if (!_anchorable.TileFree(gridUid, grid, spawnTile, (int)CollisionGroup.MachineLayer,
                                 (int)CollisionGroup.MachineLayer))
                         {
                             continue;

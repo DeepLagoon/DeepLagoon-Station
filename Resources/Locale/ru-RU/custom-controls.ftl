@@ -1,4 +1,4 @@
-## EntitySpawnWindow
+﻿## EntitySpawnWindow
 
 entity-spawn-window-title = Entity Spawn Panel
 entity-spawn-window-search-bar-placeholder = search
@@ -22,3 +22,12 @@ output-panel-scroll-down-button-text = Scroll Down
 ## Common Used
 
 window-erase-button-text = Erase Mode
+
+# TODO: translate (added from en-US; missing in ru-RU).
+entity-spawn-window-no-description = No description
+
+## TileSpawnWindow
+
+window-search-bar-placeholder = Search
+
+window-clear-button = Clear

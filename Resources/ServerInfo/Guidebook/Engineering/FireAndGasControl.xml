@@ -2,7 +2,6 @@
   # Пожары и газовые контроли
   К сожалению, [textlink="пожары" link="Fires"], [textlink="пространство" link="Spacing"] и другие [textlink="атмосферные сбои" link="AtmosphericUpsets"] являются частой причиной на станции.
   Эти сбои могут быстро распространяться по станции и делать атмосферу непригодной для жизни экипажа.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="Firelock"/>

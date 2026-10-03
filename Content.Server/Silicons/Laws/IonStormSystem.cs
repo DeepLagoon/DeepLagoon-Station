@@ -22,41 +22,23 @@ public sealed class IonStormSystem : EntitySystem
     [Dependency] private readonly IRobustRandom _robustRandom = default!;
 
     // funny
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Threats = "IonStormThreats";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Objects = "IonStormObjects";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Crew = "IonStormCrew";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Adjectives = "IonStormAdjectives";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Verbs = "IonStormVerbs";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string NumberBase = "IonStormNumberBase";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string NumberMod = "IonStormNumberMod";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Areas = "IonStormAreas";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Feelings = "IonStormFeelings";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string FeelingsPlural = "IonStormFeelingsPlural";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Musts = "IonStormMusts";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Requires = "IonStormRequires";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Actions = "IonStormActions";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Allergies = "IonStormAllergies";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string AllergySeverities = "IonStormAllergySeverities";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Concepts = "IonStormConcepts";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Drinks = "IonStormDrinks";
-    [ValidatePrototypeId<DatasetPrototype>]
     private const string Foods = "IonStormFoods";
 
     /// <summary>

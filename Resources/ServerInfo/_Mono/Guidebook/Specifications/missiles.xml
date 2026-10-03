@@ -39,7 +39,7 @@
         Size Class
       </Box>
     </ColorBox>
-    <!--Vanyk-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         ASM-302
@@ -70,7 +70,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Vespera-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         ADMP-27 VESPERA
@@ -101,7 +101,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Tovek-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         ADMX-23 TOVEK
@@ -132,7 +132,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Torps-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         ASM-220 (HE TORP)

@@ -580,3 +580,52 @@ cmd-localization_set_culture-desc = Set DefaultCulture for the client Localizati
 cmd-localization_set_culture-help = Usage: localization_set_culture <cultureName>
 cmd-localization_set_culture-culture-name = <cultureName>
 cmd-localization_set_culture-changed = Localization changed to { $code } ({ $nativeName } / { $englishName })
+
+# TODO: translate (added from en-US; missing in ru-RU).
+cmd-parse-failure-session-guid = There is no session with the GUID: {$guid}
+
+cmd-chunkentities-desc = Lists chunk entities in the client viewport OR in the specified range.
+
+cmd-chunkentities-help = Usage: {$command} [<root entity> <x> <y> <range>]
+
+cmd-chunkentities-error-invalid-root = Invalid root entity: {$root}
+
+cmd-chunkentities-error-parse = x, y, and range must be numbers.
+
+cmd-chunkentities-error-nullspace = Current eye is in nullspace.
+
+cmd-chunkentities-error-no-map = No map entity for current eye map {$map}.
+
+cmd-chunkentities-range-header = Chunk entities for {$root} around ({$x}, {$y}) range {$range}:
+
+cmd-chunkentities-viewport-header = Chunk entities in client viewport on map {$map} ({$viewport}):
+
+cmd-chunkentities-total = Total: {$count}
+
+cmd-chunkentities-root-count = Root {$root}: {$count}
+
+cmd-chunkentities-entry = {$netEntity} uid={$uid} root={$root} chunk={$chunk} comps={$componentCount} {$name}
+
+cmd-chunkentities-arg-root = <root entity>
+
+cmd-chunkentities-arg-x = <x>
+
+cmd-chunkentities-arg-y = <y>
+
+cmd-chunkentities-arg-range = <range>
+
+cmd-pausemap-desc = Pauses a map, pausing all simulation processing on it.
+
+cmd-pausemap-help = Usage: pausemap <map ID>
+
+cmd-unpausemap-desc = Unpauses a map, resuming all simulation processing on it.
+
+cmd-unpausemap-help = Usage: unpausemap <map ID>
+
+cmd-querymappaused-desc = Check whether a map is paused or not.
+
+cmd-querymappaused-help = Usage: querymappaused <map ID>
+
+cmd-shutdown-hint-1 = Reason
+
+cmd-addmap-hint-2 = runMapInit [true / false]

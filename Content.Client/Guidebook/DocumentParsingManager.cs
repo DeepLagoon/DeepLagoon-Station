@@ -79,7 +79,8 @@ public sealed partial class DocumentParsingManager
         }
         catch (Exception e)
         {
-            _sawmill.Error($"Encountered error while generating markup controls: {e}");
+            if (log)
+                _sawmill.Error($"Encountered error while generating markup controls: {e}");
 
             control.AddChild(new GuidebookError(text, e.ToStringBetter()));
 

@@ -428,3 +428,10 @@ command-description-cmd-info =
     On its own, this means it'll print the command's help message.
 command-description-comp-rm =
     Removes the given component from the entity.
+
+# TODO: translate (added from en-US; missing in ru-RU).
+command-description-overlay-toggle = Toggle an overlay on or off
+
+command-description-overlay-add = Add an overlay (if it does not already exist)
+
+command-description-overlay-remove = Remove an overlay

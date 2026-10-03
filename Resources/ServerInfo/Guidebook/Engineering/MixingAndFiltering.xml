@@ -5,7 +5,6 @@
     <GuideEntityEmbed Entity="GasMixer"/>
     <GuideEntityEmbed Entity="GasFilter"/>
   </Box>
-</Document>
 
 ## Газовый миксер
 Газовые миксеры используются для смешивания газов в определённых соотношениях внутри [textlink="сети трубопроводов." link="PipeNetworks"]
@@ -50,13 +49,12 @@
 
 Газовые фильтры заблокируются и перестанут фильтровать газ, если заблокирован какой-либо из выходов.
 
-<document>
-<box>
-<guideentityembed type="GasFilter" />
-</box>
-<box>
+<Box>
+<GuideEntityEmbed Entity="GasFilter"/>
+</Box>
+<Box>
 Фильтры газа можно использовать в различных приложениях, например:
 - Фильтрация нежелательных газов из [textlink="сети трубопроводов" link="PipeNetworks"]
 - Разделение определённых газов для хранения в рекиклernet станции
-</box>
-</document>
+</Box>
+</Document>

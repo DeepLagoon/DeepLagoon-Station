@@ -22,7 +22,7 @@ namespace Content.Server.Labels
         [Dependency] private readonly TagSystem _tagSystem = default!; // Frontier
 
         public const string ContainerName = "paper_label";
-        [ValidatePrototypeId<TagPrototype>] // Frontier: label prevention
+         // Frontier: label prevention
         private const string PreventTag = "PreventLabel"; // Frontier: label prevention
 
         public override void Initialize()

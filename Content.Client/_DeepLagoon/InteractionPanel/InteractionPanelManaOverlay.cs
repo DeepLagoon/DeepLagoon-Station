@@ -1,4 +1,5 @@
 using Content.Shared._DeepLagoon.InteractionPanel;
+using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Client.Player;
 using Robust.Shared.Enums;

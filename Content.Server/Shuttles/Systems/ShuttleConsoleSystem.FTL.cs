@@ -26,7 +26,7 @@ namespace Content.Server.Shuttles.Systems;
 
 public sealed partial class ShuttleConsoleSystem
 {
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly SharedShuttleSystem _sharedShuttle = default!;
 
     private const float ShuttleFTLRange = 256f;
@@ -222,17 +222,24 @@ public sealed partial class ShuttleConsoleSystem
             }
         }
 
-        foreach (var other in _mapManager.FindGridsIntersecting(xform.MapID, bounds))
+        var blocked = false;
+        _mapManager.FindGridsIntersecting(xform.MapID, bounds, (EntityUid otherUid, MapGridComponent _) =>
         {
-            if (other.Owner == shuttleUid.Value ||
-                dockedGrids.Contains(other.Owner) || // Skip grids that are docked to us or to the same parent grid
-                !bodyQuery.TryGetComponent(other.Owner, out var body) ||
+            if (otherUid == shuttleUid.Value ||
+                dockedGrids.Contains(otherUid) || // Skip grids that are docked to us or to the same parent grid
+                !bodyQuery.TryGetComponent(otherUid, out var body) ||
                 body.Mass < ShuttleFTLMassThreshold ||
-                !HasComp<StationMemberComponent>(other.Owner)) // Skip entities without a StationMember component
+                !HasComp<StationMemberComponent>(otherUid)) // Skip entities without a StationMember component
             {
-                continue;
+                return true;
             }
 
+            blocked = true;
+            return false;
+        });
+
+        if (blocked)
+        {
             _popup.PopupEntity(Loc.GetString("shuttle-ftl-proximity"), ent.Owner, PopupType.Medium);
             UpdateConsoles(shuttleUid.Value);
             return;
@@ -295,3 +302,4 @@ public sealed partial class ShuttleConsoleSystem
         UpdateState(uid, ref dockState);
     }
 }
+

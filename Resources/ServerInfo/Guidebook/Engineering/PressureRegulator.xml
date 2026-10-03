@@ -1,7 +1,6 @@
 <Document>
   # Регулятор давления на входе
   Регулятор давления на входе — пассивное устройство, которое позволяет газу выходить из [textlink="pipenet" link="PipeNetworks"], когда давление превышает определённый порог.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="GasPressureRegulator"/>

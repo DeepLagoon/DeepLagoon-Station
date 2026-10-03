@@ -1,6 +1,5 @@
 <Document>
   # Протогены
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobProtogen" Caption=""/>

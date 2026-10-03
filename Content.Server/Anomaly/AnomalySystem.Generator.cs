@@ -21,7 +21,7 @@ namespace Content.Server.Anomaly;
 /// </summary>
 public sealed partial class AnomalySystem
 {
-    [Dependency] private readonly SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly SharedTransformSystem _transform = default!;
 
     private void InitializeGenerator()
@@ -188,3 +188,4 @@ public sealed partial class AnomalySystem
         }
     }
 }
+

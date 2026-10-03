@@ -17,9 +17,9 @@ namespace Content.Server.Power.Nodes
             if (!xform.Anchored || grid == null)
                 yield break;
 
-            var gridIndex = grid.TileIndicesFor(xform.Coordinates);
+            var gridIndex = MapSystem.TileIndicesFor(xform.GridUid!.Value, grid, xform.Coordinates);
 
-            var nodes = NodeHelpers.GetCardinalNeighborNodes(nodeQuery, grid, gridIndex, includeSameTile: false);
+            var nodes = NodeHelpers.GetCardinalNeighborNodes(nodeQuery, (xform.GridUid!.Value, grid), gridIndex, includeSameTile: false);
             foreach (var (_, node) in nodes)
             {
                 if (node is CableTerminalNode)

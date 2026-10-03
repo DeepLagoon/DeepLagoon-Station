@@ -22,7 +22,7 @@ public sealed class BiomeDebugOverlay : Overlay
     [Dependency] private readonly IEntityManager _entManager = default!;
     [Dependency] private readonly IEyeManager _eyeManager = default!;
     [Dependency] private readonly IInputManager _inputManager = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly IResourceCache _cache = default!;
     [Dependency] private readonly ITileDefinitionManager _tileDefManager = default!;
 
@@ -43,7 +43,7 @@ public sealed class BiomeDebugOverlay : Overlay
 
     protected override bool BeforeDraw(in OverlayDrawArgs args)
     {
-        var mapUid = _mapManager.GetMapEntityId(args.MapId);
+        var mapUid = _mapManager.GetMap(args.MapId);
 
         return _entManager.HasComponent<BiomeComponent>(mapUid);
     }
@@ -56,7 +56,7 @@ public sealed class BiomeDebugOverlay : Overlay
         if (mousePos.MapId == MapId.Nullspace || mousePos.MapId != args.MapId)
             return;
 
-        var mapUid = _mapManager.GetMapEntityId(args.MapId);
+        var mapUid = _mapManager.GetMap(args.MapId);
 
         if (!_entManager.TryGetComponent(mapUid, out BiomeComponent? biomeComp) || !_entManager.TryGetComponent(mapUid, out MapGridComponent? grid))
             return;
@@ -91,3 +91,4 @@ public sealed class BiomeDebugOverlay : Overlay
         args.ScreenHandle.DrawString(_font, mouseScreenPos.Position + new Vector2(0f, 32f), sb.ToString());
     }
 }
+

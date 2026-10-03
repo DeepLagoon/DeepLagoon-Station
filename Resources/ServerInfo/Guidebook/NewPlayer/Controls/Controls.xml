@@ -1,9 +1,8 @@
 <Document>
 # Управление
-</Document>
 
-<Бокс>Вы можете изменить свои клавиши в любое время здесь:</Бокс>
-<Бокс Orientation="Vertical"><CommandButton Text="ui-options-tab-controls" Command="options 2"/></CommandButton></Бокс>
+<Box>Вы можете изменить свои клавиши в любое время здесь:</Box>
+<Box Orientation="Vertical"><CommandButton Text="ui-options-tab-controls" Command="options 2"/></Box>
 
 ## Движение
 Вы можете перемещаться по игровому миру, используя [color=yellow][bold][keybind="MoveUp"][keybind="MoveLeft"][keybind="MoveDown"][keybind="MoveRight"][/bold][/color].

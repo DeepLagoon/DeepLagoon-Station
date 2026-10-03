@@ -30,6 +30,7 @@ using Content.Shared.Rejuvenate;
 using Content.Shared.Standing;
 using Robust.Shared.Timing;
 
+using Robust.Shared.Prototypes;
 namespace Content.Shared.Body.Systems;
 
 public partial class SharedBodySystem

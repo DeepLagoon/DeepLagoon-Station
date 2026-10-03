@@ -1,7 +1,6 @@
 <Document>
   # Монитор атмосферной сети
   Монитор атмосферной сети — это компьютер, который отображает информацию о监控 [textlink="трубопроводных сетях" link="PipeNetworks"] по всей станции.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="ComputerAtmosMonitoring"/>

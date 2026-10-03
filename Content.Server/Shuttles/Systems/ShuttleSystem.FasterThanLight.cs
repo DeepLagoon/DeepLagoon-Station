@@ -401,7 +401,7 @@ public sealed partial class ShuttleSystem
         string? priorityTag = null)
     {
         // TODO: Validation
-        if (!TryComp<FTLDestinationComponent>(_mapManager.GetMapEntityId(_transform.GetMapId(target)), out var dest))
+        if (!TryComp<FTLDestinationComponent>(_mapManager.GetMap(_transform.GetMapId(target)), out var dest))
         {
             return;
         }
@@ -910,12 +910,12 @@ public sealed partial class ShuttleSystem
         _audio.SetGridAudio(audio);
 
         // Re-enable map if it was paused.
-        if (TryComp<FTLDestinationComponent>(_mapManager.GetMapEntityId(mapId), out var dest))
+        if (TryComp<FTLDestinationComponent>(_mapManager.GetMap(mapId), out var dest))
         {
             dest.Enabled = true;
         }
 
-        _mapManager.SetMapPaused(mapId, false);
+        _mapManager.SetPaused(_mapManager.GetMap(mapId), false);
         Smimsh(uid, xform: xform);
 
         // Add cooldown before removing the FTL component
@@ -1287,43 +1287,52 @@ public sealed partial class ShuttleSystem
             {
                 var collidingBox = _transform.GetWorldMatrix(grid).TransformBox(Comp<MapGridComponent>(grid).LocalAABB);
 
+                var left = targetAABB.Left;
+                var right = targetAABB.Right;
+                var bottom = targetAABB.Bottom;
+                var top = targetAABB.Top;
+                var width = targetAABB.Width;
+                var height = targetAABB.Height;
+
                 if (positiveX == true)
                 {
-                    var newLeft = Math.Max(targetAABB.Left, collidingBox.Right + _random.NextFloat(minMargin, maxMargin));
-                    targetAABB.Right = newLeft + targetAABB.Width;
-                    targetAABB.Left = newLeft;
+                    var newLeft = Math.Max(left, collidingBox.Right + _random.NextFloat(minMargin, maxMargin));
+                    right = newLeft + width;
+                    left = newLeft;
                 }
                 else if (positiveX == false)
                 {
-                    var newRight = Math.Min(targetAABB.Right, collidingBox.Left - _random.NextFloat(minMargin, maxMargin));
-                    targetAABB.Left = newRight - targetAABB.Width;
-                    targetAABB.Right = newRight;
+                    var newRight = Math.Min(right, collidingBox.Left - _random.NextFloat(minMargin, maxMargin));
+                    left = newRight - width;
+                    right = newRight;
                 }
                 else
                 {
                     var margin = _random.NextFloat(-maxMargin, maxMargin);
-                    targetAABB.Left += margin;
-                    targetAABB.Right += margin;
+                    left += margin;
+                    right += margin;
                 }
 
                 if (positiveY == true)
                 {
-                    var newBottom = Math.Max(targetAABB.Bottom, collidingBox.Top + _random.NextFloat(minMargin, maxMargin));
-                    targetAABB.Top = newBottom + targetAABB.Height;
-                    targetAABB.Bottom = newBottom;
+                    var newBottom = Math.Max(bottom, collidingBox.Top + _random.NextFloat(minMargin, maxMargin));
+                    top = newBottom + height;
+                    bottom = newBottom;
                 }
                 else if (positiveY == false)
                 {
-                    var newTop = Math.Min(targetAABB.Top, collidingBox.Bottom - _random.NextFloat(minMargin, maxMargin));
-                    targetAABB.Bottom = newTop - targetAABB.Height;
-                    targetAABB.Top = newTop;
+                    var newTop = Math.Min(top, collidingBox.Bottom - _random.NextFloat(minMargin, maxMargin));
+                    bottom = newTop - height;
+                    top = newTop;
                 }
                 else
                 {
                     var margin = _random.NextFloat(-maxMargin, maxMargin);
-                    targetAABB.Bottom += margin;
-                    targetAABB.Top += margin;
+                    bottom += margin;
+                    top += margin;
                 }
+
+                targetAABB = new Box2(left, bottom, right, top);
             }
             iteration++;
         }

@@ -28,7 +28,7 @@ namespace Content.Client.Shuttles.UI;
 public sealed partial class ShuttleDockControl : BaseShuttleControl
 {
     [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     private readonly DockingSystem _dockSystem;
     private readonly SharedShuttleSystem _shuttles;
     private readonly SharedTransformSystem _xformSystem;
@@ -334,13 +334,13 @@ public sealed partial class ShuttleDockControl : BaseShuttleControl
         var invertedPosition = Vector2.Zero;
         invertedPosition.Y = -invertedPosition.Y;
         var rotation = Matrix3Helpers.CreateRotation(-_angle.Value + MathF.PI);
-        var ourDockConnection = new UIBox2(
-            ScalePosition(Vector2.Transform(new Vector2(-0.2f, -0.7f), rotation)),
-            ScalePosition(Vector2.Transform(new Vector2(0.2f, -0.5f), rotation)));
+        var connectionCornerA = ScalePosition(Vector2.Transform(new Vector2(-0.2f, -0.7f), rotation));
+        var connectionCornerB = ScalePosition(Vector2.Transform(new Vector2(0.2f, -0.5f), rotation));
+        var ourDockConnection = NormalizedBox(connectionCornerA, connectionCornerB);
 
-        var ourDock = new UIBox2(
-            ScalePosition(Vector2.Transform(new Vector2(-0.5f, 0.5f), rotation)),
-            ScalePosition(Vector2.Transform(new Vector2(0.5f, -0.5f), rotation)));
+        var dockCornerA = ScalePosition(Vector2.Transform(new Vector2(-0.5f, 0.5f), rotation));
+        var dockCornerB = ScalePosition(Vector2.Transform(new Vector2(0.5f, -0.5f), rotation));
+        var ourDock = NormalizedBox(dockCornerA, dockCornerB);
 
         var dockColor = _viewedState?.HighlightedRadarColor ?? Color.Magenta; // Frontier - use ViewedState
         var connectionColor = Color.Pink;
@@ -353,6 +353,13 @@ public sealed partial class ShuttleDockControl : BaseShuttleControl
         handle.DrawRect(ourDock, dockColor, filled: false);
 
         ClearShader(handle); // Mono
+    }
+
+    private static UIBox2 NormalizedBox(Vector2 a, Vector2 b)
+    {
+        return new UIBox2(
+            new Vector2(MathF.Min(a.X, b.X), MathF.Min(a.Y, b.Y)),
+            new Vector2(MathF.Max(a.X, b.X), MathF.Max(a.Y, b.Y)));
     }
 
     private void HideDocks()
@@ -483,3 +490,4 @@ public sealed partial class ShuttleDockControl : BaseShuttleControl
         }
     }
 }
+

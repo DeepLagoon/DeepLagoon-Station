@@ -34,7 +34,6 @@ namespace Content.Server.Salvage;
 
 public sealed partial class SalvageSystem
 {
-    [ValidatePrototypeId<EntityPrototype>]
     public const string CoordinatesDisk = "CoordinatesDisk";
     private const float ShuttleFTLRange = 256f;
     private const float ShuttleFTLMassThreshold = 100f;
@@ -130,16 +129,23 @@ public sealed partial class SalvageSystem
                 }
             }
 
-            foreach (var other in _mapManager.FindGridsIntersecting(xform.MapID, bounds))
+            var blocked = false;
+            _mapManager.FindGridsIntersecting(xform.MapID, bounds, (EntityUid otherUid, MapGridComponent _) =>
             {
-                if (other.Owner == grid ||
-                    dockedGrids.Contains(other.Owner) || // Skip grids that are docked to us or to the same parent grid
-                    !bodyQuery.TryGetComponent(other.Owner, out var body) ||
+                if (otherUid == grid ||
+                    dockedGrids.Contains(otherUid) || // Skip grids that are docked to us or to the same parent grid
+                    !bodyQuery.TryGetComponent(otherUid, out var body) ||
                     body.Mass < ShuttleFTLMassThreshold)
                 {
-                    continue;
+                    return true;
                 }
 
+                blocked = true;
+                return false;
+            });
+
+            if (blocked)
+            {
                 PlayDenySound(uid, component);
                 _popupSystem.PopupEntity(Loc.GetString("shuttle-ftl-proximity"), uid, PopupType.Medium);
                 UpdateConsoles(station.Value, data);

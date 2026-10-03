@@ -98,7 +98,7 @@ public sealed class HealingSystem : EntitySystem
 
         if (healing.DamageContainers is not null &&
             entity.Comp.DamageContainerID is not null &&
-            !healing.DamageContainers.Contains(entity.Comp.DamageContainerID))
+            !healing.DamageContainers.Contains(entity.Comp.DamageContainerID.Value))
         {
             return;
         }
@@ -221,7 +221,7 @@ public sealed class HealingSystem : EntitySystem
 
         if (component.DamageContainers is not null &&
             targetDamage.DamageContainerID is not null &&
-            !component.DamageContainers.Contains(targetDamage.DamageContainerID))
+            !component.DamageContainers.Contains(targetDamage.DamageContainerID.Value))
         {
             return false;
         }

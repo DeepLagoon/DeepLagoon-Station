@@ -10,7 +10,6 @@
     <GuideEntityEmbed Entity="StorageCanister"/>
     <GuideEntityEmbed Entity="GasPort"/>
   </Box>
-</Document>
 
 Газовые баллоны — это способ хранить газ в портативном контейнере для легкой транспортировки.
 Они могут хранить [color=orange][protodata="StorageCanister" comp="GasCanister" member="Volume"/] литров[/color] газа.

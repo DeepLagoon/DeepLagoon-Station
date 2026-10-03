@@ -1,6 +1,5 @@
 <Document>
   # Строительство
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="Bed" Caption=""/>

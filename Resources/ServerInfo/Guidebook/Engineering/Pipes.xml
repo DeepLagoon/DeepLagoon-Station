@@ -2,7 +2,6 @@
   # Трубы
   Трубы используются для распределения газов из одного места в другое.
   Существует широкий выбор труб, доступных для постройки:
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="GasPipeStraight" Caption="straight"/>

@@ -13,7 +13,6 @@ namespace Content.Server.Audio;
 
 public sealed class ContentAudioSystem : SharedContentAudioSystem
 {
-    [ValidatePrototypeId<SoundCollectionPrototype>]
     private const string LobbyMusicCollection = "MonoLobbyMusic"; // Mono
 
     [Dependency] private readonly AudioSystem _serverAudio = default!;

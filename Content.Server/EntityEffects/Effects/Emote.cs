@@ -17,7 +17,6 @@ using Content.Shared.Chat.Prototypes;
 using Content.Shared.EntityEffects;
 using JetBrains.Annotations;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
 namespace Content.Server.EntityEffects.Effects;
 
@@ -27,8 +26,8 @@ namespace Content.Server.EntityEffects.Effects;
 [UsedImplicitly]
 public sealed partial class Emote : EntityEffect
 {
-    [DataField("emote", customTypeSerializer: typeof(PrototypeIdSerializer<EmotePrototype>))]
-    public string? EmoteId;
+    [DataField("emote")]
+    public ProtoId<EmotePrototype>? EmoteId;
 
     [DataField]
     public bool ShowInChat;

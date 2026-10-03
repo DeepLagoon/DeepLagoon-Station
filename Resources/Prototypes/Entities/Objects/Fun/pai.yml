@@ -36,6 +36,8 @@
   name: personal ai device
   description: Your electronic pal who's fun to be with!
   components:
+  - type: InteractionPanelPreferences
+  - type: InteractionPanelMana
   - type: Instrument
     allowPercussion: false
     handheld: false

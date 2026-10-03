@@ -29,3 +29,4 @@ shuttle-console-verb-unlock-ship = Unlock Ship
 
 ## Shuttle Console FTL
 shuttle-ftl-proximity = Unable to FTL while around other ships.
+shuttle-console-network-connect-tooltip = Connect to this network device

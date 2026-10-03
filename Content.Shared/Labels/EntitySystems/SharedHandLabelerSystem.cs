@@ -21,7 +21,7 @@ public abstract class SharedHandLabelerSystem : EntitySystem
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private readonly TagSystem _tagSystem = default!; // Frontier: prevent labelling PseudoItems
 
-    [ValidatePrototypeId<TagPrototype>] // Frontier: prevent labelling PseudoItems
+     // Frontier: prevent labelling PseudoItems
     private const string PreventTag = "PreventLabel"; // Frontier: prevent labelling PseudoItems
 
     public override void Initialize()

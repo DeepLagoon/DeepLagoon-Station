@@ -1,6 +1,5 @@
 <Document>
   # Люди
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobHumanDummy" Caption=""/>

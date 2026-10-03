@@ -1,6 +1,5 @@
 <Document>
   # Фелиниды
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobFelinidDummy" Caption=""/>

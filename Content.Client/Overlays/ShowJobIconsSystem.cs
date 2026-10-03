@@ -13,7 +13,6 @@ public sealed class ShowJobIconsSystem : EquipmentHudSystem<ShowJobIconsComponen
     [Dependency] private readonly IPrototypeManager _prototype = default!;
     [Dependency] private readonly AccessReaderSystem _accessReader = default!;
 
-    [ValidatePrototypeId<JobIconPrototype>]
     private const string JobIconForNoId = "JobIconNoId";
 
     public override void Initialize()

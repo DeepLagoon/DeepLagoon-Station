@@ -15,7 +15,7 @@ public sealed class AutoImplantSystem : EntitySystem
 
     private void OnMapInit(EntityUid uid, AutoImplantComponent comp, MapInitEvent args)
     {
-        _subdermalImplant.AddImplants(uid, comp.Implants);
+        _subdermalImplant.AddImplants(uid, comp.Implants.Select(x => x.Id));
         RemComp<AutoImplantComponent>(uid);
     }
 }

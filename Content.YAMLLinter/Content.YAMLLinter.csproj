@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+    <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <OutputPath>..\bin\Content.YAMLLinter\</OutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -12,11 +13,10 @@
       <ProjectReference Include="..\Content.Server\Content.Server.csproj" />
       <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
       <ProjectReference Include="..\Content.IntegrationTests\Content.IntegrationTests.csproj" />
-      <ProjectReference Include="..\RobustToolbox\Robust.Client\Robust.Client.csproj" />
-      <ProjectReference Include="..\RobustToolbox\Robust.Server\Robust.Server.csproj" />
-      <ProjectReference Include="..\RobustToolbox\Robust.Shared.Maths\Robust.Shared.Maths.csproj" />
-      <ProjectReference Include="..\RobustToolbox\Robust.Shared\Robust.Shared.csproj" />
     </ItemGroup>
+    <Import Project="..\RobustToolbox\Imports\Client.props" />
+    <Import Project="..\RobustToolbox\Imports\Server.props" />
+    <Import Project="..\RobustToolbox\Imports\Shared.props" />
 
   <ItemGroup>
     <PackageReference Include="NUnit" />

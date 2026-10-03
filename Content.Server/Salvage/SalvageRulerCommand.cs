@@ -9,7 +9,7 @@ namespace Content.Server.Salvage;
 sealed class SalvageRulerCommand : IConsoleCommand
 {
     [Dependency] private readonly IEntityManager _entities = default!;
-    [Dependency] private readonly IMapManager _maps = default!;
+    private SharedMapSystem _maps => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
 
     public string Command => "salvageruler";
 
@@ -61,4 +61,5 @@ sealed class SalvageRulerCommand : IConsoleCommand
         shell.WriteLine(total.ToString());
     }
 }
+
 

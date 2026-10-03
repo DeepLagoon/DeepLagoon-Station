@@ -34,7 +34,7 @@ public sealed class AlignAtmosPipeLayers : SnapgridCenter
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly IPrototypeManager _protoManager = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly IEyeManager _eyeManager = default!;
 
     private readonly SharedMapSystem _mapSystem;
@@ -94,7 +94,7 @@ public sealed class AlignAtmosPipeLayers : SnapgridCenter
         if (pManager.PlacementType != PlacementTypes.None)
             return;
 
-        MouseCoords = _unalignedMouseCoords.AlignWithClosestGridTile(SearchBoxSize, _entityManager, _mapManager);
+        MouseCoords = _unalignedMouseCoords.AlignWithClosestGridTile(SearchBoxSize, _entityManager);
 
         var gridId = _transformSystem.GetGrid(MouseCoords);
 
@@ -208,3 +208,4 @@ public sealed class AlignAtmosPipeLayers : SnapgridCenter
         base.AlignPlacementMode(mouseScreen);
     }
 }
+
