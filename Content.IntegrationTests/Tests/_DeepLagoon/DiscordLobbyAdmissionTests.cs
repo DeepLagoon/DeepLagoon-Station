@@ -19,6 +19,34 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class DiscordLobbyAdmissionTests
 {
     [Test]
+    public async Task DevelopmentBuildBypassesDiscordAdmission()
+    {
+#if !DEVELOPMENT
+        Assert.Ignore("Development-only bypass test");
+#endif
+        var (server, log) = await PoolManager.GenerateServer(new PoolSettings { InLobby = true }, TestContext.Out);
+        using var instance = server;
+        var config = server.ResolveDependency<IConfigurationManager>();
+        var linking = server.ResolveDependency<IEntitySystemManager>().GetEntitySystem<DiscordLinkSystem>();
+        await server.WaitPost(() => config.SetCVar(CCVars.DiscordLinkEnabled, true));
+        var session = await server.AddDummySession();
+        await PoolManager.WaitUntil(server, () => session.Status == SessionStatus.InGame, 600);
+        try
+        {
+            await server.WaitAssertion(() =>
+            {
+                Assert.That(CCVars.DiscordAdmissionRequired(config), Is.False);
+                Assert.That(linking.CanEnterRound(session), Is.True, "Development must not require authentication, linking or approval");
+            });
+        }
+        finally
+        {
+            await server.RemoveDummySession(session);
+            log.ShuttingDown = true;
+        }
+    }
+
+    [Test]
     public async Task LinkingPrecedesWhitelistAndAllLobbyEntryPathsAreBlocked()
     {
         // Server-only test: no client guidebook/UI content is needed for admission.
@@ -26,9 +54,14 @@ public sealed class DiscordLobbyAdmissionTests
         using var instance = server;
         var systems = server.ResolveDependency<IEntitySystemManager>();
         var linking = systems.GetEntitySystem<DiscordLinkSystem>();
+        // FullRelease disables Robust dummy sessions. Exercise the production gate in
+        // the test fixture while keeping the engine's development test transport.
+        typeof(DiscordLinkSystem).GetField("_developmentBuild", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(linking, false);
         var ticker = systems.GetEntitySystem<GameTicker>();
         var config = server.ResolveDependency<IConfigurationManager>();
         var database = server.ResolveDependency<IServerDbManager>();
+        var euis = server.ResolveDependency<Content.Server.EUI.EuiManager>();
         var directory = Path.Combine(Path.GetTempPath(), "ss14-lobby-admission-" + Guid.NewGuid());
         using var store = new DiscordLinkStore(Path.Combine(directory, "links.db"));
         var storeField = typeof(DiscordLinkSystem).GetField("_store", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -52,6 +85,14 @@ public sealed class DiscordLobbyAdmissionTests
             await server.WaitAssertion(() =>
             {
                 auth.SetValue(session, LoginType.LoggedIn);
+                var promptAdmitted = false;
+                var prompt = new DiscordLinkEui(store, () => promptAdmitted);
+                euis.OpenEui(prompt, session);
+                prompt.HandleMessage(new Content.Shared.Eui.CloseEuiMessage());
+                Assert.That(prompt.IsShutDown, Is.False, "An unapproved client cannot close the mandatory admission prompt");
+                promptAdmitted = true;
+                prompt.HandleMessage(new Content.Shared.Eui.CloseEuiMessage());
+                Assert.That(prompt.IsShutDown, Is.True);
                 Assert.That(linking.CanEnterRound(session), Is.False);
                 ticker.ToggleReady(session, true);
                 ticker.ToggleReadyAll(true);

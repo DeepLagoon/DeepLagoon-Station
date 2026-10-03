@@ -88,7 +88,7 @@ namespace Content.Server.GameTicking
                 case SessionStatus.InGame:
                 {
                     _userDb.ClientConnected(session);
-                    if (_cfg.GetCVar(CCVars.DiscordLinkEnabled))
+                    if (DiscordAdmission.AdmissionRequired)
                     {
                         await DiscordAdmission.RefreshAdmission(session);
                         if (session.Status != SessionStatus.InGame)
@@ -224,6 +224,11 @@ namespace Content.Server.GameTicking
         private void PlayerJoinLobby(ICommonSession session)
         {
             _playerGameStatuses[session.UserId] = LobbyEnabled || !DiscordAdmission.CanEnterRound(session) ? PlayerGameStatus.NotReadyToPlay : PlayerGameStatus.ReadyToPlay;
+            if (!DiscordAdmission.CanEnterRound(session))
+            {
+                RaiseNetworkEvent(new Content.Shared._DeepLagoon.DiscordLink.DiscordAdmissionRequiredEvent(), session.Channel);
+                return;
+            }
             _db.AddRoundPlayers(RoundId, session.UserId);
 
             var client = session.Channel;

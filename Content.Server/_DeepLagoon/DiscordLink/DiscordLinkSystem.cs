@@ -36,8 +36,12 @@ public sealed class DiscordLinkSystem : EntitySystem
     private readonly HashSet<ICommonSession> _admitted = new();
     private DiscordLinkStore? _store;
     private string _token = "";
+    private readonly bool _developmentBuild = CCVars.DiscordAdmissionDevelopment;
+    public bool AdmissionRequired => !_developmentBuild && _config.GetCVar(CCVars.DiscordLinkEnabled);
     private bool _enabled;
-    private readonly HashSet<ICommonSession> _prompted = new();
+    private bool _checkingPrompts;
+    private DateTime _nextPromptCheck;
+    private readonly Dictionary<ICommonSession, DiscordLinkEui> _prompts = new();
     private readonly System.Threading.SemaphoreSlim _apiLock = new(1, 1);
 
     public override void Initialize()
@@ -53,7 +57,7 @@ public sealed class DiscordLinkSystem : EntitySystem
         => !enabled || (authenticated && linked && approved);
 
     public bool CanEnterRound(ICommonSession session)
-        => AdmissionAllowed(_config.GetCVar(CCVars.DiscordLinkEnabled),
+        => AdmissionAllowed(AdmissionRequired,
             session.Channel.AuthType == LoginType.LoggedIn,
             _enabled && _store != null && _store.IsLinked(session.UserId.UserId),
             _admitted.Contains(session));
@@ -64,24 +68,57 @@ public sealed class DiscordLinkSystem : EntitySystem
             return "Для привязки и допуска войдите в авторизованный аккаунт SS14.";
         if (_store == null || !_store.IsLinked(session.UserId.UserId))
             return "Сначала привяжите Discord через игровое окно и канал привязки. До привязки вход в раунд и наблюдение недоступны.";
-        return "Discord привязан. Создайте WL-заявку в Discord и дождитесь одобрения регистраторов. До допуска доступно только лобби.";
+        return "Discord привязан. Создайте WL-заявку в Discord и дождитесь одобрения регистраторов. До допуска лобби и игра недоступны.";
     }
 
     public async Task RefreshAdmission(ICommonSession session)
     {
-        _admitted.Remove(session);
-        if (!_config.GetCVar(CCVars.DiscordLinkEnabled) || !_enabled || _store == null ||
+        if (!AdmissionRequired || !_enabled || _store == null ||
             session.Channel.AuthType != LoginType.LoggedIn || !_store.IsLinked(session.UserId.UserId))
+        {
+            _admitted.Remove(session);
             return;
+        }
         try
         {
             var approved = await _connections.CheckDiscordLobbyWhitelist(session.Channel.UserData);
             if (approved && session.Status == SessionStatus.InGame)
-                _admitted.Add(session);
+            {
+                var newlyAdmitted = _admitted.Add(session);
+                if (_prompts.Remove(session, out var prompt))
+                    prompt.Close();
+                if (newlyAdmitted)
+                    EntityManager.System<Content.Server.GameTicking.GameTicker>().CompleteDiscordAdmission(session);
+            }
+            else
+                _admitted.Remove(session);
         }
         catch (Exception e)
         {
             Log.Error($"Discord lobby admission failed: {e.GetType().Name}");
+        }
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        if (!_enabled || _checkingPrompts || _prompts.Count == 0 || DateTime.UtcNow < _nextPromptCheck)
+            return;
+        _nextPromptCheck = DateTime.UtcNow.AddSeconds(3);
+        RefreshPrompts();
+    }
+
+    private async void RefreshPrompts()
+    {
+        _checkingPrompts = true;
+        try
+        {
+            foreach (var session in _prompts.Keys.ToArray())
+                await RefreshAdmission(session);
+        }
+        finally
+        {
+            _checkingPrompts = false;
         }
     }
 
@@ -94,6 +131,7 @@ public sealed class DiscordLinkSystem : EntitySystem
     private void UpdateToken(string token) => _token = token;
     private void UpdateEnabled(bool enabled)
     {
+        enabled &= !_developmentBuild;
         _enabled = enabled;
         _admitted.Clear();
         if (!enabled || _store != null)
@@ -123,15 +161,17 @@ public sealed class DiscordLinkSystem : EntitySystem
     {
         if (args.NewStatus is SessionStatus.Disconnected or SessionStatus.Zombie)
         {
-            _prompted.Remove(args.Session);
+            _prompts.Remove(args.Session);
             _admitted.Remove(args.Session);
             return;
         }
         if (!_enabled || _store == null || args.NewStatus != SessionStatus.InGame ||
-            args.Session.Channel.AuthType != LoginType.LoggedIn || !_prompted.Add(args.Session) ||
-            _store.IsLinked(args.Session.UserId.UserId))
+            args.Session.Channel.AuthType != LoginType.LoggedIn || _prompts.ContainsKey(args.Session) ||
+            CanEnterRound(args.Session))
             return;
-        _euis.OpenEui(new DiscordLinkEui(_store), args.Session);
+        var prompt = new DiscordLinkEui(_store, () => CanEnterRound(args.Session));
+        _prompts.Add(args.Session, prompt);
+        _euis.OpenEui(prompt, args.Session);
     }
 
     // Only the trusted bot process may redeem codes or grant whitelist. Keep this API on loopback.

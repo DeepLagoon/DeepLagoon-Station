@@ -4,17 +4,28 @@ using Content.Shared.Eui;
 
 namespace Content.Server._DeepLagoon.DiscordLink;
 
-public sealed class DiscordLinkEui(DiscordLinkStore store) : BaseEui
+public sealed class DiscordLinkEui(DiscordLinkStore store, Func<bool> admitted) : BaseEui
 {
     private string _message = "Откройте канал привязки Discord, нажмите «привязать дискорд» и создайте тикет.\nЗатем нажмите здесь «Создать код» и введите его в тикете: /link_discord code:КОД.\nКод подтверждает владение вашим аккаунтом. Не отправляйте его другим людям.";
     private string _code = "";
     private bool _linked;
 
-    public override void Opened() => StateDirty();
+    public override void Opened()
+    {
+        _linked = store.IsLinked(Player.UserId.UserId);
+        if (_linked)
+            _message = "Discord уже привязан. Дождитесь одобрения WL-заявки. До допуска лобби и игра недоступны.";
+        StateDirty();
+    }
     public override EuiStateBase GetNewState() => new DiscordLinkEuiState(_message, _code, _linked);
 
     public override void HandleMessage(EuiMessageBase msg)
     {
+        if (msg is CloseEuiMessage && !admitted())
+        {
+            StateDirty();
+            return;
+        }
         base.HandleMessage(msg);
         if (IsShutDown || msg is not (GenerateDiscordLinkCode or CheckDiscordLink))
             return;
@@ -22,7 +33,7 @@ public sealed class DiscordLinkEui(DiscordLinkStore store) : BaseEui
         if (_linked)
         {
             _code = "";
-            _message = "Discord успешно привязан. Теперь создайте WL-заявку в Discord. После одобрения регистраторами откроется доступ к игре.";
+            _message = "Discord успешно привязан. Теперь создайте WL-заявку в Discord. После одобрения регистраторами откроется доступ к лобби и игре. До этого проверка обязательна.";
         }
         else if (msg is GenerateDiscordLinkCode)
         {

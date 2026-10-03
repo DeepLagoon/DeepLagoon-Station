@@ -16,3 +16,6 @@ public sealed class GenerateDiscordLinkCode : EuiMessageBase;
 
 [Serializable, NetSerializable]
 public sealed class CheckDiscordLink : EuiMessageBase;
+
+[Serializable, NetSerializable]
+public sealed class DiscordAdmissionRequiredEvent : Robust.Shared.GameObjects.EntityEventArgs;

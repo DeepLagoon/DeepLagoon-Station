@@ -7,6 +7,12 @@ public sealed partial class GameTicker
 {
     private DiscordLinkSystem DiscordAdmission => EntityManager.System<DiscordLinkSystem>();
 
+    public void CompleteDiscordAdmission(ICommonSession session)
+    {
+        if (DiscordAdmission.CanEnterRound(session))
+            PlayerJoinLobby(session);
+    }
+
     private bool CheckDiscordRoundAdmission(ICommonSession session)
     {
         if (DiscordAdmission.CanEnterRound(session))

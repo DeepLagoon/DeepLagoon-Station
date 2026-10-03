@@ -324,7 +324,7 @@ namespace Content.Server.Connection
             }
 
             // Checks for whitelist IF it's enabled AND the user isn't an admin. Admins are always allowed.
-            if (_cfg.GetCVar(CCVars.WhitelistEnabled) && !_cfg.GetCVar(CCVars.DiscordLinkEnabled) && !wasInGame && adminData is null) // Frontier: allow users who joined before panic bunker was enforced to reconnect
+            if (!CCVars.DiscordAdmissionDevelopment && _cfg.GetCVar(CCVars.WhitelistEnabled) && !CCVars.DiscordAdmissionRequired(_cfg) && !wasInGame && adminData is null) // Frontier: allow users who joined before panic bunker was enforced to reconnect
             {
                 if (_whitelists is null)
                 {

@@ -53,6 +53,8 @@ namespace Content.Client.GameTicking.Managers
         {
             base.Initialize();
 
+            SubscribeNetworkEvent<Content.Shared._DeepLagoon.DiscordLink.DiscordAdmissionRequiredEvent>(
+                _ => _stateManager.RequestStateChange<Content.Client._DeepLagoon.DiscordLink.DiscordAdmissionState>());
             SubscribeNetworkEvent<TickerJoinLobbyEvent>(JoinLobby);
             SubscribeNetworkEvent<TickerJoinGameEvent>(JoinGame);
             SubscribeNetworkEvent<TickerConnectionStatusEvent>(ConnectionStatus);
