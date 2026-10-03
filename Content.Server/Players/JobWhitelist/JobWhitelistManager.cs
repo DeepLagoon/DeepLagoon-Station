@@ -205,12 +205,13 @@ public sealed class JobWhitelistManager : IPostInjectInit
         return whitelist;
     }
 
-    public async void RemoveGlobalWhitelist(NetUserId player)
+    public async void RemoveGlobalWhitelist(NetUserId player) => await RemoveGlobalWhitelistAsync(player);
+
+    public async Task RemoveGlobalWhitelistAsync(NetUserId player)
     {
+        await _db.RemoveFromWhitelistAsync(player);
         if (_globalWhitelists.ContainsKey(player))
             _globalWhitelists[player] = false;
-
-        await _db.RemoveFromWhitelistAsync(player);
 
         if (_player.TryGetSessionById(player, out var session))
             SendWhitelist(session);

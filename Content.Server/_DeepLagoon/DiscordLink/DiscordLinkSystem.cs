@@ -182,7 +182,7 @@ public sealed class DiscordLinkSystem : EntitySystem
             return false;
         context.ResponseHeaders["Cache-Control"] = "no-store";
         if (context.RequestMethod != HttpMethod.Post ||
-            path is not ("/deeplagoon/discord/link" or "/deeplagoon/discord/lookup" or "/deeplagoon/discord/whitelist"))
+            path is not ("/deeplagoon/discord/link" or "/deeplagoon/discord/lookup" or "/deeplagoon/discord/whitelist" or "/deeplagoon/discord/remove_whitelist"))
         {
             await context.RespondErrorAsync(HttpStatusCode.NotFound);
             return true;
@@ -251,6 +251,18 @@ public sealed class DiscordLinkSystem : EntitySystem
                         if (!await _database.GetWhitelistStatusAsync(uid))
                             throw new InvalidOperationException("Whitelist write not confirmed");
                     }
+                    if (path.EndsWith("/remove_whitelist", StringComparison.Ordinal))
+                    {
+                        var uid = new NetUserId(link.Uid);
+                        // Only the trusted bot can assert the initiating member has the host role.
+                        if (!request.HostAuthorized && await _database.GetAdminDataForAsync(uid) != null)
+                            return new ApiResult(HttpStatusCode.Forbidden, new { error = "admin_protected" });
+                        existing = await _database.GetWhitelistStatusAsync(uid);
+                        if (existing)
+                            await _whitelist.RemoveGlobalWhitelistAsync(uid);
+                        if (await _database.GetWhitelistStatusAsync(uid))
+                            throw new InvalidOperationException("Whitelist removal not confirmed");
+                    }
                     await RefreshUid(link.Uid);
                     return new ApiResult(HttpStatusCode.OK, new { uid = link.Uid, username = link.Username, existing });
                 }
@@ -288,6 +300,7 @@ public sealed class DiscordLinkSystem : EntitySystem
 
     private sealed record ApiRequest(
         [property: System.Text.Json.Serialization.JsonPropertyName("discord_id")] string DiscordId,
-        [property: System.Text.Json.Serialization.JsonPropertyName("code")] string? Code);
+        [property: System.Text.Json.Serialization.JsonPropertyName("code")] string? Code,
+        [property: System.Text.Json.Serialization.JsonPropertyName("host_authorized")] bool HostAuthorized = false);
     private sealed record ApiResult(HttpStatusCode Status, object Body);
 }

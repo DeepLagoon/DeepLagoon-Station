@@ -62,6 +62,7 @@ public sealed class DiscordLobbyAdmissionTests
         var config = server.ResolveDependency<IConfigurationManager>();
         var database = server.ResolveDependency<IServerDbManager>();
         var euis = server.ResolveDependency<Content.Server.EUI.EuiManager>();
+        var whitelists = server.ResolveDependency<Content.Server.Players.JobWhitelist.JobWhitelistManager>();
         var directory = Path.Combine(Path.GetTempPath(), "ss14-lobby-admission-" + Guid.NewGuid());
         using var store = new DiscordLinkStore(Path.Combine(directory, "links.db"));
         var storeField = typeof(DiscordLinkSystem).GetField("_store", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -131,6 +132,21 @@ public sealed class DiscordLobbyAdmissionTests
                 ticker.ToggleReadyAll(true);
                 Assert.That(ticker.ReadyPlayerCount(), Is.Zero);
             });
+            await server.WaitAssertion(() =>
+            {
+                auth.SetValue(session,LoginType.LoggedIn);
+                Assert.That(linking.CanEnterRound(session),Is.True);
+            });
+            async Task Revoke()
+            {
+                await whitelists.RemoveGlobalWhitelistAsync(session.UserId);
+                Assert.That(await database.GetWhitelistStatusAsync(session.UserId),Is.False);
+                await linking.RefreshAdmission(session);
+            }
+            await server.WaitPost(() => pending=Revoke());
+            await PoolManager.WaitUntil(server,()=>pending.IsCompleted,600);
+            await pending;
+            await server.WaitAssertion(()=>Assert.That(linking.CanEnterRound(session),Is.False));
         }
         finally
         {
