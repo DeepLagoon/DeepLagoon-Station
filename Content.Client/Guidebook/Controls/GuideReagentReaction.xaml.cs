@@ -21,7 +21,6 @@ namespace Content.Client.Guidebook.Controls;
 [UsedImplicitly, GenerateTypedNameReferences]
 public sealed partial class GuideReagentReaction : BoxContainer, ISearchableControl
 {
-    [ValidatePrototypeId<MixingCategoryPrototype>]
     private const string DefaultMixingCategory = "DummyMix";
 
     private readonly IPrototypeManager _protoMan;
@@ -37,7 +36,7 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
         var reactantsLabel = ReactantsLabel;
         SetReagents(prototype.Reactants, ref reactantsLabel, protoMan);
         var productLabel = ProductsLabel;
-        var products = new Dictionary<string, FixedPoint2>(prototype.Products);
+        var products = prototype.Products.ToDictionary(x => x.Key.Id, x => x.Value);
         foreach (var (reagent, reactantProto) in prototype.Reactants)
         {
             if (reactantProto.Catalyst)
@@ -123,6 +122,19 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
 
     private void SetReagents(
         Dictionary<string, ReactantPrototype> reactants,
+        ref RichTextLabel label,
+        IPrototypeManager protoMan)
+    {
+        var amounts = new Dictionary<string, FixedPoint2>();
+        foreach (var (reagent, reactantPrototype) in reactants)
+        {
+            amounts.Add(reagent, reactantPrototype.Amount);
+        }
+        SetReagents(amounts, ref label, protoMan);
+    }
+
+    private void SetReagents(
+        Dictionary<ProtoId<ReagentPrototype>, ReactantPrototype> reactants,
         ref RichTextLabel label,
         IPrototypeManager protoMan)
     {

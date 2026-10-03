@@ -33,7 +33,7 @@ public sealed class ParallaxOverlay : Overlay
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly IConfigurationManager _configurationManager = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly IParallaxManager _manager = default!;
     private readonly ParallaxSystem _parallax;
 
@@ -131,4 +131,5 @@ public sealed class ParallaxOverlay : Overlay
         worldHandle.UseShader(null);
     }
 }
+
 

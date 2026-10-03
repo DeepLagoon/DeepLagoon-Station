@@ -38,7 +38,7 @@
         Size Class
       </Box>
     </ColorBox>
-    <!--Marauder-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         Type-35 MARAUDER
@@ -69,7 +69,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Autopulser-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         Type-54C Autopulser
@@ -100,7 +100,7 @@
         Heavy
       </Box>
     </ColorBox>
-    <!--Glassing beam-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         Type-241 Lance
@@ -131,7 +131,7 @@
         Superheavy
       </Box>
     </ColorBox>
-    <!--Rubicon-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         M220 RUBICON
@@ -162,7 +162,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--DYMERE-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         ADEX-9 DYMERE
@@ -193,7 +193,7 @@
         Superheavy
       </Box>
     </ColorBox>
-    <!--Phalanx-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         L-1 Phalanx
@@ -224,7 +224,7 @@
         Light
       </Box>
     </ColorBox>
-    <!--Apollo-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         L-20 Apollo

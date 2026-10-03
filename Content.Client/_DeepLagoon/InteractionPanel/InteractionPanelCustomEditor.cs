@@ -257,7 +257,7 @@ public sealed class InteractionPanelCustomEditor : BoxContainer
             ("sound", action.Sound == null ? Loc.GetString("dl-interaction-panel-sound-none") : Loc.GetString(_sounds.First(s => s.ID == action.Sound).Name))));
         var text = InteractionPanelCustomRules.Render(action.Template, Loc.GetString("dl-interaction-panel-editor-you"), Loc.GetString("dl-interaction-panel-editor-target"));
         _preview.SetMessage(FormattedMessage.EscapeText(text));
-        if (Color.TryFromHex(action.ChatColor) is { } color) _preview.Modulate = color;
+        if (Color.TryFromHex(action.ChatColor, out var previewColor)) _preview.Modulate = previewColor;
         _status.SetMessage(_step == 4 ? _save.ToolTip! : _next.Disabled ? _next.ToolTip! : "");
     }
 

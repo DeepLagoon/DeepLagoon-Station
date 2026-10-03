@@ -14,7 +14,6 @@ namespace Content.Shared.Gravity
         [Dependency] protected readonly IGameTiming Timing = default!;
         [Dependency] private readonly AlertsSystem _alerts = default!;
 
-        [ValidatePrototypeId<AlertPrototype>]
         public const string WeightlessAlert = "Weightless";
 
         private EntityQuery<GravityComponent> _gravityQuery;

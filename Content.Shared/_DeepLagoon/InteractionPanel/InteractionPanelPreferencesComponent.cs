@@ -1,6 +1,6 @@
 using Content.Shared.Preferences;
 
-namespace Content.Server._DeepLagoon.InteractionPanel;
+namespace Content.Shared._DeepLagoon.InteractionPanel;
 
 [RegisterComponent]
 public sealed partial class InteractionPanelPreferencesComponent : Component

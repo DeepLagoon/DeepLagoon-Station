@@ -35,6 +35,8 @@
   name: skull
   description: Alas poor Yorick...
   components:
+  - type: InteractionPanelPreferences
+  - type: InteractionPanelMana
   - type: Sprite
     state: "skull_icon"
   - type: Icon

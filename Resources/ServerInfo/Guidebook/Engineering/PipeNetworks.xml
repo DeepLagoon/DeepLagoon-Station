@@ -1,7 +1,6 @@
 <Document>
   # Сети трубопроводов
   Сети трубопроводов — часто называемые Pipenets — это серия соединённых [textlink="труб" link="Pipes"], обычно с общей задачей.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="GasPipeStraight" Caption=""/>

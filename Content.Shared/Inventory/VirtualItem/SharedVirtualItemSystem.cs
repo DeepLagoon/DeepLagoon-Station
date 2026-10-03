@@ -43,7 +43,6 @@ public abstract class SharedVirtualItemSystem : EntitySystem
     [Dependency] private readonly SharedHandsSystem _handsSystem = default!;
     [Dependency] private readonly SharedPopupSystem _popup = default!;
 
-    [ValidatePrototypeId<EntityPrototype>]
     private const string VirtualItem = "VirtualItem";
 
     public override void Initialize()

@@ -1,6 +1,5 @@
 <Document>
   # Дварфы
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobDwarf" Caption=""/>

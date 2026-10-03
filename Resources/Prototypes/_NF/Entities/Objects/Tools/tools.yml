@@ -105,7 +105,7 @@
           state: icon
         useSound: /Audio/Items/crowbar.ogg
         changeSound: /Audio/Effects/thudswoosh.ogg
-      - behavior: Anchoring
+      - behavior: [Anchoring]
         sprite:
           sprite: _NF/Objects/Tools/maintenance-jack.rsi
           state: icon-1
@@ -150,7 +150,7 @@
   - type: MultipleTool
     statusShowBehavior: true
     entries:
-      - behavior: Digging
+      - behavior: [Digging]
         sprite:
           sprite: _NF/Objects/Tools/cm-shovel.rsi
           state: icon
@@ -158,7 +158,7 @@
           path: /Audio/Items/shovel_dig.ogg
         changeSound:
           path: /Audio/Items/shovel_dig.ogg
-      - behavior: Screwing
+      - behavior: [Screwing]
         sprite:
           sprite: _NF/Objects/Tools/cm-shovel.rsi
           state: icon
@@ -166,7 +166,7 @@
           path: /Audio/Items/screwdriver.ogg
         changeSound:
           path: /Audio/Items/shovel_dig.ogg
-      - behavior: Anchoring
+      - behavior: [Anchoring]
         sprite:
           sprite: _NF/Objects/Tools/cm-shovel.rsi
           state: icon

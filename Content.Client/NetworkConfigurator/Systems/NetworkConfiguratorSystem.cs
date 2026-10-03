@@ -23,7 +23,6 @@ public sealed class NetworkConfiguratorSystem : SharedNetworkConfiguratorSystem
     [Dependency] private readonly ActionsSystem _actions = default!;
     [Dependency] private readonly IInputManager _inputManager = default!;
 
-    [ValidatePrototypeId<EntityPrototype>]
     private const string Action = "ActionClearNetworkLinkOverlays";
 
     public override void Initialize()

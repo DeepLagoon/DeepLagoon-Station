@@ -72,7 +72,7 @@ public sealed class BluespaceCargoRule : StationEventSystem<BluespaceCargoRuleCo
             // don't spawn inside of solid objects
             var physQuery = GetEntityQuery<PhysicsComponent>();
             var valid = true;
-            foreach (var ent in gridComp.GetAnchoredEntities(tile))
+            foreach (var ent in IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>().GetAnchoredEntities(grid, gridComp, tile))
             {
                 if (!physQuery.TryGetComponent(ent, out var body))
                     continue;
@@ -92,7 +92,7 @@ public sealed class BluespaceCargoRule : StationEventSystem<BluespaceCargoRuleCo
                 continue;
             }
 
-            targetCoords = gridComp.GridTileToLocal(tile);
+            targetCoords = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>().GridTileToLocal(grid, gridComp, tile);
             break;
         }
 

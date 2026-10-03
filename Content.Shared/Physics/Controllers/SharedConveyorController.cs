@@ -29,7 +29,7 @@ namespace Content.Shared.Physics.Controllers;
 
 public abstract class SharedConveyorController : VirtualController
 {
-    [Dependency] protected readonly IMapManager MapManager = default!;
+    protected SharedMapSystem MapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private   readonly IParallelManager _parallel = default!;
     [Dependency] private   readonly CollisionWakeSystem _wake = default!;
     [Dependency] protected readonly EntityLookupSystem Lookup = default!;
@@ -413,3 +413,4 @@ public abstract class SharedConveyorController : VirtualController
         return false;
     }
 }
+

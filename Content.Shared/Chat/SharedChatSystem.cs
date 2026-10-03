@@ -49,12 +49,10 @@ public abstract class SharedChatSystem : EntitySystem
     public const char CollectiveMindPrefix = '+';
     public const char DefaultChannelKey = 'h';
 
-    [ValidatePrototypeId<RadioChannelPrototype>]
     public const string CommonChannel = "Common";
 
     public static string DefaultChannelPrefix = $"{RadioChannelPrefix}{DefaultChannelKey}";
 
-    [ValidatePrototypeId<SpeechVerbPrototype>]
     public const string DefaultSpeechVerb = "Default";
 
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;

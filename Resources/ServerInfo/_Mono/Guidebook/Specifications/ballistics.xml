@@ -39,7 +39,7 @@
         Size Class
       </Box>
     </ColorBox>
-    <!--L85-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         L85 20x124mm
@@ -70,7 +70,7 @@
         Light
       </Box>
     </ColorBox>
-    <!--Draupnir-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         30x173mm RAC-30
@@ -101,7 +101,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Dravon-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         57x210mm ADBP-7
@@ -132,7 +132,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--AK570-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         90x427mm AK-570
@@ -163,7 +163,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Longbow-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         140mm L65 Mk.5
@@ -194,7 +194,7 @@
         Heavy
       </Box>
     </ColorBox>
-    <!--Tarnyx-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         150mm ADBX-31
@@ -225,7 +225,7 @@
         Heavy
       </Box>
     </ColorBox>
-    <!--Kargil-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         203mm Kargil
@@ -256,7 +256,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Cyrexa-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         220mm auto CYREXA
@@ -287,7 +287,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--Bofors-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         255mm Bofors
@@ -318,7 +318,7 @@
         Medium
       </Box>
     </ColorBox>
-    <!--CHARON-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         280mm (26.5 kg) M381
@@ -349,7 +349,7 @@
         Superheavy
       </Box>
     </ColorBox>
-    <!--CHARONETTE-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         280mm (10.25 kg) M194
@@ -380,7 +380,7 @@
         Heavy
       </Box>
     </ColorBox>
-    <!--THANTOS-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         280mm (26.5 kg) THANTOS
@@ -411,7 +411,7 @@
         Superheavy
       </Box>
     </ColorBox>
-    <!--THANTOS-->
+    
     <ColorBox>
       <Box HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2">
         305mm HADES

@@ -30,7 +30,7 @@ public sealed class GuideEntryPrototypeTests
             {
                 using var reader = resMan.ContentFileReadText(proto.Text);
                 var text = reader.ReadToEnd();
-                Assert.That(parser.TryAddMarkup(new Document(), text), $"Failed to parse guidebook: {proto.Id}");
+                Assert.That(parser.TryAddMarkup(new Document(), text, log: true), $"Failed to parse guidebook: {proto.Id}");
             });
 
             // Avoid styleguide update limit

@@ -20,7 +20,7 @@ namespace Content.Server.Shuttles.Systems;
 /// </summary>
 public sealed class GridCleanupSystem : EntitySystem
 {
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    [Dependency] private readonly SharedMapSystem _mapManager = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedMapSystem _mapSystem = default!;
 
@@ -102,7 +102,7 @@ public sealed class GridCleanupSystem : EntitySystem
         // Skip if the parent map has a SalvageExpeditionComponent
         var transform = Transform(gridUid);
         var mapId = transform.MapID;
-        var mapUid = _mapManager.GetMapEntityId(mapId);
+        var mapUid = _mapManager.GetMap(mapId);
 
         if (HasComp<SalvageExpeditionComponent>(mapUid))
         {
@@ -180,7 +180,7 @@ public sealed class GridCleanupSystem : EntitySystem
             // Skip if the parent map has an expedition component
             var xform = Transform(gridUid);
             var mapId = xform.MapID;
-            var mapUid = _mapManager.GetMapEntityId(mapId);
+            var mapUid = _mapManager.GetMap(mapId);
 
             if (HasComp<SalvageExpeditionComponent>(mapUid))
             {
@@ -261,7 +261,7 @@ public sealed class GridCleanupSystem : EntitySystem
                 var position = new Vector2i(x, y);
 
                 // Check if tile exists at position and is not empty
-                var tile = grid.GetTileRef(position);
+                var tile = _mapSystem.GetTileRef(ent.Owner, grid, position);
                 if (!tile.Tile.IsEmpty)
                 {
                     tileCount++;

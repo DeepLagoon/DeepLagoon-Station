@@ -5,7 +5,6 @@
     <GuideEntityEmbed Entity="GasOutletInjector"/>
   </Box>
   Основное применение — нагнетание газов в комнаты высокого давления, такие как [textlink="комнаты хранения газа" link="GasMiningAndStorage"] или камера сгорания.
-</Document>
 
 Инжектор воздуха не требует [textlink="power" link="Power"] для работы.
 

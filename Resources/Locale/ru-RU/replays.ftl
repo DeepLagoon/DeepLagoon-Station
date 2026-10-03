@@ -57,3 +57,8 @@ replay-time-box-replay-time-label = Recording Time: {$current} / {$end}  ({$perc
 replay-time-box-server-time-label = Server Time: {$current} / {$end}
 replay-time-box-index-label = Index: {$current} / {$total}
 replay-time-box-tick-label = Tick: {$current} / {$total}
+
+# TODO: translate (added from en-US; missing in ru-RU).
+cmd-replay-toggle-screenshot-mode-desc = Toggles screenshot mode for replays, hiding the replay control widget.
+
+cmd-replay-toggle-screenshot-mode-help = replay_toggle_screenshot_mode

@@ -695,7 +695,7 @@ sealed class Explosion
         int maxTileBreak,
         bool canCreateVacuum,
         IEntityManager entMan,
-        IMapManager mapMan,
+        SharedMapSystem mapMan,
         EntityUid visualEnt,
         EntityUid? cause,
         SharedMapSystem mapSystem)
@@ -722,7 +722,7 @@ sealed class Explosion
 
         if (spaceData != null)
         {
-            var mapUid = mapMan.GetMapEntityId(epicenter.MapId);
+            var mapUid = mapMan.GetMap(epicenter.MapId);
 
             _explosionData.Add(new()
             {
@@ -847,10 +847,10 @@ sealed class Explosion
 
             // Is the current tile on a grid (instead of in space)?
             if (_currentGrid != null &&
-                _currentGrid.TryGetTileRef(_currentEnumerator.Current, out var tileRef) &&
+                IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>().TryGetTileRef(_currentGrid.Owner, _currentGrid, _currentEnumerator.Current, out var tileRef) &&
                 !tileRef.Tile.IsEmpty)
             {
-                if (!_tileUpdateDict.TryGetValue(_currentGrid, out var tileUpdateList))
+                if (!_tileUpdateDict.TryGetValue(_currentGrid!, out var tileUpdateList))
                 {
                     tileUpdateList = new();
                     _tileUpdateDict[_currentGrid] = tileUpdateList;

@@ -14,7 +14,6 @@ public sealed class KudzuSystem : EntitySystem
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
     [Dependency] private readonly DamageableSystem _damageable = default!;
 
-    [ValidatePrototypeId<EdgeSpreaderPrototype>]
     private const string KudzuGroup = "Kudzu";
 
     /// <inheritdoc/>

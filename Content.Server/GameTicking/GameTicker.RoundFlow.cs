@@ -625,7 +625,7 @@ namespace Content.Server.GameTicking
 
                 if (TryGetEntity(mind.OriginalOwnedEntity, out var entity) && pvsOverride)
                 {
-                    _pvsOverride.AddGlobalOverride(GetNetEntity(entity.Value), recursive: true);
+                    _pvsOverride.AddGlobalOverride(entity.Value);
                 }
 
                 var roles = _roles.MindGetAllRoleInfo(mindId);
@@ -1051,8 +1051,6 @@ namespace Content.Server.GameTicking
             RaiseNetworkEvent(ev);
 
             EntityManager.FlushEntities();
-
-            _mapManager.Restart();
 
             _banManager.Restart();
 

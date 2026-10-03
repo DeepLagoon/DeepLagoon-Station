@@ -18,13 +18,9 @@ public sealed class ChemistryGuideDataSystem : SharedChemistryGuideDataSystem
 {
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
 
-    [ValidatePrototypeId<MixingCategoryPrototype>]
     private const string DefaultMixingCategory = "DummyMix";
-    [ValidatePrototypeId<MixingCategoryPrototype>]
     private const string DefaultGrindCategory = "DummyGrind";
-    [ValidatePrototypeId<MixingCategoryPrototype>]
     private const string DefaultJuiceCategory = "DummyJuice";
-    [ValidatePrototypeId<MixingCategoryPrototype>]
     private const string DefaultCondenseCategory = "DummyCondense";
 
     private readonly Dictionary<string, List<ReagentSourceData>> _reagentSources = new();

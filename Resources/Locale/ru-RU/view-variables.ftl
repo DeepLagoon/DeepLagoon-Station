@@ -1,4 +1,4 @@
-## ViewVariablesInstanceEntity
+﻿## ViewVariablesInstanceEntity
 
 view-variables = View Variables
 view-variable-instance-entity-server-components-add-component-button-placeholder = Add Component
@@ -25,3 +25,10 @@ vv-sound-reference-distance = Reference Distance
 vv-sound-loop = Loop
 vv-sound-play-offset = Play Offset (s)
 vv-sound-variation = Pitch variation
+
+# TODO: translate (added from en-US; missing in ru-RU).
+vv-protoid-id-placeholder = Prototype ID
+
+vv-protoid-select-button-label = Select
+
+vv-protoid-addwindow-title = Set Prototype

@@ -1,3 +1,4 @@
+using Robust.Shared.Timing;
 using Content.Server.Administration.Logs;
 using Content.Server.Atmos.Components;
 using Content.Server.IgnitionSource;
@@ -397,7 +398,7 @@ namespace Content.Server.Atmos.EntitySystems
             _stunSystem.TryKnockdown(uid, TimeSpan.FromSeconds(2f), true);
 
             // TODO FLAMMABLE: Make this not use TimerComponent...
-            uid.SpawnTimer(2000, () =>
+            Timer.Spawn(2000, () =>
             {
                 flammable.Resisting = false;
                 flammable.FireStacks -= 1f;

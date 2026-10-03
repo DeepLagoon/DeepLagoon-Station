@@ -1,7 +1,6 @@
 <Document>
   # Радиаторы
   Радиаторы — это устройство, которое позволяет обмениваться тепловой энергией между [textlink="pipenet" link="PipeNetworks"] и окружающей средой.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="HeatExchanger"/>
@@ -26,4 +25,4 @@
 
 Повышение скорости потока газа через радиатор увеличит скорость теплообмена.
 
-  </Document>
+</Document>

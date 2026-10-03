@@ -208,7 +208,7 @@ namespace Content.Server.NodeContainer.Nodes
             if (!xform.Anchored || grid == null)
                 yield break;
 
-            var pos = grid.TileIndicesFor(xform.Coordinates);
+            var pos = MapSystem.TileIndicesFor(xform.GridUid!.Value, grid, xform.Coordinates);
 
             for (var i = 0; i < PipeDirectionHelpers.PipeDirections; i++)
             {
@@ -217,7 +217,7 @@ namespace Content.Server.NodeContainer.Nodes
                 if (!CurrentPipeDirection.HasDirection(pipeDir))
                     continue;
 
-                foreach (var pipe in LinkableNodesInDirection(pos, pipeDir, grid, nodeQuery))
+                foreach (var pipe in LinkableNodesInDirection(pos, pipeDir, (xform.GridUid!.Value, grid), nodeQuery))
                 {
                     yield return pipe;
                 }
@@ -227,7 +227,7 @@ namespace Content.Server.NodeContainer.Nodes
         /// <summary>
         ///     Gets the pipes that can connect to us from entities on the tile or adjacent in a direction.
         /// </summary>
-        private IEnumerable<PipeNode> LinkableNodesInDirection(Vector2i pos, PipeDirection pipeDir, MapGridComponent grid,
+        private IEnumerable<PipeNode> LinkableNodesInDirection(Vector2i pos, PipeDirection pipeDir, Entity<MapGridComponent> grid,
             EntityQuery<NodeContainerComponent> nodeQuery)
         {
             foreach (var pipe in PipesInDirection(pos, pipeDir, grid, nodeQuery))
@@ -244,12 +244,12 @@ namespace Content.Server.NodeContainer.Nodes
         /// <summary>
         ///     Gets the pipes from entities on the tile adjacent in a direction.
         /// </summary>
-        protected IEnumerable<PipeNode> PipesInDirection(Vector2i pos, PipeDirection pipeDir, MapGridComponent grid,
+        protected IEnumerable<PipeNode> PipesInDirection(Vector2i pos, PipeDirection pipeDir, Entity<MapGridComponent> grid,
             EntityQuery<NodeContainerComponent> nodeQuery)
         {
             var offsetPos = pos.Offset(pipeDir.ToDirection());
 
-            foreach (var entity in grid.GetAnchoredEntities(offsetPos))
+            foreach (var entity in MapSystem.GetAnchoredEntities(grid, offsetPos))
             {
                 if (!nodeQuery.TryGetComponent(entity, out var container))
                     continue;

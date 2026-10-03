@@ -35,7 +35,7 @@ namespace Content.Server.Explosion.EntitySystems;
 
 public sealed partial class ExplosionSystem : SharedExplosionSystem
 {
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    [Dependency] private readonly SharedMapSystem _mapManager = default!;
     [Dependency] private readonly IRobustRandom _robustRandom = default!;
     [Dependency] private readonly ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
@@ -75,7 +75,6 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
     ///     find errors. However some components, like rogue arrows, or some commands like the admin-smite need to have
     ///     a "default" option specified outside of yaml data-fields. Hence this const string.
     /// </remarks>
-    [ValidatePrototypeId<ExplosionPrototype>]
     public const string DefaultExplosionPrototypeId = "Default";
 
     public override void Initialize()
@@ -345,7 +344,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
         var (area, iterationIntensity, spaceData, gridData, spaceMatrix) = results.Value;
 
         // Frontier - Block explosions on safe zone
-        var location = EntityCoordinates.FromMap(_mapManager.GetMapEntityId(pos.MapId), pos, _transformSystem, EntityManager);
+        var location = EntityCoordinates.FromMap(_mapManager.GetMap(pos.MapId), pos, _transformSystem, EntityManager);
         var gridId = location.GetGridUid(EntityManager);
         if (!HasComp<MapGridComponent>(gridId))
         {

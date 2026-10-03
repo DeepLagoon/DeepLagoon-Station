@@ -106,15 +106,15 @@ public sealed class EntityHealthBarOverlay : Overlay
 
             var xProgress = (endX - startX) * deathProgress.ratio + startX;
 
-            var boxBackground = new Box2(new Vector2(startX, 0f) / EyeManager.PixelsPerMeter, new Vector2(endX, 3f) / EyeManager.PixelsPerMeter);
+            var boxBackground = Box2.FromTwoPoints(new Vector2(startX, 0f) / EyeManager.PixelsPerMeter, new Vector2(endX, 3f) / EyeManager.PixelsPerMeter);
             boxBackground = boxBackground.Translated(position);
             handle.DrawRect(boxBackground, Black.WithAlpha(192));
 
-            var boxMain = new Box2(new Vector2(startX, 0f) / EyeManager.PixelsPerMeter, new Vector2(xProgress, 3f) / EyeManager.PixelsPerMeter);
+            var boxMain = Box2.FromTwoPoints(new Vector2(startX, 0f) / EyeManager.PixelsPerMeter, new Vector2(xProgress, 3f) / EyeManager.PixelsPerMeter);
             boxMain = boxMain.Translated(position);
             handle.DrawRect(boxMain, color);
 
-            var pixelDarken = new Box2(new Vector2(startX, 2f) / EyeManager.PixelsPerMeter, new Vector2(xProgress, 3f) / EyeManager.PixelsPerMeter);
+            var pixelDarken = Box2.FromTwoPoints(new Vector2(startX, 2f) / EyeManager.PixelsPerMeter, new Vector2(xProgress, 3f) / EyeManager.PixelsPerMeter);
             pixelDarken = pixelDarken.Translated(position);
             handle.DrawRect(pixelDarken, Black.WithAlpha(128));
         }

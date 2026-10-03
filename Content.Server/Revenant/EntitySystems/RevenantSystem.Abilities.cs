@@ -42,7 +42,7 @@ public sealed partial class RevenantSystem
     [Dependency] private readonly TileSystem _tile = default!;
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private readonly SharedTransformSystem _transformSystem = default!;
-    [Dependency] private readonly SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
 
     private void InitializeAbilities()
     {
@@ -347,3 +347,4 @@ public sealed partial class RevenantSystem
         }
     }
 }
+

@@ -3,7 +3,6 @@
   Насосы являются основным способом активного перемещения газа по [textlink="газовой сети" link="PipeNetworks"]
   Они забирают газ с одной стороны и выталкивают его в другую.
   Существует два разных типа насосов:
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="GasPressurePump" Caption="pressure pump"/>

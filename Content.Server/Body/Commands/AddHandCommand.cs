@@ -18,7 +18,6 @@ namespace Content.Server.Body.Commands
         [Dependency] private readonly IPrototypeManager _protoManager = default!;
         [Dependency] private readonly IRobustRandom _random = default!;
 
-        [ValidatePrototypeId<EntityPrototype>]
         public const string DefaultHandPrototype = "LeftHandHuman";
 
         public string Command => "addhand";

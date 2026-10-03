@@ -1,6 +1,5 @@
 <Document>
   # Vox
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="MobVox" Caption=""/>

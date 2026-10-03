@@ -10,7 +10,7 @@ namespace Content.Shared.Popups.GridNameDisplay;
 public sealed class VisitedGridsSystem : EntitySystem
 {
     [Dependency] private readonly EntityManager _entityManager = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    [Dependency] private readonly SharedMapSystem _mapManager = default!;
 
     /// <inheritdoc/>
     public override void Initialize()

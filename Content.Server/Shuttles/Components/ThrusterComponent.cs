@@ -26,7 +26,7 @@ using Content.Shared.Damage;
 using Content.Shared.DeviceLinking; // Frontier
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Shuttles.Components
 {
@@ -87,8 +87,8 @@ namespace Content.Server.Shuttles.Components
         public TimeSpan NextFire = TimeSpan.Zero;
 
         // Frontier: upgradeable parts, togglable thrust
-        [DataField("machinePartThrust", customTypeSerializer: typeof(PrototypeIdSerializer<MachinePartPrototype>))]
-        public string MachinePartThrust = "Capacitor";
+        [DataField("machinePartThrust")]
+        public ProtoId<MachinePartPrototype> MachinePartThrust = "Capacitor";
 
         [DataField("partRatingThrustMultiplier")]
         public float PartRatingThrustMultiplier = 1.15f; // Frontier - PR #1292 1.5f<1.15f
@@ -101,14 +101,14 @@ namespace Content.Server.Shuttles.Components
         /// <summary>
         ///     Frontier - Make linkable to buttons
         /// </summary>
-        [DataField("onPort", customTypeSerializer: typeof(PrototypeIdSerializer<SinkPortPrototype>))] // Frontier
-        public string OnPort = "On"; // Frontier
+        [DataField("onPort")] // Frontier
+        public ProtoId<SinkPortPrototype> OnPort = "On"; // Frontier
 
-        [DataField("offPort", customTypeSerializer: typeof(PrototypeIdSerializer<SinkPortPrototype>))] // Frontier
-        public string OffPort = "Off"; // Frontier
+        [DataField("offPort")] // Frontier
+        public ProtoId<SinkPortPrototype> OffPort = "Off"; // Frontier
 
-        [DataField("togglePort", customTypeSerializer: typeof(PrototypeIdSerializer<SinkPortPrototype>))] // Frontier
-        public string TogglePort = "Toggle"; // Frontier
+        [DataField("togglePort")] // Frontier
+        public ProtoId<SinkPortPrototype> TogglePort = "Toggle"; // Frontier
         // End Frontier: upgradeable parts, togglable thrust
 
         // Mono

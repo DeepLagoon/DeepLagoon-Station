@@ -1,6 +1,5 @@
 <Document>
   # Радиоизотопный термoeлектрический генератор (РТГ)
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="GeneratorRTG" Caption="RTG" />

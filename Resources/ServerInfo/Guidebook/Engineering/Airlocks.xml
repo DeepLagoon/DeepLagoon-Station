@@ -1,7 +1,6 @@
 <Document>
   # Воздушные шлюзы
   Воздушные шлюзы используются для контроля доступа к различным участкам станции.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="Airlock" Caption=""/>

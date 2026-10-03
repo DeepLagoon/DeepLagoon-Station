@@ -1,7 +1,6 @@
 <Document>
 # Напитки
 Знание того, как приготовить запрашиваемый напиток, важно. Вот различные напитки в игре, включая их рецепты:
-</Document>
 
 <GuideReagentGroupEmbed Group="Drinks"/>
 </Document>

@@ -23,7 +23,7 @@ namespace Content.Server.Shuttles.Systems;
 /// </summary>
 public sealed class FTLAntiCollisionSystem : EntitySystem
 {
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    [Dependency] private readonly SharedMapSystem _mapManager = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly ShuttleSystem _shuttle = default!;
@@ -88,48 +88,43 @@ public sealed class FTLAntiCollisionSystem : EntitySystem
 
         // Find nearby grids
         var nearbyGrids = new List<(EntityUid Entity, float Distance)>();
-        foreach (var otherGrid in _mapManager.FindGridsIntersecting(mapId, new Box2(
+        _mapManager.FindGridsIntersecting(mapId, new Box2(
             shuttlePosition - new Vector2(range, range),
-            shuttlePosition + new Vector2(range, range))))
+            shuttlePosition + new Vector2(range, range)), (EntityUid otherUid, MapGridComponent _) =>
         {
             // Skip self
-            if (otherGrid.Owner == shuttle)
-                continue;
+            if (otherUid == shuttle)
+                return true;
 
             // Skip ships that are docked to this shuttle
-            if (dockedShips.Contains(otherGrid.Owner))
-                continue;
+            if (dockedShips.Contains(otherUid))
+                return true;
 
             // Check if this grid is docked to any other grids that are docked to our shuttle
-            bool isIndirectlyDocked = false;
             foreach (var dockedShip in dockedShips)
             {
                 var otherDockedShips = new HashSet<EntityUid>();
                 _shuttle.GetAllDockedShuttles(dockedShip, otherDockedShips);
-                if (otherDockedShips.Contains(otherGrid.Owner))
-                {
-                    isIndirectlyDocked = true;
-                    break;
-                }
+                if (otherDockedShips.Contains(otherUid))
+                    return true;
             }
 
-            if (isIndirectlyDocked)
-                continue;
-
             // Only care about grids with physics (actual ships)
-            if (!_physicsQuery.TryGetComponent(otherGrid.Owner, out var otherPhysics) ||
-                !_xformQuery.TryGetComponent(otherGrid.Owner, out var otherXform))
-                continue;
+            if (!_physicsQuery.TryGetComponent(otherUid, out var otherPhysics) ||
+                !_xformQuery.TryGetComponent(otherUid, out var otherXform))
+                return true;
 
-            var otherPos = _transform.GetWorldPosition(otherGrid.Owner);
+            var otherPos = _transform.GetWorldPosition(otherUid);
             var distance = (otherPos - shuttlePosition).Length();
 
             // If too close, add to the list for potential repositioning
             if (distance < MinimumSafeDistance)
             {
-                nearbyGrids.Add((otherGrid.Owner, distance));
+                nearbyGrids.Add((otherUid, distance));
             }
-        }
+
+            return true;
+        });
 
         // If no nearby grids, no need to reposition
         if (nearbyGrids.Count == 0)
@@ -205,39 +200,38 @@ public sealed class FTLAntiCollisionSystem : EntitySystem
         var checkSize = shipSize + MinimumSafeDistance;
 
         // Check for grids in the area
-        foreach (var otherGrid in _mapManager.FindGridsIntersecting(mapId, new Box2(
+        var clear = true;
+        _mapManager.FindGridsIntersecting(mapId, new Box2(
             position - new Vector2(checkSize, checkSize),
-            position + new Vector2(checkSize, checkSize))))
+            position + new Vector2(checkSize, checkSize)), (EntityUid otherUid, MapGridComponent _) =>
         {
             // Skip self
-            if (otherGrid.Owner == shuttle)
-                continue;
+            if (otherUid == shuttle)
+                return true;
 
             // Skip ships that are docked to this shuttle
-            if (dockedShips.Contains(otherGrid.Owner))
-                continue;
+            if (dockedShips.Contains(otherUid))
+                return true;
 
             // Check if this grid is docked to any other grids that are docked to our shuttle
-            bool isIndirectlyDocked = false;
             foreach (var dockedShip in dockedShips)
             {
                 var otherDockedShips = new HashSet<EntityUid>();
                 _shuttle.GetAllDockedShuttles(dockedShip, otherDockedShips);
-                if (otherDockedShips.Contains(otherGrid.Owner))
-                {
-                    isIndirectlyDocked = true;
-                    break;
-                }
+                if (otherDockedShips.Contains(otherUid))
+                    return true;
             }
 
-            if (isIndirectlyDocked)
-                continue;
-
             // If we found another grid, position is not clear
-            if (_physicsQuery.HasComponent(otherGrid.Owner))
+            if (_physicsQuery.HasComponent(otherUid))
+            {
+                clear = false;
                 return false;
-        }
+            }
 
-        return true;
+            return true;
+        });
+
+        return clear;
     }
 }

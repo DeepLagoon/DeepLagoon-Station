@@ -22,8 +22,7 @@ public sealed class AmbientOcclusionSystem : EntitySystem
 {
     [Dependency] private readonly IOverlayManager _overlays = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IMapManager _maps = default!;
-    [Dependency] private readonly SharedMapSystem _map = default!;
+        [Dependency] private readonly SharedMapSystem _map = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly TagSystem _tags = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
@@ -135,7 +134,7 @@ public sealed class AmbientOcclusionSystem : EntitySystem
             handle.UseShader(null);
             var intensity = GetIntensity(system._cfg.GetCVar(CCVars.AmbientOcclusionIntensity));
             _grids.Clear();
-            system._maps.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
+            system._map.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
             var started = Timestamp();
             CollectObjects(args);
             _stats.CollectMs += Elapsed(started);
@@ -406,7 +405,7 @@ public sealed class AmbientOcclusionSystem : EntitySystem
             var handle = args.WorldHandle;
             handle.UseShader(null);
             _grids.Clear();
-            system._maps.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
+            system._map.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
             var started = Timestamp();
             CollectObjects(args);
             _stats.CollectMs += Elapsed(started);
@@ -489,7 +488,7 @@ public sealed class AmbientOcclusionSystem : EntitySystem
                 if (!transforms.TryGetComponent(uid, out var xform)) continue;
                 if (_measure) _stats.ProcessedCandidates++;
                 if (hasOccluder)
-                    _blockers.Add((uid, system._transform.GetWorldMatrix(xform).TransformBox(occluder!.BoundingBox)));
+                    _blockers.Add((uid, system._transform.GetWorldMatrix(xform).TransformBox(occluder!.LocalBounds)));
                 if (!caster || xform.GridUid is not { } grid) continue;
                 // Full entity silhouettes do not need wall-tag checks; wall-only and mask modes do.
                 if (!_silhouette || !_drawEntities)

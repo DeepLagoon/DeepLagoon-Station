@@ -36,7 +36,6 @@ public abstract partial class InventorySystem
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private readonly SharedStrippableSystem _strippable = default!;
 
-    [ValidatePrototypeId<ItemSizePrototype>]
     private const string PocketableItemSize = "Small";
 
     private void InitializeEquip()

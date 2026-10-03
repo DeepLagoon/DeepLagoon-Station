@@ -116,13 +116,13 @@ public sealed partial class DungeonSystem
     private static Box2 GetRotatedBox(Vector2 point1, Vector2 point2, double angle)
     {
         if (angle == 0)
-            return new Box2(point1, point2);
+            return Box2.FromTwoPoints(point1, point2);
         if (Math.Abs(angle - Math.PI / 2) < 1E-5)
-            return new Box2(point2.X, point1.Y, point1.X, point2.Y);
+            return Box2.FromTwoPoints(new Vector2(point2.X, point1.Y), new Vector2(point1.X, point2.Y));
         if (Math.Abs(angle - Math.PI) < 1E-5)
-            return new Box2(point2, point1);
+            return Box2.FromTwoPoints(point2, point1);
         if (Math.Abs(angle + Math.PI / 2) < 1E-5)
-            return new Box2(point1.X, point2.Y, point2.X, point1.Y);
+            return Box2.FromTwoPoints(new Vector2(point1.X, point2.Y), new Vector2(point2.X, point1.Y));
 
         throw new NotImplementedException();
     }
@@ -137,7 +137,7 @@ public sealed partial class DungeonSystem
     {
         // Ensure the underlying template exists.
         var roomMap = GetOrCreateTemplate(room);
-        var templateMapUid = _mapManager.GetMapEntityId(roomMap);
+        var templateMapUid = _mapManager.GetMap(roomMap);
         var templateGrid = Comp<MapGridComponent>(templateMapUid);
         var roomDimensions = room.Size;
 

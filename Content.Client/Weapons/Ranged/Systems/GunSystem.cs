@@ -64,7 +64,6 @@ public sealed partial class GunSystem : SharedGunSystem
     [Dependency] private readonly SharedMapSystem _maps = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
 
-    [ValidatePrototypeId<EntityPrototype>]
     public const string HitscanProto = "HitscanEffect";
 
     public bool SpreadOverlay

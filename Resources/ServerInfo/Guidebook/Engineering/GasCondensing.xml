@@ -1,7 +1,6 @@
 <Document>
   # Конденсация газа
   Конденсаторы газа принимают газы и конденсируют их в жидкие (реагентные) формы.
-</Document>
 
   <Box>
     <GuideEntityEmbed Entity="BaseGasCondenser"/>

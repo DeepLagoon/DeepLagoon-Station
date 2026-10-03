@@ -22,6 +22,7 @@ using System.Linq;
 using System.Numerics;
 using Content.Shared.Examine;
 using Content.Shared.Humanoid.Markings;
+using Content.Shared.Sprite;
 using Content.Shared._Shitmed.Humanoid.Events; // Shitmed Change
 using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.IdentityManagement;
@@ -57,7 +58,6 @@ public abstract class SharedHumanoidAppearanceSystem : EntitySystem
     [Dependency] private readonly MarkingManager _markingManager = default!;
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
 
-    [ValidatePrototypeId<SpeciesPrototype>]
     public const string DefaultSpecies = "Human";
 
     public override void Initialize()

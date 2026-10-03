@@ -1,6 +1,5 @@
-<document>
+<Document>
   # Рептилоиды
-</document>
 
   <Box>
     <GuideEntityEmbed Entity="MobReptilian" Caption=""/>

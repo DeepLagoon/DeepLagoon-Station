@@ -21,7 +21,6 @@ public sealed class InfoUIController : UIController, IOnStateExited<GameplayStat
     private RulesAndInfoWindow? _infoWindow;
     private ISawmill _sawmill = default!;
 
-    [ValidatePrototypeId<GuideEntryPrototype>]
     private const string DefaultRuleset = "DefaultRuleset";
 
     public ProtoId<GuideEntryPrototype> RulesEntryId = DefaultRuleset;

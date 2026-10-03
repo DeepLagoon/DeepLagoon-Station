@@ -5,7 +5,6 @@
   <Box>
     <GuideEntityEmbed Entity="GasValve"/>
   </Box>
-</Document>
 
 Газ может свободно течь между обеими сторонами без каких-либо ограничений.
 

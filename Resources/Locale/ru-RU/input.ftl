@@ -1,4 +1,4 @@
-input-key-Escape = Escape
+﻿input-key-Escape = Escape
 input-key-Control = Control
 input-key-Shift = Shift
 input-key-Alt = Alt
@@ -76,3 +76,30 @@ input-key-LSystem-linux = Left Meta
 input-key-RSystem-linux = Right Meta
 
 input-key-unknown = <unknown key>
+
+# TODO: translate (added from en-US; missing in ru-RU).
+input-key-Alt-mac = ⌥
+
+input-key-CapsLock = Caps Lock
+
+input-key-ScrollLock = Scroll Lock
+
+input-key-Help = Help
+
+input-key-Stop = Stop
+
+input-key-Again = Again
+
+input-key-Prop = Props
+
+input-key-Undo = Undo
+
+input-key-Cut = Cut
+
+input-key-Copy = Copy
+
+input-key-Open = Open
+
+input-key-Paste = Paste
+
+input-key-Find = Find

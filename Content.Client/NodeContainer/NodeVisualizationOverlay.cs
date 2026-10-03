@@ -17,7 +17,7 @@ namespace Content.Client.NodeContainer
     {
         private readonly NodeGroupSystem _system;
         private readonly EntityLookupSystem _lookup;
-        private readonly IMapManager _mapManager;
+        private readonly SharedMapSystem _mapManager;
         private readonly IInputManager _inputManager;
         private readonly IEntityManager _entityManager;
         private readonly SharedTransformSystem _transformSystem;
@@ -37,7 +37,7 @@ namespace Content.Client.NodeContainer
         public NodeVisualizationOverlay(
             NodeGroupSystem system,
             EntityLookupSystem lookup,
-            IMapManager mapManager,
+            SharedMapSystem mapManager,
             IInputManager inputManager,
             IResourceCache cache,
             IEntityManager entityManager)
@@ -84,7 +84,7 @@ namespace Content.Client.NodeContainer
             var xform = _entityManager.GetComponent<TransformComponent>(_entityManager.GetEntity(node.Entity));
             if (!_entityManager.TryGetComponent<MapGridComponent>(xform.GridUid, out var grid))
                 return;
-            var gridTile = grid.TileIndicesFor(xform.Coordinates);
+            var gridTile = _mapManager.TileIndicesFor(xform.GridUid.Value, grid, xform.Coordinates);
 
             var sb = new StringBuilder();
             sb.Append($"entity: {node.Entity}\n");
@@ -133,7 +133,7 @@ namespace Content.Client.NodeContainer
                     if (float.IsNaN(coords.Position.X) || float.IsNaN(coords.Position.Y))
                         continue;
 
-                    var tile = gridDict.GetOrNew(grid.Comp.TileIndicesFor(coords));
+                    var tile = gridDict.GetOrNew(_mapManager.TileIndicesFor(grid, coords));
 
                     foreach (var (group, nodeDatum) in nodeData)
                     {

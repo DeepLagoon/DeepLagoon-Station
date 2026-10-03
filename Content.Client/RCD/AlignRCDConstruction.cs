@@ -15,7 +15,7 @@ namespace Content.Client.RCD;
 public sealed class AlignRCDConstruction : PlacementMode
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     private readonly SharedMapSystem _mapSystem;
     private readonly RCDSystem _rcdSystem;
     private readonly SharedTransformSystem _transformSystem;
@@ -43,7 +43,7 @@ public sealed class AlignRCDConstruction : PlacementMode
     public override void AlignPlacementMode(ScreenCoordinates mouseScreen)
     {
         _unalignedMouseCoords = ScreenToCursorGrid(mouseScreen);
-        MouseCoords = _unalignedMouseCoords.AlignWithClosestGridTile(SearchBoxSize, _entityManager, _mapManager);
+        MouseCoords = _unalignedMouseCoords.AlignWithClosestGridTile(SearchBoxSize, _entityManager);
 
         var gridId = _transformSystem.GetGrid(MouseCoords);
 
@@ -115,3 +115,4 @@ public sealed class AlignRCDConstruction : PlacementMode
         return true;
     }
 }
+

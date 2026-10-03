@@ -1,7 +1,6 @@
 <Document>
   # Конфигуратор доступа
   Конфигуратор доступа — это инструмент, используемый для указания, какой тип персонала может использовать определённые устройства.
-</Document>
 
   <Box>
 	  <GuideEntityEmbed Entity="AccessConfigurator" Caption="access configurator"/>

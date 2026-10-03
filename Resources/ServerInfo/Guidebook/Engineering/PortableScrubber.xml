@@ -4,7 +4,6 @@
   <Box>
     <GuideEntityEmbed Entity="PortableScrubber"/>
   </Box>
-</Document>
 
 Очень полезен для быстрого удаления нежелательных газов из комнаты, когда обычные [textlink="scrubbers" link="AirScrubber"] работают слишком медленно, или когда [textlink="scrubber" link="AirScrubber"] отсутствует.
 

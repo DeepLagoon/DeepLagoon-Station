@@ -39,9 +39,9 @@ namespace Content.Server.Power.Nodes
             if (!xform.Anchored || grid == null)
                 yield break;
 
-            var gridIndex = grid.TileIndicesFor(xform.Coordinates);
+            var gridIndex = MapSystem.TileIndicesFor(xform.GridUid!.Value, grid, xform.Coordinates);
 
-            foreach (var node in NodeHelpers.GetNodesInTile(nodeQuery, grid, gridIndex))
+            foreach (var node in NodeHelpers.GetNodesInTile(nodeQuery, (xform.GridUid!.Value, grid), gridIndex))
             {
                 if (node is CableNode)
                     yield return node;

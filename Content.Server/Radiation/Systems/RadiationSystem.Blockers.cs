@@ -8,6 +8,8 @@ namespace Content.Server.Radiation.Systems;
 // create and update map of radiation blockers
 public partial class RadiationSystem
 {
+    private SharedMapSystem _map => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
+
     private void InitRadBlocking()
     {
         SubscribeLocalEvent<RadiationBlockerComponent, ComponentInit>(OnInit);
@@ -108,7 +110,7 @@ public partial class RadiationSystem
 
         // save resistance into rad protection grid
         var gridId = trs.GridUid.Value;
-        var tilePos = grid.TileIndicesFor(trs.Coordinates);
+        var tilePos = _map.TileIndicesFor(gridId, grid, trs.Coordinates);
         AddToTile(gridId, tilePos, component.RadResistance);
 
         // and remember it as last valid position
@@ -165,3 +167,4 @@ public partial class RadiationSystem
         }
     }
 }
+

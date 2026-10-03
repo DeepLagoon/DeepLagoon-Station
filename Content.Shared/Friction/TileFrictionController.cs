@@ -38,7 +38,7 @@ namespace Content.Shared.Friction
         [Dependency] private readonly ITileDefinitionManager _tileDefinitionManager = default!;
         [Dependency] private readonly SharedGravitySystem _gravity = default!;
         [Dependency] private readonly SharedMoverController _mover = default!;
-        [Dependency] private readonly SharedMapSystem _map = default!;
+        private SharedMapSystem _map => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
 
         private EntityQuery<TileFrictionModifierComponent> _frictionQuery;
         private EntityQuery<TransformComponent> _xformQuery;
@@ -183,3 +183,4 @@ namespace Content.Shared.Friction
         }
     }
 }
+

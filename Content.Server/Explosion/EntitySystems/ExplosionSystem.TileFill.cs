@@ -48,7 +48,7 @@ public sealed partial class ExplosionSystem
 
         // get the epicenter tile indices
         if (_mapManager.TryFindGridAt(epicenter, out var gridUid, out var candidateGrid) &&
-            candidateGrid.TryGetTileRef(candidateGrid.WorldToTile(epicenter.Position), out var tileRef) &&
+            _mapManager.TryGetTileRef(gridUid, candidateGrid, _mapManager.WorldToTile(gridUid, candidateGrid, epicenter.Position), out var tileRef) &&
             !tileRef.Tile.IsEmpty)
         {
             epicentreGrid = gridUid;
@@ -57,7 +57,7 @@ public sealed partial class ExplosionSystem
         else if (referenceGrid != null)
         {
             // reference grid defines coordinate system that the explosion in space will use
-            initialTile = Comp<MapGridComponent>(referenceGrid.Value).WorldToTile(epicenter.Position);
+            initialTile = _mapManager.WorldToTile(referenceGrid.Value, Comp<MapGridComponent>(referenceGrid.Value), epicenter.Position);
         }
         else
         {
@@ -276,14 +276,15 @@ public sealed partial class ExplosionSystem
         // diameter x diameter sized box, use a smaller box with radius sized sides:
         var box = Box2.CenteredAround(epicenter.Position, new Vector2(radius, radius));
 
-        foreach (var grid in _mapManager.FindGridsIntersecting(epicenter.MapId, box))
+        _mapManager.FindGridsIntersecting(epicenter.MapId, box, (EntityUid gridUid, MapGridComponent _) =>
         {
-            if (TryComp(grid.Owner, out PhysicsComponent? physics) && physics.Mass > mass)
+            if (TryComp(gridUid, out PhysicsComponent? physics) && physics.Mass > mass)
             {
                 mass = physics.Mass;
-                referenceGrid = grid.Owner;
+                referenceGrid = gridUid;
             }
-        }
+            return true;
+        });
 
         // Next, we use a much larger lookup to determine all grids relevant to the explosion. This is used to determine
         // what grids should be included during the grid-edge transformation steps. This means that if a grid is not in
@@ -296,8 +297,13 @@ public sealed partial class ExplosionSystem
 
         radius *= 4;
         box = Box2.CenteredAround(epicenter.Position, new Vector2(radius, radius));
-        var mapGrids = _mapManager.FindGridsIntersecting(epicenter.MapId, box).ToList();
-        var grids = mapGrids.Select(x => x.Owner).ToList();
+        var mapGrids = new List<EntityUid>();
+        _mapManager.FindGridsIntersecting(epicenter.MapId, box, (EntityUid gridUid, MapGridComponent _) =>
+        {
+            mapGrids.Add(gridUid);
+            return true;
+        });
+        var grids = new List<EntityUid>(mapGrids);
 
         if (referenceGrid != null)
             return (grids, referenceGrid, radius);
@@ -305,10 +311,10 @@ public sealed partial class ExplosionSystem
         // We still don't have are reference grid. So lets also look in the enlarged region
         foreach (var grid in mapGrids)
         {
-            if (TryComp(grid.Owner, out PhysicsComponent? physics) && physics.Mass > mass)
+            if (TryComp(grid, out PhysicsComponent? physics) && physics.Mass > mass)
             {
                 mass = physics.Mass;
-                referenceGrid = grid.Owner;
+                referenceGrid = grid;
             }
         }
 

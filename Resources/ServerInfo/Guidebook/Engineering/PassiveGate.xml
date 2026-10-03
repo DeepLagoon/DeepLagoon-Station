@@ -4,7 +4,6 @@
   <Box>
     <GuideEntityEmbed Entity="GasPassiveGate"/>
   </Box>
-</Document>
 
 Вход вентиля находится на стороне [color=red]красного[/color] круга.
 Вентиль также показывает текущую скорость потока трубы при осмотре.

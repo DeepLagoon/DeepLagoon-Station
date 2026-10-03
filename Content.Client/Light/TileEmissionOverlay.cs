@@ -11,7 +11,7 @@ public sealed class TileEmissionOverlay : Overlay
 {
     public override OverlaySpace Space => OverlaySpace.BeforeLighting;
 
-    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SharedMapSystem>();
     [Dependency] private readonly IOverlayManager _overlay = default!;
 
     private SharedMapSystem _mapSystem;
@@ -94,3 +94,4 @@ public sealed class TileEmissionOverlay : Overlay
         }, null);
     }
 }
+

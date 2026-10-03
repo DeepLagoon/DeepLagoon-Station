@@ -7,7 +7,6 @@
   <Box>
     <GuideEntityEmbed Entity="TeslaEnergyBall"/>
   </Box>
-</Document>
 
 Он генерирует энергию, используя молнии, создаваемые шаром молний, с помощью Тесла-катушек.
 
