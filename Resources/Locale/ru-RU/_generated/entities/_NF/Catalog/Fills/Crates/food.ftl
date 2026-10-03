@@ -1,0 +1,2 @@
+ent-CrateFoodMcCargo =
+    .suffix = Заполнен

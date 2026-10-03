@@ -1,0 +1,2 @@
+ent-DoubleEmergencyAirTankFilled =
+    .suffix = Заполнен

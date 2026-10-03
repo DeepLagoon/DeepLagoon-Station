@@ -1,0 +1,2 @@
+ent-LockerMailCarrierFilled =
+    .suffix = Заполнен

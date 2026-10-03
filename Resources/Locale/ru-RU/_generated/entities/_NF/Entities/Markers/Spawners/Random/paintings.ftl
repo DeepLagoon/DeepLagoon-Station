@@ -1,0 +1,2 @@
+ent-RandomPaintingHalloween =
+    .suffix = Хэллоуин

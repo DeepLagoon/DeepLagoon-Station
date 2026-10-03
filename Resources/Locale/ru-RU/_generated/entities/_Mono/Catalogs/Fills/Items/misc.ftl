@@ -1,0 +1,2 @@
+ent-SyringeCaseAltFilled =
+    .suffix = Заполнен

@@ -1,0 +1,2 @@
+ent-ThrusterLargeNfsd =
+    .suffix = СФМЦ

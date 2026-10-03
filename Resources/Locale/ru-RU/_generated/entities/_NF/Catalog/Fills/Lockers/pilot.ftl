@@ -1,0 +1,2 @@
+ent-LockerPilotFilled =
+    .suffix = Заполнен

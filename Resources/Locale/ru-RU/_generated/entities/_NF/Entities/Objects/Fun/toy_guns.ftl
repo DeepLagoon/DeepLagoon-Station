@@ -1,0 +1,2 @@
+ent-WeaponRifleBBEmpty =
+    .suffix = Пустой

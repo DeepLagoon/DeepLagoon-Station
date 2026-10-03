@@ -1,0 +1,2 @@
+ent-SimpleSpaceSuitMobBase =
+    .suffix = ИИ

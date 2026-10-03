@@ -1,0 +1,2 @@
+ent-JugOmnizine =
+    .suffix = омнизин

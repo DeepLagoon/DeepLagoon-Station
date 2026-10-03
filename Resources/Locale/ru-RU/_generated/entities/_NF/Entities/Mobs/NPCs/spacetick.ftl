@@ -1,0 +1,2 @@
+ent-NFMobTick =
+    .suffix = Фронтит

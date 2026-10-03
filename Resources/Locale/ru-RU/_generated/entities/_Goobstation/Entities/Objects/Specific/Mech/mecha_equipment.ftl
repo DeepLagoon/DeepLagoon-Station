@@ -1,0 +1,2 @@
+ent-DebugMechEquipment =
+    .suffix = ОТЛАДКА

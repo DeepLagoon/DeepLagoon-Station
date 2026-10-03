@@ -1,0 +1,1 @@
+ent-MobTajaran = Юрист МакТАЖАН

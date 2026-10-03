@@ -1,0 +1,1 @@
+ent-MechPlasmaProjectile = плазменный шар

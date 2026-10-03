@@ -310,3 +310,7 @@ Resources/MapImages
 # Link Files
 *.lnk
 
+# Local translation tools, reports, cache, logs, and review output
+/Tools/localize/
+/.localize/
+

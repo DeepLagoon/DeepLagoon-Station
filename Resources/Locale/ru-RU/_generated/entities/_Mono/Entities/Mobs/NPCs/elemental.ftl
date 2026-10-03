@@ -1,0 +1,2 @@
+ent-MobOreCrabDocileBase =
+    .suffix = Покорный

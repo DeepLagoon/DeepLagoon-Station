@@ -1,0 +1,2 @@
+ent-LockerWallEVAColorDMEFilled =
+    .suffix = Заполнен

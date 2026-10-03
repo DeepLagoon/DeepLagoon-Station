@@ -1,0 +1,2 @@
+ent-LockableButtonUSSP =
+    .suffix = ШСП

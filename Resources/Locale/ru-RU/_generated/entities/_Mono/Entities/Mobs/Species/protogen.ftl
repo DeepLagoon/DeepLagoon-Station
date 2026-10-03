@@ -1,0 +1,1 @@
+ent-BaseMobProtogen = Юрист МакЖесткийДиск
