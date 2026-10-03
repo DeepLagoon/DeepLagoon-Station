@@ -182,7 +182,7 @@ public sealed class DiscordLinkSystem : EntitySystem
             return false;
         context.ResponseHeaders["Cache-Control"] = "no-store";
         if (context.RequestMethod != HttpMethod.Post ||
-            path is not ("/deeplagoon/discord/link" or "/deeplagoon/discord/lookup" or "/deeplagoon/discord/whitelist" or "/deeplagoon/discord/remove_whitelist"))
+            path is not ("/deeplagoon/discord/link" or "/deeplagoon/discord/lookup" or "/deeplagoon/discord/whitelist" or "/deeplagoon/discord/remove_whitelist" or "/deeplagoon/discord/unlink_discord"))
         {
             await context.RespondErrorAsync(HttpStatusCode.NotFound);
             return true;
@@ -262,6 +262,13 @@ public sealed class DiscordLinkSystem : EntitySystem
                             await _whitelist.RemoveGlobalWhitelistAsync(uid);
                         if (await _database.GetWhitelistStatusAsync(uid))
                             throw new InvalidOperationException("Whitelist removal not confirmed");
+                    }
+                    if (path.EndsWith("/unlink_discord", StringComparison.Ordinal))
+                    {
+                        if (!request.HostAuthorized && await _database.GetAdminDataForAsync(new NetUserId(link.Uid)) != null)
+                            return new ApiResult(HttpStatusCode.Forbidden, new { error = "admin_protected" });
+                        _store.Unlink(request.DiscordId, link.Uid);
+                        existing = true;
                     }
                     await RefreshUid(link.Uid);
                     return new ApiResult(HttpStatusCode.OK, new { uid = link.Uid, username = link.Username, existing });

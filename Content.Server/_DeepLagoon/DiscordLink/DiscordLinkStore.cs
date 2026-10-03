@@ -58,6 +58,23 @@ public sealed class DiscordLinkStore : IDisposable
         return reader.Read() ? new Link(Guid.Parse(reader.GetString(0)), reader.GetString(1)) : null;
     }
 
+    public void Unlink(string discordId, Guid uid)
+    {
+        using var transaction = _db.BeginTransaction();
+        using (var command = Command("DELETE FROM discord_links WHERE discord_id=$id AND ss14_uid=$uid", ("$id", discordId), ("$uid", uid.ToString())))
+        {
+            command.Transaction = transaction;
+            if (command.ExecuteNonQuery() != 1)
+                throw new LinkException("not_linked");
+        }
+        using (var command = Command("DELETE FROM discord_link_codes WHERE ss14_uid=$uid", ("$uid", uid.ToString())))
+        {
+            command.Transaction = transaction;
+            command.ExecuteNonQuery();
+        }
+        transaction.Commit();
+    }
+
     public bool IsLinked(Guid uid)
     {
         using var command = Command("SELECT 1 FROM discord_links WHERE ss14_uid=$uid", ("$uid", uid.ToString()));
