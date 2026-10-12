@@ -29,7 +29,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     private ApartmentEditorWindow? _window;
     private ApartmentEditorEvent? _state;
-    private readonly TguiSpriteImages _images = new();
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared;
     private ApartmentPreviewOverlay? _overlay;
     private readonly Dictionary<EntityUid, bool> _hidden = new();
     private TimeSpan _openedAt;

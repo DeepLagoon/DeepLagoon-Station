@@ -7,3 +7,4 @@ wiki-load-hint = If the page did not load, check your connection and press Reloa
 wiki-page-unmapped = No wiki page has been assigned to this section yet.
 
 ui-options-vanilla-chat = Classic chat
+dl-chat-composer-title = Chat

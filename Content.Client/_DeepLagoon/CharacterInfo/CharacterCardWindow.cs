@@ -17,15 +17,18 @@ public sealed class CharacterCardWindow : FancyWindow
     private static readonly Direction[] Directions = { Direction.South, Direction.West, Direction.North, Direction.East };
     private int _direction;
     private readonly CardHost _host;
-    private readonly TguiData _data;
+    // TguiData only appends fields: the state is rebuilt from the base fields on every publish.
+    private readonly Func<TguiData> _baseData;
+    private string? _headshot;
+    private string[] _gallery = [];
     private readonly Dictionary<string, string> _headshots = new();
     private CharacterCardWindow(EntityUid entity, string name, string flavor, string ooc, byte erp, byte nonCon, byte vore, int slot)
     {
         _entity = entity;
         _slot = slot;
-        Title="Профиль персонажа"; SetSize=new Vector2(950,740); MinSize=new Vector2(640,600);
+        Title=Loc.GetString("dl-character-card-title"); SetSize=new Vector2(950,740); MinSize=new Vector2(640,600);
         _sprite.SetEntity(entity);
-        _data=new TguiData().String("name",name).String("flavor",flavor).String("ooc",ooc).Number("erp",erp).Number("noncon",nonCon).Number("vore",vore);
+        _baseData=()=>new TguiData().String("name",name).String("flavor",flavor).String("ooc",ooc).Number("erp",erp).Number("noncon",nonCon).Number("vore",vore);
         _host=new CardHost(_panel,_sprite); ContentsContainer.AddChild(_host);
         _panel.OnAction += (action,_)=>
         {
@@ -37,8 +40,16 @@ public sealed class CharacterCardWindow : FancyWindow
                 _sprite.InvalidateMeasure();
             }
         };
-        _panel.SetState("CharacterCard",_data.ToString());
+        Publish();
         OnClose+=Dispose;
+    }
+    private void Publish()
+    {
+        var data = _baseData();
+        if (_headshot != null) data.String("headshot", _headshot);
+        if (_headshots.Count > 0)
+            data.Array("headshots", _gallery.Where(_headshots.ContainsKey).Select(image => new TguiData().String("id", image).String("image", _headshots[image])));
+        _panel.SetState("CharacterCard", data.ToString());
     }
     public static void Open(EntityUid entity,string name,string flavor,string ooc,byte erp,byte nonCon,byte vore,int slot)
     {
@@ -56,9 +67,9 @@ public sealed class CharacterCardWindow : FancyWindow
             if(window.Disposed)return;
             if(bytes.Length>0 && error.Length==0)
             {
-                window._data.String("headshot","data:"+mime+";base64,"+Convert.ToBase64String(bytes));
+                window._headshot="data:"+mime+";base64,"+Convert.ToBase64String(bytes);
                 window._host.HasHeadshot=true;window._host.InvalidateArrange();
-                window._panel.SetState("CharacterCard",window._data.ToString());
+                window.Publish();
             }
         });
         entities.System<HeadshotSystem>().Gallery(slot, slot < 0 ? entities.GetNetEntity(entity) : null, gallery =>
@@ -72,9 +83,9 @@ public sealed class CharacterCardWindow : FancyWindow
                     {
                         if (window.Disposed || error.Length > 0 || bytes.Length == 0 || returnedId != id) return;
                         window._headshots[id] = "data:" + mime + ";base64," + Convert.ToBase64String(bytes);
-                        window._data.Array("headshots", gallery.Active.Where(window._headshots.ContainsKey).Select(image => new TguiData().String("id", image).String("image", window._headshots[image])));
+                        window._gallery = gallery.Active;
                         window._host.HasHeadshot = true; window._host.InvalidateArrange();
-                        window._panel.SetState("CharacterCard", window._data.ToString());
+                        window.Publish();
                     }, id);
                 });
         });

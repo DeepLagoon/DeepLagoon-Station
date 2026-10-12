@@ -14,7 +14,7 @@ namespace Content.Client.Lobby.UI.Loadouts;
 public sealed partial class PersonalLoadoutEditor
 {
     public bool TguiMode;
-    private readonly TguiSpriteImages _images = new();
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared; // DeepLagoon: tgui fix, one session cache
 
     public IEnumerable<TguiData> CreateTguiSlots(EntityUid preview)
     {

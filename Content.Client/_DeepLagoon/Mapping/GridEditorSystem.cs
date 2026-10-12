@@ -13,7 +13,6 @@ using Robust.Shared.Serialization.Markdown;
 using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Serialization.Markdown.Sequence;
 using Robust.Shared.Serialization.Markdown.Value;
-using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 using Robust.Shared.Console;
 using Robust.Client.Input;
@@ -26,7 +25,7 @@ public sealed partial class GridEditorSystem : EntitySystem
 {
     [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private TagSystem _tags = default!;
-    private readonly TguiSpriteImages _images = new();
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared;
     private GridEditorWindow? _window;
     private GridEditorStateEvent? _state;
     public GridEditorStateEvent? State => _state;

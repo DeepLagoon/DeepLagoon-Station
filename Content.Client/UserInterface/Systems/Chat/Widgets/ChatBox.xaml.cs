@@ -301,7 +301,7 @@ public partial class ChatBox : UIWidget
 
     protected override void Dispose(bool disposing)
     {
-        CloseComposer();
+        DisposeComposer(); // DeepLagoon: tgui fix (Н3)
         DisposeWebSettings();
         _cfg.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ApplyChatMode);
         if (_settingsSaveDelay >= 0) FlushPanelSettings();

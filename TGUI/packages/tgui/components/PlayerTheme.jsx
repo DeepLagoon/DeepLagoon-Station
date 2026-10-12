@@ -1,7 +1,8 @@
 import { useId } from 'react';
-export const playerTheme = state => {
-  let settings={};
-  try {settings=JSON.parse(state||'{}').settings||{};} catch (_) {}
+// Takes the chat appearance settings object (theme, chatBgColor, chatTextColor), not a JSON string:
+// the page should not parse anything on render.
+export const playerTheme = settings => {
+  settings=settings||{};
   const light=settings.theme==='default'||settings.theme==='light';
   // Themes supply colors only. Interfaces that need animation explicitly
   // configure the native layer so movement does not repaint their CEF texture.

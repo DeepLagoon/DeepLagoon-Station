@@ -12,6 +12,10 @@ namespace Content.Client.UserInterface.Systems.Chat.Widgets;
 public partial class ChatBox
 {
     private ComposerWindow? _composer;
+    // DeepLagoon: tgui fix (Н3). One composer browser per chat box, kept alive between openings: keys typed
+    // right after T reach a loaded page, and closing does not dispose a browser that CEF still queries (К1).
+    private ComposerWindow? _composerWindow;
+    private bool _composerPresentOnFocus;
     private int _composerRevision;
     private IInputManager? _composerInput;
     private bool _composerComposing;
@@ -20,7 +24,7 @@ public partial class ChatBox
     // allocate a new native texture. Closing releases this extra browser.
     private sealed class ComposerWindow : BaseWindow
     {
-        public readonly TguiPanel Panel = new();
+        public readonly TguiPanel Panel = new(keepAlive: true); // DeepLagoon: tgui fix (Н3)
         public ComposerWindow()
         {
             Resizable = false;
@@ -35,7 +39,10 @@ public partial class ChatBox
     {
         if (_composer == null)
         {
-            var window = new ComposerWindow();
+            var window = _composerWindow ??= new ComposerWindow(); // DeepLagoon: tgui fix (Н3)
+            // A reused page shows the last draft until it gets the new state; its "focus" reply presents it.
+            _composerPresentOnFocus = window.Panel.Web.IsReady;
+            if (_composerPresentOnFocus) window.Modulate = Color.Transparent;
             var available = UserInterfaceManager.WindowRoot.Size;
             if (available.X > 0 && available.Y > 0)
                 window.SetSize = Vector2.Min(new Vector2(880, 500), available);
@@ -47,12 +54,7 @@ public partial class ChatBox
             window.Panel.OnClose += CloseComposer;
             window.OnClose += CloseComposer;
             window.Panel.Web.Ready += window.Panel.Web.FocusTextInput;
-            window.Panel.Web.Failed += () =>
-            {
-                CloseComposer();
-                ApplyChatMode(true);
-                ChatInput.Input.GrabKeyboardFocus();
-            };
+            window.Panel.Web.Failed += OnComposerFailed;
             window.OpenCentered();
         }
         _composerRevision++;
@@ -71,7 +73,7 @@ public partial class ChatBox
             ",\"channel\":" + GameWebView.Quote(((uint) SelectedChannel).ToString()) +
             ",\"emoteChannel\":" + GameWebView.Quote(((uint) ChatSelectChannel.Emotes).ToString()) +
             ",\"maxLength\":" + _controller.MaxMessageLength +
-            ",\"channels\":[" + string.Join(",", channels) + "]}", "Чат");
+            ",\"channels\":[" + string.Join(",", channels) + "]}", Loc.GetString("dl-chat-composer-title")); // DeepLagoon: tgui fix
     }
 
     private void OnComposerChannelsChanged(ChatSelectChannel channels)
@@ -92,6 +94,7 @@ public partial class ChatBox
         }
         if (action == "focus")
         {
+            if (_composerPresentOnFocus && _composer != null) { _composerPresentOnFocus = false; _composer.Modulate = Color.White; }
             _composerComposing = false;
             _composer?.Panel.Web.FocusTextInput();
             return;
@@ -156,9 +159,30 @@ public partial class ChatBox
         _composerInput = null;
         _composerComposing = false;
         _controller.SelectableChannelsChanged -= OnComposerChannelsChanged;
+        // DeepLagoon: tgui fix (Н3). The window is reused; its handlers are added again on the next open.
+        window.Panel.OnAction -= HandleComposerAction;
+        window.Panel.OnClose -= CloseComposer;
+        window.OnClose -= CloseComposer;
+        window.Panel.Web.Ready -= window.Panel.Web.FocusTextInput;
+        window.Panel.Web.Failed -= OnComposerFailed;
         window.Panel.Web.ReleaseTextInput();
         window.Close();
-        window.Dispose();
         _controller.NotifyChatFocus(false);
+    }
+
+    private void OnComposerFailed()
+    {
+        // DeepLagoon: tgui fix (Н3). A failed page is not kept alive for the next T.
+        DisposeComposer();
+        ApplyChatMode(true);
+        ChatInput.Input.GrabKeyboardFocus();
+    }
+
+    // DeepLagoon: tgui fix (Н3). Closes the kept-alive composer browser for good.
+    private void DisposeComposer()
+    {
+        CloseComposer();
+        _composerWindow?.Dispose();
+        _composerWindow = null;
     }
 }

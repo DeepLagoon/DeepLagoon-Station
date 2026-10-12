@@ -31,7 +31,7 @@ const Panel = () => {
   return (
     <Pane theme={settings.theme === 'default' ? 'light' : settings.theme}>
       <Stack fill vertical>
-        {lobby.server && <Stack.Item><div className={'LobbyStatus Chat '+playerTheme(JSON.stringify({settings})).className} style={playerTheme(JSON.stringify({settings})).style}>
+        {lobby.server && <Stack.Item><div className={'LobbyStatus Chat '+playerTheme(settings).className} style={playerTheme(settings).style}>
           <strong>{lobby.server}</strong><span>{lobby.time}</span><span>{lobby.status}</span>
         </div></Stack.Item>}
         <Stack.Item><Section fitted><Stack align="center">

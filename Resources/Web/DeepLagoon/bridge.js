@@ -20,6 +20,7 @@
     const payload = JSON.stringify({ ...message.payload, _sequence: sequence++, _page: page });
     if (payload.length > (message.type === 'panel/state_set' ? 32768 : 8192)) {
       console.error('DeepLagoon bridge payload exceeds limit:', message.type);
+      if (message.type !== 'log') sendLog('warn', 'bridge', 'dropped ' + message.type + ': too long');
       return;
     }
     // Serialize requests so a ready or action cannot overtake earlier messages.
@@ -35,11 +36,39 @@
         await transmit('bridge/chunk', JSON.stringify({ messageType: message.type, index, count,
           text: payload.slice(index * 2000, (index + 1) * 2000) }));
       }
-    }).catch(error => console.error(error));
+    }).catch(error => {
+      console.error(error);
+      // Refused after the retries (the host's queue stayed full): leave a trace in the client log.
+      if (message.type !== 'log') sendLog('warn', 'bridge', 'dropped ' + message.type + ': refused');
+    });
   };
+  // Page warnings and errors for the client log (GameWebView, sawmill tgui.page): cut to 2 KiB and
+  // at most 5 a second, so a broken render loop cannot flood the bridge.
+  let logWindow = 0;
+  let logCount = 0;
+  const sendLog = (level, ns, message) => {
+    const now = Date.now();
+    if (now - logWindow >= 1000) {
+      logWindow = now;
+      logCount = 0;
+    }
+    if (++logCount > 5) return;
+    send({ type: 'log', payload: {
+      level, ns: String(ns || '').slice(0, 64), message: String(message || '').slice(0, 2048) } });
+  };
+  // Error text outside React (handlers, timers, promises); the bundle strips console output.
+  // Recovery itself is the health/error message below.
+  window.addEventListener('error', event =>
+    sendLog('error', 'window', event.error?.stack || event.message));
+  window.addEventListener('unhandledrejection', event =>
+    sendLog('error', 'window', 'unhandled rejection: ' + (event.reason?.stack || event.reason)));
   window.Byond = {
     parseJson: value => typeof value === 'string' ? JSON.parse(value) : value,
     topic: value => {
+      if (value.type === 'log') {
+        if (value.level === 'warn' || value.level === 'error') sendLog(value.level, value.ns, value.message);
+        return;
+      }
       if (value.type === 'panel/state_set' && typeof value.panel_state === 'string') {
         try { send({ type: value.type, payload: JSON.parse(value.panel_state) }); } catch {}
         return;

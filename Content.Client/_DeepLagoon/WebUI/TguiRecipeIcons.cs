@@ -10,10 +10,10 @@ namespace Content.Client._DeepLagoon.WebUI;
 /// </summary>
 public static class TguiRecipeIcons
 {
-    public static TguiSpriteImages Images { get; private set; } = new();
+    public static TguiSpriteImages Images => TguiSpriteImages.Shared;
 
     /// <summary>Drops every decoded frame, after the prototypes were reloaded.</summary>
-    public static void Reset() => Images = new TguiSpriteImages();
+    public static void Reset() => TguiSpriteImages.ResetShared();
 
     /// <summary>The layers of a recipe's icon: its own icon, otherwise its result entity.</summary>
     public static IEnumerable<TguiData> Layers(LatheRecipePrototype recipe)

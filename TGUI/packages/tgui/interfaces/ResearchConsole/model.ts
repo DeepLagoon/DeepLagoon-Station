@@ -34,7 +34,8 @@ export type WireData = {
   hasAccess?: boolean;
   states?: { id: string; state: TechState }[];
   iconBatch?: { icons: { id: string; layers: IconLayer[] }[] };
-  chatState?: string;
+  /** The chat panel appearance (TguiPanel), for playerTheme. */
+  chatAppearance?: { theme?: string; chatBgColor?: string; chatTextColor?: string };
 };
 
 export type Tech = Omit<WireTech, 'prerequisites'> & {

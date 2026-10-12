@@ -12,6 +12,8 @@ public sealed class TguiData
     public TguiData Bool(string key, bool value) => Raw(key, value ? "true" : "false");
     public TguiData Object(string key, TguiData value) => Raw(key, value.ToString());
     public TguiData Array(string key, IEnumerable<TguiData> values) => Raw(key, "[" + string.Join(',', values) + "]");
+    /// <summary>A value already serialized by TguiData (for example a cached array).</summary>
+    public TguiData Json(string key, string json) => Raw(key, json);
     private TguiData Raw(string key, string value)
     {
         _fields[key] = GameWebView.Quote(key) + ":" + value;

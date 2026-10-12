@@ -14,6 +14,7 @@ public sealed class TguiActionData
     private readonly MappingDataNode _root;
     private TguiActionData(MappingDataNode root) => _root = root;
     public string? String(string key) => _root.TryGet<ValueDataNode>(key, out var node) ? node.Value : null;
+    public TguiActionData? Object(string key) => _root.TryGet<MappingDataNode>(key, out var node) ? new TguiActionData(node) : null;
     public bool TryInt(string key, out int value) => int.TryParse(String(key), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     public bool TryFloat(string key, out float value) => float.TryParse(String(key), NumberStyles.Float, CultureInfo.InvariantCulture, out value)
         && float.IsFinite(value);

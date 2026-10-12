@@ -36,6 +36,8 @@ const log = (level, ns, ...args) => {
       tgui: 1,
       window_id: window.__windowId__,
       type: 'log',
+      // DeepLagoon: the bridge forwards only warnings and errors to the client log.
+      level: level >= LEVEL_ERROR ? 'error' : level >= LEVEL_WARN ? 'warn' : 'info',
       ns,
       message: logEntry,
     });

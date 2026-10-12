@@ -17,8 +17,7 @@
 @include meta.load-css('./atomic/links.scss');
 @include meta.load-css('./atomic/outline.scss');
 @include meta.load-css('./atomic/text.scss');
-@include meta.load-css('./atomic/TexMath.scss');
-@include meta.load-css('./atomic/KaTeX.scss');
+// DeepLagoon: TexMath/KaTeX styles are not loaded, the bundle has no KaTeX.
 
 // Components
 @include meta.load-css('./components/BlockQuote.scss');

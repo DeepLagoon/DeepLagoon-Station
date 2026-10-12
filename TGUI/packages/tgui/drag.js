@@ -388,6 +388,8 @@ export const recallWindowGeometry = async (options = {}) => {
   try {
     appScale = resolveAppScale(options.scale);
     zoomKey = options.zoom_key || options.key || windowKey;
+    // DeepLagoon: Ctrl+wheel page zoom only for interfaces on the Window layout, which restore it here.
+    installZoomControls();
     await loadUserZoom();
     // Use legacy zoom mode: scale content down to compensate for DPI.
     // This preserves physical window size at any DPI, matching browser.dm behavior.
@@ -461,7 +463,6 @@ export const recallWindowGeometry = async (options = {}) => {
 
 export const setupDrag = async (scale) => {
   appScale = resolveAppScale(scale);
-  installZoomControls();
   // Calculate screen offset caused by the windows taskbar.
   // Both Byond.winget and getWindowPosition return physical pixels.
   const windowPosition = getWindowPosition();

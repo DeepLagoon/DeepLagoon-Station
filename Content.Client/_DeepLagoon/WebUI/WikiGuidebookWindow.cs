@@ -17,6 +17,7 @@ public sealed class WikiGuidebookWindow : FancyWindow
     private readonly HashSet<string> _paths = new();
     private readonly List<WikiPagePrototype> _pages;
     private readonly Label _status = new() { Text = Loc.GetString("wiki-loading") };
+    private string _statusKey = "wiki-loading";
     private float _loadSeconds;
     private float _treeRefresh;
     private bool _ensureViewport;
@@ -60,14 +61,14 @@ public sealed class WikiGuidebookWindow : FancyWindow
         var page = _pages.FirstOrDefault(p => p.ID == id);
         if (page == null)
         {
-            _status.Text = Loc.GetString("wiki-page-unmapped");
+            SetStatus("wiki-page-unmapped");
             _web.Visible = false;
             return;
         }
         _web.Visible = true;
         _ensureViewport = true;
         _loadSeconds = 0;
-        _status.Text = Loc.GetString("wiki-loading");
+        SetStatus("wiki-loading");
         LastPage = page.ID;
         _web.Url = WikiNavigationPolicy.Origin + page.Path;
     }
@@ -110,10 +111,18 @@ public sealed class WikiGuidebookWindow : FancyWindow
             }
             _treeRefresh -= args.DeltaSeconds;
             if (!_web.IsLoading && _treeRefresh <= 0) { _treeRefresh = 1; _web.ExecuteJavaScript(_treeScript); }
-            _status.Text = Loc.GetString(_web.IsLoading
+            SetStatus(_web.IsLoading
                 ? (_loadSeconds >= 30 ? "wiki-load-timeout" : "wiki-loading")
                 : "wiki-load-hint");
         }
+    }
+
+    // Label.Text re-measures even for the same text, and this runs every frame.
+    private void SetStatus(string key)
+    {
+        if (_statusKey == key) return;
+        _statusKey = key;
+        _status.Text = Loc.GetString(key);
     }
 
     protected override void Dispose(bool disposing)

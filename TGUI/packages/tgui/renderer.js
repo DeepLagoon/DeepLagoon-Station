@@ -23,7 +23,11 @@ export const createRenderer = getVNode => () => {
   perf.mark('render/start');
   // Start rendering
   if (!reactRoot) {
-    reactRoot = createRoot(document.getElementById('react-root'));
+    reactRoot = createRoot(document.getElementById('react-root'), {
+      // DeepLagoon: React 19 unmounts the whole root on an uncaught render error. The interface
+      // itself is inside an ErrorBoundary (index.js); this reports what escapes it.
+      onUncaughtError: (error, info) => logger.error('uncaught render error', error, info?.componentStack),
+    });
   }
   reactRoot.render(getVNode());
   perf.mark('render/finish');

@@ -76,7 +76,8 @@ export type WireData = {
   /** How the print is shown; not sent by the host (the page picks `estimate`), the test stand sets it. */
   progressMode?: 'estimate' | 'indeterminate';
 
-  chatState?: string;
+  /** The chat panel appearance (TguiPanel), for playerTheme. */
+  chatAppearance?: { theme?: string; chatBgColor?: string; chatTextColor?: string };
 };
 
 export type Recipe = Omit<WireRecipe, 'cats' | 'ents' | 'reagents' | 'yields'> & {

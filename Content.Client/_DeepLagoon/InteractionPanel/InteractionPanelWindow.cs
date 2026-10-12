@@ -27,7 +27,7 @@ public sealed class InteractionPanelWindow : BaseWindow
     private readonly TguiData _labels;
     private readonly TguiData[] _sounds;
     private readonly HashSet<string> _soundIds;
-    private readonly TguiSpriteImages _images = new();
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared;
     private readonly TguiData _dollParts;
     private string _dollTexture = "";
     private bool _libraryLoaded;

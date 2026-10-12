@@ -213,7 +213,7 @@ export const ResearchConsole = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [select]);
 
-  const theme = playerTheme(data.chatState);
+  const theme = playerTheme(data.chatAppearance);
   const rootClass = `ResearchConsole ${theme.className}`;
 
   if (!labels || !wireTechs) {

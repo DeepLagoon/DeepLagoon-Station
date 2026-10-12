@@ -7,7 +7,6 @@ using Content.Shared.Materials;
 using Content.Shared.Research.Components;
 using Robust.Client.UserInterface;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Timing;
 
 namespace Content.Client.Lathe.UI;
 

@@ -12,8 +12,8 @@ import { loadSettings, updateSettings } from '../settings/actions';
 import { CHAT_ANIM_SPEEDS, MESSAGE_STYLES } from '../settings/constants';
 import { selectSettings } from '../settings/selectors';
 import { addChatPage, changeChatPage, changeScrollTracking, loadChat, rebuildChat, removeChatPage, saveChatToDisk, toggleAcceptedType, updateChatPage, updateMessageCount } from './actions';
-import { MAX_PERSISTED_MESSAGES, MESSAGE_SAVE_INTERVAL } from './constants';
-import { createMessage, serializeMessage } from './model';
+import { MAX_VISIBLE_MESSAGES, MESSAGE_SAVE_INTERVAL } from './constants';
+import { createMessage } from './model';
 import { chatRenderer } from './renderer';
 import { selectChat, selectCurrentChatPage } from './selectors';
 
@@ -24,16 +24,19 @@ const FORBID_TAGS = [
   'video',
 ];
 
+// DeepLagoon: message history belongs to the current SS14 connection and is never persisted (so it is
+// not serialized either), and the chat state is written only when it changed.
+let storedChatState;
+let storedSavedAt;
 const saveChatToStorage = async store => {
   const state = selectChat(store.getState());
   const savedAt = getLastSavedAt();
-  const fromIndex = Math.max(0,
-    chatRenderer.messages.length - MAX_PERSISTED_MESSAGES);
-  const messages = chatRenderer.messages
-    .slice(fromIndex)
-    .map(message => serializeMessage(message));
+  if (state === storedChatState && savedAt === storedSavedAt) {
+    return;
+  }
+  storedChatState = state;
+  storedSavedAt = savedAt;
   storage.set('chat-state', { ...state, savedAt });
-  // DeepLagoon: message history belongs to the current SS14 connection. Never persist it.
 };
 
 // Server state tracking for smart merge with browser storage
@@ -275,7 +278,8 @@ export const chatMiddleware = store => {
       return next(action);
     }
     if (type === 'chat/replace') {
-      chatRenderer.replaceHistory(Array.isArray(payload) ? payload : []);
+      // DeepLagoon: the history is built in one synchronous batch; never more than the page keeps.
+      chatRenderer.replaceHistory(Array.isArray(payload) ? payload.slice(-MAX_VISIBLE_MESSAGES) : []);
       return;
     }
     if (type === 'chat/message') {

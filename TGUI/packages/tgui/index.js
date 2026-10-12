@@ -4,10 +4,13 @@
  * @license MIT
  */
 
-// Themes
+// Styles. DeepLagoon: the SS13 themes (styles/themes/*) are not imported: no interface
+// selects one, the windows use theme-dark/theme-light from playerTheme. Every window parses
+// this CSS, and the themes were about 70% of it.
 import './styles/main.scss';
 
 import { perf } from 'common/perf';
+import { Component as ReactComponent } from 'react';
 import { setupHotReloading } from 'tgui-dev-server/link/client.cjs';
 
 import { FindBar } from './components/FindBar';
@@ -15,6 +18,7 @@ import { isDragOrResizeActive } from './drag';
 import { setupGlobalEvents } from './events';
 import { setupHotKeys } from './hotkeys';
 import { captureExternalLinks } from './links';
+import { createLogger } from './logging';
 import { createRenderer } from './renderer';
 import { getRoutedComponent } from './routes';
 import { configureStore } from './store';
@@ -29,6 +33,40 @@ window.__pushTguiDebugEvent__?.('bundleLoaded', {
 
 const store = configureStore();
 
+const logger = createLogger('render');
+
+/**
+ * DeepLagoon: an exception in an interface used to unmount the whole React root and leave an
+ * empty window. Show what broke and a way to reload the window; the error goes to the client log.
+ */
+class ErrorBoundary extends ReactComponent {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error, info) {
+    logger.error('interface render error', error, info?.componentStack);
+  }
+
+  render() {
+    const { error } = this.state;
+    if (!error) {
+      return this.props.children;
+    }
+    return (
+      <div style={{ padding: '16px', color: '#ddd', background: '#171c24', height: '100%' }}>
+        <p>Интерфейс окна сломался. / The window interface failed.</p>
+        <pre style={{ whiteSpace: 'pre-wrap', opacity: 0.7 }}>{String(error?.message ?? error).slice(0, 300)}</pre>
+        <button type="button" onClick={() => location.reload()}>
+          Перезагрузить окно / Reload window
+        </button>
+      </div>
+    );
+  }
+}
+
 const getFindBarInstanceKey = () => {
   const backend = store.getState()?.backend;
   const windowKey = backend?.config?.window?.key || window.__windowId__ || 'tgui';
@@ -40,7 +78,9 @@ const renderApp = createRenderer(() => {
   const Component = getRoutedComponent(store);
   return (
     <>
-      <Component />
+      <ErrorBoundary key={store.getState()?.backend?.config?.interface}>
+        <Component />
+      </ErrorBoundary>
       <FindBar key={getFindBarInstanceKey()} />
     </>
   );

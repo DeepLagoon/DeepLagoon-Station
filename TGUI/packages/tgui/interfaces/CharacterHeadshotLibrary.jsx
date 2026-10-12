@@ -10,7 +10,7 @@ export const CharacterHeadshotLibrary = () => {
   const gallery = data.gallery || {}, images = gallery.images || [];
   const count = images.filter(image => image.active).length;
   const appearance = data.appearance || {};
-  const theme = playerTheme(JSON.stringify({ settings: appearance }));
+  const theme = playerTheme(appearance);
   return <div className={'CharacterEditor CharacterEditor--library Chat ' + theme.className} style={{ ...theme.style, ...editorAppearance(appearance) }}>
     <header className="CharacterEditor__windowTitle">{gallery.library ? 'Моя библиотека' : 'Изображения профиля'}</header>
     <Button className="CharacterEditor__close" color="bad" onClick={() => act('headshot-library-close')}><span aria-hidden="true">×</span>Закрыть</Button>

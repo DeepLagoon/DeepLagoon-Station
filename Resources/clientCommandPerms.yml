@@ -73,6 +73,7 @@
     - fullstatereset
     - dumpentities
     - fuckrules # Frontier
+    - tgui_preview # DeepLagoon: TGUI developer preview, was available to everyone
 
 - Flags: MAPPING
   Commands:

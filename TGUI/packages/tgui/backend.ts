@@ -415,13 +415,6 @@ const splitIntoChunks = (str: string): string[] => {
 };
 
 /**
- * Debounce state for sendAct — guards against WebView2 duplicate delivery.
- */
-let lastActTime = 0;
-let lastActKey = '';
-let actSequence = 0;
-
-/**
  * Sends an action to `ui_act` on `src_object` that this tgui window
  * is associated with.
  */
@@ -434,41 +427,12 @@ export const sendAct = (action: string, payload: object = {}) => {
     logger.error(`Payload for act() must be an object, got this:`, payload);
     return;
   }
-  const stringifiedPayload = JSON.stringify(payload);
-  // Debounce identical act calls within 50ms (WebView2 double-delivery guard)
-  const now = Date.now();
-  const actKey = action + stringifiedPayload;
-  if (now - lastActTime < 50 && actKey === lastActKey) {
-    return;
-  }
-  lastActTime = now;
-  lastActKey = actKey;
-  const seq = ++actSequence;
-  // seq обязателен в расчёте: sendMessage добавляет его к тому же URL, и без него в окне
-  // шириной в восемь байт чанкование не включалось, хотя фактический URL уже переполнял
-  // лимит 2048 - сообщение молча уходило в XHR-фолбэк.
-  const urlSize = Object.entries({
-    type: 'act/' + action,
-    payload: stringifiedPayload,
-    seq,
-    tgui: 1,
-    window_id: window.__windowId__,
-  }).reduce(
-    (url, [key, value], i) =>
-      url +
-      `${i > 0 ? '&' : '?'}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
-    '',
-  ).length;
-  // DeepLagoon's native bridge supports up to 8 KiB; BYOND's 2 KiB URL
-  // chunk protocol is not used by the SS14 bound UI transport.
-  if (stringifiedPayload.length > 7900) {
-    logger.error('Action payload exceeds the DeepLagoon bridge limit');
-    return;
-  }
+  // DeepLagoon: CEF delivers each message once, so there is no 50 ms duplicate filter (it ate real
+  // repeated clicks), and no size check here: bridge.js measures the final message once, in the
+  // host's units, and reports what it drops. BYOND's 2 KiB chunk protocol is not used.
   sendMessage({
     type: 'act/' + action,
     payload,
-    seq,
   });
 };
 

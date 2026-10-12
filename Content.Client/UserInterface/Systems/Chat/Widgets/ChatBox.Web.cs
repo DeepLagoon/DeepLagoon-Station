@@ -16,6 +16,8 @@ public partial class ChatBox
     private float _emoteRefresh;
     private string _lastEmoteState = "";
     private string? _lastWebHistoryPayload;
+    // DeepLagoon: tgui fix (Н8). Each message is formatted once; its payload is reused by later history publishes.
+    private Dictionary<ChatMessage, string> _webPayloads = new(ReferenceEqualityComparer.Instance);
     private string? _cachedWebSettingsSource;
     private ChatTabsSettings? _cachedWebSettings;
     public GameWebView? WebChat => _webChat;
@@ -140,7 +142,8 @@ public partial class ChatBox
     {
         if (_useVanillaChat || _webChat?.IsReady != true || _repopulatingWeb || message.HideChat)
             return;
-        _webChat.Send("chat/message", WebChatMessageFormatter.BuildPayload(message));
+        if (_webPayloads.Count >= 5000) _webPayloads.Clear(); // DeepLagoon: tgui fix (Н8)
+        _webChat.Send("chat/message", _webPayloads[message] = WebChatMessageFormatter.BuildPayload(message));
         _lastWebHistoryPayload = null;
     }
 
@@ -151,7 +154,10 @@ public partial class ChatBox
         for (var i = _controller.History.Count - 1; i >= 0 && messages.Count < 2500; i--)
             if (!_controller.History[i].Msg.HideChat) messages.Add(_controller.History[i].Msg);
         messages.Reverse();
-        var payload = "[" + string.Join(',', messages.Select(WebChatMessageFormatter.BuildPayload)) + "]";
+        var payloads = new Dictionary<ChatMessage, string>(ReferenceEqualityComparer.Instance); // DeepLagoon: tgui fix (Н8)
+        var payload = "[" + string.Join(',', messages.Select(message =>
+            payloads[message] = _webPayloads.GetValueOrDefault(message) ?? WebChatMessageFormatter.BuildPayload(message))) + "]";
+        _webPayloads = payloads;
         if (!force && payload == _lastWebHistoryPayload) return;
         _lastWebHistoryPayload = payload;
         // Replace messages in the existing document. Reloading it flashes the

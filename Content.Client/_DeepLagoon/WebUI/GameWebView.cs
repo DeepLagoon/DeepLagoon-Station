@@ -16,6 +16,8 @@ namespace Content.Client._DeepLagoon.WebUI;
 public sealed class GameWebView : Control
 {
     private const string Root = "/Web/DeepLagoon/";
+    private const int MaxLogLength = 2048;
+    private const int MaxLogPerSecond = 5;
     private WebViewControl _view;
     private readonly string _documentUrl;
     private readonly string? _devOrigin;
@@ -35,6 +37,12 @@ public sealed class GameWebView : Control
     private bool _recovering;
     private readonly bool _suspendWhenHidden;
     private readonly bool _captureKeyboard;
+    // The browser outlives leaving the UI tree (WebViewControl.AlwaysActive): a window that is closed and
+    // opened again (the chat composer) keeps its loaded page instead of starting a new browser each time.
+    private readonly bool _keepAlive;
+    private ISawmill? _pageLog;
+    private TimeSpan _logWindow;
+    private int _logCount;
     private readonly NativeChatBackground _background;
     public bool BrowserActive => _view.IsInsideTree;
     public bool IsReady => _ready;
@@ -101,9 +109,10 @@ public sealed class GameWebView : Control
         while (_incoming.TryDequeue(out _)) { }
     }
 
-    public GameWebView(bool chat = false, bool suspendWhenHidden = false, bool captureKeyboard = false)
+    public GameWebView(bool chat = false, bool suspendWhenHidden = false, bool captureKeyboard = false, bool keepAlive = false)
     {
         _captureKeyboard = captureKeyboard;
+        _keepAlive = keepAlive && !suspendWhenHidden;
         _suspendWhenHidden = suspendWhenHidden;
         HorizontalExpand = VerticalExpand = true;
         // Interfaces such as the character editor use the same native layer.
@@ -132,6 +141,8 @@ public sealed class GameWebView : Control
         };
         view.AddBeforeBrowseHandler(BeforeBrowse);
         view.AddResourceRequestHandler(ResourceRequest);
+        // Starts the browser now, with the handlers already installed.
+        if (_keepAlive) view.AlwaysActive = true;
         return view;
     }
 
@@ -331,6 +342,9 @@ public sealed class GameWebView : Control
                     Robust.Shared.Log.Logger.GetSawmill("tgui").Error("Unhandled script error in packaged TGUI; scheduling recovery.");
                     _healthWait = 15;
                     break;
+                case "log":
+                    LogPage(payload);
+                    break;
                 case "native-background":
                     _background?.Configure(payload);
                     break;
@@ -361,9 +375,46 @@ public sealed class GameWebView : Control
         }
     }
 
+    protected override void EnteredTree()
+    {
+        base.EnteredTree();
+        // A kept-alive page may have posted messages while its window was closed; they are stale now.
+        if (_keepAlive) while (_incoming.TryDequeue(out _)) { }
+    }
+
+    // Page warnings and errors (bridge.js forwards TGUI's logger.warn/error and uncaught errors).
+    // The page is untrusted: the text is cut, rate limited and logged as a value, not as a template.
+    private void LogPage(string payload)
+    {
+        var now = IoCManager.Resolve<IGameTiming>().RealTime;
+        if (now - _logWindow >= TimeSpan.FromSeconds(1))
+        {
+            _logWindow = now;
+            _logCount = 0;
+        }
+        if (++_logCount > MaxLogPerSecond || !TguiActionData.TryParse(payload, out var entry)) return;
+        var ns = entry!.String("ns") ?? "";
+        var message = entry.String("message") ?? "";
+        if (ns.Length > 64) ns = ns[..64];
+        if (message.Length > MaxLogLength) message = message[..MaxLogLength];
+        _pageLog ??= IoCManager.Resolve<ILogManager>().GetSawmill("tgui.page");
+        if (entry.String("level") == "error")
+            _pageLog.Error("{Document} [{Namespace}] {Message}", _documentUrl, ns, message);
+        else
+            _pageLog.Warning("{Document} [{Namespace}] {Message}", _documentUrl, ns, message);
+    }
+
     protected override void ExitedTree()
     {
         base.ExitedTree();
+        if (_keepAlive && !_disposed)
+        {
+            // The page stays loaded and ready. Drop its field focus so a caret does not repaint it while hidden.
+            if (_ready) _view.ExecuteJavaScript("document.activeElement?.blur();");
+            _healthWait = _pingWait = 0;
+            while (_incoming.TryDequeue(out _)) { }
+            return;
+        }
         if (_suspendWhenHidden && !_disposed) SuspendBrowser();
         _ready = false;
         _background?.Reset();
@@ -401,6 +452,8 @@ public sealed class GameWebView : Control
         _disposed = true;
         _view.RemoveBeforeBrowseHandler(BeforeBrowse);
         _view.RemoveResourceRequestHandler(ResourceRequest);
+        // A kept-alive browser outside the tree is only closed by turning AlwaysActive off.
+        if (_keepAlive) _view.AlwaysActive = false;
         WebViewLifetime.Close(_view);
         base.Dispose(disposing);
     }
