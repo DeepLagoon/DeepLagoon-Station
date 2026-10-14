@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "official_engine_version": "277.0.0",
-  "official_engine_commit": "08a3d120b7029d03e60b44b23fed2b2659ed3224",
-  "engine_commit": "c67977d80c919c1e16b9c7686b1b995142b4443d",
+  "official_engine_version": "277.2.3",
+  "official_engine_commit": "b07a3d4da9f30398e3d4c47c1d3595554d754733",
+  "engine_commit": "e2ab3682b0068b24b21c16623328b799da4491cd",
   "allowed_engine_changes": {
     "Robust.Shared/Prototypes/PrototypeManager.cs": "f3afc8ab480232365e809edfa317e50ceb40eb5c",
     "Robust.Shared.IntegrationTests/Prototypes/PrototypeReloadTests.cs": "1f8d30e48f15f7891629f086401f4280f49f11b5"
