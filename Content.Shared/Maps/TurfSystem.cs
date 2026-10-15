@@ -14,10 +14,10 @@ namespace Content.Shared.Maps;
 /// </summary>
 public sealed partial class TurfSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private EntityLookupSystem _entityLookup = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDefinitions = default!;
 
 

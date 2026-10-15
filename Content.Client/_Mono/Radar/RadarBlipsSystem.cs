@@ -9,7 +9,7 @@ namespace Content.Client._Mono.Radar;
 public sealed partial class RadarBlipsSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _xform = default!;
 
     private const double BlipStaleSeconds = 3.0;

@@ -21,7 +21,7 @@ namespace Content.Server.Power.EntitySystems;
 internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitoringConsoleSystem
 {
     [Dependency] private UserInterfaceSystem _userInterfaceSystem = default!;
-    [Dependency] private SharedMapSystem _sharedMapSystem = default!;
+    private SharedMapSystem _sharedMapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     // Note: this data does not need to be saved
     private Dictionary<EntityUid, Dictionary<Vector2i, PowerCableChunk>> _gridPowerCableChunks = new();

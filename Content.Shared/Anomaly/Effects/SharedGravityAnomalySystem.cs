@@ -15,7 +15,7 @@ public abstract partial class SharedGravityAnomalySystem : EntitySystem
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private ThrowingSystem _throwing = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     /// <inheritdoc/>
     public override void Initialize()

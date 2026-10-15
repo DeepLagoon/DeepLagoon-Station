@@ -50,7 +50,7 @@ public sealed partial class EmergencyShuttleSystem : EntitySystem
     [Dependency] private IConfigurationManager _configManager = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IRobustRandom _random = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private AccessReaderSystem _reader = default!;
     [Dependency] private ChatSystem _chatSystem = default!;
     [Dependency] private CommunicationsConsoleSystem _commsConsole = default!;

@@ -25,7 +25,7 @@ namespace Content.Server.Atmos.Consoles;
 public sealed partial class AtmosMonitoringConsoleSystem : SharedAtmosMonitoringConsoleSystem
 {
     [Dependency] private UserInterfaceSystem _userInterfaceSystem = default!;
-    [Dependency] private SharedMapSystem _sharedMapSystem = default!;
+    private SharedMapSystem _sharedMapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IGameTiming _gameTiming = default!;
 
     // Private variables

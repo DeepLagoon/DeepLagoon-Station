@@ -25,7 +25,7 @@ public sealed partial class SpreaderSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private IRobustRandom _random = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TagSystem _tag = default!;
     [Dependency] private TurfSystem _turf = default!;
 

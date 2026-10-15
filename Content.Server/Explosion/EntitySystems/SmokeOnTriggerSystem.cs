@@ -15,9 +15,9 @@ namespace Content.Server.Explosion.EntitySystems;
 /// </summary>
 public sealed partial class SmokeOnTriggerSystem : SharedSmokeOnTriggerSystem
 {
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SmokeSystem _smoke = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TransformSystem _transform = default!;
     [Dependency] private SpreaderSystem _spreader = default!;
     [Dependency] private TurfSystem _turf = default!;

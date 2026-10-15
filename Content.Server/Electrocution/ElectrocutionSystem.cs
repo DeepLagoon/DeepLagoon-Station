@@ -43,7 +43,7 @@ namespace Content.Server.Electrocution;
 public sealed partial class ElectrocutionSystem : SharedElectrocutionSystem
 {
     [Dependency] private IAdminLogManager _adminLogger = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private DamageableSystem _damageable = default!;

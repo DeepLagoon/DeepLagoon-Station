@@ -8,7 +8,7 @@ namespace Content.Shared.Station;
 
 public abstract partial class SharedStationSystem : EntitySystem
 {
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MetaDataSystem _meta = default!;
 
     private EntityQuery<TransformComponent> _xformQuery;

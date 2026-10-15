@@ -39,7 +39,7 @@ public abstract partial class SharedMeleeWeaponSystem : EntitySystem
     [Dependency] protected SharedCombatModeSystem   CombatMode      = default!;
     [Dependency] protected DamageableSystem         Damageable      = default!;
     [Dependency] protected SharedInteractionSystem  Interaction     = default!;
-    [Dependency] protected IMapManager              MapManager      = default!;
+    protected SharedMapSystem MapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected SharedPopupSystem        PopupSystem     = default!;
     [Dependency] protected IGameTiming              Timing          = default!;
     [Dependency] protected SharedTransformSystem    TransformSystem = default!;

@@ -13,7 +13,7 @@ namespace Content.Server._Mono.Cleanup;
 public sealed partial class CleanupHelperSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _lookup = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedMindSystem _mind = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

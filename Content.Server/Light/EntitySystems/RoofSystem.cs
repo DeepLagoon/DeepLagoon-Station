@@ -7,7 +7,7 @@ namespace Content.Server.Light.EntitySystems;
 /// <inheritdoc/>
 public sealed partial class RoofSystem : SharedRoofSystem
 {
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private EntityQuery<MapGridComponent> _gridQuery;
 

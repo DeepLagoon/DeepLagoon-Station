@@ -36,8 +36,8 @@ public sealed class NativeChatBackground : Control
             !data.TryInt("reduced", out var reduced) ||
             !data.TryFloat("left", out var left) || !data.TryFloat("top", out var top) ||
             !data.TryFloat("width", out var width) || !data.TryFloat("height", out var height) ||
-            data.String("base") is not { } baseHex || Color.TryFromHex(baseHex) is not { } baseColor ||
-            data.String("background") is not { } backgroundHex || Color.TryFromHex(backgroundHex) is not { } background) return;
+            data.String("base") is not { } baseHex || !Color.TryFromHex(baseHex, out var baseColor) ||
+            data.String("background") is not { } backgroundHex || !Color.TryFromHex(backgroundHex, out var background)) return;
         _mode = mode;
         _opacity = Math.Clamp(opacity, 0, 1);
         _reduced = reduced != 0;

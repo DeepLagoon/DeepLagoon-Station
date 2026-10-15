@@ -19,7 +19,7 @@ public sealed partial class GridCleanupSystem : BaseCleanupSystem<MapGridCompone
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private PricingSystem _pricing = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private float _maxDistance;
     private float _maxValue;

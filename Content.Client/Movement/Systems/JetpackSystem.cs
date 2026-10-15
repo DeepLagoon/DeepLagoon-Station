@@ -15,7 +15,7 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private ClothingSystem _clothing = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

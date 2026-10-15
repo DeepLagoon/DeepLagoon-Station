@@ -15,11 +15,11 @@ namespace Content.Shared.Maps;
 /// </summary>
 public sealed partial class TileSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _robustRandom = default!;
     [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private SharedDecalSystem _decal = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TurfSystem _turf = default!;
 
     /// <summary>

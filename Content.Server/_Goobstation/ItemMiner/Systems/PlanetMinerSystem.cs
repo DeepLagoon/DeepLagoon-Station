@@ -8,7 +8,7 @@ namespace Content.Server._Goobstation.ItemMiner;
 
 public sealed partial class PlanetMinerSystem : EntitySystem
 {
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDef = default!;
     [Dependency] private TurfSystem _turf = default!;
 

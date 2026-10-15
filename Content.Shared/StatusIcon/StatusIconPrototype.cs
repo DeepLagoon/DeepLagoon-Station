@@ -82,6 +82,7 @@ public partial class StatusIconData : IComparable<StatusIconData>
 /// <summary>
 /// <see cref="StatusIconData"/> but in new convenient prototype form!
 /// </summary>
+[DataDefinition]
 public abstract partial class StatusIconPrototype : StatusIconData, IPrototype
 {
     /// <inheritdoc/>
@@ -93,6 +94,7 @@ public abstract partial class StatusIconPrototype : StatusIconData, IPrototype
 /// StatusIcons for showing jobs on the sec HUD
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class JobIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -124,6 +126,7 @@ public sealed partial class JobIconPrototype : StatusIconPrototype, IInheritingP
 /// StatusIcons for the med HUD
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class HealthIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -140,6 +143,7 @@ public sealed partial class HealthIconPrototype : StatusIconPrototype, IInheriti
 /// StatusIcons for the beer goggles and fried onion goggles
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class SatiationIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -156,6 +160,7 @@ public sealed partial class SatiationIconPrototype : StatusIconPrototype, IInher
 /// StatusIcons for showing the wanted status on the sec HUD
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class SecurityIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -172,6 +177,7 @@ public sealed partial class SecurityIconPrototype : StatusIconPrototype, IInheri
 /// StatusIcons for faction membership
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class FactionIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -188,6 +194,7 @@ public sealed partial class FactionIconPrototype : StatusIconPrototype, IInherit
 /// StatusIcons for debugging purposes
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class DebugIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />
@@ -204,6 +211,7 @@ public sealed partial class DebugIconPrototype : StatusIconPrototype, IInheritin
 /// StatusIcons for the SSD indicator
 /// </summary>
 [Prototype]
+[DataDefinition]
 public sealed partial class SsdIconPrototype : StatusIconPrototype, IInheritingPrototype
 {
     /// <inheritdoc />

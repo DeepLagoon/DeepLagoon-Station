@@ -28,7 +28,7 @@ public abstract partial class SharedFlatpackSystem : EntitySystem
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private EntityLookupSystem _entityLookup = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected MachinePartSystem MachinePart = default!;
     [Dependency] protected SharedMaterialStorageSystem MaterialStorage = default!;
     [Dependency] private MetaDataSystem _metaData = default!;

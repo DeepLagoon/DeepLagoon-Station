@@ -38,7 +38,7 @@ public sealed partial class SiliconLawSystem : SharedSiliconLawSystem
     [Dependency] private UserInterfaceSystem _userInterface = default!;
     [Dependency] private EmagSystem _emag = default!;
     [Dependency] private TagSystem _tagSystem = default!; // Corvax-Next-AiRemoteControl
-    [Dependency] private IMapManager _map = default!; // Mono - Law update is grid-only now.
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>(); // Mono - Law update is grid-only now.
 
     /// <inheritdoc/>
     public override void Initialize()

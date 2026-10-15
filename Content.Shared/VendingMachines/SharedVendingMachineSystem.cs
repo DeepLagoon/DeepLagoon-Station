@@ -1,5 +1,5 @@
 using System.Linq;
-using Content.Shared._Mono.Economy.Component; // Mono
+using Content.Shared._Mono.Economy.Components; // Mono
 using Content.Shared.DoAfter;
 using Content.Shared.Emag.Components;
 using Content.Shared.Emag.Systems;

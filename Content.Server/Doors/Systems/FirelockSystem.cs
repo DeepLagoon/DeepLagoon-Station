@@ -19,7 +19,7 @@ namespace Content.Server.Doors.Systems
         [Dependency] private SharedDoorSystem _doorSystem = default!;
         [Dependency] private AtmosphereSystem _atmosSystem = default!;
         [Dependency] private SharedAppearanceSystem _appearance = default!;
-        [Dependency] private SharedMapSystem _mapping = default!;
+        private SharedMapSystem _mapping => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private PointLightSystem _pointLight = default!;
 
         private const int UpdateInterval = 30;

@@ -71,9 +71,9 @@ public static partial class BodyCustomizationCatalog
             }
             copy.Scale = 1;
             copy.Visibility = Math.Clamp(copy.Visibility, 0, 2);
-            copy.Color = Robust.Shared.Maths.Color.TryFromHex(copy.Color ?? "") is { } color ? color.ToHexNoAlpha() : "#FFFFFF";
+            copy.Color = Robust.Shared.Maths.Color.TryFromHex(copy.Color ?? "", out var color) ? color.ToHexNoAlpha() : "#FFFFFF";
             copy.SecondaryEnabled &= copy.Part == "breasts";
-            copy.SecondaryColor = Robust.Shared.Maths.Color.TryFromHex(copy.SecondaryColor ?? "") is { } secondary ? secondary.ToHexNoAlpha() : "#FFFFFF";
+            copy.SecondaryColor = Robust.Shared.Maths.Color.TryFromHex(copy.SecondaryColor ?? "", out var secondary) ? secondary.ToHexNoAlpha() : "#FFFFFF";
             result.Add(copy);
         }
         return result.OrderBy(f => Array.IndexOf(Order, f.Part)).ToList();

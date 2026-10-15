@@ -17,7 +17,7 @@ namespace Content.Server.Atmos.EntitySystems;
 public sealed class DeltaPressureSystem : EntitySystem
 {
     [Dependency] private AtmosphereSystem _atmosphereSystem = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

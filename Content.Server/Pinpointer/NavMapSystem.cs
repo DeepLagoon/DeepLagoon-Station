@@ -23,9 +23,9 @@ public sealed partial class NavMapSystem : SharedNavMapSystem
 {
     [Dependency] private IAdminLogManager _adminLog = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transformSystem = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private TurfSystem _turfSystem = default!;
 

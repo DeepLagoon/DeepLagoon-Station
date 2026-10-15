@@ -43,7 +43,7 @@ public sealed partial class DeadDropSystem : EntitySystem
     [Dependency] private ShipyardSystem _shipyard = default!;
     [Dependency] private ShuttleSystem _shuttle = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private SharedMapSystem _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private StationSystem _station = default!;
     [Dependency] private SectorServiceSystem _sectorService = default!;
     [Dependency] private IConfigurationManager _cfg = default!;

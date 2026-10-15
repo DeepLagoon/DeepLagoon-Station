@@ -53,7 +53,7 @@ public partial class RCDSystem : EntitySystem
     [Dependency] private TurfSystem _turf = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IPrototypeManager _protoManager = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private TagSystem _tags = default!;
 // ES START

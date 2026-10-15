@@ -20,7 +20,7 @@ namespace Content.Server.Anomaly;
 /// </summary>
 public sealed partial class AnomalySystem
 {
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
 
     private void InitializeGenerator()

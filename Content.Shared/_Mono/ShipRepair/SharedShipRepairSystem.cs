@@ -20,13 +20,13 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
     [Dependency] private EntityWhitelistSystem _whitelist = default!;
     [Dependency] private ForceParentSystem _parent = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private INetManager _net = default!; // .IsServer is kind of a crime but needed to not dupe code
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedChargesSystem _charges = default!;
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

@@ -30,7 +30,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     [Dependency] private IAdminManager _admins = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private ITileDefinitionManager _tiles = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private DecalSystem _decals = default!;
     [Dependency] private ISharedAdminLogManager _logs = default!;
@@ -220,7 +220,7 @@ public sealed partial class GridEditorSystem : EntitySystem
                 "entity" => _prototypes.TryIndex<EntityPrototype>(item.Prototype, out var entity) && !entity.Abstract &&
                     (!item.Anchored || item.X == MathF.Floor(item.X) + .5f && item.Y == MathF.Floor(item.Y) + .5f),
                 "decal" => _prototypes.HasIndex<DecalPrototype>(item.Prototype) && item.Z is >= -100 and <= 100 &&
-                    item.Color.Length <= 9 && Color.TryFromHex(item.Color) != null,
+                    item.Color.Length <= 9 && Color.TryFromHex(item.Color, out _),
                 _ => false
             };
             if (!valid) { Result("Неизвестный прототип или недопустимые параметры."); return; }

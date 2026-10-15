@@ -57,7 +57,7 @@ public sealed partial class MapperRcdBrushSystem : EntitySystem
     [Dependency] private InputSystem _inputSystem = default!;
     [Dependency] private MapperRcdSystem _catalog = default!;
     [Dependency] private RCDSystem _rcd = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

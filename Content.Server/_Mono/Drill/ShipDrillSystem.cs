@@ -14,8 +14,8 @@ public partial class ShipDrillSystem : EntitySystem
 
     [Dependency] private EntityLookupSystem _look = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
-    [Dependency] private SharedMapSystem _map = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDef = default!;
     [Dependency] private TileSystem _tile = default!;
     [Dependency] private SharedDecalSystem _decal = default!;

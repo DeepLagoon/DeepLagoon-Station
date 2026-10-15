@@ -5,7 +5,7 @@ namespace Content.Server.Procedural;
 public sealed partial class RoomFillSystem : EntitySystem
 {
     [Dependency] private DungeonSystem _dungeon = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

@@ -23,7 +23,7 @@ namespace Content.Server.Chemistry.EntitySystems
     internal sealed partial class VaporSystem : EntitySystem
     {
         [Dependency] private IPrototypeManager _protoManager = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private SharedPhysicsSystem _physics = default!;
         [Dependency] private SharedSolutionContainerSystem _solutionContainerSystem = default!;
         [Dependency] private ThrowingSystem _throwing = default!;

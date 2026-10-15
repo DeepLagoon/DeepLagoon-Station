@@ -12,7 +12,7 @@ namespace Content.Shared.Decals
     public abstract partial class SharedDecalSystem : EntitySystem
     {
         [Dependency] protected IPrototypeManager PrototypeManager = default!;
-        [Dependency] protected IMapManager MapManager = default!;
+        protected SharedMapSystem MapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         protected bool PvsEnabled;
 

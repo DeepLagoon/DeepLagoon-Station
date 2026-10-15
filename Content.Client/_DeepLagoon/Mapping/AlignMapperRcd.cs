@@ -15,7 +15,7 @@ namespace Content.Client._DeepLagoon.Mapping;
 public sealed partial class AlignMapperRcd : PlacementMode
 {
     [Dependency] private IEntityManager _entityManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPlayerManager _playerManager = default!;
     private readonly SharedMapSystem _mapSystem;
     private readonly SharedTransformSystem _transformSystem;
@@ -34,7 +34,7 @@ public sealed partial class AlignMapperRcd : PlacementMode
 
     public override void AlignPlacementMode(ScreenCoordinates mouseScreen)
     {
-        MouseCoords = ScreenToCursorGrid(mouseScreen).AlignWithClosestGridTile(SearchBoxSize, _entityManager, _mapManager);
+        MouseCoords = ScreenToCursorGrid(mouseScreen).AlignWithClosestGridTile(SearchBoxSize, _entityManager);
 
         var gridId = _transformSystem.GetGrid(MouseCoords);
 

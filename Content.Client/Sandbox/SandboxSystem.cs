@@ -13,11 +13,11 @@ namespace Content.Client.Sandbox
     {
         [Dependency] private IClientAdminManager _adminManager = default!;
         [Dependency] private IClientConsoleHost _consoleHost = default!;
-        [Dependency] private IMapManager _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IPlacementManager _placement = default!;
         [Dependency] private ContentEyeSystem _contentEye = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         private bool _sandboxEnabled;
         public bool SandboxAllowed { get; private set; }

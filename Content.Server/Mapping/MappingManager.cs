@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Content.Server.Administration.Managers;
 using Content.Shared.Administration;
 using Content.Shared.Mapping;
@@ -19,7 +19,7 @@ public sealed partial class MappingManager : IPostInjectInit
 {
     [Dependency] private IAdminManager _admin = default!;
     [Dependency] private ILogManager _log = default!;
-    [Dependency] private IMapManager _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IServerNetManager _net = default!;
     [Dependency] private IPlayerManager _players = default!;
     [Dependency] private IEntitySystemManager _systems = default!;

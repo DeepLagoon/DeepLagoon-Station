@@ -29,7 +29,7 @@ namespace Content.Server._NF.Shipyard.Systems;
 public sealed partial class ShipyardSystem : SharedShipyardSystem
 {
     [Dependency] private IConfigurationManager _configManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private DockingSystem _docking = default!;
     [Dependency] private PricingSystem _pricing = default!;
     [Dependency] private ShuttleSystem _shuttle = default!;

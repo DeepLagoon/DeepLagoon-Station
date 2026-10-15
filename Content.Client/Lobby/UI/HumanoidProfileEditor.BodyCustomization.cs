@@ -68,13 +68,13 @@ public sealed partial class HumanoidProfileEditor
                 if (!bool.TryParse(value, out var matchSkin)) return false;
                 feature.MatchSkin = matchSkin; break;
             case "color":
-                if (Color.TryFromHex(value) is not { } color) return false;
+                if (!Color.TryFromHex(value, out var color)) return false;
                 feature.Color = color.ToHexNoAlpha(); break;
             case "secondaryEnabled":
                 if (part != "breasts" || !bool.TryParse(value, out var secondaryEnabled)) return false;
                 feature.SecondaryEnabled = secondaryEnabled; break;
             case "secondaryColor":
-                if (part != "breasts" || Color.TryFromHex(value) is not { } secondaryColor) return false;
+                if (part != "breasts" || !Color.TryFromHex(value, out var secondaryColor)) return false;
                 feature.SecondaryColor = secondaryColor.ToHexNoAlpha(); break;
             case "visibility":
                 if (!args.TryInt("value", out var visibility) || visibility is < 0 or > 2) return false;

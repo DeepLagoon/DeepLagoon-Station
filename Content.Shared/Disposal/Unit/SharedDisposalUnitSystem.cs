@@ -61,7 +61,7 @@ public abstract partial class SharedDisposalUnitSystem : EntitySystem
     [Dependency] private   SharedHandsSystem _handsSystem = default!;
     [Dependency] protected SharedTransformSystem TransformSystem = default!;
     [Dependency] private   SharedUserInterfaceSystem _ui = default!;
-    [Dependency] private   SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedDeviceLinkSystem _device = default!; // Goobstation
     public static readonly ProtoId<SourcePortPrototype> ReadyPort = "DisposalReady"; // Goobstation
 

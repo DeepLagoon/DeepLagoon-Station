@@ -16,7 +16,7 @@ public sealed partial class StationAiVisionSystem : EntitySystem
 
     [Dependency] private IParallelManager _parallel = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _xforms = default!;
 
     private SeedJob _seedJob;

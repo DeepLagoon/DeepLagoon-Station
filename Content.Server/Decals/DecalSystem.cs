@@ -34,7 +34,7 @@ namespace Content.Server.Decals
         [Dependency] private IConfigurationManager _conf = default!;
         [Dependency] private IGameTiming _timing = default!;
         [Dependency] private IAdminLogManager _adminLogger = default!;
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private SharedTransformSystem _transform = default!;
         [Dependency] private TurfSystem _turf = default!;
 

@@ -21,7 +21,7 @@ public sealed partial class MobCallerSystem : EntitySystem
     [Dependency] private PowerReceiverSystem _power = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
 
     public override void Initialize()

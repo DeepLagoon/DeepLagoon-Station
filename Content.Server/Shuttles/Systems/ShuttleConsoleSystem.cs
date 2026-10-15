@@ -36,7 +36,7 @@ namespace Content.Server.Shuttles.Systems;
 
 public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 {
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ActionBlockerSystem _blocker = default!;
     [Dependency] private AlertsSystem _alertsSystem = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;

@@ -14,7 +14,7 @@ namespace Content.Shared._ES.TileFires;
 public abstract class ESSharedTileFireSystem : EntitySystem
 {
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
-    [Dependency] protected readonly SharedMapSystem MapSys = default!;
+    protected SharedMapSystem MapSys => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected readonly SharedTransformSystem XformSys = default!;
 
     public override void Initialize()

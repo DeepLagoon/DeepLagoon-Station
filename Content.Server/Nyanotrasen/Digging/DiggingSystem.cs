@@ -12,7 +12,7 @@ namespace Content.Server.Digging;
 public sealed partial class DiggingSystem : EntitySystem
 {
     [Dependency] private TileSystem _tiles = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedToolSystem _tools = default!;
     [Dependency] private TurfSystem _turfs = default!;
     [Dependency] private ITileDefinitionManager _tileDefManager = default!;

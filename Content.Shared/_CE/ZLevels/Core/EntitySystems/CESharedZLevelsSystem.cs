@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is sublicensed under MIT License
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
@@ -25,14 +25,14 @@ public abstract partial class CESharedZLevelsSystem : EntitySystem
     [Dependency] private INetManager _net = null!;
     [Dependency] private IGameTiming _timing = null!;
     [Dependency] private IConfigurationManager _config = null!;
-    [Dependency] private IMapManager _mapManager = null!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     [Dependency] private SharedPhysicsSystem _physicsSystem = null!;
     [Dependency] private SharedTransformSystem _transform = null!;
     [Dependency] private SharedAudioSystem _audio = null!;
     [Dependency] private ActionBlockerSystem _blocker = null!;
     [Dependency] private EntityLookupSystem _lookup = null!;
-    [Dependency] private SharedMapSystem _map = null!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPopupSystem _popup = null!;
 
     [Dependency] protected EntityQuery<CEZPhysicsComponent> ZPhysicsQuery = default!;

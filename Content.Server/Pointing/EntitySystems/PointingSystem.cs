@@ -31,7 +31,7 @@ namespace Content.Server.Pointing.EntitySystems
     {
         [Dependency] private IConfigurationManager _config = default!;
         [Dependency] private IReplayRecordingManager _replay = default!;
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IPlayerManager _playerManager = default!;
         [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
         [Dependency] private IGameTiming _gameTiming = default!;
@@ -40,7 +40,7 @@ namespace Content.Server.Pointing.EntitySystems
         [Dependency] private VisibilitySystem _visibilitySystem = default!;
         [Dependency] private SharedMindSystem _minds = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IAdminLogManager _adminLogger = default!;
         [Dependency] private ExamineSystemShared _examine = default!;
 

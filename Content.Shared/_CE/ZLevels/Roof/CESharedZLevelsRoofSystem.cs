@@ -21,7 +21,7 @@ public abstract partial class CESharedZLevelsRoofSystem : EntitySystem
 {
     [Dependency] protected CESharedZLevelsSystem ZLevel = null!;
     [Dependency] protected SharedRoofSystem Roof = null!;
-    [Dependency] protected SharedMapSystem Map = null!;
+    protected SharedMapSystem Map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected ITileDefinitionManager TilDefMan = null!;
 
     [Dependency] protected EntityQuery<MapGridComponent> GridQuery = default!;

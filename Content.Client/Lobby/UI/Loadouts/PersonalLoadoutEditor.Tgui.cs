@@ -161,7 +161,7 @@ public sealed partial class PersonalLoadoutEditor
             var target = jobItem ? _jobRole!.Clone() : GetRole();
             var custom = target.Customizations.GetValueOrDefault(id) ?? target.SelectedLoadouts.Values.SelectMany(items => items).FirstOrDefault(choice => choice.Prototype.Id == id)?.Customization ?? new PersonalLoadoutCustomization();
             var color = action == "paint" ? args.String("value") : custom.Color;
-            if (!string.IsNullOrEmpty(color) && Color.TryFromHex(color) == null) return false;
+            if (!string.IsNullOrEmpty(color) && !Color.TryFromHex(color, out _)) return false;
             var updatedCustom = _entities.System<PersonalLoadoutSystem>().Sanitize(item, new PersonalLoadoutCustomization
             {
                 Color = color, Name = action == "rename" ? args.String("name") : custom.Name,

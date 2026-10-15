@@ -8,8 +8,8 @@ namespace Content.Shared.Construction
 {
     public abstract partial class SharedConstructionSystem : EntitySystem
     {
-        [Dependency] private IMapManager _mapManager = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] protected IPrototypeManager PrototypeManager = default!;
         [Dependency] protected SharedTransformSystem TransformSystem = default!;
 

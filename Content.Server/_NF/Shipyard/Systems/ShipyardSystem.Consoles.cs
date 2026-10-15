@@ -60,7 +60,7 @@ using Content.Shared.Tag;
 using Robust.Shared.Timing;
 using Content.Server._Mono.Detection;
 using Content.Shared._Mono.Economy; // Mono
-using Content.Shared._Mono.Economy.Component; // Mono
+using Content.Shared._Mono.Economy.Components; // Mono
 
 namespace Content.Server._NF.Shipyard.Systems;
 

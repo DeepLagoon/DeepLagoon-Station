@@ -16,7 +16,7 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private GameTicker _ticker = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private ShuttleSystem _shuttles = default!;
     [Dependency] private ApartmentTravelSystem _travel = default!;

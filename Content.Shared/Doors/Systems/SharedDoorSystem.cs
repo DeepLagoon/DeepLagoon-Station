@@ -43,7 +43,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
     [Dependency] private AccessReaderSystem _accessReaderSystem = default!;
     [Dependency] private PryingSystem _pryingSystem = default!;
     [Dependency] protected SharedPopupSystem Popup = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPowerReceiverSystem _powerReceiver = default!;
 
 

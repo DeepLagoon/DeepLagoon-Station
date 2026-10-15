@@ -7,7 +7,7 @@ namespace Content.Server._CE.ZLevels.LaddersCache;
 
 public sealed partial class CEZLevelsLaddersCacheSystem : EntitySystem
 {
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
 
     [Dependency] private EntityQuery<TransformComponent> _xformQuery = default!;

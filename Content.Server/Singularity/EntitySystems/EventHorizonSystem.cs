@@ -27,12 +27,12 @@ public sealed partial class EventHorizonSystem : SharedEventHorizonSystem
     #region Dependencies
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IAdminLogManager _adminLogger = default!;
     [Dependency] private SharedContainerSystem _containerSystem = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _xformSystem = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TagSystem _tagSystem = default!;
     #endregion Dependencies
 

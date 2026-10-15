@@ -17,7 +17,7 @@ public sealed partial class ThrowArtifactSystem : EntitySystem
     [Dependency] private ThrowingSystem _throwing = default!;
     [Dependency] private TileSystem _tile = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     /// <inheritdoc/>
     public override void Initialize()

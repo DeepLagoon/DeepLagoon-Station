@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Content.Shared.NodeContainer;
 using JetBrains.Annotations;
@@ -16,7 +16,7 @@ namespace Content.Client.NodeContainer
     {
         [Dependency] private IOverlayManager _overlayManager = default!;
         [Dependency] private EntityLookupSystem _entityLookup = default!;
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IInputManager _inputManager = default!;
         [Dependency] private IResourceCache _resourceCache = default!;
 

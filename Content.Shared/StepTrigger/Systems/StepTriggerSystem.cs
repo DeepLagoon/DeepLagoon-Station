@@ -13,7 +13,7 @@ public sealed partial class StepTriggerSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _entityLookup = default!;
     [Dependency] private SharedGravitySystem _gravity = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private SharedDeviceLinkSystem _links = default!; //Mono
 

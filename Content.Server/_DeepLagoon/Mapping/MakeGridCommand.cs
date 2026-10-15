@@ -30,10 +30,10 @@ public sealed partial class MakeGridCommand : LocalizedEntityCommands
     // Числа в сообщения идут строками: Fluent форматирует int по культуре ("1 024").
     private static readonly string MaxText = MaxSide.ToString(CultureInfo.InvariantCulture);
 
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDefs = default!;
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
 
     public override string Command => "makegrid";

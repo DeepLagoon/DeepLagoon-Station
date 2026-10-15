@@ -1,4 +1,4 @@
-﻿using Content.Server.Radiation.Components;
+using Content.Server.Radiation.Components;
 using Content.Shared.Radiation.Components;
 using Content.Shared.Radiation.Events;
 using Content.Shared.Stacks;
@@ -10,11 +10,11 @@ namespace Content.Server.Radiation.Systems;
 
 public sealed partial class RadiationSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedStackSystem _stack = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private EntityQuery<RadiationBlockingContainerComponent> _blockerQuery;
     private EntityQuery<RadiationGridResistanceComponent> _resistanceQuery;

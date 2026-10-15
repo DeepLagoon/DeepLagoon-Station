@@ -23,7 +23,7 @@ namespace Content.Server._Mono.NPC.HTN;
 public sealed partial class ShipSteeringSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _lookup = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private MoverController _mover = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;

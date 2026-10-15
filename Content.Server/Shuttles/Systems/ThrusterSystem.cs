@@ -28,7 +28,7 @@ namespace Content.Server.Shuttles.Systems;
 public sealed partial class ThrusterSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private AmbientSoundSystem _ambient = default!;
     [Dependency] private FixtureSystem _fixtureSystem = default!;
     [Dependency] private DamageableSystem _damageable = default!;

@@ -16,7 +16,7 @@ public sealed partial class GridDraggingSystem : SharedGridDraggingSystem
     [Dependency] private IEyeManager _eyeManager = default!;
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private IInputManager _inputManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private InputSystem _inputSystem = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
 

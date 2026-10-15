@@ -23,8 +23,8 @@ public sealed partial class NaniteOverlaySystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPlayerManager _player = default!;
-    [Dependency] private IMapManager _mapMan = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SpriteSystem _sprite = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;

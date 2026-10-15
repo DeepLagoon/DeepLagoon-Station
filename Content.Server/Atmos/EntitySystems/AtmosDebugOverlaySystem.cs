@@ -18,7 +18,7 @@ namespace Content.Server.Atmos.EntitySystems
     public sealed partial class AtmosDebugOverlaySystem : SharedAtmosDebugOverlaySystem
     {
         [Dependency] private IPlayerManager _playerManager = default!;
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IConfigurationManager _configManager = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
         [Dependency] private MapSystem _mapSystem = default!;

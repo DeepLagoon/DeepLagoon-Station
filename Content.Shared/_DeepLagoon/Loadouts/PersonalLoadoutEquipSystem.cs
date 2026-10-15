@@ -29,7 +29,7 @@ public sealed class PersonalLoadoutEquipSystem : EntitySystem
     {
         if (data?.Name != null) _metadata.SetEntityName(item, data.Name);
         if (data?.Description != null) _metadata.SetEntityDescription(item, data.Description);
-        if (data?.Color != null && Color.TryFromHex(data.Color) is {} color)
+        if (data?.Color != null && Color.TryFromHex(data.Color, out var color))
         {
             EnsureComp<PersonalLoadoutVisualsComponent>(item);
             EnsureComp<AppearanceComponent>(item);
@@ -67,7 +67,7 @@ public sealed class PersonalLoadoutEquipSystem : EntitySystem
                     _metadata.SetEntityName(item, data.Name);
                 if (data?.Description != null)
                     _metadata.SetEntityDescription(item, data.Description);
-                if (data?.Color != null && Color.TryFromHex(data.Color) is {} color)
+                if (data?.Color != null && Color.TryFromHex(data.Color, out var color))
                 {
                     EnsureComp<PersonalLoadoutVisualsComponent>(item);
                     EnsureComp<AppearanceComponent>(item);

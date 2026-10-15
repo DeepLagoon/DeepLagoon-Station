@@ -17,7 +17,7 @@ namespace Content.Shared.Physics.Controllers;
 
 public abstract partial class SharedConveyorController : VirtualController
 {
-    [Dependency] protected IMapManager MapManager = default!;
+    protected SharedMapSystem MapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   IParallelManager _parallel = default!;
     [Dependency] private   CollisionWakeSystem _wake = default!;
     [Dependency] protected EntityLookupSystem Lookup = default!;

@@ -18,7 +18,7 @@ public sealed partial class BluespaceCargoRule : StationEventSystem<BluespaceCar
 {
     [Dependency] private IConfigurationManager _configuration = default!;
     [Dependency] private AtmosphereSystem _atmosphere = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected IRobustRandom _random = default!;
 
     protected override void Added(EntityUid uid, BluespaceCargoRuleComponent component, GameRuleComponent gameRule, GameRuleAddedEvent args)

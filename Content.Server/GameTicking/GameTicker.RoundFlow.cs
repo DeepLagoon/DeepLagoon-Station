@@ -1035,7 +1035,7 @@ namespace Content.Server.GameTicking
 
             EntityManager.FlushEntities();
 
-            _mapManager.Restart();
+            // Maps are removed through FlushEntities above in engine 288.
 
             _banManager.Restart();
 

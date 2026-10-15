@@ -15,7 +15,7 @@ namespace Content.Server.Atmos.Piping.Unary.EntitySystems
     [UsedImplicitly]
     public sealed partial class GasPortableSystem : EntitySystem
     {
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private SharedAppearanceSystem _appearance = default!;
         [Dependency] private NodeContainerSystem _nodeContainer = default!;
 

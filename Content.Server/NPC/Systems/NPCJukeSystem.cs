@@ -20,7 +20,7 @@ public sealed partial class NPCJukeSystem : EntitySystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private MeleeWeaponSystem _melee = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
 
     private EntityQuery<NPCMeleeCombatComponent> _npcMeleeQuery;

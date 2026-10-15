@@ -12,7 +12,7 @@ namespace Content.Server.Atmos.EntitySystems
         [Dependency] private SharedTransformSystem _transform = default!;
         [Dependency] private AtmosphereSystem _atmosphereSystem = default!;
         [Dependency] private ExplosionSystem _explosionSystem = default!;
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         public override void Initialize()
         {

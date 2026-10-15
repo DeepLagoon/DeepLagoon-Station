@@ -21,7 +21,7 @@ public sealed partial class MappingSystem : EntitySystem
     [Dependency] private IConsoleHost _conHost = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IResourceManager _resMan = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
 

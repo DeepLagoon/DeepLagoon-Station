@@ -46,7 +46,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
 {
     private readonly IEntityManager _entManager;
     private readonly IGameTiming _timing;
-    private readonly IMapManager _mapManager;
+    private readonly SharedMapSystem _mapManager;
     private readonly IPrototypeManager _prototypeManager;
     private readonly AnchorableSystem _anchorable;
     private readonly BiomeSystem _biome;
@@ -80,7 +80,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         double maxTime,
         IEntityManager entManager,
         IGameTiming timing,
-        IMapManager mapManager,
+        SharedMapSystem mapManager,
         IPrototypeManager protoManager,
         AnchorableSystem anchorable,
         BiomeSystem biome,
@@ -216,8 +216,8 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
             }
         }
 
-        _mapManager.DoMapInitialize(mapId);
-        _mapManager.SetMapPaused(mapId, true);
+        _mapManager.InitializeMap(mapId, unpause: false);
+        _mapManager.SetPaused(mapId, true);
 
         // Setup expedition
         var expedition = _entManager.AddComponent<SalvageExpeditionComponent>(mapUid);

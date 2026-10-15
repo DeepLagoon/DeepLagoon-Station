@@ -56,7 +56,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
     [Dependency] private readonly ESTileFireSystem _tileFire = default!;
     // ES END
 
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _robustRandom = default!;
     [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private IPrototypeManager _prototypeManager = default!;
@@ -75,7 +75,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
     [Dependency] private PvsOverrideSystem _pvsSys = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private StackSystem _stack = default!; // Mono
     [Dependency] private StationSystem _station = default!; // Mono
     [Dependency] private IGameTiming _gameTiming = default!; // Mono

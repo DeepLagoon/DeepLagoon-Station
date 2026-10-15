@@ -27,7 +27,7 @@ namespace Content.Server.StationEvents.Events;
 /// </summary>
 internal sealed class NoosphericFryRule : StationEventSystem<NoosphericFryRuleComponent>
 {
-    [Dependency] private readonly SharedMapSystem _sharedMapSystem = default!;
+    private SharedMapSystem _sharedMapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private readonly MobStateSystem _mobStateSystem = default!;
     [Dependency] private readonly InventorySystem _inventorySystem = default!;
     [Dependency] private readonly SharedAudioSystem _audioSystem = default!;

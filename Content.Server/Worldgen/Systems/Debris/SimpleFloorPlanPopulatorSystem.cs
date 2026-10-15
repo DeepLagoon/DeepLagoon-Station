@@ -13,7 +13,7 @@ public sealed partial class SimpleFloorPlanPopulatorSystem : BaseWorldSystem
 {
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private ITileDefinitionManager _tileDefinition = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TurfSystem _turf = default!;
 
     /// <inheritdoc />

@@ -28,7 +28,7 @@ namespace Content.Server._Funkystation.Atmos.Systems
         [Dependency] private NodeContainerSystem _nodeContainer = default!;
         [Dependency] private IPrototypeManager _prototypeManager = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         private const float MinProgressAmount = 3f;
         private const float MinDeviationRate = 0.90f;

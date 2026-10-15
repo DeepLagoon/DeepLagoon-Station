@@ -19,8 +19,8 @@ namespace Content.Server.Shuttles.Systems
 {
     public sealed partial class DockingSystem : SharedDockingSystem
     {
-        [Dependency] private IMapManager _mapManager = default!;
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private DoorSystem _doorSystem = default!;
         [Dependency] private EntityLookupSystem _lookup = default!;
         [Dependency] private PathfindingSystem _pathfinding = default!;

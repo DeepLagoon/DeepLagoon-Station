@@ -68,7 +68,7 @@ public sealed partial class MapperRcdSystem : SharedMapperRcdSystem
     [Dependency] private ITileDefinitionManager _tileDefs = default!;
     [Dependency] private IComponentFactory _compFactory = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private ActionBlockerSystem _actionBlocker = default!;
     [Dependency] private SharedAtmosPipeLayersSystem _pipeLayers = default!;

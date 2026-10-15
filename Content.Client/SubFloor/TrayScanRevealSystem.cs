@@ -7,7 +7,7 @@ namespace Content.Client.SubFloor;
 public sealed partial class TrayScanRevealSystem : EntitySystem
 {
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public bool IsUnderRevealingEntity(EntityUid uid)
     {

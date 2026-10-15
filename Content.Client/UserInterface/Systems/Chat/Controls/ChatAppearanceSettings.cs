@@ -35,7 +35,7 @@ public sealed class ChatAppearanceSettings
         string ColorValue(string key, string fallback)
         {
             var value = Get(key, fallback);
-            return Color.TryFromHex(value) != null ? value : fallback;
+            return Color.TryFromHex(value, out _) ? value : fallback;
         }
         result.PanelColor = ColorValue("PanelColor", result.PanelColor);
         result.ChatColor = ColorValue("ChatColor", result.ChatColor);

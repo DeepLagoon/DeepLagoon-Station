@@ -16,13 +16,13 @@ namespace Content.Server.NPC.Systems;
 public sealed partial class NPCCombatSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private GunSystem _gun = default!;
     [Dependency] private InteractionSystem _interaction = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private NPCSteeringSystem _steering = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedMeleeWeaponSystem _melee = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

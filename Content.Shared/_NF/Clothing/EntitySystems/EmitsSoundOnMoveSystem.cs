@@ -15,7 +15,7 @@ namespace Content.Shared._NF.Clothing.EntitySystems;
 public sealed partial class EmitsSoundOnMoveSystem : EntitySystem
 {
     [Dependency] private SharedAudioSystem _audio = default!;
-    [Dependency] private SharedMapSystem _grid = default!;
+    private SharedMapSystem _grid => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedGravitySystem _gravity = default!;
     [Dependency] private IGameTiming _timing = default!;
 

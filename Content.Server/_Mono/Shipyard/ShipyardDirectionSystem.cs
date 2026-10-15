@@ -16,7 +16,7 @@ public sealed partial class ShipyardDirectionSystem : EntitySystem
 {
     [Dependency] private IChatManager _chatManager = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TransformSystem _transformSystem = default!;
 
     /// <summary>

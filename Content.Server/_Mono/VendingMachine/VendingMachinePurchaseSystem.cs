@@ -11,7 +11,7 @@ namespace Content.Server._Mono.VendingMachine;
 /// </summary>
 public sealed partial class VendingMachinePurchaseSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

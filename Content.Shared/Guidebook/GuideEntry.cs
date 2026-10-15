@@ -4,13 +4,14 @@ using Robust.Shared.Utility;
 namespace Content.Shared.Guidebook;
 
 [Prototype]
+[DataDefinition]
 public sealed partial class GuideEntryPrototype : GuideEntry, IPrototype
 {
     public string ID => Id;
 }
 
-[Virtual]
-public class GuideEntry
+[Virtual, DataDefinition]
+public partial class GuideEntry
 {
     /// <summary>
     ///     The file containing the contents of this guide.

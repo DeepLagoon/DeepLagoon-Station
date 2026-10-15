@@ -19,7 +19,7 @@ public sealed partial class ExplosionOverlaySystem : EntitySystem
     [Dependency] private IResourceCache _resCache = default!;
     [Dependency] private IOverlayManager _overlayMan = default!;
     [Dependency] private SharedPointLightSystem _lights = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedAppearanceSystem _appearance = default!;
 
     public override void Initialize()

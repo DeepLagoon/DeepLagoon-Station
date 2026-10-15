@@ -12,7 +12,7 @@ public sealed partial class DecalPlacementOverlay : Overlay
 {
     [Dependency] private IEyeManager _eyeManager = default!;
     [Dependency] private IInputManager _inputManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     private readonly DecalPlacementSystem _placement;
     private readonly SharedTransformSystem _transform;
     private readonly SpriteSystem _sprite;

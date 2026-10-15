@@ -17,7 +17,7 @@ namespace Content.Server.Shuttles.Systems;
 
 public sealed partial class ShuttleConsoleSystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedAudioSystem _audio = default!;
 
     private const float ShuttleFTLRange = 1536f; // Mono 512 -> 1536

@@ -53,12 +53,12 @@ namespace Content.Shared.Interaction
     public abstract partial class SharedInteractionSystem : EntitySystem
     {
         [Dependency] private IGameTiming _gameTiming = default!;
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private ISharedAdminLogManager _adminLogger = default!;
         [Dependency] private ActionBlockerSystem _actionBlockerSystem = default!;
         [Dependency] private RotateToFaceSystem _rotateToFaceSystem = default!;
         [Dependency] private SharedContainerSystem _containerSystem = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private SharedPhysicsSystem _broadphase = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
         [Dependency] private SharedVerbSystem _verbSystem = default!;

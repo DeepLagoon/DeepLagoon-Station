@@ -16,7 +16,7 @@ public sealed partial class GasProducerAnomalySystem : EntitySystem
 {
     [Dependency] private AtmosphereSystem _atmosphere = default!;
     [Dependency] private IRobustRandom _random = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

@@ -30,7 +30,7 @@ namespace Content.Client.Shuttles.UI;
 [Virtual]
 public partial class ShuttleNavControl : BaseShuttleControl // Mono
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IUserInterfaceManager _uiManager = default!;
     private readonly DetectionSystem _detection; // Mono
     private readonly StationSystem _station; // Frontier

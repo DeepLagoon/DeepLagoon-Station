@@ -35,7 +35,7 @@ public abstract partial class SharedEmitSoundSystem : EntitySystem
     [Dependency] private   SharedAmbientSoundSystem _ambient = default!;
     [Dependency] private   SharedAudioSystem _audioSystem = default!;
     [Dependency] protected SharedPopupSystem Popup = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private TurfSystem _turf = default!;
 

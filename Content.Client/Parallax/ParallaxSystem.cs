@@ -10,7 +10,7 @@ namespace Content.Client.Parallax;
 
 public sealed partial class ParallaxSystem : SharedParallaxSystem
 {
-    [Dependency] private IMapManager _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IOverlayManager _overlay = default!;
     [Dependency] private IParallaxManager _parallax = default!;
 
@@ -58,12 +58,12 @@ public sealed partial class ParallaxSystem : SharedParallaxSystem
 
     public ParallaxLayerPrepared[] GetParallaxLayers(MapId mapId)
     {
-        return _parallax.GetParallaxLayers(GetParallax(_map.GetMapEntityId(mapId)));
+        return _parallax.GetParallaxLayers(GetParallax(_map.GetMap(mapId)));
     }
 
     public string GetParallax(MapId mapId)
     {
-        return GetParallax(_map.GetMapEntityId(mapId));
+        return GetParallax(_map.GetMap(mapId));
     }
 
     public string GetParallax(EntityUid mapUid)

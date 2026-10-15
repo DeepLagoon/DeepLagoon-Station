@@ -11,7 +11,7 @@ public sealed partial class KudzuSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IRobustRandom _robustRandom = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private DamageableSystem _damageable = default!;
 

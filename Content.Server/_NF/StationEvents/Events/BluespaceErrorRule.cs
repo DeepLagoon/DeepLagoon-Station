@@ -30,9 +30,9 @@ namespace Content.Server._NF.StationEvents.Events;
 public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErrorRuleComponent>
 {
     NanotrasenNameGenerator _nameGenerator = new();
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MapSystem _map = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _protoManager = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private DungeonSystem _dungeon = default!;

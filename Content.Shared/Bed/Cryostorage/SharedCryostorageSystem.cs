@@ -19,7 +19,7 @@ namespace Content.Shared.Bed.Cryostorage;
 public abstract partial class SharedCryostorageSystem : EntitySystem
 {
     [Dependency] private   IConfigurationManager _configuration = default!;
-    [Dependency] private   IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   ISharedPlayerManager _player = default!;
     [Dependency] private   MobStateSystem _mobState = default!;
     [Dependency] private   SharedAppearanceSystem _appearance = default!;
@@ -169,8 +169,8 @@ public abstract partial class SharedCryostorageSystem : EntitySystem
             return;
 
         var map = _mapManager.CreateMap();
-        _mapManager.SetMapPaused(map, true);
-        PausedMap = _mapManager.GetMapEntityId(map);
+        _mapManager.SetPaused(map, true);
+        PausedMap = map;
     }
 
     public bool IsInPausedMap(Entity<TransformComponent?> entity)

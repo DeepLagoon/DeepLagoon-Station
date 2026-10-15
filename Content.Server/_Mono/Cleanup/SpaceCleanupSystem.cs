@@ -28,7 +28,7 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
     private object _manifold = default!;
     private MethodInfo _testOverlap = default!;
     [Dependency] private PricingSystem _pricing = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

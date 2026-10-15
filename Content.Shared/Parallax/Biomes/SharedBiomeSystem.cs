@@ -17,7 +17,7 @@ public abstract partial class SharedBiomeSystem : EntitySystem
     [Dependency] private ISerializationManager _serManager = default!;
     [Dependency] protected ITileDefinitionManager TileDefManager = default!;
     [Dependency] private TileSystem _tile = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     protected const byte ChunkSize = 8;
 

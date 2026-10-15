@@ -18,7 +18,7 @@ namespace Content.Server.Mapping
     sealed partial class MappingCommand : IConsoleCommand
     {
         [Dependency] private IEntityManager _entities = default!;
-        [Dependency] private IMapManager _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IConfigurationManager _cfg = default!;
 
         public string Command => "mapping";

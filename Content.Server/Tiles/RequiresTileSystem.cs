@@ -10,7 +10,7 @@ public sealed partial class RequiresTileSystem : EntitySystem
      * Needs to be on server as client can't predict QueueDel.
      */
 
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private EntityQuery<RequiresTileComponent> _tilesQuery;
 

@@ -7,7 +7,7 @@ namespace Content.Server._Mono.ShipRepair;
 public sealed partial class ShipRepairSystem : SharedShipRepairSystem
 {
     [Dependency] private SharedEyeSystem _eye = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
 
     public override void Initialize()

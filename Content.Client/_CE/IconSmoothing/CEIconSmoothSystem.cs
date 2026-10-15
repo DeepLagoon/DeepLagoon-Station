@@ -16,7 +16,7 @@ namespace Content.Client._CE.IconSmoothing;
 /// </summary>
 public sealed partial class CEIconSmoothSystem : EntitySystem
 {
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SpriteSystem _sprite = default!;
     [Dependency] private ITileDefinitionManager _tileDefManager = default!;
 

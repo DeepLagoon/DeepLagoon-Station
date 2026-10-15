@@ -18,14 +18,14 @@ public sealed partial class ShipRepairSystem : SharedShipRepairSystem
     [Dependency] private ForceParentSystem _parent = default!;
     [Dependency] private IconSmoothSystem _smooth = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPlayerManager _player = default!;
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private ISerializationManager _serialization = default!;
     [Dependency] private ITileDefinitionManager _tileDefs = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SpriteSystem _sprite = default!;
 

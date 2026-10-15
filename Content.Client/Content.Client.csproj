@@ -16,8 +16,21 @@
 
   <Import Project="..\RobustToolbox\Imports\Lidgren.props" />
   <Import Project="..\RobustToolbox\Imports\Client.props" />
-  <Import Project="..\RobustToolbox\Imports\WebView.props" />
+  <!-- A full release must compile against the exact signed module selected by the official launcher. -->
+  <Import Project="..\RobustToolbox\Imports\WebView.props" Condition="'$(WebViewSignedReference)' == ''" />
+  <ItemGroup Condition="'$(WebViewSignedReference)' != ''">
+    <Reference Include="Robust.Client.WebView">
+      <HintPath>$(WebViewSignedReference)</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
   <Import Project="..\RobustToolbox\Imports\Shared.props" />
+
+  <Target Name="RequireSignedWebViewReference" BeforeTargets="ResolveReferences"
+          Condition="'$(FullRelease)' == 'True'">
+    <Error Condition="'$(WebViewSignedReference)' == '' or !Exists('$(WebViewSignedReference)')"
+           Text="FullRelease requires WebViewSignedReference to the verified official Robust.Client.WebView.dll." />
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
@@ -28,7 +41,7 @@
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
   <!-- Executable ProjectReferences copy DLLs, but CEF also needs its subprocess apphost. -->
-  <Target Name="CopyWebViewSubprocess" AfterTargets="Build" Condition="'$(FullRelease)' != 'True'">
+  <Target Name="CopyWebViewSubprocess" AfterTargets="Build" Condition="'$(FullRelease)' != 'True' and '$(WebViewSignedReference)' == ''">
     <MSBuild Projects="..\RobustToolbox\Robust.Client.WebView\Robust.Client.WebView.csproj"
              Targets="GetTargetPath" Properties="Configuration=$(Configuration)">
       <Output TaskParameter="TargetOutputs" ItemName="_WebViewTargetPath" />

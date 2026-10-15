@@ -23,7 +23,7 @@ namespace Content.Server.Shuttles.Systems;
 /// </summary>
 public sealed partial class FTLAntiCollisionSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private ShuttleSystem _shuttle = default!;

@@ -680,7 +680,7 @@ public sealed partial class HumanoidProfileEditor
             else
             {
                 if (!_markingManager.TryGetMarking(marking, out var prototype) || prototype.ForcedColoring || _markingManager.MustMatchSkin(Profile.Species, prototype.BodyPart, out _, _prototypeManager) ||
-                    !args.TryInt("layer", out var layer) || layer < 0 || layer >= marking.MarkingColors.Count || Color.TryFromHex(value) is not {} color) return false;
+                    !args.TryInt("layer", out var layer) || layer < 0 || layer >= marking.MarkingColors.Count || !Color.TryFromHex(value, out var color)) return false;
                 marking.SetColor(layer, color);
             }
         }

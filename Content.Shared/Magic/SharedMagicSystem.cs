@@ -44,8 +44,8 @@ namespace Content.Shared.Magic;
 public abstract partial class SharedMagicSystem : EntitySystem
 {
     [Dependency] private ISerializationManager _seriMan = default!;
-    [Dependency] private IMapManager _mapManager = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedGunSystem _gunSystem = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
@@ -282,7 +282,7 @@ public abstract partial class SharedMagicSystem : EntitySystem
         var fromMap = fromCoords.ToMap(EntityManager, _transform);
         var spawnCoords = _mapManager.TryFindGridAt(fromMap, out var gridUid, out _)
             ? fromCoords.WithEntityId(gridUid, EntityManager)
-            : new(_mapManager.GetMapEntityId(fromMap.MapId), fromMap.Position);
+            : new(_mapManager.GetMap(fromMap.MapId), fromMap.Position);
 
         var ent = Spawn(ev.Prototype, spawnCoords);
         var direction = toCoords.ToMapPos(EntityManager, _transform) -

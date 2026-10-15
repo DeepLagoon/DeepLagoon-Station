@@ -43,7 +43,7 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
 {
     [Dependency] private IAdminLogManager _adminLogger = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private AudioSystem _audio = default!;

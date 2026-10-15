@@ -34,7 +34,7 @@ public sealed partial class SmokeSystem : EntitySystem
     // If I could do it all again this could probably use a lot more of puddles.
     [Dependency] private IAdminLogManager _logger = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private AppearanceSystem _appearance = default!;

@@ -41,7 +41,7 @@ public sealed partial class GunSystem : SharedGunSystem
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private StaminaSystem _stamina = default!;
     [Dependency] private SharedContainerSystem _container = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private RequireProjectileTargetSystem _requireProjectileTarget = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
     private EntityQuery<AutoShootGunComponent> _autoShootGunQuery; // Mono

@@ -14,7 +14,7 @@ public sealed partial class GoliathTentacleSystem : EntitySystem
 {
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private INetManager _net = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedStunSystem _stun = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private TurfSystem _turf = default!;

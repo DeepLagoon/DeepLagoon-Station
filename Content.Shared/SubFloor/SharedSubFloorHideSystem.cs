@@ -20,7 +20,7 @@ namespace Content.Shared.SubFloor
     {
         [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
         [Dependency] private SharedAmbientSoundSystem _ambientSoundSystem = default!;
-        [Dependency] protected SharedMapSystem Map = default!;
+        protected SharedMapSystem Map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] protected SharedAppearanceSystem Appearance = default!;
         [Dependency] private SharedVisibilitySystem _visibility = default!;
         [Dependency] protected SharedPopupSystem _popup = default!;

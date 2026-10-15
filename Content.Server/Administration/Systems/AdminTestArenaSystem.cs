@@ -12,7 +12,7 @@ public sealed partial class AdminTestArenaSystem : EntitySystem
 {
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private MetaDataSystem _metaDataSystem = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public const string ArenaMapPath = "/Maps/_NF/Test/admin_test_zone.yml"; // Frontier: Map edit, swap /Maps/Test/admin_test_arena.yml
 

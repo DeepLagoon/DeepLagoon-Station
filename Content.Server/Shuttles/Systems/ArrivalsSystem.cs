@@ -56,7 +56,7 @@ public sealed partial class ArrivalsSystem : EntitySystem
     [Dependency] private GameTicker _ticker = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private ShuttleSystem _shuttles = default!;
     [Dependency] private StationSpawningSystem _stationSpawning = default!;

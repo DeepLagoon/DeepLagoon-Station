@@ -42,9 +42,9 @@ public sealed partial class ApartmentSystem : EntitySystem
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private IResourceManager _resources = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
-    [Dependency] private IMapManager _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tiles = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private AtmosphereSystem _atmos = default!;
     [Dependency] private InventorySystem _inventory = default!;

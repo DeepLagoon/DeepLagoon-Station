@@ -25,7 +25,7 @@ namespace Content.Shared.Tiles;
 public sealed partial class FloorTileSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private INetManager _netManager = default!;
     [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
@@ -36,7 +36,7 @@ public sealed partial class FloorTileSystem : EntitySystem
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private TileSystem _tile = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TurfSystem _turf = default!;
 
     private static readonly Vector2 CheckRange = new(1f, 1f);

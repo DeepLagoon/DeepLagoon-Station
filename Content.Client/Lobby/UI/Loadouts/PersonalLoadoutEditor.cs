@@ -225,7 +225,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         {
             var usable = system.CanUse(prototype, _profile!, _job, _session, out var reason);
             var pressed = selected.TryGetValue(prototype.ID, out var selection);
-            var savedColor = selection?.Customization?.Color is { } savedHex && Color.TryFromHex(savedHex) is {} parsedColor ? parsedColor : Color.White;
+            var savedColor = selection?.Customization?.Color is { } savedHex && Color.TryFromHex(savedHex, out var parsedColor) ? parsedColor : Color.White;
             var title = _prototypes.Index(prototype.PersonalItems[0]).Name;
             var donor = DonorCategoryOf(prototype);
             var donorLabel = donor == DonorCategory.Boosty
@@ -287,7 +287,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
     private Control MakeCustomization(LoadoutPrototype prototype, Loadout selection)
     {
         var system = _entities.System<PersonalLoadoutSystem>();
-        var savedColor = selection.Customization?.Color is { } savedHex && Color.TryFromHex(savedHex) is {} parsed ? parsed : Color.White;
+        var savedColor = selection.Customization?.Color is { } savedHex && Color.TryFromHex(savedHex, out var parsed) ? parsed : Color.White;
         var panel = new BoxContainer { Orientation = LayoutOrientation.Vertical, HorizontalExpand = true, Margin = new Thickness(4) };
         panel.AddChild(new RichTextLabel { Text = _prototypes.Index(prototype.PersonalItems[0]).Name, HorizontalExpand = true });
         var icon = new TextureRect { Texture = _entities.System<SpriteSystem>().GetPrototypeIcon(prototype.PersonalItems[0]).Default, SetSize = new Vector2(48, 48), Modulate = savedColor, Stretch = TextureRect.StretchMode.KeepAspectCentered };

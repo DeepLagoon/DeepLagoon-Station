@@ -6,8 +6,8 @@ namespace Content.Server._CE.ZLevels.Gravity;
 
 public sealed partial class CEAutoGridGravitySystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

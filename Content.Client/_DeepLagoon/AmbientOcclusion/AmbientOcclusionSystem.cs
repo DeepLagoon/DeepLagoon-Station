@@ -22,8 +22,8 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
 {
     [Dependency] private IOverlayManager _overlays = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
-    [Dependency] private SharedMapSystem _map = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private TagSystem _tags = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
@@ -489,7 +489,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 if (!transforms.TryGetComponent(uid, out var xform)) continue;
                 if (_measure) _stats.ProcessedCandidates++;
                 if (hasOccluder)
-                    _blockers.Add((uid, system._transform.GetWorldMatrix(xform).TransformBox(occluder!.BoundingBox)));
+                    _blockers.Add((uid, system._transform.GetWorldMatrix(xform).TransformBox(occluder!.LocalBounds)));
                 if (!caster || xform.GridUid is not { } grid) continue;
                 // Full entity silhouettes do not need wall-tag checks; wall-only and mask modes do.
                 if (!_silhouette || !_drawEntities)

@@ -20,9 +20,9 @@ namespace Content.Server._CE.ZLevels.Core;
 public sealed partial class CEZGridConnectorSystem : EntitySystem
 {
     [Dependency] private CEZLevelsSystem _zLevels = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     [Dependency] private EntityQuery<CEZGridComponent> _zgridQuery = default!;
     [Dependency] private EntityQuery<CEZGridNetworkComponent> _zgridNetworkQuery = default!;

@@ -23,7 +23,7 @@ public sealed partial class AnomalyPowerSystem : EntitySystem
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
     [Dependency] private readonly SharedAnomalySystem _anomalySystem = default!;
-    [Dependency] private readonly SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
     [Dependency] private readonly SharedActionsSystem _actions = default!;

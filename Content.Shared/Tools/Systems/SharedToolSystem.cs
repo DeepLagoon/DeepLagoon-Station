@@ -21,7 +21,7 @@ namespace Content.Shared.Tools.Systems;
 
 public abstract partial class SharedToolSystem : EntitySystem
 {
-    [Dependency] private   IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   IPrototypeManager _protoMan = default!;
     [Dependency] protected ISharedAdminLogManager AdminLogger = default!;
     [Dependency] private   ITileDefinitionManager _tileDefManager = default!;
@@ -29,7 +29,7 @@ public abstract partial class SharedToolSystem : EntitySystem
     [Dependency] private   SharedDoAfterSystem _doAfterSystem = default!;
     [Dependency] protected SharedInteractionSystem InteractionSystem = default!;
     [Dependency] protected ItemToggleSystem ItemToggle = default!;
-    [Dependency] private   SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   SharedPopupSystem _popup = default!;
     [Dependency] protected SharedSolutionContainerSystem SolutionContainerSystem = default!;
     [Dependency] private   SharedTransformSystem _transformSystem = default!;

@@ -8,7 +8,7 @@ namespace Content.Server.Power.EntitySystems
 {
     public sealed partial class ExtensionCableSystem : EntitySystem
     {
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         public override void Initialize()
         {

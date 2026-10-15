@@ -18,7 +18,7 @@ namespace Content.Server.Engineering.EntitySystems
         [Dependency] private StackSystem _stackSystem = default!;
         [Dependency] private TurfSystem _turfSystem = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
-        [Dependency] private SharedMapSystem _maps = default!;
+        private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         public override void Initialize()
         {

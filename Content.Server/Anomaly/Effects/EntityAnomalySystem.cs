@@ -12,7 +12,7 @@ public sealed partial class EntityAnomalySystem : SharedEntityAnomalySystem
 {
     [Dependency] private SharedAnomalySystem _anomaly = default!;
     [Dependency] private IRobustRandom _random = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private EntityQuery<PhysicsComponent> _physicsQuery;
 

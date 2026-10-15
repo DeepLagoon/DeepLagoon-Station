@@ -44,7 +44,7 @@ public sealed partial class RevenantSystem
     [Dependency] private TileSystem _tile = default!;
     [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private static readonly ProtoId<TagPrototype> WindowTag = "Window";
 

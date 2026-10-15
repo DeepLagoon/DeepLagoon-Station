@@ -47,7 +47,7 @@ public sealed partial class GunSystem : SharedGunSystem
     [Dependency] private AnimationPlayerSystem _animPlayer = default!;
     [Dependency] private InputSystem _inputSystem = default!;
     [Dependency] private SharedCameraRecoilSystem _recoil = default!;
-    [Dependency] private SharedMapSystem _maps = default!;
+    private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private SpriteSystem _sprite = default!;
     [Dependency] private Robust.Client.Physics.PhysicsSystem _physics = default!;

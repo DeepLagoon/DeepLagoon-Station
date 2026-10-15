@@ -17,7 +17,7 @@ public sealed partial class PlanetSystem : EntitySystem
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private MapLoaderSystem _mapLoader = default!;
     [Dependency] private MetaDataSystem _meta = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private readonly List<(Vector2i, Tile)> _setTiles = new();
 

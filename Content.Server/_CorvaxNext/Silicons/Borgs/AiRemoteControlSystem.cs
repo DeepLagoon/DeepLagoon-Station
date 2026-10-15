@@ -32,7 +32,7 @@ public sealed partial class AiRemoteControlSystem : SharedAiRemoteControlSystem
     [Dependency] private UserInterfaceSystem _userInterface = default!;
     [Dependency] private SharedTransformSystem _xformSystem = default!;
 
-    [Dependency] private IMapManager _map = default!; // Mono
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>(); // Mono
 
     public override void Initialize()
     {

@@ -37,7 +37,7 @@ public abstract partial class SharedMoverController : VirtualController
 {
     [Dependency] private   IConfigurationManager _configManager = default!;
     [Dependency] protected IGameTiming Timing = default!;
-    [Dependency] private   IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private   ActionBlockerSystem _blocker = default!;
     [Dependency] private   EntityLookupSystem _lookup = default!;
@@ -45,7 +45,7 @@ public abstract partial class SharedMoverController : VirtualController
     [Dependency] private   MobStateSystem _mobState = default!;
     [Dependency] private   SharedAudioSystem _audio = default!;
     [Dependency] private   SharedContainerSystem _container = default!;
-    [Dependency] private   SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   SharedGravitySystem _gravity = default!;
     [Dependency] private   SharedTransformSystem _transform = default!;
     [Dependency] private   TagSystem _tags = default!;

@@ -15,7 +15,7 @@ public sealed partial class BlobFloorPlanBuilderSystem : BaseWorldSystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private ITileDefinitionManager _tileDefinition = default!;
     [Dependency] private TileSystem _tiles = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     /// <inheritdoc />
     public override void Initialize()

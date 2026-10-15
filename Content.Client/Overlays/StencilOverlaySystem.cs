@@ -10,7 +10,7 @@ public sealed partial class StencilOverlaySystem : EntitySystem
     [Dependency] private IOverlayManager _overlay = default!;
     [Dependency] private ParallaxSystem _parallax = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SpriteSystem _sprite = default!;
     [Dependency] private WeatherSystem _weather = default!;
 

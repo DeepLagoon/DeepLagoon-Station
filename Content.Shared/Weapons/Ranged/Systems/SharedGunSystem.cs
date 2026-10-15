@@ -56,7 +56,7 @@ public abstract partial class SharedGunSystem : EntitySystem
     // FH end
     [Dependency] private   ActionBlockerSystem _actionBlockerSystem = default!;
     [Dependency] protected IGameTiming Timing = default!;
-    [Dependency] protected IMapManager MapManager = default!;
+    protected SharedMapSystem MapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   INetManager _netManager = default!;
     [Dependency] protected IPrototypeManager ProtoManager = default!;
     [Dependency] protected IRobustRandom Random = default!;

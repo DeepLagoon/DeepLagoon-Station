@@ -35,7 +35,7 @@ public abstract partial class SharedAnomalySystem : EntitySystem
     [Dependency] protected SharedPopupSystem Popup = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedAnomalyCoreSystem _anomalyCore = default!; // Frontier
 
     public override void Initialize()

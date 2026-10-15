@@ -14,12 +14,12 @@ namespace Content.Shared.Weather;
 public abstract partial class SharedWeatherSystem : EntitySystem
 {
     [Dependency] protected IGameTiming Timing = default!;
-    [Dependency] protected IMapManager MapManager = default!;
+    protected SharedMapSystem MapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] protected IPrototypeManager ProtoMan = default!;
     [Dependency] private ITileDefinitionManager _tileDefManager = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedRoofSystem _roof = default!;
 
     private EntityQuery<BlockWeatherComponent> _blockQuery;

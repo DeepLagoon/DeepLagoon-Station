@@ -27,7 +27,7 @@ public sealed partial class DragonSystem : EntitySystem
     [Dependency] private SharedActionsSystem _actions = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MobStateSystem _mobState = default!;
     [Dependency] private TurfSystem _turf = default!;
 

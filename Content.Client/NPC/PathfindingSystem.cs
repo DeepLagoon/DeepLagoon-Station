@@ -19,7 +19,7 @@ namespace Content.Client.NPC
         [Dependency] private IEyeManager _eyeManager = default!;
         [Dependency] private IGameTiming _timing = default!;
         [Dependency] private IInputManager _inputManager = default!;
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private IResourceCache _cache = default!;
         [Dependency] private NPCSteeringSystem _steering = default!;
         [Dependency] private MapSystem _mapSystem = default!;
@@ -138,7 +138,7 @@ namespace Content.Client.NPC
         private readonly IEntityManager _entManager;
         private readonly IEyeManager _eyeManager;
         private readonly IInputManager _inputManager;
-        private readonly IMapManager _mapManager;
+        private readonly SharedMapSystem _mapManager;
         private readonly PathfindingSystem _system;
         private readonly MapSystem _mapSystem;
         private readonly SharedTransformSystem _transformSystem;
@@ -152,7 +152,7 @@ namespace Content.Client.NPC
             IEntityManager entManager,
             IEyeManager eyeManager,
             IInputManager inputManager,
-            IMapManager mapManager,
+            SharedMapSystem mapManager,
             IResourceCache cache,
             PathfindingSystem system,
             MapSystem mapSystem,

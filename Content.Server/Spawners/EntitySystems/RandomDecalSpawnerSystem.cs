@@ -11,7 +11,7 @@ namespace Content.Server.Spawners.EntitySystems;
 public sealed partial class RandomDecalSpawnerSystem : EntitySystem
 {
     [Dependency] private DecalSystem _decal = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private ITileDefinitionManager _tileDefs = default!;

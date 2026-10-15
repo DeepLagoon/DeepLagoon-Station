@@ -12,7 +12,7 @@ namespace Content.Server.Atmos.Piping.EntitySystems;
 public sealed partial class AtmosPipeAppearanceSystem : SharedAtmosPipeAppearanceSystem
 {
     [Dependency] private SharedAppearanceSystem _appearance = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

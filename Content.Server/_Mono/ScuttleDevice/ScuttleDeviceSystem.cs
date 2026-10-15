@@ -39,7 +39,7 @@ public sealed partial class ScuttleDeviceSystem : EntitySystem
     [Dependency] private ServerGlobalSoundSystem _sound = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedShuttleSystem _shuttles = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 

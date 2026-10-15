@@ -24,7 +24,7 @@ public sealed partial class ShipAccessReaderSystem : EntitySystem
     [Dependency] private SharedHandsSystem _handsSystem = default!;
     [Dependency] private InventorySystem _inventorySystem = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedIdCardSystem _idCardSystem = default!;
 

@@ -24,11 +24,11 @@ namespace Content.Shared.Construction.EntitySystems;
 
 public sealed partial class AnchorableSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PullingSystem _pulling = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedToolSystem _tool = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
     [Dependency] private TagSystem _tagSystem = default!;

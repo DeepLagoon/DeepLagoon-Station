@@ -7,8 +7,9 @@ namespace Content.Shared.DeviceLinking;
 /// <summary>
 ///     A prototype for a device port, for use with device linking.
 /// </summary>
+[DataDefinition]
 [Serializable, NetSerializable]
-public abstract class DevicePortPrototype
+public abstract partial class DevicePortPrototype
 {
     [IdDataField]
     public string ID { get; private set; } = default!;
@@ -28,12 +29,14 @@ public abstract class DevicePortPrototype
 }
 
 [Prototype]
+[DataDefinition]
 [Serializable, NetSerializable]
 public sealed partial class SinkPortPrototype : DevicePortPrototype, IPrototype
 {
 }
 
 [Prototype]
+[DataDefinition]
 [Serializable, NetSerializable]
 public sealed partial class SourcePortPrototype : DevicePortPrototype, IPrototype
 {

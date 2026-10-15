@@ -66,7 +66,7 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
     [Dependency] private NpcFactionSystem _npcFaction = default!;
     [Dependency] private PathfindingSystem _pathfindingSystem = default!;
     [Dependency] private PryingSystem _pryingSystem = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedInteractionSystem _interaction = default!;
     [Dependency] private SharedMeleeWeaponSystem _melee = default!;
     [Dependency] private SharedMoverController _mover = default!;

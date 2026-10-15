@@ -13,7 +13,7 @@ public sealed partial class StarSystemMapSystem : SharedStarSystemMapSystem
     [Dependency] private IOverlayManager _overlayMan = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
 
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDefMan = default!;
     [Dependency] private IClyde _clyde = default!;
 

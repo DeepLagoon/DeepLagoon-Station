@@ -21,7 +21,7 @@ namespace Content.Server.Tabletop
     [UsedImplicitly]
     public sealed partial class TabletopSystem : SharedTabletopSystem
     {
-        [Dependency] private IMapManager _mapManager = default!;
+        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private EyeSystem _eye = default!;
         [Dependency] private ViewSubscriberSystem _viewSubscriberSystem = default!;
         [Dependency] private PopupSystem _popupSystem = default!;

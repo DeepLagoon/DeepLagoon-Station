@@ -13,7 +13,7 @@ public sealed partial class PersistenceSave : LocalizedEntityCommands
 {
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private IEntitySystemManager _system = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override string Command => "persistencesave";
     public override string Description => "Saves server data to a persistence file to be loaded later.";

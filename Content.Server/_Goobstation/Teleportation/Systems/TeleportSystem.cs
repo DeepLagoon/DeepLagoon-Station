@@ -18,10 +18,10 @@ namespace Content.Server.Teleportation;
 
 public sealed partial class TeleportSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private PullingSystem _pullingSystem = default!;
     [Dependency] private IAdminLogManager _adminLogger = default!;

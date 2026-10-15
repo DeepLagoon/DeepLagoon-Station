@@ -27,14 +27,14 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
 {
     [Dependency] private IConfigurationManager _configManager = default!;
     [Dependency] private IConsoleHost _console = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IParallelManager _parallel = default!;
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private AtmosphereSystem _atmos = default!;
     [Dependency] private DecalSystem _decals = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private ShuttleSystem _shuttles = default!;

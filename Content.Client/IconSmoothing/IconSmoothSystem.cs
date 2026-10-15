@@ -18,7 +18,7 @@ namespace Content.Client.IconSmoothing
     [UsedImplicitly]
     public sealed partial class IconSmoothSystem : EntitySystem
     {
-        [Dependency] private SharedMapSystem _mapSystem = default!;
+        private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         // Bound PVS, map-load and construction bursts without dropping sprite updates.
         private const int MaxQueueWorkPerFrame = 256;

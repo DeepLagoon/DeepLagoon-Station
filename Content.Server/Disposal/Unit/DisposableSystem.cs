@@ -22,7 +22,7 @@ namespace Content.Server.Disposal.Unit
         [Dependency] private DisposalTubeSystem _disposalTubeSystem = default!;
         [Dependency] private SharedAudioSystem _audio = default!;
         [Dependency] private SharedContainerSystem _containerSystem = default!;
-        [Dependency] private SharedMapSystem _maps = default!;
+        private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private SharedPhysicsSystem _physicsSystem = default!;
         [Dependency] private SharedTransformSystem _xformSystem = default!;
 

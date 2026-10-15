@@ -34,7 +34,7 @@ public sealed partial class FireControlSystem : EntitySystem
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private SharedContainerSystem _containers = default!;
     [Dependency] private IAdminLogManager _adminLogger = default!;
-    [Dependency] private IMapManager _mapMan = default!;
+    private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private bool _completedCheck = false;
 

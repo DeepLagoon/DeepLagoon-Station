@@ -25,7 +25,7 @@ public sealed partial class EntityStorageSystem : SharedEntityStorageSystem
 {
     [Dependency] private ConstructionSystem _construction = default!;
     [Dependency] private AtmosphereSystem _atmos = default!;
-    [Dependency] private IMapManager _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MapSystem _mapSystem = default!;
 
     public override void Initialize()

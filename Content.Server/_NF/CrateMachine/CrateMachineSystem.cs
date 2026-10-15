@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Content.Server.Storage.EntitySystems;
 using Content.Shared._NF.CrateMachine;
@@ -15,7 +15,7 @@ namespace Content.Server._NF.CrateMachine;
 /// </summary>
 public sealed partial class CrateMachineSystem : SharedCrateMachineSystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private EntityStorageSystem _storage = default!;
     [Dependency] private TransformSystem _transform = default!;

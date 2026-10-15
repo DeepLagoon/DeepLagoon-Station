@@ -10,7 +10,7 @@ public sealed partial class ReplaceFloorOnSpawnSystem : EntitySystem
     [Dependency] private ITileDefinitionManager _tile = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private IRobustRandom _random = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     /// <inheritdoc/>
     public override void Initialize()

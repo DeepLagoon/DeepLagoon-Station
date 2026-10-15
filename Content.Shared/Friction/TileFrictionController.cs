@@ -23,7 +23,7 @@ namespace Content.Shared.Friction
         [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
         [Dependency] private SharedGravitySystem _gravity = default!;
         [Dependency] private SharedMoverController _mover = default!;
-        [Dependency] private SharedMapSystem _map = default!;
+        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
         private EntityQuery<TileFrictionModifierComponent> _frictionQuery;
         private EntityQuery<TransformComponent> _xformQuery;

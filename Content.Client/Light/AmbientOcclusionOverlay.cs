@@ -18,7 +18,7 @@ public sealed partial class AmbientOcclusionOverlay : Overlay
     [Dependency] private IClyde _clyde = default!;
     [Dependency] private IConfigurationManager _cfgManager = default!;
     [Dependency] private IEntityManager _entManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _proto = default!;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowEntities;
@@ -116,7 +116,7 @@ public sealed partial class AmbientOcclusionOverlay : Overlay
                         if (turfSystem.IsSpace(tileRef))
                             continue;
 
-                        var bounds = lookups.GetLocalBounds(tileRef, grid.TileSize);
+                        var bounds = lookups.GetLocalBounds(tileRef, grid.Comp.TileSize);
                         worldHandle.DrawRect(bounds, Color.White);
                     }
                 }

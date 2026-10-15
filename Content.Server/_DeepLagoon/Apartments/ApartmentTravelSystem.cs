@@ -38,7 +38,7 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
     [Dependency] private IPlayerManager _players = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private PopupSystem _popup = default!;
-    [Dependency] private SharedMapSystem _map = default!;
+    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedBuckleSystem _buckle = default!;
     [Dependency] private ApartmentProtectionSystem _protection = default!;
 

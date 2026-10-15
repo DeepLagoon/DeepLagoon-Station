@@ -11,7 +11,7 @@ namespace Content.Server.Weather;
 public sealed partial class WeatherSystem : SharedWeatherSystem
 {
     [Dependency] private IConsoleHost _console = default!;
-    [Dependency] private SharedMapSystem _mapSystem = default!;
+    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Initialize()
     {

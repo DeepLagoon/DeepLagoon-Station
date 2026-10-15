@@ -24,7 +24,7 @@ public sealed partial class DebrisFeaturePlacerSystem : BaseWorldSystem
     [Dependency] private PoissonDiskSampler _sampler = default!;
     [Dependency] private TransformSystem _xformSys = default!;
     [Dependency] private ILogManager _logManager = default!;
-    [Dependency] private IMapManager _mapManager = default!;
+    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IRobustRandom _random = default!;
 
     private ISawmill _sawmill = default!;
