@@ -7,6 +7,7 @@
 
 - type: pointOfInterest
   id: TSFMCIndustry
+  abstract: true # Disabled: do not spawn Stellar Blessing.
   parent: [BasePOI, BaseRepairablePOI]
   name: 'TSF-CIV "Stellar Blessing"'
   minimumDistance: 1 # Mono
@@ -53,8 +54,7 @@
           stationDescription: 'monolith-lobby-tsf-industry-description'
           lobbySortOrder: 2
         - type: StationJobs
-          availableJobs:
-            TsfCivilian: [ -1, -1 ]
+          availableJobs: {}
           tags:
           - HeadOfPersonnel
           - HeadOfSecurity

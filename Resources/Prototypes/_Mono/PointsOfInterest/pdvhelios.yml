@@ -7,6 +7,7 @@
 # Discord: ???
 - type: pointOfInterest
   id: HeliosFortress
+  abstract: true # Disabled: do not spawn PDV Helios Fortress.
   parent: [BasePOI, BaseRepairablePOI]
   name: 'PDV Helios Fortress'
   minimumDistance: 22000
@@ -58,14 +59,7 @@
           stationSubtext: 'frontier-lobby-pirate-subtext'
           stationDescription: 'frontier-lobby-pirate-description'
         - type: StationJobs
-          availableJobs:
-            # PdvCivilian: [ -1, -1 ]
-            PirateCaptain: [ 1, 1 ]
-            PirateFirstMate: [ 1, 1 ]
-            PDVDenasvar: [ 3, 3 ]
-            # PDVInfiltrator: [ 2, 2 ]
-            Pirate: [ -1, -1 ]
-            PdvBorg: [ 2, 2 ]
+          availableJobs: {}
           tags:
           - GrandVizier
         - type: StationDeadDropReporting
@@ -76,6 +70,7 @@
 
 - type: pointOfInterest
   id: HeliosFortressHyperwar
+  abstract: true # Disabled: do not spawn PDV Helios Fortress in Hyperwar.
   parent: [BasePOI, BaseRepairablePOI]
   name: 'PDV Helios Fortress'
   minimumDistance: 7500
@@ -114,14 +109,7 @@
           stationSubtext: 'frontier-lobby-pirate-subtext'
           stationDescription: 'frontier-lobby-pirate-description'
         - type: StationJobs
-          availableJobs:
-            PirateCaptain: [ 1, 1 ]
-            PDVTarkhan: [ 3, 3 ]
-            PirateFirstMate: [ 3, 3 ]
-            PDVDenasvar: [ 6, 6 ]
-            # PDVInfiltrator: [ 2, 2 ]
-            Pirate: [ -1, -1 ]
-            PdvBorg: [ 2, 2 ]
+          availableJobs: {}
           tags:
           - CentralCommand
         - type: StationDeadDropReporting

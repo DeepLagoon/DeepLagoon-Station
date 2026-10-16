@@ -10,6 +10,7 @@
 # I want to lie, shipwrecked and comatose, drinking fresh mango juice.
 - type: pointOfInterest
   id: Bahama
+  abstract: true # Disabled: do not spawn Bahama Mama's.
   parent: [BasePOI, BaseRepairablePOI]
   name: "Bahama Mama's"
   minimumDistance: 3400

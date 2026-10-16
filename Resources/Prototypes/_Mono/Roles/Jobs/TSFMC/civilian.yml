@@ -11,7 +11,7 @@
   alwaysUseSpawner: true
   assignedCompany: TSFCivilian
   canBeAntag: false
-  setPreference: true
+  setPreference: false # Stellar Blessing is disabled.
   accessGroups:
   - GeneralAccess
   special:
