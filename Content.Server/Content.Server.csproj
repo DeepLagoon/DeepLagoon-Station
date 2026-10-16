@@ -9,6 +9,11 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
   <Import Project="../MSBuild/Content.props" />
+  <!-- CI's stock-client build uses the official engine without this server-only notification API.
+       Production builds always use the pinned server fork and include the alert system. -->
+  <ItemGroup Condition="'$(DeepLagoonStockValidation)' == 'true'">
+    <Compile Remove="_DeepLagoon/Physics/InvalidPhysicsAlertSystem.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Discord.Net" />
     <PackageReference Include="SixLabors.ImageSharp" />

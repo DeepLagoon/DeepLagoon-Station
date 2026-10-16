@@ -1,0 +1,1 @@
+dl-physics-invalid-fixture-alert = UNSAFE PHYSICS: invalid geometry was excluded from physics and its entity queued for deletion. Prototype: { $prototype }; fixture: { $fixture }; reason: { $reason }. Count: { $count }; example: { $entity }. Fix the prototype or map geometry (bounds: left < right, bottom < top).

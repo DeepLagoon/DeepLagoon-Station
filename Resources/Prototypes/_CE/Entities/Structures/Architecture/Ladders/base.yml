@@ -23,7 +23,7 @@
     fixtures:
       hard:
         shape: !type:PhysShapeAabb
-          bounds: -0.5,0.6,0.5,0.5
+          bounds: -0.5,0.5,0.5,0.6
         mask:
         - FullTileMask
         layer:

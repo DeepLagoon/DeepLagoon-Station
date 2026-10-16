@@ -14,12 +14,18 @@ class EngineCompatibilityTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.contract = gate.read_contract(gate.ROOT)
+        # Exercise a reviewed fork even when the production contract currently pins stock.
+        self.contract["engine_commit"] = "f" * 40
+        self.contract["allowed_engine_changes"] = {
+            "Robust.Shared/Physics/Systems/FixtureSystem.cs": "a" * 40,
+        }
         self.engine = self.root / "RobustToolbox"
         (self.engine / "MSBuild").mkdir(parents=True)
         (self.root / "MSBuild").mkdir()
         (self.root / "Content.Client").mkdir()
         self.version = self.engine / "MSBuild/Robust.Engine.Version.props"
-        self.version.write_text("<Project><PropertyGroup><Version>277.0.0</Version></PropertyGroup></Project>")
+        self.version.write_text("<Project><PropertyGroup><Version>" + self.contract["official_engine_version"] +
+                                "</Version></PropertyGroup></Project>")
         self.save_contract()
         self.head = self.contract["engine_commit"]
         self.dirty = ""
@@ -48,7 +54,7 @@ class EngineCompatibilityTests(unittest.TestCase):
 
     def test_reviewed_server_revision_emits_official_client_identity(self):
         metadata = gate.check(self.root)
-        self.assertEqual("277.0.0", metadata["engine_version"])
+        self.assertEqual(self.contract["official_engine_version"], metadata["engine_version"])
         self.assertEqual(self.head, metadata["server_engine_commit"])
 
     def test_fork_head_is_rejected_even_with_matching_nearest_tag(self):
@@ -61,7 +67,7 @@ class EngineCompatibilityTests(unittest.TestCase):
         self.changed = []
         with self.assertRaises(gate.CompatibilityError):
             gate.check(self.root)
-        self.assertEqual("277.0.0", gate.check(self.root, allow_stock=True)["engine_version"])
+        self.assertEqual(self.contract["official_engine_version"], gate.check(self.root, allow_stock=True)["engine_version"])
 
     def test_modified_or_untracked_engine_source_is_rejected(self):
         for state in (" M Robust.Client/Graphics/OwnedTexture.cs", "?? Robust.Client/NewApi.cs", " M cefglue"):
@@ -89,12 +95,12 @@ class EngineCompatibilityTests(unittest.TestCase):
             del self.contract["allowed_engine_changes"][path]
 
     def test_reviewed_shared_path_cannot_hide_different_content(self):
-        self.blobs["Robust.Shared/Prototypes/PrototypeManager.cs"] = "0" * 40
+        self.blobs["Robust.Shared/Physics/Systems/FixtureSystem.cs"] = "0" * 40
         with self.assertRaisesRegex(gate.CompatibilityError, "reviewed source"):
             gate.check(self.root)
 
     def test_version_mismatch_is_rejected(self):
-        self.version.write_text("<Project><PropertyGroup><Version>277.0.1</Version></PropertyGroup></Project>")
+        self.version.write_text("<Project><PropertyGroup><Version>0.0.0</Version></PropertyGroup></Project>")
         with self.assertRaisesRegex(gate.CompatibilityError, "Engine version"):
             gate.check(self.root)
 

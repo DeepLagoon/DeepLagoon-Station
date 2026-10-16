@@ -2,8 +2,8 @@
 """Fail closed on an unreviewed engine or a fork-only client dependency.
 
 This is a build/packaging contract, never an engine-source patcher. The only
-approved shared change is the pinned prototype hot-reload implementation;
-all client, auth, transport, serialization and loader sources remain stock.
+approved shared changes are pinned prototype hot-reload and server-side fixture
+quarantine implementations. Client, auth, transport and serialization stay stock.
 """
 import argparse
 import json
@@ -17,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Prototypes/PrototypeManager.cs",
     "Robust.Shared.IntegrationTests/Prototypes/PrototypeReloadTests.cs",
+    "Robust.Shared/Physics/Systems/FixtureSystem.cs",
+    "Robust.Shared/Physics/Systems/FixtureSystem.Validation.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Components.cs",
+    "Robust.Shared/Physics/Events/InvalidPhysicsFixtureEvent.cs",
+    "Robust.Shared.IntegrationTests/Physics/InvalidFixtureTests.cs",
 })
 
 
@@ -49,7 +54,7 @@ def read_contract(root: Path) -> dict:
             if not re.fullmatch(r"[0-9a-f]{40}", blob) or not path or ".." in Path(path).parts:
                 raise ValueError("invalid pinned engine source")
             if path not in REVIEWED_ENGINE_PATHS:
-                raise ValueError(f"engine path is outside the server hot-reload review: {path}")
+                raise ValueError(f"engine path is outside the reviewed server-only changes: {path}")
         return contract
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise CompatibilityError(f"Invalid ENGINE-COMPATIBILITY.json: {exc}") from exc

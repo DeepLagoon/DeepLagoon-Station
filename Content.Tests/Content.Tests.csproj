@@ -5,6 +5,9 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <Import Project="../MSBuild/Content.props" />
+  <ItemGroup Condition="'$(DeepLagoonStockValidation)' == 'true'">
+    <Compile Remove="Server/InvalidPhysicsAlertTests.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
