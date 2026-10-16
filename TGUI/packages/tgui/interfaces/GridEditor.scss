@@ -37,7 +37,14 @@ body:has(.GridEditor) { zoom: 1 !important; }
     img { position: absolute; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
   }
   &__pages { display: flex; align-items: center; justify-content: space-between; }
-  main { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  main { position: relative; flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  &__loading { position: absolute; top: 78px; left: 10px; right: 10px; z-index: 10; pointer-events: none;
+    > div { display: flex; flex-direction: column; gap: 7px; padding: 12px; background: #1e2d3bf2; border: 1px solid #70cae4; }
+    progress { width: 100%; height: 12px; accent-color: #70cae4; }
+    &.blocking { inset: 0; padding: 20px; display: grid; place-items: center; pointer-events: auto; background: #08121cbb;
+      > div { width: min(380px, 100%); }
+    }
+  }
   &__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px 6px; border-bottom: 1px solid #344b5b; }
   &__viewport { flex: 1; min-height: 0; overflow: auto; background: #08121c; overscroll-behavior: contain; overflow-anchor: none; scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
   &__surface { position: relative; touch-action: none; }
@@ -51,6 +58,7 @@ body:has(.GridEditor) { zoom: 1 !important; }
     img { position: absolute; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
   }
   &__scene { position: absolute; pointer-events: none; image-rendering: pixelated; }
+  &__selection { z-index: 99999; }
   &__mirrorLine { position: absolute; pointer-events: none; z-index: 99995; &.x { border-left: 2px dashed #efbf64; } &.y { border-top: 2px dashed #efbf64; } }
   &__reference { position: absolute; z-index: 99990; cursor: move; touch-action: none; outline: 1px dashed #7fdcf6; img { width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; } }
   &__expansion { position: absolute; pointer-events: none; background-color: #54e8ef44; outline: 1px solid #54e8ef; opacity: .6; image-rendering: pixelated; }

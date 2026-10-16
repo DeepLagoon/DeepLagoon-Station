@@ -1,63 +1,60 @@
 import { memo, useEffect, useRef } from 'react';
-import { drawOrder, itemsInRect } from './gridEditorModel.mjs';
+import { GridSceneCache } from './gridEditorSceneCache.mjs';
 
-// Rasterize only the viewport: map dimensions never allocate a map-sized GPU texture.
-// Cached image sources and the spatial index are reused while panning and zooming.
-export const GridEditorScene = memo(({ index, area, layers, visuals, view, cellSize }) => {
-  const canvas = useRef(null), images = useRef(new Map());
+// Only the viewport is uploaded to CEF. Pan/zoom composite prepared chunks;
+// source sprites are rasterized only on load or when their chunk changes.
+export const GridEditorScene = memo(({ index, area, layers, visuals, view, cellSize, onProgress }) => {
+  const canvas = useRef(null), cache = useRef(null), frame = useRef(null);
+  const ready = useRef(false);
+  const camera = useRef(null); camera.current = { area, view, cellSize };
+  const schedule = () => {
+    if (frame.current !== null) return;
+    frame.current = requestAnimationFrame(() => {
+      frame.current = null;
+      const { area, view, cellSize } = camera.current;
+      if (canvas.current) cache.current?.paint(canvas.current, area, view, cellSize);
+    });
+  };
+  useEffect(() => {
+    cache.current = new GridSceneCache(schedule);
+    return () => {
+      cache.current.dispose(); cache.current = null;
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
+      frame.current = null;
+    };
+  }, []);
   useEffect(() => {
     let cancelled = false;
-    const visible = itemsInRect(index, { x: area.x + view.left / cellSize,
-      y: area.y + area.height - (view.top + view.height) / cellSize,
-      width: view.width / cellSize, height: view.height / cellSize }).filter(item => layers[item.kind]);
-    const visual = item => visuals.get(`${item.kind}:${item.prototype}`);
-    const load = url => {
-      if (!images.current.has(url)) images.current.set(url, new Promise(resolve => {
-        const image = new Image();
-        image.onload = () => resolve(image); image.onerror = () => resolve(null); image.src = url;
-      }));
-      return images.current.get(url);
-    };
-    const urls = [...new Set(visible.flatMap(item => (visual(item)?.images || []).map(image => image.url)))];
-    Promise.all(urls.map(load)).then(loaded => {
-      if (cancelled) return;
-      const sources = new Map(urls.map((url, index) => [url, loaded[index]]));
-      const context = canvas.current.getContext('2d');
-      context.clearRect(0, 0, canvas.current.width, canvas.current.height);
-      context.imageSmoothingEnabled = false;
-      const tint = document.createElement('canvas'); tint.width = tint.height = 32;
-      const tinted = tint.getContext('2d');
-      // Stable sorting preserves the picker tie-break for overlapping sprites.
-      visible.sort((a, b) => drawOrder(a, visual(a)) - drawOrder(b, visual(b)));
-      for (const item of visible) {
-        const offset = item.kind === 'entity' ? .5 : 0;
-        const x = (item.x - offset - area.x) * cellSize - view.left;
-        const y = (area.y + area.height - 1 - item.y + offset) * cellSize - view.top;
-        context.save();
-        context.translate(x + cellSize / 2, y + cellSize / 2);
-        const rotateTile = item.kind === 'tile' && visual(item)?.allowRotationMirror;
-        context.rotate(-(item.kind === 'tile' ? rotateTile ? (item.mirror & 3) * 90 : 0 : item.rotation) * Math.PI / 180);
-        if (rotateTile && (item.mirror & 4)) context.scale(-1, 1);
-        if (item.kind === 'tile' && !(visual(item)?.images || []).some(image => sources.get(image.url))) {
-          context.fillStyle = '#3b454e'; context.fillRect(-cellSize / 2, -cellSize / 2, cellSize, cellSize);
-        }
-        context.globalAlpha = item.kind === 'decal' ? .85 : 1;
-        for (const { url } of visual(item)?.images || []) {
-          const image = sources.get(url); if (!image) continue;
-          const scale = cellSize / Math.max(image.width, image.height), width = image.width * scale, height = image.height * scale;
-          if (item.kind === 'decal') {
-            tinted.clearRect(0, 0, 32, 32); tinted.globalCompositeOperation = 'source-over';
-            const tintScale = 32 / Math.max(image.width, image.height);
-            tinted.drawImage(image, (32 - image.width * tintScale) / 2, (32 - image.height * tintScale) / 2, image.width * tintScale, image.height * tintScale);
-            tinted.globalCompositeOperation = 'source-in'; tinted.fillStyle = item.color; tinted.fillRect(0, 0, 32, 32);
-            context.drawImage(tint, -cellSize / 2, -cellSize / 2, cellSize, cellSize);
-          } else context.drawImage(image, -width / 2, -height / 2, width, height);
-        }
-        context.restore();
-      }
-    });
+    cache.current.prepare(index, layers, visuals, value => {
+      if (!value) ready.current = true;
+      onProgress(value && { ...value, blocking: !ready.current });
+    }, () => cancelled)
+      .catch(error => { if (!cancelled) onProgress({ error: error.message, blocking: true }); });
     return () => { cancelled = true; };
-  }, [index, area, layers, visuals, view, cellSize]);
+  }, [index, layers, visuals, onProgress]);
+  useEffect(schedule, [area, view, cellSize]);
   return <canvas ref={canvas} className="GridEditor__scene" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
+    style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
+});
+
+// A large selection must not create tens of thousands of DOM overlays.
+export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, offset }) => {
+  const canvas = useRef(null);
+  useEffect(() => {
+    const context = canvas.current.getContext('2d');
+    context.clearRect(0, 0, canvas.current.width, canvas.current.height);
+    context.fillStyle = '#33cbdf44'; context.strokeStyle = '#54e8ef'; context.lineWidth = Math.min(2, cellSize / 3);
+    for (const item of items) {
+      if (!layers[item.kind]) continue;
+      const origin = item.kind === 'entity' ? .5 : 0;
+      const x = (item.x + (offset?.dx || 0) - origin - area.x) * cellSize - view.left;
+      const y = (area.y + area.height - 1 - item.y - (offset?.dy || 0) + origin) * cellSize - view.top;
+      if (x + cellSize < 0 || y + cellSize < 0 || x > view.width || y > view.height) continue;
+      context.fillRect(x, y, cellSize, cellSize);
+      const inset = context.lineWidth / 2;
+      context.strokeRect(x + inset, y + inset, cellSize - inset * 2, cellSize - inset * 2);
+    }
+  }, [items, area, layers, view, cellSize, offset]);
+  return <canvas ref={canvas} className="GridEditor__scene GridEditor__selection" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });

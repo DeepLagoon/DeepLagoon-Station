@@ -63,10 +63,9 @@ public sealed partial class GridEditorSystem : EntitySystem
         var code = args.Key switch
         {
             Keyboard.Key.Z => "KeyZ", Keyboard.Key.Y => "KeyY", Keyboard.Key.C => "KeyC",
-            Keyboard.Key.V => "KeyV", Keyboard.Key.B => "KeyB",
-            Keyboard.Key.S => "KeyS", Keyboard.Key.Num2 => "Digit2",
-            Keyboard.Key.L => "KeyL", Keyboard.Key.U => "KeyU", Keyboard.Key.E => "KeyE",
-            Keyboard.Key.I => "KeyI", Keyboard.Key.R => "KeyR", Keyboard.Key.Space => "Space",
+            Keyboard.Key.V => "KeyV", Keyboard.Key.S => "KeyS",
+            Keyboard.Key.Num1 => "Digit1", Keyboard.Key.Num2 => "Digit2", Keyboard.Key.Num3 => "Digit3",
+            Keyboard.Key.E => "KeyE", Keyboard.Key.R => "KeyR", Keyboard.Key.Space => "Space",
             Keyboard.Key.Shift => "ShiftLeft", Keyboard.Key.Delete => "Delete", Keyboard.Key.Escape => "Escape",
             Keyboard.Key.Left => "ArrowLeft", Keyboard.Key.Right => "ArrowRight",
             Keyboard.Key.D => "KeyD",
