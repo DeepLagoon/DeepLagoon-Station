@@ -39,8 +39,8 @@ public sealed class UnequippedSlotsDatabaseTest
         await using (var context = new SqliteServerDbContext(options))
         {
             await context.GetService<IMigrator>().MigrateAsync("20261008210000_EditorItemCustomizations");
-            context.Preference.Add(new Preference { UserId = user.UserId, AdminOOCColor = "#FFFFFF" });
-            await context.SaveChangesAsync();
+            // Seed the historical schema without using a model that already contains later columns.
+            await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO preference (user_id, selected_character_slot, admin_ooc_color) VALUES ({user.UserId}, 0, '#FFFFFF')");
             await context.Database.MigrateAsync();
             Assert.That(context.Database.HasPendingModelChanges(), Is.False);
         }

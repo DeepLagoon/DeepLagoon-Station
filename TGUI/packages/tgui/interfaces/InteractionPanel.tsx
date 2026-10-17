@@ -15,6 +15,7 @@ type Data = {
   libraryLoaded: boolean; waiting: boolean; libraryStatus: string;
   libraryRevision: number; librarySaved: boolean;
   targetDoll: { base: string; parts: Record<string, string> };
+  bodyFeatures: { part: string; name: string; visibility: number }[];
 };
 const categoryIcons = ['heart', 'bolt', 'utensils', 'hand'];
 
@@ -64,6 +65,7 @@ export const InteractionPanel = () => {
       <nav className="InteractionPanel__tabs" aria-label={t('open')}>
         <button aria-pressed={tab === 'actions'} onClick={() => setTab('actions')}><Icon aria-hidden="true" name="hand" /> {t('tab-actions')}</button>
         <button aria-pressed={tab === 'custom'} onClick={() => setTab('custom')}><Icon aria-hidden="true" name="pen" /> {t('tab-custom')}</button>
+        <button aria-pressed={tab === 'body'} onClick={() => setTab('body')}><Icon aria-hidden="true" name="person" /> {t('tab-body')}</button>
       </nav>
       {tab === 'actions' ? <>
         <div className="InteractionPanel__search"><Icon aria-hidden="true" name="search" />
@@ -139,6 +141,19 @@ export const InteractionPanel = () => {
       <div className="InteractionPanel__customPage" hidden={tab !== 'custom'}>
         <CustomEditor data={data} act={act} t={t} focus={focus} />
       </div>
+      {tab === 'body' && <main className="InteractionPanel__bodySettings">
+        <p>{t('body-own')}</p>
+        {!(data.bodyFeatures || []).length && <p className="InteractionPanel__empty">{t('body-empty')}</p>}
+        {(data.bodyFeatures || []).map(feature => <label key={feature.part}>
+          <span>{feature.name}</span>
+          <select aria-label={feature.name} value={feature.visibility}
+            onChange={event => act('body-visibility', { id: feature.part, value: Number(event.target.value) })}>
+            <option value={0}>{t('body-hidden')}</option>
+            <option value={1}>{t('body-under')}</option>
+            <option value={2}>{t('body-over')}</option>
+          </select>
+        </label>)}
+      </main>}
     </div>
   );
 };

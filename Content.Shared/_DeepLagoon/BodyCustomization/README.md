@@ -17,8 +17,7 @@ Seven external parts have directional overlays. `butt` is the source's combined
 buttocks/hips overlay, not a separately modelled hip organ. `womb` has no on-mob
 sprite in the source: its presence is an additional toggle inside the vulva
 settings and does not affect the sprite. The anus uses the default shape without
-a shape selector. No physiology, interactions, fluids, surgery or growth mechanics
-are provided. Discrete sizes come from available sprite states; individual scaling
+a shape selector. No physiology, fluids or surgery mechanics are provided. Discrete sizes come from available sprite states; individual scaling
 is disabled and legacy scale values normalize to 1.
 
 The BODY feature catalog validates shape/size against compiled resource IDs.
@@ -31,6 +30,53 @@ Ordinary and luminous tattoo layers draw above anatomy, including anatomy set to
 draw above clothing. Tattoo cache order is rechecked after anatomy changes.
 Source overlays use the standard 32px biped torso; unusual species may require
 additional art.
+
+## Editor limits and runtime controls
+
+The editor and server preference validation cap buttocks/hips at 4, belly at 3,
+breasts (all three shapes) at J and penis at 3. The anus is a presence toggle
+under buttocks/hips, fixed to size 1 and inheriting that section's color and
+visibility. Testicles keep their full settings inside the penis section.
+The womb remains a presence toggle under the vulva. Imported/old editor profiles
+are clamped without changing the full runtime sprite catalog.
+The editor preview uses a fixed render scale: padded fitted clothing layers
+must never cause automatic shrinking of the character.
+
+The third **Части тела** tab in the Ctrl+Shift+click interaction panel changes
+visibility (hidden / under clothing / over clothing) for the player's own enabled
+external parts, including currently hidden parts. The tab always controls the
+attached character, even when the panel's interaction target is someone else.
+Requests require a valid open panel and are validated by the server. Changes
+are networked for other observers and last only for the current round.
+
+Ten reagents resize existing enabled parts, including hidden ones. Every 5 units
+actually metabolized changes one stage. Partial doses accumulate on the mob;
+opposite doses cancel their unfinished progress for the same part. Growth and
+reduction stop at the first/last available sprite for the current shape and can
+exceed lobby limits. They never create a missing part or modify saved profiles.
+
+All recipes need **370 K** and use **1 Silicon + 1 Aluminium (growth) or
+1 Copper (reduction) + 1 part-specific ingredient**, producing 3 units.
+The recipes have no ingredient-set subset/superset overlap with existing recipes.
+
+| Part | Growth reagent | Reduction reagent | Third ingredient | Runtime stages |
+| --- | --- | --- | --- | --- |
+| Buttocks/hips | DLButtGrowth | DLButtReduction | Iodine | 0–8 |
+| Belly | DLBellyGrowth | DLBellyReduction | Lithium | 1–10 |
+| Breasts | DLBreastsGrowth | DLBreastsReduction | Sulfur | A–O, HUGE, MASSIVE, GIGA, IMPOSSIBLE |
+| Anus | DLAnusGrowth | DLAnusReduction | Sugar | 0–8 |
+| Penis | DLPenisGrowth | DLPenisReduction | Sodium | 1–5 |
+
+Each reagent has `Pill<ReagentId>` (5u, one stage) and
+`PillCanister<ReagentId>` (7 pills) entity prototypes. They are spawnable stock;
+this change does not add them to vendors or roundstart loadouts.
+
+Validation: `BodyCustomizationTests`, `BodyCustomizationEditorTests` and
+`BodyCustomizationRuntimeTests` cover editor bounds, draft isolation, full-range
+dose effects, heated reactions, recipe conflicts, pill contents and network
+visibility authorization. `Tools/body-customization/body-editor-browser.test.cjs`
+checks nested sections and compact toggle dimensions at three viewport widths,
+plus the third panel tab and its visibility action.
 
 ## Soft clothing fit
 

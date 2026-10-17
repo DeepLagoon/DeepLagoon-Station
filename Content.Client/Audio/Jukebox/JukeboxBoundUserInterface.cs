@@ -44,6 +44,9 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
         _menu.OnSongSelected += SelectSong;
 
         _menu.SetTime += SetTime;
+
+        _menu.SetGain += SetGain; // Exodus Volume slider to jukebox
+
         PopulateMusic();
         Reload();
     }
@@ -57,6 +60,7 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
             return;
 
         _menu.SetAudioStream(jukebox.AudioStream);
+        _menu.SetGainValue(jukebox.Gain); // Exodus Volume slider to jukebox
 
         if (_protoManager.TryIndex(jukebox.SelectedSongId, out var songProto))
         {
@@ -97,5 +101,12 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
 
         SendMessage(new JukeboxSetTimeMessage(sentTime));
     }
+
+    // Exodus-begin Volume slider to jukebox
+    private void SetGain(float gain)
+    {
+        SendMessage(new JukeboxSetGainMessage(gain));
+    }
+    // Exodus-end
 }
 

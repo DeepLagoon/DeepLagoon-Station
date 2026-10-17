@@ -11,10 +11,12 @@ using Content.Shared._NF.Bank.Components;
 using Content.Shared._WF.SafetyDepositBox.BUI;
 using Content.Shared._WF.SafetyDepositBox.Components;
 using Content.Shared._WF.SafetyDepositBox.Events;
+using Content.Shared.Construction;
 using Content.Shared.Database;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Item;
 using Content.Shared.Labels.Components;
 using Content.Shared.Labels.EntitySystems;
 using Content.Shared.Preferences;
@@ -47,6 +49,9 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private MoneyManager _coinBase = default!; // I had to.
     [Dependency] private ISharedPlayerManager _playerManager = default!;
+    [Dependency] private SharedContainerSystem _container = default!;
+    [Dependency] private Content.Shared.Whitelist.EntityWhitelistSystem _whitelist = default!;
+    [Dependency] private SharedItemSystem _items = default!;
 
     private readonly HashSet<Guid> _pendingBoxes = new();
 
@@ -62,6 +67,73 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         SubscribeLocalEvent<SafetyDepositConsoleComponent, SafetyDepositReclaimMessage>(OnReclaim);
         SubscribeLocalEvent<SafetyDepositConsoleComponent, EntInsertedIntoContainerMessage>(OnSlotChanged);
         SubscribeLocalEvent<SafetyDepositConsoleComponent, EntRemovedFromContainerMessage>(OnSlotChanged);
+        SubscribeLocalEvent<SafetyDepositBoxComponent, ContainerIsInsertingAttemptEvent>(OnBoxInsertAttempt);
+        SubscribeLocalEvent<ItemSlotsComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsert);
+        SubscribeLocalEvent<ItemComponent, ConstructionInteractDoAfterEvent>(OnConstructionInteractDoAfter);
+    }
+
+    private bool CanDepositItem(EntityUid item, EntityUid box)
+    {
+        if (!TryComp<StorageComponent>(box, out var storage) || !TryComp<ItemComponent>(item, out var itemComp))
+            return false;
+        if (_whitelist.IsWhitelistFail(storage.Whitelist, item) || _whitelist.IsBlacklistPass(storage.Blacklist, item))
+            return false;
+        var maxSize = _storage.GetMaxItemSize((box, storage));
+        return _items.GetSizePrototype(itemComp.Size) <= maxSize
+            && (!TryComp<StorageComponent>(item, out var nested) || _storage.GetMaxItemSize((item, nested)) < maxSize);
+    }
+
+    private bool CanInsertContents(EntityUid item, EntityUid box)
+    {
+        var children = Transform(item).ChildEnumerator;
+        while (children.MoveNext(out var child))
+        {
+            if (HasComp<ItemComponent>(child) && !CanDepositItem(child, box)
+                || !CanInsertContents(child, box))
+                return false;
+        }
+        return true;
+    }
+
+    private bool TryFindDepositBox(EntityUid item, out EntityUid box)
+    {
+        var current = item;
+        while (_container.TryGetContainingContainer(current, out var container))
+        {
+            current = container.Owner;
+            if (HasComp<SafetyDepositBoxComponent>(current))
+            {
+                box = current;
+                return true;
+            }
+        }
+        box = default;
+        return false;
+    }
+
+    private void OnBoxInsertAttempt(Entity<SafetyDepositBoxComponent> ent, ref ContainerIsInsertingAttemptEvent args)
+    {
+        if (!CanInsertContents(args.EntityUid, ent))
+            args.Cancel();
+    }
+
+    private void OnItemSlotInsert(Entity<ItemSlotsComponent> ent, ref ItemSlotInsertAttemptEvent args)
+    {
+        if (!TryFindDepositBox(args.SlotEntity, out var box))
+            return;
+        if (!CanDepositItem(args.Item, box)
+            || !CanInsertContents(args.Item, box))
+        {
+            args.Cancelled = true;
+            if (args.User is { } user)
+                _popup.PopupEntity(Loc.GetString("safety-deposit-invalid-contents"), user);
+        }
+    }
+
+    private void OnConstructionInteractDoAfter(Entity<ItemComponent> ent, ref ConstructionInteractDoAfterEvent args)
+    {
+        if (TryFindDepositBox(ent, out var box))
+            _transform.DropNextTo(ent.Owner, box);
     }
 
     private void OnConsoleInit(EntityUid uid, SafetyDepositConsoleComponent component, ComponentInit args)
@@ -339,6 +411,12 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         SafetyDepositBoxComponent boxComp,
         StorageComponent storageComp)
     {
+        if (!CanInsertContents(boxEntity, boxEntity))
+        {
+            ConsolePopup(player, Loc.GetString("safety-deposit-invalid-contents"));
+            PlayDenySound(consoleUid, component);
+            return;
+        }
         var entityDataList = new List<string>();
 
         Log.Info($"DepositBoxAsync: Box has {storageComp.Container.ContainedEntities.Count} items");

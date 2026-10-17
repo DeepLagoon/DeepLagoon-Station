@@ -310,6 +310,10 @@ namespace Content.Client.Options.UI.Tabs
             AddButton(EngineKeyFunctions.EditorRotateObject);
             AddButton(ContentKeyFunctions.EditorFlipObject);
             AddButton(ContentKeyFunctions.EditorCopyObject);
+            // Exodus-Start
+            AddButton(ContentKeyFunctions.EditorCopyDecal);
+            AddButton(ContentKeyFunctions.EditorCopyDecalStack);
+            // Exodus-End
 
             AddHeader("ui-options-header-dev");
             AddButton(EngineKeyFunctions.ShowDebugConsole);

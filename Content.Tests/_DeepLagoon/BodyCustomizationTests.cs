@@ -21,6 +21,30 @@ namespace Content.Tests._DeepLagoon;
 public sealed class BodyCustomizationTests
 {
     [Test]
+    public void LobbyLimitsDoNotRestrictRuntimeSizesOrMutateSavedInput()
+    {
+        var features = BodyCustomizationCatalog.Order.Select(BodyCustomizationCatalog.Default).ToList();
+        foreach (var part in features) part.Enabled = true;
+        foreach (var part in features) part.Size = BodyCustomizationCatalog.Sizes(part.Part, part.Shape).Last();
+        var editor = BodyCustomizationCatalog.SanitizeForEditor(features);
+        foreach (var (part, maximum) in new[] { ("butt", "4"), ("belly", "3"), ("breasts", "j"), ("anus", "1"), ("penis", "3") })
+        {
+            Assert.That(editor.Single(f => f.Part == part).Size, Is.EqualTo(maximum));
+            Assert.That(BodyCustomizationCatalog.Resize(editor, part, 1), Is.True);
+            Assert.That(editor.Single(f => f.Part == part).Size, Is.Not.EqualTo(maximum));
+        }
+        Assert.That(features.Single(f => f.Part == "breasts").Size, Is.EqualTo("impossible"));
+        Assert.That(BodyCustomizationCatalog.Sanitize(editor).Single(f => f.Part == "breasts").Size, Is.EqualTo("k"));
+        foreach (var shape in BodyCustomizationCatalog.Parts["breasts"].Keys)
+            Assert.That(BodyCustomizationCatalog.EditorSizes("breasts", shape).Last(), Is.EqualTo("j"));
+        Assert.That(BodyCustomizationCatalog.Resize(editor, "womb", 1), Is.False);
+        Assert.That(BodyCustomizationCatalog.Resize(editor, "penis", 10), Is.False);
+        var penis = editor.Single(f => f.Part == "penis");
+        penis.Enabled = false;
+        Assert.That(BodyCustomizationCatalog.Resize(editor, "penis", 1), Is.False);
+    }
+
+    [Test]
     public void EditingOtherAppearanceFieldsPreservesAnatomyAndClonesTheDraft()
     {
         var breast = BodyCustomizationCatalog.Default("breasts");

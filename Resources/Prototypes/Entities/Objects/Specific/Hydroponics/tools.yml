@@ -4,6 +4,7 @@
   id: HydroponicsToolMiniHoe
   description: It's used for removing weeds or scratching your back.
   components:
+  - type: BotanyHoe
   - type: Tag
     tags:
     - Hoe
@@ -26,6 +27,7 @@
   id: HydroponicsToolClippers
   description: A tool used to take samples from plants.
   components:
+  - type: BotanySampleTaker
   - type: Tag
     tags:
     - PlantSampleTaker

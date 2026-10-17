@@ -19,7 +19,7 @@
   - type: Sprite
     sprite: _NF/Objects/Specific/Hydroponics/pear.rsi
   - type: Produce
-    seedId: pear
+    plantId: DeepLagoonPearPlant
   - type: Tag
     tags:
       - Fruit
@@ -50,7 +50,7 @@
   - type: Sprite
     sprite: _NF/Objects/Specific/Hydroponics/coffee.rsi
   - type: Produce
-    seedId: coffee
+    plantId: DeepLagoonCoffeePlant
   - type: Tag
     tags:
     - Fruit
@@ -81,7 +81,7 @@
   - type: Sprite
     sprite: _NF/Objects/Specific/Hydroponics/avocado.rsi
   - type: Produce
-    seedId: avocado
+    plantId: DeepLagoonAvocadoPlant
   - type: SliceableFood
     count: 2
     slice: FoodAvocadoSlice
@@ -147,7 +147,7 @@
   - type: Sprite
     sprite: _NF/Objects/Specific/Hydroponics/cucumber.rsi
   - type: Produce
-    seedId: cucumber
+    plantId: DeepLagoonCucumberPlant
   - type: SliceableFood
     count: 4
     slice: FoodCucumberSlice

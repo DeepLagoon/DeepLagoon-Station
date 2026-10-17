@@ -1,13 +1,33 @@
 <Project>
   <PropertyGroup>
-    <DeepLagoonPython Condition="'$(DeepLagoonPython)' == '' and '$(OS)' == 'Windows_NT'">python</DeepLagoonPython>
-    <DeepLagoonPython Condition="'$(DeepLagoonPython)' == ''">python3</DeepLagoonPython>
     <_DeepLagoonStockCheck Condition="'$(DeepLagoonStockValidation)' == 'true'">--allow-stock</_DeepLagoonStockCheck>
   </PropertyGroup>
+  <!-- Editor terminals can retain PATH from before Python was installed.
+       Resolve standard Windows installations without a user- or version-specific path.
+       An explicitly supplied DeepLagoonPython always takes precedence. -->
+  <Target Name="DeepLagoonResolvePython">
+    <ItemGroup Condition="'$(DeepLagoonPython)' == '' and '$(OS)' == 'Windows_NT'">
+      <_DeepLagoonPythonCandidate Include="$(LocalAppData)\Python\bin\python.exe"
+                                 Condition="Exists('$(LocalAppData)\Python\bin\python.exe')" />
+      <_DeepLagoonPythonCandidate Include="$(LocalAppData)\Programs\Python\Python3*\python.exe;$(LocalAppData)\Python\pythoncore-3.*\python.exe;$(ProgramFiles)\Python3*\python.exe" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_DeepLagoonPythonPaths>@(_DeepLagoonPythonCandidate->'%(FullPath)')</_DeepLagoonPythonPaths>
+      <DeepLagoonPython Condition="'$(DeepLagoonPython)' == '' and '$(_DeepLagoonPythonPaths)' != ''">$(_DeepLagoonPythonPaths.Split(';').GetValue(0))</DeepLagoonPython>
+      <DeepLagoonPython Condition="'$(DeepLagoonPython)' == '' and '$(OS)' == 'Windows_NT'">python</DeepLagoonPython>
+      <DeepLagoonPython Condition="'$(DeepLagoonPython)' == ''">python3</DeepLagoonPython>
+    </PropertyGroup>
+  </Target>
   <!-- Validate source ownership and stock API before compilation, including FullRelease.
        No engine sources or compile items are replaced by this target. -->
-  <Target Name="DeepLagoonCheckEngineCompatibility" BeforeTargets="PrepareForBuild"
+  <Target Name="DeepLagoonCheckEngineCompatibility" BeforeTargets="PrepareForBuild" DependsOnTargets="DeepLagoonResolvePython"
           Condition="'$(MSBuildProjectName)' == 'Content.Client' or '$(MSBuildProjectName)' == 'Content.Server' or '$(MSBuildProjectName)' == 'Content.Packaging'">
-    <Exec Command="&quot;$(DeepLagoonPython)&quot; &quot;$(MSBuildThisFileDirectory)../Tools/check_engine_compatibility.py&quot; $(_DeepLagoonStockCheck)" />
+    <Exec Command="&quot;$(DeepLagoonPython)&quot; &quot;$(MSBuildThisFileDirectory)../Tools/check_engine_compatibility.py&quot; $(_DeepLagoonStockCheck)"
+          ConsoleToMSBuild="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
+      <Output TaskParameter="ExitCode" PropertyName="_DeepLagoonCompatibilityExitCode" />
+      <Output TaskParameter="ConsoleOutput" ItemName="_DeepLagoonCompatibilityOutput" />
+    </Exec>
+    <Error Condition="'$(_DeepLagoonCompatibilityExitCode)' != '0'" Code="DLE0001"
+           Text="Engine compatibility check failed (exit $(_DeepLagoonCompatibilityExitCode)): @(_DeepLagoonCompatibilityOutput, ' ')" />
   </Target>
 </Project>

@@ -49,7 +49,7 @@ namespace Content.Server.NPC.Pathfinding
         [Dependency] private EntityLookupSystem _lookup = default!;
         [Dependency] private FixtureSystem _fixtures = default!;
         [Dependency] private NPCSystem _npc = default!;
-        private SharedMapSystem _maps => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+        [Dependency] private SharedMapSystem _maps = default!;
         [Dependency] private SharedPhysicsSystem _physics = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
 

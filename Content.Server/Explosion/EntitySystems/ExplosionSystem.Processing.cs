@@ -67,6 +67,8 @@ public sealed partial class ExplosionSystem
 
     private List<EntityUid> _anchored = new();
 
+    private List<EntityUid> _subFloorDeferred = new(); // Exodus
+
     private void OnMapRemoved(MapRemovedEvent ev)
     {
         // If a map was deleted, check the explosion currently being processed belongs to that map.
@@ -236,9 +238,17 @@ public sealed partial class ExplosionSystem
         var tileBlocked = false;
         _anchored.Clear();
         _map.GetAnchoredEntities(grid, tile, _anchored);
+        _subFloorDeferred.Clear(); // Exodus
         foreach (var entity in _anchored)
         {
             processed.Add(entity);
+            // Exodus-Start
+            if (_subFloorQuery.HasComponent(entity))
+            {
+                _subFloorDeferred.Add(entity);
+                continue;
+            }
+            // Exodus-End
             ProcessEntity(entity, epicenter, damage, throwForce, id, null, fireStacks, cause);
         }
 
@@ -272,6 +282,13 @@ public sealed partial class ExplosionSystem
             }
         }
 // ES END
+
+        // Process cables only after checking whether the remaining wall/window protects the tile.
+        if (!tileBlocked)
+        {
+            foreach (var entity in _subFloorDeferred)
+                ProcessEntity(entity, epicenter, damage, throwForce, id, null, fireStacks, cause);
+        }
 
         // Next, we get the intersecting entities AGAIN, but purely for throwing. This way, glass shards spawned from
         // windows will be flung outwards, and not stay where they spawned. This is however somewhat unnecessary, and a

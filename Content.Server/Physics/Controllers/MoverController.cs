@@ -187,7 +187,7 @@ public sealed partial class MoverController : SharedMoverController
     {
         base.UpdateBeforeSolve(prediction, frameTime);
 
-        // We use _seenMovers here as well as in UpdateMoverStatus—this means we
+        // We use _seenMovers here as well as in UpdateMoverStatusвЂ”this means we
         // cannot have any events get fired while we use it in this while loop.
         _seenMovers.Clear();
         _moversToUpdate.Clear();
@@ -203,18 +203,20 @@ public sealed partial class MoverController : SharedMoverController
             _seenRelayMovers.Clear(); // O(1) if already empty
             QueueRelaySources(activeComp.RelayedFrom);
 
-            // If it's already inserted, that's fine—that means it'll still be
+            // If it's already inserted, that's fineвЂ”that means it'll still be
             // handled before its child movers
             AddMover((uid, moverComp));
         }
 
         ActiveMoverGauge.Set(_moversToUpdate.Count);
 
+        BeginParallelMovement(_moversToUpdate.Count);
         foreach (var ent in _moversToUpdate)
         {
             HandleMobMovement(ent, frameTime);
         }
 
+        CompleteParallelMovement();
         HandleShuttlePilot(frameTime);
 
         HandleShuttleMovement(frameTime);

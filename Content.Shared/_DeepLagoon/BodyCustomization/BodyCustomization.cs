@@ -41,7 +41,52 @@ public static partial class BodyCustomizationCatalog
     {
         if (part == "womb") return new() { Part = part, Shape = "internal", Size = "1" };
         var shape = Parts[part].Keys.First();
-        return new() { Part = part, Shape = shape, Size = Sizes(part, shape).First() };
+        return new() { Part = part, Shape = shape, Size = part == "anus" ? "1" : Sizes(part, shape).First() };
+    }
+
+    // Lobby limits only. Runtime changes use the full imported sprite catalog.
+    public static string[] EditorSizes(string part, string shape) => Sizes(part, shape).Where(size => part switch
+    {
+        "butt" => int.Parse(size) <= 4,
+        "belly" or "penis" => int.Parse(size) <= 3,
+        "breasts" => size.Length == 1 && size[0] <= 'j',
+        "anus" => size == "1",
+        _ => true,
+    }).ToArray();
+
+    public static List<BodyFeature> SanitizeForEditor(IEnumerable<BodyFeature>? features)
+    {
+        var result = Sanitize(features);
+        foreach (var feature in result)
+        {
+            var sizes = EditorSizes(feature.Part, feature.Shape);
+            if (!sizes.Contains(feature.Size)) feature.Size = sizes.Last();
+        }
+        // The anus has a presence toggle under buttocks, with the parent's appearance.
+        var anus = result.FirstOrDefault(f => f.Part == "anus");
+        var butt = result.FirstOrDefault(f => f.Part == "butt");
+        if (anus != null && butt != null)
+        {
+            anus.MatchSkin = butt.MatchSkin;
+            anus.Color = butt.Color;
+            anus.Visibility = butt.Visibility;
+        }
+        return result;
+    }
+
+    public static bool CanResize(string part) => part is "butt" or "belly" or "breasts" or "anus" or "penis";
+
+    public static bool Resize(List<BodyFeature> features, string part, int direction)
+    {
+        if (!CanResize(part) || direction is not (-1 or 1)) return false;
+        var feature = features.FirstOrDefault(f => f.Part == part && f.Enabled);
+        if (feature == null || !Parts[part].ContainsKey(feature.Shape)) return false;
+        var sizes = Sizes(part, feature.Shape);
+        var index = Array.IndexOf(sizes, feature.Size);
+        var next = Math.Clamp(index + direction, 0, sizes.Length - 1);
+        if (index < 0 || index == next) return false;
+        feature.Size = sizes[next];
+        return true;
     }
 
     public static string[] Sizes(string part, string shape)

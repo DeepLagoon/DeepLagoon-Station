@@ -6,6 +6,7 @@ namespace Content.Shared.Shuttles.BUIStates;
 [Serializable, NetSerializable]
 public sealed class ShuttleBoundUserInterfaceState : BoundUserInterfaceState
 {
+    public Content.Shared.Exodus.ShipShields.ShipShieldState? ShieldState;
     public NavInterfaceState NavState;
     public ShuttleMapInterfaceState MapState;
     public DockingInterfaceState DockState;

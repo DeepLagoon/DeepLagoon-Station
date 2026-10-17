@@ -78,6 +78,12 @@
                   </PanelContainer>
                 </BoxContainer>
               </PanelContainer>
+              <BoxContainer Name="ShieldContainer" Orientation="Vertical" Visible="False" Margin="4 3">
+                <Label Name="ShieldStatusLabel" />
+                <Label Name="ShieldHealthLabel" />
+                <ProgressBar Name="ShieldHealthBar" MinValue="0" MaxValue="1" MinHeight="12" />
+                <Label Name="ShieldLoadLabel" />
+              </BoxContainer>
               <PanelContainer VerticalExpand="True" Margin="0 3 0 3">
                 <PanelContainer.PanelOverride>
                   <gfx:StyleBoxFlat BackgroundColor="#111111" />

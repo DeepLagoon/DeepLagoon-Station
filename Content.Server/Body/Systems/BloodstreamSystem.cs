@@ -28,6 +28,7 @@ namespace Content.Server.Body.Systems;
 
 public sealed partial class BloodstreamSystem : EntitySystem
 {
+    [Dependency] private Content.Shared.StatusEffect.StatusEffectsSystem _anticoagulantStatus = default!;
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private IRobustRandom _robustRandom = default!;
@@ -134,7 +135,8 @@ public sealed partial class BloodstreamSystem : EntitySystem
                 // Blood is removed from the bloodstream at a 1-1 rate with the bleed amount
                 TryModifyBloodLevel(uid, (-bloodstream.BleedAmount), bloodstream);
                 // Bleed rate is reduced by the bleed reduction amount in the bloodstream component.
-                TryModifyBleedAmount(uid, -bloodstream.BleedReductionAmount, bloodstream);
+                if (!_anticoagulantStatus.HasStatusEffect(uid, "Anticoagulant"))
+                    TryModifyBleedAmount(uid, -bloodstream.BleedReductionAmount, bloodstream);
             }
 
             // deal bloodloss damage if their blood level is below a threshold.

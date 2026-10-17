@@ -1,3 +1,4 @@
+using Content.Shared._Exodus.FireControl;
 // Copyright Rane (elijahrane@gmail.com) 2025
 // All rights reserved. Relicensed under AGPL with permission
 
@@ -87,7 +88,7 @@ public sealed class FireControlConsoleBoundUserInterface : BoundUserInterface
     private void SendCursorUpdateMessage(NetCoordinates coordinates)
     {
         // Send an empty weapon list to indicate this is just a cursor update, not a firing action
-        SendMessage(new FireControlConsoleFireMessage(new List<NetEntity>(), coordinates));
+        SendMessage(new FireControlConsoleCursorPositionMessage(coordinates));
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)

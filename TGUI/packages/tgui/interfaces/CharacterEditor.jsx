@@ -39,6 +39,36 @@ const HairCarousel = ({options,selected,color,onSelect}) => {
   </div><button type="button" aria-label="Следующие четыре" onClick={()=>turn(1)}>▶</button></div>;
 };
 
+const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
+  const set = field => value => act('body-feature', { part: feature.part, field, value });
+  const testicles = features.find(part => part.part === 'testicles');
+  return <details>
+    <summary>{feature.name}{feature.enabled ? ' ✓' : ''}</summary>
+    <Button selected={feature.enabled} onClick={() => set('enabled')(String(!feature.enabled))}>
+      {feature.enabled ? 'Добавлено' : 'Добавить'}
+    </Button>
+    {feature.enabled && <div className="CharacterEditor__grid">
+      <Select label="Форма" value={feature.shape} options={feature.shapes} onChange={set('shape')} />
+      <Select label="Размер" value={feature.size} options={feature.sizes} onChange={set('size')} disabled={feature.sizes.length < 2} />
+      <Select label="Отображение" value={feature.visibility} options={[{id: '0', name: 'Скрыто'}, {id: '1', name: 'Под одеждой'}, {id: '2', name: 'Поверх одежды'}]} onChange={value => set('visibility')(Number(value))} />
+      <Button selected={feature.matchSkin} onClick={() => set('matchSkin')(String(!feature.matchSkin))}>Цвет кожи</Button>
+      <ColorEditor label="Цвет части" value={feature.matchSkin ? skinColor : feature.color} disabled={feature.matchSkin} onChange={set('color')} />
+      {feature.part === 'breasts' && <>
+        <Button selected={feature.secondaryEnabled} disabled={!feature.secondaryAvailable} onClick={() => set('secondaryEnabled')(String(!feature.secondaryEnabled))}>Цветные соски</Button>
+        {feature.secondaryEnabled && <ColorEditor label="Цвет сосков" value={feature.secondaryColor} disabled={!feature.secondaryAvailable} onChange={set('secondaryColor')} />}
+        {!feature.secondaryAvailable && <small>Второй цвет доступен для обычной формы груди.</small>}
+      </>}
+    </div>}
+    {feature.part === 'vagina' && <Button selected={feature.womb} onClick={() => set('womb')(String(!feature.womb))}>
+      Матка: {feature.womb ? 'есть' : 'нет'}
+    </Button>}
+    {feature.part === 'butt' && <Button selected={feature.anus} onClick={() => set('anus')(String(!feature.anus))}>
+      Анус: {feature.anus ? 'есть' : 'нет'}
+    </Button>}
+    {feature.part === 'penis' && testicles && <BodyFeatureEditor feature={testicles} features={features} skinColor={skinColor} act={act} />}
+  </details>;
+};
+
 export const CharacterEditor = () => {
   const { data, act } = useBackend();
   const departments = useMemo(() => (data.departments || []).map(department => ({ ...department,
@@ -170,30 +200,8 @@ export const CharacterEditor = () => {
       <details className="CharacterEditor__bodyFeatures">
         <summary>Части тела</summary>
         <small>Настройки независимы от пола. Размер выбирает спрайт. Изменения сохраняются кнопкой «Сохранить».</small>
-        {(data.bodyFeatures || []).map(feature => {
-          const set = field => value => act('body-feature', { part: feature.part, field, value });
-          return <details key={feature.part}>
-            <summary>{feature.name}{feature.enabled ? ' ✓' : ''}</summary>
-            <Button selected={feature.enabled} onClick={() => set('enabled')(String(!feature.enabled))}>
-              {feature.enabled ? 'Добавлено' : 'Добавить'}
-            </Button>
-            {feature.enabled && <div className="CharacterEditor__grid">
-              {feature.part !== 'anus' && <Select label="Форма" value={feature.shape} options={feature.shapes} onChange={set('shape')} />}
-              <Select label="Размер" value={feature.size} options={feature.sizes} onChange={set('size')} disabled={feature.sizes.length < 2} />
-              <Select label="Отображение" value={feature.visibility} options={[{id: '0', name: 'Скрыто'}, {id: '1', name: 'Под одеждой'}, {id: '2', name: 'Поверх одежды'}]} onChange={value => set('visibility')(Number(value))} />
-              <Button selected={feature.matchSkin} onClick={() => set('matchSkin')(String(!feature.matchSkin))}>Цвет кожи</Button>
-              <ColorEditor label="Цвет части" value={feature.matchSkin ? data.skinColor : feature.color} disabled={feature.matchSkin} onChange={set('color')} />
-              {feature.part === 'breasts' && <>
-                <Button selected={feature.secondaryEnabled} disabled={!feature.secondaryAvailable} onClick={() => set('secondaryEnabled')(String(!feature.secondaryEnabled))}>Цветные соски</Button>
-                {feature.secondaryEnabled && <ColorEditor label="Цвет сосков" value={feature.secondaryColor} disabled={!feature.secondaryAvailable} onChange={set('secondaryColor')} />}
-                {!feature.secondaryAvailable && <small>Второй цвет доступен для обычной формы груди размеров A–O и HUGE.</small>}
-              </>}
-            </div>}
-            {feature.part === 'vagina' && <Button selected={feature.womb} onClick={() => set('womb')(String(!feature.womb))}>
-              Матка: {feature.womb ? 'есть' : 'нет'}
-            </Button>}
-          </details>;
-        })}
+        {(data.bodyFeatures || []).filter(feature => !['anus', 'testicles'].includes(feature.part)).map(feature =>
+          <BodyFeatureEditor key={feature.part} feature={feature} features={data.bodyFeatures} skinColor={data.skinColor} act={act} />)}
       </details>
       <div className="CharacterEditor__hair">
         {data.hairOptions?.length <= 1 && data.beardOptions?.length <= 1 && <small>Для этой расы нет обычных причёсок и бороды. Доступные украшения головы настраиваются во вкладке «Особенности».</small>}

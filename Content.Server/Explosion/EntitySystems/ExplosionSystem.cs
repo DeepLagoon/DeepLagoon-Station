@@ -1,3 +1,4 @@
+using Content.Shared.SubFloor;
 using System.Linq;
 using System.Numerics;
 using Content.Server._ES.TileFires;
@@ -91,6 +92,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
     private EntityQuery<DestructibleComponent> _destructibleQuery;
     private EntityQuery<DamageableComponent> _damageableQuery;
     private EntityQuery<AirtightComponent> _airtightQuery;
+    private EntityQuery<SubFloorHideComponent> _subFloorQuery; // Exodus
 
     /// <summary>
     ///     "Tile-size" for space when there are no nearby grids to use as a reference.
@@ -147,6 +149,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
         _destructibleQuery = GetEntityQuery<DestructibleComponent>();
         _damageableQuery = GetEntityQuery<DamageableComponent>();
         _airtightQuery = GetEntityQuery<AirtightComponent>();
+        _subFloorQuery = GetEntityQuery<SubFloorHideComponent>(); // Exodus
 
         _prototypeManager.PrototypesReloaded += ReloadExplosionPrototypes;
     }

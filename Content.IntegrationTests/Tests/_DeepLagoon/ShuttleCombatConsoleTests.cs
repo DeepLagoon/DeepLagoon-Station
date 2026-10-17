@@ -112,7 +112,7 @@ public sealed class ShuttleCombatConsoleTests
         {
             var entities = pair.Server.EntMan;
             entities.System<SharedMapSystem>().CreateMap(out var mapId);
-            var grid = pair.Server.ResolveDependency<IMapManager>().CreateGridEntity(mapId);
+            var grid = pair.Server.EntMan.System<SharedMapSystem>().CreateGridEntity(mapId);
             var console = entities.SpawnEntity("ComputerShuttle", new EntityCoordinates(grid.Owner, Vector2.Zero));
             var shuttles = entities.System<ShuttleConsoleSystem>();
             shuttles.RefreshState(console);

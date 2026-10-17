@@ -32,7 +32,7 @@ public sealed class GridEditorTests
         {
             var entities = pair.Server.EntMan;
             entities.System<SharedMapSystem>().CreateMap(out var mapId, runMapInit: false);
-            var created = pair.Server.ResolveDependency<IMapManager>().CreateGridEntity(mapId); grid = created.Owner;
+            var created = pair.Server.EntMan.System<SharedMapSystem>().CreateGridEntity(mapId); grid = created.Owner;
             entities.System<SharedMapSystem>().SetTile(grid, created.Comp, new Vector2i(0, -1), new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
             pair.Server.ResolveDependency<IAdminManager>().PromoteHost(pair.Server.PlayerMan.Sessions.Single());
         });
@@ -99,7 +99,7 @@ public sealed class GridEditorTests
         {
             var entities = pair.Server.EntMan;
             entities.System<SharedMapSystem>().CreateMap(out var mapId, runMapInit: false);
-            var created = pair.Server.ResolveDependency<IMapManager>().CreateGridEntity(mapId);
+            var created = pair.Server.EntMan.System<SharedMapSystem>().CreateGridEntity(mapId);
             grid = created.Owner;
             var tile = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
             var tiles = new List<(Vector2i, Tile)>();
@@ -148,7 +148,7 @@ public sealed class GridEditorTests
         {
             var entities = pair.Server.EntMan;
             entities.System<SharedMapSystem>().CreateMap(out var mapId, runMapInit: false);
-            var created = pair.Server.ResolveDependency<IMapManager>().CreateGridEntity(mapId);
+            var created = pair.Server.EntMan.System<SharedMapSystem>().CreateGridEntity(mapId);
             grid = created.Owner;
             var tile = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
             // A 250x250 footprint with internal empty space that expansion must preserve.
@@ -236,7 +236,7 @@ public sealed class GridEditorTests
         {
             var entities = pair.Server.EntMan;
             entities.System<SharedMapSystem>().CreateMap(out var mapId, runMapInit: false);
-            var created = pair.Server.ResolveDependency<IMapManager>().CreateGridEntity(mapId);
+            var created = pair.Server.EntMan.System<SharedMapSystem>().CreateGridEntity(mapId);
             grid = created.Owner;
             var tiles = pair.Server.ResolveDependency<ITileDefinitionManager>();
             entities.System<SharedMapSystem>().SetTile(grid, created.Comp, new Vector2i(0, 0), new Tile(tiles["Plating"].TileId));

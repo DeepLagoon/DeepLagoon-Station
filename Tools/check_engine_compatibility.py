@@ -7,8 +7,10 @@ quarantine implementations. Client, auth, transport and serialization stay stock
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -29,11 +31,36 @@ class CompatibilityError(RuntimeError):
     pass
 
 
+def find_git() -> str:
+    executable = shutil.which("git")
+    if executable:
+        return executable
+    # Editor tasks may inherit a PATH without Git even when Git for Windows is installed.
+    if sys.platform == "win32":
+        locations = (
+            ("ProgramW6432", "Git/cmd/git.exe"),
+            ("ProgramFiles", "Git/cmd/git.exe"),
+            ("ProgramFiles(x86)", "Git/cmd/git.exe"),
+            ("LocalAppData", "Programs/Git/cmd/git.exe"),
+        )
+        for variable, relative in locations:
+            directory = os.environ.get(variable)
+            if directory:
+                candidate = Path(directory) / relative
+                if candidate.is_file():
+                    return str(candidate)
+    raise CompatibilityError("Git was not found. Install Git or add its cmd directory to PATH, then restart the editor")
+
+
 def _git(root: Path, *args: str) -> str:
-    command = ["git", "-c", f"safe.directory={root.as_posix()}", "-C", str(root), *args]
-    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    command = [find_git(), "-c", f"safe.directory={root.as_posix()}", "-C", str(root), *args]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+    except OSError as exc:
+        raise CompatibilityError(f"Cannot start Git ({command[0]}): {exc}") from exc
     if result.returncode:
-        raise CompatibilityError(f"Cannot verify engine source: git {' '.join(args[:2])} failed")
+        raise CompatibilityError(f"Cannot verify engine source: git {' '.join(args[:2])} failed: " +
+                                 (result.stderr.strip() or f"exit code {result.returncode}"))
     return result.stdout.strip()
 
 

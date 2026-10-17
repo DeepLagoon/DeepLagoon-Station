@@ -1,3 +1,8 @@
+using Content.Shared._Exodus.CCVar;
+using Robust.Shared.Configuration;
+using Robust.Shared.Threading;
+using System.Linq;
+using System.Numerics;
 using Content.Server.Destructible;
 using Content.Shared.Damage;
 using Content.Shared.FixedPoint;
@@ -124,56 +129,140 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
         return modifiedDamage;
     }
 
+    // Exodus-OptimizeProjectiles-Start
+    private readonly List<(EntityUid Uid, ProjectileComponent Comp, PhysicsComponent Body, TransformComponent Xform, Fixture ProjFix)>
+                  _projectiles = [];
+    private ProjectileRayData[] _rayData = Array.Empty<ProjectileRayData>();
+    private readonly HashSet<MapId> _rayMaps = new();
+    [Dependency] private IParallelManager _rayParallel = default!;
+    [Dependency] private IConfigurationManager _rayConfig = default!;
+
+    private readonly record struct ProjectileRayJob(ProjectileSystem System, ProjectileRayData[] Rays) : IParallelRobustJob
+    {
+        public int BatchSize => 16;
+        public void Execute(int index)
+        {
+            ref var data = ref Rays[index];
+            // The official engine returns distance-sorted ray hits. Collision events are applied later on the main thread.
+            data.Hits = System._physics.IntersectRay(data.MapId, data.Ray, data.MaxDistance, data.Ignore, false);
+        }
+    }
+
+    private struct ProjectileRayData
+    {
+        public EntityUid Uid;
+        public MapId MapId;
+        public CollisionRay Ray;
+        public float MaxDistance;
+        public EntityUid Ignore;
+        public IEnumerable<RayCastResults> Hits;
+        public Vector2 Velocity;
+    }
+    // Exodus-OptimizeProjectiles-End
+
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
+        // Exodus-OptimizeProjectiles-Start: Gather all projectiles and raycast data in parallel, then process hits sequentially
+        _projectiles.Clear();
+        _rayMaps.Clear();
+
         var query = EntityQueryEnumerator<ProjectileComponent, PhysicsComponent>();
-        while (query.MoveNext(out var uid, out var projectileComp, out var physicsComp))
+
+        while (query.MoveNext(out var uid, out var comp, out var body))
         {
-            if (projectileComp.ProjectileSpent || TerminatingOrDeleted(uid))
+            if (comp.ProjectileSpent || TerminatingOrDeleted(uid)
+                || comp is { Weapon: null, OnlyCollideWhenShot: true })
                 continue;
 
             var xform = Transform(uid);
-            var currentVelocity = projectileComp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, physicsComp, xform);
-            var velLen = currentVelocity.Length();
-            if (!ShouldRaycastProjectile(velLen) && projectileComp.RaycastResetVelocity == null)
+            var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+            var velLen = vel.Length();
+            if (!ShouldRaycastProjectile(velLen) && comp.RaycastResetVelocity == null)
                 continue;
 
-            var lastMap = _transformSystem.GetMapCoordinates(xform);
-            var lastPosition = lastMap.Position;
-            var rayDirection = currentVelocity / velLen;
-            // Ensure rayDistance is not zero to prevent issues with IntersectRay if frametime or velocity is zero.
             var rayDistance = velLen * frameTime;
-            if (rayDistance <= 0f)
+            if (!float.IsFinite(rayDistance) || rayDistance <= 0f || velLen <= float.Epsilon)
                 continue;
 
             if (!_fixQuery.TryComp(uid, out var fix) || !fix.Fixtures.TryGetValue(ProjectileFixture, out var projFix))
                 continue;
 
-            var hits = _physics.IntersectRay(xform.MapID,
-                new CollisionRay(lastPosition, rayDirection, projFix.CollisionMask),
-                rayDistance,
-                uid, // Entity to ignore (self)
-                false); // IncludeNonHard = false
+            _projectiles.Add((uid, comp, body, xform, projFix));
+        }
 
-            // do not process other grid velocity if we are gridded
-            if (!ProcessHits(hits) && projectileComp.RaycastResetVelocity is { } resetVel)
+        if (_rayData.Length < _projectiles.Count)
+            Array.Resize(ref _rayData, _projectiles.Count);
+
+        for (var i = 0; i < _projectiles.Count; i++)
+        {
+            var (uid, comp, body, xform, projFix) = _projectiles[i];
+            var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+            var velLen = vel.Length();
+            var rayDir = vel / velLen;
+            var lastMap = _transformSystem.GetMapCoordinates(xform);
+            var rayDist = velLen * frameTime;
+
+            _rayMaps.Add(xform.MapID);
+            _rayData[i] = new ProjectileRayData
             {
-                var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
-                var resetTo = resetVel - parentVel;
-                _physics.SetLinearVelocity(uid, resetTo, body: physicsComp);
-                projectileComp.RaycastResetVelocity = null;
+                Uid = uid,
+                MapId = xform.MapID,
+                Ray = new CollisionRay(lastMap.Position, rayDir, projFix.CollisionMask),
+                MaxDistance = rayDist,
+                Ignore = uid,
+                Hits = [],
+                Velocity = vel,
+            };
+        }
+
+        var job = new ProjectileRayJob(this, _rayData);
+        if (_projectiles.Count >= 32 && _rayConfig.GetCVar(EXCVars.ParallelProjectileRaycasts))
+        {
+            // Materialize lazy transform caches before workers traverse the read-only broadphase trees.
+            // No entity mutation or collision event runs until ProcessNow joins all jobs.
+            var broadphases = EntityQueryEnumerator<BroadphaseComponent, TransformComponent>();
+            while (broadphases.MoveNext(out var broadphaseUid, out _, out var broadphaseTransform))
+            {
+                if (_rayMaps.Contains(broadphaseTransform.MapID))
+                    _transformSystem.GetWorldPositionRotationMatrixWithInv(broadphaseUid);
+            }
+            _rayParallel.ProcessNow(job, _projectiles.Count);
+        }
+        else
+        {
+            for (var i = 0; i < _projectiles.Count; i++)
+                job.Execute(i);
+        }
+
+        for (var i = 0; i < _projectiles.Count; i++)
+        {
+            var (uid, comp, body, xform, projFix) = _projectiles[i];
+            var data = _rayData[i];
+            _rayData[i] = default;
+            if (TerminatingOrDeleted(uid))
+                continue;
+
+            if (!ProcessHitsSequential(uid, comp, body, xform, projFix, data.Hits, data.Velocity, frameTime))
+            {
+                // no valid hit вЂ“ reset velocity if needed
+                if (comp.RaycastResetVelocity is { } resetVel)
+                {
+                    var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
+                    var resetTo = resetVel - parentVel;
+                    _physics.SetLinearVelocity(uid, resetTo, body: body);
+                    comp.RaycastResetVelocity = null;
+                }
             }
 
-            bool ProcessHits(IEnumerable<RayCastResults> hits)
+            bool ProcessHitsSequential(EntityUid uid, ProjectileComponent comp, PhysicsComponent body,
+                TransformComponent xform, Fixture projFix, IEnumerable<RayCastResults> sortedHits, Vector2 velocity, float frameTime)
             {
-                // Process the closest hit
-                // IntersectRay results are not guaranteed to be sorted by distance, so we go through them all.
-                (EntityUid? Uid, float Distance) minHit = (null, float.MaxValue);
-                foreach (var hit in hits)
+                foreach (var hit in sortedHits)
                 {
                     var hitEnt = hit.HitEntity;
+                    if (TerminatingOrDeleted(hitEnt)) continue;
 
                     if (!_physQuery.TryComp(hitEnt, out var otherBody) || !_fixQuery.TryComp(hitEnt, out var otherFix))
                         continue;
@@ -187,48 +276,41 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                             break;
                         }
                     }
-                    if (hitFix == null)
-                        continue;
-                    // this is cursed but necessary
-                    var ourEv = new PreventCollideEvent(uid, hitEnt, physicsComp, otherBody, projFix, hitFix);
+                    if (hitFix == null) continue;
+
+                    var ourEv = new PreventCollideEvent(uid, hitEnt, body, otherBody, projFix, hitFix);
                     RaiseLocalEvent(uid, ref ourEv);
-                    if (ourEv.Cancelled)
-                        continue;
+                    if (ourEv.Cancelled) continue;
 
-                    var otherEv = new PreventCollideEvent(hitEnt, uid, otherBody, physicsComp, hitFix, projFix);
+                    var otherEv = new PreventCollideEvent(hitEnt, uid, otherBody, body, hitFix, projFix);
                     RaiseLocalEvent(hitEnt, ref otherEv);
-                    if (otherEv.Cancelled)
-                        continue;
+                    if (otherEv.Cancelled) continue;
 
-                    if (hit.Distance < minHit.Distance)
-                        minHit = (hitEnt, hit.Distance);
+                    // Valid hit вЂ“ apply it
+                    var lastMap = _transformSystem.GetMapCoordinates(xform);
+                    var hitMapCoord = lastMap.Offset(hit.Distance * data.Ray.Direction);
+                    var hitPos = _transformSystem.ToCoordinates(hitMapCoord);
+                    var hitXform = Transform(hitEnt);
+                    if (hitXform.Coordinates.EntityId != hitXform.GridUid && hitXform.GridUid != null)
+                        hitPos = _transformSystem.WithEntityId(hitPos, hitXform.GridUid.Value);
+
+                    // Set velocity for the frame of impact
+                    if (comp.RaycastResetVelocity == null)
+                    {
+                        var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
+                        comp.RaycastResetVelocity = velocity + parentVel;
+                        var curVel = body.LinearVelocity;
+                        curVel.Normalize();
+                        curVel *= 1f / frameTime;
+                        _physics.SetLinearVelocity(uid, curVel, body: body);
+                    }
+
+                    _transformSystem.SetCoordinates(uid, hitPos);
+                    return true;
                 }
-                if (minHit.Uid == null)
-                    return false;
-
-                // teleport us so we hit it
-                var hitXform = Transform(minHit.Uid.Value);
-                var hitMapCoord = lastMap.Offset(rayDirection * minHit.Distance);
-                var hitPos = _transformSystem.ToCoordinates(hitMapCoord);
-                // if we somehow hit something not directly parented to space or a grid
-                if (hitXform.Coordinates.EntityId != hitXform.GridUid && hitXform.GridUid != null)
-                    hitPos = _transformSystem.WithEntityId(hitPos, hitXform.GridUid.Value);
-
-                if (projectileComp.RaycastResetVelocity == null)
-                {
-                    var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
-                    projectileComp.RaycastResetVelocity = currentVelocity + parentVel; // record specifically world velocity
-                    var curVel = physicsComp.LinearVelocity;
-                    curVel.Normalize();
-                    var resetTo = 1f / frameTime;
-                    curVel *= resetTo;
-                    _physics.SetLinearVelocity(uid, curVel, body: physicsComp);
-                }
-
-                _transformSystem.SetCoordinates(uid, hitPos);
-
-                return true;
+                return false;
             }
         }
+        // Exodus-OptimizeProjectiles-End
     }
 }

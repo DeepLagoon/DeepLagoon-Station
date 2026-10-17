@@ -4,7 +4,7 @@
   id: HydroponicsSoilEmpty
   suffix: Empty
   components:
-  - type: PlantHolder
+  - type: PlantTray
     waterLevel: 0
     nutritionLevel: 0
 #  - type: Construction #Mono out: This has conflicts with the plantholder component
@@ -16,7 +16,7 @@
   id: HydroponicsSoilNutrition
   suffix: "0 water, 100 nutrition"
   components:
-  - type: PlantHolder
+  - type: PlantTray
     waterLevel: 0
     nutritionLevel: 100
 #  - type: Construction

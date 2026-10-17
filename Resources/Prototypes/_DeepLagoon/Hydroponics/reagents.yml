@@ -1,0 +1,41 @@
+# Upstream botany dependencies, adapted to the existing chemistry and status APIs.
+- type: reagent
+  id: Heparin
+  name: reagent-name-heparin
+  group: Medicine
+  desc: reagent-desc-heparin
+  physicalDesc: reagent-physical-desc-thin
+  flavor: medicine
+  color: "#d0e21b"
+  metabolisms:
+    Medicine:
+      effects:
+      - !type:GenericStatusEffect
+        key: Anticoagulant
+        time: 30
+        refresh: true
+      - !type:ModifyBleedAmount
+        conditions:
+        - !type:ReagentThreshold
+          reagent: Heparin
+          min: 15
+        amount: 0.25
+
+- type: statusEffect
+  id: Anticoagulant
+  alwaysAllowed: true
+
+- type: reagent
+  id: MutagenicFertilizer
+  name: reagent-name-mutagenic-fertilizer
+  group: Botanical
+  desc: reagent-desc-mutagenic-fertilizer
+  physicalDesc: reagent-physical-desc-clumpy
+  flavor: earthy
+  color: "#759923"
+  recognizable: false
+  plantMetabolism:
+  - !type:PlantAdjustMutationLevel
+    amount: 1
+    mutationTable: FarmingPlantMutations
+

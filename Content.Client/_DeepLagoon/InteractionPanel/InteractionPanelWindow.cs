@@ -3,6 +3,7 @@ using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.Lobby.UI;
 using Content.Shared._DeepLagoon.InteractionPanel;
+using Content.Shared._DeepLagoon.BodyCustomization;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -44,6 +45,14 @@ public sealed class InteractionPanelWindow : BaseWindow
     public event Action? PreferencesChanged;
     public event Action<InteractionPanelCustomAction>? SaveRequested;
     public event Action<string>? DeleteRequested;
+    public event Action<string, int>? BodyVisibilityRequested;
+    private BodyFeature[] _bodyFeatures = [];
+
+    public void SetBodyState(InteractionPanelBodyStateEvent state)
+    {
+        _bodyFeatures = state.Features;
+        Publish();
+    }
 
     public InteractionPanelWindow(InteractionPanelPanelEvent data, EntityUid? target, IEnumerable<string> favorites, float interval)
     {
@@ -109,6 +118,8 @@ public sealed class InteractionPanelWindow : BaseWindow
     private void Publish()
     {
         var state = new TguiData().String("name", _data.Name).Bool("self", _data.Self)
+            .Array("bodyFeatures", _bodyFeatures.Where(f => f.Enabled && f.Part != "womb").Select(f =>
+                new TguiData().String("part", f.Part).String("name", BodyCustomizationCatalog.Names[f.Part]).Number("visibility", f.Visibility)))
             .Bool("humanoid", _data.Humanoid).Bool("debug", _data.DebugPreferences)
             .Number("interval", Interval).String("status", _status).Object("labels", _labels)
             .Bool("libraryLoaded", _libraryLoaded).Bool("waiting", _waiting).String("libraryStatus", _libraryStatus)
@@ -136,6 +147,12 @@ public sealed class InteractionPanelWindow : BaseWindow
         if (action == "stop") { RepeatRequested?.Invoke("", false, Interval); return; }
         if (!TguiActionData.TryParse(payload, out var parsed) || parsed == null) return;
         var id = parsed.String("id") ?? "";
+        if (action == "body-visibility" && parsed.TryInt("value", out var visibility) && visibility is >= 0 and <= 2
+            && _bodyFeatures.Any(f => f.Enabled && f.Part == id && f.Part != "womb"))
+        {
+            BodyVisibilityRequested?.Invoke(id, visibility);
+            return;
+        }
         if (action == "interval" && parsed.TryFloat("value", out var interval))
         {
             Interval = InteractionPanelActions.ClampInterval(interval);
@@ -230,6 +247,7 @@ public sealed class InteractionPanelWindow : BaseWindow
         "library-busy", "my-list-empty", "library-full", "validation-title-required", "validation-title-long", "validation-template-start",
         "validation-template-long", "validation-tokens", "validation-hidden", "validation-targets", "validation-actors", "validation-color",
         "compact-target", "compact-expand", "compact-collapse", "compact-available", "compact-found", "compact-close", "compact-preview",
+        "tab-body", "body-own", "body-empty", "body-hidden", "body-under", "body-over",
         "compact-delete-confirm", "compact-cancel", "compact-locked", "compact-all", "compact-help", "compact-seconds", "sounds-all", "compact-available-only", "compact-body-hint", "body-all",
     ];
 }

@@ -1,7 +1,7 @@
 using System.Numerics;
 using Content.Server.Body.Components;
 using Content.Server.Construction;
-using Content.Server.Botany.Components;
+using Content.Shared.Botany.Items.Components;
 using Content.Server.Fluids.EntitySystems;
 using Content.Server.Materials;
 using Content.Server.Power.Components;

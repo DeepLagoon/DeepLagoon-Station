@@ -308,28 +308,19 @@ public abstract partial class SharedMoverController : VirtualController
             friction = Math.Min(friction, accel);
         friction = Math.Max(friction, _minDamping);
         var minimumFrictionSpeed = moveSpeedComponent?.MinimumFrictionSpeed ?? MovementSpeedModifierComponent.DefaultMinimumFrictionSpeed;
-        Friction(minimumFrictionSpeed, frameTime, friction, ref velocity);
-
-        if (!weightless || touching)
-            Accelerate(ref velocity, in wishDir, accel, frameTime);
-
         SetWishDir((uid, mover), wishDir);
+        var step = new MobMovementStep(uid, mover, physicsComponent, xform, tileDef, relaySource,
+            weightless, wishDir, velocity, minimumFrictionSpeed, frameTime, friction, accel, !weightless || touching);
+        if (!QueueMobMovement(step))
+            FinishMobMovement(step, step.Calculate());
+    }
 
-        /*
-         * SNAKING!!! >-( 0 ================>
-         * Snaking is a feature where you can move faster by strafing in a direction perpendicular to the
-         * direction you intend to move while still holding the movement key for the direction you're trying to move.
-         * Snaking only works if acceleration exceeds friction, and it's effectiveness scales as acceleration continues
-         * to exceed friction.
-         * Snaking works because friction is applied first in the direction of our current velocity, while acceleration
-         * is applied after in our "Wish Direction" and is capped by the dot of our wish direction and current direction.
-         * This means when you change direction, you're technically able to accelerate more than what the velocity cap
-         * allows, but friction normally eats up the extra movement you gain.
-         * By strafing as stated above you can increase your speed by about 1.4 (square root of 2).
-         * This only works if friction is low enough so be sure that anytime you are letting a mob move in a low friction
-         * environment you take into account the fact they can snake! Also be sure to lower acceleration as well to
-         * prevent jerky movement!
-         */
+    protected virtual bool QueueMobMovement(MobMovementStep step) => false;
+
+    protected void FinishMobMovement(MobMovementStep step, Vector2 velocity)
+    {
+        var (uid, mover, physicsComponent, xform, tileDef, relaySource, weightless, wishDir) =
+            (step.Uid, step.Mover, step.Physics, step.Transform, step.Tile, step.RelaySource, step.Weightless, step.WishDir);
         PhysicsSystem.SetLinearVelocity(uid, velocity, body: physicsComponent);
 
         // Ensures that players do not spiiiiiiin

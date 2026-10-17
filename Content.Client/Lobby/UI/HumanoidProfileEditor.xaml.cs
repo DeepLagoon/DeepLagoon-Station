@@ -1268,6 +1268,8 @@ namespace Content.Client.Lobby.UI
         {
             if (slot != CharacterSlot || profile == null) CloseHeadshotLibrary();
             Profile = profile?.Clone();
+            if (Profile != null)
+                Profile.Appearance.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.SanitizeForEditor(Profile.Appearance.BodyFeatures);
             CharacterSlot = slot;
             IsDirty = false;
             JobOverride = null;

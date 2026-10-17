@@ -1,0 +1,269 @@
+# Additional DeepLagoon crops migrated to the upstream plant entity model.
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonSpesosPlant
+  name: seeds-spesos-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/spesostree.rsi
+  - type: PlantData
+    name: seeds-spesos-name
+    noun: seeds-noun-seeds
+    packetPrototype: SpesosTreeSeeds
+    productPrototypes:
+    - SpaceCash
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 45
+    maturation: 15
+    production: 8
+    yield: 3
+    potency: 10
+    growthStages: 2
+  - type: PlantGrowth
+  - type: PlantHarvest
+    harvestRepeat: Repeat
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals: {}
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonPearPlant
+  name: seeds-pear-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/pear.rsi
+  - type: PlantData
+    name: seeds-pear-name
+    noun: seeds-noun-seeds
+    packetPrototype: PearSeeds
+    productPrototypes:
+    - FoodPear
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 55
+    maturation: 6
+    production: 6
+    yield: 3
+    potency: 10
+  - type: PlantGrowth
+  - type: PlantHarvest
+    harvestRepeat: Repeat
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals:
+      Nutriment:
+        min: 1
+        max: 10
+        potencyDivisor: 10
+      Vitamin:
+        min: 1
+        max: 4
+        potencyDivisor: 25
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonCoffeePlant
+  name: seeds-coffee-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/coffee.rsi
+  - type: PlantData
+    name: seeds-coffee-name
+    noun: seeds-noun-seeds
+    packetPrototype: CoffeeSeeds
+    productPrototypes:
+    - FoodCoffee
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 25
+    maturation: 9
+    production: 1
+    yield: 2
+    potency: 5
+    growthStages: 5
+  - type: PlantGrowth
+    waterConsumption: 0.6
+  - type: PlantHarvest
+    harvestRepeat: Repeat
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals:
+      Nutriment:
+        min: 2
+        max: 8
+        potencyDivisor: 16
+      Theobromine:
+        min: 1
+        max: 4
+        potencyDivisor: 25
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonAvocadoPlant
+  name: seeds-avocado-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/avocado.rsi
+  - type: PlantData
+    name: seeds-avocado-name
+    noun: seeds-noun-seeds
+    packetPrototype: AvocadoSeeds
+    productPrototypes:
+    - FoodAvocado
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 55
+    maturation: 6
+    production: 6
+    yield: 3
+    potency: 10
+    growthStages: 5
+  - type: PlantGrowth
+    waterConsumption: 0.6
+  - type: PlantHarvest
+    harvestRepeat: Repeat
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals:
+      Nutriment:
+        min: 1
+        max: 10
+        potencyDivisor: 10
+      Vitamin:
+        min: 1
+        max: 4
+        potencyDivisor: 25
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonCucumberPlant
+  name: seeds-cucumber-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/cucumber.rsi
+  - type: PlantData
+    name: seeds-cucumber-name
+    noun: seeds-noun-seeds
+    packetPrototype: CucumberSeeds
+    productPrototypes:
+    - FoodCucumber
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 50
+    maturation: 7
+    production: 5
+    yield: 4
+    potency: 10
+    growthStages: 5
+  - type: PlantGrowth
+  - type: PlantHarvest
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals:
+      Nutriment:
+        min: 1
+        max: 10
+        potencyDivisor: 10
+      Vitamin:
+        min: 1
+        max: 4
+        potencyDivisor: 25
+- type: entity
+  parent: BasePlant
+  id: DeepLagoonBeesPlant
+  name: seeds-bees-display-name
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Specific/Hydroponics/bees.rsi
+  - type: PlantData
+    name: seeds-bees-name
+    noun: seeds-noun-nothing
+    packetPrototype: BeeSeeds
+    productPrototypes:
+    - FoodHoneyComb
+    mutationPrototypes: []
+  - type: Plant
+    lifespan: 60
+    maturation: 7
+    production: 5
+    yield: 4
+    potency: 10
+    growthStages: 4
+  - type: PlantGrowth
+  - type: PlantHarvest
+    harvestRepeat: Repeat
+  - type: PlantWeedPest
+  - type: PlantToxins
+  - type: PlantAtmospheric
+    lowHeatTolerance: 283
+    highHeatTolerance: 303
+    lowPressureTolerance: 81
+    highPressureTolerance: 121
+  - type: PlantConsumeExudeGas
+    consumeGasses: {}
+    exudeGasses: {}
+  - type: PlantChemicals
+    chemicals:
+      Nutriment:
+        min: 1
+        max: 10
+        potencyDivisor: 10
+      Vitamin:
+        min: 1
+        max: 4
+        potencyDivisor: 25

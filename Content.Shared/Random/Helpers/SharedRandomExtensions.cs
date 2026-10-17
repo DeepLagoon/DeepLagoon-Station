@@ -8,6 +8,26 @@ namespace Content.Shared.Random.Helpers
 {
     public static class SharedRandomExtensions
     {
+        /// <summary>Deterministic per-tick randomness shared by predicted botany interactions.</summary>
+        public static System.Random PredictedRandom(Robust.Shared.Timing.IGameTiming timing, Robust.Shared.GameObjects.NetEntity entity)
+            => new(HashCodeCombine((int) timing.CurTick.Value, entity.Id));
+
+        public static bool PredictedProb(Robust.Shared.Timing.IGameTiming timing, float probability, Robust.Shared.GameObjects.NetEntity entity)
+            => PredictedRandom(timing, entity).NextDouble() < probability;
+
+        public static (string reagent, FixedPoint2 quantity) Pick(this WeightedRandomFillSolutionPrototype prototype, System.Random random)
+        {
+            var total = prototype.Fills.Sum(fill => fill.Weight);
+            var roll = random.NextFloat() * total;
+            foreach (var fill in prototype.Fills)
+            {
+                roll -= fill.Weight;
+                if (roll < 0f)
+                    return (random.Pick(fill.Reagents), fill.Quantity);
+            }
+            throw new InvalidOperationException($"Invalid weighted pick for {prototype.ID}!");
+        }
+
         public static string Pick(this IRobustRandom random, DatasetPrototype prototype)
         {
             return random.Pick(prototype.Values);

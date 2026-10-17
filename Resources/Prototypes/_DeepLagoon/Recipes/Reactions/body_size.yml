@@ -1,0 +1,129 @@
+- type: reaction
+  id: DLButtGrowth
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Aluminium:
+      amount: 1
+    Iodine:
+      amount: 1
+  products:
+    DLButtGrowth: 3
+
+- type: reaction
+  id: DLButtReduction
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Copper:
+      amount: 1
+    Iodine:
+      amount: 1
+  products:
+    DLButtReduction: 3
+
+- type: reaction
+  id: DLBellyGrowth
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Aluminium:
+      amount: 1
+    Lithium:
+      amount: 1
+  products:
+    DLBellyGrowth: 3
+
+- type: reaction
+  id: DLBellyReduction
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Copper:
+      amount: 1
+    Lithium:
+      amount: 1
+  products:
+    DLBellyReduction: 3
+
+- type: reaction
+  id: DLBreastsGrowth
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Aluminium:
+      amount: 1
+    Sulfur:
+      amount: 1
+  products:
+    DLBreastsGrowth: 3
+
+- type: reaction
+  id: DLBreastsReduction
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Copper:
+      amount: 1
+    Sulfur:
+      amount: 1
+  products:
+    DLBreastsReduction: 3
+
+- type: reaction
+  id: DLAnusGrowth
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Aluminium:
+      amount: 1
+    Sugar:
+      amount: 1
+  products:
+    DLAnusGrowth: 3
+
+- type: reaction
+  id: DLAnusReduction
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Copper:
+      amount: 1
+    Sugar:
+      amount: 1
+  products:
+    DLAnusReduction: 3
+
+- type: reaction
+  id: DLPenisGrowth
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Aluminium:
+      amount: 1
+    Sodium:
+      amount: 1
+  products:
+    DLPenisGrowth: 3
+
+- type: reaction
+  id: DLPenisReduction
+  minTemp: 370
+  reactants:
+    Silicon:
+      amount: 1
+    Copper:
+      amount: 1
+    Sodium:
+      amount: 1
+  products:
+    DLPenisReduction: 3

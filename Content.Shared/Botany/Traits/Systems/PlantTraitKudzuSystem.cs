@@ -1,0 +1,41 @@
+using Content.Shared.Botany.Components;
+using Content.Shared.Botany.Events;
+using Content.Shared.Botany.Systems;
+using Content.Shared.Botany.Traits.Components;
+
+namespace Content.Shared.Botany.Traits.Systems;
+
+/// <inheritdoc cref="PlantTraitKudzuComponent"/>
+public sealed partial class PlantTraitKudzuSystem : EntitySystem
+{
+    public override void Initialize()
+    {
+        base.Initialize();
+        _trayQuery = GetEntityQuery<PlantTrayComponent>();
+        SubscribeLocalEvent<PlantTraitKudzuComponent, PlantGrowEvent>(OnPlantGrow);
+    }
+
+    [Dependency] private PlantHolderSystem _plantHolder = default!;
+    [Dependency] private PlantTraySystem _plantTray = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
+
+     private EntityQuery<PlantTrayComponent> _trayQuery;
+
+    private void OnPlantGrow(Entity<PlantTraitKudzuComponent> ent, ref PlantGrowEvent args)
+    {
+        var trayUid = args.Tray;
+        if (!_trayQuery.TryComp(trayUid, out var trayComp))
+            return;
+
+        if (trayComp is { WaterLevel: > 10, NutritionLevel: > 5 })
+            _plantTray.AdjustWeed(trayUid, ent.Comp.WeedGrowthAmount);
+
+        // Handle kudzu transformation.
+        if (trayComp.WeedLevel >= ent.Comp.WeedLevelThreshold)
+        {
+            PredictedSpawnAtPosition(ent.Comp.KudzuPrototype, Transform(ent.Owner).Coordinates);
+            RemComp<PlantTraitKudzuComponent>(ent.Owner);
+            _plantHolder.KillPlant(ent.Owner);
+        }
+    }
+}

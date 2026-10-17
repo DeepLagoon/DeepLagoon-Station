@@ -1,3 +1,4 @@
+using Content.Shared._Exodus.FireControl;
 // Copyright Rane (elijahrane@gmail.com) 2025
 // All rights reserved. Relicensed under AGPL with permission
 
@@ -7,7 +8,6 @@ using Content.Server.Shuttles.Systems;
 using Content.Shared._Mono.FireControl;
 using Content.Shared._Mono.Ships.Components;
 using Content.Shared.Database;
-using Content.Shared.GameTicking;
 using Content.Shared.Popups;
 using Content.Shared.Power;
 using Content.Shared.Shuttles.BUIStates;
@@ -36,35 +36,16 @@ public sealed partial class FireControlSystem : EntitySystem
     [Dependency] private IAdminLogManager _adminLogger = default!;
     private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
-    private bool _completedCheck = false;
-
     private void InitializeConsole()
     {
-        SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnSpawnComplete);
-
+        // Exodus: Component lifecycle events replace the previous player-spawn-wide refresh.
         SubscribeLocalEvent<FireControlConsoleComponent, PowerChangedEvent>(OnPowerChanged);
         SubscribeLocalEvent<FireControlConsoleComponent, ComponentShutdown>(OnComponentShutdown);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleRefreshServerMessage>(OnRefreshServer);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleFireMessage>(OnFire);
+        SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleCursorPositionMessage>(OnCursorPosition); // Exodus fire-control cursor optimization
         SubscribeLocalEvent<FireControlConsoleComponent, BoundUIOpenedEvent>(OnUIOpened);
         SubscribeLocalEvent<FireControlConsoleComponent, ActivatableUIOpenAttemptEvent>(OnConsoleUIOpenAttempt);
-    }
-
-    // scuffed one-time check of all station control consoles to ensure they're already refreshed
-    // given this only happens once, we can assume all refreshed are things like Camelot's gunnery server.
-    private void OnSpawnComplete(PlayerSpawnCompleteEvent ev)
-    {
-        if (_completedCheck)
-            return;
-
-        var query = EntityQueryEnumerator<FireControlConsoleComponent>();
-
-        while (query.MoveNext(out var uid, out var console))
-        {
-            DoRefreshServer(uid, console);
-        }
-
-        _completedCheck = true;
     }
 
     private void OnPowerChanged(EntityUid uid, FireControlConsoleComponent component, PowerChangedEvent args)
@@ -73,11 +54,15 @@ public sealed partial class FireControlSystem : EntitySystem
             TryRegisterConsole(uid, component);
         else
             UnregisterConsole(uid, component);
+
+        QueueConsoleUiUpdate(uid); // Exodus fire-control event-driven UI updates
     }
 
     private void OnComponentShutdown(EntityUid uid, FireControlConsoleComponent component, ComponentShutdown args)
     {
         UnregisterConsole(uid, component);
+        _pendingUiConsoles.Remove(uid); // Exodus fire-control event-driven UI updates
+        _nextUiUpdates.Remove(uid); // Exodus fire-control event-driven UI updates
     }
 
     private void DoRefreshServer(EntityUid uid, FireControlConsoleComponent component)
@@ -93,32 +78,19 @@ public sealed partial class FireControlSystem : EntitySystem
             ForceServerReconnectionOnGrid((EntityUid)consoleGrid);
         }
 
-        // Check if the current connected server is still valid
-        if (component.ConnectedServer != null)
-        {
-            if (!Exists(component.ConnectedServer) || !TryComp<FireControlServerComponent>(component.ConnectedServer, out _))
-            {
-                // Server no longer exists, clear the connection
-                component.ConnectedServer = null;
-            }
-        }
-
-        // Try to register console if not connected or if connection was cleared
-        if (component.ConnectedServer == null)
-        {
-            TryRegisterConsole(uid, component);
-        }
+        TryRegisterConsole(uid, component); // Exodus fire-control event-driven UI updates
 
         // Refresh controllables if we have a valid server connection
         if (component.ConnectedServer != null &&
             TryComp<FireControlServerComponent>(component.ConnectedServer, out var server) &&
             server.ConnectedGrid != null)
         {
-            RefreshControllables((EntityUid)server.ConnectedGrid);
+            RefreshControllables((EntityUid)server.ConnectedGrid, immediateConsole: uid); // Exodus fire-control event-driven UI updates
         }
 
         // Always update UI to reflect current state
         UpdateUi(uid, component);
+        MarkConsoleUiUpdated(uid); // Exodus fire-control event-driven UI updates
     }
 
     private void OnRefreshServer(EntityUid uid, FireControlConsoleComponent component, FireControlConsoleRefreshServerMessage args)
@@ -135,11 +107,19 @@ public sealed partial class FireControlSystem : EntitySystem
 
         var xform = Transform(uid);
         var grid = xform.GridUid;
-        if (grid == null)
+        if (grid == null || server.ConnectedGrid != grid)
             return;
+        var coordinates = GetCoordinates(args.Coordinates);
+        if (!coordinates.IsValid(EntityManager) || _transform.ToMapCoordinates(coordinates).MapId != xform.MapID)
+            return;
+        if (args.Selected.Count == 0)
+        {
+            RaiseCursorPosition(uid, coordinates);
+            return;
+        }
 
         // Fire the actual weapons
-        FireWeapons((EntityUid)component.ConnectedServer, args.Selected, args.Coordinates, server);
+        FireWeapons((EntityUid)component.ConnectedServer, args.Selected, args.Coordinates, args.Actor, server, uid);
         if ((component.NextLog == null || component.NextLog < _timing.CurTime) && args.Selected.Any())
         {
             var firePos = _transform.ToMapCoordinates(GetCoordinates(args.Coordinates)).Position;
@@ -162,16 +142,44 @@ public sealed partial class FireControlSystem : EntitySystem
             component.NextLog = _timing.CurTime + component.LogSpacing;
         }
 
-        UpdateUi(uid, component);
-
-        // Raise an event to track the cursor position even when not firing
-        var fireEvent = new FireControlConsoleFireEvent(args.Coordinates, args.Selected);
-        RaiseLocalEvent(uid, fireEvent);
+        // Exodus-begin fire-control cursor optimization
+        RaiseCursorPosition(uid, coordinates);
+        // Exodus-end
     }
+
+    // Exodus-begin fire-control cursor optimization
+    private void OnCursorPosition(Entity<FireControlConsoleComponent> ent, ref FireControlConsoleCursorPositionMessage args)
+    {
+        if (!_consoleMousePositions.ContainsKey(ent))
+            return;
+
+        var grid = Transform(ent).GridUid;
+        if (grid == null
+            || ent.Comp.ConnectedServer == null
+            || !TryComp<FireControlServerComponent>(ent.Comp.ConnectedServer, out var server)
+            || !server.Consoles.Contains(ent)
+            || server.ConnectedGrid != grid)
+        {
+            return;
+        }
+
+        var coordinates = GetCoordinates(args.Coordinates);
+        if (!coordinates.IsValid(EntityManager))
+            return;
+
+        RaiseCursorPosition(ent, coordinates);
+    }
+
+    private void RaiseCursorPosition(EntityUid console, EntityCoordinates coordinates)
+    {
+        var cursorEvent = new FireControlConsoleCursorPositionEvent(coordinates);
+        RaiseLocalEvent(console, ref cursorEvent);
+    }
+    // Exodus-end
 
     public void OnUIOpened(EntityUid uid, FireControlConsoleComponent component, BoundUIOpenedEvent args)
     {
-        UpdateUi(uid, component);
+        DoRefreshServer(uid, component); // Exodus fire-control event-driven UI updates
     }
 
     private void OnConsoleUIOpenAttempt(
@@ -210,7 +218,6 @@ public sealed partial class FireControlSystem : EntitySystem
         }
 
         component.ConnectedServer = null;
-        UpdateUi(console, component);
     }
 
     private bool CanRegister((EntityUid? ServerUid, FireControlServerComponent? ServerComponent) gridServer)
@@ -230,26 +237,35 @@ public sealed partial class FireControlSystem : EntitySystem
         if (!Resolve(console, ref consoleComponent))
             return false;
 
-        // Clear any existing invalid connection first
-        if (consoleComponent.ConnectedServer != null)
-        {
-            if (!Exists(consoleComponent.ConnectedServer) || !TryComp<FireControlServerComponent>(consoleComponent.ConnectedServer, out _))
-            {
-                consoleComponent.ConnectedServer = null;
-            }
-        }
-
+        // Exodus-begin fire-control event-driven UI updates
+        var canOperate = Transform(console).Anchored && _power.IsPowered(console);
         var gridServer = TryGetGridServer(console);
 
-        if (gridServer.ServerUid == null || gridServer.ServerComponent == null)
+        if (consoleComponent.ConnectedServer is { } connectedServer)
+        {
+            var connectionValid = canOperate
+                && gridServer.ServerUid == connectedServer
+                && gridServer.ServerComponent != null
+                && gridServer.ServerComponent.Consoles.Contains(console);
+
+            if (connectionValid)
+                return true;
+
+            if (TryComp<FireControlServerComponent>(connectedServer, out var previousServer))
+                previousServer.Consoles.Remove(console);
+
+            consoleComponent.ConnectedServer = null;
+        }
+
+        if (!canOperate || gridServer.ServerUid == null || gridServer.ServerComponent == null)
             return false;
+        // Exodus-end
 
         var canRegister = CanRegister(gridServer);
 
         if (canRegister && gridServer.ServerComponent.Consoles.Add(console))
         {
             consoleComponent.ConnectedServer = gridServer.ServerUid;
-            UpdateUi(console, consoleComponent);
             return true;
         }
 
@@ -258,12 +274,14 @@ public sealed partial class FireControlSystem : EntitySystem
 
     private void UpdateUi(EntityUid uid, FireControlConsoleComponent? component = null)
     {
+        if (!IsConsoleUiOpen(uid))
+            return;
         var state = GetConsoleState(uid);
         if (state == null)
             return;
-        if (_ui.HasUi(uid, FireControlConsoleUiKey.Key))
+        if (_ui.IsUiOpen(uid, FireControlConsoleUiKey.Key))
             _ui.SetUiState(uid, FireControlConsoleUiKey.Key, state);
-        if (_ui.HasUi(uid, Content.Shared.Shuttles.Components.ShuttleConsoleUiKey.Key))
+        if (_ui.IsUiOpen(uid, Content.Shared.Shuttles.Components.ShuttleConsoleUiKey.Key))
             _shuttleConsoleSystem.RefreshState(uid);
     }
 
@@ -293,6 +311,11 @@ public sealed partial class FireControlSystem : EntitySystem
                 var (ammoCount, hasManualReload) = GetWeaponAmmunitionInfo(controllable);
                 controlled.AmmoCount = ammoCount;
                 controlled.HasManualReload = hasManualReload;
+                if (TryComp<GunComponent>(controllable, out var gun))
+                {
+                    controlled.NextFire = gun.NextFire;
+                    controlled.ReloadDuration = gun.FireRate > 0 ? 1f / gun.FireRate : 0;
+                }
 
                 controllables.Add(controlled);
             }
@@ -300,7 +323,11 @@ public sealed partial class FireControlSystem : EntitySystem
 
         var array = controllables.ToArray();
 
-        var state = new FireControlConsoleBoundInterfaceState(connected, array, navState);
+        var state = new FireControlConsoleBoundInterfaceState(connected, array, navState)
+        {
+            ShieldState = Transform(uid).GridUid is { } grid
+                ? EntityManager.System<Content.Server._Crescent.ShipShields.ShipShieldsSystem>().GetShieldState(grid) : null
+        };
         return state;
     }
 

@@ -9,5 +9,5 @@ namespace Content.Shared.Radio.Components;
 public sealed partial class WearingHeadsetComponent : Component
 {
     [DataField]
-    public EntityUid Headset;
+    public HashSet<EntityUid> Headsets = new();
 }

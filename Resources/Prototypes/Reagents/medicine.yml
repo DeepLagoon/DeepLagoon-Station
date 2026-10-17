@@ -697,10 +697,10 @@
   plantMetabolism:
     - !type:PlantAdjustToxins
       amount: 6
-    - !type:PlantPhalanximine
-      conditions:
-      - !type:ReagentThreshold
-        min: 4
+    - !type:PlantChangeTraits
+      trait: PlantTraitUnviable
+      type: Remove
+      minScale: 4
   metabolisms:
     Medicine:
       metabolismRate: 0.1

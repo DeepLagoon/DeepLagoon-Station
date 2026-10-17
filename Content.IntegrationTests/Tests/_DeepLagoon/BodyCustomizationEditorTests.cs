@@ -34,7 +34,17 @@ public sealed class BodyCustomizationEditorTests
             Assert.That(Change("breasts", "size", "g"), Is.True);
             Assert.That(Change("breasts", "secondaryEnabled", "true"), Is.True);
             Assert.That(Change("breasts", "secondaryColor", "#FF3300"), Is.True);
-            Assert.That(Change("belly", "size", "4"), Is.True);
+            Assert.That(Change("belly", "size", "4"), Is.False);
+            Assert.That(Change("belly", "size", "3"), Is.True);
+            Assert.That(Change("butt", "size", "5"), Is.False);
+            Assert.That(Change("breasts", "size", "k"), Is.False);
+            Assert.That(Change("penis", "size", "4"), Is.False);
+            Assert.That(Change("anus", "size", "2"), Is.False);
+            Assert.That(Change("butt", "anus", "true"), Is.True);
+            Assert.That(editor.Profile.Appearance.BodyFeatures.Single(p => p.Part == "anus").Size, Is.EqualTo("1"));
+            var preview = (Robust.Client.UserInterface.Controls.SpriteView) typeof(HumanoidProfileEditor)
+                .GetField("SpriteView", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!.GetValue(editor)!;
+            Assert.That(preview.Stretch, Is.EqualTo(Robust.Client.UserInterface.Controls.SpriteView.StretchMode.None));
             Assert.That(Change("belly", "scale", 1.25f), Is.False);
             Assert.That(Change("anus", "shape", "squished"), Is.False);
             Assert.That(Change("breasts", "scale", "NaN"), Is.False);

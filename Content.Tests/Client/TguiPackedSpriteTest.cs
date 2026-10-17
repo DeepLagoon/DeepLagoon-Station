@@ -65,12 +65,17 @@ public sealed class TguiPackedSpriteTest
         var dataType = type.GetNestedType("LoadStepData", BindingFlags.NonPublic)!;
         var data = Activator.CreateInstance(dataType, true)!;
         dataType.GetField("Path")!.SetValue(data, new ResPath("/Textures/test.rsi"));
+        // The loader takes its struct by ref; reflection writes the updated value into the argument array.
+        var preTextureArguments = new object[] { data, packed };
         type.GetMethod("LoadPreTextureRsic", BindingFlags.Static | BindingFlags.NonPublic)!
-            .Invoke(null, new object[] { data, packed });
+            .Invoke(null, preTextureArguments);
+        data = preTextureArguments[0];
         dataType.GetField("AtlasOffset")!.SetValue(data, new Vector2i(80, 160));
         dataType.GetField("AtlasTexture")!.SetValue(data, new Mock<Texture>(new Vector2i(512, 512)).Object);
+        var postTextureArguments = new[] { data };
         type.GetMethod("LoadPostTexture", BindingFlags.Static | BindingFlags.NonPublic)!
-            .Invoke(null, new[] { data });
+            .Invoke(null, postTextureArguments);
+        data = postTextureArguments[0];
         var result = (RSI) dataType.GetField("Rsi")!.GetValue(data)!;
         ((Image<Rgba32>) dataType.GetField("AtlasSheet")!.GetValue(data)!).Dispose();
         return result;

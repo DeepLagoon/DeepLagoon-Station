@@ -12,6 +12,7 @@ public sealed class FireControlConsoleUpdateEvent : EntityEventArgs
 [Serializable, NetSerializable]
 public sealed class FireControlConsoleBoundInterfaceState : BoundUserInterfaceState
 {
+    public Content.Shared.Exodus.ShipShields.ShipShieldState? ShieldState;
     public bool Connected;
     public FireControllableEntry[] FireControllables;
     public NavInterfaceState NavState;
@@ -103,6 +104,8 @@ public struct FireControllableEntry
     /// Whether this weapon ignores line-of-sight restrictions.
     /// </summary>
     public bool IgnoresLos;
+    public TimeSpan NextFire;
+    public float ReloadDuration;
 
     public FireControllableEntry(NetEntity entity, NetCoordinates coordinates, string name, int? ammoCount = null, bool hasManualReload = false, bool ignoresLos = false)
     {
@@ -112,5 +115,7 @@ public struct FireControllableEntry
         AmmoCount = ammoCount;
         HasManualReload = hasManualReload;
         IgnoresLos = ignoresLos;
+        NextFire = TimeSpan.Zero;
+        ReloadDuration = 0;
     }
 }

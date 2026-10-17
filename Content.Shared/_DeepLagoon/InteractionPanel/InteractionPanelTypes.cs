@@ -2,6 +2,7 @@ using Content.Shared.Preferences;
 using Content.Shared.Humanoid;
 using System.Linq;
 using Robust.Shared.Serialization;
+using Content.Shared._DeepLagoon.BodyCustomization;
 
 namespace Content.Shared._DeepLagoon.InteractionPanel;
 
@@ -112,6 +113,19 @@ public sealed class InteractionPanelRepeatEvent(NetEntity target, string action,
 public sealed class InteractionPanelCloseEvent(NetEntity target) : EntityEventArgs
 {
     public NetEntity Target = target;
+}
+
+[Serializable, NetSerializable]
+public sealed class InteractionPanelBodyVisibilityEvent(string part, int visibility) : EntityEventArgs
+{
+    public string Part = part;
+    public int Visibility = visibility;
+}
+
+[Serializable, NetSerializable]
+public sealed class InteractionPanelBodyStateEvent(BodyFeature[] features) : EntityEventArgs
+{
+    public BodyFeature[] Features = features;
 }
 
 [Serializable, NetSerializable]

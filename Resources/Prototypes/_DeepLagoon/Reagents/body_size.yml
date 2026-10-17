@@ -1,0 +1,159 @@
+- type: reagent
+  id: DLButtGrowth
+  name: reagent-name-dl-butt-growth
+  group: Medicine
+  desc: reagent-desc-dl-butt-growth
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#DDA0DD"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: butt
+        direction: 1
+
+- type: reagent
+  id: DLButtReduction
+  name: reagent-name-dl-butt-reduction
+  group: Medicine
+  desc: reagent-desc-dl-butt-reduction
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#87CEEB"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: butt
+        direction: -1
+
+- type: reagent
+  id: DLBellyGrowth
+  name: reagent-name-dl-belly-growth
+  group: Medicine
+  desc: reagent-desc-dl-belly-growth
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#DDA0DD"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: belly
+        direction: 1
+
+- type: reagent
+  id: DLBellyReduction
+  name: reagent-name-dl-belly-reduction
+  group: Medicine
+  desc: reagent-desc-dl-belly-reduction
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#87CEEB"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: belly
+        direction: -1
+
+- type: reagent
+  id: DLBreastsGrowth
+  name: reagent-name-dl-breasts-growth
+  group: Medicine
+  desc: reagent-desc-dl-breasts-growth
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#DDA0DD"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: breasts
+        direction: 1
+
+- type: reagent
+  id: DLBreastsReduction
+  name: reagent-name-dl-breasts-reduction
+  group: Medicine
+  desc: reagent-desc-dl-breasts-reduction
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#87CEEB"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: breasts
+        direction: -1
+
+- type: reagent
+  id: DLAnusGrowth
+  name: reagent-name-dl-anus-growth
+  group: Medicine
+  desc: reagent-desc-dl-anus-growth
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#DDA0DD"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: anus
+        direction: 1
+
+- type: reagent
+  id: DLAnusReduction
+  name: reagent-name-dl-anus-reduction
+  group: Medicine
+  desc: reagent-desc-dl-anus-reduction
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#87CEEB"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: anus
+        direction: -1
+
+- type: reagent
+  id: DLPenisGrowth
+  name: reagent-name-dl-penis-growth
+  group: Medicine
+  desc: reagent-desc-dl-penis-growth
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#DDA0DD"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: penis
+        direction: 1
+
+- type: reagent
+  id: DLPenisReduction
+  name: reagent-name-dl-penis-reduction
+  group: Medicine
+  desc: reagent-desc-dl-penis-reduction
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#87CEEB"
+  metabolisms:
+    Medicine:
+      metabolismRate: 1
+      effects:
+      - !type:ChangeBodyFeatureSize
+        part: penis
+        direction: -1

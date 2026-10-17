@@ -264,7 +264,7 @@ public sealed partial class HumanoidCharacterAppearance : ICharacterAppearance, 
             skinColor,
             markingSet.GetForwardEnumerator().ToList(),
             appearance.Height,
-            appearance.Width, appearance.Tattoos, appearance.BodyFeatures);
+            appearance.Width, appearance.Tattoos, Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.SanitizeForEditor(appearance.BodyFeatures));
     }
 
     public bool MemberwiseEquals(ICharacterAppearance maybeOther)

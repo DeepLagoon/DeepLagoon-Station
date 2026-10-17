@@ -23,6 +23,7 @@ export const ShuttleConsole = () => {
   const viewport = useRef(null);
   const viewportArea = useRef(null);
   const nav = data.nav || {}, weapons = data.weapons || {}, map = data.map || {}, dock = data.dock || {};
+  const shield = data.shield || {};
   const mode = data.mode || 0;
   const send = (channel, id, value) => act(channel, { id, ...(value === undefined ? {} : { value: String(value) }) });
   useEffect(() => {
@@ -85,7 +86,12 @@ export const ShuttleConsole = () => {
           <div className="ShuttleConsole__keys">{[['ballistic', 'Баллистика'], ['energy', 'Энергия'], ['missile', 'Ракеты']].map(([id, label]) =>
             <Key key={id} onClick={() => send('weapon', id)}>{label}</Key>)}</div>
           <div className="ShuttleConsole__weapons">{(weapons.entries || []).map(weapon => <Key key={weapon.id} disabled={weapon.disabled}
-            selected={weapon.selected} onClick={() => send('weapon', weapon.id)}>{weapon.name}</Key>)}
+            selected={weapon.selected} onClick={() => send('weapon', weapon.id)}>
+            <span>{weapon.name}</span>
+            {weapon.selected && <progress className="ShuttleConsole__reload" max="1" value={weapon.reload ?? 1}
+              aria-label={`Перезарядка: ${weapon.name}`}
+              title={weapon.reloadSeconds > 0 ? `Готовность через ${weapon.reloadSeconds.toFixed(1)} с` : 'Готово к стрельбе'} />}
+          </Key>)}
             {!(weapons.entries || []).length && <p>Подключите сервер орудий.</p>}</div>
         </section>
         <section className="ShuttleConsole__ports"><div className="ShuttleConsole__terminal-title">СЕТЕВЫЕ ПОРТЫ / I/O</div>
@@ -106,6 +112,15 @@ export const ShuttleConsole = () => {
         <Key disabled={dock.undockDisabled} onClick={() => send('dock', 'undockAll')}>Отстыковать все</Key></div></section>
         <section><Sticker>Стыковочные порты</Sticker><div className="ShuttleConsole__weapons">{(dock.ports || []).map(port =>
           <Key key={port.id} selected={port.selected} onClick={() => send('dock', port.id)}>{port.name} {port.connected ? '●' : '○'}</Key>)}</div></section></>}
+      {shield.present && <section className="ShuttleConsole__shields"><Sticker>Состояние щита</Sticker>
+        <div className="ShuttleConsole__status">{!shield.powered ? 'Нет питания'
+          : shield.overload > 0 ? `Перегрузка: ${Math.ceil(shield.overload)} с`
+            : shield.recharging && shield.health < 1 ? 'Восстановление'
+              : shield.active ? 'Щит активен' : 'Щит отключён'}</div>
+        <progress className="ShuttleConsole__progress" max="1" value={shield.health || 0}
+          aria-label="Прочность щита" />
+        <div>{Math.round((shield.health || 0) * 100)}% · {Math.round((shield.draw || 0) / 1000)} / {Math.round((shield.maxDraw || 0) / 1000)} кВт</div>
+      </section>}
     </aside></main>
   </div>;
 };

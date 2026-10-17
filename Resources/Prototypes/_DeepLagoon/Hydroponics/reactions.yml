@@ -1,0 +1,24 @@
+- type: reaction
+  id: MutagenicFertilizer
+  reactants:
+    EZNutrient:
+      amount: 1
+    UnstableMutagen:
+      amount: 1
+      catalyst: true
+  products:
+    MutagenicFertilizer: 1
+
+
+- type: reaction
+  id: Heparin
+  reactants:
+    SulfuricAcid:
+      amount: 1
+    Nitrogen:
+      amount: 1
+    Sodium:
+      amount: 1
+  products:
+    Heparin: 2
+

@@ -1792,6 +1792,25 @@ namespace Content.Client.Stylesheets
                         new StyleProperty(TextureButton.StylePropertyTexture, resCache.GetTexture("/Textures/Interface/Bwoink/un_pinned.png"))
                     }),
 
+                // Plant tray and analyzer metrics.
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricHealth")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#E06C75")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricGrowth")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#98C379")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricTemperature")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#E06C75")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricPressure")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#61AFEF")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricWater")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#56B6C2")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricNutrients")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#E5C07B")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricWeeds")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#7AAB55")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricPests")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#D19A66")),
+                Element<Content.Client.Botany.UI.BotanyMetricControl>().Class("MetricToxins")
+                    .Prop(Content.Client.Botany.UI.BotanyMetricControl.StylePropertyAccent, Color.FromHex("#C678DD")),
                 // Add the style rule for OpenRightSelected
                 Element<Button>().Class(ButtonOpenRightSelected)
                     .Prop(ContainerButton.StylePropertyStyleBox, new StyleBoxTexture(BaseButtonOpenRight)

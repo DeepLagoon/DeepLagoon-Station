@@ -7,6 +7,7 @@ using Content.Client.Lobby.UI;
 using Content.Client._Mono.Company;
 using Content.Client.Players.PlayTimeTracking;
 using Content.Shared.Humanoid.Markings;
+using Content.Shared.Administration;
 using Content.Shared.Preferences;
 using Robust.Client.Graphics;
 using Robust.Client.Player;

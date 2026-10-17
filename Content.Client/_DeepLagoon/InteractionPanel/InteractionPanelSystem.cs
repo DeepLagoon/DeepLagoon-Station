@@ -34,6 +34,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(_ => CloseWindows());
         SubscribeNetworkEvent<InteractionPanelLibraryEvent>(args => _panel?.SetLibrary(args));
         SubscribeNetworkEvent<InteractionPanelPanelEvent>(OnPanel);
+        SubscribeNetworkEvent<InteractionPanelBodyStateEvent>(args => _panel?.SetBodyState(args));
         SubscribeNetworkEvent<InteractionPanelAskEvent>(OnAsk);
         SubscribeNetworkEvent<InteractionPanelStatusEvent>(args => _panel?.SetStatus(args));
         SubscribeNetworkEvent<InteractionPanelAnimationEvent>(OnAnimation);
@@ -58,6 +59,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
             _cfg.GetCVar(InteractionPanelCVars.Interval));
         _panel = window;
         window.ActionRequested += id => RaiseNetworkEvent(new InteractionPanelActionEvent(args.Target, id));
+        window.BodyVisibilityRequested += (part, visibility) => RaiseNetworkEvent(new InteractionPanelBodyVisibilityEvent(part, visibility));
         window.RepeatRequested += (id, enabled, interval) => RaiseNetworkEvent(new InteractionPanelRepeatEvent(args.Target, id, enabled, interval));
         window.PreferencesChanged += () => SavePreferences(window);
         window.OnClose += () =>

@@ -172,3 +172,10 @@
   .CharacterEditor__pipetteLabel {display:none;}
   .CharacterEditor__headerActions .Button {padding-inline:8px;}
 }
+
+// Toggle buttons must not stretch to the height/width of adjacent color pickers.
+.CharacterEditor__bodyFeatures .CharacterEditor__grid > .Button {
+  align-self: start;
+  justify-self: start;
+  width: fit-content;
+}

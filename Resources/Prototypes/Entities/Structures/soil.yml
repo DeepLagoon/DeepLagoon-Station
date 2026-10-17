@@ -40,7 +40,7 @@
     sprite: Structures/Hydroponics/misc.rsi
     state: soil
     noRot: true
-  - type: PlantHolder
+  - type: PlantTray
     drawWarnings: false
   - type: SolutionContainerManager
     solutions:
@@ -59,4 +59,4 @@
       - !type:AddToSolutionReaction
         solution: soil
   - type: Appearance
-  - type: PlantHolderVisuals
+  - type: PlantTrayVisuals

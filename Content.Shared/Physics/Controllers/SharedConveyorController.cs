@@ -51,6 +51,7 @@ public abstract partial class SharedConveyorController : VirtualController
         SubscribeLocalEvent<ConveyedComponent, ComponentShutdown>(OnConveyedShutdown);
 
         SubscribeLocalEvent<ConveyorComponent, StartCollideEvent>(OnConveyorStartCollide);
+        SubscribeLocalEvent<ConveyorComponent, EndCollideEvent>(OnConveyorEndCollide);
         SubscribeLocalEvent<ConveyorComponent, ComponentStartup>(OnConveyorStartup);
 
         base.Initialize();
@@ -96,9 +97,10 @@ public abstract partial class SharedConveyorController : VirtualController
         {
             var other = contact.OtherEnt(conveyorUid);
 
-            if (contact.OtherFixture(conveyorUid).Item2.Hard && contact.OtherBody(conveyorUid).BodyType != BodyType.Static)
+            if (contact.IsTouching && contact.OtherFixture(conveyorUid).Item2.Hard && contact.OtherBody(conveyorUid).BodyType != BodyType.Static)
             {
-                EnsureComp<ConveyedComponent>(other);
+                var conveyed = EnsureComp<ConveyedComponent>(other); // Exodus-OptimizeConveyors
+                conveyed.CurrentConveyors.Add(conveyorUid); // Exodus-OptimizeConveyors
             }
 
             if (_conveyedQuery.HasComp(other))
@@ -115,8 +117,38 @@ public abstract partial class SharedConveyorController : VirtualController
         if (!args.OtherFixture.Hard || args.OtherBody.BodyType == BodyType.Static)
             return;
 
-        EnsureComp<ConveyedComponent>(otherUid);
+        // Exodus-OptimizeConveyors-Start
+        var conveyed = EnsureComp<ConveyedComponent>(otherUid);
+        conveyed.CurrentConveyors.Add(conveyor.Owner);
+        // Exodus-OptimizeConveyors-End
     }
+
+    // Exodus-OptimizeConveyors-Start
+    private void OnConveyorEndCollide(Entity<ConveyorComponent> conveyor, ref EndCollideEvent args)
+    {
+        var otherUid = args.OtherEntity;
+
+        if (!args.OtherFixture.Hard || args.OtherBody.BodyType == BodyType.Static)
+            return;
+
+        if (_conveyedQuery.TryComp(otherUid, out var conveyed))
+        {
+            var contacts = PhysicsSystem.GetContacts(otherUid);
+            while (contacts.MoveNext(out var contact))
+            {
+                if (contact.IsTouching && contact.OtherEnt(otherUid) == conveyor.Owner
+                    && contact.OtherFixture(conveyor.Owner).Item2.Hard)
+                    return;
+            }
+            conveyed.CurrentConveyors.Remove(conveyor.Owner);
+
+            if (conveyed.CurrentConveyors.Count == 0)
+            {
+                RemComp<ConveyedComponent>(otherUid);
+            }
+        }
+    }
+    // Exodus-OptimizeConveyors-End
 
     public override void UpdateBeforeSolve(bool prediction, float frameTime)
     {
@@ -223,31 +255,23 @@ public abstract partial class SharedConveyorController : VirtualController
 
         Entity<ConveyorComponent> bestConveyor = default;
         var bestSpeed = 0f;
-        var contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures));
+        // Exodus-OptimizeConveyors-Start: Eliminate costly _fixtures.TestPoint check, eliminate extra contacts check
         var transform = PhysicsSystem.GetPhysicsTransform(entity.Owner);
+
+        var conveyed = entity.Comp1;
+        var conveyors = conveyed.CurrentConveyors;
+
+        if (conveyors.Count == 0)
+            return true;
+
         var anyConveyors = false;
 
-        while (contacts.MoveNext(out var contact))
+        foreach (var other in conveyors)
         {
-            if (!contact.IsTouching)
-                continue;
-
-            // Check if our center is over their fixture otherwise ignore it.
-            var other = contact.OtherEnt(entity.Owner);
-
-            // Check for blocked, if so then we can't convey at all and just try to sleep
-            // Otherwise we may just keep pushing it into the wall
-
             if (!_conveyorQuery.TryComp(other, out var conveyor))
                 continue;
 
             anyConveyors = true;
-            var otherFixture = contact.OtherFixture(entity.Owner);
-            var otherTransform = PhysicsSystem.GetPhysicsTransform(other);
-
-            // Check if our center is over the conveyor, otherwise ignore it.
-            if (!_fixtures.TestPoint(otherFixture.Item2.Shape, otherTransform, transform.Position))
-                continue;
 
             if (conveyor.Speed > bestSpeed && CanRun(conveyor))
             {
@@ -255,6 +279,7 @@ public abstract partial class SharedConveyorController : VirtualController
                 bestConveyor = (other, conveyor);
             }
         }
+        // Exodus-OptimizeConveyors-End
 
         // If we have no touching contacts we shouldn't be using conveyed anyway so nuke it.
         if (!anyConveyors)
@@ -279,7 +304,7 @@ public abstract partial class SharedConveyorController : VirtualController
         direction = Convey(direction, bestSpeed, itemRelative);
 
         // Do a final check for hard contacts so if we're conveying into a wall then NOOP.
-        contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures));
+        var contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures)); // Exodus-OptimizeConveyors
 
         while (contacts.MoveNext(out var contact))
         {
@@ -385,18 +410,16 @@ public abstract partial class SharedConveyorController : VirtualController
         if (!Resolve(ent.Owner, ref ent.Comp))
             return false;
 
-        var contacts = PhysicsSystem.GetContacts(ent.Owner);
+        // Exodus-OptimizeConveyors-Start: Reference-counter check instead of contacts iteration
+        if (!_conveyedQuery.TryComp(ent.Owner, out var conveyed))
+            return false;
 
-        while (contacts.MoveNext(out var contact))
+        foreach (var other in conveyed.CurrentConveyors)
         {
-            if (!contact.IsTouching)
-                continue;
-
-            var other = contact.OtherEnt(ent.Owner);
-
             if (_conveyorQuery.TryComp(other, out var comp) && CanRun(comp))
                 return true;
         }
+        // Exodus-OptimizeConveyors-End
 
         return false;
     }

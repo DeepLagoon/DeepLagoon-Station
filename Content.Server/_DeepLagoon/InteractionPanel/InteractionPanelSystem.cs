@@ -67,6 +67,8 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeNetworkEvent<InteractionPanelAnswerEvent>(OnAnswer);
         SubscribeNetworkEvent<InteractionPanelRepeatEvent>(OnRepeat);
         SubscribeNetworkEvent<InteractionPanelCloseEvent>(OnClose);
+        SubscribeNetworkEvent<InteractionPanelBodyVisibilityEvent>(OnBodyVisibility);
+        SubscribeLocalEvent<HumanoidAppearanceComponent, Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationChangedEvent>(OnBodyChanged);
     }
 
     private void OnMobStartup(EntityUid uid, MobStateComponent component, ComponentStartup args)
@@ -127,6 +129,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         _panels[user] = new Panel(target, actor.PlayerSession, _timing.CurTime + TimeSpan.FromMinutes(10));
         var actions = InteractionPanelActionCatalog.Load(_prototypes).Where(a => Allowed(user, target, a)).Select(a => a.Id).ToArray();
         RaiseNetworkEvent(new InteractionPanelPanelEvent(GetNetEntity(target), Name(target), actions, user == target, InteractionPanelActions.DebugConsentOverride, HasComp<HumanoidAppearanceComponent>(target), BodySex(user), BodySex(target)), actor.PlayerSession);
+        SendBodyState(user);
     }
 
     private void OnExamine(EntityUid uid, InteractionPanelPreferencesComponent component, ExaminedEvent args)

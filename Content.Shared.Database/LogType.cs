@@ -497,4 +497,7 @@ public enum LogType
     Instrument = 103,
 
     Psionics = 209,
+
+    /// <summary>Planting, harvesting and other botany interactions.</summary>
+    Botany = 210,
 }

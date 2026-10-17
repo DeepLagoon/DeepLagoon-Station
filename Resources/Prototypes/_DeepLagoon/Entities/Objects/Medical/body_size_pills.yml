@@ -1,0 +1,329 @@
+- type: entity
+  parent: Pill
+  id: PillDLButtGrowth
+  name: glutosilin growth pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLButtGrowth 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLButtGrowth
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLButtGrowth
+  name: glutosilin growth pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLButtGrowth 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLButtGrowth
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLButtReduction
+  name: glutosilin reduction pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLButtReduction 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLButtReduction
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLButtReduction
+  name: glutosilin reduction pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLButtReduction 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLButtReduction
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLBellyGrowth
+  name: abdomosilin growth pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLBellyGrowth 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLBellyGrowth
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLBellyGrowth
+  name: abdomosilin growth pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLBellyGrowth 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLBellyGrowth
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLBellyReduction
+  name: abdomosilin reduction pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLBellyReduction 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLBellyReduction
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLBellyReduction
+  name: abdomosilin reduction pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLBellyReduction 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLBellyReduction
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLBreastsGrowth
+  name: mammosilin growth pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLBreastsGrowth 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLBreastsGrowth
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLBreastsGrowth
+  name: mammosilin growth pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLBreastsGrowth 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLBreastsGrowth
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLBreastsReduction
+  name: mammosilin reduction pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLBreastsReduction 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLBreastsReduction
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLBreastsReduction
+  name: mammosilin reduction pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLBreastsReduction 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLBreastsReduction
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLAnusGrowth
+  name: proctosilin growth pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLAnusGrowth 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLAnusGrowth
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLAnusGrowth
+  name: proctosilin growth pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLAnusGrowth 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLAnusGrowth
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLAnusReduction
+  name: proctosilin reduction pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLAnusReduction 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLAnusReduction
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLAnusReduction
+  name: proctosilin reduction pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLAnusReduction 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLAnusReduction
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLPenisGrowth
+  name: phallosilin growth pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLPenisGrowth 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLPenisGrowth
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLPenisGrowth
+  name: phallosilin growth pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLPenisGrowth 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLPenisGrowth
+      amount: 7
+
+- type: entity
+  parent: Pill
+  id: PillDLPenisReduction
+  name: phallosilin reduction pill
+  suffix: 5u
+  components:
+  - type: Pill
+    pillType: 15
+  - type: Sprite
+    state: pill16
+  - type: Label
+    currentLabel: DLPenisReduction 5u
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLPenisReduction
+          Quantity: 5
+
+- type: entity
+  parent: PillCanister
+  id: PillCanisterDLPenisReduction
+  name: phallosilin reduction pill canister
+  suffix: 5u, 7
+  components:
+  - type: Label
+    currentLabel: DLPenisReduction 5u
+  - type: StorageFill
+    contents:
+    - id: PillDLPenisReduction
+      amount: 7

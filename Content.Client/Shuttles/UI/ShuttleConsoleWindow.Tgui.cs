@@ -16,6 +16,20 @@ public sealed partial class ShuttleConsoleWindow
     private Control[] _views = Array.Empty<Control>();
     private Vector4 _viewport;
     private float _publishTimer;
+    private Content.Shared.Exodus.ShipShields.ShipShieldState? _shieldState;
+
+    public void UpdateShieldState(Content.Shared.Exodus.ShipShields.ShipShieldState? state)
+    {
+        _shieldState = state;
+        _publishTimer = 0;
+    }
+
+    private TguiData ShieldTguiState() => _shieldState is { } state
+        ? new TguiData().Bool("present", true).Bool("active", state.Active).Bool("powered", state.Powered)
+            .Bool("recharging", state.Recharging).Number("health", state.HealthFraction)
+            .Number("overload", Math.Max(0f, state.OverloadAccumulator))
+            .Number("draw", state.BaseDraw + state.Draw).Number("maxDraw", state.BaseDraw + state.MaxDraw)
+        : new TguiData().Bool("present", false);
 
     private void InitializeTgui()
     {
@@ -100,6 +114,7 @@ public sealed partial class ShuttleConsoleWindow
         NavContainer.RefreshTelemetry();
         Tgui.SetIncrementalState("ShuttleConsole", new TguiData()
             .Number("mode", (int)_mode)
+            .Object("shield", ShieldTguiState())
             .Object("nav", NavContainer.TguiState())
             .Object("weapons", CombatPanel.TguiState())
             .Object("map", MapContainer.TguiState())

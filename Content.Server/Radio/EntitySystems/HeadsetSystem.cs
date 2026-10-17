@@ -60,14 +60,35 @@ public sealed partial class HeadsetSystem : SharedHeadsetSystem
 
     private void OnSpeak(EntityUid uid, WearingHeadsetComponent component, EntitySpokeEvent args)
     {
-        if (args.Channel != null
-            && TryComp(component.Headset, out EncryptionKeyHolderComponent? keys)
-            && keys.Channels.Contains(args.Channel.ID))
+        var channel = args.Channel;
+        if (channel == null)
+            return;
+
+        foreach (var headset in component.Headsets)
         {
-            _punishment.Punish(uid, component.Headset, args.Message);
-            _radio.SendRadioMessage(uid, args.Message, args.Channel, component.Headset);
-            args.Channel = null; // prevent duplicate messages from other listeners.
+            if (!TryComp<HeadsetComponent>(headset, out var radio) || !radio.Enabled || !radio.IsEquipped
+                || !TryComp<EncryptionKeyHolderComponent>(headset, out var keys) || !keys.Channels.Contains(channel.ID))
+                continue;
+
+            _punishment.Punish(uid, headset, args.Message);
+            _radio.SendRadioMessage(uid, args.Message, channel, headset);
+            args.Channel = null;
+            return;
         }
+    }
+
+    private void AddWearingHeadset(EntityUid wearer, EntityUid headset)
+    {
+        EnsureComp<WearingHeadsetComponent>(wearer).Headsets.Add(headset);
+    }
+
+    private void RemoveWearingHeadset(EntityUid wearer, EntityUid headset)
+    {
+        if (!TryComp<WearingHeadsetComponent>(wearer, out var wearing))
+            return;
+        wearing.Headsets.Remove(headset);
+        if (wearing.Headsets.Count == 0)
+            RemCompDeferred<WearingHeadsetComponent>(wearer);
     }
 
     protected override void OnGotEquipped(EntityUid uid, HeadsetComponent component, GotEquippedEvent args)
@@ -75,7 +96,7 @@ public sealed partial class HeadsetSystem : SharedHeadsetSystem
         base.OnGotEquipped(uid, component, args);
         if (component.IsEquipped && component.Enabled)
         {
-            EnsureComp<WearingHeadsetComponent>(args.Equipee).Headset = uid;
+            AddWearingHeadset(args.Equipee, uid);
             UpdateRadioChannels(uid, component);
         }
     }
@@ -84,7 +105,7 @@ public sealed partial class HeadsetSystem : SharedHeadsetSystem
     {
         base.OnGotUnequipped(uid, component, args);
         RemComp<ActiveRadioComponent>(uid);
-        RemComp<WearingHeadsetComponent>(args.Equipee);
+        RemoveWearingHeadset(args.Equipee, uid);
     }
 
     public void SetEnabled(EntityUid uid, bool value, HeadsetComponent? component = null)
@@ -103,11 +124,11 @@ public sealed partial class HeadsetSystem : SharedHeadsetSystem
             RemCompDeferred<ActiveRadioComponent>(uid);
 
             if (component.IsEquipped)
-                RemCompDeferred<WearingHeadsetComponent>(Transform(uid).ParentUid);
+                RemoveWearingHeadset(Transform(uid).ParentUid, uid);
         }
         else if (component.IsEquipped)
         {
-            EnsureComp<WearingHeadsetComponent>(Transform(uid).ParentUid).Headset = uid;
+            AddWearingHeadset(Transform(uid).ParentUid, uid);
             UpdateRadioChannels(uid, component);
         }
     }

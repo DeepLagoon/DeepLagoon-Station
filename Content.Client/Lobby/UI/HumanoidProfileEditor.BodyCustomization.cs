@@ -8,20 +8,21 @@ public sealed partial class HumanoidProfileEditor
 {
     private IEnumerable<TguiData> BodyCustomizationData()
     {
-        var features = BodyCustomizationCatalog.Sanitize(Profile?.Appearance.BodyFeatures);
+        var features = BodyCustomizationCatalog.SanitizeForEditor(Profile?.Appearance.BodyFeatures);
         return BodyCustomizationCatalog.Order.Where(part => part != "womb").Select(part =>
         {
             var feature = features.FirstOrDefault(f => f.Part == part) ?? BodyCustomizationCatalog.Default(part);
             return new TguiData().String("part", part).String("name", BodyCustomizationCatalog.Names[part])
                 .Bool("enabled", feature.Enabled)
                 .Bool("womb", features.Any(f => f.Part == "womb" && f.Enabled))
+                .Bool("anus", features.Any(f => f.Part == "anus" && f.Enabled))
                 .String("shape", feature.Shape).String("size", feature.Size)
                 .Bool("matchSkin", feature.MatchSkin).String("color", feature.Color).Number("visibility", feature.Visibility)
                 .Bool("secondaryEnabled", feature.SecondaryEnabled).String("secondaryColor", feature.SecondaryColor)
                 .Bool("secondaryAvailable", part == "breasts" && feature.Shape == "pair" && BodyCustomizationCatalog.BreastSecondarySizes.Contains(feature.Size))
                 .Array("shapes", (part == "womb" ? new[] { "internal" } : BodyCustomizationCatalog.Parts[part].Keys.ToArray())
                     .Select(s => Choice(s, BodyShapeName(s))))
-                .Array("sizes", BodyCustomizationCatalog.Sizes(part, feature.Shape).Select(s => Choice(s, s.ToUpperInvariant())));
+                .Array("sizes", BodyCustomizationCatalog.EditorSizes(part, feature.Shape).Select(s => Choice(s, s.ToUpperInvariant())));
         });
     }
 
@@ -40,7 +41,7 @@ public sealed partial class HumanoidProfileEditor
     private bool HandleBodyCustomizationAction(TguiActionData args)
     {
         if (Profile == null || args.String("part") is not { } part || part == "womb" || !BodyCustomizationCatalog.Names.ContainsKey(part)) return false;
-        var features = BodyCustomizationCatalog.Sanitize(Profile.Appearance.BodyFeatures);
+        var features = BodyCustomizationCatalog.SanitizeForEditor(Profile.Appearance.BodyFeatures);
         var feature = features.FirstOrDefault(f => f.Part == part);
         if (feature == null) { feature = BodyCustomizationCatalog.Default(part); features.Add(feature); }
         var value = args.String("value") ?? "";
@@ -55,6 +56,12 @@ public sealed partial class HumanoidProfileEditor
                 if (womb == null) { womb = BodyCustomizationCatalog.Default("womb"); features.Add(womb); }
                 womb.Enabled = hasWomb;
                 break;
+            case "anus":
+                if (part != "butt" || !bool.TryParse(value, out var hasAnus)) return false;
+                var anus = features.FirstOrDefault(f => f.Part == "anus");
+                if (anus == null) { anus = BodyCustomizationCatalog.Default("anus"); features.Add(anus); }
+                anus.Enabled = hasAnus;
+                break;
             case "shape":
                 if (part is "womb" or "anus" || !BodyCustomizationCatalog.Parts[part].ContainsKey(value)) return false;
                 feature.Shape = value;
@@ -62,7 +69,7 @@ public sealed partial class HumanoidProfileEditor
                     feature.Size = BodyCustomizationCatalog.Sizes(part, value).First();
                 break;
             case "size":
-                if (!BodyCustomizationCatalog.Sizes(part, feature.Shape).Contains(value)) return false;
+                if (part == "anus" || !BodyCustomizationCatalog.EditorSizes(part, feature.Shape).Contains(value)) return false;
                 feature.Size = value; break;
             case "matchSkin":
                 if (!bool.TryParse(value, out var matchSkin)) return false;
@@ -82,7 +89,7 @@ public sealed partial class HumanoidProfileEditor
             default: return false;
         }
         var appearance = Profile.Appearance.Clone();
-        appearance.BodyFeatures = BodyCustomizationCatalog.Sanitize(features);
+        appearance.BodyFeatures = BodyCustomizationCatalog.SanitizeForEditor(features);
         Profile = Profile.WithCharacterAppearance(appearance);
         ReloadProfilePreview();
         SetDirty();

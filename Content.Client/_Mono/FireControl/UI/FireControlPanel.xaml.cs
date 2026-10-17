@@ -1,3 +1,4 @@
+using Content.Client._Exodus.FireControl;
 // Copyright Rane (elijahrane@gmail.com) 2025
 // All rights reserved. Relicensed under AGPL with permission
 
@@ -212,6 +213,10 @@ public sealed partial class FireControlPanel : BoxContainer
     public void UpdateStatus(FireControlConsoleBoundInterfaceState state)
     {
         _currentState = state;
+        UpdateShieldState(state.ShieldState);
+        _weaponStates.Clear();
+        foreach (var entry in state.FireControllables)
+            _weaponStates[entry.NetEntity] = entry;
         _radar.UpdateState(state.NavState);
 
         if (state.Connected)
@@ -286,11 +291,13 @@ public sealed partial class FireControlPanel : BoxContainer
             {
                 toRemove.Remove(controllable.NetEntity);
                 UpdateWeaponButtonText(existingButton, controllable);
+                if (existingButton is ReloadProgressButton progress) progress.NextFire = controllable.NextFire;
             }
             else
             {
-                var button = new Button
+                var button = new ReloadProgressButton
                 {
+                    NextFire = controllable.NextFire,
                     ToggleMode = true,
                     Text = controllable.Name,
                     StyleClasses = { "ButtonSquare OpenRight" },

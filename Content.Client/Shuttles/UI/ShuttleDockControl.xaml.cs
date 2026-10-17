@@ -39,6 +39,8 @@ public sealed partial class ShuttleDockControl : BaseShuttleControl
 
     private readonly HashSet<DockingPortState> _drawnDocks = new();
     private readonly Dictionary<DockingPortState, Button> _dockButtons = new();
+    // Reuse managed storage: stackalloc emits IL that the content sandbox cannot verify.
+    private readonly Vector2[] _dockVertices = new Vector2[4];
 
     /// <summary>
     /// Store buttons for every other dock
@@ -319,26 +321,30 @@ public sealed partial class ShuttleDockControl : BaseShuttleControl
         }
 
         // Draw the dock's collision
-        var invertedPosition = Vector2.Zero;
-        invertedPosition.Y = -invertedPosition.Y;
-        var rotation = Matrix3Helpers.CreateRotation(-_angle.Value + MathF.PI);
-        var ourDockConnection = new UIBox2(
-            ScalePosition(Vector2.Transform(new Vector2(-0.2f, -0.7f), rotation)),
-            ScalePosition(Vector2.Transform(new Vector2(0.2f, -0.5f), rotation)));
-
-        var ourDock = new UIBox2(
-            ScalePosition(Vector2.Transform(new Vector2(-0.5f, 0.5f), rotation)),
-            ScalePosition(Vector2.Transform(new Vector2(0.5f, -0.5f), rotation)));
-
         var dockColor = _viewedState?.HighlightedRadarColor ?? Color.Magenta; // Frontier - use ViewedState
         var connectionColor = Color.Pink;
-
-        handle.DrawRect(ourDockConnection, connectionColor.WithAlpha(0.2f));
-        handle.DrawRect(ourDockConnection, connectionColor, filled: false);
+        DrawDockQuad(handle, new Box2(-0.2f, -0.7f, 0.2f, -0.5f), _angle.Value, connectionColor);
 
         // Draw the dock itself
-        handle.DrawRect(ourDock, dockColor.WithAlpha(0.2f));
-        handle.DrawRect(ourDock, dockColor, filled: false);
+        DrawDockQuad(handle, new Box2(-0.5f, -0.5f, 0.5f, 0.5f), _angle.Value, dockColor);
+    }
+
+    private void DrawDockQuad(DrawingHandleScreen handle, Box2 bounds, Angle angle, Color color)
+    {
+        var vertices = _dockVertices;
+        GetDockQuad(bounds, angle, MinimapScale, MidPointVector, vertices);
+        handle.DrawPrimitives(DrawPrimitiveTopology.TriangleFan, vertices, color.WithAlpha(0.2f));
+        handle.DrawPrimitives(DrawPrimitiveTopology.LineLoop, vertices, color);
+    }
+
+    internal static void GetDockQuad(Box2 bounds, Angle angle, float scale, Vector2 midpoint, Span<Vector2> vertices)
+    {
+        // A rotated rectangle needs all four corners; its diagonal is not an ordered UIBox2.
+        var rotation = Matrix3Helpers.CreateRotation(-angle + MathF.PI);
+        vertices[0] = ScalePosition(Vector2.Transform(bounds.BottomLeft, rotation), scale, midpoint);
+        vertices[1] = ScalePosition(Vector2.Transform(bounds.BottomRight, rotation), scale, midpoint);
+        vertices[2] = ScalePosition(Vector2.Transform(bounds.TopRight, rotation), scale, midpoint);
+        vertices[3] = ScalePosition(Vector2.Transform(bounds.TopLeft, rotation), scale, midpoint);
     }
 
     private void HideDocks()
