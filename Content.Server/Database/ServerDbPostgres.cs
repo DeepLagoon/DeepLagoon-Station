@@ -147,9 +147,11 @@ namespace Content.Server.Database
 
             if (address != null && !exemptFlags.GetValueOrDefault(ServerBanExemptFlags.None).HasFlag(ServerBanExemptFlags.IP))
             {
+                // Keep in sync with BanMatcher: shared IPs must not extend personal bans.
                 var newQ = db.PgDbContext.Ban
                     .Include(p => p.Unban)
-                    .Where(b => b.Address != null
+                    .Where(b => b.PlayerUserId == null && b.HWId == null
+                                && b.Address != null
                                 && EF.Functions.ContainsOrEqual(b.Address.Value, address)
                                 && !(b.ExemptFlags.HasFlag(ServerBanExemptFlags.BlacklistedRange) && !newPlayer));
 
@@ -384,9 +386,11 @@ namespace Content.Server.Database
 
             if (address != null)
             {
+                // Role restrictions must not spread to unrelated VPN/NAT users either.
                 var newQ = db.PgDbContext.RoleBan
                     .Include(p => p.Unban)
-                    .Where(b => b.Address != null && EF.Functions.ContainsOrEqual(b.Address.Value, address));
+                    .Where(b => b.PlayerUserId == null && b.HWId == null
+                                && b.Address != null && EF.Functions.ContainsOrEqual(b.Address.Value, address));
 
                 query = query == null ? newQ : query.Union(newQ);
             }

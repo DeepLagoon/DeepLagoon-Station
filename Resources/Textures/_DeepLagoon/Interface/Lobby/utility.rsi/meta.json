@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Generated with OpenAI ImageGen for DeepLagoon, based on the NovaSector lobby style. Palette and pixel grid adapted for native UI.",
+  "size": {
+    "x": 156,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "utility"
+    }
+  ]
+}

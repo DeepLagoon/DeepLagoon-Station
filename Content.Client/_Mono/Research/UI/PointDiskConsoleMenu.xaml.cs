@@ -25,6 +25,7 @@ public sealed partial class PointDiskConsoleMenu : FancyWindow
         Print1KButton.OnPressed += _ => OnPrint1KButtonPressed?.Invoke();
         Print5KButton.OnPressed += _ => OnPrint5KButtonPressed?.Invoke();
         Print10KButton.OnPressed += _ => OnPrint10KButtonPressed?.Invoke();
+        InitializeCivilianTgui();
     }
 
     public void Update(PointDiskConsoleBoundUserInterfaceState state)
@@ -36,6 +37,8 @@ public sealed partial class PointDiskConsoleMenu : FancyWindow
         Print1KButton.Text = Loc.GetString("point-disk-ui-print-1k-button", ("amount", state.PointCost1K));
         Print5KButton.Text = Loc.GetString("point-disk-ui-print-5k-button", ("amount", state.PointCost5K));
         Print10KButton.Text = Loc.GetString("point-disk-ui-print-10k-button", ("amount", state.PointCost10K));
+        _tguiReady = true;
+        PublishTgui();
     }
 }
 

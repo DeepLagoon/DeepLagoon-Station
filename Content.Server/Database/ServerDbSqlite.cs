@@ -249,7 +249,8 @@ namespace Content.Server.Database
             ImmutableArray<byte>? hwId,
             ImmutableArray<ImmutableArray<byte>>? modernHWIds)
         {
-            if (address != null && ban.Address is not null && address.IsInSubnet(ban.Address.ToTuple().Value))
+            if (ban.PlayerUserId == null && ban.HWId == null
+                && address != null && ban.Address is not null && address.IsInSubnet(ban.Address.ToTuple().Value))
             {
                 return true;
             }

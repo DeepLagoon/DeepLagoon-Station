@@ -34,6 +34,10 @@ namespace Content.Shared.Movement.Components
 
         public Vector2 CurTickWalkMovement;
         public Vector2 CurTickSprintMovement;
+        public float CurTickSpeedBoostTime;
+
+        // Transient feedback state, recalculated by movement on both sides. Never sent as input.
+        public bool SpeedBoostActive;
 
         public MoveButtons HeldMoveButtons = MoveButtons.None;
 

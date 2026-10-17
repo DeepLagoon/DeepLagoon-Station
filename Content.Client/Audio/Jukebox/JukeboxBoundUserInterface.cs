@@ -22,6 +22,8 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
     {
         base.Open();
 
+        if (OpenTgui()) return;
+
         _menu = this.CreateWindow<JukeboxMenu>();
 
         _menu.OnPlayPressed += args =>
@@ -56,6 +58,7 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
     /// </summary>
     public void Reload()
     {
+        if (_tguiWindow != null) { PublishTgui(); return; }
         if (_menu == null || !EntMan.TryGetComponent(Owner, out JukeboxComponent? jukebox))
             return;
 
@@ -75,6 +78,7 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
 
     public void PopulateMusic()
     {
+        PopulateTguiCatalog();
         _menu?.Populate(_protoManager.EnumeratePrototypes<JukeboxPrototype>());
     }
 

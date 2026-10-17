@@ -209,6 +209,8 @@
       materialWhiteList: [Plasma, FuelGradePlasma] # Frontier: add FuelGradePlasma
     - type: PortableGenerator
       startChance: 0.8
+      panelStyle: plasma
+      panelFuel: dl-generator-fuel-plasma
     - type: UpgradePowerSupplier
       powerSupplyMultiplier: 1.25
       scaling: Exponential
@@ -282,6 +284,8 @@
       storageLimit: 10000 # mono
       materialWhiteList: [Uranium, FuelGradeUranium] # Frontier: add FuelGradeUranium
     - type: PortableGenerator
+      panelStyle: uranium
+      panelFuel: dl-generator-fuel-uranium
     - type: UpgradePowerSupplier
       powerSupplyMultiplier: 1.25
       scaling: Exponential
@@ -373,6 +377,8 @@
     - type: PortableGenerator
       # Unreliable bugger
       startChance: 0.4
+      panelStyle: welding
+      panelFuel: dl-generator-fuel-welding
     - type: NodeContainer
       examinable: true
       nodes:

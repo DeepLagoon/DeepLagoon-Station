@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "NovaSector / tgstation contributors. Converted from icons/hud/lobby/character_setup.dmi for DeepLagoon; original pixels and frame timings preserved.",
+  "source": "https://github.com/NovaSector/NovaSector/tree/master/icons/hud/lobby/character_setup.dmi",
+  "size": {
+    "x": 139,
+    "y": 37
+  },
+  "states": [
+    {
+      "name": "character_setup"
+    },
+    {
+      "name": "character_setup_highlighted"
+    },
+    {
+      "name": "character_setup_pressed",
+      "delays": [
+        [
+          0.2,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "character_setup_enabled",
+      "delays": [
+        [
+          0.4,
+          0.05,
+          0.05,
+          0.05,
+          0.2,
+          0.1,
+          0.2,
+          0.6,
+          0.05,
+          0.05,
+          0.05,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "character_setup_disabled"
+    }
+  ]
+}

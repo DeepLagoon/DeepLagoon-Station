@@ -19,7 +19,7 @@ public sealed partial class WaggingComponent : Component
     /// <summary>
     /// Suffix to add to get the animated marking.
     /// </summary>
-    public string Suffix = "Animated";
+    public string Suffix = WaggingMarkings.Suffix;
 
     /// <summary>
     /// Is the entity currently wagging.

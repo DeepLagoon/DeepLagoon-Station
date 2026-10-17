@@ -43,6 +43,14 @@ public sealed partial class MiscTab : Control
 
         Control.AddOptionDropDown(CVars.InterfaceTheme, DropDownHudTheme, themeEntries);
         Control.AddOptionDropDown(CCVars.UILayout, DropDownHudLayout, layoutEntries);
+        var interfaceStyle = Control.AddOptionDropDown(Content.Shared._DeepLagoon.WebUI.WebUiCVars.InterfaceStyle, DropDownInterfaceStyle,
+            new OptionDropDownCVar<int>.ValueOption[]
+            {
+                new(0, Loc.GetString("dl-ui-style-unselected")),
+                new(1, Loc.GetString("dl-ui-style-tgui")),
+                new(2, Loc.GetString("dl-ui-style-classic")),
+            });
+        interfaceStyle.ImmediateValueChanged += style => VanillaChat.Pressed = !Content.Shared._DeepLagoon.WebUI.WebUiCVars.UseTgui(style);
         Control.AddOptionCheckBox(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, VanillaChat);
         Control.AddOptionCheckBox(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled, TattoosEnabled);
 

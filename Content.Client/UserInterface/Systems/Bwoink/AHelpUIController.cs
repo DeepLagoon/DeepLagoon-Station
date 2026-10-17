@@ -123,7 +123,9 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
             LobbyAHelpButton.Pressed = pressed;
         }
 
-        UIManager.ClickSound();
+        // Sprite lobby buttons play their own click; ordinary in-game controls use the UI sound.
+        if (LobbyAHelpButton is not { MuteSounds: true })
+            UIManager.ClickSound();
         UnreadAHelpRead();
     }
 

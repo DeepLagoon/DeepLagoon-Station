@@ -21,11 +21,12 @@ namespace Content.Client.UserInterface.Systems.Ghost.Controls.Roles
         public GhostRolesWindow()
         {
             RobustXamlLoader.Load(this);
+            InitializeTgui();
         }
 
         public void ClearEntries()
         {
-            NoRolesMessage.Visible = true;
+            NoRolesMessage.Visible = _tguiHost == null;
             EntryContainer.DisposeAllChildren();
             _collapsibleBoxes.Clear();
         }

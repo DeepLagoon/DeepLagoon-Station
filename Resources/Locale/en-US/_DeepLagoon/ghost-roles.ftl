@@ -1,0 +1,9 @@
+dl-ghost-roles-available = Available
+dl-ghost-roles-groups = Types
+dl-ghost-roles-roles = Roles
+dl-ghost-roles-locked = Access restricted
+dl-ghost-roles-preview-loading = Character preview
+dl-ghost-roles-preview-spawner = This character is created when the role is taken. The spawn prototype is shown; randomized appearance and equipment are determined on spawning.
+dl-ghost-roles-preview-unknown = This character's appearance is determined on spawning.
+dl-ghost-roles-select = Select a role from the list
+dl-ghost-roles-instance = Character

@@ -5,6 +5,90 @@ source changes are required. Local packaged UI and remote wiki documents have
 separate request policies and separate controls. A wiki page never receives the
 TGUI bridge.
 
+## Player preference and native fallback
+
+The native first-entry dialog offers TGUI or SS14 classic and confirms that the
+choice can be changed under Options → General → Interface style. The archived,
+client-only `ui.interface_style` setting is `0` until an explicit choice, `1` for
+TGUI, and `2` for classic. Unknown values use classic and do not dismiss onboarding.
+The setting is local to the client installation. Existing client configurations
+are asked once after updating; no database migration is required.
+
+Every production TGUI must have a native counterpart. Upstream windows register
+`TguiPanel.SetNativeFallback` and check `TguiPanel.Enabled` before opening their
+browser variant. New content interfaces implement a native view in
+`NativeInterfacePanel`. `InterfaceStyleTest.EveryProductionTguiHasANativeView`
+checks the production interface inventory. Browser creation is lazy; native-only
+sessions do not create hidden TGUI browsers. Startup exceptions and exhausted
+health-check recovery use the same fallback, without changing the saved choice.
+
+Ship consoles share `components/ShipConsoleFrame.jsx` and `ShipConsoleSteel.scss`;
+civilian terminals share `CivilianConsoleFrame.jsx/.scss`. The keyboard overlay
+uses the shell's own nine-slice coordinates. Enable `TguiPanel.ConsoleKeyboardFeedback`
+for a window using either shell: native input (including the radar above CEF)
+then sends decorative `console/key` messages. This path never captures keys or
+issues gameplay actions. DOM clicks/keys also animate the caps; release, blur,
+hidden windows and unmount clear them. `ShipRadarConsole` kind `handheld`, selected
+for item-based radar consoles, displays only the measured native radar aperture.
+The ship hardware atlas is shared between browser SVG regions and
+`ShuttleRadarGlassControl`, with fixed proportions outside the radar circle.
+
+Run `node tools/shuttle-console-browser.test.mjs` (`PLAYWRIGHT_PATH`) and
+`node tools/civilian-console-browser.test.cjs` (`PLAYWRIGHT_MODULE`) after building
+TGUI. These check geometry, controls and visible key travel; the latter uses the
+shipped production bundle. Native routing/fallback tests are
+`ShuttleCombatConsoleTests` and `CivilianConsoleTests`. Actual-client visual and
+input checks remain necessary before release.
+
+After C# console-host changes, also run `dotnet test Content.Tests/Content.Tests.csproj
+--filter FullyQualifiedName~ClientModulesPassEngineTypeChecks`. This verifies both
+client and shared assemblies with the engine's sandbox and IL verifier; compilation
+and the UI integration fixtures alone do not establish that the modules can load.
+
+Native views cover interaction actions/custom actions/body visibility, character
+cards and image galleries, save prompts, apartment travel and furnishing, grid
+editing, art and tattoos. Complex editors expose simpler native controls and keep
+changes local until Apply/Save, with draft reset and close guards. The native
+character editor also exposes body customization, tattoos and profile images.
+Browser-only drafts that have not reached the host cannot be recovered after a
+renderer failure; fallback replays the latest authoritative host state. Reopen
+an existing native window after switching to TGUI.
+
+Before release, verify first entry, reconnect after each choice, changing the
+setting, a failed browser load, and native editor apply/reset in the actual
+official-launcher client. Headless tests do not establish visual or in-game parity.
+
+Vending machines use the shared `VendingMachine` catalogue interface: a brushed-metal
+cabinet, dark product shelves, a large layered sprite preview, hover descriptions and
+a red dispense button matching the shuttle console. A product click selects its preview; only
+the dispense button sends the existing `VendingMachineEjectMessage`. Inventory type
+is preserved when the same prototype appears in multiple inventories. The host
+checks the current allowed catalogue for actions and icon requests; the server
+retains authority over access, stock, pricing and payment. First-frame icons load
+only near the visible shelves, without spawning preview entities. A failed page or
+an eight-second readiness timeout opens the native vending menu instead.
+
+Product cells have recessed sides and floors with first-frame sprite relief and
+contact shadows. Products stand upright without tilt or rotation. The selected
+settings are 7 px depth, 0.75 warm lighting and 0.6 unlit brightness. Selection and
+cell lighting change only on button activation; hover shows a tooltip and keyboard
+focus shows an outline. Search preserves the clicked selection without selecting
+another product automatically. No product is selected when the window first opens.
+The cabinet has folded metal edges, hinges and screws. Scratches, paint chips and
+dents are seeded once per window and placed only in exposed metal areas; text,
+controls and the product/payment panels are excluded. Resizing recomputes the
+layout with the same seed. No idle animation regenerates the wear.
+The upper panel is black inset glass with a full-width static lamp-matrix brand
+display. Local Latin/Cyrillic glyphs avoid font downloads. Generic vending-machine
+phrases and the dispenser subtitle are omitted from the sign.
+
+Run `node tools/vending-machine-browser.test.cjs` after a production TGUI build
+(`PLAYWRIGHT_MODULE` may point to the workspace Playwright package). The focused
+`VendingMachineTguiTests` integration fixture checks the full vending icon catalogue,
+free prices, inventory identities and unlimited stock. In-game checks should cover
+paid/free machines, cash and Ironman characters, access-controlled machines,
+emag/contraband changes, restocking, loss of power and repeated close/reopen cycles.
+
 Embedded windows inherit the player's chat colors and light/dark theme. The
 character editor also publishes its own background preset to the native layer;
 other interfaces draw no animation unless they explicitly configure it.

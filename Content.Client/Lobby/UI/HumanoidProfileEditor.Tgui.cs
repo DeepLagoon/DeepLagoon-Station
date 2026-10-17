@@ -52,7 +52,7 @@ public sealed partial class HumanoidProfileEditor
         try
         {
             var result = await IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Tattoos.TattooArtworkSystem>().Authorize(basis, recipe);
-            if (_profileWeb == null || Profile != original || CharacterSlot != slot
+            if (Disposed || (_profileWeb == null && _nativeTattoos == null) || Profile != original || CharacterSlot != slot
                 || !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)) return;
             var appearance = Profile.Appearance.Clone(); next[next.FindIndex(t => t.Id == basis.Id)] = result;
             appearance.Tattoos = next; Profile = Profile.WithCharacterAppearance(appearance);
@@ -72,7 +72,7 @@ public sealed partial class HumanoidProfileEditor
             else
             {
                 var result = await Content.Client._DeepLagoon.Tattoos.TattooFileDialogs.Import(template);
-                if (_profileWeb == null || Profile == null || CharacterSlot != slot) return;
+                if (Disposed || (_profileWeb == null && _nativeTattoos == null) || Profile == null || CharacterSlot != slot) return;
                 _tattooStatus = result.Status;
                 if (result.Tattoo == null) return;
                 if (!_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)
@@ -101,6 +101,7 @@ public sealed partial class HumanoidProfileEditor
     {
         _prototypeManager.PrototypesReloaded += ReloadTguiCatalog;
         _editorAppearance.Load(_resManager);
+        if (!TguiPanel.Enabled) { InitializeNativeExtras(); return; }
         TabContainer.AddChild(_editorSettingsTab);
         _profileWeb = new TguiPanel(suspendWhenHidden: true, inheritChatAppearance: false, showWindowControls: false) { Name = "CharacterTgui" };
         _profileWeb.OnAction += (action, payload) => HandleTguiProfileAction(action, payload);
@@ -123,6 +124,7 @@ public sealed partial class HumanoidProfileEditor
         _tguiHost = new TguiEditorHost(TabContainer, _profileWeb, SpriteView);
         EditorColumn.AddChild(_tguiHost);
         _profileWeb.Web.Failed += RestoreNativeEditor;
+        _profileWeb.SetNativeFallback(RestoreNativeEditor);
         TabContainer.OnTabChanged += SelectTguiTab;
         SelectTguiTab(TabContainer.CurrentTab);
     }
@@ -161,6 +163,7 @@ public sealed partial class HumanoidProfileEditor
 #pragma warning restore CS0618
         _tguiHost = null;
         _profileWeb = null;
+        InitializeNativeExtras();
     }
 
     private string TguiTabMode(int tab)
@@ -195,9 +198,10 @@ public sealed partial class HumanoidProfileEditor
 
     private void PublishTguiProfile()
     {
-        if (_profileWeb == null) return;
+        RefreshNativeExtras();
         if (_libraryWindow != null)
             _libraryWindow.Panel.SetState("CharacterHeadshotLibrary", CreateTguiProfileState("flavor").ToString());
+        if (_profileWeb == null) return;
         _publishedTguiProfile = Profile;
         _publishedTguiDirty = IsDirty;
         _publishedTguiClothes = ShowClothes.Pressed;

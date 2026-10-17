@@ -24,6 +24,8 @@
 
                 <!-- Interface -->
                 <Label Text="{Loc 'ui-options-interface-label'}" StyleClasses="LabelKeyText"/>
+                <CheckBox Name="LobbyAnimatedBackgroundCheckBox" Text="{Loc 'deeplagoon-options-lobby-animation'}"
+                          ToolTip="{Loc 'deeplagoon-options-lobby-animation-tooltip'}" />
                 <ui:OptionDropDown Name="DropDownUIScale" Title="{Loc 'ui-options-scale-label'}" />
                 <CheckBox Name="ViewportStretchCheckBox" Text="{Loc 'ui-options-vp-stretch'}" />
                 <ui:OptionSlider Name="ViewportScaleSlider" Title="{Loc ui-options-vp-scale}" />

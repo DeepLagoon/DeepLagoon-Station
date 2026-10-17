@@ -61,7 +61,8 @@ public partial class ChatBox : UIWidget
         _coalescence = _cfg.GetCVar(CCVars.CoalesceIdenticalMessages); // i am uncomfortable calling repopulate on chatbox in its ctor, even though it worked in testing i'll still err on the side of caution
         _cfg.OnValueChanged(CCVars.CoalesceIdenticalMessages, UpdateCoalescence, false); // eplicitly false to underline the above comment
         _cfg.OnValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ApplyChatMode, false);
-        if (_cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat)) ApplyChatMode(true);
+        _cfg.OnValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.InterfaceStyle, ApplyInterfaceStyle, false);
+        ApplyChatMode(_cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat));
         // WD EDIT END
     }
 
@@ -304,6 +305,7 @@ public partial class ChatBox : UIWidget
         CloseComposer();
         DisposeWebSettings();
         _cfg.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ApplyChatMode);
+        _cfg.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.InterfaceStyle, ApplyInterfaceStyle);
         if (_settingsSaveDelay >= 0) FlushPanelSettings();
         if (_panelPreferences != null)
         {

@@ -20,6 +20,7 @@ namespace Content.Server.Database
         }
 
         public DbSet<Preference> Preference { get; set; } = null!;
+        public DbSet<ArchivedArtwork> ArchivedArtworks { get; set; } = null!;
         public DbSet<LagoonCoinOperation> LagoonCoinOperations { get; set; } = null!;
         public DbSet<Profile> Profile { get; set; } = null!;
         public DbSet<AssignedUserId> AssignedUserId { get; set; } = null!;

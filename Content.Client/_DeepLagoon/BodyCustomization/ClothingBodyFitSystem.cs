@@ -17,6 +17,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using Color = Robust.Shared.Maths.Color;
 
 namespace Content.Client._DeepLagoon.BodyCustomization;
 
@@ -206,8 +207,10 @@ public sealed class ClothingBodyFitSystem : EntitySystem
         shader.SetParameter("frameSize", (Vector2) state.Size);
         shader.SetParameter("frameCount", state.DelayCount);
         shader.SetParameter("directionCount", state.Icons.Length);
-        var min = new Vector2[64];
-        var max = new Vector2[64];
+        // Pack each rectangle into one uniform location to stay below the stock
+        // client's signed-byte uniform cache limit, without reducing frame capacity.
+        // Color arrays are converted to linear on upload; pre-encode numeric bounds.
+        var bounds = new Color[64];
         for (var direction = 0; direction < state.Icons.Length; direction++)
         for (var frame = 0; frame < state.DelayCount; frame++)
         {
@@ -215,11 +218,11 @@ public sealed class ClothingBodyFitSystem : EntitySystem
             var region = texture is AtlasTexture atlas ? atlas.SubRegion : new UIBox2(0, 0, texture.Width, texture.Height);
             var backing = texture is AtlasTexture a ? a.SourceTexture : texture;
             var i = direction * state.DelayCount + frame;
-            min[i] = new Vector2(region.Left / backing.Width, 1 - region.Bottom / backing.Height);
-            max[i] = new Vector2(region.Right / backing.Width, 1 - region.Top / backing.Height);
+            bounds[i] = Color.ToSrgb(new Color(
+                region.Left / backing.Width, 1 - region.Bottom / backing.Height,
+                region.Right / backing.Width, 1 - region.Top / backing.Height));
         }
-        shader.SetParameter("directionMin", min);
-        shader.SetParameter("directionMax", max);
+        shader.SetParameter("directionBounds", bounds);
         // A non-drawing copy supplies the current frame's exact atlas bounds and dirties uniforms before
         // EVERY draw (also in multiple preview viewports). This avoids stale sampler bindings in Clyde.
         var helper = new SpriteComponent.Layer(layer, sprite)

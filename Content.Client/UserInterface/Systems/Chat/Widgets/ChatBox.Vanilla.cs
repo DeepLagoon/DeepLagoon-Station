@@ -7,9 +7,11 @@ public partial class ChatBox
     private OutputPanel? _vanillaContents;
     private bool _useVanillaChat;
     private bool _webChatRequested;
+    private void ApplyInterfaceStyle(int _) => ApplyChatMode(_cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat));
 
     private void ApplyChatMode(bool vanilla)
     {
+        vanilla |= !Content.Client._DeepLagoon.WebUI.TguiPanel.Enabled;
         _useVanillaChat = vanilla;
         CloseComposer();
         ChatInput.Visible = vanilla || !_webChatRequested;

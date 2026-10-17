@@ -30,6 +30,8 @@ public static class WikiNavigationPolicy
     // UriKind is not exposed by Robust's sandbox. The Uri(string) constructor is.
     public static bool TryUri(string url, out Uri uri)
     {
+        // An unset TGUI development-server address is valid configuration, not a URI.
+        if (string.IsNullOrWhiteSpace(url)) { uri = default!; return false; }
         try { uri = new Uri(url); return uri.IsAbsoluteUri; }
         catch (Exception) { uri = default!; return false; }
     }

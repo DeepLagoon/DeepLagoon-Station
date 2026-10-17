@@ -198,6 +198,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
 
 public sealed class ApartmentEditorWindow : FancyWindow
 {
+    public override void Close() { if (Panel.CanCloseNative()) base.Close(); }
     public readonly TguiPanel Panel = new();
     public ApartmentEditorWindow()
     {

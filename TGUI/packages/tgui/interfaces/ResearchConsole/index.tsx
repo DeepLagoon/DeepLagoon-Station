@@ -11,6 +11,7 @@ import {
 
 import { sendMessage, useBackend } from '../../backend';
 import { playerTheme } from '../../components/PlayerTheme';
+import { CivilianConsoleFrame } from '../../components/CivilianConsoleFrame';
 import { DetailsPanel, PANEL_STRIP_WIDTH, PANEL_WIDTH } from './DetailsPanel';
 import {
   buildDependents,
@@ -217,10 +218,11 @@ export const ResearchConsole = () => {
   const rootClass = `ResearchConsole ${theme.className}`;
 
   if (!labels || !wireTechs) {
-    return <div className={rootClass} style={theme.style} />;
+    return <CivilianConsoleFrame><div className={rootClass} style={theme.style} /></CivilianConsoleFrame>;
   }
 
   return (
+    <CivilianConsoleFrame>
     <div
       className={rootClass}
       style={theme.style}
@@ -287,5 +289,6 @@ export const ResearchConsole = () => {
       </div>
       <Tips />
     </div>
+    </CivilianConsoleFrame>
   );
 };

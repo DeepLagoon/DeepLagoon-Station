@@ -9,6 +9,8 @@
                        StyleClasses="LabelKeyText"/>
                 <ui:OptionDropDown Name="DropDownHudTheme" Title="{Loc 'ui-options-hud-theme'}" />
                 <ui:OptionDropDown Name="DropDownHudLayout" Title="{Loc 'ui-options-hud-layout'}" />
+                <ui:OptionDropDown Name="DropDownInterfaceStyle" Title="{Loc 'dl-ui-style-title'}" />
+                <RichTextLabel Text="{Loc 'dl-ui-style-hint'}" />
                 <CheckBox Name="VanillaChat" Text="{Loc 'ui-options-vanilla-chat'}" />
                 <CheckBox Name="TattoosEnabled" Text="{Loc 'ui-options-tattoos-enabled'}" ToolTip="{Loc 'ui-options-tattoos-enabled-tooltip'}" />
                 <Label Text="{Loc 'ui-options-general-discord'}"

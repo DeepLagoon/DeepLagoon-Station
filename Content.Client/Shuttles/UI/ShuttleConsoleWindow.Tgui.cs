@@ -17,6 +17,8 @@ public sealed partial class ShuttleConsoleWindow
     private Vector4 _viewport;
     private float _publishTimer;
     private Content.Shared.Exodus.ShipShields.ShipShieldState? _shieldState;
+    private readonly List<(Control View, Control Parent, int Index, Thickness Margin, Vector2 Min)> _nativeViews = new();
+    private bool _nativeConsole;
 
     public void UpdateShieldState(Content.Shared.Exodus.ShipShields.ShipShieldState? state)
     {
@@ -33,18 +35,20 @@ public sealed partial class ShuttleConsoleWindow
 
     private void InitializeTgui()
     {
+        if (!TguiPanel.Enabled) { _nativeConsole = true; return; }
         SetSize = new Vector2(1060, 740);
         MinSize = new Vector2(760, 520);
         // Native controls remain the state/command owners. Only their graphics viewports
         // are reparented above CEF; no framebuffer copies or browser-side weapon simulation.
         ContentsContainer.GetChild(0).Visible = false;
         _views = new Control[] { CombatRadar, MapContainer.TguiRadar, DockContainer.TguiRadar };
-        Tgui = new TguiPanel(inheritChatAppearance: false);
+        Tgui = new TguiPanel(inheritChatAppearance: false) { ConsoleKeyboardFeedback = true };
         ContentsContainer.AddChild(Tgui);
         _radarLayer = new LayoutContainer { MouseFilter = Control.MouseFilterMode.Ignore };
         ContentsContainer.AddChild(_radarLayer);
         foreach (var view in _views)
         {
+            _nativeViews.Add((view, view.Parent!, view.GetPositionInParent(), view.Margin, view.MinSize));
             view.Orphan();
             view.Margin = new Thickness(0);
             view.MinSize = Vector2.Zero;
@@ -55,18 +59,42 @@ public sealed partial class ShuttleConsoleWindow
         _radarGlass = new ShuttleRadarGlassControl();
         _radarLayer.AddChild(_radarGlass);
         Tgui.OnAction += TguiAction;
+        Tgui.OnClose += Close;
+        Tgui.SetNativeFallback(RestoreNativeConsole);
         UpdateTguiMode();
         PublishTgui();
     }
 
     private void UpdateTguiMode()
     {
+        if (_nativeConsole) return;
         if (_mode != ShuttleConsoleMode.Nav)
             ((Content.Client._DeepLagoon.Shuttles.CombatShuttleNavControl)CombatRadar).StopFiring();
         for (var i = 0; i < _views.Length; i++)
             _views[i].Visible = i == (int)_mode && _viewport.Z > 0 && _viewport.W > 0;
         _radarGlass.Visible = _viewport.Z > 0 && _viewport.W > 0;
         _publishTimer = 0;
+    }
+
+    private void RestoreNativeConsole()
+    {
+        if (_nativeConsole) return;
+        _nativeConsole = true;
+        ((CombatShuttleNavControl)CombatRadar).StopFiring();
+        Tgui.Visible = _radarLayer.Visible = false;
+        foreach (var (view, parent, index, margin, min) in _nativeViews)
+        {
+            view.Orphan();
+            parent.AddChild(view);
+            view.SetPositionInParent(index);
+            view.Margin = margin;
+            view.MinSize = min;
+            view.SetSize = new Vector2(float.NaN);
+            view.Visible = true;
+            ((Content.Client.UserInterface.Controls.MapGridControl)view).FitViewport = false;
+        }
+        ContentsContainer.GetChild(0).Visible = true;
+        SetupMode(_mode);
     }
 
     private void TguiAction(string action, string payload)
@@ -93,14 +121,16 @@ public sealed partial class ShuttleConsoleWindow
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
-        if (!VisibleInTree) return;
+        if (!VisibleInTree || _nativeConsole) return;
         var size = ContentsContainer.Size;
         foreach (var view in _views)
         {
             LayoutContainer.SetPosition(view, new Vector2(_viewport.X * size.X, _viewport.Y * size.Y));
             view.SetSize = new Vector2(_viewport.Z * size.X, _viewport.W * size.Y);
         }
-        LayoutContainer.SetPosition(_radarGlass, new Vector2(_viewport.X * size.X, _viewport.Y * size.Y));
+        var glassPosition = new Vector2(_viewport.X * size.X, _viewport.Y * size.Y);
+        LayoutContainer.SetPosition(_radarGlass, glassPosition);
+        _radarGlass.PanelTextureOffset = glassPosition;
         _radarGlass.SetSize = new Vector2(_viewport.Z * size.X, _viewport.W * size.Y);
         _publishTimer -= args.DeltaSeconds;
         if (_publishTimer > 0) return;

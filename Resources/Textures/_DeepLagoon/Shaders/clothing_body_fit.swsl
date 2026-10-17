@@ -3,8 +3,7 @@ uniform highp vec4 sourceUV;
 uniform highp vec2 frameSize;
 uniform highp int frameCount;
 uniform highp int directionCount;
-uniform highp vec2[64] directionMin;
-uniform highp vec2[64] directionMax;
+uniform highp vec4[64] directionBounds;
 varying highp vec2 fitUV;
 
 void vertex() {
@@ -16,8 +15,8 @@ void fragment() {
     int direction = 0;
     for (int i = 0; i < 64; i++) {
         if (i >= frameCount * directionCount) break;
-        if (center.x >= directionMin[i].x && center.y >= directionMin[i].y &&
-            center.x <= directionMax[i].x && center.y <= directionMax[i].y) {
+        if (center.x >= directionBounds[i].x && center.y >= directionBounds[i].y &&
+            center.x <= directionBounds[i].z && center.y <= directionBounds[i].w) {
             direction = i / frameCount;
             break;
         }

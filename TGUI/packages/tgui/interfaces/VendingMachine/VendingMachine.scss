@@ -1,0 +1,209 @@
+// A static brushed-metal cabinet. No looping animation or per-frame noise uploads.
+.VendingMachine {
+  --vm-text: #e4e9e3;
+  --vm-muted: #aab5aa;
+  --vm-edge: #58604f;
+  --vm-accent: #a6c176;
+  --vm-niche-depth: 7px;
+  --vm-niche-light: .75;
+  --vm-niche-dark: .6;
+  --vm-niche-lamp: #ffe7ac;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  padding: 17px 18px 16px;
+  color: var(--vm-text);
+  font: 13px/1.35 'Verdana', sans-serif;
+  border: 4px solid;
+  border-color: #7c876a #182113 #0b1308 #58694b;
+  border-radius: 7px;
+  background:
+    url('./brushed-metal.svg') repeat,
+    linear-gradient(112deg, #8b948314, transparent 34%, #060b0866 70%, #9da68d0e),
+    linear-gradient(145deg, #3e4638, #252d25 56%, #343d30);
+  box-shadow: inset 0 0 0 2px #111a0d, inset 0 5px 5px #c6d2a323, inset 6px 0 5px #a0b07b1a, inset -7px 0 7px #030a02b3, inset 0 -9px 7px #030a02b3;
+
+  * { box-sizing: border-box; }
+  button:not(.VendingMachine__buy), input { font: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid #d0bf69; outline-offset: 2px; }
+
+  &__wear { position: absolute; inset: 0; pointer-events: none; z-index: 0; background-repeat: no-repeat; background-size: 100% 100%; }
+  &__brand, &__toolbar, &__body, &__footer { position: relative; z-index: 1; }
+  &__frame { position: absolute; inset: 0; z-index: 5; pointer-events: none;
+    &::before { content: ''; position: absolute; inset: 4px; border: 2px solid; border-color: #b4be934d #0b1408 #0b1408 #84976666; border-radius: 2px;
+      box-shadow: inset 0 1px #15200f, 0 1px #677a4d66; }
+    &::after { content: ''; position: absolute; inset: 11px 12px 10px; border: 1px solid; border-color: #0b1408 #73895b66 #869c6666 #0b1408; border-radius: 2px; }
+  }
+  &__screw { position: absolute; width: 6px; height: 6px; border-radius: 50%; border: 1px solid #141e0c;
+    background: linear-gradient(135deg, transparent 36%, #1d2714 39% 58%, transparent 61%), radial-gradient(circle at 30% 25%, #acb48b, #6c7954 45%, #394a28);
+    box-shadow: 0 0 0 1px #7b8a5d77, 1px 1px 2px #000a;
+    &.is-top-left { left: 6px; top: 6px; } &.is-top-right { right: 6px; top: 6px; }
+    &.is-bottom-left { left: 6px; bottom: 6px; } &.is-bottom-right { right: 6px; bottom: 6px; }
+  }
+  &__hinge { position: absolute; left: 1px; width: 9px; height: 36px; border: 1px solid; border-color: #9aa476 #1b2810 #233215 #8a9968;
+    border-radius: 2px; background: repeating-linear-gradient(0deg, transparent 0 10px, #111d0a 11px 12px), linear-gradient(90deg, #4c6034, #a0ad7a 32%, #52673a 60%, #283c1b);
+    box-shadow: 1px 2px 2px #050c02a6;
+    &.is-upper { top: 27%; } &.is-lower { bottom: 21%; }
+  }
+
+  &__brand {
+    flex: none;
+    height: clamp(76px, 18cqw, 142px);
+    padding: 10px 13px;
+    overflow: hidden;
+    border: 5px solid;
+    border-color: #111a0e #657250 #6e7b54 #172010;
+    border-radius: 4px;
+    background: radial-gradient(ellipse at 50% 15%, #14181155, transparent 70%), #020404;
+    box-shadow: inset 0 0 0 1px #000, inset 0 5px 12px #000, 0 1px #97a97a33;
+    &::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 2px;
+      background:
+        radial-gradient(ellipse at 22% 0%, #e7f1ff14, transparent 58%),
+        linear-gradient(116deg, transparent 7%, #e9f3ff0d 15%, #e9f3ff04 30%, transparent 34% 65%, #ffffff07 73%, transparent 84%),
+        linear-gradient(#ffffff0c, transparent 24% 76%, #9baebb04);
+      box-shadow: inset 0 1px #e1edff40, inset 1px 0 2px #d7e6ff12, inset -1px 0 2px #d7e6ff0a, inset 0 -2px 5px #000a; }
+  }
+  &__brand-title { margin: 0; padding: 0; width: 100%; height: 100%; line-height: 1; }
+  &__brand-title svg { display: block; }
+  &__brand-bulbs { fill: #f5d99a; filter: drop-shadow(0 0 1.5px #ffd88799) drop-shadow(0 0 5px #e5b95566); }
+  &__brand-title.is-off &__brand-bulbs { fill: #28281a; filter: none; }
+  &__toolbar { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+  &__toolbar input { width: 100%; min-width: 0; flex: 1; height: 34px; padding: 6px 9px; border: 2px inset #647055; border-radius: 2px; color: #e0e9d2; background: #121a13; }
+  &__toolbar input::placeholder { color: #a1b096; }
+  &__count { font: 11px 'Consolas', monospace; color: #b9c4ad; white-space: nowrap; padding-right: 3px; }
+  &__body { display: grid; grid-template-columns: minmax(0, 1fr) 234px; gap: 12px; flex: 1; min-height: 0; }
+  &__glass {
+    min-height: 0; min-width: 0; padding: 4px; border: 5px solid; border-color: #6b735e #171e16 #151c14 #5a654e;
+    background: linear-gradient(115deg, #ffffff04 0% 17%, transparent 17% 73%, #ffffff03 73%), #0f1710;
+    box-shadow: inset 0 0 0 1px #030803, inset 0 0 24px #0008, 0 1px #9caa791f;
+  }
+  &__shelves { height: 100%; overflow-y: auto; overflow-x: hidden; padding: 7px 6px 12px; scrollbar-color: #748066 #11190f; scrollbar-width: thin; }
+  &__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; align-content: start; }
+  &__product {
+    position: relative; display: block; isolation: isolate;
+    min-width: 0; height: 172px; padding: 0; overflow: visible; color: var(--vm-text);
+    border: 2px solid; border-color: #687650 #1b2514 #111a0b #596742; border-radius: 3px;
+    background: repeating-linear-gradient(1deg, #adbb8606 0 1px, transparent 1px 4px), linear-gradient(120deg, #38452c, #27351f 65%, #435132);
+    box-shadow: inset 0 1px #9daa7b44, 0 2px 0 #030901;
+    &.is-selected { border-color: #a89e6a #4d5734 #253013 #8b8b57; }
+    &.is-empty .VendingMachine__sprite { opacity: .35; }
+  }
+  &__well { position: absolute; inset: 8px 7px 34px; overflow: hidden; background: #0c1209; border: 1px solid #101a09; border-radius: 2px;
+    box-shadow: inset 0 5px 10px #000c, 0 1px #b8c88b23; }
+  &__niche-back { position: absolute; inset: 9px var(--vm-niche-depth) 33px;
+    background: repeating-linear-gradient(0deg, #9eb17a03 0 1px, transparent 1px 4px), linear-gradient(#0f170b, #192512);
+    border-top: 1px solid #2f3c20; box-shadow: inset 3px 4px 7px #000a, inset -3px -1px 5px #0006; }
+  &__niche-wall { position: absolute; top: 0; bottom: 0; width: var(--vm-niche-depth); pointer-events: none;
+    &.is-left { left: 0; clip-path: polygon(0 0, 100% 10%, 100% 78%, 0 100%); background: linear-gradient(90deg, #111a0b, #354425); }
+    &.is-right { right: 0; clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 78%); background: linear-gradient(90deg, #27351c, #0a1107); }
+  }
+  &__niche-floor { position: absolute; bottom: 0; left: 0; right: 0; height: 38%; clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%);
+    background: repeating-linear-gradient(0deg, #a2b28106 0 1px, transparent 1px 5px), linear-gradient(#26341b, #3b4a2a); box-shadow: inset 0 -3px 4px #0007; }
+  &__floor-light { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--vm-niche-lamp), transparent 35%), transparent 85%); opacity: 0; transition: opacity .18s ease; }
+  &__niche-lamp { position: absolute; top: 5px; left: 23%; right: 23%; height: 3px; border-radius: 1px; background: #35402b; border-bottom: 1px solid #111a0b; z-index: 4; transition: background .13s, box-shadow .16s; }
+  &__light-beam { position: absolute; inset: 7px 0 0; clip-path: polygon(34% 0, 66% 0, 100% 100%, 0 100%);
+    background: linear-gradient(color-mix(in srgb, var(--vm-niche-lamp), transparent 73%), color-mix(in srgb, var(--vm-niche-lamp), transparent 93%) 65%, transparent);
+    opacity: 0; z-index: 2; pointer-events: none; transition: opacity .18s; }
+  &__contact-shadow { position: absolute; left: 22%; right: 18%; bottom: 11%; height: 12%; border-radius: 50%; background: #000a;
+    filter: blur(3px); z-index: 2; transition: background .18s, transform .18s; }
+  &__quantity { position: absolute; top: 4px; right: 5px; color: #e0d8bc; font: 10px 'Consolas', monospace; z-index: 2; }
+  &__sprite { position: relative; display: block; width: min(100%, 96px); aspect-ratio: 1; flex: none; pointer-events: none; }
+  &__sprite img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+  &__sprite-face, &__sprite-extrusion { position: absolute; inset: 0; }
+  &__sprite-extrusion { transform: translate(2px, 5px); filter: brightness(.24); }
+  &__sprite-face { filter: drop-shadow(0 2px 0 #1c210d99); }
+  &__sprite--large &__sprite-face { filter: none; }
+  &__sprite-shine { position: absolute; inset: 0; mask-size: contain; mask-position: center; mask-repeat: no-repeat;
+    background: linear-gradient(110deg, transparent 18%, #ffedc436 38%, transparent 59%); opacity: 0; transition: opacity .18s; }
+  &__well &__sprite { position: absolute; width: 89%; max-width: 116px; left: 50%; top: 53%;
+    transform: translate(-50%, -44%);
+    transform-style: preserve-3d; z-index: 3; filter: brightness(var(--vm-niche-dark)) saturate(.88); transition: filter .18s; }
+  &__product.is-selected &__niche-lamp { background: var(--vm-niche-lamp); box-shadow: 0 0 4px var(--vm-niche-lamp), 0 3px 11px color-mix(in srgb, var(--vm-niche-lamp), transparent 25%); }
+  &__product.is-selected &__light-beam, &__product.is-selected &__floor-light, &__product.is-selected &__sprite-shine { opacity: var(--vm-niche-light); }
+  &__product.is-selected &__well &__sprite { filter: brightness(calc(1 + var(--vm-niche-light) * .22)) saturate(1.08); }
+  &__product.is-selected &__contact-shadow { background: #000d; transform: translateY(3px); }
+  &__no-image { display: grid; place-items: center; height: 100%; color: #a6b297; font-size: 10px; text-align: center; }
+  &__ticket { position: absolute; left: 5px; right: 5px; bottom: 5px; z-index: 6; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; max-width: 100%; min-height: 22px; padding: 3px 5px; color: #e3dec0;
+    background: #222c1e; border: 1px solid #667253; border-radius: 2px; font: 11px/1.15 'Consolas', monospace;
+    > :first-child { color: #bdcda1; } }
+  &__side { display: flex; flex-direction: column; gap: 10px; min-height: 0; padding-right: 2px; }
+  &__display { flex: none; padding: 9px; border: 3px inset #657155; border-radius: 2px; background: #102015; box-shadow: inset 0 2px 5px #0008; }
+  &__caption { flex: none; display: block; color: #b1bea0; font: 10px/1.3 'Consolas', monospace; text-transform: uppercase; letter-spacing: .08em; }
+  &__balance { display: block; padding-top: 3px; color: #d6e8b5; font: bold 23px/1.2 'Consolas', monospace; overflow-wrap: anywhere; }
+  &__cash { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; color: #b2c4a4; font-size: 11px; padding-top: 6px; }
+  &__free { color: #c4dba2; font-size: 11px; margin-top: 6px; }
+  &__details { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 9px; border: 1px solid #546049; border-radius: 3px; background: #192218; }
+  &__details-body { flex: 1; min-height: 0; overflow: auto; scrollbar-color: #748066 #11190f; scrollbar-width: thin; }
+  &__hero { display: flex; align-items: center; justify-content: center; height: clamp(110px, 26vh, 180px); margin-bottom: 11px; border-bottom: 1px solid #4b593b; background: radial-gradient(ellipse at center, #3b492c, #192218 72%); }
+  &__sprite--large { width: 100%; height: 100%; max-width: 100%; aspect-ratio: auto; transition: none; }
+  h2 { flex: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; line-height: 1.3; margin: 6px 0 8px; font-weight: bold; overflow-wrap: anywhere; color: #e6e7cf; }
+  &__description { color: #c0c8b5; font-size: 12px; margin: 0 0 12px; overflow-wrap: anywhere; white-space: pre-line; }
+  &__price { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 7px; margin: 8px 0 10px; font-size: 11px; color: #b5c3a4; strong { color: #e5e9ce; font-weight: normal; } }
+
+  // The same worn red mechanical button finish used by ShuttleConsole.
+  &__buy { flex: none; position: relative; width: 100%; min-height: 38px; padding: 7px 9px; color: #e4d9a3;
+    font: bold 12px/1.1 'Arial Narrow', 'Roboto Condensed', sans-serif; text-transform: uppercase; letter-spacing: .15px;
+    border: 3px solid; border-color: #777461 #252a24 #151c17 #575a49; border-radius: 3px;
+    background: repeating-linear-gradient(3deg, #d7c28c08 0 1px, transparent 1px 4px),
+      linear-gradient(169deg, transparent 29%, #34221138 30% 31%, transparent 32% 73%, #d7bb7c18 74% 75%, transparent 76%),
+      radial-gradient(ellipse at 24% 10%, #a7543d, transparent 70%), linear-gradient(#923e30, #792c22 60%, #571f18);
+    box-shadow: inset 0 1px #d2976066, inset 1px 0 #cc885944, inset 0 -2px #321b15, 0 2px 0 1px #060d0a;
+    text-shadow: 1px 1px #291d11; transition: filter .1s; overflow-wrap: anywhere;
+    &::before, &::after { content: ''; position: absolute; width: 2px; height: 2px; pointer-events: none; background: #b3a986; box-shadow: 0 1px #1c2118; opacity: .55; }
+    &::before { left: 1px; top: 1px; } &::after { right: 1px; bottom: 1px; }
+    &:hover:not(:disabled) { filter: brightness(1.12); }
+    &:active:not(:disabled) { transform: translateY(1px); color: #eee5a9; border-color: #30362a #62664e #79745b #252c21;
+      background: repeating-linear-gradient(3deg, #d7c28c06 0 1px, transparent 1px 4px), linear-gradient(#51261b, #853b29);
+      box-shadow: inset 0 2px 4px #231709aa, inset 0 -1px #b78b4540, 0 1px #060d0a; }
+    &:disabled { opacity: .45; cursor: default; }
+  }
+  &__status { flex: none; min-height: 16px; text-align: center; color: #b4cc8c; font-size: 11px; overflow-wrap: anywhere; &.is-denied { color: #edb09c; } &:empty { display: none; } }
+  &__footer { display: grid; grid-template-columns: minmax(0, 1fr) 234px; gap: 12px; align-items: center; flex: none; padding-top: 10px;
+    > span { color: #b1bba3; font-size: 10px; text-align: center; letter-spacing: .05em; } }
+  &__chute { height: 42px; display: flex; align-items: center; justify-content: center; border: 4px solid; border-color: #57614a #343f2e #667050 #46533a;
+    border-radius: 2px; background: linear-gradient(#090f09 72%, #273321 73%); box-shadow: inset 0 5px 5px #000a; color: #a9b49b; font-size: 10px; letter-spacing: .1em; text-align: center; }
+  &__empty { grid-column: 1 / -1; padding: 15px 8px; color: #bec9af; text-align: center; font-size: 12px; }
+}
+.VendingMachine__tip { max-width: 320px; font: 12px/1.4 'Verdana', sans-serif; p { margin: 5px 0; white-space: pre-line; } > span { color: #d8dfc6; } }
+@container (max-width: 600px) {
+  .VendingMachine__body { grid-template-columns: minmax(0, 1fr) 184px; gap: 8px; }
+  .VendingMachine__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .VendingMachine__footer { grid-template-columns: minmax(0, 1fr) 184px; gap: 8px; }
+  .VendingMachine__hero { height: 140px; }
+  .VendingMachine__sprite--large { width: 160px; }
+}
+@container (max-width: 370px) {
+  .VendingMachine__body { grid-template-columns: minmax(0, 1fr) 145px; gap: 6px; }
+  .VendingMachine__grid { grid-template-columns: minmax(0, 1fr); }
+  .VendingMachine__footer { grid-template-columns: minmax(0, 1fr) 145px; gap: 6px; }
+  .VendingMachine__details { padding: 7px; }
+  .VendingMachine__hero { height: 110px; }
+  .VendingMachine__balance { font-size: 18px; }
+  .VendingMachine__product { height: 160px; }
+}
+@media (max-height: 480px) {
+  .VendingMachine { padding-top: 14px; padding-bottom: 13px; }
+  .VendingMachine__brand { height: 62px; padding: 5px 10px; }
+  .VendingMachine__side { gap: 6px; }
+  .VendingMachine__details { padding: 7px; }
+  .VendingMachine__details > .VendingMachine__caption { display: none; }
+  .VendingMachine h2 { font-size: 13px; margin: 4px 0 6px; }
+  .VendingMachine__buy { min-height: 34px; padding: 6px; }
+  .VendingMachine__toolbar { padding: 7px 0; }
+  .VendingMachine__display { padding: 7px; }
+  .VendingMachine__balance { font-size: 18px; }
+  .VendingMachine__footer { padding-top: 6px; }
+  .VendingMachine__chute { height: 34px; }
+  .VendingMachine__price { margin: 4px 0; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .VendingMachine__sprite, .VendingMachine__buy, .VendingMachine__niche-lamp, .VendingMachine__light-beam,
+  .VendingMachine__floor-light, .VendingMachine__sprite-shine, .VendingMachine__contact-shadow { transition: none; }
+}

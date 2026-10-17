@@ -1,11 +1,11 @@
 <DefaultWindow xmlns="https://spacestation14.io"
             Title="{Loc 'ghost-roles-window-title'}"
-            MinSize="490 400"
-            SetSize="490 500">
+            MinSize="420 360"
+            SetSize="560 560">
     <Label Name="NoRolesMessage"
            Text="{Loc 'ghost-roles-window-no-roles-available-label'}"
            VerticalAlignment="Top" />
-    <ScrollContainer VerticalExpand="True"
+    <ScrollContainer Name="RoleScroll" VerticalExpand="True"
                      HScrollEnabled="False">
         <BoxContainer Orientation="Vertical"
                       Name="EntryContainer"

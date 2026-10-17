@@ -1,8 +1,10 @@
 using System.Numerics;
+using Content.Client._DeepLagoon.Performance;
 using Content.Client.Changelog;
 using Content.Client.Hands;
 using Content.Client.UserInterface.Controls;
 using Content.Client.UserInterface.Screens;
+using Content.Client.UserInterface.Systems.Actions.Widgets;
 using Content.Client.UserInterface.Systems.Gameplay;
 using Content.Client.Viewport;
 using Content.Shared.CCVar;
@@ -10,9 +12,7 @@ using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
-using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Configuration;
-using Robust.Shared.Timing;
 
 namespace Content.Client.Gameplay
 {
@@ -21,12 +21,11 @@ namespace Content.Client.Gameplay
     {
         [Dependency] private IEyeManager _eyeManager = default!;
         [Dependency] private IOverlayManager _overlayManager = default!;
-        [Dependency] private IGameTiming _gameTiming = default!;
         [Dependency] private IUserInterfaceManager _uiManager = default!;
         [Dependency] private ChangelogManager _changelog = default!;
         [Dependency] private IConfigurationManager _configurationManager = default!;
 
-        private FpsCounter _fpsCounter = default!;
+        private PerformanceCounter _fpsCounter = default!;
         private Label _version = default!;
 
         public MainViewport Viewport => _uiManager.ActiveScreen!.GetWidget<MainViewport>()!;
@@ -53,10 +52,10 @@ namespace Content.Client.Gameplay
 
             // FPS counter.
             // yeah this can just stay here, whatever
-            _fpsCounter = new FpsCounter(_gameTiming);
+            _fpsCounter = new PerformanceCounter();
+            _fpsCounter.OnResized += UpdateActionsCounterOffset;
             UserInterfaceManager.PopupRoot.AddChild(_fpsCounter);
-            _fpsCounter.Visible = _configurationManager.GetCVar(CCVars.HudFpsCounterVisible);
-            _configurationManager.OnValueChanged(CCVars.HudFpsCounterVisible, (show) => { _fpsCounter.Visible = show; });
+            _configurationManager.OnValueChanged(CCVars.HudFpsCounterVisible, OnFpsCounterVisibilityChanged, true);
 
             // Version number watermark.
             _version = new Label();
@@ -84,11 +83,29 @@ namespace Content.Client.Gameplay
             base.Shutdown();
             // Clear viewport to some fallback, whatever.
             _eyeManager.MainViewport = UserInterfaceManager.MainViewport;
+            _fpsCounter.OnResized -= UpdateActionsCounterOffset;
             _fpsCounter.Dispose();
+            _configurationManager.UnsubValueChanged(CCVars.HudFpsCounterVisible, OnFpsCounterVisibilityChanged);
             _uiManager.ClearWindows();
             _configurationManager.UnsubValueChanged(CCVars.UILayout, ReloadMainScreenValueChange);
             _configurationManager.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ReloadChatMode);
             UnloadMainScreen();
+        }
+
+        private void OnFpsCounterVisibilityChanged(bool show)
+        {
+            _fpsCounter.Visible = show;
+            UpdateActionsCounterOffset();
+        }
+
+        private void UpdateActionsCounterOffset()
+        {
+            if (_fpsCounter == null || _uiManager.GetActiveUIWidgetOrNull<ActionsBar>() is not { } actions)
+                return;
+
+            // Leave room for the counter, including before its first text measurement.
+            var top = _fpsCounter.Visible ? Math.Max(20, _fpsCounter.Height) + 4 : 0;
+            actions.Margin = new Thickness(0, top, 0, 0);
         }
 
         private void ReloadMainScreenValueChange(string _)
@@ -128,7 +145,8 @@ namespace Content.Client.Gameplay
         private void LoadMainScreen()
         {
             var screenTypeString = _configurationManager.GetCVar(CCVars.UILayout);
-            if (_configurationManager.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat))
+            if (!Content.Client._DeepLagoon.WebUI.TguiPanel.Enabled ||
+                _configurationManager.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat))
                 screenTypeString = nameof(ScreenType.Default);
             if (!Enum.TryParse(screenTypeString, out ScreenType screenType))
             {
@@ -146,6 +164,7 @@ namespace Content.Client.Gameplay
             }
 
             _loadController.LoadScreen();
+            UpdateActionsCounterOffset();
         }
 
         protected override void OnKeyBindStateChanged(ViewportBoundKeyEventArgs args)

@@ -16,6 +16,8 @@ import { selectChat } from 'tgui-panel/chat/selectors';
 import { settingsMiddleware, settingsReducer, SettingsPanel, useSettings } from 'tgui-panel/settings';
 import { EmoteBar, emoteReducer } from './EmoteBar';
 
+window.__tguiAppBooted__ = false;
+
 const store = configureStore({
   reducer: combineReducers({ chat: chatReducer, settings: settingsReducer, emotes: emoteReducer, lobby: (state={},action)=>action.type==='deeplagoon/lobby-status'?action.payload:state }),
   middleware: { pre: [chatMiddleware, settingsMiddleware] },
@@ -75,3 +77,4 @@ store.dispatch({ type: 'update', payload: { config: {
 }, data: {} } });
 while (window.__updateQueue__.length) receive(window.__updateQueue__.shift());
 render();
+window.__tguiAppBooted__ = true;

@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
+import { ShipConsoleFrame, ConsoleKey as Key, ConsolePlate as Sticker, RadarScope } from '../components/ShipConsoleFrame';
 import './ShuttleConsole.scss';
 
-const Key = ({ children, selected, ...props }) => <button className={selected ? 'is-selected' : ''} aria-pressed={selected} {...props}>{children}</button>;
-const Sticker = ({ children }) => <h3 className="ShuttleConsole__sticker">{children}</h3>;
 
 // Text inputs own their draft until submission; the 5 Hz telemetry stream must
 // never overwrite a search or speed value while the pilot is typing.
@@ -20,49 +19,19 @@ const Field = ({ label, value, onCommit, type = 'text' }) => {
 
 export const ShuttleConsole = () => {
   const { data, act } = useBackend();
-  const viewport = useRef(null);
-  const viewportArea = useRef(null);
   const nav = data.nav || {}, weapons = data.weapons || {}, map = data.map || {}, dock = data.dock || {};
   const shield = data.shield || {};
   const mode = data.mode || 0;
   const send = (channel, id, value) => act(channel, { id, ...(value === undefined ? {} : { value: String(value) }) });
-  useEffect(() => {
-    const element = viewport.current;
-    const area = viewportArea.current;
-    let frame = 0, last = '';
-    const report = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const available = area.getBoundingClientRect();
-        const diameter = Math.max(0, Math.floor(Math.min(available.width, available.height) - 16));
-        element.style.width = `${diameter}px`;
-        element.style.height = `${diameter}px`;
-        const rect = element.getBoundingClientRect();
-        const bounds = { x: rect.left / innerWidth, y: rect.top / innerHeight, w: rect.width / innerWidth, h: rect.height / innerHeight };
-        const key = JSON.stringify(bounds);
-        if (key !== last && rect.width > 0 && rect.height > 0) { last = key; act('viewport', bounds); }
-      });
-    };
-    const observer = new ResizeObserver(report);
-    observer.observe(area); window.addEventListener('resize', report); report();
-    return () => { observer.disconnect(); window.removeEventListener('resize', report); cancelAnimationFrame(frame); };
-  }, []);
-  return <div className="ShuttleConsole" data-mode={mode} data-skin="quasimorph">
+  return <ShipConsoleFrame className="ShuttleConsole" data-mode={mode}>
     <header><span className="ShuttleConsole__sticker">{nav.name || 'Консоль шаттла'}</span>
       <nav>{['Пилот / орудия', 'Карта / FTL', 'Стыковка'].map((name, i) =>
         <Key key={name} selected={mode === i} onClick={() => act('mode', { value: i })}>{name}</Key>)}</nav>
       <Key aria-label="Закрыть" onClick={() => act('close')}>×</Key></header>
-    <main><section className="ShuttleConsole__scope">
-      <div className="ShuttleConsole__scope-title"><Sticker>{['Навигационный радар', 'Карта сектора', 'Стыковочный радар'][mode]}</Sticker>
-        <span className="ShuttleConsole__indicator" role="status"
-          aria-label={weapons.hasWeapons ? 'Корабельные орудия обнаружены' : 'Корабельные орудия не обнаружены'}>
-          <span className={`ShuttleConsole__lamp${weapons.hasWeapons ? ' is-on' : ''}`} aria-hidden="true" />
-          FIRE CONTROL</span></div>
-      <div className="ShuttleConsole__viewport-area" ref={viewportArea}>
-        <div className="ShuttleConsole__viewport" ref={viewport} aria-label="Нативный радар" />
-      </div>
-      <footer>{mode === 0 ? 'Клавиши пилотирования · ЛКМ: огонь · Колесо: масштаб' : 'Выберите цель на радаре или в списке'}</footer>
-    </section>
+    <main><RadarScope title={['Навигационный радар', 'Карта сектора', 'Стыковочный радар'][mode]}
+      indicator="FIRE CONTROL" active={weapons.hasWeapons}
+      statusLabel={weapons.hasWeapons ? 'Корабельные орудия обнаружены' : 'Корабельные орудия не обнаружены'}
+      footer={mode === 0 ? 'Клавиши пилотирования · ЛКМ: огонь · Колесо: масштаб' : 'Выберите цель на радаре или в списке'} />
     <aside>
       <section className="ShuttleConsole__terminal"><div className="ShuttleConsole__terminal-title">БОРТОВОЙ ТЕРМИНАЛ / TELEMETRY</div>
         <dl>{[['Кодовый номер', nav.designation], ['Координаты', nav.position], ['Азимут', nav.azimuth], ['Линейная скорость', nav.velocity], ['Угловая скорость', nav.angular],
@@ -122,5 +91,5 @@ export const ShuttleConsole = () => {
         <div>{Math.round((shield.health || 0) * 100)}% · {Math.round((shield.draw || 0) / 1000)} / {Math.round((shield.maxDraw || 0) / 1000)} кВт</div>
       </section>}
     </aside></main>
-  </div>;
+  </ShipConsoleFrame>;
 };

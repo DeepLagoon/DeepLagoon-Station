@@ -1,5 +1,6 @@
 using Content.Client._Mono.FireControl.UI;
 using Content.Client._DeepLagoon.WebUI;
+using Content.Client._DeepLagoon.Shuttles;
 using System.Numerics;
 using Content.Client.Shuttles.UI;
 using Content.Server._Mono.FireControl;
@@ -23,6 +24,7 @@ public sealed class ShuttleCombatConsoleTests
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         await pair.Client.WaitAssertion(() =>
         {
+            pair.Client.ResolveDependency<IConfigurationManager>().SetCVar(WebUiCVars.InterfaceStyle, 1);
             var pilot = new ShuttleConsoleWindow();
             var gunner = new FireControlWindow();
             try
@@ -49,7 +51,8 @@ public sealed class ShuttleCombatConsoleTests
                 Assert.That(pilot.CombatRadar.Parent, Is.TypeOf<Robust.Client.UserInterface.Controls.LayoutContainer>(),
                     "Radar must be rendered natively above the browser viewport");
                 Assert.That(pilot.CombatRadar.FitViewport, Is.True);
-                Assert.That(gunner.Radar.FitViewport, Is.False);
+                Assert.That(gunner.Radar.FitViewport, Is.True);
+                Assert.That(gunner.ConsoleHost, Is.Not.Null);
                 var radarLayer = pilot.CombatRadar.Parent!;
                 var glass = radarLayer.GetChild(radarLayer.ChildCount - 1);
                 Assert.That(glass, Is.TypeOf<Content.Client._DeepLagoon.Shuttles.ShuttleRadarGlassControl>(),
@@ -100,6 +103,70 @@ public sealed class ShuttleCombatConsoleTests
                 pilot.Dispose();
                 gunner.Dispose();
             }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task ShipRadarHostsPreserveNativeControlsOnFallbackAndValidateBounds()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var cfg = pair.Client.ResolveDependency<IConfigurationManager>();
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 1);
+            using var gunner = new FireControlWindow();
+            using var scanner = new RadarConsoleWindow();
+            var radar = scanner.FindControl<ShuttleNavControl>("RadarScreen");
+            Assert.That(scanner.ConsoleHost, Is.Not.Null);
+            Assert.That(scanner.ConsoleHost!.Kind, Is.EqualTo("mass"));
+            scanner.SetHandheld(true);
+            Assert.That(scanner.ConsoleHost.Kind, Is.EqualTo("handheld"));
+            Assert.That(scanner.ConsoleHost.Tgui.ConsoleKeyboardFeedback, Is.False);
+            Assert.That(scanner.ConsoleHost.GetChild(1).GetChild(1), Is.TypeOf<ShuttleRadarGlassControl>());
+            Assert.That(((ShuttleRadarGlassControl)scanner.ConsoleHost.GetChild(1).GetChild(1)).ShowHardware, Is.False);
+            Assert.That(scanner.FindControl<Robust.Client.UserInterface.Controls.Button>("IFFToggle").Visible, Is.False);
+            Assert.That(scanner.MinSize.X, Is.LessThan(400));
+            scanner.SetHandheld(false);
+            Assert.That(scanner.ConsoleHost.Kind, Is.EqualTo("mass"));
+            Assert.That(scanner.ConsoleHost.Tgui.ConsoleKeyboardFeedback, Is.True);
+            Assert.That(radar.FitViewport, Is.True);
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            Action<string, string> Actions(TguiPanel panel) => (Action<string, string>)typeof(TguiPanel).GetField("OnAction", flags)!.GetValue(panel)!;
+            var gunActions = Actions(gunner.ConsoleHost!.Tgui);
+            var scannerActions = Actions(scanner.ConsoleHost!.Tgui);
+            var previousIff = radar.ShowIFF;
+            scannerActions("radar", "{\"id\":\"iff\"}");
+            Assert.That(radar.ShowIFF, Is.EqualTo(!previousIff), "The web toggle must control the original scanner");
+            var refreshed = false;
+            gunner.OnServerRefresh += () => refreshed = true;
+            gunActions("weapon", "{\"id\":\"refresh\"}");
+            Assert.That(refreshed, Is.True, "Refresh must use the original bound-interface event");
+            var selected = false;
+            gunner.OnWeaponSelectionChanged += () => selected = true;
+            gunActions("weapon", "{\"id\":\"all\"}");
+            Assert.That(selected, Is.True);
+            foreach (var invalid in new[] { "{\"x\":-1,\"y\":0,\"w\":0.5,\"h\":0.5}", "{\"x\":0,\"y\":0,\"w\":0,\"h\":0.5}", "{\"x\":0.8,\"y\":0,\"w\":0.5,\"h\":0.5}" })
+            {
+                Assert.That(TguiActionData.TryParse(invalid, out var args), Is.True);
+                Assert.That(ShipRadarConsoleHost.TryViewport(args!, out _), Is.False);
+            }
+            Assert.That(TguiActionData.TryParse("{\"x\":0.1,\"y\":0.2,\"w\":0.5,\"h\":0.6}", out var valid), Is.True);
+            Assert.That(ShipRadarConsoleHost.TryViewport(valid!, out _), Is.True);
+            scanner.ConsoleHost.Tgui.SwitchToNative();
+            gunner.ConsoleHost.Tgui.SwitchToNative();
+            Assert.That(radar.FitViewport, Is.False);
+            Assert.That(gunner.Radar.FitViewport, Is.False);
+            Assert.That(scanner.ConsoleHost.Visible, Is.False);
+            Assert.That(gunner.ConsoleHost.Visible, Is.False);
+            Assert.That(radar.Parent, Is.Not.Null);
+            Assert.That(gunner.Radar.Parent, Is.Not.Null);
+            Assert.That(radar.ShowIFF, Is.EqualTo(!previousIff), "Fallback must retain the current IFF choice");
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 2);
+            using var classicGunner = new FireControlWindow();
+            using var classicScanner = new RadarConsoleWindow();
+            Assert.That(classicGunner.ConsoleHost, Is.Null);
+            Assert.That(classicScanner.ConsoleHost, Is.Null);
         });
         await pair.CleanReturnAsync();
     }

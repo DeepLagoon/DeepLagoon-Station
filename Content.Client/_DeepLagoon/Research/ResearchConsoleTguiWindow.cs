@@ -6,7 +6,7 @@ namespace Content.Client._DeepLagoon.Research;
 
 public sealed class ResearchConsoleTguiWindow : FancyWindow
 {
-    public readonly TguiPanel Panel = new();
+    public readonly TguiPanel Panel = new() { ConsoleKeyboardFeedback = true };
 
     public ResearchConsoleTguiWindow()
     {

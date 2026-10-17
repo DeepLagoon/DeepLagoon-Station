@@ -9,6 +9,28 @@ public sealed class WikiNavigationPolicyTest
 {
     private static readonly HashSet<string> Pages = new() { "/ru/rules" };
 
+    [TestCase("")]
+    [TestCase("   ")]
+    [TestCase(null)]
+    public void EmptyBrowserUrlsAreRejectedWithoutThrowing(string url)
+    {
+        var uriExceptions = 0;
+        void OnException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs args)
+        {
+            if (args.Exception is System.UriFormatException) uriExceptions++;
+        }
+        System.AppDomain.CurrentDomain.FirstChanceException += OnException;
+        try
+        {
+            Assert.That(WikiNavigationPolicy.TryUri(url, out _), Is.False);
+            Assert.That(uriExceptions, Is.Zero);
+        }
+        finally
+        {
+            System.AppDomain.CurrentDomain.FirstChanceException -= OnException;
+        }
+    }
+
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/rules", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game/jobs/engineer#tools", true)]

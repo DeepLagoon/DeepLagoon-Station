@@ -89,8 +89,9 @@ public sealed class CharacterCardWindow : FancyWindow
             _panel.Arrange(UIBox2.FromDimensions(Vector2.Zero,final));
             // Match CharacterCard.scss. Fill the viewport with 12px of breathing
             // room, including tall/wide species, rather than a fixed 3x scale.
-            var height = Math.Clamp(final.Y - (HasHeadshot ? 426 : 98), 128, 256);
-            var position = new Vector2(22, HasHeadshot ? 372 : 44);
+            var belowHeadshot = HasHeadshot && !_panel.UsingNative;
+            var height = Math.Clamp(final.Y - (belowHeadshot ? 426 : 98), 128, 256);
+            var position = new Vector2(22, belowHeadshot ? 372 : 44);
             _sprite.Arrange(UIBox2.FromDimensions(position + new Vector2(12),new Vector2(232,height - 24)));
             return final;
         }

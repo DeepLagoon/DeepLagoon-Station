@@ -1,5 +1,6 @@
 using Content.Client.Shuttles.UI;
 using Content.Shared.Shuttles.BUIStates;
+using Content.Shared.Item;
 using JetBrains.Annotations;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
@@ -21,8 +22,17 @@ public sealed class RadarConsoleBoundUserInterface : BoundUserInterface
     {
         base.Open();
 
-        _window = this.CreateWindow<RadarConsoleWindow>();
-        _window?.SetConsole(Owner);
+        // Apply the handheld size before the window is positioned on screen.
+        _window = this.CreateDisposableControl<RadarConsoleWindow>();
+        _window.SetHandheld(EntMan.HasComponent<ItemComponent>(Owner));
+        _window.SetConsole(Owner);
+        _window.OnClose += Close;
+        var ui = EntMan.System<UserInterfaceSystem>();
+        ui.RegisterControl(this, _window);
+        if (ui.TryGetPosition(Owner, UiKey, out var position))
+            _window.Open(position);
+        else
+            _window.OpenCentered();
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)

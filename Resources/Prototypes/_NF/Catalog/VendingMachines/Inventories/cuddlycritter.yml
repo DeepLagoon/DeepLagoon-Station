@@ -38,6 +38,9 @@
     ClownRecorder: 1
     PonderingOrb: 1
     CrayonBox: 10
+    DLArtCanvas: 12
+    DLArtBrush: 6
+    DLArtSprayCan: 4
     CrayonRainbow: 5
     WeaponWaterPistol: 8
     WeaponWaterBlaster: 4

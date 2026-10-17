@@ -1,30 +1,33 @@
 <Control
     xmlns="https://spacestation14.io"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls">
-    <BoxContainer Name="VBox" Orientation="Vertical">
-        <controls:NanoHeading Name="Header" Text="{Loc 'lobby-character-preview-panel-header'}">
-
-        </controls:NanoHeading>
-        <BoxContainer Name="Loaded" Orientation="Vertical"
-                      Visible="False">
-            <Label Name="Summary" HorizontalAlignment="Center" Margin="3 3"/>
-            <!-- Frontier -->
-            <Label Name="BankBalance" HorizontalAlignment="Center" Margin="3 3"/>
-            <!-- Company Display -->
-            <RichTextLabel Name="Company" HorizontalAlignment="Center" Margin="3 3"/>
-            <!-- End Frontier -->
-            <BoxContainer Name="ViewBox" Orientation="Horizontal" HorizontalAlignment="Center">
-
+    xmlns:lobby="clr-namespace:Content.Client.Lobby.UI">
+    <lobby:LobbyConsolePanel Name="Frame">
+        <BoxContainer Name="VBox" Orientation="Vertical" SeparationOverride="8">
+            <Label Name="Header" Text="{Loc 'lobby-character-preview-panel-header'}" HorizontalAlignment="Center" />
+            <BoxContainer Name="Loaded" Orientation="Vertical"
+                          Visible="False" SeparationOverride="4">
+                <Label Name="Summary" Align="Center" ClipText="True"/>
+                <BoxContainer HorizontalAlignment="Center" SeparationOverride="5">
+                    <Label Text="$" />
+                    <lobby:LobbySegmentCounter Name="BankBalance" />
+                </BoxContainer>
+                <!-- Company Display -->
+                <RichTextLabel Name="Company" HorizontalAlignment="Center"/>
+                <!-- End Frontier -->
+                <Control Name="ViewBox" HorizontalAlignment="Center" SetSize="224 224" MinSize="224 224">
+                    <lobby:LobbyCharacterLight />
+                </Control>
+                <Button Name="CharacterSetup" Text="{Loc 'lobby-character-preview-panel-character-setup-button'}"
+                        HorizontalAlignment="Center"
+                        Margin="0 5 0 0"/>
+                <BoxContainer HorizontalAlignment="Center" SeparationOverride="6">
+                    <Label Text="Lagoon Coin:" />
+                    <lobby:LobbySegmentCounter Name="LagoonCoins" />
+                    <Label Text="LC" />
+                </BoxContainer>
             </BoxContainer>
-            <controls:VSpacer/>
-            <Button Name="CharacterSetup" Text="{Loc 'lobby-character-preview-panel-character-setup-button'}"
-                    HorizontalAlignment="Center"
-                    Margin="0 5 0 0"/>
-            <!-- Money Display -->
-            <Label Name="Money" HorizontalAlignment="Center" Margin="3 3"/>
-            <Label Name="LagoonCoins" HorizontalAlignment="Center" Margin="3 3"/>
+            <Label Name="Unloaded" Text="{Loc 'lobby-character-preview-panel-unloaded-preferences-label'}" ClipText="True"/>
         </BoxContainer>
-        <Label Name="Unloaded" Text="{Loc 'lobby-character-preview-panel-unloaded-preferences-label'}"/>
-    </BoxContainer>
+    </lobby:LobbyConsolePanel>
 </Control>

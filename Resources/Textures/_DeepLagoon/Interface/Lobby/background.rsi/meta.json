@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "NovaSector / tgstation contributors. Converted from icons/hud/lobby/background.dmi for DeepLagoon; original pixels and frame timings preserved.",
+  "source": "https://github.com/NovaSector/NovaSector/tree/master/icons/hud/lobby/background.dmi",
+  "size": {
+    "x": 151,
+    "y": 123
+  },
+  "states": [
+    {
+      "name": "background"
+    }
+  ]
+}

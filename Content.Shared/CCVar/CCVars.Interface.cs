@@ -4,6 +4,9 @@ namespace Content.Shared.CCVar;
 
 public sealed partial class CCVars
 {
+    public static readonly CVarDef<bool> LobbyAnimatedBackground =
+        CVarDef.Create("ui.lobby_animated_background", true, CVar.CLIENTONLY | CVar.ARCHIVE);
+
     /// <summary>
     /// The sound played when clicking a UI button
     /// </summary>

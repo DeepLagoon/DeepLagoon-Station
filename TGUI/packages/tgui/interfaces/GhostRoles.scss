@@ -1,0 +1,48 @@
+.GhostRoles {
+  --gr-bg: #171a1f;
+  --gr-panel: #20252c;
+  --gr-border: #39424e;
+  --gr-text: #e1e5eb;
+  --gr-muted: #a9b3c1;
+  // #react-root has intrinsic height. A percentage here shrinks this panel to its
+  // contents and used to stretch native thumbnails over the remaining viewport.
+  width: 100%; height: 100vh; min-height: 0; display: flex; flex-direction: column;
+  color: var(--gr-text); background: var(--gr-bg); font: 14px/1.4 Arial, sans-serif;
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 2px solid #9bc9ed; outline-offset: -2px; }
+  button:disabled { cursor: not-allowed; }
+  &__summary { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 8px 10px; border-bottom: 1px solid var(--gr-border); font-size: 12px; color: var(--gr-muted); }
+  &__body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(156px, 40%) minmax(0, 1fr); }
+  &__list { overflow: auto; min-width: 0; padding: 6px; border-right: 1px solid var(--gr-border); }
+  &__choice { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 6px; margin-bottom: 4px; text-align: left; border: 1px solid transparent; border-radius: 2px; background: transparent; }
+  &__choice:hover { background: var(--gr-panel); }
+  &__choice.is-selected { background: #243f54; border-color: #55748b; }
+  &__choice-copy { flex: 1; min-width: 0; overflow-wrap: anywhere; strong { display: block; font-weight: 600; } }
+  &__count { display: block; color: #b3d3b7; font-size: 12px; margin-top: 3px; }
+  &__locked { display: block; color: var(--gr-muted); font-size: 11px; margin-top: 3px; }
+  &__preview { flex: 0 0 34px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, #323a45, var(--gr-panel)); border: 1px solid var(--gr-border); border-radius: 2px; color: var(--gr-muted); }
+  &__preview--large { width: 88px; height: 88px; flex-basis: 88px; }
+  &__details { min-width: 0; overflow: auto; padding: 12px; }
+  &__portrait { display: flex; align-items: center; flex-direction: column; gap: 8px; h3 { font-size: 14px; font-weight: 600; margin: 0; text-align: center; overflow-wrap: anywhere; } }
+  &__description { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--gr-muted); font-size: 13px; margin: 10px 0; }
+  &__preview-note { font-size: 12px; color: var(--gr-muted); margin: 8px 0; }
+  &__available { color: var(--gr-muted); font-size: 12px; margin: 8px 0 4px; }
+  &__instance { border-top: 1px solid var(--gr-border); padding: 7px 0; }
+  &__character { padding: 3px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid transparent; background: transparent; font-size: 12px !important; }
+  &__character[aria-pressed='true'] { border-color: #55748b; background: #24313e; }
+  &__reason { color: #dfc594; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 3px 0 7px; }
+  &__actions { display: flex; flex-wrap: wrap; gap: 5px; button { font-size: 12px; min-height: 30px; padding: 5px 8px; border: 1px solid var(--gr-border); border-radius: 2px; } }
+  &__request { flex: 1 1 130px; background: #355e82; border-color: #50718d !important; white-space: pre-line; &:hover:not(:disabled) { background: #426f97; } &:disabled { color: #9299a3; background: #272c33; border-color: var(--gr-border) !important; } }
+  &__request--joined { background: #5c4d35; }
+  &__follow { flex: 0 1 auto; background: #2a3039; &:hover { background: #3b4654; } }
+  &__empty { margin: auto; padding: 20px; color: var(--gr-muted); text-align: center; }
+  @media (max-width: 440px) {
+    &__body { display: flex; flex-direction: column; }
+    &__list { flex: 0 0 auto; max-height: 36%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; border-right: 0; border-bottom: 1px solid var(--gr-border); }
+    &__choice { margin: 0; padding: 6px 4px; }
+    &__details { flex: 1; }
+    &__portrait { flex-direction: row; h3 { text-align: left; } }
+    &__preview--large { width: 64px; height: 64px; flex-basis: 64px; }
+  }
+}

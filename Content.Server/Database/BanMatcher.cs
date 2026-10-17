@@ -39,7 +39,10 @@ public static class BanMatcher
         if ((ban.ExemptFlags & exemptFlags) != 0)
             return false;
 
-        if (!player.ExemptFlags.HasFlag(ServerBanExemptFlags.IP)
+        // Shared VPN/NAT addresses must not extend a personal ban to unrelated players.
+        // Only explicitly address-only bans may match by IP, including for existing records.
+        if (ban.UserId == null && ban.HWId == null
+            && !player.ExemptFlags.HasFlag(ServerBanExemptFlags.IP)
             && player.Address != null
             && ban.Address is not null
             && player.Address.IsInSubnet(ban.Address.Value)

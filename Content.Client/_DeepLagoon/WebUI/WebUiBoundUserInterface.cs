@@ -8,6 +8,7 @@ namespace Content.Client._DeepLagoon.WebUI;
 
 public sealed class WebUiWindow : FancyWindow
 {
+    public override void Close() { if (Panel.CanCloseNative()) base.Close(); }
     public readonly TguiPanel Panel = new();
     public GameWebView Web => Panel.Web;
     public WebUiWindow()

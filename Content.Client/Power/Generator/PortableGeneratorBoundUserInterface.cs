@@ -6,7 +6,7 @@ using Robust.Client.UserInterface;
 namespace Content.Client.Power.Generator;
 
 [UsedImplicitly]
-public sealed class PortableGeneratorBoundUserInterface : BoundUserInterface
+public sealed partial class PortableGeneratorBoundUserInterface : BoundUserInterface
 {
     private GeneratorWindow? _window;
 
@@ -17,6 +17,13 @@ public sealed class PortableGeneratorBoundUserInterface : BoundUserInterface
     protected override void Open()
     {
         base.Open();
+        if (OpenTgui())
+            return;
+        OpenClassic();
+    }
+
+    private void OpenClassic()
+    {
         _window = this.CreateWindowCenteredLeft<GeneratorWindow>();
         _window.SetEntity(Owner);
         _window.OnState += args =>
@@ -34,6 +41,8 @@ public sealed class PortableGeneratorBoundUserInterface : BoundUserInterface
         _window.OnPower += SetTargetPower;
         _window.OnEjectFuel += EjectFuel;
         _window.OnSwitchOutput += SwitchOutput;
+        if (_latestState != null)
+            _window.Update(_latestState);
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)
@@ -41,7 +50,9 @@ public sealed class PortableGeneratorBoundUserInterface : BoundUserInterface
         if (state is not PortableGeneratorComponentBuiState msg)
             return;
 
+        _latestState = msg;
         _window?.Update(msg);
+        PublishTgui();
     }
 
     public void SetTargetPower(int target)

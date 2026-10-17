@@ -89,7 +89,12 @@ const setupApp = () => {
   // Dispatch incoming messages
   const dispatchIncomingMessage = msg => {
     window.__recordIncomingTguiMessage__?.(msg);
-    store.dispatch(Byond.parseJson(msg));
+    const message = Byond.parseJson(msg);
+    if (message.type === 'console/key') {
+      window.dispatchEvent(new CustomEvent('deeplagoon/console-key', { detail: message.payload }));
+      return;
+    }
+    store.dispatch(message);
   };
   window.update = dispatchIncomingMessage;
 

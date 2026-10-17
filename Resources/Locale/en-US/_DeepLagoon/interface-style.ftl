@@ -1,0 +1,13 @@
+dl-ui-style-title = Interface style
+dl-ui-style-question = Which interfaces would you like to use?
+dl-ui-style-tgui = TGUI
+dl-ui-style-classic = SS14 classic
+dl-ui-style-unselected = Not chosen yet (SS14 classic)
+dl-ui-style-hint = You can change the style at any time in Options → General → Interface style. If TGUI fails, the native interface opens automatically. You may need to reopen existing windows.
+dl-ui-style-selected = You selected { $style }. You can change this at any time in Options → General → Interface style.
+dl-ui-style-ok = Got it
+dl-ui-native-title = Native interface
+dl-ui-native-close = Close
+dl-ui-native-apply = Apply
+dl-ui-native-reset = Reset draft
+dl-ui-native-unsaved = Unsaved changes. Apply or reset the draft before closing.

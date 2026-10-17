@@ -1,0 +1,31 @@
+@use './ConsoleKeyboard';
+html:has(.CivilianConsoleFrame), body:has(.CivilianConsoleFrame) { background: #0d1318; }
+.CivilianConsoleFrame {
+  position: relative; --console-bottom: 92px;
+  // The civilian design tokens live here, rather than in each migrated screen.
+  --cc-surface: #101920; --cc-panel: #19252e; --cc-border: #3e515f;
+  --cc-accent: #a4bccc; --cc-ink: #e1e8ed; --cc-muted: #a9b9c4;
+  --cc-button: #23323c; --cc-button-hover: #2d424f;
+  --cc-instrument-accent: #9bcbd0; --cc-ledger-accent: #c7bd9c;
+  --cc-font-size: 13px; --cc-control-radius: 4px;
+  box-sizing: border-box; width: 100vw; height: 100vh; min-width: 0; min-height: 0;
+  overflow: visible; display: flex; flex-direction: column;
+  border: solid transparent; border-width: 32px 43px 92px;
+  border-image-slice: 72 112 216 112 fill; border-image-repeat: stretch;
+  background: #0d1318; color: #d8e0e5;
+  // Exclude the white matte outside the photographed chassis, including its
+  // straight sides. The mask follows the nine-slice corner dimensions.
+  clip-path: inset(1px 6px 1px round 34px 34px 24px 24px);
+  > .ResearchConsole { width: 100%; height: 100%; min-height: 0; flex: 1; font-size: var(--cc-font-size); }
+  .CivilianConsoleButton {
+    font: inherit; color: var(--cc-ink); cursor: pointer;
+    border: 1px solid var(--cc-border); border-radius: var(--cc-control-radius); background: var(--cc-button); padding: 8px 11px;
+    &:hover:not(:disabled) { background: var(--cc-button-hover); border-color: var(--cc-accent); }
+    &:focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+    &:disabled { opacity: .45; cursor: default; }
+  }
+  @media (max-width: 680px), (max-height: 500px) {
+    --console-bottom: 66px;
+    border-width: 24px 29px 66px; clip-path: inset(1px 4px 1px round 24px 24px 18px 18px);
+  }
+}

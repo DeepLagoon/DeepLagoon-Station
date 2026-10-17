@@ -33,7 +33,6 @@ public partial class BaseShuttleControl : MapGridControl
 
     private readonly RadarGridGeometrySystem _radarGeometry;
     private ShaderInstance? _surfaceShader;
-    private static readonly Color RadarSurfaceColor = Color.FromHex("#070e09");
     private static readonly Color WarmFringe = Color.FromHex("#9b5964");
     private static readonly Color CoolFringe = Color.FromHex("#4a9b80");
 
@@ -86,7 +85,7 @@ public partial class BaseShuttleControl : MapGridControl
     protected void DrawCircles(DrawingHandleScreen handle)
     {
         // Equatorial lines
-        var gridLines = FitViewport ? Color.FromHex("#5B8E69") : Color.LightGray;
+        var gridLines = FitViewport ? Color.FromHex("#57818D") : Color.LightGray;
 
         // Each circle is this x distance of the last one.
         const float EquatorialMultiplier = 2f;
@@ -158,9 +157,9 @@ public partial class BaseShuttleControl : MapGridControl
         var origin = MidPointVector;
         var viewportSize = new Vector2(PixelWidth, PixelHeight);
 
-        var subtleGray = Color.FromHex(FitViewport ? "#99C3A1" : "#676767");
-        var northAccent = Color.FromHex(FitViewport ? "#B1D6B6" : "#7F7442");
-        var eastAccent = Color.FromHex(FitViewport ? "#7FAB91" : "#456273");
+        var subtleGray = Color.FromHex(FitViewport ? "#99BAC3" : "#676767");
+        var northAccent = Color.FromHex(FitViewport ? "#B1CBD6" : "#7F7442");
+        var eastAccent = Color.FromHex(FitViewport ? "#7FA2AB" : "#456273");
         var baseTickColor = subtleGray.WithAlpha(FitViewport ? 0.82f : 0.34f);
         var majorTickColor = subtleGray.WithAlpha(FitViewport ? 0.96f : 0.5f);
         var cardinalTickColor = subtleGray.WithAlpha(FitViewport ? 1f : 0.68f);

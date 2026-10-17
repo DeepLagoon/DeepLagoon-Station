@@ -2,6 +2,7 @@ using Content.Server.GameTicking.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
 using System.Linq;
+using Content.Shared._DeepLagoon.Lobby;
 
 namespace Content.Server.GameTicking;
 
@@ -13,13 +14,11 @@ public sealed partial class GameTicker
     [ViewVariables]
     private List<ResPath>? _lobbyBackgrounds;
 
-    private static readonly string[] WhitelistedBackgroundExtensions = new string[] {"png", "jpg", "jpeg", "webp"};
-
     private void InitializeLobbyBackground()
     {
         _lobbyBackgrounds = _prototypeManager.EnumeratePrototypes<LobbyBackgroundPrototype>()
             .Select(x => x.Background)
-            .Where(x => WhitelistedBackgroundExtensions.Contains(x.Extension))
+            .Where(x => LobbyBackgroundMedia.IsSupported(x.ToString()))
             .ToList();
 
         RandomizeLobbyBackground();

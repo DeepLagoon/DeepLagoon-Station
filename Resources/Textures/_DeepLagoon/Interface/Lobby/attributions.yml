@@ -1,0 +1,4 @@
+- files: ["console-frame.png"]
+  license: "CC-BY-SA-3.0"
+  copyright: "Generated with OpenAI ImageGen for DeepLagoon, using the NovaSector lobby hardware as a style reference. Adapted to the original sprite palette and pixel grid."
+  source: "https://github.com/NovaSector/NovaSector/tree/master/icons/hud/lobby"

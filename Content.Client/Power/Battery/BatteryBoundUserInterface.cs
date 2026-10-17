@@ -33,7 +33,17 @@ public sealed partial class BatteryBoundUserInterface : BoundUserInterface, IBui
         base.Open();
 
         _pred = new BuiPredictionState(this, _gameTiming);
+        _chargeRateCoalescer = default;
+        _dischargeRateCoalescer = default;
 
+        if (OpenTgui())
+            return;
+
+        OpenClassic();
+    }
+
+    private void OpenClassic()
+    {
         _menu = this.CreateWindow<BatteryMenu>();
         _menu.SetEntity(Owner);
 
@@ -42,6 +52,8 @@ public sealed partial class BatteryBoundUserInterface : BoundUserInterface, IBui
 
         _menu.OnChargeRate += val => _chargeRateCoalescer.Set(val);
         _menu.OnDischargeRate += val => _dischargeRateCoalescer.Set(val);
+        if (_latestState != null)
+            _menu.Update(_latestState);
     }
 
     void IBuiPreTickUpdate.PreTickUpdate()
@@ -80,6 +92,15 @@ public sealed partial class BatteryBoundUserInterface : BoundUserInterface, IBui
             }
         }
 
+        // A WebView input can arrive between network state delivery and the next
+        // prediction tick. Keep the unsent coalesced value until that tick sends it.
+        if (_chargeRateCoalescer.IsModified)
+            batteryState.MaxChargeRate = _chargeRateCoalescer.LastValue;
+        if (_dischargeRateCoalescer.IsModified)
+            batteryState.MaxSupply = _dischargeRateCoalescer.LastValue;
+
+        _latestState = batteryState;
         _menu?.Update(batteryState);
+        PublishTgui();
     }
 }

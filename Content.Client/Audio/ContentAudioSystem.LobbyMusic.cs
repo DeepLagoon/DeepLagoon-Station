@@ -8,6 +8,7 @@ using Robust.Client;
 using Robust.Client.ResourceManagement;
 using Robust.Client.State;
 using Robust.Shared.Audio;
+using Robust.Shared.Audio.Components;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
@@ -34,6 +35,17 @@ public sealed partial class ContentAudioSystem
     /// Shuffled list of soundtrack file-names.
     /// </summary>
     private string[]? _lobbyPlaylist;
+    private int _lobbyTrackIndex;
+    private bool _lobbyMusicStopped;
+    private TimeSpan? _lobbyPauseStarted;
+
+    public string? CurrentLobbyTrack => _lobbySoundtrackInfo?.Filename;
+    public bool IsLobbyMusicPaused => _lobbyPauseStarted != null;
+    public bool CanPauseLobbyMusic => _lobbySoundtrackInfo != null && !_lobbyMusicStopped
+        && _state.CurrentState is LobbyState && _configManager.GetCVar(CCVars.LobbyMusicEnabled);
+    public bool CanSwitchLobbyTrack => _lobbyPlaylist is { Length: > 1 }
+        && !_lobbyMusicStopped && _state.CurrentState is LobbyState
+        && _configManager.GetCVar(CCVars.LobbyMusicEnabled);
 
     /// <summary>
     /// Short info about lobby soundtrack currently playing. Is null if soundtrack is not playing.
@@ -51,10 +63,7 @@ public sealed partial class ContentAudioSystem
         {
             if (value != null)
             {
-                if (_lobbySoundtrackInfo != null)
-                {
-                    value(new LobbySoundtrackChangedEvent(_lobbySoundtrackInfo.Filename));
-                }
+                value(new LobbySoundtrackChangedEvent(CurrentLobbyTrack));
 
                 _lobbySoundtrackChanged += value;
             }
@@ -80,6 +89,7 @@ public sealed partial class ContentAudioSystem
 
     private void OnLobbySongStopped(LobbyMusicStopEvent ev)
     {
+        _lobbyMusicStopped = true;
         EndLobbyMusic();
     }
 
@@ -98,6 +108,9 @@ public sealed partial class ContentAudioSystem
 
     private void OnLeave(object? sender, PlayerEventArgs args)
     {
+        _lobbyPlaylist = null;
+        _lobbyTrackIndex = 0;
+        _lobbyMusicStopped = false;
         EndLobbyMusic();
     }
 
@@ -127,17 +140,19 @@ public sealed partial class ContentAudioSystem
     private void OnLobbySongChanged(LobbyPlaylistChangedEvent playlistChangedEvent)
     {
         var playlist = playlistChangedEvent.Playlist;
-        //playlist is already playing, no need to restart it
-        if (_lobbySoundtrackInfo != null
-            && _lobbyPlaylist != null
-            && _lobbyPlaylist.SequenceEqual(playlist)
-           )
+        // A repeated server playlist must not undo this client's selection.
+        if (!_lobbyMusicStopped && _lobbyPlaylist != null && _lobbyPlaylist.SequenceEqual(playlist))
         {
+            StartLobbyMusic();
             return;
         }
 
         EndLobbyMusic();
-        StartLobbyMusic(playlistChangedEvent.Playlist);
+        _lobbyPlaylist = playlist.ToArray();
+        _lobbyTrackIndex = 0;
+        _lobbyMusicStopped = false;
+        StartLobbyMusic();
+        _lobbySoundtrackChanged?.Invoke(new LobbySoundtrackChangedEvent(CurrentLobbyTrack));
     }
 
     /// <summary>
@@ -145,37 +160,71 @@ public sealed partial class ContentAudioSystem
     /// </summary>
     private void StartLobbyMusic()
     {
-        if (_lobbyPlaylist == null || _lobbyPlaylist.Length == 0)
+        if (_lobbyPlaylist == null || _lobbyPlaylist.Length == 0 || _lobbyMusicStopped
+            || _state.CurrentState is not LobbyState || _lobbySoundtrackInfo != null
+            || !_configManager.GetCVar(CCVars.LobbyMusicEnabled))
         {
             return;
         }
 
-        StartLobbyMusic(_lobbyPlaylist);
+        for (var attempt = 0; attempt < _lobbyPlaylist.Length; attempt++)
+        {
+            var index = (_lobbyTrackIndex + attempt) % _lobbyPlaylist.Length;
+            if (!PlaySoundtrack(_lobbyPlaylist[index]))
+                continue;
+            _lobbyTrackIndex = index;
+            break;
+        }
     }
 
-    /// <summary>
-    /// Starts playing lobby music from playlist. If playlist is empty, or lobby music setting is turned off - does nothing.
-    /// </summary>
-    /// <param name="playlist">Array of soundtrack filenames for lobby playlist.</param>
-    private void StartLobbyMusic(string[] playlist)
+    /// <summary>Changes only this client's soundtrack; no request is sent to the server.</summary>
+    public bool SwitchLobbyTrack(int direction)
     {
-        if (_lobbySoundtrackInfo != null || !_configManager.GetCVar(CCVars.LobbyMusicEnabled))
-            return;
+        if (!CanSwitchLobbyTrack || direction == 0)
+            return false;
 
-        _lobbyPlaylist = playlist;
-        if (_lobbyPlaylist.Length == 0)
+        var playlist = _lobbyPlaylist!;
+        // Skip missing/unplayable files with a bounded search instead of leaving the player stuck.
+        var index = _lobbyTrackIndex;
+        for (var attempt = 0; attempt < playlist.Length; attempt++)
         {
-            return;
+            index = (index + Math.Sign(direction) + playlist.Length) % playlist.Length;
+            if (!PlaySoundtrack(playlist[index]))
+                continue;
+            _lobbyTrackIndex = index;
+            return true;
         }
-
-        PlaySoundtrack(playlist[0]);
+        return false;
     }
 
-    private void PlaySoundtrack(string soundtrackFilename)
+    /// <summary>Pauses/resumes the existing local source without replacing it or seeking to zero.</summary>
+    public bool ToggleLobbyMusicPaused()
+    {
+        if (!CanPauseLobbyMusic || _lobbySoundtrackInfo is not { } info
+            || !TryComp<AudioComponent>(info.MusicStreamEntityUid, out var component))
+            return false;
+
+        if (_lobbyPauseStarted is { } pausedAt)
+        {
+            _audio.SetState(info.MusicStreamEntityUid, AudioState.Playing, component: component);
+            // Playlist timing must exclude the entire pause, just like the audio source does.
+            _lobbySoundtrackInfo = info with { NextTrackOn = info.NextTrackOn + _timing.CurTime - pausedAt };
+            _lobbyPauseStarted = null;
+        }
+        else
+        {
+            _audio.SetState(info.MusicStreamEntityUid, AudioState.Paused, component: component);
+            _lobbyPauseStarted = _timing.CurTime;
+        }
+        _lobbySoundtrackChanged?.Invoke(new LobbySoundtrackChangedEvent(CurrentLobbyTrack));
+        return true;
+    }
+
+    private bool PlaySoundtrack(string soundtrackFilename)
     {
         if (!_resourceCache.TryGetResource(new ResPath(soundtrackFilename), out AudioResource? audio))
         {
-            return;
+            return false;
         }
 
         var playResult = _audio.PlayGlobal(
@@ -189,25 +238,32 @@ public sealed partial class ContentAudioSystem
             _sawmill.Warning(
                 $"Tried to play lobby soundtrack '{{Filename}}' using {nameof(SharedAudioSystem)}.{nameof(SharedAudioSystem.PlayGlobal)} but it returned default value of EntityUid!",
                 soundtrackFilename);
-            return;
+            return false;
         }
 
+        // Stop the previous stream only after its replacement has successfully started.
+        if (_lobbySoundtrackInfo is { } previous)
+            _audio.Stop(previous.MusicStreamEntityUid);
         var nextTrackOn = _timing.CurTime + audio.AudioStream.Length;
         _lobbySoundtrackInfo = new LobbySoundtrackInfo(soundtrackFilename, nextTrackOn, playResult.Value.Entity);
+        if (IsLobbyMusicPaused)
+        {
+            // Choosing a different track must not unexpectedly resume music for a paused listener.
+            _audio.SetState(playResult.Value.Entity, AudioState.Paused);
+            _lobbyPauseStarted = _timing.CurTime;
+        }
 
         var lobbySongChangedEvent = new LobbySoundtrackChangedEvent(soundtrackFilename);
         _lobbySoundtrackChanged?.Invoke(lobbySongChangedEvent);
+        return true;
     }
 
     private void EndLobbyMusic()
     {
-        if (_lobbySoundtrackInfo == null)
-        {
-            return;
-        }
-
-        _audio.Stop(_lobbySoundtrackInfo.MusicStreamEntityUid);
+        if (_lobbySoundtrackInfo != null)
+            _audio.Stop(_lobbySoundtrackInfo.MusicStreamEntityUid);
         _lobbySoundtrackInfo = null;
+        _lobbyPauseStarted = null;
         var lobbySongChangedEvent = new LobbySoundtrackChangedEvent();
         _lobbySoundtrackChanged?.Invoke(lobbySongChangedEvent);
     }
@@ -244,25 +300,19 @@ public sealed partial class ContentAudioSystem
     {
         if (
             _lobbySoundtrackInfo != null
+            && !IsLobbyMusicPaused
             && _timing.CurTime >= _lobbySoundtrackInfo.NextTrackOn
             && _lobbyPlaylist?.Length > 0
             )
         {
-            var nextSoundtrackFilename = GetNextSoundtrackFromPlaylist(_lobbySoundtrackInfo.Filename, _lobbyPlaylist);
-            PlaySoundtrack(nextSoundtrackFilename);
+            if (_lobbyPlaylist.Length == 1)
+            {
+                if (!PlaySoundtrack(_lobbyPlaylist[0]))
+                    EndLobbyMusic();
+            }
+            else if (!SwitchLobbyTrack(1))
+                EndLobbyMusic();
         }
-    }
-
-    private static string GetNextSoundtrackFromPlaylist(string currentSoundtrackFilename, string[] playlist)
-    {
-        var indexOfCurrent = Array.IndexOf(playlist, currentSoundtrackFilename);
-        var nextTrackIndex = indexOfCurrent + 1;
-        if (nextTrackIndex > playlist.Length - 1)
-        {
-            nextTrackIndex = 0;
-        }
-
-        return playlist[nextTrackIndex];
     }
 
     /// <summary> Container for lobby soundtrack information. </summary>

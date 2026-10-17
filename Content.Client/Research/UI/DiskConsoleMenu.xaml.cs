@@ -19,6 +19,7 @@ public sealed partial class DiskConsoleMenu : FancyWindow
         ServerButton.OnPressed += _ => OnServerButtonPressed?.Invoke();
         PrintButton.OnPressed += _ => OnPrintButtonPressed?.Invoke();
         PrintRareButton.OnPressed += _ => OnPrintRareButtonPressed?.Invoke(); // Frontier - Added for mass point use
+        InitializeCivilianTgui();
     }
 
     public void Update(DiskConsoleBoundUserInterfaceState state)
@@ -29,6 +30,8 @@ public sealed partial class DiskConsoleMenu : FancyWindow
         //CostLabel.Text = Loc.GetString("tech-disk-ui-cost-label", ("amount", state.PointCost));
         PrintButton.Text = Loc.GetString("tech-disk-ui-print-button", ("amount", state.PointCost)); // Frontier
         PrintRareButton.Text = Loc.GetString("tech-disk-ui-print-rare-button", ("amount", state.PointCostRare)); // Frontier
+        _tguiReady = true;
+        PublishTgui();
     }
 }
 

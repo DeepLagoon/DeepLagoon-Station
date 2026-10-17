@@ -58,18 +58,25 @@ export const Tips = () => {
     };
   }, []);
 
-  // Above the element, centered; below it if there is no room, and always inside the window.
+  // Keep tips inside the live screen, including when a physical terminal surrounds it.
   useLayoutEffect(() => {
     const element = box.current;
     if (!tip || !element) {
       return;
     }
+    const screen = element.closest('.ResearchConsole')?.getBoundingClientRect();
+    const minX = (screen?.left ?? 0) + EDGE;
+    const minY = (screen?.top ?? 0) + EDGE;
+    const maxX = (screen?.right ?? window.innerWidth) - EDGE;
+    const maxY = (screen?.bottom ?? window.innerHeight) - EDGE;
+    element.style.maxWidth = `${Math.max(0, maxX - minX)}px`;
     const { width, height } = element.getBoundingClientRect();
     const { anchor } = tip;
     const left = anchor.left + anchor.width / 2 - width / 2;
     const above = anchor.top - GAP - height;
-    element.style.left = `${Math.max(EDGE, Math.min(left, window.innerWidth - width - EDGE))}px`;
-    element.style.top = `${above >= EDGE ? above : anchor.bottom + GAP}px`;
+    element.style.left = `${Math.max(minX, Math.min(left, maxX - width))}px`;
+    const top = above >= minY ? above : anchor.bottom + GAP;
+    element.style.top = `${Math.max(minY, Math.min(top, maxY - height))}px`;
   }, [tip]);
 
   return tip && (

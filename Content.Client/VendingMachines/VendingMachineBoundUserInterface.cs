@@ -8,12 +8,12 @@ using Content.Client._Mono.Economy;
 using Content.Shared._Mono.Economy.Components; // Mono
 using Robust.Client.GameObjects;
 using Content.Shared._NF.Bank.Components; // Frontier
-using Content.Shared.Containers.ItemSlots; // Frontier
-using Content.Shared.Stacks; // Frontier
+using Content.Shared._Mono.Traits.Physical;
+using Robust.Client.Player;
 
 namespace Content.Client.VendingMachines
 {
-    public sealed class VendingMachineBoundUserInterface : BoundUserInterface
+    public sealed partial class VendingMachineBoundUserInterface : BoundUserInterface
     {
         [Dependency] private CreditReceiverSystem _credit = default!; // Mono
 
@@ -22,10 +22,6 @@ namespace Content.Client.VendingMachines
 
         [ViewVariables]
         private List<VendingMachineInventoryEntry> _cachedInventory = new();
-
-        // Frontier: market price modifier & balance
-        private UserInterfaceSystem _uiSystem = default!;
-        private ItemSlotsSystem _itemSlots = default!;
 
         [ViewVariables]
         private float _mod = 1f;
@@ -45,13 +41,11 @@ namespace Content.Client.VendingMachines
         {
             base.Open();
 
-            // Frontier: state, market modifier, balance status
-            _uiSystem = EntMan.System<UserInterfaceSystem>();
-            _itemSlots = EntMan.System<ItemSlotsSystem>();
-
-            if (EntMan.TryGetComponent<MarketModifierComponent>(Owner, out var market))
-                _mod = market.Mod;
-            // End Frontier
+            if (OpenTgui())
+            {
+                Update();
+                return;
+            }
 
             _menu = this.CreateWindowCenteredLeft<VendingMachineMenu>();
             // Frontier: no exceptions
@@ -69,27 +63,38 @@ namespace Content.Client.VendingMachines
             var system = EntMan.System<VendingMachineSystem>();
             _cachedInventory = system.GetAllInventory(Owner);
 
+            RefreshPaymentState();
+            PushTguiState();
+
+            _menu?.Populate(_cachedInventory, _mod, _balance, _cashSlotBalance, _requiresCash);
+        }
+
+        private void RefreshPaymentState()
+        {
+            _mod = EntMan.TryGetComponent<MarketModifierComponent>(Owner, out var market) ? market.Mod : 1f;
+            _requiresCash = EntMan.TryGetComponent<VendingMachineComponent>(Owner, out var machine) && machine.RequiresCash;
+            _balance = 0;
+            _hasBankAccount = false;
+
             // Frontier: state, market modifier, balance status
-            var uiUsers = _uiSystem.GetActors(Owner, UiKey);
-            foreach (var uiUser in uiUsers)
+            var player = IoCManager.Resolve<IPlayerManager>();
+            if (player.LocalEntity is { } actor && !EntMan.HasComponent<IronmanComponent>(actor)
+                && EntMan.TryGetComponent<BankAccountComponent>(actor, out var bank))
             {
-                if (EntMan.TryGetComponent<BankAccountComponent>(uiUser, out var bank))
-                    _balance = bank.Balance;
+                _balance = bank.Balance;
+                _hasBankAccount = true;
             }
-            if (EntMan.TryGetComponent<VendingMachineComponent>(Owner, out var vendingMachine) // Mono start - Separation of Cash from VendingMachineComp
-                && EntMan.TryGetComponent<CreditReceiverComponent>(Owner, out var creditReceiver))
+            _acceptsCash = EntMan.HasComponent<CreditReceiverComponent>(Owner);
+            if (_acceptsCash)
             {
                 _credit.TryGetCash(Owner, out _, out var cash);
                 _cashSlotBalance = cash;
-                _requiresCash = vendingMachine.RequiresCash; // Mono end - Separation of Cash from VendingMachineComp
             }
             else
             {
                 _cashSlotBalance = 0;
             }
             // End Frontier
-
-            _menu?.Populate(_cachedInventory, _mod, _balance, _cashSlotBalance, _requiresCash); // Frontier: add _balance, mono: add _cashSlotBalance and _requiresCash (for ironman characters)
         }
 
         private void OnItemSelected(GUIBoundKeyEventArgs args, ListData data)
@@ -113,6 +118,9 @@ namespace Content.Client.VendingMachines
 
         protected override void Dispose(bool disposing)
         {
+            if (disposing)
+                CloseTguiWindow();
+
             base.Dispose(disposing);
             if (!disposing)
                 return;

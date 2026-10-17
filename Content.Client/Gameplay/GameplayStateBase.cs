@@ -211,6 +211,16 @@ namespace Content.Client.Gameplay
 
             var kArgs = args.KeyEventArgs;
             var func = kArgs.Function;
+
+            // Alt combinations allow sub-combinations to keep the held speed boost active.
+            // Do not also dispatch their unmodified action (e.g. both Alt+Z and Z).
+            if (kArgs.State == BoundKeyState.Down &&
+                (func == ContentKeyFunctions.UseItemInHand && _inputManager.DownKeyFunctions.Contains(ContentKeyFunctions.AltUseItemInHand) ||
+                 func == ContentKeyFunctions.ActivateItemInWorld && _inputManager.DownKeyFunctions.Contains(ContentKeyFunctions.AltActivateItemInWorld) ||
+                 func == EngineKeyFunctions.Use && _inputManager.DownKeyFunctions.Contains(ContentKeyFunctions.AltActivateItemInWorld) ||
+                 func == ContentKeyFunctions.OpenBackpack && _inputManager.DownKeyFunctions.Contains(ContentKeyFunctions.InspectEntity)))
+                return;
+
             var funcId = _inputManager.NetworkBindMap.KeyFunctionID(func);
 
             EntityCoordinates coordinates = default;

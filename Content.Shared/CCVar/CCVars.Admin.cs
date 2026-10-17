@@ -66,10 +66,11 @@ public sealed partial class CCVars
         CVarDef.Create("admin.server_ban_default_severity", "High", CVar.ARCHIVE | CVar.SERVER | CVar.REPLICATED);
 
     /// <summary>
-    ///     Whether a server ban will ban the player's ip by default.
+    ///     Whether the ban panel includes an IP address by default.
+    ///     IP matching only applies to bans without an account or HWID.
     /// </summary>
     public static readonly CVarDef<bool> ServerBanIpBanDefault =
-        CVarDef.Create("admin.server_ban_ip_ban_default", true, CVar.ARCHIVE | CVar.SERVER | CVar.REPLICATED);
+        CVarDef.Create("admin.server_ban_ip_ban_default", false, CVar.ARCHIVE | CVar.SERVER | CVar.REPLICATED);
 
     /// <summary>
     ///     Whether a server ban will ban the player's hardware id by default.

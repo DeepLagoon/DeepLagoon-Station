@@ -1,0 +1,4 @@
+.ConsoleKeyboard {
+  position: absolute; z-index: 5; pointer-events: none; overflow: hidden;
+  bottom: calc(-1 * var(--console-bottom)); left: 0; width: 100%; height: var(--console-bottom);
+}

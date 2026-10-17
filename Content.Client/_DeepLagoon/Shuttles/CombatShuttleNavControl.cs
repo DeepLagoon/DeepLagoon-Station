@@ -55,7 +55,7 @@ public sealed class CombatShuttleNavControl : FireControlNavControl
             handle.DrawLine(new Vector2(0, y), new Vector2(PixelSize.X, y), new Color(0, 0.025f, 0.01f, 0.06f));
 
         var scanY = _sweep * PixelSize.Y;
-        handle.DrawRect(new UIBox2(0, scanY, PixelSize.X, MathF.Min(PixelSize.Y, scanY + 3)), new Color(0.2f, 0.8f, 0.4f, 0.025f));
+        handle.DrawRect(new UIBox2(0, scanY, PixelSize.X, MathF.Min(PixelSize.Y, scanY + 3)), new Color(0.2f, 0.6f, 0.8f, 0.025f));
         // Sparse deterministic phosphor noise, refreshed at 12 Hz. No allocations,
         // textures, random-number service or full-screen postprocessing.
         var seed = (uint)(_noiseTime * 12) + 1;
@@ -65,7 +65,7 @@ public sealed class CombatShuttleNavControl : FireControlNavControl
             var x = (seed & 65535) / 65535f * MathF.Max(0, PixelSize.X - 2);
             seed = seed * 1664525u + 1013904223u;
             var y = (seed & 65535) / 65535f * MathF.Max(0, PixelSize.Y - 1);
-            handle.DrawRect(new UIBox2(x, y, x + 2, y + 1), new Color(0.5f, 1f, 0.65f, 0.04f));
+            handle.DrawRect(new UIBox2(x, y, x + 2, y + 1), new Color(0.5f, 0.8f, 1f, 0.04f));
         }
         for (var edge = 0; edge < 4; edge++)
         {

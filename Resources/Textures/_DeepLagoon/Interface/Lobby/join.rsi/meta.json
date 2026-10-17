@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "NovaSector / tgstation contributors. Converted from icons/hud/lobby/join.dmi for DeepLagoon; original pixels and frame timings preserved.",
+  "source": "https://github.com/NovaSector/NovaSector/tree/master/icons/hud/lobby/join.dmi",
+  "size": {
+    "x": 145,
+    "y": 21
+  },
+  "states": [
+    {
+      "name": "join_game"
+    },
+    {
+      "name": "join_game_highlighted"
+    },
+    {
+      "name": "join_game_pressed",
+      "delays": [
+        [
+          0.2,
+          0.1
+        ]
+      ]
+    }
+  ]
+}

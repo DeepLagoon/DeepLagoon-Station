@@ -1,4 +1,4 @@
-using Content.Server.Power.Components;
+using System.Linq;
 using Content.Server.Power.EntitySystems;
 using Content.Shared.Audio.Jukebox;
 using Content.Shared.Power;
@@ -8,211 +8,245 @@ using Robust.Shared.Audio.Components;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
-using JukeboxComponent = Content.Shared.Audio.Jukebox.JukeboxComponent;
+using Robust.Shared.Timing;
 
 namespace Content.Server.Audio.Jukebox;
-
 
 public sealed partial class JukeboxSystem : SharedJukeboxSystem
 {
     [Dependency] private IPrototypeManager _protoManager = default!;
     [Dependency] private AppearanceSystem _appearanceSystem = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    private readonly Dictionary<EntityUid, EntityUid> _audioOwners = new();
+    private readonly HashSet<EntityUid> _active = new();
+    private readonly Dictionary<string, float> _lengths = new();
+    private float _updateTimer;
 
     public override void Initialize()
     {
         base.Initialize();
-        SubscribeLocalEvent<JukeboxComponent, JukeboxSelectedMessage>(OnJukeboxSelected);
-        SubscribeLocalEvent<JukeboxComponent, JukeboxPlayingMessage>(OnJukeboxPlay);
-        SubscribeLocalEvent<JukeboxComponent, JukeboxPauseMessage>(OnJukeboxPause);
-        SubscribeLocalEvent<JukeboxComponent, JukeboxStopMessage>(OnJukeboxStop);
-        SubscribeLocalEvent<JukeboxComponent, JukeboxSetTimeMessage>(OnJukeboxSetTime);
-        SubscribeLocalEvent<JukeboxComponent, ComponentInit>(OnComponentInit);
-        SubscribeLocalEvent<JukeboxComponent, ComponentShutdown>(OnComponentShutdown);
-        SubscribeLocalEvent<JukeboxComponent, PowerChangedEvent>(OnPowerChanged);
-        SubscribeLocalEvent<JukeboxComponent, JukeboxSetGainMessage>(OnJukeboxSetGain); // Exodus Volume slider to jukebox
-
-        SubscribeLocalEvent<EntityTerminatingEvent>(OnEntityTerminating);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxSelectedMessage>(OnSelected);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxPlayingMessage>((Entity<JukeboxComponent> e, ref JukeboxPlayingMessage _) => Play(e));
+        SubscribeLocalEvent<JukeboxComponent, JukeboxPauseMessage>(OnPause);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxStopMessage>((Entity<JukeboxComponent> e, ref JukeboxStopMessage _) => Stop(e));
+        SubscribeLocalEvent<JukeboxComponent, JukeboxSetTimeMessage>(OnSeek);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxSetGainMessage>(OnGain);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxQueueMessage>(OnQueue);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxLibraryRequest>(OnLibrary);
+        SubscribeLocalEvent<JukeboxComponent, BoundUIOpenedEvent>(OnOpened);
+        SubscribeLocalEvent<JukeboxComponent, ComponentInit>((Entity<JukeboxComponent> e, ref ComponentInit _) => TryUpdateVisualState(e));
+        SubscribeLocalEvent<JukeboxComponent, PowerChangedEvent>(OnPower);
+        SubscribeLocalEvent<JukeboxComponent, ComponentShutdown>((Entity<JukeboxComponent> e, ref ComponentShutdown _) => Stop(e));
+        SubscribeLocalEvent<EntityTerminatingEvent>(OnTerminating);
+        _protoManager.PrototypesReloaded += OnReload;
     }
 
-    private void OnComponentInit(EntityUid uid, JukeboxComponent component, ComponentInit args)
+    public override void Shutdown()
     {
-        if (HasComp<ApcPowerReceiverComponent>(uid))
-        {
-            TryUpdateVisualState(uid, component);
-        }
+        _protoManager.PrototypesReloaded -= OnReload;
+        base.Shutdown();
     }
 
-    // Exodus-begin Volume slider to jukebox
-    private void OnJukeboxSetGain(Entity<JukeboxComponent> ent, ref JukeboxSetGainMessage args)
+    private void OnReload(PrototypesReloadedEventArgs args)
     {
-        if (!float.IsFinite(args.Gain))
-            return;
+        if (args.WasModified<JukeboxPrototype>()) _lengths.Clear();
+    }
 
-        var newGain = Math.Clamp(args.Gain, 0f, 1f);
-        Audio.SetGain(ent.Comp.AudioStream, newGain);
-        ent.Comp.Gain = newGain;
+    private float Length(JukeboxPrototype track)
+    {
+        if (!_lengths.TryGetValue(track.ID, out var length))
+            _lengths[track.ID] = length = (float) Audio.GetAudioLength(new ResolvedPathSpecifier(track.Path.Path.ToString())).TotalSeconds;
+        return length;
+    }
+
+    private void Publish(Entity<JukeboxComponent> ent)
+    {
+        ent.Comp.QueueRevision++;
+        _ui.SetUiState(ent.Owner, JukeboxUiKey.Key,
+            new JukeboxState(ent.Comp.Queue.ToArray(), ent.Comp.Repeat, ent.Comp.QueueRevision, this.IsPowered(ent.Owner, EntityManager)));
+    }
+
+    private void OnOpened(Entity<JukeboxComponent> ent, ref BoundUIOpenedEvent args) => Publish(ent);
+
+    private void OnGain(Entity<JukeboxComponent> ent, ref JukeboxSetGainMessage args)
+    {
+        if (!float.IsFinite(args.Gain)) return;
+        var gain = Math.Clamp(args.Gain, 0, 1);
+        if (Math.Abs(ent.Comp.Gain - gain) < 0.001f) return;
+        ent.Comp.Gain = gain;
+        Audio.SetGain(ent.Comp.AudioStream, gain);
         Dirty(ent);
     }
-    // Exodus-end
 
-    private void OnJukeboxPlay(EntityUid uid, JukeboxComponent component, ref JukeboxPlayingMessage args)
+    private void Play(Entity<JukeboxComponent> ent)
     {
-        if (Exists(component.AudioStream))
+        if (!this.IsPowered(ent.Owner, EntityManager)) return;
+        if (TryComp<AudioComponent>(ent.Comp.AudioStream, out var audio) && audio.State == AudioState.Paused)
         {
-            Audio.SetState(component.AudioStream, AudioState.Playing);
+            Audio.SetState(ent.Comp.AudioStream, AudioState.Playing);
+            _active.Add(ent.Owner);
+            return;
         }
-        else
+        if (audio?.State == AudioState.Playing) return;
+        if (ent.Comp.SelectedSongId == null && ent.Comp.Queue.Count > 0)
         {
-            component.AudioStream = Audio.Stop(component.AudioStream);
-
-            if (string.IsNullOrEmpty(component.SelectedSongId) ||
-                !_protoManager.TryIndex(component.SelectedSongId, out var jukeboxProto))
-            {
-                return;
-            }
-
-            var audioStream = Audio.PlayPvs(jukeboxProto.Path, uid, AudioParams.Default.WithMaxDistance(10f).WithVolume(SharedAudioSystem.GainToVolume(component.Gain)))?.Entity; // Exodus Volume slider to jukebox
-            if (audioStream != null && Exists(audioStream.Value) && HasComp<MetaDataComponent>(audioStream.Value))
-            {
-                component.AudioStream = audioStream;
-
-                if (TryComp<TransformComponent>(component.AudioStream, out var xform))
-                {
-                    xform.LocalPosition = component.AudioOffset;
-                }
-
-                Dirty(uid, component);
-            }
+            ent.Comp.SelectedSongId = ent.Comp.Queue[0].Track;
+            ent.Comp.Queue.RemoveAt(0);
+            Publish(ent);
         }
+        if (!_protoManager.TryIndex(ent.Comp.SelectedSongId, out var track)) return;
+        StopAudio(ent);
+        // PVS distributes only spatial audio; AudioStart synchronizes new listeners.
+        var stream = Audio.PlayPvs(track.Path, ent.Owner,
+            AudioParams.Default.WithMaxDistance(10).WithVolume(SharedAudioSystem.GainToVolume(ent.Comp.Gain)));
+        if (stream == null) return;
+        ent.Comp.AudioStream = stream.Value.Entity;
+        _audioOwners[stream.Value.Entity] = ent.Owner;
+        Transform(stream.Value.Entity).LocalPosition = ent.Comp.AudioOffset;
+        _active.Add(ent.Owner);
+        Dirty(ent);
+        TryUpdateVisualState(ent);
     }
 
-    private void OnJukeboxPause(Entity<JukeboxComponent> ent, ref JukeboxPauseMessage args)
+    private void StopAudio(Entity<JukeboxComponent> ent)
     {
-        if (ent.Comp.AudioStream != null && Exists(ent.Comp.AudioStream.Value) && HasComp<MetaDataComponent>(ent.Comp.AudioStream.Value))
-        {
-            Audio.SetState(ent.Comp.AudioStream, AudioState.Paused);
-        }
+        // Detach before deleting: an intentional Stop must never advance the queue.
+        if (ent.Comp.AudioStream is { } stream) _audioOwners.Remove(stream);
+        ent.Comp.AudioStream = Audio.Stop(ent.Comp.AudioStream);
+        _active.Remove(ent.Owner);
+        Dirty(ent);
     }
 
-    private void OnJukeboxSetTime(EntityUid uid, JukeboxComponent component, JukeboxSetTimeMessage args)
+    private void Stop(Entity<JukeboxComponent> ent)
     {
-        if (TryComp(args.Actor, out ActorComponent? actorComp))
-        {
-            var offset = actorComp.PlayerSession.Channel.Ping * 1.5f / 1000f;
-
-            if (component.AudioStream != null && Exists(component.AudioStream.Value) && HasComp<MetaDataComponent>(component.AudioStream.Value))
-            {
-                Audio.SetPlaybackPosition(component.AudioStream, args.SongTime + offset);
-            }
-        }
+        StopAudio(ent);
+        ent.Comp.Selecting = false;
     }
 
-    private void OnPowerChanged(Entity<JukeboxComponent> entity, ref PowerChangedEvent args)
+    private void OnPause(Entity<JukeboxComponent> ent, ref JukeboxPauseMessage args)
     {
-        TryUpdateVisualState(entity);
-
-        if (!this.IsPowered(entity.Owner, EntityManager))
-        {
-            Stop(entity);
-        }
+        Audio.SetState(ent.Comp.AudioStream, AudioState.Paused);
+        _active.Remove(ent.Owner);
     }
 
-    private void OnJukeboxStop(Entity<JukeboxComponent> entity, ref JukeboxStopMessage args)
+    private void OnSeek(Entity<JukeboxComponent> ent, ref JukeboxSetTimeMessage args)
     {
-        Stop(entity);
+        if (!float.IsFinite(args.SongTime) || !_protoManager.TryIndex(ent.Comp.SelectedSongId, out var track) ||
+            !TryComp<AudioComponent>(ent.Comp.AudioStream, out var audio)) return;
+        var offset = audio.State == AudioState.Playing && TryComp<ActorComponent>(args.Actor, out var actor)
+            ? actor.PlayerSession.Channel.Ping / 1000f : 0;
+        Audio.SetPlaybackPosition(ent.Comp.AudioStream, Math.Clamp(args.SongTime + offset, 0, Math.Max(0, Length(track) - 0.01f)));
     }
 
-    private void Stop(Entity<JukeboxComponent> entity)
+    private void OnSelected(Entity<JukeboxComponent> ent, ref JukeboxSelectedMessage args)
     {
-        if (entity.Comp.AudioStream != null && Exists(entity.Comp.AudioStream.Value) && HasComp<MetaDataComponent>(entity.Comp.AudioStream.Value))
-        {
-            Audio.SetState(entity.Comp.AudioStream, AudioState.Stopped);
-        }
-
-        Dirty(entity);
+        if (!_protoManager.HasIndex(args.SongId) || Audio.IsPlaying(ent.Comp.AudioStream)) return;
+        StopAudio(ent);
+        ent.Comp.SelectedSongId = args.SongId;
+        ent.Comp.Selecting = true;
+        ent.Comp.SelectAccumulator = 0;
+        _active.Add(ent.Owner);
+        _appearanceSystem.SetData(ent.Owner, JukeboxVisuals.VisualState, JukeboxVisualState.Select);
+        Dirty(ent);
     }
 
-    private void OnJukeboxSelected(EntityUid uid, JukeboxComponent component, JukeboxSelectedMessage args)
+    private void OnQueue(Entity<JukeboxComponent> ent, ref JukeboxQueueMessage args)
     {
-        bool isPlaying = component.AudioStream != null &&
-                         Exists(component.AudioStream.Value) &&
-                         HasComp<MetaDataComponent>(component.AudioStream.Value) &&
-                         Audio.IsPlaying(component.AudioStream);
-
-        if (!isPlaying)
+        if (args.Id == null || args.Id.Length > 128) return;
+        switch (args.Action)
         {
-            component.SelectedSongId = args.SongId;
-            DirectSetVisualState(uid, JukeboxVisualState.Select);
-            component.Selecting = true;
-            component.AudioStream = Audio.Stop(component.AudioStream);
+            case JukeboxAction.Add:
+            case JukeboxAction.AddFirst:
+                if (!AddTracks(ent, new[] { args.Id }, args.Action == JukeboxAction.AddFirst)) return;
+                break;
+            case JukeboxAction.PlayTrack:
+                if (!_protoManager.HasIndex<JukeboxPrototype>(args.Id)) return;
+                StopAudio(ent); ent.Comp.SelectedSongId = args.Id; Play(ent); break;
+            case JukeboxAction.Move:
+            case JukeboxAction.Remove:
+                if (args.Revision != ent.Comp.QueueRevision) { Publish(ent); return; }
+                var entryId = args.Id;
+                var index = ent.Comp.Queue.FindIndex(t => t.Id == entryId);
+                if (index < 0) return;
+                if (args.Action == JukeboxAction.Remove) ent.Comp.Queue.RemoveAt(index);
+                else if (!JukeboxRules.Move(ent.Comp.Queue, index, args.Index)) return;
+                break;
+            case JukeboxAction.Clear:
+                if (args.Revision != ent.Comp.QueueRevision) { Publish(ent); return; }
+                ent.Comp.Queue.Clear(); break;
+            case JukeboxAction.Next: Advance(ent, true); return;
+            case JukeboxAction.Repeat:
+                if (args.Index is < 0 or > 2) return;
+                ent.Comp.Repeat = (JukeboxRepeat) args.Index; break;
+            default: return;
         }
+        Publish(ent);
+    }
 
-        Dirty(uid, component);
+    private bool AddTracks(Entity<JukeboxComponent> ent, IEnumerable<string> tracks, bool first = false)
+    {
+        var valid = tracks.Where(id => _protoManager.HasIndex<JukeboxPrototype>(id)).ToArray();
+        if (valid.Length == 0 || valid.Length + ent.Comp.Queue.Count > JukeboxRules.MaxQueue) return false;
+        var entries = valid.Select(id => new JukeboxQueueEntry(Guid.NewGuid().ToString("N"), id));
+        if (first) ent.Comp.Queue.InsertRange(0, entries); else ent.Comp.Queue.AddRange(entries);
+        return true;
+    }
+
+    private void Advance(Entity<JukeboxComponent> ent, bool skipped)
+    {
+        var next = JukeboxRules.Advance(ent.Comp.Queue, ent.Comp.SelectedSongId?.Id, ent.Comp.Repeat, skipped);
+        StopAudio(ent);
+        ent.Comp.SelectedSongId = next;
+        while (ent.Comp.SelectedSongId != null && !_protoManager.HasIndex(ent.Comp.SelectedSongId.Value))
+        {
+            ent.Comp.SelectedSongId = ent.Comp.Queue.Count > 0 ? ent.Comp.Queue[0].Track : null;
+            if (ent.Comp.Queue.Count > 0) ent.Comp.Queue.RemoveAt(0);
+        }
+        Publish(ent);
+        if (ent.Comp.SelectedSongId != null) Play(ent);
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-
-        var query = EntityQueryEnumerator<JukeboxComponent>();
-        while (query.MoveNext(out var uid, out var comp))
+        _updateTimer += frameTime;
+        if (_updateTimer < 0.2f) return;
+        var elapsed = _updateTimer; _updateTimer = 0;
+        foreach (var uid in _active.ToArray())
         {
+            if (!TryComp<JukeboxComponent>(uid, out var comp)) { _active.Remove(uid); continue; }
             if (comp.Selecting)
             {
-                comp.SelectAccumulator += frameTime;
-                if (comp.SelectAccumulator >= 0.5f)
-                {
-                    comp.SelectAccumulator = 0f;
-                    comp.Selecting = false;
-
-                    TryUpdateVisualState(uid, comp);
-                }
+                comp.SelectAccumulator += elapsed;
+                if (comp.SelectAccumulator < 0.5f) continue;
+                comp.Selecting = false;
+                TryUpdateVisualState((uid, comp));
             }
+            if (!TryComp<AudioComponent>(comp.AudioStream, out var audio)) { _active.Remove(uid); continue; }
+            if (audio.State == AudioState.Playing && _protoManager.TryIndex(comp.SelectedSongId, out var track) &&
+                (_timing.CurTime - audio.AudioStart).TotalSeconds >= Length(track)) Advance((uid, comp), false);
         }
     }
 
-    private void OnComponentShutdown(EntityUid uid, JukeboxComponent component, ComponentShutdown args)
+    private void OnTerminating(ref EntityTerminatingEvent args)
     {
-        component.AudioStream = Audio.Stop(component.AudioStream);
+        if (!_audioOwners.Remove(args.Entity.Owner, out var owner) || !TryComp<JukeboxComponent>(owner, out var comp) ||
+            comp.AudioStream != args.Entity.Owner) return;
+        comp.AudioStream = null;
+        var wasActive = _active.Remove(owner);
+        Dirty(owner, comp);
+        if (wasActive && !TerminatingOrDeleted(owner)) Advance((owner, comp), false);
     }
 
-    /// <summary>
-    /// Handles entity deletion to clean up AudioStream references in JukeboxComponents.
-    /// </summary>
-    private void OnEntityTerminating(ref EntityTerminatingEvent args)
+    private void OnPower(Entity<JukeboxComponent> ent, ref PowerChangedEvent args)
     {
-        var terminatingEntity = args.Entity.Owner;
-
-        // Check all jukebox components to see if any reference the terminating entity
-        var query = EntityQueryEnumerator<JukeboxComponent>();
-        while (query.MoveNext(out var jukeboxUid, out var jukeboxComp))
-        {
-            // If this jukebox's AudioStream references the terminating entity, clear it
-            if (jukeboxComp.AudioStream == terminatingEntity)
-            {
-                jukeboxComp.AudioStream = null;
-                Dirty(jukeboxUid, jukeboxComp);
-            }
-        }
+        if (!this.IsPowered(ent.Owner, EntityManager)) Stop(ent);
+        TryUpdateVisualState(ent);
+        Publish(ent);
     }
 
-    private void DirectSetVisualState(EntityUid uid, JukeboxVisualState state)
-    {
-        _appearanceSystem.SetData(uid, JukeboxVisuals.VisualState, state);
-    }
-
-    private void TryUpdateVisualState(EntityUid uid, JukeboxComponent? jukeboxComponent = null)
-    {
-        if (!Resolve(uid, ref jukeboxComponent))
-            return;
-
-        var finalState = JukeboxVisualState.On;
-
-        if (!this.IsPowered(uid, EntityManager))
-        {
-            finalState = JukeboxVisualState.Off;
-        }
-
-        _appearanceSystem.SetData(uid, JukeboxVisuals.VisualState, finalState);
-    }
+    private void TryUpdateVisualState(Entity<JukeboxComponent> ent) =>
+        _appearanceSystem.SetData(ent.Owner, JukeboxVisuals.VisualState,
+            this.IsPowered(ent.Owner, EntityManager) ? JukeboxVisualState.On : JukeboxVisualState.Off);
 }

@@ -83,7 +83,9 @@ public sealed class InteractionPanelWindow : BaseWindow
             MouseFilter = MouseFilterMode.Ignore,
         };
         preview.SetEntity(target);
-        AddChild(new InteractionPanelHost(_panel, preview) { Margin = new Thickness(8) });
+        var host = new InteractionPanelHost(_panel, preview) { Margin = new Thickness(8) };
+        AddChild(host);
+        _panel.NativeModeChanged += () => preview.Visible = false;
         _panel.OnClose += Close;
         _panel.OnAction += OnAction;
         Publish();

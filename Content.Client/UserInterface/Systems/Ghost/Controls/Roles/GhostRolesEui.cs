@@ -15,10 +15,15 @@ namespace Content.Client.UserInterface.Systems.Ghost.Controls.Roles
         private readonly GhostRolesWindow _window;
         private GhostRoleRulesWindow? _windowRules = null;
         private uint _windowRulesId = 0;
+        private bool _closed;
 
         public GhostRolesEui()
         {
             _window = new GhostRolesWindow();
+            _window.OnPreviewSubscription += ids =>
+            {
+                if (!_closed) SendMessage(new GhostRolePreviewSubscription(ids));
+            };
 
             _window.OnRoleRequestButtonClicked += info =>
             {
@@ -60,12 +65,14 @@ namespace Content.Client.UserInterface.Systems.Ghost.Controls.Roles
 
         public override void Opened()
         {
+            _closed = false;
             base.Opened();
             _window.OpenCentered();
         }
 
         public override void Closed()
         {
+            _closed = true;
             base.Closed();
             _window.Close();
             _windowRules?.Close();
@@ -123,6 +130,7 @@ namespace Content.Client.UserInterface.Systems.Ghost.Controls.Roles
 
             // Restore the Collapsible box state if it is saved
             _window.RestoreCollapsibleBoxesStates();
+            _window.SetTguiRoles(ghostState.GhostRoles);
 
             // Close the rules window if it is no longer needed
             var closeRulesWindow = ghostState.GhostRoles.All(role => role.Identifier != _windowRulesId);

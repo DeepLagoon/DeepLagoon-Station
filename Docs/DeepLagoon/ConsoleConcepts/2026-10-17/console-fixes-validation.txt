@@ -1,0 +1,57 @@
+Console shell corrections, 2026-10-17
+
+08-shuttle-fixed-preview.png: actual React/SCSS, fixture state and a mock radar
+composited with the production radar shaders. Not a live game screenshot.
+09-civilian-fixed-preview.png: shipped production TGUI bundle, fixture R&D state.
+10-handheld-scanner-preview.png: radar-only browser layout, mock radar/shaders.
+
+The working ship tabs occupy the top hardware strip. The baked first-tab glow
+is covered so selection belongs to the live controls. Ribbon/cable details use
+fixed-aspect source regions from the approved artwork, in both SVG and the
+native ShuttleRadarGlassControl. The nameplate uses the shell's metal plaque.
+
+Item-based radar consoles select the handheld layout before window placement.
+It has no desktop shell, keyboard, side panels, title labels or corner hardware.
+The native radar retains rendering, zoom and map/input behavior.
+
+The civilian shell masks the original white matte and uses a dark page beneath.
+Keyboard caps sample the original artwork, move down and darken while pressed.
+DOM and native input use independent sources; the animation never issues game
+actions or captures input. Releases, loss of focus, hiding and unmount clear caps.
+
+Validation:
+- Final normal Content.Client build: 0 errors (1422 existing warnings).
+- ShuttleCombatConsoleTests + CivilianConsoleTests: 5/5 passed.
+- Updated scanner host/fallback test rerun: 1/1 passed.
+- Browser ship checks: 4 sizes, all 3 standalone variants, handheld down to
+  280x270, measured aperture, slot alignment, shader and action checks passed.
+- Production civilian checks: both disk terminals at 4 sizes, R&D at 3 sizes;
+  DOM/native feedback, exact cap restoration and no duplicate actions passed.
+- Civilian screenshots: no white pixels in the outermost 5 px at sampled sizes.
+- Focused git diff --check passed.
+
+Actual-client visuals and live gameplay input were not exercised in this run.
+
+Follow-up: reproduced the reported Content.Client TypeCheckFailedException with
+ClientSandboxTest. ConsoleKeyCode's string + char concatenation was lowered to
+ReadOnlySpan<char>(ref char), which the engine sandbox rejects. Both concatenation
+operands now remain strings. Rebuilt Content.Client and reran the full client/shared
+assembly IL and sandbox checks: 2/2 passed (console-keyboard-sandbox.trx).
+The earlier five UI integration tests did not include this loader validation.
+
+Textured panel follow-up:
+- 11-gunnery-textured-panel-preview.png and 12-shuttle-textured-panel-preview.png
+  show the browser layout with fixture data and mock radar geometry.
+- The static 64 px steel tile fills both the radar surround and the entire sidebar.
+  The native aperture shader uses the same grain in document coordinates and at
+  the current UI scale. Browser checks compare shader pixels to the SVG asset.
+- The cable opening has a metal lip/contact shadow. Handheld backing stays plain.
+- Fixed native DrawString origin: it accepts top-left, not a precomputed baseline.
+- NativeGlyphsStayInsideTheMetalPlaque uses the engine's real DrawString method
+  and font metrics at diameters 330/400/560/820 and verifies rendered glyph bounds.
+- Four ship integration checks passed, including this new glyph regression test.
+- Client/shared sandbox checks passed; final normal client build had 0 errors.
+- Sandbox checks were also repeated with the exact final bin/Content.Client DLL
+  set copied into the isolated runner: 2/2 passed; Content.Client SHA256 matched.
+- The ordinary bin/Content.Client output was updated after the user stopped the
+  debugger. No live in-game visual verification was performed.

@@ -605,6 +605,9 @@ public sealed partial class GhostRoleSystem : EntitySystem
                 Requirements = role.Requirements,
                 Kind = kind,
                 Prototype = role.Prototype, // Frontier
+                PreviewEntity = HasComp<GhostRoleMobSpawnerComponent>(uid) ||
+                    HasComp<Content.Server.Antag.Components.GhostRoleAntagSpawnerComponent>(uid) ? null : GetNetEntity(uid),
+                PreviewPrototype = TryComp<GhostRoleMobSpawnerComponent>(uid, out var spawner) ? spawner.Prototype : null,
                 RafflePlayerCount = rafflePlayerCount,
                 RaffleEndTime = raffleEndTime
             });

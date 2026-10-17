@@ -1,6 +1,5 @@
 using System.Linq;
 using Content.Client._Mono.Company; // Mono
-using Content.Client._DeepLagoon.Money;
 using Content.Client.Guidebook;
 using Content.Client.Humanoid;
 using Content.Client.Inventory;
@@ -43,7 +42,6 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
     [Dependency] private JobRequirementsManager _requirements = default!;
     [Dependency] private MarkingManager _markings = default!;
     [Dependency] private CompanyManager _companyManager = default!; // Mono
-    [Dependency] private MoneyManager _money = default!; // Mono
     [UISystemDependency] private readonly Content.Client._DeepLagoon.Currency.LagoonCoinSystem _lagoonCoins = default!;
     [UISystemDependency] private readonly HumanoidAppearanceSystem _humanoid = default!;
     [UISystemDependency] private readonly ClientInventorySystem _inventory = default!;
@@ -84,44 +82,31 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
         _configurationManager.OnValueChanged(CCVars.GameRoleWhitelist, _ => RefreshProfileEditor());
     }
 
-    private bool _moneySubscribed = false;
+    private bool _coinsSubscribed;
 
     /// <summary>
-    /// Safely subscribes to Money balance updates if not already subscribed.
+    /// Subscribe once to the account's Lagoon Coin balance updates.
     /// </summary>
-    private void EnsureMoneySubscription()
+    private void EnsureCoinSubscription()
     {
-        if (!_moneySubscribed && _money != null)
+        if (!_coinsSubscribed)
         {
-            _money.BalanceUpdated += OnMoneyBalanceUpdated;
             _lagoonCoins.BalanceUpdated += OnLagoonCoinBalanceUpdated;
-            _moneySubscribed = true;
+            _coinsSubscribed = true;
         }
     }
 
-    /// <summary>
-    /// Called when Money balance is updated from the server.
-    /// </summary>
-    private void OnMoneyBalanceUpdated(long balance)
-    {
-        UpdateMoneyDisplay();
-    }
-
-    private void OnLagoonCoinBalanceUpdated(long balance) => UpdateMoneyDisplay();
+    private void OnLagoonCoinBalanceUpdated(long balance) => UpdateCoinDisplay();
 
     /// <summary>
-    /// Updates the Money display in the lobby preview panel.
+    /// Update the lobby's numeric counter without parsing localized display text.
     /// </summary>
-    private void UpdateMoneyDisplay()
+    private void UpdateCoinDisplay()
     {
         if (PreviewPanel == null)
             return;
 
-        var balance = _money?.GetLastKnownBalance() ?? -1;
-        PreviewPanel.SetMoneyText(balance < 0 ? Loc.GetString("server-currency-loading") :
-            Loc.GetString("server-currency-text", ("balance", balance)));
-        PreviewPanel.SetLagoonCoinText(_lagoonCoins.Balance < 0 ? Loc.GetString("lagoon-coin-loading") :
-            Loc.GetString("lagoon-coin-balance", ("balance", _lagoonCoins.Balance)));
+        PreviewPanel.SetLagoonCoinBalance(_lagoonCoins.Balance);
     }
 
     private LobbyCharacterPreviewPanel? GetLobbyPreview()
@@ -192,9 +177,7 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
         PreviewPanel?.SetLoaded(_preferencesManager.ServerDataLoaded);
         ReloadCharacterSetup();
 
-        // Ensure Money subscription and request balance when entering lobby
-        EnsureMoneySubscription();
-        _money?.RequestBalance();
+        EnsureCoinSubscription();
         _lagoonCoins.RequestBalance();
     }
 
@@ -245,9 +228,8 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
         {
             PreviewPanel.SetSprite(EntityUid.Invalid);
             PreviewPanel.SetSummaryText(string.Empty);
-            PreviewPanel.SetBankBalanceText(string.Empty); // Frontier
+            PreviewPanel.SetBankBalance(null);
             PreviewPanel.SetCompanyText(string.Empty); // Company Display
-            PreviewPanel.SetMoneyText(Loc.GetString("server-currency-loading")); // Money Display
             return;
         }
 
@@ -269,7 +251,7 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
         var dummy = LoadProfileEntity(humanoid, null, true);
         PreviewPanel.SetSprite(dummy);
         PreviewPanel.SetSummaryText(humanoid.Summary);
-        PreviewPanel.SetBankBalanceText(humanoid.BankBalanceText); // Frontier
+        PreviewPanel.SetBankBalance(humanoid.BankBalance);
 
         // Company Display
         var companyId = humanoid.Company;
@@ -282,11 +264,9 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
             PreviewPanel.SetCompanyText($"[color=white]Company:[/color] [color=yellow]{companyId}[/color]");
         }
 
-        // Money Display - Request balance from server and update display
-        EnsureMoneySubscription();
-        _money?.RequestBalance();
+        EnsureCoinSubscription();
         _lagoonCoins.RequestBalance();
-        UpdateMoneyDisplay();
+        UpdateCoinDisplay();
     }
 
     private void RefreshProfileEditor()

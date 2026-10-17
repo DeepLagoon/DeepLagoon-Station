@@ -14,6 +14,13 @@ namespace Content.Shared.Power.Generator;
 [Access(typeof(SharedPortableGeneratorSystem))]
 public sealed partial class PortableGeneratorComponent : Component
 {
+    /// <summary>Physical panel finish and localized fuel description, inherited by shuttle variants.</summary>
+    [DataField]
+    public string PanelStyle = "steel";
+
+    [DataField]
+    public string PanelFuel = "dl-generator-fuel-generic";
+
     /// <summary>
     /// Chance that this generator will start. If it fails, the user has to try again.
     /// </summary>

@@ -1,0 +1,108 @@
+@use '../components/ConsoleKeyboard';
+// One nine-slice of the approved dark-steel shell, not a flattened UI screenshot.
+.ShipConsoleFrame.ShuttleConsole {
+  --console-top: 56px; --console-side: 38px; --console-bottom: 60px;
+  position: relative; width: 100vw; height: 100vh; box-sizing: border-box; overflow: visible;
+  clip-path: inset(0 round 8px);
+  padding: 7px; border: solid transparent; border-width: var(--console-top) var(--console-side) var(--console-bottom);
+  border-image-slice: 108 114 126 114 fill; border-image-repeat: stretch;
+  border-radius: 8px; background: #0b1216; box-shadow: none;
+  color: #dbdcd5; font: 12px/1.35 'Verdana', sans-serif;
+  // Every slot uses coordinates from the same stretched middle nine-slice.
+  // There is no second row of tabs inside the display.
+  > header { position: absolute; top: calc(-1 * var(--console-top)); left: 0; right: 0;
+    height: calc(var(--console-top) * .72); padding: 0; border: 0; display: block; }
+  > header > .ShuttleConsole__sticker { position: absolute; left: 1.53%; top: 12%; width: 26.45%; height: 78%;
+    max-width: none; margin: 0; padding: 0 9px; display: flex; align-items: center; font-size: 12px;
+    border: 0; background: none; box-shadow: none; }
+  > header nav { position: absolute; left: 30.58%; top: 24%; width: 40.52%; height: 65%; display: grid;
+    grid-template-columns: 180fr 168fr 165fr; gap: 1.7%; min-width: 0; }
+  // Cover the baked first-tab highlight; only the actual selected tab glows.
+  > header nav::before { content: ''; position: absolute; inset: -4px -6px;
+    background: linear-gradient(#1e262a, #11181c); border-radius: 3px; box-shadow: inset 0 1px #6c74764d; }
+  > header nav > button, > header nav > .ShuttleConsole__status { min-height: 0; padding: 2px 3px;
+    position: relative;
+    font-size: clamp(8px, .95vw, 12px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border: 1px solid #515c60; background: linear-gradient(#333c40, #171e22); box-shadow: inset 0 1px #bbc3c326, 0 1px 2px #000;
+    color: #d8d7ca; border-radius: 2px; }
+  > header nav > button.is-selected { background: linear-gradient(#793927, #48241c); border-color: #d5a06c; color: #ffe5b4; }
+  > header nav > .ShuttleConsole__status { display: grid; place-items: center; letter-spacing: 0; }
+  > header > button { position: absolute; left: 75.76%; top: 27%; width: 21.1%; height: 52%; min-height: 0;
+    padding: 0; font-size: 15px; border: 0; background: none; box-shadow: none; }
+  main { grid-template-columns: minmax(0, 1fr) minmax(250px, 30%); gap: 9px; height: 100%; padding-top: 0; overflow: hidden; }
+  main, aside, .ShuttleConsole__scope, .ShuttleConsole__viewport-area {
+    background: #172025 url('ship-console-panel.svg') fixed 0 0 / 64px 64px;
+  }
+  aside { padding: 7px; border: 1px solid #485057; border-radius: 3px;
+    box-shadow: inset 0 1px #c2cbd018, inset 0 -1px #060b0d;
+    scrollbar-color: #657079 #11171b;
+    > section:last-child { margin-bottom: 0; }
+  }
+  section, .ShuttleConsole__settings {
+    border: 1px solid #485057; border-radius: 3px; padding: 8px; margin-bottom: 8px;
+    background: linear-gradient(115deg, #192125, #0c1317); box-shadow: inset 0 1px #ccd5d510;
+  }
+  button { color: #eee2c5; border-width: 2px; border-color: #805d4f #302a28 #211b19 #645044;
+    border-radius: 2px; text-shadow: 0 1px #231512; }
+  button.is-selected { color: #ffd994; border-color: #c08a55 #69442e #39251d #a46e42; }
+  button:focus-visible { outline-color: #d6b26b; }
+  .ShuttleConsole__sticker, .ShuttleConsole__terminal-title {
+    position: relative; border: 1px solid #5b6366; border-radius: 2px;
+    background: linear-gradient(115deg, #30383c, #171e22); color: #d8d7ca;
+    font: bold 12px/1.2 'Arial', sans-serif; letter-spacing: .65px;
+    text-shadow: 0 1px #000; box-shadow: inset 0 1px #c7d1d31a, 0 1px 2px #0006;
+  }
+  .ShuttleConsole__sticker { padding: 6px 8px; margin: 0 0 7px; }
+  .ShuttleConsole__terminal-title { margin: -1px -1px 7px; padding: 6px 7px; text-align: left; }
+  .ShuttleConsole__scope { padding: 7px !important; }
+  .ShuttleConsole__scope-title { gap: 4px; }
+  .ShuttleConsole__scope-title .ShuttleConsole__sticker { font-size: 11px; margin: 0; }
+  .ShuttleConsole__indicator { font: 10px/1.2 monospace; color: #d3b982; letter-spacing: .6px; gap: 6px; padding: 3px; }
+  .ShuttleConsole__lamp { width: 11px; height: 11px; }
+  .ShuttleConsole__viewport-area { margin: 4px 0; border-radius: 0; }
+  // This is a square native viewport with a circular aperture. Its unused corners
+  // carry hardware, drawn above the mask by ShuttleRadarGlassControl in-game.
+  .ShuttleConsole__viewport { container-type: inline-size; border-radius: 0;
+    background: #172025 url('ship-console-panel.svg') fixed 0 0 / 64px 64px;
+    box-shadow: none; overflow: hidden; }
+  .ShuttleConsole__viewport::after { inset: 4px; background: radial-gradient(ellipse at 28% 16%, #b0d4dc0e, transparent 42%); box-shadow: inset 0 0 0 1px #4e7d83; }
+  .ShuttleConsole__terminal, .ShuttleConsole__ports {
+    border: 1px solid #485057 !important; color: #d2b675; background: #0b1216 !important; text-shadow: none;
+  }
+  dl > div { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom-color: #293339; padding: 4px 0; gap: 4px; }
+  dt { color: #a9b6b9; } dd { color: #e4bf73; text-shadow: none; }
+  .ShuttleConsole__status { color: #a9c8ce; }
+  .ShuttleConsole__field { color: #bdc7c8; input { color: #e4bf73; background: #090f13; border-color: #4c595e; } }
+  .ShuttleConsole__settings summary::after { color: #d4b777; }
+  .ShuttleConsole__settings section { border: 0; background: transparent; padding: 4px; box-shadow: none; }
+  .ShuttleConsole__progress, .ShuttleConsole__reload { accent-color: #cba85a; }
+  footer { color: #9bacb1; font-size: 9px; }
+  .ShipRadarConsole__legend { display: grid; gap: 10px; color: #99c9d1; padding: 5px 0; }
+  @media (max-width: 820px), (max-height: 560px) {
+    --console-top: 44px; --console-side: 25px; --console-bottom: 42px; padding: 5px;
+    > header > .ShuttleConsole__sticker { font-size: 10px; padding: 0 5px; }
+    main { grid-template-columns: minmax(0, 1fr) 250px; gap: 6px; }
+    .ShuttleConsole__scope-title { .ShuttleConsole__sticker { font-size: 10px; } }
+    .ShuttleConsole__indicator { font-size: 9px; }
+  }
+}
+.ShipConsoleFrame__hardware { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ShipConsoleFrame__plaque { position: absolute; top: 2%; left: 2%; width: 20%; aspect-ratio: 6.5;
+  display: grid; place-items: center; overflow: hidden; color: #d8d7ca; font: bold clamp(6px, .7vw, 9px)/1 Arial, sans-serif;
+  letter-spacing: .5px; text-shadow: 0 1px #000;
+  background: url('ship-console-shell.png') 86.8% 1.94% / 556.52% 2381%;
+  border: 1px solid #626b6d; border-radius: 2px; box-shadow: 0 2px 3px #0008; }
+.ShipConsoleFrame__ribbon { position: absolute; bottom: 2%; left: 2%; width: 14%; aspect-ratio: 164 / 123; }
+.ShipConsoleFrame__harness { position: absolute; bottom: 2%; right: 2%; width: 9%; aspect-ratio: 86 / 114;
+  background: #080d11; outline: 1px solid #596166; box-shadow: 0 2px 3px 1px #0009; }
+@container (max-width: 329px) {
+  .ShipConsoleFrame__hardware { display: none; }
+}
+
+// Handheld scanners have a single native circular aperture and no desk hardware.
+.ShuttleConsole.HandheldMassScanner { box-sizing: border-box; width: 100vw; height: 100vh; padding: 4px;
+  background: #0b1216; overflow: hidden; border: 0; border-radius: 0; box-shadow: none;
+  .ShuttleConsole__scope { box-sizing: border-box; height: 100%; padding: 0 !important; margin: 0; border: 0; background: #0b1216; }
+  .ShuttleConsole__viewport-area { margin: 0; background: #0b1216; }
+  .ShuttleConsole__viewport { border-radius: 0; background: #0b1216; box-shadow: none; }
+}

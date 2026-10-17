@@ -9,7 +9,7 @@ namespace Content.Client.Lobby.UI;
 /// <summary>
 /// Lobby artwork that smoothly follows the cursor without moving the lobby controls.
 /// </summary>
-public sealed class LobbyBackground : TextureRect
+public sealed partial class LobbyBackground : TextureRect
 {
     private const float Zoom = 1.06f;
     private const float Travel = 0.0125f;
@@ -21,11 +21,13 @@ public sealed class LobbyBackground : TextureRect
     {
         CanShrink = true;
         MouseFilter = MouseFilterMode.Ignore;
+        RectClipContent = true;
     }
 
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
+        UpdateMedia(args.DeltaSeconds);
 
         if (Texture == null || Size.X <= 0 || Size.Y <= 0)
         {

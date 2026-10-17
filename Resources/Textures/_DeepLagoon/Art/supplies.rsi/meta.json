@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Canvas/frame converted from MOLOT-BlueMoon-Station icons/obj/artstuff.dmi at 9481abffb4328bb4485a0910a5bc45c9a42751d9 (tgstation-derived). Brush created for DeepLagoon; see Tools/Art/create_art_assets.py.",
+  "states": [
+    {
+      "name": "canvas"
+    },
+    {
+      "name": "frame"
+    },
+    {
+      "name": "brush"
+    }
+  ]
+}

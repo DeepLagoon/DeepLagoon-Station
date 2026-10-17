@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "NovaSector / tgstation contributors. Converted from icons/hud/lobby/observe.dmi for DeepLagoon; original pixels and frame timings preserved.",
+  "source": "https://github.com/NovaSector/NovaSector/tree/master/icons/hud/lobby/observe.dmi",
+  "size": {
+    "x": 139,
+    "y": 22
+  },
+  "states": [
+    {
+      "name": "observe"
+    },
+    {
+      "name": "observe_highlighted"
+    },
+    {
+      "name": "observe_pressed",
+      "delays": [
+        [
+          0.2,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "observe_enabled",
+      "delays": [
+        [
+          0.2,
+          0.6,
+          0.05,
+          0.05,
+          0.05,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "observe_disabled"
+    }
+  ]
+}

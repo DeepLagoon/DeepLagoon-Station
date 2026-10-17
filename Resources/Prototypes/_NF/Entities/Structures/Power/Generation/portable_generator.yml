@@ -59,6 +59,9 @@
   id: PortableGeneratorDK
   suffix: Bananium, Rad+, 60 kW
   components:
+    - type: PortableGenerator
+      panelStyle: bananium
+      panelFuel: dl-generator-fuel-bananium
     - type: Sprite
       sprite: _NF/Structures/Power/Generation/portable_generator.rsi
       layers:
@@ -156,6 +159,8 @@
   id: PortableGeneratorDKJr
   suffix: Bananium, Rad-, 60 kW
   components:
+    - type: PortableGenerator
+      panelStyle: bananium-jr
     - type: Sprite
       sprite: Structures/Power/Generation/portable_generator.rsi
       layers:

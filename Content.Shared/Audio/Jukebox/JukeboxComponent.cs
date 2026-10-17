@@ -48,6 +48,11 @@ public sealed partial class JukeboxComponent : Component
     [DataField, AutoNetworkedField]
     public float Gain = 0.75f;
     // Exodus-end
+
+    // Only open UIs receive the queue; nearby listeners need just the audio entity.
+    [ViewVariables] public List<JukeboxQueueEntry> Queue = new();
+    [DataField] public JukeboxRepeat Repeat;
+    public int QueueRevision;
 }
 
 [Serializable, NetSerializable]

@@ -14,6 +14,12 @@ namespace Content.Shared.Ghost.Roles
         public string Rules { get; set; }
         public ProtoId<GhostRolePrototype>? Prototype { get; set; } // Frontier: store GhostRolePrototype for whitelist lookup
 
+        /// <summary>The offered entity, not its catalogue icon. Null for roles that spawn a new mob.</summary>
+        public NetEntity? PreviewEntity { get; set; }
+
+        /// <summary>Target mob of a spawner. Its final randomized appearance does not exist yet.</summary>
+        public EntProtoId? PreviewPrototype { get; set; }
+
         // TODO ROLE TIMERS
         // Actually make use of / enforce this requirement?
         // Why is this even here.
@@ -78,6 +84,15 @@ namespace Content.Shared.Ghost.Roles
         {
             Identifier = identifier;
         }
+    }
+
+    /// <summary>Only visible thumbnails need entities outside the ghost's current PVS.</summary>
+    [NetSerializable, Serializable]
+    public sealed class GhostRolePreviewSubscription : EuiMessageBase
+    {
+        public const int MaxRoles = 32;
+        public uint[] Identifiers { get; }
+        public GhostRolePreviewSubscription(uint[] identifiers) => Identifiers = identifiers;
     }
 
     /// <summary>

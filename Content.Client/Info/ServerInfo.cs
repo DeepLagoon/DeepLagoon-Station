@@ -11,6 +11,7 @@ namespace Content.Client.Info
     public sealed class ServerInfo : BoxContainer
     {
         private readonly RichTextLabel _richTextLabel;
+        public Color? TextColor { get; set; }
 
         public ServerInfo()
         {
@@ -24,7 +25,7 @@ namespace Content.Client.Info
         }
         public void SetInfoBlob(string markup)
         {
-            _richTextLabel.SetMessage(FormattedMessage.FromMarkupOrThrow(markup), tagsAllowed: null);
+            _richTextLabel.SetMessage(FormattedMessage.FromMarkupOrThrow(markup), tagsAllowed: null, defaultColor: TextColor);
         }
     }
 }

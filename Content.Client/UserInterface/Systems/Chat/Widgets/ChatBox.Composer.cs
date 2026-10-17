@@ -53,6 +53,12 @@ public partial class ChatBox
                 ApplyChatMode(true);
                 ChatInput.Input.GrabKeyboardFocus();
             };
+            window.Panel.SetNativeFallback(() =>
+            {
+                CloseComposer();
+                ApplyChatMode(true);
+                ChatInput.Input.GrabKeyboardFocus();
+            });
             window.OpenCentered();
         }
         _composerRevision++;

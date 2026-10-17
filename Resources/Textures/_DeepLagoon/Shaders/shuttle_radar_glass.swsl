@@ -2,6 +2,9 @@ light_mode unshaded;
 
 uniform highp vec2 viewport_size;
 uniform highp float rim_width;
+uniform highp float panel_scale;
+uniform highp vec2 panel_offset;
+uniform highp float panel_texture;
 
 void fragment() {
     highp float radius = max(min(viewport_size.x, viewport_size.y) * 0.5 - rim_width, 1.0);
@@ -25,10 +28,17 @@ void fragment() {
     // Reduce the whole glass effect by 60%, including haze, rim and reflections.
     highp float weight = 0.065 + vignette + glow;
     highp float alpha = weight * 0.4;
-    highp vec3 glass = mix(vec3(0.035, 0.11, 0.06), vec3(0.43, 0.68, 0.48),
+    highp vec3 glass = mix(vec3(0.035, 0.085, 0.11), vec3(0.43, 0.60, 0.68),
         glow / max(weight, 0.001));
+    // Static brushed-steel grain, identical to ship-console-panel.svg. Anchor it
+    // to the browser document so the native aperture has no rectangular seam.
+    highp vec2 cell = mod(floor(UV * viewport_size / max(panel_scale, 0.01) + panel_offset), vec2(64.0));
+    highp float seed = cell.x + cell.y * 7.0;
+    highp float grain = mod(seed * seed * 13.0 + cell.x * 11.0 + cell.y * 29.0, 97.0);
+    highp float delta = floor(grain * 10.0 / 96.0) - 5.0 + (mod(cell.y, 4.0) < 1.0 ? 2.0 : 0.0);
+    highp vec3 steel = (vec3(23.0, 32.0, 37.0) + vec3(delta)) / 255.0;
+    highp vec3 panel = mix(vec3(0.043137, 0.070588, 0.086275), steel, panel_texture);
     // Opaque outside the circle: native geometry and child labels cannot leak through.
-    // Match Quasimorph's #070e09 CSS surface in Clyde's linear framebuffer.
-    COLOR = zFromSrgb(vec4(mix(glass, vec3(0.027451, 0.054902, 0.035294), outside),
+    COLOR = zFromSrgb(vec4(mix(glass, panel, outside),
         mix(alpha, 1.0, outside)));
 }

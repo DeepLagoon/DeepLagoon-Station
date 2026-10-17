@@ -1,0 +1,17 @@
+<style>
+/*__CIVILIAN_CSS__*/
+.CivilianPreviewStage { height: 610px; position: relative; }
+.CivilianPreviewStage .CivilianConsoleFrame { width: 100%; height: calc(100% - 28px); }
+.CivilianPreviewStage .CivilianPreviewNotice { position: absolute; left: 12px; right: 12px; bottom: 3px; color: #b7c9d1; font: 11px/1.2 Verdana, sans-serif; pointer-events: none; }
+.CivilianPreviewStage .CivilianPreviewRestore { margin: 20px; padding: 10px; }
+@media(max-width:560px) { .CivilianPreviewStage { height: 740px; } }
+@media(max-width:380px) { .CivilianPreviewStage { height: 870px; } }
+</style>
+<div id="civilian-console-comparison" class="viz-carousel viz-dotted-background" aria-label="Варианты экранов научных консолей" data-previous-label="Назад" data-next-label="Далее">
+  <section data-variant="Список операций" aria-label="Список операций"><div class="CivilianPreviewStage" id="civilian-ledger"></div></section>
+  <section data-variant="Сдержанный" aria-label="Сдержанный экран" hidden><div class="CivilianPreviewStage" id="civilian-compact"></div></section>
+  <section data-variant="Панель прибора" aria-label="Панель прибора" hidden><div class="CivilianPreviewStage" id="civilian-instrument"></div></section>
+</div>
+<script>
+/*__CIVILIAN_SCRIPT__*/
+</script>

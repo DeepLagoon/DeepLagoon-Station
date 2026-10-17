@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="96" viewBox="0 0 192 96">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".08 .72" numOctaves="2" seed="14" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="192" height="96" filter="url(#grain)" opacity=".065"/>
+  <path d="M4 9h81m37 11h54M0 31h54m61 0h72M31 44h99M5 57h57m39 9h91M15 78h111m-48 12h91" fill="none" stroke="#d5ddbd" stroke-opacity=".07"/>
+  <path d="M18 11h104m-84 24h98M1 49h69m15 13h93M25 81h136" fill="none" stroke="#071009" stroke-opacity=".14"/>
+</svg>

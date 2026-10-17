@@ -8,6 +8,13 @@ namespace Content.Client._Mono.FireControl.UI;
 
 public sealed partial class FireControlPanel
 {
+    public void SynchronizeRadarControls()
+    {
+        IFFToggle.Pressed = _radar.ShowIFF;
+        IFFDetailedToggle.Pressed = _radar.ShowIFFDetailed;
+        DockToggle.Pressed = _radar.ShowDocks;
+    }
+
     [Dependency] private IGameTiming _reloadTiming = default!;
     private readonly Dictionary<NetEntity, FireControllableEntry> _weaponStates = new();
 

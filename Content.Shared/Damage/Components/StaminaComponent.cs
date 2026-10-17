@@ -35,6 +35,10 @@ public sealed partial class StaminaComponent : Component
     [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
     public float StaminaDamage;
 
+    /// <summary>After exhausting sprint stamina, release Alt and recover 20% before sprinting again.</summary>
+    [DataField, AutoNetworkedField]
+    public bool SpeedBoostExhausted;
+
     /// <summary>
     /// How much stamina damage is required to entire stam crit.
     /// </summary>

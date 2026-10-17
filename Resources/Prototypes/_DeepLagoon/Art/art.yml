@@ -1,0 +1,138 @@
+- type: entity
+  parent: BaseItem
+  id: DLArtCanvas
+  name: painting canvas
+  description: A blank canvas. Use a brush or crayon to paint it, then put it in a wall frame.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Art/supplies.rsi
+    layers:
+    - state: canvas
+    - state: canvas
+      map: [art-image]
+      visible: false
+  - type: Item
+    size: Normal
+  - type: ArtCanvas
+  - type: ArtDisplay
+    drawingSize: 23, 23
+  - type: UserInterface
+    interfaces:
+      enum.ArtUiKey.Key:
+        type: ArtEditorBoundUserInterface
+  - type: StaticPrice
+    price: 25
+
+- type: entity
+  parent: BaseItem
+  id: DLArtBrush
+  name: paintbrush
+  description: A brush for painting on a canvas.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Art/supplies.rsi
+    state: brush
+  - type: Item
+    size: Small
+  - type: ArtTool
+    kind: brush
+  - type: StaticPrice
+    price: 15
+
+- type: entity
+  parent: BaseItem
+  id: DLArtSprayCan
+  name: artist's spray can
+  description: A spray can for painting on a canvas.
+  components:
+  - type: Sprite
+    sprite: Objects/Fun/spraycans.rsi
+    layers:
+    - state: spray
+    - state: spray_colors
+      color: "#777777"
+  - type: Item
+    size: Small
+  - type: ArtTool
+    kind: spray
+  - type: StaticPrice
+    price: 20
+
+# Craft an item first, then use the held frame on a wall.
+- type: entity
+  parent: BaseItem
+  id: DLArtFrameItem
+  name: wooden painting frame
+  description: A handmade wooden frame. Attach it to a wall before inserting a canvas.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Art/supplies.rsi
+    state: frame
+  - type: Item
+    size: Normal
+  - type: ArtFrameItem
+  - type: Construction
+    graph: DLArtFrame
+    node: frame
+
+- type: entity
+  parent: BaseSign
+  id: DLArtFrame
+  name: wooden painting frame
+  description: An empty wall frame. Insert a saved canvas to archive it for future rounds.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Art/supplies.rsi
+    layers:
+    - state: frame
+    - state: canvas
+      map: [art-image]
+      visible: false
+    - state: frame
+  - type: ArtFrame
+  - type: Transform
+    anchored: true
+  - type: ArtDisplay
+    drawingSize: 23, 23
+  - type: WallMount
+    arc: 360
+  - type: ContainerContainer
+    containers:
+      art-canvas: !type:ContainerSlot
+
+# Mappers explicitly place these instead of changing existing decorative paintings.
+- type: entity
+  parent: DLArtFrame
+  id: DLArtGalleryFrame
+  suffix: Persistent gallery
+  components:
+  - type: ArtFrame
+    fillOnRoundStart: true
+
+- type: constructionGraph
+  id: DLArtFrame
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: frame
+      steps:
+      - material: WoodPlank
+        amount: 2
+        doAfter: 2
+  - node: frame
+    entity: DLArtFrameItem
+
+- type: construction
+  id: DLArtFrameItem
+  name: construction-name-dl-art-frame
+  description: construction-desc-dl-art-frame
+  graph: DLArtFrame
+  startNode: start
+  targetNode: frame
+  category: construction-category-furniture
+  icon:
+    sprite: _DeepLagoon/Art/supplies.rsi
+    state: frame
+  objectType: Item
+

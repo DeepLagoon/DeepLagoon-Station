@@ -1,0 +1,9 @@
+civilian-console-close = Закрыть
+civilian-console-waiting = Ожидание данных сервера…
+tech-disk-ui-print-button = Печать диска ({ $amount })
+tech-disk-ui-print-rare-button = Печать редкого диска ({ $amount })
+point-disk-ui-name = Терминал дисков исследований
+point-disk-ui-total-label = На выбранном сервере имеется { $amount } очков
+point-disk-ui-print-1k-button = Печать диска очков ({ $amount })
+point-disk-ui-print-5k-button = Печать диска очков ({ $amount })
+point-disk-ui-print-10k-button = Печать диска очков ({ $amount })

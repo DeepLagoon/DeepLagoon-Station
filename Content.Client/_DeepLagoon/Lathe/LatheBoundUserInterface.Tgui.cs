@@ -44,7 +44,7 @@ public sealed partial class LatheBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || _classicForSession)
+        if (_classic || _classicForSession || !TguiPanel.Enabled)
             return false;
 
         _tguiData = new LatheTguiData(Owner, EntMan);
@@ -59,6 +59,7 @@ public sealed partial class LatheBoundUserInterface
         // The panel publishes its own state first on every (re)load; static data follows it.
         window.Panel.Web.Ready += SendTguiStatic;
         window.Panel.Web.Failed += DeferSwitchToClassic;
+        window.Panel.SetNativeFallback(DeferSwitchToClassic);
 
         if (SavedPositions.TryGetValue(Owner, out var position))
             window.Open(position);

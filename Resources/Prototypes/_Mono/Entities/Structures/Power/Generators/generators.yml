@@ -96,6 +96,8 @@
   - type: PortableGenerator
     startSoundEmpty: { collection: GeneratorTugEmpty }
     startSound: { collection: GeneratorTug }
+    panelStyle: plasma
+    panelFuel: dl-generator-fuel-plasma
   - type: FuelGenerator
   - type: PowerSupplier
     supplyRate: 3000
@@ -171,6 +173,8 @@
   placement:
     mode: AlignTileAny
   components:
+  - type: PortableGenerator
+    panelStyle: pinch
   - type: Sprite
     sprite: _Mono/Structures/Power/Generators/pinchreactor.rsi
     offset: 0,-0.5
@@ -268,6 +272,8 @@
   placement:
     mode: AlignTileAny
   components:
+  - type: PortableGenerator
+    panelStyle: sterling
   - type: Sprite
     sprite: _Mono/Structures/Power/Generators/sterling_reactor.rsi
     layers:

@@ -1,0 +1,9 @@
+dl-ghost-roles-available = Доступно
+dl-ghost-roles-groups = Типов
+dl-ghost-roles-roles = Ролей
+dl-ghost-roles-locked = Доступ ограничен
+dl-ghost-roles-preview-loading = Предпросмотр персонажа
+dl-ghost-roles-preview-spawner = Персонаж создаётся при выборе роли. Показан прототип; случайная внешность и экипировка определяются при появлении.
+dl-ghost-roles-preview-unknown = Внешность персонажа определяется при появлении.
+dl-ghost-roles-select = Выберите роль в списке
+dl-ghost-roles-instance = Персонаж

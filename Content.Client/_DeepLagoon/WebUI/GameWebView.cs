@@ -18,7 +18,7 @@ public sealed class GameWebView : Control
     private const string Root = "/Web/DeepLagoon/";
     private static readonly byte[] BridgeAck = Convert.FromBase64String(
         "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
-    private WebViewControl _view;
+    private WebViewControl? _view;
     private readonly string _documentUrl;
     private readonly string? _devOrigin;
     private readonly ConcurrentQueue<string> _incoming = new();
@@ -44,33 +44,34 @@ public sealed class GameWebView : Control
     private readonly bool _suspendWhenHidden;
     private readonly bool _captureKeyboard;
     private readonly NativeChatBackground _background;
-    public bool BrowserActive => _view.IsInsideTree;
+    public bool BrowserActive => _view?.IsInsideTree == true;
     public bool IsReady => _ready;
     public event Action<string, string>? Message;
     public event Action? Ready;
     public event Action? Failed;
     public event Action? Resumed;
+    internal event Action<string, string>? Sending;
 
-    public void FocusInput() => _view.GrabKeyboardFocus();
+    public void FocusInput() => _view?.GrabKeyboardFocus();
     public void SyncInputFocus()
     {
-        if (_ready && !_disposed) _view.ExecuteJavaScript("window.DeepLagoonHealth?.syncFocus();");
+        if (_ready && !_disposed) _view?.ExecuteJavaScript("window.DeepLagoonHealth?.syncFocus();");
     }
 
-    public bool HasInputFocus => _view.HasKeyboardFocus();
+    public bool HasInputFocus => _view?.HasKeyboardFocus() == true;
 
     public void SendGridEditorKey(string code, bool down, bool control, bool shift, bool alt)
     {
         if (!_ready || _disposed) return;
         var detail = new TguiData().String("code", code).Bool("down", down).Bool("ctrlKey", control)
             .Bool("shiftKey", shift).Bool("altKey", alt).ToString();
-        _view.ExecuteJavaScript("window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:" + detail + "}));");
+        _view?.ExecuteJavaScript("window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:" + detail + "}));");
     }
 
     public void SetWindowDragging(bool dragging)
     {
         if (!_ready || _disposed) return;
-        _view.ExecuteJavaScript("window.dispatchEvent(new CustomEvent('deeplagoon/window-drag', {detail:" +
+        _view?.ExecuteJavaScript("window.dispatchEvent(new CustomEvent('deeplagoon/window-drag', {detail:" +
             (dragging ? "true" : "false") + "}));");
     }
 
@@ -78,16 +79,16 @@ public sealed class GameWebView : Control
     {
         FocusInput();
         _explicitTextInput = true;
-        _view.Root?.Window?.TextInputStart();
+        _view?.Root?.Window?.TextInputStart();
         if (_ready)
-            _view.ExecuteJavaScript("window.focus(); window.dispatchEvent(new Event('deeplagoon/focus-input'));");
+            _view?.ExecuteJavaScript("window.focus(); window.dispatchEvent(new Event('deeplagoon/focus-input'));");
     }
 
     // Compatibility path for the old official module's incorrect Return char event.
     public void SendInputKey(bool tab, bool shift)
     {
         if (!_ready || _disposed || !HasInputFocus) return;
-        _view.ExecuteJavaScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', {" +
+        _view?.ExecuteJavaScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', {" +
             (tab ? "key:'Tab',code:'Tab',keyCode:9,which:9," : "key:'Enter',code:'Enter',keyCode:13,which:13,") +
             "bubbles:true,cancelable:true,shiftKey:" +
             (shift ? "true" : "false") + "}));");
@@ -95,7 +96,7 @@ public sealed class GameWebView : Control
 
     public void ReleaseTextInput()
     {
-        if (_explicitTextInput && HasInputFocus) _view.Root?.Window?.TextInputStop();
+        if (_explicitTextInput && HasInputFocus) _view?.Root?.Window?.TextInputStop();
         _explicitTextInput = false;
     }
 
@@ -112,6 +113,12 @@ public sealed class GameWebView : Control
         while (_incoming.TryDequeue(out _)) { }
     }
 
+    public void StopBrowser()
+    {
+        PrepareForShutdown();
+        SuspendBrowser();
+    }
+
     public GameWebView(bool chat = false, bool suspendWhenHidden = false, bool captureKeyboard = false)
     {
         _captureKeyboard = captureKeyboard;
@@ -126,8 +133,7 @@ public sealed class GameWebView : Control
 #endif
         _documentUrl = (_devOrigin == null ? "res://deeplagoon" + Root : _devOrigin + "/") +
             (chat ? "chat.html" : "interface.html");
-        _view = CreateView();
-        if (!_suspendWhenHidden) AddChild(_view);
+        // Defer module/browser creation until a visible frame. Classic mode needs no CEF at all.
     }
 
     private WebViewControl CreateView()
@@ -190,6 +196,7 @@ public sealed class GameWebView : Control
 
     public void Send(string type, string payloadJson)
     {
+        if (!_disposed) Sending?.Invoke(type, payloadJson);
         if (_disposed || _shuttingDown) return;
         if (CanKeepWarm && !VisibleInTree && type == "chat/message") return;
         var json = "{\"type\":" + Quote(type) + ",\"payload\":" + payloadJson + "}";
@@ -213,10 +220,10 @@ public sealed class GameWebView : Control
         _outgoing.Clear();
         while (_incoming.TryDequeue(out _)) { }
         _chunkPayload.Clear();
-        _view.Reload();
+        _view?.Reload();
     }
 
-    private void Dispatch(string json) => _view.ExecuteJavaScript("try { window.update(" +
+    private void Dispatch(string json) => _view?.ExecuteJavaScript("try { window.update(" +
         Quote(json) + "); } catch (error) { console.error(error); }");
 
     /// <summary>JSON string encoding without adding non-sandboxed client dependencies.</summary>
@@ -239,10 +246,21 @@ public sealed class GameWebView : Control
         if (_disposed || _shuttingDown) return;
         // Attach only once the visible viewport is laid out. Hidden editors do
         // not create background CEF browsers, even while their UI stays in tree.
-        if (_suspendWhenHidden && VisibleInTree && _view.Parent == null)
+        if (VisibleInTree && _view?.Parent == null && !_healthFailed)
         {
-            AddChild(_view);
-            if (CanKeepWarm) _view.AlwaysActive = true;
+            try
+            {
+                _view ??= CreateView();
+                AddChild(_view);
+                if (CanKeepWarm) _view.AlwaysActive = true;
+            }
+            catch (Exception e)
+            {
+                _healthFailed = true;
+                Robust.Shared.Log.Logger.GetSawmill("tgui").Error($"TGUI browser could not start: {e.GetType().Name}");
+                UserInterfaceManager.DeferAction(() => { if (!_disposed && !_shuttingDown) Failed?.Invoke(); });
+                return;
+            }
         }
         if (_warmSuspended && VisibleInTree)
         {
@@ -264,7 +282,7 @@ public sealed class GameWebView : Control
             if (_ready && _pingWait >= 2)
             {
                 _pingWait = 0;
-                _view.ExecuteJavaScript("window.DeepLagoonHealth?.ping();");
+                _view?.ExecuteJavaScript("window.DeepLagoonHealth?.ping();");
             }
             if (_healthWait >= 15)
             {
@@ -285,7 +303,7 @@ public sealed class GameWebView : Control
                     _healthFailed = true;
                     _ready = false;
                     ReleaseTextInput();
-                    _view.ReleaseKeyboardFocus();
+                    _view?.ReleaseKeyboardFocus();
                     Robust.Shared.Log.Logger.GetSawmill("tgui").Error("TGUI recovery failed; using the native fallback or retry control.");
                     Failed?.Invoke();
                 });
@@ -345,16 +363,16 @@ public sealed class GameWebView : Control
                     // Keep the native window open and let its owner resend current state.
                     if (!WebViewCapabilities.NativeLifecycle)
                     {
-                        _view.Arrange(UIBox2.FromDimensions(System.Numerics.Vector2.Zero, Size + System.Numerics.Vector2.One));
+                        _view?.Arrange(UIBox2.FromDimensions(System.Numerics.Vector2.Zero, Size + System.Numerics.Vector2.One));
                         InvalidateArrange();
                     }
                     _ready = true;
                     _healthWait = 0;
                     if (WebViewCapabilities.NativeLifecycle && _devOrigin == null)
-                        _view.ExecuteJavaScript("window.__deeplagoonFetchBridge = true;");
-                    if (_captureKeyboard) _view.ExecuteJavaScript("window.__deeplagoonCaptureKeys = true;");
+                        _view?.ExecuteJavaScript("window.__deeplagoonFetchBridge = true;");
+                    if (_captureKeyboard) _view?.ExecuteJavaScript("window.__deeplagoonCaptureKeys = true;");
                     if (_background != null)
-                        _view.ExecuteJavaScript("window.__deeplagoonNativeBackground = true; window.dispatchEvent(new Event('deeplagoon/native-background'));");
+                        _view?.ExecuteJavaScript("window.__deeplagoonNativeBackground = true; window.dispatchEvent(new Event('deeplagoon/native-background'));");
                     while (_outgoing.TryDequeue(out var queued))
                         Dispatch(queued);
                     Ready?.Invoke();
@@ -371,7 +389,7 @@ public sealed class GameWebView : Control
                     _background?.Configure(payload);
                     break;
                 case "chat-input-focus":
-                    if (!VisibleInTree || !_view.IsInsideTree ||
+                    if (!VisibleInTree || _view?.IsInsideTree != true ||
                         !TguiActionData.TryParse(payload, out var focus)) break;
                     if (focus!.String("active") == "true")
                     {
@@ -380,14 +398,14 @@ public sealed class GameWebView : Control
                         else
                         {
                             _explicitTextInput = true;
-                            _view.Root?.Window?.TextInputStart();
+                            _view?.Root?.Window?.TextInputStart();
                         }
                     }
                     else if (focus.String("active") == "false")
                     {
                         ReleaseTextInput();
                         // Do not release another window's focus (e.g. the composer).
-                        _view.ReleaseKeyboardFocus();
+                        _view?.ReleaseKeyboardFocus();
                     }
                     break;
                 default:
@@ -400,7 +418,7 @@ public sealed class GameWebView : Control
     protected override void ExitedTree()
     {
         base.ExitedTree();
-        if (CanKeepWarm && !_disposed && _view.AlwaysActive)
+        if (CanKeepWarm && !_disposed && _view?.AlwaysActive == true)
         {
             KeepWarm();
             return;
@@ -415,7 +433,7 @@ public sealed class GameWebView : Control
     protected override void VisibilityChanged(bool newVisible)
     {
         base.VisibilityChanged(newVisible);
-        if (!_suspendWhenHidden || VisibleInTree || _view.Parent == null) return;
+        if (!_suspendWhenHidden || VisibleInTree || _view?.Parent == null) return;
         if (CanKeepWarm && _view.AlwaysActive)
         {
             KeepWarm();
@@ -431,7 +449,7 @@ public sealed class GameWebView : Control
     private void KeepWarm()
     {
         ReleaseTextInput();
-        _view.ReleaseKeyboardFocus();
+        _view?.ReleaseKeyboardFocus();
         _warmSuspended = true;
         _warmUntil = IoCManager.Resolve<IGameTiming>().RealTime + TimeSpan.FromSeconds(30);
         if (_warmTimerPending) return;
@@ -461,6 +479,7 @@ public sealed class GameWebView : Control
     private void SuspendBrowser()
     {
         ReleaseTextInput();
+        if (_view == null) return;
         if (!WebViewCapabilities.NativeLifecycle)
         {
             _view.RemoveBeforeBrowseHandler(BeforeBrowse);
@@ -480,9 +499,12 @@ public sealed class GameWebView : Control
         _disposed = true;
         _warmCancellation.Cancel();
         _warmCancellation.Dispose();
-        _view.RemoveBeforeBrowseHandler(BeforeBrowse);
-        _view.RemoveResourceRequestHandler(ResourceRequest);
-        WebViewLifetime.Close(_view);
+        if (_view != null)
+        {
+            _view.RemoveBeforeBrowseHandler(BeforeBrowse);
+            _view.RemoveResourceRequestHandler(ResourceRequest);
+            WebViewLifetime.Close(_view);
+        }
         base.Dispose(disposing);
     }
 }

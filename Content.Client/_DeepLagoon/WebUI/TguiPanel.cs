@@ -6,12 +6,41 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Map;
 using Robust.Shared.Timing;
+using Robust.Shared.Configuration;
 
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>Reusable embedded TGUI: state replay, transport and lifecycle for every content window.</summary>
-public sealed class TguiPanel : Control
+public sealed partial class TguiPanel : Control
 {
+    public static bool Enabled => WebUiCVars.UseTgui(IoCManager.Resolve<IConfigurationManager>().GetCVar(WebUiCVars.InterfaceStyle));
+    private Action? _nativeFallback;
+    private NativeInterfacePanel? _native;
+    private bool _usingNative;
+    private bool _modeChangePending;
+    private readonly Queue<string> _nativeUpdates = new();
+    public bool UsingNative => _usingNative;
+    public event Action? NativeModeChanged;
+    public bool CanCloseNative() => _native?.CanClose() ?? true;
+
+    /// <summary>Existing windows keep their typed native controls and state owners.</summary>
+    public void SetNativeFallback(Action fallback) => _nativeFallback = fallback;
+
+    public void SwitchToNative()
+    {
+        if (Disposed || _usingNative) return;
+        _usingNative = true;
+        _failure.Visible = false;
+        Web.Visible = false;
+        Web.StopBrowser();
+        NativeModeChanged?.Invoke();
+        if (_nativeFallback != null) { _nativeFallback(); return; }
+        _native = new NativeInterfacePanel((action, payload) => OnAction?.Invoke(action, payload), () => OnClose?.Invoke());
+        AddChild(_native);
+        _native.UpdateState(_interface, _data);
+        foreach (var update in _nativeUpdates) _native.Receive("update", update);
+        _nativeUpdates.Clear();
+    }
     public GameWebView Web { get; }
     public event Action<string, string>? OnAction;
     public event Action? OnClose;
@@ -37,7 +66,15 @@ public sealed class TguiPanel : Control
     {
         _inheritChatAppearance = inheritChatAppearance;
         _showWindowControls = showWindowControls;
-        Web = new GameWebView(suspendWhenHidden: suspendWhenHidden, captureKeyboard: captureKeyboard);
+        // All panels suspend while hidden, including native-only sessions. No hidden CEF windows.
+        Web = new GameWebView(suspendWhenHidden: true, captureKeyboard: captureKeyboard) { Visible = Enabled };
+        Web.Sending += (type, payload) =>
+        {
+            if (_native != null) { _native.Receive(type, payload); return; }
+            if (type != "update") return;
+            if (_nativeUpdates.Count >= 8) _nativeUpdates.Dequeue();
+            _nativeUpdates.Enqueue(payload);
+        };
         HorizontalExpand = VerticalExpand = true;
         AddChild(Web);
         _failure.AddChild(new Label { Text = "Не удалось запустить TGUI. Повторите загрузку интерфейса." });
@@ -45,7 +82,7 @@ public sealed class TguiPanel : Control
         retry.OnPressed += _ => { _failure.Visible = false; Web.Reload(); };
         _failure.AddChild(retry);
         AddChild(_failure);
-        Web.Failed += () => _failure.Visible = true;
+        Web.Failed += SwitchToNative;
         Web.Ready += () => _failure.Visible = false;
         Web.Ready += Publish;
         // A hidden document may outlive the bounded outgoing queue. Replay the
@@ -66,6 +103,7 @@ public sealed class TguiPanel : Control
         _interface = interfaceName;
         _data = dataJson;
         _title = title;
+        _native?.UpdateState(_interface, _data);
         Publish();
     }
 
@@ -82,6 +120,7 @@ public sealed class TguiPanel : Control
         var previous = _incrementalData;
         _incrementalData = data;
         _data = data.ToString();
+        _native?.UpdateState(interfaceName, _data);
         if (previous == null || _interface != interfaceName || _title != title)
         {
             _interface = interfaceName;
@@ -111,6 +150,7 @@ public sealed class TguiPanel : Control
 
     protected override void ExitedTree()
     {
+        ClearConsoleKeys();
         EndWindowDrag();
         if (_input != null) _input.FirstChanceOnKeyEvent -= OnWindowPointer;
         _input = null;
@@ -127,6 +167,7 @@ public sealed class TguiPanel : Control
 
     private void OnWindowPointer(KeyEventArgs args, KeyEventType type)
     {
+        OnConsoleKey(args, type);
         if (args.Key != Keyboard.Key.MouseLeft || _input == null) return;
         if (type == KeyEventType.Up)
         {
@@ -205,6 +246,14 @@ public sealed class TguiPanel : Control
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
+        if (!ConsoleKeyboardFeedback || !VisibleInTree || !Web.IsReady || UsingNative || FloatingWindow() is not { } console || !console.IsAtFront())
+            ClearConsoleKeys();
+        if (!_usingNative) Web.Visible = Enabled;
+        if (!Enabled && !_usingNative && !_modeChangePending)
+        {
+            _modeChangePending = true;
+            UserInterfaceManager.DeferAction(() => { _modeChangePending = false; SwitchToNative(); });
+        }
         _windowControls?.SetTitle(_title);
         _windowControls?.Update();
         _appearanceRefresh -= args.DeltaSeconds;
@@ -234,7 +283,7 @@ public sealed class TguiPanel : Control
     protected override void VisibilityChanged(bool newVisible)
     {
         base.VisibilityChanged(newVisible);
-        if (!VisibleInTree) EndWindowDrag();
+        if (!VisibleInTree) { EndWindowDrag(); ClearConsoleKeys(); }
     }
 
     private void Publish()

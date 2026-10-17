@@ -1,0 +1,122 @@
+// Fixed cabinet materials are intentional: these are physical machine controls.
+html:has(.BatteryStorage), body:has(.BatteryStorage) { background: #25292b !important; }
+body:has(.BatteryStorage) { zoom: 1 !important; overflow: auto; }
+.BatteryStorage {
+  --bs-green: #98ef9f;
+  width: 100%; min-height: 100vh; color: #d1d1c4; background: #25292b;
+  font: 12px/1.4 Arial, sans-serif; isolation: isolate;
+  *, *::before, *::after { box-sizing: border-box; }
+  button, input { font: inherit; }
+  button:focus-visible, input:focus-visible { outline: 2px solid #b9ecb5; outline-offset: 3px; }
+  &__chassis {
+    padding: 27px 24px 19px; position: relative;
+    background: linear-gradient(110deg, #ffffff09, transparent 38%, #0002), repeating-linear-gradient(0deg, transparent 0 3px, #00000007 3px 4px);
+    border: 7px solid #4b5050; border-top-color: #626867; border-bottom-color: #343939;
+    box-shadow: inset 0 1px #858d8b;
+    &::after {
+      content: ''; position: absolute; inset: 5px; pointer-events: none; opacity: .65; z-index: 3;
+      background: linear-gradient(172deg, transparent 47%, #d4d8c790 49%, transparent 52%) 5px 25px / 64px 12px no-repeat,
+        linear-gradient(13deg, transparent 47%, #121b1480 49%, transparent 52%) right 10px bottom 50px / 45px 10px no-repeat,
+        linear-gradient(98deg, transparent 46%, #c9d0b97a 49%, transparent 52%) 9px bottom 24px / 12px 85px no-repeat;
+    }
+  }
+  &__screw {
+    position: absolute; width: 12px; height: 12px; border-radius: 50%; z-index: 4;
+    background: radial-gradient(circle at 35% 25%, #a0a49d, #50534e 48%, #1c211e 80%);
+    box-shadow: 0 1px 2px #000, inset 0 1px #b6b9b266;
+    &::after { content: ''; position: absolute; left: 2px; right: 2px; top: 5px; border-top: 2px solid #212621; transform: rotate(-29deg); }
+    &:nth-child(1) { top: 8px; left: 8px; }
+    &:nth-child(2) { top: 8px; right: 8px; transform: rotate(63deg); }
+    &:nth-child(3) { bottom: 8px; left: 8px; transform: rotate(17deg); }
+    &:nth-child(4) { bottom: 8px; right: 8px; transform: rotate(84deg); }
+  }
+  &__heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+  &__heading > div { min-width: 0; }
+  &__heading strong { font-size: 21px; letter-spacing: 1.3px; color: #d4d6c9; text-shadow: 0 1px #000; }
+  &__heading small { display: block; font: 10px/1.5 monospace; letter-spacing: 1.1px; margin-top: 4px; color: #b0baaf; overflow-wrap: anywhere; }
+  &__plate { flex-shrink: 0; border: 1px solid #151a18; padding: 6px 8px; background: #a5a795; color: #202923; font: 10px/1.4 monospace; box-shadow: inset 0 1px #e5e6d180; transform: rotate(-1deg); }
+  &__body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; }
+  &__monitor { min-width: 0; padding: 11px; background: linear-gradient(135deg, #6d7771, #303a34 55%, #111c15); border: 2px solid #17241b; border-bottom-width: 5px; box-shadow: inset 0 1px #a7b3a1, 0 2px 2px #0007; border-radius: 8px; }
+  &__glass { position: relative; background: radial-gradient(ellipse at center, #163d27, #071e12 85%); color: var(--bs-green); border: 3px solid #08140e; border-radius: 9px 9px 14px 14px; padding: 15px 12px; box-shadow: inset 0 0 18px #000b, 0 1px #8ea58e55; overflow: hidden; text-shadow: 0 0 6px #7eff9b50;
+    &::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(transparent 0 2px, #0002 2px 3px), linear-gradient(135deg, #d3ffdc12, transparent 45%); }
+  }
+  &__screen-label { font: 11px/1.4 monospace; letter-spacing: 1px; margin-bottom: 11px; display: flex; justify-content: space-between; gap: 8px; }
+  &__charge { font: 36px/1.1 monospace; letter-spacing: -2px; margin-bottom: 12px; white-space: nowrap; }
+  &__screen-rule { border-top: 1px solid #75a47755; margin: 14px 0; }
+  &__readings { margin: 0; font: 12px/1.4 monospace; }
+  &__readings > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3px 6px; margin: 9px 0; }
+  &__readings dt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  &__readings dd { margin: 0; white-space: nowrap; }
+  &__battery-strip { display: flex; gap: 3px; }
+  &__battery-strip i { height: 13px; flex: 1; background: #284d30; }
+  &__battery-strip i.is-lit { background: #8be79d; box-shadow: 0 0 5px #6aff8a44; }
+  &__bezel-label { font: 9px/1.5 monospace; letter-spacing: 2px; color: #adbea9; margin: 9px 2px 0; display: flex; justify-content: space-between; }
+  &__controls { min-width: 0; background: #363e3b; padding: 11px; border: 1px solid #111b15; box-shadow: inset 0 1px #8c9c8366; }
+  &__bank-head { font: 10px/1.5 monospace; color: #bcc5b8; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid #171f1b; margin-bottom: 11px; overflow-wrap: anywhere; }
+  &__switch-row { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-bottom: 12px; }
+  &__switch-copy { min-width: 0; font: 12px/1.6 monospace; color: #e0e2d1; }
+  &__switch-copy > span { display: block; }
+  &__switch-copy .BatteryStorage__line-value, &__breaker-status, &__network { color: #bdc7b6; font-size: 10px; }
+  &__network { opacity: .8; }
+  &__network.is-powered { color: #c4e6ad; opacity: 1; }
+  &__toggle { position: relative; width: 47px; min-width: 47px; height: 56px; padding: 0; border: 3px solid #151a17; border-radius: 4px; color: #c5d4bd; cursor: pointer;
+    background: radial-gradient(circle at 50% 50%, #737c6a 0 5px, #151d16 6px 8px, transparent 9px), linear-gradient(90deg, #101411, #424943 47%, #151a16);
+    box-shadow: 0 1px #76806c, inset 0 0 3px #000;
+    &::before { content: 'I'; position: absolute; top: 1px; left: 5px; font: 9px monospace; color: #b2dc9f; }
+    &::after { content: 'O'; position: absolute; bottom: 1px; left: 5px; font: 9px monospace; color: #a8b99b; }
+    &:hover:not(:disabled) { border-color: #708369; }
+    &:disabled { cursor: default; opacity: .5; }
+  }
+  &__lever { position: absolute; left: calc(50% - 6px); top: 4px; width: 12px; height: 21px; background: linear-gradient(90deg, #454d48, #c1c9bd 40%, #7d8980 68%, #3a423c); border: 1px solid #101810; border-radius: 4px; box-shadow: 2px 3px 4px #0009; transform-origin: 50% 100%; transform: perspective(100px) rotateX(0deg); transition: transform .16s;
+    &::after { content: ''; position: absolute; inset: 0 0 auto; height: 13px; background: linear-gradient(90deg, #272d26, #939b88, #353e30); border-radius: 3px; border: 1px solid #121911; }
+  }
+  &__toggle[aria-pressed=false] .BatteryStorage__lever { transform: perspective(100px) rotateX(180deg); }
+  &__lamp { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3f443c; margin-right: 7px; border: 1px solid #314529; }
+  &__lamp.is-on { background: #a8ef79; box-shadow: 0 0 7px #9eed74; }
+  &__regulator { display: block; border-top: 1px solid #1a231b; padding-top: 11px; margin-top: 10px; }
+  &__reg-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px; font: 11px/1.4 monospace; color: #d5d9c8; margin-bottom: 7px; }
+  &__reg-label output { color: #f1e1aa; white-space: nowrap; }
+  input[type=range] { width: 100%; height: 20px; accent-color: #aeb7a2; margin: 0; padding: 0; }
+  &__meter { margin-top: 16px; padding: 10px 13px 12px; background: #1a211e; border: 2px solid #111713; box-shadow: 0 1px #76806b, inset 0 1px 3px #000; }
+  &__meter-title { font: 11px/1.4 monospace; letter-spacing: 1px; color: #c0c7b7; margin-bottom: 8px; }
+  &__segments { display: flex; align-items: center; gap: 3px; background: #0c1b17; border: 1px solid #334a40; padding: 8px 10px; color: #6fe1b6; box-shadow: inset 0 0 12px #000; min-height: 52px; }
+  &__segments svg { height: 34px; width: 21px; flex: 0 1 21px; min-width: 0; filter: drop-shadow(0 0 2px #6fe1b655); }
+  &__unit { font: 12px monospace; margin-left: auto; padding-left: 8px; color: #9cc6b4; }
+  &__decimal { align-self: flex-end; margin-bottom: 2px; width: 4px; height: 4px; min-width: 4px; background: #6fe1b6; }
+  &__meter-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px; margin-top: 7px; font: 10px monospace; color: #b3bea9; }
+  &__service { min-height: 50px; margin-top: 17px; display: flex; gap: 14px; align-items: center; }
+  &__vent { flex: 1; height: 31px; background: repeating-linear-gradient(0deg, #121915 0 3px, #475047 3px 6px); border-bottom: 1px solid #78816e; max-width: 200px; }
+  &__cable-bay { position: relative; width: 100px; flex: 0 0 100px; height: 47px; background: #101813; border: 3px solid #313a31; box-shadow: inset 0 0 7px #000; overflow: hidden; }
+  &__cable-bay i { position: absolute; top: -18px; left: 12px; width: 15px; height: 80px; border: 4px solid #a68a42; border-radius: 45%; transform: rotate(27deg); box-shadow: 1px 0 0 #d1bc7c55;
+    &:nth-child(2) { left: 31px; border-color: #796344; transform: rotate(-18deg); }
+    &:nth-child(3) { left: 52px; border-color: #7c4236; transform: rotate(22deg); }
+  }
+  &__cable-bay b { position: absolute; right: 5px; top: 5px; width: 18px; height: 54px; background: repeating-linear-gradient(90deg, #a69f84 0 2px, #5e6251 2px 3px); transform: rotate(-16deg); box-shadow: 2px 0 #151e16; }
+  &__hazard { color: #d5c281; font: 10px/1.5 monospace; max-width: 180px; }
+  &__footer { border-top: 1px solid #626a5b; margin-top: 13px; padding-top: 8px; font: 10px monospace; color: #b2bca9; display: flex; justify-content: space-between; gap: 8px; }
+  &__hazard-edge { height: 8px; background: repeating-linear-gradient(130deg, #aea05d 0 12px, #252b25 12px 24px); border-top: 2px solid #151b16; opacity: .75; }
+  &--smes {
+    .BatteryStorage__chassis { border-radius: 27px 27px 9px 9px; background: linear-gradient(90deg, #a3a28b, #d4d1b2 17%, #c1c0a4 78%, #888c78); border-color: #777e6d; border-top-color: #d6d4b8; color: #303b31; }
+    .BatteryStorage__heading strong { color: #354438; text-shadow: 0 1px #f2edca; }
+    .BatteryStorage__heading small { color: #43513e; }
+    .BatteryStorage__plate { background: #c3bda0; border-color: #777b66; }
+    .BatteryStorage__footer { color: #394a3a; border-color: #8c927b; }
+    .BatteryStorage__hazard { color: #414326; }
+    .BatteryStorage__controls { background: #59634d; box-shadow: inset 0 1px #cdd1ad; }
+    .BatteryStorage__vent { background: repeating-linear-gradient(0deg, #424c3e 0 3px, #8d947d 3px 6px); border-color: #b8bca0; }
+  }
+  @media (max-width: 500px) {
+    &__chassis { padding: 24px 14px 18px; border-width: 5px; }
+    &__body { grid-template-columns: minmax(0, 1fr); gap: 13px; }
+    &__heading strong { font-size: 19px; }
+    &__controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 15px; }
+    &__bank-head { grid-column: 1 / -1; }
+    &__switch-copy { font-size: 11px; }
+    &__switch-row { gap: 4px; }
+    &__toggle { width: 40px; min-width: 40px; }
+    &__service { flex-wrap: wrap; gap: 10px; }
+    &__vent { min-width: 55px; }
+    &__hazard { flex-basis: 100%; max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { &__lever { transition: none; } }
+}

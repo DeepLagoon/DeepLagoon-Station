@@ -14,7 +14,7 @@ public sealed partial class LobbyBackgroundPrototype : IPrototype
     public string ID { get; set; } = default!;
 
     /// <summary>
-    /// The sprite to use as the background. This should ideally be 1920x1080.
+    /// Packaged image, GIF, or silent WebM (VP8/VP9) used as the lobby background.
     /// </summary>
     [DataField("background", required: true)]
     public ResPath Background = default!;

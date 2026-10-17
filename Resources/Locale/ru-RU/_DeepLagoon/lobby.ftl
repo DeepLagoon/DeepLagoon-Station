@@ -1,0 +1,11 @@
+deeplagoon-lobby-vote-time-remaining = ОСТАЛОСЬ
+deeplagoon-lobby-counter-loading = Загрузка…
+deeplagoon-lobby-music-heading = МУЗЫКА ЛОББИ
+deeplagoon-lobby-music-previous = Предыдущий трек — только для вас
+deeplagoon-lobby-music-next = Следующий трек — только для вас
+deeplagoon-lobby-music-pause = Пауза
+deeplagoon-lobby-music-resume = Продолжить
+deeplagoon-lobby-music-pause-tooltip = Приостановить музыку — только для вас
+deeplagoon-lobby-music-resume-tooltip = Продолжить с того же места — только для вас
+deeplagoon-lobby-collapse-entry = Свернуть кнопки и персонажа
+deeplagoon-lobby-expand-entry = Развернуть кнопки и персонажа

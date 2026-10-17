@@ -140,6 +140,21 @@ public abstract partial class SharedMoverController : VirtualController
         Entity<InputMoverComponent> entity,
         float frameTime)
     {
+        var wasActive = entity.Comp.SpeedBoostActive;
+        entity.Comp.SpeedBoostActive = false;
+        HandleMobMovementInternal(entity, frameTime);
+        if (wasActive != entity.Comp.SpeedBoostActive)
+        {
+            var exhausted = TryComp<Content.Shared.Damage.Components.StaminaComponent>(entity, out var stamina) && stamina.SpeedBoostExhausted;
+            var ev = new SpeedBoostChangedEvent(entity.Comp.SpeedBoostActive, exhausted);
+            RaiseLocalEvent(entity, ref ev);
+        }
+    }
+
+    private void HandleMobMovementInternal(
+        Entity<InputMoverComponent> entity,
+        float frameTime)
+    {
         var uid = entity.Owner;
         var mover = entity.Comp;
 
@@ -309,6 +324,7 @@ public abstract partial class SharedMoverController : VirtualController
         friction = Math.Max(friction, _minDamping);
         var minimumFrictionSpeed = moveSpeedComponent?.MinimumFrictionSpeed ?? MovementSpeedModifierComponent.DefaultMinimumFrictionSpeed;
         SetWishDir((uid, mover), wishDir);
+        UpdateSpeedBoostStamina(entity, frameTime, wishDir);
         var step = new MobMovementStep(uid, mover, physicsComponent, xform, tileDef, relaySource,
             weightless, wishDir, velocity, minimumFrictionSpeed, frameTime, friction, accel, !weightless || touching);
         if (!QueueMobMovement(step))

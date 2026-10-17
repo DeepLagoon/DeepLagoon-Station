@@ -39,6 +39,7 @@ namespace Content.Shared.Movement.Systems
                 .Bind(EngineKeyFunctions.MoveRight, moveRightCmdHandler)
                 .Bind(EngineKeyFunctions.MoveDown, moveDownCmdHandler)
                 .Bind(EngineKeyFunctions.Walk, new WalkInputCmdHandler(this))
+                .Bind(ContentKeyFunctions.DeepLagoonSpeedBoost, new SpeedBoostInputCmdHandler(this))
                 .Bind(EngineKeyFunctions.CameraRotateLeft, new CameraRotateInputCmdHandler(this, Direction.East))
                 .Bind(EngineKeyFunctions.CameraRotateRight, new CameraRotateInputCmdHandler(this, Direction.West))
                 .Bind(EngineKeyFunctions.CameraReset, new CameraResetInputCmdHandler(this))
@@ -100,7 +101,7 @@ namespace Content.Shared.Movement.Systems
             RaiseLocalEvent(entity, ref moveEvent);
             Dirty(entity, entity.Comp);
 
-            var ev = new SpriteMoveEvent(entity.Comp.HeldMoveButtons != MoveButtons.None);
+            var ev = new SpriteMoveEvent((entity.Comp.HeldMoveButtons & MoveButtons.AnyDirection) != MoveButtons.None);
             RaiseLocalEvent(entity, ref ev);
         }
 
@@ -126,7 +127,7 @@ namespace Content.Shared.Movement.Systems
                 entity.Comp.HeldMoveButtons = state.HeldMoveButtons;
                 RaiseLocalEvent(entity.Owner, ref moveEvent);
 
-                var ev = new SpriteMoveEvent(entity.Comp.HeldMoveButtons != MoveButtons.None);
+                var ev = new SpriteMoveEvent((entity.Comp.HeldMoveButtons & MoveButtons.AnyDirection) != MoveButtons.None);
                 RaiseLocalEvent(entity, ref ev);
             }
         }
@@ -381,7 +382,7 @@ namespace Content.Shared.Movement.Systems
                 // Outside of simulation we'll be running client predicted movement per-frame.
                 // So return a full-length vector as if it's a full tick.
                 // Physics system will have the correct time step anyways.
-                var immediateDir = DirVecForButtons(mover.HeldMoveButtons);
+                var immediateDir = GetBoostedInputDirection(mover);
                 return mover.Sprinting ? (Vector2.Zero, immediateDir) : (immediateDir, Vector2.Zero);
             }
 
@@ -402,7 +403,7 @@ namespace Content.Shared.Movement.Systems
                 remainingFraction = (ushort.MaxValue - mover.LastInputSubTick) / (float) ushort.MaxValue;
             }
 
-            var curDir = DirVecForButtons(mover.HeldMoveButtons) * remainingFraction;
+            var curDir = GetBoostedInputDirection(mover) * remainingFraction;
 
             if (mover.Sprinting)
             {
@@ -449,7 +450,9 @@ namespace Content.Shared.Movement.Systems
 
                 ref var lastMoveAmount = ref entity.Comp.Sprinting ? ref entity.Comp.CurTickSprintMovement : ref entity.Comp.CurTickWalkMovement;
 
-                lastMoveAmount += DirVecForButtons(entity.Comp.HeldMoveButtons) * fraction;
+                lastMoveAmount += GetBoostedInputDirection(entity.Comp) * fraction;
+                if (CanCharacterSpeedBoost(entity.Comp) && DirVecForButtons(entity.Comp.HeldMoveButtons) != Vector2.Zero)
+                    entity.Comp.CurTickSpeedBoostTime += fraction;
 
                 entity.Comp.LastInputSubTick = subTick;
             }
@@ -474,6 +477,7 @@ namespace Content.Shared.Movement.Systems
 
             component.CurTickWalkMovement = Vector2.Zero;
             component.CurTickSprintMovement = Vector2.Zero;
+            component.CurTickSpeedBoostTime = 0f;
             component.LastInputTick = Timing.CurTick;
             component.LastInputSubTick = 0;
         }
@@ -635,6 +639,7 @@ namespace Content.Shared.Movement.Systems
         Left = 4,
         Right = 8,
         Walk = 16,
+        SpeedBoost = 32,
         AnyDirection = Up | Down | Left | Right,
     }
 

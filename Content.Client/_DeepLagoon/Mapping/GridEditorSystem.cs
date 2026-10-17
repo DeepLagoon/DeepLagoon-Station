@@ -279,7 +279,11 @@ public sealed class GridEditorWindow : FancyWindow
 {
     public readonly TguiPanel Panel = new(captureKeyboard: true);
     public event Action? CloseRequested;
-    public override void Close() => CloseRequested?.Invoke();
+    public override void Close()
+    {
+        if (Panel.UsingNative) { if (Panel.CanCloseNative()) ForceClose(); }
+        else CloseRequested?.Invoke();
+    }
     public void ForceClose() => base.Close();
     public GridEditorWindow()
     {

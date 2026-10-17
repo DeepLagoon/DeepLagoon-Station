@@ -36,7 +36,7 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
     protected override void Open()
     {
         base.Open();
-        if (_classicForSession)
+        if (_classicForSession || !TguiPanel.Enabled)
         {
             OpenClassic();
             return;
@@ -58,6 +58,7 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
         // The panel publishes its own state first on every (re)load; static data follows it.
         _window.Panel.Web.Ready += SendStatic;
         _window.Panel.Web.Failed += SwitchToClassic;
+        _window.Panel.SetNativeFallback(SwitchToClassic);
         _window.Panel.SetState(InterfaceName, "{}", _title);
         PushState();
     }

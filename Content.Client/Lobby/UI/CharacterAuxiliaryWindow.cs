@@ -49,10 +49,14 @@ internal static class CharacterWindowFrame
 {
     public static void Draw(DrawingHandleScreen handle, Vector2 size, float scale, bool resizable)
     {
+        // Newly opened auxiliary windows can be drawn before their first layout pass.
+        if (size.X <= 0 || size.Y <= 0) return;
         handle.DrawRect(new UIBox2(Vector2.Zero, size), Color.FromHex("#35485C"));
-        handle.DrawRect(new UIBox2(new Vector2(2 * scale), size - new Vector2(2 * scale)), Color.FromHex("#101923"));
-        handle.DrawRect(new UIBox2(new Vector2(5 * scale), size - new Vector2(5 * scale)), Color.FromHex("#70849B"), false);
-        if (!resizable) return;
+        if (size.X > 4 * scale && size.Y > 4 * scale)
+            handle.DrawRect(new UIBox2(new Vector2(2 * scale), size - new Vector2(2 * scale)), Color.FromHex("#101923"));
+        if (size.X > 10 * scale && size.Y > 10 * scale)
+            handle.DrawRect(new UIBox2(new Vector2(5 * scale), size - new Vector2(5 * scale)), Color.FromHex("#70849B"), false);
+        if (!resizable || size.X < 28 * scale || size.Y < 28 * scale) return;
         // Grip markings stay outside the browser and coincide with the native resize hit area.
         foreach (var offset in new[] { 2f, 4f, 6f })
         {

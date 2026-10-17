@@ -5,6 +5,8 @@ using Content.Shared.Voting;
 using Content.Shared.CCVar;
 using Robust.Server.Player;
 using Content.Server.GameTicking;
+using System.Linq;
+using Content.Server.Voting;
 
 namespace Content.Server.AutoVote;
 
@@ -15,6 +17,7 @@ public sealed partial class AutoVoteSystem : EntitySystem
     [Dependency] public IPlayerManager _playerManager = default!;
 
     public bool _shouldVoteNextJoin = false;
+    private readonly List<IVoteHandle> _automaticVotes = new();
 
     public override void Initialize()
     {
@@ -32,11 +35,20 @@ public sealed partial class AutoVoteSystem : EntitySystem
             return;
 
         CallAutovote();
-        _shouldVoteNextJoin = false;
     }
 
     private void CallAutovote()
     {
+        // A lobby restart can occur while the previous automatic vote is still open.
+        // Retire only votes created by this system before starting the new lobby's votes.
+        foreach (var vote in _automaticVotes)
+        {
+            if (!vote.Finished)
+                vote.Cancel();
+        }
+        _automaticVotes.Clear();
+        _shouldVoteNextJoin = false;
+
         if (!_cfg.GetCVar(CCVars.AutoVoteEnabled))
             return;
 
@@ -46,9 +58,11 @@ public sealed partial class AutoVoteSystem : EntitySystem
             return;
         }
 
+        var existing = _voteManager.ActiveVotes.Select(vote => vote.Id).ToHashSet();
         if (_cfg.GetCVar(CCVars.MapAutoVoteEnabled))
             _voteManager.CreateStandardVote(null, StandardVoteType.Map);
         if (_cfg.GetCVar(CCVars.PresetAutoVoteEnabled))
             _voteManager.CreateStandardVote(null, StandardVoteType.Preset);
+        _automaticVotes.AddRange(_voteManager.ActiveVotes.Where(vote => !existing.Contains(vote.Id)));
     }
 }

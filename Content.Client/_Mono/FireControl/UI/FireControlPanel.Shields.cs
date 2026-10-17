@@ -1,11 +1,16 @@
 using Content.Shared.Exodus.ShipShields;
 using Robust.Client.Graphics;
+using Content.Client._DeepLagoon.WebUI;
 
 namespace Content.Client._Mono.FireControl.UI;
 
 public sealed partial class FireControlPanel
 {
     private readonly StyleBoxFlat _shieldHealthStyle = new();
+
+    public TguiData ShieldTguiState() => new TguiData().Bool("present", ShieldContainer.Visible)
+        .String("status", ShieldStatusLabel.Text).Number("health", ShieldHealthBar.Value)
+        .String("load", ShieldLoadLabel.Text);
 
     private void UpdateShieldState(ShipShieldState? state)
     {

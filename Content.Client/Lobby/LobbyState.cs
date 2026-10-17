@@ -6,6 +6,9 @@ using Content.Client.Lobby.UI;
 using Content.Client.Message;
 using Content.Client.UserInterface.Systems.Chat;
 using Content.Client.Voting;
+using Content.Shared.Audio;
+using Robust.Shared.Prototypes;
+using System.Linq;
 using Content.Shared.CCVar;
 using Robust.Client;
 using Robust.Client.Console;
@@ -28,6 +31,7 @@ namespace Content.Client.Lobby
         [Dependency] private IUserInterfaceManager _userInterfaceManager = default!;
         [Dependency] private IGameTiming _gameTiming = default!;
         [Dependency] private IVoteManager _voteManager = default!;
+        [Dependency] private IPrototypeManager _prototypes = default!;
 
         private ClientGameTicker _gameTicker = default!;
         private ContentAudioSystem _contentAudioSystem = default!;
@@ -46,11 +50,15 @@ namespace Content.Client.Lobby
             }
 
             Lobby = (LobbyGui) _userInterfaceManager.ActiveScreen;
+            Lobby.Background.Start();
 
             var chatController = _userInterfaceManager.GetUIController<ChatUIController>();
             _gameTicker = _entityManager.System<ClientGameTicker>();
             _contentAudioSystem = _entityManager.System<ContentAudioSystem>();
             _contentAudioSystem.LobbySoundtrackChanged += UpdateLobbySoundtrackInfo;
+            Lobby.MusicPlayer.Previous.OnPressed += OnPreviousTrack;
+            Lobby.MusicPlayer.Next.OnPressed += OnNextTrack;
+            Lobby.MusicPlayer.Pause.OnPressed += OnPauseMusic;
 
             chatController.SetMainChat(true);
 
@@ -65,7 +73,7 @@ namespace Content.Client.Lobby
                 : lobbyNameCvar;
 
             var width = _cfg.GetCVar(CCVars.ServerLobbyRightPanelWidth);
-            Lobby.RightSide.SetWidth = width;
+            Lobby.MainContainer.SidePanelWidth = width;
 
             UpdateLobbyUi();
 
@@ -80,12 +88,17 @@ namespace Content.Client.Lobby
 
         protected override void Shutdown()
         {
+            // Close the background browser before switching to gameplay, including observing.
+            Lobby?.Background.Stop();
             var chatController = _userInterfaceManager.GetUIController<ChatUIController>();
             chatController.SetMainChat(false);
             _gameTicker.InfoBlobUpdated -= UpdateLobbyUi;
             _gameTicker.LobbyStatusUpdated -= LobbyStatusUpdated;
             _gameTicker.LobbyLateJoinStatusUpdated -= LobbyLateJoinStatusUpdated;
             _contentAudioSystem.LobbySoundtrackChanged -= UpdateLobbySoundtrackInfo;
+            Lobby!.MusicPlayer.Previous.OnPressed -= OnPreviousTrack;
+            Lobby!.MusicPlayer.Next.OnPressed -= OnNextTrack;
+            Lobby!.MusicPlayer.Pause.OnPressed -= OnPauseMusic;
 
             _voteManager.ClearPopupContainer();
 
@@ -185,16 +198,17 @@ namespace Content.Client.Lobby
             {
                 Lobby!.ReadyButton.Text = Loc.GetString("lobby-state-ready-button-join-state");
                 Lobby!.ReadyButton.ToggleMode = false;
+                Lobby!.ReadyButton.Disabled = _gameTicker.DisallowedLateJoin;
                 Lobby!.ReadyButton.Pressed = false;
                 Lobby!.ObserveButton.Disabled = false;
             }
             else
             {
                 Lobby!.StartTime.Text = string.Empty;
-                Lobby!.ReadyButton.Text = Loc.GetString(Lobby!.ReadyButton.Pressed ? "lobby-state-player-status-ready": "lobby-state-player-status-not-ready");
                 Lobby!.ReadyButton.ToggleMode = true;
                 Lobby!.ReadyButton.Disabled = false;
                 Lobby!.ReadyButton.Pressed = _gameTicker.AreWeReady;
+                Lobby!.ReadyButton.Text = Loc.GetString(Lobby!.ReadyButton.Pressed ? "lobby-state-player-status-ready": "lobby-state-player-status-not-ready");
                 Lobby!.ObserveButton.Disabled = true;
             }
 
@@ -208,7 +222,8 @@ namespace Content.Client.Lobby
         {
             if (ev.SoundtrackFilename == null)
             {
-                Lobby!.LobbySong.SetMarkup(Loc.GetString("lobby-state-song-no-song-text"));
+                Lobby!.MusicPlayer.SetTrack(null, null, null, _contentAudioSystem.CanSwitchLobbyTrack,
+                    _contentAudioSystem.IsLobbyMusicPaused, _contentAudioSystem.CanPauseLobbyMusic);
             }
             else if (
                 ev.SoundtrackFilename != null
@@ -216,34 +231,31 @@ namespace Content.Client.Lobby
                 )
             {
                 var lobbyStream = lobbySongResource.AudioStream;
+                var metadata = _prototypes.EnumeratePrototypes<LobbyMusicPrototype>()
+                    .FirstOrDefault(track => track.Path.ToString() == ev.SoundtrackFilename);
 
-                var title = string.IsNullOrEmpty(lobbyStream.Title)
+                var trackTitle = metadata?.Name ?? lobbyStream.Title;
+                var trackArtist = metadata?.Artist ?? lobbyStream.Artist;
+                var title = string.IsNullOrEmpty(trackTitle)
                     ? Loc.GetString("lobby-state-song-unknown-title")
-                    : lobbyStream.Title;
+                    : trackTitle;
 
-                var artist = string.IsNullOrEmpty(lobbyStream.Artist)
+                var artist = string.IsNullOrEmpty(trackArtist)
                     ? Loc.GetString("lobby-state-song-unknown-artist")
-                    : lobbyStream.Artist;
+                    : trackArtist;
 
-                var markup = Loc.GetString("lobby-state-song-text",
-                    ("songTitle", title),
-                    ("songArtist", artist));
-
-                Lobby!.LobbySong.SetMarkup(markup);
+                Lobby!.MusicPlayer.SetTrack(title, artist, metadata?.Cover, _contentAudioSystem.CanSwitchLobbyTrack,
+                    _contentAudioSystem.IsLobbyMusicPaused, _contentAudioSystem.CanPauseLobbyMusic);
             }
         }
 
+        private void OnPreviousTrack(BaseButton.ButtonEventArgs args) => _contentAudioSystem.SwitchLobbyTrack(-1);
+        private void OnNextTrack(BaseButton.ButtonEventArgs args) => _contentAudioSystem.SwitchLobbyTrack(1);
+        private void OnPauseMusic(BaseButton.ButtonEventArgs args) => _contentAudioSystem.ToggleLobbyMusicPaused();
+
         private void UpdateLobbyBackground()
         {
-            if (_gameTicker.LobbyBackground != null)
-            {
-                Lobby!.Background.Texture = _resourceCache.GetResource<TextureResource>(_gameTicker.LobbyBackground );
-            }
-            else
-            {
-                Lobby!.Background.Texture = null;
-            }
-
+            Lobby!.Background.SetSource(_gameTicker.LobbyBackground);
         }
 
         private void SetReady(bool newReady)
