@@ -8,7 +8,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const output = path.join(root, '.grid-editor-preview');
 fs.mkdirSync(output, { recursive: true });
 const source = `
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GridEditor } from '../packages/tgui/interfaces/GridEditor.jsx';
 export const Context = createContext(null);
@@ -31,7 +31,13 @@ const defaults = { rotation: 0, color: '#ffffff', z: 0, cleanable: false, anchor
 const large = new URLSearchParams(location.search).has('large');
 const fail = new URLSearchParams(location.search).has('fail');
 const items = [];
-let upload = null;
+let upload = null, previewUpload = null;
+const peerId = crypto.randomUUID(), peerName = new URLSearchParams(location.search).get('peer') || 'Другой маппер';
+const channel = new BroadcastChannel('grid-editor-fixture');
+let ownExpansion={left:0,right:0,bottom:0,top:0};
+let ownPreview = [], foreignPreviews = new Map();
+const mergeItems = (base, changes) => { const map = new Map(base.map(i=>[i.id,i])); for(const i of changes) { if(i.kind==='remove'||i.kind==='clear') map.delete(i.id); else map.set(i.id,i); } return [...map.values()]; };
+const broadcastPreview = () => channel.postMessage({type:'preview',from:peerId,name:peerName,items:ownPreview,expansion:ownExpansion});
 for (let x = -5; x <= 6; x++) for (let y = -3; y <= 5; y++) {
   items.push({ ...defaults, id: 't:'+x+':'+y, kind: 'tile', prototype: 'Plating', x, y });
   if (x === -5 || x === 6 || y === -3 || y === 5) items.push({ ...defaults, id: 'e:'+x+':'+y, kind: 'entity', prototype: 'WallSolid', x: x+.5, y: y+.5, anchored: true });
@@ -42,19 +48,43 @@ if (large) { items.length = 0; for (let x=0; x<250; x++) for(let y=0; y<250; y++
 function App() {
   const [data, setData] = useState({ grid: '142', token: 'fixture', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], initialized: false });
   window.fixtureGetData = () => data; window.fixtureSetData = setData;
+  useEffect(() => {
+    const receive = ({data:message}) => {
+      if(message.from===peerId) return;
+      if(message.type==='hello') { broadcastPreview(); return; }
+      if(message.type==='preview') {
+        foreignPreviews.set(message.from,message);
+        setData(d=>({...d, peerVisuals:catalog, peerDrafts:[...foreignPreviews.values()].map(p=>({player:p.from,name:p.name,expansion:p.expansion,
+          items:p.items.filter(i=>i.kind!=='remove'),removedItems:p.items.filter(i=>i.kind==='remove').map(i=>d.items.find(old=>old.id===i.id)).filter(Boolean)}))}));
+      }
+      if(message.type==='world') setData(d=>({...d,items:mergeItems(d.items,message.changes),patchItems:message.changes.filter(i=>i.kind!=='remove'),patchRemoved:message.changes.filter(i=>i.kind==='remove'),patchVisuals:catalog,patchVersion:(d.patchVersion||0)+1,patchApplied:false}));
+    };
+    channel.addEventListener('message',receive); channel.postMessage({type:'hello',from:peerId});
+    return ()=>channel.removeEventListener('message',receive);
+  },[]);
   const act = (action, payload) => {
+    window.fixtureActions ||= []; window.fixtureActions.push({action,payload});
     if (action === 'referenceImport') { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.onchange=()=>{const reader=new FileReader();reader.onload=()=>setData(d=>({...d,referenceImage:reader.result,referenceVersion:Date.now()}));reader.readAsDataURL(input.files[0]);}; input.click(); }
 
     if (fail && ['applyStart', 'download'].includes(action)) { setData(d => ({ ...d, status: 'Проверочный отказ сервера: карта была изменена другим маппером. Обновите grid.', success: false, resultVersion: Date.now() })); return; }
     if (action === 'search') { const entries = catalog.filter(i => (payload.category === 'all' || i.category === payload.category || payload.category === 'favorites' && data.favorites.some(f => f.id === i.id && f.kind === i.kind)) && (i.name.toLowerCase().includes(payload.query.toLowerCase()) || i.id.toLowerCase().includes(payload.query.toLowerCase()))); setData(d => ({ ...d, catalog: entries.slice(payload.page * 48, (payload.page + 1) * 48), catalogCount: entries.length, catalogPage: payload.page, catalogCategory: payload.category, catalogQuery: payload.query })); }
     if (action === 'favorite') setData(d => ({ ...d, favorites: d.favorites.some(f => f.kind === payload.kind && f.id === payload.id) ? d.favorites.filter(f => f.kind !== payload.kind || f.id !== payload.id) : [...d.favorites, payload] }));
     if (action === 'deleteTemplate') setData(d => ({ ...d, templates: d.templates.filter(t => t.id !== payload.id) }));
+    if (action === 'previewStart') { previewUpload={...payload,items:[]}; setData(d=>({...d,previewId:payload.id,previewNext:0})); }
+    if (action === 'previewChunk') {
+      previewUpload.items.push(...payload.items);
+      if(payload.index+1<previewUpload.chunks) setData(d=>({...d,previewNext:payload.index+1}));
+      else { ownPreview=(()=>{const values=new Map(ownPreview.map(i=>[i.id,i]));for(const i of previewUpload.items){if(i.kind==='clear')values.delete(i.id);else values.set(i.id,i);}return [...values.values()];})(); ownExpansion=previewUpload.expansion; broadcastPreview(); setData(d=>({...d,previewNext:previewUpload.chunks,previewFinished:previewUpload.id})); }
+    }
     if (action === 'applyStart') { upload = { ...payload, items: [] }; setData(d => ({ ...d, uploadId: payload.id, uploadNext: 0 })); }
     if (action === 'applyChunk') {
       upload.items.push(...payload.items);
       if (payload.index + 1 < upload.chunks) setData(d => ({ ...d, uploadNext: payload.index + 1 }));
       else if (upload.purpose === 'template') setData(d => ({ ...d, templates: [...d.templates, { id: upload.id, name: upload.name, items: upload.items }], libraryVisuals: catalog, status: 'Шаблон сохранён (браузерный макет)', success: true, resultVersion: Date.now() }));
-      else setData(d => { const final = new Map(d.items.map(i => [i.id, i])); for (const item of upload.items) { if (item.kind === 'remove') final.delete(item.id); else final.set(item.id, item); } return { ...d, items: [...final.values()], ...(upload.expansion ? { gridX:d.gridX-upload.expansion.left, gridY:d.gridY-upload.expansion.bottom, gridWidth:d.gridWidth+upload.expansion.left+upload.expansion.right, gridHeight:d.gridHeight+upload.expansion.bottom+upload.expansion.top } : {}), token: String(Date.now()), status: 'Изменения применены (браузерный макет)', success: true, resultVersion: Date.now() }; });
+      else { ownPreview=[];ownExpansion={left:0,right:0,bottom:0,top:0};broadcastPreview();channel.postMessage({type:'world',from:peerId,changes:upload.items});
+      setData(d => ({ ...d, items:mergeItems(d.items,upload.items),previewGeneration:(d.previewGeneration||0)+1, patchItems: upload.items.filter(i => i.kind !== 'remove'), patchRemoved: upload.items.filter(i => i.kind === 'remove').map(i => ({id:i.id})), patchVisuals: catalog, patchVersion:(d.patchVersion || 0)+1, patchApplied:true,
+        ...(upload.expansion ? { x:d.x-upload.expansion.left, y:d.y-upload.expansion.bottom, width:d.width+upload.expansion.left+upload.expansion.right, height:d.height+upload.expansion.bottom+upload.expansion.top } : {}),
+        status:'Изменения применены (браузерный макет)', success:true, resultVersion:Date.now() })); }
     }
     if (action === 'close') document.body.textContent = 'Редактор закрыт';
     if (action === 'region') setData(d => ({ ...d, x: payload.x, y: payload.y, width: 96, height: 96, items: [], token: String(Date.now()) }));

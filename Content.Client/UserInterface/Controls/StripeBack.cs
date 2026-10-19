@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface.Controls;
@@ -58,7 +59,7 @@ namespace Content.Client.UserInterface.Controls
 
             var size = Vector2.Zero;
 
-            availableSize.Y -= padSizeTotal;
+            availableSize.Y = Math.Max(0, availableSize.Y - padSizeTotal);
 
             foreach (var child in Children)
             {
@@ -71,19 +72,11 @@ namespace Content.Client.UserInterface.Controls
 
         protected override Vector2 ArrangeOverride(Vector2 finalSize)
         {
-            var box = new UIBox2(Vector2.Zero, finalSize);
-
             var padSize = HasMargins ? PadSize : 0;
-
-            if (HasTopEdge)
-            {
-                box += (0, padSize + EdgeSize, 0, 0);
-            }
-
-            if (HasBottomEdge)
-            {
-                box += (0, 0, 0, -(padSize + EdgeSize));
-            }
+            // A parent can allocate less height than our minimum during layout.
+            var top = HasTopEdge ? Math.Min(padSize + EdgeSize, finalSize.Y) : 0;
+            var bottom = HasBottomEdge ? finalSize.Y - padSize - EdgeSize : finalSize.Y;
+            var box = new UIBox2(0, top, finalSize.X, Math.Max(top, bottom));
 
             foreach (var child in Children)
             {
@@ -96,9 +89,13 @@ namespace Content.Client.UserInterface.Controls
 
         protected override void Draw(DrawingHandleScreen handle)
         {
-            UIBox2 centerBox = PixelSizeBox;
-
             var padSize = HasMargins ? PadSize : 0;
+            var edgeCount = (HasTopEdge ? 1 : 0) + (HasBottomEdge ? 1 : 0);
+            // Before layout, or while collapsing, the edges may not fit at all.
+            if (PixelWidth <= 0 || PixelHeight <= 0 || PixelHeight < edgeCount * (padSize + EdgeSize) * UIScale)
+                return;
+
+            UIBox2 centerBox = PixelSizeBox;
 
             if (HasTopEdge)
             {

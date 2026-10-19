@@ -24,12 +24,15 @@ public sealed partial class JukeboxBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || !TguiPanel.Enabled) return false;
-        _tguiWindow = this.CreateWindow<JukeboxTguiWindow>();
+        if (_classic || !WindowInterfaceStyle.UseTgui("Jukebox")) return false;
+        _tguiWindow = new JukeboxTguiWindow();
+        _tguiWindow.OnClose += Close;
+        WindowInterfaceStyle.OpenPresentation(this, _tguiWindow, _menu);
         _tguiWindow.Panel.OnClose += Close;
         _tguiWindow.Panel.OnAction += OnTguiAction;
         _tguiWindow.Frame += OnTguiFrame;
         _tguiWindow.Panel.Web.Failed += DeferClassic;
+        _tguiWindow.Panel.BindStyle(_tguiWindow, "Jukebox", () => true, SwitchInterface);
         _tguiWindow.Panel.SetNativeFallback(DeferClassic);
         PopulateTguiCatalog();
         _libraryBusy = true;
@@ -55,9 +58,8 @@ public sealed partial class JukeboxBoundUserInterface
         window.Panel.OnClose -= Close;
         window.Panel.OnAction -= OnTguiAction;
         window.Panel.Web.Failed -= DeferClassic;
-        // CreateWindow owns closing/disposal; detach the BUI's close callback during fallback.
-        window.OnClose -= Close;
-        window.Close();
+        // Detach the BUI close callback while replacing its presentation.
+        WindowInterfaceStyle.ClosePresentation(this, window);
 #pragma warning disable CS0618
         if (!window.Disposed) window.Dispose();
 #pragma warning restore CS0618
@@ -176,5 +178,16 @@ public sealed partial class JukeboxBoundUserInterface
         if (libraryAction == null || _libraryBusy || !_libraryLoaded && libraryAction != JukeboxLibraryAction.Load) return;
         _libraryBusy = true; _libraryStatus = ""; PublishTgui();
         SendMessage(new JukeboxLibraryRequest(libraryAction.Value, id, data.String("playlist") ?? "", data.String("value") ?? "", index));
+    }
+
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        CloseTgui();
+        if (_menu is { } native)
+            WindowInterfaceStyle.HideForSwitch(this, native);
+        _classic = !tgui;
+        _readyWait = 0;
+        Open();
     }
 }

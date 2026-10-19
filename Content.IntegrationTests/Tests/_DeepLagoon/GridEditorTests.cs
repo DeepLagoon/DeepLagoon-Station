@@ -1,10 +1,16 @@
 using System.Linq;
+using System.Collections;
+using Robust.Shared.Player;
+using Robust.Shared.Enums;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using Content.Server.Administration.Managers;
 using Content.Server.Decals;
+using Content.Server.Atmos.Components;
+using Content.Server.Atmos.EntitySystems;
+using Content.Shared.Atmos;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Administration;
 using Content.Shared.Decals;
@@ -23,6 +29,158 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class GridEditorTests
 {
+    [Test]
+    public async Task LiveGridAndForeignDraftsSyncAcrossEditorsWhileLocalApplyAlwaysWins()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var dummy = await pair.Server.AddDummySession("second_mapper");
+        await PoolManager.WaitUntil(pair.Server, () => dummy.Status == SessionStatus.InGame, 600);
+        EntityUid grid = default, chair = default;
+        ICommonSession first = null;
+        ServerEditor server = null;
+        object Draft(ICommonSession player) => ((IDictionary) typeof(ServerEditor).GetField("_drafts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(server)!)[player]!;
+        Guid Token(ICommonSession player) => (Guid) Draft(player).GetType().GetField("Token")!.GetValue(Draft(player))!;
+        List<GridEditorItem> Items(ICommonSession player) => (List<GridEditorItem>) Draft(player).GetType().GetField("Items")!.GetValue(Draft(player))!;
+        Dictionary<string, GridEditorItem> PreviewItems(ICommonSession player) => (Dictionary<string, GridEditorItem>) Draft(player).GetType().GetField("Preview")!.GetValue(Draft(player))!;
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        void Preview(ICommonSession player, int generation, GridEditorItem item) => typeof(ServerEditor).GetMethod("Preview", flags)!
+            .Invoke(server, new object[] { new GridEditorDraftUpdateEvent(Token(player), generation, new() { item }, new GridEditorExpansion { Left = 6 }), new EntitySessionEventArgs(player) });
+        var action = typeof(ClientEditor).GetMethod("Action", flags)!;
+        void SendClient(string purpose, GridEditorItem item)
+        {
+            var client = pair.Client.EntMan.System<ClientEditor>(); var id = Guid.NewGuid().ToString();
+            action.Invoke(client, new object[] { purpose + "Start", JsonSerializer.Serialize(new { id, count = 1, chunks = 1, generation = 0 }) });
+            action.Invoke(client, new object[] { purpose + "Chunk", JsonSerializer.Serialize(new { id, index = 0, items = new[] {
+                new { id = item.Id, kind = item.Kind, prototype = item.Prototype, x = item.X, y = item.Y,
+                    rotation = item.Rotation, anchored = item.Anchored, color = item.Color } } }) });
+        }
+        try
+        {
+            await pair.Server.WaitAssertion(() =>
+            {
+                var entities = pair.Server.EntMan;
+                first = pair.Server.PlayerMan.Sessions.Single(player => player != dummy);
+                var admins = pair.Server.ResolveDependency<IAdminManager>(); admins.PromoteHost(first); admins.PromoteHost(dummy);
+                var map = entities.System<SharedMapSystem>(); map.CreateMap(out var mapId, runMapInit: false);
+                var created = map.CreateGridEntity(mapId); grid = created.Owner;
+                var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+                map.SetTiles(grid, created.Comp, new() { (new(0, 0), floor), (new(1, 0), floor), (new(2, 0), floor) });
+                chair = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+                server = entities.System<ServerEditor>();
+                Assert.That(server.Open(first, grid), Does.Contain("открыт"));
+                Assert.That(server.Open(dummy, grid), Does.Contain("открыт"));
+            });
+            await pair.RunTicksSync(30);
+            Guid firstToken = default; string chairId = null;
+            await pair.Client.WaitAssertion(() => { firstToken = pair.Client.EntMan.System<ClientEditor>().State!.Token;
+                chairId = pair.Client.EntMan.System<ClientEditor>().State!.Items.Single(item => item.Prototype == "ChairWood").Id; });
+            await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>().SetCoordinates(chair,
+                new EntityCoordinates(grid, new Vector2(1.5f, .5f))));
+            await pair.RunTicksSync(30);
+            await pair.Client.WaitAssertion(() => Assert.That(pair.Client.EntMan.System<ClientEditor>().State!.Items.Single(item => item.Id == chairId).X, Is.EqualTo(1.5f)));
+            var edited = new GridEditorItem { Id = chairId, Kind = "entity", Prototype = "ChairWood", X = .5f, Y = .5f, Rotation = 90 };
+            await pair.Server.WaitAssertion(() =>
+            {
+                Assert.That(Items(dummy).Single(item => item.Id == chairId).X, Is.EqualTo(1.5f));
+                Preview(dummy, 0, edited);
+                Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(1.5f), "A preview must not write to the world");
+            });
+            await pair.RunTicksSync(15);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var peers = (List<GridEditorPeerDraft>) typeof(ClientEditor).GetField("_peerDrafts", flags)!.GetValue(pair.Client.EntMan.System<ClientEditor>())!;
+                Assert.That(peers.Single(peer => peer.Name == dummy.Name).Items.Single().X, Is.EqualTo(.5f));
+                Assert.That(peers.Single(peer => peer.Name == dummy.Name).Expansion.Left, Is.EqualTo(6));
+                SendClient("preview", new GridEditorItem { Id = "t:2:0", Kind = "tile", Prototype = "FloorSteel", X = 2, Y = 0 });
+            });
+            await pair.RunTicksSync(15);
+            await pair.Server.WaitAssertion(() =>
+            {
+                Assert.That(PreviewItems(first)["t:2:0"].Prototype, Is.EqualTo("FloorSteel"));
+                typeof(ServerEditor).GetMethod("Apply", flags)!.Invoke(server, new object[] {
+                    new GridEditorApplyEvent(Token(dummy), new() { edited }, patch: true), new EntitySessionEventArgs(dummy) });
+                Assert.That(PreviewItems(dummy), Is.Empty);
+                Assert.That(PreviewItems(first).ContainsKey("t:2:0"), Is.True, "Another editor's apply must not clear this user's draft");
+                Preview(dummy, 0, new GridEditorItem { Id = "new_late", Kind = "entity", Prototype = "ChairWood", X = 2.5f, Y = .5f });
+                Assert.That(PreviewItems(dummy), Is.Empty, "An obsolete in-flight preview must not reappear after Apply");
+            });
+            await pair.RunTicksSync(15);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var state = pair.Client.EntMan.System<ClientEditor>().State!;
+                Assert.That(state.Token, Is.EqualTo(firstToken));
+                Assert.That(state.Items.Single(item => item.Id == chairId).X, Is.EqualTo(.5f));
+            });
+            await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>().SetCoordinates(chair,
+                new EntityCoordinates(grid, new Vector2(2.5f, .5f))));
+            edited.Rotation = 180;
+            await pair.Client.WaitAssertion(() => SendClient("apply", edited));
+            await pair.RunTicksSync(20);
+            await pair.Server.WaitAssertion(() =>
+            {
+                Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(.5f));
+                Assert.That(Items(dummy).Single(item => item.Id == chairId).X, Is.EqualTo(.5f));
+                pair.Server.EntMan.DeleteEntity(chair);
+            });
+            edited.X = 1.5f;
+            await pair.Client.WaitAssertion(() => SendClient("apply", edited));
+            await pair.RunTicksSync(20);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var recreated = pair.Client.EntMan.System<ClientEditor>().State!.Items.Single(item => item.Prototype == "ChairWood");
+                Assert.That(recreated.X, Is.EqualTo(1.5f)); Assert.That(recreated.Id, Is.Not.EqualTo(chairId));
+                action.Invoke(pair.Client.EntMan.System<ClientEditor>(), new object[] { "close", "{}" });
+            });
+            await pair.RunTicksSync(10);
+        }
+        finally { await pair.Server.RemoveDummySession(dummy); }
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task AtmosDiagnosticsFindOpenBoundariesAndOnlyFillSealedRooms()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: false);
+            var grid = map.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            var tiles = new List<(Vector2i, Tile)>();
+            for (var x = 0; x < 7; x++) for (var y = 0; y < 3; y++) tiles.Add((new(x, y), floor));
+            map.SetTiles(grid.Owner, grid.Comp, tiles);
+            for (var x = 0; x < 7; x++) for (var y = 0; y < 3; y++)
+                if ((x == 0 || x == 3 || x == 6 || y == 0 || y == 2) && (x != 6 || y != 1))
+                    entities.SpawnEntity("WallSolid", new EntityCoordinates(grid.Owner, new Vector2(x + .5f, y + .5f)));
+            var atmos = entities.System<AtmosphereSystem>();
+            var hadAtmosphere = atmos.HasAtmosphere(grid.Owner);
+            var mapUid = entities.GetComponent<TransformComponent>(grid.Owner).MapUid;
+            var originalPressure = atmos.GetTileMixture(grid.Owner, mapUid, new Vector2i(1, 1))?.Pressure;
+            var analysis = atmos.InspectGridEditorAtmos(grid.Owner, Guid.Empty);
+            Assert.That(atmos.HasAtmosphere(grid.Owner), Is.EqualTo(hadAtmosphere), "Diagnostics must not add or remove atmosphere support");
+            Assert.That(atmos.GetTileMixture(grid.Owner, mapUid, new Vector2i(1, 1))?.Pressure, Is.EqualTo(originalPressure),
+                "Diagnostics must not alter gas mixtures");
+            Assert.That(analysis.Cells.Count(c => c.Status == GridEditorAirStatus.Sealed), Is.EqualTo(2));
+            Assert.That(analysis.Cells.Single(c => c.X == 6 && c.Y == 1).Leaks, Is.EqualTo(AtmosDirection.East));
+            var filled = atmos.InspectGridEditorAtmos(grid.Owner, Guid.Empty, fill: true);
+            Assert.That(filled.Filled, Is.EqualTo(2));
+            Assert.That(filled.Cells.Single(c => c.X == 1 && c.Y == 1).Pressure, Is.EqualTo(101.325f).Within(.2f));
+            Assert.That(filled.Cells.Single(c => c.X == 5 && c.Y == 1).Pressure, Is.EqualTo(0));
+            var closure = entities.SpawnEntity("WallSolid", new EntityCoordinates(grid.Owner, new Vector2(6.5f, 1.5f)));
+            Assert.That(atmos.InspectGridEditorAtmos(grid.Owner, Guid.Empty, fill: true).Filled, Is.EqualTo(4));
+            // A blocker changing state, like a door opening, must immediately change the diagnosis.
+            entities.System<AirtightSystem>().SetAirblocked((closure, entities.GetComponent<AirtightComponent>(closure)), false);
+            var reopened = atmos.InspectGridEditorAtmos(grid.Owner, Guid.Empty, fill: true);
+            Assert.That(reopened.Filled, Is.EqualTo(2));
+            Assert.That(reopened.Cells.Single(c => c.X == 5 && c.Y == 1).Status, Is.EqualTo(GridEditorAirStatus.Leaking));
+            Assert.That(reopened.Cells.Single(c => c.X == 5 && c.Y == 1).Pressure, Is.EqualTo(101.325f).Within(.2f),
+                "Filling sealed rooms must not reset gas in unrelated open areas");
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task DiagonalFoundationRotatesAndIncomingConstructionReplacesOccupiedCell()
     {
@@ -61,7 +219,7 @@ public sealed class GridEditorTests
             Is.EqualTo(pair.Server.ResolveDependency<ITileDefinitionManager>()[GridEditorPlacement.DiagonalFloor].TileId)));
         await Apply("WallPlastitaniumDiagonalOutpost", 90);
         await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<SharedMapSystem>()
-            .GetTileRef(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid), new Vector2i(0, 0)).Tile.RotationMirroring, Is.EqualTo(1)));
+            .GetTileRef(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid), new Vector2i(0, 0)).Tile.RotationMirroring, Is.EqualTo(3)));
         // The screenshot's inner corner has floors in the adjoining cells: keep a full square support.
         await pair.Client.WaitAssertion(() =>
         {
@@ -136,11 +294,33 @@ public sealed class GridEditorTests
             Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(nearChair).LocalPosition, Is.EqualTo(new Vector2(-124.5f, -124.5f)));
             Assert.That(pair.Server.EntMan.System<SharedMapSystem>().GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(62500));
         });
+        // More than the old apply limit, with an unrelated live entity move.
+        await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>()
+            .SetLocalRotation(nearChair, Angle.FromDegrees(180)));
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            var action = typeof(ClientEditor).GetMethod("Action", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var tiles = editor.State!.Items.Where(i => i.Kind == "tile").Take(3000).ToArray();
+            action.Invoke(editor, new object[] { "applyStart", JsonSerializer.Serialize(new { id = "large-patch", count = tiles.Length, chunks = (tiles.Length + 15) / 16 }) });
+            for (var index = 0; index < (tiles.Length + 15) / 16; index++)
+                action.Invoke(editor, new object[] { "applyChunk", JsonSerializer.Serialize(new { id = "large-patch", index,
+                    items = tiles.Skip(index * 16).Take(16).Select(i => new { id = i.Id, kind = i.Kind, prototype = i.Prototype,
+                        x = i.X, y = i.Y, mirror = 1 }) }) });
+        });
+        await pair.RunTicksSync(60);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.System<SharedMapSystem>().GetAllTiles(grid, entities.GetComponent<MapGridComponent>(grid))
+                .Count(t => t.Tile.RotationMirroring == 1), Is.EqualTo(3000));
+            Assert.That(entities.GetComponent<TransformComponent>(nearChair).LocalRotation.Degrees, Is.EqualTo(180).Within(.01));
+        });
         await pair.CleanReturnAsync();
     }
 
     [Test]
-    public async Task ExpansionFillsOnlyNewBordersAndRejectsOversizedStaleAndUnauthorizedRequests()
+    public async Task ExpansionAddsEmptySpaceWithoutTileLimitsAndKeepsSessionToken()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         EntityUid grid = default;
@@ -194,40 +374,47 @@ public sealed class GridEditorTests
             var entities = pair.Server.EntMan;
             var component = entities.GetComponent<MapGridComponent>(grid);
             var map = entities.System<SharedMapSystem>();
-            Assert.That(map.GetAllTiles(grid, component).Count(), Is.EqualTo(2000));
+            Assert.That(map.GetAllTiles(grid, component).Count(), Is.EqualTo(996));
             Assert.That(map.GetTileRef(grid, component, new Vector2i(100, 100)).Tile.IsEmpty, Is.True);
             foreach (var corner in new[] { new Vector2i(-1, -1), new Vector2i(250, 250), new Vector2i(-1, 250), new Vector2i(250, -1) })
-                Assert.That(map.GetTileRef(grid, component, corner).Tile.IsEmpty, Is.False);
+                Assert.That(map.GetTileRef(grid, component, corner).Tile.IsEmpty, Is.True);
             Assert.That(component.CanSplit, Is.True);
         });
-        await Send(32, 32, 32, 32); // More than 8192 new tiles.
+        Guid token = default;
+        await pair.Client.WaitAssertion(() => token = pair.Client.EntMan.System<ClientEditor>().State!.Token);
+        await Send(100, 100, 100, 100); // Empty space has no former side/area limits.
+        await pair.Client.WaitAssertion(() => {
+            var state = pair.Client.EntMan.System<ClientEditor>().State!;
+            Assert.That(state.Token, Is.EqualTo(token));
+            Assert.That(state.Width, Is.GreaterThan(450));
+        });
         await Send(-1, 0, 0, 0);
         await Send(0, 1, 0, 0, "Space");
         await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<SharedMapSystem>()
-            .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(2000)));
-        // Bounds changed outside the captured region; the resize snapshot must still become stale.
+            .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(996)));
+        // Unrelated live changes do not expire the editor session.
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            entities.System<SharedMapSystem>().SetTile(grid, entities.GetComponent<MapGridComponent>(grid), new Vector2i(251, 250),
+            entities.System<SharedMapSystem>().SetTile(grid, entities.GetComponent<MapGridComponent>(grid), new Vector2i(250, 249),
                 new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
         });
         await Send(0, 1, 0, 0);
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(pair.Server.EntMan.System<SharedMapSystem>()
-                .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(2001));
+                .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(997));
             pair.Server.ResolveDependency<IAdminManager>().DeAdmin(pair.Server.PlayerMan.Sessions.Single());
         });
         await Send(0, 1, 0, 0);
         await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<SharedMapSystem>()
-            .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(2001)));
+            .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(997)));
         await pair.Client.WaitAssertion(() => action.Invoke(pair.Client.EntMan.System<ClientEditor>(), new object[] { "close", "{}" }));
         await pair.CleanReturnAsync();
     }
 
     [Test]
-    public async Task DraftAppliesTilesEntitiesAndDecalsAndRejectsStaleOrUnauthorizedEdits()
+    public async Task DraftAppliesTilesEntitiesAndDecalsOverridesLiveEditsAndRejectsUnauthorizedEdits()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         EntityUid grid = default, chair = default;
@@ -296,7 +483,7 @@ public sealed class GridEditorTests
             Assert.That(entities.System<SharedMapSystem>().GetTileRef(grid, entities.GetComponent<MapGridComponent>(grid), new Vector2i(0, 0)).Tile.IsEmpty, Is.True);
             Assert.That(entities.System<DecalSystem>().GetDecalsInRange(grid, new Vector2(6, 6)), Is.Not.Empty);
         });
-        await pair.Client.WaitAssertion(() => Assert.That(pair.Client.EntMan.System<ClientEditor>().State!.Token, Is.Not.EqualTo(oldToken)));
+        await pair.Client.WaitAssertion(() => Assert.That(pair.Client.EntMan.System<ClientEditor>().State!.Token, Is.EqualTo(oldToken)));
         await pair.Client.WaitAssertion(() =>
         {
             var editor = pair.Client.EntMan.System<ClientEditor>();
@@ -321,18 +508,21 @@ public sealed class GridEditorTests
             Assert.That(yaml, Does.Contain("ChairWood"));
             Assert.That(yaml, Does.Contain("Preserved mapper name"));
         });
-        // An external mapper edit invalidates this snapshot; the user's draft must not overwrite it.
+        // Editor-authored changes take priority over external changes to the same entity.
         await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>().SetCoordinates(chair,
             new EntityCoordinates(grid, new Vector2(7.5f, 6.5f))));
         await pair.Client.WaitAssertion(() =>
         {
             var editor = pair.Client.EntMan.System<ClientEditor>();
-            Send(editor, editor.State!.Items);
+            var conflict = editor.State!.Items.Select(Copy).ToList();
+            conflict.Single(i => i.Prototype == "ChairWood").X = 6.5f;
+            conflict.Single(i => i.Prototype == "ChairWood").Rotation = 180;
+            Send(editor, conflict);
         });
         await pair.RunTicksSync(25);
         await pair.Server.WaitAssertion(() =>
         {
-            Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(7.5f));
+            Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(6.5f));
             var session = pair.Server.PlayerMan.Sessions.Single();
             pair.Server.ResolveDependency<IAdminManager>().DeAdmin(session);
             Assert.That(pair.Server.EntMan.System<ServerEditor>().Open(session, grid), Does.Contain("Mapping"));
@@ -344,7 +534,7 @@ public sealed class GridEditorTests
             action.Invoke(editor, new object[] { "close", "{}" });
         });
         await pair.RunTicksSync(25);
-        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(7.5f)));
+        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(chair).LocalPosition.X, Is.EqualTo(6.5f)));
         await pair.CleanReturnAsync();
     }
 }

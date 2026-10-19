@@ -4,6 +4,7 @@ using Content.Shared.Interaction.Events;
 using Content.Shared.Item;
 using Content.Shared.Popups;
 using Robust.Shared.Serialization;
+using Robust.Shared.Physics.Components;
 
 namespace Content.Shared.Ghost
 {
@@ -23,6 +24,31 @@ namespace Content.Shared.Ghost
             SubscribeLocalEvent<GhostComponent, EmoteAttemptEvent>(OnAttempt);
             SubscribeLocalEvent<GhostComponent, DropAttemptEvent>(OnAttempt);
             SubscribeLocalEvent<GhostComponent, PickupAttemptEvent>(OnAttempt);
+        }
+
+        protected void SetAdminMovement(Entity<GhostComponent> ent, bool enabled)
+        {
+            if (ent.Comp.AdminMovement == enabled)
+                return;
+
+            ent.Comp.AdminMovement = enabled;
+            Dirty(ent);
+            ApplyAdminMovement(ent);
+        }
+
+        protected void ApplyAdminMovement(Entity<GhostComponent> ent)
+        {
+            if (!TryComp<PhysicsComponent>(ent, out var physics))
+                return;
+
+            ent.Comp.OriginalIgnorePaused ??= physics.IgnorePaused;
+            var ignorePaused = ent.Comp.OriginalIgnorePaused.Value || ent.Comp.AdminMovement;
+            if (physics.IgnorePaused == ignorePaused)
+                return;
+
+            physics.IgnorePaused = ignorePaused;
+            var ev = new GhostMovementChangedEvent();
+            RaiseLocalEvent(ent, ref ev);
         }
 
         private void OnAttemptInteract(Entity<GhostComponent> ent, ref InteractionAttemptEvent args)
@@ -58,6 +84,9 @@ namespace Content.Shared.Ghost
             component.CanReturnToBody = value;
         }
     }
+
+    [ByRefEvent]
+    public readonly record struct GhostMovementChangedEvent;
 
     /// <summary>
     /// A client to server request to get places a ghost can warp to.

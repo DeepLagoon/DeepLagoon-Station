@@ -113,6 +113,20 @@ public sealed class GameWebView : Control
         while (_incoming.TryDequeue(out _)) { }
     }
 
+    /// <summary>Release CEF for a native view, while allowing this host to start again later.</summary>
+    public void PauseBrowser()
+    {
+        if (_disposed || _shuttingDown) return;
+        SuspendBrowser(recreate: false);
+        _view = null;
+        _ready = false;
+        _healthFailed = _recovering = _warmSuspended = false;
+        _background.Reset();
+        _outgoing.Clear();
+        _chunkPayload.Clear();
+        while (_incoming.TryDequeue(out _)) { }
+    }
+
     public void StopBrowser()
     {
         PrepareForShutdown();
@@ -476,7 +490,7 @@ public sealed class GameWebView : Control
         while (_incoming.TryDequeue(out _)) { }
     }
 
-    private void SuspendBrowser()
+    private void SuspendBrowser(bool recreate = true)
     {
         ReleaseTextInput();
         if (_view == null) return;
@@ -489,7 +503,7 @@ public sealed class GameWebView : Control
         _healthWait = _pingWait = 0;
         _healthFailed = _recovering = false;
         // Older modules need a fresh layout to replace their initial 1x1 texture.
-        if (!WebViewCapabilities.NativeLifecycle && !_shuttingDown)
+        if (recreate && !WebViewCapabilities.NativeLifecycle && !_shuttingDown)
             _view = CreateView();
     }
 

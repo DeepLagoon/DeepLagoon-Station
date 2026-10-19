@@ -25,6 +25,80 @@ public sealed class InterfaceStyleTests
     }
 
     [Test]
+    public async Task SwitchingBackAndForthKeepsNativeActionsAndLatestState()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var actions = new List<string>();
+        TguiPanel panel = null;
+        await pair.Client.WaitAssertion(() =>
+        {
+            var cfg = pair.Client.ResolveDependency<IConfigurationManager>();
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 2);
+            cfg.SetCVar(WebUiCVars.WindowStyles, "DeepLagoonDemo=1;ApartmentEditor=2");
+            panel = new TguiPanel(inheritChatAppearance: false);
+            panel.OnAction += (action, _) => actions.Add(action);
+            panel.SetState("DeepLagoonDemo", "{\"count\":7}");
+            Assert.That(panel.Web.Visible, Is.True, "An individual TGUI choice overrides global classic");
+            for (var i = 0; i < 3; i++)
+            {
+                panel.SwitchToNative();
+                Assert.That(panel.UsingNative, Is.True);
+                Assert.That(panel.Web.BrowserActive, Is.False);
+                Press(Descendants(panel).OfType<Button>().Single(button => button.Text == "+1"));
+                Assert.That(panel.SwitchToTgui(), Is.True);
+                Assert.That(panel.UsingNative, Is.False);
+                Assert.That(panel.Web.Visible, Is.True);
+                panel.SetState("DeepLagoonDemo", "{\"count\":" + (8 + i) + "}");
+            }
+            Assert.That(cfg.GetCVar(WebUiCVars.InterfaceStyle), Is.EqualTo(2));
+            Assert.That(cfg.GetCVar(WebUiCVars.WindowStyles), Is.EqualTo("DeepLagoonDemo=1;ApartmentEditor=2"), "Fallback never archives a preference");
+        });
+        await pair.Client.WaitRunTicks(2);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(actions, Is.EqualTo(new[] { "increment", "increment", "increment" }));
+#pragma warning disable CS0618
+            panel.Dispose();
+#pragma warning restore CS0618
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task TypedRadarAndGhostWindowsRestoreTheirControlsInBothDirections()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            pair.Client.ResolveDependency<IConfigurationManager>().SetCVar(WebUiCVars.InterfaceStyle, 2);
+            var pilot = new Content.Client.Shuttles.UI.ShuttleConsoleWindow();
+            var gunner = new Content.Client._Mono.FireControl.UI.FireControlWindow();
+            var radar = new Content.Client.Shuttles.UI.RadarConsoleWindow();
+            var ghosts = new Content.Client.UserInterface.Systems.Ghost.Controls.Roles.GhostRolesWindow();
+            foreach (var panel in new[] { pilot.Tgui, gunner.ConsoleHost.Tgui, radar.ConsoleHost.Tgui })
+            {
+                for (var i = 0; i < 3; i++)
+                {
+                    panel.SwitchToNative();
+                    Assert.That(panel.UsingNative, Is.True);
+                    Assert.That(panel.SwitchToTgui(), Is.True);
+                    Assert.That(panel.UsingNative, Is.False);
+                }
+            }
+            Assert.That(pilot.CombatRadar.FitViewport, Is.True);
+            Assert.That(gunner.Radar.FitViewport, Is.True);
+            var ghostPanel = Descendants(ghosts).OfType<TguiPanel>().Single();
+            ghostPanel.SwitchToNative();
+            Assert.That(ghostPanel.SwitchToTgui(), Is.True);
+            Assert.That(ghostPanel.Visible, Is.True);
+#pragma warning disable CS0618
+            pilot.Dispose(); gunner.Dispose(); radar.Dispose(); ghosts.Dispose();
+#pragma warning restore CS0618
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task NativeFallbackKeepsTheChoiceAndRoutesActionsWithoutCreatingABrowser()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -91,6 +165,8 @@ public sealed class InterfaceStyleTests
             var editor = Descendants(panel).OfType<NativeApartmentEditor>().Single();
             Assert.That(editor.Dirty, Is.True);
             Assert.That(panel.CanCloseNative(), Is.False);
+            Assert.That(panel.SwitchToTgui(), Is.False, "An unsaved native draft blocks switching");
+            Assert.That(panel.UsingNative, Is.True);
             Assert.That(actions.Any(action => action.Action == "apply"), Is.False);
             var preview = actions.Last(action => action.Action == "preview");
             Assert.That(ApartmentEditorSystem.TryParseLayout(preview.Payload, out var layout), Is.True);

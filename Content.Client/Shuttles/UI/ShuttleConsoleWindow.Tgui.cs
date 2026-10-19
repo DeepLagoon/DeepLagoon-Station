@@ -17,8 +17,9 @@ public sealed partial class ShuttleConsoleWindow
     private Vector4 _viewport;
     private float _publishTimer;
     private Content.Shared.Exodus.ShipShields.ShipShieldState? _shieldState;
-    private readonly List<(Control View, Control Parent, int Index, Thickness Margin, Vector2 Min)> _nativeViews = new();
+    private readonly List<(Control View, Control Parent, int Index, Thickness Margin, Vector2 Min, Vector2 Size, Thickness LayoutMargins, bool Fit)> _nativeViews = new();
     private bool _nativeConsole;
+    private Vector2 _nativeMinimum;
 
     public void UpdateShieldState(Content.Shared.Exodus.ShipShields.ShipShieldState? state)
     {
@@ -35,7 +36,7 @@ public sealed partial class ShuttleConsoleWindow
 
     private void InitializeTgui()
     {
-        if (!TguiPanel.Enabled) { _nativeConsole = true; return; }
+        _nativeMinimum = MinSize;
         SetSize = new Vector2(1060, 740);
         MinSize = new Vector2(760, 520);
         // Native controls remain the state/command owners. Only their graphics viewports
@@ -48,7 +49,12 @@ public sealed partial class ShuttleConsoleWindow
         ContentsContainer.AddChild(_radarLayer);
         foreach (var view in _views)
         {
-            _nativeViews.Add((view, view.Parent!, view.GetPositionInParent(), view.Margin, view.MinSize));
+            _nativeViews.Add((view, view.Parent!, view.GetPositionInParent(), view.Margin, view.MinSize, view.SetSize,
+                new Thickness(view.GetValue<float>(LayoutContainer.MarginLeftProperty),
+                    view.GetValue<float>(LayoutContainer.MarginTopProperty),
+                    view.GetValue<float>(LayoutContainer.MarginRightProperty),
+                    view.GetValue<float>(LayoutContainer.MarginBottomProperty)),
+                ((Content.Client.UserInterface.Controls.MapGridControl) view).FitViewport));
             view.Orphan();
             view.Margin = new Thickness(0);
             view.MinSize = Vector2.Zero;
@@ -61,6 +67,25 @@ public sealed partial class ShuttleConsoleWindow
         Tgui.OnAction += TguiAction;
         Tgui.OnClose += Close;
         Tgui.SetNativeFallback(RestoreNativeConsole);
+        Tgui.SetTguiRestore(() =>
+        {
+            _nativeConsole = false;
+            MinSize = new Vector2(760, 520);
+            ContentsContainer.GetChild(0).Visible = false;
+            Tgui.Visible = _radarLayer.Visible = true;
+            foreach (var view in _views)
+            {
+                view.Orphan();
+                view.Margin = new Thickness(0);
+                view.MinSize = Vector2.Zero;
+                ((Content.Client.UserInterface.Controls.MapGridControl) view).FitViewport = true;
+                _radarLayer.AddChild(view);
+            }
+            _radarGlass.SetPositionLast();
+            _viewport = Vector4.Zero;
+            UpdateTguiMode();
+            PublishTgui();
+        });
         UpdateTguiMode();
         PublishTgui();
     }
@@ -80,18 +105,23 @@ public sealed partial class ShuttleConsoleWindow
     {
         if (_nativeConsole) return;
         _nativeConsole = true;
+        MinSize = _nativeMinimum;
         ((CombatShuttleNavControl)CombatRadar).StopFiring();
         Tgui.Visible = _radarLayer.Visible = false;
-        foreach (var (view, parent, index, margin, min) in _nativeViews)
+        foreach (var (view, parent, index, margin, min, size, layoutMargins, fit) in _nativeViews)
         {
             view.Orphan();
             parent.AddChild(view);
             view.SetPositionInParent(index);
             view.Margin = margin;
             view.MinSize = min;
-            view.SetSize = new Vector2(float.NaN);
+            view.SetSize = size;
+            LayoutContainer.SetMarginLeft(view, layoutMargins.Left);
+            LayoutContainer.SetMarginTop(view, layoutMargins.Top);
+            LayoutContainer.SetMarginRight(view, layoutMargins.Right);
+            LayoutContainer.SetMarginBottom(view, layoutMargins.Bottom);
             view.Visible = true;
-            ((Content.Client.UserInterface.Controls.MapGridControl)view).FitViewport = false;
+            ((Content.Client.UserInterface.Controls.MapGridControl)view).FitViewport = fit;
         }
         ContentsContainer.GetChild(0).Visible = true;
         SetupMode(_mode);

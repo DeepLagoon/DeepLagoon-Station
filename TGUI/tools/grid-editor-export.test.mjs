@@ -53,12 +53,12 @@ test('exports final snapshot: additions, removals, moved objects, exact rotation
   assert.deepEqual(draft, previous, 'Saving never modifies the draft or history');
 });
 
-test('exports unapplied expansion while retaining interior holes and explicitly edited border tiles', () => {
-  const result = tiles(document([floor(-2, -2, 'FloorWhite')], { ...noExpansion, left: 1, right: 1, bottom: 1, top: 1 }));
-  assert.equal(result.size, 16);
-  assert.equal(result.get('-2,-2').prototype, 'FloorWhite');
-  assert.equal(result.get('2,2').prototype, 'Plating');
-  assert.equal(result.has('0,0'), false);
+test('expanding empty editing space exports only explicitly painted tiles', () => {
+  const result = tiles(document([floor(-2, 0, 'FloorSteel')], { left: 100, right: 100, top: 100, bottom: 100 }));
+  assert.equal(result.size, 1);
+  assert.equal(result.get('-2,0').prototype, 'FloorSteel');
+  assert.ok(!result.has('0,0'));
+  assert.ok(!result.has('-2,-2'));
 });
 
 test('can back up an unfinished plan that exceeds apply limits or lacks support tiles', () => {

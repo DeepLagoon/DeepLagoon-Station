@@ -7,6 +7,8 @@ public sealed class WebUiCVars
 {
     // 0 is deliberately distinct from Classic: only an explicit choice dismisses onboarding.
     public static readonly CVarDef<int> InterfaceStyle = CVarDef.Create("ui.interface_style", 0, CVar.CLIENTONLY | CVar.ARCHIVE);
+    // Explicit choices by interface name; missing entries inherit the global default.
+    public static readonly CVarDef<string> WindowStyles = CVarDef.Create("ui.window_styles", "", CVar.CLIENTONLY | CVar.ARCHIVE);
     public static bool UseTgui(int style) => style == 1;
     public static bool HasChosenStyle(int style) => style is 1 or 2;
     // Opt-in for a development session; not archived and not sent by the server.

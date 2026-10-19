@@ -26,7 +26,7 @@ public sealed partial class VendingMachineBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || !TguiPanel.Enabled)
+        if (_classic || !WindowInterfaceStyle.UseTgui("VendingMachine"))
             return false;
 
         _title = EntMan.TryGetComponent<MetaDataComponent>(Owner, out var meta)
@@ -41,6 +41,7 @@ public sealed partial class VendingMachineBoundUserInterface
         window.Panel.OnClose += Close;
         window.Panel.OnAction += OnTguiAction;
         window.Panel.Web.Failed += DeferClassic;
+        window.Panel.BindStyle(window, "VendingMachine", () => true, SwitchInterface);
         window.Panel.SetNativeFallback(DeferClassic);
         if (SavedTguiPositions.TryGetValue(Owner, out var position))
             window.Open(position);
@@ -179,5 +180,16 @@ public sealed partial class VendingMachineBoundUserInterface
 #pragma warning disable CS0618
         if (!window.Disposed) window.Dispose();
 #pragma warning restore CS0618
+    }
+
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        CloseTguiWindow();
+        if (_menu is { } native)
+            WindowInterfaceStyle.HideForSwitch(this, native);
+        _classic = !tgui;
+
+        Open();
     }
 }

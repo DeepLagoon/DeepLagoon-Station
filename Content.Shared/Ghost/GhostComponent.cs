@@ -9,6 +9,16 @@ namespace Content.Shared.Ghost;
 [AutoGenerateComponentState(true), AutoGenerateComponentPause]
 public sealed partial class GhostComponent : Component
 {
+    /// <summary>
+    /// Allows an observer controlled by an active administrator to move on paused maps.
+    /// Separate from CanGhostInteract: observing admins do not gain hands or interaction rights.
+    /// </summary>
+    [AutoNetworkedField]
+    public bool AdminMovement;
+
+    // Preserve the prototype's physics setting when temporary admin access is revoked.
+    public bool? OriginalIgnorePaused;
+
     // Actions
     [DataField]
     public EntProtoId ToggleLightingAction = "ActionToggleLighting";

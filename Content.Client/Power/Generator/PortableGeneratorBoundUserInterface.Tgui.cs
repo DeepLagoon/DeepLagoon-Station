@@ -16,14 +16,17 @@ public sealed partial class PortableGeneratorBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || !TguiPanel.Enabled)
+        if (_classic || !WindowInterfaceStyle.UseTgui("PortableGenerator"))
             return false;
         _readyWait = _refresh = 0;
-        var window = this.CreateWindow<GeneratorTguiWindow>();
+        var window = new GeneratorTguiWindow();
+        window.OnClose += Close;
+        WindowInterfaceStyle.OpenPresentation(this, window, _window);
         _tguiWindow = window;
         window.SetInfoFromEntity(EntMan, Owner);
         window.Panel.OnClose += Close;
         window.Panel.OnAction += OnTguiAction;
+        window.Panel.BindStyle(window, "PortableGenerator", () => true, SwitchInterface);
         window.Panel.SetNativeFallback(DeferClassic);
         window.Panel.SetStaticData(new TguiData().Object("labels", GeneratorTguiData.Labels()).ToString());
         window.Frame += OnTguiFrame;
@@ -124,11 +127,10 @@ public sealed partial class PortableGeneratorBoundUserInterface
         if (_tguiWindow is not { } window)
             return;
         _tguiWindow = null;
-        window.OnClose -= Close;
         window.Frame -= OnTguiFrame;
         window.Panel.OnClose -= Close;
         window.Panel.OnAction -= OnTguiAction;
-        window.Close();
+        WindowInterfaceStyle.ClosePresentation(this, window);
 #pragma warning disable CS0618
         if (!window.Disposed)
             window.Dispose();
@@ -140,5 +142,16 @@ public sealed partial class PortableGeneratorBoundUserInterface
         if (disposing)
             CloseTgui();
         base.Dispose(disposing);
+    }
+
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        CloseTgui();
+        if (_window is { } native)
+            WindowInterfaceStyle.HideForSwitch(this, native);
+        _classic = !tgui;
+
+        if (!OpenTgui()) OpenClassic();
     }
 }

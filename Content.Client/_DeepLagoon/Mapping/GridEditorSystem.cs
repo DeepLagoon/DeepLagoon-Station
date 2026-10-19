@@ -48,6 +48,9 @@ public sealed partial class GridEditorSystem : EntitySystem
         base.Initialize();
         _input.FirstChanceOnKeyEvent += EditorKey;
         SubscribeNetworkEvent<GridEditorStateEvent>(Open);
+        SubscribeNetworkEvent<GridEditorPatchEvent>(Patch);
+        SubscribeNetworkEvent<GridEditorAtmosResult>(AtmosResult);
+        SubscribeNetworkEvent<GridEditorDraftsEvent>(PeerDrafts);
         SubscribeNetworkEvent<GridEditorResultEvent>((ev) => _window?.Panel.Web.Send("update",
             new TguiData().Object("data", new TguiData().String("status", ev.Message).Bool("success", ev.Success)
                 .Number("resultVersion", ++_resultVersion)).ToString()));
@@ -85,6 +88,8 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         _uploadId = null; _upload.Clear();
         _state = ev;
+        _previewGeneration = 0; _peerDrafts.Clear(); _previewId = null; _preview.Clear();
+        _patchVersion = 0; _pendingPatches.Clear();
         if (_window == null)
         {
             _window = new GridEditorWindow();
@@ -95,19 +100,73 @@ public sealed partial class GridEditorSystem : EntitySystem
             _window.Panel.OnClose += Close;
             _window.Panel.Web.Ready += () =>
             {
+                PublishCurrentState(); PublishPendingPatches(); PublishPeerDrafts();
                 PublishLibrary();
                 Search(_searchQuery, _searchCategory, _searchPage);
             };
             _window.OpenCentered();
             _window.Panel.Web.FocusInput();
         }
+        PublishCurrentState();
+        LoadLibrary(); PublishLibrary();
+        Search(_searchQuery, _searchCategory, _searchPage);
+    }
+
+    private void PublishCurrentState()
+    {
+        if (_window == null || _state is not { } ev) return;
         var visuals = ev.Items.Select(i => (i.Kind, i.Prototype)).Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
         _window.Panel.SetState("GridEditor", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString())
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
-            .Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals).ToString(), "Редактор grid");
-        LoadLibrary(); PublishLibrary();
-        Search(_searchQuery, _searchCategory, _searchPage);
+            .Number("previewGeneration", _previewGeneration).Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals).ToString(), "Редактор grid");
+    }
+
+    private int _atmosVersion;
+    private void AtmosResult(GridEditorAtmosResult ev)
+    {
+        if (_state == null || _state.Token != ev.Token) return;
+        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            .Number("atmosPatchVersion", _patchVersion).Number("atmosVersion", ++_atmosVersion).String("atmosToken", ev.Token.ToString()).Number("atmosFilled", ev.Filled)
+            .Number("atmosSealed", ev.Cells.Count(i => i.Status == GridEditorAirStatus.Sealed))
+            .Number("atmosLeaking", ev.Cells.Count(i => i.Status == GridEditorAirStatus.Leaking))
+            .Array("atmosCells", ev.Cells.Select(i => new TguiData().Number("x", i.X).Number("y", i.Y)
+                .Number("region", i.Region).Number("leaks", (int) i.Leaks).Number("blocked", (int) i.Blocked)
+                .String("status", i.Status.ToString().ToLowerInvariant()).Number("pressure", i.Pressure)))).ToString());
+    }
+
+    private int _patchVersion;
+    private readonly List<(int Version, GridEditorPatchEvent Patch)> _pendingPatches = new();
+    private void Patch(GridEditorPatchEvent ev)
+    {
+        if (_state == null || _state.Token != ev.Token) return;
+        var items = _state.Items.ToDictionary(i => i.Id);
+        foreach (var id in ev.Removed) items.Remove(id);
+        foreach (var item in ev.Items) items[item.Id] = item;
+        _state = new GridEditorStateEvent(_state.Grid, ev.Token, ev.X, ev.Y, ev.Width, ev.Height,
+            items.Values.ToList(), _state.Initialized, ev.GridX, ev.GridY, ev.GridWidth, ev.GridHeight);
+        _previewGeneration = ev.PreviewGeneration;
+        _pendingPatches.Add((++_patchVersion, ev));
+        PublishPendingPatches();
+    }
+
+    private void PublishPendingPatches()
+    {
+        if (_pendingPatches.Count == 0) return;
+        var ev = _pendingPatches[^1].Patch;
+        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
+            .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
+            .Number("previewGeneration", _previewGeneration).Number("patchVersion", _patchVersion).Bool("patchApplied", ev.Applied)
+            .Array("patchBatches", _pendingPatches.Select(entry => new TguiData().Number("version", entry.Version)
+                .Bool("applied", entry.Patch.Applied).Number("x", entry.Patch.X).Number("y", entry.Patch.Y)
+                .Number("width", entry.Patch.Width).Number("height", entry.Patch.Height)
+                .Array("items", entry.Patch.Items.Select(ItemData))
+                .Array("removed", entry.Patch.Removed.Select(id => new TguiData().String("id", id)))))
+            .Array("patchItems", ev.Items.Select(ItemData))
+            .Array("patchRemoved", ev.Removed.Select(id => new TguiData().String("id", id)))
+            .Array("patchVisuals", _pendingPatches.SelectMany(entry => entry.Patch.Items).Select(i => (i.Kind, i.Prototype)).Distinct().Select(i => Visual(i.Kind, i.Prototype))))
+            .ToString());
     }
 
     private TguiData Visual(string kind, string id)
@@ -160,7 +219,6 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (action == "referenceImport") { ImportReference(); return; }
         if (action == "close") { Close(); return; }
         if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
-        if (action == "fixAtmos" && _state != null) { IoCManager.Resolve<IConsoleHost>().ExecuteCommand($"fixgridatmos {_state.Grid}"); return; }
         if ((_state == null && action is not ("draftFileStart" or "draftFileChunk")) || payload.Length > 4_000_000) return;
         try
         {
@@ -172,6 +230,17 @@ public sealed partial class GridEditorSystem : EntitySystem
             static string Field(MappingDataNode node, string key, string fallback = "") =>
                 node.TryGet<ValueDataNode>(key, out var value) ? value.Value : fallback;
             if (action == "editing") { _editingText = Field(root, "active") == "true"; return; }
+            if (PreviewAction(action, root)) return;
+            if (action == "patchAck")
+            {
+                if (int.TryParse(Field(root, "version"), out var version) && version <= _patchVersion)
+                    _pendingPatches.RemoveAll(entry => entry.Version <= version);
+                return;
+            }
+            if (action is "diagnoseAtmos" or "fillAtmos")
+            {
+                RaiseNetworkEvent(new GridEditorAtmosRequest(_state.Token, action == "fillAtmos")); return;
+            }
             if (action == "region")
             {
                 if (int.TryParse(Field(root, "x"), out var x) && int.TryParse(Field(root, "y"), out var y))
@@ -191,15 +260,15 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (action == "applyStart")
             {
                 var id = Field(root, "id");
-                if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "count"), out var count) || count is < 0 or > 12000 ||
-                    !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != Math.Max(1, (count + 15) / 16)) return;
+                if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "count"), out var count) || count < 0 ||
+                    !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != Math.Max(1, (count + 15L) / 16)) return;
                 _uploadPurpose = Field(root, "purpose", "apply"); _uploadName = Field(root, "name");
                 _uploadExpansion = null;
                 if (_uploadPurpose == "apply" && root.TryGet<MappingDataNode>("expansion", out var expansion))
                 {
                     int Side(string key) => int.Parse(Field(expansion, key, "0"), CultureInfo.InvariantCulture);
                     _uploadExpansion = new GridEditorExpansion { Left = Side("left"), Right = Side("right"),
-                        Bottom = Side("bottom"), Top = Side("top"), Tile = Field(expansion, "tile", "Plating") };
+                        Bottom = Side("bottom"), Top = Side("top") };
                 }
                 if (_uploadPurpose is not ("apply" or "template") || _uploadPurpose == "template" &&
                     (count is < 1 or > 512 || _uploadName.Length is < 1 or > 64)) return;
@@ -229,11 +298,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (_uploadPurpose == "template") SaveTemplate(_uploadName, new List<GridEditorItem>(_upload));
             else
             {
-                var final = _state.Items.ToDictionary(i => i.Id);
-                foreach (var item in _upload)
-                    if (item.Kind == "remove") final.Remove(item.Id);
-                    else final[item.Id] = item;
-                RaiseNetworkEvent(new GridEditorApplyEvent(_state.Token, final.Values.ToList(), _uploadExpansion));
+                RaiseNetworkEvent(new GridEditorApplyEvent(_state.Token, new List<GridEditorItem>(_upload), _uploadExpansion, patch: true));
             }
             _uploadId = null; _upload.Clear();
         }
@@ -262,6 +327,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         var window = _window;
         _window = null; _state = null; _uploadId = null; _upload.Clear();
+        _previewId = null; _preview.Clear(); _peerDrafts.Clear(); _pendingPatches.Clear();
         _editingText = false;
         CancelDownload();
         if (window == null) return;

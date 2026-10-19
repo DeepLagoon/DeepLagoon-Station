@@ -14,8 +14,22 @@ TGUI, and `2` for classic. Unknown values use classic and do not dismiss onboard
 The setting is local to the client installation. Existing client configurations
 are asked once after updating; no database migration is required.
 
+Each supported window has a native **SS14 / TGUI** button (in its title bar, or beside
+embedded UI). The archived `ui.window_styles` contains explicit choices by stable
+interface name. Unlisted windows inherit the global style; switching a window does
+not alter that default or the choices of other interface types. Reopening a window
+or restarting the client retains its choice. Multiple instances of the same type
+use that saved default on their next open. Clear `ui.window_styles` to reset overrides.
+
+Typed BUIs bind both presentations through `TguiPanel.BindStyle`; they replace only
+the client window, preserving the server subscription and replaying its current state.
+Embedded typed hosts pair `SetNativeFallback` with `SetTguiRestore`. Generic native
+views switch through the shared panel. Editors use `useInterfaceStyleGuard` to block
+switching while a local draft or upload is pending; native editors also check their
+unsaved state before returning to TGUI. Browser failure does not archive a choice.
+
 Every production TGUI must have a native counterpart. Upstream windows register
-`TguiPanel.SetNativeFallback` and check `TguiPanel.Enabled` before opening their
+`TguiPanel.SetNativeFallback` and check `WindowInterfaceStyle.UseTgui(interfaceName)` before opening their
 browser variant. New content interfaces implement a native view in
 `NativeInterfacePanel`. `InterfaceStyleTest.EveryProductionTguiHasANativeView`
 checks the production interface inventory. Browser creation is lazy; native-only

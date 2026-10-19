@@ -85,7 +85,7 @@ public sealed class InteractionPanelWindow : BaseWindow
         preview.SetEntity(target);
         var host = new InteractionPanelHost(_panel, preview) { Margin = new Thickness(8) };
         AddChild(host);
-        _panel.NativeModeChanged += () => preview.Visible = false;
+        _panel.NativeModeChanged += () => preview.Visible = !_panel.UsingNative;
         _panel.OnClose += Close;
         _panel.OnAction += OnAction;
         Publish();

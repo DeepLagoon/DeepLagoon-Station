@@ -26,7 +26,7 @@ namespace Content.Client.UserInterface.Systems.Ghost.Controls.Roles
 
         public void ClearEntries()
         {
-            NoRolesMessage.Visible = _tguiHost == null;
+            NoRolesMessage.Visible = _tguiHost == null || _tgui.UsingNative;
             EntryContainer.DisposeAllChildren();
             _collapsibleBoxes.Clear();
         }

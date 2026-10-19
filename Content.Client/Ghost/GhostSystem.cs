@@ -92,6 +92,7 @@ namespace Content.Client.Ghost
 
         private void OnStartup(EntityUid uid, GhostComponent component, ComponentStartup args)
         {
+            ApplyAdminMovement((uid, component));
             if (TryComp(uid, out SpriteComponent? sprite))
                 sprite.Visible = GhostVisibility || uid == _playerManager.LocalEntity;
         }
@@ -173,6 +174,7 @@ namespace Content.Client.Ghost
 
         private void OnGhostState(EntityUid uid, GhostComponent component, ref AfterAutoHandleStateEvent args)
         {
+            ApplyAdminMovement((uid, component));
             if (TryComp<SpriteComponent>(uid, out var sprite))
                 sprite.LayerSetColor(0, component.Color);
 

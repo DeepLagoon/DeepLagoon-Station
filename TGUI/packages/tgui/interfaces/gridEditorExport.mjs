@@ -1,5 +1,4 @@
 import { dump } from 'js-yaml';
-import { expansionRects } from './gridEditorModel.mjs';
 
 // A construction plan, independent of the live world and the server editing session.
 // Runtime component overrides are deliberately left to the server map export.
@@ -14,11 +13,6 @@ export function exportGridDraft(items, bounds, expansion) {
       floors.set(`${item.x},${item.y}`, item);
     }
   }
-  for (const rect of expansionRects(bounds, expansion))
-    for (let x = rect.x; x < rect.x + rect.width; x++)
-      for (let y = rect.y; y < rect.y + rect.height; y++)
-        if (!floors.has(`${x},${y}`)) floors.set(`${x},${y}`, { prototype: expansion.tile, x, y });
-
   const tileIds = new Map([['Space', 0]]), chunks = new Map();
   for (const tile of floors.values()) {
     if (tile.prototype === 'Space') continue;

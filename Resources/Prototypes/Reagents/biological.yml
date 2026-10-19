@@ -27,6 +27,11 @@
           - !type:OrganType
             type: Human
             shouldHave: false
+      - !type:SatiateHunger # DeepLagoon: Arkana can feed on blood
+        factor: 1
+        conditions:
+        - !type:OrganType
+          type: Demon
     Food:
       effects:
         - !type:AdjustReagent

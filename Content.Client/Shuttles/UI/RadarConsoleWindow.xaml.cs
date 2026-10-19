@@ -18,6 +18,7 @@ public sealed partial class RadarConsoleWindow : FancyWindow,
 {
     public ShipRadarConsoleHost? ConsoleHost { get; }
     private bool _online;
+    private bool _handheld;
     public RadarConsoleWindow()
     {
         RobustXamlLoader.Load(this);
@@ -25,14 +26,15 @@ public sealed partial class RadarConsoleWindow : FancyWindow,
     // Mono
         IFFToggle.OnToggled += OnIFFTogglePressed;
         IFFDetailedToggle.OnToggled += OnIFFDetailedTogglePressed;
-        if (TguiPanel.Enabled)
         {
+            var nativeMinimum = MinSize;
             var native = new List<Control>();
             for (var i = 0; i < ContentsContainer.ChildCount; i++) native.Add(ContentsContainer.GetChild(i));
             var radarParent = RadarScreen.Parent!;
             ConsoleHost = new ShipRadarConsoleHost(RadarScreen, "mass", Title ?? "Сканер масс",
                 () => new TguiData().Bool("online", _online), _ => { }, Close, () =>
                 {
+                    MinSize = _handheld ? new Vector2(280, 300) : nativeMinimum;
                     radarParent.AddChild(RadarScreen);
                     foreach (var control in native) control.Visible = true;
                     IFFToggle.Pressed = RadarScreen.ShowIFF;
@@ -42,6 +44,10 @@ public sealed partial class RadarConsoleWindow : FancyWindow,
             SetSize = new Vector2(1000, 740);
             MinSize = new Vector2(760, 520);
             ContentsContainer.AddChild(ConsoleHost);
+            ConsoleHost.Tgui.NativeModeChanged += () =>
+            {
+                if (!ConsoleHost.Tgui.UsingNative && !_handheld) MinSize = new Vector2(760, 520);
+            };
         }
     }
 
@@ -59,6 +65,7 @@ public sealed partial class RadarConsoleWindow : FancyWindow,
 
     public void SetHandheld(bool handheld)
     {
+        _handheld = handheld;
         ConsoleHost?.SetHandheld(handheld);
         IFFToggle.Visible = IFFDetailedToggle.Visible = !handheld;
         if (handheld)

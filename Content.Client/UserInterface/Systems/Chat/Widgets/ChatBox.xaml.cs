@@ -63,6 +63,16 @@ public partial class ChatBox : UIWidget
         _cfg.OnValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ApplyChatMode, false);
         _cfg.OnValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.InterfaceStyle, ApplyInterfaceStyle, false);
         ApplyChatMode(_cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat));
+        var styleRow = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Horizontal };
+        var chatLayout = ChatWindowPanel.GetChild(0);
+        chatLayout.AddChild(styleRow);
+        styleRow.SetPositionFirst();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(styleRow, "Chat", () => !_useVanillaChat, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("Chat", next);
+            if (next) _webChatRequested = true;
+            ApplyChatMode(!next);
+        });
         // WD EDIT END
     }
 

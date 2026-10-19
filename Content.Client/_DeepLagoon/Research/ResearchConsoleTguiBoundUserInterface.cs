@@ -25,7 +25,7 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
 
     private ResearchConsoleTguiWindow? _window;
     private ResearchConsoleMenu? _classicWindow;
-    private static bool _classicForSession;
+    private bool _classicForSession;
     private ResearchConsoleTguiData? _data;
     private string _title = string.Empty;
     private string _staticJson = string.Empty;
@@ -36,7 +36,7 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
     protected override void Open()
     {
         base.Open();
-        if (_classicForSession || !TguiPanel.Enabled)
+        if (_classicForSession || !WindowInterfaceStyle.UseTgui(InterfaceName))
         {
             OpenClassic();
             return;
@@ -47,17 +47,13 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
 
         _window = new ResearchConsoleTguiWindow { Title = _title };
         _window.OnClose += Close;
-        var userInterface = EntMan.System<UserInterfaceSystem>();
-        userInterface.RegisterControl(this, _window);
-        if (userInterface.TryGetPosition(Owner, UiKey, out var position))
-            _window.Open(position);
-        else
-            _window.OpenCentered();
+        WindowInterfaceStyle.OpenPresentation(this, _window, _classicWindow);
         _window.Panel.OnClose += Close;
         _window.Panel.OnAction += OnAction;
         // The panel publishes its own state first on every (re)load; static data follows it.
         _window.Panel.Web.Ready += SendStatic;
         _window.Panel.Web.Failed += SwitchToClassic;
+        _window.Panel.BindStyle(_window, InterfaceName, () => true, SwitchInterface);
         _window.Panel.SetNativeFallback(SwitchToClassic);
         _window.Panel.SetState(InterfaceName, "{}", _title);
         PushState();
@@ -91,17 +87,41 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
         if (_window is not { } window || !IsOpened) return;
         _window = null;
         _classicForSession = true;
-        window.OnClose -= Close;
-        window.Close();
+        WindowInterfaceStyle.ClosePresentation(this, window);
 #pragma warning disable CS0618
         window.Dispose();
 #pragma warning restore CS0618
         OpenClassic();
     }
 
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        if (!tgui) { SwitchToClassic(); return; }
+        if (_classicWindow is not { } native) return;
+        WindowInterfaceStyle.HideForSwitch(this, native);
+        _classicForSession = false;
+        _staticKey = null;
+        Open();
+    }
+
     private void OpenClassic()
     {
+        // The engine registers one native control per BUI until the BUI closes.
+        // Switching presentation must reuse it, including its event subscriptions.
+        if (_classicWindow != null)
+        {
+            _classicWindow.Open(_classicWindow.Position);
+            if (State != null) UpdateState(State);
+            return;
+        }
+
         _classicWindow = this.CreateWindow<ResearchConsoleMenu>();
+        WindowInterfaceStyle.Attach(_classicWindow, InterfaceName, () => false, next =>
+        {
+            WindowInterfaceStyle.Save(InterfaceName, next);
+            SwitchInterface(next);
+        });
         _classicWindow.SetEntity(Owner);
         _classicWindow.OnTechnologyCardPressed += id => SendMessage(new ConsoleUnlockTechnologyMessage(id));
         _classicWindow.OnServerButtonPressed += () => SendMessage(new ConsoleServerSelectionMessage());
@@ -113,8 +133,7 @@ public sealed class ResearchConsoleTguiBoundUserInterface(EntityUid owner, Enum 
         if (disposing && _window is { } window)
         {
             _window = null;
-            window.OnClose -= Close;
-            window.Close();
+            WindowInterfaceStyle.ClosePresentation(this, window);
             // GameWebView owns the asynchronous browser teardown.
 #pragma warning disable CS0618
             if (!window.Disposed) window.Dispose();

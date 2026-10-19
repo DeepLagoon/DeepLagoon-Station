@@ -75,12 +75,23 @@ public sealed class CharacterHairChoicesTests
             Assert.That(editor.HandleTguiProfileAction("name", "{\"value\":\"Second draft\"}"), Is.True);
             Assert.That(typeof(TguiPanel).GetField("_staticData", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(panel), Is.SameAs(catalog));
             var draft = editor.Profile;
-            typeof(HumanoidProfileEditor).GetMethod("RestoreNativeEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(editor, null);
+            using var originalState = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
+            var originalTabs = originalState.RootElement.GetProperty("tabs").GetArrayLength();
+            panel.SwitchToNative();
             Assert.That(editor.Profile, Is.SameAs(draft), "Native recovery must preserve the current draft");
-            Assert.That(typeof(HumanoidProfileEditor).GetField("_tguiHost", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor), Is.Null);
+            Assert.That(((Control)typeof(HumanoidProfileEditor).GetField("_tguiHost", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!).Parent, Is.Null);
             var tabs = editor.Children.SelectMany(child => child.Children).OfType<Robust.Client.UserInterface.Controls.TabContainer>().FirstOrDefault();
             Assert.That(tabs, Is.Not.Null, "Native tabs must return to the editor column");
             Assert.That(tabs!.Visible, Is.True);
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                Assert.That(panel.SwitchToTgui(), Is.True);
+                Assert.That(editor.Profile, Is.SameAs(draft));
+                using var restored = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
+                Assert.That(restored.RootElement.GetProperty("tabs").GetArrayLength(), Is.EqualTo(originalTabs), "Native-only tabs must not duplicate TGUI navigation");
+                panel.SwitchToNative();
+                Assert.That(tabs.Visible, Is.True);
+            }
         });
         await pair.CleanReturnAsync();
     }

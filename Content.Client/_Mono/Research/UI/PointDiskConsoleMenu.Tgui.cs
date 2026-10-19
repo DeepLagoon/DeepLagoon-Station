@@ -11,7 +11,6 @@ public sealed partial class PointDiskConsoleMenu
 
     private void InitializeCivilianTgui()
     {
-        if (!TguiPanel.Enabled) return;
         var native = ContentsContainer.Children.ToArray();
         var nativeMinimum = MinSize;
         ConsoleHost = new CivilianConsoleHost(() =>
@@ -23,6 +22,14 @@ public sealed partial class PointDiskConsoleMenu
         SetSize = new Vector2(780, 560);
         MinSize = new Vector2(520, 400);
         ContentsContainer.AddChild(ConsoleHost);
+        ConsoleHost.Panel.InterfaceStyleKey = "PointDiskConsole";
+        ConsoleHost.Panel.SetTguiRestore(() =>
+        {
+            foreach (var control in native) control.Visible = false;
+            ConsoleHost.Visible = true;
+            MinSize = new Vector2(520, 400);
+            PublishTgui();
+        });
         ConsoleHost.Panel.OnClose += Close;
         ConsoleHost.Panel.OnAction += HandleTguiAction;
         PublishTgui();

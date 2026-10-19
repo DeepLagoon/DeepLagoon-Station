@@ -1,3 +1,4 @@
+import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { copyLayout, validateLayout } from './apartmentLayout.mjs';
@@ -26,6 +27,7 @@ export const ApartmentEditor = () => {
   const errors = validateLayout(draft, room);
   const valid = !Object.keys(errors).length;
   const dirty = JSON.stringify(draft) !== JSON.stringify(data.layout || []);
+  useInterfaceStyleGuard(dirty || pending);
   const selectedItem = draft.find((item) => item.id === selected);
   const definition = room.catalog.find((item) => item.id === selectedItem?.furniture);
 

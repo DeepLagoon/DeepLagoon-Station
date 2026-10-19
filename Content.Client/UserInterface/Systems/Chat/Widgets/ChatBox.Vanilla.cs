@@ -9,9 +9,13 @@ public partial class ChatBox
     private bool _webChatRequested;
     private void ApplyInterfaceStyle(int _) => ApplyChatMode(_cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat));
 
-    private void ApplyChatMode(bool vanilla)
+    private void ApplyChatMode(bool vanilla) => SetChatMode(vanilla, false);
+
+    private void SetChatMode(bool vanilla, bool fallback)
     {
-        vanilla |= !Content.Client._DeepLagoon.WebUI.TguiPanel.Enabled;
+        if (!fallback) vanilla = !Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Resolve(
+            _cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.WindowStyles), "Chat",
+            vanilla || !Content.Client._DeepLagoon.WebUI.TguiPanel.Enabled ? 2 : 1);
         _useVanillaChat = vanilla;
         CloseComposer();
         ChatInput.Visible = vanilla || !_webChatRequested;

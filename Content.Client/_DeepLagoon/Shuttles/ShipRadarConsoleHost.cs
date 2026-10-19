@@ -29,16 +29,26 @@ public sealed class ShipRadarConsoleHost : Control
         _title = title;
         _state = state;
         HorizontalExpand = VerticalExpand = true;
+        var nativeParent = radar.Parent!;
+        var nativeSiblings = new List<(Control Control, bool Visible)>();
+        for (Control? ancestor = nativeParent; ancestor != null && ancestor is not Robust.Client.UserInterface.CustomControls.BaseWindow; ancestor = ancestor.Parent)
+            nativeSiblings.Add((ancestor, ancestor.Visible));
         var nativeMargin = radar.Margin;
         var nativeMinimum = radar.MinSize;
-        var nativeSize = radar.Size;
+        // Size has not been arranged yet here and may be zero. Preserve the layout constraint.
+        var nativeSize = radar.SetSize;
+        var nativeLayoutMargins = new Thickness(
+            radar.GetValue<float>(LayoutContainer.MarginLeftProperty),
+            radar.GetValue<float>(LayoutContainer.MarginTopProperty),
+            radar.GetValue<float>(LayoutContainer.MarginRightProperty),
+            radar.GetValue<float>(LayoutContainer.MarginBottomProperty));
         var nativeFit = radar.FitViewport;
         radar.Orphan();
         radar.Margin = new Thickness(0);
         radar.MinSize = Vector2.Zero;
         radar.FitViewport = true;
         radar.Visible = false;
-        Tgui = new TguiPanel(inheritChatAppearance: false) { ConsoleKeyboardFeedback = kind != "handheld" };
+        Tgui = new TguiPanel(inheritChatAppearance: false) { ConsoleKeyboardFeedback = kind != "handheld", InterfaceStyleKey = "ShipRadarConsole." + kind };
         AddChild(Tgui);
         _layer = new LayoutContainer { MouseFilter = MouseFilterMode.Ignore };
         AddChild(_layer);
@@ -54,9 +64,29 @@ public sealed class ShipRadarConsoleHost : Control
             radar.Margin = nativeMargin;
             radar.MinSize = nativeMinimum;
             radar.SetSize = nativeSize;
+            LayoutContainer.SetMarginLeft(radar, nativeLayoutMargins.Left);
+            LayoutContainer.SetMarginTop(radar, nativeLayoutMargins.Top);
+            LayoutContainer.SetMarginRight(radar, nativeLayoutMargins.Right);
+            LayoutContainer.SetMarginBottom(radar, nativeLayoutMargins.Bottom);
             radar.Visible = true;
             Visible = false;
+            foreach (var (control, visible) in nativeSiblings) control.Visible = visible;
             restoreNative();
+        });
+        Tgui.SetTguiRestore(() =>
+        {
+            radar.Orphan();
+            radar.Margin = new Thickness(0);
+            radar.MinSize = Vector2.Zero;
+            radar.FitViewport = true;
+            _layer.AddChild(radar);
+            // Native ancestors belong to the old surface. The shared host remains visible.
+            foreach (var (control, _) in nativeSiblings)
+                if (control != Parent) control.Visible = false;
+            Visible = true;
+            _viewport = Vector4.Zero;
+            radar.Visible = _glass.Visible = false;
+            Publish();
         });
         Tgui.OnAction += (action, payload) =>
         {
@@ -88,6 +118,7 @@ public sealed class ShipRadarConsoleHost : Control
     {
         if (_kind == "gunnery") return;
         _kind = handheld ? "handheld" : "mass";
+        Tgui.InterfaceStyleKey = "ShipRadarConsole." + _kind;
         Tgui.ConsoleKeyboardFeedback = !handheld;
         _glass.ShowHardware = !handheld;
         Publish();

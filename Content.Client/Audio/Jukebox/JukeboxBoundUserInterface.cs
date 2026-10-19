@@ -24,7 +24,22 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
 
         if (OpenTgui()) return;
 
+        // The engine registers one native control per BUI until the BUI closes.
+        // Switching presentation must reuse it, including its event subscriptions.
+        if (_menu != null)
+        {
+            _menu.Open(_menu.Position);
+            PopulateMusic();
+            Reload();
+            return;
+        }
+
         _menu = this.CreateWindow<JukeboxMenu>();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(_menu, "Jukebox", () => false, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("Jukebox", next);
+            SwitchInterface(next);
+        });
 
         _menu.OnPlayPressed += args =>
         {

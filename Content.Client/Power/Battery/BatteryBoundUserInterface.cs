@@ -1,4 +1,4 @@
-﻿using Content.Client.UserInterface;
+using Content.Client.UserInterface;
 using Content.Shared.Power;
 using JetBrains.Annotations;
 using Robust.Client.Timing;
@@ -44,7 +44,21 @@ public sealed partial class BatteryBoundUserInterface : BoundUserInterface, IBui
 
     private void OpenClassic()
     {
+        // The engine registers one native control per BUI until the BUI closes.
+        // Switching presentation must reuse it, including its event subscriptions.
+        if (_menu != null)
+        {
+            _menu.Open(_menu.Position);
+            if (_latestState != null) _menu.Update(_latestState);
+            return;
+        }
+
         _menu = this.CreateWindow<BatteryMenu>();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(_menu, "BatteryStorage", () => false, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("BatteryStorage", next);
+            SwitchInterface(next);
+        });
         _menu.SetEntity(Owner);
 
         _menu.OnInBreaker += val => _pred!.SendMessage(new BatterySetInputBreakerMessage(val));

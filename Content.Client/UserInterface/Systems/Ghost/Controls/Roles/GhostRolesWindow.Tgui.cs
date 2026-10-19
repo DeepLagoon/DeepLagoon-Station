@@ -22,7 +22,6 @@ public sealed partial class GhostRolesWindow
 
     private void InitializeTgui()
     {
-        if (!TguiPanel.Enabled) return;
         RoleScroll.Visible = NoRolesMessage.Visible = false;
         _tguiHost = new GhostRoleTguiHost(_tgui);
         _tguiHost.SubscriptionChanged += ids => OnPreviewSubscription?.Invoke(ids);
@@ -31,13 +30,21 @@ public sealed partial class GhostRolesWindow
         _tgui.OnAction += OnTguiAction;
         _tgui.Web.Failed += RestoreClassic;
         _tgui.SetNativeFallback(RestoreClassic);
+        _tgui.SetTguiRestore(() =>
+        {
+            _readyWait = 0;
+            RoleScroll.Visible = NoRolesMessage.Visible = false;
+            _tguiHost.Visible = true;
+            _tguiHost.SetRoles(_tguiRoles);
+            PublishTgui();
+        });
         PublishTgui();
     }
 
     public void SetTguiRoles(GhostRoleInfo[] roles)
     {
         _tguiRoles = roles;
-        _tguiHost?.SetRoles(roles);
+        if (!_tgui.UsingNative) _tguiHost?.SetRoles(roles);
         PublishTgui();
     }
 
@@ -46,7 +53,6 @@ public sealed partial class GhostRolesWindow
         if (_tguiHost == null) return;
         _tguiHost.ClearPreviews();
         _tguiHost.Visible = false;
-        _tguiHost = null;
         RoleScroll.Visible = true;
         NoRolesMessage.Visible = _tguiRoles.Length == 0;
         OnPreviewSubscription?.Invoke([]);
@@ -118,11 +124,11 @@ public sealed partial class GhostRolesWindow
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
-        if (_tguiHost == null || !VisibleInTree) return;
+        if (_tguiHost == null || _tgui.UsingNative || !VisibleInTree) return;
         if (!_tgui.Web.IsReady)
         {
             _readyWait += args.DeltaSeconds;
-            if (_readyWait >= 8f) { RestoreClassic(); return; }
+            if (_readyWait >= 8f) { UserInterfaceManager.DeferAction(_tgui.SwitchToNative); return; }
         }
         else _readyWait = 0;
         _tguiRefresh += args.DeltaSeconds;

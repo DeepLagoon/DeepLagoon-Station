@@ -1,0 +1,19 @@
+- type: language
+  id: Ariral
+  isVisibleLanguage: true
+  obfuscation:
+    !type:ReplacementObfuscation
+      replacement: ["шзо", "зоак", "ша", "сза", "ррх", "аак", "орх", "кзо", "жа", "лхз", "хра", "шрр"]
+  speech:
+    color: "#B0E0FF"
+    allowRadio: true
+
+- type: language
+  id: Demon
+  isVisibleLanguage: true
+  obfuscation:
+    !type:ReplacementObfuscation
+      replacement: ["грр", "ррр", "ррах", "харр", "шрр", "кхх", "грах", "рвв", "рргх", "вгрр", "крак", "ррха"]
+  speech:
+    color: "#FF8AA6"
+    allowRadio: true

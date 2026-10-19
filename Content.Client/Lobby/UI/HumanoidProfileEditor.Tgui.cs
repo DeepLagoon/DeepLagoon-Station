@@ -101,7 +101,6 @@ public sealed partial class HumanoidProfileEditor
     {
         _prototypeManager.PrototypesReloaded += ReloadTguiCatalog;
         _editorAppearance.Load(_resManager);
-        if (!TguiPanel.Enabled) { InitializeNativeExtras(); return; }
         TabContainer.AddChild(_editorSettingsTab);
         _profileWeb = new TguiPanel(suspendWhenHidden: true, inheritChatAppearance: false, showWindowControls: false) { Name = "CharacterTgui" };
         _profileWeb.OnAction += (action, payload) => HandleTguiProfileAction(action, payload);
@@ -123,8 +122,18 @@ public sealed partial class HumanoidProfileEditor
         TabContainer.Visible = false;
         _tguiHost = new TguiEditorHost(TabContainer, _profileWeb, SpriteView);
         EditorColumn.AddChild(_tguiHost);
-        _profileWeb.Web.Failed += RestoreNativeEditor;
         _profileWeb.SetNativeFallback(RestoreNativeEditor);
+        _profileWeb.SetTguiRestore(RestoreTguiEditor);
+        _profileWeb.BindStyle(EditorColumn, "CharacterEditor", () => !_profileWeb.UsingNative, next =>
+        {
+            if (next) _profileWeb.SwitchToTgui();
+            else _profileWeb.SwitchToNative();
+        }, next =>
+        {
+            if (!next || _nativeTattoos?.Dirty != true) return true;
+            if (_nativeBody != null) NativeInterfacePanel.Text(_nativeBody, Loc.GetString("dl-ui-window-unsaved"));
+            return false;
+        });
         TabContainer.OnTabChanged += SelectTguiTab;
         SelectTguiTab(TabContainer.CurrentTab);
     }
@@ -141,12 +150,18 @@ public sealed partial class HumanoidProfileEditor
     protected override void Dispose(bool disposing)
     {
         if (disposing) _prototypeManager.PrototypesReloaded -= ReloadTguiCatalog;
+        if (disposing && _tguiHost is { Parent: null })
+        {
+#pragma warning disable CS0618
+            _tguiHost.Dispose();
+#pragma warning restore CS0618
+        }
         base.Dispose(disposing);
     }
 
     private void RestoreNativeEditor()
     {
-        if (_tguiHost == null || _profileWeb == null) return;
+        if (_tguiHost?.Parent == null || _profileWeb == null) return;
         _profileWeb.Visible = false;
         TabContainer.Orphan();
         SpriteView.Orphan();
@@ -158,12 +173,33 @@ public sealed partial class HumanoidProfileEditor
         IdentityNative.Visible = ProfileHighlight.Visible = ShowClothes.Visible = PreviewColumn.Visible = true;
         _personalLoadoutEditor.TguiMode = false;
         TabContainer.OnTabChanged -= SelectTguiTab;
-#pragma warning disable CS0618
-        _tguiHost.Dispose();
-#pragma warning restore CS0618
-        _tguiHost = null;
-        _profileWeb = null;
         InitializeNativeExtras();
+    }
+
+    private void RestoreTguiEditor()
+    {
+        if (_tguiHost == null || _profileWeb == null) return;
+        TabContainer.Orphan();
+        SpriteView.Orphan();
+        for (var tab = 0; tab < TabContainer.ChildCount; tab++)
+            foreach (var control in TabContainer.GetChild(tab).Children)
+            {
+                _nativeTabVisibility.TryAdd(control, control.Visible);
+                control.Visible = false;
+            }
+        if (TabContainer.GetChild(TabContainer.CurrentTab) == _nativeBody?.Parent ||
+            TabContainer.GetChild(TabContainer.CurrentTab) == _nativeTattoos?.Parent)
+            TabContainer.CurrentTab = 0;
+        IdentityNative.Visible = ProfileHighlight.Visible = ShowClothes.Visible = PreviewColumn.Visible = false;
+        TabContainer.Visible = false;
+        _tguiHost.AddChild(TabContainer);
+        _tguiHost.AddChild(SpriteView);
+        EditorColumn.AddChild(_tguiHost);
+        _profileWeb.Visible = true;
+        _personalLoadoutEditor.TguiMode = true;
+        TabContainer.OnTabChanged += SelectTguiTab;
+        _publishedTguiProfile = null;
+        SelectTguiTab(TabContainer.CurrentTab);
     }
 
     private string TguiTabMode(int tab)
@@ -230,7 +266,9 @@ public sealed partial class HumanoidProfileEditor
         if (Profile is not { } p) return data;
         if (mode == "appearance") data.Array("bodyFeatures", BodyCustomizationData());
         data.Array("previewSlots", _personalLoadoutEditor.CreateTguiSlots(PreviewDummy));
-        if (includeCatalogs) data.Array("tabs", Enumerable.Range(0, TabContainer.ChildCount).Select(i => new TguiData().Number("id", i)
+        if (includeCatalogs) data.Array("tabs", Enumerable.Range(0, TabContainer.ChildCount)
+            .Where(i => TabContainer.GetChild(i) != _nativeBody?.Parent && TabContainer.GetChild(i) != _nativeTattoos?.Parent)
+            .Select(i => new TguiData().Number("id", i)
             .String("name", TguiTabMode(i) switch { "settings" => "Настройки", "appearance" => "Основное", "jobs" => "Профессии", "traits" => "Черты", "company" => "Компания", "markings" => "Внешность", "equipment" => "Снаряжение", "saved" => "Сохранённые предметы", _ => "Описание" })
             .String("mode", TguiTabMode(i))));
         if (mode == "saved") data.Array("savedItems", _savedItemEntities.Where(_entManager.EntityExists).Select(entity =>

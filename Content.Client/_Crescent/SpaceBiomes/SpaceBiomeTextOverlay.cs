@@ -39,8 +39,13 @@ public sealed partial class SpaceBiomeTextOverlay : Overlay
     public SpaceBiomeTextOverlay()
     {
         IoCManager.InjectDependencies(this);
-        _font = _cache.GetFont("/Fonts/Iceberg/Iceberg-Regular.ttf", 25);
-        _descriptionfont = _cache.GetFont("/Fonts/Iceberg/Iceberg-Regular.ttf", 15);
+        var fontPaths = new[]
+        {
+            "/Fonts/Iceberg/Iceberg-Regular.ttf",
+            "/Fonts/NotoSansDisplay/NotoSansDisplay-Regular.ttf",
+        };
+        _font = _cache.GetFont(fontPaths, 25);
+        _descriptionfont = _cache.GetFont(fontPaths, 15);
     }
 
     public void Reset()
@@ -137,11 +142,11 @@ public sealed partial class SpaceBiomeTextOverlay : Overlay
     private Vector2 CalcPosition(Font font, string str, Vector2 viewport)
     {
         Vector2 strSize = new();
-        foreach (Rune r in str)
+        foreach (var r in str.EnumerateRunes())
         {
             if (font.TryGetCharMetrics(r, 1, out var metrics))
             {
-                strSize.X += metrics.Width;
+                strSize.X += metrics.Advance;
                 strSize.Y = Math.Max(strSize.Y, metrics.Height);
             }
         }
@@ -153,11 +158,11 @@ public sealed partial class SpaceBiomeTextOverlay : Overlay
     private Vector2 CalcPositionDescription(Font font, string str, Vector2 viewport)
     {
         Vector2 strSize = new();
-        foreach (Rune r in str)
+        foreach (var r in str.EnumerateRunes())
         {
             if (font.TryGetCharMetrics(r, 1, out var metrics))
             {
-                strSize.X += metrics.Width;
+                strSize.X += metrics.Advance;
                 strSize.Y = Math.Max(strSize.Y, metrics.Height);
             }
         }

@@ -16,16 +16,19 @@ public sealed partial class BatteryBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || !TguiPanel.Enabled)
+        if (_classic || !WindowInterfaceStyle.UseTgui("BatteryStorage"))
             return false;
 
         _readyWait = 0;
-        var window = this.CreateWindow<BatteryTguiWindow>();
+        var window = new BatteryTguiWindow();
+        window.OnClose += Close;
+        WindowInterfaceStyle.OpenPresentation(this, window, _menu);
         _tguiWindow = window;
         window.SetInfoFromEntity(EntMan, Owner);
         _title = window.Title ?? "";
         window.Panel.OnClose += Close;
         window.Panel.OnAction += OnTguiAction;
+        window.Panel.BindStyle(window, "BatteryStorage", () => true, SwitchInterface);
         window.Panel.SetNativeFallback(DeferClassic);
         window.Frame += OnTguiFrame;
         window.Panel.SetStaticData(new TguiData().Object("labels", BatteryTguiData.Labels()).ToString());
@@ -98,11 +101,10 @@ public sealed partial class BatteryBoundUserInterface
         if (_tguiWindow is not { } window)
             return;
         _tguiWindow = null;
-        window.OnClose -= Close;
         window.Frame -= OnTguiFrame;
         window.Panel.OnClose -= Close;
         window.Panel.OnAction -= OnTguiAction;
-        window.Close();
+        WindowInterfaceStyle.ClosePresentation(this, window);
 #pragma warning disable CS0618
         if (!window.Disposed)
             window.Dispose();
@@ -114,5 +116,16 @@ public sealed partial class BatteryBoundUserInterface
         if (disposing)
             CloseTgui();
         base.Dispose(disposing);
+    }
+
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        CloseTgui();
+        if (_menu is { } native)
+            WindowInterfaceStyle.HideForSwitch(this, native);
+        _classic = !tgui;
+
+        if (!OpenTgui()) OpenClassic();
     }
 }

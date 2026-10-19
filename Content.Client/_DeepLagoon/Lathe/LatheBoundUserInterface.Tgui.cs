@@ -31,7 +31,7 @@ public sealed partial class LatheBoundUserInterface
     private LatheTguiWindow? _tguiWindow;
     private LatheTguiData? _tguiData;
     private bool _classic;
-    private static bool _classicForSession;
+    private bool _classicForSession;
     private bool _tguiDirty;
     private bool _awaitingReady;
     private float _readyWaited;
@@ -44,7 +44,7 @@ public sealed partial class LatheBoundUserInterface
 
     private bool OpenTgui()
     {
-        if (_classic || _classicForSession || !TguiPanel.Enabled)
+        if (_classic || _classicForSession || !WindowInterfaceStyle.UseTgui("LatheConsole"))
             return false;
 
         _tguiData = new LatheTguiData(Owner, EntMan);
@@ -59,6 +59,7 @@ public sealed partial class LatheBoundUserInterface
         // The panel publishes its own state first on every (re)load; static data follows it.
         window.Panel.Web.Ready += SendTguiStatic;
         window.Panel.Web.Failed += DeferSwitchToClassic;
+        window.Panel.BindStyle(window, "LatheConsole", () => true, SwitchInterface);
         window.Panel.SetNativeFallback(DeferSwitchToClassic);
 
         if (SavedPositions.TryGetValue(Owner, out var position))
@@ -287,5 +288,17 @@ public sealed partial class LatheBoundUserInterface
             .ToList();
         if (requested.Count > 0)
             _tguiWindow.Panel.Web.Send("update", _tguiData.BuildIcons(requested));
+    }
+
+    private void SwitchInterface(bool tgui)
+    {
+        if (!IsOpened) return;
+        CloseTguiWindow();
+        if (_menu is { } native)
+            WindowInterfaceStyle.HideForSwitch(this, native);
+        _classic = !tgui;
+        _classicForSession = false;
+        Open();
+        if (State != null) UpdateState(State);
     }
 }

@@ -38,7 +38,8 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
   const browser=await chromium.launch({channel:'msedge',headless:true});
   const errors=[];
   try {
-    const page=await browser.newPage({viewport:{width:1440,height:900}});
+    const context=await browser.newContext({viewport:{width:1440,height:900}});
+    const page=await context.newPage();
     page.on('pageerror',e=>errors.push(e.message));
     const url='http://127.0.0.1:'+server.address().port;
     const report={};
@@ -80,6 +81,13 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
       const count=cache.stats.rasterized;
       await cache.prepare(model.indexItems(small.map(i=>({...i}))),layers,new Map(visuals),onProgress,()=>false);
       check(cache.stats.rasterized===count,'Cloned unchanged draft rebuilt chunks');
+      // A budget/LOD change must not rebuild unchanged source sprites.
+      for (const chunk of cache.chunks.values()) {
+        for (const [size, level] of chunk.levels) if (size > 1) { level.width=level.height=0; chunk.levels.delete(size); }
+        chunk.overview=1;
+      }
+      await cache.prepare(model.indexItems(small),layers,visuals,onProgress,()=>false);
+      check(cache.stats.rasterized===count,'Overview budget change rebuilt untouched chunks');
       const changed=small.map(i=>i.x===10&&i.y===10?{...i,prototype:'FloorSteel'}:i);
       await cache.prepare(model.indexItems(changed),layers,visuals,onProgress,()=>false);
       check(cache.stats.rasterized===count+1,'One tile change did not rebuild exactly one chunk');
@@ -149,6 +157,97 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     await page.keyboard.press('Escape');
     await page.screenshot({path:path.join(output,'selection.png')});
     report.interaction={leftDragSelectsWithoutEditing:true,selectedItems:14,rightDragMovesWithoutMenu:true,dragOnlyCommitsOnRelease:true,undoRedo:true,rightClickMenu:true,shortcuts:true};
+    // Resize the empty work area, apply without replacing the scene, then edit one tile.
+    await page.getByRole('button', {name:'Вписать',exact:true}).click();
+    const originalWidth = await page.locator('.GridEditor__canvas').evaluate(c => c.style.width);
+    const edge = page.getByRole('button', {name:'Растянуть grid: right',exact:true});
+    const bounds = await edge.boundingBox();
+    const rasterBeforeResize = await page.evaluate(() => window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0));
+    await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);
+    await page.mouse.down(); await page.mouse.move(bounds.x+65,bounds.y+bounds.height/2,{steps:8}); await page.mouse.up();
+    assert.notEqual(await page.locator('.GridEditor__canvas').evaluate(c => c.style.width), originalWidth);
+    await page.keyboard.press('Control+z');
+    assert.equal(await page.locator('.GridEditor__canvas').evaluate(c => c.style.width), originalWidth);
+    await page.keyboard.press('Control+y');
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(() => window.fixtureGetData().patchVersion === 1);
+    await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)),rasterBeforeResize);
+    assert.equal(await page.evaluate(()=>window.fixtureGetData().token),'fixture');
+    const cacheCount = await page.evaluate(()=>window.sceneCaches.length);
+    const rasterBeforePatch = await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0));
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,patchVersion:d.patchVersion+1,patchApplied:false,
+      patchItems:[{...d.items.find(i=>i.id==='t:0:0'),prototype:'FloorSteel'}],patchRemoved:[]})));
+    await page.waitForFunction(before=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)>before,rasterBeforePatch);
+    await page.waitForTimeout(300);
+    assert.equal(await page.evaluate(()=>window.sceneCaches.length),cacheCount);
+    assert.equal(await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)),rasterBeforePatch+1);
+    report.resizeAndPatch={mouseDrag:true,undoRedo:true,emptyResizeRasterizations:0,sameSession:true,sameScene:true,singleTileChangedChunks:1};
+    await page.screenshot({path:path.join(output,'resize.png')});
+    await page.getByRole('checkbox', {name:'Диагностика утечек',exact:true}).check();
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,atmosToken:d.token,atmosPatchVersion:d.patchVersion||0,
+      atmosVersion:1,atmosSealed:1,atmosLeaking:2,atmosFilled:0,atmosCells:[
+        {x:0,y:0,status:'sealed',region:1,leaks:0,pressure:101.3},
+        {x:1,y:0,status:'leaking',region:2,leaks:0,pressure:0},
+        {x:2,y:0,status:'leaking',region:2,leaks:4,pressure:0},
+      ]})));
+    await page.waitForSelector('.GridEditor__atmos');
+    assert.match(await page.locator('.GridEditor__properties').innerText(),/Герметичных клеток: 1/);
+    assert.equal(await page.getByRole('button',{name:'Выход наружу: 2, 0',exact:true}).count(),1);
+    const beforeAtmosFill=await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0));
+    await page.getByRole('button',{name:'Заполнить герметичные области',exact:true}).click();
+    assert.equal(await page.evaluate(()=>window.fixtureActions.some(entry=>entry.action==='fillAtmos')),true);
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,atmosVersion:2,atmosFilled:1})));
+    await page.waitForTimeout(300);
+    assert.equal(await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)),beforeAtmosFill);
+    await page.screenshot({path:path.join(output,'atmos-diagnostics.png')});
+    report.atmos={overlay:true,leakCoordinates:true,fillAction:true,mapChunkRebuilds:0};
+    // Two actual browser windows share previews and world deltas, never preferences.
+    await page.goto(url+'/?peer=MapperA');
+    const peer=await page.context().newPage();peer.on('pageerror',e=>errors.push(e.message));
+    await peer.goto(url+'/?peer=MapperB');
+    await page.getByRole('button',{name:'Вписать',exact:true}).click();
+    await peer.getByRole('button',{name:'Вписать',exact:true}).click();
+    await page.getByRole('button',{name:'Добавить в избранное Стальной пол',exact:true}).click();
+    await peer.getByRole('button',{name:'Добавить в избранное Обшивка',exact:true}).click();
+    await page.getByRole('textbox',{name:'Поиск прототипов'}).fill('FloorSteel');
+    await peer.getByRole('textbox',{name:'Поиск прототипов'}).fill('Plating');
+    await page.locator('button[title="FloorSteel"]').click();
+    const cell=await point(0,0);await page.mouse.click(cell.x,cell.y);
+    await peer.waitForFunction(()=>window.fixtureGetData().peerDrafts?.some(p=>p.name==='MapperA'&&p.items.some(i=>i.id==='t:0:0'&&i.prototype==='FloorSteel')));
+    await peer.waitForSelector('.GridEditor__peerLayer');
+    assert.match(await peer.locator('header').innerText(),/0 изменений/);
+    assert.equal(await peer.evaluate(()=>window.fixtureGetData().items.find(i=>i.id==='t:0:0').prototype),'Plating');
+    await peer.screenshot({path:path.join(output,'foreign-draft.png')});
+    // B edits a different cell while A commits. B's pending edit must survive.
+    await peer.getByRole('textbox',{name:'Поиск прототипов'}).fill('FloorSteel');
+    await peer.locator('button[title="FloorSteel"]').click();
+    const peerCell=await peer.evaluate(()=>{const c=document.querySelector('.GridEditor__canvas'),r=c.getBoundingClientRect(),d=window.fixtureGetData(),size=r.width/d.width;return{x:r.left+(1-d.x+.5)*size,y:r.top+(d.y+d.height-.5)*size};});
+    await peer.mouse.click(peerCell.x,peerCell.y);
+    await peer.getByRole('textbox',{name:'Поиск прототипов'}).fill('Plating');
+    await page.waitForFunction(()=>window.fixtureGetData().peerDrafts?.some(p=>p.name==='MapperB'&&p.items.some(i=>i.id==='t:1:0')));
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await peer.waitForFunction(()=>window.fixtureGetData().items.find(i=>i.id==='t:0:0').prototype==='FloorSteel');
+    assert.doesNotMatch(await peer.locator('header').innerText(),/0 изменений/);
+    assert.equal(await page.getByRole('textbox',{name:'Поиск прототипов'}).inputValue(),'FloorSteel');
+    assert.equal(await peer.getByRole('textbox',{name:'Поиск прототипов'}).inputValue(),'Plating');
+    assert.deepEqual(await page.evaluate(()=>window.fixtureGetData().favorites.map(f=>f.id)),['FloorSteel']);
+    assert.deepEqual(await peer.evaluate(()=>window.fixtureGetData().favorites.map(f=>f.id)),['Plating']);
+    // Undo clears B's preview without rolling back A's committed tile.
+    await peer.locator('.GridEditor__canvas').focus();await peer.keyboard.press('Control+z');
+    assert.match(await peer.locator('header').innerText(),/0 изменений/);
+    await page.waitForFunction(()=>window.fixtureGetData().peerDrafts?.every(p=>p.name!=='MapperB'||p.items.length===0));
+    await peer.keyboard.press('Control+y');await peer.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.find(i=>i.id==='t:1:0').prototype==='FloorSteel');
+    assert.equal(await page.evaluate(()=>window.fixtureGetData().items.find(i=>i.id==='t:0:0').prototype),'FloorSteel');
+    report.collaboration={twoWindows:true,liveUnsavedPreview:true,previewDoesNotApply:true,localEditsSurvivePeerApply:true,undoKeepsExternalChanges:true,privateSearchAndFavorites:true};
+    const resize=await page.getByRole('button',{name:'Растянуть grid: right',exact:true}).boundingBox();
+    await page.mouse.move(resize.x+resize.width/2,resize.y+resize.height/2);
+    await page.mouse.down();await page.mouse.move(resize.x+65,resize.y+resize.height/2,{steps:8});await page.mouse.up();
+    await peer.waitForFunction(()=>window.fixtureGetData().peerDrafts?.some(p=>p.name==='MapperA'&&p.expansion?.right>0));
+    assert.match(await peer.locator('.GridEditor__properties').innerText(),/растягивание:/);
+    report.collaboration.liveResizePreview=true;
+    await peer.close();
     assert.deepEqual(errors,[]);
     fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
     console.log(JSON.stringify(report,null,2));

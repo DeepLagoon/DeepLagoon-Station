@@ -225,6 +225,19 @@ public sealed partial class JobWhitelistManager : IPostInjectInit
             SendWhitelist(session);
     }
 
+    /// <summary>Refresh an externally written global WL without writing it back.</summary>
+    public async Task RefreshGlobalWhitelistAsync(ICommonSession session)
+    {
+        var allowed = await _db.GetWhitelistStatusAsync(session.UserId);
+        if (!session.Channel.IsConnected || !_globalWhitelists.TryGetValue(session.UserId, out var previous))
+            return;
+        _globalWhitelists[session.UserId] = allowed;
+        if (previous && !allowed)
+            GlobalWhitelistRevoked?.Invoke(session.UserId);
+        if (previous != allowed && session.Channel.IsConnected)
+            SendWhitelist(session);
+    }
+
     public void SendWhitelist(ICommonSession player)
     {
         var msg = new MsgWhitelist

@@ -1,0 +1,9 @@
+# Organ categories used by the imported Ariral anatomy.
+- type: Tag
+  id: Lungs
+
+- type: Tag
+  id: Stomach
+
+- type: Tag
+  id: Tongue

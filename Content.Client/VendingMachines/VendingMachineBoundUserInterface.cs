@@ -47,7 +47,21 @@ namespace Content.Client.VendingMachines
                 return;
             }
 
+            // The engine registers one native control per BUI until the BUI closes.
+            // Switching presentation must reuse it, including its event subscriptions.
+            if (_menu != null)
+            {
+                _menu.Open(_menu.Position);
+                Update();
+                return;
+            }
+
             _menu = this.CreateWindowCenteredLeft<VendingMachineMenu>();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(_menu, "VendingMachine", () => false, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("VendingMachine", next);
+            SwitchInterface(next);
+        });
             // Frontier: no exceptions
             if (EntMan.TryGetComponent(Owner, out MetaDataComponent? meta))
                 _menu.Title = meta.EntityName;

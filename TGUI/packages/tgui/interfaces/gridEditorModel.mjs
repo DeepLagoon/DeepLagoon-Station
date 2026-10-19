@@ -59,16 +59,16 @@ export function replaceConflicts(previous, next, isExclusive) {
     !winners.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`) || winners.get(`${Math.floor(item.x)}:${Math.floor(item.y)}`) === item.id);
 }
 
-export function validateDraft(items, area) {
+export function validateDraft(items, area, editedIds = null) {
   const ids = new Set();
   const tiles = new Set(items.filter((i) => i.kind === 'tile').map((i) => i.id));
   for (const item of items) {
     if (ids.has(item.id)) return 'Повторяющийся ID элемента.';
     ids.add(item.id);
-    if (item.kind === 'entity' && item.anchored && (item.x !== Math.floor(item.x) + .5 || item.y !== Math.floor(item.y) + .5))
+    if ((!editedIds || editedIds.has(item.id)) && item.kind === 'entity' && item.anchored && (item.x !== Math.floor(item.x) + .5 || item.y !== Math.floor(item.y) + .5))
       return 'Закреплённые объекты должны находиться в центре тайла.';
     if (!Number.isFinite(item.x) || !Number.isFinite(item.y) || !inside(item, area)) return 'Элемент вышел за границы области редактирования.';
-    if ((item.kind === 'decal' || item.anchored) && !tiles.has(tileId(Math.floor(item.x), Math.floor(item.y))))
+    if ((!editedIds || editedIds.has(item.id)) && (item.kind === 'decal' || item.anchored) && !tiles.has(tileId(Math.floor(item.x), Math.floor(item.y))))
       return `Под ${item.kind === 'decal' ? 'декалью' : 'закреплённым объектом'} ${item.prototype} (${Math.floor(item.x)}, ${Math.floor(item.y)}) должен быть пол.`;
   }
   return '';
@@ -80,23 +80,33 @@ export const changeCount = (original, draft) => {
   return [...after].filter(([id, item]) => before.get(id) !== item).length + [...before.keys()].filter((id) => !after.has(id)).length;
 };
 
-export function ensureWallFloors(items, isWall, original = [], isDiagonal = () => false) {
+export function ensureWallFloors(items, isWall, original = [], isDiagonal = () => false, previousDraft = null) {
   const tiles = new Map(items.filter(item => item.kind === 'tile').map(item => [item.id, item]));
   const previous = new Map(original.filter(item => item.kind === 'tile').map(item => [item.id, item]));
   const walls = items.filter(item => item.kind === 'entity' && isWall(item.prototype));
   const occupied = new Set([...tiles.keys(), ...walls.map(item => tileId(Math.floor(item.x), Math.floor(item.y)))]);
   const changes = new Map();
+  let touched = null;
+  if (previousDraft) {
+    const before = new Map(previousDraft.map(item => [item.id, item]));
+    const after = new Map(items.map(item => [item.id, item]));
+    const changed = item => JSON.stringify(before.get(item.id)) !== JSON.stringify(after.get(item.id));
+    touched = new Set([...previousDraft, ...items].filter(item => changed(item) &&
+      (item.kind === 'tile' || item.kind === 'entity' && isWall(item.prototype))).map(item => tileId(Math.floor(item.x), Math.floor(item.y))));
+  }
   for (const wall of walls) {
     const x = Math.floor(wall.x), y = Math.floor(wall.y), id = tileId(x, y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+    if (touched && ![[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => touched.has(tileId(x + dx, y + dy)))) continue;
     const existing = tiles.get(id) || previous.get(id);
     const diagonal = isDiagonal(wall.prototype);
     const neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]].filter(([dx, dy]) => occupied.has(tileId(x + dx, y + dy))).length;
     // Preserve authored floors and full inner corners. Only auto support uses a clipped tile.
     const authoredFull = existing && existing.prototype !== 'DLPlatingDiagonal' && existing.prototype !== 'Plating';
     let floor = existing;
+    // The base floor texture occupies NW; a south-facing diagonal wall occupies SE.
     if (!authoredFull && diagonal) floor = { ...(existing || {}), prototype: neighbors >= 3 ? 'Plating' : 'DLPlatingDiagonal',
-      variant: 0, mirror: neighbors >= 3 ? 0 : ((Math.round(wall.rotation / 90) % 4) + 4) % 4 };
+      variant: 0, mirror: neighbors >= 3 ? 0 : ((Math.round(wall.rotation / 90) + 2) % 4 + 4) % 4 };
     else if (existing?.prototype === 'DLPlatingDiagonal' && !diagonal) floor = { ...existing, prototype: 'Plating', mirror: 0, variant: 0 };
     if (!floor) floor = { prototype: 'Plating' };
     if (tiles.has(id) && existing.prototype === floor.prototype && (existing.mirror || 0) === (floor.mirror || 0) && (existing.variant || 0) === (floor.variant || 0)) continue;
@@ -287,4 +297,57 @@ export function mirrorChanges(previous, next, mirror, area, nextId, pairs = new 
     if (item.kind !== 'tile') { pairs.set(item.id, reflected.id); pairs.set(reflected.id, item.id); }
   }
   return [...result.values()];
+}
+
+// Local intent survives a matching live update, deletion or reappearance until Apply/Reset/Undo.
+export function trackLocalEdits(previous, next, edits = []) {
+  const result = new Map(edits.map(item => [item.id, item]));
+  const changed = makePatch(previous, next);
+  const floors = new Map(next.filter(item => item.kind === 'tile').map(item => [item.id, item]));
+  for (const item of changed) {
+    result.set(item.id, item);
+    if (item.kind === 'decal' || item.kind === 'entity' && item.anchored) {
+      const floor = floors.get(tileId(Math.floor(item.x), Math.floor(item.y)));
+      if (floor) result.set(floor.id, floor);
+    }
+  }
+  return [...result.values()];
+}
+
+export function overlayLocalEdits(baseline, edits, isExclusive = () => false) {
+  const winners = new Map(edits.filter(item => item.kind === 'entity' && isExclusive(item.prototype))
+    .map(item => [tileId(Math.floor(item.x), Math.floor(item.y)), item.id]));
+  const result = new Map(baseline.filter(item => item.kind !== 'entity' || !isExclusive(item.prototype) ||
+    !winners.has(tileId(Math.floor(item.x), Math.floor(item.y))) || winners.get(tileId(Math.floor(item.x), Math.floor(item.y))) === item.id)
+    .map(item => [item.id, item]));
+  for (const item of edits) {
+    if (item.kind === 'remove') result.delete(item.id); else result.set(item.id, item);
+  }
+  return [...result.values()];
+}
+
+export function rebaseExpansion(previous, next, expansion) {
+  return { left: Math.max(0, next.x - (previous.x - expansion.left)),
+    right: Math.max(0, previous.x + previous.width + expansion.right - next.x - next.width),
+    bottom: Math.max(0, next.y - (previous.y - expansion.bottom)),
+    top: Math.max(0, previous.y + previous.height + expansion.top - next.y - next.height) };
+}
+
+export function previewPatch(previous, next) {
+  const before = new Map(previous.map(item => [item.id, item]));
+  const after = new Map(next.map(item => [item.id, item]));
+  return [...next.filter(item => JSON.stringify(before.get(item.id)) !== JSON.stringify(item)),
+    ...previous.filter(item => !after.has(item.id)).map(item => ({ id: item.id, kind: 'clear' }))];
+}
+
+export function peerPreview(peers, ownEdits, isExclusive = () => false) {
+  const protectedIds = new Set(ownEdits.map(item => item.id));
+  const protectedCells = new Set(ownEdits.filter(item => item.kind === 'entity' && isExclusive(item.prototype)).map(item => `${Math.floor(item.x)}:${Math.floor(item.y)}`));
+  const items = new Map(), removed = new Map();
+  for (const peer of peers) {
+    for (const item of peer.items) { items.set(item.id, item); removed.delete(item.id); }
+    for (const item of peer.removedItems) { items.delete(item.id); removed.set(item.id, item); }
+  }
+  const visible = item => !protectedIds.has(item.id) && !(item.kind === 'entity' && isExclusive(item.prototype) && protectedCells.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`));
+  return { items: [...items.values()].filter(visible), removed: [...removed.values()].filter(visible) };
 }

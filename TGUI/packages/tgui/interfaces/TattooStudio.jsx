@@ -1,3 +1,4 @@
+import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { ColorSquare } from '../components/PlayerColorPicker';
@@ -28,6 +29,7 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
   const tattoo = tattoos.find(t => t.id === selected && t.part === part && t.direction === direction);
   const currentTattooId = useRef(tattoo?.id); currentTattooId.current = tattoo?.id;
   const body = parts.find(p => p.id === part);
+  useInterfaceStyleGuard(editorActive && (editing || loading || saving || data.pending || data.fileBusy));
   const blocked = !!data.disabled || !!data.pending || !!data.fileBusy || loading || saving || !!(data.machine && body?.covered);
   const image = body?.frames?.find(f => f.direction === direction)?.image;
   const previewImage = body?.frames?.find(f => f.direction === direction)?.previewImage;

@@ -21,7 +21,21 @@ namespace Content.Client.Lathe.UI
             if (OpenTgui()) // DeepLagoon: TGUI menu, this one is the fallback
                 return;
 
+            // The engine registers one native control per BUI until the BUI closes.
+            // Switching presentation must reuse it, including its event subscriptions.
+            if (_menu != null)
+            {
+                _menu.Open(_menu.Position);
+                if (State != null) UpdateState(State);
+                return;
+            }
+
             _menu = this.CreateWindowCenteredRight<LatheMenu>();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(_menu, "LatheConsole", () => false, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("LatheConsole", next);
+            SwitchInterface(next);
+        });
             _menu.SetEntity(Owner);
 
             _menu.OnServerListButtonPressed += _ =>

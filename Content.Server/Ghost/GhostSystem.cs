@@ -116,6 +116,19 @@ namespace Content.Server.Ghost
             SubscribeLocalEvent<GhostComponent, GetVisMaskEvent>(OnGhostVis);
         }
 
+        public override void Update(float frameTime)
+        {
+            base.Update(frameTime);
+
+            // Include paused ghosts, including admins who arrived on another mapper's map.
+            // Re-evaluate permissions so deadminning or detaching also revokes the exception.
+            var query = AllEntityQuery<GhostComponent>();
+            while (query.MoveNext(out var uid, out var ghost))
+            {
+                SetAdminMovement((uid, ghost), _admin.IsAdmin(uid));
+            }
+        }
+
         private void OnGhostVis(Entity<GhostComponent> ent, ref GetVisMaskEvent args)
         {
             // If component not deleting they can see ghosts.

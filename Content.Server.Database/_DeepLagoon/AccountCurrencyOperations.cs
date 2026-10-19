@@ -61,7 +61,7 @@ public static class AccountCurrencyOperations
     {
         // An UPDATE takes a row lock in PostgreSQL and a writer lock in SQLite. No cached balance is trusted.
         var count = await db.Preference.Where(p => p.UserId == user)
-            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Money, p => p.Money), cancel);
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.LagoonCoins, p => p.LagoonCoins), cancel);
         if (count != 1)
             throw new InvalidOperationException("Player preferences do not exist.");
     }
@@ -148,7 +148,7 @@ public static class AccountCurrencyOperations
 
     public static async Task<LagoonCoinResult> AwardLagoonCoins(ServerDbContext db, Guid user,
         string operationId, long amount, string reason, Guid? actorId = null, long playedTicks = 0,
-        long subscriberTicks = 0, CancellationToken cancel = default)
+        long subscriberTicks = 0, CancellationToken cancel = default, Action? beforeCommit = null)
     {
         if (string.IsNullOrWhiteSpace(operationId) || operationId.Length > 200 ||
             string.IsNullOrWhiteSpace(reason) || reason.Length > 500 ||
@@ -188,6 +188,7 @@ public static class AccountCurrencyOperations
             BalanceAfter = row.LagoonCoins, WebhookDelivered = amount == 0,
         });
         await db.SaveChangesAsync(cancel);
+        beforeCommit?.Invoke();
         await transaction.CommitAsync(cancel);
         return new LagoonCoinResult(row.LagoonCoins, amount, true);
     }

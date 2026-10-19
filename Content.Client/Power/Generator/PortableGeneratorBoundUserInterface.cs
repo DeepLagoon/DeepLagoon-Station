@@ -1,4 +1,4 @@
-﻿using Content.Shared.Power.Generator;
+using Content.Shared.Power.Generator;
 using JetBrains.Annotations;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
@@ -24,7 +24,21 @@ public sealed partial class PortableGeneratorBoundUserInterface : BoundUserInter
 
     private void OpenClassic()
     {
+        // The engine registers one native control per BUI until the BUI closes.
+        // Switching presentation must reuse it, including its event subscriptions.
+        if (_window != null)
+        {
+            _window.Open(_window.Position);
+            if (_latestState != null) _window.Update(_latestState);
+            return;
+        }
+
         _window = this.CreateWindowCenteredLeft<GeneratorWindow>();
+        Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Attach(_window, "PortableGenerator", () => false, next =>
+        {
+            Content.Client._DeepLagoon.WebUI.WindowInterfaceStyle.Save("PortableGenerator", next);
+            SwitchInterface(next);
+        });
         _window.SetEntity(Owner);
         _window.OnState += args =>
         {

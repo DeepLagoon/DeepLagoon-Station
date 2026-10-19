@@ -46,6 +46,7 @@ public sealed partial class MoverController : SharedMoverController
 
         SubscribeLocalEvent<ActiveInputMoverComponent, EntityPausedEvent>(OnEntityPaused);
         SubscribeLocalEvent<InputMoverComponent, EntityUnpausedEvent>(OnEntityUnpaused);
+        SubscribeLocalEvent<InputMoverComponent, GhostMovementChangedEvent>(OnGhostMovementChanged);
 
         SubscribeLocalEvent<RelayInputMoverComponent, PlayerAttachedEvent>(OnRelayPlayerAttached);
         SubscribeLocalEvent<RelayInputMoverComponent, PlayerDetachedEvent>(OnRelayPlayerDetached);
@@ -62,6 +63,11 @@ public sealed partial class MoverController : SharedMoverController
         if (PhysicsQuery.TryComp(ent, out var phys) && phys.IgnorePaused)
             return;
         RemCompDeferred<ActiveInputMoverComponent>(ent);
+    }
+
+    private void OnGhostMovementChanged(Entity<InputMoverComponent> ent, ref GhostMovementChangedEvent args)
+    {
+        UpdateMoverStatus((ent, ent.Comp));
     }
 
     private void OnEntityUnpaused(Entity<InputMoverComponent> ent, ref EntityUnpausedEvent args)
@@ -101,6 +107,8 @@ public sealed partial class MoverController : SharedMoverController
             if (!meta.EntityPaused
                 || PhysicsQuery.TryComp(ent, out var phys) && phys.IgnorePaused)
                 activeMover = EnsureComp<ActiveInputMoverComponent>(ent);
+            else
+                RemCompDeferred<ActiveInputMoverComponent>(ent);
 
             // If we're a relay target, make sure our drivers are InputMovers
             if (RelayTargetQuery.Resolve(ent, ref ent.Comp2, logMissing: false)

@@ -50,13 +50,13 @@ public partial class ChatBox
             window.Panel.Web.Failed += () =>
             {
                 CloseComposer();
-                ApplyChatMode(true);
+                SetChatMode(true, true);
                 ChatInput.Input.GrabKeyboardFocus();
             };
             window.Panel.SetNativeFallback(() =>
             {
                 CloseComposer();
-                ApplyChatMode(true);
+                SetChatMode(true, true);
                 ChatInput.Input.GrabKeyboardFocus();
             });
             window.OpenCentered();

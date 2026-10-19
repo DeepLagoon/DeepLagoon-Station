@@ -24,13 +24,29 @@ public sealed class InterfaceStyleTest
     }
 
     [Test]
+    public void WindowChoicesRemainIndependentAndOverrideBothGlobalDefaults()
+    {
+        var saved = WindowInterfaceStyle.WithChoice("", "LatheConsole", true);
+        saved = WindowInterfaceStyle.WithChoice(saved, "VendingMachine", false);
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "LatheConsole", 2), Is.True);
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "VendingMachine", 1), Is.False);
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "BatteryStorage", 1), Is.True);
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "BatteryStorage", 2), Is.False);
+        saved = WindowInterfaceStyle.WithChoice(saved, "LatheConsole", false);
+        Assert.That(saved.Split(';').Length, Is.EqualTo(2));
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "LatheConsole", 1), Is.False);
+        Assert.That(WindowInterfaceStyle.Resolve(saved, "VendingMachine", 1), Is.False);
+        Assert.That(WindowInterfaceStyle.Resolve("LatheConsoleExtra=1;broken;LatheConsole=99", "LatheConsole", 2), Is.False);
+    }
+
+    [Test]
     public void EveryProductionTguiHasANativeView()
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
         while (directory != null && !Directory.Exists(Path.Combine(directory.FullName, "TGUI", "packages"))) directory = directory.Parent;
         Assert.That(directory, Is.Not.Null);
         // Interfaces that restore the original strongly typed SS14 window.
-        var typed = new HashSet<string> { "CharacterEditor", "ChatComposer", "ShuttleConsole", "ShipRadarConsole", "GhostRoles", "Jukebox", "VendingMachine", "LatheConsole", "ResearchConsole", "BatteryStorage" };
+        var typed = new HashSet<string> { "CharacterEditor", "ChatComposer", "ShuttleConsole", "ShipRadarConsole", "GhostRoles", "Jukebox", "VendingMachine", "LatheConsole", "ResearchConsole", "BatteryStorage", "PortableGenerator", "DiskConsole" };
         var names = new HashSet<string>();
         foreach (var file in Directory.EnumerateFiles(Path.Combine(directory!.FullName, "Content.Client"), "*.cs", SearchOption.AllDirectories))
         {
@@ -39,7 +55,7 @@ public sealed class InterfaceStyleTest
             {
                 names.Add(match.Groups[1].Value);
                 if (typed.Contains(match.Groups[1].Value))
-                    Assert.That(source, Does.Contain("SetNativeFallback"), $"{file} must wire the native counterpart");
+                    Assert.That(source.Contains("SetNativeFallback") || source.Contains("new CivilianConsoleHost"), Is.True, $"{file} must wire the native counterpart");
             }
         }
         Assert.That(names.Count, Is.GreaterThan(15));

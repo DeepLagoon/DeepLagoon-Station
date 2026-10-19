@@ -58,7 +58,7 @@ public partial class ChatBox
         };
         LayoutContainer.SetAnchorPreset(_webChat, LayoutContainer.LayoutPreset.Wide);
         ChatBody.AddChild(_webChat);
-        _webChat.Failed += () => ApplyChatMode(true);
+        _webChat.Failed += () => SetChatMode(true, true);
         _webChat.Resumed += () => PublishWebHistory(force: true);
         Contents.Visible = false;
         // The controller owns history. Do not keep a second, hidden UI history.

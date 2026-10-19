@@ -1,9 +1,12 @@
+import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { cellsBetween, changeCount, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges } from './gridEditorModel.mjs';
+import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, expansionCount, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
+import { GridEditorAtmos } from './GridEditorAtmos';
+import { GridEditorPeers, useGridEditorPeers } from './GridEditorPeers';
 import { exportGridDraft, draftFileChunks } from './gridEditorExport.mjs';
 
 const categories = [['tile', 'Полы'], ['wall', 'Стены'], ['entity', 'Объекты'], ['decal', 'Декали'], ['all', 'Все'], ['favorites', '★ Избранное'], ['templates', 'Шаблоны']];
@@ -17,6 +20,8 @@ export const GridEditor = () => {
   const failureTitle = useRef('Действие не выполнено');
   const act = (action, payload) => {
     if (action === 'applyStart') failureTitle.current = payload?.purpose === 'template' ? 'Не удалось сохранить шаблон' : 'Не удалось применить изменения';
+    else if (action === 'fillAtmos') failureTitle.current = 'Не удалось заполнить атмосферу';
+    else if (action === 'diagnoseAtmos') failureTitle.current = 'Не удалось проверить герметичность';
     else if (action === 'download') failureTitle.current = payload?.scope === 'grid' ? 'Не удалось сохранить grid' : 'Не удалось сохранить карту';
     else if (action === 'draftFileStart') failureTitle.current = 'Не удалось сохранить черновик grid';
     else if (action === 'favorite') failureTitle.current = 'Не удалось сохранить избранное';
@@ -25,7 +30,12 @@ export const GridEditor = () => {
   };
   const [mirror, setMirror] = useState({ enabled: false, axis: 'x', center: (data.gridX || 0) + (data.gridWidth || data.width || 16) / 2 });
   const mirrorPairs = useRef(new Map());
-  const [expansion, setExpansion] = useState({ left: 0, right: 0, bottom: 0, top: 0, tile: 'Plating' });
+  const [baseline, setBaseline] = useState(data.items || []);
+  const resizeGrid = useRef(null);
+  const [expansion, setExpansion] = useState({ left: 0, right: 0, bottom: 0, top: 0 });
+  const [localEdits, setLocalEdits] = useState([]);
+  const editsRef = useRef([]), patchCursor = useRef(0), serverArea = useRef(null);
+  const replaceEdits = edits => { editsRef.current = edits; setLocalEdits(edits); };
   const [draft, setDraft] = useState(data.items || []);
   const [undo, setUndo] = useState([]), [redo, setRedo] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -39,6 +49,7 @@ export const GridEditor = () => {
   const [z, setZ] = useState(0), [cleanable, setCleanable] = useState(false);
   const [hover, setHover] = useState(null), [previewCells, setPreviewCells] = useState([]);
   const [rubberband, setRubberband] = useState(null), [contextMenu, setContextMenu] = useState(null), [failure, setFailure] = useState(null);
+  const [atmosMode, setAtmosMode] = useState(false), [atmosBusy, setAtmosBusy] = useState(false);
   const [before, setBefore] = useState(false), [pending, setPending] = useState(false), [confirmClose, setConfirmClose] = useState(false);
   const [sceneProgress, setSceneProgress] = useState({ label: 'Подготовка карты', done: 0, total: 1, blocking: true });
   const [sceneAttempt, setSceneAttempt] = useState(0);
@@ -128,22 +139,43 @@ export const GridEditor = () => {
   const catalogView = useRef(null), requestedPages = useRef(new Set()), catalogRequest = useRef(null);
   const catalogStart = Math.max(0, Math.floor(catalogScroll / 64) - 2);
   const catalogEnd = Math.min(data.catalogCount || 0, catalogStart + 20);
-  const area = useMemo(() => ({ x: data.x || 0, y: data.y || 0, width: data.width || 16, height: data.height || 16 }), [data.x, data.y, data.width, data.height]);
+  const baseArea = useMemo(() => ({ x: data.x || 0, y: data.y || 0, width: data.width || 16, height: data.height || 16 }), [data.x, data.y, data.width, data.height]);
+  const area = useMemo(() => ({ x: baseArea.x - expansion.left, y: baseArea.y - expansion.bottom,
+    width: baseArea.width + expansion.left + expansion.right, height: baseArea.height + expansion.bottom + expansion.top }), [baseArea, expansion]);
+  const previousArea = useRef(area);
+  useLayoutEffect(() => {
+    const previous = previousArea.current;
+    if (viewport.current) {
+      viewport.current.scrollLeft += (previous.x - area.x) * cellSize;
+      viewport.current.scrollTop += (area.y + area.height - previous.y - previous.height) * cellSize;
+    }
+    previousArea.current = area; measureView();
+  }, [area]);
   const gridBounds = { x: data.gridX || 0, y: data.gridY || 0, width: data.gridWidth || 0, height: data.gridHeight || 0 };
-  const expanded = expansionCount(gridBounds, expansion);
+  const expanded = expansionCount(baseArea, expansion);
   const cellSize = 32 * zoom;
-  const itemChanges = useMemo(() => changeCount(data.items || [], draft), [data.items, draft]);
+  const itemChanges = localEdits.length;
   const changes = itemChanges + (expanded ? 1 : 0);
-  const draftErrors = useMemo(() => validateDraft(draft, area), [draft, area]);
-  const errors = draftErrors || (itemChanges > 2048 ? 'Примените не более 2048 изменений за один раз' : expanded > 8192 ? 'Не более 8192 новых тайлов за одно расширение' : '');
+  const draftErrors = useMemo(() => validateDraft(draft, area, new Set(localEdits.map(item => item.id))), [draft, area, localEdits]);
+  const errors = draftErrors;
+  useInterfaceStyleGuard(changes > 0 || pending || exporting || data.downloading);
   const locked = before || pending || data.downloading || exporting || sceneProgress?.blocking;
+  const atmosCells = data.atmosCells || [];
+  const atmosIndex = useMemo(() => new Map(atmosCells.map(cell => [`${cell.x}:${cell.y}`, cell])), [data.atmosCells]);
+  const atmosCurrent = data.atmosToken === data.token && data.atmosPatchVersion === (data.patchVersion || 0) && !changes && !pending;
+  const hoverAtmos = hover && atmosCurrent ? atmosIndex.get(`${hover.x}:${hover.y}`) : null;
+  const atmosLeaks = useMemo(() => atmosCells.filter(cell => cell.leaks), [data.atmosCells]);
+  const requestAtmos = (fill = false) => { setAtmosBusy(true); act(fill ? 'fillAtmos' : 'diagnoseAtmos', {}); };
+  useEffect(() => { if (atmosMode && !changes && !pending) requestAtmos(); }, [atmosMode, changes, pending, data.token]);
+  useEffect(() => setAtmosBusy(false), [data.atmosVersion, data.resultVersion]);
   const reference = useGridEditorReference({ data, act, area, viewport, canvas, cellSize, blocked: selectHeld || deleteHeld || panning || before || pending, onFailure: message => setFailure({ title: 'Не удалось вставить скриншот', message }) });
-  const displayed = before ? data.items || [] : draft;
+  const displayed = before ? baseline : draft;
   const visuals = useMemo(() => {
-    for (const entry of [...(data.visuals || []), ...(data.libraryVisuals || []), ...(data.catalog || [])])
+    for (const entry of [...(data.visuals || []), ...(data.patchVisuals || []), ...(data.peerVisuals || []), ...(data.libraryVisuals || []), ...(data.catalog || [])])
       visualCache.current.set(`${entry.kind}:${entry.id}`, { ...visualCache.current.get(`${entry.kind}:${entry.id}`), ...entry });
     return new Map(visualCache.current);
-  }, [data.visuals, data.libraryVisuals, data.catalog]);
+  }, [data.visuals, data.patchVisuals, data.peerVisuals, data.libraryVisuals, data.catalog]);
+  const peerDrafts = useGridEditorPeers({ data, act, edits: localEdits, visuals, expansion });
   const visual = (item) => visuals.get(`${item.kind}:${item.prototype}`);
   const spatialIndex = useMemo(() => indexItems(displayed), [displayed]);
   useEffect(() => {
@@ -159,7 +191,7 @@ export const GridEditor = () => {
       };
       image.src = url;
     }
-  }, [data.visuals, data.catalog, data.libraryVisuals]);
+  }, [data.visuals, data.patchVisuals, data.peerVisuals, data.catalog, data.libraryVisuals]);
   const opaque = (images, u, v) => !images.length || images.some(({ url }) => {
     const mask = alphaMasks.current.get(url); if (!mask) return true;
     const scale = Math.max(mask.width, mask.height), x = (u - .5) * scale + mask.width / 2, y = (v - .5) * scale + mask.height / 2;
@@ -167,25 +199,77 @@ export const GridEditor = () => {
   });
   const pointAt = event => { const rect = canvas.current.getBoundingClientRect(); return { x: area.x + (event.clientX - rect.left) / cellSize, y: area.y + area.height - (event.clientY - rect.top) / cellSize }; };
   const underPointer = point => itemsAtPoint(nearbyItems(spatialIndex, point), point, layers, visual, opaque);
-  const nextId = () => `new_${Date.now()}_${counter.current++}`;
+  const nextId = () => `new_${data.token}_${Date.now()}_${counter.current++}`;
   const update = (next, restore = false) => {
     if (restore) { current.current = next; setDraft(next); return; }
-    const baseline = gesture.current?.ids ? gesture.current.original : current.current;
-    if (!restore) next = mirrorChanges(baseline, next, mirror, area, nextId, mirrorPairs.current, id => !!visuals.get(`entity:${id}`)?.diagonal);
-    next = replaceConflicts(baseline, next, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
-    const supported = ensureWallFloors(next, id => visuals.get(`entity:${id}`)?.category === 'wall', data.items || [], id => !!visuals.get(`entity:${id}`)?.diagonal);
+    const previous = gesture.current?.ids ? gesture.current.original : current.current;
+    if (!restore) next = mirrorChanges(previous, next, mirror, area, nextId, mirrorPairs.current, id => !!visuals.get(`entity:${id}`)?.diagonal);
+    next = replaceConflicts(previous, next, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    const supported = ensureWallFloors(next, id => visuals.get(`entity:${id}`)?.category === 'wall', baseline, id => !!visuals.get(`entity:${id}`)?.diagonal, current.current);
+    replaceEdits(trackLocalEdits(current.current, supported, editsRef.current));
     current.current = supported; setDraft(supported);
   };
-  const remember = (previous = current.current) => { setUndo((history) => [...history.slice(-49), { items: copyItems(previous), expansion: { ...expansion } }]); setRedo([]); };
+  const remember = (previous = current.current, edits = editsRef.current) => { setUndo((history) => [...history.slice(-49), { edits: copyItems(edits), expansion: { ...expansion } }]); setRedo([]); };
   const change = (next) => { if (JSON.stringify(next) === JSON.stringify(current.current)) return; remember(); update(next); };
-  const changeExpansion = next => { remember(); setExpansion(next); };
+  const startGridResize = (sides, event) => {
+    if (locked || event.button !== 0) return;
+    event.preventDefault(); event.stopPropagation(); remember();
+    resizeGrid.current = { sides, x: event.clientX, y: event.clientY, expansion: { ...expansion }, cellSize };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const moveGridResize = event => {
+    const drag = resizeGrid.current; if (!drag) return;
+    event.stopPropagation();
+    const dx = Math.round((event.clientX - drag.x) / drag.cellSize), dy = Math.round((event.clientY - drag.y) / drag.cellSize);
+    const next = { ...drag.expansion };
+    for (const side of drag.sides) next[side] = Math.max(0, drag.expansion[side] + ({ left: -dx, right: dx, top: -dy, bottom: dy })[side]);
+    setExpansion(next);
+  };
+  const endGridResize = (event, cancel = false) => {
+    event.stopPropagation();
+    if (cancel && resizeGrid.current) setExpansion(resizeGrid.current.expansion);
+    resizeGrid.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
   const search = (page = 0) => act('search', { category, query, page });
   useEffect(() => {
     setUndo([]); setRedo([]); setSelected([]);
-    setExpansion({ left: 0, right: 0, bottom: 0, top: 0, tile: 'Plating' });
+    setExpansion({ left: 0, right: 0, bottom: 0, top: 0 });
+    setBaseline(data.items || []); replaceEdits([]); patchCursor.current = 0; serverArea.current = baseArea;
     mirrorPairs.current.clear(); update(copyItems(data.items || []), true); setPending(false); setBefore(false);
     gesture.current = null; setMovePreview(null); setPreviewCells([]); setRubberband(null); setContextMenu(null); setFailure(null); upload.current = null;
   }, [data.token]);
+  useEffect(() => {
+    if (!data.patchVersion || data.patchVersion <= patchCursor.current) return;
+    const batches = data.patchBatches || [{ version: data.patchVersion, applied: !!data.patchApplied,
+      items: data.patchItems || [], removed: data.patchRemoved || [], ...baseArea }];
+    let next = new Map(baseline.map(item => [item.id, item]));
+    let edits = editsRef.current, nextExpansion = expansion, previousArea = serverArea.current || baseArea;
+    let history = undo, future = redo, applied = false;
+    for (const batch of batches) {
+      if (batch.version <= patchCursor.current) continue;
+      for (const { id } of batch.removed) next.delete(id);
+      for (const item of batch.items) next.set(item.id, item);
+      const bounds = { x: batch.x, y: batch.y, width: batch.width, height: batch.height };
+      if (batch.applied) {
+        edits = []; nextExpansion = { left: 0, right: 0, bottom: 0, top: 0 };
+        history = []; future = []; applied = true;
+      } else {
+        nextExpansion = rebaseExpansion(previousArea, bounds, nextExpansion);
+        const rebaseHistory = snapshots => snapshots.map(snapshot => ({ ...snapshot,
+          expansion: rebaseExpansion(previousArea, bounds, snapshot.expansion) }));
+        history = rebaseHistory(history); future = rebaseHistory(future);
+      }
+      previousArea = bounds; patchCursor.current = batch.version;
+    }
+    serverArea.current = previousArea;
+    const items = [...next.values()], merged = overlayLocalEdits(items, edits, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    setBaseline(items); replaceEdits(edits); update(merged, true); setExpansion(nextExpansion);
+    setUndo(history); setRedo(future); setSelected(ids => ids.filter(id => merged.some(item => item.id === id)));
+    if (gesture.current?.original) gesture.current.original = copyItems(merged);
+    if (applied) { setPending(false); upload.current = null; }
+    act('patchAck', { version: patchCursor.current });
+  }, [data.patchVersion]);
   useEffect(() => { setPending(false); if (data.success === false && data.status) setFailure({ title: failureTitle.current, message: data.status }); }, [data.resultVersion]);
   useEffect(() => {
     const transfer = draftFile.current;
@@ -219,10 +303,10 @@ export const GridEditor = () => {
     act('applyStart', { id, count: items.length, chunks: chunks.length, purpose, name, ...(purpose === 'apply' && expanded ? { expansion } : {}) });
   };
   const apply = () => {
-    const baseline = new Set((data.items || []).map(i => i.id));
-    const normalized = current.current.map(i => i.kind !== 'tile' && !baseline.has(i.id) && !i.id.startsWith('new_') ? { ...i, id: nextId() } : i);
+    const baselineIds = new Set(baseline.map(i => i.id));
+    const normalized = current.current.map(i => i.kind !== 'tile' && !baselineIds.has(i.id) && !i.id.startsWith('new_') ? { ...i, id: nextId() } : i);
     update(normalized);
-    startTransfer(makePatch(data.items || [], current.current));
+    startTransfer(editsRef.current);
   };
   useEffect(() => {
     requestedPages.current.clear(); catalogRequest.current = 0; setCatalogRows([]); setCatalogScroll(0);
@@ -389,6 +473,7 @@ export const GridEditor = () => {
     } else if (!active.pan) {
       if (cancel) { update(active.original, true); if (active.ids) setSelected(active.ids); }
       else {
+        const previousEdits = copyItems(editsRef.current);
         move(event);
         if (active.ids && active.offset) {
           const moved = moveSelection(active.original, active.ids, active.offset.dx, active.offset.dy, area);
@@ -397,7 +482,7 @@ export const GridEditor = () => {
         if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), layers));
         if (active.drawing && tool === 'brush') paint(cellsBetween(active.start, active.last, true));
         if (active.drawing && tool === 'line') paint(cellsBetween(active.start, active.last));
-        if (JSON.stringify(current.current) !== JSON.stringify(active.original)) remember(active.original);
+        if (JSON.stringify(current.current) !== JSON.stringify(active.original)) remember(active.original, previousEdits);
       }
     }
     gesture.current = null; setMovePreview(null); setPreviewCells([]); setRubberband(null); setPanning(false);
@@ -406,11 +491,11 @@ export const GridEditor = () => {
   const step = (forward) => {
     const history = forward ? redo : undo; if (!history.length || locked) return;
     const snapshot = history[history.length - 1];
-    const next = copyItems(snapshot.items);
-    const previous = { items: copyItems(current.current), expansion: { ...expansion } };
+    const next = overlayLocalEdits(baseline, snapshot.edits || [], id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    const previous = { edits: copyItems(editsRef.current), expansion: { ...expansion } };
     if (forward) { setUndo((h) => [...h, previous]); setRedo(history.slice(0, -1)); }
     else { setRedo((h) => [...h, previous]); setUndo(history.slice(0, -1)); }
-    update(next, true); setExpansion(snapshot.expansion); setSelected([]);
+    replaceEdits(copyItems(snapshot.edits || [])); update(next, true); setExpansion(snapshot.expansion); setSelected([]);
   };
   const remove = () => { change(current.current.filter((i) => !selected.includes(i.id))); setSelected([]); };
   const rotate = () => {
@@ -594,18 +679,13 @@ export const GridEditor = () => {
             onPointerDown={down} onPointerMove={move} onPointerUp={(e) => up(e)} onPointerCancel={(e) => up(e, true)} onPointerLeave={() => { if (!gesture.current) setHover(null); }}>
           <div ref={canvas} className={`GridEditor__canvas ${gridLines ? 'grid' : ''} ${panning ? 'panning' : ''} tool-${deleteHeld ? 'erase' : activeTool}`} tabIndex={0} aria-label="План grid"
             style={{ left: view.width / 2, top: view.height / 2, width: area.width * cellSize, height: area.height * cellSize, '--cell': `${cellSize}px` }}>
-            {!before && layers.tile && expansionRects(gridBounds, expansion).map((rect, index) => {
-              const left = Math.max(rect.x, area.x), bottom = Math.max(rect.y, area.y);
-              const right = Math.min(rect.x + rect.width, area.x + area.width), top = Math.min(rect.y + rect.height, area.y + area.height);
-              if (right <= left || top <= bottom) return null;
-              const image = visuals.get(`tile:${expansion.tile}`)?.images?.[0]?.url;
-              return <div key={`expansion_${index}`} className="GridEditor__expansion" style={{
-                left: (left - area.x) * cellSize, top: (area.y + area.height - top) * cellSize,
-                width: (right - left) * cellSize, height: (top - bottom) * cellSize,
-                backgroundImage: image ? `url("${image}")` : undefined, backgroundSize: `${cellSize}px ${cellSize}px`,
-              }} />;
-            })}
+            {!before && [['left'], ['right'], ['top'], ['bottom'], ['left', 'top'], ['right', 'top'], ['left', 'bottom'], ['right', 'bottom']].map(sides =>
+              <button key={sides.join('-')} aria-label={`Растянуть grid: ${sides.join(' ')}`} disabled={locked}
+                className={`GridEditor__resizeGrid ${sides.join(' ')}`} onPointerDown={event => startGridResize(sides, event)}
+                onPointerMove={moveGridResize} onPointerUp={event => endGridResize(event)} onPointerCancel={event => endGridResize(event, true)} />)}
             <GridEditorScene key={`${data.token}:${sceneAttempt}`} index={spatialIndex} area={area} layers={layers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
+            {!before && !!peerDrafts.peers.length && <GridEditorPeers items={peerDrafts.items} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
+            {atmosMode && atmosCurrent && !before && <GridEditorAtmos cells={atmosCells} area={area} view={view} cellSize={cellSize} />}
             {mirror.enabled && <div className={`GridEditor__mirrorLine ${mirror.axis}`} style={mirror.axis === 'x' ? { left: (mirror.center - area.x) * cellSize, height: area.height * cellSize } : { top: (area.y + area.height - mirror.center) * cellSize, width: area.width * cellSize }} />}
             {reference.overlay}
             {rubberband && <div className={`GridEditor__rubberband ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`} style={{
@@ -643,13 +723,31 @@ export const GridEditor = () => {
         <label>Координата оси <input aria-label="Координата оси зеркальности" type="number" step={.5} disabled={locked} value={mirror.center} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, center: Math.round(Number(event.target.value) * 2) / 2 }); }} /></label>
         <small>Добавление, перенос, поворот и удаление отражаются относительно оси. Применяются вместе с черновиком.</small>
         {reference.controls}
+        {!!peerDrafts.peers.length && <><strong>Совместный просмотр</strong>
+          <small>Чужие черновики полупрозрачны, удаления отмечены крестом. «Применить» сохраняет ваши правки.</small>
+          {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
+        </>}
+        <strong>Атмосфера</strong>
+        <label><input type="checkbox" checked={atmosMode} onChange={event => setAtmosMode(event.target.checked)} />Диагностика утечек</label>
+        {atmosMode && <>
+          <small>Зелёный — герметично; красный — сообщается с внешней средой; жёлтые грани — выходы воздуха; серый — непроницаемая стена; оранжевый — космический тайл.</small>
+          <small>Проверяются текущие стены и двери применённой карты. Трубы и работающие устройства не анализируются.</small>
+          {changes > 0 ? <small>Примените черновик для проверки новой геометрии.</small> : <>
+            <span>Герметичных клеток: {data.atmosSealed || 0}. С утечкой: {data.atmosLeaking || 0}. Выходов: {atmosLeaks.length}.</span>
+            <button disabled={atmosBusy || locked} onClick={() => requestAtmos()}>{atmosBusy ? 'Проверка…' : 'Проверить герметичность'}</button>
+            <button disabled={atmosBusy || locked || !atmosCurrent || !data.atmosSealed} onClick={() => requestAtmos(true)}>Заполнить герметичные области</button>
+            <small>Стандартный воздух: 101,3 кПа, 20 °C. Негерметичные области и стены без объёма воздуха пропускаются.</small>
+            {data.atmosFilled > 0 && <small>Заполнено клеток: {data.atmosFilled}.</small>}
+            {atmosLeaks.slice(0, 8).map(cell => <button key={`${cell.x}:${cell.y}`} onClick={() => {
+              viewport.current.scrollLeft = (cell.x + .5 - area.x) * cellSize;
+              viewport.current.scrollTop = (area.y + area.height - cell.y - .5) * cellSize;
+            }}>Выход наружу: {cell.x}, {cell.y}</button>)}
+          </>}
+          {hoverAtmos && <small>Клетка {hoverAtmos.x}, {hoverAtmos.y}: {{ sealed: 'герметично', leaking: 'есть выход наружу', blocked: 'воздух заблокирован', space: 'космический тайл' }[hoverAtmos.status]}, {hoverAtmos.pressure.toFixed(1)} кПа.</small>}
+        </>}
         <strong>Слои</strong>{[['tile', 'Полы'], ['entity', 'Объекты и стены'], ['decal', 'Декали']].map(([id, name]) => <label key={id}><input type="checkbox" checked={layers[id]} onChange={(e) => setLayers({ ...layers, [id]: e.target.checked })} />{name}</label>)}
-        <strong>Расширить grid · {gridBounds.width}×{gridBounds.height}</strong>
-        {[['left', 'Слева'], ['right', 'Справа'], ['bottom', 'Снизу'], ['top', 'Сверху']].map(([side, label]) => <label key={side}>{label}
-          <input aria-label={`Расширить ${label.toLowerCase()}`} type="number" min={0} max={32} step={1} value={expansion[side]} disabled={locked}
-            onChange={e => changeExpansion({ ...expansion, [side]: Math.max(0, Math.min(32, Math.trunc(Number(e.target.value)) || 0)) })} /></label>)}
-        <button disabled={locked || brush?.kind !== 'tile'} onClick={() => changeExpansion({ ...expansion, tile: brush.id })}>Пол: {expansion.tile}</button>
-        <small>Новые полосы пола: {expanded} тайлов. Размер после применения: {gridBounds.width + expansion.left + expansion.right}×{gridBounds.height + expansion.bottom + expansion.top}. Выберите пол в каталоге и нажмите «Пол», затем «Применить». Максимум 8192 новых тайла за раз.</small>
+        <strong>Область grid · {area.width}×{area.height}</strong>
+        <small>Тяните края или углы сетки мышью. Новая область пустая: полы и объекты размещаются кистью. Изменения сохраняются кнопкой «Применить».</small>
         <strong>{selected.length ? `Выбрано: ${selected.length}` : 'Кисть'}</strong><p>{one?.prototype || templateBrush?.name || brush?.name || 'Выберите элемент каталога'}</p>
         <button disabled={locked} onClick={rotate}>Повернуть · R ({activeTool === 'select' && one ? one.rotation : rotation}°)</button>
         <small>Стены, окна, столы и шкафы автоматически заменяют конструкции в целевой клетке.</small>
@@ -678,9 +776,9 @@ export const GridEditor = () => {
       <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S · Сохранить текущий план в .yml, включая все несохранённые изменения и расширение. Объекты создаются по прототипам; настройки компонентов из раунда не переносятся.">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
       <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'grid' })} title="Сохранить серверный grid со всеми настройками компонентов. Сначала примените черновик.">Исходный grid</button>
       <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'map' })} title="Скачать всю карту в .yml">Скачать карту</button>
-      <button disabled={locked || !!changes} onClick={() => act('fixAtmos')} title="Восстановить стартовые газы после изменения площади grid">Атмосфера</button>
-      <button disabled={pending || !changes} onClick={() => { change(copyItems(data.items || [])); setSelected([]); setExpansion({ left: 0, right: 0, bottom: 0, top: 0, tile: 'Plating' }); }}>Сбросить</button>
-      <button className="primary" disabled={locked || !changes || !!errors || itemChanges > 2048} onClick={apply}>{pending ? 'Применение…' : 'Применить'}</button></footer>
+      <button className={atmosMode ? 'active' : ''} disabled={pending} onClick={() => setAtmosMode(!atmosMode)}>Атмосфера</button>
+      <button disabled={pending || !changes} onClick={() => { remember(); replaceEdits([]); update(copyItems(baseline), true); setSelected([]); setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>
+      <button className="primary" disabled={locked || !changes || !!errors} onClick={apply}>{pending ? 'Применение…' : 'Применить'}</button></footer>
     {contextMenu && <div className="GridEditor__contextBackdrop" onPointerDown={event => { if (event.target === event.currentTarget) { event.preventDefault(); setContextMenu(null); } }} onContextMenu={event => event.preventDefault()}>
       <div className="GridEditor__radial" role="dialog" aria-label="Меню клетки" style={{ left: contextMenu.x, top: contextMenu.y }}>
         <div className="GridEditor__cellItems"><strong>Клетка {contextMenu.cell.x}, {contextMenu.cell.y}</strong>

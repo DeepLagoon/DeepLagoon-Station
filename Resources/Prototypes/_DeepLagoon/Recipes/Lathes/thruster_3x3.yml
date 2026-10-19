@@ -1,0 +1,4 @@
+- type: latheRecipe
+  parent: BaseCircuitboardRecipe
+  id: Thruster3x3MachineCircuitboard
+  result: Thruster3x3MachineCircuitboard

@@ -1,3 +1,4 @@
+import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { Icon } from '../components';
@@ -10,6 +11,7 @@ export const ArtStudio = () => {
   const editor = useRef(null), canvas = useRef(null), viewport = useRef(null), gesture = useRef(null), saved = useRef(null);
   const api = useRef(null), previewTimer = useRef(null), renderTimer = useRef(null), alive = useRef(true), generation = useRef(0), transfer = useRef(0);
   const [ready, setReady] = useState(false), [dirty, setDirty] = useState(false), [busy, setBusy] = useState(false), [, refresh] = useState(0);
+  useInterfaceStyleGuard(dirty || busy);
   const [tool, setTool] = useState('brush'), [shape, setShape] = useState(data.tool === 'brush' ? 'round' : data.tool || 'round');
   const [color, setColor] = useState('#202020'), [size, setSize] = useState(18), [flow, setFlow] = useState(1);
   const [status, setStatus] = useState(''), [dialog, setDialog] = useState(''), [closeAfterSave, setCloseAfterSave] = useState(false);

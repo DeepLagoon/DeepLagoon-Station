@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cellsBetween, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem } from '../packages/tgui/interfaces/gridEditorModel.mjs';
+import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
@@ -234,7 +234,7 @@ test('diagonal supports rotate with walls, become square inside corners, and pre
   assert.equal(items.find(i=>i.kind==='tile').prototype,'DLPlatingDiagonal');
   for(const rotation of [90,180,270,0]) {
     items=ensureWallFloors(items.map(i=>i.id==='w'?{...i,rotation}:i),wallPrototype,[],id=>id==='Diagonal');
-    assert.equal(items.find(i=>i.kind==='tile').mirror,rotation/90);
+    assert.equal(items.find(i=>i.kind==='tile').mirror,(rotation/90+2)%4);
   }
   const inner = ensureWallFloors([wall,testTile(0,1),testTile(1,0),testTile(0,-1),testTile(-1,0)],wallPrototype,[],id=>id==='Diagonal');
   assert.equal(inner.find(i=>i.id==='t:0:0').prototype,'Plating');
@@ -271,4 +271,80 @@ test('large rectangle stamping avoids duplicate tiles and supports 250 by 250 fi
   const cells=cellsBetween({x:0,y:0},{x:249,y:249},true);
   const result=stamp([testTile(0,0)],cells,{kind:'tile',id:'Plating'},options,nextId);
   assert.equal(result.length,62500);assert.equal(new Set(result.map(i=>i.id)).size,62500);
+});
+
+
+test('live updates preserve local changes, deletions and supporting floors until explicit reset or apply', () => {
+  const floor = testTile(0, 0), chair = { ...testWall('chair', 0, 0, 0, 'Chair'), anchored: true };
+  const previous = [floor, chair, testTile(1, 0)];
+  const next = previous.filter(item => item.id !== 't:1:0').map(item => item.id === 'chair' ? { ...item, rotation: 90 } : item);
+  const edits = trackLocalEdits(previous, next);
+  assert.ok(edits.some(item => item.id === floor.id), 'The floor under an edited anchored object is protected');
+  const live = [testTile(1, 0, 'FloorSteel'), testTile(5, 5)];
+  const merged = overlayLocalEdits(live, edits);
+  assert.equal(merged.find(item => item.id === 'chair').rotation, 90);
+  assert.ok(merged.some(item => item.id === floor.id));
+  assert.ok(!merged.some(item => item.id === 't:1:0'));
+  assert.ok(merged.some(item => item.id === 't:5:5'));
+  // A matching update must not erase the local tombstone before an item reappears.
+  assert.ok(!overlayLocalEdits([...live, testTile(1, 0)], edits).some(item => item.id === 't:1:0'));
+  assert.deepEqual(overlayLocalEdits(live, []), live);
+});
+
+test('undo can restore only local intent over the latest live map instead of restoring a stale snapshot', () => {
+  const old = [testTile(0, 0)], local = [testTile(0, 0, 'FloorSteel')];
+  const before = [], after = trackLocalEdits(old, local);
+  const latest = [testTile(0, 0), testTile(4, 4)];
+  assert.equal(overlayLocalEdits(latest, before).find(item => item.id === 't:0:0').prototype, 'Plating');
+  assert.equal(overlayLocalEdits(latest, after).find(item => item.id === 't:0:0').prototype, 'FloorSteel');
+  assert.ok(overlayLocalEdits(latest, before).some(item => item.id === 't:4:4'));
+});
+
+test('live area expansion retains absolute local empty-space bounds without duplicating remote growth', () => {
+  assert.deepEqual(rebaseExpansion({x:0,y:0,width:10,height:10}, {x:-4,y:-4,width:18,height:18},
+    {left:8,right:8,bottom:8,top:8}), {left:4,right:4,bottom:4,top:4});
+});
+
+test('preview deltas distinguish clearing an intent from deleting a world object', () => {
+  const deletion = {id:'e:1',kind:'remove'}, tile = testTile(0,0);
+  assert.deepEqual(previewPatch([], [deletion]), [deletion]);
+  assert.deepEqual(previewPatch([deletion], []), [{id:'e:1',kind:'clear'}]);
+  assert.deepEqual(previewPatch([tile], [tile]), []);
+});
+
+test('foreign drafts are visible but local edits take priority and are never mutated', () => {
+  const local = [testTile(0,0,'FloorSteel')];
+  const peers = [{items:[testTile(0,0),testTile(2,2)],removedItems:[testTile(3,3)]}];
+  const result = peerPreview(peers, local);
+  assert.deepEqual(result.items.map(item=>item.id), ['t:2:2']);
+  assert.deepEqual(result.removed.map(item=>item.id), ['t:3:3']);
+  assert.equal(local[0].prototype, 'FloorSteel');
+});
+
+test('invalid external support does not block an unrelated valid local edit', () => {
+  const unsupported = { ...testWall('old',0,0,0,'Chair'), anchored:true };
+  assert.equal(validateDraft([unsupported,testTile(1,1)],area,new Set(['t:1:1'])), '');
+  assert.notEqual(validateDraft([unsupported],area,new Set(['old'])), '');
+});
+
+
+test('support normalization touches only edited walls and their neighbors', () => {
+  const wall = { id:'w',kind:'entity',prototype:'Diagonal',x:20.5,y:20.5,rotation:0,anchored:true };
+  const oldFloor = { ...testTile(20,20),prototype:'DLPlatingDiagonal',mirror:0 };
+  const original = [wall,oldFloor,testTile(0,0)];
+  const edited = original.map(i=>i.id==='t:0:0'?{...i,prototype:'FloorSteel'}:i);
+  const result = ensureWallFloors(edited,()=>true,original,()=>true,original);
+  assert.strictEqual(result.find(i=>i.id===oldFloor.id),oldFloor);
+  const rotated = result.map(i=>i.id==='w'?{...i,rotation:90}:i);
+  assert.equal(ensureWallFloors(rotated,()=>true,result,()=>true,result).find(i=>i.id===oldFloor.id).mirror,3);
+});
+
+test('local construction hides conflicting external construction until undo', () => {
+  const external = {id:'external',kind:'entity',prototype:'Wall',x:.5,y:.5};
+  const own = {...external,id:'new_own',rotation:90};
+  const cup = {...external,id:'cup',prototype:'Cup'};
+  const baseline = [external,cup];
+  const result = overlayLocalEdits(baseline,[own],p=>p==='Wall');
+  assert.deepEqual(result,[cup,own]);
+  assert.deepEqual(overlayLocalEdits(baseline,[],p=>p==='Wall'),baseline);
 });

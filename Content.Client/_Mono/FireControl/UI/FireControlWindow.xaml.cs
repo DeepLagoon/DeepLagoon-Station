@@ -29,7 +29,6 @@ public sealed class FireControlWindow : FancyWindow
         Radar.HorizontalExpand = Radar.VerticalExpand = true;
         layout.AddChild(Radar);
         AddChild(layout);
-        if (TguiPanel.Enabled)
         {
             ConsoleHost = new ShipRadarConsoleHost(Radar, "gunnery", Title ?? "Контроль орудий",
                 () => new TguiData().Object("weapons", _panel.TguiState()).Object("shield", _panel.ShieldTguiState()),

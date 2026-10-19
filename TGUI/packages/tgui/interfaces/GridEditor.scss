@@ -102,3 +102,18 @@ body:has(.GridEditor) { zoom: 1 !important; }
     &.action-delete { background: #63303a; border-color: #d8757b; }
   }
 }
+
+.GridEditor .GridEditor__resizeGrid {
+  position: absolute; z-index: 12; padding: 0; min-width: 0; border: 1px solid #54e8ef;
+  background: #163f50; touch-action: none;
+  &.left { left: 0; } &.right { right: 0; }
+  &.top { top: 0; } &.bottom { bottom: 0; }
+  &.left:not(.top):not(.bottom), &.right:not(.top):not(.bottom) { top: 12px; bottom: 12px; width: 9px; cursor: ew-resize; }
+  &.top:not(.left):not(.right), &.bottom:not(.left):not(.right) { left: 12px; right: 12px; height: 9px; cursor: ns-resize; }
+  &.left.top, &.right.bottom { width: 11px; height: 11px; cursor: nwse-resize; }
+  &.right.top, &.left.bottom { width: 11px; height: 11px; cursor: nesw-resize; }
+}
+
+.GridEditor__atmos { pointer-events: none; z-index: 4; }
+
+.GridEditor__peerLayer { position: absolute; inset: 0; z-index: 2; opacity: .65; pointer-events: none; }

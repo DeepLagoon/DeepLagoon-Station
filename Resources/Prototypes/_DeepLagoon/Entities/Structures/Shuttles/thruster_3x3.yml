@@ -1,0 +1,132 @@
+# Ported from sector-frontier-14 _Lua thrusters; separate ID preserves existing 2x2 engines.
+- type: entity
+  id: Thruster3x3
+  parent: [BaseThruster, ConstructibleMachine]
+  name: capital thruster
+  suffix: 3x3
+  placement:
+    mode: AlignTileAny
+  components:
+  - type: Construction
+    graph: Machine3x3
+    node: machine
+    containers:
+    - machine_parts
+    - machine_board
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.25,-2.25,2.25,0.25"
+        density: 1750
+        mask:
+        - MachineMask
+        layer:
+        - MachineLayer
+  - type: ApcPowerReceiver
+    powerLoad: 12500
+  - type: Thruster
+    baseThrust: 800
+    thrust: 800 # Match the local T1 capacitor rating; upgrades use ThrusterSystem.
+    burnShape: ["-0.3,0.5","0.7,2.2","1.7,2.2","2.3,0.5"]
+    damage:
+      types:
+        Heat: 120
+        Structural: 120
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 15000
+      behaviors:
+        - !type:DoActsBehavior
+          acts: ["Destruction"]
+    - trigger:
+        !type:DamageTrigger
+        damage: 7500
+      behaviors:
+        - !type:DoActsBehavior
+          acts: ["Destruction"]
+        - !type:PlaySoundBehavior
+          sound:
+            collection: MetalBreak
+        - !type:ChangeConstructionNodeBehavior
+          node: machineFrame
+  - type: Anchorable
+    flags: None
+  - type: StaticPrice
+    price: 5000
+  - type: DeviceNetwork
+    deviceNetId: Wireless
+    receiveFrequencyId: BasicDevice
+  - type: WirelessNetworkConnection
+    range: 200
+  - type: DeviceLinkSink
+    ports:
+    - On
+    - Off
+    - Toggle
+  - type: RadarBlip
+    visibleFromOtherGrids: true
+    radarColor: "#99FF99"
+    scale: 1.5
+    shape: diamond
+    gridConfig:
+      color: "#99FF99"
+      shape: Square
+      respectZoom: true
+      rotate: true
+      bounds: "-0.25,-2.25,2.25,0.25"
+  - type: ShipRepairable
+    repairCost: 2
+
+  - type: Machine
+    board: Thruster3x3MachineCircuitboard
+  - type: Rotatable
+    rotateWhileAnchored: false
+    increment: 90
+  - type: Sprite
+    sprite: _Lua/Structures/Shuttles/thruster96.rsi
+    offset: 1,-1
+    layers:
+    - state: base_civ_large
+      map: ["enum.ThrusterVisualLayers.Base"]
+    - state: thrust_large
+      map: ["enum.ThrusterVisualLayers.ThrustOn"]
+      shader: unshaded
+      visible: false
+      color: "#4281de"
+    - state: thrust_burn_large_unshaded
+      map: ["enum.ThrusterVisualLayers.ThrustingUnshaded"]
+      shader: unshaded
+      visible: false
+      offset: 0, 2.8
+      color: "#4281de"
+
+- type: entity
+  id: Thruster3x3MachineCircuitboard
+  parent: BaseMachineCircuitboard
+  name: capital thruster machine board
+  description: A circuitboard for a large thruster. Requires a 3x3 machine frame.
+  components:
+  - type: Sprite
+    state: supply
+  - type: MachineBoard
+    prototype: Thruster3x3
+    frameSize: 3x3
+    requirements:
+      Capacitor: 6
+    stackRequirements:
+      Steel: 40
+      Plasteel: 10
+    tagRequirements:
+      ComponentBrickEconomy1:
+        amount: 2
+        defaultPrototype: ComponentBrickEconomy1
+      ElectromagnetEconomy1:
+        amount: 6
+        defaultPrototype: ElectromagnetEconomy1
+      ArmorPlateEconomy1:
+        amount: 6
+        defaultPrototype: ArmorPlateEconomy1

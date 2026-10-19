@@ -23,6 +23,9 @@ public sealed partial class CCVars
     public static readonly CVarDef<bool> DiscordLinkEnabled =
         CVarDef.Create("discord_link.enabled", false, CVar.SERVERONLY);
 
+    public static readonly CVarDef<bool> DiscordExternalAccounts =
+        CVarDef.Create("discord_link.external_accounts", false, CVar.SERVERONLY);
+
     public static readonly CVarDef<string> DiscordLinkDatabaseFile =
         CVarDef.Create("discord_link.database_file", "discord-links.db", CVar.SERVERONLY);
 

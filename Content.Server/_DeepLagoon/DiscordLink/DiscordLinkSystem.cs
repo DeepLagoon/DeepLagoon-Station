@@ -163,7 +163,8 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
             _nextBoostUpdate = DateTime.UtcNow.AddSeconds(5);
             PublishBoosts();
         }
-        if (!_enabled || _checkingPrompts || _prompts.Count == 0 || DateTime.UtcNow < _nextPromptCheck)
+        if (!_enabled || _checkingPrompts ||
+            (_prompts.Count == 0 && !_config.GetCVar(CCVars.DiscordExternalAccounts)) || DateTime.UtcNow < _nextPromptCheck)
             return;
         _nextPromptCheck = DateTime.UtcNow.AddSeconds(3);
         RefreshPrompts();
@@ -174,9 +175,18 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         _checkingPrompts = true;
         try
         {
-            foreach (var session in _prompts.Keys.ToArray())
+            var external = _config.GetCVar(CCVars.DiscordExternalAccounts);
+            var sessions = external ? _players.Sessions.ToArray() : _prompts.Keys.ToArray();
+            foreach (var session in sessions)
+            {
+                if (session.Status != SessionStatus.InGame || session.Channel.AuthType != LoginType.LoggedIn)
+                    continue;
+                if (external)
+                    await _whitelist.RefreshGlobalWhitelistAsync(session);
                 await RefreshAdmission(session);
+            }
         }
+        catch (Exception e) { Log.Error($"Discord WL refresh failed: {e.GetType().Name}"); }
         finally
         {
             _checkingPrompts = false;
@@ -275,6 +285,13 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         if (!authorized)
         {
             await context.RespondErrorAsync(HttpStatusCode.Unauthorized);
+            return true;
+        }
+        if (_config.GetCVar(CCVars.DiscordExternalAccounts) &&
+            (path.EndsWith("/whitelist", StringComparison.Ordinal) || path.EndsWith("/remove_whitelist", StringComparison.Ordinal) ||
+             path.Contains("/lc_", StringComparison.Ordinal)))
+        {
+            await context.RespondJsonAsync(new { error = "account_service_required" }, HttpStatusCode.Gone);
             return true;
         }
         if (path.EndsWith("/lc_history", StringComparison.Ordinal) || path.EndsWith("/lc_add", StringComparison.Ordinal) || path.EndsWith("/lc_remove", StringComparison.Ordinal))

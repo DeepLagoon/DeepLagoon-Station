@@ -1,0 +1,32 @@
+[Unit]
+Description=DeepLagoon independent whitelist and Lagoon Coin API
+After=network-online.target postgresql.service
+Wants=network-online.target
+# No dependency on deeplagoon-server: a game restart must not stop this service.
+
+[Service]
+Type=simple
+User=lagoon-accounts
+Group=lagoon-accounts
+WorkingDirectory=/opt/deeplagoon-accounts
+EnvironmentFile=/etc/deeplagoon-accounts.env
+ExecStart=/usr/bin/dotnet /opt/deeplagoon-accounts/DeepLagoon.AccountService.dll
+Restart=on-failure
+RestartSec=5
+StateDirectory=deeplagoon-accounts
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/deeplagoon-accounts
+
+[Install]
+WantedBy=multi-user.target

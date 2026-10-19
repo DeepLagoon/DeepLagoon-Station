@@ -15,6 +15,48 @@ public sealed partial class TguiPanel : Control
 {
     public static bool Enabled => WebUiCVars.UseTgui(IoCManager.Resolve<IConfigurationManager>().GetCVar(WebUiCVars.InterfaceStyle));
     private Action? _nativeFallback;
+    private Action? _tguiRestore;
+    private bool _webSwitchBlocked;
+    private Button? _styleButton;
+    private bool _styleBound;
+    private bool _styleInitialized;
+    /// <summary>Separate window types may share a frontend component but keep independent choices.</summary>
+    public string? InterfaceStyleKey { get; set; }
+    private string StyleKey => InterfaceStyleKey ?? (_interface == "ChatComposer" ? "Chat" : _interface);
+    public void SetTguiRestore(Action restore) => _tguiRestore = restore;
+    public void BindStyle(Control owner, string key, Func<bool> current, Action<bool> change, Func<bool, bool>? canChange = null)
+    {
+        _styleBound = true;
+        _styleButton = WindowInterfaceStyle.Attach(owner, key, current, next =>
+        {
+            if ((!next && _webSwitchBlocked) || canChange?.Invoke(next) == false) return;
+            WindowInterfaceStyle.Save(key, next);
+            change(next);
+        });
+    }
+
+    public bool SwitchToTgui()
+    {
+        if (Disposed || !_usingNative) return !Disposed;
+        if (!CanCloseNative()) return false;
+        _usingNative = false;
+        if (_styleButton != null) _styleButton.Text = "SS14";
+        if (_native != null) _native.Visible = false;
+        _nativeUpdates.Clear();
+        Web.Visible = true;
+        _tguiRestore?.Invoke();
+        NativeModeChanged?.Invoke();
+        Publish();
+        return true;
+    }
+
+    private void SelectStyle(bool tgui)
+    {
+        if (!tgui && _webSwitchBlocked) return;
+        if (tgui && !SwitchToTgui()) return;
+        WindowInterfaceStyle.Save(StyleKey, tgui);
+        if (!tgui) SwitchToNative();
+    }
     private NativeInterfacePanel? _native;
     private bool _usingNative;
     private bool _modeChangePending;
@@ -29,12 +71,17 @@ public sealed partial class TguiPanel : Control
     public void SwitchToNative()
     {
         if (Disposed || _usingNative) return;
+        EndWindowDrag();
+        ClearConsoleKeys();
         _usingNative = true;
+        _webSwitchBlocked = false;
+        if (_styleButton != null) { _styleButton.Text = "TGUI"; _styleButton.Disabled = false; }
         _failure.Visible = false;
         Web.Visible = false;
-        Web.StopBrowser();
+        Web.PauseBrowser();
         NativeModeChanged?.Invoke();
         if (_nativeFallback != null) { _nativeFallback(); return; }
+        if (_native != null) { _native.Visible = true; _native.UpdateState(_interface, _data); return; }
         _native = new NativeInterfacePanel((action, payload) => OnAction?.Invoke(action, payload), () => OnClose?.Invoke());
         AddChild(_native);
         _native.UpdateState(_interface, _data);
@@ -67,10 +114,10 @@ public sealed partial class TguiPanel : Control
         _inheritChatAppearance = inheritChatAppearance;
         _showWindowControls = showWindowControls;
         // All panels suspend while hidden, including native-only sessions. No hidden CEF windows.
-        Web = new GameWebView(suspendWhenHidden: true, captureKeyboard: captureKeyboard) { Visible = Enabled };
+        Web = new GameWebView(suspendWhenHidden: true, captureKeyboard: captureKeyboard) { Visible = false };
         Web.Sending += (type, payload) =>
         {
-            if (_native != null) { _native.Receive(type, payload); return; }
+            if (_usingNative && _native != null) { _native.Receive(type, payload); return; }
             if (type != "update") return;
             if (_nativeUpdates.Count >= 8) _nativeUpdates.Dequeue();
             _nativeUpdates.Enqueue(payload);
@@ -90,6 +137,19 @@ public sealed partial class TguiPanel : Control
         Web.Resumed += Publish;
         Web.Message += (type, payload) =>
         {
+            if (type == "act/__style-blocked")
+            {
+                if (TguiActionData.TryParse(payload, out var args) && args != null)
+                {
+                    _webSwitchBlocked = args.String("blocked") == "true";
+                    if (_styleButton != null)
+                    {
+                        _styleButton.Disabled = _webSwitchBlocked;
+                        _styleButton.ToolTip = Loc.GetString(_webSwitchBlocked ? "dl-ui-window-unsaved" : "dl-ui-window-switch");
+                    }
+                }
+                return;
+            }
             if (type == "close") { OnClose?.Invoke(); return; }
             if (type.StartsWith("act/", StringComparison.Ordinal) && type.Length is > 4 and <= 68 &&
                 payload.Length <= WebUiActionMessage.MaxPayloadLength)
@@ -103,7 +163,8 @@ public sealed partial class TguiPanel : Control
         _interface = interfaceName;
         _data = dataJson;
         _title = title;
-        _native?.UpdateState(_interface, _data);
+        if (!_styleInitialized) Web.Visible = WindowInterfaceStyle.UseTgui(StyleKey);
+        if (_usingNative) _native?.UpdateState(_interface, _data);
         Publish();
     }
 
@@ -117,10 +178,11 @@ public sealed partial class TguiPanel : Control
     /// <summary>Keep a full replay snapshot, but send only changed dynamic fields while the document is alive.</summary>
     public void SetIncrementalState(string interfaceName, TguiData data, string title = "DeepLagoon")
     {
+        if (!_styleInitialized) Web.Visible = WindowInterfaceStyle.UseTgui(InterfaceStyleKey ?? (interfaceName == "ChatComposer" ? "Chat" : interfaceName));
         var previous = _incrementalData;
         _incrementalData = data;
         _data = data.ToString();
-        _native?.UpdateState(interfaceName, _data);
+        if (_usingNative) _native?.UpdateState(interfaceName, _data);
         if (previous == null || _interface != interfaceName || _title != title)
         {
             _interface = interfaceName;
@@ -248,11 +310,26 @@ public sealed partial class TguiPanel : Control
         base.FrameUpdate(args);
         if (!ConsoleKeyboardFeedback || !VisibleInTree || !Web.IsReady || UsingNative || FloatingWindow() is not { } console || !console.IsAtFront())
             ClearConsoleKeys();
-        if (!_usingNative) Web.Visible = Enabled;
-        if (!Enabled && !_usingNative && !_modeChangePending)
+        if (!_styleInitialized && _interface.Length > 0 && !_modeChangePending)
         {
+            _styleInitialized = true;
+            // Bind outside traversal: typed fallbacks can replace and dispose their host.
             _modeChangePending = true;
-            UserInterfaceManager.DeferAction(() => { _modeChangePending = false; SwitchToNative(); });
+            Web.Visible = WindowInterfaceStyle.UseTgui(StyleKey);
+            UserInterfaceManager.DeferAction(() =>
+            {
+                _modeChangePending = false;
+                if (Disposed) return;
+                if (!_styleBound)
+                {
+                    _styleBound = true;
+                    _styleButton = WindowInterfaceStyle.Attach(FloatingWindow() ?? (Control) this, StyleKey, () => !_usingNative, SelectStyle);
+                    if (_showWindowControls && FloatingWindow() is { } host &&
+                        host is not Content.Client.UserInterface.Controls.FancyWindow && host is not DefaultWindow)
+                        _styleButton.Margin = new Thickness(0, 8, 96, 0);
+                }
+                if (!WindowInterfaceStyle.UseTgui(StyleKey)) SwitchToNative();
+            });
         }
         _windowControls?.SetTitle(_title);
         _windowControls?.Update();

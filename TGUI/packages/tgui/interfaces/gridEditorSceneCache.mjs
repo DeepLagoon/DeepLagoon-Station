@@ -9,7 +9,7 @@ const surface = size => {
   return canvas;
 };
 const visualKey = item => `${item.kind}:${item.prototype}`;
-const fields = ['id', 'kind', 'prototype', 'x', 'y', 'rotation', 'mirror', 'color', 'z'];
+const fields = ['id', 'kind', 'prototype', 'x', 'y', 'rotation', 'mirror', 'variant', 'flags', 'color', 'z'];
 const sameItems = (a, b) => a.length === b.length && a.every((item, i) =>
   item === b[i] || fields.every(field => item[field] === b[i][field]));
 const release = chunk => {
@@ -103,7 +103,15 @@ export class GridSceneCache {
       group.items.sort((a, b) => drawOrder(a, visuals.get(visualKey(a))) - drawOrder(b, visuals.get(visualKey(b))) || index.order.get(a.id) - index.order.get(b.id));
       const signature = [...new Set(group.items.map(visualKey))].map(key => definitions.get(key)).join('|');
       const previous = this.chunks.get(key);
-      if (!previous || previous.overview !== overview || previous.signature !== signature || !sameItems(previous.items, group.items)) {
+      // Changing the overview budget must not rasterize untouched map chunks.
+      // Existing pyramids already contain all smaller levels; release excess ones.
+      if (previous && previous.overview > overview) {
+        for (const [size, level] of previous.levels) if (size > overview) {
+          level.width = level.height = 0; previous.levels.delete(size);
+        }
+        previous.overview = overview;
+      }
+      if (!previous || previous.signature !== signature || !sameItems(previous.items, group.items)) {
         const chunk = await this.bake(group, visuals, sources, overview, stopped);
         if (!chunk) return;
         if (stopped()) { release(chunk); return; }
