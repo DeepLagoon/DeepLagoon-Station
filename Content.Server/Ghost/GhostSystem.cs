@@ -73,6 +73,7 @@ namespace Content.Server.Ghost
         [Dependency] private IAdminManager _admin = default!; // Frontier
         [Dependency] private IServerPreferencesManager _preferencesManager = default!;
         [Dependency] private GhostSpriteStateSystem _ghostState = default!;
+        [Dependency] private MovementSpeedModifierSystem _movementSpeed = default!;
 
         private EntityQuery<GhostComponent> _ghostQuery;
         private EntityQuery<PhysicsComponent> _physicsQuery;
@@ -125,7 +126,14 @@ namespace Content.Server.Ghost
             var query = AllEntityQuery<GhostComponent>();
             while (query.MoveNext(out var uid, out var ghost))
             {
-                SetAdminMovement((uid, ghost), _admin.IsAdmin(uid));
+                var admin = _admin.IsAdmin(uid);
+                if (admin && !ghost.AdminMovement && LifeStage(uid) < EntityLifeStage.MapInitialized)
+                {
+                    // A ghost spawned on an uninitialized map has not received MapInitEvent.
+                    // Initialize its acceleration and weightless movement without starting the map.
+                    _movementSpeed.RefreshMovementSpeedModifiers(uid, alsoFriction: true);
+                }
+                SetAdminMovement((uid, ghost), admin);
             }
         }
 
