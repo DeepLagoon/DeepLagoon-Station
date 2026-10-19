@@ -227,11 +227,13 @@ public sealed partial class ContentAudioSystem
             return false;
         }
 
+        var volume = _lobbySoundtrackParams.Volume + SharedAudioSystem.GainToVolume(_configManager.GetCVar(CCVars.LobbyMusicVolume));
         var playResult = _audio.PlayGlobal(
             soundtrackFilename,
             Filter.Local(),
             false,
-            _lobbySoundtrackParams.WithVolume(_lobbySoundtrackParams.Volume + SharedAudioSystem.GainToVolume(_configManager.GetCVar(CCVars.LobbyMusicVolume)))
+            // Prepare the replacement silently so even source creation cannot overlap the old track.
+            _lobbySoundtrackParams.WithVolume(float.NegativeInfinity)
         );
         if (playResult == null)
         {
@@ -243,7 +245,7 @@ public sealed partial class ContentAudioSystem
 
         // Stop the previous stream only after its replacement has successfully started.
         if (_lobbySoundtrackInfo is { } previous)
-            _audio.Stop(previous.MusicStreamEntityUid);
+            StopLobbyStream(previous.MusicStreamEntityUid);
         var nextTrackOn = _timing.CurTime + audio.AudioStream.Length;
         _lobbySoundtrackInfo = new LobbySoundtrackInfo(soundtrackFilename, nextTrackOn, playResult.Value.Entity);
         if (IsLobbyMusicPaused)
@@ -252,16 +254,32 @@ public sealed partial class ContentAudioSystem
             _audio.SetState(playResult.Value.Entity, AudioState.Paused);
             _lobbyPauseStarted = _timing.CurTime;
         }
+        _audio.SetVolume(playResult.Value.Entity, volume);
 
         var lobbySongChangedEvent = new LobbySoundtrackChangedEvent(soundtrackFilename);
         _lobbySoundtrackChanged?.Invoke(lobbySongChangedEvent);
         return true;
     }
 
+    private void StopLobbyStream(EntityUid uid)
+    {
+        if (TryComp<AudioComponent>(uid, out var component))
+        {
+            // Stop() only queues entity deletion. During a server stall simulation ticks may
+            // stop, while UI input and audio rendering continue. Silence the source now and
+            // prevent its first FrameUpdate from starting it again before deletion runs.
+            _audio.SetGain(uid, 0f, component);
+            _audio.SetState(uid, AudioState.Stopped, component: component);
+            component.Started = true;
+        }
+        // These streams are client-only; cleanup must not be skipped by Stop's prediction guard.
+        QueueDel(uid);
+    }
+
     private void EndLobbyMusic()
     {
         if (_lobbySoundtrackInfo != null)
-            _audio.Stop(_lobbySoundtrackInfo.MusicStreamEntityUid);
+            StopLobbyStream(_lobbySoundtrackInfo.MusicStreamEntityUid);
         _lobbySoundtrackInfo = null;
         _lobbyPauseStarted = null;
         var lobbySongChangedEvent = new LobbySoundtrackChangedEvent();

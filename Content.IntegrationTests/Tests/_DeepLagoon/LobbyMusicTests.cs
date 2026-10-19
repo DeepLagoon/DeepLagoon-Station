@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -24,6 +25,79 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class LobbyMusicTests
 {
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    [Test]
+    public async Task ReplacedAndMutedTracksStaySilentWithoutSimulationTicks()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true, Destructive = true });
+        string[] playlist = null;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var audio = pair.Server.System<Content.Server.Audio.ContentAudioSystem>();
+            playlist = ((string[])audio.GetType().GetField("_lobbyPlaylist", Private)!.GetValue(audio)!).Take(2).ToArray();
+            Assert.That(playlist, Has.Length.EqualTo(2));
+        });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var audio = pair.Client.System<ContentAudioSystem>();
+            var engineAudio = pair.Client.System<Robust.Client.Audio.AudioSystem>();
+            var config = pair.Client.ResolveDependency<IConfigurationManager>();
+            var timing = pair.Client.ResolveDependency<IGameTiming>();
+            var tick = timing.CurTick;
+            var retired = new List<EntityUid>();
+            EntityUid Stream()
+            {
+                var info = typeof(ContentAudioSystem).GetField("_lobbySoundtrackInfo", Private)!.GetValue(audio)!;
+                return (EntityUid)info.GetType().GetProperty("MusicStreamEntityUid")!.GetValue(info)!;
+            }
+            void Receive(string[] files) => typeof(ContentAudioSystem).GetMethod("OnLobbySongChanged", Private)!
+                .Invoke(audio, new object[] { new LobbyPlaylistChangedEvent(files) });
+            void AssertRetiredStreamsSilent()
+            {
+                // Audio frames continue during a stall, but the deletion queue has not run.
+                engineAudio.FrameUpdate(1f);
+                Assert.That(timing.CurTick, Is.EqualTo(tick));
+                foreach (var uid in retired)
+                {
+                    var component = pair.Client.EntMan.GetComponent<AudioComponent>(uid);
+                    Assert.That(pair.Client.EntMan.IsQueuedForDeletion(uid), Is.True);
+                    Assert.That(component.State, Is.EqualTo(AudioState.Stopped));
+                    // Headless audio shares one dummy source; check each entity's persistent
+                    // volume, which the renderer reapplies to its real source every frame.
+                    Assert.That(component.Params.Volume, Is.EqualTo(float.NegativeInfinity));
+                    Assert.That(component.Started, Is.True, "A later audio frame must not start this source again");
+                }
+            }
+
+            config.SetCVar(CCVars.LobbyMusicEnabled, true);
+            Receive(playlist);
+            // Repeated UI actions in one callback deliberately leave entity deletion pending.
+            for (var i = 0; i < 4; i++)
+            {
+                retired.Add(Stream());
+                Assert.That(audio.SwitchLobbyTrack(i % 2 == 0 ? 1 : -1), Is.True);
+                AssertRetiredStreamsSilent();
+            }
+            Assert.That(audio.ToggleLobbyMusicPaused(), Is.True);
+            retired.Add(Stream());
+            Assert.That(audio.SwitchLobbyTrack(1), Is.True);
+            Assert.That(pair.Client.EntMan.GetComponent<AudioComponent>(Stream()).State, Is.EqualTo(AudioState.Paused));
+            AssertRetiredStreamsSilent();
+            Assert.That(audio.ToggleLobbyMusicPaused(), Is.True);
+            Assert.That(pair.Client.EntMan.GetComponent<AudioComponent>(Stream()).Volume, Is.GreaterThan(float.NegativeInfinity));
+
+            retired.Add(Stream());
+            config.SetCVar(CCVars.LobbyMusicEnabled, false);
+            Assert.That(audio.CurrentLobbyTrack, Is.Null);
+            AssertRetiredStreamsSilent();
+            config.SetCVar(CCVars.LobbyMusicEnabled, true);
+            retired.Add(Stream());
+            Receive(Array.Empty<string>());
+            Assert.That(audio.CurrentLobbyTrack, Is.Null);
+            AssertRetiredStreamsSilent();
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [Test]
     public async Task PauseKeepsLocalStreamPositionAndDefersAutomaticAdvanceUntilResume()
