@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -211,7 +212,7 @@ namespace Content.Server.GameTicking
             if (ev.GameMap.IsGrid)
             {
                 var mapUid = _map.CreateMap(out mapId, runMapInit: options?.InitializeMaps ?? false);
-                if (!_loader.TryLoadGrid(mapId,
+                if (!_loader.TryLoadGridTracked(mapId,
                         ev.GameMap.MapPath,
                         out var grid,
                         ev.Options,
@@ -227,7 +228,7 @@ namespace Content.Server.GameTicking
                 return g;
             }
 
-            if (!_loader.TryLoadMap(ev.GameMap.MapPath,
+            if (!_loader.TryLoadMapTracked(ev.GameMap.MapPath,
                     out var map,
                     out var grids,
                     ev.Options,
@@ -261,7 +262,7 @@ namespace Content.Server.GameTicking
             if (ev.GameMap.IsGrid)
             {
                 var mapUid = _map.CreateMap(mapId);
-                if (!_loader.TryLoadGrid(mapId,
+                if (!_loader.TryLoadGridTracked(mapId,
                         ev.GameMap.MapPath,
                         out var grid,
                         ev.Options,
@@ -312,7 +313,7 @@ namespace Content.Server.GameTicking
 
             if (ev.GameMap.IsGrid)
             {
-                if (!_loader.TryLoadGrid(targetMap,
+                if (!_loader.TryLoadGridTracked(targetMap,
                         ev.GameMap.MapPath,
                         out var grid,
                         ev.Options,

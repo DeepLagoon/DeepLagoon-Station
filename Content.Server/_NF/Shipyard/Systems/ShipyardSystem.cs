@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Shuttles.Components;
 using Content.Server.Cargo.Systems;
@@ -170,7 +171,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         if (ShipyardMap == null)
             return false;
 
-        if (!_mapLoader.TryLoadGrid(ShipyardMap.Value, shuttlePath, out var grid, offset: new Vector2(500f + _shuttleIndex, 1f)))
+        if (!_mapLoader.TryLoadGridTracked(ShipyardMap.Value, shuttlePath, out var grid, offset: new Vector2(500f + _shuttleIndex, 1f)))
         {
             _sawmill.Error($"Unable to spawn shuttle {shuttlePath}");
             return false;

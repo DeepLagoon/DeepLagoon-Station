@@ -11,7 +11,7 @@ const portable = p => p.replaceAll('\\', '/');
 async function main() {
   const preview = fs.readFileSync(root + '/tools/grid-editor-preview.mjs', 'utf8');
   let source = preview.slice(preview.indexOf('const source = `') + 16, preview.indexOf('`;\nfs.writeFileSync') > 0 ? preview.indexOf('`;\nfs.writeFileSync') : preview.indexOf('`;\r\nfs.writeFileSync'));
-  source = source.replace("'../packages/tgui/interfaces/GridEditor.jsx'", JSON.stringify(root + '/packages/tgui/interfaces/GridEditor.jsx'));
+  source = source.replace("'../packages/tgui/interfaces/GridEditor.jsx'", JSON.stringify(root + '/packages/tgui/interfaces/GridEditor.jsx')).replace("'../packages/tgui/interfaces/gridEditorRouting.mjs'",JSON.stringify(root+'/packages/tgui/interfaces/gridEditorRouting.mjs'));
   source += `\nimport { GridSceneCache, itemChunks } from '${root}/packages/tgui/interfaces/gridEditorSceneCache.mjs';
 import * as model from '${root}/packages/tgui/interfaces/gridEditorModel.mjs';
 window.testing = {GridSceneCache, itemChunks, model};
@@ -114,13 +114,32 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
         pixelCache.dispose();
       }
       check(pixelDifferences<50,'Chunk clipping changed decal pixels: '+pixelDifferences);
+      // Native map sprites must keep their natural size and engine origin across chunk edges.
+      let nativeSpriteDifferences=0;
+      const lampUrl='data:image/svg+xml;base64,'+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="64"><rect width="32" height="64" fill="white"/></svg>');
+      const lampVisual={images:[{url:lampUrl,native:true,width:32,height:64,m11:1,m12:0,m21:0,m22:1,m31:0,m32:1}]};
+      for(const rotation of [0,90]){
+        const lamp={id:'lamp',kind:'entity',prototype:'Lamp',x:15.5,y:15.5,rotation};
+        const lampCache=new GridSceneCache(()=>{});await lampCache.prepare(model.indexItems([lamp]),layers,new Map([['entity:Lamp',lampVisual]]),()=>{},()=>false);
+        for(const [key,chunk]of lampCache.chunks)lampCache.details.set(key,await createImageBitmap(chunk.blob));
+        const actual=document.createElement('canvas'),expected=document.createElement('canvas');actual.width=expected.width=160;actual.height=expected.height=160;
+        const area=rotation===0?{x:14,y:14,width:5,height:5}:{x:12,y:12,width:5,height:5};
+        lampCache.paint(actual,area,{left:0,top:0,width:160,height:160},32);
+        const ctx=expected.getContext('2d');ctx.fillStyle='white';
+        if(rotation===0)ctx.fillRect(32,48,32,64);else ctx.fillRect(48,32,64,32);
+        const a=actual.getContext('2d').getImageData(0,0,160,160).data,b=ctx.getImageData(0,0,160,160).data;
+        for(let i=0;i<a.length;i++)if(Math.abs(a[i]-b[i])>2)nativeSpriteDifferences++;
+        lampCache.dispose();
+      }
+      check(nativeSpriteDifferences<10,'Native sprite origin/size differs from engine coordinates: '+nativeSpriteDifferences);
+
       await cache.prepare(model.indexItems(removal),{...layers,tile:false},visuals,onProgress,()=>false);
       check(cache.chunks.size===0,'Hidden layers retained chunks');
       const before=cache.stats.rasterized;
       await cache.prepare(model.indexItems(small),layers,visuals,onProgress,()=>true);
       check(cache.stats.rasterized===before,'Cancelled preparation rasterized map');
       cache.dispose();check(cache.chunks.size===0&&cache.details.size===0,'Cache not released');
-      return {initialChunks:count,changedChunks:2,progressUpdates:progress,rotatedBoundaryChunks:crossings.length,pixelDifferences,cancelledAndDisposed:true};
+      return {initialChunks:count,changedChunks:2,progressUpdates:progress,rotatedBoundaryChunks:crossings.length,pixelDifferences,nativeSpriteDifferences,cancelledAndDisposed:true};
     });
     await page.goto(url+'/');
     await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
@@ -157,6 +176,96 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     await page.keyboard.press('Escape');
     await page.screenshot({path:path.join(output,'selection.png')});
     report.interaction={leftDragSelectsWithoutEditing:true,selectedItems:14,rightDragMovesWithoutMenu:true,dragOnlyCommitsOnRelease:true,undoRedo:true,rightClickMenu:true,shortcuts:true};
+    // S selects an area; physical M reflects it once, D deletes it once.
+    await page.goto(url+'/');
+    await page.getByRole('button',{name:'Вписать',exact:true}).click();
+    const selectCorner=async()=>{
+      const start=await point(-5,5),end=await point(-3,3);
+      await page.keyboard.down('s');await page.mouse.move(start.x,start.y);await page.mouse.down();
+      await page.mouse.move(end.x,end.y,{steps:8});await page.mouse.up();await page.keyboard.up('s');
+      assert.match(await page.locator('.GridEditor__properties').innerText(),/Выбрано: 14\n/);
+    };
+    await selectCorner();await page.keyboard.press('m');
+    await page.waitForFunction(()=>window.fixtureActions.some(a=>a.action==='previewChunk'&&a.payload.items.some(i=>i.id==='e:-5:5'&&i.x===-2.5)));
+    assert.match(await page.locator('.GridEditor__properties').innerText(),/Выбрано: 14\n/);
+    await page.keyboard.press('Control+z');assert.match(await page.locator('header').innerText(),/0 изменений/);
+    await page.keyboard.press('Control+y');assert.doesNotMatch(await page.locator('header').innerText(),/0 изменений/);
+    await selectCorner();await page.keyboard.press('d');
+    assert.doesNotMatch(await page.locator('.GridEditor__properties').innerText(),/Выбрано:/);
+    await page.waitForFunction(()=>window.fixtureActions.some(a=>a.action==='previewChunk'&&a.payload.items.filter(i=>i.kind==='remove').length===14));
+    await page.keyboard.press('Control+z');await selectCorner();
+    // The game forwards physical codes regardless of the active keyboard layout.
+    await page.evaluate(()=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code:'KeyM',key:'ь',down:true}})));
+    await page.evaluate(()=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code:'KeyD',key:'в',down:true}})));
+    assert.doesNotMatch(await page.locator('.GridEditor__properties').innerText(),/Выбрано:/);
+    await page.keyboard.press('Control+z');await selectCorner();
+    await page.getByRole('textbox',{name:'Поиск прототипов'}).fill('m d');
+    assert.match(await page.locator('.GridEditor__properties').innerText(),/Выбрано: 14\n/);
+    report.selectionKeys={heldS:true,reflectM:true,deleteD:true,undoRedo:true,nativeBridge:true,textInputProtected:true};
+    await page.goto(url+'/');await page.getByRole('button',{name:'Вписать',exact:true}).click();
+    await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    // Hovering S copies only the visible cup above its table, never the floor/table below.
+    const cupPoint=await point(2,1);await page.mouse.move(cupPoint.x,cupPoint.y);await page.keyboard.press('s');
+    await page.waitForFunction(()=>document.querySelector('.GridEditor__properties').textContent.includes('Выбрано: 1'));
+    assert.match(await page.locator('.GridEditor__properties').innerText(),/Выбрано: 1/);
+    assert.match(await page.locator('.GridEditor__properties').innerText(),/FixtureCup/);
+    const silhouette=await page.evaluate(async point=>{
+      const canvas=document.querySelector('.GridEditor__selection'),rect=canvas.getBoundingClientRect();
+      const x=Math.round(point.x-rect.left),y=Math.round(point.y-rect.top),ctx=canvas.getContext('2d');
+      for(let i=0;i<20&&ctx.getImageData(x,y,1,1).data[3]===0;i++)await new Promise(r=>requestAnimationFrame(r));
+      return {center:[...ctx.getImageData(x,y,1,1).data],corner:[...ctx.getImageData(x+14,y+14,1,1).data]};
+    },cupPoint);
+    assert.ok(silhouette.center[1]>silhouette.center[0]&&silhouette.center[3]>0);
+    assert.equal(silhouette.corner[3],0,'Transparent sprite corners must remain unselected');
+    assert.equal(await page.locator('.GridEditor__cursor').count(),0);
+    await page.screenshot({path:path.join(output,'green-silhouette.png')});
+    const copyCount=await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='copySelection').length);assert.ok(copyCount>0);
+    const pastePoint=await point(3,1);await page.mouse.move(pastePoint.x,pastePoint.y);
+    await page.evaluate(()=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code:'KeyV',ctrlKey:true,down:true}})));
+    await page.waitForFunction(()=>window.fixtureActions.some(a=>a.action==='previewChunk'&&a.payload.items.some(i=>i.prototype==='FixtureCup'&&i.id.startsWith('new_'))));
+    await page.keyboard.press('Control+z');
+    // Draw and adjust a cable route, finish to draft, then reopen the existing applied network.
+    await page.getByRole('button',{name:'Трасса · 4',exact:true}).click();
+    for(const [x,y] of [[-2,0],[0,0],[0,2]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
+    assert.equal(await page.getByRole('button',{name:/Точка трассы/}).count(),5);
+    const handle=page.getByRole('button',{name:'Точка трассы 2',exact:true});const box=await handle.boundingBox();const target=await point(1,0);
+    await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(target.x,target.y,{steps:8});await page.mouse.up();
+    assert.equal(await handle.getAttribute('title'),'1, 0');
+    await page.screenshot({path:path.join(output,'route-handles.png')});
+    const observer=await page.context().newPage();await observer.goto(url+'/?peer=RouteObserver');
+    await observer.waitForFunction(()=>window.fixtureGetData().peerDrafts?.some(peer=>peer.items.some(i=>i.prototype==='CableHV')));
+    assert.equal(await observer.evaluate(()=>window.fixtureGetData().items.some(i=>i.prototype==='CableHV')),false);
+    await observer.close();
+    await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='CableHV'));
+    const oldCable=await page.evaluate(()=>window.fixtureGetData().items.filter(i=>i.prototype==='CableHV').map(i=>({id:i.id,x:i.x,y:i.y})));
+    const existingPoint=await point(-2,0);await page.mouse.click(existingPoint.x,existingPoint.y);
+    assert.ok(await page.getByRole('button',{name:/Точка трассы/}).count()>=2);
+    const routeEnd=page.getByRole('button',{name:'Точка трассы 1',exact:true});const endBox=await routeEnd.boundingBox();const movedEnd=await point(-2,-1);
+    await page.mouse.move(endBox.x+endBox.width/2,endBox.y+endBox.height/2);await page.mouse.down();await page.mouse.move(movedEnd.x,movedEnd.y,{steps:6});await page.mouse.up();
+    await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='CableHV'&&i.y===-.5));
+    await page.getByRole('checkbox',{name:'Показать сети поверх пола',exact:true}).uncheck();
+    assert.equal(await page.locator('.GridEditor__networks').count(),0);
+    await page.getByRole('checkbox',{name:'Показать сети поверх пола',exact:true}).check();
+    await page.waitForSelector('.GridEditor__networks');
+    // Gas routes automatically choose the elbow and do not create another voltage cable.
+    await page.getByRole('combobox',{name:'Режим трассы',exact:true}).selectOption('gas');
+    await page.getByRole('combobox',{name:'Тип сети',exact:true}).selectOption('gas0');
+    for(const [x,y]of [[2,0],[4,2]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
+    await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='GasPipeBend'));
+    await page.getByRole('combobox',{name:'Режим трассы',exact:true}).selectOption('disposal');
+    for(const [x,y]of [[-3,-1],[-1,1]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
+    assert.equal(await page.getByRole('button',{name:/Точка трассы/}).count(),5);
+    await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='DisposalBend'));
+    report.routes={newCable:true,draggablePoints:true,existingCableEditable:true,visibilitySwitch:true,gasElbow:true,disposalElbow:true,perCellHandles:true,hoverSCopiesTopEntity:true,greenSpriteSilhouette:true,livePeerRoutePreview:true};
+    await page.goto(url+'/');await page.getByRole('button',{name:'Вписать',exact:true}).click();
     // Resize the empty work area, apply without replacing the scene, then edit one tile.
     await page.getByRole('button', {name:'Вписать',exact:true}).click();
     const originalWidth = await page.locator('.GridEditor__canvas').evaluate(c => c.style.width);
@@ -201,7 +310,35 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     await page.waitForTimeout(300);
     assert.equal(await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)),beforeAtmosFill);
     await page.screenshot({path:path.join(output,'atmos-diagnostics.png')});
-    report.atmos={overlay:true,leakCoordinates:true,fillAction:true,mapChunkRebuilds:0};
+    await page.evaluate(()=>{window.fixtureAtmosCanvas=document.querySelector('.GridEditor__atmos');window.fixtureDiagnoses=window.fixtureActions.filter(a=>a.action==='diagnoseAtmos').length;});
+    for(let i=0;i<4;i++){
+      await page.evaluate(()=>window.fixtureSetData(d=>({...d,patchVersion:(d.patchVersion||0)+1,patchApplied:false,patchItems:[],patchRemoved:[]})));
+      await page.waitForTimeout(120);
+      assert.equal(await page.evaluate(()=>document.querySelector('.GridEditor__atmos')===window.fixtureAtmosCanvas),true);
+      assert.equal(await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='diagnoseAtmos').length),await page.evaluate(()=>window.fixtureDiagnoses));
+    }
+    await page.waitForFunction(()=>window.fixtureActions.filter(a=>a.action==='diagnoseAtmos').length===window.fixtureDiagnoses+1);
+    assert.equal(await page.evaluate(()=>document.querySelector('.GridEditor__atmos')===window.fixtureAtmosCanvas),true);
+    const continuousBefore=await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='diagnoseAtmos').length);
+    for(let i=0;i<12;i++){
+      await page.evaluate(()=>window.fixtureSetData(d=>({...d,patchVersion:(d.patchVersion||0)+1,patchApplied:false,patchItems:[],patchRemoved:[]})));
+      await page.waitForTimeout(200);
+      assert.equal(await page.evaluate(()=>document.querySelector('.GridEditor__atmos')===window.fixtureAtmosCanvas),true);
+    }
+    assert.ok(await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='diagnoseAtmos').length)>continuousBefore,'Continuous edits must not starve atmospheric refresh');
+    // New diagnostics replace the colours on the same canvas after the burst settles.
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,atmosVersion:3,atmosPatchVersion:d.patchVersion,atmosCells:d.atmosCells.map(c=>({...c,pressure:100}))})));
+    await page.waitForTimeout(100);
+    assert.equal(await page.evaluate(()=>document.querySelector('.GridEditor__atmos')===window.fixtureAtmosCanvas),true);
+    await page.locator('button[title="FloorSteel"]').click();const overlayEdit=await point(1,1);await page.mouse.click(overlayEdit.x,overlayEdit.y);
+    assert.equal(await page.evaluate(()=>document.querySelector('.GridEditor__atmos')===window.fixtureAtmosCanvas),true);
+    await page.keyboard.press('Control+z');
+    report.atmos={overlay:true,leakCoordinates:true,fillAction:true,mapChunkRebuilds:0,noFlickerAcrossPatches:true,visibleDuringLocalEditing:true,debouncedRefresh:true,refreshDuringContinuousEdits:true};
+    await page.goto(url+'/?source');await page.waitForSelector('.GridEditor__sourcePath');
+    assert.equal(await page.locator('.GridEditor__sourcePath').innerText(),'Resources/Maps/Test/empty.yml');
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,patchVersion:1,patchApplied:false,patchItems:[],patchRemoved:[]})));
+    assert.equal(await page.locator('.GridEditor__sourcePath').innerText(),'Resources/Maps/Test/empty.yml');
+    report.mapSource={exactRepositoryPath:true,retainedAcrossPatches:true};
     // Two actual browser windows share previews and world deltas, never preferences.
     await page.goto(url+'/?peer=MapperA');
     const peer=await page.context().newPage();peer.on('pageerror',e=>errors.push(e.message));

@@ -3,6 +3,7 @@
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
 
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using Content.Server._CE.ZLevels.Core;
 using Content.Server.Administration;
@@ -83,7 +84,7 @@ public sealed partial class CEAddMapBelowZNetworkCommand : LocalizedEntityComman
         var path = new ResPath(args[1]);
         var opts = new DeserializationOptions { StoreYamlUids = true };
 
-        if (!_mapLoader.TryLoadMap(path, out var mapEnt, out _, opts))
+        if (!_mapLoader.TryLoadMapTracked(path, out var mapEnt, out _, opts))
         {
             shell.WriteError($"Failed to load map: {path.ToString()}!");
             return;

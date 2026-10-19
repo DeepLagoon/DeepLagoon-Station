@@ -48,4 +48,23 @@ public sealed class WikiNavigationPolicyTest
     [TestCase("https://wiki.deep-lagoon-ss14.ru/graphql?query=test", false)]
     public void TreeRequestsStayOnOwnEndpoint(string url, bool expected)
         => Assert.That(WikiNavigationPolicy.IsTreeRequest(url), Is.EqualTo(expected));
+
+    [TestCase("https://docs.example.org/en/manual/jobs", true)]
+    [TestCase("https://docs.example.org/en/rules", true)]
+    [TestCase("https://docs.example.org/en/manual_other", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/en/manual", false)]
+    [TestCase("https://docs.example.org/en/manual?edit=1", false)]
+    [TestCase("https://docs.example.org/en/manual/%2fadmin", false)]
+    [TestCase("https://user@docs.example.org/en/manual", false)]
+    public void ConfiguredOriginRootAndExplicitPagesRemainRestricted(string url, bool expected)
+        => Assert.That(WikiNavigationPolicy.IsPage(url, new HashSet<string> { "/en/rules" },
+            "https://docs.example.org", "/en/manual"), Is.EqualTo(expected));
+
+    [TestCase("http://docs.example.org")]
+    [TestCase("https://docs.example.org/path")]
+    [TestCase("https://user@docs.example.org")]
+    [TestCase("https://docs.example.org?edit=1")]
+    [TestCase("https://docs.example.org:444")]
+    public void InvalidConfiguredOriginsAreRejected(string origin)
+        => Assert.That(WikiNavigationPolicy.IsOrigin(origin), Is.False);
 }

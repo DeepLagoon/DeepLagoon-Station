@@ -128,6 +128,8 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
     protected override void ReceiveMessage(BoundUserInterfaceMessage message)
     {
         base.ReceiveMessage(message);
+        if (message is ShuttleHullStateMessage hull)
+            _window?.UpdateHullState(hull.State);
         if (message is Content.Shared.Exodus.ShipShields.ShuttleShieldStateMessage shield)
             _window?.UpdateShieldState(shield.State);
     }
@@ -140,6 +142,7 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
 
         _window?.UpdateState(Owner, cState);
         _window?.UpdateShieldState(cState.ShieldState);
+        _window?.UpdateHullState(cState.HullState);
         UpdateSelectedWeapons();
     }
 }

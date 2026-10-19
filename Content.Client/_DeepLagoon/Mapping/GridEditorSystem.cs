@@ -67,11 +67,11 @@ public sealed partial class GridEditorSystem : EntitySystem
         {
             Keyboard.Key.Z => "KeyZ", Keyboard.Key.Y => "KeyY", Keyboard.Key.C => "KeyC",
             Keyboard.Key.V => "KeyV", Keyboard.Key.S => "KeyS",
-            Keyboard.Key.Num1 => "Digit1", Keyboard.Key.Num2 => "Digit2", Keyboard.Key.Num3 => "Digit3",
+            Keyboard.Key.Num1 => "Digit1", Keyboard.Key.Num2 => "Digit2", Keyboard.Key.Num3 => "Digit3", Keyboard.Key.Num4 => "Digit4",
             Keyboard.Key.E => "KeyE", Keyboard.Key.R => "KeyR", Keyboard.Key.Space => "Space",
             Keyboard.Key.Shift => "ShiftLeft", Keyboard.Key.Delete => "Delete", Keyboard.Key.Escape => "Escape",
             Keyboard.Key.Left => "ArrowLeft", Keyboard.Key.Right => "ArrowRight",
-            Keyboard.Key.D => "KeyD",
+            Keyboard.Key.D => "KeyD", Keyboard.Key.M => "KeyM", Keyboard.Key.Return => "Enter",
             Keyboard.Key.Up => "ArrowUp", Keyboard.Key.Down => "ArrowDown",
             _ => null
         };
@@ -116,7 +116,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         if (_window == null || _state is not { } ev) return;
         var visuals = ev.Items.Select(i => (i.Kind, i.Prototype)).Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
-        _window.Panel.SetState("GridEditor", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString())
+        _window.Panel.SetState("GridEditor", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
             .Number("previewGeneration", _previewGeneration).Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals).ToString(), "Редактор grid");
@@ -144,7 +144,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         foreach (var id in ev.Removed) items.Remove(id);
         foreach (var item in ev.Items) items[item.Id] = item;
         _state = new GridEditorStateEvent(_state.Grid, ev.Token, ev.X, ev.Y, ev.Width, ev.Height,
-            items.Values.ToList(), _state.Initialized, ev.GridX, ev.GridY, ev.GridWidth, ev.GridHeight);
+            items.Values.ToList(), _state.Initialized, ev.GridX, ev.GridY, ev.GridWidth, ev.GridHeight, _state.SourcePath);
         _previewGeneration = ev.PreviewGeneration;
         _pendingPatches.Add((++_patchVersion, ev));
         PublishPendingPatches();
@@ -175,7 +175,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (kind == "entity")
         {
             var proto = _prototypes.Index<EntityPrototype>(id);
-            return data.Array("images", _images.Item(id)).String("name", proto.Name)
+            return data.Array("images", _images.MapItem(id)).Bool("noRotation", proto.TryGetComponent<SpriteComponent>(out var mappedSprite) && mappedSprite.NoRotation).String("name", proto.Name)
                 .Number("drawDepth", proto.TryGetComponent<SpriteComponent>(out var sprite) ? sprite.DrawDepth : 0)
                 .Bool("exclusive", GridEditorPlacement.IsExclusive(proto, _tags)).Bool("diagonal", GridEditorPlacement.HasTag(proto, "Diagonal", _tags))
                 .String("category", GridEditorPlacement.IsWall(proto, _tags) ? "wall" : "entity");
@@ -248,6 +248,15 @@ public sealed partial class GridEditorSystem : EntitySystem
                 return;
             }
             if (action == "download") { BeginDownload(Field(root, "scope") == "map"); return; }
+            if (action == "routeVisuals")
+            {
+                if (!root.TryGet<SequenceDataNode>("prototypes", out var entries) || entries.Count > 8) return;
+                var ids = entries.OfType<ValueDataNode>().Select(value => value.Value).Where(id =>
+                    _prototypes.TryIndex<EntityPrototype>(id, out var proto) && !proto.Abstract).Distinct();
+                _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+                    .Array("routeVisuals", ids.Select(id => Visual("entity", id)))).ToString());
+                return;
+            }
             if (LibraryAction(action, root)) return;
             if (action == "search")
             {

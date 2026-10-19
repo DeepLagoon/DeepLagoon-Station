@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server._NF.PublicTransit.Components;
 using Content.Server.Chat.Systems;
 using Content.Server.GameTicking;
@@ -307,7 +308,7 @@ public sealed partial class PublicTransitSystem : EntitySystem
         // Spawn the bus onto a dummy map
         var dummyMapUid = _map.CreateMap(out var dummyMap);
         var busMap = new ResPath(_cfgManager.GetCVar(NFCCVars.PublicTransitBusMap));
-        if (_loader.TryLoadGrid(dummyMap, busMap, out var shuttleEnt))
+        if (_loader.TryLoadGridTracked(dummyMap, busMap, out var shuttleEnt))
         {
             var shuttle = shuttleEnt.Value;
             var shuttleComp = Comp<ShuttleComponent>(shuttle);

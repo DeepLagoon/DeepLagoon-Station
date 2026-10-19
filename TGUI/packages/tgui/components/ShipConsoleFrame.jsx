@@ -1,14 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useBackend } from '../backend';
-import { ConsoleKeyboard } from './ConsoleKeyboard';
+import { CivilianConsoleFrame } from './CivilianConsoleFrame';
 
-// The shell is a separately cached local resource, shared by all three consoles.
-// Text and controls stay live DOM; the artwork contains no functional labels.
+// Shared matte shell; all labels and controls remain live DOM.
 export const ShipConsoleFrame = ({ children, className = '', ...props }) => {
-  const frame = useRef(null);
-  return <div {...props} ref={frame} className={`ShipConsoleFrame ${className}`} data-skin="dark-steel"
-    style={{ borderImageSource: 'url("ship-console-shell.png")' }}>{children}
-    <ConsoleKeyboard kind="ship" frame={frame} /></div>;
+  return <CivilianConsoleFrame className="ShipConsoleHousing">
+    <div {...props} className={`ShipConsoleFrame ${className}`} data-skin="matte-graphite">{children}</div>
+  </CivilianConsoleFrame>;
 };
 
 export const ConsoleKey = ({ children, selected, ...props }) => (
@@ -31,10 +29,6 @@ export const RadarScope = ({ title, indicator, active, statusLabel, footer, comp
 
 // Reports the actual aperture after shell/layout changes, including UI scaling.
 // Native radar keeps ownership of input, range, map geometry and weapon aiming.
-const HardwareSprite = ({ region, className }) => <svg className={className} viewBox={region} aria-hidden="true">
-  <image href="ship-console-instruments.png" width="1536" height="1024" />
-</svg>;
-
 const RadarViewport = ({ viewport, area, compact }) => {
   const { act } = useBackend();
   const send = useRef(act);
@@ -44,10 +38,11 @@ const RadarViewport = ({ viewport, area, compact }) => {
     const report = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
+        if (!area.current || !viewport.current) return;
         const box = area.current.getBoundingClientRect();
         const diameter = Math.max(0, Math.floor(Math.min(box.width, box.height) - 16));
-        viewport.current.style.width = `${diameter}px`;
-        viewport.current.style.height = `${diameter}px`;
+        viewport.current.style.width = `${compact ? diameter : Math.floor(box.width)}px`;
+        viewport.current.style.height = `${compact ? diameter : Math.floor(box.height)}px`;
         const rect = viewport.current.getBoundingClientRect();
         const bounds = { x: rect.left / innerWidth, y: rect.top / innerHeight, w: rect.width / innerWidth, h: rect.height / innerHeight };
         const key = JSON.stringify(bounds);
@@ -59,14 +54,8 @@ const RadarViewport = ({ viewport, area, compact }) => {
     window.addEventListener('resize', report);
     report();
     return () => { observer.disconnect(); window.removeEventListener('resize', report); cancelAnimationFrame(frame); };
-  }, []);
+  }, [compact]);
   return <div className="ShuttleConsole__viewport-area" ref={area}>
-    <div className="ShuttleConsole__viewport" ref={viewport} aria-label="Нативный радар">
-      {!compact && <div className="ShipConsoleFrame__hardware" aria-hidden="true">
-        <span className="ShipConsoleFrame__plaque">DL / RADAR</span>
-        <HardwareSprite className="ShipConsoleFrame__ribbon" region="140 730 164 123" />
-        <HardwareSprite className="ShipConsoleFrame__harness" region="809 750 86 114" />
-      </div>}
-    </div>
+    <div className="ShuttleConsole__viewport" ref={viewport} aria-label="Нативный радар" />
   </div>;
 };

@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
 using Content.Server.Administration;
@@ -517,7 +518,7 @@ public sealed partial class ArrivalsSystem : EntitySystem
         _mapSystem.CreateMap(out var mapId, runMapInit: false);
         var mapUid = _mapSystem.GetMap(mapId);
 
-        if (!_loader.TryLoadGrid(mapId, path, out var grid))
+        if (!_loader.TryLoadGridTracked(mapId, path, out var grid))
             return;
 
         _metaData.SetEntityName(mapUid, Loc.GetString("map-name-terminal"));
@@ -599,7 +600,7 @@ public sealed partial class ArrivalsSystem : EntitySystem
         var dummpMapEntity = _mapSystem.CreateMap(out var dummyMapId);
 
         if (TryGetArrivals(out var arrivals) &&
-            _loader.TryLoadGrid(dummyMapId, component.ShuttlePath, out var shuttle))
+            _loader.TryLoadGridTracked(dummyMapId, component.ShuttlePath, out var shuttle))
         {
             component.Shuttle = shuttle.Value;
             var shuttleComp = Comp<ShuttleComponent>(component.Shuttle);

@@ -1,3 +1,5 @@
+using Content.Client.UserInterface.Systems.Guidebook;
+using Robust.Client.UserInterface;
 using System.Linq;
 using Content.Client.Guidebook.Components;
 using Content.Client.Light;
@@ -25,6 +27,7 @@ namespace Content.Client.Guidebook;
 /// </summary>
 public sealed partial class GuidebookSystem : EntitySystem
 {
+    [Dependency] private readonly IUserInterfaceManager _ui = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private SharedAudioSystem _audioSystem = default!;
@@ -46,11 +49,13 @@ public sealed partial class GuidebookSystem : EntitySystem
     /// <inheritdoc/>
     public override void Initialize()
     {
-        SubscribeLocalEvent<GuideHelpComponent, GetVerbsEvent<ExamineVerb>>(OnGetVerbs);
-        SubscribeLocalEvent<GuideHelpComponent, ActivateInWorldEvent>(OnInteract);
+        SubscribeLocalEvent<MetaDataComponent, GetVerbsEvent<ExamineVerb>>(OnGetVerbs);
+        SubscribeLocalEvent<MetaDataComponent, ActivateInWorldEvent>(OnInteract,
+            before: new[] { typeof(Content.Shared.UserInterface.ActivatableUISystem) });
 
         SubscribeLocalEvent<GuidebookControlsTestComponent, InteractHandEvent>(OnGuidebookControlsTestInteractHand);
-        SubscribeLocalEvent<GuidebookControlsTestComponent, ActivateInWorldEvent>(OnGuidebookControlsTestActivateInWorld);
+        SubscribeLocalEvent<GuidebookControlsTestComponent, ActivateInWorldEvent>(OnGuidebookControlsTestActivateInWorld,
+            before: new[] { typeof(Content.Shared.UserInterface.ActivatableUISystem) });
         SubscribeLocalEvent<GuidebookControlsTestComponent, GetVerbsEvent<AlternativeVerb>>(
             OnGuidebookControlsTestGetAlternateVerbs);
     }
@@ -72,16 +77,19 @@ public sealed partial class GuidebookSystem : EntitySystem
         return _defaultUser;
     }
 
-    private void OnGetVerbs(EntityUid uid, GuideHelpComponent component, GetVerbsEvent<ExamineVerb> args)
+    private void OnGetVerbs(EntityUid uid, MetaDataComponent metadata, GetVerbsEvent<ExamineVerb> args)
     {
-        if (component.Guides.Count == 0 || _tags.HasTag(uid, GuideEmbedTag))
+        TryComp<GuideHelpComponent>(uid, out var component);
+        var controller = _ui.GetUIController<GuidebookUIController>();
+        if (_tags.HasTag(uid, GuideEmbedTag) ||
+            (component?.Guides.Count is not > 0 && !controller.HasEntityRoute(uid)))
             return;
 
         args.Verbs.Add(new()
         {
             Text = Loc.GetString("guide-help-verb"),
             Icon = new SpriteSpecifier.Texture(new ("/Textures/Interface/VerbIcons/information.svg.192dpi.png")),
-            Act = () => OnGuidebookOpen?.Invoke(component.Guides, null, null, component.IncludeChildren, component.Guides[0]),
+            Act = () => controller.OpenEntityHelp(uid, component?.Guides.Select(id => id.ToString())),
             ClientExclusive = true,
             CloseMenu = true
         });
@@ -89,19 +97,26 @@ public sealed partial class GuidebookSystem : EntitySystem
 
     public void OpenHelp(List<ProtoId<GuideEntryPrototype>> guides)
     {
-        OnGuidebookOpen?.Invoke(guides, null, null, true, guides[0]);
+        if (guides.Count != 0) OnGuidebookOpen?.Invoke(guides, null, null, true, guides[0]);
     }
 
-    private void OnInteract(EntityUid uid, GuideHelpComponent component, ActivateInWorldEvent args)
+    private void OnInteract(EntityUid uid, MetaDataComponent metadata, ActivateInWorldEvent args)
     {
         if (!_timing.IsFirstTimePredicted)
             return;
 
-        if (!component.OpenOnActivation || component.Guides.Count == 0 || _tags.HasTag(uid, GuideEmbedTag))
+        if (args.Handled || _tags.HasTag(uid, GuideEmbedTag))
             return;
 
-        OnGuidebookOpen?.Invoke(component.Guides, null, null, component.IncludeChildren, component.Guides[0]);
-        args.Handled = true;
+        var controller = _ui.GetUIController<GuidebookUIController>();
+        if (controller.HasEntityRoute(uid, "activation"))
+        {
+            args.Handled = controller.OpenEntityHelp(uid, prefix: "activation");
+            return;
+        }
+        if (!TryComp<GuideHelpComponent>(uid, out var component) || !component.OpenOnActivation || component.Guides.Count == 0)
+            return;
+        args.Handled = controller.OpenEntityHelp(uid, component.Guides.Select(id => id.ToString()));
     }
 
     private void OnGuidebookControlsTestGetAlternateVerbs(EntityUid uid, GuidebookControlsTestComponent component, GetVerbsEvent<AlternativeVerb> args)

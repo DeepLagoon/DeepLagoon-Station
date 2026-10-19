@@ -19,6 +19,43 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ShuttleCombatConsoleTests
 {
     [Test]
+    public async Task ClassicNavigationFitsRadarAndScrollablePanelsWithManyWeapons()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var nav = new NavScreen { Visible = true };
+            nav.FireControlPanel.Visible = true;
+            var list = nav.FireControlPanel.FindControl<Robust.Client.UserInterface.Controls.BoxContainer>("ControllablesBox");
+            for (var i = 0; i < 80; i++)
+                list.AddChild(new Robust.Client.UserInterface.Controls.Button
+                {
+                    Text = $"Корабельное орудие {i + 1}", HorizontalExpand = true
+                });
+            foreach (var size in new[] { new Vector2(1050, 580), new Vector2(1150, 680), new Vector2(1550, 880) })
+            {
+                nav.Measure(size);
+                nav.Arrange(new Robust.Shared.Maths.UIBox2(Vector2.Zero, size));
+                Assert.That(nav.DesiredSize.X, Is.LessThanOrEqualTo(size.X + 1));
+                Assert.That(nav.DesiredSize.Y, Is.LessThanOrEqualTo(size.Y + 1));
+                Assert.That(nav.CombatRadar.FitViewport, Is.True);
+                Assert.That(nav.CombatRadar.Size.X, Is.GreaterThan(250));
+                Assert.That(nav.CombatRadar.Size.Y, Is.GreaterThan(250));
+                var settings = nav.FindControl<Robust.Client.UserInterface.Controls.ScrollContainer>("NavigationScroll");
+                foreach (var panel in new Robust.Client.UserInterface.Control[] { settings, nav.FireControlPanel })
+                {
+                    Assert.That(panel.GlobalPosition.X, Is.GreaterThanOrEqualTo(nav.CombatRadar.GlobalPosition.X + nav.CombatRadar.Size.X));
+                    Assert.That(panel.GlobalPosition.X + panel.Size.X, Is.LessThanOrEqualTo(size.X + 1));
+                    Assert.That(panel.Size.Y, Is.LessThanOrEqualTo(size.Y + 1));
+                }
+                Assert.That(list.Parent, Is.TypeOf<Robust.Client.UserInterface.Controls.ScrollContainer>());
+                Assert.That(list.Size.Y, Is.GreaterThan(list.Parent!.Size.Y), "Weapon lists must scroll within their column");
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task PilotAndStandaloneGunneryWindowsUseTheSameReusableWeaponPanel()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -54,18 +91,8 @@ public sealed class ShuttleCombatConsoleTests
                 Assert.That(gunner.Radar.FitViewport, Is.True);
                 Assert.That(gunner.ConsoleHost, Is.Not.Null);
                 var radarLayer = pilot.CombatRadar.Parent!;
-                var glass = radarLayer.GetChild(radarLayer.ChildCount - 1);
-                Assert.That(glass, Is.TypeOf<Content.Client._DeepLagoon.Shuttles.ShuttleRadarGlassControl>(),
-                    "The aperture must cover native radar geometry and child labels in every mode");
-                glass.Visible = true;
-                glass.SetSize = new Vector2(400, 400);
-                glass.Measure(new Vector2(400, 400));
-                glass.Arrange(new Robust.Shared.Maths.UIBox2(0, 0, 400, 400));
-                var hitTest = glass.GetType().GetMethod("HasPoint", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-                Assert.That(hitTest.Invoke(glass, new object[] { new Vector2(200, 200) }), Is.False,
-                    "Glass must pass center clicks through to the radar");
-                Assert.That(hitTest.Invoke(glass, new object[] { new Vector2(10, 10) }), Is.True,
-                    "Hidden radar corners must intercept clicks and cannot fire or select a dock");
+                Assert.That(radarLayer.ChildCount, Is.EqualTo(3),
+                    "The rectangular pilot radar must have no circular glass overlay");
                 pilot.CombatRadar.SetSize = new Vector2(400, 300);
                 pilot.CombatRadar.Measure(new Vector2(400, 300));
                 pilot.CombatRadar.Arrange(new Robust.Shared.Maths.UIBox2(0, 0, 400, 300));
@@ -123,18 +150,32 @@ public sealed class ShuttleCombatConsoleTests
             scanner.SetHandheld(true);
             Assert.That(scanner.ConsoleHost.Kind, Is.EqualTo("handheld"));
             Assert.That(scanner.ConsoleHost.Tgui.ConsoleKeyboardFeedback, Is.False);
+            Assert.That(radar.CircularRadar, Is.True);
             Assert.That(scanner.ConsoleHost.GetChild(1).GetChild(1), Is.TypeOf<ShuttleRadarGlassControl>());
             Assert.That(((ShuttleRadarGlassControl)scanner.ConsoleHost.GetChild(1).GetChild(1)).ShowHardware, Is.False);
             Assert.That(scanner.FindControl<Robust.Client.UserInterface.Controls.Button>("IFFToggle").Visible, Is.False);
             Assert.That(scanner.MinSize.X, Is.LessThan(400));
             scanner.SetHandheld(false);
             Assert.That(scanner.ConsoleHost.Kind, Is.EqualTo("mass"));
-            Assert.That(scanner.ConsoleHost.Tgui.ConsoleKeyboardFeedback, Is.True);
+            Assert.That(scanner.ConsoleHost.Tgui.ConsoleKeyboardFeedback, Is.False);
+            Assert.That(radar.CircularRadar, Is.False);
+            Assert.That(gunner.Radar.CircularRadar, Is.False);
             Assert.That(radar.FitViewport, Is.True);
             var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             Action<string, string> Actions(TguiPanel panel) => (Action<string, string>)typeof(TguiPanel).GetField("OnAction", flags)!.GetValue(panel)!;
             var gunActions = Actions(gunner.ConsoleHost!.Tgui);
             var scannerActions = Actions(scanner.ConsoleHost!.Tgui);
+            const string rectangularViewport = "{\"x\":0.1,\"y\":0.2,\"w\":0.7,\"h\":0.4}";
+            scannerActions("viewport", rectangularViewport);
+            gunActions("viewport", rectangularViewport);
+            Assert.That(scanner.ConsoleHost.GetChild(1).GetChild(1).Visible, Is.False);
+            Assert.That(gunner.ConsoleHost.GetChild(1).GetChild(1).Visible, Is.False);
+            scanner.SetHandheld(true);
+            Assert.That(radar.CircularRadar, Is.True);
+            Assert.That(scanner.ConsoleHost.GetChild(1).GetChild(1).Visible, Is.True);
+            scanner.SetHandheld(false);
+            Assert.That(radar.CircularRadar, Is.False);
+            Assert.That(scanner.ConsoleHost.GetChild(1).GetChild(1).Visible, Is.False);
             var previousIff = radar.ShowIFF;
             scannerActions("radar", "{\"id\":\"iff\"}");
             Assert.That(radar.ShowIFF, Is.EqualTo(!previousIff), "The web toggle must control the original scanner");
@@ -163,10 +204,66 @@ public sealed class ShuttleCombatConsoleTests
             Assert.That(gunner.Radar.Parent, Is.Not.Null);
             Assert.That(radar.ShowIFF, Is.EqualTo(!previousIff), "Fallback must retain the current IFF choice");
             cfg.SetCVar(WebUiCVars.InterfaceStyle, 2);
+            cfg.SetCVar(WebUiCVars.WindowStyles, "");
             using var classicGunner = new FireControlWindow();
             using var classicScanner = new RadarConsoleWindow();
-            Assert.That(classicGunner.ConsoleHost, Is.Null);
-            Assert.That(classicScanner.ConsoleHost, Is.Null);
+            Assert.That(classicGunner.ConsoleHost!.Tgui.Web.Visible, Is.False);
+            Assert.That(classicScanner.ConsoleHost!.Tgui.Web.Visible, Is.False);
+            // Off-tree fixtures have no UI frame to run the deferred style selection.
+            classicGunner.ConsoleHost.Tgui.SwitchToNative();
+            classicScanner.ConsoleHost.Tgui.SwitchToNative();
+            Assert.That(classicGunner.ConsoleHost!.Tgui.UsingNative, Is.True);
+            Assert.That(classicScanner.ConsoleHost!.Tgui.UsingNative, Is.True);
+            Assert.That(classicGunner.ConsoleHost.Visible, Is.False);
+            Assert.That(classicScanner.ConsoleHost.Visible, Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task PilotStatusHidesNativeViewportsAndRetainsFallback()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            pair.Client.ResolveDependency<IConfigurationManager>().SetCVar(WebUiCVars.InterfaceStyle, 1);
+            using var pilot = new ShuttleConsoleWindow();
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var actions = (Action<string, string>)typeof(TguiPanel).GetField("OnAction", flags)!.GetValue(pilot.Tgui)!;
+            var views = (Robust.Client.UserInterface.Control[])typeof(ShuttleConsoleWindow).GetField("_views", flags)!.GetValue(pilot)!;
+            actions("viewport", "{\"x\":0.1,\"y\":0.1,\"w\":0.7,\"h\":0.4}");
+            Assert.That(pilot.CombatRadar.Visible, Is.True);
+            var bounds = (Vector4)typeof(ShuttleConsoleWindow).GetField("_viewport", flags)!.GetValue(pilot)!;
+            Assert.That(bounds.Z, Is.EqualTo(0.7f));
+            Assert.That(bounds.W, Is.EqualTo(0.4f));
+            typeof(ShuttleNavControl).GetField("_isMouseDown", flags)!.SetValue(pilot.CombatRadar, true);
+            actions("mode", "{\"value\":3}");
+            foreach (var view in views) Assert.That(view.Visible, Is.False);
+            Assert.That(pilot.CombatRadar.IsMouseDown(), Is.False);
+            pilot.UpdateHullState(new ShuttleHullState
+            {
+                Width = 2, Height = 1, Cells = new byte[] { 5, 11 },
+                ExpectedThrusters = 1, ExpectedWeapons = 1, MissingWeapons = 1,
+            });
+            using (var state = System.Text.Json.JsonDocument.Parse(
+                       typeof(ShuttleConsoleWindow).GetField("_hullState", flags)!.GetValue(pilot)!.ToString()!))
+            {
+                Assert.That(state.RootElement.GetProperty("present").GetBoolean(), Is.True);
+                Assert.That(Convert.FromBase64String(state.RootElement.GetProperty("cells").GetString()!),
+                    Is.EqualTo(new byte[] { 5, 11 }));
+                Assert.That(state.RootElement.GetProperty("weapons").GetProperty("missing").GetInt32(), Is.EqualTo(1));
+            }
+            actions("mode", "{\"value\":0}");
+            Assert.That(pilot.CombatRadar.Visible, Is.True);
+            actions("mode", "{\"value\":3}");
+            pilot.Tgui.SwitchToNative();
+            Assert.That(pilot.CombatRadar.FitViewport, Is.True, "Classic pilot radar must fit beside both control columns");
+            Assert.That(pilot.CombatRadar.GetValue<float>(Robust.Client.UserInterface.Controls.LayoutContainer.AnchorRightProperty), Is.EqualTo(1f));
+            Assert.That(pilot.CombatRadar.GetValue<float>(Robust.Client.UserInterface.Controls.LayoutContainer.AnchorBottomProperty), Is.EqualTo(1f));
+            Assert.That(pilot.CombatRadar.Visible, Is.True);
+            Assert.That(pilot.Tgui.Visible, Is.False);
+            Assert.That(pilot.CombatRadar.Parent, Is.Not.SameAs(views[1].Parent));
+            pilot.UpdateHullState(null);
         });
         await pair.CleanReturnAsync();
     }

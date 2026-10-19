@@ -1,3 +1,4 @@
+import { spriteLayers, spriteBounds } from './gridEditorSprites.mjs';
 export const copyItems = (items) => items.map((item) => ({ ...item }));
 export const tileId = (x, y) => `t:${x}:${y}`;
 export const cellOf = (item) => ({ x: Math.floor(item.x), y: Math.floor(item.y) });
@@ -177,10 +178,12 @@ export function insertTemplate(draft, items, target, turns, nextId) {
   return result;
 }
 // Match the rendered sprite, including rotation and transparent pixels, rather than its tile.
-export function indexItems(items) {
+export function indexItems(items, visual = null) {
   const buckets = new Map();
+  buckets.radius = 2;
   buckets.order = new Map(items.map((item, index) => [item.id, index]));
   for (const item of items) {
+    if(visual){const bounds=spriteBounds(item,visual(item));buckets.radius=Math.max(buckets.radius,Math.ceil(Math.max(Math.abs(bounds.left-item.x),Math.abs(bounds.right-item.x),Math.abs(bounds.top-item.y),Math.abs(bounds.bottom-item.y)))+1);}
     const key = `${Math.floor(item.x)}:${Math.floor(item.y)}`;
     if (!buckets.has(key)) buckets.set(key, []);
     buckets.get(key).push(item);
@@ -191,8 +194,9 @@ export function indexItems(items) {
 export function nearbyItems(index, point) {
   const result = [];
   // A rotated decal with a fractional origin can reach two buckets beyond its origin.
-  for (let x = Math.floor(point.x) - 2; x <= Math.floor(point.x) + 2; x++)
-    for (let y = Math.floor(point.y) - 2; y <= Math.floor(point.y) + 2; y++)
+  const radius=index.radius||2;
+  for (let x = Math.floor(point.x) - radius; x <= Math.floor(point.x) + radius; x++)
+    for (let y = Math.floor(point.y) - radius; y <= Math.floor(point.y) + radius; y++)
       result.push(...(index.get(`${x}:${y}`) || []));
   return result.sort((a, b) => index.order.get(a.id) - index.order.get(b.id));
 }
@@ -230,6 +234,14 @@ export function expansionRects(bounds, expansion) {
 export function itemsAtPoint(items, point, layers, visual, opaque = () => true) {
   return items.map((item, index) => ({ item, index })).filter(({ item }) => {
     if (!layers[item.kind]) return false;
+    if(item.kind==='entity' && visual(item)?.images?.some(image=>image.native)){
+      return spriteLayers(item,visual(item)).some(layer=>{
+        const x=point.x-layer.x,y=point.y-layer.y,det=layer.a*layer.d-layer.b*layer.c;
+        if(Math.abs(det)<1e-8)return false;
+        const u=(layer.d*x-layer.c*y)/det/layer.width+.5,v=.5-(-layer.b*x+layer.a*y)/det/layer.height;
+        return u>=0&&u<1&&v>=0&&v<1&&opaque([layer.image],u,v);
+      });
+    }
     const left = item.x - (item.kind === 'entity' ? .5 : 0);
     const bottom = item.y - (item.kind === 'entity' ? .5 : 0);
     const x = point.x - left - .5, y = point.y - bottom - .5;
@@ -259,6 +271,24 @@ export function reflectedItem(item, mirror, isDiagonal = () => false) {
   const rotation = ((axis === 'x' ? (isDiagonal(item.prototype) ? 270 : 0) : (isDiagonal(item.prototype) ? 90 : 180)) - (item.rotation || 0) + 3600) % 360;
   return { ...item, [axis]: coordinate, rotation: item.kind === 'tile' ? 0 : rotation,
     mirror: item.kind === 'tile' ? (((axis === 'x' ? 0 : 2) - (item.mirror & 3) + 4) % 4) | ((item.mirror || 0) ^ 4) & 4 : item.mirror };
+}
+
+// Reflect the selected cell footprint in place, retaining entity/decal identities.
+export function reflectSelection(items, ids, axis = 'x', isDiagonal = () => false, rectangle = null) {
+  const selected = new Set(ids), source = items.filter(item => selected.has(item.id));
+  if (!source.length) return { items, ids: [] };
+  let min = Infinity, max = -Infinity;
+  for (const item of source) { const cell = Math.floor(item[axis]); min = Math.min(min, cell); max = Math.max(max, cell); }
+  const center = rectangle ? rectangle[axis] + rectangle[axis === 'x' ? 'width' : 'height'] / 2 : (min + max + 1) / 2;
+  const settings = { axis, center };
+  const reflected = source.map(item => {
+    const result = reflectedItem(item, settings, isDiagonal);
+    if (item.kind === 'tile') result.id = tileId(result.x, result.y);
+    return result;
+  });
+  const targets = new Set(reflected.filter(item => item.kind === 'tile').map(item => item.id));
+  return { items: [...items.filter(item => !selected.has(item.id) && !(item.kind === 'tile' && targets.has(item.id))), ...reflected],
+    ids: reflected.map(item => item.id) };
 }
 
 export function mirrorChanges(previous, next, mirror, area, nextId, pairs = new Map(), isDiagonal = () => false) {

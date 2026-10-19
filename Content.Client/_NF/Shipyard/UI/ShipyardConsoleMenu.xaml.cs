@@ -168,7 +168,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
                 VesselName = { Text = prototype!.Name },
                 VesselDescription = { Text = prototype!.Description }, // Mono
                 Purchase = { Text = Loc.GetString("shipyard-console-purchase-available"), Disabled = !canPurchase },
-                Guidebook = { Disabled = prototype.GuidebookPage is null, TooltipDelay = 0.2f, ToolTip = prototype.Description },
+                Guidebook = { Disabled = prototype.GuidebookPage is null && !IoCManager.Resolve<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>().Read().Contains("vessel:" + prototype.ID), TooltipDelay = 0.2f, ToolTip = prototype.Description },
                 Price = { Text = priceText },
             };
             vesselEntry.Purchase.OnPressed += (args) => { OnOrderApproved?.Invoke(args); };

@@ -87,6 +87,9 @@ public partial class MapGridControl : LayoutContainer
     protected int SizeFull => FitViewport ? Math.Max(1, Math.Min(PixelSize.X, PixelSize.Y)) : (int)((UIDisplayRadius + MinimapMargin) * 2 * UIScale);
     protected int ScaledMinimapRadius => FitViewport ? Math.Max(1, SizeFull / 2 - (int)(MinimapMargin * UIScale)) : (int)(UIDisplayRadius * UIScale);
     protected float MinimapScale => WorldRange != 0 ? ScaledMinimapRadius / WorldRange : 0f;
+    protected Vector2 ViewportWorldHalfExtents => FitViewport && MinimapScale > 0
+        ? (Vector2) PixelSize / (2 * MinimapScale)
+        : WorldRangeVector;
 
     public event Action<float>? WorldRangeChanged;
 

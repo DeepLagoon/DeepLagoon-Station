@@ -53,13 +53,19 @@ public sealed class TguiWindowControls
     private TguiWindowControls(BaseWindow window)
     {
         _window = window;
-        var minimize = new Button { Text = "—", ToolTip = "Свернуть окно", MinSize = new(26, 22) };
-        _maximize = new Button { Text = "□", ToolTip = "Развернуть на весь экран", MinSize = new(26, 22) };
+        var buttonSize = new Vector2(26, 22);
+        var minimize = new Button { Text = "—", ToolTip = "Свернуть окно", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
+        _maximize = new Button { Text = "□", ToolTip = "Развернуть на весь экран", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
+        minimize.AddStyleClass("ButtonSquare");
+        _maximize.AddStyleClass("ButtonSquare");
         minimize.OnPressed += _ => Minimize();
         _maximize.OnPressed += _ => ToggleMaximize();
         if (window is FancyWindow)
         {
             var close = window.FindControl<TextureButton>("CloseButton");
+            close.MinSize = close.MaxSize = buttonSize;
+            // Long entity names must yield space to the window actions.
+            window.FindControl<Label>("WindowTitle").ClipText = true;
             var parent = close.Parent!;
             var index = close.GetPositionInParent();
             parent.AddChild(minimize); minimize.SetPositionInParent(index);

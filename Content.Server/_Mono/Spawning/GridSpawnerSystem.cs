@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using Content.Shared.Random.Helpers;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Map;
@@ -26,7 +27,7 @@ public sealed partial class GridSpawnerSystem : EntitySystem
     {
         var xform = Transform(ent.Owner);
 
-        if (_loader.TryLoadGrid(xform.MapID, ent.Comp.Path, out var grid, offset: _transform.GetWorldPosition(xform)))
+        if (_loader.TryLoadGridTracked(xform.MapID, ent.Comp.Path, out var grid, offset: _transform.GetWorldPosition(xform)))
         {
             if (ent.Comp.NameGrid)
             {

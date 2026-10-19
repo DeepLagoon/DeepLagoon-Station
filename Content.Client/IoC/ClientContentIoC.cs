@@ -35,6 +35,7 @@ namespace Content.Client.IoC
         {
             var collection = IoCManager.Instance!;
             collection.Register<Content.Client._DeepLagoon.WebUI.WebViewLifetimeRegistry>();
+            collection.Register<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>();
             collection.Register<Content.Client._Exodus.Decals.IDecalPlacementManager, Content.Client._Exodus.Decals.DecalPlacementManager>();
 
             collection.Register<IParallaxManager, ParallaxManager>();

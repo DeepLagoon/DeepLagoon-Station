@@ -26,6 +26,8 @@ namespace Content.Client.Shuttles.UI;
 [Virtual]
 public partial class BaseShuttleControl : MapGridControl
 {
+    /// <summary>Only handheld scanners use a circular aperture; desk consoles use the full rectangle.</summary>
+    public bool CircularRadar { get; set; }
     protected readonly EntityLookupSystem _lookup; // Mono
     protected readonly SharedMapSystem Maps;
 
@@ -92,7 +94,7 @@ public partial class BaseShuttleControl : MapGridControl
 
         var minDistance = MathF.Pow(EquatorialMultiplier, EquatorialMultiplier * 1.5f);
         var maxDistance = MathF.Pow(2f, EquatorialMultiplier * 6f);
-        var cornerDistance = MathF.Sqrt(WorldRange * WorldRange + WorldRange * WorldRange);
+        var cornerDistance = ViewportWorldHalfExtents.Length();
 
         var origin = MidPointVector; // Mono
 
@@ -122,7 +124,7 @@ public partial class BaseShuttleControl : MapGridControl
         {
             Angle angle = (Math.PI / gridLinesRadial) * i;
             // TODO: Handle distance properly.
-            var aExtent = angle.ToVec() * ScaledMinimapRadius * 1.42f;
+            var aExtent = angle.ToVec() * (FitViewport ? ((Vector2) PixelSize).Length() / 2 : ScaledMinimapRadius * 1.42f);
             var lineColor = FitViewport ? gridLines.WithAlpha(0.16f) : Color.MediumSpringGreen.WithAlpha(0.02f);
             DrawRadarGuideLine(handle, origin - aExtent, origin + aExtent, lineColor);
         }
@@ -183,7 +185,7 @@ public partial class BaseShuttleControl : MapGridControl
 
             var edgePoint = origin + direction * (ScaledMinimapRadius - edgeInset);
             var inwardNormal = -direction;
-            if (!FitViewport && !TryGetViewportEdgePoint(origin, direction, viewportSize, edgeInset, out edgePoint, out inwardNormal))
+            if (!(FitViewport && CircularRadar) && !TryGetViewportEdgePoint(origin, direction, viewportSize, edgeInset, out edgePoint, out inwardNormal))
                 continue;
 
             var outer = edgePoint + inwardNormal * tickInset;
@@ -316,7 +318,7 @@ public partial class BaseShuttleControl : MapGridControl
     {
         var compassCenter = new Vector2(44f, 44f);
         const float compassRadius = 24f;
-        if (FitViewport)
+        if (FitViewport && CircularRadar)
             compassCenter = MidPointVector - new Vector2(0.707107f) * MathF.Max(0, ScaledMinimapRadius - 60f);
         var ringColor = FitViewport ? Color.FromHex("#99C3A1").WithAlpha(0.3f) : Color.White.WithAlpha(0.08f);
         var northColor = Color.FromHex(FitViewport ? "#B1D6B6" : "#776C43");

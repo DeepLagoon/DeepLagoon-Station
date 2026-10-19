@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using Content.Server.GameTicking.Rules.Components;
 using Content.Server.GridPreloader;
@@ -49,7 +50,7 @@ public sealed partial class LoadMapRuleSystem : StationEventSystem<LoadMapRuleCo
             DebugTools.AssertNull(comp.PreloadedGrid);
 
             var opts = DeserializationOptions.Default with {InitializeMaps = true};
-            if (!_mapLoader.TryLoadMap(path, out var map, out var gridSet, opts))
+            if (!_mapLoader.TryLoadMapTracked(path, out var map, out var gridSet, opts))
             {
                 Log.Error($"Failed to load map from {path}!");
                 ForceEndSelf(uid, rule);
@@ -66,7 +67,7 @@ public sealed partial class LoadMapRuleSystem : StationEventSystem<LoadMapRuleCo
             // I fucking love it when "map paths" choses to ar
             _map.CreateMap(out mapId);
             var opts = DeserializationOptions.Default with {InitializeMaps = true};
-            if (!_mapLoader.TryLoadGrid(mapId, gPath, out var grid, opts))
+            if (!_mapLoader.TryLoadGridTracked(mapId, gPath, out var grid, opts))
             {
                 Log.Error($"Failed to load grid from {gPath}!");
                 ForceEndSelf(uid, rule);

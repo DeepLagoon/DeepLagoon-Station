@@ -28,6 +28,11 @@ public sealed partial class NavScreen : BoxContainer
     public NavScreen()
     {
         RobustXamlLoader.Load(this);
+        // The classic pilot now shares its row with navigation and weapon controls.
+        // Fill the remaining rectangle instead of keeping a fixed 656px radar.
+        NavRadar.FitViewport = true;
+        NavRadar.SetSize = new Vector2(float.NaN, float.NaN);
+        LayoutContainer.SetAnchorPreset(NavRadar, LayoutContainer.LayoutPreset.Wide);
         FireControlPanel = new Content.Client._Mono.FireControl.UI.FireControlPanel(NavRadar, showRadarControls: false)
         {
             Visible = false,

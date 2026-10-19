@@ -4,6 +4,8 @@ using Content.Client._DeepLagoon.Apartments;
 using Content.Server._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Inventory;
+using Content.Shared.GameTicking;
+using Content.Shared.Preferences;
 using Content.Shared.Light.Components;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Atmos.Components;
@@ -20,12 +22,119 @@ using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Player;
 using Robust.Shared.Enums;
+using Robust.Shared.Network;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
 public sealed class ApartmentIntegrationTests
 {
+    [Test]
+    public async Task ThirtyApartmentsShareMapWithoutOverlappingAndKeepPositionsWhenWoken()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var testMap = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var config = pair.Server.ResolveDependency<IConfigurationManager>();
+            config.SetCVar(ApartmentCVars.Enabled, true);
+            Assert.That(config.GetCVar(ApartmentCVars.LoadedLimit), Is.EqualTo(30));
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            var system = entities.System<ApartmentSystem>();
+            EntityUid? residentialMap = null;
+            var homes = new List<ApartmentSystem.Instance>();
+            for (var index = 0; index < 30; index++)
+            {
+                var owner = new NetUserId(Guid.NewGuid());
+                system.EnsureGuestPolicy(owner);
+                Assert.That(system.Invite(owner, session.UserId), Is.True);
+                Assert.That(system.Enter(session, owner, out var message), Is.True, message);
+                var home = system.Instances[owner];
+                var transform = entities.GetComponent<TransformComponent>(home.Grid);
+                residentialMap ??= transform.MapUid;
+                Assert.That(transform.MapUid, Is.EqualTo(residentialMap));
+                foreach (var other in homes)
+                {
+                    var separate = home.Position.X >= other.Position.X + other.Template.Width + 2 ||
+                        other.Position.X >= home.Position.X + home.Template.Width + 2 ||
+                        home.Position.Y >= other.Position.Y + other.Template.Height + 2 ||
+                        other.Position.Y >= home.Position.Y + home.Template.Height + 2;
+                    Assert.That(separate, Is.True, "Apartment bounds must have a two-tile gap.");
+                }
+                homes.Add(home);
+                Assert.That(system.Leave(session.UserId, out message), Is.True, message);
+            }
+            Assert.That(system.Instances, Has.Count.EqualTo(30));
+            Assert.That(homes[1].Position.X, Is.EqualTo(homes[0].Template.Width + 2));
+            Assert.That(homes[1].Position.Y, Is.EqualTo(0));
+            Assert.That(system.Enter(session, session.UserId, out _), Is.False, "The 31st apartment must exceed the limit.");
+            foreach (var home in homes)
+            {
+                Assert.That(home.Frozen, Is.True);
+                Assert.That(system.Enter(session, home.Owner, out var message), Is.True, message);
+                var transform = entities.GetComponent<TransformComponent>(home.Grid);
+                Assert.That(transform.MapUid, Is.EqualTo(residentialMap));
+                Assert.That(transform.LocalPosition, Is.EqualTo(home.Position));
+                Assert.That(system.Leave(session.UserId, out message), Is.True, message);
+            }
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task LatejoinSpawnsInOwnApartmentOnlyWhenEnabled()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var testMap = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var config = pair.Server.ResolveDependency<IConfigurationManager>();
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var system = entities.System<ApartmentSystem>();
+            var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            var original = entities.GetComponent<TransformComponent>(body).Coordinates;
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitColorBlue", original);
+            var inventory = entities.System<InventorySystem>();
+            Assert.That(inventory.TryEquip(body, uniform, "jumpsuit", force: true), Is.True);
+
+            void SpawnComplete(bool lateJoin) => entities.EventBus.RaiseLocalEvent(body,
+                new PlayerSpawnCompleteEvent(body, session, null, lateJoin, false, 1,
+                    testMap.GridCoords.EntityId, HumanoidCharacterProfile.DefaultWithSpecies()), true);
+
+            config.SetCVar(ApartmentCVars.Enabled, false);
+            SpawnComplete(true);
+            Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+
+            config.SetCVar(ApartmentCVars.Enabled, true);
+            SpawnComplete(false);
+            Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+
+            SpawnComplete(true);
+            Assert.That(system.TryGetVisit(session.UserId, out var home, out var resident), Is.True);
+            Assert.That(home.Owner, Is.EqualTo(session.UserId));
+            Assert.That(resident, Is.EqualTo(body));
+            Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(home.Grid));
+            Assert.That(entities.GetComponent<MetaDataComponent>(uniform).EntityPaused, Is.True);
+
+            Assert.That(system.RequestLeave(session.UserId, out var message), Is.True, message);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+            Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var restored), Is.True);
+            Assert.That(restored, Is.EqualTo(uniform));
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task PreviewApplyEscrowPersistenceAndFreezeRunThroughConnectedClient()
     {

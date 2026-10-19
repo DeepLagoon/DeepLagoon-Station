@@ -11,6 +11,7 @@ const source = `
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GridEditor } from '../packages/tgui/interfaces/GridEditor.jsx';
+import { routeProfiles, routePrototypes } from '../packages/tgui/interfaces/gridEditorRouting.mjs';
 export const Context = createContext(null);
 const svg = (body) => 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">' + body + '</svg>');
 const floor = svg('<rect width="32" height="32" fill="#647b86"/><path d="M0 0h32v32H0Z M0 16h32M16 0v32" fill="none" stroke="#415765"/>');
@@ -27,6 +28,7 @@ const catalog = [
 for (let i = 0; i < 1000; i++) catalog.push({ ...catalog[0], id: 'FixtureFloor' + i, name: 'Проверочный пол ' + i });
 catalog.push({ id: 'FixtureTable', name: 'Проверочный стол', kind: 'entity', category: 'entity', drawDepth: 2, exclusive: true, images: [{url: svg('<rect x="2" y="2" width="28" height="28" fill="brown"/>')}] },
   { id: 'FixtureCup', name: 'Проверочная чашка', kind: 'entity', category: 'entity', drawDepth: 10, images: [{url: svg('<rect x="13" y="13" width="6" height="6" fill="white"/>')}] });
+for(const profile of routeProfiles)for(const id of routePrototypes(profile))catalog.push({id,name:id,kind:'entity',category:'entity',anchored:true,images:[{url:decal}]});
 const defaults = { rotation: 0, color: '#ffffff', z: 0, cleanable: false, anchored: false, variant: 0, flags: 0, mirror: 0 };
 const large = new URLSearchParams(location.search).has('large');
 const fail = new URLSearchParams(location.search).has('fail');
@@ -46,7 +48,7 @@ items.push({ ...defaults, id: 'e:chair', kind: 'entity', prototype: 'ChairWood',
 items.push({ ...defaults, id: 'e:table', kind: 'entity', prototype: 'FixtureTable', x: 2.5, y: 1.5 }, { ...defaults, id: 'e:cup', kind: 'entity', prototype: 'FixtureCup', x: 2.5, y: 1.5 });
 if (large) { items.length = 0; for (let x=0; x<250; x++) for(let y=0; y<250; y++) items.push({ ...defaults, id: 't:'+x+':'+y, kind:'tile', prototype:'Plating', x,y }); }
 function App() {
-  const [data, setData] = useState({ grid: '142', token: 'fixture', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], initialized: false });
+  const [data, setData] = useState({ grid: '142', token: 'fixture', sourcePath:new URLSearchParams(location.search).has('source')?'Resources/Maps/Test/empty.yml':'', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], initialized: false });
   window.fixtureGetData = () => data; window.fixtureSetData = setData;
   useEffect(() => {
     const receive = ({data:message}) => {
@@ -67,6 +69,7 @@ function App() {
     if (action === 'referenceImport') { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.onchange=()=>{const reader=new FileReader();reader.onload=()=>setData(d=>({...d,referenceImage:reader.result,referenceVersion:Date.now()}));reader.readAsDataURL(input.files[0]);}; input.click(); }
 
     if (fail && ['applyStart', 'download'].includes(action)) { setData(d => ({ ...d, status: 'Проверочный отказ сервера: карта была изменена другим маппером. Обновите grid.', success: false, resultVersion: Date.now() })); return; }
+    if (action === 'routeVisuals') setData(d=>({...d,routeVisuals:catalog.filter(i=>payload.prototypes.includes(i.id))}));
     if (action === 'search') { const entries = catalog.filter(i => (payload.category === 'all' || i.category === payload.category || payload.category === 'favorites' && data.favorites.some(f => f.id === i.id && f.kind === i.kind)) && (i.name.toLowerCase().includes(payload.query.toLowerCase()) || i.id.toLowerCase().includes(payload.query.toLowerCase()))); setData(d => ({ ...d, catalog: entries.slice(payload.page * 48, (payload.page + 1) * 48), catalogCount: entries.length, catalogPage: payload.page, catalogCategory: payload.category, catalogQuery: payload.query })); }
     if (action === 'favorite') setData(d => ({ ...d, favorites: d.favorites.some(f => f.kind === payload.kind && f.id === payload.id) ? d.favorites.filter(f => f.kind !== payload.kind || f.id !== payload.id) : [...d.favorites, payload] }));
     if (action === 'deleteTemplate') setData(d => ({ ...d, templates: d.templates.filter(t => t.id !== payload.id) }));

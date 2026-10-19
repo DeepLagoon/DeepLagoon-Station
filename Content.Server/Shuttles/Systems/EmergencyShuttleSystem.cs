@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -529,7 +530,7 @@ public sealed partial class EmergencyShuttleSystem : EntitySystem
         }
 
         var map = _mapSystem.CreateMap(out var mapId);
-        if (!_loader.TryLoadGrid(mapId, component.Map, out var grid))
+        if (!_loader.TryLoadGridTracked(mapId, component.Map, out var grid))
         {
             Log.Error($"Failed to set up centcomm grid!");
             return;
@@ -607,7 +608,7 @@ public sealed partial class EmergencyShuttleSystem : EntitySystem
 
         // Load escape shuttle
         var shuttlePath = ent.Comp1.EmergencyShuttlePath;
-        if (!_loader.TryLoadGrid(map.MapId,
+        if (!_loader.TryLoadGridTracked(map.MapId,
             shuttlePath,
             out var shuttle,
             // Should be far enough... right? I'm too lazy to bounds check CentCom rn.

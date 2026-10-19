@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Numerics;
 using Content.Server.Cargo.Systems;
 using Robust.Server.GameObjects;
@@ -190,7 +191,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         group.Paths.Add(path);
 
         // Do we support maps with multiple grids?
-        if (_loader.TryLoadGrid(mapId, path, out var ent))
+        if (_loader.TryLoadGridTracked(mapId, path, out var ent))
         {
             if (HasComp<ShuttleComponent>(ent.Value))
             {

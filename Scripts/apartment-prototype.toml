@@ -34,5 +34,5 @@ map_autovote_enabled = false
 
 [deeplagoon]
 apartments_enabled = true
-apartments_loaded_limit = 12
+apartments_loaded_limit = 30
 apartments_empty_timeout = 120

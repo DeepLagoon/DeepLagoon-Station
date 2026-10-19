@@ -64,6 +64,7 @@ public sealed class WebUiPreviewCommand : IConsoleCommand
         if (args[0] == "wiki")
         {
             var wiki = new WikiGuidebookWindow();
+            wiki.ShowPath(IoCManager.Resolve<WikiRoutingConfiguration>().Read().Resolve(new[] { "button:guidebook" }));
             wiki.OnClose += wiki.Dispose;
             wiki.OpenCentered();
             return;

@@ -1,3 +1,5 @@
+using Content.Client.UserInterface.Systems.Guidebook;
+using System.Linq;
 using System.Numerics;
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
@@ -19,6 +21,7 @@ public sealed partial class RequirementsSelector : BoxContainer
 {
     private readonly RadioOptions<int> _options;
     private readonly StripeBack _lockStripe;
+    private string? _source;
     private List<ProtoId<GuideEntryPrototype>>? _guides;
 
     public event Action<int>? OnSelected;
@@ -67,7 +70,9 @@ public sealed partial class RequirementsSelector : BoxContainer
 
         Help.OnPressed += _ =>
         {
-            if (_guides != null)
+            if (_source != null)
+                UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource(_source, _guides?.Select(id => id.ToString()));
+            else if (_guides != null)
                 OnOpenGuidebook?.Invoke(_guides);
         };
     }
@@ -81,14 +86,16 @@ public sealed partial class RequirementsSelector : BoxContainer
         int titleSize,
         string? description,
         TextureRect? icon = null,
-        List<ProtoId<GuideEntryPrototype>>? guides = null)
+        List<ProtoId<GuideEntryPrototype>>? guides = null,
+        string? source = null)
     {
         foreach (var (text, value) in items)
         {
             _options.AddItem(Loc.GetString(text), value);
         }
 
-        Help.Visible = guides != null;
+        _source = source;
+        Help.Visible = guides != null || source != null && UserInterfaceManager.GetUIController<GuidebookUIController>().HasSource(source);
         _guides = guides;
 
         TitleLabel.Text = title;

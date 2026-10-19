@@ -87,7 +87,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     private EntityUid _activeMap;
     private EntityUid _sleepMap;
     private TimeSpan _nextUpdate;
-    private int _slot;
+    private const int ApartmentGap = 2;
+    private const int ApartmentRowWidth = 192;
 
     public bool Enabled => _config.GetCVar(ApartmentCVars.Enabled);
     public IReadOnlyDictionary<NetUserId, Instance> Instances => _instances;
@@ -105,6 +106,12 @@ public sealed partial class ApartmentSystem : EntitySystem
         SubscribeLocalEvent<ApartmentResidentComponent, BeforeDamageChangedEvent>(OnDamage);
         SubscribeLocalEvent<ApartmentGridComponent, MassDataChangedEvent>(OnGridMassChanged, after: new[] { typeof(AutomaticAtmosSystem) });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => Cleanup());
+        SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawnComplete, after: new[]
+        {
+            typeof(Content.Server._DeepLagoon.Loadouts.PersonalLoadoutSpawnSystem),
+            typeof(Content.Server.StationRecords.Systems.StationRecordsSystem),
+            typeof(Content.Server.Antag.AntagSelectionSystem),
+        });
         _players.PlayerStatusChanged += OnStatus;
     }
 
@@ -113,6 +120,17 @@ public sealed partial class ApartmentSystem : EntitySystem
         _players.PlayerStatusChanged -= OnStatus;
         _store?.Dispose();
         base.Shutdown();
+    }
+
+    private void OnPlayerSpawnComplete(PlayerSpawnCompleteEvent args)
+    {
+        if (!Enabled || !args.LateJoin || args.Player.AttachedEntity != args.Mob)
+            return;
+
+        // Keep the normal arrival point and loadout for leaving the apartment.
+        // A failed load leaves the player at their normal latejoin spawn.
+        if (!Enter(args.Player, args.Player.UserId, out var message))
+            Log.Warning($"Could not spawn latejoining player {args.Player.UserId} in their apartment: {message}");
     }
 
     private IApartmentLayoutStore Store => _store ??= new ApartmentLayoutStore(_resources.UserData.RootDir is { } root
@@ -210,7 +228,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         var roof = EnsureComp<ImplicitRoofComponent>(grid);
         roof.Color = Color.White;
         Dirty(grid, roof);
-        var position = new Vector2((_slot++ % 100) * 64, (_slot / 100) * 64);
+        var position = FindFreePosition(template);
         var instance = new Instance { Owner = owner, Grid = grid.Owner, Position = position, Template = template, Delta = delta,
             Guests = _guestAccess.GetValueOrDefault(owner) ?? new ApartmentGuestAccess() };
         try
@@ -231,6 +249,31 @@ public sealed partial class ApartmentSystem : EntitySystem
             return instance;
         }
         catch { Del(grid); throw; }
+    }
+
+    private Vector2 FindFreePosition(ApartmentTemplatePrototype template)
+    {
+        // Reserve frozen apartments too: waking them must restore the same free location.
+        // Maps have no fixed edge, so extend the rows when the current ones are full.
+        var columns = _instances.Values.Select(i => i.Position.X + i.Template.Width + ApartmentGap)
+            .Append(0f).Distinct().OrderBy(x => x).ToArray();
+        var rows = _instances.Values.Select(i => i.Position.Y + i.Template.Height + ApartmentGap)
+            .Append(0f).Distinct().OrderBy(y => y);
+        foreach (var y in rows)
+        foreach (var x in columns)
+        {
+            if (x + template.Width > ApartmentRowWidth)
+                continue;
+            if (_instances.Values.Any(i =>
+                    x < i.Position.X + i.Template.Width + ApartmentGap &&
+                    x + template.Width + ApartmentGap > i.Position.X &&
+                    y < i.Position.Y + i.Template.Height + ApartmentGap &&
+                    y + template.Height + ApartmentGap > i.Position.Y))
+                continue;
+            return new Vector2(x, y);
+        }
+
+        throw new InvalidOperationException("No free apartment position found.");
     }
 
     private EntityUid SpawnFurniture(ApartmentPlacement item, EntityUid parent)
@@ -497,6 +540,5 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);
         _activeMap = _sleepMap = EntityUid.Invalid;
-        _slot = 0;
     }
 }

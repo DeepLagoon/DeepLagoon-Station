@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem } from '../packages/tgui/interfaces/gridEditorModel.mjs';
+import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
@@ -347,4 +347,42 @@ test('local construction hides conflicting external construction until undo', ()
   const result = overlayLocalEdits(baseline,[own],p=>p==='Wall');
   assert.deepEqual(result,[cup,own]);
   assert.deepEqual(overlayLocalEdits(baseline,[],p=>p==='Wall'),baseline);
+});
+
+
+test('selection reflection swaps floor IDs and reflects entity/decal orientation in place', () => {
+  const left=testTile(-2,1,'FloorSteel'), right=testTile(0,1), outside=testTile(5,1);
+  const chair={id:'chair',kind:'entity',prototype:'Chair',x:-1.75,y:1.5,rotation:90};
+  const decal={id:'decal',kind:'decal',prototype:'Mark',x:-1.9,y:1.2,rotation:45};
+  const items=[left,right,outside,chair,decal], ids=items.filter(i=>i!==outside).map(i=>i.id);
+  const result=reflectSelection(items,ids);
+  assert.equal(result.items.find(i=>i.id==='t:0:1').prototype,'FloorSteel');
+  assert.equal(result.items.find(i=>i.id==='t:-2:1').prototype,'Plating');
+  assert.equal(result.items.find(i=>i.id==='chair').x,.75);
+  assert.equal(result.items.find(i=>i.id==='chair').rotation,270);
+  assert.ok(Math.abs(result.items.find(i=>i.id==='decal').x+.1)<.00001);
+  assert.equal(result.items.find(i=>i.id==='decal').rotation,315);
+  assert.strictEqual(result.items.find(i=>i.id===outside.id),outside);
+  assert.equal(new Set(result.items.map(i=>i.id)).size,items.length);
+  const restored=reflectSelection(result.items,result.ids).items;
+  for(const original of items) {
+    const item=restored.find(i=>i.id===original.id);
+    assert.ok(Math.abs(item.x-original.x)<.00001);assert.equal(item.rotation,original.rotation);
+    assert.equal(item.mirror||0,original.mirror||0);
+  }
+  assert.equal(items[0].x,-2);
+});
+
+test('vertical reflection handles diagonal walls and empty selections', () => {
+  const items=[testWall('a',0,-2,0),testWall('b',0,0,90)];
+  const result=reflectSelection(items,['a','b'],'y',id=>id==='Diagonal');
+  assert.equal(result.items.find(i=>i.id==='a').y,.5);
+  assert.equal(result.items.find(i=>i.id==='a').rotation,90);
+  assert.deepEqual(reflectSelection(items,[]),{items,ids:[]});
+});
+
+test('reflection uses the S rectangle including empty edge cells', () => {
+  const wall=testWall('wall',0,0,0,'Wall');
+  const result=reflectSelection([wall],['wall'],'x',()=>false,{x:0,y:0,width:4,height:1});
+  assert.equal(result.items[0].x,3.5);
 });

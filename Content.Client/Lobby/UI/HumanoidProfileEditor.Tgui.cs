@@ -356,7 +356,7 @@ public sealed partial class HumanoidProfileEditor
             var companies = _prototypeManager.EnumeratePrototypes<CompanyPrototype>().Where(c => !c.Disabled && _companyManager.IsAllowed(c.ID));
             if (includeCatalogs) data.Array("companyOptions", companies.OrderBy(c => c.ID == "None" ? "" : c.Name).Select(c => Choice(c.ID, c.Name)
                 .String("descriptionHtml", WebChatMessageFormatter.ToHtml(FormattedMessage.FromMarkupPermissive(string.IsNullOrEmpty(c.Description) ? "" : Loc.GetString(c.Description))))
-                .String("image", CompanyDataImage(c)).String("wikiUrl", c.WikiUrl)));
+                .String("image", CompanyDataImage(c)).String("wikiUrl", IoCManager.Resolve<WikiRoutingConfiguration>().Read().Resolve(new[] { "company:" + c.ID }, WikiRoutingConfiguration.External(c.WikiUrl)))));
             if (_prototypeManager.TryIndex<CompanyPrototype>(p.Company, out var company))
                 data.String("companyDescriptionHtml", WebChatMessageFormatter.ToHtml(FormattedMessage.FromMarkupPermissive(
                         string.IsNullOrEmpty(company.Description) ? "" : Loc.GetString(company.Description))))
@@ -525,8 +525,8 @@ public sealed partial class HumanoidProfileEditor
                 CloseHeadshotLibrary(); break;
             case "company-wiki":
                 if (!_prototypeManager.TryIndex<CompanyPrototype>(value, out var wikiCompany) || !_companyManager.IsAllowed(wikiCompany.ID) ||
-                    wikiCompany.WikiUrl is not {} wikiUrl || !wikiUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return false;
-                IoCManager.Resolve<Robust.Client.UserInterface.IUriOpener>().OpenUri(wikiUrl); break;
+                    wikiCompany.Disabled) return false;
+                UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource("company:" + wikiCompany.ID, fallback: WikiRoutingConfiguration.External(wikiCompany.WikiUrl)); break;
             case "appearance-setting":
                 if (!_editorAppearance.Update(args.String("field") ?? "", value)) return false;
                 _editorAppearance.Save(_resManager); break;
@@ -679,7 +679,7 @@ public sealed partial class HumanoidProfileEditor
                 OnSpeciesInfoButtonPressed(null!); break;
             case "job-guide":
                 if (args.String("id") is not { } guideJob || !_prototypeManager.TryIndex<JobPrototype>(guideJob, out var guideProto)) return false;
-                if (guideProto.Guides is { } guides) OnOpenGuidebook?.Invoke(guides); break;
+                UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource("job:" + guideProto.ID, guideProto.Guides?.Select(id => id.ToString())); break;
             default: valid = false; break;
         }
         if (valid) PublishTguiProfile();

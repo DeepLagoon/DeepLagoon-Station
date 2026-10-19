@@ -27,12 +27,15 @@ namespace Content.Client.Info
             _cfg = IoCManager.Resolve<IConfigurationManager>();
 
             var rulesButton = new Button() {Text = Loc.GetString("server-info-rules-button")};
-            rulesButton.OnPressed += _ => UserInterfaceManager.GetUIController<GuidebookUIController>().OpenWikiPage("Rules");
+            rulesButton.OnPressed += _ => UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource("button:banner-rules");
             buttons.AddChild(rulesButton);
 
             AddInfoButton("server-info-discord-button", CCVars.InfoLinksDiscord);
             AddInfoButton("server-info-website-button", CCVars.InfoLinksWebsite);
-            AddInfoButton("server-info-wiki-button", CCVars.InfoLinksWiki);
+            var wikiButton = new Button { Text = Loc.GetString("server-info-wiki-button") };
+            wikiButton.OnPressed += _ => UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource("button:banner-wiki", fallback: "");
+            buttons.AddChild(wikiButton);
+            _infoLinks.Add((CCVars.InfoLinksWiki, wikiButton));
             AddInfoButton("server-info-forum-button", CCVars.InfoLinksForum);
             AddInfoButton("server-info-telegram-button", CCVars.InfoLinksTelegram);
 
@@ -40,7 +43,7 @@ namespace Content.Client.Info
             var guidebookButton = new Button() { Text = Loc.GetString("server-info-guidebook-button") };
             guidebookButton.OnPressed += _ =>
             {
-                guidebookController.ToggleGuidebook();
+                guidebookController.ToggleGuidebook("button:banner-guidebook");
             };
             buttons.AddChild(guidebookButton);
 
@@ -66,7 +69,9 @@ namespace Content.Client.Info
 
             foreach (var (cVar, link) in _infoLinks)
             {
-                link.Visible = _cfg.GetCVar(cVar) != "";
+                link.Visible = cVar == CCVars.InfoLinksWiki
+                    ? IoCManager.Resolve<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>().Read().Resolve(new[] { "button:banner-wiki" }, "").Length != 0
+                    : _cfg.GetCVar(cVar) != "";
             }
         }
     }

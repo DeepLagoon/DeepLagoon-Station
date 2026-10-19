@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Construction;
@@ -183,7 +184,7 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
             ExpectedCategory = FileCategory.Map
         };
 
-        if (!_loader.TryLoadGeneric(proto.AtlasPath, out var res, opts) || !res.Maps.TryFirstOrNull(out var map))
+        if (!_loader.TryLoadGenericTracked(proto.AtlasPath, out var res, opts) || !res.Maps.TryFirstOrNull(out var map))
             throw new Exception($"Failed to load dungeon template.");
 
         comp = AddComp<DungeonAtlasTemplateComponent>(map.Value.Owner);

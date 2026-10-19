@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+using Content.Client.UserInterface.Systems.Guidebook;
+using System.Linq;
+using System.Numerics;
 using Content.Client.Guidebook;
 using Content.Client.Guidebook.Components;
 using Content.Shared.Guidebook;
@@ -33,6 +35,7 @@ namespace Content.Client.UserInterface.Controls
             set => WindowTitle.Text = value;
         }
 
+        private EntityUid? _helpEntity;
         private List<ProtoId<GuideEntryPrototype>>? _helpGuidebookIds;
         public List<ProtoId<GuideEntryPrototype>>? HelpGuidebookIds
         {
@@ -45,10 +48,17 @@ namespace Content.Client.UserInterface.Controls
             }
         }
 
+        public void SetHelpEntity(EntityUid entity) => _helpEntity = entity;
+
         public void Help()
         {
             if (HelpGuidebookIds is null)
                 return;
+            if (_helpEntity is {} entity)
+            {
+                UserInterfaceManager.GetUIController<GuidebookUIController>().OpenEntityHelp(entity, HelpGuidebookIds.Select(id => id.ToString()));
+                return;
+            }
             _guidebookSystem ??= _sysMan.GetEntitySystem<GuidebookSystem>();
             _guidebookSystem.OpenHelp(HelpGuidebookIds);
         }
@@ -129,7 +139,10 @@ namespace Content.Client.UserInterface.Controls
             IEntityManager entityManager,
             EntityUid entity)
         {
-            window.HelpGuidebookIds = entityManager.GetComponentOrNull<GuideHelpComponent>(entity)?.Guides;
+            window.SetHelpEntity(entity);
+            window.HelpGuidebookIds = entityManager.GetComponentOrNull<GuideHelpComponent>(entity)?.Guides ??
+                (IoCManager.Resolve<Robust.Client.UserInterface.IUserInterfaceManager>()
+                    .GetUIController<GuidebookUIController>().HasEntityRoute(entity) ? new() : null);
         }
     }
 }

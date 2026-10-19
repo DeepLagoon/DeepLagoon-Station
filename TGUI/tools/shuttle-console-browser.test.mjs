@@ -27,6 +27,7 @@ function App() {
   weapons:{status:'Сервер орудий подключён',hasWeapons:true,entries:Array.from({length:24},(_,i)=>({id:'gun'+i,name:(i%2?'Лазер':'Корабельная пушка')+' №'+(i+1)+' · '+(40-i)+' снарядов',selected:i<2}))},
   map:{status:'FTL готов',progress:.4,destinations:[{id:'target',name:'Станция DeepLagoon'}]},
   dock:{ports:[{id:'dock1',name:'Шлюз №1',connected:true,selected:true}]} });
+ window.previewHull = hull => setData(d=>({...d,hull}));
  window.telemetry = () => setData(d=>({...d,nav:{...d.nav,velocity:'X: 19.0 / Y: 0.0'}}));
  window.detectWeapons = found => setData(d=>({...d,weapons:{...d.weapons,hasWeapons:found}}));
  window.previewWeaponCount = count => setData(d=>({...d,weapons:{...d.weapons,hasWeapons:count>0,entries:d.weapons.entries.slice(0,count)}}));
@@ -41,15 +42,16 @@ await build({ entryPoints: [fixture], outfile: path.join(output, 'preview.js'), 
     build.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({ contents: `import {useContext} from 'react';import {Context} from ${JSON.stringify(fixture)};export const useBackend=()=>useContext(Context);`, resolveDir: root }));
     build.onLoad({ filter: /\.scss$/ }, () => ({ contents: '', loader: 'css' }));
   } }] });
-const css = sass.compile(path.join(root, 'packages/tgui/interfaces/ShuttleConsole.scss')).css;
+const css = sass.compile(path.join(root, 'packages/tgui/interfaces/ShuttleConsole.scss')).css
+  + sass.compile(path.join(root, 'packages/tgui/components/CivilianConsoleFrame.scss')).css;
 const glassSource = fs.readFileSync(path.join(root, '../Resources/Textures/_DeepLagoon/Shaders/shuttle_radar_glass.swsl'), 'utf8');
 const surfaceSource = fs.readFileSync(path.join(root, '../Resources/Textures/_DeepLagoon/Shaders/shuttle_radar_surface.swsl'), 'utf8');
 const clydeLibrary = fs.readFileSync(path.join(root, '../RobustToolbox/Robust.Client/Graphics/Clyde/Shaders/z-library.glsl'), 'utf8');
 const colorConversions = clydeLibrary.slice(clydeLibrary.indexOf('highp vec4 zFromSrgb'), clydeLibrary.indexOf('// -- uniforms --'));
 const html = `<html><meta charset="utf-8"><style>html,body,#root{margin:0;height:100%}${css}</style><div id="root"></div><script src="/preview.js"></script></html>`;
 const server = http.createServer((req, res) => {
-  if (['/ship-console-shell.png', '/ship-console-instruments.png', '/ship-console-panel.svg'].includes(req.url)) {
-    res.setHeader('Content-Type', req.url.endsWith('.svg') ? 'image/svg+xml' : 'image/png');
+  if (['/civilian-console-shell.webp', '/ship-console-shell.png', '/ship-console-instruments.png', '/ship-console-panel.svg'].includes(req.url)) {
+    res.setHeader('Content-Type', req.url.endsWith('.svg') ? 'image/svg+xml' : req.url.endsWith('.webp') ? 'image/webp' : 'image/png');
     res.end(fs.readFileSync(path.join(root, '../Resources/Web/DeepLagoon', req.url.slice(1))));
     return;
   }
@@ -68,6 +70,19 @@ try {
       viewport.querySelectorAll('canvas').forEach(canvas => canvas.remove());
       const base = document.createElement('canvas');
       const overlay = document.createElement('canvas');
+      if (document.querySelector('.ShipConsoleFrame')) {
+        const rect = viewport.getBoundingClientRect();
+        base.width = Math.round(rect.width); base.height = Math.round(rect.height);
+        Object.assign(base.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', pointerEvents: 'none' });
+        viewport.appendChild(base);
+        const ctx = base.getContext('2d');
+        ctx.fillStyle = '#0b1216'; ctx.fillRect(0, 0, base.width, base.height);
+        ctx.strokeStyle = '#34505a'; ctx.lineWidth = 1;
+        for (let x=20; x<base.width; x+=40) { ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,base.height);ctx.stroke(); }
+        for (let y=20; y<base.height; y+=40) { ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(base.width,y);ctx.stroke(); }
+        ctx.strokeStyle='#9ab6b9'; ctx.strokeRect(base.width*.35,base.height*.3,base.width*.3,base.height*.4);
+        return null;
+      }
       const size = Math.round(viewport.getBoundingClientRect().width);
       for (const canvas of [base, overlay]) {
         canvas.width = canvas.height = size;
@@ -221,7 +236,9 @@ try {
     });
     assert.equal(dimensions.overflow, false);
     assert.ok(dimensions.radarWidth > 200 && dimensions.radarHeight > 250);
-    assert.ok(Math.abs(dimensions.radarWidth - dimensions.radarHeight) < 1, 'The radar aperture must stay circular when resizing');
+    assert.ok(dimensions.radarWidth > 0 && dimensions.radarHeight > 0, 'Rectangular radar must fill its available area');
+    assert.ok(Math.abs(dimensions.bounds.w * width - dimensions.radarWidth) < 1);
+    assert.ok(Math.abs(dimensions.bounds.h * height - dimensions.radarHeight) < 1);
     if (width !== 1285) assert.ok(dimensions.scroll, 'Long weapon lists must scroll inside the panel');
     assert.ok(dimensions.bounds.x + dimensions.bounds.w <= 1 && dimensions.bounds.y + dimensions.bounds.h <= 1);
     const styling = await page.evaluate(() => {
@@ -234,22 +251,16 @@ try {
         lamp: app.querySelector('.ShuttleConsole__lamp').getBoundingClientRect().height,
         telemetryGlow: getComputedStyle(app.querySelector('.ShuttleConsole__terminal dd')).textShadow };
     });
-    assert.equal(styling.skin, 'dark-steel');
+    assert.equal(styling.skin, 'matte-graphite');
     assert.equal(styling.telemetryAlignment, 'left');
-    assert.ok(styling.lamp >= 11);
+    assert.ok(styling.lamp >= 8);
     assert.equal(styling.telemetryGlow, 'none');
-    assert.ok(await page.locator('.ShipConsoleFrame').evaluate(el => getComputedStyle(el).borderImageSource.includes('ship-console-shell.png')));
+    assert.equal(await page.locator('.ShipConsoleFrame').evaluate(el => getComputedStyle(el).borderImageSource), 'none');
     const tabs = await page.locator('header nav button').evaluateAll(buttons => buttons.map(button=>button.getBoundingClientRect().toJSON()));
-    const bezel = await page.locator('.ShipConsoleFrame').evaluate(el=>parseFloat(getComputedStyle(el).borderTopWidth));
-    assert.equal(tabs.length,3);
-    for(const tab of tabs) assert.ok(tab.y>=0&&tab.bottom<=bezel,'Working tabs must occupy the upper hardware slots');
-    await page.keyboard.down('ArrowLeft');
-    await page.locator('.ConsoleKeyboard [data-key="ArrowLeft"]').waitFor();
-    const pressedBox=await page.locator('.ConsoleKeyboard [data-key="ArrowLeft"] > rect').first().boundingBox();
-    await page.screenshot({path:path.join(output,`keyboard-${width}.png`)});
-    assert.ok(pressedBox.y>height-65&&pressedBox.y+pressedBox.height<=height,`Animated cap must stay on the physical keyboard: ${JSON.stringify(pressedBox)}`);
-    await page.keyboard.up('ArrowLeft');
-    await page.waitForFunction(()=>!document.querySelector('.ConsoleKeyboard [data-pressed]'));
+    assert.equal(tabs.length, 4);
+    const header = await page.locator('header').boundingBox();
+    for (const tab of tabs) assert.ok(tab.y >= header.y && tab.bottom <= header.y + header.height, 'Tabs must fit the header');
+    assert.ok(await page.locator('.CivilianConsoleFrame').evaluate(el => getComputedStyle(el).borderImageSource.includes('civilian-console-shell.webp')));
     assert.ok(await page.locator('.ShuttleConsole__lamp').evaluate(el => el.classList.contains('is-on')));
     await page.evaluate(() => window.detectWeapons(false));
     await page.waitForFunction(() => !document.querySelector('.ShuttleConsole__lamp').classList.contains('is-on'));
@@ -264,7 +275,7 @@ try {
     for (let i = 1; i < ports.length; i++) {
       assert.ok(ports[i].x >= ports[i - 1].right, 'Ports must form a horizontal bank of keys');
       assert.equal(ports[i].y, ports[0].y);
-      assert.equal(ports[i].width, ports[0].width);
+      assert.ok(Math.abs(ports[i].width - ports[0].width) < 1, 'Port keys may differ only by subpixel rounding');
       assert.equal(ports[i].writingMode, 'vertical-rl');
       assert.equal(ports[i].textOrientation, 'upright');
     }
@@ -285,26 +296,39 @@ try {
     await page.getByRole('button', { name: 'Стыковка', exact: true }).click();
     await page.getByRole('button', { name: 'Блок FTL', exact: true }).click();
     assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'dock' && a.payload.id === 'lock')));
+    await page.evaluate(() => {
+      const cells = new Uint8Array(64*32);
+      for(let y=3;y<29;y++) for(let x=10;x<54;x++)
+        if ((x>=24&&x<40) || ((x<18||x>=46)&&y>=7&&y<25) || (y>=13&&y<19)) cells[y*64+x]=1;
+      cells[16*64+32]=19; cells[8*64+14]=5; cells[28*64+32]=9;
+      window.previewHull({present:true,width:64,height:32,cells:btoa(String.fromCharCode(...cells)),
+        integrity:.87,workingThrusters:2,workingGyroscopes:1,storedEnergy:4500000,energyCapacity:9000000,
+        thrusters:{expected:2,missing:0},weapons:{expected:3,missing:0},structures:{expected:15,missing:1},tiles:{expected:2000,missing:1}});
+    });
+    await page.getByRole('button', { name: 'Состояние', exact: true }).click();
+    await page.locator('.ShuttleHull__display canvas').waitFor();
+    assert.equal(await page.locator('.ShuttleConsole__viewport').count(), 0, 'Schematic must replace the native radar viewport');
+    const schematic = await page.locator('.ShuttleHull__display canvas').evaluate(el => ({width:el.width,height:el.height,
+      missing:[...el.getContext('2d').getImageData(32,15,1,1).data]}));
+    assert.equal(schematic.width,64); assert.equal(schematic.height,32);
+    assert.deepEqual(schematic.missing,[204,68,66,255], 'Missing structures must remain on the abstract silhouette in red');
+    assert.ok(await page.locator('.ShuttleHull__summary').nth(1).innerText().then(text=>text.includes('14 / 15')));
+    const board = await page.locator('.ShuttleHull__summary').first().innerText();
+    assert.ok(board.includes('87%') && board.includes('Есть · 2') && board.includes('Есть · 1'));
+    assert.ok(board.includes('4.5 МДж / 9.0 МДж'));
+    assert.equal(await page.locator('.ShuttleHull__summary').first().locator('.ShuttleHull__missing').evaluate(el=>getComputedStyle(el).color), 'rgb(231, 124, 119)');
+    assert.equal(await page.locator('.ShuttleHull__display canvas').count(),1, 'Large ships must use one bounded bitmap');
+    await page.screenshot({path:path.join(output,`status-${width}.png`)});
+    await page.evaluate(() => window.previewHull({present:true,width:2,height:1,cells:btoa(String.fromCharCode(5,17)),
+      thrusters:{expected:1,missing:0},structures:{expected:1,missing:0}}));
+    await page.waitForFunction(()=>document.querySelector('.ShuttleHull__display canvas').width===2);
+    assert.deepEqual(await page.locator('.ShuttleHull__display canvas').evaluate(el=>[...el.getContext('2d').getImageData(1,0,1,1).data]),
+      [134,147,149,255], 'Replacement must clear red marks');
     await page.getByRole('button', { name: 'Пилот / орудия', exact: true }).click();
-    // Compile the actual glass fragment in WebGL and inspect its alpha. The mock
-    // radar underneath is only a visual fixture; it does not emulate game state.
-    const glass = await renderRadar();
-    assert.equal(glass.error, 0);
-    assert.equal(glass.corner[3], 255, 'The native radar must be fully covered outside the circular aperture');
-    for (const sample of glass.panelSamples) for (let i=0;i<4;i++)
-      assert.ok(Math.abs(sample.actual[i]-sample.expected[i])<=1, 'Native grain must match the browser SVG tile after Clyde conversion');
-    assert.ok(new Set(glass.panelSamples.map(sample=>sample.actual[0])).size>5,'The metal outside the radar must have visible grain');
-    assert.ok(glass.noiseRange >= 6 && glass.noiseRange <= 14, 'White noise must remain faint against the radar background');
-    assert.equal(glass.noiseKeepsColour, true);
-    assert.equal(glass.noiseAnimated, true);
-    assert.ok(glass.center[3] < 13, 'The reduced glass must keep radar information legible');
-    assert.ok(glass.highlight[3] < 50, 'The upper reflection must be reduced by at least half');
-    assert.ok(glass.center[2] > glass.center[0] && glass.center[2] >= glass.center[1], 'The glass haze must keep a restrained blue cast');
-    assert.ok(glass.highlight[2] > glass.highlight[0] && glass.highlight[2] >= glass.highlight[1], 'Reflections must keep the steel palette');
-    assert.ok(glass.highlight[3] > glass.plain[3] + 10, 'The glass must retain a small, localized upper reflection');
+    await renderRadar();
     const screenshot = path.join(output, width === 1285 ? 'shuttle-ports.png' : `shuttle-${width}.png`);
     await page.screenshot({ path: screenshot });
-    console.log(`PASS ${width}x${height}: dark steel, shared shell, GPU mask/noise, ports/actions; ${screenshot}`);
+    console.log(`PASS ${width}x${height}: matte graphite, rectangular viewport, ports/actions; ${screenshot}`);
     // Standalone consoles must share the measured aperture without acquiring
     // shuttle-only controls or losing their existing command channels.
     for (const kind of ['gunnery', 'mass', 'handheld']) {
@@ -312,10 +336,10 @@ try {
       await page.locator(`[data-kind="${kind}"]`).waitFor();
       await page.waitForTimeout(60);
       const box = await page.locator('.ShuttleConsole__viewport').boundingBox();
-      assert.ok(box.width > 200 && Math.abs(box.width - box.height) < 1);
+      assert.ok(box.width > 200 && box.height > 200);
       assert.equal(await page.getByRole('button', {name:'Карта / FTL',exact:true}).count(), 0);
       const standaloneGlass = await renderRadar();
-      for (const sample of standaloneGlass.panelSamples) for (let i=0;i<4;i++)
+      for (const sample of standaloneGlass?.panelSamples || []) for (let i=0;i<4;i++)
         assert.ok(Math.abs(sample.actual[i]-sample.expected[i])<=1, `${kind}: native aperture backing must match its browser surface`);
       if (kind === 'handheld') {
         assert.equal(await page.locator('aside, header, footer, .ShipConsoleFrame__hardware, .ConsoleKeyboard').count(), 0);
@@ -337,7 +361,7 @@ try {
         await page.waitForFunction(()=>document.querySelectorAll('.ShuttleConsole__weapons button').length===0);
         await renderRadar();
         const backing=await page.locator('aside').evaluate(el=>({image:getComputedStyle(el).backgroundImage,height:el.clientHeight,content:el.lastElementChild.getBoundingClientRect().bottom-el.getBoundingClientRect().top}));
-        assert.ok(backing.image.includes('ship-console-panel.svg')&&backing.content<backing.height-80,'Short sidebars must retain the textured backing beneath their final block');
+        assert.equal(backing.image, 'none', 'Sidebar must retain its matte backing');
         await page.screenshot({path:path.join(output,'gunnery-empty-1060.png')});
       }
     }

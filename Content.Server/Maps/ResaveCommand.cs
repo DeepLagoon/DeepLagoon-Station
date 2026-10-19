@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using Content.Server.Administration;
 using Content.Shared.Administration;
@@ -44,7 +45,7 @@ public sealed partial class ResaveCommand : LocalizedCommands
             var fn = files[i];
             log.Info($"Re-saving file {i}/{files.Count} : {fn}");
 
-            if (!loader.TryLoadGeneric(fn, out var result, opts))
+            if (!loader.TryLoadGenericTracked(fn, out var result, opts))
                 continue;
 
             if (result.Maps.Count != 1)

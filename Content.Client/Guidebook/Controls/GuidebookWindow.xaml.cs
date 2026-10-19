@@ -41,6 +41,12 @@ public sealed partial class GuidebookWindow : FancyWindow, ILinkClickHandler
 
     public void HandleClick(string link)
     {
+        var controller = UserInterfaceManager.GetUIController<Content.Client.UserInterface.Systems.Guidebook.GuidebookUIController>();
+        if (controller.HasSource("link:" + link))
+        {
+            controller.OpenSource("link:" + link, fallback: "");
+            return;
+        }
         if (!_entries.TryGetValue(link, out var entry))
             return;
 

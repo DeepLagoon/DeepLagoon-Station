@@ -20,6 +20,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 using Robust.Shared.Enums;
 using Robust.Shared.EntitySerialization.Systems;
+using Robust.Shared.Utility;
 
 namespace Content.Server._DeepLagoon.Mapping;
 
@@ -125,9 +126,16 @@ public sealed partial class GridEditorSystem : EntitySystem
         _drafts[player] = draft;
         var initialized = Transform(grid).MapUid is { } map && TryComp<MapComponent>(map, out var mapComp) && mapComp.MapInitialized;
         RaiseNetworkEvent(new GridEditorStateEvent(GetNetEntity(grid), draft.Token, x, y, width, height, draft.Items, initialized,
-            draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight), player);
+            draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight, SourcePath(grid)), player);
         PublishPreviews(grid);
         return $"Редактор grid открыт: ({x}, {y}), {width}×{height}.";
+    }
+
+    public string SourcePath(EntityUid grid)
+    {
+        if (!TryComp<GridMapSourceComponent>(grid, out var source) || !source.FromContent || string.IsNullOrWhiteSpace(source.Source)) return "";
+        var path = new Robust.Shared.Utility.ResPath(source.Source.Replace('\\', '/')).ToRootedPath().Clean().ToString();
+        return "Resources/" + path.TrimStart('/');
     }
 
     public string? Export(ICommonSession player, Guid token, bool wholeMap, out string error)

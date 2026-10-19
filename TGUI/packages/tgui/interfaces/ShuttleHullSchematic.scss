@@ -1,0 +1,21 @@
+.ShuttleConsole .ShuttleHull {
+  &__schematic { display: flex; flex-direction: column; min-height: 0; margin-bottom: 0;
+    > h3 { align-self: flex-start; flex: none; } }
+  &__display { position: relative; display: flex; align-items: center; justify-content: center;
+    flex: 1; min-height: 0; padding: 16px; margin: 4px 0 12px; overflow: hidden;
+    border: 1px solid #344045; background: #10171b;
+    canvas { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; } }
+  &__empty { position: absolute; color: #8b969c; }
+  &__legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 10px; color: #a8b4b8;
+    font-size: 11px; span { display: inline-flex; align-items: center; gap: 5px; }
+    i { width: 9px; height: 9px; background: #869395; }
+    .is-thruster { background: #709da7; } .is-weapon { background: #bdb990; }
+    .is-missing { background: #cc4442; } }
+  &__summary { ul { list-style: none; padding: 0; margin: 8px 0; }
+    li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px solid #303b40; }
+    p { margin: 8px 0; } }
+  &__missing, dd.ShuttleHull__missing { color: #e77c77; }
+  &__note { color: #8c9ba2; font-size: 11px; line-height: 1.5; }
+}
+
+.ShipConsoleFrame.ShuttleConsole .ShuttleHull__missing { color: #e77c77; }

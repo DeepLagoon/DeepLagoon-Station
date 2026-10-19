@@ -732,12 +732,9 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
         var scale = 1f;
         if (FitViewport)
         {
-            var radius = MathF.Max(1, ScaledMinimapRadius - 10);
-            scale = MathF.Min(1, radius * 1.5f / MathF.Max(1, dimensions.X));
+            scale = MathF.Min(1, MathF.Max(1, PixelWidth - 2 * margin) / MathF.Max(1, dimensions.X));
             dimensions = handle.GetDimensions(font, text, scale);
-            var halfWidth = dimensions.X / 2;
-            var bottom = MathF.Sqrt(MathF.Max(0, radius * radius - halfWidth * halfWidth));
-            position = MidPointVector + new Vector2(-halfWidth, bottom - dimensions.Y);
+            position = new Vector2(margin, PixelHeight - dimensions.Y - margin);
         }
         handle.DrawString(font, position, text, scale, color);
     }

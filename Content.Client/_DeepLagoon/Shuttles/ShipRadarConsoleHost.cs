@@ -43,17 +43,19 @@ public sealed class ShipRadarConsoleHost : Control
             radar.GetValue<float>(LayoutContainer.MarginRightProperty),
             radar.GetValue<float>(LayoutContainer.MarginBottomProperty));
         var nativeFit = radar.FitViewport;
+        var nativeCircular = radar.CircularRadar;
         radar.Orphan();
         radar.Margin = new Thickness(0);
         radar.MinSize = Vector2.Zero;
         radar.FitViewport = true;
+        radar.CircularRadar = kind == "handheld";
         radar.Visible = false;
-        Tgui = new TguiPanel(inheritChatAppearance: false) { ConsoleKeyboardFeedback = kind != "handheld", InterfaceStyleKey = "ShipRadarConsole." + kind };
+        Tgui = new TguiPanel(inheritChatAppearance: false) { InterfaceStyleKey = "ShipRadarConsole." + kind };
         AddChild(Tgui);
         _layer = new LayoutContainer { MouseFilter = MouseFilterMode.Ignore };
         AddChild(_layer);
         _layer.AddChild(radar);
-        _glass = new ShuttleRadarGlassControl { Visible = false };
+        _glass = new ShuttleRadarGlassControl { Visible = false, ShowHardware = false };
         _layer.AddChild(_glass);
         Tgui.OnClose += close;
         Tgui.SetNativeFallback(() =>
@@ -61,6 +63,7 @@ public sealed class ShipRadarConsoleHost : Control
             if (radar is CombatShuttleNavControl combat) combat.StopFiring();
             radar.Orphan();
             radar.FitViewport = nativeFit;
+            radar.CircularRadar = nativeCircular;
             radar.Margin = nativeMargin;
             radar.MinSize = nativeMinimum;
             radar.SetSize = nativeSize;
@@ -79,7 +82,9 @@ public sealed class ShipRadarConsoleHost : Control
             radar.Margin = new Thickness(0);
             radar.MinSize = Vector2.Zero;
             radar.FitViewport = true;
+            radar.CircularRadar = _kind == "handheld";
             _layer.AddChild(radar);
+            _glass.SetPositionLast();
             // Native ancestors belong to the old surface. The shared host remains visible.
             foreach (var (control, _) in nativeSiblings)
                 if (control != Parent) control.Visible = false;
@@ -95,7 +100,8 @@ public sealed class ShipRadarConsoleHost : Control
             {
                 if (!TryViewport(args!, out var bounds)) return;
                 _viewport = bounds;
-                radar.Visible = _glass.Visible = true;
+                radar.Visible = true;
+                _glass.Visible = _kind == "handheld";
                 return;
             }
             if (action == "close") { close(); return; }
@@ -119,8 +125,8 @@ public sealed class ShipRadarConsoleHost : Control
         if (_kind == "gunnery") return;
         _kind = handheld ? "handheld" : "mass";
         Tgui.InterfaceStyleKey = "ShipRadarConsole." + _kind;
-        Tgui.ConsoleKeyboardFeedback = !handheld;
-        _glass.ShowHardware = !handheld;
+        _glass.Visible = handheld && _viewport.Z > 0 && _viewport.W > 0;
+        _radar.CircularRadar = handheld;
         Publish();
     }
 

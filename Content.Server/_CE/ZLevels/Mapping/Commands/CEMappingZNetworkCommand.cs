@@ -3,6 +3,7 @@
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
 
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server._CE.ZLevels.Core;
 using Content.Server.Administration;
 using Content.Server.GameTicking;
@@ -76,7 +77,7 @@ public sealed partial class CEMappingZNetworkCommand : LocalizedEntityCommands
         var depth = 0;
         foreach (var path in indexedZMap.Maps)
         {
-            if (!_mapLoader.TryLoadMap(path, out var mapEnt, out _, opts))
+            if (!_mapLoader.TryLoadMapTracked(path, out var mapEnt, out _, opts))
             {
                 shell.WriteError($"Failed to load zNetwork map (depth {depth}): {path.ToString()}!");
                 return;

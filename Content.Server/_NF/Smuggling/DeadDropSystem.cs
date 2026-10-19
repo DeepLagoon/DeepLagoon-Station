@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Text;
 using Content.Server._NF.GameTicking.Events;
@@ -450,7 +451,7 @@ public sealed partial class DeadDropSystem : EntitySystem
         }
 
         //load whatever grid was specified on the component, either a special dead drop or default
-        if (!_map.TryLoadGrid(_shipyard.ShipyardMap.Value, component.DropGrid, out var gridUid))
+        if (!_map.TryLoadGridTracked(_shipyard.ShipyardMap.Value, component.DropGrid, out var gridUid))
             return;
         var grid = gridUid.Value;
 

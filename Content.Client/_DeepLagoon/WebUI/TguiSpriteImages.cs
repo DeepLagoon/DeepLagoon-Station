@@ -107,6 +107,25 @@ public sealed class TguiSpriteImages
                 .String("color", (layer.Color * (tint ?? sprite.Color)).ToHexNoAlpha());
     }
 
+    // Mapping previews use the actual sprite origin and native pixel size, not a centered catalogue icon.
+    public IEnumerable<TguiData> MapItem(string id)
+    {
+        var proto = IoCManager.Resolve<IPrototypeManager>().Index<EntityPrototype>(id);
+        if (!proto.TryGetComponent<SpriteComponent>(out var sprite)) return Item(id);
+        var result = new List<TguiData>();
+        foreach (var layer in sprite.AllLayers.Where(layer => layer.Visible && layer.ActualRsi != null && layer.RsiState.IsValid))
+        {
+            var matrix = System.Numerics.Matrix3x2.Multiply(((SpriteComponent.Layer) layer).LocalMatrix, sprite.LocalMatrix);
+            var size = layer.PixelSize;
+            result.Add(new TguiData().String("url", Frame(new SpriteSpecifier.Rsi(layer.ActualRsi!.Path, layer.RsiState.Name!)))
+                .String("color", (layer.Color * sprite.Color).ToHexNoAlpha()).Bool("native", true)
+                .Number("width", size.X).Number("height", size.Y)
+                .Number("m11", matrix.M11).Number("m12", matrix.M12).Number("m21", matrix.M21).Number("m22", matrix.M22)
+                .Number("m31", matrix.M31).Number("m32", matrix.M32));
+        }
+        return result.Count == 0 ? Item(id) : result;
+    }
+
     public IEnumerable<TguiData> Item(string id)
     {
         if (_items.TryGetValue(id, out var cached)) return cached;

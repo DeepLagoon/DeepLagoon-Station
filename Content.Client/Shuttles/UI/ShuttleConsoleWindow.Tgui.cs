@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Shared.Shuttles.BUIStates;
 using System.Numerics;
 using Content.Client._DeepLagoon.Shuttles;
 using Content.Client._DeepLagoon.WebUI;
@@ -12,12 +13,13 @@ public sealed partial class ShuttleConsoleWindow
 {
     public TguiPanel Tgui { get; private set; } = default!;
     private LayoutContainer _radarLayer = default!;
-    private ShuttleRadarGlassControl _radarGlass = default!;
+    private bool _statusMode;
+    private TguiData _hullState = new TguiData().Bool("present", false);
     private Control[] _views = Array.Empty<Control>();
     private Vector4 _viewport;
     private float _publishTimer;
     private Content.Shared.Exodus.ShipShields.ShipShieldState? _shieldState;
-    private readonly List<(Control View, Control Parent, int Index, Thickness Margin, Vector2 Min, Vector2 Size, Thickness LayoutMargins, bool Fit)> _nativeViews = new();
+    private readonly List<(Control View, Control Parent, int Index, Thickness Margin, Vector2 Min, Vector2 Size, Thickness LayoutMargins, Thickness Anchors, bool Fit)> _nativeViews = new();
     private bool _nativeConsole;
     private Vector2 _nativeMinimum;
 
@@ -26,6 +28,26 @@ public sealed partial class ShuttleConsoleWindow
         _shieldState = state;
         _publishTimer = 0;
     }
+
+    public void UpdateHullState(ShuttleHullState? state)
+    {
+        _hullState = state == null
+            ? new TguiData().Bool("present", false)
+            : new TguiData().Bool("present", true)
+                .Number("width", state.Width).Number("height", state.Height)
+                .Number("integrity", state.IntegrityFraction)
+                .Number("workingThrusters", state.WorkingThrusters).Number("workingGyroscopes", state.WorkingGyroscopes)
+                .Number("storedEnergy", state.StoredEnergy).Number("energyCapacity", state.EnergyCapacity)
+                .String("cells", Convert.ToBase64String(state.Cells))
+                .Object("thrusters", HullCount(state.ExpectedThrusters, state.MissingThrusters))
+                .Object("weapons", HullCount(state.ExpectedWeapons, state.MissingWeapons))
+                .Object("structures", HullCount(state.ExpectedStructures, state.MissingStructures))
+                .Object("tiles", HullCount(state.ExpectedTiles, state.MissingTiles));
+        _publishTimer = 0;
+    }
+
+    private static TguiData HullCount(int expected, int missing) =>
+        new TguiData().Number("expected", expected).Number("missing", missing);
 
     private TguiData ShieldTguiState() => _shieldState is { } state
         ? new TguiData().Bool("present", true).Bool("active", state.Active).Bool("powered", state.Powered)
@@ -43,7 +65,7 @@ public sealed partial class ShuttleConsoleWindow
         // are reparented above CEF; no framebuffer copies or browser-side weapon simulation.
         ContentsContainer.GetChild(0).Visible = false;
         _views = new Control[] { CombatRadar, MapContainer.TguiRadar, DockContainer.TguiRadar };
-        Tgui = new TguiPanel(inheritChatAppearance: false) { ConsoleKeyboardFeedback = true };
+        Tgui = new TguiPanel(inheritChatAppearance: false);
         ContentsContainer.AddChild(Tgui);
         _radarLayer = new LayoutContainer { MouseFilter = Control.MouseFilterMode.Ignore };
         ContentsContainer.AddChild(_radarLayer);
@@ -54,16 +76,18 @@ public sealed partial class ShuttleConsoleWindow
                     view.GetValue<float>(LayoutContainer.MarginTopProperty),
                     view.GetValue<float>(LayoutContainer.MarginRightProperty),
                     view.GetValue<float>(LayoutContainer.MarginBottomProperty)),
+                new Thickness(view.GetValue<float>(LayoutContainer.AnchorLeftProperty),
+                    view.GetValue<float>(LayoutContainer.AnchorTopProperty),
+                    view.GetValue<float>(LayoutContainer.AnchorRightProperty),
+                    view.GetValue<float>(LayoutContainer.AnchorBottomProperty)),
                 ((Content.Client.UserInterface.Controls.MapGridControl) view).FitViewport));
             view.Orphan();
             view.Margin = new Thickness(0);
             view.MinSize = Vector2.Zero;
+            LayoutContainer.SetAnchorPreset(view, LayoutContainer.LayoutPreset.TopLeft);
             ((Content.Client.UserInterface.Controls.MapGridControl)view).FitViewport = true;
             _radarLayer.AddChild(view);
         }
-        // Last sibling also covers labels/buttons outside the circular aperture.
-        _radarGlass = new ShuttleRadarGlassControl();
-        _radarLayer.AddChild(_radarGlass);
         Tgui.OnAction += TguiAction;
         Tgui.OnClose += Close;
         Tgui.SetNativeFallback(RestoreNativeConsole);
@@ -78,10 +102,10 @@ public sealed partial class ShuttleConsoleWindow
                 view.Orphan();
                 view.Margin = new Thickness(0);
                 view.MinSize = Vector2.Zero;
+                LayoutContainer.SetAnchorPreset(view, LayoutContainer.LayoutPreset.TopLeft);
                 ((Content.Client.UserInterface.Controls.MapGridControl) view).FitViewport = true;
                 _radarLayer.AddChild(view);
             }
-            _radarGlass.SetPositionLast();
             _viewport = Vector4.Zero;
             UpdateTguiMode();
             PublishTgui();
@@ -93,11 +117,10 @@ public sealed partial class ShuttleConsoleWindow
     private void UpdateTguiMode()
     {
         if (_nativeConsole) return;
-        if (_mode != ShuttleConsoleMode.Nav)
+        if (_statusMode || _mode != ShuttleConsoleMode.Nav)
             ((Content.Client._DeepLagoon.Shuttles.CombatShuttleNavControl)CombatRadar).StopFiring();
         for (var i = 0; i < _views.Length; i++)
-            _views[i].Visible = i == (int)_mode && _viewport.Z > 0 && _viewport.W > 0;
-        _radarGlass.Visible = _viewport.Z > 0 && _viewport.W > 0;
+            _views[i].Visible = !_statusMode && i == (int)_mode && _viewport.Z > 0 && _viewport.W > 0;
         _publishTimer = 0;
     }
 
@@ -105,10 +128,11 @@ public sealed partial class ShuttleConsoleWindow
     {
         if (_nativeConsole) return;
         _nativeConsole = true;
+        _statusMode = false;
         MinSize = _nativeMinimum;
         ((CombatShuttleNavControl)CombatRadar).StopFiring();
         Tgui.Visible = _radarLayer.Visible = false;
-        foreach (var (view, parent, index, margin, min, size, layoutMargins, fit) in _nativeViews)
+        foreach (var (view, parent, index, margin, min, size, layoutMargins, anchors, fit) in _nativeViews)
         {
             view.Orphan();
             parent.AddChild(view);
@@ -116,6 +140,10 @@ public sealed partial class ShuttleConsoleWindow
             view.Margin = margin;
             view.MinSize = min;
             view.SetSize = size;
+            LayoutContainer.SetAnchorLeft(view, anchors.Left);
+            LayoutContainer.SetAnchorTop(view, anchors.Top);
+            LayoutContainer.SetAnchorRight(view, anchors.Right);
+            LayoutContainer.SetAnchorBottom(view, anchors.Bottom);
             LayoutContainer.SetMarginLeft(view, layoutMargins.Left);
             LayoutContainer.SetMarginTop(view, layoutMargins.Top);
             LayoutContainer.SetMarginRight(view, layoutMargins.Right);
@@ -138,8 +166,13 @@ public sealed partial class ShuttleConsoleWindow
             UpdateTguiMode();
             return;
         }
-        if (action == "mode" && args!.TryInt("value", out var mode) && mode is >= 0 and <= 2)
-            SwitchMode((ShuttleConsoleMode)mode);
+        if (action == "mode" && args!.TryInt("value", out var mode) && mode is >= 0 and <= 3)
+        {
+            _statusMode = mode == 3;
+            if (!_statusMode)
+                SwitchMode((ShuttleConsoleMode)mode);
+            UpdateTguiMode();
+        }
         else if (action == "close") Close();
         else if (action == "nav") NavContainer.TguiAction(args!);
         else if (action == "weapon") CombatPanel.TguiAction(args!);
@@ -158,10 +191,6 @@ public sealed partial class ShuttleConsoleWindow
             LayoutContainer.SetPosition(view, new Vector2(_viewport.X * size.X, _viewport.Y * size.Y));
             view.SetSize = new Vector2(_viewport.Z * size.X, _viewport.W * size.Y);
         }
-        var glassPosition = new Vector2(_viewport.X * size.X, _viewport.Y * size.Y);
-        LayoutContainer.SetPosition(_radarGlass, glassPosition);
-        _radarGlass.PanelTextureOffset = glassPosition;
-        _radarGlass.SetSize = new Vector2(_viewport.Z * size.X, _viewport.W * size.Y);
         _publishTimer -= args.DeltaSeconds;
         if (_publishTimer > 0) return;
         _publishTimer = 0.2f;
@@ -173,7 +202,8 @@ public sealed partial class ShuttleConsoleWindow
         if (Tgui == null) return;
         NavContainer.RefreshTelemetry();
         Tgui.SetIncrementalState("ShuttleConsole", new TguiData()
-            .Number("mode", (int)_mode)
+            .Number("mode", _statusMode ? 3 : (int)_mode)
+            .Object("hull", _hullState)
             .Object("shield", ShieldTguiState())
             .Object("nav", NavContainer.TguiState())
             .Object("weapons", CombatPanel.TguiState())

@@ -3,6 +3,7 @@
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
 
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server._CE.ZLevels.Core.Components;
 using Content.Server.Station.Events;
 using Content.Server.Station.Systems;
@@ -63,7 +64,7 @@ public sealed partial class CEZLevelsSystem : CESharedZLevelsSystem
         var depth = ent.Comp.MapsBelow.Count * -1;
         foreach (var mapBelow in ent.Comp.MapsBelow)
         {
-            if (!_mapLoader.TryLoadMap(mapBelow, out var mapEnt, out _))
+            if (!_mapLoader.TryLoadMapTracked(mapBelow, out var mapEnt, out _))
             {
                 Log.Error($"Failed to load map for Station zNetwork at depth {depth}!");
                 continue;
@@ -82,7 +83,7 @@ public sealed partial class CEZLevelsSystem : CESharedZLevelsSystem
         depth = 1;
         foreach (var mapAbove in ent.Comp.MapsAbove)
         {
-            if (!_mapLoader.TryLoadMap(mapAbove, out var mapEnt, out _))
+            if (!_mapLoader.TryLoadMapTracked(mapAbove, out var mapEnt, out _))
             {
                 Log.Error($"Failed to load map for Station zNetwork at depth {depth}!");
                 continue;

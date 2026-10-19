@@ -1,5 +1,6 @@
 @use './ShuttleConsoleQuasimorph';
 @use './ShipConsoleSteel';
+@use './ShuttleHullSchematic';
 
 .ShuttleConsole {
   box-sizing: border-box; width: 100vw; height: 100vh; overflow: hidden; padding: 10px;

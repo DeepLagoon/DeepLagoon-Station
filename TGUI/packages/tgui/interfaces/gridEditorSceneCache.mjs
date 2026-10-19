@@ -1,3 +1,4 @@
+import { spriteBounds } from './gridEditorSprites.mjs';
 import { drawOrder } from './gridEditorModel.mjs';
 
 export const CHUNK_CELLS = 16;
@@ -19,14 +20,11 @@ const release = chunk => {
 
 // Include the rotated footprint in every intersected chunk. Adjacent chunks clip
 // the same globally ordered sprites, including fractional decal origins.
-export function itemChunks(item) {
-  const offset = item.kind === 'entity' ? 0 : .5;
-  const angle = (item.kind === 'tile' ? 0 : item.rotation || 0) * Math.PI / 180;
-  const radius = (Math.abs(Math.cos(angle)) + Math.abs(Math.sin(angle))) / 2;
-  const x = item.x + offset, y = item.y + offset;
+export function itemChunks(item, visual) {
+  const bounds=spriteBounds(item,visual);
   const result = [];
-  for (let cx = Math.floor((x - radius) / CHUNK_CELLS); cx <= Math.floor((x + radius - 1e-8) / CHUNK_CELLS); cx++)
-    for (let cy = Math.floor((y - radius) / CHUNK_CELLS); cy <= Math.floor((y + radius - 1e-8) / CHUNK_CELLS); cy++) result.push([cx, cy]);
+  for (let cx = Math.floor((bounds.left) / CHUNK_CELLS); cx <= Math.floor((bounds.right - 1e-8) / CHUNK_CELLS); cx++)
+    for (let cy = Math.floor((bounds.bottom) / CHUNK_CELLS); cy <= Math.floor((bounds.top - 1e-8) / CHUNK_CELLS); cy++) result.push([cx, cy]);
   return result;
 }
 
@@ -63,12 +61,12 @@ export class GridSceneCache {
         const key = visualKey(item);
         if (!definitions.has(key)) {
           const visual = visuals.get(key);
-          const signature = JSON.stringify([visual?.drawDepth, visual?.allowRotationMirror, visual?.images]);
+          const signature = JSON.stringify([visual?.drawDepth, visual?.allowRotationMirror, visual?.noRotation, visual?.images]);
           if (this.definitions.get(key)?.signature !== signature)
             this.definitions.set(key, { signature, revision: ++this.revision });
           definitions.set(key, this.definitions.get(key).revision);
         }
-        for (const [x, y] of itemChunks(item)) {
+        for (const [x, y] of itemChunks(item,visuals.get(visualKey(item)))) {
           const key = `${x}:${y}`;
           if (!groups.has(key)) groups.set(key, { x, y, items: [] });
           groups.get(key).items.push(item);
@@ -145,14 +143,19 @@ export class GridSceneCache {
       const y = ((group.y + 1) * CHUNK_CELLS - 1 - item.y + offset) * PIXELS;
       context.save(); context.translate(x + PIXELS / 2, y + PIXELS / 2);
       const rotateTile = item.kind === 'tile' && visual?.allowRotationMirror;
-      context.rotate(-(item.kind === 'tile' ? rotateTile ? (item.mirror & 3) * 90 : 0 : item.rotation || 0) * Math.PI / 180);
+      context.rotate(-(item.kind === 'tile' ? rotateTile ? (item.mirror & 3) * 90 : 0 : item.kind === 'entity' && visual?.noRotation ? 0 : item.rotation || 0) * Math.PI / 180);
       if (rotateTile && (item.mirror & 4)) context.scale(-1, 1);
       if (item.kind === 'tile' && !(visual?.images || []).some(image => sources.get(image.url))) {
         context.fillStyle = '#3b454e'; context.fillRect(-16, -16, 32, 32);
       }
       context.globalAlpha = item.kind === 'decal' ? .85 : 1;
-      for (const { url } of visual?.images || []) {
+      for (const definition of visual?.images || []) {
+        const {url}=definition;
         const image = sources.get(url); if (!image) continue;
+        if(definition.native && item.kind==='entity') {
+          context.save();context.transform(definition.m11,-definition.m12,-definition.m21,definition.m22,definition.m31*PIXELS,-definition.m32*PIXELS);
+          context.drawImage(image,-definition.width/2,-definition.height/2,definition.width,definition.height);context.restore();continue;
+        }
         const scale = PIXELS / Math.max(image.width, image.height), width = image.width * scale, height = image.height * scale;
         if (item.kind === 'decal') {
           tinted.clearRect(0, 0, PIXELS, PIXELS); tinted.globalCompositeOperation = 'source-over';

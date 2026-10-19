@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared.CCVar;
 using Content.Shared.GridPreloader.Prototypes;
@@ -72,7 +73,7 @@ public sealed partial class GridPreloaderSystem : SharedGridPreloaderSystem
         {
             for (var i = 0; i < proto.Copies; i++)
             {
-                if (!_mapLoader.TryLoadGrid(mapId, proto.Path, out var grid))
+                if (!_mapLoader.TryLoadGridTracked(mapId, proto.Path, out var grid))
                 {
                     Log.Error($"Failed to preload grid prototype {proto.ID}");
                     continue;

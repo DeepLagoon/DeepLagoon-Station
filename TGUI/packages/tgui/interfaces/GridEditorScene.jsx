@@ -1,3 +1,4 @@
+import { spriteLayers, spriteBounds } from './gridEditorSprites.mjs';
 import { memo, useEffect, useRef } from 'react';
 import { GridSceneCache } from './gridEditorSceneCache.mjs';
 
@@ -37,24 +38,53 @@ export const GridEditorScene = memo(({ index, area, layers, visuals, view, cellS
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });
 
-// A large selection must not create tens of thousands of DOM overlays.
-export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, offset }) => {
+// Tint sprite alpha, including native offsets/scales; never substitute a cell rectangle.
+const highlightImages=new Map();
+const highlightImage=url=>{
+  if(!highlightImages.has(url))highlightImages.set(url,new Promise(resolve=>{
+    const image=new Image();image.onload=()=>{
+      const tinted=document.createElement('canvas');tinted.width=image.width;tinted.height=image.height;
+      const ctx=tinted.getContext('2d');ctx.drawImage(image,0,0);ctx.globalCompositeOperation='source-in';
+      ctx.fillStyle='#53ff82';ctx.fillRect(0,0,tinted.width,tinted.height);resolve(tinted);
+    };image.onerror=()=>resolve(null);image.src=url;
+  }));
+  return highlightImages.get(url);
+};
+export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, offset, visuals }) => {
   const canvas = useRef(null);
   useEffect(() => {
-    const context = canvas.current.getContext('2d');
-    context.clearRect(0, 0, canvas.current.width, canvas.current.height);
-    context.fillStyle = '#33cbdf44'; context.strokeStyle = '#54e8ef'; context.lineWidth = Math.min(2, cellSize / 3);
-    for (const item of items) {
-      if (!layers[item.kind]) continue;
-      const origin = item.kind === 'entity' ? .5 : 0;
-      const x = (item.x + (offset?.dx || 0) - origin - area.x) * cellSize - view.left;
-      const y = (area.y + area.height - 1 - item.y - (offset?.dy || 0) + origin) * cellSize - view.top;
-      if (x + cellSize < 0 || y + cellSize < 0 || x > view.width || y > view.height) continue;
-      context.fillRect(x, y, cellSize, cellSize);
-      const inset = context.lineWidth / 2;
-      context.strokeRect(x + inset, y + inset, cellSize - inset * 2, cellSize - inset * 2);
-    }
-  }, [items, area, layers, view, cellSize, offset]);
+    let cancelled=false;
+    const draw=async()=>{
+      const visible=items.filter(item=>{
+        if(!layers[item.kind])return false;
+        const b=spriteBounds(item,visuals?.get(`${item.kind}:${item.prototype}`));
+        return (b.right+(offset?.dx||0)-area.x)*cellSize>=view.left&&
+          (b.left+(offset?.dx||0)-area.x)*cellSize<=view.left+view.width&&
+          (area.y+area.height-b.bottom-(offset?.dy||0))*cellSize>=view.top&&
+          (area.y+area.height-b.top-(offset?.dy||0))*cellSize<=view.top+view.height;
+      });
+      const urls=new Set(visible.flatMap(item=>(visuals?.get(`${item.kind}:${item.prototype}`)?.images||[]).map(image=>image.url)).filter(Boolean));
+      const images=new Map(await Promise.all([...urls].map(async url=>[url,await highlightImage(url)])));
+      if(cancelled)return;
+      const context=canvas.current.getContext('2d');context.clearRect(0,0,view.width,view.height);
+      context.imageSmoothingEnabled=false;context.globalAlpha=.6;context.shadowColor='#53ff82';context.shadowBlur=2;
+      for(const item of visible){
+        const visual=visuals?.get(`${item.kind}:${item.prototype}`);
+        for(const layer of spriteLayers(item,visual)){
+          const image=images.get(layer.image.url);if(!image)continue;
+          const x=(layer.x+(offset?.dx||0)-area.x)*cellSize-view.left;
+          const y=(area.y+area.height-layer.y-(offset?.dy||0))*cellSize-view.top;
+          const scale=cellSize/Math.max(image.width,image.height);
+          const width=layer.image.native?layer.width*cellSize:image.width*scale;
+          const height=layer.image.native?layer.height*cellSize:image.height*scale;
+          context.save();context.transform(layer.a,-layer.b,-layer.c,layer.d,x,y);
+          if(item.kind==='tile'&&visual?.allowRotationMirror&&(item.mirror&4))context.scale(-1,1);
+          context.drawImage(image,-width/2,-height/2,width,height);context.restore();
+        }
+      }
+    };
+    draw();return()=>{cancelled=true;};
+  }, [items, area, layers, view, cellSize, offset, visuals]);
   return <canvas ref={canvas} className="GridEditor__scene GridEditor__selection" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });

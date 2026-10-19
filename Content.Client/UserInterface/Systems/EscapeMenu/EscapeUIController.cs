@@ -19,7 +19,6 @@ namespace Content.Client.UserInterface.Systems.EscapeMenu;
 public sealed partial class EscapeUIController : UIController, IOnStateEntered<GameplayState>, IOnStateExited<GameplayState>
 {
     [Dependency] private IClientConsoleHost _console = default!;
-    [Dependency] private IUriOpener _uri = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private ChangelogUIController _changelog = default!;
     [Dependency] private InfoUIController _info = default!;
@@ -72,7 +71,7 @@ public sealed partial class EscapeUIController : UIController, IOnStateEntered<G
         _escapeWindow.RulesButton.OnPressed += _ =>
         {
             CloseEscapeWindow();
-            UIManager.GetUIController<Content.Client.UserInterface.Systems.Guidebook.GuidebookUIController>().OpenWikiPage("Rules");
+            UIManager.GetUIController<Content.Client.UserInterface.Systems.Guidebook.GuidebookUIController>().OpenSource("button:escape-rules");
         };
 
         _escapeWindow.DisconnectButton.OnPressed += _ =>
@@ -95,16 +94,16 @@ public sealed partial class EscapeUIController : UIController, IOnStateEntered<G
 
         _escapeWindow.WikiButton.OnPressed += _ =>
         {
-            _uri.OpenUri(_cfg.GetCVar(CCVars.InfoLinksWiki));
+            _guidebook.OpenSource("button:escape-wiki", fallback: "");
         };
 
         _escapeWindow.GuidebookButton.OnPressed += _ =>
         {
-            _guidebook.ToggleGuidebook();
+            _guidebook.ToggleGuidebook("button:escape-guidebook");
         };
 
         // Hide wiki button if we don't have a link for it.
-        _escapeWindow.WikiButton.Visible = _cfg.GetCVar(CCVars.InfoLinksWiki) != "";
+        _escapeWindow.WikiButton.Visible = IoCManager.Resolve<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>().Read().Resolve(new[] { "button:escape-wiki" }, "").Length != 0;
 
         CommandBinds.Builder
             .Bind(EngineKeyFunctions.EscapeMenu,

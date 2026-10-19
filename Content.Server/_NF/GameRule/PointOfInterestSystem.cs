@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
 using Content.Server._NF.Trade;
@@ -254,7 +255,7 @@ public sealed partial class PointOfInterestSystem : EntitySystem
     private bool TrySpawnPoiGrid(MapId mapUid, PointOfInterestPrototype proto, Vector2 offset, out EntityUid? gridUid, string? overrideName = null)
     {
         gridUid = null;
-        if (!_map.TryLoadGrid(mapUid, proto.GridPath, out var loadedGrid, offset: offset, rot: _random.NextAngle()))
+        if (!_map.TryLoadGridTracked(mapUid, proto.GridPath, out var loadedGrid, offset: offset, rot: _random.NextAngle()))
             return false;
         gridUid = loadedGrid.Value;
         List<EntityUid> gridList = [loadedGrid.Value];

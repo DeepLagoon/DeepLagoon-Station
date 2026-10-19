@@ -117,3 +117,15 @@ body:has(.GridEditor) { zoom: 1 !important; }
 .GridEditor__atmos { pointer-events: none; z-index: 4; }
 
 .GridEditor__peerLayer { position: absolute; inset: 0; z-index: 2; opacity: .65; pointer-events: none; }
+
+.GridEditor__networks { pointer-events:none; z-index:4; }
+.GridEditor__routeHandles { position:absolute; z-index:8; pointer-events:none; overflow:hidden;
+  svg { position:absolute; inset:0; overflow:visible; pointer-events:none; }
+  polyline { pointer-events:stroke; cursor:crosshair; stroke-linejoin:round; stroke-linecap:round; }
+  button { position:absolute; pointer-events:auto; width:16px; height:16px; min-width:0; padding:0; border-radius:50%; transform:translate(-50%,-50%); background:#173b51; border:2px solid #a9ecff; cursor:move; touch-action:none; }
+  button.active { background:#f3cf57; border-color:white; }
+}
+
+.GridEditor__sourcePath { margin-left:10px; font-size:11px; font-weight:normal; color:#a9d8e9; overflow-wrap:anywhere; user-select:text; }
+
+.GridEditor__routeCanvas { position:absolute; inset:0; pointer-events:auto; touch-action:none; }

@@ -86,6 +86,7 @@ public sealed partial class InfoUIController : UIController, IOnStateExited<Game
         _netManager.ClientSendMessage(new RulesAcceptedMessage());
 
         _rulesPopup?.Orphan();
+        _rulesPopup?.Dispose();
         _rulesPopup = null;
     }
 

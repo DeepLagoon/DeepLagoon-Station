@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using Content.Server.Administration;
 using Content.Server.GameTicking;
@@ -111,7 +112,7 @@ namespace Content.Server.Mapping
                     if (isGrid == true)
                     {
                         mapSys.CreateMap(mapId, runMapInit: false);
-                        if (!loader.TryLoadGrid(mapId, path, out grid, opts))
+                        if (!loader.TryLoadGridTracked(mapId, path, out grid, opts))
                         {
                             shell.WriteError(Loc.GetString("cmd-mapping-error"));
                             mapSys.DeleteMap(mapId);
@@ -130,7 +131,7 @@ namespace Content.Server.Mapping
                         // the file as a grid
                         shell.WriteLine(Loc.GetString("cmd-mapping-try-grid"));
                         mapSys.CreateMap(mapId, runMapInit: false);
-                        if (!loader.TryLoadGrid(mapId, path, out grid, opts))
+                        if (!loader.TryLoadGridTracked(mapId, path, out grid, opts))
                         {
                             shell.WriteError(Loc.GetString("cmd-mapping-error"));
                             mapSys.DeleteMap(mapId);

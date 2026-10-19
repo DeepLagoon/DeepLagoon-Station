@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server.GameTicking;
 using Content.Server.Shuttles.Systems;
 using Content.Shared._DeepLagoon.Apartments;
@@ -68,7 +69,7 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
         var retained = false;
         try
         {
-            if (!_loader.TryLoadGrid(mapId, path, out var grid))
+            if (!_loader.TryLoadGridTracked(mapId, path, out var grid))
             {
                 Log.Error($"Could not load residential stop from {path}. Toggle apartments_enabled to retry after fixing the map.");
                 return;

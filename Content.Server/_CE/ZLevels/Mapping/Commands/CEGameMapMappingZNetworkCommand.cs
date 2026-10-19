@@ -3,6 +3,7 @@
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
 
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server._CE.ZLevels.Core;
 using Content.Server._CE.ZLevels.Core.Components;
 using Content.Server.Administration;
@@ -107,7 +108,7 @@ public sealed partial class CEGameMapMappingZNetworkCommand : LocalizedEntityCom
         var opts = new DeserializationOptions {StoreYamlUids = true};
 
         //Load default map
-        if (!_mapLoader.TryLoadMap(mapProto.MapPath, out var defaultMapEnt, out _, opts))
+        if (!_mapLoader.TryLoadMapTracked(mapProto.MapPath, out var defaultMapEnt, out _, opts))
         {
             shell.WriteError($"Failed to load default zNetwork map: {mapProto.MapPath.ToString()}!");
             return;
@@ -120,7 +121,7 @@ public sealed partial class CEGameMapMappingZNetworkCommand : LocalizedEntityCom
         var depth = zNetwork.MapsBelow.Count * -1;
         foreach (var path in zNetwork.MapsBelow)
         {
-            if (!_mapLoader.TryLoadMap(path, out var mapEnt, out _, opts))
+            if (!_mapLoader.TryLoadMapTracked(path, out var mapEnt, out _, opts))
             {
                 shell.WriteError($"Failed to load zNetwork map (depth {depth}): {path.ToString()}!");
                 return;
@@ -135,7 +136,7 @@ public sealed partial class CEGameMapMappingZNetworkCommand : LocalizedEntityCom
         depth = 1;
         foreach (var path in zNetwork.MapsAbove)
         {
-            if (!_mapLoader.TryLoadMap(path, out var mapEnt, out _, opts))
+            if (!_mapLoader.TryLoadMapTracked(path, out var mapEnt, out _, opts))
             {
                 shell.WriteError($"Failed to load zNetwork map (depth {depth}): {path.ToString()}!");
                 return;

@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -290,7 +291,7 @@ public sealed partial class SalvageSystem
             case SalvageOffering wreck:
                 var salvageProto = wreck.SalvageMap;
 
-                if (!_loader.TryLoadGrid(salvMapXform.MapID, salvageProto.MapPath, out _))
+                if (!_loader.TryLoadGridTracked(salvMapXform.MapID, salvageProto.MapPath, out _))
                 {
                     Report(magnet, MagnetChannel, "salvage-system-announcement-spawn-debris-disintegrated");
                     _mapSystem.DeleteMap(salvMapXform.MapID);

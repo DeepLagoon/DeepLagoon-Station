@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Parallax;
 using Content.Shared._DV.Planet;
@@ -56,7 +57,7 @@ public sealed partial class PlanetSystem : EntitySystem
     {
         var map = SpawnPlanet(id, runMapInit: false);
         var mapId = Comp<MapComponent>(map).MapId;
-        if (!_mapLoader.TryLoadGrid(mapId, path, out var grid))
+        if (!_mapLoader.TryLoadGridTracked(mapId, path, out var grid))
         {
             Log.Error($"Failed to load planet grid {path} for planet {id}!");
             Del(map);

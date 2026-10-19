@@ -3,6 +3,7 @@
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
 
+using Content.Server._DeepLagoon.Mapping;
 using Content.Server._CE.ZLevels.Core;
 using Content.Server._CE.ZLevels.Core.Components;
 using Content.Server.Administration;
@@ -189,7 +190,7 @@ public sealed partial class CETransitDebugCommand : CEBaseTransitCommand
 
         foreach (var path in zMapProto.Maps)
         {
-            if (!_mapLoader.TryLoadMap(path, out var mapEnt, out _, opts))
+            if (!_mapLoader.TryLoadMapTracked(path, out var mapEnt, out _, opts))
             {
                 shell.WriteError($"Failed to load zNetwork map (depth {depth}): {path}!");
                 Cleanup(byDepth, network);
@@ -236,7 +237,7 @@ public sealed partial class CETransitDebugCommand : CEBaseTransitCommand
             return;
         }
 
-        if (!_mapLoader.TryLoadGrid(shuttleMap.Comp.MapId, shuttlePath, out var shuttle, opts))
+        if (!_mapLoader.TryLoadGridTracked(shuttleMap.Comp.MapId, shuttlePath, out var shuttle, opts))
         {
             shell.WriteError($"Failed to load shuttle {shuttlePath}");
             return;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { ShipConsoleFrame, ConsoleKey as Key, ConsolePlate as Sticker, RadarScope } from '../components/ShipConsoleFrame';
 import './ShuttleConsole.scss';
+import { ShuttleHullSchematic, ShuttleHullSummary } from './ShuttleHullSchematic';
 
 
 // Text inputs own their draft until submission; the 5 Hz telemetry stream must
@@ -20,18 +21,18 @@ const Field = ({ label, value, onCommit, type = 'text' }) => {
 export const ShuttleConsole = () => {
   const { data, act } = useBackend();
   const nav = data.nav || {}, weapons = data.weapons || {}, map = data.map || {}, dock = data.dock || {};
-  const shield = data.shield || {};
+  const shield = data.shield || {}, hull = data.hull || {};
   const mode = data.mode || 0;
   const send = (channel, id, value) => act(channel, { id, ...(value === undefined ? {} : { value: String(value) }) });
   return <ShipConsoleFrame className="ShuttleConsole" data-mode={mode}>
     <header><span className="ShuttleConsole__sticker">{nav.name || 'Консоль шаттла'}</span>
-      <nav>{['Пилот / орудия', 'Карта / FTL', 'Стыковка'].map((name, i) =>
+      <nav>{['Пилот / орудия', 'Карта / FTL', 'Стыковка', 'Состояние'].map((name, i) =>
         <Key key={name} selected={mode === i} onClick={() => act('mode', { value: i })}>{name}</Key>)}</nav>
       <Key aria-label="Закрыть" onClick={() => act('close')}>×</Key></header>
-    <main><RadarScope title={['Навигационный радар', 'Карта сектора', 'Стыковочный радар'][mode]}
+    <main>{mode === 3 ? <ShuttleHullSchematic hull={hull} /> : <RadarScope title={['Навигационный радар', 'Карта сектора', 'Стыковочный радар'][mode]}
       indicator="FIRE CONTROL" active={weapons.hasWeapons}
       statusLabel={weapons.hasWeapons ? 'Корабельные орудия обнаружены' : 'Корабельные орудия не обнаружены'}
-      footer={mode === 0 ? 'Клавиши пилотирования · ЛКМ: огонь · Колесо: масштаб' : 'Выберите цель на радаре или в списке'} />
+      footer={mode === 0 ? 'Клавиши пилотирования · ЛКМ: огонь · Колесо: масштаб' : 'Выберите цель на радаре или в списке'} />}
     <aside>
       <section className="ShuttleConsole__terminal"><div className="ShuttleConsole__terminal-title">БОРТОВОЙ ТЕРМИНАЛ / TELEMETRY</div>
         <dl>{[['Кодовый номер', nav.designation], ['Координаты', nav.position], ['Азимут', nav.azimuth], ['Линейная скорость', nav.velocity], ['Угловая скорость', nav.angular],
@@ -81,6 +82,7 @@ export const ShuttleConsole = () => {
         <Key disabled={dock.undockDisabled} onClick={() => send('dock', 'undockAll')}>Отстыковать все</Key></div></section>
         <section><Sticker>Стыковочные порты</Sticker><div className="ShuttleConsole__weapons">{(dock.ports || []).map(port =>
           <Key key={port.id} selected={port.selected} onClick={() => send('dock', port.id)}>{port.name} {port.connected ? '●' : '○'}</Key>)}</div></section></>}
+      {mode === 3 && <ShuttleHullSummary hull={hull} />}
       {shield.present && <section className="ShuttleConsole__shields"><Sticker>Состояние щита</Sticker>
         <div className="ShuttleConsole__status">{!shield.powered ? 'Нет питания'
           : shield.overload > 0 ? `Перегрузка: ${Math.ceil(shield.overload)} с`

@@ -84,7 +84,7 @@ namespace Content.Client.Lobby.UI
             switch (action)
             {
                 case "close": CloseRequested?.Invoke(); return true;
-                case "rules": UserInterfaceManager.GetUIController<GuidebookUIController>().OpenWikiPage("Rules"); return true;
+                case "rules": UserInterfaceManager.GetUIController<GuidebookUIController>().OpenSource("button:character-rules"); return true;
                 case "notes":
                     if (!_cfg.GetCVar(CCVars.SeeOwnNotes)) return false;
                     IoCManager.Resolve<IClientConsoleHost>().ExecuteCommand("adminremarks"); return true;

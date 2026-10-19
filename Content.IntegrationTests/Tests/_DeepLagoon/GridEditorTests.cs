@@ -1,3 +1,5 @@
+using Robust.Shared.EntitySerialization.Systems;
+using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Collections;
 using Robust.Shared.Player;
@@ -29,6 +31,98 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class GridEditorTests
 {
+    [Test]
+    public async Task GridSourceShowsExactRepositoryFileAndSurvivesWorldMovesAndLivePatches()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        EntityUid grid = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan; var loader = entities.System<MapLoaderSystem>();
+            Assert.That(loader.TryLoadGenericTracked(new ResPath("/Maps/Test/empty.yml"), out var loaded), Is.True);
+            grid = loaded!.Grids.Single().Owner;
+            var editor = entities.System<ServerEditor>();
+            Assert.That(editor.SourcePath(grid), Is.EqualTo("Resources/Maps/Test/empty.yml"));
+            var map = entities.System<SharedMapSystem>();var target=map.CreateMap(out var mapId, runMapInit:false);
+            entities.System<SharedTransformSystem>().SetCoordinates(grid,new EntityCoordinates(target,new Vector2(20,20)));
+            Assert.That(editor.SourcePath(grid), Is.EqualTo("Resources/Maps/Test/empty.yml"));
+            var manual=map.CreateGridEntity(mapId);
+            Assert.That(editor.SourcePath(manual), Is.Empty, "Sharing a world map must not invent file provenance");
+            Assert.That(loader.TryLoadGenericTracked(new ResPath("/Maps/Test/floor3x3.yml"), out var second), Is.True);
+            Assert.That(editor.SourcePath(second!.Grids.Single().Owner), Is.EqualTo("Resources/Maps/Test/floor3x3.yml"));
+            Assert.That(editor.SourcePath(grid), Is.EqualTo("Resources/Maps/Test/empty.yml"));
+            using var text=new System.IO.StringWriter();Assert.That(loader.TrySaveGrid(grid,text),Is.True);
+            Assert.That(text.ToString(), Does.Not.Contain("GridMapSource"), "Provenance must never be embedded in exported map YAML");
+            using var reader=new System.IO.StringReader(text.ToString());
+            Assert.That(loader.TryLoadGeneric(reader,"uploaded-map",out var uploaded),Is.True);
+            Assert.That(editor.SourcePath(uploaded!.Grids.Single().Owner),Is.Empty);
+            var player=pair.Server.PlayerMan.Sessions.Single();pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            Assert.That(editor.Open(player,grid),Does.Contain("открыт"));
+        });
+        await pair.RunTicksSync(25);
+        await pair.Client.WaitAssertion(()=>Assert.That(pair.Client.EntMan.System<ClientEditor>().State!.SourcePath,Is.EqualTo("Resources/Maps/Test/empty.yml")));
+        await pair.Server.WaitAssertion(()=>{
+            var entities=pair.Server.EntMan;var map=entities.System<SharedMapSystem>();
+            map.SetTile(grid,entities.GetComponent<MapGridComponent>(grid),new Vector2i(0,0),new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["FloorSteel"].TileId));
+        });
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(()=>Assert.That(pair.Client.EntMan.System<ClientEditor>().State!.SourcePath,Is.EqualTo("Resources/Maps/Test/empty.yml")));
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task MapperSpriteOriginAndPipeRoutingPortsMatchNativePrototypes()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var images = new Content.Client._DeepLagoon.WebUI.TguiSpriteImages();
+            var json = new Content.Client._DeepLagoon.WebUI.TguiData().Array("images", images.MapItem("AlwaysPoweredWallLight")).ToString();
+            using var parsed = JsonDocument.Parse(json);
+            var layers = parsed.RootElement.GetProperty("images");
+            Assert.That(layers.GetArrayLength(), Is.GreaterThan(0));
+            foreach (var layer in layers.EnumerateArray())
+            {
+                Assert.That(layer.GetProperty("native").GetBoolean(), Is.True);
+                Assert.That(layer.GetProperty("m32").GetSingle(), Is.EqualTo(1f));
+                Assert.That(layer.GetProperty("width").GetInt32(), Is.GreaterThan(0));
+                Assert.That(layer.GetProperty("url").GetString(), Does.StartWith("data:image/png;base64,"));
+            }
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            foreach (var suffix in new[] { "", "Alt1", "Alt2" })
+            foreach (var (shape, expected) in new[] { ("Half", PipeDirection.South), ("Straight", PipeDirection.Longitudinal),
+                         ("Bend", PipeDirection.SWBend), ("TJunction", PipeDirection.TSouth), ("Fourway", PipeDirection.Fourway) })
+            {
+                var prototype = prototypes.Index<EntityPrototype>($"GasPipe{shape}{suffix}");
+                var nodes = (Content.Shared.NodeContainer.NodeContainerComponent) prototype.Components["NodeContainer"].Component;
+                var pipe = (Content.Server.NodeContainer.Nodes.PipeNode) nodes.Nodes["pipe"];
+                Assert.That(pipe.OriginalPipeDirection, Is.EqualTo(expected));
+            }
+            Assert.That(PipeDirection.SWBend.RotatePipeDirection(Angle.FromDegrees(270)), Is.EqualTo(PipeDirection.NWBend));
+            entitiesForDisposal();
+            void entitiesForDisposal()
+            {
+                var entities=pair.Server.EntMan;var map=entities.System<SharedMapSystem>();map.CreateMap(out var mapId,runMapInit:false);
+                var grid=map.CreateGridEntity(mapId);
+                var floor=new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+                map.SetTile(grid,grid.Comp,new Vector2i(0,0),floor);
+                foreach(var (prototype,expected) in new[]{("DisposalPipe",PipeDirection.Longitudinal),("DisposalBend",PipeDirection.SWBend),
+                    ("DisposalJunction",PipeDirection.TWest),("DisposalJunctionFlipped",PipeDirection.TEast),("DisposalYJunction",PipeDirection.TSouth)})
+                {
+                    var pipe=entities.SpawnEntity(prototype,new EntityCoordinates(grid.Owner,new Vector2(.5f,.5f)));
+                    var ports=new Content.Server.Disposal.Tube.GetDisposalsConnectableDirectionsEvent();entities.EventBus.RaiseLocalEvent(pipe,ref ports);
+                    var mask=ports.Connectable.Aggregate(PipeDirection.None,(current,direction)=>current|direction.ToPipeDirection());
+                    Assert.That(mask,Is.EqualTo(expected),prototype);entities.DeleteEntity(pipe);
+                }
+            }
+            foreach (var cable in new[] { "CableHV", "CableMV", "CableApcExtension" }) Assert.That(prototypes.HasIndex<EntityPrototype>(cable), Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task LiveGridAndForeignDraftsSyncAcrossEditorsWhileLocalApplyAlwaysWins()
     {

@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Mapping;
 using System.Numerics;
 using Content.Server.Shuttles.Components;
 using Content.Server.Station.Events;
@@ -67,7 +68,7 @@ public sealed partial class ShuttleSystem
 
         _mapSystem.CreateMap(out var mapId);
 
-        if (_loader.TryLoadGrid(mapId, component.Path, out var ent))
+        if (_loader.TryLoadGridTracked(mapId, component.Path, out var ent))
         {
             if (HasComp<ShuttleComponent>(ent))
                 TryFTLProximity(ent.Value, targetGrid.Value);
@@ -141,7 +142,7 @@ public sealed partial class ShuttleSystem
         var path = paths[^1];
         paths.RemoveAt(paths.Count - 1);
 
-        if (_loader.TryLoadGrid(mapId, path, out var grid))
+        if (_loader.TryLoadGridTracked(mapId, path, out var grid))
         {
             if (HasComp<ShuttleComponent>(grid))
                 TryFTLProximity(grid.Value, targetGrid);
@@ -237,7 +238,7 @@ public sealed partial class ShuttleSystem
         _mapSystem.CreateMap(out var mapId);
         var valid = false;
 
-        if (_loader.TryLoadGrid(mapId, component.Path, out var grid))
+        if (_loader.TryLoadGridTracked(mapId, component.Path, out var grid))
         {
             var escape = GetSingleDock(grid.Value);
 

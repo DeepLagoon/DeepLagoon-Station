@@ -6,7 +6,7 @@
               xmlns:controls1="clr-namespace:Content.Client.UserInterface.Controls"
               xmlns:graphics="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client">
                 <!-- Mono - wrap -->
-                <controls:LayoutContainer Margin="5 4 10 5" HorizontalExpand="True" VerticalExpand="True">
+                <controls:LayoutContainer Margin="5 4 10 5" MinWidth="280" HorizontalExpand="True" VerticalExpand="True">
                     <combat:CombatShuttleNavControl Name="NavRadar"
                                      MouseFilter="Stop"
                                      VerticalAlignment="Stretch"
@@ -14,7 +14,9 @@
                                      HorizontalExpand="True"/>
                 </controls:LayoutContainer>
                 <!-- Nav controls -->
-                <controls:PanelContainer VerticalExpand="True" HorizontalExpand="True" Margin="4 4 4 4">
+                <controls:ScrollContainer Name="NavigationScroll" VerticalExpand="True" HorizontalExpand="False"
+                                          MinWidth="310" MaxWidth="310" HScrollEnabled="False">
+                <controls:PanelContainer HorizontalExpand="True" Margin="4 4 4 4">
                     <controls:PanelContainer.PanelOverride>
                         <graphics:StyleBoxFlat BorderThickness="2" BorderColor="#525252" BackgroundColor="#3d474d"/>
                     </controls:PanelContainer.PanelOverride>
@@ -38,11 +40,11 @@
                     </controls1:StripeBack>
                     <controls:PanelContainer VerticalExpand="True" HorizontalExpand="True" Margin="4 4 4 4">
                         <controls:PanelContainer.PanelOverride>
-                            <graphics:StyleBoxFlat BorderThickness="4" BorderColor="#333333" BackgroundColor="#141414"/>
+                            <graphics:StyleBoxFlat BorderThickness="4" BorderColor="#1e3038" BackgroundColor="#17232a"/>
                         </controls:PanelContainer.PanelOverride>
                     <controls:PanelContainer VerticalExpand="True" HorizontalExpand="True" Margin="8 8 8 8">
                         <controls:PanelContainer.PanelOverride>
-                            <graphics:StyleBoxFlat BorderThickness="2" BorderColor="#151515" BackgroundColor="#050505"/>
+                            <graphics:StyleBoxFlat BorderThickness="2" BorderColor="#31434c" BackgroundColor="#0b1216"/>
                         </controls:PanelContainer.PanelOverride>
                     <controls:GridContainer Columns="2"
                                    HorizontalAlignment="Stretch"
@@ -50,66 +52,66 @@
                                    HorizontalExpand="True"
                                    Margin="6 6 6 6"
                                    Name="ReadonlyDisplay">
-                        <controls:Label Text="{controls:Loc 'shuttle-console-designation'}" FontColorOverride="#00ff2a"/>
+                        <controls:Label Text="{controls:Loc 'shuttle-console-designation'}" FontColorOverride="#86a4af"/>
                         <controls:Label Name="ShuttleDesignation"
                                Text="{controls:Loc 'shuttle-console-designation-unknown'}"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"/>
-                        <controls:Label Text="{controls:Loc 'shuttle-console-position'}" FontColorOverride="#00ff2a"/>
+                               FontColorOverride="#bdd5dd"/>
+                        <controls:Label Text="{controls:Loc 'shuttle-console-position'}" FontColorOverride="#86a4af"/>
                         <controls:Label Name="GridPosition"
                                Text="0.0, 0.0"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"/>
-                        <controls:Label Text="{controls:Loc 'shuttle-console-orientation'}" FontColorOverride="#00ff2a"/>
+                               FontColorOverride="#bdd5dd"/>
+                        <controls:Label Text="{controls:Loc 'shuttle-console-orientation'}" FontColorOverride="#86a4af"/>
                         <controls:Label Name="GridOrientation"
                                Text="0.0"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"/>
-                        <controls:Label Text="{controls:Loc 'shuttle-console-linear-velocity'}" FontColorOverride="#00ff2a"/>
+                               FontColorOverride="#bdd5dd"/>
+                        <controls:Label Text="{controls:Loc 'shuttle-console-linear-velocity'}" FontColorOverride="#86a4af"/>
                         <controls:Label Name="GridLinearVelocity"
                                Text="0.0, 0.0"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"/>
-                        <controls:Label Text="{controls:Loc 'shuttle-console-angular-velocity'}" FontColorOverride="#00ff2a"/>
+                               FontColorOverride="#bdd5dd"/>
+                        <controls:Label Text="{controls:Loc 'shuttle-console-angular-velocity'}" FontColorOverride="#86a4af"/>
                         <controls:Label Name="GridAngularVelocity"
                                Text="0.0"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"/>
+                               FontColorOverride="#bdd5dd"/>
                         <!-- Mono: z-level altimeter -->
                         <controls:Label Name="GridAltitudeCaption"
                                Text="{controls:Loc 'shuttle-console-altitude'}"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#86a4af"
                                Visible="False"/>
                         <controls:Label Name="GridAltitude"
                                Text="-"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#bdd5dd"
                                Visible="False"/>
                         <controls:Label Name="GridVerticalVelocityCaption"
                                Text="{controls:Loc 'shuttle-console-vertical-velocity'}"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#86a4af"
                                Visible="False"/>
                         <controls:Label Name="GridVerticalVelocity"
                                Text="-"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#bdd5dd"
                                Visible="False"/>
                         <controls:Label Name="GridTravelStateCaption"
                                Text="{controls:Loc 'shuttle-console-travel-state'}"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#86a4af"
                                Visible="False"/>
                         <controls:Label Name="GridTravelState"
                                Text="-"
                                HorizontalExpand="True"
                                Align="Right"
-                               FontColorOverride="#00ff2a"
+                               FontColorOverride="#bdd5dd"
                                Visible="False"/>
                     </controls:GridContainer>
                     </controls:PanelContainer>
@@ -299,5 +301,6 @@
                     </controls:BoxContainer>
                     </controls:PanelContainer>
                 </controls:PanelContainer>
+                </controls:ScrollContainer>
                 </controls:BoxContainer>
 

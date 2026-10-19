@@ -66,6 +66,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     {
         base.Initialize();
         InitializeShieldUi();
+        InitializeHullUi();
 
         _metaQuery = GetEntityQuery<MetaDataComponent>();
         _xformQuery = GetEntityQuery<TransformComponent>();
@@ -431,6 +432,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             var state = new ShuttleBoundUserInterfaceState(navState, mapState, dockState)
             {
                 ShieldState = shuttleGridUid is { } shieldGrid ? _shipShields.GetShieldState(shieldGrid) : null,
+                HullState = GetHullState(shuttleGridUid),
                 FireControlState = EntityManager.System<Content.Server._Mono.FireControl.FireControlSystem>()
                     .GetConsoleState(consoleUid, navState)
             };
@@ -442,6 +444,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     {
         base.Update(frameTime);
         ProcessShieldUiUpdates();
+        ProcessHullUiUpdates();
 
         var toRemove = new ValueList<(EntityUid, PilotComponent)>();
         var query = EntityQueryEnumerator<PilotComponent>();

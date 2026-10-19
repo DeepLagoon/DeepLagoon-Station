@@ -26,13 +26,14 @@ public sealed class GridEditorItem
 
 [Serializable, NetSerializable]
 public sealed class GridEditorStateEvent(NetEntity grid, Guid token, int x, int y, int width, int height,
-    List<GridEditorItem> items, bool initialized = false, int gridX = 0, int gridY = 0, int gridWidth = 0, int gridHeight = 0) : EntityEventArgs
+    List<GridEditorItem> items, bool initialized = false, int gridX = 0, int gridY = 0, int gridWidth = 0, int gridHeight = 0, string sourcePath = "") : EntityEventArgs
 {
     public readonly NetEntity Grid = grid;
     public readonly Guid Token = token;
     public readonly int X = x, Y = y, Width = width, Height = height;
     public readonly List<GridEditorItem> Items = items;
     public readonly bool Initialized = initialized;
+    public readonly string SourcePath = sourcePath;
     public readonly int GridX = gridX, GridY = gridY, GridWidth = gridWidth, GridHeight = gridHeight;
 }
 

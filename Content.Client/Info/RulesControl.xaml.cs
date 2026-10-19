@@ -1,4 +1,5 @@
-﻿using Content.Client.Guidebook;
+using Content.Client._DeepLagoon.WebUI;
+using Content.Client.Guidebook;
 using Content.Client.Guidebook.RichText;
 using Content.Client.UserInterface.Systems.Info;
 using Content.Shared.Guidebook;
@@ -14,6 +15,8 @@ public sealed partial class RulesControl : BoxContainer, ILinkClickHandler
 {
     [Dependency] private DocumentParsingManager _parsingMan = default!;
 
+    [Dependency] private readonly WikiRoutingConfiguration _routing = default!;
+    private WikiDocumentView? _wiki;
     private string? _currentEntry;
     private readonly Stack<string> _priorEntries = new();
 
@@ -36,6 +39,34 @@ public sealed partial class RulesControl : BoxContainer, ILinkClickHandler
 
     private void SetGuide(ProtoId<GuideEntryPrototype>? entry = null, bool addToPrior = true)
     {
+        var source = entry == null ? "rules:mandatory" : "link:" + entry;
+        var routes = _routing.Read();
+        var destination = routes.Resolve(new[] { source }, "");
+        if (entry != null && routes.Contains(source))
+        {
+            if (destination.Length == 0) return;
+            if (destination.StartsWith("external:", StringComparison.Ordinal))
+            {
+                UserInterfaceManager.GetUIController<Content.Client.UserInterface.Systems.Guidebook.GuidebookUIController>()
+                    .OpenSource(source, fallback: "");
+                return;
+            }
+        }
+        _wiki?.Dispose();
+        _wiki = null;
+        if (WikiNavigationPolicy.IsPath(destination) && WikiNavigationPolicy.IsOrigin(_routing.Origin))
+        {
+            RulesContainer.Children.Clear();
+            _wiki = new WikiDocumentView { MinHeight = 350 };
+            RulesContainer.AddChild(_wiki);
+            _wiki.LoadPath(destination);
+            HomeButton.Visible = entry != null;
+            BackButton.Visible = false;
+            return;
+        }
+        if (destination.StartsWith("local:", StringComparison.Ordinal) &&
+            IoCManager.Resolve<IPrototypeManager>().HasIndex<GuideEntryPrototype>(destination[6..]))
+            entry = destination[6..];
         var coreEntry = UserInterfaceManager.GetUIController<InfoUIController>().GetCoreRuleEntry();
         entry ??= coreEntry;
 
