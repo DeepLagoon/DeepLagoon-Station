@@ -9,7 +9,7 @@
     to time.
   components:
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]
 - type: entity
   id: ClothingBeltKatanaSheathFilled
   parent: ClothingBeltKatanaSheath

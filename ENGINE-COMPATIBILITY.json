@@ -2,7 +2,7 @@
   "schema_version": 1,
   "official_engine_version": "292.0.1",
   "official_engine_commit": "26fc868a033836ae97389614f16298951b184df1",
-  "engine_commit": "4b3cf45060c80c2f0912b535fc5a2f17b75c956a",
+  "engine_commit": "5a42b5f8e6705979ed28ad64a2ed4dc7de5b6269",
   "allowed_engine_changes": {
     "Robust.Shared.IntegrationTests/Physics/InvalidFixtureTests.cs": "b9301fff353a61c87f5f7ab920f28c7c494afbc7",
     "Robust.Shared/Physics/Events/InvalidPhysicsFixtureEvent.cs": "7b7e010f183249acda71cddbadbd78c2fd697e7a",

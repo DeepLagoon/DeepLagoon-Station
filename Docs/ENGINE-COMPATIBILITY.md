@@ -5,12 +5,18 @@ This branch prepares the signed official **292.0.1** client at
 not a statement about the deployed production version.
 
 `ENGINE-COMPATIBILITY.json` pins the server engine to
-`4b3cf45060c80c2f0912b535fc5a2f17b75c956a`. Its only differences from the official
+`5a42b5f8e6705979ed28ad64a2ed4dc7de5b6269`. Its only differences from the official
 client baseline are the server fixture quarantine implementation and tests.
 The quarantine runs only on the server and changes no client implementation,
 networked component schema, serialization, authentication, loader or module trust.
 The exact five paths and Git blob IDs are recorded in the contract and separately
 pinned in Control's `remote/engine_compatibility.py`.
+
+This main merge preserves the exact source tree tested at
+`4b3cf45060c80c2f0912b535fc5a2f17b75c956a`; only its Git history differs.
+On 2026-10-21 the maintainer confirmed system functionality on the local Debug
+server with the accompanying scalar-to-sequence YAML migration. This confirmation
+does not independently establish a FullRelease TGUI run or a long-session test.
 
 Engine changes are authored in the standalone RobustToolbox repository. Station
 only consumes its pinned commit. No content build task may rewrite engine source.

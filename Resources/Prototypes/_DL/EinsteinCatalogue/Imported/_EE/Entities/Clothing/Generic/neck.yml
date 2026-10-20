@@ -17,7 +17,7 @@
       - state: equipped-NECK-unshaded
         shader: unshaded
   - type: StealTarget
-    stealGroup: HeadCloak
+    stealGroup: [HeadCloak]
 - type: entity
   parent: ClothingNeckBase
   id: ClothingNeckFurWrap

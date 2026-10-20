@@ -38,4 +38,4 @@
   - type: StaticPrice
     price: 5000
   - type: StealTarget
-    stealGroup: WeaponCaptain
+    stealGroup: [WeaponCaptain]

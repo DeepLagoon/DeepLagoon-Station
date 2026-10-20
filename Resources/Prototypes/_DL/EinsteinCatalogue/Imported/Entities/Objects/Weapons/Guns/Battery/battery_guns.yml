@@ -7,7 +7,7 @@
     collection. This pistol is engraved with the words, "Forgive Us, Mother Sol'"
   components:
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]
 - type: entity
   name: CentCom disabler
   parent: WeaponDisabler
@@ -20,7 +20,7 @@
     autoRecharge: true
     autoRechargeRate: 20
   - type: StealTarget
-    stealGroup: NTRepWeapon
+    stealGroup: [NTRepWeapon]
   - type: Gun
     fireRate: 3
     soundGunshot:
@@ -47,4 +47,4 @@
     Sol. Phoron will make us all rich."
   components:
   - type: StealTarget
-    stealGroup: WeaponCaptain
+    stealGroup: [WeaponCaptain]

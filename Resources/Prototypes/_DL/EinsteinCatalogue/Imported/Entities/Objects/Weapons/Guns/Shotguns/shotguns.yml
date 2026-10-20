@@ -17,4 +17,4 @@
     weapon's serial number is 000000013.
   components:
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]

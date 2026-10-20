@@ -12,7 +12,7 @@
   - type: Clothing
     sprite: DeltaV/Clothing/Neck/Cloaks/mystacloak.rsi
   - type: StealTarget
-    stealGroup: HeadCloak
+    stealGroup: [HeadCloak]
 - type: entity
   parent: ClothingNeckBase
   id: ClothingNeckCloakCJ
@@ -22,4 +22,4 @@
   - type: Sprite
     sprite: DeltaV/Clothing/Neck/Cloaks/cjcloak.rsi
   - type: StealTarget
-    stealGroup: HeadCloak
+    stealGroup: [HeadCloak]

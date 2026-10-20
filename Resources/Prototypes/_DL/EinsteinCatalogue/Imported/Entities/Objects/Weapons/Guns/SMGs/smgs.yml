@@ -7,7 +7,7 @@
     Mars".
   components:
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]
 - type: entity
   name: antique Wt550
   id: WeaponSubMachineGunWt550HoS
@@ -17,4 +17,4 @@
     it has been engraved on the grip.
   components:
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]

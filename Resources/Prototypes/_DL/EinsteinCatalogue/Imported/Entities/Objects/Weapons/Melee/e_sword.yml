@@ -30,4 +30,4 @@
     colorOptions:
     - "#00CCFF"
   - type: StealTarget
-    stealGroup: HoSAntiqueWeapon
+    stealGroup: [HoSAntiqueWeapon]
