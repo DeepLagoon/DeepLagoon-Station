@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Content.Shared.Audio.Jukebox;
 using Robust.Client.Animations;
 using Robust.Client.GameObjects;
@@ -13,6 +14,47 @@ public sealed partial class JukeboxSystem : SharedJukeboxSystem
     [Dependency] private SharedAppearanceSystem _appearanceSystem = default!;
     [Dependency] private SharedUserInterfaceSystem _uiSystem = default!;
     [Dependency] private SpriteSystem _sprite = default!;
+    private Task<JukeboxCatalog>? _catalog;
+    private TaskCompletionSource<JukeboxCatalog>? _catalogSource;
+    private IEnumerator<JukeboxPrototype>? _catalogPrototypes;
+    private List<JukeboxCatalog.Track> _catalogTracks = new();
+
+    // Snapshot a bounded number of prototype fields each frame; sorting/indexing
+    // runs off-thread once per revision, shared by every open jukebox.
+    public Task<JukeboxCatalog> Catalog => _catalog ??= BuildCatalog();
+    private Task<JukeboxCatalog> BuildCatalog()
+    {
+        _catalogSource = new();
+        _catalogPrototypes = _protoManager.EnumeratePrototypes<JukeboxPrototype>().GetEnumerator();
+        _catalogTracks = new();
+        return _catalogSource.Task;
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        if (_catalogPrototypes == null) return;
+        for (var i = 0; i < 256; i++)
+        {
+            if (_catalogPrototypes.MoveNext())
+            {
+                var track = _catalogPrototypes.Current;
+                _catalogTracks.Add(new(track.ID, track.Name));
+                continue;
+            }
+            _catalogPrototypes.Dispose();
+            _catalogPrototypes = null;
+            var tracks = _catalogTracks;
+            var source = _catalogSource!;
+            _catalogTracks = new();
+            _ = Task.Run(() =>
+            {
+                try { source.TrySetResult(new JukeboxCatalog(tracks.ToArray())); }
+                catch (Exception e) { source.TrySetException(e); }
+            });
+            break;
+        }
+    }
 
     public override void Initialize()
     {
@@ -28,12 +70,20 @@ public sealed partial class JukeboxSystem : SharedJukeboxSystem
     {
         base.Shutdown();
         _protoManager.PrototypesReloaded -= OnProtoReload;
+        _catalogPrototypes?.Dispose();
+        _catalogPrototypes = null;
+        _catalogSource?.TrySetCanceled();
     }
 
     private void OnProtoReload(PrototypesReloadedEventArgs obj)
     {
         if (!obj.WasModified<JukeboxPrototype>())
             return;
+
+        _catalogPrototypes?.Dispose();
+        _catalogPrototypes = null;
+        _catalogSource?.TrySetCanceled();
+        _catalog = null;
 
         var query = AllEntityQuery<JukeboxComponent, UserInterfaceComponent>();
 

@@ -34,6 +34,18 @@ public sealed partial class StarSystemMapSystem : SharedStarSystemMapSystem
         _cfg.OnValueChanged(FHCCVars.RenderStarSystem, EnsureStarSystem, true);
     }
 
+    public override void Shutdown()
+    {
+        // Overlays outlive the entity systems unless explicitly removed. In particular,
+        // StarLightOverlay caches OccluderSystem, which is shut down on disconnect.
+        // Leaving it registered makes a reconnect query the previous session's tree.
+        _cfg.UnsubValueChanged(FHCCVars.RenderStarSystem, EnsureStarSystem);
+        EnsureStarSystem(false);
+        _starLightOverlay.ResetMemory();
+
+        base.Shutdown();
+    }
+
     private void EnsureStarSystem(bool enabled)
     {
         if (enabled)

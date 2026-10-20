@@ -79,6 +79,8 @@ public sealed class ShipShieldOverlay : Overlay
         var mesh = new ShipShieldMesh(chain);
         var shader = _shaderPrototype.InstanceUnique();
         shader.SetParameter("shield_size", mesh.Bounds.Size);
+        shader.SetParameter("inner_width_ratio", ShipShieldGeometry.InnerWidthRatio);
+        shader.SetParameter("inner_height_ratio", ShipShieldGeometry.InnerHeightRatio);
         surface = new ShieldSurface(mesh, shader);
         _surfaces[uid] = surface;
         return surface;

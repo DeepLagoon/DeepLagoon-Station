@@ -85,9 +85,13 @@ public sealed class ShipRadarConsoleHost : Control
             radar.CircularRadar = _kind == "handheld";
             _layer.AddChild(radar);
             _glass.SetPositionLast();
-            // Native ancestors belong to the old surface. The shared host remains visible.
+            // The native radar and this host can share several ancestors, including
+            // the container holding the window header. Keep that entire path visible.
+            var sharedAncestors = new HashSet<Control>();
+            for (Control? ancestor = Parent; ancestor != null; ancestor = ancestor.Parent)
+                sharedAncestors.Add(ancestor);
             foreach (var (control, _) in nativeSiblings)
-                if (control != Parent) control.Visible = false;
+                if (!sharedAncestors.Contains(control)) control.Visible = false;
             Visible = true;
             _viewport = Vector4.Zero;
             radar.Visible = _glass.Visible = false;

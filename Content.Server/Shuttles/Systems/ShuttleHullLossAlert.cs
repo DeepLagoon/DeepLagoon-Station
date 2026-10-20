@@ -13,11 +13,14 @@ public sealed class ShuttleHullLossAlert
     public int Tiles { get; private set; }
     public int Total => Thrusters + Weapons + Structures + Tiles;
     public int DamagePercent { get; private set; }
+    public string? SingleMissingName { get; private set; }
 
     public void ObserveNewLosses(ShuttleHullState state, ShuttleHullState losses)
     {
         if (_previous != null)
         {
+            if (losses.MissingThrusters + losses.MissingWeapons + losses.MissingStructures + losses.MissingTiles > 0)
+                SingleMissingName = Total == 0 ? losses.SingleMissingName : null;
             Thrusters += losses.MissingThrusters;
             Weapons += losses.MissingWeapons;
             Structures += losses.MissingStructures;

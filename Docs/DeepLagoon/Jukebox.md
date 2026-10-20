@@ -13,7 +13,11 @@ The compact horseshoe is painted by TGUI inside a frameless native host. Its woo
 
 ## Adapted MOLOT optimizations
 
-The catalog and durations are cached and sent as static TGUI data. Open windows send only changed dynamic fields, sampled at 4 Hz; the page interpolates time locally. Slider drags commit on release instead of producing a message for each pointer event. Lists render at most 25 entries per page.
+Catalog browsing never loads client audio resources. The client snapshots at most 256 prototype names/IDs per frame into a shared index; sorting and searching run on a worker. Only 25 visible rows plus the selected song cross the TGUI bridge, including for search, favorites, playlists and queue pages. Superseded searches are discarded and only one search runs per window at a time. The server supplies cached durations for at most 26 requested tracks using its audio metadata, so browsing does not decode the library or allocate playback buffers. Prototype reload invalidates the index and duration caches.
+
+Open windows send only changed dynamic fields, sampled at 4 Hz; the page interpolates time locally. Slider drags commit on release instead of producing a message for each pointer event. Search input is debounced by 150 ms. A growing library increases background index/search work and initial loading time rather than the number of audio resources loaded or browser rows/messages.
+
+The classic fallback uses the same background index with search and 25-item pages. Its selected-track duration also comes from server metadata, so switching interface cannot reintroduce eager audio loading or an unbounded native item list.
 
 Audio stays on SS14's spatial PVS path. Its existing `AudioStart` handles catch-up for listeners entering range; there is no global BYOND-style sound-file broadcast. A reverse audio-owner index replaces scanning every jukebox for every terminating entity. Only active jukeboxes are checked for completion, at 5 Hz. Stop/power loss detach the stream before deletion so cleanup cannot restart playback.
 

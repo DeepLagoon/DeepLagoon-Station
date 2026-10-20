@@ -17,6 +17,53 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class JukeboxPlaybackTests
 {
     [Test]
+    public async Task ClientCatalogBrowsingDoesNotLoadAudioResources()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var resources = pair.Client.ResolveDependency<Robust.Client.ResourceManagement.IResourceCache>();
+        var entities = pair.Client.ResolveDependency<IEntityManager>();
+        System.Threading.Tasks.Task<Content.Client.Audio.Jukebox.JukeboxCatalog> catalog = null;
+        string[] before = [];
+        await pair.Client.WaitAssertion(() =>
+        {
+            before = resources.GetAllResources<Robust.Client.ResourceManagement.AudioResource>().Select(p => p.Key.ToString()).ToArray();
+            catalog = entities.System<Content.Client.Audio.Jukebox.JukeboxSystem>().Catalog;
+        });
+        for (var i = 0; i < 100 && !catalog.IsCompleted; i++)
+            await pair.RunTicksSync(1);
+        var index = await catalog.WaitAsync(TimeSpan.FromSeconds(10));
+        var page = index.Browse(null, "", 0);
+        Assert.That(page.Total, Is.GreaterThan(0));
+        Assert.That(page.Rows.Length, Is.LessThanOrEqualTo(25));
+        Content.Client.Audio.Jukebox.JukeboxMenu menu = null;
+        var frame = typeof(Content.Client.Audio.Jukebox.JukeboxMenu).GetMethod("FrameUpdate",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var items = 0;
+        await pair.Client.WaitAssertion(() =>
+        {
+            menu = new Content.Client.Audio.Jukebox.JukeboxMenu();
+            menu.Populate(System.Threading.Tasks.Task.FromResult(index));
+        });
+        for (var i = 0; i < 100 && items == 0; i++)
+        {
+            await pair.Client.WaitAssertion(() =>
+            {
+                frame.Invoke(menu, [new FrameEventArgs(.1f)]);
+                items = menu.FindControl<Robust.Client.UserInterface.Controls.ItemList>("MusicList").Count;
+            });
+            await Task.Delay(10);
+        }
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(items, Is.EqualTo(Math.Min(25, page.Total)), "Classic fallback also renders one bounded page");
+            menu.Dispose();
+            var after = resources.GetAllResources<Robust.Client.ResourceManagement.AudioResource>().Select(p => p.Key.ToString()).ToArray();
+            Assert.That(after.Except(before), Is.Empty, "Browsing metadata must not decode/cache any audio");
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task QueuePlaybackPauseCompletionRepeatAndStopUseTheRealAudioSystem()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
@@ -40,6 +87,8 @@ public sealed class JukeboxPlaybackTests
             var library = new JukeboxLibrary();
             library.Favorites.Add("track"); library.Playlists.Add("Вечер", new() { "track" });
             Assert.That(RoundTrip(library).Playlists["Вечер"], Is.EqualTo(new[] { "track" }));
+            Assert.That(RoundTrip(new JukeboxMetadataRequest(["track"])).Tracks, Is.EqualTo(new[] { "track" }));
+            Assert.That(RoundTrip(new JukeboxMetadataMessage(new() { ["track"] = 123f })).Lengths["track"], Is.EqualTo(123f));
             var map = new EntityCoordinates(entities.System<SharedMapSystem>().CreateMap(), Vector2.Zero);
             uid = entities.SpawnEntity(null, map);
             comp = entities.AddComponent<JukeboxComponent>(uid);

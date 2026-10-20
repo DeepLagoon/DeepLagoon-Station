@@ -71,6 +71,13 @@ public sealed partial class NavMapSystem : SharedNavMapSystem
         RefreshGrid(ev.GridId, comp, Comp<MapGridComponent>(ev.GridId));
     }
 
+    /// <summary>Ship consoles also need navigation maps on grids outside a station.</summary>
+    public void EnsureGridMap(EntityUid uid, MapGridComponent grid)
+    {
+        if (!HasComp<NavMapComponent>(uid))
+            RefreshGrid(uid, EnsureComp<NavMapComponent>(uid), grid);
+    }
+
     #region: Grid change event handling
 
     private void OnNavMapSplit(ref GridSplitEvent args)

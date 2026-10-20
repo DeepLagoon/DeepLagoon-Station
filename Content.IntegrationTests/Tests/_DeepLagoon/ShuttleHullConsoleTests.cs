@@ -18,6 +18,60 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ShuttleHullConsoleTests
 {
     [Test]
+    public async Task NamedLossAndResetUseCurrentShipAsBaselineForEveryConsole()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId);
+            var grid = maps.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            for (var x = 0; x < 4; x++)
+                maps.SetTile(grid, new Vector2i(x, 0), floor);
+            var console = Spawn(entities, grid.Owner, "ComputerShuttle", 0);
+            var otherConsole = Spawn(entities, grid.Owner, "ComputerShuttle", 1);
+            var engine = Spawn(entities, grid.Owner, "Thruster", 2);
+            var weapon = Spawn(entities, grid.Owner, "ShuttleGunKinetic", 3);
+            var actor = Spawn(entities, grid.Owner, "MobHuman", 0);
+            ReadHull(entities, console);
+            Assert.That(entities.HasComponent<Content.Shared.Pinpointer.NavMapComponent>(grid.Owner), Is.True,
+                "Non-station shuttles need the same nav map geometry as crew monitoring");
+            var engineName = entities.GetComponent<MetaDataComponent>(engine).EntityName;
+            entities.DeleteEntity(engine);
+            var lost = ReadHull(entities, console);
+            Assert.That(lost.SingleMissingName, Is.EqualTo(engineName));
+            Assert.That(lost.MissingThrusters, Is.EqualTo(1));
+
+            void Reset() => entities.EventBus.RaiseLocalEvent(console,
+                new ShuttleHullResetMessage { Actor = actor, UiKey = ShuttleConsoleUiKey.Key });
+            entities.GetComponent<ApcPowerReceiverComponent>(console).Powered = false;
+            Reset();
+            Assert.That(ReadHull(entities, console).MissingThrusters, Is.EqualTo(1), "Unpowered consoles cannot reset losses");
+            entities.GetComponent<ApcPowerReceiverComponent>(console).Powered = true;
+            // Test grids have no ownership lock; explicitly unlock the console itself as well.
+            entities.RemoveComponent<ShuttleConsoleLockComponent>(console);
+            entities.RemoveComponent<Content.Shared.Access.Components.AccessReaderComponent>(console);
+            Reset();
+            var accepted = ReadHull(entities, otherConsole);
+            Assert.That(accepted.ExpectedThrusters, Is.Zero);
+            Assert.That(accepted.MissingThrusters, Is.Zero);
+            Assert.That(accepted.SingleMissingName, Is.Null);
+            Assert.That(accepted.IntegrityFraction, Is.EqualTo(1f));
+            Assert.That(accepted.Cells.All(cell => (cell & 2) == 0), Is.True);
+
+            var weaponName = entities.GetComponent<MetaDataComponent>(weapon).EntityName;
+            entities.DeleteEntity(weapon);
+            var subsequent = ReadHull(entities, console);
+            Assert.That(subsequent.MissingWeapons, Is.EqualTo(1));
+            Assert.That(subsequent.MissingThrusters, Is.Zero);
+            Assert.That(subsequent.SingleMissingName, Is.EqualTo(weaponName));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task HullRecordsLossesBeforeFirstConsoleUseAndTracksRepairsAndConstruction()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });

@@ -2,7 +2,7 @@ dl-map-upload-title = Load grid
 dl-map-upload-help = Choose a map or ship (.yml/.yaml), up to 20 MiB.
     Requires Mapping permission and ghost mode (regular ghost or adminghost).
     A translucent preview will appear, visible only to you.
-    File transfers have a 5 minute time limit.
+    Transfers expire after 5 minutes without progress. Choosing a file has no time limit.
 dl-map-upload-pick = Choose file
 dl-map-upload-working = Choosing and uploading map…
 dl-map-upload-progress = Received by server: { $percent }% ({ $received } / { $total } MiB).

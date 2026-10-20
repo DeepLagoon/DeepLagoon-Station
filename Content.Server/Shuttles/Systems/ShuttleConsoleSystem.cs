@@ -85,6 +85,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             subs.Event<ShuttleConsoleFTLBeaconMessage>(OnBeaconFTLMessage);
             subs.Event<ShuttleConsoleFTLPositionMessage>(OnPositionFTLMessage);
             subs.Event<ToggleFTLLockRequestMessage>(OnToggleFTLLock);
+            subs.Event<ShuttleHullResetMessage>(OnHullReset);
             subs.Event<BoundUIClosedEvent>(OnConsoleUIClose);
         });
 

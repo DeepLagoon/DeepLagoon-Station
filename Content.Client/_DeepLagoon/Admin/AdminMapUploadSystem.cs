@@ -22,6 +22,9 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     private Action<string>? _completed;
     private Action<int, int>? _progress;
     private TimeSpan? _expires;
+    private byte[]? _uploadBytes;
+    private int _sentOffset;
+    private int _receivedOffset;
 
     public override void Initialize()
     {
@@ -48,6 +51,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
 
         var request = Guid.NewGuid();
         _request = request;
+        _expires = null; // Choosing and reading a local file is not a network transfer.
         _completed = completed;
         _progress = progress;
         try
@@ -82,6 +86,8 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
                 }
                 data.Write(buffer, 0, count);
             }
+            if (_request != request)
+                return;
             if (data.Length == 0)
             {
                 Finish("dl-map-upload-size");
@@ -94,14 +100,12 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             }
 
             var bytes = data.ToArray();
+            _uploadBytes = bytes;
+            _sentOffset = 0;
+            _receivedOffset = -1;
             _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
             _progress?.Invoke(0, bytes.Length);
             RaiseNetworkEvent(new AdminMapUploadBeginEvent(request, bytes.Length));
-            for (var offset = 0; offset < bytes.Length; offset += AdminMapUploadLimits.ChunkBytes)
-            {
-                var end = Math.Min(bytes.Length, offset + AdminMapUploadLimits.ChunkBytes);
-                RaiseNetworkEvent(new AdminMapUploadChunkEvent(request, offset, bytes[offset..end]));
-            }
         }
         catch (Exception e)
         {
@@ -119,8 +123,24 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
 
     private void OnProgress(AdminMapUploadProgressEvent ev)
     {
-        if (_request == ev.Request && ev.Total > 0 && ev.Received >= 0 && ev.Received <= ev.Total)
-            _progress?.Invoke(ev.Received, ev.Total);
+        if (_request != ev.Request || _uploadBytes is not { } bytes || ev.Total != bytes.Length ||
+            ev.Received != _sentOffset || ev.Received <= _receivedOffset)
+            return;
+
+        _receivedOffset = ev.Received;
+        _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
+        _progress?.Invoke(ev.Received, ev.Total);
+        if (ev.Received == bytes.Length)
+        {
+            _uploadBytes = null;
+            return;
+        }
+
+        // Keep only one chunk in flight. Same-tick, unsequenced entity events may be
+        // reordered by the server's tick priority queue, even on a reliable channel.
+        var offset = _sentOffset;
+        _sentOffset = Math.Min(bytes.Length, offset + AdminMapUploadLimits.ChunkBytes);
+        RaiseNetworkEvent(new AdminMapUploadChunkEvent(ev.Request, offset, bytes[offset.._sentOffset]));
     }
 
     private void Finish(string message)
@@ -131,14 +151,21 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         _completed = null;
         _progress = null;
         _expires = null;
+        _uploadBytes = null;
+        _sentOffset = 0;
+        _receivedOffset = -1;
         completed?.Invoke(message);
     }
 
     public override void Update(float frameTime)
     {
         UpdatePlacement();
-        if (_request != null && (!_net.IsConnected || _expires is { } until && until <= _timing.RealTime))
+        if (_request is { } request && (!_net.IsConnected || _expires is { } until && until <= _timing.RealTime))
+        {
+            if (_net.IsConnected)
+                RaiseNetworkEvent(new AdminMapPlacementCancelEvent(request));
             Finish("dl-map-upload-interrupted");
+        }
     }
 
     public override void Shutdown()

@@ -17,7 +17,7 @@ highp float cellHash(highp vec2 p) {
 void fragment() {
     highp vec2 p = (UV - vec2(0.5)) * 2.0;
     // Variant 8: a smooth oval cut-out, independent of the grid's tile contour.
-    // Ratios preserve the selected 38x26 cut-out within the 58x44 preview shield.
+    // Ratios are shared with the server's occupied-tile fit, including hull clearance.
     highp vec2 inner = max(vec2(inner_width_ratio, inner_height_ratio), vec2(0.001));
     if (length(p / inner) < 1.0) discard;
     highp float radius = min(length(p), 1.0);

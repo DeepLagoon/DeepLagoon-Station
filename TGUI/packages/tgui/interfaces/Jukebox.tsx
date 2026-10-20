@@ -3,10 +3,11 @@ import { useBackend } from '../backend';
 import { Icon } from '../components';
 import './Jukebox.scss';
 
-type Track = { id: string; name: string; length: number };
+type Track = { id: string; name: string; length: number; available?: boolean };
 type Entry = { id: string; track: string };
 type Playlist = { name: string; tracks: { id: string }[] };
 type Data = {
+  rows: (Entry & { sourceIndex: number })[]; total: number; sourceCount: number; page: number; catalogBusy: boolean; catalogTab: string; catalogCount: number;
   tracks: Track[]; labels: Record<string, string>; selected: string; position: number; gain: number;
   playing: boolean; paused: boolean; powered: boolean; repeat: number; revision: number; queue: Entry[];
   favorites: { id: string }[]; playlists: Playlist[]; libraryLoaded: boolean; libraryBusy: boolean; status: string;
@@ -47,15 +48,14 @@ export const Jukebox = () => {
     return () => clearInterval(timer);
   }, [data.position, data.playing, length]);
   const activePlaylist = playlists.find(p => p.name === playlist);
-  const source = useMemo(() => {
-    if (tab === 'queue') return queue.map(entry => ({ ...entry, sourceIndex: queue.indexOf(entry) }));
-    const ids = tab === 'favorites' ? (data.favorites || []).map(t => t.id)
-      : tab === 'playlists' ? (activePlaylist?.tracks || []).map(t => t.id) : tracks.map(t => t.id);
-    return ids.map((id, sourceIndex) => ({ id, track: id, sourceIndex }));
-  }, [tab, data.queue, data.favorites, activePlaylist, tracks]);
-  const filtered = useMemo(() => tab === 'queue' ? source : source.filter(entry =>
-    (byId.get(entry.track)?.name || entry.track).toLocaleLowerCase().includes(query.toLocaleLowerCase())), [source, tab, query, byId]);
-  const pages = Math.max(1, Math.ceil(filtered.length / 25)), currentPage = Math.min(page, pages - 1);
+  // Catalog searches run in the native metadata index. Only a visible page and
+  // the selected song cross the bridge, independent of the full library size.
+  useEffect(() => {
+    const timer = setTimeout(() => act('browse', { tab, query, page, playlist }), 150);
+    return () => clearTimeout(timer);
+  }, [tab, query, page, playlist]);
+  const rows = data.catalogTab === tab ? data.rows || [] : [];
+  const pages = Math.max(1, Math.ceil((data.total || 0) / 25)), currentPage = data.page || 0;
   const changeTab = (value: string) => { setTab(value); setPage(0); };
   const command = (action: string, payload = {}) => act(action, { revision: data.revision, ...payload });
   const library = (action: string, payload = {}) => act(action, { playlist, ...payload });
@@ -105,7 +105,7 @@ export const Jukebox = () => {
       </div>
       <div className="Jukebox__modes">
         <button type="button" aria-pressed={data.repeat !== 0} onClick={() => command('repeat', { index: ((data.repeat || 0) + 1) % 3 })}>{glyph(data.repeat === 1 ? 'repeat' : 'retweet')}{t(['repeat-off', 'repeat-track', 'repeat-queue'][data.repeat || 0])}</button>
-        {iconButton(t('random'), 'shuffle', () => command('add', { id: tracks[Math.floor(Math.random() * tracks.length)].id }), !tracks.length || queue.length >= 256)}
+        {iconButton(t('random'), 'shuffle', () => act('random'), !data.catalogCount || queue.length >= 256)}
         {iconButton(t('visualizer'), 'wave-square', () => setVisualizer(!visualizer), false, visualizer)}
       </div>
       <label className="Jukebox__volume">{glyph('volume-up')}<span>{t('volume')}</span>
@@ -130,32 +130,34 @@ export const Jukebox = () => {
             {iconButton(t('queue-playlist'), 'list', () => library('playlist-queue'), busy || !activePlaylist?.tracks.length)}</>}
         </div>}
         <div className="Jukebox__list" role="list">
-          {filtered.slice(currentPage * 25, currentPage * 25 + 25).map(entry => {
-            const track = byId.get(entry.track), available = !!track;
+          {rows.map(entry => {
+            const track = byId.get(entry.track), available = !!track && track.available !== false;
             const movable = tab !== 'catalog', index = entry.sourceIndex;
             const move = (to: number) => tab === 'queue' ? command('move', { id: entry.id, index: to })
               : library(tab === 'favorites' ? 'favorite-move' : 'playlist-move', { id: entry.track, index: to });
+            const rowButton = (label: string, icon: string, onClick: () => void, disabled = false, pressed?: boolean) =>
+              iconButton(label, icon, onClick, disabled || data.catalogBusy, pressed);
             return <div className={`Jukebox__row ${available ? '' : 'is-unavailable'}`} key={entry.id} role="listitem">
-              {tab === 'queue' ? <input type="number" className="Jukebox__index" aria-label={`${t('position')}: ${track?.name || entry.track}`} min={1} max={source.length} defaultValue={index + 1} key={`${entry.id}-${index}`} onFocus={() => act('focus')}
-                onBlur={e => { const n = Number(e.currentTarget.value); if (Number.isInteger(n) && n >= 1 && n <= source.length) move(n - 1); e.currentTarget.value = String(index + 1); }} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /> : <span className="Jukebox__number">{index + 1}</span>}
-              <div className="Jukebox__track"><span title={track?.name || entry.track}>{track?.name || entry.track}</span><small>{available ? time(track.length) : t('unavailable')}</small></div>
+              {tab === 'queue' ? <input type="number" className="Jukebox__index" disabled={data.catalogBusy} aria-label={`${t('position')}: ${track?.name || entry.track}`} min={1} max={data.sourceCount} defaultValue={index + 1} key={`${entry.id}-${index}`} onFocus={() => act('focus')}
+                onBlur={e => { const n = Number(e.currentTarget.value); if (Number.isInteger(n) && n >= 1 && n <= data.sourceCount) move(n - 1); e.currentTarget.value = String(index + 1); }} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /> : <span className="Jukebox__number">{index + 1}</span>}
+              <div className="Jukebox__track"><span title={track?.name || entry.track}>{track?.name || entry.track}</span><small>{available ? track.length ? time(track.length) : '…' : t('unavailable')}</small></div>
               <div className="Jukebox__row-actions">
-                {movable && <>{iconButton(t('up'), 'arrow-up', () => move(index - 1), index === 0 || tab !== 'queue' && busy)}
-                  {iconButton(t('down'), 'arrow-down', () => move(index + 1), index === source.length - 1 || tab !== 'queue' && busy)}</>}
-                {tab === 'queue' ? iconButton(t('remove'), 'times', () => command('remove', { id: entry.id })) : <>
-                  {tab === 'playlists' ? iconButton(t('remove-playlist'), 'times', () => library('playlist-remove', { id: entry.track }), busy)
-                    : playlist && iconButton(t('add-playlist'), 'list', () => library('playlist-add', { id: entry.track }), busy || !available || !!activePlaylist?.tracks.some(t => t.id === entry.track))}
-                  {iconButton(t('add-first'), 'angle-double-up', () => command('add-first', { id: entry.track }), !available || queue.length >= 256)}
-                  {iconButton(t('add'), 'plus', () => command('add', { id: entry.track }), !available || queue.length >= 256)}
-                  {iconButton(t('favorite'), 'star', () => library('favorite', { id: entry.track }), busy, favorites.has(entry.track))}
+                {movable && <>{rowButton(t('up'), 'arrow-up', () => move(index - 1), index === 0 || tab !== 'queue' && busy)}
+                  {rowButton(t('down'), 'arrow-down', () => move(index + 1), index === data.sourceCount - 1 || tab !== 'queue' && busy)}</>}
+                {tab === 'queue' ? rowButton(t('remove'), 'times', () => command('remove', { id: entry.id })) : <>
+                  {tab === 'playlists' ? rowButton(t('remove-playlist'), 'times', () => library('playlist-remove', { id: entry.track }), busy)
+                    : playlist && rowButton(t('add-playlist'), 'list', () => library('playlist-add', { id: entry.track }), busy || !available || !!activePlaylist?.tracks.some(t => t.id === entry.track))}
+                  {rowButton(t('add-first'), 'angle-double-up', () => command('add-first', { id: entry.track }), !available || queue.length >= 256)}
+                  {rowButton(t('add'), 'plus', () => command('add', { id: entry.track }), !available || queue.length >= 256)}
+                  {rowButton(t('favorite'), 'star', () => library('favorite', { id: entry.track }), busy, favorites.has(entry.track))}
                 </>}
-                {tab === 'catalog' && iconButton(t('play-now'), 'play', () => command('play-track', { id: entry.track }), !available || !data.powered)}
+                {tab === 'catalog' && rowButton(t('play-now'), 'play', () => command('play-track', { id: entry.track }), !available || !data.powered)}
               </div>
             </div>;
           })}
-          {!filtered.length && <div className="Jukebox__empty">{t('empty')}</div>}
+          {!rows.length && <div className="Jukebox__empty">{t(data.catalogBusy ? 'loading' : 'empty')}</div>}
         </div>
-        <footer className="Jukebox__tools"><span>{filtered.length} {t('tracks')}</span>
+        <footer className="Jukebox__tools"><span>{data.total || 0} {t('tracks')}</span>
           {pages > 1 && <div>{iconButton('‹', 'chevron-left', () => setPage(currentPage - 1), currentPage === 0)}<span>{currentPage + 1}/{pages}</span>{iconButton('›', 'chevron-right', () => setPage(currentPage + 1), currentPage === pages - 1)}</div>}
           {tab === 'queue' ? iconButton(t('clear'), 'trash', () => openDialog('clear'), !queue.length)
             : iconButton(t('manage'), 'sliders', () => openDialog('manage'), busy)}

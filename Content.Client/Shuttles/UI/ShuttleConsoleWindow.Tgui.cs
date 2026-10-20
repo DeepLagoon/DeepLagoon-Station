@@ -14,6 +14,8 @@ public sealed partial class ShuttleConsoleWindow
     public TguiPanel Tgui { get; private set; } = default!;
     private LayoutContainer _radarLayer = default!;
     private bool _statusMode;
+    private ShuttleHullNavMapControl _hullMap = default!;
+    public event Action? ResetHullHistory;
     private TguiData _hullState = new TguiData().Bool("present", false);
     private Control[] _views = Array.Empty<Control>();
     private Vector4 _viewport;
@@ -31,14 +33,14 @@ public sealed partial class ShuttleConsoleWindow
 
     public void UpdateHullState(ShuttleHullState? state)
     {
+        _hullMap.Hull = state;
         _hullState = state == null
             ? new TguiData().Bool("present", false)
             : new TguiData().Bool("present", true)
-                .Number("width", state.Width).Number("height", state.Height)
                 .Number("integrity", state.IntegrityFraction)
+                .String("singleMissingName", state.SingleMissingName ?? string.Empty)
                 .Number("workingThrusters", state.WorkingThrusters).Number("workingGyroscopes", state.WorkingGyroscopes)
                 .Number("storedEnergy", state.StoredEnergy).Number("energyCapacity", state.EnergyCapacity)
-                .String("cells", Convert.ToBase64String(state.Cells))
                 .Object("thrusters", HullCount(state.ExpectedThrusters, state.MissingThrusters))
                 .Object("weapons", HullCount(state.ExpectedWeapons, state.MissingWeapons))
                 .Object("structures", HullCount(state.ExpectedStructures, state.MissingStructures))
@@ -69,6 +71,8 @@ public sealed partial class ShuttleConsoleWindow
         ContentsContainer.AddChild(Tgui);
         _radarLayer = new LayoutContainer { MouseFilter = Control.MouseFilterMode.Ignore };
         ContentsContainer.AddChild(_radarLayer);
+        _hullMap = new ShuttleHullNavMapControl { FitViewport = true, MinSize = Vector2.Zero, Visible = false };
+        _radarLayer.AddChild(_hullMap);
         foreach (var view in _views)
         {
             _nativeViews.Add((view, view.Parent!, view.GetPositionInParent(), view.Margin, view.MinSize, view.SetSize,
@@ -121,6 +125,7 @@ public sealed partial class ShuttleConsoleWindow
             ((Content.Client._DeepLagoon.Shuttles.CombatShuttleNavControl)CombatRadar).StopFiring();
         for (var i = 0; i < _views.Length; i++)
             _views[i].Visible = !_statusMode && i == (int)_mode && _viewport.Z > 0 && _viewport.W > 0;
+        _hullMap.Visible = _statusMode && _viewport.Z > 0 && _viewport.W > 0;
         _publishTimer = 0;
     }
 
@@ -174,6 +179,7 @@ public sealed partial class ShuttleConsoleWindow
             UpdateTguiMode();
         }
         else if (action == "close") Close();
+        else if (action == "resetHullHistory") ResetHullHistory?.Invoke();
         else if (action == "nav") NavContainer.TguiAction(args!);
         else if (action == "weapon") CombatPanel.TguiAction(args!);
         else if (action == "map") MapContainer.TguiAction(args!);
@@ -186,6 +192,8 @@ public sealed partial class ShuttleConsoleWindow
         base.FrameUpdate(args);
         if (!VisibleInTree || _nativeConsole) return;
         var size = ContentsContainer.Size;
+        LayoutContainer.SetPosition(_hullMap, new Vector2(_viewport.X * size.X, _viewport.Y * size.Y));
+        _hullMap.SetSize = new Vector2(_viewport.Z * size.X, _viewport.W * size.Y);
         foreach (var view in _views)
         {
             LayoutContainer.SetPosition(view, new Vector2(_viewport.X * size.X, _viewport.Y * size.Y));

@@ -29,6 +29,7 @@ public sealed partial class ShipShieldsSystem : EntitySystem
     [Dependency] private FixtureSystem _fixtureSystem = default!;
     [Dependency] private PhysicsSystem _physicsSystem = default!;
     [Dependency] private PvsOverrideSystem _pvsSys = default!;
+    [Dependency] private SharedMapSystem _shieldMaps = default!;
 
     private EntityQuery<ProjectileComponent> _projectileQuery;
     private EntityQuery<ShipWeaponProjectileComponent> _shipWeaponProjectileQuery;
@@ -206,7 +207,7 @@ public sealed partial class ShipShieldsSystem : EntitySystem
         _transformSystem.SetCoordinates(shield, gridCenter);
         _transformSystem.SetWorldRotation(shield, _transformSystem.GetWorldRotation(entity));
 
-        var chain = GenerateOvalFixture(shield, "shield", shieldPhysics, mapGrid, shieldVisuals.Padding);
+        var chain = GenerateOvalFixture(shield, "shield", shieldPhysics, entity, mapGrid, shieldVisuals.Padding);
 
         List<Vector2> roughPoly = new();
 
@@ -250,41 +251,31 @@ public sealed partial class ShipShieldsSystem : EntitySystem
         return true;
     }
 
-    private ChainShape GenerateOvalFixture(EntityUid uid, string name, PhysicsComponent physics, MapGridComponent mapGrid, float padding)
+    private ChainShape GenerateOvalFixture(EntityUid uid, string name, PhysicsComponent physics, EntityUid gridUid, MapGridComponent mapGrid, float padding)
     {
-        float radius;
-        float scale;
-        var scaleX = true;
-
-        var height = mapGrid.LocalAABB.Height + padding;
-        var width = mapGrid.LocalAABB.Width + padding;
-
-        if (width > height)
+        var radii = ShipShieldGeometry.GetRadii(mapGrid.LocalAABB.Size, padding);
+        var center = mapGrid.LocalAABB.Center;
+        var expansion = 1f;
+        var tileSize = mapGrid.TileSize;
+        foreach (var tile in _shieldMaps.GetAllTiles(gridUid, mapGrid))
         {
-            radius = 0.5f * height;
-            scale = width / height;
-        }
-        else
-        {
-            radius = 0.5f * width;
-            scale = height / width;
-            scaleX = false;
+            var min = (Vector2) tile.GridIndices * tileSize;
+            var bounds = new Box2(min, min + new Vector2(tileSize)).Enlarged(tileSize * 0.5f);
+            expansion = MathF.Max(expansion, ShipShieldGeometry.GetEnclosingScale(bounds, center, radii));
         }
 
+        // Fixed padding alone becomes too small on large grids: the oval opening
+        // otherwise cuts through their extremities. Expand the shared visual/physics
+        // boundary only as far as needed, with half a tile of clearance at the opening.
+        radii *= expansion;
+        var radius = MathF.Min(radii.X, radii.Y);
         var chain = new ChainShape();
 
         chain.CreateLoop(Vector2.Zero, radius);
 
         for (int i = 0; i < chain.Vertices.Length; i++)
         {
-            if (scaleX)
-            {
-                chain.Vertices[i].X *= scale;
-            }
-            else
-            {
-                chain.Vertices[i].Y *= scale;
-            }
+            chain.Vertices[i] *= radii / radius;
         }
 
         _fixtureSystem.TryCreateFixture(uid, chain, name,

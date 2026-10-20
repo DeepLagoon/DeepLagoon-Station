@@ -3,12 +3,16 @@ using Robust.Shared.Serialization;
 namespace Content.Shared.Shuttles.BUIStates;
 
 /// <summary>
-/// A bounded, abstract ship schematic. No sprites, entity identities or damage values are transmitted.
+/// Bounded damage overlay in grid tile coordinates, shared by the ship's consoles.
 /// Cells are row-major with increasing grid Y; bits: 1 footprint, 2 missing, 4 engine, 8 gun, 16 structure.
 /// </summary>
 [Serializable, NetSerializable]
 public sealed class ShuttleHullState
 {
+    public int OriginX;
+    public int OriginY;
+    public int CellSize = 1;
+    public string? SingleMissingName;
     public int Width;
     public int Height;
     public byte[] Cells = Array.Empty<byte>();
@@ -32,3 +36,6 @@ public sealed class ShuttleHullStateMessage(ShuttleHullState? state) : BoundUser
 {
     public ShuttleHullState? State = state;
 }
+
+[Serializable, NetSerializable]
+public sealed class ShuttleHullResetMessage : BoundUserInterfaceMessage;

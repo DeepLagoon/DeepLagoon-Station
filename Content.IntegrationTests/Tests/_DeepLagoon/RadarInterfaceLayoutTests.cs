@@ -18,6 +18,57 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class RadarInterfaceLayoutTests
 {
     [Test]
+    public async Task RepeatedRadarSwitchesKeepThePresentationAndCloseButtonVisible()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var cfg = pair.Client.ResolveDependency<IConfigurationManager>();
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 1);
+            cfg.SetCVar(WebUiCVars.WindowStyles, "");
+            foreach (var closeInNative in new[] { false, true })
+            {
+                var mass = new RadarConsoleWindow();
+                var handheld = new RadarConsoleWindow();
+                handheld.SetHandheld(true);
+                var gunner = new Content.Client._Mono.FireControl.UI.FireControlWindow();
+                var cases = new (FancyWindow Window, TguiPanel Panel)[]
+                {
+                    (mass, mass.ConsoleHost!.Tgui),
+                    (handheld, handheld.ConsoleHost!.Tgui),
+                    (gunner, gunner.ConsoleHost!.Tgui),
+                };
+                foreach (var (window, panel) in cases)
+                {
+                    window.OpenCentered();
+                    var closeButton = window.FindControl<TextureButton>("CloseButton");
+                    for (var cycle = 0; cycle < 12; cycle++)
+                    {
+                        panel.SwitchToNative();
+                        Assert.That(closeButton.VisibleInTree, Is.True, window.GetType().Name);
+                        Assert.That(Descendants(window).OfType<ShuttleNavControl>().Single().VisibleInTree, Is.True);
+                        Assert.That(panel.SwitchToTgui(), Is.True);
+                        Assert.That(panel.VisibleInTree, Is.True,
+                            "TGUI must remain visible after switching: " + window.GetType().Name);
+                        Assert.That(closeButton.VisibleInTree, Is.True,
+                            "The shared window header must remain visible: " + window.GetType().Name);
+                    }
+                    if (closeInNative) panel.SwitchToNative();
+                    var closed = false;
+                    window.OnClose += () => closed = true;
+                    window.Close();
+                    Assert.That(closed, Is.True);
+                    Assert.That(window.IsOpen, Is.False);
+#pragma warning disable CS0618
+                    window.Dispose();
+#pragma warning restore CS0618
+                }
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ReturningToNativeRestoresVisibleRadarGeometryInEveryConsole()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -32,7 +83,8 @@ public sealed class RadarInterfaceLayoutTests
             var handheld = new RadarConsoleWindow();
             handheld.SetHandheld(true);
             var pilotViews = Descendants(pilot).OfType<MapGridControl>()
-                .Where(view => view.Parent == pilot.CombatRadar.Parent).ToArray();
+                .Where(view => view.Parent == pilot.CombatRadar.Parent
+                    && view is not Content.Client._DeepLagoon.Shuttles.ShuttleHullNavMapControl).ToArray();
             Assert.That(pilotViews.Length, Is.EqualTo(3));
             var cases = new (BaseWindow Window, TguiPanel Panel, MapGridControl[] Views)[]
             {

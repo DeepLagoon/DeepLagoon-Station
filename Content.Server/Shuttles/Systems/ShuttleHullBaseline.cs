@@ -17,7 +17,10 @@ public sealed class ShuttleHullBaseline
 
     private readonly Dictionary<(Vector2i Tile, byte Kind), int> _expected = new();
     private readonly Dictionary<(Vector2i Tile, byte Kind), int> _previousMissing = new();
+    private readonly Dictionary<(Vector2i Tile, byte Kind), int> _newlyMissing = new();
     public ShuttleHullState NewLosses { get; private set; } = new();
+    public int ExpectedAt(Vector2i tile, byte kind) => _expected.GetValueOrDefault((tile, kind));
+    public int NewlyMissingAt(Vector2i tile, byte kind) => _newlyMissing.GetValueOrDefault((tile, kind));
 
     public void Record(Vector2i tile, byte kind, int count = 1)
     {
@@ -32,6 +35,7 @@ public sealed class ShuttleHullBaseline
 
         var state = new ShuttleHullState();
         NewLosses = new ShuttleHullState();
+        _newlyMissing.Clear();
         if (_expected.Count == 0)
             return state;
 
@@ -47,6 +51,9 @@ public sealed class ShuttleHullBaseline
         var spanX = (long) max.X - min.X + 1;
         var spanY = (long) max.Y - min.Y + 1;
         var bucket = Math.Max(1L, (Math.Max(spanX, spanY) + MaxResolution - 1) / MaxResolution);
+        state.OriginX = min.X;
+        state.OriginY = min.Y;
+        state.CellSize = (int) bucket;
         state.Width = (int) ((spanX + bucket - 1) / bucket);
         state.Height = (int) ((spanY + bucket - 1) / bucket);
         state.Cells = new byte[state.Width * state.Height];
@@ -55,6 +62,8 @@ public sealed class ShuttleHullBaseline
         {
             var missing = Math.Max(0, expected - current.GetValueOrDefault(key));
             var newlyMissing = Math.Max(0, missing - _previousMissing.GetValueOrDefault(key));
+            if (newlyMissing > 0)
+                _newlyMissing[key] = newlyMissing;
             _previousMissing[key] = missing;
             var x = (int) (((long) key.Tile.X - min.X) / bucket);
             var y = (int) (((long) key.Tile.Y - min.Y) / bucket);

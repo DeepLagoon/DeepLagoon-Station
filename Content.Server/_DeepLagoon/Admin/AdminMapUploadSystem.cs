@@ -38,7 +38,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         public readonly Guid Request = request;
         public readonly EntityUid Ghost = ghost;
         public readonly byte[] Bytes = new byte[length];
-        public readonly TimeSpan Expires = expires;
+        public TimeSpan Expires = expires;
         public int Offset;
     }
 
@@ -120,8 +120,8 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
 
         ev.Bytes.CopyTo(upload.Bytes, upload.Offset);
         upload.Offset += ev.Bytes.Length;
-        if (upload.Offset % (8 * AdminMapUploadLimits.ChunkBytes) == 0 || upload.Offset == upload.Bytes.Length)
-            RaiseNetworkEvent(new AdminMapUploadProgressEvent(ev.Request, upload.Offset, upload.Bytes.Length), session);
+        upload.Expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
+        RaiseNetworkEvent(new AdminMapUploadProgressEvent(ev.Request, upload.Offset, upload.Bytes.Length), session);
         if (upload.Offset != upload.Bytes.Length)
             return;
 

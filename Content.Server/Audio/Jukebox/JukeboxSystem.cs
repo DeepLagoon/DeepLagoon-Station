@@ -34,6 +34,7 @@ public sealed partial class JukeboxSystem : SharedJukeboxSystem
         SubscribeLocalEvent<JukeboxComponent, JukeboxSetGainMessage>(OnGain);
         SubscribeLocalEvent<JukeboxComponent, JukeboxQueueMessage>(OnQueue);
         SubscribeLocalEvent<JukeboxComponent, JukeboxLibraryRequest>(OnLibrary);
+        SubscribeLocalEvent<JukeboxComponent, JukeboxMetadataRequest>(OnMetadata);
         SubscribeLocalEvent<JukeboxComponent, BoundUIOpenedEvent>(OnOpened);
         SubscribeLocalEvent<JukeboxComponent, ComponentInit>((Entity<JukeboxComponent> e, ref ComponentInit _) => TryUpdateVisualState(e));
         SubscribeLocalEvent<JukeboxComponent, PowerChangedEvent>(OnPower);
@@ -58,6 +59,20 @@ public sealed partial class JukeboxSystem : SharedJukeboxSystem
         if (!_lengths.TryGetValue(track.ID, out var length))
             _lengths[track.ID] = length = (float) Audio.GetAudioLength(new ResolvedPathSpecifier(track.Path.Path.ToString())).TotalSeconds;
         return length;
+    }
+
+    private void OnMetadata(Entity<JukeboxComponent> ent, ref JukeboxMetadataRequest args)
+    {
+        // One visible page plus the selected song. BUI dispatch validates the actor.
+        if (args.Tracks == null || args.Tracks.Length > 26) return;
+        var lengths = new Dictionary<string, float>();
+        foreach (var id in args.Tracks)
+        {
+            if (!JukeboxRules.ValidTrack(id) || lengths.ContainsKey(id) ||
+                !_protoManager.TryIndex<JukeboxPrototype>(id, out var track)) continue;
+            lengths[id] = Length(track);
+        }
+        _ui.ServerSendUiMessage(ent.Owner, JukeboxUiKey.Key, new JukeboxMetadataMessage(lengths), args.Actor);
     }
 
     private void Publish(Entity<JukeboxComponent> ent)

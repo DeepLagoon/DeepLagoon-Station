@@ -1,7 +1,6 @@
 using System.Linq;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Shared.Audio.Jukebox;
-using Robust.Client.Audio;
 using Robust.Client.UserInterface;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Components;
@@ -25,6 +24,7 @@ public sealed partial class JukeboxBoundUserInterface
     private bool OpenTgui()
     {
         if (_classic || !WindowInterfaceStyle.UseTgui("Jukebox")) return false;
+        _readyWait = _refresh = 0;
         _tguiWindow = new JukeboxTguiWindow();
         _tguiWindow.OnClose += Close;
         WindowInterfaceStyle.OpenPresentation(this, _tguiWindow, _menu);
@@ -77,6 +77,8 @@ public sealed partial class JukeboxBoundUserInterface
         if (!_tguiWindow.Panel.Web.IsReady && (_readyWait += seconds) > 8) { DeferClassic(); return; }
         if ((_refresh += seconds) < 0.25f) return;
         _refresh = 0;
+        PollCatalog();
+        RequestMetadata();
         PublishTgui();
     }
 
@@ -84,28 +86,34 @@ public sealed partial class JukeboxBoundUserInterface
     {
         if (_tguiWindow == null) return;
         _trackLengths.Clear();
-        var audio = EntMan.System<AudioSystem>();
-        var catalog = _protoManager.EnumeratePrototypes<JukeboxPrototype>().OrderBy(t => t.Name, StringComparer.CurrentCulture).Select(t =>
-        {
-            var length = (float) audio.GetAudioLength(t.Path.Path.ToString()).TotalSeconds;
-            _trackLengths[t.ID] = length;
-            return new TguiData().String("id", t.ID).String("name", t.Name).Number("length", length);
-        }).ToArray();
+        _metadataRequested.Clear();
+        BrowseCatalog();
         var labels = new TguiData();
         foreach (var key in Labels.Concat(new[] { "seek", "position" })) labels.String(key, Loc.GetString("dl-jukebox-" + key));
-        _tguiWindow.Panel.SetStaticData(new TguiData().Array("tracks", catalog).Object("labels", labels).ToString());
+        _tguiWindow.Panel.SetStaticData(new TguiData().Object("labels", labels).ToString());
         PublishTgui();
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)
     {
         base.UpdateState(state);
-        if (state is JukeboxState queue) { _queue = queue; PublishTgui(); }
+        if (state is JukeboxState queue)
+        {
+            _queue = queue;
+            if (_catalogTab == "queue") BrowseCatalog();
+            PublishTgui();
+        }
     }
 
     protected override void ReceiveMessage(BoundUserInterfaceMessage message)
     {
         base.ReceiveMessage(message);
+        if (message is JukeboxMetadataMessage metadata)
+        {
+            foreach (var (id, length) in metadata.Lengths) _trackLengths[id] = length;
+            Reload();
+            return;
+        }
         if (message is not JukeboxLibraryMessage library) return;
         if (library.Revision >= 0 && JukeboxRules.ValidLibrary(library.Library) && library.Status != "save-error")
         {
@@ -114,6 +122,7 @@ public sealed partial class JukeboxBoundUserInterface
         }
         _libraryBusy = library.Busy;
         _libraryStatus = library.Status;
+        if (_catalogTab is "favorites" or "playlists") BrowseCatalog();
         PublishTgui();
     }
 
@@ -131,7 +140,13 @@ public sealed partial class JukeboxBoundUserInterface
             if (playing || paused)
                 position = (float) ((audio.PauseTime ?? IoCManager.Resolve<IGameTiming>().CurTime) - audio.AudioStart).TotalSeconds;
         }
-        var data = new TguiData().String("selected", selected).Number("position", Math.Clamp(position, 0, _trackLengths.GetValueOrDefault(selected)))
+        var data = new TguiData()
+            .Array("tracks", _page.Rows.Select(e => e.Track).Append(selected).Where(id => id.Length > 0).Distinct().Select(TrackData))
+            .Array("rows", _page.Rows.Select(e => new TguiData().String("id", e.Id).String("track", e.Track).Number("sourceIndex", e.SourceIndex)))
+            .Number("total", _page.Total).Number("sourceCount", _page.SourceCount).Number("page", _page.Index)
+            .Number("catalogCount", _catalog?.Count ?? 0)
+            .Bool("catalogBusy", _browse != null).String("catalogTab", _pageTab)
+            .String("selected", selected).Number("position", Math.Clamp(position, 0, _trackLengths.GetValueOrDefault(selected)))
             .Bool("playing", playing).Bool("paused", paused).Bool("powered", _queue.Powered).Number("gain", jukebox.Gain)
             .Number("repeat", (int) _queue.Repeat).Number("revision", _queue.Revision)
             .Array("queue", _queue.Queue.Select(t => new TguiData().String("id", t.Id).String("track", t.Track)))
@@ -148,6 +163,24 @@ public sealed partial class JukeboxBoundUserInterface
         if (action == "focus") { _tguiWindow?.Panel.Web.FocusTextInput(); return; }
         if (action == "classic") { DeferClassic(); return; }
         if (!TguiActionData.TryParse(payload, out var data, JukeboxRules.MaxJson + 8192) || data == null) return;
+        if (action == "browse")
+        {
+            var tab = data.String("tab") ?? "catalog";
+            if (tab is not ("catalog" or "favorites" or "queue" or "playlists")) return;
+            _catalogTab = tab;
+            var query = data.String("query") ?? "";
+            _catalogQuery = query[..Math.Min(256, query.Length)];
+            _catalogPlaylist = data.String("playlist") ?? "";
+            data.TryInt("page", out _catalogPage);
+            _catalogPage = Math.Max(0, _catalogPage);
+            BrowseCatalog();
+            return;
+        }
+        if (action == "random")
+        {
+            if (_catalog?.RandomTrack() is { } random) SendMessage(new JukeboxQueueMessage(JukeboxAction.Add, random));
+            return;
+        }
         var id = data.String("id") ?? "";
         data.TryInt("index", out var index);
         if (action == "play") { SendMessage(new JukeboxPlayingMessage()); return; }

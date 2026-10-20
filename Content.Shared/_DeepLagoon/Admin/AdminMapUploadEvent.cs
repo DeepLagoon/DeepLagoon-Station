@@ -7,6 +7,7 @@ public static class AdminMapUploadLimits
 {
     public const int MaxBytes = 20 * 1024 * 1024;
     public const int ChunkBytes = 32 * 1024;
+    // Inactivity timeout during transfer; placement has its own deadline.
     public const int TimeoutSeconds = 5 * 60;
 }
 

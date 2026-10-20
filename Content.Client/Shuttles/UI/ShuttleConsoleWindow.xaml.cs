@@ -164,6 +164,13 @@ public sealed partial class ShuttleConsoleWindow : FancyWindow,
     public void UpdateState(EntityUid owner, ShuttleBoundUserInterfaceState cState)
     {
         var coordinates = _entManager.GetCoordinates(cState.NavState.Coordinates);
+        var hullGrid = coordinates?.EntityId;
+        if (_hullMap.MapUid != hullGrid)
+        {
+            _hullMap.MapUid = hullGrid;
+            _hullMap.Offset = _hullMap.TargetOffset = System.Numerics.Vector2.Zero;
+            _hullMap.ForceNavMapUpdate();
+        }
         NavContainer.SetShuttle(coordinates?.EntityId);
         NavContainer.SetConsole(owner);
         MapContainer.SetShuttle(coordinates?.EntityId);

@@ -1,8 +1,14 @@
 <ui:FancyWindow xmlns="https://spacestation14.io" xmlns:ui="clr-namespace:Content.Client.UserInterface.Controls"
                 SetSize="400 500" Title="{Loc 'jukebox-menu-title'}">
     <BoxContainer Margin="4 0" Orientation="Vertical">
+        <LineEdit Name="CatalogSearch" PlaceHolder="{Loc 'dl-jukebox-search'}" />
         <ItemList Name="MusicList" SelectMode="Button" Margin="3 3 3 3"
         HorizontalExpand="True" VerticalExpand="True" SizeFlagsStretchRatio="8"/>
+        <BoxContainer Orientation="Horizontal">
+            <Button Name="PreviousPage" Text="‹" Disabled="True" />
+            <Label Name="CatalogPage" Text="{Loc 'dl-jukebox-loading'}" HorizontalExpand="True" HorizontalAlignment="Center" />
+            <Button Name="NextPage" Text="›" Disabled="True" />
+        </BoxContainer>
         <!-- Exodus-begin Volume slider to jukebox  -->
         <BoxContainer Orientation="Vertical" HorizontalExpand="True"
                       VerticalExpand="False" SizeFlagsStretchRatio="1">

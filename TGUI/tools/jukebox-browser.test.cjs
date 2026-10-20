@@ -25,7 +25,9 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
         set src(url) {
           if (!url.startsWith('res://deeplagoon/Web/DeepLagoon/bridge?')) { super.src=url; return; }
           const [type,payload]=url.split('?')[1].split('&');
-          window.__sent.push({type:decodeURIComponent(type),payload:JSON.parse(decodeURIComponent(payload))});
+          const message={type:decodeURIComponent(type),payload:JSON.parse(decodeURIComponent(payload))};
+          window.__sent.push(message);
+          if (message.type === 'act/browse') window.nativeBrowse(message.payload);
           queueMicrotask(()=>this.onload?.(new Event('load')));
         }
       };
@@ -34,16 +36,41 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
     await page.waitForFunction(()=>window.__tguiAppBooted__);
     const locale=fs.readFileSync(path.resolve(__dirname,'../../Resources/Locale/ru-RU/_DeepLagoon/jukebox.ftl'),'utf8');
     const labels=Object.fromEntries([...locale.matchAll(/^dl-jukebox-([\w-]+) = (.*)$/gm)].map(m=>[m[1],m[2]]));
-    const tracks=Array.from({length:2000},(_,i)=>({id:`track${i}`,name:i===0?'Вечер в баре':`Track ${i}`,length:222+i%100}));
+    const tracks=Array.from({length:100000},(_,i)=>({id:`track${i}`,name:i===0?'Вечер в баре':`Track ${i}`,length:222+i%100}));
     const data={tracks,labels,selected:'track0',position:83,gain:.7,playing:true,paused:false,powered:true,repeat:0,revision:7,
       queue:[{id:'entry1',track:'track0'},{id:'entry2',track:'track0'},{id:'entry3',track:'track1'}],
       favorites:[{id:'track0'},{id:'missing'}],playlists:[{name:'Вечер',tracks:[{id:'track0'}]}],libraryLoaded:true,libraryBusy:false,status:''};
-    await page.evaluate(data=>window.update(JSON.stringify({type:'update',payload:{replaceData:true,config:{interface:'Jukebox',status:2,window:{key:'deeplagoon',fancy:false}},data}})),data);
+    const byId=new Map(tracks.map(t=>[t.id,t]));
+    await page.exposeFunction('nativeBrowse', async request => {
+      const source=request.tab==='queue' ? data.queue.map((e,i)=>({...e,sourceIndex:i}))
+        : (request.tab==='favorites' ? data.favorites.map(t=>t.id)
+          : request.tab==='playlists' ? data.playlists.find(p=>p.name===request.playlist)?.tracks.map(t=>t.id)||[]
+            : tracks.map(t=>t.id)).map((id,i)=>({id,track:id,sourceIndex:i}));
+      const filtered=request.tab==='queue' ? source : source.filter(e=>(byId.get(e.track)?.name||e.track).toLocaleLowerCase().includes((request.query||'').toLocaleLowerCase()));
+      const index=Math.min(Math.max(0,request.page||0),Math.max(0,Math.ceil(filtered.length/25)-1));
+      const rows=filtered.slice(index*25,index*25+25);
+      const visible=[...new Set([...rows.map(e=>e.track),data.selected])].map(id=>byId.get(id)||{id,name:id,length:0,available:false});
+      assert.ok(visible.length<=26,'Native bridge payload stays bounded');
+      await page.evaluate(view=>window.update(JSON.stringify({type:'update',payload:{data:view}})),
+        {tracks:visible,rows,catalogCount:tracks.length,total:filtered.length,sourceCount:source.length,page:index,catalogTab:request.tab,catalogBusy:false});
+    });
+    const initial={...data,tracks:[],rows:[],total:0,sourceCount:0,page:0,catalogBusy:true,catalogTab:'catalog'};
+    await page.evaluate(data=>window.update(JSON.stringify({type:'update',payload:{replaceData:true,config:{interface:'Jukebox',status:2,window:{key:'deeplagoon',fancy:false}},data}})),initial);
     await page.locator('.Jukebox__row').first().waitFor();
     assert.equal(await page.locator('.Jukebox__row').count(),25,'Bounded catalog DOM');
     assert.equal(await page.getByText('Общая очередь автомата · личное избранное').count(),0);
     const wood=await page.locator('.Jukebox').evaluate(el=>getComputedStyle(el).backgroundImage);
     assert.ok(wood.includes('repeating-radial-gradient'),'Static wood grain');
+    await page.getByRole('button',{name:'›',exact:true}).click();
+    await page.getByText('2/4000',{exact:true}).waitFor();
+    assert.equal(await page.locator('.Jukebox__row').count(),25);
+    await page.getByRole('button',{name:'‹',exact:true}).click();
+    await page.getByText('1/4000',{exact:true}).waitFor();
+    await page.getByRole('searchbox').fill('Track 99999');
+    await page.getByText('Track 99999',{exact:true}).waitFor();
+    assert.equal(await page.locator('.Jukebox__row').count(),1,'Search reaches beyond the visible page');
+    await page.getByRole('searchbox').fill('');
+    await page.waitForFunction(()=>document.querySelectorAll('.Jukebox__row').length===25);
     const action=async(type)=>page.evaluate(type=>window.__sent.filter(m=>m.type===`act/${type}`).at(-1),type);
     await page.getByRole('button',{name:'Очередь · 3',exact:true}).click();
     await page.locator('.Jukebox__row').nth(1).getByRole('button',{name:'Переместить выше',exact:true}).click();
@@ -58,9 +85,11 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
     await page.waitForFunction(()=>window.__sent.some(m=>m.type==='act/gain'));
     assert.equal((await action('gain')).payload.value,.35);
     await page.getByRole('button',{name:'Избранное',exact:true}).click();
+    await page.getByText('Трек недоступен',{exact:true}).waitFor();
     assert.equal(await page.getByText('Трек недоступен',{exact:true}).count(),1);
     await page.getByRole('button',{name:'Каталог',exact:true}).click();
     await page.getByRole('searchbox').fill('Вечер');
+    await page.waitForFunction(()=>document.querySelectorAll('.Jukebox__row').length===1);
     assert.equal(await page.locator('.Jukebox__row').count(),1);
     await page.locator('.Jukebox__row').getByRole('button',{name:'В конец очереди',exact:true}).click();
     await page.waitForFunction(()=>window.__sent.some(m=>m.type==='act/add'));
@@ -100,6 +129,6 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
     await page.evaluate(()=>window.update(JSON.stringify({type:'update',payload:{data:{status:''}}})));
     await page.screenshot({path:process.env.JUKEBOX_SCREENSHOT || path.join(require('node:os').tmpdir(),'deeplagoon-jukebox.png'),omitBackground:true});
     assert.deepEqual(errors,[]);
-    console.log('PASS: production Jukebox, 2000-track pagination, duplicate-entry reorder/revision, repeat, volume, search, enqueue, unavailable tracks, Cyrillic playlist draft/error, 3 sizes, wood grain, removed footer.');
+    console.log('PASS: production Jukebox, 100000-track native pagination and bounded bridge, duplicate-entry reorder/revision, repeat, volume, search, enqueue, unavailable tracks, Cyrillic playlist draft/error, 3 sizes, wood grain, removed footer.');
   } finally { await browser?.close(); await new Promise(r=>server.close(r)); }
 })().catch(e=>{console.error(e);process.exitCode=1;});

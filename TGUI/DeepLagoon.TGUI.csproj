@@ -18,7 +18,7 @@
           Inputs="$(MSBuildProjectDirectory)/package.json;$(MSBuildProjectDirectory)/pnpm-lock.yaml;$(MSBuildProjectDirectory)/pnpm-workspace.yaml"
           Outputs="$(MSBuildProjectDirectory)/node_modules/.deeplagoon-restore">
     <Exec Command="$(TguiPackageManager) install --frozen-lockfile" WorkingDirectory="$(MSBuildProjectDirectory)"
-          EnvironmentVariables="PATH=$([MSBuild]::Escape('$(TguiBuildPath)'))" />
+          EnvironmentVariables="PATH=$([MSBuild]::Escape('$(TguiBuildPath)'));CI=true" />
     <Touch Files="$(MSBuildProjectDirectory)/node_modules/.deeplagoon-restore" AlwaysCreate="true" />
   </Target>
 
@@ -27,6 +27,6 @@
           Condition="'$(DesignTimeBuild)' != 'true'">
     <Message Text="DeepLagoon: rebuilding TGUI interface and chat bundles" Importance="high" />
     <Exec Command="$(TguiPackageManager) build" WorkingDirectory="$(MSBuildProjectDirectory)"
-          EnvironmentVariables="PATH=$([MSBuild]::Escape('$(TguiBuildPath)'))" />
+          EnvironmentVariables="PATH=$([MSBuild]::Escape('$(TguiBuildPath)'));CI=true" />
   </Target>
 </Project>

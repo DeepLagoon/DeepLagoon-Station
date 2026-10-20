@@ -22,6 +22,7 @@ using Robust.Server.GameStates;
 using Robust.Shared.Player;
 using Robust.Client.Input;
 using Robust.Client.Graphics;
+using Robust.Shared.Timing;
 using ClientUpload = Content.Client._DeepLagoon.Admin.AdminMapUploadSystem;
 using ServerUpload = Content.Server._DeepLagoon.Admin.AdminMapUploadSystem;
 
@@ -30,6 +31,105 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class AdminMapUploadTests
 {
+    private static async Task CleanReturnAsync(Content.IntegrationTests.Pair.TestPair pair)
+    {
+        // Detach while player data still exists, before the pool tears down the session.
+        await pair.Server.WaitPost(() =>
+        {
+            foreach (var session in pair.Server.PlayerMan.Sessions.ToArray())
+                pair.Server.PlayerMan.SetAttachedEntity(session, null);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task UploadWaitsForDialogAndStreamsChunksWithRenewedIdleTimeout()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        byte[] bytes = [];
+        await pair.Server.WaitPost(() =>
+        {
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(session);
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var map = maps.CreateMap(out var mapId);
+            var grid = maps.CreateGridEntity(mapId);
+            maps.SetTile(grid, Vector2i.Zero, new Tile(1));
+            using var writer = new StringWriter();
+            Assert.That(entities.System<MapLoaderSystem>().TrySaveGrid(grid, writer), Is.True);
+            var yaml = Encoding.UTF8.GetBytes(writer + "\n#");
+            bytes = new byte[32 * AdminMapUploadLimits.ChunkBytes + 17];
+            Array.Fill(bytes, (byte) ' ');
+            yaml.CopyTo(bytes, 0);
+            entities.DeleteEntity(grid);
+            var ghost = entities.SpawnEntity("MobObserver", new EntityCoordinates(map, Vector2.Zero));
+            pair.Server.PlayerMan.SetAttachedEntity(session, ghost);
+        });
+        await pair.RunTicksSync(30);
+
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var client = pair.Client.EntMan.System<ClientUpload>();
+        var server = pair.Server.EntMan.System<ServerUpload>();
+        var dialogsField = typeof(ClientUpload).GetField("_dialogs", flags)!;
+        var clientTimingField = typeof(ClientUpload).GetField("_timing", flags)!;
+        var serverTimingField = typeof(ServerUpload).GetField("_timing", flags)!;
+        var originalDialogs = dialogsField.GetValue(client);
+        var originalClientTiming = clientTimingField.GetValue(client);
+        var originalServerTiming = serverTimingField.GetValue(server);
+        var now = TimeSpan.Zero;
+        var clock = new Mock<IGameTiming>();
+        clock.SetupGet(timing => timing.RealTime).Returns(() => now);
+        var picked = new TaskCompletionSource<Stream?>();
+        var dialogs = new Mock<IFileDialogManager>();
+        dialogs.Setup(dialog => dialog.OpenFile(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
+            .Returns(picked.Task);
+        var received = new System.Collections.Generic.List<int>();
+        string result = null;
+        try
+        {
+            await pair.Server.WaitPost(() => serverTimingField.SetValue(server, clock.Object));
+            await pair.Client.WaitAssertion(() =>
+            {
+                dialogsField.SetValue(client, dialogs.Object);
+                clientTimingField.SetValue(client, clock.Object);
+                client.PickAndUpload(message => result = message, (offset, _) =>
+                {
+                    received.Add(offset);
+                    // Each acknowledgement takes four minutes: the whole transfer exceeds five.
+                    now += TimeSpan.FromMinutes(4);
+                });
+                now += TimeSpan.FromMinutes(6);
+                client.Update(0);
+                Assert.That(result, Is.Null, "Waiting in the file dialog must not time out");
+                Assert.That(typeof(ClientUpload).GetField("_expires", flags)!.GetValue(client), Is.Null);
+                picked.SetResult(new MemoryStream(bytes));
+            });
+            await pair.RunTicksSync(250);
+            await pair.Client.WaitAssertion(() =>
+            {
+                Assert.That(result, Is.EqualTo("dl-map-upload-preview"));
+                Assert.That(client.HasPreview, Is.True);
+                Assert.That(received.Last(), Is.EqualTo(bytes.Length));
+                Assert.That(received.Distinct().Count(), Is.EqualTo(34), "Initial zero plus every chunk is acknowledged");
+                Assert.That(now, Is.GreaterThan(TimeSpan.FromMinutes(100)));
+                client.CancelPlacement();
+            });
+            await pair.RunTicksSync(10);
+        }
+        finally
+        {
+            await pair.Client.WaitPost(() =>
+            {
+                client.CancelPlacement();
+                dialogsField.SetValue(client, originalDialogs);
+                clientTimingField.SetValue(client, originalClientTiming);
+            });
+            await pair.Server.WaitPost(() => serverTimingField.SetValue(server, originalServerTiming));
+        }
+        await CleanReturnAsync(pair);
+    }
+
     [Test]
     public async Task PrivatePreviewReplicatesOnlyForPlacementAndHandlesMoveRotateAndCancel()
     {
@@ -163,7 +263,7 @@ public sealed class AdminMapUploadTests
             while (query.MoveNext(out _, out _, out var xform))
                 Assert.That(xform.MapUid, Is.Not.EqualTo(destination), "Cancelled preview must not create a live grid");
         });
-        await pair.CleanReturnAsync();
+        await CleanReturnAsync(pair);
     }
 
     [TestCase("AdminObserver")]
@@ -212,7 +312,7 @@ public sealed class AdminMapUploadTests
                 field.SetValue(system, original);
             }
         });
-        await pair.CleanReturnAsync();
+        await CleanReturnAsync(pair);
     }
 
     [Test]
@@ -243,7 +343,7 @@ public sealed class AdminMapUploadTests
             Assert.That(status.Text, Is.EqualTo(Robust.Shared.Localization.Loc.GetString("dl-map-upload-denied")));
             window.Close();
         });
-        await pair.CleanReturnAsync();
+        await CleanReturnAsync(pair);
     }
 
     [TestCase(false)]
@@ -322,7 +422,7 @@ public sealed class AdminMapUploadTests
             Assert.That(maps.GetAllMapIds().Count(), Is.EqualTo(beforeMaps));
             entities.DeleteEntity(destination);
         });
-        await pair.CleanReturnAsync();
+        await CleanReturnAsync(pair);
     }
 
     [Test]
@@ -481,6 +581,6 @@ public sealed class AdminMapUploadTests
             server.PlayerMan.SetAttachedEntity(session, body);
             Assert.That(system.CanUpload(session), Is.False);
         });
-        await pair.CleanReturnAsync();
+        await CleanReturnAsync(pair);
     }
 }

@@ -30,6 +30,7 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
         _window = this.CreateWindow<ShuttleConsoleWindow>();
 
         _window.RequestFTL += OnFTLRequest;
+        _window.ResetHullHistory += () => SendMessage(new ShuttleHullResetMessage());
         _window.RequestBeaconFTL += OnFTLBeaconRequest;
         _window.RequestAutopilot += OnAutopilotRequest; // Mono
         _window.DockRequest += OnDockRequest;

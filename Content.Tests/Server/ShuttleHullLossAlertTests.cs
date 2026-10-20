@@ -9,6 +9,20 @@ namespace Content.Tests.Server;
 public sealed class ShuttleHullLossAlertTests
 {
     [Test]
+    public void SingleNewLossKeepsItsNameAndCoalescedLossesDoNotNameOneObject()
+    {
+        var alert = new ShuttleHullLossAlert();
+        alert.ObserveNewLosses(new ShuttleHullState { ExpectedThrusters = 2 }, new ShuttleHullState());
+        alert.ObserveNewLosses(new ShuttleHullState { ExpectedThrusters = 2, MissingThrusters = 1 },
+            new ShuttleHullState { MissingThrusters = 1, SingleMissingName = "port engine" });
+        Assert.That(alert.SingleMissingName, Is.EqualTo("port engine"));
+        alert.ObserveNewLosses(new ShuttleHullState { ExpectedThrusters = 2, MissingThrusters = 2 },
+            new ShuttleHullState { MissingThrusters = 1, SingleMissingName = "starboard engine" });
+        Assert.That(alert.Total, Is.EqualTo(2));
+        Assert.That(alert.SingleMissingName, Is.Null);
+    }
+
+    [Test]
     public void InitialAndUnchangedLossesDoNotTriggerAlarm()
     {
         var alert = new ShuttleHullLossAlert();

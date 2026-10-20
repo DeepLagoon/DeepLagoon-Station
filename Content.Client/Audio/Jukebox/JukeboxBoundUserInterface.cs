@@ -1,5 +1,4 @@
 using Content.Shared.Audio.Jukebox;
-using Robust.Client.Audio;
 using Robust.Client.UserInterface;
 using Robust.Shared.Audio.Components;
 using Robust.Shared.Prototypes;
@@ -82,8 +81,8 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
 
         if (_protoManager.TryIndex(jukebox.SelectedSongId, out var songProto))
         {
-            var length = EntMan.System<AudioSystem>().GetAudioLength(songProto.Path.Path.ToString());
-            _menu.SetSelectedSong(songProto.Name, (float) length.TotalSeconds);
+            _menu.SetSelectedSong(songProto.Name, _trackLengths.GetValueOrDefault(songProto.ID));
+            if (_metadataRequested.Add(songProto.ID)) SendMessage(new JukeboxMetadataRequest([songProto.ID]));
         }
         else
         {
@@ -93,8 +92,10 @@ public sealed partial class JukeboxBoundUserInterface : BoundUserInterface
 
     public void PopulateMusic()
     {
+        _trackLengths.Clear();
+        _metadataRequested.Clear();
         PopulateTguiCatalog();
-        _menu?.Populate(_protoManager.EnumeratePrototypes<JukeboxPrototype>());
+        _menu?.Populate(EntMan.System<JukeboxSystem>().Catalog);
     }
 
     public void SelectSong(ProtoId<JukeboxPrototype> songid)
