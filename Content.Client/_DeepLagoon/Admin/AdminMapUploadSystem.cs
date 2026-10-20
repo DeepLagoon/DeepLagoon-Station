@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using Content.Shared.GameTicking;
 using Content.Client.Administration.Managers;
 using Content.Shared._DeepLagoon.Admin;
@@ -19,7 +18,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     // state to this network manager, so it survives that reset without crossing clients.
     private sealed record ResumeState(Guid Request, byte[] Bytes, string Name, string Hash,
         int Received, TimeSpan Expires, string Endpoint);
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IClientNetManager, ResumeState> Pending = new();
+    private static readonly List<(WeakReference<IClientNetManager> Net, ResumeState State)> Pending = new();
     [Dependency] private IFileDialogManager _dialogs = default!;
     [Dependency] private IClientAdminManager _admins = default!;
     [Dependency] private IPlayerManager _players = default!;
@@ -111,11 +110,21 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             LibraryChanged?.Invoke();
         });
         InitializePlacement();
-        if (Pending.TryGetValue(_net, out var pending))
+        // Weak keys keep separate clients isolated without retaining their network managers.
+        // ConditionalWeakTable is unavailable in the official content sandbox.
+        for (var i = Pending.Count - 1; i >= 0; i--)
         {
-            Pending.Remove(_net);
-            if (pending.Expires > _timing.RealTime)
+            var (reference, pending) = Pending[i];
+            if (!reference.TryGetTarget(out var net))
             {
+                Pending.RemoveAt(i);
+                continue;
+            }
+            if (ReferenceEquals(net, _net))
+            {
+                Pending.RemoveAt(i);
+                if (pending.Expires <= _timing.RealTime)
+                    continue;
                 _request = pending.Request;
                 _uploadBytes = pending.Bytes;
                 _uploadName = pending.Name;
@@ -152,8 +161,9 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         _progress = progress;
         try
         {
-            await using var file = await _dialogs.OpenFile(
+            var (stream, name) = await _dialogs.GetFileAndName(
                 new FileDialogFilters(new FileDialogFilters.Group("yml", "yaml")), FileAccess.Read);
+            await using var file = stream;
             if (_request != request)
                 return;
             if (file == null)
@@ -196,10 +206,10 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             }
 
             var bytes = data.ToArray();
-            _uploadName = file is FileStream fs ? Path.GetFileName(fs.Name) : "grid.yml";
+            _uploadName = name ?? "grid.yml";
             if (_uploadName.Length > 128)
                 _uploadName = _uploadName[..128];
-            _uploadHash = Convert.ToHexString(SHA256.HashData(bytes));
+            _uploadHash = AdminMapUploadHash.Compute(bytes);
             _uploadBytes = bytes;
             _sentOffset = 0;
             _receivedOffset = -1;
@@ -338,13 +348,15 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
 
     public override void Shutdown()
     {
-        Pending.Remove(_net);
+        Pending.RemoveAll(entry => !entry.Net.TryGetTarget(out var net) ||
+            ReferenceEquals(net, _net));
         // During Disconnect callbacks the network manager may still report connected.
         if (_request is { } request && _uploadBytes is { } bytes &&
             _serverEndpoint is { } endpoint && _expires is { } expires && expires > _timing.RealTime)
         {
-            Pending.Add(_net, new ResumeState(request, bytes, _uploadName, _uploadHash,
-                _receivedOffset, expires, endpoint));
+            Pending.Add((new WeakReference<IClientNetManager>(_net),
+                new ResumeState(request, bytes, _uploadName, _uploadHash,
+                    _receivedOffset, expires, endpoint)));
         }
         ShutdownPlacement();
         Finish("dl-map-upload-interrupted");

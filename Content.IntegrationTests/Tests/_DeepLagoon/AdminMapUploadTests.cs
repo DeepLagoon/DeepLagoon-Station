@@ -183,9 +183,9 @@ public sealed class AdminMapUploadTests
         var now = TimeSpan.Zero;
         var clock = new Mock<IGameTiming>();
         clock.SetupGet(timing => timing.RealTime).Returns(() => now);
-        var picked = new TaskCompletionSource<Stream?>();
+        var picked = new TaskCompletionSource<(Stream?, string?)>();
         var dialogs = new Mock<IFileDialogManager>();
-        dialogs.Setup(dialog => dialog.OpenFile(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
+        dialogs.Setup(dialog => dialog.GetFileAndName(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
             .Returns(picked.Task);
         var received = new System.Collections.Generic.List<int>();
         string result = null;
@@ -206,7 +206,7 @@ public sealed class AdminMapUploadTests
                 client.Update(0);
                 Assert.That(result, Is.Null, "Waiting in the file dialog must not time out");
                 Assert.That(typeof(ClientUpload).GetField("_expires", flags)!.GetValue(client), Is.Null);
-                picked.SetResult(new MemoryStream(bytes));
+                picked.SetResult((new MemoryStream(bytes), "selected-map.yaml"));
             });
             await pair.RunTicksSync(250);
             await pair.Client.WaitAssertion(() =>
@@ -390,8 +390,8 @@ public sealed class AdminMapUploadTests
             var system = pair.Client.EntMan.System<ClientUpload>();
             Assert.That(system.CanUpload, Is.True, "The server-authorized admin ghost must pass the client gate");
             var dialogs = new Mock<IFileDialogManager>();
-            dialogs.Setup(dialog => dialog.OpenFile(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
-                .Returns(Task.FromResult<Stream?>(null));
+            dialogs.Setup(dialog => dialog.GetFileAndName(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
+                .Returns(Task.FromResult<(Stream?, string?)>((null, null)));
             var field = typeof(ClientUpload).GetField("_dialogs", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var original = field.GetValue(system);
             field.SetValue(system, dialogs.Object);
@@ -408,7 +408,7 @@ public sealed class AdminMapUploadTests
                 foreach (var state in new[] { BoundKeyState.Down, BoundKeyState.Up })
                     ui.GetType().GetMethod(state == BoundKeyState.Down ? "KeyBindDown" : "KeyBindUp")!
                         .Invoke(ui, [new BoundKeyEventArgs(EngineKeyFunctions.UIClick, state, coordinates, true)]);
-                dialogs.Verify(dialog => dialog.OpenFile(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()), Times.Once);
+                dialogs.Verify(dialog => dialog.GetFileAndName(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()), Times.Once);
                 Assert.That(button.Disabled, Is.False, "Cancel must re-enable the button");
             }
             finally
