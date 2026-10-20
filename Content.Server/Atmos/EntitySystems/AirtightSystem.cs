@@ -19,7 +19,6 @@ namespace Content.Server.Atmos.EntitySystems
             SubscribeLocalEvent<AirtightComponent, ComponentInit>(OnAirtightInit);
             SubscribeLocalEvent<AirtightComponent, ComponentShutdown>(OnAirtightShutdown);
             SubscribeLocalEvent<AirtightComponent, AnchorStateChangedEvent>(OnAirtightPositionChanged);
-            SubscribeLocalEvent<AirtightComponent, ReAnchorEvent>(OnAirtightReAnchor);
             SubscribeLocalEvent<AirtightComponent, MoveEvent>(OnAirtightMoved);
         }
 
@@ -53,6 +52,12 @@ namespace Content.Server.Atmos.EntitySystems
         {
             var xform = Transform(uid);
 
+            // A grid split now unanchors on the old grid and anchors on the new one.
+            // Invalidate the cached tile before replacing it with the new position.
+            var previous = airtight.LastPosition;
+            if (TryComp<MapGridComponent>(previous.Item1, out var previousGrid))
+                InvalidatePosition((previous.Item1, previousGrid), previous.Item2);
+
             if (!TryComp(xform.GridUid, out MapGridComponent? grid))
                 return;
 
@@ -68,18 +73,7 @@ namespace Content.Server.Atmos.EntitySystems
             RaiseLocalEvent(uid, ref airtightEv, true);
         }
 
-        private void OnAirtightReAnchor(EntityUid uid, AirtightComponent airtight, ref ReAnchorEvent args)
-        {
-            foreach (var gridId in new[] { args.OldGrid, args.Grid })
-            {
-                // Update and invalidate new position.
-                airtight.LastPosition = (gridId, args.TilePos);
-                InvalidatePosition(gridId, args.TilePos);
 
-                var airtightEv = new AirtightChanged(uid, airtight, false, (gridId, args.TilePos));
-                RaiseLocalEvent(uid, ref airtightEv, true);
-            }
-        }
 
         private void OnAirtightMoved(Entity<AirtightComponent> ent, ref MoveEvent ev)
         {

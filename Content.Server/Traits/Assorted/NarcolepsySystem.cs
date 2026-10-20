@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Shared.Bed.Sleep;
 using Content.Shared.StatusEffect;
 using Robust.Shared.Random;
@@ -9,8 +10,7 @@ namespace Content.Server.Traits.Assorted;
 /// </summary>
 public sealed partial class NarcolepsySystem : EntitySystem
 {
-    [ValidatePrototypeId<StatusEffectPrototype>]
-    private const string StatusEffectKey = "ForcedSleep"; // Same one used by N2O and other sleep chems.
+    private static readonly ProtoId<StatusEffectPrototype> StatusEffectKey = "ForcedSleep"; // Same one used by N2O and other sleep chems.
 
     [Dependency] private StatusEffectsSystem _statusEffects = default!;
     [Dependency] private IRobustRandom _random = default!;

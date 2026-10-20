@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "official_engine_version": "288.1.2",
-  "official_engine_commit": "54eaed2bf96168bf0038f9886ed0094d7e1f9c62",
-  "engine_commit": "854b804e04191c5caf28d5c658110e0de51d3879",
+  "official_engine_version": "292.0.1",
+  "official_engine_commit": "26fc868a033836ae97389614f16298951b184df1",
+  "engine_commit": "4b3cf45060c80c2f0912b535fc5a2f17b75c956a",
   "allowed_engine_changes": {
     "Robust.Shared.IntegrationTests/Physics/InvalidFixtureTests.cs": "b9301fff353a61c87f5f7ab920f28c7c494afbc7",
     "Robust.Shared/Physics/Events/InvalidPhysicsFixtureEvent.cs": "7b7e010f183249acda71cddbadbd78c2fd697e7a",
     "Robust.Shared/Physics/Systems/FixtureSystem.Validation.cs": "5c659464d11df90394b2c5cf8b79505e3f3a4e04",
-    "Robust.Shared/Physics/Systems/FixtureSystem.cs": "281d08a5517189daed58443651fc4178e33094cc",
-    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Components.cs": "f5131c4ba9e33b609914b2db1da88f528c695b30"
+    "Robust.Shared/Physics/Systems/FixtureSystem.cs": "2d38e49a54508f4fe50b335fe8b46e66a158f269",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Components.cs": "5543df1690b8a17468fc62930d07a9b1fce9028f"
   }
 }

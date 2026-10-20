@@ -38,7 +38,7 @@ namespace Content.Shared.Localizations
 
             // Keep untranslated messages available in English on both client and server.
             _loc.SetCulture(culture);
-            _loc.SetFallbackCluture(cultureEn);
+            _loc.SetFallbackCulture(cultureEn);
 
             // English grammar functions are needed by fallback messages.
             _loc.AddFunction(cultureEn, "MAKEPLURAL", FormatMakePlural);

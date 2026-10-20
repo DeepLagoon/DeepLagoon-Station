@@ -163,8 +163,8 @@ public sealed class ClothingBodyFitSystem : EntitySystem
             // Lab coats, winter coats and ordinary thick fabric also use Armor for minor protection.
             // Substantial physical protection is treated as rigid unless the prototype explicitly opts in.
             _ => !TryComp<ArmorComponent>(item, out var armor) ||
-                 !armor.Modifiers.Coefficients.Any(p => p.Key is "Blunt" or "Slash" or "Piercing" && p.Value < .8f) &&
-                 !armor.Modifiers.FlatReduction.Any(p => p.Key is "Blunt" or "Slash" or "Piercing" && p.Value > 0),
+                 !armor.Modifiers.Coefficients.Any(p => p.Key.Id is "Blunt" or "Slash" or "Piercing" && p.Value < .8f) &&
+                 !armor.Modifiers.FlatReduction.Any(p => p.Key.Id is "Blunt" or "Slash" or "Piercing" && p.Value > 0),
         };
     }
 

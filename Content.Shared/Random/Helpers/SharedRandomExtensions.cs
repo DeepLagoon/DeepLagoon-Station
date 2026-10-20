@@ -42,7 +42,7 @@ namespace Content.Shared.Random.Helpers
             return Loc.GetString(prototype.Values[index]);
         }
 
-        public static string Pick(this IWeightedRandomPrototype prototype, System.Random random)
+        public static T Pick<T>(this IWeightedRandomPrototype<T> prototype, System.Random random) where T : notnull
         {
             var picks = prototype.Weights;
             var sum = picks.Values.Sum();
@@ -64,7 +64,7 @@ namespace Content.Shared.Random.Helpers
             throw new InvalidOperationException($"Invalid weighted pick for {prototype.ID}!");
         }
 
-        public static string Pick(this IWeightedRandomPrototype prototype, IRobustRandom? random = null)
+        public static T Pick<T>(this IWeightedRandomPrototype<T> prototype, IRobustRandom? random = null) where T : notnull
         {
             IoCManager.Resolve(ref random);
             var picks = prototype.Weights;

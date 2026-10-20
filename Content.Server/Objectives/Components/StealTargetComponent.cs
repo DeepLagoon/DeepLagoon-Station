@@ -1,7 +1,6 @@
 using Content.Server.Objectives.Systems;
 using Content.Shared.Objectives;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using Robust.Shared.Utility;
 
 namespace Content.Server.Objectives.Components.Targets;

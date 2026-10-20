@@ -45,8 +45,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
 
     [Dependency] private GrammarSystem _grammar = default!;
 
-    [ValidatePrototypeId<SpeciesPrototype>]
-    public const string DefaultSpecies = "Human";
+    public static readonly ProtoId<SpeciesPrototype> DefaultSpecies = "Human";
 
     public override void Initialize()
     {

@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
@@ -5,7 +6,6 @@ using Content.Shared.Chemistry.Reagent;
 using Content.Shared.FixedPoint;
 using Content.Shared.Fluids.Components;
 using Robust.Shared.Map;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using System.Linq;
 using Content.Server._Mono.ChimeraFloorCleaner;
 
@@ -29,8 +29,8 @@ public sealed partial class CleanTileReaction : ITileReaction
     /// <summary>
     /// What reagent to replace the tile conents with.
     /// </summary>
-    [DataField("reagent", customTypeSerializer: typeof(PrototypeIdSerializer<ReagentPrototype>))]
-    public string ReplacementReagent = "Water";
+    [DataField("reagent")]
+    public ProtoId<ReagentPrototype> ReplacementReagent = "Water";
 
     FixedPoint2 ITileReaction.TileReact(TileRef tile,
         ReagentPrototype reagent,

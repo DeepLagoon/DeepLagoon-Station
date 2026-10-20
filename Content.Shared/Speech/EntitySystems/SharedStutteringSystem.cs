@@ -1,11 +1,11 @@
+using Robust.Shared.Prototypes;
 using Content.Shared.StatusEffect;
 
 namespace Content.Shared.Speech.EntitySystems;
 
 public abstract partial class SharedStutteringSystem : EntitySystem
 {
-    [ValidatePrototypeId<StatusEffectPrototype>]
-    public const string StutterKey = "Stutter";
+    public static readonly ProtoId<StatusEffectPrototype> StutterKey = "Stutter";
 
     [Dependency] private StatusEffectsSystem _statusEffectsSystem = default!;
 

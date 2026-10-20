@@ -1,8 +1,7 @@
-﻿using Content.Shared.Stacks;
+using Content.Shared.Stacks;
 using Content.Shared.Whitelist;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype.List;
 
 namespace Content.Shared.Cargo.Prototypes;
 

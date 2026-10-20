@@ -64,8 +64,8 @@ public sealed partial class HealingSystem : EntitySystem
             return;
 
         if (healing.DamageContainers is not null &&
-            entity.Comp.DamageContainerID is not null &&
-            !healing.DamageContainers.Contains(entity.Comp.DamageContainerID))
+            entity.Comp.DamageContainerID is { } damageContainer &&
+            !healing.DamageContainers.Contains(damageContainer))
         {
             return;
         }
@@ -187,8 +187,8 @@ public sealed partial class HealingSystem : EntitySystem
             return false;
 
         if (component.DamageContainers is not null &&
-            targetDamage.DamageContainerID is not null &&
-            !component.DamageContainers.Contains(targetDamage.DamageContainerID))
+            targetDamage.DamageContainerID is { } damageContainer &&
+            !component.DamageContainers.Contains(damageContainer))
         {
             return false;
         }

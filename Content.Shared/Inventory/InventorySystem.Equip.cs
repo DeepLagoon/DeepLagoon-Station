@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Armor;
 using Content.Shared.Body.Components;
@@ -39,8 +40,7 @@ public abstract partial class InventorySystem
     [Dependency] private SharedStrippableSystem _strippable = default!;
     [Dependency] private SharedBodySystem _body = default!; // Mono
 
-    [ValidatePrototypeId<ItemSizePrototype>]
-    private const string PocketableItemSize = "Small";
+    private static readonly ProtoId<ItemSizePrototype> PocketableItemSize = "Small";
 
     private void InitializeEquip()
     {

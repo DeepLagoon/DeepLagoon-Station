@@ -25,6 +25,7 @@ public sealed partial class GunPredictionSystem : SharedGunPredictionSystem
     [Dependency] private ProjectileSystem _projectile = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _renderTransform = default!;
 
     private EntityQuery<IgnorePredictionHideComponent> _ignorePredictionHideQuery;
     private EntityQuery<SpriteComponent> _spriteQuery;
@@ -185,9 +186,9 @@ public sealed partial class GunPredictionSystem : SharedGunPredictionSystem
 
         // TODO bullet prediction remove this when lerping doesnt make the client's entity slightly slower
         var projectiles = EntityQueryEnumerator<PredictedProjectileClientComponent, TransformComponent>();
-        while (projectiles.MoveNext(out _, out var xform))
+        while (projectiles.MoveNext(out var uid, out _, out _))
         {
-            xform.ActivelyLerping = false;
+            _renderTransform.SnapRenderTransform(uid);
         }
     }
 }

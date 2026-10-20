@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Content.Server.Cargo.Systems;
 using Content.Server.Construction.Completions;
@@ -313,8 +314,8 @@ public sealed class MaterialArbitrageTest
             foreach (var (id, compositionComponent) in physicalCompositions)
             {
                 // Check cargo sell price
-                var materialPrice = await GetDeconstructedPrice(compositionComponent.MaterialComposition);
-                var chemicalPrice = await GetChemicalCompositionPrice(compositionComponent.ChemicalComposition);
+                var materialPrice = await GetDeconstructedPrice(compositionComponent.MaterialComposition.ToDictionary(pair => pair.Key.Id, pair => pair.Value));
+                var chemicalPrice = await GetChemicalCompositionPrice(compositionComponent.ChemicalComposition.ToDictionary(pair => pair.Key.Id, pair => pair.Value));
                 var sumPrice = materialPrice + chemicalPrice;
                 var price = await GetPrice(id);
                 if (sumPrice > 0 && price > 0)

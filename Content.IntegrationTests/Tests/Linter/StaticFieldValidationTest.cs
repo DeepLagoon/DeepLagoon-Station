@@ -27,8 +27,8 @@ public sealed class StaticFieldValidationTest
             protos.Add(kind, ids);
         }
 
-        Assert.That(protoMan.ValidateStaticFields(typeof(StringValid), protos), Is.Empty);
-        Assert.That(protoMan.ValidateStaticFields(typeof(StringArrayValid), protos), Is.Empty);
+        Assert.That(protoMan.ValidateStaticFields(typeof(NativeIdValid), protos), Is.Empty);
+        Assert.That(protoMan.ValidateStaticFields(typeof(NativeIdArrayValid), protos), Is.Empty);
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdValid), protos), Is.Empty);
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdTValid), protos), Is.Empty);
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdArrayValid), protos), Is.Empty);
@@ -39,8 +39,8 @@ public sealed class StaticFieldValidationTest
         Assert.That(protoMan.ValidateStaticFields(typeof(ProtoIdSetValid), protos), Is.Empty);
         Assert.That(protoMan.ValidateStaticFields(typeof(PrivateProtoIdArrayValid), protos), Is.Empty);
 
-        Assert.That(protoMan.ValidateStaticFields(typeof(StringInvalid), protos), Has.Count.EqualTo(1));
-        Assert.That(protoMan.ValidateStaticFields(typeof(StringArrayInvalid), protos), Has.Count.EqualTo(2));
+        Assert.That(protoMan.ValidateStaticFields(typeof(NativeIdInvalid), protos), Has.Count.EqualTo(1));
+        Assert.That(protoMan.ValidateStaticFields(typeof(NativeIdArrayInvalid), protos), Has.Count.EqualTo(2));
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdInvalid), protos), Has.Count.EqualTo(1));
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdTInvalid), protos), Has.Count.EqualTo(1));
         Assert.That(protoMan.ValidateStaticFields(typeof(EntProtoIdArrayInvalid), protos), Has.Count.EqualTo(2));
@@ -64,27 +64,27 @@ public sealed class StaticFieldValidationTest
 ";
 
     [Reflect(false)]
-    private sealed class StringValid
+    private sealed class NativeIdValid
     {
-        [ValidatePrototypeId<TagPrototype>] public static string Tag = "StaticFieldTestTag";
+        public static ProtoId<TagPrototype> Tag = "StaticFieldTestTag";
     }
 
     [Reflect(false)]
-    private sealed class StringInvalid
+    private sealed class NativeIdInvalid
     {
-        [ValidatePrototypeId<TagPrototype>] public static string Tag = string.Empty;
+        public static ProtoId<TagPrototype> Tag = string.Empty;
     }
 
     [Reflect(false)]
-    private sealed class StringArrayValid
+    private sealed class NativeIdArrayValid
     {
-        [ValidatePrototypeId<TagPrototype>] public static string[] Tag = ["StaticFieldTestTag", "StaticFieldTestTag"];
+        public static ProtoId<TagPrototype>[] Tag = ["StaticFieldTestTag", "StaticFieldTestTag"];
     }
 
     [Reflect(false)]
-    private sealed class StringArrayInvalid
+    private sealed class NativeIdArrayInvalid
     {
-        [ValidatePrototypeId<TagPrototype>] public static string[] Tag = [string.Empty, "StaticFieldTestTag", string.Empty];
+        public static ProtoId<TagPrototype>[] Tag = [string.Empty, "StaticFieldTestTag", string.Empty];
     }
 
     [Reflect(false)]

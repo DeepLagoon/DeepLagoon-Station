@@ -474,7 +474,6 @@ public abstract partial class SharedBuckleSystem
         if (buckleXform.ParentUid == strap.Owner && !Terminating(buckleXform.ParentUid) && !Terminating(buckle))
         {
             _transform.PlaceNextTo((buckle, buckleXform), (strap.Owner, oldBuckledXform));
-            buckleXform.ActivelyLerping = false;
 
             var oldBuckledToWorldRot = _transform.GetWorldRotation(strap);
             _transform.SetWorldRotationNoLerp((buckle, buckleXform), oldBuckledToWorldRot);

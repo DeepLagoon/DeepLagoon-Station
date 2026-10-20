@@ -110,6 +110,7 @@ internal sealed partial class BuckleSystem : SharedBuckleSystem
     /// </summary>
     private void OnUnbuckledEvent(Entity<BuckleComponent> ent, ref UnbuckledEvent args)
     {
+        EntityManager.System<TransformSystem>().SnapRenderTransform(ent.Owner, true);
         if (!TryComp<SpriteComponent>(ent.Owner, out var buckledSprite))
             return;
 

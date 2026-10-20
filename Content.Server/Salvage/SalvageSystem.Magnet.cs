@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
 using System.Numerics;
@@ -16,8 +17,7 @@ public sealed partial class SalvageSystem
 {
     [Dependency] private IRuntimeLog _runtimeLog = default!;
 
-    [ValidatePrototypeId<RadioChannelPrototype>]
-    private const string MagnetChannel = "Supply";
+    private static readonly ProtoId<RadioChannelPrototype> MagnetChannel = "Supply";
 
     private EntityQuery<SalvageMobRestrictionsComponent> _salvMobQuery;
 

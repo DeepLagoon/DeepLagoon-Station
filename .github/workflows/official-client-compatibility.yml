@@ -33,7 +33,15 @@ jobs:
           STOCK=$(python3 -c 'import json; print(json.load(open("ENGINE-COMPATIBILITY.json"))["official_engine_commit"])')
           git -C RobustToolbox checkout --detach "$STOCK"
           git -C RobustToolbox submodule update --init --recursive
+      - name: Verify the official launcher-selected signed WebView reference
+        run: |
+          python3 -m pip install -r Tools/requirements-signed-webview.txt
+          python3 Tools/prepare_signed_webview.py --output "$RUNNER_TEMP/signed-webview"
+          echo "WebViewSignedReference=$RUNNER_TEMP/signed-webview/Robust.Client.WebView.dll" >> "$GITHUB_ENV"
       - name: Compile production content against stock engine
         run: dotnet build Content.Client/Content.Client.csproj -c Release /p:FullRelease=true /p:DeepLagoonStockValidation=true
       - name: Check JSON parser and stock sandbox contracts
-        run: dotnet test Content.Tests/Content.Tests.csproj -c Release /p:DeepLagoonStockValidation=true --filter 'FullyQualifiedName~TguiActionDataTests|FullyQualifiedName~ClientSandboxTest.ClientModulesPassEngineTypeChecks'
+        run: |
+          dotnet build Content.Tests/Content.Tests.csproj -c Release /p:FullRelease=true /p:DeepLagoonStockValidation=true
+          cp "$RUNNER_TEMP/signed-webview/Robust.Client.WebView.dll" "$RUNNER_TEMP/signed-webview/SpaceWizards.CefGlue.dll" bin/Content.Tests/
+          dotnet test Content.Tests/Content.Tests.csproj -c Release --no-build --no-restore --filter 'FullyQualifiedName~TguiActionDataTests|FullyQualifiedName~ClientSandboxTest.ClientModulesPassEngineTypeChecks'

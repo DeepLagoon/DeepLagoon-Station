@@ -2042,13 +2042,13 @@ namespace Content.Client.Lobby.UI
             }
             var hairMarking = Profile.Appearance.HairStyleId switch
             {
-                HairStyles.DefaultHairStyle => new List<Marking>(),
+                var style when style == HairStyles.DefaultHairStyle.Id => new List<Marking>(),
                 _ => new() { new(Profile.Appearance.HairStyleId, new List<Color>() { Profile.Appearance.HairColor }) },
             };
 
             var facialHairMarking = Profile.Appearance.FacialHairStyleId switch
             {
-                HairStyles.DefaultFacialHairStyle => new List<Marking>(),
+                var style when style == HairStyles.DefaultFacialHairStyle.Id => new List<Marking>(),
                 _ => new() { new(Profile.Appearance.FacialHairStyleId, new List<Color>() { Profile.Appearance.FacialHairColor }) },
             };
 

@@ -21,8 +21,7 @@ namespace Content.Client.Guidebook.Controls;
 [UsedImplicitly, GenerateTypedNameReferences]
 public sealed partial class GuideReagentReaction : BoxContainer, ISearchableControl
 {
-    [ValidatePrototypeId<MixingCategoryPrototype>]
-    private const string DefaultMixingCategory = "DummyMix";
+    private static readonly ProtoId<MixingCategoryPrototype> DefaultMixingCategory = "DummyMix";
 
     private readonly IPrototypeManager _protoMan;
 
@@ -37,7 +36,7 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
         var reactantsLabel = ReactantsLabel;
         SetReagents(prototype.Reactants, ref reactantsLabel, protoMan);
         var productLabel = ProductsLabel;
-        var products = new Dictionary<string, FixedPoint2>(prototype.Products);
+        var products = new Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>(prototype.Products);
         foreach (var (reagent, reactantProto) in prototype.Reactants)
         {
             if (reactantProto.Catalyst)
@@ -99,11 +98,11 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
         ReactantsLabel.SetMarkup(Loc.GetString("guidebook-reagent-sources-gas-wrapper",
             ("name", Loc.GetString(prototype.Name).ToLower())));
 
-        if (prototype.Reagent != null)
+        if (prototype.Reagent is { } reagent)
         {
-            var quantity = new Dictionary<string, FixedPoint2>
+            var quantity = new Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>
             {
-                { prototype.Reagent, FixedPoint2.New(0.21f) }
+                { reagent, FixedPoint2.New(0.21f) }
             };
             var productLabel = ProductsLabel;
             SetReagents(quantity, ref productLabel, protoMan);
@@ -113,7 +112,7 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
 
     private void SetReagents(List<ReagentQuantity> reagents, ref RichTextLabel label, IPrototypeManager protoMan)
     {
-        var amounts = new Dictionary<string, FixedPoint2>();
+        var amounts = new Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>();
         foreach (var (reagent, quantity) in reagents)
         {
             amounts.Add(reagent.Prototype, quantity);
@@ -122,11 +121,11 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
     }
 
     private void SetReagents(
-        Dictionary<string, ReactantPrototype> reactants,
+        Dictionary<ProtoId<ReagentPrototype>, ReactantPrototype> reactants,
         ref RichTextLabel label,
         IPrototypeManager protoMan)
     {
-        var amounts = new Dictionary<string, FixedPoint2>();
+        var amounts = new Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>();
         foreach (var (reagent, reactantPrototype) in reactants)
         {
             amounts.Add(reagent, reactantPrototype.Amount);
@@ -134,21 +133,7 @@ public sealed partial class GuideReagentReaction : BoxContainer, ISearchableCont
         SetReagents(amounts, ref label, protoMan);
     }
 
-    [PublicAPI]
-    private void SetReagents(
-        Dictionary<ProtoId<MixingCategoryPrototype>, ReactantPrototype> reactants,
-        ref RichTextLabel label,
-        IPrototypeManager protoMan)
-    {
-        var amounts = new Dictionary<string, FixedPoint2>();
-        foreach (var (reagent, reactantPrototype) in reactants)
-        {
-            amounts.Add(reagent, reactantPrototype.Amount);
-        }
-        SetReagents(amounts, ref label, protoMan);
-    }
-
-    private void SetReagents(Dictionary<string, FixedPoint2> reagents, ref RichTextLabel label, IPrototypeManager protoMan)
+    private void SetReagents(Dictionary<ProtoId<ReagentPrototype>, FixedPoint2> reagents, ref RichTextLabel label, IPrototypeManager protoMan)
     {
         var msg = new FormattedMessage();
         var reagentCount = reagents.Count;

@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Server.Labels.Components;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Examine;
@@ -23,8 +24,8 @@ namespace Content.Server.Labels
         [Dependency] private TagSystem _tagSystem = default!; // Frontier
 
         public const string ContainerName = "paper_label";
-        [ValidatePrototypeId<TagPrototype>] // Frontier: label prevention
-        private const string PreventTag = "PreventLabel"; // Frontier: label prevention
+         // Frontier: label prevention
+        private static readonly ProtoId<TagPrototype> PreventTag = "PreventLabel"; // Frontier: label prevention
 
         public override void Initialize()
         {

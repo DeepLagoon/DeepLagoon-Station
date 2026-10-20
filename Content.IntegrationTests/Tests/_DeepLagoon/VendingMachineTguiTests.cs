@@ -24,15 +24,15 @@ public sealed class VendingMachineTguiTests
             var count = entities.EntityCount;
             var catalogue = new VendingMachineTguiData(entities);
             var itemIds = prototypes.EnumeratePrototypes<VendingMachineInventoryPrototype>()
-                .SelectMany(pack => pack.StartingInventory.Keys.Concat(pack.ContrabandInventory?.Keys.AsEnumerable() ?? Enumerable.Empty<string>())
-                    .Concat(pack.EmaggedInventory?.Keys.AsEnumerable() ?? Enumerable.Empty<string>()))
+                .SelectMany(pack => pack.StartingInventory.Keys.Concat(pack.ContrabandInventory?.Keys.AsEnumerable() ?? Enumerable.Empty<EntProtoId>())
+                    .Concat(pack.EmaggedInventory?.Keys.AsEnumerable() ?? Enumerable.Empty<EntProtoId>()))
                 .Distinct().Where(id => prototypes.HasIndex<EntityPrototype>(id)).ToArray();
             Assert.That(itemIds, Is.Not.Empty);
             var inventory = itemIds.Select(id => new VendingMachineInventoryEntry(InventoryType.Regular, id, 1)).ToList();
             using var metadata = JsonDocument.Parse(catalogue.BuildStatic(inventory, 1.25f, true));
             Assert.That(metadata.RootElement.GetProperty("items").GetArrayLength(), Is.EqualTo(itemIds.Length));
             // Read the complete vending catalogue, including multilayer clothing and packed RSI resources.
-            using var icons = JsonDocument.Parse(catalogue.BuildIcons(itemIds));
+            using var icons = JsonDocument.Parse(catalogue.BuildIcons(itemIds.Select(id => id.Id)));
             var images = icons.RootElement.GetProperty("data").GetProperty("iconBatch").GetProperty("icons");
             Assert.That(images.GetArrayLength(), Is.EqualTo(itemIds.Length));
             Assert.That(images.EnumerateArray().Any(icon => icon.GetProperty("layers").EnumerateArray().Any(layer =>

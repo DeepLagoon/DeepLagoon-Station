@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using System.Linq;
 using Content.Shared.Damage;
 using Content.Shared.Weapons.Melee.Events;
@@ -26,7 +27,7 @@ public sealed class ActiveMultihitSystem : EntitySystem
             var modifierSet = new DamageModifierSet
             {
                 Coefficients = args.BaseDamage.DamageDict
-                    .Select(x => new KeyValuePair<string, float>(x.Key, ent.Comp.DamageMultiplier))
+                    .Select(x => new KeyValuePair<ProtoId<Content.Shared.Damage.Prototypes.DamageTypePrototype>, float>(x.Key, ent.Comp.DamageMultiplier))
                     .ToDictionary(),
             };
 

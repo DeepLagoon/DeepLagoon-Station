@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Shared.Speech.EntitySystems;
 using Content.Shared.StatusEffect;
 using Content.Shared.Traits.Assorted;
@@ -6,8 +7,7 @@ namespace Content.Shared.Drunk;
 
 public abstract partial class SharedDrunkSystem : EntitySystem
 {
-    [ValidatePrototypeId<StatusEffectPrototype>]
-    public const string DrunkKey = "Drunk";
+    public static readonly ProtoId<StatusEffectPrototype> DrunkKey = "Drunk";
 
     [Dependency] private StatusEffectsSystem _statusEffectsSystem = default!;
     [Dependency] private SharedSlurredSystem _slurredSystem = default!;

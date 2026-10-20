@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Server.Power.EntitySystems;
 using Content.Server.Research.Components;
 using Content.Shared.UserInterface;
@@ -67,7 +68,7 @@ public sealed partial class ResearchSystem
         if (TryGetClientServer(uid, out var serverUid, out var server, clientComponent) &&
             TryComp<TechnologyDatabaseComponent>(serverUid, out var db))
         {
-            var unlockedTechs = new HashSet<string>(db.UnlockedTechnologies);
+            var unlockedTechs = new HashSet<ProtoId<Content.Shared.Research.Prototypes.TechnologyPrototype>>(db.UnlockedTechnologies);
             techList = allTechs.Where(tech => tech.GetAllDisciplines().Any(d => db.SupportedDisciplines.Contains(d))).ToDictionary( // Mono - .Where() filter
                 proto => proto.ID,
                 proto =>

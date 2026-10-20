@@ -125,7 +125,7 @@ public sealed partial class StoreSystem : EntitySystem
     public Dictionary<string, FixedPoint2> GetCurrencyValue(EntityUid uid, CurrencyComponent component)
     {
         var amount = EntityManager.GetComponentOrNull<StackComponent>(uid)?.Count ?? 1;
-        return component.Price.ToDictionary(v => v.Key, p => p.Value * amount);
+        return component.Price.ToDictionary(v => v.Key.Id, p => p.Value * amount);
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public sealed partial class StoreSystem : EntitySystem
                 .ToDictionary(v => v.Key, p => p.Value * stack.Count);
         }
 
-        if (!TryAddCurrency(value, store, store.Comp))
+        if (!TryAddCurrency(value.ToDictionary(entry => entry.Key.Id, entry => entry.Value), store, store.Comp))
             return false;
 
         // Avoid having the currency accidentally be re-used. E.g., if multiple clients try to use the currency in the

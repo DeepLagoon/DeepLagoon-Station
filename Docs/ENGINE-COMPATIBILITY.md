@@ -1,34 +1,35 @@
 # Official client compatibility
 
-The production client engine is the signed official **277.0.0** release at
-`08a3d120b7029d03e60b44b23fed2b2659ed3224`. Do not replace its DLLs, loader,
-authentication, transport, serialization, sandbox or module trust configuration.
-Never relabel a custom client build as an official version.
+This branch prepares the signed official **292.0.1** client at
+`26fc868a033836ae97389614f16298951b184df1`. This is a local release candidate,
+not a statement about the deployed production version.
 
-`ENGINE-COMPATIBILITY.json` pins the Station engine dependency to
-`c67977d80c919c1e16b9c7686b1b995142b4443d`. Its entire difference from the official
-baseline is a reviewed prototype hot-reload method implementation and its tests.
-It changes no public method signature, prototype/network schema, component
-registration, serializer or authentication code. It composes missing ancestors
-and preserves the previous prototype when a hot-reload parent is unavailable.
-The normal client uses the official implementation supplied by its launcher.
+`ENGINE-COMPATIBILITY.json` pins the server engine to
+`4b3cf45060c80c2f0912b535fc5a2f17b75c956a`. Its only differences from the official
+client baseline are the server fixture quarantine implementation and tests.
+The quarantine runs only on the server and changes no client implementation,
+networked component schema, serialization, authentication, loader or module trust.
+The exact five paths and Git blob IDs are recorded in the contract and separately
+pinned in Control's `remote/engine_compatibility.py`.
 
-Engine changes are authored in the standalone `DeepLagoon/RobustToolbox` fork.
-The Station checkout is a pinned consumer, never an engine-source patch owner.
-The old `MSBuild/DeepLagoon.Network.targets` has been removed. No build task may
-rewrite or substitute engine source files. The submodule has no floating branch
-setting and CI does not pull engine dependency updates behind the pin.
+Engine changes are authored in the standalone RobustToolbox repository. Station
+only consumes its pinned commit. No content build task may rewrite engine source.
+Do not replace official client DLLs, relabel a custom client, or bypass signatures,
+module selection or `insecure` flags. Historical experimental client branches are
+not release inputs.
 
-## Preserved experiments
+The official manifest redirects insecure `292.0.0` to `292.0.1`; use the exact
+latter version. The selected signed `Robust.Client.WebView` is **288.1.0** for
+Windows/Linux x64. Module versions identify their minimum supported engine.
+Check the live official manifests again before a release. Verify SHA-256,
+Ed25519, ZIP integrity and archive contents separately from runtime behavior.
+An ImageSharp entry in the module's `.deps.json` does not prove that its DLL must
+be inside that module ZIP; the verified official engine archives also contain it.
 
-The standalone local branch `codex/deeplagoon-client-experimental-277` preserves
-the CEF/WebView/texture changes through `bf07fcf5d`, plus commit `0e50b64db` holding
-the shader uniform fix/test and the former Station network race patch in native
-engine source files. The active standalone branch is
-`codex/deeplagoon-server-277` at `c67977d80`. No branch has been published by this
-change. Do not advance the production submodule to the experimental branch.
-Client changes can become production dependencies only through a compatible,
-trusted official release, following an explicit baseline update and validation.
+The migration uses native `ProtoId<T>` / `EntProtoId` data fields, by-ref BUI
+attempt handlers, transform system anchoring and client render-transform APIs.
+Grid splits now emit normal unanchor/anchor events; content must invalidate old
+and new grid state through those events.
 
 ## Build and release checks
 

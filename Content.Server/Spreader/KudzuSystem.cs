@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Content.Shared.Damage;
 using Content.Shared.GameTicking;
 using Content.Shared.Spreader;
@@ -15,8 +16,7 @@ public sealed partial class KudzuSystem : EntitySystem
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private DamageableSystem _damageable = default!;
 
-    [ValidatePrototypeId<EdgeSpreaderPrototype>]
-    private const string KudzuGroup = "Kudzu";
+    private static readonly ProtoId<EdgeSpreaderPrototype> KudzuGroup = "Kudzu";
 
     private static readonly TimeSpan GrowthTickInterval = TimeSpan.FromSeconds(0.5);
     private readonly PriorityQueue<GrowthScheduleEntry, TimeSpan> _growthQueue = new();

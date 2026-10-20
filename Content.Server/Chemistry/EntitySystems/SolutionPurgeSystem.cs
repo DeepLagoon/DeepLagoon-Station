@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Server.Chemistry.Components;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Components.SolutionManager;
@@ -23,7 +24,7 @@ public sealed partial class SolutionPurgeSystem : EntitySystem
             // timer ignores if it's empty, it's just a fixed cycle
             purge.NextPurgeTime += purge.Duration;
             if (_solutionContainer.TryGetSolution((uid, manager), purge.Solution, out var solution))
-                _solutionContainer.SplitSolutionWithout(solution.Value, purge.Quantity, purge.Preserve.ToArray());
+                _solutionContainer.SplitSolutionWithout(solution.Value, purge.Quantity, purge.Preserve.Select(id => id.Id).ToArray());
         }
     }
 }
