@@ -7,5 +7,9 @@ public sealed class AdminMapPlacementOverlay(AdminMapUploadSystem placement) : O
 {
     public override OverlaySpace Space => OverlaySpace.WorldSpace;
 
-    protected override void Draw(in OverlayDrawArgs args) => placement.DrawPlacement(in args);
+    protected override void Draw(in OverlayDrawArgs args)
+    {
+        placement.DrawPlacement(in args);
+        placement.DrawMissingPrototypes(in args);
+    }
 }

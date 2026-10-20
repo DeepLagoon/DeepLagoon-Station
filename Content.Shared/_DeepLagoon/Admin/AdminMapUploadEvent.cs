@@ -7,15 +7,40 @@ public static class AdminMapUploadLimits
 {
     public const int MaxBytes = 20 * 1024 * 1024;
     public const int ChunkBytes = 32 * 1024;
-    // Inactivity timeout during transfer; placement has its own deadline.
+    public const int WindowChunks = 8;
+    public const int TransferTimeoutSeconds = 30 * 60;
+    public const int LibraryMaxBytes = 256 * 1024 * 1024;
+    public const int LibraryMaxFiles = 256;
+    // Placement deadline, independent of transfer retention.
     public const int TimeoutSeconds = 5 * 60;
 }
 
 [Serializable, NetSerializable]
-public sealed class AdminMapUploadBeginEvent(Guid request, int length) : EntityEventArgs
+public sealed class AdminMapUploadBeginEvent(Guid request, int length, string name, string sha256) : EntityEventArgs
 {
     public readonly Guid Request = request;
     public readonly int Length = length;
+    public readonly string Name = name;
+    public readonly string Sha256 = sha256;
+}
+
+[Serializable, NetSerializable]
+public sealed record AdminMapLibraryEntry(Guid Id, string Name, int Length);
+
+[Serializable, NetSerializable]
+public sealed class AdminMapLibraryRequestEvent : EntityEventArgs;
+
+[Serializable, NetSerializable]
+public sealed class AdminMapLibraryEvent(AdminMapLibraryEntry[] entries) : EntityEventArgs
+{
+    public readonly AdminMapLibraryEntry[] Entries = entries;
+}
+
+[Serializable, NetSerializable]
+public sealed class AdminMapLibraryPlaceEvent(Guid request, Guid id) : EntityEventArgs
+{
+    public readonly Guid Request = request;
+    public readonly Guid Id = id;
 }
 
 [Serializable, NetSerializable]
@@ -43,13 +68,14 @@ public sealed class AdminMapUploadProgressEvent(Guid request, int received, int 
 
 [Serializable, NetSerializable]
 public sealed class AdminMapPlacementReadyEvent(Guid request, NetEntity previewMap, NetEntity destinationMap,
-    Box2 bounds, Vector2 position) : EntityEventArgs
+    Box2 bounds, Vector2 position, Dictionary<string, int>? missingPrototypes = null) : EntityEventArgs
 {
     public readonly Guid Request = request;
     public readonly NetEntity PreviewMap = previewMap;
     public readonly NetEntity DestinationMap = destinationMap;
     public readonly Box2 Bounds = bounds;
     public readonly Vector2 Position = position;
+    public readonly Dictionary<string, int> MissingPrototypes = missingPrototypes ?? new();
 }
 
 [Serializable, NetSerializable]

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Content.Shared._DeepLagoon.Admin;
+using Content.Shared.Administration;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.UserInterface;
@@ -28,6 +29,7 @@ public sealed partial class AdminMapUploadSystem
     public bool CanConfirmPlacement => HasPreview && _previewViewport?.Eye != null && !_confirming;
     public Vector2 PlacementPosition { get; private set; }
     public float PlacementRotation { get; private set; }
+    public IReadOnlyDictionary<string, int> MissingPrototypes { get; private set; } = new Dictionary<string, int>();
 
     private void InitializePlacement()
     {
@@ -39,10 +41,14 @@ public sealed partial class AdminMapUploadSystem
 
     private void OnPreview(AdminMapPlacementReadyEvent ev)
     {
-        if (_request != ev.Request)
+        if (_request != ev.Request || _preview?.Request == ev.Request)
             return;
         ClearPlacement();
         _preview = ev;
+        _uploadBytes = null;
+        _inFlight.Clear();
+        RefreshLibrary();
+        MissingPrototypes = ev.MissingPrototypes;
         _ui.KeyboardFocused?.ReleaseKeyboardFocus();
         PlacementPosition = ev.Position;
         PlacementRotation = 0;
@@ -181,6 +187,48 @@ public sealed partial class AdminMapUploadSystem
         var handle = args.WorldHandle;
         handle.SetTransform(Matrix3Helpers.CreateTransform(PlacementPosition, new Angle(PlacementRotation)));
         handle.DrawTextureRect(_previewViewport.RenderTarget.Texture, _renderBounds, Color.White.WithAlpha(0.45f));
+        handle.SetTransform(Matrix3x2.Identity);
+    }
+
+    internal void DrawMissingPrototypes(in OverlayDrawArgs args)
+    {
+        if (!_admins.HasFlag(AdminFlags.Mapping))
+            return;
+        var handle = args.WorldHandle;
+        var transformSystem = EntityManager.System<SharedTransformSystem>();
+        EntityUid? previewMap = null;
+        EntityUid? destinationMap = null;
+        if (_preview is { } ready)
+        {
+            // The ready event can arrive before the staging map's first entity state.
+            TryGetEntity(ready.PreviewMap, out previewMap);
+            TryGetEntity(ready.DestinationMap, out destinationMap);
+        }
+        // Preview maps are deliberately paused, but their diagnostics must still draw.
+        var query = EntityManager.AllEntityQueryEnumerator<AdminMapMissingPrototypeComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out _, out var xform))
+        {
+            var matrix = transformSystem.GetWorldMatrix(uid);
+            if (_preview is { } placement && previewMap != null && xform.MapUid == previewMap &&
+                TryComp<TransformComponent>(destinationMap, out var destination) && destination.MapID == args.MapId)
+            {
+                matrix *= Matrix3x2.CreateTranslation(-placement.Bounds.Center) *
+                    Matrix3Helpers.CreateTransform(PlacementPosition, new Angle(PlacementRotation));
+            }
+            else if (xform.MapID != args.MapId)
+                continue;
+
+            // The missing prototype's artwork may not exist in this build. A red
+            // silhouette is a diagnostic footprint, never a fabricated real sprite.
+            var box = Box2.FromDimensions(new Vector2(-0.4f), new Vector2(0.8f));
+            if (!args.WorldAABB.Intersects(matrix.TransformBox(box)))
+                continue;
+            handle.SetTransform(matrix);
+            handle.DrawRect(box, Color.Red.WithAlpha(0.4f));
+            handle.DrawRect(box, Color.Red, filled: false);
+            handle.DrawLine(new Vector2(-0.3f, -0.3f), new Vector2(0.3f, 0.3f), Color.Red);
+            handle.DrawLine(new Vector2(-0.3f, 0.3f), new Vector2(0.3f, -0.3f), Color.Red);
+        }
         handle.SetTransform(Matrix3x2.Identity);
     }
 

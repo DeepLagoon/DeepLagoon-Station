@@ -1,4 +1,7 @@
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using Content.Shared.GameTicking;
 using Content.Client.Administration.Managers;
 using Content.Shared._DeepLagoon.Admin;
 using Content.Shared.Administration;
@@ -12,6 +15,11 @@ namespace Content.Client._DeepLagoon.Admin;
 
 public sealed partial class AdminMapUploadSystem : EntitySystem
 {
+    // The engine recreates entity systems on disconnect. Scope the in-memory resume
+    // state to this network manager, so it survives that reset without crossing clients.
+    private sealed record ResumeState(Guid Request, byte[] Bytes, string Name, string Hash,
+        int Received, TimeSpan Expires, string Endpoint);
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IClientNetManager, ResumeState> Pending = new();
     [Dependency] private IFileDialogManager _dialogs = default!;
     [Dependency] private IClientAdminManager _admins = default!;
     [Dependency] private IPlayerManager _players = default!;
@@ -25,12 +33,99 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     private byte[]? _uploadBytes;
     private int _sentOffset;
     private int _receivedOffset;
+    private string _uploadName = "grid.yml";
+    private string _uploadHash = "";
+    private TimeSpan _retryAt;
+    private TimeSpan _lastSend;
+    private double _retrySeconds = 5;
+    private bool _resendWindow;
+    private bool _wasDisconnected;
+    private string? _serverEndpoint;
+    private Guid? _libraryPlacement;
+    private TimeSpan _libraryPoll;
+    private readonly Dictionary<int, TimeSpan> _inFlight = new();
+    public IReadOnlyList<AdminMapLibraryEntry> Library { get; private set; } = Array.Empty<AdminMapLibraryEntry>();
+    public event Action? LibraryChanged;
+
+    public bool IsBusy => _request != null;
+    public bool IsConnected => _net.IsConnected;
+
+    public bool ObservePending(Action<string> completed, Action<int, int> progress)
+    {
+        if (!IsBusy)
+            return false;
+        _completed = completed;
+        _progress = progress;
+        if (_uploadBytes is { } bytes)
+            progress(Math.Max(0, _receivedOffset), bytes.Length);
+        if (HasPreview)
+            completed("dl-map-upload-preview");
+        return true;
+    }
+
+    public void PollLibrary()
+    {
+        if (_net.IsConnected && _admins.IsAdmin() && _timing.RealTime >= _libraryPoll)
+            RefreshLibrary();
+    }
+
+    public void RefreshLibrary()
+    {
+        if (!_net.IsConnected)
+            return;
+        RaiseNetworkEvent(new AdminMapLibraryRequestEvent());
+        _libraryPoll = _timing.RealTime + TimeSpan.FromSeconds(5);
+    }
+
+    public void PlaceFromLibrary(Guid id, Action<string> completed)
+    {
+        if (_request != null || !CanUpload)
+        {
+            completed(_request != null ? "dl-map-upload-busy" : "dl-map-upload-denied");
+            return;
+        }
+        _request = Guid.NewGuid();
+        _serverEndpoint = _net.ServerChannel?.RemoteEndPoint.ToString();
+        _libraryPlacement = id;
+        _completed = completed;
+        _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TransferTimeoutSeconds);
+        RaiseNetworkEvent(new AdminMapLibraryPlaceEvent(_request.Value, id));
+        _retryAt = _timing.RealTime + TimeSpan.FromSeconds(5);
+    }
 
     public override void Initialize()
     {
         SubscribeNetworkEvent<AdminMapUploadResultEvent>(OnResult);
         SubscribeNetworkEvent<AdminMapUploadProgressEvent>(OnProgress);
+        SubscribeNetworkEvent<AdminMapLibraryEvent>(ev =>
+        {
+            if (Library.SequenceEqual(ev.Entries))
+                return;
+            Library = ev.Entries;
+            LibraryChanged?.Invoke();
+        });
+        SubscribeNetworkEvent<RoundRestartCleanupEvent>(_ =>
+        {
+            Finish("dl-map-upload-interrupted");
+            Library = Array.Empty<AdminMapLibraryEntry>();
+            LibraryChanged?.Invoke();
+        });
         InitializePlacement();
+        if (Pending.TryGetValue(_net, out var pending))
+        {
+            Pending.Remove(_net);
+            if (pending.Expires > _timing.RealTime)
+            {
+                _request = pending.Request;
+                _uploadBytes = pending.Bytes;
+                _uploadName = pending.Name;
+                _uploadHash = pending.Hash;
+                _receivedOffset = pending.Received;
+                _expires = pending.Expires;
+                _serverEndpoint = pending.Endpoint;
+                _wasDisconnected = true;
+            }
+        }
     }
 
     public bool CanUpload => _net.IsConnected && _admins.HasFlag(AdminFlags.Mapping) &&
@@ -51,6 +146,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
 
         var request = Guid.NewGuid();
         _request = request;
+        _serverEndpoint = _net.ServerChannel?.RemoteEndPoint.ToString();
         _expires = null; // Choosing and reading a local file is not a network transfer.
         _completed = completed;
         _progress = progress;
@@ -100,12 +196,16 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             }
 
             var bytes = data.ToArray();
+            _uploadName = file is FileStream fs ? Path.GetFileName(fs.Name) : "grid.yml";
+            if (_uploadName.Length > 128)
+                _uploadName = _uploadName[..128];
+            _uploadHash = Convert.ToHexString(SHA256.HashData(bytes));
             _uploadBytes = bytes;
             _sentOffset = 0;
             _receivedOffset = -1;
-            _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
+            _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TransferTimeoutSeconds);
             _progress?.Invoke(0, bytes.Length);
-            RaiseNetworkEvent(new AdminMapUploadBeginEvent(request, bytes.Length));
+            SendBegin(request, bytes.Length);
         }
         catch (Exception e)
         {
@@ -121,26 +221,57 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             Finish(ev.Message);
     }
 
+    private void SendBegin(Guid request, int length)
+    {
+        RaiseNetworkEvent(new AdminMapUploadBeginEvent(request, length, _uploadName, _uploadHash));
+        _lastSend = _timing.RealTime;
+        _retryAt = _lastSend + TimeSpan.FromSeconds(_retrySeconds);
+        _resendWindow = true;
+    }
+
     private void OnProgress(AdminMapUploadProgressEvent ev)
     {
         if (_request != ev.Request || _uploadBytes is not { } bytes || ev.Total != bytes.Length ||
-            ev.Received != _sentOffset || ev.Received <= _receivedOffset)
+            ev.Received < 0 || ev.Received > bytes.Length || ev.Received < _receivedOffset ||
+            ev.Received != bytes.Length && ev.Received % AdminMapUploadLimits.ChunkBytes != 0)
             return;
-
-        _receivedOffset = ev.Received;
-        _expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
-        _progress?.Invoke(ev.Received, ev.Total);
-        if (ev.Received == bytes.Length)
+        var now = _timing.RealTime;
+        var advanced = ev.Received > _receivedOffset;
+        if (advanced)
         {
-            _uploadBytes = null;
-            return;
+            // Account for measured acknowledgement latency, with conservative bounds.
+            if (_inFlight.TryGetValue(Math.Max(0, ev.Received - AdminMapUploadLimits.ChunkBytes), out var sent))
+                _retrySeconds = Math.Clamp((now - sent).TotalSeconds * 3, 5, 60);
+            _receivedOffset = ev.Received;
+            _expires = now + TimeSpan.FromSeconds(AdminMapUploadLimits.TransferTimeoutSeconds);
+            _progress?.Invoke(ev.Received, ev.Total);
         }
-
-        // Keep only one chunk in flight. Same-tick, unsequenced entity events may be
-        // reordered by the server's tick priority queue, even on a reliable channel.
-        var offset = _sentOffset;
-        _sentOffset = Math.Min(bytes.Length, offset + AdminMapUploadLimits.ChunkBytes);
-        RaiseNetworkEvent(new AdminMapUploadChunkEvent(ev.Request, offset, bytes[offset.._sentOffset]));
+        if (!advanced && !_resendWindow)
+            return;
+        if (_resendWindow)
+        {
+            _inFlight.Clear();
+            _sentOffset = ev.Received;
+            _resendWindow = false;
+        }
+        foreach (var offset in new List<int>(_inFlight.Keys))
+        {
+            if (offset < ev.Received)
+                _inFlight.Remove(offset);
+        }
+        // A bounded sliding window keeps bandwidth useful even on high-latency connections.
+        var end = (int) Math.Min(bytes.Length, (long) ev.Received +
+            AdminMapUploadLimits.WindowChunks * AdminMapUploadLimits.ChunkBytes);
+        while (_sentOffset < end)
+        {
+            var offset = _sentOffset;
+            _sentOffset = Math.Min(bytes.Length, offset + AdminMapUploadLimits.ChunkBytes);
+            _inFlight[offset] = now;
+            RaiseNetworkEvent(new AdminMapUploadChunkEvent(ev.Request, offset, bytes[offset.._sentOffset]));
+        }
+        _lastSend = now;
+        _retryAt = now + TimeSpan.FromSeconds(_retrySeconds);
+        // Keep the local bytes until ready/result: the final acknowledgement itself may be lost.
     }
 
     private void Finish(string message)
@@ -154,22 +285,67 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         _uploadBytes = null;
         _sentOffset = 0;
         _receivedOffset = -1;
+        _libraryPlacement = null;
+        _inFlight.Clear();
+        _retrySeconds = 5;
+        _wasDisconnected = false;
+        _serverEndpoint = null;
         completed?.Invoke(message);
     }
 
     public override void Update(float frameTime)
     {
         UpdatePlacement();
-        if (_request is { } request && (!_net.IsConnected || _expires is { } until && until <= _timing.RealTime))
+        if (_request is not { } request)
+            return;
+        if (_expires is { } until && until <= _timing.RealTime)
         {
             if (_net.IsConnected)
                 RaiseNetworkEvent(new AdminMapPlacementCancelEvent(request));
             Finish("dl-map-upload-interrupted");
+            return;
+        }
+        if (!_net.IsConnected)
+        {
+            if (HasPreview)
+                Finish("dl-map-upload-interrupted");
+            else
+                _wasDisconnected = true;
+            return;
+        }
+        if (_serverEndpoint != null && _serverEndpoint != _net.ServerChannel?.RemoteEndPoint.ToString())
+        {
+            Finish("dl-map-upload-interrupted");
+            return;
+        }
+        if (HasPreview || !CanUpload || _timing.RealTime < _retryAt && !_wasDisconnected)
+            return;
+        if (_wasDisconnected)
+            _receivedOffset = -1; // A restarted server may no longer have the previous allocation.
+        _wasDisconnected = false;
+        if (_uploadBytes is { } bytes)
+        {
+            // Probe first: the server returns its committed offset, including after reconnect.
+            SendBegin(request, bytes.Length);
+            _retrySeconds = Math.Min(60, _retrySeconds * 2);
+        }
+        else if (_libraryPlacement is { } id)
+        {
+            RaiseNetworkEvent(new AdminMapLibraryPlaceEvent(request, id));
+            _retryAt = _timing.RealTime + TimeSpan.FromSeconds(10);
         }
     }
 
     public override void Shutdown()
     {
+        Pending.Remove(_net);
+        // During Disconnect callbacks the network manager may still report connected.
+        if (_request is { } request && _uploadBytes is { } bytes &&
+            _serverEndpoint is { } endpoint && _expires is { } expires && expires > _timing.RealTime)
+        {
+            Pending.Add(_net, new ResumeState(request, bytes, _uploadName, _uploadHash,
+                _receivedOffset, expires, endpoint));
+        }
         ShutdownPlacement();
         Finish("dl-map-upload-interrupted");
         base.Shutdown();

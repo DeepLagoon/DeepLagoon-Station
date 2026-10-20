@@ -1,6 +1,8 @@
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
+using Content.Shared.GameTicking;
 using Robust.Server.GameStates;
 using Content.Shared._DeepLagoon.Admin;
 using Content.Shared.Administration;
@@ -12,7 +14,11 @@ using Robust.Shared.EntitySerialization;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Map.Events;
 using Robust.Shared.Network;
+using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.Markdown;
+using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
 
@@ -27,27 +33,36 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     [Dependency] private SharedMapSystem _maps = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private PvsOverrideSystem _pvs = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     private sealed record Preview(Guid Request, ICommonSession Session, EntityUid Ghost, EntityUid Destination,
         EntityUid Stage, LoadResult Loaded, Box2 Bounds, TimeSpan Expires);
 
     private readonly Dictionary<NetUserId, Preview> _previews = new();
 
-    private sealed class Upload(Guid request, EntityUid ghost, int length, TimeSpan expires)
+    private sealed class Upload(Guid request, EntityUid ghost, int length, string name, string hash, TimeSpan expires)
     {
         public readonly Guid Request = request;
-        public readonly EntityUid Ghost = ghost;
-        public readonly byte[] Bytes = new byte[length];
+        public EntityUid Ghost = ghost;
+        public readonly AdminMapUploadBuffer Buffer = new(length);
+        public readonly string Name = name;
+        public readonly string Hash = hash;
         public TimeSpan Expires = expires;
-        public int Offset;
     }
 
+    private sealed record StoredMap(AdminMapLibraryEntry Entry, byte[] Bytes, string Hash);
+    private readonly Dictionary<Guid, StoredMap> _library = new();
+    private readonly Dictionary<(NetUserId User, Guid Request), Guid> _completedUploads = new();
+    private int _libraryBytes;
     private readonly Dictionary<NetUserId, Upload> _uploads = new();
     private readonly Dictionary<NetUserId, TimeSpan> _cooldowns = new();
 
     public override void Initialize()
     {
         SubscribeNetworkEvent<AdminMapUploadBeginEvent>(OnBegin);
+        SubscribeNetworkEvent<AdminMapLibraryRequestEvent>(OnLibraryRequest);
+        SubscribeNetworkEvent<AdminMapLibraryPlaceEvent>(OnLibraryPlace);
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => ResetRound());
         SubscribeNetworkEvent<AdminMapUploadChunkEvent>(OnChunk);
         SubscribeNetworkEvent<AdminMapPlacementConfirmEvent>(OnConfirm);
         SubscribeNetworkEvent<AdminMapPlacementCancelEvent>(OnCancel);
@@ -75,12 +90,42 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             return;
         }
 
-        if (ev.Length is < 1 or > AdminMapUploadLimits.MaxBytes)
+        if (ev.Length is < 1 or > AdminMapUploadLimits.MaxBytes || ev.Sha256 is not { Length: 64 } ||
+            !ev.Sha256.All(Uri.IsHexDigit) || string.IsNullOrWhiteSpace(ev.Name) || ev.Name.Length > 128 ||
+            ev.Name.Any(c => char.IsControl(c) || c is '/' or '\\'))
         {
             Reply(session, ev.Request, "dl-map-upload-size");
             return;
         }
 
+        // A repeated begin is a resume/status probe, never a second allocation.
+        if (_uploads.TryGetValue(session.UserId, out var active) && active.Request == ev.Request)
+        {
+            if (active.Buffer.Bytes.Length != ev.Length || active.Hash != ev.Sha256 || active.Name != ev.Name)
+            {
+                Reply(session, ev.Request, "dl-map-upload-invalid");
+                return;
+            }
+            active.Ghost = session.AttachedEntity!.Value;
+            Acknowledge(session, active);
+            return;
+        }
+        if (_previews.TryGetValue(session.UserId, out var preview) && preview.Request == ev.Request)
+        {
+            if (preview.Session == session && preview.Ghost == session.AttachedEntity && !Deleted(preview.Stage))
+            {
+                SendPreview(preview);
+                return;
+            }
+            _previews.Remove(session.UserId);
+            Cleanup(preview);
+        }
+        if (_completedUploads.TryGetValue((session.UserId, ev.Request), out var storedId) &&
+            _library.TryGetValue(storedId, out var stored))
+        {
+            StartPreview(session, ev.Request, stored.Bytes);
+            return;
+        }
         if (_uploads.ContainsKey(session.UserId) || _previews.ContainsKey(session.UserId) ||
             _uploads.Count + _previews.Count >= 8 ||
             _cooldowns.TryGetValue(session.UserId, out var until) && until > _timing.RealTime)
@@ -88,71 +133,141 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             Reply(session, ev.Request, "dl-map-upload-busy");
             return;
         }
-
-        _uploads.Add(session.UserId, new Upload(ev.Request, session.AttachedEntity!.Value, ev.Length,
-            _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds)));
+        // Reserve storage for in-flight files as well; existing round files are never evicted.
+        if (_library.Count + _uploads.Count >= AdminMapUploadLimits.LibraryMaxFiles ||
+            _libraryBytes + _uploads.Values.Sum(u => u.Buffer.Bytes.Length) + ev.Length > AdminMapUploadLimits.LibraryMaxBytes)
+        {
+            Reply(session, ev.Request, "dl-map-upload-library-full");
+            return;
+        }
+        var upload = new Upload(ev.Request, session.AttachedEntity!.Value, ev.Length, ev.Name, ev.Sha256,
+            _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TransferTimeoutSeconds));
+        _uploads.Add(session.UserId, upload);
         _cooldowns[session.UserId] = _timing.RealTime + TimeSpan.FromSeconds(5);
-        RaiseNetworkEvent(new AdminMapUploadProgressEvent(ev.Request, 0, ev.Length), session);
+        Acknowledge(session, upload);
     }
+
+    private void Acknowledge(ICommonSession session, Upload upload) =>
+        RaiseNetworkEvent(new AdminMapUploadProgressEvent(upload.Request, upload.Buffer.Offset, upload.Buffer.Bytes.Length), session);
 
     private void OnChunk(AdminMapUploadChunkEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
         if (!_uploads.TryGetValue(session.UserId, out var upload) || upload.Request != ev.Request)
             return;
-
-        // Recheck permission and possession on every chunk, including the final one.
         if (!CanUpload(session) || session.AttachedEntity != upload.Ghost)
         {
             _uploads.Remove(session.UserId);
             Reply(session, ev.Request, "dl-map-upload-denied");
             return;
         }
-
-        if (upload.Expires <= _timing.RealTime || ev.Offset != upload.Offset ||
-            ev.Bytes.Length is < 1 or > AdminMapUploadLimits.ChunkBytes ||
-            ev.Bytes.Length > upload.Bytes.Length - upload.Offset)
+        if (upload.Expires <= _timing.RealTime || !upload.Buffer.Accept(ev.Offset, ev.Bytes, out var advanced))
         {
             _uploads.Remove(session.UserId);
             Reply(session, ev.Request, "dl-map-upload-interrupted");
             return;
         }
-
-        ev.Bytes.CopyTo(upload.Bytes, upload.Offset);
-        upload.Offset += ev.Bytes.Length;
-        upload.Expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds);
-        RaiseNetworkEvent(new AdminMapUploadProgressEvent(ev.Request, upload.Offset, upload.Bytes.Length), session);
-        if (upload.Offset != upload.Bytes.Length)
+        // Only new data extends retention; duplicate probes cannot keep abandoned allocations alive forever.
+        if (advanced)
+            upload.Expires = _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TransferTimeoutSeconds);
+        Acknowledge(session, upload);
+        if (upload.Buffer.Offset != upload.Buffer.Bytes.Length)
             return;
-
-        // Consume before loading: repeated final chunks cannot spawn a second copy.
         _uploads.Remove(session.UserId);
+        var bytes = upload.Buffer.Bytes;
+        if (!Convert.ToHexString(SHA256.HashData(bytes)).Equals(upload.Hash, StringComparison.OrdinalIgnoreCase))
+        {
+            Reply(session, ev.Request, "dl-map-upload-checksum");
+            return;
+        }
+        if (!StartPreview(session, ev.Request, bytes))
+            return;
+        var entry = new AdminMapLibraryEntry(Guid.NewGuid(), upload.Name, bytes.Length);
+        _library.Add(entry.Id, new StoredMap(entry, bytes, upload.Hash));
+        _libraryBytes += bytes.Length;
+        _completedUploads[(session.UserId, ev.Request)] = entry.Id;
+    }
+
+    private bool StartPreview(ICommonSession session, Guid request, byte[] bytes)
+    {
+        if (!CanUpload(session))
+        {
+            Reply(session, request, "dl-map-upload-denied");
+            return false;
+        }
+        if (_previews.ContainsKey(session.UserId) || _uploads.ContainsKey(session.UserId) ||
+            _previews.Count + _uploads.Count >= 8)
+        {
+            Reply(session, request, "dl-map-upload-busy");
+            return false;
+        }
         try
         {
-            using var stream = new MemoryStream(upload.Bytes, false);
+            using var stream = new MemoryStream(bytes, false);
             using var reader = new StreamReader(stream);
-            if (!TryPrepare(reader, out var stage, out var loaded, out var bounds))
+            if (!TryPrepare(reader, out var stage, out var loaded, out var bounds, out var missing))
             {
-                Reply(session, ev.Request, "dl-map-upload-invalid");
-                return;
+                Reply(session, request, "dl-map-upload-invalid");
+                return false;
             }
-            var destination = _transform.GetMapCoordinates(upload.Ghost);
-            var preview = new Preview(ev.Request, session, upload.Ghost, _maps.GetMap(destination.MapId),
+            var ghost = session.AttachedEntity!.Value;
+            var destination = _transform.GetMapCoordinates(ghost);
+            var preview = new Preview(request, session, ghost, _maps.GetMap(destination.MapId),
                 stage, loaded!, bounds, _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds));
             _previews.Add(session.UserId, preview);
-            // Only the uploader receives this paused, isolated map. Nothing is added to the live map yet.
             _pvs.AddSessionOverride(stage, session);
-            RaiseNetworkEvent(new AdminMapPlacementReadyEvent(ev.Request, GetNetEntity(stage),
-                GetNetEntity(preview.Destination), bounds, destination.Position), session);
+            SendPreview(preview, missing);
+            return true;
         }
         catch (Exception e)
         {
             Log.Warning($"Admin map upload from {session.UserId} failed: {e}");
-            Reply(session, ev.Request, "dl-map-upload-invalid");
+            Reply(session, request, "dl-map-upload-invalid");
+            return false;
         }
     }
 
-    private bool TryPrepare(TextReader reader, out EntityUid staging, out LoadResult? result, out Box2 bounds)
+    private void SendPreview(Preview preview, Dictionary<string, int>? missing = null)
+    {
+        // Reconstruct diagnostics when retrying a lost ready response.
+        missing ??= preview.Loaded.Entities.Where(uid => HasComp<AdminMapMissingPrototypeComponent>(uid))
+            .Select(uid => Comp<AdminMapMissingPrototypeComponent>(uid).Prototype)
+            .GroupBy(id => id).ToDictionary(group => group.Key, group => group.Count());
+        RaiseNetworkEvent(new AdminMapPlacementReadyEvent(preview.Request, GetNetEntity(preview.Stage),
+            GetNetEntity(preview.Destination), preview.Bounds, _transform.GetMapCoordinates(preview.Ghost).Position, missing), preview.Session);
+    }
+
+    private void OnLibraryRequest(AdminMapLibraryRequestEvent ev, EntitySessionEventArgs args)
+    {
+        if (_admins.IsAdmin(args.SenderSession))
+            RaiseNetworkEvent(new AdminMapLibraryEvent(_library.Values.Select(item => item.Entry).ToArray()), args.SenderSession);
+    }
+
+    private void OnLibraryPlace(AdminMapLibraryPlaceEvent ev, EntitySessionEventArgs args)
+    {
+        if (!CanUpload(args.SenderSession))
+        {
+            Reply(args.SenderSession, ev.Request, "dl-map-upload-denied");
+            return;
+        }
+        if (_previews.TryGetValue(args.SenderSession.UserId, out var preview) && preview.Request == ev.Request)
+        {
+            if (preview.Session == args.SenderSession && preview.Ghost == args.SenderSession.AttachedEntity && !Deleted(preview.Stage))
+            {
+                SendPreview(preview);
+                return;
+            }
+            _previews.Remove(args.SenderSession.UserId);
+            Cleanup(preview);
+        }
+        if (_library.TryGetValue(ev.Id, out var stored))
+            StartPreview(args.SenderSession, ev.Request, stored.Bytes);
+        else
+            Reply(args.SenderSession, ev.Request, "dl-map-upload-library-missing");
+    }
+
+    private bool TryPrepare(TextReader reader, out EntityUid staging, out LoadResult? result, out Box2 bounds,
+        out Dictionary<string, int> missing)
     {
         staging = _maps.CreateMap(out var stagingId, runMapInit: false);
         _pvs.RemoveForceSend(staging);
@@ -160,11 +275,27 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         var success = false;
         result = null;
         bounds = default;
+        missing = new();
         try
         {
-            if (!_loader.TryLoadGeneric(reader, "admin map upload", out loaded,
+            var documents = DataNodeParser.ParseYamlStream(reader).ToArray();
+            if (documents.Length != 1 || documents[0].Root is not MappingDataNode data)
+                return false;
+            var migrations = new BeforeEntityReadEvent();
+            RaiseLocalEvent(migrations);
+            AdminMapUploadCompatibility.ReplaceMissing(data,
+                id => _prototypes.HasIndex<EntityPrototype>(id), migrations.RenamedPrototypes);
+            if (!_loader.TryLoadGeneric(data, "admin map upload", out loaded,
                     new MapLoadOptions { MergeMap = stagingId }) || loaded.Grids.Count == 0 || loaded.Maps.Count != 0)
                 return false;
+
+            foreach (var uid in loaded.Entities)
+            {
+                if (TryComp<AdminMapMissingPrototypeComponent>(uid, out var marker) && marker.Prototype.Length > 0)
+                    missing[marker.Prototype] = missing.GetValueOrDefault(marker.Prototype) + 1;
+            }
+            if (missing.Count > 0)
+                Log.Warning($"Admin map upload omitted {missing.Values.Sum()} entities with {missing.Count} missing prototypes.");
 
             Box2? combined = null;
             foreach (var grid in loaded.Grids)
@@ -284,7 +415,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         }
         foreach (var (user, upload) in _uploads.ToArray())
         {
-            if (upload.Expires <= _timing.RealTime || Deleted(upload.Ghost))
+            if (upload.Expires <= _timing.RealTime)
                 _uploads.Remove(user);
         }
         foreach (var (user, until) in _cooldowns.ToArray())
@@ -294,13 +425,21 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         }
     }
 
-    public override void Shutdown()
+    private void ResetRound()
     {
         foreach (var preview in _previews.Values)
             Cleanup(preview);
         _previews.Clear();
         _uploads.Clear();
         _cooldowns.Clear();
+        _library.Clear();
+        _completedUploads.Clear();
+        _libraryBytes = 0;
+    }
+
+    public override void Shutdown()
+    {
+        ResetRound();
         base.Shutdown();
     }
 }

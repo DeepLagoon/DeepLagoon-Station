@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using System.Security.Cryptography;
 using Content.Server.Administration.Managers;
 using Content.Server.GameTicking;
 using Content.Shared._DeepLagoon.Admin;
@@ -23,6 +24,8 @@ using Robust.Shared.Player;
 using Robust.Client.Input;
 using Robust.Client.Graphics;
 using Robust.Shared.Timing;
+using Robust.Shared.Containers;
+using Robust.Shared.Physics.Components;
 using ClientUpload = Content.Client._DeepLagoon.Admin.AdminMapUploadSystem;
 using ServerUpload = Content.Server._DeepLagoon.Admin.AdminMapUploadSystem;
 
@@ -31,6 +34,106 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class AdminMapUploadTests
 {
+    [Test]
+    public async Task MissingPrototypeMarkersAndKnownContentsSurvivePreviewAndPlacement()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        const string missingId = "DLTestForeignContainer";
+        var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+        var request = Guid.NewGuid();
+        byte[] bytes = [];
+        EntityUid destination = default;
+        Vector2 originalChildPosition = default;
+        await pair.Server.WaitPost(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(session);
+            var maps = entities.System<SharedMapSystem>();
+            var source = maps.CreateMap(out var sourceId, runMapInit: false);
+            var grid = maps.CreateGridEntity(sourceId);
+            maps.SetTile(grid, Vector2i.Zero, new Tile(1));
+            maps.SetTile(grid, new Vector2i(1, 0), new Tile(1));
+            var container = entities.SpawnEntity("CrateGenericSteel", new EntityCoordinates(grid, new Vector2(0.5f)));
+            entities.SpawnEntity("CrateGenericSteel", new EntityCoordinates(grid, new Vector2(1.5f, 0.5f)));
+            var child = entities.SpawnEntity("Wrench", new EntityCoordinates(grid, Vector2.Zero));
+            var containers = entities.System<SharedContainerSystem>();
+            Assert.That(containers.Insert(child, containers.EnsureContainer<Robust.Shared.Containers.Container>(container, "foreign-contents")), Is.True);
+            originalChildPosition = entities.System<SharedTransformSystem>().GetWorldPosition(child);
+            using var writer = new StringWriter();
+            Assert.That(entities.System<MapLoaderSystem>().TrySaveGrid(grid, writer), Is.True);
+            bytes = Encoding.UTF8.GetBytes(writer.ToString().Replace("CrateGenericSteel", missingId));
+            entities.DeleteEntity(source);
+            destination = maps.CreateMap();
+            var ghost = entities.SpawnEntity("MobObserver", new EntityCoordinates(destination, new Vector2(20, 30)));
+            pair.Server.PlayerMan.SetAttachedEntity(session, ghost);
+        });
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitPost(() => typeof(ClientUpload).GetField("_request", flags)!
+            .SetValue(pair.Client.EntMan.System<ClientUpload>(), request));
+        EntityUid stagedChild = EntityUid.Invalid;
+        Box2 previewBounds = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var system = entities.System<ServerUpload>();
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var sender = new EntitySessionEventArgs(session);
+            typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system,
+                [new AdminMapUploadBeginEvent(request, bytes.Length, "missing-prototypes.yml",
+                    Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes))), sender]);
+            typeof(ServerUpload).GetMethod("OnChunk", flags)!.Invoke(system, [new AdminMapUploadChunkEvent(request, 0, bytes), sender]);
+            var previews = (System.Collections.IDictionary) typeof(ServerUpload).GetField("_previews", flags)!.GetValue(system)!;
+            Assert.That(previews.Count, Is.EqualTo(1));
+            var preview = previews[session.UserId]!;
+            previewBounds = (Box2) preview.GetType().GetProperty("Bounds")!.GetValue(preview)!;
+            var markers = entities.AllEntityQueryEnumerator<AdminMapMissingPrototypeComponent>();
+            var count = 0;
+            while (markers.MoveNext(out var uid, out var marker))
+            {
+                count++;
+                Assert.That(marker.Prototype, Is.EqualTo(missingId));
+                Assert.That(entities.HasComponent<PhysicsComponent>(uid), Is.False);
+                Assert.That(entities.HasComponent<ContainerManagerComponent>(uid), Is.False);
+            }
+            Assert.That(count, Is.EqualTo(2));
+            var items = entities.AllEntityQueryEnumerator<MetaDataComponent, TransformComponent>();
+            while (items.MoveNext(out var uid, out var meta, out var xform))
+            {
+                if (meta.EntityPrototype?.ID != "Wrench") continue;
+                stagedChild = uid;
+                Assert.That(entities.HasComponent<AdminMapMissingPrototypeComponent>(xform.ParentUid), Is.True);
+                Assert.That(Vector2.Distance(entities.System<SharedTransformSystem>().GetWorldPosition(uid), originalChildPosition), Is.LessThan(0.001f));
+                Assert.That(entities.System<SharedContainerSystem>().IsEntityInContainer(uid), Is.False);
+            }
+            Assert.That(stagedChild, Is.Not.EqualTo(EntityUid.Invalid));
+        });
+        await pair.RunTicksSync(60);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var system = pair.Client.EntMan.System<ClientUpload>();
+            Assert.That(system.HasPreview, Is.True);
+            Assert.That(system.MissingPrototypes[missingId], Is.EqualTo(2));
+            var markers = pair.Client.EntMan.AllEntityQueryEnumerator<AdminMapMissingPrototypeComponent>();
+            var count = 0;
+            while (markers.MoveNext(out _, out _)) count++;
+            Assert.That(count, Is.EqualTo(2), "Markers must replicate into the private preview");
+            system.ConfirmPlacement();
+        });
+        await pair.RunTicksSync(30);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.Deleted(stagedChild), Is.False);
+            Assert.That(entities.GetComponent<TransformComponent>(stagedChild).MapUid, Is.EqualTo(destination));
+            var expected = AdminMapPlacementMath.Position(originalChildPosition, previewBounds.Center,
+                new Vector2(20, 30), Angle.Zero);
+            Assert.That(Vector2.Distance(entities.System<SharedTransformSystem>().GetWorldPosition(stagedChild), expected), Is.LessThan(0.001f));
+            entities.DeleteEntity(destination);
+        });
+        await CleanReturnAsync(pair);
+    }
+
     private static async Task CleanReturnAsync(Content.IntegrationTests.Pair.TestPair pair)
     {
         // Detach while player data still exists, before the pool tears down the session.
@@ -59,7 +162,7 @@ public sealed class AdminMapUploadTests
             using var writer = new StringWriter();
             Assert.That(entities.System<MapLoaderSystem>().TrySaveGrid(grid, writer), Is.True);
             var yaml = Encoding.UTF8.GetBytes(writer + "\n#");
-            bytes = new byte[32 * AdminMapUploadLimits.ChunkBytes + 17];
+            bytes = new byte[128 * AdminMapUploadLimits.ChunkBytes + 17];
             Array.Fill(bytes, (byte) ' ');
             yaml.CopyTo(bytes, 0);
             entities.DeleteEntity(grid);
@@ -96,8 +199,8 @@ public sealed class AdminMapUploadTests
                 client.PickAndUpload(message => result = message, (offset, _) =>
                 {
                     received.Add(offset);
-                    // Each acknowledgement takes four minutes: the whole transfer exceeds five.
-                    now += TimeSpan.FromMinutes(4);
+                    // Even with cumulative ACKs, the whole transfer exceeds the idle deadline.
+                    now += TimeSpan.FromMinutes(2);
                 });
                 now += TimeSpan.FromMinutes(6);
                 client.Update(0);
@@ -111,8 +214,9 @@ public sealed class AdminMapUploadTests
                 Assert.That(result, Is.EqualTo("dl-map-upload-preview"));
                 Assert.That(client.HasPreview, Is.True);
                 Assert.That(received.Last(), Is.EqualTo(bytes.Length));
-                Assert.That(received.Distinct().Count(), Is.EqualTo(34), "Initial zero plus every chunk is acknowledged");
-                Assert.That(now, Is.GreaterThan(TimeSpan.FromMinutes(100)));
+                Assert.That(received.Distinct().Count(), Is.GreaterThan(1), "Cumulative ACKs may cover several reordered chunks");
+                Assert.That(received, Is.Ordered, "Late or duplicate ACKs must never regress progress");
+                Assert.That(now, Is.GreaterThan(TimeSpan.FromMinutes(30)));
                 client.CancelPlacement();
             });
             await pair.RunTicksSync(10);
@@ -163,7 +267,7 @@ public sealed class AdminMapUploadTests
             var system = pair.Server.EntMan.System<ServerUpload>();
             var sender = new EntitySessionEventArgs(pair.Server.PlayerMan.Sessions.Single());
             var flags = BindingFlags.NonPublic | BindingFlags.Instance;
-            typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(request, file.Length), sender]);
+            typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(request, file.Length, "grid.yml", Convert.ToHexString(SHA256.HashData(file))), sender]);
             typeof(ServerUpload).GetMethod("OnChunk", flags)!.Invoke(system, [new AdminMapUploadChunkEvent(request, 0, file), sender]);
         });
         await pair.RunTicksSync(60);
@@ -339,7 +443,7 @@ public sealed class AdminMapUploadTests
                 ui.GetType().GetMethod(state == BoundKeyState.Down ? "KeyBindDown" : "KeyBindUp")!
                     .Invoke(ui, [new BoundKeyEventArgs(EngineKeyFunctions.UIClick, state, coordinates, true)]);
             }
-            var status = window.Contents.Children.Single().Children.OfType<Label>().Single();
+            var status = window.Contents.Children.Single().Children.OfType<Label>().First();
             Assert.That(status.Text, Is.EqualTo(Robust.Shared.Localization.Loc.GetString("dl-map-upload-denied")));
             window.Close();
         });
@@ -389,7 +493,7 @@ public sealed class AdminMapUploadTests
                 cooldowns.Clear();
                 var id = Guid.NewGuid();
                 var bytes = Encoding.UTF8.GetBytes(yaml);
-                typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(id, bytes.Length), sender]);
+                typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(id, bytes.Length, "grid.yml", Convert.ToHexString(SHA256.HashData(bytes))), sender]);
                 typeof(ServerUpload).GetMethod("OnChunk", flags)!.Invoke(system, [new AdminMapUploadChunkEvent(id, 0, bytes), sender]);
                 return id;
             }
@@ -459,7 +563,7 @@ public sealed class AdminMapUploadTests
 
             var sender = new EntitySessionEventArgs(session);
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            void Begin(Guid id, int length) => typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(id, length), sender]);
+            void Begin(Guid id, int length) => typeof(ServerUpload).GetMethod("OnBegin", flags)!.Invoke(system, [new AdminMapUploadBeginEvent(id, length, "grid.yml", Convert.ToHexString(SHA256.HashData(length == bytes.Length ? bytes : Encoding.UTF8.GetBytes(writer.ToString())))), sender]);
             void Chunk(Guid id, int offset, byte[] chunk) => typeof(ServerUpload).GetMethod("OnChunk", flags)!.Invoke(system, [new AdminMapUploadChunkEvent(id, offset, chunk), sender]);
             var uploads = (System.Collections.IDictionary)typeof(ServerUpload).GetField("_uploads", flags)!.GetValue(system)!;
             var cooldowns = (System.Collections.IDictionary)typeof(ServerUpload).GetField("_cooldowns", flags)!.GetValue(system)!;

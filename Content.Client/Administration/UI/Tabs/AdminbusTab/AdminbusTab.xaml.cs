@@ -38,7 +38,7 @@ namespace Content.Client.Administration.UI.Tabs.AdminbusTab
             LoadGamePrototypeButton.OnPressed += LoadGamePrototypeButtonOnPressed;
             LoadGamePrototypeButton.Disabled = !adminManager.CanCommand("loadprototype");
             LoadBlueprintsButton.Disabled = !adminManager.CanCommand("loadgrid");
-            UploadMapButton.Disabled = !adminManager.HasFlag(AdminFlags.Mapping);
+            UploadMapButton.Disabled = !adminManager.IsAdmin();
             UploadMapButton.OnPressed += _ => new AdminMapUploadWindow().OpenCentered();
         }
 
@@ -47,7 +47,7 @@ namespace Content.Client.Administration.UI.Tabs.AdminbusTab
             var adminManager = IoCManager.Resolve<IClientAdminManager>();
             LoadGamePrototypeButton.Disabled = !adminManager.CanCommand("loadprototype");
             LoadBlueprintsButton.Disabled = !adminManager.CanCommand("loadgrid");
-            UploadMapButton.Disabled = !adminManager.HasFlag(AdminFlags.Mapping);
+            UploadMapButton.Disabled = !adminManager.IsAdmin();
         }
 
         private void LoadGamePrototypeButtonOnPressed(BaseButton.ButtonEventArgs obj)
