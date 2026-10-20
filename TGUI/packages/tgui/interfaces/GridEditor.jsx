@@ -1,7 +1,7 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, expansionCount, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, expansionCount, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
@@ -149,8 +149,13 @@ export const GridEditor = () => {
   const catalogStart = Math.max(0, Math.floor(catalogScroll / 64) - 2);
   const catalogEnd = Math.min(data.catalogCount || 0, catalogStart + 20);
   const baseArea = useMemo(() => ({ x: data.x || 0, y: data.y || 0, width: data.width || 16, height: data.height || 16 }), [data.x, data.y, data.width, data.height]);
-  const area = useMemo(() => ({ x: baseArea.x - expansion.left, y: baseArea.y - expansion.bottom,
-    width: baseArea.width + expansion.left + expansion.right, height: baseArea.height + expansion.bottom + expansion.top }), [baseArea, expansion]);
+  const area = useMemo(() => {
+    const shared = { ...expansion };
+    for (const peer of data.peerDrafts || []) for (const side of ['left', 'right', 'bottom', 'top'])
+      shared[side] = Math.max(shared[side], peer.expansion?.[side] || 0);
+    return { x: baseArea.x - shared.left, y: baseArea.y - shared.bottom,
+      width: baseArea.width + shared.left + shared.right, height: baseArea.height + shared.bottom + shared.top };
+  }, [baseArea, expansion, data.peerDrafts]);
   const previousArea = useRef(area);
   useLayoutEffect(() => {
     const previous = previousArea.current;
@@ -243,6 +248,12 @@ export const GridEditor = () => {
     } catch { return localEdits; }
   },[route.graph,route.profile.id,route.capped,localEdits,draft,data.token]);
   const peerDrafts = useGridEditorPeers({ data, act, edits: sharedEdits, visuals, expansion });
+  useEffect(() => {
+    const merged = collaborativeDraft(baseline, data.peerDrafts || [], editsRef.current,
+      id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    update(merged, true);
+    if (gesture.current?.original) gesture.current.original = copyItems(merged);
+  }, [data.peerDrafts, baseline]);
   useInterfaceStyleGuard(changes > 0 || route.editing || pending || exporting || data.downloading);
   const sceneItems = useMemo(()=>route.visible ? displayed : displayed.filter(item=>!routeProfile(item)),[displayed,route.visible]);
   const sceneIndex = useMemo(()=>indexItems(sceneItems),[sceneItems]);
@@ -284,6 +295,9 @@ export const GridEditor = () => {
     let history = undo, future = redo, applied = false;
     for (const batch of batches) {
       if (batch.version <= patchCursor.current) continue;
+      edits = discardSuperseded(edits, batch.superseded || []);
+      const discard = snapshots => snapshots.map(snapshot => ({ ...snapshot, edits: discardSuperseded(snapshot.edits, batch.superseded || []) }));
+      history = discard(history); future = discard(future);
       for (const { id } of batch.removed) next.delete(id);
       for (const item of batch.items) next.set(item.id, item);
       const bounds = { x: batch.x, y: batch.y, width: batch.width, height: batch.height };
@@ -299,7 +313,7 @@ export const GridEditor = () => {
       previousArea = bounds; patchCursor.current = batch.version;
     }
     serverArea.current = previousArea;
-    const items = [...next.values()], merged = overlayLocalEdits(items, edits, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    const items = [...next.values()], merged = collaborativeDraft(items, data.peerDrafts || [], edits, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
     setBaseline(items); replaceEdits(edits); update(merged, true); setExpansion(nextExpansion);
     setUndo(history); setRedo(future); setSelected(ids => ids.filter(id => merged.some(item => item.id === id)));
     if (gesture.current?.original) gesture.current.original = copyItems(merged);
@@ -336,7 +350,7 @@ export const GridEditor = () => {
     for (let i = 0; i < items.length; i += 16) chunks.push(items.slice(i, i + 16));
     if (!chunks.length) chunks.push([]);
     upload.current = { id, chunks }; setPending(true);
-    act('applyStart', { id, count: items.length, chunks: chunks.length, purpose, name, ...(purpose === 'apply' && expanded ? { expansion } : {}) });
+    act('applyStart', { id, count: items.length, chunks: chunks.length, purpose, name, ...(purpose === 'apply' ? { expansion: { left: baseArea.x - area.x, right: area.x + area.width - baseArea.x - baseArea.width, bottom: baseArea.y - area.y, top: area.y + area.height - baseArea.y - baseArea.height } } : {}) });
   };
   const apply = () => {
     const baselineIds = new Set(baseline.map(i => i.id));
@@ -527,7 +541,7 @@ export const GridEditor = () => {
           const moved = moveSelection(active.original, active.ids, active.offset.dx, active.offset.dy, area);
           update(moved.items); setSelected(moved.ids);
         }
-        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), layers));
+        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), layers, mirror));
         if (active.drawing && tool === 'brush') paint(cellsBetween(active.start, active.last, true));
         if (active.drawing && tool === 'line') paint(cellsBetween(active.start, active.last));
         if (JSON.stringify(current.current) !== JSON.stringify(active.original)) remember(active.original, previousEdits);
@@ -539,13 +553,18 @@ export const GridEditor = () => {
   const step = (forward) => {
     const history = forward ? redo : undo; if (!history.length || locked) return;
     const snapshot = history[history.length - 1];
-    const next = overlayLocalEdits(baseline, snapshot.edits || [], id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
+    const next = collaborativeDraft(baseline, data.peerDrafts || [], snapshot.edits || [], id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
     const previous = { edits: copyItems(editsRef.current), expansion: { ...expansion } };
     if (forward) { setUndo((h) => [...h, previous]); setRedo(history.slice(0, -1)); }
     else { setRedo((h) => [...h, previous]); setUndo(history.slice(0, -1)); }
     replaceEdits(copyItems(snapshot.edits || [])); update(next, true); setExpansion(snapshot.expansion); setSelected([]);
   };
-  const remove = () => { change(current.current.filter((i) => !selected.includes(i.id))); setSelected([]); };
+  const remove = () => {
+    const region = selectionRegion.current;
+    const rectangle = region && region.ids.length === selected.length && region.ids.every(id => selected.includes(id)) ? region.rectangle : null;
+    change(rectangle ? eraseRectangle(current.current, rectangle, layers, mirror) : current.current.filter(i => !selected.includes(i.id)));
+    setSelected([]); selectionRegion.current = null;
+  };
   const reflect = (axis = 'x') => {
     if (!selected.length || locked) return;
     const region = selectionRegion.current;
@@ -760,7 +779,7 @@ export const GridEditor = () => {
                 className={`GridEditor__resizeGrid ${sides.join(' ')}`} onPointerDown={event => startGridResize(sides, event)}
                 onPointerMove={moveGridResize} onPointerUp={event => endGridResize(event)} onPointerCancel={event => endGridResize(event, true)} />)}
             <GridEditorScene key={`${data.token}:${sceneAttempt}`} index={sceneIndex} area={area} layers={layers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
-            {!before && !!peerDrafts.peers.length && <GridEditorPeers items={peerDrafts.items} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
+            {!before && !!peerDrafts.peers.length && <GridEditorPeers items={[]} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
             {atmosMode && data.atmosToken === data.token && !before && <GridEditorAtmos cells={atmosCells} area={area} view={view} cellSize={cellSize} />}
             {mirror.enabled && <div className={`GridEditor__mirrorLine ${mirror.axis}`} style={mirror.axis === 'x' ? { left: (mirror.center - area.x) * cellSize, height: area.height * cellSize } : { top: (area.y + area.height - mirror.center) * cellSize, width: area.width * cellSize }} />}
             {reference.overlay}
@@ -798,8 +817,8 @@ export const GridEditor = () => {
         <label>Координата оси <input aria-label="Координата оси зеркальности" type="number" step={.5} disabled={locked} value={mirror.center} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, center: Math.round(Number(event.target.value) * 2) / 2 }); }} /></label>
         <small>Добавление, перенос, поворот и удаление отражаются относительно оси. Применяются вместе с черновиком.</small>
         {reference.controls}
-        {!!peerDrafts.peers.length && <><strong>Совместный просмотр</strong>
-          <small>Чужие черновики полупрозрачны, удаления отмечены крестом. «Применить» сохраняет ваши правки.</small>
+        {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
+          <small>Черновики доступны для выделения и правки всем участникам. Последняя правка элемента заменяет предыдущую.</small>
           {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
         </>}
         <strong>Атмосфера</strong>

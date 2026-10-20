@@ -13,6 +13,54 @@ namespace Content.Tests.Server;
 [TestFixture]
 public sealed class AdminMapUploadCompatibilityTests
 {
+    [TestCase("RMCPlanetHybrisaAsphalt", "FloorAsphalt")]
+    [TestCase("RMCPlanetHybrisaAsphaltSidewalkEast", "FloorAsphalt")]
+    [TestCase("FloorWoodParquetDark", "FloorWood")]
+    [TestCase("ForeignFloorSteelCheckerDark", "FloorSteelCheckerDark")]
+    [TestCase("floorasfalt", "FloorAsphalt")]
+    public void MissingTilesUseClosestNameRegardlessOfRegistrationOrder(string original, string expected)
+    {
+        var candidates = new[] { "Space", "FloorSteelCheckerDark", "FloorWood", "FloorAsphalt", "FloorSteel" };
+        foreach (var available in new[] { candidates, candidates.Reverse().ToArray() })
+        {
+            var data = Parse($"tilemap: {{23: {original}}}");
+            var replacements = AdminMapUploadCompatibility.ReplaceMissingTiles(data, _ => false, available);
+            Assert.That(replacements[original], Is.EqualTo(expected));
+            Assert.That(data.Get<MappingDataNode>("tilemap").Get<ValueDataNode>("23").Value, Is.EqualTo(expected));
+        }
+    }
+
+    [Test]
+    public void ExistingTilesAndAliasesRemainAndOnlyTileNamesChange()
+    {
+        var data = Parse("""
+            tilemap: {0: Space, 1: OldAsphaltAlias, 23: RMCPlanetHybrisaAsphalt, 24: RMCPlanetHybrisaAsphalt}
+            entities: [{proto: "", entities: [{uid: 1, components: [{type: MapGrid, chunks: {}}]}]}]
+            """);
+        var entities = data["entities"];
+        var replacements = AdminMapUploadCompatibility.ReplaceMissingTiles(data,
+            id => id is "Space" or "OldAsphaltAlias", new[] { "Space", "FloorAsphalt" });
+        var tiles = data.Get<MappingDataNode>("tilemap");
+        Assert.Multiple(() =>
+        {
+            Assert.That(replacements.Count, Is.EqualTo(1));
+            Assert.That(tiles.Get<ValueDataNode>("0").Value, Is.EqualTo("Space"));
+            Assert.That(tiles.Get<ValueDataNode>("1").Value, Is.EqualTo("OldAsphaltAlias"));
+            Assert.That(tiles.Get<ValueDataNode>("23").Value, Is.EqualTo("FloorAsphalt"));
+            Assert.That(tiles.Get<ValueDataNode>("24").Value, Is.EqualTo("FloorAsphalt"));
+            Assert.That(data["entities"], Is.SameAs(entities));
+        });
+    }
+
+    [Test]
+    public void MissingFloorCannotBecomeSpaceEvenWhenSpaceHasClosestName()
+    {
+        var data = Parse("tilemap: {1: ForeignSpace}");
+        var replacements = AdminMapUploadCompatibility.ReplaceMissingTiles(data,
+            _ => false, new[] { "Space", "FloorSteel" });
+        Assert.That(replacements["ForeignSpace"], Is.EqualTo("FloorSteel"));
+    }
+
     private static MappingDataNode Parse(string yaml) =>
         (MappingDataNode) DataNodeParser.ParseYamlStream(new StringReader(yaml)).Single().Root;
 

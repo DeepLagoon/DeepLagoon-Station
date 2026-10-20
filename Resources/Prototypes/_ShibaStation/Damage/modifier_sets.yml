@@ -12,7 +12,9 @@
 - type: damageModifierSet
   id: BloodlossAriral
   coefficients:
-    Blunt: 0.16
+    Blunt: 0.0 # Blunt trauma does not open a bleeding wound; Slash and Piercing do.
+    Structural: 0.0
+    Holy: 0.0
     Slash: 0.5
     Piercing: 0.4
     Shock: 0.0

@@ -52,7 +52,8 @@ public sealed partial class GridEditorSystem
                 draft.GridX != gridX || draft.GridY != gridY || draft.GridWidth != gridRight - gridX || draft.GridHeight != gridTop - gridY;
             draft.Items = items;
             draft.Entities.Clear();
-            foreach (var (id, entity) in entities) draft.Entities[id] = entity;
+            foreach (var (id, entity) in entities)
+            { draft.Entities[id] = entity; draft.KnownEntities[id] = entity; }
             foreach (var item in items) draft.KnownItems.TryAdd(item.Id, item);
             draft.X = left; draft.Y = bottom; draft.Width = right - left; draft.Height = top - bottom;
             draft.GridX = gridX; draft.GridY = gridY; draft.GridWidth = gridRight - gridX; draft.GridHeight = gridTop - gridY;

@@ -34,6 +34,8 @@
     rarePrototypes:
     - SpawnDungeonLootCircuitBoardScience
     - SpawnDungeonLootFlatpacksScience
+    - PortableRecharger # DeepLagoon: expedition loot instead of research.
+    - NFBlueprintPortableRecharger
     rareChance: 0.05
 
 # Clothes

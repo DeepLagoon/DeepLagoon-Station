@@ -183,8 +183,6 @@ public sealed partial class SalvageSystem
 
     private void FinishExpedition(SalvageExpeditionDataComponent component, EntityUid uid, SalvageExpeditionComponent expedition, EntityUid? shuttle)
     {
-        component.NextOffer = _timing.CurTime + TimeSpan.FromSeconds(_cooldown);
-        Announce(uid, Loc.GetString("salvage-expedition-mission-completed"));
         // Finish mission cleanup.
         switch (expedition.MissionParams.MissionType)
         {
@@ -228,6 +226,7 @@ public sealed partial class SalvageSystem
 
 
         component.ActiveMission = 0;
+        component.CanFinish = false;
         component.Cooldown = true;
         if (shuttle != null) // Frontier
             UpdateConsoles(shuttle.Value, component); // Frontier

@@ -110,6 +110,7 @@
 
 - type: technology
   id: ConcentratedLaserWeaponry
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-concentrated-laser-weaponry
   entityIcon: WeaponLaserCannon
   discipline: Arsenal
@@ -166,6 +167,7 @@
 
 - type: technology
   id: PortableMicrofusionWeaponry
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-portable-microfusion-weaponry
   entityIcon: WeaponAdvancedLaser
   discipline: Arsenal

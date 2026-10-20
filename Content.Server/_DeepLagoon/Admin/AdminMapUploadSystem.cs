@@ -34,6 +34,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private PvsOverrideSystem _pvs = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private ITileDefinitionManager _tiles = default!;
 
     private sealed record Preview(Guid Request, ICommonSession Session, EntityUid Ghost, EntityUid Destination,
         EntityUid Stage, LoadResult Loaded, Box2 Bounds, TimeSpan Expires);
@@ -285,6 +286,13 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             RaiseLocalEvent(migrations);
             AdminMapUploadCompatibility.ReplaceMissing(data,
                 id => _prototypes.HasIndex<EntityPrototype>(id), migrations.RenamedPrototypes);
+            var tileReplacements = AdminMapUploadCompatibility.ReplaceMissingTiles(data,
+                id => _tiles.TryGetDefinition(id, out _) ||
+                      _prototypes.TryIndex<TileAliasPrototype>(id, out var alias) &&
+                      _tiles.TryGetDefinition(alias.Target, out _),
+                _tiles.Select(tile => tile.ID));
+            foreach (var (original, replacement) in tileReplacements)
+                Log.Warning($"Admin map upload replaced missing tile {original} with {replacement}.");
             if (!_loader.TryLoadGeneric(data, "admin map upload", out loaded,
                     new MapLoadOptions { MergeMap = stagingId }) || loaded.Grids.Count == 0 || loaded.Maps.Count != 0)
                 return false;

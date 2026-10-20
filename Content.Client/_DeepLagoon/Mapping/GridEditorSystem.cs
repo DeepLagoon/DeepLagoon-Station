@@ -161,6 +161,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Array("patchBatches", _pendingPatches.Select(entry => new TguiData().Number("version", entry.Version)
                 .Bool("applied", entry.Patch.Applied).Number("x", entry.Patch.X).Number("y", entry.Patch.Y)
                 .Number("width", entry.Patch.Width).Number("height", entry.Patch.Height)
+                .Array("superseded", entry.Patch.Superseded.Select(ItemData))
                 .Array("items", entry.Patch.Items.Select(ItemData))
                 .Array("removed", entry.Patch.Removed.Select(id => new TguiData().String("id", id)))))
             .Array("patchItems", ev.Items.Select(ItemData))

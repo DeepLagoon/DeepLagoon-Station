@@ -32,6 +32,55 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class GridEditorTests
 {
     [Test]
+    public async Task ComplexMoveCreatesDecalStorageAndRestoresDeletedDraftEntity()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: false);
+            var grid = map.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            map.SetTiles(grid, grid.Comp, new() { (new(0, 0), floor), (new(1, 0), floor) });
+            var chair = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+            var editor = entities.System<ServerEditor>();
+            Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var drafts = (IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!;
+            var draft = drafts[player]!;
+            var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
+            List<GridEditorItem> Items() => (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
+            var chairId = Items().Single(item => item.Kind == "entity").Id;
+            var decal = pair.Server.ResolveDependency<IPrototypeManager>().EnumeratePrototypes<DecalPrototype>().First().ID;
+            void Apply(List<GridEditorItem> items) => typeof(ServerEditor).GetMethod("Apply", flags)!.Invoke(editor,
+                new object[] { new GridEditorApplyEvent(token, items, patch: true), new EntitySessionEventArgs(player) });
+            Apply(new() { new() { Id = "new_decal", Kind = "decal", Prototype = decal, X = .125f, Y = .75f } });
+            Assert.That(entities.TryGetComponent<DecalGridComponent>(grid, out var decals), Is.True);
+            var decalEntry = decals!.ChunkCollection.ChunkCollection.Values.SelectMany(chunk => chunk.Decals).Single();
+            entities.DeleteEntity(chair);
+            Apply(new() {
+                new() { Id = "t:0:0", Kind = "remove" },
+                new() { Id = "t:2:0", Kind = "tile", Prototype = "Plating", X = 2, Y = 0 },
+                new() { Id = chairId, Kind = "entity", Prototype = "ChairWood", X = 2.5f, Y = .5f, Anchored = true, Rotation = 90 },
+                new() { Id = "d:" + decalEntry.Key, Kind = "decal", Prototype = decal, X = 2.125f, Y = .75f }
+            });
+            Assert.That(map.GetTileRef(grid, grid.Comp, new Vector2i(0, 0)).Tile.IsEmpty, Is.True);
+            Assert.That(map.GetTileRef(grid, grid.Comp, new Vector2i(2, 0)).Tile.IsEmpty, Is.False);
+            Assert.That(decals.ChunkCollection.ChunkCollection.Values.SelectMany(chunk => chunk.Decals).Single().Value.Coordinates,
+                Is.EqualTo(new Vector2(2.125f, .75f)));
+            var restored = Items().Single(item => item.Prototype == "ChairWood");
+            Assert.That(restored.X, Is.EqualTo(2.5f));
+            Assert.That(restored.Anchored, Is.True);
+            Assert.That(restored.Rotation, Is.EqualTo(90f).Within(.01f));
+            Assert.That(grid.Comp.CanSplit, Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task GridSourceShowsExactRepositoryFileAndSurvivesWorldMovesAndLivePatches()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
@@ -191,6 +240,18 @@ public sealed class GridEditorTests
             await pair.Server.WaitAssertion(() =>
             {
                 Assert.That(PreviewItems(first)["t:2:0"].Prototype, Is.EqualTo("FloorSteel"));
+                // Either mapper can take over, rotate and delete a peer's unsaved creation.
+                var creation = new GridEditorItem { Id = "new_shared_chair", Kind = "entity", Prototype = "ChairWood", X = 1.5f, Y = .5f };
+                Preview(dummy, 0, creation);
+                Preview(first, 0, new GridEditorItem { Id = creation.Id, Kind = "entity", Prototype = "ChairWood", X = 2.5f, Y = .5f, Rotation = 90 });
+                Assert.That(PreviewItems(dummy).ContainsKey(creation.Id), Is.False);
+                Assert.That(PreviewItems(first)[creation.Id].Rotation, Is.EqualTo(90));
+                var generation = (int) Draft(dummy).GetType().GetField("PreviewGeneration")!.GetValue(Draft(dummy))!;
+                Preview(dummy, generation, new GridEditorItem { Id = creation.Id, Kind = "remove" });
+                Assert.That(PreviewItems(first).ContainsKey(creation.Id), Is.False);
+                Assert.That(PreviewItems(dummy)[creation.Id].Kind, Is.EqualTo("remove"));
+                // Restore the original pending chair intent for the following apply assertions.
+                Preview(dummy, generation, edited);
                 typeof(ServerEditor).GetMethod("Apply", flags)!.Invoke(server, new object[] {
                     new GridEditorApplyEvent(Token(dummy), new() { edited }, patch: true), new EntitySessionEventArgs(dummy) });
                 Assert.That(PreviewItems(dummy), Is.Empty);

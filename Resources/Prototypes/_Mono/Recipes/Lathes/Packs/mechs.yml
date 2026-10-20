@@ -80,32 +80,11 @@
 - type: latheRecipePack
   id: S2Mechs
   recipes:
-  - BroadswordHarness
-  - BroadswordHead
-  - BroadswordLArm
-  - BroadswordLLeg
-  - BroadswordRArm
-  - BroadswordRLeg
-  - HalberdHarness
-  - FlailHarness
-  - FlailHead
-  - FlailLArm
-  - FlailRArm
-  - FlailLLeg
-  - FlailRLeg
-  - SpyglassHarness
-  - MaceHarness
   - PowerCageMech
 
 - type: latheRecipePack
   id: S2MechBoards
-  recipes:
-  - BroadswordCentralElectronics
-  - BroadswordPeripheralsElectronics
-  - BroadswordTargetingElectronics
-  - FlailCentralElectronics
-  - FlailPeripheralsElectronics
-  - FlailTargetingElectronics
+  recipes: [] # DeepLagoon: S2/S4 mech construction is disabled.
 
 - type: latheRecipePack
   id: SpaceMechaWeapons

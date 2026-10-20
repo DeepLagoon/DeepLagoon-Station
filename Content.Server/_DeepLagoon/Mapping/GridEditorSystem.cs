@@ -51,6 +51,8 @@ public sealed partial class GridEditorSystem : EntitySystem
         public TimeSpan LastDownload;
         public int GridX, GridY, GridWidth, GridHeight;
         public readonly Dictionary<string, EntityUid> Entities = new();
+        public readonly Dictionary<string, EntityUid> KnownEntities = new();
+        public readonly Dictionary<string, uint> KnownDecals = new();
         public bool Contains(float px, float py) => px >= X && py >= Y && px < X + Width && py < Y + Height;
     }
 
@@ -197,6 +199,7 @@ public sealed partial class GridEditorSystem : EntitySystem
                 !contains(transform.LocalPosition.X, transform.LocalPosition.Y)) continue;
             var id = "e:" + GetNetEntity(uid);
             draft.Entities[id] = uid;
+            draft.KnownEntities[id] = uid;
             items.Add(new GridEditorItem { Id = id, Kind = "entity", Prototype = meta.EntityPrototype.ID,
                 X = transform.LocalPosition.X, Y = transform.LocalPosition.Y, Rotation = (float) transform.LocalRotation.Degrees,
                 Anchored = transform.Anchored });
@@ -346,31 +349,49 @@ public sealed partial class GridEditorSystem : EntitySystem
                 // Keep this edit attached to the selected grid, just as procedural generation does.
                 var canSplit = gridComp.CanSplit;
                 gridComp.CanSplit = false;
-                try { _map.SetTiles(draft.Grid, gridComp, tileChanges); }
+                // Place destination floors first. Removing source floors can unanchor
+                // entities and delete decals; do it only after their final placement.
+                try { _map.SetTiles(draft.Grid, gridComp, tileChanges.Where(change => !change.Item2.IsEmpty).ToList()); }
                 finally { gridComp.CanSplit = canSplit; }
             }
             foreach (var item in removed)
             {
                 if (item.Kind == "entity" && draft.Entities.TryGetValue(item.Id, out var entity)) Del(entity);
-                if (item.Kind == "decal") _decals.RemoveDecal(draft.Grid, uint.Parse(item.Id[2..]));
+                if (item.Kind == "decal") _decals.RemoveDecal(draft.Grid, draft.KnownDecals.GetValueOrDefault(item.Id, uint.Parse(item.Id[2..])));
             }
             foreach (var item in changed.Where(i => i.Kind == "entity"))
             {
                 var coords = new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y));
-                var uid = original.ContainsKey(item.Id) ? draft.Entities[item.Id] : Spawn(item.Prototype, coords);
+                // A live edit may have deleted or detached this entity since the
+                // draft was authored. Recreate it rather than dropping mapper intent.
+                var uid = draft.KnownEntities.TryGetValue(item.Id, out var existingEntity) && Exists(existingEntity)
+                    ? existingEntity : Spawn(item.Prototype, coords);
+                foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
                 var transform = Comp<TransformComponent>(uid);
                 if (transform.Anchored) _transform.Unanchor(uid, transform);
                 _transform.SetCoordinates(uid, coords);
                 _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
                 if (item.Anchored) _transform.AnchorEntity(uid);
             }
+            if (changed.Any(i => i.Kind == "decal")) EnsureComp<DecalGridComponent>(draft.Grid);
             foreach (var item in changed.Where(i => i.Kind == "decal"))
             {
-                if (original.ContainsKey(item.Id)) _decals.RemoveDecal(draft.Grid, uint.Parse(item.Id[2..]));
-                if (!_decals.TryAddDecal(item.Prototype, new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y)), out _,
+                if (draft.KnownDecals.TryGetValue(item.Id, out var knownDecal)) _decals.RemoveDecal(draft.Grid, knownDecal);
+                else if (item.Id.StartsWith("d:", StringComparison.Ordinal)) _decals.RemoveDecal(draft.Grid, uint.Parse(item.Id[2..]));
+                if (!_decals.TryAddDecal(item.Prototype, new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y)), out var decalId,
                         Color.FromHex(item.Color), Angle.FromDegrees(item.Rotation), item.Z, item.Cleanable))
                     throw new InvalidOperationException("Decal placement failed");
+                foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownDecals[item.Id] = decalId;
             }
+            var emptyTiles = tileChanges.Where(change => change.Item2.IsEmpty).ToList();
+            if (emptyTiles.Count > 0)
+            {
+                var canSplit = gridComp.CanSplit;
+                gridComp.CanSplit = false;
+                try { _map.SetTiles(draft.Grid, gridComp, emptyTiles); }
+                finally { gridComp.CanSplit = canSplit; }
+            }
+            SupersedePreviews(draft.Grid, player, ev.Items.Select(item => item.Id).ToHashSet());
             _logs.Add(LogType.AdminMessage, LogImpact.High,
                 $"{player.Name} applied grid editor draft to {ToPrettyString(draft.Grid)}: {changed.Count} changed, {removed.Count} removed");
             PublishPatch(player, draft, left, bottom, right, top);
@@ -379,8 +400,11 @@ public sealed partial class GridEditorSystem : EntitySystem
         catch (Exception e)
         {
             Log.Error($"Grid editor apply failed: {e}");
-            PublishPatch(player, draft, left, bottom, right, top);
-            Result("Применение прервано; часть изменений могла сохраниться. Состояние редактора обновлено, проверьте grid.");
+            // Keep absolute draft intent on unexpected runtime failure. Remembered
+            // identities above make retry update already-created items in place.
+            draft.X = left; draft.Y = bottom; draft.Width = (int) (right - left); draft.Height = (int) (top - bottom);
+            SynchronizeGrid(draft.Grid);
+            Result("Применение прервано; часть изменений могла сохраниться. Черновик сохранён: повторите применение после устранения ошибки.");
         }
     }
 

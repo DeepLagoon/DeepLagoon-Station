@@ -385,6 +385,20 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     assert.match(await peer.locator('.GridEditor__properties').innerText(),/растягивание:/);
     report.collaboration.liveResizePreview=true;
     await peer.close();
+    // A peer-only creation must be selectable and deletable through the real UI.
+    await page.goto(url+'/');
+    await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    await page.getByRole('button',{name:'Вписать',exact:true}).click();
+    await page.evaluate(()=>window.fixtureSetData(d=>({...d,peerDrafts:[{player:'remote',name:'Remote',expansion:{},removedItems:[],
+      items:[{id:'new_peer_only',kind:'entity',prototype:'ChairWood',x:.5,y:.5,rotation:0,color:'#ffffff',z:0,cleanable:false,anchored:false,variant:0,flags:0,mirror:0}]}]})));
+    await page.waitForTimeout(150);
+    const remoteCell=await point(0,0);
+    await page.keyboard.down('s');await page.mouse.click(remoteCell.x,remoteCell.y);await page.keyboard.up('s');
+    await page.keyboard.press('d');
+    await page.waitForFunction(()=>window.fixtureActions.some(a=>a.action==='previewChunk'&&a.payload.items.some(i=>i.id==='new_peer_only'&&i.kind==='remove')));
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureActions.some(a=>a.action==='applyChunk'&&a.payload.items.some(i=>i.id==='new_peer_only'&&i.kind==='remove')));
+    report.collaboration.editAndApplyPeerCreation=true;
     assert.deepEqual(errors,[]);
     fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
     console.log(JSON.stringify(report,null,2));

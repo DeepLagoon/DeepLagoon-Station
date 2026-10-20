@@ -38,6 +38,7 @@
     layers:
     - state: green
   - type: ConditionalSpawner
+    chance: 0 # DeepLagoon: ready-made S2/S4 mechs are disabled.
     prototypes:
     - AFInterceptorFilled
 
@@ -51,6 +52,7 @@
     layers:
     - state: green
   - type: ConditionalSpawner
+    chance: 0 # DeepLagoon: ready-made S2/S4 mechs are disabled.
     prototypes:
     - AFInterceptorMFilled
 
@@ -63,6 +65,7 @@
     layers:
     - state: green
   - type: ConditionalSpawner
+    chance: 0 # DeepLagoon: ready-made S2/S4 mechs are disabled.
     prototypes:
     - AFFlailTSF
 
@@ -75,5 +78,6 @@
     layers:
     - state: green
   - type: ConditionalSpawner
+    chance: 0 # DeepLagoon: ready-made S2/S4 mechs are disabled.
     prototypes:
     - AFFlailETSF

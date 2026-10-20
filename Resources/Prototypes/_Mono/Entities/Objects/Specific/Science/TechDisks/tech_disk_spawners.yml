@@ -168,10 +168,6 @@
     - !type:GroupSelector
       weight: 9
       children:
-      - id: TechDiskMechS4Base
-      - id: TechDiskMechS4Spec
-      - id: TechDiskMechS2Base
-      - id: TechDiskMechS2Spec
       - !type:NestedSelector
         weight: 100
         tableId: SpawnLootTechDisksT3FractureTrunk

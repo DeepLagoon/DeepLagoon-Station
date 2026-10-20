@@ -45,7 +45,7 @@ public sealed class SpeedBoostTest : InteractionTest
         await Client.WaitAssertion(() => Assert.That(chat.History.Count(x => x.Msg.Message == stopped), Is.EqualTo(1)));
 
         await SetKey(ContentKeyFunctions.DeepLagoonSpeedBoost, BoundKeyState.Down);
-        await RunSeconds(6f);
+        await RunSeconds(13f);
         await Client.WaitAssertion(() =>
         {
             Assert.That(chat.History.Count(x => x.Msg.Message == started), Is.EqualTo(2));
@@ -86,7 +86,7 @@ public sealed class SpeedBoostTest : InteractionTest
     }
 
     [Test]
-    public async Task FiveSecondsExhaustsStaminaWithoutCombatCrit()
+    public async Task TwelveSecondsExhaustsStaminaWithoutCombatCrit()
     {
         await Server.WaitAssertion(() =>
         {
@@ -94,8 +94,8 @@ public sealed class SpeedBoostTest : InteractionTest
             var system = Server.System<StaminaSystem>();
             var capacity = StaminaSystem.SpeedBoostCapacity(stamina);
 
-            system.ConsumeSpeedBoostStamina((SPlayer, stamina), 4f);
-            Assert.That(stamina.StaminaDamage, Is.EqualTo(capacity * 0.8f).Within(0.001f));
+            system.ConsumeSpeedBoostStamina((SPlayer, stamina), 11f);
+            Assert.That(stamina.StaminaDamage, Is.EqualTo(capacity * 11f / 12f).Within(0.001f));
             Assert.That(system.CanSpeedBoost(stamina), Is.True);
             system.ConsumeSpeedBoostStamina((SPlayer, stamina), 1f);
             Assert.That(stamina.StaminaDamage, Is.EqualTo(capacity));
@@ -155,7 +155,7 @@ public sealed class SpeedBoostTest : InteractionTest
     }
 
     [Test]
-    public async Task HoldingAltExhaustsAfterFiveSecondsAndCannotAutoRestart()
+    public async Task HoldingAltExhaustsAfterTwelveSecondsAndCannotAutoRestart()
     {
         await SetKey(ContentKeyFunctions.DeepLagoonSpeedBoost, BoundKeyState.Down);
         await RunSeconds(1f);
@@ -163,12 +163,12 @@ public sealed class SpeedBoostTest : InteractionTest
             Assert.That(SEntMan.GetComponent<StaminaComponent>(SPlayer).StaminaDamage, Is.Zero));
 
         await SetKey(EngineKeyFunctions.MoveRight, BoundKeyState.Down);
-        await RunSeconds(4f);
+        await RunSeconds(11f);
         await Server.WaitAssertion(() =>
         {
             var stamina = SEntMan.GetComponent<StaminaComponent>(SPlayer);
             Assert.That(stamina.SpeedBoostExhausted, Is.False);
-            Assert.That(stamina.StaminaDamage, Is.InRange(stamina.CritThreshold * 0.75f, stamina.CritThreshold * 0.85f));
+            Assert.That(stamina.StaminaDamage, Is.InRange(stamina.CritThreshold * 0.90f, stamina.CritThreshold * 0.94f));
         });
         await RunSeconds(1.2f);
         await Server.WaitAssertion(() =>

@@ -81,21 +81,13 @@
 
 - type: technology
   id: Broadsword
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-broadsword
   entityIcon: AFInterceptor
   discipline: MechaEngineering
   tier: 2
   cost: 50000
   recipeUnlocks:
-  - BroadswordHarness
-  - BroadswordHead
-  - BroadswordLArm
-  - BroadswordLLeg
-  - BroadswordRArm
-  - BroadswordRLeg
-  - BroadswordCentralElectronics
-  - BroadswordPeripheralsElectronics
-  - BroadswordTargetingElectronics
   - LightMechaAutocannon
   - LightMechaSMG
   - LightMechaShotgun
@@ -118,13 +110,13 @@
 
 - type: technology
   id: BroadswordSubtypes
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-broadsword-subtypes
   entityIcon: AFInterceptorM
   discipline: MechaEngineering
   tier: 1
   cost: 35000
   recipeUnlocks:
-  - HalberdHarness
   - MediumMechDMR
   - MediumMechCoilgun
   - MediumMechTOW
@@ -134,21 +126,13 @@
 
 - type: technology
   id: Flail
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-flail
   entityIcon: AFFlail
   discipline: MechaEngineering
   tier: 3
   cost: 50000
   recipeUnlocks:
-  - FlailHarness
-  - FlailHead
-  - FlailLArm
-  - FlailLLeg
-  - FlailRArm
-  - FlailRLeg
-  - FlailCentralElectronics
-  - FlailPeripheralsElectronics
-  - FlailTargetingElectronics
   - HeavyMechRPG
   - HeavyMechCannon
   - HeavyMechProjector
@@ -158,14 +142,13 @@
 
 - type: technology
   id: FlailSubtypes
+  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-flail-subtypes
   entityIcon: AFFlailE
   discipline: MechaEngineering
   tier: 3
   cost: 30000
   recipeUnlocks:
-  - MaceHarness
-  - SpyglassHarness
   - EWACMechaFlares
   - EWACMechaJammer
   technologyPrerequisites:

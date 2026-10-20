@@ -120,8 +120,9 @@ export function ensureWallFloors(items, isWall, original = [], isDiagonal = () =
 
 export const cellRectangle = (a, b) => ({ x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), width: Math.abs(a.x - b.x) + 1, height: Math.abs(a.y - b.y) + 1 });
 
-export function eraseRectangle(items, rectangle, layers) {
-  return items.filter(item => !layers[item.kind] || !inside(cellOf(item), rectangle));
+export function eraseRectangle(items, rectangle, layers, mirror = null) {
+  const reflected = mirror?.enabled ? { ...rectangle, [mirror.axis]: 2 * mirror.center - rectangle[mirror.axis] - rectangle[mirror.axis === 'x' ? 'width' : 'height'] } : null;
+  return items.filter(item => !layers[item.kind] || !inside(cellOf(item), rectangle) && !(reflected && inside(cellOf(item), reflected)));
 }
 
 export function moveSelection(items, ids, dx, dy, area) {
@@ -303,12 +304,30 @@ export function mirrorChanges(previous, next, mirror, area, nextId, pairs = new 
     const reflected = reflectedItem(item, mirror, isDiagonal);
     return before.get(pairs.get(item.id)) || positions.get(positionKey(reflected));
   };
+  const removedCells = new Map();
+  const cellKey = item => `${item.kind}:${Math.floor(item.x)}:${Math.floor(item.y)}`;
+  for (const item of previous) {
+    const key = cellKey(item);
+    if (!removedCells.has(key)) removedCells.set(key, []);
+    removedCells.get(key).push(item);
+  }
+  const nextIds = new Set(next.map(item => item.id));
+  const remainingCells = new Set(next.map(cellKey));
+  const eraseCells = new Set();
+  for (const [key, items] of removedCells) {
+    if (remainingCells.has(key) || items.some(item => nextIds.has(item.id))) continue;
+    const item = items[0], axis = mirror.axis;
+    const cell = { x: Math.floor(item.x), y: Math.floor(item.y) };
+    cell[axis] = Math.floor(2 * mirror.center - cell[axis] - 1);
+    eraseCells.add(`${item.kind}:${cell.x}:${cell.y}`);
+  }
+  for (const item of next) if (eraseCells.has(cellKey(item))) result.delete(item.id);
   for (const item of previous) if (!result.has(item.id)) {
     const target = item.kind === 'tile' ? before.get(tileId(reflectedItem(item, mirror).x, reflectedItem(item, mirror).y)) : counterpart(item);
     if (target) result.delete(target.id);
   }
   for (const item of next) {
-    if (touched.has(item.id) || JSON.stringify(before.get(item.id)) === JSON.stringify(item)) continue;
+    if (!result.has(item.id) || touched.has(item.id) || JSON.stringify(before.get(item.id)) === JSON.stringify(item)) continue;
     const reflected = reflectedItem(item, mirror, isDiagonal);
     if (!inside(reflected, area) || samePosition(item, reflected)) continue;
     const old = before.get(item.id), target = item.kind === 'tile' ? null : old ? counterpart(old) : counterpart(item);
@@ -380,4 +399,20 @@ export function peerPreview(peers, ownEdits, isExclusive = () => false) {
   }
   const visible = item => !protectedIds.has(item.id) && !(item.kind === 'entity' && isExclusive(item.prototype) && protectedCells.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`));
   return { items: [...items.values()].filter(visible), removed: [...removed.values()].filter(visible) };
+}
+
+// Shared drafts take part in the same hit testing and editing as world items.
+export function collaborativeDraft(baseline, peers, edits, isExclusive = () => false) {
+  const foreign = peerPreview(peers, [], isExclusive);
+  return overlayLocalEdits(overlayLocalEdits(baseline,
+    [...foreign.items, ...foreign.removed.map(item => ({ id: item.id, kind: 'remove' }))], isExclusive), edits, isExclusive);
+}
+
+export function discardSuperseded(edits, superseded) {
+  const old = new Map(superseded.map(item => [item.id, item]));
+  return edits.filter(item => {
+    const previous = old.get(item.id);
+    if (!previous || previous.kind !== item.kind) return true;
+    return item.kind !== 'remove' && Object.keys(item).some(key => item[key] !== previous[key]);
+  });
 }

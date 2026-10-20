@@ -1,3 +1,22 @@
+# DeepLagoon: former research unlocks are found on expeditions.
+- type: entity
+  parent: WeaponCaseHeavy
+  id: WeaponCaseHeavySolarisExpedition
+  suffix: Dungeon, Solaris
+  components:
+  - type: StorageFill
+    contents:
+    - id: WeaponMechCombatSolarisLaser
+
+- type: entity
+  parent: WeaponCaseHeavy
+  id: WeaponCaseHeavyImmolationExpedition
+  suffix: Dungeon, Immolation
+  components:
+  - type: StorageFill
+    contents:
+    - id: WeaponMechCombatImmolationGun
+
 # Handguns
 - type: entity
   parent: WeaponCaseShort

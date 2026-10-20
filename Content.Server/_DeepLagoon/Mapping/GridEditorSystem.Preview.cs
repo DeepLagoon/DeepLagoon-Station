@@ -45,6 +45,7 @@ public sealed partial class GridEditorSystem
             };
             if (!valid) return;
         }
+        SupersedePreviews(draft.Grid, args.SenderSession, ev.Changes.Where(item => item.Kind != "clear").Select(item => item.Id).ToHashSet());
         foreach (var item in ev.Changes)
             if (item.Kind == "clear") draft.Preview.Remove(item.Id); else draft.Preview[item.Id] = item;
         draft.PreviewExpansion = expansion;
@@ -52,8 +53,25 @@ public sealed partial class GridEditorSystem
         PublishPreviews(draft.Grid);
     }
 
-    // Foreign drafts are previews only. They never write to the world and are never
-    // included in another mapper's Apply. Local edits are drawn above foreign previews.
+    // Editing the same item transfers its draft intent to the latest mapper. Notify
+    // the previous author so their local overlay cannot hide the new edit or respawn
+    // an already-applied temporary ID. A generation change rejects in-flight previews.
+    private void SupersedePreviews(EntityUid grid, ICommonSession author, HashSet<string> ids)
+    {
+        foreach (var (player, draft) in _drafts)
+        {
+            if (player == author || draft.Grid != grid) continue;
+            var superseded = draft.Preview.Values.Where(item => ids.Contains(item.Id)).ToList();
+            if (superseded.Count == 0) continue;
+            foreach (var item in superseded) draft.Preview.Remove(item.Id);
+            draft.PreviewGeneration++;
+            RaiseNetworkEvent(new GridEditorPatchEvent(draft.Token, new(), new(), draft.X, draft.Y, draft.Width, draft.Height,
+                draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight, previewGeneration: draft.PreviewGeneration,
+                superseded: superseded), player);
+        }
+    }
+
+    // Unsaved changes are shared editing input, while the world changes only on Apply.
     private void PublishPreviews(EntityUid grid)
     {
         var viewers = _drafts.Where(pair => pair.Value.Grid == grid && _admins.HasAdminFlag(pair.Key, AdminFlags.Mapping))
@@ -61,6 +79,9 @@ public sealed partial class GridEditorSystem
         foreach (var (player, draft) in viewers)
         {
             var peers = new List<GridEditorPeerDraft>();
+            foreach (var (_, peer) in viewers)
+            foreach (var item in peer.Preview.Values.Where(item => item.Kind != "remove"))
+                draft.KnownItems[item.Id] = item;
             foreach (var (other, peer) in viewers)
             {
                 if (other == player) continue;

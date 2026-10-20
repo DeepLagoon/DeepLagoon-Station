@@ -4,7 +4,7 @@ namespace Content.Shared.Damage.Systems;
 
 public sealed partial class StaminaSystem
 {
-    public const float SpeedBoostDuration = 5f;
+    public const float SpeedBoostDuration = 12f;
 
     // Stop just short of combat stamina crit: sprint exhaustion should stop the boost,
     // not knock the runner down or trigger combat jitter/stuttering every tick.

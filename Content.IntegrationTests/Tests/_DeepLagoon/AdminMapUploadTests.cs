@@ -35,6 +35,36 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class AdminMapUploadTests
 {
     [Test]
+    public async Task ForeignTileNameLoadsAsClosestRegisteredFloor()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var tiles = pair.Server.ResolveDependency<ITileDefinitionManager>();
+            var source = maps.CreateMap(out var sourceId, runMapInit: false);
+            var grid = maps.CreateGridEntity(sourceId);
+            var asphalt = tiles["FloorAsphalt"].TileId;
+            maps.SetTile(grid, Vector2i.Zero, new Tile(asphalt));
+            using var writer = new StringWriter();
+            Assert.That(entities.System<MapLoaderSystem>().TrySaveGrid(grid, writer), Is.True);
+            var yaml = writer.ToString().Replace("FloorAsphalt", "RMCPlanetHybrisaAsphalt");
+            entities.DeleteEntity(source);
+
+            object[] args = [new StringReader(yaml), null, null, null, null];
+            var prepare = typeof(ServerUpload).GetMethod("TryPrepare", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            Assert.That(prepare.Invoke(entities.System<ServerUpload>(), args), Is.True);
+            var loaded = (Robust.Shared.EntitySerialization.LoadResult) args[2];
+            Assert.That(loaded.Grids.Count, Is.EqualTo(1));
+            var imported = loaded.Grids.Single();
+            Assert.That(maps.GetTileRef(imported.Owner, imported.Comp, Vector2i.Zero).Tile.TypeId, Is.EqualTo(asphalt));
+            entities.DeleteEntity((EntityUid) args[1]);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task MissingPrototypeMarkersAndKnownContentsSurvivePreviewAndPlacement()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });

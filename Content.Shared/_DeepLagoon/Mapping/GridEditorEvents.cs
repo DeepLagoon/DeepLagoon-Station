@@ -88,12 +88,13 @@ public sealed class GridEditorFileEvent(Guid request, int index, int count, byte
 /// <summary>Only authoritative items changed by an apply, including assigned entity/decal IDs.</summary>
 [Serializable, NetSerializable]
 public sealed class GridEditorPatchEvent(Guid token, List<GridEditorItem> items, List<string> removed,
-    int x, int y, int width, int height, int gridX, int gridY, int gridWidth, int gridHeight, bool applied = false, int previewGeneration = 0) : EntityEventArgs
+    int x, int y, int width, int height, int gridX, int gridY, int gridWidth, int gridHeight, bool applied = false, int previewGeneration = 0, List<GridEditorItem>? superseded = null) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly List<GridEditorItem> Items = items;
     public readonly List<string> Removed = removed;
     public readonly bool Applied = applied;
+    public readonly List<GridEditorItem> Superseded = superseded ?? new();
     public readonly int PreviewGeneration = previewGeneration;
     public readonly int X = x, Y = y, Width = width, Height = height;
     public readonly int GridX = gridX, GridY = gridY, GridWidth = gridWidth, GridHeight = gridHeight;

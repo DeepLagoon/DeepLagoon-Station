@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
+import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
@@ -385,4 +385,46 @@ test('reflection uses the S rectangle including empty edge cells', () => {
   const wall=testWall('wall',0,0,0,'Wall');
   const result=reflectSelection([wall],['wall'],'x',()=>false,{x:0,y:0,width:4,height:1});
   assert.equal(result.items[0].x,3.5);
+});
+
+
+test('peer drafts are editable including creations, deletions and moves, with a local override', () => {
+  const floor = testTile(0, 0), newFloor = testTile(2, 0);
+  const chair = { id: 'new_peer', kind: 'entity', prototype: 'Chair', x: 2.5, y: .5, anchored: true };
+  const peers = [{ items: [newFloor, chair], removedItems: [floor] }];
+  const shared = collaborativeDraft([floor], peers, []);
+  assert.deepEqual(shared, [newFloor, chair]);
+  const moved = shared.map(item => item.id === chair.id ? { ...item, rotation: 90 } : item);
+  const edits = trackLocalEdits(shared, moved);
+  assert.equal(edits.find(item => item.id === chair.id).id, 'new_peer');
+  assert.equal(collaborativeDraft([floor], peers, edits).find(item => item.id === chair.id).rotation, 90);
+  assert.ok(!collaborativeDraft([floor], peers, [{ id: chair.id, kind: 'remove' }]).some(item => item.id === chair.id));
+  const overridden = edits.find(item => item.id === chair.id);
+  assert.ok(!discardSuperseded(edits, [overridden]).some(item => item.id === chair.id));
+  const newer = { ...overridden, rotation: 180 };
+  assert.deepEqual(discardSuperseded([newer], [overridden]), [newer], 'Unacknowledged newer local input survives');
+});
+
+test('mirrored cell erasure removes asymmetric decals and all duplicates while preserving hidden layers', () => {
+  for (const axis of ['x', 'y']) {
+    const bounds = { x: -10, y: -10, width: 20, height: 20 };
+    const mirror = { enabled: true, axis, center: 0 };
+    const source = { id: 'source', kind: 'decal', prototype: 'A', x: -2.125, y: -2.75 };
+    const target = { ...source, id: 'target', prototype: 'B', [axis]: 2.1 };
+    const duplicate = { ...target, id: 'duplicate', [axis]: 2.9 };
+    const floor = testTile(Math.floor(target.x), Math.floor(target.y));
+    const items = [source, target, duplicate, floor];
+    const erased = eraseRectangle(items, { x: -3, y: -3, width: 1, height: 1 }, { decal: true });
+    assert.deepEqual(mirrorChanges(items, erased, mirror, bounds, nextId), [floor]);
+  }
+});
+
+test('mirrored rectangle erases destination-only decals even when the source rectangle is empty', () => {
+  for (const axis of ['x', 'y']) {
+    const mirror = { enabled: true, axis, center: .5 };
+    const rectangle = { x: -3, y: -3, width: 2, height: 2 };
+    const decal = { id: 'remote', kind: 'decal', prototype: 'A', x: -2.75, y: -2.5, [axis]: 2.125 };
+    const chair = { ...decal, id: 'hidden', kind: 'entity' };
+    assert.deepEqual(eraseRectangle([decal, chair], rectangle, { decal: true }, mirror), [chair]);
+  }
 });

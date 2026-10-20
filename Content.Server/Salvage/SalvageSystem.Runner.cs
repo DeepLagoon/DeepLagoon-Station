@@ -79,7 +79,8 @@ public sealed partial class SalvageSystem
             ChatChannel.Radio,
             text,
             text,
-            _mapManager.GetMap(mapId),
+            // During expedition shutdown the map has already left the map registry.
+            mapUid,
             false,
             true,
             null);
@@ -147,12 +148,14 @@ public sealed partial class SalvageSystem
 
         station.CanFinish = false; // Frontier
 
-        // Check if any shuttles remain.
+        // Only the expedition's station can keep its mission active. Debris and
+        // unrelated grids also have ShuttleComponent and may never leave this map.
         var query = EntityQueryEnumerator<ShuttleComponent, TransformComponent>();
 
-        while (query.MoveNext(out _, out var xform))
+        while (query.MoveNext(out var shuttleUid, out _, out var xform))
         {
-            if (xform.MapUid == ev.FromMapUid)
+            if (xform.MapUid == ev.FromMapUid &&
+                _station.GetOwningStation(shuttleUid, xform) == expedition.Station)
                 return;
         }
 
