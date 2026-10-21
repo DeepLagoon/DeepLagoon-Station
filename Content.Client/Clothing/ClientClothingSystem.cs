@@ -341,7 +341,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
                 if (layerData.State is not null && inventory.SpeciesId is not null && layerData.State.EndsWith(inventory.SpeciesId))
                     continue;
 
-                if (_displacement.TryAddDisplacement(displacementData, sprite, index, key, revealedLayers))
+                if (_displacement.TryAddDisplacement(displacementData, sprite, index, key, revealedLayers,
+                    clothingComponent.PreserveLegHem))
                     index++;
             }
         }

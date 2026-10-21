@@ -25,6 +25,11 @@ public sealed partial class ClothingComponent : Component
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
     public ClothingBodyFit BodyFit = ClothingBodyFit.Auto;
 
+    /// <summary>Keep a hanging skirt or robe hem independent of the wearer's leg bend.</summary>
+    [DataField]
+    [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
+    public bool PreserveLegHem;
+
     /// <summary>
     /// The name of the layer in the user that this piece of clothing will map to
     /// </summary>

@@ -63,7 +63,7 @@
   - type: Clothing
     sprite: DeltaV/Clothing/Uniforms/Jumpskirt/courier.rsi
 - type: entity
-  parent: ClothingUniformBase
+  parent: ClothingUniformSkirtBase
   id: ClothingUniformJumpskirtChiefJustice
   name: chief justice's jumpskirt
   description: A fancy black jumpskirt with a lace cravat to make it even more fancy.
@@ -85,7 +85,7 @@
   - type: Clothing
     sprite: DeltaV/Clothing/Uniforms/Jumpskirt/hopmesskit.rsi
 - type: entity
-  parent: ClothingUniformBase
+  parent: ClothingUniformSkirtBase
   id: ClothingUniformJumpskirtAdminAssistant
   name: administrative assistant's jumpskirt
   description: A suit worn by the Administrative Assistant. Smells of burnt coffee.

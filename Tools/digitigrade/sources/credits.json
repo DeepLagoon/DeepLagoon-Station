@@ -1,0 +1,31 @@
+{
+  "Vulpkanin": {
+    "path": "_DV/Mobs/Customization/Vulpkanin/body_markings.rsi",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Taken from https://github.com/ParadiseSS13/Paradise edited by Floofers",
+    "states": [
+      "points_crest-legs",
+      "points_fade-legs",
+      "points_sharp-legs",
+      "points_feet"
+    ]
+  },
+  "Feroxi": {
+    "path": "_DV/Mobs/Customization/Feroxi/body_markings.rsi",
+    "license": "CC-BY-NC-SA-3.0",
+    "copyright": "Stripes made by BlitzTheSquishy, Countershading made by Emily9031",
+    "states": [
+      "feroxi-leg-stripes-blitz",
+      "feroxi-leg-stripes-tiger"
+    ]
+  },
+  "Tajaran": {
+    "path": "_Goobstation/Mobs/Customization/Tajaran/overlays.rsi",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Creator was not supplied, oldest reference tracked to KasparoVy @ https://github.com/ParadiseSS13/Paradise/commit/3610cfd4ea7e9bffc804320851f0b0a625db1dba. Minor tweaks by SX-7",
+    "states": [
+      "patch",
+      "points"
+    ]
+  }
+}

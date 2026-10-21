@@ -15,6 +15,63 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ClothingBodyFitIntegrationTests
 {
+    [TestCase("Vulpkanin")]
+    [TestCase("Feroxi")]
+    [TestCase("Tajaran")]
+    public async Task DigitigradeDollsSelectTrouserHemAndShoeMaps(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
+            var inventory = entities.System<InventorySystem>();
+            var appearance = entities.System<HumanoidAppearanceSystem>();
+            try
+            {
+                foreach (var sex in new[] { Sex.Male, Sex.Female })
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies(species).WithSex(sex);
+                    profile.Appearance.BodyFeatures.Clear();
+                    appearance.LoadProfile(uid, profile);
+                    foreach (var (prototype, slot, state) in new[]
+                    {
+                        ("ClothingUniformJumpsuitEngineering", "jumpsuit", sex == Sex.Female ? "jumpsuit-female" : "jumpsuit"),
+                        ("ClothingUniformJumpskirtEngineering", "jumpsuit", sex == Sex.Female ? "jumpsuit-female-hem" : "jumpsuit-hem"),
+                        ("ClothingShoesBootsLaceup", "shoes", "shoes"),
+                        ("ClothingOuterCoatLab", "outerClothing", "outerwear-hem"),
+                        ("ClothingOuterHardsuitEngineering", "outerClothing", "outerwear"),
+                    })
+                    {
+                        var item = entities.SpawnEntity(prototype, MapCoordinates.Nullspace);
+                        try
+                        {
+                            Assert.That(inventory.TryEquip(uid, item, slot, force: true), Is.True);
+                            var sprite = entities.GetComponent<SpriteComponent>(uid);
+                            Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out var index), Is.True,
+                                $"Missing {species}/{sex}/{prototype}/{slot} displacement.");
+                            var layer = (SpriteComponent.Layer) sprite[index];
+                            var expected = species == "Feroxi" && slot != "shoes" && !state.EndsWith("hem")
+                                ? state + "-feroxi" : state;
+                            Assert.That(layer.ActualState!.StateId.ToString(), Is.EqualTo(expected));
+                            Assert.That(inventory.TryUnequip(uid, slot, force: true, reparent: false), Is.True);
+                            Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out _), Is.False);
+                        }
+                        finally
+                        {
+                            entities.DeleteEntity(item);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                entities.DeleteEntity(uid);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("Human", "ClothingUniformJumpsuitEngineering", "engineering.rsi")]
     [TestCase("Vulpkanin", "ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic", "military.rsi")]
     public async Task EquipmentAndAppearanceChangesRestoreOriginalLayersWithoutAccumulatingResources(

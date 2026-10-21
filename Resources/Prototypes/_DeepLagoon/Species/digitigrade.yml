@@ -1,0 +1,156 @@
+- type: entity
+  id: DeepLagoonDigitigradeInventory
+  abstract: true
+  components:
+  - type: Inventory
+    displacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-hem
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+    maleDisplacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-hem
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+    femaleDisplacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit-female
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-female-hem
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+
+- type: entity
+  id: DeepLagoonFeroxiDigitigradeInventory
+  parent: DeepLagoonDigitigradeInventory
+  abstract: true
+  components:
+  - type: Inventory
+    displacements:
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-hem
+    maleDisplacements:
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-hem
+    femaleDisplacements:
+      shoes:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: shoes
+      outerClothing:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: outerwear-hem
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-female-feroxi
+        hemMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-female-hem

@@ -9,8 +9,10 @@ public sealed partial class DisplacementMapSystem : EntitySystem
 {
     [Dependency] private ISerializationManager _serialization = default!;
 
-    public bool TryAddDisplacement(DisplacementData data, SpriteComponent sprite, int index, string key, HashSet<string> revealedLayers)
+    public bool TryAddDisplacement(DisplacementData data, SpriteComponent sprite, int index, string key, HashSet<string> revealedLayers,
+        bool preserveHem = false)
     {
+        var maps = preserveHem && data.HemMaps.Count > 0 ? data.HemMaps : data.SizeMaps;
         if (data.ShaderOverride != null)
             sprite.LayerSetShader(index, data.ShaderOverride);
 
@@ -22,7 +24,7 @@ public sealed partial class DisplacementMapSystem : EntitySystem
         }
 
         //allows you not to write it every time in the YML
-        foreach (var pair in data.SizeMaps)
+        foreach (var pair in maps)
         {
             pair.Value.CopyToShaderParameters??= new()
             {
@@ -32,7 +34,7 @@ public sealed partial class DisplacementMapSystem : EntitySystem
             };
         }
 
-        if (!data.SizeMaps.ContainsKey(32))
+        if (!maps.ContainsKey(32))
         {
             Log.Error($"DISPLACEMENT: {displacementKey} don't have 32x32 default displacement map");
             return false;
@@ -40,7 +42,7 @@ public sealed partial class DisplacementMapSystem : EntitySystem
 
         // We choose a displacement map from the possible ones, matching the size with the original layer size.
         // If there is no such a map, we use a standard 32 by 32 one
-        var displacementDataLayer = data.SizeMaps[EyeManager.PixelsPerMeter];
+        var displacementDataLayer = maps[EyeManager.PixelsPerMeter];
         var actualRSI = sprite.LayerGetActualRSI(index);
         if (actualRSI is not null)
         {
@@ -48,8 +50,8 @@ public sealed partial class DisplacementMapSystem : EntitySystem
                 Log.Warning($"DISPLACEMENT: {displacementKey} has a resolution that is not 1:1, things can look crooked");
 
             var layerSize = actualRSI.Size.X;
-            if (data.SizeMaps.ContainsKey(layerSize))
-                displacementDataLayer = data.SizeMaps[layerSize];
+            if (maps.ContainsKey(layerSize))
+                displacementDataLayer = maps[layerSize];
         }
 
         var displacementLayer = _serialization.CreateCopy(displacementDataLayer, notNullableOverride: true);

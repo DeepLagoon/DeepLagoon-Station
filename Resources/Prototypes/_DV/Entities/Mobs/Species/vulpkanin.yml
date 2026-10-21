@@ -1,7 +1,7 @@
 - type: entity
   save: false
   name: Urist McVulp
-  parent: BaseMobSpeciesOrganic
+  parent: [ DeepLagoonDigitigradeInventory, BaseMobSpeciesOrganic ]
   id: BaseMobVulpkanin
   abstract: true
   components:
@@ -130,7 +130,7 @@
 - type: entity
   save: false
   name: Vulpkanin Dummy
-  parent: MobHumanDummy
+  parent: [ DeepLagoonDigitigradeInventory, MobHumanDummy ]
   id: MobVulpkaninDummy
   categories: [ HideSpawnMenu ]
   description: A dummy vulpkanin meant to be used in character setup.

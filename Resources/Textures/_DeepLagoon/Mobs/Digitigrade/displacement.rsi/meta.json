@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Derived from _White/Mobs/Species/displacement.rsi by Litogin; hem preserves original coordinates; boot shafts use the trouser map.",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "load": {
+    "srgb": false
+  },
+  "states": [
+    {
+      "name": "jumpsuit-hem",
+      "directions": 4
+    },
+    {
+      "name": "jumpsuit-female-hem",
+      "directions": 4
+    },
+    {
+      "name": "jumpsuit-feroxi",
+      "directions": 4
+    },
+    {
+      "name": "jumpsuit-female-feroxi",
+      "directions": 4
+    },
+    {
+      "name": "shoes",
+      "directions": 4
+    },
+    {
+      "name": "outerwear",
+      "directions": 4
+    },
+    {
+      "name": "outerwear-feroxi",
+      "directions": 4
+    },
+    {
+      "name": "outerwear-hem",
+      "directions": 4
+    }
+  ]
+}

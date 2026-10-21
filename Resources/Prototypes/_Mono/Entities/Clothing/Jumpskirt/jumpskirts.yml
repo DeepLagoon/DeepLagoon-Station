@@ -1,6 +1,6 @@
 # Trauma Armed Forces
 - type: entity
-  parent: ClothingUniformBase
+  parent: ClothingUniformSkirtBase
   id: ClothingUniformJumpskirtTAF
   name: trauma armed forces jumpskirt
   description: Standard fatigues of the Trauma Armed Forces.

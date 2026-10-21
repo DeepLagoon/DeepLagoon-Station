@@ -1,6 +1,6 @@
 - type: entity
   name: Urist McTajaran
-  parent: BaseMobSpeciesOrganic
+  parent: [ DeepLagoonDigitigradeInventory, BaseMobSpeciesOrganic ]
   id: BaseMobTajaran
   abstract: true
   components:
@@ -131,7 +131,7 @@
 - type: entity
   save: false
   name: Urist McHands
-  parent: MobHumanDummy
+  parent: [ DeepLagoonDigitigradeInventory, MobHumanDummy ]
   id: MobTajaranDummy
   categories: [ HideSpawnMenu ]
   description: A dummy tajaran meant to be used in character setup.

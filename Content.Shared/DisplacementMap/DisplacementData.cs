@@ -9,6 +9,10 @@ public sealed partial class DisplacementData
     [DataField(required: true)]
     public Dictionary<int, PrototypeLayerData> SizeMaps = new();
 
+    /// <summary>Alternative maps for garments whose lower fabric hangs between the legs.</summary>
+    [DataField]
+    public Dictionary<int, PrototypeLayerData> HemMaps = new();
+
     [DataField]
     public string? ShaderOverride = "DisplacedStencilDraw";
 }

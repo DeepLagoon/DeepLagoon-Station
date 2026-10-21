@@ -1,5 +1,5 @@
 - type: entity
-  parent: BaseMobSpeciesOrganic
+  parent: [ DeepLagoonFeroxiDigitigradeInventory, BaseMobSpeciesOrganic ]
   id: BaseMobFeroxi
   name: Urist McFin
   save: false
@@ -108,7 +108,7 @@
     - Nehina
 
 - type: entity
-  parent: MobHumanDummy
+  parent: [ DeepLagoonFeroxiDigitigradeInventory, MobHumanDummy ]
   id: MobFeroxiDummy
   name: Feroxi Dummy
   save: false

@@ -53,6 +53,7 @@
   - type: Clothing
     slots: [innerclothing]
     femaleMask: UniformTop
+    preserveLegHem: true
 
 - type: entity
   abstract: true
@@ -81,3 +82,4 @@
   - type: Clothing
     slots: [innerclothing]
     femaleMask: UniformTop
+    preserveLegHem: true
