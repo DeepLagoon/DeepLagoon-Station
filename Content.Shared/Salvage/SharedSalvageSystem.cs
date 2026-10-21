@@ -1,8 +1,10 @@
+using Content.Shared.CCVar;
 using Content.Shared.Dataset;
 using Content.Shared.Random;
 using Content.Shared.Random.Helpers;
 using Content.Shared.Salvage.Expeditions;
 using Content.Shared.Salvage.Expeditions.Modifiers;
+using Robust.Shared.Configuration;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Serialization;
@@ -14,6 +16,9 @@ public abstract partial class SharedSalvageSystem : EntitySystem
 {
     [Dependency] private ILocalizationManager _loc = default!;
     [Dependency] private IPrototypeManager _proto = default!;
+    [Dependency] private IConfigurationManager _salvageConfig = default!;
+
+    public bool ExpeditionWeatherEnabled => _salvageConfig.GetCVar(CCVars.SalvageExpeditionWeatherEnabled);
 
     #region Descriptions
 
@@ -119,7 +124,9 @@ public abstract partial class SharedSalvageSystem : EntitySystem
         }
 
         // only show the description if there is an atmosphere since wont matter otherwise
-        var weather = GetBiomeMod<SalvageWeatherMod>(biome.ID, rand, ref rating);
+        var weather = ExpeditionWeatherEnabled
+            ? GetBiomeMod<SalvageWeatherMod>(biome.ID, rand, ref rating)
+            : _proto.Index<SalvageWeatherMod>("ClearWeather");
         if (weather.Description != string.Empty && !air.Space)
         {
             mods.Add(Loc.GetString(weather.Description));

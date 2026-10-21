@@ -3,9 +3,11 @@ using Content.Server.Salvage.Expeditions;
 using Content.Server.Shuttles.Events;
 using Content.Server.Station.Systems;
 using Content.Shared.Salvage;
+using Content.Shared.CCVar;
 using Content.Shared.Salvage.Expeditions;
 using Content.Shared.Station.Components;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Configuration;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 
@@ -14,6 +16,37 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class SalvageExpeditionLifecycleTests
 {
+    [Test]
+    public async Task WeatherCanBeDisabledAndReenabled()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var config = pair.Server.ResolveDependency<IConfigurationManager>();
+            var salvage = pair.Server.EntMan.System<SharedSalvageSystem>();
+            config.SetCVar(CCVars.SalvageExpeditionWeatherEnabled, false);
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var mission = salvage.GetMission(SalvageMissionType.Elimination, DifficultyRating.Extreme, seed);
+                Assert.That(mission.Weather, Is.EqualTo("ClearWeather"));
+            }
+
+            config.SetCVar(CCVars.SalvageExpeditionWeatherEnabled, true);
+            var hasWeather = false;
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var mission = salvage.GetMission(SalvageMissionType.Elimination, DifficultyRating.Extreme, seed);
+                hasWeather |= mission.Weather != "ClearWeather";
+            }
+
+            Assert.That(hasWeather, Is.True, "Enabling weather must restore the expedition weather modifiers.");
+            config.SetCVar(CCVars.SalvageExpeditionWeatherEnabled, false);
+            Assert.That(salvage.GetMission(SalvageMissionType.Elimination, DifficultyRating.Extreme, 0).Weather,
+                Is.EqualTo("ClearWeather"));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase(false, true)]
     [TestCase(true, true)]
     [TestCase(false, false)]

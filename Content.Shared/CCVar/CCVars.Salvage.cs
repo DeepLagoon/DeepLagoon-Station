@@ -5,6 +5,12 @@ namespace Content.Shared.CCVar;
 public sealed partial class CCVars
 {
     /// <summary>
+    ///     Whether weather is enabled on newly generated expedition planets.
+    /// </summary>
+    public static readonly CVarDef<bool> SalvageExpeditionWeatherEnabled =
+        CVarDef.Create("salvage.expedition_weather_enabled", false, CVar.REPLICATED | CVar.SERVER);
+
+    /// <summary>
     ///     Duration for missions
     /// </summary>
     public static readonly CVarDef<float>
