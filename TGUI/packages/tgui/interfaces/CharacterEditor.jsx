@@ -196,6 +196,10 @@ export const CharacterEditor = () => {
           <Button fluid onClick={() => change(key)(1)}>Сбросить</Button>
         </Field>)}
       </div>
+      {data.canUsePlantigradeLegs && <label className="CharacterEditor__legShape">
+        <input type="checkbox" checked={!!data.plantigradeLegs}
+          onChange={event => change('plantigrade-legs')(event.target.checked)} /> Прямые ноги
+      </label>}
       <ColorEditor label="Цвет кожи" value={data.skinColor} onChange={change('skin-color')} />
       <details className="CharacterEditor__bodyFeatures">
         <summary>Части тела</summary>

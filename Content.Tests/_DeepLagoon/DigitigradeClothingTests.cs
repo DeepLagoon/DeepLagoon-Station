@@ -13,20 +13,45 @@ public sealed class DigitigradeClothingTests
     private const string Maps = "_White/Mobs/Species/displacement.rsi/";
     private const string HemMaps = "_DeepLagoon/Mobs/Digitigrade/displacement.rsi/";
 
-    [TestCase("Vulpkanin", "_DV", false)]
-    [TestCase("Vulpkanin", "_DV", true)]
-    [TestCase("Feroxi", "_DV", false)]
-    [TestCase("Feroxi", "_DV", true)]
-    [TestCase("Tajaran", "_Goobstation", false)]
-    [TestCase("Tajaran", "_Goobstation", true)]
-    public void EachLegJoinsTheNativeTorso(string species, string folder, bool female)
+    [TestCase("Vulpkanin", "_DV")]
+    [TestCase("Feroxi", "_DV")]
+    [TestCase("Tajaran", "_Goobstation")]
+    public void StraightLegChoiceHasDifferentSideSilhouette(string species, string folder)
+    {
+        foreach (var direction in new[] { 2, 3 })
+        {
+            using var straight = Read($"_DeepLagoon/Mobs/{species}/plantigrade.rsi/l_leg.png", direction);
+            using var curved = Read($"{folder}/Mobs/Species/{species}/parts.rsi/l_leg.png", direction);
+            var differences = 0;
+            for (var y = 0; y < 32; y++)
+            for (var x = 0; x < 32; x++)
+                if ((straight[x, y].A >= 128) != (curved[x, y].A >= 128)) differences++;
+            Assert.That(differences, Is.GreaterThan(0), $"{species}/{direction}: both choices use the same leg shape.");
+        }
+    }
+
+    [TestCase("Vulpkanin", "_DV", false, true)]
+    [TestCase("Vulpkanin", "_DV", true, true)]
+    [TestCase("Feroxi", "_DV", false, true)]
+    [TestCase("Feroxi", "_DV", true, true)]
+    [TestCase("Tajaran", "_Goobstation", false, true)]
+    [TestCase("Tajaran", "_Goobstation", true, true)]
+    [TestCase("Vulpkanin", "_DV", false, false)]
+    [TestCase("Vulpkanin", "_DV", true, false)]
+    [TestCase("Feroxi", "_DV", false, false)]
+    [TestCase("Feroxi", "_DV", true, false)]
+    [TestCase("Tajaran", "_Goobstation", false, false)]
+    [TestCase("Tajaran", "_Goobstation", true, false)]
+    public void EachLegJoinsTheNativeTorso(string species, string folder, bool female, bool plantigrade)
     {
         for (var direction = 0; direction < 4; direction++)
         {
             using var torso = Read($"{folder}/Mobs/Species/{species}/parts.rsi/torso_{(female ? "f" : "m")}.png", direction);
             foreach (var part in new[] { "l_leg", "r_leg" })
             {
-                using var leg = Read($"{folder}/Mobs/Species/{species}/parts.rsi/{part}.png", direction);
+                using var leg = Read(plantigrade
+                    ? $"_DeepLagoon/Mobs/{species}/plantigrade.rsi/{part}.png"
+                    : $"{folder}/Mobs/Species/{species}/parts.rsi/{part}.png", direction);
                 var attached = false;
                 for (var y = 0; y < 32; y++)
                 for (var x = 0; x < 32; x++)

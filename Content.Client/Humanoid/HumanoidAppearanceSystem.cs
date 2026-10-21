@@ -5,6 +5,7 @@ using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Inventory;
 using Content.Shared.Preferences;
 using Robust.Client.GameObjects;
+using Robust.Client.ResourceManagement;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
@@ -14,6 +15,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 {
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private MarkingManager _markingManager = default!;
+    [Dependency] private IResourceCache _resources = default!;
 
     public override void Initialize()
     {
@@ -37,6 +39,11 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         EntityManager.System<Content.Client._DeepLagoon.Tattoos.TattooVisualizerSystem>().Refresh(sprite.Owner, component, sprite);
 
         sprite[sprite.LayerMapReserveBlank(HumanoidVisualLayers.Eyes)].Color = component.EyeColor;
+        if (component.ClientOldPlantigradeLegs != component.PlantigradeLegs)
+        {
+            component.ClientOldPlantigradeLegs = component.PlantigradeLegs;
+            EntityManager.System<Content.Client.Clothing.ClientClothingSystem>().RefreshLegShape(sprite.Owner);
+        }
     }
 
     private static bool IsHidden(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer)
@@ -50,11 +57,13 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         // add default species layers
         var speciesProto = _prototypeManager.Index(component.Species);
         var baseSprites = _prototypeManager.Index<HumanoidSpeciesBaseSpritesPrototype>(speciesProto.SpriteSet);
+        var legSprites = component.PlantigradeLegs && speciesProto.PlantigradeSprites is { } legSet
+            ? _prototypeManager.Index(legSet) : null;
         foreach (var (key, id) in baseSprites.Sprites)
         {
             oldLayers.Remove(key);
             if (!component.CustomBaseLayers.ContainsKey(key))
-                SetLayerData(component, sprite, key, id, sexMorph: true);
+                SetLayerData(component, sprite, key, legSprites?.Sprites.GetValueOrDefault(key, id) ?? id, sexMorph: true);
         }
 
         // add custom layers
@@ -207,6 +216,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         humanoid.EyeColor = profile.Appearance.EyeColor;
         humanoid.Tattoos = Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(profile.Appearance.Tattoos);
         humanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(profile.Appearance.BodyFeatures);
+        humanoid.PlantigradeLegs = profile.Appearance.PlantigradeLegs && speciesPrototype.PlantigradeSprites != null;
         humanoid.Height = profile.Appearance.Height;
         humanoid.Width = profile.Appearance.Width;
 
@@ -309,11 +319,18 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 
             var layerId = $"{markingPrototype.ID}-{rsi.RsiState}";
 
+            var selectedSprite = rsi;
+            if (humanoid.PlantigradeLegs && markingPrototype.BodyPart is
+                HumanoidVisualLayers.LLeg or HumanoidVisualLayers.RLeg or HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot &&
+                _prototypeManager.Index(humanoid.Species).PlantigradeMarkings is { } legMarkings &&
+                _resources.GetResource<RSIResource>(new ResPath("/Textures") / legMarkings).RSI.TryGetState(rsi.RsiState, out _))
+                selectedSprite = new SpriteSpecifier.Rsi(legMarkings, rsi.RsiState);
+
             if (!sprite.LayerMapTryGet(layerId, out _))
             {
                 var layer = sprite.AddLayer(markingSprite, targetLayer + j + 1);
                 sprite.LayerMapSet(layerId, layer);
-                sprite.LayerSetSprite(layerId, rsi);
+                sprite.LayerSetSprite(layerId, selectedSprite);
             }
 		    // impstation edit begin - check if there's a shader defined in the markingPrototype's shader datafield, and if there is...
 			if (markingPrototype.Shader != null)

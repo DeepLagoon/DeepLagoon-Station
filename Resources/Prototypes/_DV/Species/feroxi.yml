@@ -1,5 +1,7 @@
 - type: species
   id: Feroxi
+  plantigradeSprites: MobFeroxiPlantigradeSprites
+  plantigradeMarkings: _DeepLagoon/Mobs/Feroxi/plantigrade_markings.rsi
   name: species-name-feroxi
   roundStart: true
   prototype: MobFeroxi

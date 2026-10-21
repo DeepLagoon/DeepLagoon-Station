@@ -1,5 +1,7 @@
 - type: species
   id: Vulpkanin
+  plantigradeSprites: MobVulpkaninPlantigradeSprites
+  plantigradeMarkings: _DeepLagoon/Mobs/Vulpkanin/plantigrade_markings.rsi
   name: species-name-vulpkanin
   roundStart: true
   prototype: MobVulpkanin

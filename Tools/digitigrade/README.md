@@ -1,14 +1,36 @@
 # Digitigrade legs and clothing review
 
+The character editor's main appearance tab has a **Straight legs** checkbox for
+Vulpkanin, Feroxi and Tajaran, in both TGUI and the native fallback. It defaults
+to off and is saved per character in `profile.plantigrade_legs`. PostgreSQL and
+SQLite migrations add this boolean with `false` for existing profiles.
+
+The selectable `plantigrade.rsi` assets are the original limb states from the
+parent of commit `4343d31cee`, before the digitigrade import. Their original
+licenses and credits are retained. The checkbox also selects the original leg
+markings, disables footwear bending and uses the neutral lower-body maps for
+uniforms/outerwear. Ordinary torso body customization fitting still applies.
+The setting is preserved when editing other appearance fields, and unsupported
+species cannot enable it. Appearance replication applies the same choice in game.
+
+`StraightLegChoiceHasDifferentSideSilhouette` checks that the checkbox selects a
+different silhouette; `EachLegJoinsTheNativeTorso` covers both shapes. Database
+tests save/reload both values; editor and equipment tests switch the setting on
+already equipped uniforms, skirts, boots, coats and hardsuits for both sexes.
+`plantigrade-editor-browser.test.cjs` checks the checkbox and boolean action at
+480/800/1100px against the production TGUI bundle.
+
 Vulpkanin, Feroxi and Tajaran use the four leg/foot states from Arcane. Other
 body states, species abilities, inventory slots and movement are unchanged.
 Arcane's `_Goobstation` Feroxi assets are intentional: its `_DV` copy still has
 straight legs. Credits and CC-BY-SA-3.0 attribution are retained in RSI metadata.
 
 Vulpkanin side-view leg roots are extended across the one-row gap to the native
-torso after import. Only ten formerly transparent hip pixels are filled from the
+torso after import. Only sixteen formerly transparent hip pixels are filled from the
 adjacent thigh row; knees, feet and clothing coordinates stay in place. The repair
-also runs without `--source`, so regeneration and reimport both retain it.
+includes two pixels at the front and one at the rear of the upper seam in each
+side view, completing the outline under the torso.
+The repair also runs without `--source`, so regeneration and reimport both retain it.
 The same check found detached Tajaran thighs in the front/rear views; eleven
 proximal pixels repair those connections without shifting the lower legs.
 `EachLegJoinsTheNativeTorso` checks each leg's opaque connection to both torso

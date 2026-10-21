@@ -1,0 +1,96 @@
+- type: speciesBaseSprites
+  id: MobVulpkaninPlantigradeSprites
+  sprites:
+    LLeg: MobVulpkaninPlantigradeLLeg
+    RLeg: MobVulpkaninPlantigradeRLeg
+    LFoot: MobVulpkaninPlantigradeLFoot
+    RFoot: MobVulpkaninPlantigradeRFoot
+
+- type: humanoidBaseSprite
+  id: MobVulpkaninPlantigradeLLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Vulpkanin/plantigrade.rsi
+    state: l_leg
+
+- type: humanoidBaseSprite
+  id: MobVulpkaninPlantigradeRLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Vulpkanin/plantigrade.rsi
+    state: r_leg
+
+- type: humanoidBaseSprite
+  id: MobVulpkaninPlantigradeLFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Vulpkanin/plantigrade.rsi
+    state: l_foot
+
+- type: humanoidBaseSprite
+  id: MobVulpkaninPlantigradeRFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Vulpkanin/plantigrade.rsi
+    state: r_foot
+
+- type: speciesBaseSprites
+  id: MobFeroxiPlantigradeSprites
+  sprites:
+    LLeg: MobFeroxiPlantigradeLLeg
+    RLeg: MobFeroxiPlantigradeRLeg
+    LFoot: MobFeroxiPlantigradeLFoot
+    RFoot: MobFeroxiPlantigradeRFoot
+
+- type: humanoidBaseSprite
+  id: MobFeroxiPlantigradeLLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Feroxi/plantigrade.rsi
+    state: l_leg
+
+- type: humanoidBaseSprite
+  id: MobFeroxiPlantigradeRLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Feroxi/plantigrade.rsi
+    state: r_leg
+
+- type: humanoidBaseSprite
+  id: MobFeroxiPlantigradeLFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Feroxi/plantigrade.rsi
+    state: l_foot
+
+- type: humanoidBaseSprite
+  id: MobFeroxiPlantigradeRFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Feroxi/plantigrade.rsi
+    state: r_foot
+
+- type: speciesBaseSprites
+  id: MobTajaranPlantigradeSprites
+  sprites:
+    LLeg: MobTajaranPlantigradeLLeg
+    RLeg: MobTajaranPlantigradeRLeg
+    LFoot: MobTajaranPlantigradeLFoot
+    RFoot: MobTajaranPlantigradeRFoot
+
+- type: humanoidBaseSprite
+  id: MobTajaranPlantigradeLLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Tajaran/plantigrade.rsi
+    state: l_leg
+
+- type: humanoidBaseSprite
+  id: MobTajaranPlantigradeRLeg
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Tajaran/plantigrade.rsi
+    state: r_leg
+
+- type: humanoidBaseSprite
+  id: MobTajaranPlantigradeLFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Tajaran/plantigrade.rsi
+    state: l_foot
+
+- type: humanoidBaseSprite
+  id: MobTajaranPlantigradeRFoot
+  baseSprite:
+    sprite: _DeepLagoon/Mobs/Tajaran/plantigrade.rsi
+    state: r_foot
+

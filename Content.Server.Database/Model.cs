@@ -456,6 +456,7 @@ namespace Content.Server.Database
         public string HeadshotId { get; set; } = string.Empty;
         public string TattoosJson { get; set; } = "[]";
         public string BodyFeaturesJson { get; set; } = "[]";
+        public bool PlantigradeLegs { get; set; }
         public int Age { get; set; }
         public int BankBalance { get; set; }
         public string Sex { get; set; } = null!;

@@ -9,6 +9,7 @@ using Content.Shared.Clothing.Components;
 using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.DisplacementMap;
 using Content.Shared.Humanoid;
+using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
 using Content.Shared.Item;
@@ -18,6 +19,7 @@ using Robust.Client.ResourceManagement;
 using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Serialization.TypeSerializers.Implementations;
 using Robust.Shared.Utility;
+using Robust.Shared.Prototypes;
 using static Robust.Client.GameObjects.SpriteComponent;
 
 namespace Content.Client.Clothing;
@@ -56,6 +58,12 @@ public sealed partial class ClientClothingSystem : ClothingSystem
     [Dependency] private InventorySystem _inventorySystem = default!;
     [Dependency] private DisplacementMapSystem _displacement = default!;
     [Dependency] private ClothingBodyFitSystem _bodyFit = default!;
+    [Dependency] private IPrototypeManager _legPrototypes = default!;
+
+    public void RefreshLegShape(EntityUid uid)
+    {
+        if (HasComp<InventoryComponent>(uid)) UpdateAllSlots(uid);
+    }
 
     public override void Initialize()
     {
@@ -280,7 +288,10 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         // Select displacement maps
         var displacementData = inventory.Displacements.GetValueOrDefault(slot); //Default unsexed map
 
-        var equipeeSex = CompOrNull<HumanoidAppearanceComponent>(equipee)?.Sex;
+        var humanoid = CompOrNull<HumanoidAppearanceComponent>(equipee);
+        var plantigrade = humanoid is { PlantigradeLegs: true } &&
+            _legPrototypes.Index(humanoid.Species).PlantigradeSprites != null;
+        var equipeeSex = humanoid?.Sex;
         if (equipeeSex != null)
         {
             switch (equipeeSex)
@@ -295,6 +306,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
                     break;
             }
         }
+
+        if (plantigrade && slot == "shoes") displacementData = null;
 
         // add the new layers
         foreach (var (key, layerData) in ev.Layers)
@@ -342,7 +355,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
                     continue;
 
                 if (_displacement.TryAddDisplacement(displacementData, sprite, index, key, revealedLayers,
-                    clothingComponent.PreserveLegHem))
+                    clothingComponent.PreserveLegHem || plantigrade))
                     index++;
             }
         }

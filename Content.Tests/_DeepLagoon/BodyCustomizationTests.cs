@@ -50,11 +50,16 @@ public sealed class BodyCustomizationTests
         var breast = BodyCustomizationCatalog.Default("breasts");
         breast.Enabled = true; breast.Size = "g";
         breast.SecondaryEnabled = true; breast.SecondaryColor = "#FF3300";
-        var appearance = new HumanoidCharacterAppearance { BodyFeatures = [breast] };
+        var appearance = new HumanoidCharacterAppearance { BodyFeatures = [breast], PlantigradeLegs = true };
         var changed = appearance.WithSkinColor(Robust.Shared.Maths.Color.Blue).WithWidth(1.1f);
         Assert.That(changed.BodyFeatures.Single().ContentEquals(breast), Is.True);
         changed.BodyFeatures[0].Size = "a";
         Assert.That(appearance.BodyFeatures.Single().Size, Is.EqualTo("g"));
+        Assert.That(changed.PlantigradeLegs, Is.True);
+        var alternate = appearance.Clone();
+        alternate.PlantigradeLegs = false;
+        Assert.That(alternate.Equals(appearance), Is.False);
+        Assert.That(alternate.MemberwiseEquals(appearance), Is.False);
         Assert.That(appearance.MemberwiseEquals(changed), Is.False);
     }
 
@@ -74,8 +79,9 @@ public sealed class BodyCustomizationTests
         Assert.That(sanitized.Single(f => f.Part == "womb").Shape, Is.EqualTo("internal"));
     }
 
-    [Test]
-    public async Task ExistingSqliteDatabaseUpgradesAndSavesAllEightParts()
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task ExistingSqliteDatabaseUpgradesAndSavesAllEightParts(bool plantigradeLegs)
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
@@ -84,9 +90,9 @@ public sealed class BodyCustomizationTests
         await using (var context = new SqliteServerDbContext(options))
         {
             await context.GetService<IMigrator>().MigrateAsync("20261012090000_DeepLagoonTattoos");
+            await context.Database.MigrateAsync();
             context.Preference.Add(new Preference { UserId = user.UserId, AdminOOCColor = "#FFFFFF" });
             await context.SaveChangesAsync();
-            await context.Database.MigrateAsync();
             Assert.That(context.Database.HasPendingModelChanges(), Is.False);
         }
         var database = new ServerDbSqlite(() => options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
@@ -94,12 +100,17 @@ public sealed class BodyCustomizationTests
         foreach (var feature in features) feature.Enabled = true;
         var breast = features.Single(f => f.Part == "breasts");
         breast.SecondaryEnabled = true; breast.SecondaryColor = "#4466FF";
-        var profile = new HumanoidCharacterProfile().WithCharacterAppearance(new HumanoidCharacterAppearance { BodyFeatures = features });
+        var profile = new HumanoidCharacterProfile().WithCharacterAppearance(new HumanoidCharacterAppearance { BodyFeatures = features, PlantigradeLegs = plantigradeLegs });
         await database.SaveCharacterSlotAsync(user, profile, 0);
         var loaded = await database.GetPlayerPreferencesAsync(user);
         var saved = (HumanoidCharacterProfile) loaded!.Characters[0];
         Assert.That(BodyCustomizationCatalog.ContentEquals(saved.Appearance.BodyFeatures, features), Is.True);
         Assert.That(saved.Appearance.BodyFeatures, Has.Count.EqualTo(8));
+        Assert.That(saved.Appearance.PlantigradeLegs, Is.EqualTo(plantigradeLegs));
+        saved.Appearance.PlantigradeLegs = !plantigradeLegs;
+        await database.SaveCharacterSlotAsync(user, saved, 0);
+        var reloaded = await database.GetPlayerPreferencesAsync(user);
+        Assert.That(((HumanoidCharacterProfile) reloaded!.Characters[0]).Appearance.PlantigradeLegs, Is.EqualTo(!plantigradeLegs));
     }
 
     [Test]
@@ -111,5 +122,7 @@ public sealed class BodyCustomizationTests
         var sql = context.GetService<IMigrator>().GenerateScript("20261012090000_DeepLagoonTattoos", "20261012120000_DeepLagoonBodyCustomization");
         Assert.That(sql, Does.Contain("ADD body_features_json text"));
         Assert.That(sql, Does.Not.Contain("DROP TABLE"));
+        var legSql = context.GetService<IMigrator>().GenerateScript("20261017163633_ArtArchive", "20261021190000_PlantigradeLegPreference");
+        Assert.That(legSql, Does.Contain("ADD plantigrade_legs boolean NOT NULL DEFAULT FALSE"));
     }
 }

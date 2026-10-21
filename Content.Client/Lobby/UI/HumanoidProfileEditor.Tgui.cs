@@ -265,6 +265,8 @@ public sealed partial class HumanoidProfileEditor
         if (SetupState != null) data.Object("setup", SetupState());
         if (Profile is not { } p) return data;
         if (mode == "appearance") data.Array("bodyFeatures", BodyCustomizationData());
+        data.Bool("canUsePlantigradeLegs", _prototypeManager.Index(p.Species).PlantigradeSprites != null)
+            .Bool("plantigradeLegs", p.Appearance.PlantigradeLegs);
         data.Array("previewSlots", _personalLoadoutEditor.CreateTguiSlots(PreviewDummy));
         if (includeCatalogs) data.Array("tabs", Enumerable.Range(0, TabContainer.ChildCount)
             .Where(i => TabContainer.GetChild(i) != _nativeBody?.Parent && TabContainer.GetChild(i) != _nativeTattoos?.Parent)
@@ -518,6 +520,9 @@ public sealed partial class HumanoidProfileEditor
         }
         switch (action)
         {
+            case "plantigrade-legs":
+                if (!bool.TryParse(value, out var straightLegs) || !SetPlantigradeLegs(straightLegs)) return false;
+                break;
             case "body-feature": return HandleBodyCustomizationAction(args);
             case "headshot-library":
                 ToggleHeadshotLibrary(); break;

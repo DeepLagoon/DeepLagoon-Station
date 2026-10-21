@@ -1,4 +1,5 @@
 using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 namespace Content.Shared.Humanoid.Prototypes;
 
@@ -42,6 +43,13 @@ public sealed partial class SpeciesPrototype : IPrototype
 
     [DataField("sprites")]
     public string SpriteSet { get; private set; } = default!;
+
+    /// <summary>Optional ordinary leg/foot layers selectable in the character editor.</summary>
+    [DataField]
+    public ProtoId<HumanoidSpeciesBaseSpritesPrototype>? PlantigradeSprites { get; private set; }
+
+    [DataField]
+    public ResPath? PlantigradeMarkings { get; private set; }
 
     /// <summary>
     ///     Default skin tone for this species. This applies for non-human skin tones.

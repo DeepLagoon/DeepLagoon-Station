@@ -4,6 +4,7 @@ using Content.Client.Humanoid;
 using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Humanoid;
+using Content.Shared.Humanoid.Markings;
 using Content.Shared.Inventory;
 using Content.Shared.Preferences;
 using Robust.Client.GameObjects;
@@ -33,6 +34,13 @@ public sealed class ClothingBodyFitIntegrationTests
                 {
                     var profile = HumanoidCharacterProfile.DefaultWithSpecies(species).WithSex(sex);
                     profile.Appearance.BodyFeatures.Clear();
+                    var (markingId, markingState) = species switch
+                    {
+                        "Vulpkanin" => ("VulpPointsCrestLegs", "points_crest-legs"),
+                        "Feroxi" => ("FeroxiLegStripesBlitz", "feroxi-leg-stripes-blitz"),
+                        _ => ("TajaranOverlayPatch", "patch"),
+                    };
+                    profile.Appearance.Markings.Add(new Marking(markingId, [Robust.Shared.Maths.Color.White]));
                     appearance.LoadProfile(uid, profile);
                     foreach (var (prototype, slot, state) in new[]
                     {
@@ -54,6 +62,27 @@ public sealed class ClothingBodyFitIntegrationTests
                             var expected = species == "Feroxi" && slot != "shoes" && !state.EndsWith("hem")
                                 ? state + "-feroxi" : state;
                             Assert.That(layer.ActualState!.StateId.ToString(), Is.EqualTo(expected));
+                            profile.Appearance.PlantigradeLegs = true;
+                            appearance.LoadProfile(uid, profile);
+                            var straightBody = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(HumanoidVisualLayers.LLeg)];
+                            Assert.That(straightBody.ActualState!.RSI.Path.ToString(), Does.Contain("plantigrade.rsi"));
+                            var markingLayer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(markingId + "-" + markingState)];
+                            Assert.That(markingLayer.ActualState!.RSI.Path.ToString(), Does.Contain("plantigrade_markings.rsi"));
+                            if (slot == "shoes")
+                                Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out _), Is.False);
+                            else
+                            {
+                                Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out index), Is.True);
+                                var straightState = slot == "outerClothing" ? "outerwear-hem"
+                                    : sex == Sex.Female ? "jumpsuit-female-hem" : "jumpsuit-hem";
+                                Assert.That(((SpriteComponent.Layer) sprite[index]).ActualState!.StateId.ToString(), Is.EqualTo(straightState));
+                            }
+                            profile.Appearance.PlantigradeLegs = false;
+                            appearance.LoadProfile(uid, profile);
+                            markingLayer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(markingId + "-" + markingState)];
+                            Assert.That(markingLayer.ActualState!.RSI.Path.ToString(), Does.Not.Contain("plantigrade_markings.rsi"));
+                            Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out index), Is.True);
+                            Assert.That(((SpriteComponent.Layer) sprite[index]).ActualState!.StateId.ToString(), Is.EqualTo(expected));
                             Assert.That(inventory.TryUnequip(uid, slot, force: true, reparent: false), Is.True);
                             Assert.That(sprite.LayerMapTryGet(slot + "-0-displacement", out _), Is.False);
                         }

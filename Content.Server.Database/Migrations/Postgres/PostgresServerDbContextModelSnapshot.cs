@@ -1014,6 +1014,10 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("body_features_json");
 
+                    b.Property<bool>("PlantigradeLegs")
+                        .HasColumnType("boolean")
+                        .HasColumnName("plantigrade_legs");
+
                     b.Property<string>("CharacterName")
                         .IsRequired()
                         .HasColumnType("text")

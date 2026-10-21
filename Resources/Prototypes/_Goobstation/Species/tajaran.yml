@@ -1,5 +1,7 @@
 - type: species
   id: Tajaran
+  plantigradeSprites: MobTajaranPlantigradeSprites
+  plantigradeMarkings: _DeepLagoon/Mobs/Tajaran/plantigrade_markings.rsi
   name: species-name-tajaran
   roundStart: true
   prototype: MobTajaran

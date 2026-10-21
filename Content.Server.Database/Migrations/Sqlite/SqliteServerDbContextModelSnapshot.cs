@@ -966,6 +966,10 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("body_features_json");
 
+                    b.Property<bool>("PlantigradeLegs")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("plantigrade_legs");
+
                     b.Property<string>("CharacterName")
                         .IsRequired()
                         .HasColumnType("TEXT")

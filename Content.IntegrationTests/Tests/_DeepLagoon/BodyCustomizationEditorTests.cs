@@ -6,6 +6,7 @@ using Content.Client.Lobby;
 using Content.Client.Lobby.UI;
 using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared.Humanoid;
+using Content.Shared.Preferences;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
 using Robust.Shared.GameObjects;
@@ -15,6 +16,46 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class BodyCustomizationEditorTests
 {
+    [Test]
+    public async Task StraightLegCheckboxUpdatesDraftAndPreviewForSupportedSpecies()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>();
+            lobby.OpenCharacterEditor();
+            var editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+            foreach (var species in new[] { "Vulpkanin", "Feroxi", "Tajaran" })
+            {
+                var saved = HumanoidCharacterProfile.DefaultWithSpecies(species);
+                editor.SetProfile(saved, editor.CharacterSlot);
+                using (var initial = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString()))
+                {
+                    Assert.That(initial.RootElement.GetProperty("canUsePlantigradeLegs").GetBoolean(), Is.True);
+                    Assert.That(initial.RootElement.GetProperty("plantigradeLegs").GetBoolean(), Is.False);
+                }
+                Assert.That(editor.HandleTguiProfileAction("plantigrade-legs", "{\"value\":true}"), Is.True);
+                Assert.That(editor.Profile!.Appearance.PlantigradeLegs, Is.True);
+                Assert.That(saved.Appearance.PlantigradeLegs, Is.False);
+                Assert.That(editor.IsDirty, Is.True);
+                var sprite = pair.Client.EntMan.GetComponent<SpriteComponent>(editor.PreviewDummy);
+                var leg = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(HumanoidVisualLayers.LLeg)];
+                Assert.That(leg.ActualState!.RSI.Path.ToString(), Does.Contain("plantigrade.rsi"));
+                Assert.That(editor.HandleTguiProfileAction("skin-color", "{\"value\":\"#985629\"}"), Is.True);
+                Assert.That(editor.Profile.Appearance.PlantigradeLegs, Is.True);
+                Assert.That(editor.HandleTguiProfileAction("plantigrade-legs", "{\"value\":false}"), Is.True);
+                leg = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(HumanoidVisualLayers.LLeg)];
+                Assert.That(leg.ActualState!.RSI.Path.ToString(), Does.Not.Contain("plantigrade.rsi"));
+                Assert.That(editor.HandleTguiProfileAction("plantigrade-legs", "{\"value\":\"invalid\"}"), Is.False);
+            }
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), editor.CharacterSlot);
+            Assert.That(editor.HandleTguiProfileAction("plantigrade-legs", "{\"value\":true}"), Is.False);
+            ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().Close();
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task DraftUpdatesPreviewAndLayersRespectClothingWithoutAccumulating()
     {
@@ -43,7 +84,7 @@ public sealed class BodyCustomizationEditorTests
             Assert.That(Change("butt", "anus", "true"), Is.True);
             Assert.That(editor.Profile.Appearance.BodyFeatures.Single(p => p.Part == "anus").Size, Is.EqualTo("1"));
             var preview = (Robust.Client.UserInterface.Controls.SpriteView) typeof(HumanoidProfileEditor)
-                .GetField("SpriteView", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!.GetValue(editor)!;
+                .GetProperty("SpriteView", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!.GetValue(editor)!;
             Assert.That(preview.Stretch, Is.EqualTo(Robust.Client.UserInterface.Controls.SpriteView.StretchMode.None));
             Assert.That(Change("belly", "scale", 1.25f), Is.False);
             Assert.That(Change("anus", "shape", "squished"), Is.False);

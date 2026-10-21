@@ -112,6 +112,7 @@
                                 </BoxContainer>
                             </adaptive:AdaptiveGridContainer>
                             <!-- Skin -->
+                            <CheckBox Name="PlantigradeLegs" Text="{Loc 'humanoid-profile-editor-plantigrade-legs'}" Visible="False" Margin="10 0 10 0" />
                             <BoxContainer Margin="10" HorizontalExpand="True" Orientation="Vertical">
                                 <Label Text="{Loc 'humanoid-profile-editor-skin-color-label'}" />
                                 <Slider HorizontalExpand="True" Name="Skin" MinValue="0" MaxValue="100" Value="20" />

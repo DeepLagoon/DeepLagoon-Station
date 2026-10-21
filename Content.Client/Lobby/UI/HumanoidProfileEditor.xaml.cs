@@ -446,6 +446,8 @@ namespace Content.Client.Lobby.UI
 
             #endregion Width
 
+            PlantigradeLegs.OnToggled += args => SetPlantigradeLegs(args.Pressed);
+
             #region Eyes
 
             EyeColorPicker.OnEyeColorPicked += newColor =>
@@ -1282,6 +1284,7 @@ namespace Content.Client.Lobby.UI
             UpdateSpawnPriorityControls();
             UpdateHeightControls();
             UpdateWidthControls();
+            UpdateLegShapeControls();
             UpdateAgeEdit();
             UpdateEyePickers();
             UpdateSaveButton();
@@ -1737,6 +1740,7 @@ namespace Content.Client.Lobby.UI
             RefreshLoadouts();
             // Frontier: In case there's species restrictions for traits
             RefreshTraits(); // Frontier
+            UpdateLegShapeControls();
             UpdateSexControls(); // update sex for new species
             UpdateSpeciesGuidebookIcon();
             ReloadPreview();
