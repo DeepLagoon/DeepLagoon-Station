@@ -52,7 +52,7 @@ public sealed class LaserPointerOverlay : Overlay
                 var start = data.Start;
                 var end = data.End;
 
-                var coords = _transform.GetMapCoordinates(ent, xform);
+                var coords = _transform.GetRenderMapCoordinates((ent, xform));
                 if (coords.MapId != MapId.Nullspace && coords.MapId == currentMapId)
                     start = coords.Position;
 

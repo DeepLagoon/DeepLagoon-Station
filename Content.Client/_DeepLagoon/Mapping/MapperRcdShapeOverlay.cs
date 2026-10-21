@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Shared.Enums;
@@ -14,7 +15,7 @@ public sealed partial class MapperRcdShapeOverlay : Overlay
     [Dependency] private IEntityManager _entManager = default!;
 
     private readonly MapperRcdBrushSystem _brush;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpace;
 
@@ -23,7 +24,7 @@ public sealed partial class MapperRcdShapeOverlay : Overlay
         IoCManager.InjectDependencies(this);
 
         _brush = brush;
-        _transform = _entManager.System<SharedTransformSystem>();
+        _transform = _entManager.System<TransformSystem>();
     }
 
     protected override void Draw(in OverlayDrawArgs args)
@@ -32,7 +33,7 @@ public sealed partial class MapperRcdShapeOverlay : Overlay
             return;
 
         var handle = args.WorldHandle;
-        handle.SetTransform(_transform.GetWorldMatrix(grid));
+        handle.SetTransform(_transform.GetRenderWorldMatrix(grid));
 
         foreach (var cell in cells)
         {

@@ -1,3 +1,5 @@
+using Content.Client.Rendering;
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.Light.Components;
 using Content.Shared.Weather;
@@ -33,16 +35,16 @@ public sealed partial class StencilOverlay
             _grids.Clear();
 
             // idk if this is safe to cache in a field and clear sloth help
-            _mapManager.FindGridsIntersecting(mapId, worldAABB, ref _grids);
+            _mapManager.FindGridsIntersecting(mapId, _transform.GetRenderCullingBounds(mapId, worldAABB), ref _grids);
 
             foreach (var grid in _grids)
             {
-                var matrix = _transform.GetWorldMatrix(grid, xformQuery);
+                var matrix = _transform.GetRenderWorldMatrix(grid.Owner);
                 var matty =  Matrix3x2.Multiply(matrix, invMatrix);
                 worldHandle.SetTransform(matty);
                 _entManager.TryGetComponent(grid.Owner, out RoofComponent? roofComp);
 
-                foreach (var tile in _map.GetTilesIntersecting(grid.Owner, grid, worldAABB))
+                foreach (var tile in _map.GetRenderTilesIntersecting(_transform, grid, worldAABB))
                 {
                     // Ignored tiles for stencil
                     if (_weather.CanWeatherAffect(grid.Owner, grid, tile, roofComp))

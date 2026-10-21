@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Content.Client.Light;
@@ -35,7 +36,7 @@ public sealed class StarLightOverlay : Overlay
     private readonly IConfigurationManager _cfg;
 
     private readonly SharedMapSystem _mapSystem;
-    private readonly SharedTransformSystem _xformSystem;
+    private readonly TransformSystem _xformSystem;
 
     private readonly OccluderSystem _occluders;
     private readonly EntityQuery<MapGridComponent> _gridQuery;
@@ -79,7 +80,7 @@ public sealed class StarLightOverlay : Overlay
         _cfg = cfg;
 
         _mapSystem = entMan.System<SharedMapSystem>();
-        _xformSystem = entMan.System<SharedTransformSystem>();
+        _xformSystem = entMan.System<TransformSystem>();
         _occluders = entMan.System<OccluderSystem>();
         _gridQuery = entMan.GetEntityQuery<MapGridComponent>();
 
@@ -165,14 +166,14 @@ public sealed class StarLightOverlay : Overlay
         power = power / (1f + power) * comp.Intensity;
 
         _grids.Clear();
-        _mapMan.FindGridsIntersecting(mapId, casterBounds, ref _grids, approx: true);
+        _mapMan.FindGridsIntersecting(mapId, _xformSystem.GetRenderCullingBounds(mapId, casterBounds), ref _grids, approx: true);
 
         _passes.Clear();
 
         foreach (var grid in _grids)
         {
-            var (gridPos, gridRot) = _xformSystem.GetWorldPositionRotation(grid.Owner);
-            var matrix = Matrix3x2.Multiply(_xformSystem.GetWorldMatrix(grid.Owner), baseMatrix);
+            var (gridPos, gridRot) = _xformSystem.GetRenderWorldPositionRotation(grid.Owner);
+            var matrix = Matrix3x2.Multiply(_xformSystem.GetRenderWorldMatrix(grid.Owner), baseMatrix);
 
             var toStar = star.Position - gridPos;
             var dist = toStar.Length();
@@ -230,7 +231,7 @@ public sealed class StarLightOverlay : Overlay
         Color shadowColor)
     {
         var tileSize = grid.Comp.TileSize;
-        var localBounds = _xformSystem.GetInvWorldMatrix(grid.Owner).TransformBox(bounds);
+        var localBounds = _xformSystem.GetInvRenderWorldMatrix(grid.Owner).TransformBox(bounds);
 
         foreach (var idx in _known)
         {
@@ -290,7 +291,7 @@ public sealed class StarLightOverlay : Overlay
         Color glowColor)
     {
         var tileSize = grid.Comp.TileSize;
-        var localBounds = _xformSystem.GetInvWorldMatrix(grid.Owner).TransformBox(bounds);
+        var localBounds = _xformSystem.GetInvRenderWorldMatrix(grid.Owner).TransformBox(bounds);
 
         foreach (var idx in GetTransparent(grid))
         {
@@ -416,7 +417,7 @@ public sealed class StarLightOverlay : Overlay
     private void RefreshOccluders(MapId mapId, Box2Rotated bounds)
     {
         _occluderResults.Clear();
-        _occluders.QueryAabb(_occluderResults, mapId, bounds);
+        _occluders.QueryAabb(_occluderResults, mapId, _xformSystem.GetRenderCullingBounds(mapId, bounds));
 
         foreach (var pass in _passes)
         {

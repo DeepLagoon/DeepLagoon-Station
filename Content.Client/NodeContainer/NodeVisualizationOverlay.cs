@@ -1,3 +1,5 @@
+using Content.Client.Rendering;
+using Robust.Client.GameObjects;
 using System.Numerics;
 using System.Text;
 using Content.Client.Resources;
@@ -20,7 +22,7 @@ namespace Content.Client.NodeContainer
         private readonly SharedMapSystem _mapManager;
         private readonly IInputManager _inputManager;
         private readonly IEntityManager _entityManager;
-        private readonly SharedTransformSystem _transformSystem;
+        private readonly TransformSystem _transformSystem;
         private readonly SharedMapSystem _mapSystem;
 
         private readonly Dictionary<(int, int), NodeRenderData> _nodeIndex = new();
@@ -48,7 +50,7 @@ namespace Content.Client.NodeContainer
             _mapManager = mapManager;
             _inputManager = inputManager;
             _entityManager = entityManager;
-            _transformSystem = _entityManager.System<SharedTransformSystem>();
+            _transformSystem = _entityManager.System<TransformSystem>();
             _mapSystem = _entityManager.System<SharedMapSystem>();
 
             _font = cache.GetFont("/Fonts/NotoSans/NotoSans-Regular.ttf", 12);
@@ -150,7 +152,7 @@ namespace Content.Client.NodeContainer
             foreach (var (gridId, gridDict) in _gridIndex)
             {
                 var grid = _entityManager.GetComponent<MapGridComponent>(gridId);
-                var (_, _, worldMatrix, invMatrix) = _transformSystem.GetWorldPositionRotationMatrixWithInv(gridId);
+                var (_, _, worldMatrix, invMatrix) = _transformSystem.GetRenderWorldPositionRotationMatrixWithInv(gridId);
 
                 var lCursorBox = invMatrix.TransformBox(cursorBox);
                 foreach (var (pos, list) in gridDict)

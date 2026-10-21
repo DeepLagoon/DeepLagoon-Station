@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Client.Graphics;
 using Content.Shared.Light.Components;
@@ -21,7 +22,7 @@ public sealed partial class SunShadowOverlay : Overlay
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _protoManager = default!;
     private readonly EntityLookupSystem _lookup;
-    private readonly SharedTransformSystem _xformSys;
+    private readonly TransformSystem _xformSys;
 
     private readonly HashSet<Entity<SunShadowCastComponent>> _shadows = new();
 
@@ -30,7 +31,7 @@ public sealed partial class SunShadowOverlay : Overlay
     public SunShadowOverlay()
     {
         IoCManager.InjectDependencies(this);
-        _xformSys = _entManager.System<SharedTransformSystem>();
+        _xformSys = _entManager.System<TransformSystem>();
         _lookup = _entManager.System<EntityLookupSystem>();
         ZIndex = AfterLightTargetOverlay.ContentZIndex + 1;
     }
@@ -47,7 +48,7 @@ public sealed partial class SunShadowOverlay : Overlay
 
         _grids.Clear();
         _mapManager.FindGridsIntersecting(args.MapId,
-            args.WorldBounds.Enlarged(SunShadowComponent.MaxLength),
+            _xformSys.GetRenderCullingBounds(args.MapId, args.WorldBounds.Enlarged(SunShadowComponent.MaxLength)),
             ref _grids);
 
         var worldHandle = args.WorldHandle;
@@ -113,12 +114,12 @@ public sealed partial class SunShadowOverlay : Overlay
                     // This is probably not noticeable most of the time but if you want something "accurate" you'll want to code a solution.
                     // Ideally the CPU would have its own shadow-map copy that we could just ray-cast each vert into though
                     // You might need to batch verts or the likes as this could get expensive.
-                    _lookup.GetEntitiesIntersecting(mapId, expandedBounds, _shadows);
+                    _lookup.GetEntitiesIntersecting(mapId, _xformSys.GetRenderCullingBounds(mapId, expandedBounds), _shadows);
 
                     foreach (var ent in _shadows)
                     {
                         var xform = _entManager.GetComponent<TransformComponent>(ent.Owner);
-                        var (worldPos, worldRot) = _xformSys.GetWorldPositionRotation(xform);
+                        var (worldPos, worldRot) = _xformSys.GetRenderWorldPositionRotation((xform.Owner, xform));
                         // Need no rotation on matrix as sun shadow direction doesn't care.
                         var worldMatrix = Matrix3x2.CreateTranslation(worldPos);
                         var renderMatrix = Matrix3x2.Multiply(worldMatrix, invMatrix);

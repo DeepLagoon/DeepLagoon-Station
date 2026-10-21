@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared._Exodus.Visuals;
 using Robust.Client.Graphics;
@@ -87,7 +88,7 @@ internal sealed class EntityLinkVisualOverlay : Overlay
     private readonly IGameTiming _timing;
     private readonly IPrototypeManager _prototype;
     private readonly EntityQuery<TransformComponent> _transformQuery;
-    private readonly SharedTransformSystem _transformSystem;
+    private readonly TransformSystem _transformSystem;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
 
@@ -102,7 +103,7 @@ internal sealed class EntityLinkVisualOverlay : Overlay
         _timing = timing;
         _prototype = prototype;
         _transformQuery = entityManager.GetEntityQuery<TransformComponent>();
-        _transformSystem = entityManager.System<SharedTransformSystem>();
+        _transformSystem = entityManager.System<TransformSystem>();
     }
 
     protected override void Draw(in OverlayDrawArgs args)
@@ -181,10 +182,10 @@ internal sealed class EntityLinkVisualOverlay : Overlay
             return;
         }
 
-        var sourcePosition = _transformSystem.GetWorldPosition(sourceXform, _transformQuery) +
-                             _transformSystem.GetWorldRotation(sourceXform, _transformQuery).RotateVec(sourceOffset);
-        var targetPosition = _transformSystem.GetWorldPosition(targetXform, _transformQuery) +
-                             _transformSystem.GetWorldRotation(targetXform, _transformQuery).RotateVec(targetOffset);
+        var sourcePosition = _transformSystem.GetRenderWorldPosition((sourceXform.Owner, sourceXform)) +
+                             _transformSystem.GetRenderWorldRotation((sourceXform.Owner, sourceXform)).RotateVec(sourceOffset);
+        var targetPosition = _transformSystem.GetRenderWorldPosition((targetXform.Owner, targetXform)) +
+                             _transformSystem.GetRenderWorldRotation((targetXform.Owner, targetXform)).RotateVec(targetOffset);
         var difference = targetPosition - sourcePosition;
         var halfLength = difference.Length() / 2f;
         if (halfLength <= 0f)

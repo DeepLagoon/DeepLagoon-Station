@@ -18,12 +18,12 @@ public sealed partial class DecalPlacementOverlay : Overlay
     [Dependency] private IDecalPlacementManager _tool = default!;
     [Dependency] private IPrototypeManager _protoMan = default!;
     private readonly DecalPlacementSystem _placement;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly SpriteSystem _sprite;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceEntities;
 
-    public DecalPlacementOverlay(DecalPlacementSystem placement, SharedTransformSystem transform, SpriteSystem sprite)
+    public DecalPlacementOverlay(DecalPlacementSystem placement, TransformSystem transform, SpriteSystem sprite)
     {
         IoCManager.InjectDependencies(this);
         _placement = placement;
@@ -65,7 +65,8 @@ public sealed partial class DecalPlacementOverlay : Overlay
             return;
         }
 
-        var worldMatrix = _transform.GetWorldMatrix(gridUid);
+        var worldMatrix = _transform.GetRenderWorldMatrix(gridUid);
+        // Pick the same local tile as the placement command, then draw it at the rendered grid pose.
         var invMatrix = _transform.GetInvWorldMatrix(gridUid);
 
         var handle = args.WorldHandle;
@@ -99,7 +100,7 @@ public sealed partial class DecalPlacementOverlay : Overlay
             return;
 
         var handle = args.WorldHandle;
-        handle.SetTransform(_transform.GetWorldMatrix(gridUid));
+        handle.SetTransform(_transform.GetRenderWorldMatrix(gridUid));
 
         var localPos = Vector2.Transform(mousePos.Position, _transform.GetInvWorldMatrix(gridUid));
         var origin = localPos.Floored();

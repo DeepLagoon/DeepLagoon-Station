@@ -1,3 +1,4 @@
+using Content.Client.Rendering;
 using System.Numerics;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -13,16 +14,18 @@ public sealed class PointLightingOverlay : Overlay
     public override bool RequestScreenTexture => true;
 
     private readonly ShaderInstance _shader;
+    private readonly TransformSystem _transform;
 
     private readonly Texture _pointTexture;
     private readonly Vector2 _pointOffset;
 
-    public List<(TransformComponent xform, Matrix3x2 matrix, Vector2 worldPos, Color color)> Entities = [];
+    public List<(EntityUid uid, TransformComponent xform, Color color)> Entities = [];
     public bool Enabled;
     public float Strength = 0.5f;
 
-    public PointLightingOverlay(IPrototypeManager prototypeManager, SpriteSystem spriteSystem, ProtoId<ShaderPrototype> shader)
+    public PointLightingOverlay(IPrototypeManager prototypeManager, SpriteSystem spriteSystem, ProtoId<ShaderPrototype> shader, TransformSystem transform)
     {
+        _transform = transform;
         _shader = prototypeManager.Index(shader).InstanceUnique();
         ZIndex = (int) DrawDepth.Effects + 1;
 
@@ -53,11 +56,12 @@ public sealed class PointLightingOverlay : Overlay
         _shader.SetParameter("hueta_divisor", BloomOverlayVisualsComponent.DefaultPointHuetaDivisor / Strength);
         handle.UseShader(_shader);
 
-        foreach (var (xform, matrix, worldPos, color) in Entities)
+        foreach (var (uid, xform, color) in Entities)
         {
             if (xform.MapID != args.MapId)
                 continue;
 
+            var (worldPos, _, matrix) = _transform.GetRenderWorldPositionRotationMatrix((uid, xform));
             if (!bounds.Contains(worldPos))
                 continue;
 

@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Linq;
 using System.Numerics;
 using Content.Shared._Mono.BlackFlash;
@@ -15,7 +16,7 @@ public sealed partial class BlackFlashOverlay : Overlay
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private IGameTiming _timing = default!;
 
-    private SharedTransformSystem? _transform;
+    private TransformSystem? _transform;
     private readonly ShaderInstance _baseShader;
 
     private readonly Dictionary<EntityUid, ShaderInstance> _shaders = new();
@@ -30,7 +31,7 @@ public sealed partial class BlackFlashOverlay : Overlay
 
     protected override void Draw(in OverlayDrawArgs args)
     {
-        _transform ??= _entity.System<SharedTransformSystem>();
+        _transform ??= _entity.System<TransformSystem>();
 
         var handle = args.WorldHandle;
         var viewport = args.Viewport;
@@ -54,13 +55,13 @@ public sealed partial class BlackFlashOverlay : Overlay
                 _shaders[uid] = shader;
             }
 
-            var world = _transform.GetWorldPosition(uid);
+            var world = _transform.GetRenderWorldPosition(uid);
             var local = viewport.WorldToLocal(world);
             local.Y = viewport.Size.Y - local.Y;
 
             shader.SetParameter("renderScale", viewport.RenderScale);
             shader.SetParameter("positionInput", local);
-            var facing = _transform.GetWorldRotation(uid) + (viewport.Eye?.Rotation ?? Angle.Zero);
+            var facing = _transform.GetRenderWorldRotation(uid) + (viewport.Eye?.Rotation ?? Angle.Zero);
             shader.SetParameter("angle", (float)facing.Theta);
             shader.SetParameter("life", life);
             shader.SetParameter("scale", comp.Scale);

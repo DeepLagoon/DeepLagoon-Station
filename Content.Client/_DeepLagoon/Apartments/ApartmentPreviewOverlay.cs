@@ -12,7 +12,7 @@ public sealed class ApartmentPreviewOverlay : Overlay
 {
     private readonly ApartmentEditorSystem _editor;
     private readonly IEntityManager _entities;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly SpriteSystem _sprites;
     private readonly IPrototypeManager _prototypes;
     public override OverlaySpace Space => OverlaySpace.WorldSpaceEntities;
@@ -20,7 +20,7 @@ public sealed class ApartmentPreviewOverlay : Overlay
     public ApartmentPreviewOverlay(ApartmentEditorSystem editor, IEntityManager entities)
     {
         _editor = editor; _entities = entities;
-        _transform = entities.System<SharedTransformSystem>();
+        _transform = entities.System<TransformSystem>();
         _sprites = entities.System<SpriteSystem>();
         _prototypes = IoCManager.Resolve<IPrototypeManager>();
         ZIndex = 1000;
@@ -33,7 +33,7 @@ public sealed class ApartmentPreviewOverlay : Overlay
         ApartmentFurniturePrototype? Catalog(string id) => _prototypes.TryIndex<ApartmentFurniturePrototype>(id, out var item) ? item : null;
         var valid = ApartmentLayout.Validate(_editor.Template, _editor.Draft, Catalog) == null;
         var handle = args.WorldHandle;
-        handle.SetTransform(_transform.GetWorldMatrix(grid));
+        handle.SetTransform(_transform.GetRenderWorldMatrix(grid));
         foreach (var p in _editor.Draft)
         {
             if (Catalog(p.Furniture) is not { } definition) continue;

@@ -1,4 +1,5 @@
-﻿/*
+using Robust.Client.GameObjects;
+/*
  * This file is sublicensed under MIT License
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
@@ -19,7 +20,7 @@ public sealed partial class CEZLevelDebugOverlay : Overlay
     [Dependency] private IResourceCache _cache = null!;
 
     private readonly CESharedZLevelsSystem _zLevels;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
 
     private readonly Font _font;
 
@@ -30,7 +31,7 @@ public sealed partial class CEZLevelDebugOverlay : Overlay
         IoCManager.InjectDependencies(this);
 
         _zLevels = _entityManager.System<CESharedZLevelsSystem>();
-        _transform = _entityManager.System<SharedTransformSystem>();
+        _transform = _entityManager.System<TransformSystem>();
 
         _font = new VectorFont(_cache.GetResource<FontResource>("/Fonts/NotoSans/NotoSans-Regular.ttf"), 8);
     }
@@ -55,7 +56,7 @@ public sealed partial class CEZLevelDebugOverlay : Overlay
             if (gridNet.NetworkId == string.Empty)
                 continue;
 
-            var gridWorldPos = _transform.GetWorldPosition(gridXform);
+            var gridWorldPos = _transform.GetRenderWorldPosition((gridXform.Owner, gridXform));
             var gridScreenPos = args.ViewportControl?.WorldToScreen(gridWorldPos) ?? Vector2.Zero;
             if (gridScreenPos == Vector2.Zero)
                 continue;
@@ -69,7 +70,7 @@ public sealed partial class CEZLevelDebugOverlay : Overlay
 
     private void DrawEntityDebug(in OverlayDrawArgs args, EntityUid uid, CEZPhysicsComponent component)
     {
-        var worldPos = _transform.GetWorldPosition(uid);
+        var worldPos = _transform.GetRenderWorldPosition(uid);
         var screenPos = args.ViewportControl?.WorldToScreen(worldPos) ?? Vector2.Zero;
 
         if (screenPos == Vector2.Zero)

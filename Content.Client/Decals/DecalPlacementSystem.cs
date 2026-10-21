@@ -26,7 +26,7 @@ public sealed partial class DecalPlacementSystem : EntitySystem
     [Dependency] private IPrototypeManager _protoMan = default!;
     [Dependency] private InputSystem _inputSystem = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _transform = default!;
     [Dependency] private SpriteSystem _sprite = default!;
     [Dependency] private IDecalPlacementManager _tool = default!; // Exodus
 

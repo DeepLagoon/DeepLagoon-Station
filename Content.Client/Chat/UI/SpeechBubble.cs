@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Client.Chat.Managers;
 using Content.Shared.CCVar;
@@ -18,7 +19,7 @@ namespace Content.Client.Chat.UI
         [Dependency] private IEyeManager _eyeManager = default!;
         [Dependency] private IEntityManager _entityManager = default!;
         [Dependency] protected IConfigurationManager ConfigManager = default!;
-        private readonly SharedTransformSystem _transformSystem;
+        private readonly TransformSystem _transformSystem;
 
         public enum SpeechType : byte
         {
@@ -89,7 +90,7 @@ namespace Content.Client.Chat.UI
         {
             IoCManager.InjectDependencies(this);
             _senderEntity = senderEntity;
-            _transformSystem = _entityManager.System<SharedTransformSystem>();
+            _transformSystem = _entityManager.System<TransformSystem>();
 
             // Use text clipping so new messages don't overlap old ones being pushed up.
             RectClipContent = true;
@@ -153,7 +154,7 @@ namespace Content.Client.Chat.UI
                 baseOffset = speech.SpeechBubbleOffset;
 
             var offset = (-_eyeManager.CurrentEye.Rotation).ToWorldVec() * -(EntityVerticalOffset + baseOffset);
-            var worldPos = _transformSystem.GetWorldPosition(xform) + offset;
+            var worldPos = _transformSystem.GetRenderWorldPosition((xform.Owner, xform)) + offset;
 
             var lowerCenter = _eyeManager.WorldToScreen(worldPos) / UIScale;
             var screenPos = lowerCenter - new Vector2(ContentSize.X / 2, ContentSize.Y + _verticalOffsetAchieved);

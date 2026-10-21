@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is sublicensed under MIT License
  * https://github.com/space-wizards/space-station-14/blob/master/LICENSE.TXT
  */
@@ -117,7 +117,7 @@ internal sealed partial class CEClientZLevelsPreAnimSystem : EntitySystem
 internal sealed partial class CEClientZLevelsPostAnimSystem : EntitySystem
 {
     [Dependency] private SpriteSystem _sprite = default!;
-    [Dependency] private SharedTransformSystem _xform = default!;
+    [Dependency] private TransformSystem _xform = default!;
 
     public override void Initialize()
     {
@@ -139,7 +139,7 @@ internal sealed partial class CEClientZLevelsPostAnimSystem : EntitySystem
             if (sprite.NoRotation)
                 zOffset = rawZ;
             else
-                zOffset = new Angle(-_xform.GetWorldRotation(xform)).RotateVec(rawZ);
+                zOffset = new Angle(-_xform.GetRenderWorldRotation((uid, xform))).RotateVec(rawZ);
             _sprite.SetOffset((uid, sprite), sprite.Offset + zOffset);
         }
     }

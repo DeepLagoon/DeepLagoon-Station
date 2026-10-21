@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Linq;
 using System.Numerics;
 using Content.Client.Administration.Systems;
@@ -110,7 +111,9 @@ internal sealed class AdminNameOverlay : Overlay
                 || _entityManager.GetComponent<TransformComponent>(entity.Value).MapID != args.MapId)
                 continue;
 
+            var transforms = _entityManager.System<TransformSystem>();
             var aabb = _entityLookup.GetWorldAABB(entity.Value);
+            aabb = aabb.Translated(transforms.GetRenderWorldPosition(entity.Value) - transforms.GetWorldPosition(entity.Value));
             // if not on screen, skip
             if (!aabb.Intersects(in viewport))
                 continue;

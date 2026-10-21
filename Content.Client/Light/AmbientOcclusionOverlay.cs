@@ -1,3 +1,5 @@
+using Content.Client.Rendering;
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.CCVar;
 using Content.Shared.Maps;
@@ -60,7 +62,7 @@ public sealed partial class AmbientOcclusionOverlay : Overlay
         var maps = _entManager.System<SharedMapSystem>();
         var lookups = _entManager.System<EntityLookupSystem>();
         var query = _entManager.System<OccluderSystem>();
-        var xformSystem = _entManager.System<SharedTransformSystem>();
+        var xformSystem = _entManager.System<TransformSystem>();
         var turfSystem = _entManager.System<TurfSystem>();
         var invMatrix = args.Viewport.GetWorldToLocalMatrix();
 
@@ -83,10 +85,10 @@ public sealed partial class AmbientOcclusionOverlay : Overlay
                 worldHandle.UseShader(_proto.Index<ShaderPrototype>("unshaded").Instance());
                 var invMatrix = _aoTarget.GetWorldToLocalMatrix(viewport.Eye!, scale);
 
-                foreach (var entry in query.QueryAabb(mapId, worldBounds))
+                foreach (var entry in query.QueryAabb(mapId, xformSystem.GetRenderCullingBounds(mapId, worldBounds)))
                 {
                     DebugTools.Assert(entry.Component.Enabled);
-                    var matrix = xformSystem.GetWorldMatrix(entry.Transform);
+                    var matrix = xformSystem.GetRenderWorldMatrix((entry.Transform.Owner, entry.Transform));
                     var localMatrix = Matrix3x2.Multiply(matrix, invMatrix);
 
                     worldHandle.SetTransform(localMatrix);
@@ -105,11 +107,11 @@ public sealed partial class AmbientOcclusionOverlay : Overlay
                 // Don't want lighting affecting it.
                 worldHandle.UseShader(_proto.Index<ShaderPrototype>("unshaded").Instance());
 
-                foreach (var grid in _mapManager.FindGridsIntersecting(mapId, worldBounds))
+                foreach (var grid in _mapManager.FindGridsIntersecting(mapId, xformSystem.GetRenderCullingBounds(mapId, worldBounds)))
                 {
-                    var transform = xformSystem.GetWorldMatrix(grid.Owner);
+                    var transform = xformSystem.GetRenderWorldMatrix(grid.Owner);
                     var worldToTextureMatrix = Matrix3x2.Multiply(transform, invMatrix);
-                    var tiles = maps.GetTilesEnumerator(grid.Owner, grid, worldBounds);
+                    var tiles = maps.GetRenderTilesIntersecting(xformSystem, grid, worldBounds);
                     worldHandle.SetTransform(worldToTextureMatrix);
                     while (tiles.MoveNext(out var tileRef))
                     {

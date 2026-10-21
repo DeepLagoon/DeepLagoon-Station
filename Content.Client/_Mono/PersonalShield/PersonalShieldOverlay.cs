@@ -21,7 +21,7 @@ public sealed partial class PersonalShieldOverlay : Overlay
 
     private static readonly ProtoId<ShaderPrototype> ShaderId = "PersonalShieldSkin";
 
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly SpriteSystem _sprite;
     private readonly InventorySystem _inventory;
     private readonly ShaderPrototype _shaderProto;
@@ -34,7 +34,7 @@ public sealed partial class PersonalShieldOverlay : Overlay
     public PersonalShieldOverlay()
     {
         IoCManager.InjectDependencies(this);
-        _transform = _entManager.System<SharedTransformSystem>();
+        _transform = _entManager.System<TransformSystem>();
         _sprite = _entManager.System<SpriteSystem>();
         _inventory = _entManager.System<InventorySystem>();
         var protoMan = IoCManager.Resolve<IPrototypeManager>();
@@ -108,7 +108,7 @@ public sealed partial class PersonalShieldOverlay : Overlay
 
             handle.UseShader(shader);
 
-            var worldPos = _transform.GetWorldPosition(xform);
+            var worldPos = _transform.GetRenderWorldPosition((xform.Owner, xform));
             handle.SetTransform(Matrix3x2.Multiply(counterRot, Matrix3Helpers.CreateTranslation(worldPos)));
             handle.DrawTextureRect(Texture.White, Box2.CenteredAround(Vector2.Zero, size));
         }

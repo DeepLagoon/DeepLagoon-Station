@@ -40,14 +40,14 @@ public sealed partial class LightingOverlaySystem : EntitySystem
     /// Главный список для хранения сущностей для рендеринга эффекта.
     /// Создается в системе и передается в оба оверлея.
     /// </summary>
-    private readonly List<(TransformComponent xform, Matrix3x2 matrix, Vector2 worldPos, Color color)> _entities = [];
+    private readonly List<(EntityUid uid, TransformComponent xform, Color color)> _entities = [];
 
     public override void Initialize()
     {
         base.Initialize();
 
-        _cone = new ConeLightingOverlay(_prototypeManager, _sprite, Shader);
-        _point = new PointLightingOverlay(_prototypeManager, _sprite, Shader);
+        _cone = new ConeLightingOverlay(_prototypeManager, _sprite, Shader, _transform);
+        _point = new PointLightingOverlay(_prototypeManager, _sprite, Shader, _transform);
 
         _transformQuery = GetEntityQuery<TransformComponent>();
         _eyeQuery = GetEntityQuery<EyeComponent>();
@@ -76,9 +76,7 @@ public sealed partial class LightingOverlaySystem : EntitySystem
             if (!pointLight.Enabled)
                 continue;
 
-            var (worldPos, _, worldMatrix) = _transform.GetWorldPositionRotationMatrix(xform, _transformQuery);
-
-            _entities.Add((xform, worldMatrix, worldPos, pointLight.Color));
+            _entities.Add((uid, xform, pointLight.Color));
         }
 
         _cone.Entities = _entities;

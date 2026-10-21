@@ -95,7 +95,7 @@ namespace Content.Client._NF.Emp.Overlays
                             (
                                 _baseShader.Duplicate(),
                                 new EmpShaderInstance(
-                                    _transform.GetMapCoordinates(blastEntity),
+                                    _transform.GetRenderMapCoordinates(blastEntity),
                                     blast.VisualRange,
                                     blast.StartTime,
                                     blast.VisualDuration
@@ -113,7 +113,7 @@ namespace Content.Client._NF.Emp.Overlays
                     BlastQualifies(blastEntity, currentEyeLoc, blast))
                 {
                     var shaderInstance = _blasts[blastEntity];
-                    shaderInstance.instance.CurrentMapCoords = _transform.GetMapCoordinates(blastEntity);
+                    shaderInstance.instance.CurrentMapCoords = _transform.GetRenderMapCoordinates(blastEntity);
                     shaderInstance.instance.Range = blast.VisualRange;
                 }
                 else
@@ -128,7 +128,7 @@ namespace Content.Client._NF.Emp.Overlays
         private bool BlastQualifies(EntityUid blastEntity, MapCoordinates currentEyeLoc, EmpBlastComponent blast)
         {
             var transformComponent = _entityManager.GetComponent<TransformComponent>(blastEntity);
-            var transformSystem = _entityManager.System<SharedTransformSystem>();
+            var transformSystem = _entityManager.System<TransformSystem>();
             return transformComponent.MapID == currentEyeLoc.MapId
                 && transformSystem.InRange(transformComponent.Coordinates, transformSystem.ToCoordinates(transformComponent.ParentUid, currentEyeLoc), PvsDist + blast.VisualRange);
         }

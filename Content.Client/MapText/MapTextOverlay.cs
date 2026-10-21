@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+using Robust.Client.GameObjects;
+using System.Numerics;
 using Content.Shared.MapText;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
@@ -19,14 +20,14 @@ public sealed class MapTextOverlay : Overlay
     private readonly IConfigurationManager _configManager;
     private readonly IEntityManager _entManager;
     private readonly IUserInterfaceManager _uiManager;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     public override OverlaySpace Space => OverlaySpace.ScreenSpace;
 
     public MapTextOverlay(
         IConfigurationManager configManager,
         IEntityManager entManager,
         IUserInterfaceManager uiManager,
-        SharedTransformSystem transform,
+        TransformSystem transform,
         IResourceCache resourceCache,
         IPrototypeManager prototypeManager)
     {
@@ -66,7 +67,7 @@ public sealed class MapTextOverlay : Overlay
 
         while(query.MoveNext(out var uid, out var mapText))
         {
-            var mapPos = _transform.GetMapCoordinates(uid);
+            var mapPos = _transform.GetRenderMapCoordinates(uid);
 
             if (mapPos.MapId != args.MapId)
                 continue;

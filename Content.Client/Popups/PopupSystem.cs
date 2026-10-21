@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Linq;
 using Content.Client.UserInterface.Systems.Chat;
 using Content.Shared.CCVar;
@@ -31,7 +32,7 @@ namespace Content.Client.Popups
         [Dependency] private IUserInterfaceManager _uiManager = default!;
         [Dependency] private IReplayRecordingManager _replayRecording = default!;
         [Dependency] private ExamineSystemShared _examine = default!;
-        [Dependency] private SharedTransformSystem _transform = default!;
+        [Dependency] private TransformSystem _transform = default!;
 
         public IReadOnlyCollection<WorldPopupLabel> WorldLabels => _aliveWorldLabels.Values;
         public IReadOnlyCollection<CursorPopupLabel> CursorLabels => _aliveCursorLabels.Values;

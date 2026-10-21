@@ -1,3 +1,5 @@
+using Content.Client.Rendering;
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.Examine;
 using Robust.Client.Graphics;
@@ -23,7 +25,7 @@ public sealed class PopupOverlay : Overlay
     private readonly PopupSystem _popup;
     private readonly PopupUIController _controller;
     private readonly ExamineSystemShared _examine;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly ShaderInstance _shader;
 
     public override OverlaySpace Space => OverlaySpace.ScreenSpace;
@@ -36,7 +38,7 @@ public sealed class PopupOverlay : Overlay
         IUserInterfaceManager uiManager,
         PopupUIController controller,
         ExamineSystemShared examine,
-        SharedTransformSystem transform,
+        TransformSystem transform,
         PopupSystem popup)
     {
         _configManager = configManager;
@@ -97,7 +99,8 @@ public sealed class PopupOverlay : Overlay
                     e => e == popup.InitialPos.EntityId || e == ourEntity, entMan: _entManager))
                 continue;
 
-            var pos = Vector2.Transform(mapPos.Position, matrix);
+            var renderPos = _transform.ToRenderMapCoordinates(popup.InitialPos);
+            var pos = Vector2.Transform(renderPos.Position, matrix);
             _controller.DrawPopup(popup, worldHandle, pos, scale);
         }
     }

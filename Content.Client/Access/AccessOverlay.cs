@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Text;
 using Content.Client.Resources;
 using Content.Shared.Access.Components;
@@ -13,12 +14,12 @@ public sealed class AccessOverlay : Overlay
     private const int TextFontSize = 12;
 
     private readonly IEntityManager _entityManager;
-    private readonly SharedTransformSystem _transformSystem;
+    private readonly TransformSystem _transformSystem;
     private readonly Font _font;
 
     public override OverlaySpace Space => OverlaySpace.ScreenSpace;
 
-    public AccessOverlay(IEntityManager entityManager, IResourceCache resourceCache, SharedTransformSystem transformSystem)
+    public AccessOverlay(IEntityManager entityManager, IResourceCache resourceCache, TransformSystem transformSystem)
     {
         _entityManager = entityManager;
         _transformSystem = transformSystem;
@@ -87,7 +88,7 @@ public sealed class AccessOverlay : Overlay
             }
 
             var accessInfoText = textBuffer.ToString();
-            var screenPos = args.ViewportControl.WorldToScreen(_transformSystem.GetWorldPosition(transform));
+            var screenPos = args.ViewportControl.WorldToScreen(_transformSystem.GetRenderWorldPosition((transform.Owner, transform)));
             args.ScreenHandle.DrawString(_font, screenPos, accessInfoText, Color.Gold);
         }
     }

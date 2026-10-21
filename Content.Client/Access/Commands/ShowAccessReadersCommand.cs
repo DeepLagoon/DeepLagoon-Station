@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Shared.Console;
@@ -34,7 +35,7 @@ public sealed class ShowAccessReadersCommand : IConsoleCommand
 
         var entManager = collection.Resolve<IEntityManager>();
         var cache = collection.Resolve<IResourceCache>();
-        var xform = entManager.System<SharedTransformSystem>();
+        var xform = entManager.System<TransformSystem>();
 
         overlay.AddOverlay(new AccessOverlay(entManager, cache, xform));
         shell.WriteLine($"Set access reader debug overlay to true");

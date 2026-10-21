@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Client._Emberfall.Weapons.Ranged.Overlays;
 using Content.Shared._Emberfall.Weapons.Ranged;
@@ -11,7 +12,7 @@ public sealed partial class TracerSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IOverlayManager _overlay = default!;
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _transform = default!;
 
     public override void Initialize()
     {
@@ -72,7 +73,7 @@ public sealed partial class TracerSystem : EntitySystem
     {
         var query = EntityQueryEnumerator<TracerComponent, TransformComponent>();
 
-        while (query.MoveNext(out _, out var tracer, out var xform))
+        while (query.MoveNext(out var uid, out var tracer, out var xform))
         {
             if (xform.MapID != currentMap)
                 continue;
@@ -86,7 +87,10 @@ public sealed partial class TracerSystem : EntitySystem
 
             for (var i = 1; i < positions.Count; i++)
             {
-                handle.DrawLine(positions[i - 1], positions[i], tracer.Color);
+                var endpoint = i == positions.Count - 1
+                    ? _transform.GetRenderWorldPosition((uid, xform))
+                    : positions[i];
+                handle.DrawLine(positions[i - 1], endpoint, tracer.Color);
             }
         }
     }

@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using Content.Client.Atmos.EntitySystems;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
@@ -22,7 +23,7 @@ public sealed partial class GasTileDangerousTemperatureOverlay : Overlay
     [Dependency] private IClyde _clyde = default!;
 
     private GasTileOverlaySystem? _gasTileOverlay;
-    private readonly SharedTransformSystem _xformSys;
+    private readonly TransformSystem _xformSys;
     private EntityQuery<GasTileOverlayComponent> _overlayQuery;
 
     private IRenderTexture? _temperatureTarget;
@@ -35,7 +36,7 @@ public sealed partial class GasTileDangerousTemperatureOverlay : Overlay
     public GasTileDangerousTemperatureOverlay()
     {
         IoCManager.InjectDependencies(this);
-        _xformSys = _entManager.System<SharedTransformSystem>();
+        _xformSys = _entManager.System<TransformSystem>();
 
         _overlayQuery = _entManager.GetEntityQuery<GasTileOverlayComponent>();
 
@@ -174,7 +175,7 @@ public sealed partial class GasTileDangerousTemperatureOverlay : Overlay
             () =>
             {
                 grids.Clear();
-                _mapManager.FindGridsIntersecting(mapId, worldAABB, ref grids);
+                _mapManager.FindGridsIntersecting(mapId, _xformSys.GetRenderCullingBounds(mapId, worldAABB), ref grids);
 
                 foreach (var grid in grids)
                 {
@@ -183,12 +184,12 @@ public sealed partial class GasTileDangerousTemperatureOverlay : Overlay
 
                     var gridTileSizeVec = grid.Comp.TileSizeVector;
                     var gridTileCenterVec = grid.Comp.TileSizeHalfVector;
-                    var gridEntToWorld = _xformSys.GetWorldMatrix(grid.Owner);
+                    var gridEntToWorld = _xformSys.GetRenderWorldMatrix(grid.Owner);
                     var gridEntToViewportLocal = gridEntToWorld * worldToViewportLocal;
 
                     drawHandle.SetTransform(gridEntToViewportLocal);
 
-                    var worldToGridLocal = _xformSys.GetInvWorldMatrix(grid.Owner);
+                    var worldToGridLocal = _xformSys.GetInvRenderWorldMatrix(grid.Owner);
                     var floatBounds = worldToGridLocal.TransformBox(worldBounds).Enlarged(grid.Comp.TileSize);
 
                     var localBounds = new Box2i(

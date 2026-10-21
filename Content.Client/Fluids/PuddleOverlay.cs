@@ -1,3 +1,5 @@
+using Content.Client.Rendering;
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.FixedPoint;
 using Robust.Client.Graphics;
@@ -14,7 +16,7 @@ public sealed partial class PuddleOverlay : Overlay
     [Dependency] private IEntityManager _entityManager = default!;
     [Dependency] private IEntitySystemManager _entitySystemManager = default!;
     private readonly PuddleDebugOverlaySystem _debugOverlaySystem;
-    private readonly SharedTransformSystem _transformSystem;
+    private readonly TransformSystem _transformSystem;
 
     private readonly Color _heavyPuddle = new(0, 255, 255, 50);
     private readonly Color _mediumPuddle = new(0, 150, 255, 50);
@@ -30,7 +32,7 @@ public sealed partial class PuddleOverlay : Overlay
         _debugOverlaySystem = _entitySystemManager.GetEntitySystem<PuddleDebugOverlaySystem>();
         var cache = IoCManager.Resolve<IResourceCache>();
         _font = new VectorFont(cache.GetResource<FontResource>("/Fonts/NotoSans/NotoSans-Regular.ttf"), 8);
-        _transformSystem = _entityManager.System<SharedTransformSystem>();
+        _transformSystem = _entityManager.System<TransformSystem>();
     }
 
     protected override void Draw(in OverlayDrawArgs args)
@@ -58,7 +60,7 @@ public sealed partial class PuddleOverlay : Overlay
                 continue;
 
             var gridXform = xformQuery.GetComponent(gridId);
-            var (_, _, worldMatrix, invWorldMatrix) = _transformSystem.GetWorldPositionRotationMatrixWithInv(gridXform, xformQuery);
+            var (_, _, worldMatrix, invWorldMatrix) = _transformSystem.GetRenderWorldPositionRotationMatrixWithInv((gridXform.Owner, gridXform));
             gridBounds = invWorldMatrix.TransformBox(args.WorldBounds).Enlarged(mapGrid.TileSize * 2);
             drawHandle.SetTransform(worldMatrix);
 
@@ -91,7 +93,7 @@ public sealed partial class PuddleOverlay : Overlay
                 continue;
 
             var gridXform = xformQuery.GetComponent(gridId);
-            var (_, _, matrix, invMatrix) = _transformSystem.GetWorldPositionRotationMatrixWithInv(gridXform, xformQuery);
+            var (_, _, matrix, invMatrix) = _transformSystem.GetRenderWorldPositionRotationMatrixWithInv((gridXform.Owner, gridXform));
             var gridBounds = invMatrix.TransformBox(args.WorldBounds).Enlarged(mapGrid.TileSize * 2);
 
             foreach (var debugOverlayData in _debugOverlaySystem.GetData(gridId))

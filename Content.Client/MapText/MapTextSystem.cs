@@ -1,4 +1,5 @@
-﻿using Content.Shared.MapText;
+using Robust.Client.GameObjects;
+using Content.Shared.MapText;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
@@ -15,7 +16,7 @@ public sealed partial class MapTextSystem : SharedMapTextSystem
 {
     [Dependency] private IConfigurationManager _configManager = default!;
     [Dependency] private IUserInterfaceManager _uiManager = default!;
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _transform = default!;
     [Dependency] private IResourceCache _resourceCache = default!;
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private IOverlayManager _overlayManager = default!;

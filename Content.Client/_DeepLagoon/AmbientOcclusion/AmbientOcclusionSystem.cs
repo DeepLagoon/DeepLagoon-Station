@@ -1,3 +1,4 @@
+using Content.Client.Rendering;
 using System.Numerics;
 using Stopwatch = System.Diagnostics.Stopwatch;
 using Content.Shared.CCVar;
@@ -24,7 +25,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
     [Dependency] private IConfigurationManager _cfg = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _transform = default!;
     [Dependency] private TagSystem _tags = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SpriteSystem _sprites = default!;
@@ -135,7 +136,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             handle.UseShader(null);
             var intensity = GetIntensity(system._cfg.GetCVar(CCVars.AmbientOcclusionIntensity));
             _grids.Clear();
-            system._mapManager.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
+            system._mapManager.FindGridsIntersecting(args.MapId, system._transform.GetRenderCullingBounds(args.MapId, args.WorldAABB), ref _grids);
             var started = Timestamp();
             CollectObjects(args);
             _stats.CollectMs += Elapsed(started);
@@ -175,7 +176,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             foreach (var (uid, grid) in _grids)
             {
                 _walls.Clear();
-                var inverse = system._transform.GetInvWorldMatrix(uid);
+                var inverse = system._transform.GetInvRenderWorldMatrix(uid);
                 var local = inverse.TransformBox(args.WorldBounds);
                 var min = (local.BottomLeft / grid.TileSize).Floored();
                 var max = (local.TopRight / grid.TileSize).Ceiled();
@@ -189,7 +190,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 mask.LastUsedFrame = system._timing.CurFrame;
                 started = Timestamp();
                 _tileStates.Clear();
-                foreach (var tile in system._map.GetTilesIntersecting(uid, grid, args.WorldAABB))
+                foreach (var tile in system._map.GetRenderTilesIntersecting(system._transform, (uid, grid), args.WorldAABB))
                 {
                     var p = tile.GridIndices;
                     if (_measure) _stats.Tiles++;
@@ -264,7 +265,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 if (mask.Upload() && _measure) _stats.UploadBytes += mask.UploadedBytes;
                 _stats.UploadMs += Elapsed(started);
                 started = Timestamp();
-                handle.SetTransform(system._transform.GetWorldMatrix(system.Transform(uid)));
+                handle.SetTransform(system._transform.GetRenderWorldMatrix(uid));
                 handle.DrawTextureRectRegion(mask.Texture!, new Box2(min.X * grid.TileSize, min.Y * grid.TileSize,
                     max.X * grid.TileSize, max.Y * grid.TileSize), subRegion: new UIBox2(0, 0, width, height));
                 if (_measure) _stats.Commands++;
@@ -351,12 +352,12 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             {
                 if (!grids.TryGetComponent(obj.Grid, out var grid)) continue;
                 _walls.Clear();
-                var centre = Vector2.Transform(obj.Position, system._transform.GetInvWorldMatrix(obj.Grid));
+                var centre = Vector2.Transform(obj.Position, system._transform.GetInvRenderWorldMatrix(obj.Grid));
                 var radius = obj.Size / 2 + new Vector2(grid.TileSize * 0.125f);
                 var footprint = new Box2(centre - radius, centre + radius);
                 var min = (footprint.BottomLeft / grid.TileSize).Floored();
                 var max = (footprint.TopRight / grid.TileSize).Floored();
-                args.WorldHandle.SetTransform(system._transform.GetWorldMatrix(system.Transform(obj.Grid)));
+                args.WorldHandle.SetTransform(system._transform.GetRenderWorldMatrix(obj.Grid));
                 for (var y = min.Y; y <= max.Y; y++)
                     for (var x = min.X; x <= max.X; x++)
                     {
@@ -386,8 +387,8 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 var layers = _casterLayers.GetValueOrDefault(uid);
                 if (layers == 0) continue;
                 // Bound overlapping layers within a sprite. One stronger copy replaces the soft-edge copies.
-                var worldRotation = system._transform.GetWorldRotation(xform);
-                var position = system._transform.GetWorldPosition(xform) + offset;
+                var worldRotation = system._transform.GetRenderWorldRotation((xform.Owner, xform));
+                var position = system._transform.GetRenderWorldPosition((xform.Owner, xform)) + offset;
                 var direction = sprite.EnableDirectionOverride ? sprite.DirectionOverride : (Direction?)null;
                 var core = new Color(0f, 0f, 0f, 0.16f * intensity / layers);
                 AmbientOcclusionSilhouette.Render(system._sprites, sprite, args.WorldHandle, eyeRotation,
@@ -406,7 +407,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             var handle = args.WorldHandle;
             handle.UseShader(null);
             _grids.Clear();
-            system._mapManager.FindGridsIntersecting(args.MapId, args.WorldAABB, ref _grids);
+            system._mapManager.FindGridsIntersecting(args.MapId, system._transform.GetRenderCullingBounds(args.MapId, args.WorldAABB), ref _grids);
             var started = Timestamp();
             CollectObjects(args);
             _stats.CollectMs += Elapsed(started);
@@ -414,12 +415,12 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             {
                 _walls.Clear(); // No stale geometry after construction, deletion, PVS changes or grid movement.
                 var xform = system.Transform(uid);
-                handle.SetTransform(system._transform.GetWorldMatrix(xform));
+                handle.SetTransform(system._transform.GetRenderWorldMatrix((xform.Owner, xform)));
                 started = Timestamp();
-                BuildContacts(uid, grid, system._transform.GetInvWorldMatrix(uid), args);
+                BuildContacts(uid, grid, system._transform.GetInvRenderWorldMatrix(uid), args);
                 _stats.ContactMs += Elapsed(started);
                 started = Timestamp();
-                foreach (var tile in system._map.GetTilesIntersecting(uid, grid, args.WorldAABB))
+                foreach (var tile in system._map.GetRenderTilesIntersecting(system._transform, (uid, grid), args.WorldAABB))
                 {
                     var p = tile.GridIndices;
                     if (_measure) _stats.Tiles++;
@@ -459,7 +460,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 return;
             // Explicit spatial lookup, including items without collidable fixtures; no global sprite scan.
             var phaseStarted = Timestamp();
-            system._lookup.GetEntitiesIntersecting(args.MapId, args.WorldAABB.Enlarged(0.25f),
+            system._lookup.GetEntitiesIntersecting(args.MapId, system._transform.GetRenderCullingBounds(args.MapId, args.WorldAABB.Enlarged(0.25f)),
                 _entities, LookupFlags.Uncontained | LookupFlags.Approximate);
             _stats.LookupMs += Elapsed(phaseStarted);
             if (_measure) _stats.Candidates = _entities.Count;
@@ -489,7 +490,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 if (!transforms.TryGetComponent(uid, out var xform)) continue;
                 if (_measure) _stats.ProcessedCandidates++;
                 if (hasOccluder)
-                    _blockers.Add((uid, system._transform.GetWorldMatrix(xform).TransformBox(occluder!.LocalBounds)));
+                    _blockers.Add((uid, system._transform.GetRenderWorldMatrix((xform.Owner, xform)).TransformBox(occluder!.LocalBounds)));
                 if (!caster || xform.GridUid is not { } grid) continue;
                 // Full entity silhouettes do not need wall-tag checks; wall-only and mask modes do.
                 if (!_silhouette || !_drawEntities)
@@ -521,7 +522,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                     new Vector2(Math.Clamp(bounds.Width * 0.9f, 0.2f, 2f),
                         Math.Clamp(bounds.Height * 0.9f, 0.15f, 2f));
                 // Billboard contact follows the sprite offset; mobs contact the floor near their feet.
-                var position = system._transform.GetWorldPosition(xform);
+                var position = system._transform.GetRenderWorldPosition((xform.Owner, xform));
                 var contactOffset = sprite.Offset +
                     (mob ? new Vector2(0, bounds.Bottom + 0.18f) : Vector2.Zero);
                 if (contactOffset != Vector2.Zero)

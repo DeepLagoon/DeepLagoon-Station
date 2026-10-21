@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared._DeepLagoon.Admin;
 using Content.Shared.Administration;
@@ -195,7 +196,7 @@ public sealed partial class AdminMapUploadSystem
         if (!_admins.HasFlag(AdminFlags.Mapping))
             return;
         var handle = args.WorldHandle;
-        var transformSystem = EntityManager.System<SharedTransformSystem>();
+        var transformSystem = EntityManager.System<TransformSystem>();
         EntityUid? previewMap = null;
         EntityUid? destinationMap = null;
         if (_preview is { } ready)
@@ -208,7 +209,7 @@ public sealed partial class AdminMapUploadSystem
         var query = EntityManager.AllEntityQueryEnumerator<AdminMapMissingPrototypeComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out _, out var xform))
         {
-            var matrix = transformSystem.GetWorldMatrix(uid);
+            var matrix = transformSystem.GetRenderWorldMatrix(uid);
             if (_preview is { } placement && previewMap != null && xform.MapUid == previewMap &&
                 TryComp<TransformComponent>(destinationMap, out var destination) && destination.MapID == args.MapId)
             {

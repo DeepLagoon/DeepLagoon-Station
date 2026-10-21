@@ -1,3 +1,4 @@
+using Content.Client.Rendering;
 using System.Numerics;
 using Content.Client.Atmos.Components;
 using Content.Client.Atmos.EntitySystems;
@@ -21,7 +22,7 @@ namespace Content.Client.Atmos.Overlays
     {
         private readonly IEntityManager _entManager;
         private readonly SharedMapSystem _mapManager;
-        private readonly SharedTransformSystem _xformSys;
+        private readonly TransformSystem _xformSys;
 
         public override OverlaySpace Space => OverlaySpace.WorldSpaceEntities | OverlaySpace.WorldSpaceBelowWorld;
         private readonly ShaderInstance _shader;
@@ -47,7 +48,7 @@ namespace Content.Client.Atmos.Overlays
 
         public const int GasOverlayZIndex = (int) Shared.DrawDepth.DrawDepth.Effects; // Under ghosts, above mostly everything else
 
-        public GasTileOverlay(GasTileOverlaySystem system, IEntityManager entManager, IResourceCache resourceCache, IPrototypeManager protoMan, SpriteSystem spriteSys, SharedTransformSystem xformSys)
+        public GasTileOverlay(GasTileOverlaySystem system, IEntityManager entManager, IResourceCache resourceCache, IPrototypeManager protoMan, SpriteSystem spriteSys, TransformSystem xformSys)
         {
             _entManager = entManager;
             _mapManager = entManager.System<SharedMapSystem>();
@@ -172,7 +173,7 @@ namespace Content.Client.Atmos.Overlays
                 return;
 
             // TODO: WorldBounds callback.
-            _mapManager.FindGridsIntersecting(args.MapId, args.WorldAABB, ref gridState,
+            _mapManager.FindGridsIntersecting(args.MapId, _xformSys.GetRenderCullingBounds(args.MapId, args.WorldAABB), ref gridState,
                 static (EntityUid uid, MapGridComponent grid,
                     ref (Box2Rotated WorldBounds,
                         DrawingHandleWorld drawHandle,
@@ -184,7 +185,7 @@ namespace Content.Client.Atmos.Overlays
                         ShaderInstance shader,
                         EntityQuery<GasTileOverlayComponent> overlayQuery,
                         EntityQuery<TransformComponent> xformQuery,
-                        SharedTransformSystem xformSys) state) =>
+                        TransformSystem xformSys) state) =>
                 {
                     if (!state.overlayQuery.TryGetComponent(uid, out var comp) ||
                         !state.xformQuery.TryGetComponent(uid, out var gridXform))
@@ -192,7 +193,7 @@ namespace Content.Client.Atmos.Overlays
                             return true;
                         }
 
-                    var (_, _, worldMatrix, invMatrix) = state.xformSys.GetWorldPositionRotationMatrixWithInv(gridXform);
+                    var (_, _, worldMatrix, invMatrix) = state.xformSys.GetRenderWorldPositionRotationMatrixWithInv((gridXform.Owner, gridXform));
                     state.drawHandle.SetTransform(worldMatrix);
                     var floatBounds = invMatrix.TransformBox(state.WorldBounds).Enlarged(grid.TileSize);
                     var localBounds = new Box2i(

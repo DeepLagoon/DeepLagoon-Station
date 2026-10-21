@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using Content.Shared._Crescent.ShipShields;
 using Robust.Client.Graphics;
 using Robust.Shared.Enums;
@@ -13,7 +14,7 @@ public sealed class ShipShieldOverlay : Overlay
 {
     private static readonly ProtoId<ShaderPrototype> ShaderId = "ShipShieldSurface";
     private readonly FixtureSystem _fixture;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly IEntityManager _entManager;
     private readonly ShaderPrototype _shaderPrototype;
     private readonly Dictionary<EntityUid, ShieldSurface> _surfaces = new();
@@ -26,7 +27,7 @@ public sealed class ShipShieldOverlay : Overlay
     {
         _entManager = entityManager;
         _fixture = _entManager.System<FixtureSystem>();
-        _transform = _entManager.System<SharedTransformSystem>();
+        _transform = _entManager.System<TransformSystem>();
         _shaderPrototype = prototypeManager.Index(ShaderId);
         ZIndex = 8;
     }
@@ -48,7 +49,7 @@ public sealed class ShipShieldOverlay : Overlay
                     continue;
 
                 var surface = GetSurface(uid, chain);
-                var matrix = _transform.GetWorldMatrix(xform);
+                var matrix = _transform.GetRenderWorldMatrix((xform.Owner, xform));
                 if (!args.WorldAABB.Intersects(matrix.TransformBox(surface.Mesh.Bounds)))
                     continue;
 

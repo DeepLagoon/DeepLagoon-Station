@@ -51,7 +51,7 @@ public sealed class TrailOverlay : Overlay
             if (trail.TrailData.Count == 0)
                 continue;
 
-            var (position, rotation) = _transform.GetWorldPositionRotation(xform, xformQuery);
+            var (position, rotation) = _transform.GetRenderWorldPositionRotation((xform.Owner, xform));
 
             if (trail.Shader != null && _protoMan.TryIndex<ShaderPrototype>(trail.Shader, out var shaderProto))
             {
@@ -84,7 +84,7 @@ public sealed class TrailOverlay : Overlay
                     direction = dirRot.GetCardinalDir();
                 }
                 else if (trail.RenderedEntityRotationStrategy == RenderedEntityRotationStrategy.RenderedEntity)
-                    rot = _transform.GetWorldRotation(trail.RenderedEntity.Value);
+                    rot = _transform.GetRenderWorldRotation(trail.RenderedEntity.Value);
 
                 if (spriteQuery.TryComp(trail.RenderedEntity.Value, out var sprite))
                 {

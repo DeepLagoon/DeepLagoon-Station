@@ -1,3 +1,4 @@
+using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.Light.Components;
 using Robust.Client.Graphics;
@@ -15,7 +16,7 @@ public sealed partial class TileEmissionOverlay : Overlay
     [Dependency] private IOverlayManager _overlay = default!;
 
     private SharedMapSystem _mapSystem;
-    private SharedTransformSystem _xformSystem;
+    private TransformSystem _xformSystem;
 
     private readonly EntityLookupSystem _lookup;
 
@@ -32,7 +33,7 @@ public sealed partial class TileEmissionOverlay : Overlay
 
         _lookup = entManager.System<EntityLookupSystem>();
         _mapSystem = entManager.System<SharedMapSystem>();
-        _xformSystem = entManager.System<SharedTransformSystem>();
+        _xformSystem = entManager.System<TransformSystem>();
 
         _xformQuery = entManager.GetEntityQuery<TransformComponent>();
         ZIndex = ContentZIndex;
@@ -50,7 +51,7 @@ public sealed partial class TileEmissionOverlay : Overlay
         var target = lightoverlay.GetCachedForViewport(args.Viewport).EnlargedLightTarget;
         var viewport = args.Viewport;
         _grids.Clear();
-        _mapManager.FindGridsIntersecting(mapId, bounds, ref _grids, approx: true);
+        _mapManager.FindGridsIntersecting(mapId, _xformSystem.GetRenderCullingBounds(mapId, bounds), ref _grids, approx: true);
 
         if (_grids.Count == 0)
             return;
@@ -65,7 +66,7 @@ public sealed partial class TileEmissionOverlay : Overlay
 
             foreach (var grid in _grids)
             {
-                var gridInvMatrix = _xformSystem.GetInvWorldMatrix(grid);
+                var gridInvMatrix = _xformSystem.GetInvRenderWorldMatrix(grid.Owner);
                 var localBounds = gridInvMatrix.TransformBox(bounds);
                 _entities.Clear();
                 _lookup.GetLocalEntitiesIntersecting(grid.Owner, localBounds, _entities);
@@ -73,7 +74,7 @@ public sealed partial class TileEmissionOverlay : Overlay
                 if (_entities.Count == 0)
                     continue;
 
-                var gridMatrix = _xformSystem.GetWorldMatrix(grid.Owner);
+                var gridMatrix = _xformSystem.GetRenderWorldMatrix(grid.Owner);
 
                 foreach (var ent in _entities)
                 {

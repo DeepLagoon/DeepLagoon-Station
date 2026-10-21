@@ -1,3 +1,4 @@
+using Content.Client.Rendering;
 using System.Numerics;
 using Content.Shared.Shuttles.Components;
 using Robust.Client.GameObjects;
@@ -18,7 +19,7 @@ public sealed partial class FtlArrivalOverlay : Overlay
 
     private EntityLookupSystem _lookups;
     private SharedMapSystem _maps;
-    private SharedTransformSystem _transforms;
+    private TransformSystem _transforms;
     private SpriteSystem _sprites;
     [Dependency] private IEntityManager _entManager = default!;
     [Dependency] private IGameTiming _timing = default!;
@@ -32,7 +33,7 @@ public sealed partial class FtlArrivalOverlay : Overlay
     {
         IoCManager.InjectDependencies(this);
         _lookups = _entManager.System<EntityLookupSystem>();
-        _transforms = _entManager.System<SharedTransformSystem>();
+        _transforms = _entManager.System<TransformSystem>();
         _maps = _entManager.System<SharedMapSystem>();
         _sprites = _entManager.System<SpriteSystem>();
 
@@ -62,7 +63,7 @@ public sealed partial class FtlArrivalOverlay : Overlay
             comp.Elapsed += (float) _timing.FrameTime.TotalSeconds;
 
             // Need to manually transform the viewport in terms of the visualizer entity as the grid isn't in position.
-            var (_, _, worldMatrix, invMatrix) = _transforms.GetWorldPositionRotationMatrixWithInv(uid);
+            var (_, _, worldMatrix, invMatrix) = _transforms.GetRenderWorldPositionRotationMatrixWithInv(uid);
             args.WorldHandle.SetTransform(worldMatrix);
             var localAABB = invMatrix.TransformBox(args.WorldBounds);
 

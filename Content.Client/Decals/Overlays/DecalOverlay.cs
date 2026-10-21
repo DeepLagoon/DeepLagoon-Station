@@ -50,7 +50,11 @@ namespace Content.Client.Decals.Overlays
             var xformSystem = _entManager.System<TransformSystem>();
             var eyeAngle = args.Viewport.Eye?.Rotation ?? Angle.Zero;
 
-            var gridAABB = xformSystem.GetInvWorldMatrix(xform).TransformBox(args.WorldBounds.Enlarged(1f));
+            // Tiles use the grid's rendered pose; decals and their culling must use it too.
+            var (worldPos, worldRot) = xformSystem.GetRenderWorldPositionRotation((owner, xform));
+            var worldMatrix = Matrix3Helpers.CreateTransform(worldPos, worldRot);
+            var inverseWorldMatrix = Matrix3Helpers.CreateInverseTransform(worldPos, worldRot);
+            var gridAABB = inverseWorldMatrix.TransformBox(args.WorldBounds.Enlarged(1f));
             var chunkEnumerator = new ChunkIndicesEnumerator(gridAABB, SharedDecalSystem.ChunkSize);
             _decals.Clear();
 
@@ -81,7 +85,6 @@ namespace Content.Client.Decals.Overlays
                 return x.Id.CompareTo(y.Id);
             });
 
-            var (_, worldRot, worldMatrix) = xformSystem.GetWorldPositionRotationMatrix(xform);
             handle.SetTransform(worldMatrix);
 
             foreach (var (_, decal) in _decals)

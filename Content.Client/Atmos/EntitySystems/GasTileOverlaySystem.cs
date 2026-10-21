@@ -16,7 +16,7 @@ namespace Content.Client.Atmos.EntitySystems
         [Dependency] private IResourceCache _resourceCache = default!;
         [Dependency] private IOverlayManager _overlayMan = default!;
         [Dependency] private SpriteSystem _spriteSys = default!;
-        [Dependency] private SharedTransformSystem _xformSys = default!;
+        [Dependency] private TransformSystem _xformSys = default!;
 
         private GasTileOverlay _overlay = default!;
 

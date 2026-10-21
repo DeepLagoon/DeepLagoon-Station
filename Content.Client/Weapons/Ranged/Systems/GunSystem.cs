@@ -74,7 +74,7 @@ public sealed partial class GunSystem : SharedGunSystem
                     _inputManager,
                     _player,
                     this,
-                    TransformSystem));
+                    EntityManager.System<TransformSystem>()));
             }
             else
             {

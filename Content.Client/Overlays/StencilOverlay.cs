@@ -27,7 +27,7 @@ public sealed partial class StencilOverlay : Overlay
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _protoManager = default!;
     private readonly ParallaxSystem _parallax;
-    private readonly SharedTransformSystem _transform;
+    private readonly TransformSystem _transform;
     private readonly SharedMapSystem _map;
     private readonly SpriteSystem _sprite;
     private readonly WeatherSystem _weather;
@@ -38,7 +38,7 @@ public sealed partial class StencilOverlay : Overlay
 
     private readonly ShaderInstance _shader;
 
-    public StencilOverlay(ParallaxSystem parallax, SharedTransformSystem transform, SharedMapSystem map, SpriteSystem sprite, WeatherSystem weather)
+    public StencilOverlay(ParallaxSystem parallax, TransformSystem transform, SharedMapSystem map, SpriteSystem sprite, WeatherSystem weather)
     {
         ZIndex = ParallaxSystem.ParallaxZIndex + 1;
         _parallax = parallax;
