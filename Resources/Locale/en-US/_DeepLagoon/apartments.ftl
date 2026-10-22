@@ -30,3 +30,4 @@ dl-apartment-trip-departing = Preparing residential transfer. Equipment will be 
 dl-apartment-trip-cancelled = Transfer cancelled. You remain here with your equipment.
 
 dl-apartment-basic = Basic apartments
+dl-apartment-spawn-gear-deferred = Your equipment will be issued to you after you leave your home

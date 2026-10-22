@@ -1,27 +1,28 @@
 .ChatComposer__stage {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; display: flex;
   background: transparent;
 }
 .ChatComposer {
-  box-sizing: border-box; width: 440px; max-width: calc(100vw - 28px);
+  box-sizing: border-box; width: 100%; height: 100%; min-width: 0;
+  display: flex; flex-direction: column;
   padding: 20px; color: #e7edf7; background: #182333;
   border: 1px solid transparent; border-radius: 16px;
   box-shadow: none;
-  transition: width 180ms ease-out;
   header, footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  header strong { font-size: 18px; }
+  header { padding-right: 144px; min-height: 22px; flex-shrink: 0; }
+  header > div { min-width: 0; }
+  header strong { display: block; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   small { display: block; margin-top: 5px; color: #9fb3cd; font-size: 11px; }
   &__channel { display: flex; align-items: center; gap: 12px; margin: 16px 0 12px; color: #a7bed9; }
   textarea {
-    display: block; box-sizing: border-box; width: 100%; height: 66px;
-    max-height: calc(100vh - 230px); padding: 12px; resize: none;
+    display: block; box-sizing: border-box; width: 100%; min-height: 40px; flex: 1;
+    padding: 12px; resize: none;
     background: #101a28; color: #edf3fc; font: inherit; line-height: 1.5;
     border: 1px solid transparent; border-radius: 9px; outline: none;
     transition: height 180ms ease-out;
     &:focus { border-color: transparent; }
   }
   footer { margin-top: 14px; font-size: 11px; color: #a7bed9; }
-  &--emote { width: 840px; textarea { height: 250px; } }
 }
 @media (prefers-reduced-motion: reduce) {
   .ChatComposer, .ChatComposer textarea { transition: none; }

@@ -18,7 +18,8 @@ export const ChatComposer = () => {
       second = requestAnimationFrame(() => act('presented'));
     });
     const cycle = event => {
-      if (event.key === 'Tab' && event.shiftKey && !composing.current && !event.isComposing) {
+      if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey
+          && !composing.current && !event.isComposing) {
         event.preventDefault();
         if (!event.repeat) {
           clearTimeout(timer.current);
@@ -65,7 +66,6 @@ export const ChatComposer = () => {
     <section className={'ChatComposer' + (emote ? ' ChatComposer--emote' : '')} aria-label="Ввод сообщения">
       <header>
         <div><strong>{emote ? 'Описать действие' : 'Написать сообщение'}</strong></div>
-        <Button icon="times" tooltip="Закрыть • Esc" onClick={() => dispatch('cancel')} />
       </header>
       <div className="ChatComposer__channel"><span>Канал</span><Dropdown
         selected={channel} width="180px"
@@ -78,7 +78,8 @@ export const ChatComposer = () => {
         onCompositionEnd={() => { composing.current = false; act('composition', { active: false }); }}
         onKeyDown={event => {
           if (event.key === 'Escape') { event.preventDefault(); dispatch('cancel'); }
-          if ((event.key === 'Enter' || event.keyCode === 13) && !composing.current && !event.nativeEvent.isComposing) {
+          if ((event.key === 'Enter' || event.code === 'NumpadEnter' || event.keyCode === 13)
+              && !composing.current && !event.nativeEvent.isComposing) {
             event.preventDefault();
             if (event.repeat) return;
             if (event.shiftKey) {
@@ -92,7 +93,7 @@ export const ChatComposer = () => {
             } else if (latest.current.trim()) dispatch('submit');
           }
         }} />
-      <footer><span>Enter — отправить · Shift+Enter — новая строка · Shift+Tab — канал <small>{text.length}/{data.maxLength}</small></span>
+      <footer><span>Enter / Num Enter — отправить · Shift+Enter — новая строка · Tab — канал <small>{text.length}/{data.maxLength}</small></span>
         <Button icon="paper-plane" disabled={!text.trim()} onClick={() => dispatch('submit')}>Отправить</Button></footer>
     </section>
   </div>;

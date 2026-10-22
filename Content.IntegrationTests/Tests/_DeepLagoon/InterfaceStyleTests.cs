@@ -17,6 +17,51 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class InterfaceStyleTests
 {
+    [Test]
+    public async Task ChatComposerControlsStayInsideTheVisibleWindow()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        Robust.Client.UserInterface.CustomControls.BaseWindow window = null;
+        var type = typeof(Content.Client.UserInterface.Systems.Chat.Widgets.ChatBox)
+            .GetNestedType("ComposerWindow", BindingFlags.NonPublic)!;
+        await pair.Client.WaitAssertion(() =>
+        {
+            var cfg = pair.Client.ResolveDependency<IConfigurationManager>();
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 1);
+            cfg.SetCVar(WebUiCVars.WindowStyles, "Chat=1");
+            window = (Robust.Client.UserInterface.CustomControls.BaseWindow) Activator.CreateInstance(type, true)!;
+            var panel = (TguiPanel) type.GetField("Panel")!.GetValue(window)!;
+            panel.SetState("ChatComposer", "{}", "Чат");
+            window.OpenCentered();
+        });
+        await pair.Client.WaitRunTicks(3);
+        async Task CheckSize(Vector2 expected)
+        {
+            await pair.Client.WaitAssertion(() =>
+            {
+                Assert.That(window.Size.X, Is.EqualTo(expected.X).Within(.5f));
+                Assert.That(window.Size.Y, Is.EqualTo(expected.Y).Within(.5f));
+                var buttons = Descendants(window).OfType<Button>()
+                    .Where(button => button.Text is "—" or "□" or "×" or "SS14").ToArray();
+                Assert.That(buttons.Select(button => button.Text), Is.EquivalentTo(new[] { "—", "□", "×", "SS14" }));
+                foreach (var button in buttons)
+                {
+                    var position = button.GlobalPosition - window.GlobalPosition;
+                    Assert.That(position.X, Is.GreaterThanOrEqualTo(0));
+                    Assert.That(position.Y, Is.EqualTo(20).Within(.5f));
+                    Assert.That(position.X + button.Size.X, Is.LessThanOrEqualTo(window.Size.X + .5f));
+                    Assert.That(position.Y + button.Size.Y, Is.LessThanOrEqualTo(52));
+                }
+            });
+        }
+        await CheckSize(new(440, 270));
+        await pair.Client.WaitAssertion(() => type.GetMethod("SetEmoteMode")!.Invoke(window, new object[] { true }));
+        await pair.Client.WaitRunTicks(3);
+        await CheckSize(new(840, 460));
+        await pair.Client.WaitAssertion(() => window.Close());
+        await pair.CleanReturnAsync();
+    }
+
     private static IEnumerable<Control> Descendants(Control root) => root.Children.SelectMany(child => new[] { child }.Concat(Descendants(child)));
     private static void Press(BaseButton button)
     {

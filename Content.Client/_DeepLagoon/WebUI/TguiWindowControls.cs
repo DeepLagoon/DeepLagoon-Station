@@ -23,11 +23,13 @@ public sealed class TguiWindowControls
     private bool _savedResizable;
     private string _title = "TGUI";
 
-    public static TguiWindowControls Attach(BaseWindow window)
+    public static TguiWindowControls Attach(BaseWindow window) => Attach(window, new Vector2(8, 8));
+
+    public static TguiWindowControls Attach(BaseWindow window, Vector2 inset)
     {
         var existing = Find(window);
         if (existing != null) return existing;
-        var controls = new TguiWindowControls(window);
+        var controls = new TguiWindowControls(window, inset);
         Windows.Add(new WeakReference<TguiWindowControls>(controls));
         return controls;
     }
@@ -50,7 +52,7 @@ public sealed class TguiWindowControls
     }
     public void SetTitle(string title) { _title = title; if (_restore != null) _restore.Text = title; }
 
-    private TguiWindowControls(BaseWindow window)
+    private TguiWindowControls(BaseWindow window, Vector2 inset)
     {
         _window = window;
         var buttonSize = new Vector2(26, 22);
@@ -74,7 +76,7 @@ public sealed class TguiWindowControls
         else
         {
             var row = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Horizontal, MouseFilter = Control.MouseFilterMode.Stop,
-                HorizontalAlignment = Control.HAlignment.Right, VerticalAlignment = Control.VAlignment.Top, Margin = new Thickness(0, 8, 8, 0) };
+                HorizontalAlignment = Control.HAlignment.Right, VerticalAlignment = Control.VAlignment.Top, Margin = new Thickness(0, inset.Y, inset.X, 0) };
             row.AddChild(minimize); row.AddChild(_maximize);
             var close = new Button { Text = "×", ToolTip = "Закрыть окно", MinSize = new(26, 22) };
             close.OnPressed += _ => window.Close();

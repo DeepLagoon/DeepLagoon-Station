@@ -7,6 +7,7 @@ using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Utility;
 using Content.Server.Atmos.Components;
 using Content.Server.Bed.Components;
+using Content.Server.Chat.Managers;
 using Content.Server.Construction.Components;
 using Content.Server.GameTicking.Events;
 using Content.Shared._DeepLagoon.Apartments;
@@ -54,6 +55,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     [Dependency] private SharedHandsSystem _hands = default!;
     [Dependency] private PullingSystem _pulling = default!;
     [Dependency] private IPlayerManager _players = default!;
+    [Dependency] private IChatManager _chat = default!;
     [Dependency] private IGameTiming _timing = default!;
 
     public sealed class Instance
@@ -140,7 +142,12 @@ public sealed partial class ApartmentSystem : EntitySystem
         // Keep the normal arrival point and loadout for leaving the apartment.
         // A failed load leaves the player at their normal latejoin spawn.
         if (!Enter(args.Player, args.Player.UserId, out var message, spawnAtBed: true))
+        {
             Log.Warning($"Could not spawn latejoining player {args.Player.UserId} in their apartment: {message}");
+            return;
+        }
+
+        _chat.DispatchServerMessage(args.Player, Loc.GetString("dl-apartment-spawn-gear-deferred"));
     }
 
     private IApartmentLayoutStore Store => _store ??= new ApartmentLayoutStore(_resources.UserData.RootDir is { } root

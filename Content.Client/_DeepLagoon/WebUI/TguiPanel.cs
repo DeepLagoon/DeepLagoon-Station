@@ -109,6 +109,7 @@ public sealed partial class TguiPanel : Control
     private readonly bool _inheritChatAppearance;
     private readonly bool _showWindowControls;
     private TguiWindowControls? _windowControls;
+    public Vector2 WindowControlsInset { get; init; } = new(8, 8);
     private readonly BoxContainer _failure = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, Visible = false };
 
     public TguiPanel(bool suspendWhenHidden = false, bool inheritChatAppearance = true, bool captureKeyboard = false, bool showWindowControls = true, bool forceTgui = false)
@@ -208,7 +209,7 @@ public sealed partial class TguiPanel : Control
         UserInterfaceManager.DeferAction(() =>
         {
             if (!_showWindowControls || Disposed || !IsInsideTree || FloatingWindow() is not { } window) return;
-            _windowControls = TguiWindowControls.Attach(window);
+            _windowControls = TguiWindowControls.Attach(window, WindowControlsInset);
             _windowControls.SetTitle(_title);
         });
     }
@@ -329,7 +330,7 @@ public sealed partial class TguiPanel : Control
                     _styleButton = WindowInterfaceStyle.Attach(FloatingWindow() ?? (Control) this, StyleKey, () => !_usingNative, SelectStyle);
                     if (_showWindowControls && FloatingWindow() is { } host &&
                         host is not Content.Client.UserInterface.Controls.FancyWindow && host is not DefaultWindow)
-                        _styleButton.Margin = new Thickness(0, 8, 96, 0);
+                        _styleButton.Margin = new Thickness(0, WindowControlsInset.Y, WindowControlsInset.X + 88, 0);
                 }
                 if (!UseTguiStyle(StyleKey)) SwitchToNative();
             });

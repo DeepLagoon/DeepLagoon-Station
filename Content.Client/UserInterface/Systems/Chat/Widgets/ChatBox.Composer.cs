@@ -4,6 +4,7 @@ using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Systems.Chat.Controls;
 using Content.Shared.Chat;
 using Robust.Client.UserInterface.CustomControls;
+using Robust.Client.UserInterface.Controls;
 using Robust.Client.Input;
 using Robust.Shared.Input;
 
@@ -16,18 +17,29 @@ public partial class ChatBox
     private IInputManager? _composerInput;
     private bool _composerComposing;
 
-    // One fixed browser surface: animated form dimensions never resize CEF or
-    // allocate a new native texture. Closing releases this extra browser.
     private sealed class ComposerWindow : BaseWindow
     {
-        public readonly TguiPanel Panel = new(inheritChatAppearance: false);
+        public readonly TguiPanel Panel = new(inheritChatAppearance: false) { WindowControlsInset = new(20, 20) };
+        private bool? _emote;
         public ComposerWindow()
         {
             Resizable = false;
             // Keep layout and browser startup active, but hide the blank bootstrap frame.
             Modulate = Color.Transparent;
-            SetSize = new Vector2(880, 500);
+            SetSize = new Vector2(440, 270);
             AddChild(Panel);
+        }
+
+        public void SetEmoteMode(bool emote)
+        {
+            if (_emote == emote || TguiWindowControls.IsMaximized(this)) return;
+            _emote = emote;
+            var size = emote ? new Vector2(840, 460) : new Vector2(440, 270);
+            if (Parent is not { } root) { SetSize = size; return; }
+            size = Vector2.Min(size, root.Size);
+            var position = Position + (Size - size) / 2;
+            SetSize = size;
+            LayoutContainer.SetPosition(this, Vector2.Clamp(position, Vector2.Zero, Vector2.Max(Vector2.Zero, root.Size - size)));
         }
     }
 
@@ -38,7 +50,7 @@ public partial class ChatBox
             var window = new ComposerWindow();
             var available = UserInterfaceManager.WindowRoot.Size;
             if (available.X > 0 && available.Y > 0)
-                window.SetSize = Vector2.Min(new Vector2(880, 500), available);
+                window.SetSize = Vector2.Min(new Vector2(440, 270), available);
             _composer = window;
             _composerInput = IoCManager.Resolve<IInputManager>();
             _composerInput.FirstChanceOnKeyEvent += OnComposerKey;
@@ -69,6 +81,7 @@ public partial class ChatBox
 
     private void PublishComposer()
     {
+        _composer?.SetEmoteMode(SelectedChannel == ChatSelectChannel.Emotes);
         var channels = ChannelSelectorPopup.ChannelSelectorOrder
             .Where(channel => (_controller.SelectableChannels & channel) != 0)
             .Select(channel => "{\"id\":" + GameWebView.Quote(((uint) channel).ToString()) +
@@ -148,8 +161,9 @@ public partial class ChatBox
     {
         if (Content.Client._DeepLagoon.WebUI.WebViewCapabilities.NativeLifecycle)
             return;
-        var tab = args.Key == Keyboard.Key.Tab && args.Shift;
-        if (args.Handled || type == KeyEventType.Up || (args.Key != Keyboard.Key.Return && !tab) ||
+        var tab = args.Key == Keyboard.Key.Tab && !args.Shift && !args.Control && !args.Alt;
+        var enter = args.Key is Keyboard.Key.Return or Keyboard.Key.NumpadEnter;
+        if (args.Handled || type == KeyEventType.Up || (!enter && !tab) ||
             _composerComposing || _composer?.Panel.Web is not { IsReady: true, HasInputFocus: true } web)
             return;
         args.Handle();
