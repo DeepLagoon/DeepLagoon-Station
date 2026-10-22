@@ -78,7 +78,7 @@ public sealed class TguiWindowControls
             var row = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Horizontal, MouseFilter = Control.MouseFilterMode.Stop,
                 HorizontalAlignment = Control.HAlignment.Right, VerticalAlignment = Control.VAlignment.Top, Margin = new Thickness(0, inset.Y, inset.X, 0) };
             row.AddChild(minimize); row.AddChild(_maximize);
-            var close = new Button { Text = "×", ToolTip = "Закрыть окно", MinSize = new(26, 22) };
+            var close = new Button { Text = "×", ToolTip = "Закрыть окно", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
             close.OnPressed += _ => window.Close();
             row.AddChild(close);
             window.AddChild(row);
