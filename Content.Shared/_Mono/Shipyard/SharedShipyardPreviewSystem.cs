@@ -7,7 +7,7 @@ using Robust.Shared.Utility;
 
 namespace Content.Shared._Mono.Shipyard;
 
-public abstract class SharedShipyardPreviewSystem : EntitySystem
+public abstract partial class SharedShipyardPreviewSystem : EntitySystem
 {
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedTransformSystem _xform = default!;

@@ -297,7 +297,7 @@ namespace Content.Server.VendingMachines
             if (string.IsNullOrEmpty(entry.ID))
                 return false;
 
-            if (!TryComp<TransformComponent>(vendComponent.Owner, out var transformComp))
+            if (!TryComp(vendComponent.Owner, out TransformComponent? transformComp))
                 return false;
 
             // Start Ejecting, and prevent users from ordering while anim playing

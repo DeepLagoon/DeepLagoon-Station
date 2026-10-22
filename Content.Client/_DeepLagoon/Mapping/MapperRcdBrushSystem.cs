@@ -290,7 +290,7 @@ public sealed partial class MapperRcdBrushSystem : EntitySystem
             entry.Slot != MapperRcdSlot.Pipe ||
             _placement.CurrentPermission?.EntityType is not { } id ||
             !_protos.TryIndex<EntityPrototype>(id, out var proto) ||
-            !proto.TryGetComponent<AtmosPipeLayersComponent>(out var layers, EntityManager.ComponentFactory))
+            !proto.TryComp<AtmosPipeLayersComponent>(out var layers, EntityManager.ComponentFactory))
         {
             return AtmosPipeLayer.Primary;
         }

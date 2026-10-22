@@ -13,15 +13,15 @@ using Content.Shared.Mind;
 namespace Content.Server._DeepLagoon.Tattoos;
 
 /// <summary>Round-local tattooing. Profile tattoos are saved separately by the character editor.</summary>
-public sealed class TattooMachineSystem : EntitySystem
+public sealed partial class TattooMachineSystem : EntitySystem
 {
-    [Dependency] private readonly UserInterfaceSystem _ui = default!;
-    [Dependency] private readonly SharedHandsSystem _hands = default!;
-    [Dependency] private readonly SharedInteractionSystem _interaction = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly INetConfigurationManager _cfg = default!;
-    [Dependency] private readonly ISharedPlayerManager _players = default!;
-    [Dependency] private readonly SharedMindSystem _mind = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
+    [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private SharedInteractionSystem _interaction = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private INetConfigurationManager _cfg = default!;
+    [Dependency] private ISharedPlayerManager _players = default!;
+    [Dependency] private SharedMindSystem _mind = default!;
     private float _preferenceTimer;
     private readonly Dictionary<EntityUid, int> _revisions = new();
 

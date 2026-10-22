@@ -8,7 +8,7 @@ using Robust.Shared.Player;
 namespace Content.Server._DeepLagoon.Movement;
 
 /// <summary>Private, authoritative sprint feedback, once per movement state transition.</summary>
-public sealed class SpeedBoostFeedbackSystem : EntitySystem
+public sealed partial class SpeedBoostFeedbackSystem : EntitySystem
 {
     [Dependency] private IChatManager _chat = default!;
     [Dependency] private SharedAudioSystem _audio = default!;

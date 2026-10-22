@@ -12,10 +12,10 @@ namespace Content.Server.StationEvents.Events;
 /// <summary>
 /// Glimmer version of the (removed) random sentience event
 /// </summary>
-internal sealed class GlimmerRandomSentienceRule : StationEventSystem<GlimmerRandomSentienceRuleComponent>
+internal sealed partial class GlimmerRandomSentienceRule : StationEventSystem<GlimmerRandomSentienceRuleComponent>
 {
-    [Dependency] private readonly MobStateSystem _mobStateSystem = default!;
-    [Dependency] private readonly MetaDataSystem _metaDataSystem = default!;
+    [Dependency] private MobStateSystem _mobStateSystem = default!;
+    [Dependency] private MetaDataSystem _metaDataSystem = default!;
 
     protected override void Started(EntityUid uid, GlimmerRandomSentienceRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {
@@ -44,10 +44,10 @@ internal sealed class GlimmerRandomSentienceRule : StationEventSystem<GlimmerRan
             if (toMakeSentient-- == 0)
                 break;
 
-            EntityManager.RemoveComponent<SentienceTargetComponent>(target);
+            RemComp<SentienceTargetComponent>(target);
             _metaDataSystem.SetEntityName(target, Loc.GetString("glimmer-event-awakened-prefix", ("entity", target)));
-            var comp = EntityManager.EnsureComponent<GhostRoleComponent>(target);
-            comp.RoleName = EntityManager.GetComponent<MetaDataComponent>(target).EntityName;
+            var comp = EnsureComp<GhostRoleComponent>(target);
+            comp.RoleName = Comp<MetaDataComponent>(target).EntityName;
             comp.RoleDescription = Loc.GetString("station-event-random-sentience-role-description", ("name", comp.RoleName));
             RemComp<ReplacementAccentComponent>(target);
             RemComp<MonkeyAccentComponent>(target);

@@ -7,10 +7,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Server.Abilities.Psionics;
 
 /// <summary>Equipment grants complete powers, including actions, without removing innate powers on unequip.</summary>
-public sealed class PsionicEquipmentSystem : EntitySystem
+public sealed partial class PsionicEquipmentSystem : EntitySystem
 {
-    [Dependency] private readonly PsionicAbilitiesSystem _abilities = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private PsionicAbilitiesSystem _abilities = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     public override void Initialize()
     {

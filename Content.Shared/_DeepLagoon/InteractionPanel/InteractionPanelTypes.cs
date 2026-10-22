@@ -24,7 +24,7 @@ public enum InteractionPanelActionFlags : byte
 
 public sealed record InteractionPanelActionDefinition(string Id, string Body, InteractionPanelCategory Category,
     InteractionPanelActionFlags Flags = InteractionPanelActionFlags.INTERACTION_OTHER | InteractionPanelActionFlags.INTERACTION_HUMANOID,
-    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ManaGain = 0, string[]? Sounds = null)
+    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ArousalGain = 0, string[]? Sounds = null)
 {
     // Отсутствующее ограничение допускает и мобов без HumanoidAppearance.
     // Если список задан, отсутствие пола не считается совпадением; пустой список запрещает всех.

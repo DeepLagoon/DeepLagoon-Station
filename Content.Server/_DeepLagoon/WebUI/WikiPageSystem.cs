@@ -4,9 +4,9 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Server._DeepLagoon.WebUI;
 
-public sealed class WikiPageSystem : EntitySystem
+public sealed partial class WikiPageSystem : EntitySystem
 {
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     /// <summary>Opens an explicitly configured document, always in the guidebook window.</summary>
     public void OpenPage(ICommonSession session, ProtoId<WikiPagePrototype> page)

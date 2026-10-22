@@ -8,10 +8,10 @@ using Robust.Shared.Utility;
 namespace Content.Client.Wagging;
 
 /// <summary>Control playback of authored tail wagging animations.</summary>
-public sealed class WaggingSystem : EntitySystem
+public sealed partial class WaggingSystem : EntitySystem
 {
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly SpriteSystem _sprites = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
 
     public override void FrameUpdate(float frameTime)
     {

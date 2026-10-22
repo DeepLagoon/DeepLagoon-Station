@@ -270,6 +270,19 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     await page.getByRole('button', {name:'Вписать',exact:true}).click();
     const originalWidth = await page.locator('.GridEditor__canvas').evaluate(c => c.style.width);
     const edge = page.getByRole('button', {name:'Растянуть grid: right',exact:true});
+    const shrinkEdge = await edge.boundingBox();
+    await page.mouse.move(shrinkEdge.x+shrinkEdge.width/2,shrinkEdge.y+shrinkEdge.height/2);
+    await page.mouse.down(); await page.mouse.move(shrinkEdge.x-64,shrinkEdge.y+shrinkEdge.height/2,{steps:8}); await page.mouse.up();
+    const smallerWidth = await page.locator('.GridEditor__canvas').evaluate(c => c.style.width);
+    assert.ok(parseFloat(smallerWidth) < parseFloat(originalWidth));
+    await page.keyboard.press('Control+z');
+    assert.equal(await page.locator('.GridEditor__canvas').evaluate(c => c.style.width), originalWidth);
+    await page.keyboard.press('Control+y');
+    assert.equal(await page.locator('.GridEditor__canvas').evaluate(c => c.style.width), smallerWidth);
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(() => window.fixtureGetData().patchVersion === 1);
+    assert.equal(await page.locator('.GridEditor__canvas').evaluate(c => c.style.width), smallerWidth);
+    await page.goto(url+'/'); await page.getByRole('button',{name:'Вписать',exact:true}).click();
     const bounds = await edge.boundingBox();
     const rasterBeforeResize = await page.evaluate(() => window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0));
     await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);
@@ -291,7 +304,7 @@ GridSceneCache.prototype.prepare = function(...args) { if(!window.sceneCaches.in
     await page.waitForTimeout(300);
     assert.equal(await page.evaluate(()=>window.sceneCaches.length),cacheCount);
     assert.equal(await page.evaluate(()=>window.sceneCaches.reduce((n,c)=>n+c.stats.rasterized,0)),rasterBeforePatch+1);
-    report.resizeAndPatch={mouseDrag:true,undoRedo:true,emptyResizeRasterizations:0,sameSession:true,sameScene:true,singleTileChangedChunks:1};
+    report.resizeAndPatch={mouseDrag:true,shrink:true,undoRedo:true,emptyResizeRasterizations:0,sameSession:true,sameScene:true,singleTileChangedChunks:1};
     await page.screenshot({path:path.join(output,'resize.png')});
     await page.getByRole('checkbox', {name:'Диагностика утечек',exact:true}).check();
     await page.evaluate(()=>window.fixtureSetData(d=>({...d,atmosToken:d.token,atmosPatchVersion:d.patchVersion||0,

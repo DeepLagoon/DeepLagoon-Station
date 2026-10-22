@@ -268,7 +268,7 @@ public sealed partial class ShuttleSystem
         }
 
         // Check if the shuttle is in an expedition
-        if (TryComp<TransformComponent>(shuttleUid, out var xform) &&
+        if (TryComp(shuttleUid, out TransformComponent? xform) &&
             xform.MapUid != null &&
             HasComp<SalvageExpeditionComponent>(xform.MapUid))
         {

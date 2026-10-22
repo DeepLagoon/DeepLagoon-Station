@@ -18,12 +18,12 @@ using Color = Robust.Shared.Maths.Color;
 namespace Content.Client._DeepLagoon.Tattoos;
 
 /// <summary>Ink draws over markings and cosmetic anatomy. Luminous ink uses the same masks and visibility.</summary>
-public sealed class TattooVisualizerSystem : EntitySystem
+public sealed partial class TattooVisualizerSystem : EntitySystem
 {
-    [Dependency] private readonly SpriteSystem _sprites = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IPlayerManager _players = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private IPlayerManager _players = default!;
     private sealed class Visuals
     {
         public string Key = "";

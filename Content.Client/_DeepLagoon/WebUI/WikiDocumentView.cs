@@ -105,6 +105,7 @@ public sealed class WikiDocumentView : BoxContainer
             ? (_loadSeconds >= 30 ? "wiki-load-timeout" : "wiki-loading") : "wiki-load-hint");
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         _web.RemoveBeforeBrowseHandler(BeforeBrowse);

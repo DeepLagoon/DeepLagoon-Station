@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "license": "Custom",
+  "copyright": "Sprite supplied by iamAsay for DeepLagoon apartment elevator.",
+  "size": {
+    "x": 16,
+    "y": 16
+  },
+  "states": [
+    {
+      "name": "panel"
+    }
+  ]
+}

@@ -7,14 +7,14 @@ public sealed partial class BotanySnapshotSystem : EntitySystem
 {
     public void CloneComponents(EntityUid source, EntityUid target, bool lifecycle)
     {
-        foreach (var component in EntityManager.GetComponents(source))
+        foreach (var component in AllComps(source))
         {
             var type = component.GetType();
             if (type.Namespace?.StartsWith("Content.Shared.Botany") != true
                 || component is PlantDataComponent
                 || !lifecycle && component is PlantHolderComponent)
                 continue;
-            EntityManager.CopyComponent(source, target, component);
+            CopyComp(source, target, component);
         }
     }
 }

@@ -1,0 +1,1011 @@
+{
+  "revision": "634692776c7b38f998c12907bdbabe3aae46df65",
+  "assets": [
+    {
+      "id": "Chaps",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/obj/clothing/under/shorts_pants_shirts.dmi",
+          "chaps"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/master_files/icons/mob/clothing/under/shorts_pants_shirts.dmi",
+          "chaps"
+        ]
+      }
+    },
+    {
+      "id": "BunnySuit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "bunnysuit"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "bunnysuit"
+        ]
+      }
+    },
+    {
+      "id": "BunnySuitWhite",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "whitebunnysuit"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "whitebunnysuit"
+        ]
+      }
+    },
+    {
+      "id": "RabbitEars",
+      "states": {
+        "icon": [
+          "icons/obj/clothing/head/costume.dmi",
+          "bunny"
+        ],
+        "equipped-HELMET": [
+          "icons/mob/clothing/head/costume.dmi",
+          "bunny"
+        ]
+      }
+    },
+    {
+      "id": "KittyEars",
+      "states": {
+        "icon": [
+          "icons/obj/clothing/head/costume.dmi",
+          "kitty"
+        ],
+        "equipped-HELMET": [
+          "icons/mob/clothing/head/costume.dmi",
+          "kitty"
+        ]
+      }
+    },
+    {
+      "id": "DominaCap",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_hats.dmi",
+          "dominacap"
+        ],
+        "equipped-HELMET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_hats.dmi",
+          "dominacap"
+        ]
+      }
+    },
+    {
+      "id": "DominaHeels",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_shoes.dmi",
+          "dominaheels"
+        ],
+        "equipped-FEET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_shoes.dmi",
+          "dominaheels"
+        ]
+      }
+    },
+    {
+      "id": "EveningGloves",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/obj/clothing/gloves.dmi",
+          "evening"
+        ],
+        "equipped-HAND": [
+          "modular_skyrat/master_files/icons/mob/clothing/hands.dmi",
+          "evening"
+        ]
+      }
+    },
+    {
+      "id": "Harness",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/obj/clothing/under/misc.dmi",
+          "gear_harness"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/master_files/icons/mob/clothing/under/misc.dmi",
+          "gear_harness"
+        ]
+      }
+    },
+    {
+      "id": "KneeBoots",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/obj/clothing/shoes.dmi",
+          "kneeboots"
+        ],
+        "equipped-FEET": [
+          "modular_skyrat/master_files/icons/mob/clothing/feet.dmi",
+          "kneeboots"
+        ]
+      }
+    },
+    {
+      "id": "LatexSuit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "latex_catsuit_female"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "latex_catsuit_female"
+        ]
+      }
+    },
+    {
+      "id": "Corset",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_suits.dmi",
+          "corset"
+        ],
+        "equipped-OUTERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_suit/lewd_suits.dmi",
+          "corset"
+        ]
+      }
+    },
+    {
+      "id": "LatexHalfSuit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "latex_halfcatsuit_female"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "latex_halfcatsuit_female"
+        ]
+      }
+    },
+    {
+      "id": "LatexGloves",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_gloves.dmi",
+          "latexgloves"
+        ],
+        "equipped-HAND": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_gloves.dmi",
+          "latexgloves"
+        ]
+      }
+    },
+    {
+      "id": "LatexHeels",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_shoes.dmi",
+          "latexheels"
+        ],
+        "equipped-FEET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_shoes.dmi",
+          "latexheels"
+        ]
+      }
+    },
+    {
+      "id": "LatexSocks",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_shoes.dmi",
+          "latexsocks"
+        ],
+        "equipped-FEET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_shoes.dmi",
+          "latexsocks"
+        ]
+      }
+    },
+    {
+      "id": "MaidHeadband",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/obj/clothing/head/costume.dmi",
+          "maid"
+        ],
+        "equipped-HELMET": [
+          "modular_skyrat/master_files/icons/mob/clothing/head/costume.dmi",
+          "maid"
+        ]
+      }
+    },
+    {
+      "id": "MaidUniform",
+      "states": {
+        "icon": [
+          "icons/obj/clothing/under/civilian.dmi",
+          "janimaid"
+        ],
+        "equipped-INNERCLOTHING": [
+          "icons/mob/clothing/under/civilian.dmi",
+          "janimaid"
+        ]
+      }
+    },
+    {
+      "id": "LatexMaid",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "lewdmaid"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "lewdmaid"
+        ]
+      }
+    },
+    {
+      "id": "Blindfold",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_eyes.dmi",
+          "kblindfold_pink"
+        ],
+        "equipped-EYES": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_eyes.dmi",
+          "kblindfold_pink"
+        ]
+      }
+    },
+    {
+      "id": "Loincloth",
+      "states": {
+        "icon": [
+          "modular_zubbers/icons/obj/clothing/under/costume.dmi",
+          "loincloth"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_zubbers/icons/mob/clothing/under/costume.dmi",
+          "loincloth"
+        ]
+      }
+    },
+    {
+      "id": "ClothLoincloth",
+      "states": {
+        "icon": [
+          "modular_zubbers/icons/obj/clothing/under/costume.dmi",
+          "loincloth_cloth"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_zubbers/icons/mob/clothing/under/costume.dmi",
+          "loincloth_cloth"
+        ]
+      }
+    },
+    {
+      "id": "ToelessBoots",
+      "states": {
+        "icon": [
+          "modular_zubbers/icons/obj/clothing/feet/feet.dmi",
+          "jackboots-toeless"
+        ],
+        "equipped-FEET": [
+          "modular_zubbers/icons/mob/clothing/feet/feet.dmi",
+          "jackboots-toeless"
+        ]
+      }
+    },
+    {
+      "id": "SingerUniform",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/donator/obj/clothing/uniform.dmi",
+          "mikubikini"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/master_files/icons/donator/mob/clothing/uniform.dmi",
+          "mikubikini"
+        ]
+      }
+    },
+    {
+      "id": "SingerJacket",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/donator/obj/clothing/suits.dmi",
+          "mikujacket"
+        ],
+        "equipped-OUTERCLOTHING": [
+          "modular_skyrat/master_files/icons/donator/mob/clothing/suit.dmi",
+          "mikujacket"
+        ]
+      }
+    },
+    {
+      "id": "SingerHair",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/donator/obj/clothing/hats.dmi",
+          "mikuhair"
+        ],
+        "equipped-HELMET": [
+          "modular_skyrat/master_files/icons/donator/mob/clothing/head.dmi",
+          "mikuhair"
+        ]
+      }
+    },
+    {
+      "id": "SingerGloves",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/donator/obj/clothing/gloves.dmi",
+          "mikugloves"
+        ],
+        "equipped-HAND": [
+          "modular_skyrat/master_files/icons/donator/mob/clothing/hands.dmi",
+          "mikugloves"
+        ]
+      }
+    },
+    {
+      "id": "SingerLeggings",
+      "states": {
+        "icon": [
+          "modular_skyrat/master_files/icons/donator/obj/clothing/shoes.dmi",
+          "mikuleggings"
+        ],
+        "equipped-FEET": [
+          "modular_skyrat/master_files/icons/donator/mob/clothing/feet.dmi",
+          "mikuleggings"
+        ]
+      }
+    },
+    {
+      "id": "Pillow",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "pillow_pink_round"
+        ]
+      }
+    },
+    {
+      "id": "Belt",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_belts.dmi",
+          "erpbelt"
+        ],
+        "equipped-BELT": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_belts.dmi",
+          "erpbelt"
+        ]
+      }
+    },
+    {
+      "id": "Jabroni",
+      "states": {
+        "icon": [
+          "icons/obj/clothing/under/costume.dmi",
+          "darkholme"
+        ],
+        "equipped-INNERCLOTHING": [
+          "icons/mob/clothing/under/costume.dmi",
+          "darkholme"
+        ]
+      }
+    },
+    {
+      "id": "Handcuffs",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "pinkcuffs"
+        ]
+      }
+    },
+    {
+      "id": "Massager",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "magicwand_off"
+        ]
+      }
+    },
+    {
+      "id": "Feather",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "feather"
+        ]
+      }
+    },
+    {
+      "id": "EliteCard",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "lustwish_discount"
+        ]
+      }
+    },
+    {
+      "id": "Vendor",
+      "states": {
+        "off": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/lustwish.dmi",
+          "lustwish-off"
+        ],
+        "normal": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/lustwish.dmi",
+          "lustwish"
+        ],
+        "broken": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/lustwish.dmi",
+          "lustwish-broken"
+        ]
+      }
+    },
+    {
+      "id": "Refill",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "lustwish_refill"
+        ]
+      }
+    },
+    {
+      "id": "Portal",
+      "states": {
+        "portal": [
+          "modular_zubbers/icons/obj/structures/lewd_portals.dmi",
+          "portal"
+        ],
+        "device": [
+          "modular_zubbers/icons/obj/structures/lewd_portals.dmi",
+          "device"
+        ]
+      }
+    },
+    {
+      "id": "StageOutfit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "stripper_cyan"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "stripper_cyan"
+        ]
+      }
+    },
+    {
+      "id": "NiceGoggles",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_eyes.dmi",
+          "nice_goggles"
+        ],
+        "equipped-EYES": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_eyes.dmi",
+          "nice_goggles"
+        ]
+      }
+    },
+    {
+      "id": "SinvoxPlush",
+      "states": {
+        "icon": [
+          "modular_zubbers/icons/obj/toys/plushes.dmi",
+          "sinvox"
+        ]
+      }
+    },
+    {
+      "id": "Collar",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_collar_obj"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_tag_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_collar_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_tag_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "Choker",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "choker_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "choker_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "ThinChoker",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "thinchoker_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "thinchoker_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "BellCollar",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "collar_obj"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "bell_tag_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "bell_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "bell_tag_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "CowCollar",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "collar_obj"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cow_tag_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cow_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cow_tag_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "CrossCollar",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "collar_obj"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cross_tag_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cross_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cross_tag_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "SpikeCollar",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_obj"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_tag_obj"
+            ]
+          ]
+        },
+        "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_tag_mob"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "KinkCollar",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_neck.dmi",
+          "collar_cyan"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
+          "collar_cyan"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "Mittens",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_gloves.dmi",
+          "ballmittens"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_gloves.dmi",
+          "ballmittens"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "HypnoGlasses",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_eyes.dmi",
+          "hypnogoggles_pink"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_eyes.dmi",
+          "hypnogoggles_pink"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "SensoryHood",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_hats.dmi",
+          "dephelmet_pink"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_hats.dmi",
+          "dephelmet_pink"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "Headphones",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_ears.dmi",
+          "kinkphones_pink_off"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_ears.dmi",
+          "kinkphones_pink_off"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "Rope",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+              "shibari_greyscale_low"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "AnkleRope",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+              "shibari_greyscale_low"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "Leash",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_belts.dmi",
+          "neckleash_pink"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "Key",
+      "states": {
+        "icon": [
+          "icons/mob/rideables/vehicles.dmi",
+          "key"
+        ]
+      }
+    },
+    {
+      "id": "Remote",
+      "states": {
+        "icon": [
+          "icons/obj/devices/new_assemblies.dmi",
+          "signaller"
+        ]
+      }
+    },
+    {
+      "id": "RemoteMassager",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "signalvib_pink_low_off"
+        ]
+      }
+    },
+    {
+      "id": "ShockCollar",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_neck.dmi",
+          "shockcollar"
+        ],
+        "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
+          "shockcollar"
+        ]
+      }
+    },
+    {
+      "id": "ColorMaid",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "icons/obj/clothing/under/costume.dmi",
+              "maid_base"
+            ],
+            [
+              "icons/obj/clothing/under/costume.dmi",
+              "maid_frill"
+            ]
+          ]
+        },
+        "equipped-INNERCLOTHING": {
+          "layers": [
+            [
+              "icons/mob/clothing/under/costume.dmi",
+              "maid_base"
+            ],
+            [
+              "icons/mob/clothing/under/costume.dmi",
+              "maid_frill"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "ColorClubSuit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_uniform.dmi",
+          "stripper_cyan"
+        ],
+        "equipped-INNERCLOTHING": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_uniform/lewd_uniform.dmi",
+          "stripper_cyan"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "Wipe",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "serviette_clean"
+        ]
+      }
+    },
+    {
+      "id": "WipePack",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "serviettepack_4"
+        ]
+      }
+    },
+    {
+      "id": "PaddedBed",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+          "bdsm_bed"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "PaddedBedKit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+          "bdsm_bed_kit"
+        ]
+      }
+    },
+    {
+      "id": "XStand",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+          "xstand_open"
+        ]
+      },
+      "neutralize": true
+    },
+    {
+      "id": "XStandKit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+          "xstand_kit"
+        ]
+      }
+    },
+    {
+      "id": "RopeStand",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/shibari_stand.dmi",
+              "shibari_stand_greyscale"
+            ],
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/shibari_stand.dmi",
+              "shibari_stand_frame"
+            ]
+          ]
+        }
+      },
+      "size": [
+        32,
+        64
+      ]
+    },
+    {
+      "id": "RopeStandKit",
+      "states": {
+        "icon": {
+          "layers": [
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+              "shibari_kit_greyscale"
+            ],
+            [
+              "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/bdsm_furniture.dmi",
+              "shibari_frame_greyscale"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "DancePole",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/dancing_pole.dmi",
+          "pole_purple_off"
+        ]
+      },
+      "size": [
+        32,
+        74
+      ],
+      "neutralize": true
+    },
+    {
+      "id": "DancePoleKit",
+      "states": {
+        "icon": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_structures/dancing_pole.dmi",
+          "pole_base"
+        ]
+      },
+      "size": [
+        32,
+        74
+      ]
+    }
+  ]
+}

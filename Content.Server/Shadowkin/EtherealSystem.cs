@@ -16,17 +16,17 @@ using Content.Shared.Stunnable;
 
 namespace Content.Server.Shadowkin;
 
-public sealed class EtherealSystem : SharedEtherealSystem
+public sealed partial class EtherealSystem : SharedEtherealSystem
 {
-    [Dependency] private readonly VisibilitySystem _visibilitySystem = default!;
-    [Dependency] private readonly SharedStealthSystem _stealth = default!;
-    [Dependency] private readonly EyeSystem _eye = default!;
-    [Dependency] private readonly NpcFactionSystem _factions = default!;
-    [Dependency] private readonly EntityLookupSystem _lookup = default!;
-    [Dependency] private readonly SharedPointLightSystem _light = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly StaminaSystem _staminaSystem = default!;
+    [Dependency] private VisibilitySystem _visibilitySystem = default!;
+    [Dependency] private SharedStealthSystem _stealth = default!;
+    [Dependency] private EyeSystem _eye = default!;
+    [Dependency] private NpcFactionSystem _factions = default!;
+    [Dependency] private EntityLookupSystem _lookup = default!;
+    [Dependency] private SharedPointLightSystem _light = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private StaminaSystem _staminaSystem = default!;
 
     public override void Initialize()
     {

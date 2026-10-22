@@ -30,7 +30,7 @@ public sealed partial class MoneyManager
     private async void SendBalance(INetChannel channel)
     {
         try { await GetMoneyBalanceAsync(channel.UserId); }
-        catch (Exception e) { Logger.ErrorS("money", $"Could not fetch Money for {channel.UserId}: {e}"); }
+        catch (Exception e) { Logger.GetSawmill("money").Error( $"Could not fetch Money for {channel.UserId}: {e}"); }
     }
 
     private void Publish(NetUserId user, long balance)
@@ -52,7 +52,7 @@ public sealed partial class MoneyManager
         }
         catch (Exception e)
         {
-            Logger.ErrorS("money", $"Could not confirm Money for {user}: {e}");
+            Logger.GetSawmill("money").Error( $"Could not confirm Money for {user}: {e}");
             return null;
         }
     }
@@ -126,7 +126,7 @@ public sealed partial class MoneyManager
         }
         catch (Exception e)
         {
-            Logger.WarningS("money", $"Money payment rejected for {user}: {e.Message}");
+            Logger.GetSawmill("money").Warning( $"Money payment rejected for {user}: {e.Message}");
             return false;
         }
     }
@@ -142,7 +142,7 @@ public sealed partial class MoneyManager
         }
         catch (Exception e)
         {
-            Logger.ErrorS("money", $"Money deposit rejected for {user}: {e}");
+            Logger.GetSawmill("money").Error( $"Money deposit rejected for {user}: {e}");
             return false;
         }
     }
@@ -165,7 +165,7 @@ public sealed partial class MoneyManager
         }
         catch (Exception e)
         {
-            Logger.ErrorS("money", $"Bank/Money deposit rejected for {user}: {e}");
+            Logger.GetSawmill("money").Error( $"Bank/Money deposit rejected for {user}: {e}");
             return false;
         }
     }

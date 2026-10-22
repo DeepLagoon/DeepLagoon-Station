@@ -507,6 +507,7 @@ public sealed class GameWebView : Control
             _view = CreateView();
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         ReleaseTextInput();

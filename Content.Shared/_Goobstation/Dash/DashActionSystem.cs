@@ -11,13 +11,13 @@ using Content.Shared.Throwing;
 
 namespace Content.Shared._Goobstation.Dash;
 
-public sealed class DashActionSystem : EntitySystem
+public sealed partial class DashActionSystem : EntitySystem
 {
-    [Dependency] private readonly SharedActionsSystem _actions = default!;
-    [Dependency] private readonly SharedGravitySystem _gravity = default!;
-    [Dependency] private readonly ThrowingSystem _throwing = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly StaminaSystem _stamina = default!;
+    [Dependency] private SharedActionsSystem _actions = default!;
+    [Dependency] private SharedGravitySystem _gravity = default!;
+    [Dependency] private ThrowingSystem _throwing = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private StaminaSystem _stamina = default!;
 
     public override void Initialize()
     {

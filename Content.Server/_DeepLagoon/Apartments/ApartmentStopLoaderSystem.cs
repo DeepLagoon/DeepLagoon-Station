@@ -2,6 +2,7 @@ using Content.Server._DeepLagoon.Mapping;
 using Content.Server.GameTicking;
 using Content.Server.Shuttles.Systems;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.GameTicking;
 using Content.Shared.Whitelist;
 using Robust.Shared.Configuration;
@@ -13,7 +14,7 @@ using Robust.Shared.Utility;
 namespace Content.Server._DeepLagoon.Apartments;
 
 /// <summary>One residential hub per round, on its own space map, independent of the station map pool.</summary>
-public sealed class ApartmentStopLoaderSystem : EntitySystem
+public sealed partial class ApartmentStopLoaderSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private GameTicker _ticker = default!;
@@ -22,6 +23,7 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
     [Dependency] private ShuttleSystem _shuttles = default!;
     [Dependency] private ApartmentTravelSystem _travel = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private GridEnvironmentSystem _environment = default!;
 
     private bool _attempted;
     private EntityUid? _hubMap;
@@ -37,6 +39,13 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
         {
             if (enabled) _attempted = false;
         });
+    }
+
+    private void EnsureSafeAtmosphere(EntityUid grid)
+    {
+        var environment = EnsureComp<GridEnvironmentComponent>(grid);
+        environment.SafeAtmosphere = true;
+        _environment.RefreshGrid(grid, environment);
     }
 
     private void ResetRound()
@@ -60,6 +69,7 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
         while (stops.MoveNext(out var marker, out _))
         {
             if (!_travel.ValidStop(marker)) continue;
+            if (Transform(marker).GridUid is { } existingGrid) EnsureSafeAtmosphere(existingGrid);
             Log.Info($"Using existing residential stop {ToPrettyString(marker)}.");
             return;
         }
@@ -80,6 +90,7 @@ public sealed class ApartmentStopLoaderSystem : EntitySystem
             while (markers.MoveNext(out var marker, out _, out var transform))
             {
                 if (transform.GridUid != grid.Value.Owner || !_travel.ValidStop(marker)) continue;
+                EnsureSafeAtmosphere(grid.Value.Owner);
                 // A standalone map does not receive StationPostInitEvent, which normally
                 // registers station maps. FTLToDock silently rejects unregistered maps.
                 if (!_shuttles.TryAddFTLDestination(mapId, true, false, false, out var destination))

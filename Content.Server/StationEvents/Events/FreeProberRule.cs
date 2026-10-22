@@ -12,13 +12,13 @@ using Robust.Shared.Map.Components;
 
 namespace Content.Server.StationEvents.Events;
 
-internal sealed class FreeProberRule : StationEventSystem<FreeProberRuleComponent>
+internal sealed partial class FreeProberRule : StationEventSystem<FreeProberRuleComponent>
 {
-    [Dependency] private readonly IRobustRandom _robustRandom = default!;
+    [Dependency] private IRobustRandom _robustRandom = default!;
     private SharedMapSystem _sharedMapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
-    [Dependency] private readonly AnchorableSystem _anchorable = default!;
-    [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
-    [Dependency] private readonly StationSystem _stationSystem = default!;
+    [Dependency] private AnchorableSystem _anchorable = default!;
+    [Dependency] private GlimmerSystem _glimmerSystem = default!;
+    [Dependency] private StationSystem _stationSystem = default!;
 
     private static readonly string ProberPrototype = "GlimmerProber";
     private static readonly int SpawnDirections = 4;

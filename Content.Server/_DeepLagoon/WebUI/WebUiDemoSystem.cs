@@ -3,9 +3,9 @@ using Robust.Server.GameObjects;
 
 namespace Content.Server._DeepLagoon.WebUI;
 
-public sealed class WebUiDemoSystem : EntitySystem
+public sealed partial class WebUiDemoSystem : EntitySystem
 {
-    [Dependency] private readonly UserInterfaceSystem _ui = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
 
     public override void Initialize()
     {

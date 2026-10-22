@@ -88,6 +88,7 @@ public sealed partial class PlayerTabHeader : Control
         HeaderClicked(args, Header.Balance);
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

@@ -16,6 +16,10 @@ type Data = {
   libraryRevision: number; librarySaved: boolean;
   targetDoll: { base: string; parts: Record<string, string> };
   bodyFeatures: { part: string; name: string; visibility: number }[];
+  arousalCurrent: number; arousalMaximum: number;
+  heldName: string; heldSlot: string; gearColors: Option[];
+  gear: { slot: string; slotName: string; name: string; locked: boolean; active: boolean; electronic: boolean;
+    shock: boolean; hypnosis: boolean; intensity: number; colorable: boolean; leashed: boolean }[];
 };
 const categoryIcons = ['heart', 'bolt', 'utensils', 'hand'];
 
@@ -43,6 +47,9 @@ export const InteractionPanel = () => {
   ].filter(g => g.items.length);
   const repeating = actions.some(a => a.repeating);
   const [help, setHelp] = useState(false);
+  const arousalMaximum = Number.isFinite(data.arousalMaximum) && data.arousalMaximum > 0 ? data.arousalMaximum : 100;
+  const arousalPercent = Number.isFinite(data.arousalCurrent)
+    ? Math.max(0, Math.min(100, data.arousalCurrent / arousalMaximum * 100)) : 0;
 
   return (
     <div className="InteractionPanel">
@@ -58,6 +65,11 @@ export const InteractionPanel = () => {
         <div className="InteractionPanel__identity"><small>{t(data.self ? 'self-mode' : 'compact-target')}</small>
           <strong title={data.name}>{data.name}</strong>
           <span>{actions.filter(a => a.available).length} {t('compact-available')} · {actions.length} {t('compact-all')}</span>
+          <div className="InteractionPanel__arousal" role="progressbar" aria-label={t('arousal')}
+            aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(arousalPercent)}>
+            <div className="InteractionPanel__arousalFill" style={{ width: `${arousalPercent}%` }} />
+            <span>{t('arousal')} · {Math.round(arousalPercent)}%</span>
+          </div>
         </div>
       </section>
       {data.debug && <div className="InteractionPanel__notice">{t('debug')}</div>}
@@ -66,6 +78,7 @@ export const InteractionPanel = () => {
         <button aria-pressed={tab === 'actions'} onClick={() => setTab('actions')}><Icon aria-hidden="true" name="hand" /> {t('tab-actions')}</button>
         <button aria-pressed={tab === 'custom'} onClick={() => setTab('custom')}><Icon aria-hidden="true" name="pen" /> {t('tab-custom')}</button>
         <button aria-pressed={tab === 'body'} onClick={() => setTab('body')}><Icon aria-hidden="true" name="person" /> {t('tab-body')}</button>
+        <button aria-pressed={tab === 'gear'} onClick={() => setTab('gear')}><Icon aria-hidden="true" name="link" /> {t('tab-gear')}</button>
       </nav>
       {tab === 'actions' ? <>
         <div className="InteractionPanel__search"><Icon aria-hidden="true" name="search" />
@@ -153,6 +166,37 @@ export const InteractionPanel = () => {
             <option value={2}>{t('body-over')}</option>
           </select>
         </label>)}
+      </main>}
+      {tab === 'gear' && <main className="InteractionPanel__gear">
+        <p>{t('gear-help')}</p>
+        <div className="InteractionPanel__gearControls"><span>{t('gear-held')}: {data.heldName || '—'}</span>
+          <button disabled={!data.heldSlot} onClick={() => act('gear', { operation: 'attach' })}>{t('gear-attach')}</button>
+          {data.self && <button onClick={() => act('gear', { operation: 'release-all' })}>{t('gear-release-all')}</button>}
+        </div>
+        {!(data.gear || []).length && <p>{t('gear-empty')}</p>}
+        {(data.gear || []).map(item => {
+          const send = (operation: string, value = '') => act('gear', { operation, slot: item.slot, value });
+          return <section key={item.slot} className="InteractionPanel__gearItem">
+            <strong>{item.name}</strong><span>{item.slotName || item.slot} {item.locked ? '🔒' : ''}</span>
+            <div className="InteractionPanel__gearControls">
+              <button disabled={item.locked} onClick={() => send('remove')}>{t('gear-remove')}</button>
+              <button onClick={() => send(item.locked ? 'unlock' : 'lock')}>{t(item.locked ? 'gear-unlock' : 'gear-lock')}</button>
+              {data.self && <button onClick={() => send('escape')}>{t('gear-escape')}</button>}
+              {item.slot === 'neck' && <button onClick={() => send(item.leashed ? 'unleash' : 'leash')}>{t(item.leashed ? 'gear-unleash' : 'gear-leash')}</button>}
+              {item.electronic && <>
+                <button onClick={() => send('pair')}>{t('gear-pair')}</button>
+                <button onClick={() => send('mode', String(item.intensity % 3 + 1))}>{t('gear-mode')}: {item.intensity}</button>
+              </>}
+              {(item.electronic || item.hypnosis) && <button aria-pressed={item.active}
+                onClick={() => send('toggle', item.active ? '0' : '1')}>{t('gear-toggle')}: {item.active ? '●' : '○'}</button>}
+              {item.shock && <button onClick={() => send('pulse')}>{t('gear-pulse')}</button>}
+              {item.colorable && <label>{t('gear-color')}
+                <select aria-label={t('gear-color') + ': ' + item.name} defaultValue="" onChange={e => send('color', e.target.value)}>
+                  <option value="" disabled>—</option>{data.gearColors?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select></label>}
+            </div>
+          </section>;
+        })}
       </main>}
     </div>
   );

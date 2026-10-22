@@ -119,7 +119,7 @@ public sealed partial class EventManagerSystem : EntitySystem
             if (eventproto.Abstract)
                 continue;
 
-            if (!eventproto.TryGetComponent<StationEventComponent>(out var stationEvent, EntityManager.ComponentFactory))
+            if (!eventproto.TryComp<StationEventComponent>(out var stationEvent, EntityManager.ComponentFactory))
                 continue;
 
             if (!availableEvents.ContainsKey(eventproto))
@@ -218,7 +218,7 @@ public sealed partial class EventManagerSystem : EntitySystem
             if (prototype.Abstract)
                 continue;
 
-            if (!prototype.TryGetComponent<StationEventComponent>(out var stationEvent, EntityManager.ComponentFactory))
+            if (!prototype.TryComp<StationEventComponent>(out var stationEvent, EntityManager.ComponentFactory))
                 continue;
 
             allEvents.Add(prototype, stationEvent);
@@ -250,7 +250,7 @@ public sealed partial class EventManagerSystem : EntitySystem
 
     private bool CanRun(EntityPrototype prototype, StationEventComponent stationEvent, int playerCount, TimeSpan currentTime)
     {
-        if (prototype.TryGetComponent<Content.Server.Psionics.Glimmer.GlimmerEventComponent>(out var glimmerEvent, EntityManager.ComponentFactory)
+        if (prototype.TryComp<Content.Server.Psionics.Glimmer.GlimmerEventComponent>(out var glimmerEvent, EntityManager.ComponentFactory)
             && (!_configurationManager.GetCVar(CCVars.GlimmerEnabled)
                 || EntityManager.System<Content.Shared.Psionics.Glimmer.GlimmerSystem>().GlimmerOutput < glimmerEvent.MinimumGlimmer
                 || EntityManager.System<Content.Shared.Psionics.Glimmer.GlimmerSystem>().GlimmerOutput > glimmerEvent.MaximumGlimmer))

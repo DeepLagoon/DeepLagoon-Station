@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "WhiteMoon / SPLURT / Bubber / Skyrat / tgstation contributors. Converted DMI to RSI; states renamed. Sources: https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/master_files/icons/donator/obj/clothing/uniform.dmi (state mikubikini); https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/master_files/icons/donator/mob/clothing/uniform.dmi (state mikubikini)",
+  "states": [
+    {
+      "name": "icon"
+    },
+    {
+      "name": "equipped-INNERCLOTHING",
+      "directions": 4
+    }
+  ]
+}

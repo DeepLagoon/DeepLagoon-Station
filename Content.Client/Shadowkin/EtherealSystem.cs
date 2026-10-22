@@ -7,8 +7,8 @@ namespace Content.Client.Shadowkin;
 
 public sealed partial class EtherealSystem : EntitySystem
 {
-    [Dependency] private readonly IOverlayManager _overlayMan = default!;
-    [Dependency] private readonly ISharedPlayerManager _playerMan = default!;
+    [Dependency] private IOverlayManager _overlayMan = default!;
+    [Dependency] private ISharedPlayerManager _playerMan = default!;
 
     private EtherealOverlay _overlay = default!;
 

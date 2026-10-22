@@ -13,10 +13,10 @@ using Robust.Shared.Network;
 namespace Content.Server.Discord;
 
 /// <summary>The journal is the transactional outbox. A lease prevents simultaneous delivery by game slots.</summary>
-public sealed class LagoonCoinWebhookSystem : EntitySystem
+public sealed partial class LagoonCoinWebhookSystem : EntitySystem
 {
-    [Dependency] private readonly IServerDbManager _database = default!;
-    [Dependency] private readonly IConfigurationManager _config = default!;
+    [Dependency] private IServerDbManager _database = default!;
+    [Dependency] private IConfigurationManager _config = default!;
     private readonly HttpClient _http = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15) };
     private readonly CancellationTokenSource _stop = new();
     private readonly Guid _owner = Guid.NewGuid();

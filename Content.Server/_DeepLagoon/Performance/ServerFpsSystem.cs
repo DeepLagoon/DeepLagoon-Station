@@ -4,7 +4,7 @@ using Robust.Shared.Timing;
 
 namespace Content.Server._DeepLagoon.Performance;
 
-public sealed class ServerFpsSystem : EntitySystem
+public sealed partial class ServerFpsSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
 

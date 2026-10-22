@@ -1,9 +1,11 @@
 using System.Linq;
+using System.Collections.Generic;
 using Content.Server.Database;
 using Content.Server.GameTicking;
 using Content.Server.Mind;
 using Content.Server.Objectives.Components;
 using Content.Shared.GameTicking;
+using Content.Shared._DeepLagoon.Currency;
 using Content.Shared.Mind;
 using Content.Shared.Objectives.Components;
 using Content.Shared.Preferences;
@@ -17,13 +19,16 @@ using ClientWallet = Content.Client._DeepLagoon.Currency.LagoonCoinSystem;
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
-public sealed class LagoonCoinIntegrationTests
+public sealed class LagoonCoinIntegrationTests : IEntityEventSubscriber
 {
     [Test]
     public async Task ReadyAndCompletedAntagonistGoalPublishOnceAndNeverChangeMoney()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
+        var rewards = new List<LagoonCoinRewardEvent>();
+        await pair.Client.WaitPost(() => pair.Client.EntMan.EventBus.SubscribeEvent<LagoonCoinRewardEvent>(
+            EventSource.Network, this, ev => rewards.Add(ev)));
         EntityUid mob = default;
         await pair.Server.WaitAssertion(() =>
         {
@@ -49,7 +54,11 @@ public sealed class LagoonCoinIntegrationTests
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
-            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(5)));
+        {
+            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(5));
+            Assert.That(rewards.Select(ev => (ev.Amount, ev.Balance, ev.Reason)),
+                Is.EqualTo(new[] { (5L, 5L, "ready") }));
+        });
 
         await pair.Server.WaitAssertion(() =>
         {
@@ -69,7 +78,11 @@ public sealed class LagoonCoinIntegrationTests
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
-            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(7)));
+        {
+            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(7));
+            Assert.That(rewards.Select(ev => (ev.Amount, ev.Balance, ev.Reason)),
+                Is.EqualTo(new[] { (5L, 5L, "ready"), (2L, 7L, "antagonist-objective") }));
+        });
         await pair.Server.WaitAssertion(() =>
         {
             var player = pair.Server.PlayerMan.Sessions.Single();
@@ -88,7 +101,11 @@ public sealed class LagoonCoinIntegrationTests
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
-            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(4)));
+        {
+            Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(4));
+            Assert.That(rewards.Count, Is.EqualTo(2), "Debits and retries must not announce a reward.");
+            pair.Client.EntMan.EventBus.UnsubscribeEvent<LagoonCoinRewardEvent>(EventSource.Network, this);
+        });
         await pair.Server.WaitPost(() => pair.Server.EntMan.DeleteEntity(mob));
         await pair.CleanReturnAsync();
     }

@@ -10,6 +10,7 @@ public static class ApartmentCVars
     public static readonly CVarDef<bool> Enabled = CVarDef.Create("deeplagoon.apartments_enabled", true, CVar.SERVERONLY);
     public static readonly CVarDef<string> StopMap = CVarDef.Create("deeplagoon.apartments_stop_map",
         "/Maps/_DeepLagoon/Apartments/residential_stop.yml", CVar.SERVERONLY);
+    public static readonly CVarDef<string> DefaultTemplate = CVarDef.Create("deeplagoon.apartments_default_template", "DLApartmentBasic", CVar.SERVERONLY);
     public static readonly CVarDef<int> LoadedLimit = CVarDef.Create("deeplagoon.apartments_loaded_limit", 30, CVar.SERVERONLY);
     public static readonly CVarDef<int> EmptyTimeout = CVarDef.Create("deeplagoon.apartments_empty_timeout", 120, CVar.SERVERONLY);
 }
@@ -24,6 +25,9 @@ public sealed partial class ApartmentFurniturePrototype : IPrototype
     [DataField] public Vector2i Size = Vector2i.One;
     [DataField] public int MaxCount = 4;
     [DataField] public bool BlocksMovement = true;
+    [DataField] public bool ExistingOnly;
+    [DataField] public bool AllowsOverlap;
+    [DataField] public bool CanRotate = true;
 }
 
 /// <summary>Versioned, bounded room template. Stable item IDs must survive template updates.</summary>
@@ -33,6 +37,8 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
     [IdDataField] public string ID { get; set; } = default!;
     [DataField] public string Name = "";
     [DataField] public int Version = 1;
+    [DataField] public string? Map;
+    [DataField] public List<Vector2i> ReservedCells = new();
     [DataField] public int Width = 10;
     [DataField] public int Height = 8;
     [DataField] public string Floor = "FloorWood";

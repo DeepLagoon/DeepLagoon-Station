@@ -130,7 +130,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
             ExpeditionSpawnCompleteEvent ev = new(Station, success, _missionParams.Index);
             _entManager.EventBus.RaiseLocalEvent(Station, ev);
             if (errorStackTrace != null)
-                Logger.ErrorS("salvage", $"Expedition generation failed with exception: {errorStackTrace}!");
+                Logger.GetSawmill("salvage").Error( $"Expedition generation failed with exception: {errorStackTrace}!");
             if (!success)
             {
                 // Invalidate station, expedition cancellation will be handled by task handler
@@ -146,7 +146,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
 
     private async Task<bool> InternalProcess() // Frontier: make process an internal function (for a try block indenting an entire), add "out EntityUid mapUid" param
     {
-        Logger.DebugS("salvage", $"Spawning salvage mission with seed {_missionParams.Seed}");
+        Logger.GetSawmill("salvage").Debug( $"Spawning salvage mission with seed {_missionParams.Seed}");
         var config = _missionParams.MissionType;
         mapUid = _map.CreateMap(out var mapId, runMapInit: false); // Frontier: remove "var"
         MetaDataComponent? metadata = null;

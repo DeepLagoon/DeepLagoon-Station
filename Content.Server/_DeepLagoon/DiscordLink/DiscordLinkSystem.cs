@@ -25,16 +25,16 @@ namespace Content.Server._DeepLagoon.DiscordLink;
 
 public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
 {
-    [Dependency] private readonly IPlayerManager _players = default!;
-    [Dependency] private readonly EuiManager _euis = default!;
-    [Dependency] private readonly IConfigurationManager _config = default!;
-    [Dependency] private readonly IResourceManager _resources = default!;
-    [Dependency] private readonly IStatusHost _status = default!;
-    [Dependency] private readonly ITaskManager _tasks = default!;
-    [Dependency] private readonly IServerDbManager _database = default!;
-    [Dependency] private readonly JobWhitelistManager _whitelist = default!;
-    [Dependency] private readonly IConnectionManager _connections = default!;
-    [Dependency] private readonly Content.Server.Players.PlayTimeTracking.PlayTimeTrackingManager _playTime = default!;
+    [Dependency] private IPlayerManager _players = default!;
+    [Dependency] private EuiManager _euis = default!;
+    [Dependency] private IConfigurationManager _config = default!;
+    [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IStatusHost _status = default!;
+    [Dependency] private ITaskManager _tasks = default!;
+    [Dependency] private IServerDbManager _database = default!;
+    [Dependency] private JobWhitelistManager _whitelist = default!;
+    [Dependency] private IConnectionManager _connections = default!;
+    [Dependency] private Content.Server.Players.PlayTimeTracking.PlayTimeTrackingManager _playTime = default!;
     private readonly HashSet<ICommonSession> _admitted = new();
     private readonly Dictionary<ICommonSession, long> _admissionRevisions = new();
     private DiscordLinkStore? _store;

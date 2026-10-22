@@ -14,7 +14,7 @@ using Content.Server.GameTicking; // Mono
 using Content.Server.AlertLevel; // Mono
 using Content.Server.Station.Systems; // Mono
 using Content.Server._Mono.NuclearWar.Components; // Mono
-using Content.Server.Station.Systems; // Mono
+ // Mono
 using Content.Shared.GameTicking.Components;
 using Content.Shared.Camera;
 using Content.Shared.CCVar;
@@ -38,7 +38,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
 using Content.Shared.Maps;
-using Content.Shared.GameTicking; // Mono
+ // Mono
 using Robust.Shared.Map.Components;
 using Content.Shared.Tiles; // Frontier: safe zone
 using Robust.Shared.Timing; // Mono
@@ -54,7 +54,7 @@ namespace Content.Server.Explosion.EntitySystems;
 public sealed partial class ExplosionSystem : SharedExplosionSystem
 {
     // ES START
-    [Dependency] private readonly ESTileFireSystem _tileFire = default!;
+    [Dependency] private ESTileFireSystem _tileFire = default!;
     // ES END
 
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
@@ -241,7 +241,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
             user);
 
         if (explosive.DeleteAfterExplosion ?? delete)
-            EntityManager.QueueDeleteEntity(uid);
+            QueueDel(uid);
     }
 
     /// <summary>

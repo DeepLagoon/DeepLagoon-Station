@@ -1,7 +1,7 @@
 - type: entity
   parent: Pill
   id: PillDLButtGrowth
-  name: glutosilin growth pill
+  name: glutosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -21,7 +21,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLButtGrowth
-  name: glutosilin growth pill canister
+  name: glutosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -34,7 +34,7 @@
 - type: entity
   parent: Pill
   id: PillDLButtReduction
-  name: glutosilin reduction pill
+  name: glutosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -54,7 +54,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLButtReduction
-  name: glutosilin reduction pill canister
+  name: glutosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -67,7 +67,7 @@
 - type: entity
   parent: Pill
   id: PillDLBellyGrowth
-  name: abdomosilin growth pill
+  name: abdomosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -87,7 +87,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLBellyGrowth
-  name: abdomosilin growth pill canister
+  name: abdomosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -100,7 +100,7 @@
 - type: entity
   parent: Pill
   id: PillDLBellyReduction
-  name: abdomosilin reduction pill
+  name: abdomosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -120,7 +120,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLBellyReduction
-  name: abdomosilin reduction pill canister
+  name: abdomosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -133,7 +133,7 @@
 - type: entity
   parent: Pill
   id: PillDLBreastsGrowth
-  name: mammosilin growth pill
+  name: mammosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -153,7 +153,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLBreastsGrowth
-  name: mammosilin growth pill canister
+  name: mammosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -166,7 +166,7 @@
 - type: entity
   parent: Pill
   id: PillDLBreastsReduction
-  name: mammosilin reduction pill
+  name: mammosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -186,7 +186,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLBreastsReduction
-  name: mammosilin reduction pill canister
+  name: mammosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -198,74 +198,8 @@
 
 - type: entity
   parent: Pill
-  id: PillDLAnusGrowth
-  name: proctosilin growth pill
-  suffix: 5u
-  components:
-  - type: Pill
-    pillType: 15
-  - type: Sprite
-    state: pill16
-  - type: Label
-    currentLabel: DLAnusGrowth 5u
-  - type: SolutionContainerManager
-    solutions:
-      food:
-        maxVol: 20
-        reagents:
-        - ReagentId: DLAnusGrowth
-          Quantity: 5
-
-- type: entity
-  parent: PillCanister
-  id: PillCanisterDLAnusGrowth
-  name: proctosilin growth pill canister
-  suffix: 5u, 7
-  components:
-  - type: Label
-    currentLabel: DLAnusGrowth 5u
-  - type: StorageFill
-    contents:
-    - id: PillDLAnusGrowth
-      amount: 7
-
-- type: entity
-  parent: Pill
-  id: PillDLAnusReduction
-  name: proctosilin reduction pill
-  suffix: 5u
-  components:
-  - type: Pill
-    pillType: 15
-  - type: Sprite
-    state: pill16
-  - type: Label
-    currentLabel: DLAnusReduction 5u
-  - type: SolutionContainerManager
-    solutions:
-      food:
-        maxVol: 20
-        reagents:
-        - ReagentId: DLAnusReduction
-          Quantity: 5
-
-- type: entity
-  parent: PillCanister
-  id: PillCanisterDLAnusReduction
-  name: proctosilin reduction pill canister
-  suffix: 5u, 7
-  components:
-  - type: Label
-    currentLabel: DLAnusReduction 5u
-  - type: StorageFill
-    contents:
-    - id: PillDLAnusReduction
-      amount: 7
-
-- type: entity
-  parent: Pill
   id: PillDLPenisGrowth
-  name: phallosilin growth pill
+  name: phallosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -285,7 +219,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLPenisGrowth
-  name: phallosilin growth pill canister
+  name: phallosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label
@@ -298,7 +232,7 @@
 - type: entity
   parent: Pill
   id: PillDLPenisReduction
-  name: phallosilin reduction pill
+  name: phallosilin pill
   suffix: 5u
   components:
   - type: Pill
@@ -318,7 +252,7 @@
 - type: entity
   parent: PillCanister
   id: PillCanisterDLPenisReduction
-  name: phallosilin reduction pill canister
+  name: phallosilin pill canister
   suffix: 5u, 7
   components:
   - type: Label

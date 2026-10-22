@@ -1,7 +1,7 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, expansionCount, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
@@ -151,10 +151,12 @@ export const GridEditor = () => {
   const baseArea = useMemo(() => ({ x: data.x || 0, y: data.y || 0, width: data.width || 16, height: data.height || 16 }), [data.x, data.y, data.width, data.height]);
   const area = useMemo(() => {
     const shared = { ...expansion };
-    for (const peer of data.peerDrafts || []) for (const side of ['left', 'right', 'bottom', 'top'])
-      shared[side] = Math.max(shared[side], peer.expansion?.[side] || 0);
+    for (const peer of data.peerDrafts || []) for (const side of ['left', 'right', 'bottom', 'top']) {
+      const value = peer.expansion?.[side] || 0;
+      if (value) shared[side] = shared[side] ? Math.max(shared[side], value) : value;
+    }
     return { x: baseArea.x - shared.left, y: baseArea.y - shared.bottom,
-      width: baseArea.width + shared.left + shared.right, height: baseArea.height + shared.bottom + shared.top };
+      width: Math.max(1, baseArea.width + shared.left + shared.right), height: Math.max(1, baseArea.height + shared.bottom + shared.top) };
   }, [baseArea, expansion, data.peerDrafts]);
   const previousArea = useRef(area);
   useLayoutEffect(() => {
@@ -166,10 +168,9 @@ export const GridEditor = () => {
     previousArea.current = area; measureView();
   }, [area]);
   const gridBounds = { x: data.gridX || 0, y: data.gridY || 0, width: data.gridWidth || 0, height: data.gridHeight || 0 };
-  const expanded = expansionCount(baseArea, expansion);
   const cellSize = 32 * zoom;
   const itemChanges = localEdits.length;
-  const changes = itemChanges + (expanded ? 1 : 0);
+  const changes = itemChanges + (Object.values(expansion).some(Boolean) ? 1 : 0);
   const draftErrors = useMemo(() => validateDraft(draft, area, new Set(localEdits.map(item => item.id))), [draft, area, localEdits]);
   const errors = draftErrors;
   const locked = before || pending || data.downloading || exporting || sceneProgress?.blocking;
@@ -268,8 +269,7 @@ export const GridEditor = () => {
     const drag = resizeGrid.current; if (!drag) return;
     event.stopPropagation();
     const dx = Math.round((event.clientX - drag.x) / drag.cellSize), dy = Math.round((event.clientY - drag.y) / drag.cellSize);
-    const next = { ...drag.expansion };
-    for (const side of drag.sides) next[side] = Math.max(0, drag.expansion[side] + ({ left: -dx, right: dx, top: -dy, bottom: dy })[side]);
+    const next = resizeExpansion(baseArea, drag.expansion, drag.sides, dx, dy, current.current);
     setExpansion(next);
   };
   const endGridResize = (event, cancel = false) => {
@@ -333,7 +333,10 @@ export const GridEditor = () => {
   const downloadDraft = () => {
     if (draftFile.current || data.downloading) return;
     try {
-      const yaml = exportGridDraft(current.current, gridBounds, expansion);
+      const yaml = exportGridDraft(current.current, gridBounds, expansion, {
+        alwaysPowered: !!data.alwaysPowered, forceGravity: !!data.forceGravity,
+        safeAtmosphere: !!data.safeAtmosphere, apartmentProtected: !!data.apartmentProtected,
+      });
       const id = `${Date.now()}_${counter.current++}`, chunks = draftFileChunks(yaml);
       draftFile.current = { id, chunks }; setExporting(true);
       act('draftFileStart', { id, length: yaml.length, chunks: chunks.length });
@@ -674,7 +677,7 @@ export const GridEditor = () => {
     document.addEventListener('keydown', key, true); document.addEventListener('keyup', release, true); window.addEventListener('blur', blur); window.addEventListener('grid-editor-key', nativeKey);
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
   }, [draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
-    exporting, data.downloading, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
+    exporting, data.downloading, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
   const restoreZoomCenter = () => {
     const center = zoomCenter.current; if (!center) return;
     const node = viewport.current;
@@ -873,6 +876,10 @@ export const GridEditor = () => {
       <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S · Сохранить текущий план в .yml, включая все несохранённые изменения и расширение. Объекты создаются по прототипам; настройки компонентов из раунда не переносятся.">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
       <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'grid' })} title="Сохранить серверный grid со всеми настройками компонентов. Сначала примените черновик.">Исходный grid</button>
       <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'map' })} title="Скачать всю карту в .yml">Скачать карту</button>
+      <button className={data.alwaysPowered ? 'active' : ''} aria-pressed={!!data.alwaysPowered} disabled={pending}
+        onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })} title="Применяется сразу ко всему гриду и сохраняется в карте, включая черновик.">Автономное питание</button>
+      <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
+        onClick={() => act('setGridGravity', { enabled: !data.forceGravity })} title="Применяется сразу; генератор и электричество не требуются.">Постоянная гравитация</button>
       <button className={atmosMode ? 'active' : ''} disabled={pending} onClick={() => setAtmosMode(!atmosMode)}>Атмосфера</button>
       <button disabled={pending || !changes} onClick={() => { remember(); replaceEdits([]); update(copyItems(baseline), true); setSelected([]); setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>
       <button className="primary" disabled={locked || route.editing || !changes || !!errors} onClick={apply} title={route.editing?'Сначала завершите трассу кнопкой «Трассу в черновик»':undefined}>{pending ? 'Применение…' : 'Применить'}</button></footer>

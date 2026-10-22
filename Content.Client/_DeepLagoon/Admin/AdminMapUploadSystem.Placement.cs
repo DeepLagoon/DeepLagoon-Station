@@ -206,7 +206,7 @@ public sealed partial class AdminMapUploadSystem
             TryGetEntity(ready.DestinationMap, out destinationMap);
         }
         // Preview maps are deliberately paused, but their diagnostics must still draw.
-        var query = EntityManager.AllEntityQueryEnumerator<AdminMapMissingPrototypeComponent, TransformComponent>();
+        var query = AllEntityQuery<AdminMapMissingPrototypeComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out _, out var xform))
         {
             var matrix = transformSystem.GetRenderWorldMatrix(uid);

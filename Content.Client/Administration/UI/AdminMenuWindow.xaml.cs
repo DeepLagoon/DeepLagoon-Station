@@ -33,6 +33,7 @@ public sealed partial class AdminMenuWindow : DefaultWindow
             ObjectsTabControl.RefreshObjectList();
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         OnDisposed?.Invoke();

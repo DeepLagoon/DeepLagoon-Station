@@ -1,0 +1,497 @@
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishChaps
+  name: black chaps
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Chaps.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Chaps.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishBunnySuit
+  name: bunny suit
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/BunnySuit.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/BunnySuit.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishBunnySuitWhite
+  name: white bunny suit
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/BunnySuitWhite.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/BunnySuitWhite.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHeadBase
+  id: DLLustWishRabbitEars
+  name: rabbit ears
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/RabbitEars.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/RabbitEars.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHeadBase
+  id: DLLustWishKittyEars
+  name: kitty ears
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/KittyEars.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/KittyEars.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHeadBase
+  id: DLLustWishDominaCap
+  name: dominant cap
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/DominaCap.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/DominaCap.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishDominaHeels
+  name: dominant heels
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/DominaHeels.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/DominaHeels.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHandsBase
+  id: DLLustWishEveningGloves
+  name: evening gloves
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/EveningGloves.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/EveningGloves.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishHarness
+  name: gear harness
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Harness.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Harness.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishKneeBoots
+  name: knee boots
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/KneeBoots.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/KneeBoots.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishLatexSuit
+  name: latex catsuit
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexSuit.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexSuit.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingOuterBase
+  id: DLLustWishCorset
+  name: corset
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Corset.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Corset.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishLatexHalfSuit
+  name: latex half-catsuit
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexHalfSuit.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexHalfSuit.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHandsBase
+  id: DLLustWishLatexGloves
+  name: latex gloves
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexGloves.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexGloves.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishLatexHeels
+  name: latex heels
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexHeels.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexHeels.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishLatexSocks
+  name: latex socks
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexSocks.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexSocks.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHeadBase
+  id: DLLustWishMaidHeadband
+  name: maid headband
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/MaidHeadband.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/MaidHeadband.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishMaidUniform
+  name: maid uniform
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/MaidUniform.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/MaidUniform.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishLatexMaid
+  name: latex maid costume
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/LatexMaid.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/LatexMaid.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingEyesBase
+  id: DLLustWishBlindfold
+  name: kinky blindfold
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Blindfold.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Blindfold.rsi
+  - type: StaticPrice
+    price: 25
+  - type: Blindfold
+  - type: FlashImmunity
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishLoincloth
+  name: leather loincloth
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Loincloth.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Loincloth.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishClothLoincloth
+  name: leather loincloth
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ClothLoincloth.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/ClothLoincloth.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishToelessBoots
+  name: toe-less jackboots
+  description: An accessory from the LustWish collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ToelessBoots.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/ToelessBoots.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishSingerUniform
+  name: starlight singer bikini
+  description: An accessory from the Starlight Singer collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SingerUniform.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/SingerUniform.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingOuterBase
+  id: DLLustWishSingerJacket
+  name: starlight singer jacket
+  description: An accessory from the Starlight Singer collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SingerJacket.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/SingerJacket.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHeadBase
+  id: DLLustWishSingerHair
+  name: starlight singer hair
+  description: An accessory from the Starlight Singer collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SingerHair.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/SingerHair.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingHandsBase
+  id: DLLustWishSingerGloves
+  name: starlight singer gloves
+  description: An accessory from the Starlight Singer collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SingerGloves.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/SingerGloves.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingShoesBase
+  id: DLLustWishSingerLeggings
+  name: starlight singer leggings
+  description: An accessory from the Starlight Singer collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SingerLeggings.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/SingerLeggings.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: BaseItem
+  id: DLLustWishPillow
+  name: pillow
+  description: A soft decorative pillow.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Pillow.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingBeltStorageBase
+  id: DLLustWishBelt
+  name: leather belt
+  description: A leather storage belt for personal accessories.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Belt.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Belt.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishJabroni
+  name: jabroni outfit
+  description: A leather club outfit.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Jabroni.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/Jabroni.rsi
+  - type: StaticPrice
+    price: 25
+- type: entity
+  parent: Handcuffs
+  id: DLLustWishHandcuffs
+  name: kinky handcuffs
+  description: Padded pink handcuffs. They restrain hands just like ordinary cuffs.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Handcuffs.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: Handcuff
+    color: '#FF83B8'
+  - type: Item
+    sprite: Objects/Misc/handcuffs.rsi
+- type: entity
+  parent: BaseItem
+  id: DLLustWishMassager
+  name: magic wand
+  description: Use in hand for a relaxing personal interaction.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Massager.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishArousalItem
+    amount: 8
+  - type: UseDelay
+    delay: 3
+- type: entity
+  parent: BaseItem
+  id: DLLustWishFeather
+  name: tickling feather
+  description: Use in hand for a relaxing personal interaction.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Feather.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishArousalItem
+    amount: 4
+  - type: UseDelay
+    delay: 3
+- type: entity
+  parent: BaseItem
+  id: DLLustWishEliteCard
+  name: LustWish elite card
+  description: Swiping this card toggles free vending on a LustWish machine.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/EliteCard.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishDiscountCard
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishStageOutfit
+  name: cyan stage outfit
+  description: A cyan outfit from the LustWish stage collection.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/StageOutfit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/StageOutfit.rsi
+- type: entity
+  parent: ClothingEyesBase
+  id: DLLustWishNiceGoggles
+  name: surprisingly nice looking goggles
+  description: The temple is engraved with the word "Kubic".
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/NiceGoggles.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/NiceGoggles.rsi
+- type: entity
+  parent: BasePlushie
+  id: DLLustWishSinvoxPlush
+  name: sinister vox plushie
+  description: An ominous vox plushie with an unusually alien tail. Squeaks when squeezed.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SinvoxPlush.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25

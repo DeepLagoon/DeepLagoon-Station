@@ -376,10 +376,25 @@ export function overlayLocalEdits(baseline, edits, isExclusive = () => false) {
 }
 
 export function rebaseExpansion(previous, next, expansion) {
-  return { left: Math.max(0, next.x - (previous.x - expansion.left)),
-    right: Math.max(0, previous.x + previous.width + expansion.right - next.x - next.width),
-    bottom: Math.max(0, next.y - (previous.y - expansion.bottom)),
-    top: Math.max(0, previous.y + previous.height + expansion.top - next.y - next.height) };
+  const retain = (value, rebased) => value === 0 ? 0 : value < 0 ? rebased : Math.max(0, rebased);
+  return { left: retain(expansion.left, next.x - (previous.x - expansion.left)),
+    right: retain(expansion.right, previous.x + previous.width + expansion.right - next.x - next.width),
+    bottom: retain(expansion.bottom, next.y - (previous.y - expansion.bottom)),
+    top: retain(expansion.top, previous.y + previous.height + expansion.top - next.y - next.height) };
+}
+
+export function resizeExpansion(bounds, expansion, sides, dx, dy, items) {
+  const next = { ...expansion };
+  let left = bounds.x + bounds.width + expansion.right - 1, right = bounds.x - expansion.left + 1;
+  let bottom = bounds.y + bounds.height + expansion.top - 1, top = bounds.y - expansion.bottom + 1;
+  for (const item of items) {
+    left = Math.min(left, Math.floor(item.x)); right = Math.max(right, Math.floor(item.x) + 1);
+    bottom = Math.min(bottom, Math.floor(item.y)); top = Math.max(top, Math.floor(item.y) + 1);
+  }
+  const minimum = { left: bounds.x - left, right: right - bounds.x - bounds.width,
+    bottom: bounds.y - bottom, top: top - bounds.y - bounds.height };
+  for (const side of sides) next[side] = Math.max(minimum[side], expansion[side] + ({ left: -dx, right: dx, top: -dy, bottom: dy })[side]);
+  return next;
 }
 
 export function previewPatch(previous, next) {

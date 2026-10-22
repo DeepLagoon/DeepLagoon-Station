@@ -1,0 +1,57 @@
+- type: entity
+  parent: VendingMachineCredit
+  id: VendingMachineLustWish
+  name: LustWish
+  description: A vending machine with clothing, accessories and personal care products.
+  components:
+  - type: LustWishVendor
+  - type: VendingMachine
+    pack: DLLustWishInventory
+    requiresCash: true
+    offState: off
+    normalState: normal
+    brokenState: broken
+  - type: Advertise
+    pack: DLLustWishAds
+  - type: SpeakOnUIClosed
+    pack: DLLustWishGoodbyes
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Vendor.rsi
+    layers:
+    - state: off
+      map: ["enum.VendingMachineVisualLayers.Base"]
+    - state: normal
+      map: ["enum.VendingMachineVisualLayers.BaseUnshaded"]
+      shader: unshaded
+    - sprite: Structures/Machines/VendingMachines/clothing.rsi
+      state: panel
+      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+  - type: PointLight
+    radius: 1.8
+    energy: 1.6
+    color: "#D86BB1"
+
+- type: entity
+  parent: BaseVendingMachineRestock
+  id: VendingMachineRestockLustWish
+  name: LustWish restock cartridge
+  components:
+  - type: VendingMachineRestock
+    canRestock:
+    - DLLustWishInventory
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Refill.rsi
+    layers:
+    - state: icon
+
+- type: localizedDataset
+  id: DLLustWishAds
+  values:
+    prefix: dl-lustwish-ad-
+    count: 4
+
+- type: localizedDataset
+  id: DLLustWishGoodbyes
+  values:
+    prefix: dl-lustwish-goodbye-
+    count: 1

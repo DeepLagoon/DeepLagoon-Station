@@ -123,3 +123,18 @@ public sealed class GridEditorDraftsEvent(Guid token, List<GridEditorPeerDraft> 
     public readonly Guid Token = token;
     public readonly List<GridEditorPeerDraft> Peers = peers;
 }
+
+[Serializable, NetSerializable]
+public sealed class GridEditorEnvironmentRequest(Guid token, string setting, bool enabled) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Setting = setting;
+    public readonly bool Enabled = enabled;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorEnvironmentState(Guid token, bool alwaysPowered, bool forceGravity, bool safeAtmosphere, bool apartmentProtected) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly bool AlwaysPowered = alwaysPowered, ForceGravity = forceGravity, SafeAtmosphere = safeAtmosphere, ApartmentProtected = apartmentProtected;
+}

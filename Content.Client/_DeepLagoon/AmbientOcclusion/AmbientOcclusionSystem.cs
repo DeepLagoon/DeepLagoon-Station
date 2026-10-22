@@ -684,7 +684,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             var entities = system._map.GetAnchoredEntities(uid, grid, p);
             foreach (var entity in entities)
             {
-                if (!system.TryComp<MetaDataComponent>(entity, out var meta) ||
+                if (!system.TryComp(entity, out MetaDataComponent? meta) ||
                     (meta.Flags & (MetaDataFlags.Detached | MetaDataFlags.InContainer)) != 0 ||
                     meta.EntityLifeStage >= EntityLifeStage.Terminating ||
                     !system.TryComp<OccluderComponent>(entity, out var occluder) || !occluder.Enabled ||

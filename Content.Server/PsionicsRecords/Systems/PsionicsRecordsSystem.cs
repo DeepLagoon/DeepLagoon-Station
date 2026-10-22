@@ -19,10 +19,10 @@ namespace Content.Server.PsionicsRecords.Systems;
 ///         - See cataloguers' actions in Psionics Records in the radio
 ///         - See reasons for any action with no need to ask the officer personally
 /// </summary>
-public sealed class PsionicsRecordsSystem : EntitySystem
+public sealed partial class PsionicsRecordsSystem : EntitySystem
 {
-    [Dependency] private readonly GameTicker _ticker = default!;
-    [Dependency] private readonly StationRecordsSystem _stationRecords = default!;
+    [Dependency] private GameTicker _ticker = default!;
+    [Dependency] private StationRecordsSystem _stationRecords = default!;
 
     public override void Initialize()
     {

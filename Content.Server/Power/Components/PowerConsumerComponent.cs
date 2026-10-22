@@ -24,7 +24,9 @@ namespace Content.Server.Power.Components
         ///     How much power this is currently receiving from <see cref="PowerSupplierComponent"/>s.
         /// </summary>
         [ViewVariables]
-        public float ReceivedPower => NetworkLoad.ReceivingPower;
+        [DataField] public bool PowerBypass;
+
+        public float ReceivedPower => PowerBypass ? DrawRate : NetworkLoad.ReceivingPower;
 
         public float LastReceived = float.NaN;
 

@@ -6,9 +6,9 @@ using Content.Server.StationEvents.Components;
 
 namespace Content.Server.StationEvents.Events;
 
-internal sealed class GlimmerRevenantRule : StationEventSystem<GlimmerRevenantRuleComponent>
+internal sealed partial class GlimmerRevenantRule : StationEventSystem<GlimmerRevenantRuleComponent>
 {
-    [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private IRobustRandom _random = default!;
 
     protected override void Started(EntityUid uid, GlimmerRevenantRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {
@@ -28,6 +28,6 @@ internal sealed class GlimmerRevenantRule : StationEventSystem<GlimmerRevenantRu
         var coords = Transform(_random.Pick(glimmerSources)).Coordinates;
 
         Sawmill.Info($"Spawning revenant at {coords}");
-        EntityManager.SpawnEntity(component.RevenantPrototype, coords);
+        Spawn(component.RevenantPrototype, coords);
     }
 }

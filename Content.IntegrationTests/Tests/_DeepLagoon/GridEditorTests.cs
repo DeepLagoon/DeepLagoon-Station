@@ -538,12 +538,31 @@ public sealed class GridEditorTests
         Guid token = default;
         await pair.Client.WaitAssertion(() => token = pair.Client.EntMan.System<ClientEditor>().State!.Token);
         await Send(100, 100, 100, 100); // Empty space has no former side/area limits.
+        var expandedWidth = 0;
+        var expandedHeight = 0;
         await pair.Client.WaitAssertion(() => {
             var state = pair.Client.EntMan.System<ClientEditor>().State!;
             Assert.That(state.Token, Is.EqualTo(token));
             Assert.That(state.Width, Is.GreaterThan(450));
+            expandedWidth = state.Width;
+            expandedHeight = state.Height;
         });
         await Send(-1, 0, 0, 0);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var state = pair.Client.EntMan.System<ClientEditor>().State!;
+            Assert.That(state.Token, Is.EqualTo(token));
+            Assert.That(state.Items.Count(i => i.Kind == "tile"), Is.EqualTo(996));
+            Assert.That(state.Width, Is.EqualTo(expandedWidth - 1));
+        });
+        await Send(-100, -100, -100, -100);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var state = pair.Client.EntMan.System<ClientEditor>().State!;
+            Assert.That(state.Width, Is.EqualTo(expandedWidth - 201));
+            Assert.That(state.Height, Is.EqualTo(expandedHeight - 200));
+            Assert.That(state.Token, Is.EqualTo(token));
+        });
         await Send(0, 1, 0, 0, "Space");
         await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<SharedMapSystem>()
             .GetAllTiles(grid, pair.Server.EntMan.GetComponent<MapGridComponent>(grid)).Count(), Is.EqualTo(996)));

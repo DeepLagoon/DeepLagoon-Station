@@ -11,7 +11,7 @@ namespace Content.Client._Exodus.Visuals;
 /// <summary>
 /// Draws temporary event-driven and persistent component-driven visual links between entities.
 /// </summary>
-public sealed class EntityLinkVisualSystem : EntitySystem
+public sealed partial class EntityLinkVisualSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IOverlayManager _overlayManager = default!;

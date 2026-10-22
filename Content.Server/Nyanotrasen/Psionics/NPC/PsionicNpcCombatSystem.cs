@@ -11,11 +11,11 @@ using Robust.Shared.Utility;
 namespace Content.Server.Psionics.NPC;
 
 // TODO this is nyanotrasen shitcode. It works, but it needs to be refactored to be more generic.
-public sealed class PsionicNpcCombatSystem : EntitySystem
+public sealed partial class PsionicNpcCombatSystem : EntitySystem
 {
-    [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly IPrototypeManager _protoMan = default!;
-    [Dependency] private readonly SharedActionsSystem _actions = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IPrototypeManager _protoMan = default!;
+    [Dependency] private SharedActionsSystem _actions = default!;
 
     private static readonly ProtoId<PsionicPowerPrototype> NoosphericZapProto = "NoosphericZapPower";
     private PsionicPowerPrototype NoosphericZap = default!;

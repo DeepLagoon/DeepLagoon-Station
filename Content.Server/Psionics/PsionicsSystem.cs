@@ -29,24 +29,24 @@ using Content.Shared.Rounding;
 
 namespace Content.Server.Psionics;
 
-public sealed class PsionicsSystem : EntitySystem
+public sealed partial class PsionicsSystem : EntitySystem
 {
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly PsionicAbilitiesSystem _psionicAbilitiesSystem = default!;
-    [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
-    [Dependency] private readonly ElectrocutionSystem _electrocutionSystem = default!;
-    [Dependency] private readonly MindSwapPowerSystem _mindSwapPowerSystem = default!;
-    [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
-    [Dependency] private readonly NpcFactionSystem _npcFactonSystem = default!;
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedPopupSystem _popups = default!;
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
-    [Dependency] private readonly IChatManager _chatManager = default!;
-    [Dependency] private readonly IPrototypeManager _protoMan = default!;
-    [Dependency] private readonly PsionicFamiliarSystem _psionicFamiliar = default!;
-    [Dependency] private readonly NPCRetaliationSystem _retaliationSystem = default!;
-    [Dependency] private readonly AlertsSystem _alerts = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private PsionicAbilitiesSystem _psionicAbilitiesSystem = default!;
+    [Dependency] private StatusEffectsSystem _statusEffects = default!;
+    [Dependency] private ElectrocutionSystem _electrocutionSystem = default!;
+    [Dependency] private MindSwapPowerSystem _mindSwapPowerSystem = default!;
+    [Dependency] private GlimmerSystem _glimmerSystem = default!;
+    [Dependency] private NpcFactionSystem _npcFactonSystem = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private SharedPopupSystem _popups = default!;
+    [Dependency] private IPlayerManager _playerManager = default!;
+    [Dependency] private IChatManager _chatManager = default!;
+    [Dependency] private IPrototypeManager _protoMan = default!;
+    [Dependency] private PsionicFamiliarSystem _psionicFamiliar = default!;
+    [Dependency] private NPCRetaliationSystem _retaliationSystem = default!;
+    [Dependency] private AlertsSystem _alerts = default!;
 
     private const string BaselineAmplification = "Baseline Amplification";
     private const string BaselineDampening = "Baseline Dampening";

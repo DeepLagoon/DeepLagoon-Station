@@ -4,9 +4,9 @@ using Robust.Client.GameObjects;
 
 namespace Content.Client._DeepLagoon.Loadouts;
 
-public sealed class PersonalLoadoutVisualSystem : VisualizerSystem<PersonalLoadoutVisualsComponent>
+public sealed partial class PersonalLoadoutVisualSystem : VisualizerSystem<PersonalLoadoutVisualsComponent>
 {
-    [Dependency] private readonly SpriteSystem _sprites = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
     public override void Initialize()
     {
         base.Initialize();

@@ -185,7 +185,7 @@ public sealed partial class GuidebookWindow : FancyWindow, ILinkClickHandler
         {
             // TODO GUIDEBOOK Maybe allow duplicate entries?
             // E.g., for adding medicine under both chemicals & the chemist job
-            Logger.Error($"Adding duplicate guide entry: {id}");
+            Logger.GetSawmill(Robust.Shared.Log.LogManager.ROOT).Error($"Adding duplicate guide entry: {id}");
             return null;
         }
 

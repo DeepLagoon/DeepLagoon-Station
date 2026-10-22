@@ -90,6 +90,7 @@ public sealed class ShuttleRadarGlassControl : Control
         handle.DrawTextureRectRegion(_instruments, harness, new UIBox2(809, 750, 895, 864));
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         if (disposing)

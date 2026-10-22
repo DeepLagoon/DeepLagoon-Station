@@ -1,0 +1,41 @@
+- type: entity
+  parent: BaseItem
+  id: DLLustWishPortalKit
+  name: LustWish portal kit
+  description: Use in hand to place the first endpoint, then use again elsewhere to place its partner. Connect through the context menu. Leaving the endpoint disconnects you.
+  components:
+  - type: LustWishPortalKit
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Portal.rsi
+    state: device
+  - type: Item
+    size: Normal
+  - type: StaticPrice
+    price: 100
+
+- type: entity
+  parent: BaseStructure
+  id: DLLustWishPortal
+  name: LustWish portal
+  description: A paired interaction window. It relays interactions to a connected participant without transporting their body. Use the context menu to connect or disconnect.
+  components:
+  - type: LustWishPortal
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Portal.rsi
+    state: portal
+    noRot: true
+  - type: Transform
+    anchored: true
+  - type: Physics
+    canCollide: false
+  - type: Damageable
+    damageContainer: Inorganic
+    damageModifierSet: Metallic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 100
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [Destruction]

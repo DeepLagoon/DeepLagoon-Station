@@ -8,11 +8,11 @@ using Robust.Shared.Player;
 
 namespace Content.Client.Overlays;
 
-public sealed class SaturationScaleSystem : EntitySystem
+public sealed partial class SaturationScaleSystem : EntitySystem
 {
-    [Dependency] private readonly IOverlayManager _overlayMan = default!;
-    [Dependency] private readonly ISharedPlayerManager _playerMan = default!;
-    [Dependency] private readonly IConfigurationManager _cfgMan = default!;
+    [Dependency] private IOverlayManager _overlayMan = default!;
+    [Dependency] private ISharedPlayerManager _playerMan = default!;
+    [Dependency] private IConfigurationManager _cfgMan = default!;
 
     private SaturationScaleOverlay _overlay = default!;
     private bool _moodEffectsEnabled;

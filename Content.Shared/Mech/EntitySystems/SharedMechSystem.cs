@@ -117,7 +117,7 @@ public abstract partial class SharedMechSystem : EntitySystem
         // Raise server event to open radar UI
         if (_net.IsServer)
         {
-            RaiseLocalEvent(uid, new MechOpenRadarEvent(EntityManager.GetNetEntity(pilot.Value)));
+            RaiseLocalEvent(uid, new MechOpenRadarEvent(GetNetEntity(pilot.Value)));
         }
     }
 
@@ -534,7 +534,7 @@ public abstract partial class SharedMechSystem : EntitySystem
             return;
         }
 
-        if (TryComp<TransformComponent>(uid, out var xform) && xform.GridUid != null && component.PreventFireOnGrid)
+        if (TryComp(uid, out TransformComponent? xform) && xform.GridUid != null && component.PreventFireOnGrid)
         {
             _popup.PopupEntity(Loc.GetString("gun-no-fire-station"), uid);
 

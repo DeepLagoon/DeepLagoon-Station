@@ -14,11 +14,11 @@ using Robust.Shared.Utility;
 
 namespace Content.Server._DeepLagoon.Tattoos;
 
-public sealed class TattooArtworkSystem : EntitySystem
+public sealed partial class TattooArtworkSystem : EntitySystem
 {
-    [Dependency] private readonly IResourceManager _resources = default!;
-    [Dependency] private readonly IServerPreferencesManager _preferences = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IServerPreferencesManager _preferences = default!;
+    [Dependency] private IGameTiming _timing = default!;
     private TattooArtworkProof _proof = default!;
     private readonly Dictionary<NetUserId, TimeSpan> _cooldowns = new();
     private readonly HashSet<NetUserId> _busy = new();

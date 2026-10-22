@@ -146,6 +146,7 @@ namespace Content.Client.UserInterface.Systems.Alerts.Controls
                 _entityManager.QueueDeleteEntity(_spriteViewEntity);
         }
 
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

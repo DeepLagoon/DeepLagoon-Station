@@ -60,7 +60,7 @@ public sealed partial class MapperRcdGhostSystem : EntitySystem
         // Pipes use the stock layer-aware mode: the tile quarter under the cursor picks the pipe layer.
         var layered = entry is { Mode: MapperRcdMode.Entity, Slot: MapperRcdSlot.Pipe } &&
                       _protos.TryIndex<EntityPrototype>(entry.Prototype, out var proto) &&
-                      proto.TryGetComponent<AtmosPipeLayersComponent>(out _, EntityManager.ComponentFactory);
+                      proto.TryComp<AtmosPipeLayersComponent>(out _, EntityManager.ComponentFactory);
 
         _ghostEntry = selected;
         _placement.Clear();

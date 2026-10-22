@@ -28,3 +28,5 @@ dl-apartment-trip-denied = Cannot start a transfer right now.
 dl-apartment-trip-returning = Preparing the return trip. Remain near the terminal.
 dl-apartment-trip-departing = Preparing residential transfer. Equipment will be deposited on arrival.
 dl-apartment-trip-cancelled = Transfer cancelled. You remain here with your equipment.
+
+dl-apartment-basic = Basic apartments

@@ -7,9 +7,9 @@ namespace Content.Server._DeepLagoon.Physics;
 /// Reports the engine's server-side fixture quarantine to administrators. The engine removes unsafe
 /// shapes and queues the entity for deletion before notifying us; chat must not run inside physics.
 /// </summary>
-public sealed class InvalidPhysicsAlertSystem : EntitySystem
+public sealed partial class InvalidPhysicsAlertSystem : EntitySystem
 {
-    [Dependency] private readonly IChatManager _chat = default!;
+    [Dependency] private IChatManager _chat = default!;
 
     private readonly Dictionary<(string Prototype, string Fixture, string Reason), PendingAlert> _pending = new();
 

@@ -9,10 +9,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Client._DeepLagoon.BodyCustomization;
 
 /// <summary>Directional source overlays, ordered behind the body / under or above clothing.</summary>
-public sealed class BodyCustomizationVisualizerSystem : EntitySystem
+public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
 {
-    [Dependency] private readonly SpriteSystem _sprites = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
     private readonly Dictionary<EntityUid, List<string>> _layers = new();
     private readonly Dictionary<EntityUid, object[]> _raisedHands = new();
 

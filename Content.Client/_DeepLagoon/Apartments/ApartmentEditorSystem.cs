@@ -5,6 +5,7 @@ using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared.Maps;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.Player;
@@ -24,6 +25,7 @@ namespace Content.Client._DeepLagoon.Apartments;
 public sealed partial class ApartmentEditorSystem : EntitySystem
 {
     [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private Content.Shared.Tag.TagSystem _tags = default!;
     [Dependency] private IOverlayManager _overlays = default!;
     [Dependency] private IPlayerManager _player = default!;
     [Dependency] private IGameTiming _timing = default!;
@@ -36,6 +38,10 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     private bool _enteredPreview;
     public List<ApartmentPlacement> Draft { get; private set; } = new();
     public ApartmentTemplatePrototype? Template { get; private set; }
+    public ApartmentRoomScene? RoomScene => _state?.Scene;
+    public IEnumerable<ApartmentPlacement> MapBaseline => _state?.MapFurniture.Select(item => item.Baseline) ?? Enumerable.Empty<ApartmentPlacement>();
+    public ApartmentFurniturePrototype? Catalog(string id) => _state?.MapFurniture.FirstOrDefault(item => item.Baseline.Furniture == id)?.Definition()
+        ?? (_prototypes.TryIndex<ApartmentFurniturePrototype>(id, out var item) ? item : null);
     public EntityUid? Grid => _state == null ? null : GetEntity(_state.Grid);
     public bool ShowDraft { get; private set; } = true;
     public bool IsOpen => _window != null;
@@ -82,17 +88,43 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     {
         if (_window == null || _state == null || Template == null) return;
         var data = new TguiData().String("template", Template.ID).String("name", Loc.GetString(Template.Name))
+            .Number("number", _state.Number)
             .Number("revision", _state.Revision).String("token", _state.Token.ToString())
-            .Number("width", Template.Width).Number("height", Template.Height)
+            .Number("width", _state.Scene?.Width ?? Template.Width).Number("height", _state.Scene?.Height ?? Template.Height)
             .Number("maxFurniture", Template.MaxFurniture).Number("arrivalX", Template.Arrival.X).Number("arrivalY", Template.Arrival.Y)
+            .Array("reservedCells", Template.ReservedCells.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
             .Array("layout", _state.Layout.Select(PlacementData))
-            .Array("catalog", Template.Catalog.Select(id =>
+            .Array("catalog", Template.Catalog.Select(id => Catalog(id)!).Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
             {
-                var item = _prototypes.Index(id);
-                return new TguiData().String("id", item.ID).String("name", Loc.GetString(item.Name))
+                var mapped = _state.MapFurniture.FirstOrDefault(entry => entry.Baseline.Furniture == item.ID);
+                var entry = new TguiData().String("id", item.ID).String("name", item.ExistingOnly ? item.Name : Loc.GetString(item.Name))
                     .Number("width", item.Size.X).Number("height", item.Size.Y).Number("maxCount", item.MaxCount)
-                    .Bool("blocksMovement", item.BlocksMovement).Array("images", _images.Item(item.Entity));
+                    .Bool("blocksMovement", item.BlocksMovement).Bool("existingOnly", item.ExistingOnly).Bool("allowsOverlap", item.AllowsOverlap).Bool("canRotate", item.CanRotate);
+                if (mapped != null) entry.String("placementId", mapped.Baseline.Id).Number("originalX", mapped.Baseline.X).Number("originalY", mapped.Baseline.Y).Number("originalRotation", mapped.Baseline.Rotation);
+                var prototype = _prototypes.Index<EntityPrototype>(item.Entity);
+                prototype.TryGetComponent<SpriteComponent>(out var sprite);
+                var images = _state.Entities.TryGetValue(mapped?.Baseline.Id ?? "", out var net)
+                    ? _images.MapEntity(GetEntity(net)).ToList() : new List<TguiData>();
+                entry.Array("images", images.Count > 0 ? images : _images.MapItem(item.Entity))
+                    .Bool("noRotation", sprite?.NoRotation ?? false).Number("drawDepth", sprite?.DrawDepth ?? 0);
+                return entry;
             }));
+        if (_state.Scene is { } scene)
+            data.Object("scene", new TguiData().Number("x", scene.X).Number("y", scene.Y)
+                .Array("tiles", scene.Tiles.Select(tile => new TguiData().Number("x", tile.X).Number("y", tile.Y)))
+                .Array("objects", scene.Objects.Select(item =>
+                {
+                    var prototype = _prototypes.Index<EntityPrototype>(item.Prototype);
+                    var wall = prototype.TryGetComponent<Content.Shared.Tag.TagComponent>(out var tags) && _tags.HasTag(tags, "Wall");
+                    prototype.TryGetComponent<SpriteComponent>(out var sprite);
+                    var entry = new TguiData().String("id", item.Id).String("prototype", item.Prototype)
+                        .String("name", prototype.Name).Number("x", item.X).Number("y", item.Y).Bool("wall", wall)
+                        .Number("rotation", item.Rotation).Bool("noRotation", sprite?.NoRotation ?? false);
+                    if (!wall) entry.Array("images", _images.MapItem(item.Prototype));
+                    return entry;
+                }))
+                .Array("occupied", scene.Occupied.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
+                .Array("blocked", scene.Blocked.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y))));
         _window.Panel.SetState("ApartmentEditor", data.ToString(), "Обустройство квартиры");
     }
 
@@ -101,7 +133,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
 
     private void OnResult(ApartmentResultEvent ev)
     {
-        if (_window is { Panel.Web.IsReady: true } window)
+        if (_window is { } window)
             window.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().String("status", ev.Message)
                 .Bool("success", ev.Success)).ToString());
         if (ev.Revision < 0) CloseEditor(false);
@@ -115,22 +147,22 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         if (action == "close") { CloseEditor(true); return; }
         if (action == "before") { ShowDraft = false; RestoreSprites(); return; }
         if (action == "after") { ShowDraft = true; HideSprites(); return; }
-        if (action is not ("preview" or "apply") || !TryParseLayout(payload, out var layout)) return;
+        if (action is not ("preview" or "apply") || !TryParseLayout(payload, out var layout, 64 + _state.MapFurniture.Count)) return;
         Draft = layout;
         if (action == "apply") RaiseNetworkEvent(new ApartmentApplyEvent(_state.Token, _state.Revision, layout));
     }
 
     /// <summary>Parse bounded JSON through the sandbox-approved YAML reader, as other TGUI panels do.</summary>
-    public static bool TryParseLayout(string payload, out List<ApartmentPlacement> layout)
+    public static bool TryParseLayout(string payload, out List<ApartmentPlacement> layout, int maxCount = 64)
     {
         layout = new();
-        if (payload.Length > 8192 || !payload.TrimStart().StartsWith('{')) return false;
+        if (payload.Length > Math.Max(8192, maxCount * 256) || !payload.TrimStart().StartsWith('{')) return false;
         try
         {
             using var reader = new StringReader(payload);
             var yaml = new YamlStream(); yaml.Load(reader);
             if (yaml.Documents.Count != 1 || yaml.Documents[0].RootNode.ToDataNode() is not MappingDataNode root ||
-                !root.TryGet<SequenceDataNode>("layout", out var sequence) || sequence.Count > 64) return false;
+                !root.TryGet<SequenceDataNode>("layout", out var sequence) || sequence.Count > maxCount) return false;
             foreach (var child in sequence)
             {
                 if (child is not MappingDataNode map) return false;
@@ -185,7 +217,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     {
         base.Update(frameTime);
         if (_window == null) return;
-        if (_player.LocalEntity is not { } body || !TryComp<TransformComponent>(body, out var transform) || transform.GridUid != Grid)
+        if (_player.LocalEntity is not { } body || !TryComp(body, out TransformComponent? transform) || transform.GridUid != Grid)
         {
             // The editor event may arrive before the new grid's first PVS state.
             if (_enteredPreview || _timing.RealTime - _openedAt > TimeSpan.FromSeconds(5)) CloseEditor(true);

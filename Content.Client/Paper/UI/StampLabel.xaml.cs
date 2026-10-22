@@ -29,6 +29,7 @@ public sealed partial class StampLabel : Label
         _stampShader = prototypes.Index<ShaderPrototype>("PaperStamp").InstanceUnique();
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         if (disposing)

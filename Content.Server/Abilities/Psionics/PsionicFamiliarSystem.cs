@@ -16,11 +16,11 @@ namespace Content.Server.Abilities.Psionics;
 
 public sealed partial class PsionicFamiliarSystem : EntitySystem
 {
-    [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-    [Dependency] private readonly NpcFactionSystem _factions = default!;
-    [Dependency] private readonly NPCSystem _npc = default!;
-    [Dependency] private readonly HTNSystem _htn = default!;
-    [Dependency] private readonly PopupSystem _popup = default!;
+    [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+    [Dependency] private NpcFactionSystem _factions = default!;
+    [Dependency] private NPCSystem _npc = default!;
+    [Dependency] private HTNSystem _htn = default!;
+    [Dependency] private PopupSystem _popup = default!;
 
     public override void Initialize()
     {

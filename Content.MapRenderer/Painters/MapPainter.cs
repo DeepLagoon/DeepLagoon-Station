@@ -91,7 +91,7 @@ namespace Content.MapRenderer.Painters
                 }
                 catch (Exception e) // we probably tried to load a map
                 {
-                    Logger.Info($"Failed to load as grid, rendering as map...");
+                    Logger.GetSawmill(Robust.Shared.Log.LogManager.ROOT).Info($"Failed to load as grid, rendering as map...");
                     sMapManager.DeleteMap(mapId);
                     var opts = new DeserializationOptions();
                     opts.InitializeMaps = true;

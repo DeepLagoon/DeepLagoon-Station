@@ -17,13 +17,13 @@ public sealed partial class PersonalLoadoutVisualsComponent : Component;
 public enum PersonalLoadoutVisuals : byte { Color, Heirloom }
 
 /// <summary>Apply the same outfit on the preview dummy and the actual character.</summary>
-public sealed class PersonalLoadoutEquipSystem : EntitySystem
+public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
 {
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly InventorySystem _inventory = default!;
-    [Dependency] private readonly PersonalLoadoutSystem _loadouts = default!;
-    [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
-    [Dependency] private readonly MetaDataSystem _metadata = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private InventorySystem _inventory = default!;
+    [Dependency] private PersonalLoadoutSystem _loadouts = default!;
+    [Dependency] private SharedAppearanceSystem _appearance = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
 
     public void Customize(EntityUid item, PersonalLoadoutCustomization? data)
     {

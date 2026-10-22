@@ -12,13 +12,13 @@ namespace Content.Server._DeepLagoon.Species.Ariral;
 /// <summary>
 /// Grants the source race's single-use egg action without automatic NPC egg production.
 /// </summary>
-public sealed class AriralEggLayerSystem : EntitySystem
+public sealed partial class AriralEggLayerSystem : EntitySystem
 {
-    [Dependency] private readonly ActionsSystem _actions = default!;
-    [Dependency] private readonly AudioSystem _audio = default!;
-    [Dependency] private readonly PopupSystem _popup = default!;
-    [Dependency] private readonly MobStateSystem _mobState = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private ActionsSystem _actions = default!;
+    [Dependency] private AudioSystem _audio = default!;
+    [Dependency] private PopupSystem _popup = default!;
+    [Dependency] private MobStateSystem _mobState = default!;
+    [Dependency] private IRobustRandom _random = default!;
 
     public override void Initialize()
     {

@@ -49,11 +49,17 @@ attached character, even when the panel's interaction target is someone else.
 Requests require a valid open panel and are validated by the server. Changes
 are networked for other observers and last only for the current round.
 
-Ten reagents resize existing enabled parts, including hidden ones. Every 5 units
+Eight reagents resize parts, including hidden ones. If a part is missing or disabled,
+the first full dose adds or enables it at its smallest size. Every 5 units
 actually metabolized changes one stage. Partial doses accumulate on the mob;
 opposite doses cancel their unfinished progress for the same part. Growth and
 reduction stop at the first/last available sprite for the current shape and can
-exceed lobby limits. They never create a missing part or modify saved profiles.
+exceed lobby limits. They never modify saved profiles.
+
+The Extra options tab has an archived, server-replicated `body_customization.chemical_changes`
+preference, enabled by default. Disabling it blocks both resizing and part creation on
+the owner's body, including while ghosting, and clears unfinished doses. NPCs default
+to enabled; disconnected bodies retain their last synchronized choice.
 
 All recipes need **370 K** and use **1 Silicon + 1 Aluminium (growth) or
 1 Copper (reduction) + 1 part-specific ingredient**, producing 3 units.
@@ -64,7 +70,6 @@ The recipes have no ingredient-set subset/superset overlap with existing recipes
 | Buttocks/hips | DLButtGrowth | DLButtReduction | Iodine | 0–8 |
 | Belly | DLBellyGrowth | DLBellyReduction | Lithium | 1–10 |
 | Breasts | DLBreastsGrowth | DLBreastsReduction | Sulfur | A–O, HUGE, MASSIVE, GIGA, IMPOSSIBLE |
-| Anus | DLAnusGrowth | DLAnusReduction | Sugar | 0–8 |
 | Penis | DLPenisGrowth | DLPenisReduction | Sodium | 1–5 |
 
 Each reagent has `Pill<ReagentId>` (5u, one stage) and

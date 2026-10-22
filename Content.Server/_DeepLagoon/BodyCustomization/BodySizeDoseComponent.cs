@@ -6,4 +6,5 @@ public sealed partial class BodySizeDoseComponent : Component
 {
     // Signed FixedPoint2 raw units; fractions must not accumulate floating-point error.
     public readonly Dictionary<string, long> Doses = new();
+    public bool ChemicalChangesAllowed = true;
 }

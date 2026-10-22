@@ -11,6 +11,8 @@ public sealed class NativeApartmentEditor : BoxContainer
     private readonly BoxContainer _list = NativeInterfacePanel.Column();
     private readonly BoxContainer _catalog = NativeInterfacePanel.Column();
     private readonly Label _status = new();
+    private readonly Label _roomTitle = new();
+    private readonly NativeApartmentPlan _plan = new();
     private readonly LineEdit _x, _y, _rotation;
     private readonly List<TguiData> _draft = new();
     private readonly List<string> _ids = new();
@@ -23,6 +25,15 @@ public sealed class NativeApartmentEditor : BoxContainer
     public NativeApartmentEditor(Action<string, string> send)
     {
         _send = send; Orientation = LayoutOrientation.Vertical;
+        AddChild(_roomTitle);
+        var zoom = NativeInterfacePanel.Row(); AddChild(zoom);
+        var scroll = new ScrollContainer { MinHeight = 270, MaxHeight = 420, HorizontalExpand = true };
+        scroll.AddChild(_plan); AddChild(scroll);
+        var scale = 1f;
+        void Zoom(float value) { scale = Math.Clamp(value, .5f, 4f); _plan.MinSize = new System.Numerics.Vector2(300, 250) * scale; }
+        NativeInterfacePanel.Button(zoom, "−", () => Zoom(scale / 1.25f));
+        NativeInterfacePanel.Button(zoom, "+", () => Zoom(scale * 1.25f));
+        NativeInterfacePanel.Button(zoom, "Сбросить масштаб", () => Zoom(1));
         AddChild(_status); AddChild(_catalog);
         var fields = NativeInterfacePanel.Row(); AddChild(fields);
         _x = NativeInterfacePanel.Field(fields, "X", "0"); _y = NativeInterfacePanel.Field(fields, "Y", "0");
@@ -30,9 +41,9 @@ public sealed class NativeApartmentEditor : BoxContainer
         NativeInterfacePanel.Button(this, "Добавить мебель в черновик", () =>
         {
             if (_applying || _furniture.Length == 0 || !int.TryParse(_x.Text, out var x) || !int.TryParse(_y.Text, out var y)
-                || !int.TryParse(_rotation.Text, out var rotation)) return;
+                || !int.TryParse(_rotation.Text, out var rotation) || rotation < 0 || rotation > 270 || rotation % 90 != 0) return;
             var id = Guid.NewGuid().ToString("N");
-            _ids.Add(id); _draft.Add(new TguiData().String("id", id).String("furniture", _furniture).Number("x", x).Number("y", y).Number("rotation", rotation));
+            _ids.Add(id); _draft.Add(new TguiData().String("id", id).String("furniture", _furniture).Number("x", x).Number("y", y).Number("rotation", rotation / 90));
             Changed();
         });
         AddChild(_list);
@@ -46,12 +57,14 @@ public sealed class NativeApartmentEditor : BoxContainer
 
     public void Update(NativeUiData data)
     {
-        if (data.Int("revision") == _revision) return;
+        if (data.Int("revision") == _revision && data.String("token") == _state.String("token")) return;
+        if (data.String("number") != _state.String("number") || data.String("template") != _state.String("template")) Dirty = false;
         _state = data;
+        _roomTitle.Text = data.String("name") + " · Квартира " + data.String("number");
         if (Dirty && !_applying) { _status.Text = "Планировка на сервере изменилась. Сбросьте черновик для загрузки новой версии."; return; }
         _revision = data.Int("revision"); _applying = false;
         _catalog.RemoveAllChildren();
-        var options = data.Array("catalog").Select(i => (i.String("id"), i.String("name"))).ToArray();
+        var options = data.Array("catalog").Where(i => !i.Bool("existingOnly")).Select(i => (i.String("id"), i.String("name"))).ToArray();
         _furniture = options.FirstOrDefault().Item1 ?? "";
         NativeInterfacePanel.Options(_catalog, options, id => _furniture = id);
         Reset();
@@ -59,7 +72,8 @@ public sealed class NativeApartmentEditor : BoxContainer
 
     public void Receive(NativeUiData data)
     {
-        if (data.String("message").Length > 0) _status.Text = data.String("message");
+        var message = data.String("status", data.String("message"));
+        if (message.Length > 0) { _status.Text = message; _applying = false; }
         if (data.Bool("success")) { Dirty = false; _applying = false; }
     }
     private void Reset()
@@ -78,17 +92,19 @@ public sealed class NativeApartmentEditor : BoxContainer
     private void Send(string action, TguiData? data = null) => _send(action, (data ?? new TguiData()).ToString());
     private void Refresh()
     {
+        _plan.Update(_state, _draft);
         _list.RemoveAllChildren();
         for (var i = 0; i < _draft.Count; i++)
         {
             var index = i; var p = NativeUiData.Parse(_draft[i].ToString());
             var row = NativeInterfacePanel.Row(); _list.AddChild(row);
-            NativeInterfacePanel.Text(row, $"{p.String("furniture")} ({p.String("x")}, {p.String("y")}) {p.String("rotation")}°");
-            NativeInterfacePanel.Button(row, "Удалить", () => { if (_applying) return; _draft.RemoveAt(index); _ids.RemoveAt(index); Changed(); });
+            var definition = _state.Array("catalog").FirstOrDefault(item => item.String("id") == p.String("furniture"));
+            NativeInterfacePanel.Text(row, $"{definition?.String("name") ?? p.String("furniture")} ({p.String("x")}, {p.String("y")}) {p.Int("rotation") * 90}°");
+            if (definition?.Bool("existingOnly") != true) NativeInterfacePanel.Button(row, "Удалить", () => { if (_applying) return; _draft.RemoveAt(index); _ids.RemoveAt(index); Changed(); });
             NativeInterfacePanel.Button(row, "Переместить", () =>
             {
-                if (_applying || !int.TryParse(_x.Text, out var x) || !int.TryParse(_y.Text, out var y) || !int.TryParse(_rotation.Text, out var rotation)) return;
-                _draft[index] = new TguiData().String("id", _ids[index]).String("furniture", p.String("furniture")).Number("x", x).Number("y", y).Number("rotation", rotation);
+                if (_applying || !int.TryParse(_x.Text, out var x) || !int.TryParse(_y.Text, out var y) || !int.TryParse(_rotation.Text, out var rotation) || rotation < 0 || rotation > 270 || rotation % 90 != 0) return;
+                _draft[index] = new TguiData().String("id", _ids[index]).String("furniture", p.String("furniture")).Number("x", x).Number("y", y).Number("rotation", rotation / 90);
                 Changed();
             });
         }

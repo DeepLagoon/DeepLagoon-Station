@@ -5,10 +5,10 @@ using Content.Shared.Actions.Events;
 
 namespace Content.Shared.Abilities.Psionics
 {
-    public sealed class MassSleepPowerSystem : EntitySystem
+    public sealed partial class MassSleepPowerSystem : EntitySystem
     {
-        [Dependency] private readonly EntityLookupSystem _lookup = default!;
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private EntityLookupSystem _lookup = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
 
         public override void Initialize()
         {

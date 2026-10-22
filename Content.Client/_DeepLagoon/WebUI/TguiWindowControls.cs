@@ -54,7 +54,7 @@ public sealed class TguiWindowControls
     {
         _window = window;
         var buttonSize = new Vector2(26, 22);
-        var minimize = new Button { Text = "—", ToolTip = "Свернуть окно", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
+        var minimize = new Button { Name = "MinimizeButton", Text = "—", ToolTip = "Свернуть окно", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
         _maximize = new Button { Text = "□", ToolTip = "Развернуть на весь экран", MinSize = buttonSize, MaxSize = buttonSize, VerticalAlignment = Control.VAlignment.Center };
         minimize.AddStyleClass("ButtonSquare");
         _maximize.AddStyleClass("ButtonSquare");
@@ -188,6 +188,7 @@ public sealed class TguiWindowControls
             if (_controls._window.Disposed || _controls._window.Parent != Parent) { UserInterfaceManager.DeferAction(_controls.RemoveRestoreButton); return; }
             _controls.PositionRestoreButton();
         }
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
         protected override void Dispose(bool disposing)
         {
             Minimized.Remove(this);

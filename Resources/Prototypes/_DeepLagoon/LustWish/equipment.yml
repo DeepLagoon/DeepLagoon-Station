@@ -1,0 +1,723 @@
+- type: entity
+  parent: BaseItem
+  id: DLLustWishCollar
+  name: tagged collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Collar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/Collar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishChoker
+  name: choker
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Choker.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/Choker.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishThinChoker
+  name: thin choker
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ThinChoker.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/ThinChoker.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishBellCollar
+  name: bell collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/BellCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/BellCollar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishCowCollar
+  name: cowbell collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/CowCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/CowCollar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishCrossCollar
+  name: cross collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/CrossCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/CrossCollar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishSpikeCollar
+  name: spiked collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SpikeCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/SpikeCollar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishKinkCollar
+  name: wide collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/KinkCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: neck
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/KinkCollar.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishMittens
+  name: restrictive mittens
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Mittens.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: hands
+    restrictHands: true
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/Mittens.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishHypnoGlasses
+  name: hypnotic glasses
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/HypnoGlasses.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: eyes
+    hypnosis: true
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/HypnoGlasses.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishSensoryHood
+  name: sensory hood
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/SensoryHood.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: head
+    blind: true
+    deaf: true
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/SensoryHood.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishHeadphones
+  name: soundproof headphones
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Headphones.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: ears
+    deaf: true
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/Headphones.rsi
+      state: worn
+- type: entity
+  parent: BaseItem
+  id: DLLustWishRope
+  name: wrist rope
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Rope.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: wrists
+    restrictHands: true
+- type: entity
+  parent: BaseItem
+  id: DLLustWishAnkleRope
+  name: ankle rope
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/AnkleRope.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishAccessory
+    slot: ankles
+    restrictLegs: true
+- type: entity
+  parent: BaseItem
+  id: DLLustWishLeash
+  name: leash
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Leash.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: LustWishLeash
+- type: entity
+  parent: BaseItem
+  id: DLLustWishKey
+  name: accessory key
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Key.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishKey
+- type: entity
+  parent: BaseItem
+  id: DLLustWishRemote
+  name: accessory remote
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Remote.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishRemote
+- type: entity
+  parent: BaseItem
+  id: DLLustWishRemoteMassager
+  name: remote torso massager
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/RemoteMassager.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishAccessory
+    slot: torso
+    electronic: true
+    shock: false
+  - type: PowerCellSlot
+    cellSlotId: cell_slot
+  - type: ContainerContainer
+    containers:
+      cell_slot: !type:ContainerSlot {}
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default
+        startingItem: PowerCellMedium
+        whitelist:
+          components:
+          - PowerCell
+- type: entity
+  parent: BaseItem
+  id: DLLustWishShockCollar
+  name: electric collar
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ShockCollar.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishAccessory
+    slot: neck
+    electronic: true
+    shock: true
+    wornSprite:
+      sprite: _DeepLagoon/LustWish/ShockCollar.rsi
+      state: worn
+  - type: PowerCellSlot
+    cellSlotId: cell_slot
+  - type: ContainerContainer
+    containers:
+      cell_slot: !type:ContainerSlot {}
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default
+        startingItem: PowerCellMedium
+        whitelist:
+          components:
+          - PowerCell
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishColorMaid
+  name: recolorable maid costume
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ColorMaid.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/ColorMaid.rsi
+- type: entity
+  parent: ClothingUniformBase
+  id: DLLustWishColorClubSuit
+  name: recolorable club outfit
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/ColorClubSuit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Clothing
+    sprite: _DeepLagoon/LustWish/ColorClubSuit.rsi
+- type: entity
+  parent: BaseItem
+  id: DLLustWishWipe
+  name: disposable wipe
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Wipe.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: Absorbent
+    pickupAmount: 10
+  - type: SolutionContainerManager
+    solutions:
+      absorbed:
+        maxVol: 10
+  - type: LustWishWipe
+- type: entity
+  parent: BaseItem
+  id: DLLustWishWipePack
+  name: pack of wipes
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/WipePack.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPack
+    contents: DLLustWishWipe
+    count: 4
+- type: entity
+  parent: Bed
+  id: DLLustWishPaddedBed
+  name: padded restraint bed
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/PaddedBed.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Construction
+    graph: DLLustWishPaddedBed
+    node: built
+  - type: Strap
+    position: Down
+    rotation: -90
+- type: entity
+  parent: BaseItem
+  id: DLLustWishPaddedBedKit
+  name: padded restraint bed construction kit
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/PaddedBedKit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishFurnitureKit
+    furniture: DLLustWishPaddedBed
+- type: entity
+  parent: ChairBase
+  id: DLLustWishXStand
+  name: cross stand
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/XStand.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Construction
+    graph: DLLustWishXStand
+    node: built
+  - type: Strap
+    position: Stand
+    rotation: 0
+- type: entity
+  parent: BaseItem
+  id: DLLustWishXStandKit
+  name: cross stand construction kit
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/XStandKit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishFurnitureKit
+    furniture: DLLustWishXStand
+- type: entity
+  parent: ChairBase
+  id: DLLustWishRopeStand
+  name: rope stand
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/RopeStand.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Construction
+    graph: DLLustWishRopeStand
+    node: built
+  - type: Strap
+    position: Stand
+    rotation: 0
+- type: entity
+  parent: BaseItem
+  id: DLLustWishRopeStandKit
+  name: rope stand construction kit
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/RopeStandKit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishFurnitureKit
+    furniture: DLLustWishRopeStand
+- type: entity
+  parent: BaseStructure
+  id: DLLustWishDancePole
+  name: dance pole
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/DancePole.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishPalette
+  - type: Construction
+    graph: DLLustWishDancePole
+    node: built
+- type: entity
+  parent: BaseItem
+  id: DLLustWishDancePoleKit
+  name: dance pole construction kit
+  description: Equipment from the LustWish collection. Manage attachments through
+    the Interaction Panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/DancePoleKit.rsi
+    state: icon
+  - type: StaticPrice
+    price: 25
+  - type: LustWishFurnitureKit
+    furniture: DLLustWishDancePole
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLButtGrowthBottle
+  name: hips growth reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLButtGrowth
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLBellyGrowthBottle
+  name: belly growth reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLBellyGrowth
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLBreastsGrowthBottle
+  name: chest growth reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLBreastsGrowth
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLPenisGrowthBottle
+  name: body feature growth reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLPenisGrowth
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLButtReductionBottle
+  name: hips reduction reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLButtReduction
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLBellyReductionBottle
+  name: belly reduction reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLBellyReduction
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLBreastsReductionBottle
+  name: chest reduction reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLBreastsReduction
+          Quantity: 30
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishDLPenisReductionBottle
+  name: body feature reduction reagent bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLPenisReduction
+          Quantity: 30
+- type: constructionGraph
+  id: DLLustWishPaddedBed
+  start: built
+  graph:
+  - node: built
+    entity: DLLustWishPaddedBed
+    edges:
+    - to: packed
+      steps:
+      - tool: Screwing
+        doAfter: 3
+      conditions:
+      - !type:NFStrapEmpty
+      completed:
+      - !type:SpawnPrototype
+        prototype: DLLustWishPaddedBedKit
+        amount: 1
+  - node: packed
+    actions:
+    - !type:DestroyEntity
+- type: constructionGraph
+  id: DLLustWishXStand
+  start: built
+  graph:
+  - node: built
+    entity: DLLustWishXStand
+    edges:
+    - to: packed
+      steps:
+      - tool: Screwing
+        doAfter: 3
+      conditions:
+      - !type:NFStrapEmpty
+      completed:
+      - !type:SpawnPrototype
+        prototype: DLLustWishXStandKit
+        amount: 1
+  - node: packed
+    actions:
+    - !type:DestroyEntity
+- type: constructionGraph
+  id: DLLustWishRopeStand
+  start: built
+  graph:
+  - node: built
+    entity: DLLustWishRopeStand
+    edges:
+    - to: packed
+      steps:
+      - tool: Screwing
+        doAfter: 3
+      conditions:
+      - !type:NFStrapEmpty
+      completed:
+      - !type:SpawnPrototype
+        prototype: DLLustWishRopeStandKit
+        amount: 1
+  - node: packed
+    actions:
+    - !type:DestroyEntity
+- type: constructionGraph
+  id: DLLustWishDancePole
+  start: built
+  graph:
+  - node: built
+    entity: DLLustWishDancePole
+    edges:
+    - to: packed
+      steps:
+      - tool: Screwing
+        doAfter: 3
+      conditions:
+      - !type:NFStrapEmpty
+      completed:
+      - !type:SpawnPrototype
+        prototype: DLLustWishDancePoleKit
+        amount: 1
+  - node: packed
+    actions:
+    - !type:DestroyEntity

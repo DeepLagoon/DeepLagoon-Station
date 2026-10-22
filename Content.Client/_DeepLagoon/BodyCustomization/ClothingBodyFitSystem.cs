@@ -26,7 +26,7 @@ namespace Content.Client._DeepLagoon.BodyCustomization;
 /// appearance/equipment changes; the original RSI still supplies animation, direction, lighting and tint.
 /// No RSI or texture shared with another character is modified.
 /// </summary>
-public sealed class ClothingBodyFitSystem : EntitySystem
+public sealed partial class ClothingBodyFitSystem : EntitySystem
 {
     private const string ShaderId = "DeepLagoonClothingBodyFit";
     private const int IdleCacheLimit = 128;

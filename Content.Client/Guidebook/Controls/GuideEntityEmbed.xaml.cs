@@ -123,6 +123,7 @@ public sealed partial class GuideEntityEmbed : BoxContainer, IDocumentTag
         }
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -135,7 +136,7 @@ public sealed partial class GuideEntityEmbed : BoxContainer, IDocumentTag
     {
         if (!args.TryGetValue("Entity", out var proto))
         {
-            Logger.Error("Entity embed tag is missing entity prototype argument");
+            Logger.GetSawmill(Robust.Shared.Log.LogManager.ROOT).Error("Entity embed tag is missing entity prototype argument");
             control = null;
             return false;
         }

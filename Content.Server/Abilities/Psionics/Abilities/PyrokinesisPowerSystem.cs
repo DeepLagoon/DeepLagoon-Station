@@ -6,11 +6,11 @@ using Content.Shared.Actions.Events;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class PyrokinesisPowerSystem : EntitySystem
+    public sealed partial class PyrokinesisPowerSystem : EntitySystem
     {
-        [Dependency] private readonly FlammableSystem _flammableSystem = default!;
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-        [Dependency] private readonly PopupSystem _popupSystem = default!;
+        [Dependency] private FlammableSystem _flammableSystem = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private PopupSystem _popupSystem = default!;
 
         public override void Initialize()
         {

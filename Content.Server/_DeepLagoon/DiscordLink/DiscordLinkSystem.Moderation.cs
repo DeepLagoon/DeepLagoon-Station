@@ -20,11 +20,11 @@ namespace Content.Server._DeepLagoon.DiscordLink;
 
 public sealed partial class DiscordLinkSystem
 {
-    [Dependency] private readonly IBanManager _bans = default!;
-    [Dependency] private readonly IAdminManager _admins = default!;
-    [Dependency] private readonly IAdminNotesManager _notes = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly IPlayerLocator _locator = default!;
+    [Dependency] private IBanManager _bans = default!;
+    [Dependency] private IAdminManager _admins = default!;
+    [Dependency] private IAdminNotesManager _notes = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private IPlayerLocator _locator = default!;
 
     // This route shares the loopback-only bot token gate, never the enrollment key.
     // The bot verifies Discord roles and resolves canonical UIDs through the main slot.

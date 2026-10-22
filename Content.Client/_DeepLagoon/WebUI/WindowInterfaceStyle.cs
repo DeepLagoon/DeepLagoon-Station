@@ -87,7 +87,8 @@ public static class WindowInterfaceStyle
         if (owner is FancyWindow or DefaultWindow)
         {
             var close = owner.FindControl<TextureButton>("CloseButton");
-            var index = close.GetPositionInParent();
+            var anchor = close.Parent!.Children.FirstOrDefault(child => child.Name == "MinimizeButton") ?? close;
+            var index = anchor.GetPositionInParent();
             close.Parent!.AddChild(button);
             button.SetPositionInParent(index);
         }

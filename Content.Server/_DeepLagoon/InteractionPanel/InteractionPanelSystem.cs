@@ -29,7 +29,8 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     [Dependency] private PopupSystem _popup = default!;
     [Dependency] private AudioSystem _audio = default!;
     [Dependency] private IChatManager _chat = default!;
-    [Dependency] private InteractionPanelManaSystem _mana = default!;
+    [Dependency] private InteractionPanelArousalSystem _arousal = default!;
+    [Dependency] private Content.Server._DeepLagoon.LustWish.LustWishPortalSystem _portals = default!;
     [Dependency] private IGameTiming _timing = default!;
 
     private readonly Dictionary<EntityUid, Panel> _panels = new();
@@ -74,7 +75,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     private void OnMobStartup(EntityUid uid, MobStateComponent component, ComponentStartup args)
     {
         EnsureComp<InteractionPanelPreferencesComponent>(uid);
-        _mana.InitializeMob(uid);
+        _arousal.InitializeMob(uid);
     }
 
     private void OnProfile(EntityUid uid, HumanoidAppearanceComponent component, ref InteractionPanelProfileLoadedEvent args) =>
@@ -86,11 +87,15 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         : TryComp<InteractionPanelPreferencesComponent>(uid, out var preferences)
             ? preferences.Profile.GetInteractionPanelConsent(category) : InteractionPanelConsent.Ask;
 
+    public bool CanAccessEquipment(EntityUid user, EntityUid target) =>
+        _panels.TryGetValue(user, out var panel) && panel.Target == target && panel.Expires > _timing.CurTime &&
+        panel.Session.AttachedEntity == user && Exists(user) && Exists(target);
+
     private bool CanReach(EntityUid user, EntityUid target) =>
         Exists(user) && Exists(target) &&
         TryComp<MobStateComponent>(user, out var userMob) && userMob.CurrentState == MobState.Alive &&
         TryComp<MobStateComponent>(target, out var targetMob) && targetMob.CurrentState == MobState.Alive &&
-        _blocker.CanInteract(user, target) && _interaction.InRangeAndAccessible(user, target);
+        _blocker.CanInteract(user, target) && (_interaction.InRangeAndAccessible(user, target) || _portals.CanRelay(user, target));
 
     private bool HasPlayer(EntityUid target) =>
         TryComp<ActorComponent>(target, out var actor) && actor.PlayerSession.AttachedEntity == target &&
@@ -117,9 +122,10 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         OpenPanel(user, entity);
     }
 
-    private void OpenPanel(EntityUid user, EntityUid target)
+    public void OpenPanel(EntityUid user, EntityUid target)
     {
-        if (!CanReach(user, target) || !TryComp<ActorComponent>(user, out var actor)) return;
+        if ((!CanReach(user, target) && !(user == target && TryComp<MobStateComponent>(user, out var mob) && mob.CurrentState == MobState.Alive &&
+            _blocker.CanConsciouslyPerformAction(user))) || !TryComp<ActorComponent>(user, out var actor)) return;
         if (!InteractionPanelActions.DebugConsentOverride && !HasPlayer(target))
         {
             _popup.PopupEntity(Loc.GetString("dl-interaction-panel-no-player"), target, user);
@@ -264,10 +270,10 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         foreach (var participant in new[] { user, target }.Distinct())
             if (TryComp<ActorComponent>(participant, out var actor))
                 _chat.ChatMessageToOne(ChatChannel.Emotes, message, wrapped, EntityUid.Invalid, false, actor.PlayerSession.Channel, color);
-        _mana.PlayActionSound(target, action);
-        _mana.AddMana(user, target, action.ManaGain);
+        _arousal.PlayActionSound(target, action);
+        _arousal.AdjustArousal(user, target, action.ArousalGain);
         if (action.Effect != null) Spawn(action.Effect, new EntityCoordinates(target, Vector2.Zero));
-        if (action.Animation != null) RaiseNetworkEvent(new InteractionPanelAnimationEvent(GetNetEntity(user), GetNetEntity(target), action.Animation.Clamped()), Filter.Pvs(user));
+        if (action.Animation != null && _interaction.InRangeAndAccessible(user, target)) RaiseNetworkEvent(new InteractionPanelAnimationEvent(GetNetEntity(user), GetNetEntity(target), action.Animation.Clamped()), Filter.Pvs(user));
         if (_repeats.TryGetValue((user, action.Category), out var repeat)) repeat.Next = _timing.CurTime + TimeSpan.FromSeconds(repeat.Interval);
         Status(user, _repeats.Keys.Any(k => k.User == user) ? "dl-interaction-panel-repeating" : "dl-interaction-panel-done");
     }

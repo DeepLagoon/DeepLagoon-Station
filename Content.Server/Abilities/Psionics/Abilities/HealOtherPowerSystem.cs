@@ -18,19 +18,19 @@ using Content.Shared.Psionics.Glimmer;
 
 namespace Content.Server.Abilities.Psionics;
 
-public sealed class RevivifyPowerSystem : EntitySystem
+public sealed partial class RevivifyPowerSystem : EntitySystem
 {
-    [Dependency] private readonly AudioSystem _audioSystem = default!;
-    [Dependency] private readonly DoAfterSystem _doAfterSystem = default!;
-    [Dependency] private readonly SharedPopupSystem _popupSystem = default!;
-    [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-    [Dependency] private readonly IGameTiming _gameTiming = default!;
-    [Dependency] private readonly ExamineSystemShared _examine = default!;
-    [Dependency] private readonly DamageableSystem _damageable = default!;
-    [Dependency] private readonly RottingSystem _rotting = default!;
-    [Dependency] private readonly MobThresholdSystem _mobThreshold = default!;
-    [Dependency] private readonly MobStateSystem _mobState = default!;
-    [Dependency] private readonly GlimmerSystem _glimmer = default!;
+    [Dependency] private AudioSystem _audioSystem = default!;
+    [Dependency] private DoAfterSystem _doAfterSystem = default!;
+    [Dependency] private SharedPopupSystem _popupSystem = default!;
+    [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+    [Dependency] private IGameTiming _gameTiming = default!;
+    [Dependency] private ExamineSystemShared _examine = default!;
+    [Dependency] private DamageableSystem _damageable = default!;
+    [Dependency] private RottingSystem _rotting = default!;
+    [Dependency] private MobThresholdSystem _mobThreshold = default!;
+    [Dependency] private MobStateSystem _mobState = default!;
+    [Dependency] private GlimmerSystem _glimmer = default!;
 
     public override void Initialize()
     {

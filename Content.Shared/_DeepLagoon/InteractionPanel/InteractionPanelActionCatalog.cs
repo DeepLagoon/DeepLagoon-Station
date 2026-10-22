@@ -27,12 +27,14 @@ public sealed partial class InteractionPanelPrototype : IPrototype
     [DataField] public string? Sound;
     // При наличии sounds выбирается один ID из списка; пустой список отключает звук.
     [DataField] public string[]? Sounds;
-    [DataField] public float ManaGain;
+    [DataField] public float ArousalGain;
+    // Keep existing custom catalogs compatible.
+    [DataField("manaGain")] public float LegacyManaGain;
     [DataField] public string? Effect;
     [DataField] public InteractionPanelAnimationSettings? Animation;
     [DataField(required: true)] public Color ChatColor;
 
     public InteractionPanelActionDefinition Definition() => new(ID, Body, Category,
         Flags.Aggregate(InteractionPanelActionFlags.None, (all, flag) => all | flag),
-        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ManaGain: ManaGain, Sounds: Sounds);
+        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ArousalGain: ArousalGain != 0 ? ArousalGain : LegacyManaGain, Sounds: Sounds);
 }

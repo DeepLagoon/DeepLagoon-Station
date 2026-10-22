@@ -1,0 +1,7 @@
+lagoon-coin-received = Получено +{ $amount } Lagoon Coin: { $reason }. Баланс: { $balance } LC.
+lagoon-coin-reason-ready = вход в раунд по Ready
+lagoon-coin-reason-playtime = время игры
+lagoon-coin-reason-objective = выполненная цель антагониста
+lagoon-coin-reason-other = награда
+lagoon-coin-reward-title = +{ $amount } Lagoon Coin
+lagoon-coin-reward-detail = { $reason } · Баланс: { $balance } LC

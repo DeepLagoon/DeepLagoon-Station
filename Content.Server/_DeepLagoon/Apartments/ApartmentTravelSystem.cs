@@ -7,7 +7,6 @@ using Content.Server.Doors.Systems;
 using Content.Server.Construction.Completions;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Buckle.Components;
-using Content.Shared.Buckle;
 using Content.Shared.DoAfter;
 using Content.Shared.GameTicking;
 using Content.Shared.Interaction;
@@ -39,7 +38,6 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private PopupSystem _popup = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
-    [Dependency] private SharedBuckleSystem _buckle = default!;
     [Dependency] private ApartmentProtectionSystem _protection = default!;
 
     private sealed class Context
@@ -138,48 +136,14 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
         Publish(session); return true;
     }
 
-    private string Name(NetUserId user)
-    {
-        if (_apartments.TryGetVisit(user, out _, out var resident) && !Deleted(resident)) return MetaData(resident).EntityName;
-        return _players.TryGetSessionById(user, out var session) && session.AttachedEntity is { } body && !Deleted(body)
-            ? MetaData(body).EntityName : Loc.GetString("dl-apartment-offline-guest");
-    }
-
-    private bool EligibleGuest(ICommonSession session) => session.Status == SessionStatus.InGame && session.AttachedEntity is { } body &&
-        TryComp<MobStateComponent>(body, out var mob) && mob.CurrentState == MobState.Alive;
-
-    private bool CanInvite(ICommonSession owner, ICommonSession guest, EntityUid terminal)
-    {
-        if (owner.UserId == guest.UserId || !EligibleGuest(guest)) return false;
-        if (!HasComp<ApartmentEntranceComponent>(terminal)) return true;
-        return owner.AttachedEntity is { } body && guest.AttachedEntity is { } other &&
-            Transform(body).GridUid == Transform(other).GridUid && _interaction.InRangeUnobstructed(body, other);
-    }
-
     private void Publish(ICommonSession session, string message = "")
     {
         if (!_contexts.TryGetValue(session.UserId, out var context)) return;
         var atHome = _apartments.TryGetVisit(session.UserId, out var home, out _);
-        _apartments.Instances.TryGetValue(session.UserId, out var own);
-        _apartments.GuestPolicies.TryGetValue(session.UserId, out var access);
-        var canManage = access != null && (!atHome || home.Owner == session.UserId);
-        var inside = own == null ? new HashSet<NetUserId>() : _apartments.Visitors(own).ToHashSet();
-        access?.Prune(_timing.RealTime);
+        var canManage = atHome && home.Owner == session.UserId;
         var people = new List<ApartmentTravelPerson>();
-        if (canManage)
-        {
-            var users = _players.Sessions.Where(s => CanInvite(session, s, context.Terminal)).Select(s => s.UserId)
-                .Concat(inside).Concat(access!.Invitations.Keys.Select(id => new NetUserId(id))).Distinct().Where(id => id != session.UserId).Take(128);
-            foreach (var user in users)
-            {
-                var invited = access.MayEnter(user.UserId, _timing.RealTime);
-                var seconds = invited ? (int) (access.Invitations[user.UserId] - _timing.RealTime).TotalSeconds : 0;
-                people.Add(new ApartmentTravelPerson(user.UserId, Name(user), invited, inside.Contains(user), seconds));
-            }
-        }
-        var invitations = _apartments.GuestPolicies.Where(i => i.Key != session.UserId && i.Value.MayEnter(session.UserId.UserId, _timing.RealTime))
-            .Take(32).Select(i => new ApartmentTravelPerson(i.Key.UserId, Name(i.Key))).ToList();
-        RaiseNetworkEvent(new ApartmentTravelStateEvent(context.Token, atHome, canManage, access?.Open ?? true,
+        var invitations = new List<ApartmentTravelPerson>();
+        RaiseNetworkEvent(new ApartmentTravelStateEvent(context.Token, atHome, canManage, true,
             !atHome && TryBoardingStop(context.Terminal, out _), _trips.ContainsKey(session.UserId), people, invitations, message), session);
     }
 
@@ -195,8 +159,6 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
         if (_trips.ContainsKey(session.UserId)) { Publish(session, Loc.GetString("dl-apartment-trip-pending")); return; }
         var target = new NetUserId(ev.Target);
         var message = "";
-        var managing = _apartments.GuestPolicies.TryGetValue(session.UserId, out var access) &&
-            (!_apartments.TryGetVisit(session.UserId, out var home, out _) || home.Owner == session.UserId);
         switch (ev.Action)
         {
             case ApartmentTravelAction.Refresh: break;
@@ -204,38 +166,8 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
             case ApartmentTravelAction.Visit: message = Begin(session, context.Terminal, target, false); break;
             case ApartmentTravelAction.Return: message = Begin(session, context.Terminal, session.UserId, true); break;
             case ApartmentTravelAction.Edit:
-                if (_apartments.OpenEditor(session)) Close(session);
+                if (_apartments.OpenEditor(session, context.Terminal)) Close(session);
                 else message = Loc.GetString("dl-apartment-owner-only");
-                break;
-            case ApartmentTravelAction.Invite when managing:
-                if (!_players.TryGetSessionById(target, out var guest) || !CanInvite(session, guest, context.Terminal) ||
-                    !_apartments.Invite(session.UserId, target)) message = Loc.GetString("dl-apartment-invite-denied");
-                else
-                {
-                    message = Loc.GetString("dl-apartment-invite-sent");
-                    _popup.PopupCursor(Loc.GetString("dl-apartment-invited", ("owner", Name(session.UserId))), guest);
-                    Publish(guest);
-                }
-                break;
-            case ApartmentTravelAction.Revoke when managing: access!.Revoke(ev.Target); message = Loc.GetString("dl-apartment-invite-revoked"); break;
-            case ApartmentTravelAction.CloseEntry when managing: access!.SetOpen(false); message = Loc.GetString("dl-apartment-entry-closed"); break;
-            case ApartmentTravelAction.OpenEntry when managing: access!.SetOpen(true); message = Loc.GetString("dl-apartment-entry-open"); break;
-            case ApartmentTravelAction.Kick when managing:
-                access!.Revoke(ev.Target);
-                if (target == session.UserId || !_apartments.TryGetVisit(target, out var guestHome, out var guestBody) || guestHome.Owner != session.UserId)
-                    message = Loc.GetString("dl-apartment-guest-missing");
-                else
-                {
-                    CancelTrip(target);
-                    if (PrepareReturn(target))
-                    {
-                        if (TryComp<BuckleComponent>(guestBody, out var buckle) && buckle.Buckled) _buckle.Unbuckle((guestBody, buckle), session.AttachedEntity);
-                        _apartments.Leave(target, out message);
-                    }
-                    else message = Loc.GetString("dl-apartment-return-unavailable");
-                    if (_players.TryGetSessionById(target, out var kicked) && kicked.Status != SessionStatus.Disconnected)
-                    { Close(kicked); _popup.PopupCursor(message, kicked); }
-                }
                 break;
             default: message = Loc.GetString("dl-apartment-owner-only"); break;
         }
@@ -244,6 +176,7 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
 
     private string Begin(ICommonSession session, EntityUid terminal, NetUserId owner, bool returning)
     {
+        if (Transform(terminal).GridUid is { } grid && HasElevator(grid)) return "Воспользуйтесь пультом лифта.";
         if (!CanUse(session, terminal) || session.AttachedEntity is not { } body) return Loc.GetString("dl-apartment-terminal-required");
         if (_trips.ContainsKey(session.UserId)) return Loc.GetString("dl-apartment-trip-pending");
         if (TryComp<BuckleComponent>(body, out var buckle) && buckle.Buckled) return Loc.GetString("dl-apartment-unbuckle");
@@ -257,8 +190,7 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
         {
             if (_apartments.TryGetVisit(session.UserId, out _, out _) || !TryBoardingStop(terminal, out var boarding)) return Loc.GetString("dl-apartment-boarding-required");
             stop = boarding;
-            if (owner != session.UserId && (!_apartments.GuestPolicies.TryGetValue(owner, out var access) || !access.MayEnter(session.UserId.UserId, _timing.RealTime)))
-                return Loc.GetString("dl-apartment-invite-required");
+
         }
         var trip = new Trip { Ticket = Guid.NewGuid(), User = session.UserId, Owner = owner, Body = body, Terminal = terminal,
             Stop = stop, Returning = returning, Expires = _timing.RealTime + TimeSpan.FromSeconds(30) };
@@ -310,6 +242,12 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
 
     private void OnLeaveRequested(ApartmentLeaveRequestedEvent ev)
     {
+        if (_apartments.TryGetVisit(ev.User, out var apartment, out _) && HasElevator(apartment.Grid))
+        {
+            ev.Handled = true;
+            ev.Message = "Для возвращения воспользуйтесь пультом лифта.";
+            return;
+        }
         if (!_apartments.UsesResidentialTransit(ev.User)) return;
         ev.Handled = true;
         if (!_apartments.Enabled)
@@ -361,6 +299,7 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
             {
                 if (!transform.Anchored || transform.GridUid is not { } grid || !hubs.Contains(grid) ||
                     HasComp<DockingComponent>(airlock)) continue;
+                if (HasElevator(grid)) { RemComp<ApartmentEntranceComponent>(airlock); continue; }
                 EnsureComp<ApartmentEntranceComponent>(airlock);
                 _doors.SetState(airlock, DoorState.Closed);
             }
@@ -378,6 +317,14 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
             if (!_apartments.Enabled || trip.Expires <= _timing.RealTime || Deleted(trip.Body) ||
                 !_players.TryGetSessionById(trip.User, out var session) || session.Status != SessionStatus.InGame || session.AttachedEntity != trip.Body) CancelTrip(trip.User);
         foreach (var user in _returnStops.Keys.ToArray()) if (!_apartments.TryGetVisit(user, out _, out _)) _returnStops.Remove(user);
+    }
+
+    private bool HasElevator(EntityUid grid)
+    {
+        var query = EntityQueryEnumerator<ApartmentElevatorComponent, TransformComponent>();
+        while (query.MoveNext(out _, out _, out var transform))
+            if (transform.GridUid == grid && transform.Anchored) return true;
+        return false;
     }
 
     private void Cleanup()

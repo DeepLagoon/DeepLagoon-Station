@@ -6,12 +6,12 @@ using Content.Shared.Actions.Events;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class NoosphericZapPowerSystem : EntitySystem
+    public sealed partial class NoosphericZapPowerSystem : EntitySystem
     {
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-        [Dependency] private readonly StunSystem _stunSystem = default!;
-        [Dependency] private readonly StatusEffectsSystem _statusEffectsSystem = default!;
-        [Dependency] private readonly BeamSystem _beam = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private StunSystem _stunSystem = default!;
+        [Dependency] private StatusEffectsSystem _statusEffectsSystem = default!;
+        [Dependency] private BeamSystem _beam = default!;
 
 
         public override void Initialize()

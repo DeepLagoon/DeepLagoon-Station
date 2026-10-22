@@ -39,6 +39,7 @@ public sealed class ApartmentIntegrationTests
             var entities = pair.Server.EntMan;
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentStudio");
             Assert.That(config.GetCVar(ApartmentCVars.LoadedLimit), Is.EqualTo(30));
             var session = pair.Server.PlayerMan.Sessions.Single();
             var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
@@ -86,8 +87,9 @@ public sealed class ApartmentIntegrationTests
         await pair.CleanReturnAsync();
     }
 
-    [Test]
-    public async Task LatejoinSpawnsInOwnApartmentOnlyWhenEnabled()
+    [TestCase("DLApartmentStudio")]
+    [TestCase("DLApartmentBasic")]
+    public async Task LatejoinSpawnsInOwnApartmentOnlyWhenEnabled(string template)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         var testMap = await pair.CreateTestMap();
@@ -114,6 +116,7 @@ public sealed class ApartmentIntegrationTests
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
 
             config.SetCVar(ApartmentCVars.Enabled, true);
+            config.SetCVar(ApartmentCVars.DefaultTemplate, template);
             SpawnComplete(false);
             Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
@@ -123,12 +126,31 @@ public sealed class ApartmentIntegrationTests
             Assert.That(home.Owner, Is.EqualTo(session.UserId));
             Assert.That(resident, Is.EqualTo(body));
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(home.Grid));
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var beds = new List<EntityUid>();
+            var query = entities.EntityQueryEnumerator<TransformComponent, MetaDataComponent>();
+            while (query.MoveNext(out var uid, out var transform, out var metadata))
+                if (transform.ParentUid == home.Grid && metadata.EntityPrototype is { } prototype &&
+                    prototypes.EnumerateParents(prototype, includeSelf: true).Any(parent => parent.ID == "Bed"))
+                    beds.Add(uid);
+            Assert.That(beds, Is.Not.Empty);
+            var spawn = entities.GetComponent<TransformComponent>(body).Coordinates;
+            Assert.That(beds.Any(bed => entities.GetComponent<TransformComponent>(bed).Coordinates == spawn), Is.True);
             Assert.That(entities.GetComponent<MetaDataComponent>(uniform).EntityPaused, Is.True);
 
-            Assert.That(system.RequestLeave(session.UserId, out var message), Is.True, message);
+            Assert.That(system.Leave(session.UserId, out var message), Is.True, message);
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
             Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var restored), Is.True);
             Assert.That(restored, Is.EqualTo(uniform));
+            Assert.That(system.Enter(session, session.UserId, out message), Is.True, message);
+            var arrival = new EntityCoordinates(home.Grid, home.Template.Arrival.X + .5f, home.Template.Arrival.Y + .5f);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(arrival));
+            foreach (var bed in beds) entities.DeleteEntity(bed);
+            Assert.That(system.Leave(session.UserId, out message), Is.True, message);
+            SpawnComplete(true);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(arrival));
+            Assert.That(system.Leave(session.UserId, out message), Is.True, message);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
         });
@@ -149,6 +171,7 @@ public sealed class ApartmentIntegrationTests
             var entities = pair.Server.EntMan;
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentStudio");
             body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
             var session = pair.Server.PlayerMan.Sessions.Single();
             pair.Server.PlayerMan.SetAttachedEntity(session, body);
@@ -169,7 +192,7 @@ public sealed class ApartmentIntegrationTests
                 .GetLocalVerbs(terminal, body, typeof(AlternativeVerb), force: true).Select(verb => verb.Text).ToArray();
             Assert.That(verbs, Does.Contain(Loc.GetString("dl-apartment-exit")));
             Assert.That(verbs, Does.Contain(Loc.GetString("dl-apartment-edit")));
-            Assert.That(verbs, Does.Contain(Loc.GetString("dl-apartment-travel-menu")));
+            Assert.That(verbs, Does.Not.Contain(Loc.GetString("dl-apartment-travel-menu")));
         });
         await pair.RunTicksSync(35);
         await pair.Server.WaitAssertion(() =>

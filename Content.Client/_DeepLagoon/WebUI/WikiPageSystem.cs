@@ -5,10 +5,10 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Client._DeepLagoon.WebUI;
 
-public sealed class WikiPageSystem : EntitySystem
+public sealed partial class WikiPageSystem : EntitySystem
 {
-    [Dependency] private readonly IUserInterfaceManager _ui = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private IUserInterfaceManager _ui = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
     public override void Initialize()
     {
         base.Initialize();

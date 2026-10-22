@@ -50,6 +50,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         SubscribeNetworkEvent<GridEditorStateEvent>(Open);
         SubscribeNetworkEvent<GridEditorPatchEvent>(Patch);
         SubscribeNetworkEvent<GridEditorAtmosResult>(AtmosResult);
+        SubscribeNetworkEvent<GridEditorEnvironmentState>(EnvironmentState);
         SubscribeNetworkEvent<GridEditorDraftsEvent>(PeerDrafts);
         SubscribeNetworkEvent<GridEditorResultEvent>((ev) => _window?.Panel.Web.Send("update",
             new TguiData().Object("data", new TguiData().String("status", ev.Message).Bool("success", ev.Success)
@@ -88,6 +89,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         _uploadId = null; _upload.Clear();
         _state = ev;
+        _environmentState = null;
         _previewGeneration = 0; _peerDrafts.Clear(); _previewId = null; _preview.Clear();
         _patchVersion = 0; _pendingPatches.Clear();
         if (_window == null)
@@ -119,7 +121,19 @@ public sealed partial class GridEditorSystem : EntitySystem
         _window.Panel.SetState("GridEditor", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
+            .Bool("alwaysPowered", _environmentState?.AlwaysPowered ?? false).Bool("forceGravity", _environmentState?.ForceGravity ?? false)
+            .Bool("safeAtmosphere", _environmentState?.SafeAtmosphere ?? false).Bool("apartmentProtected", _environmentState?.ApartmentProtected ?? false)
             .Number("previewGeneration", _previewGeneration).Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals).ToString(), "Редактор grid");
+    }
+
+    private GridEditorEnvironmentState? _environmentState;
+    private void EnvironmentState(GridEditorEnvironmentState state)
+    {
+        if (_state == null || _state.Token != state.Token) return;
+        _environmentState = state;
+        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            .Bool("alwaysPowered", state.AlwaysPowered).Bool("forceGravity", state.ForceGravity)
+            .Bool("safeAtmosphere", state.SafeAtmosphere).Bool("apartmentProtected", state.ApartmentProtected)).ToString());
     }
 
     private int _atmosVersion;
@@ -200,7 +214,8 @@ public sealed partial class GridEditorSystem : EntitySystem
         _searchQuery = query; _searchCategory = category;
         _catalog ??= _prototypes.EnumeratePrototypes<EntityPrototype>().Where(p => !p.Abstract && !p.HideSpawnMenu)
             .Select(p => new Entry(p.ID, "entity", p.TryGetComponent<TagComponent>(out var tag) && _tags.HasTag(tag, "Wall") ? "wall" : "entity",
-                p.Name, p.Components.ContainsKey("Anchorable")))
+                p.Name, p.Components.ContainsKey("Anchorable") ||
+                    p.TryGetComponent<TransformComponent>(out var transform) && transform.Anchored))
             .Concat(_prototypes.EnumeratePrototypes<ContentTileDefinition>().Where(p => !p.Abstract && p.TileId != 0)
                 .Select(p => new Entry(p.ID, "tile", "tile", Loc.GetString(p.Name), false)))
             .Concat(_prototypes.EnumeratePrototypes<DecalPrototype>().Select(p => new Entry(p.ID, "decal", "decal", p.ID, false)))
@@ -236,6 +251,12 @@ public sealed partial class GridEditorSystem : EntitySystem
             {
                 if (int.TryParse(Field(root, "version"), out var version) && version <= _patchVersion)
                     _pendingPatches.RemoveAll(entry => entry.Version <= version);
+                return;
+            }
+            if (action is "setGridPower" or "setGridGravity")
+            {
+                RaiseNetworkEvent(new GridEditorEnvironmentRequest(_state.Token,
+                    action == "setGridPower" ? "power" : "gravity", Field(root, "enabled") == "true"));
                 return;
             }
             if (action is "diagnoseAtmos" or "fillAtmos")

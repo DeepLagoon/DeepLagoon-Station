@@ -11,6 +11,48 @@ namespace Content.Tests.Shared;
 [TestFixture]
 public sealed class ApartmentLayoutTests
 {
+    [Test]
+    public void MapSceneValidatesActualFloorsFixturesAndExistingCorridors()
+    {
+        var template = Template();
+        var scene = new ApartmentRoomScene { Width = 8, Height = 8 };
+        foreach (var cell in new[] { new Vector2i(1, 1), new Vector2i(2, 1), new Vector2i(3, 1), new Vector2i(3, 2), new Vector2i(0, 1), new Vector2i(6, 6) })
+            scene.Tiles.Add(new Content.Shared._DeepLagoon.Mapping.GridEditorItem { X = cell.X, Y = cell.Y });
+        scene.Occupied.Add(new Vector2i(3, 2));
+        scene.Blocked.Add(new Vector2i(3, 2));
+        string? Validate(int x, int y) => ApartmentLayout.Validate(template,
+            new[] { new ApartmentPlacement { Id = "added", Furniture = "chair", X = x, Y = y } }, Catalog, scene);
+        Assert.That(Validate(3, 3), Does.Contain("стеной"));
+        Assert.That(Validate(3, 2), Does.Contain("стационарным"));
+        Assert.That(Validate(0, 1), Is.Null);
+        Assert.That(Validate(2, 1), Is.Null);
+        Assert.That(ApartmentLayout.Validate(template, Array.Empty<ApartmentPlacement>(), Catalog, scene), Is.Null);
+    }
+
+    [Test]
+    public void MappedFurnitureMovesPersistWithoutCloningOrDeletingTheOriginal()
+    {
+        var template = Template();
+        var original = new ApartmentPlacement { Id = "map_73", Furniture = "map_73", X = 5, Y = 5 };
+        var definition = new ApartmentFurniturePrototype { ID = "map_73", ExistingOnly = true, BlocksMovement = false, MaxCount = 1 };
+        ApartmentFurniturePrototype? Definitions(string id) => id == "map_73" ? definition : Catalog(id);
+        var layout = template.Furniture.Select(p => p.Copy()).Append(original.Copy()).ToList();
+        layout.Last().X = 3; layout.Last().Rotation = 2;
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, mapFurniture: new[] { original }), Is.Null);
+        var delta = ApartmentLayout.Diff(template, layout, 1, new[] { original });
+        Assert.That(delta.Changed.Single().Id, Is.EqualTo(original.Id));
+        Assert.That(delta.Added, Is.Empty);
+        Assert.That(ApartmentLayout.Resolve(template, delta, new[] { original }).Last().SameAs(layout.Last()), Is.True);
+        Assert.That(ApartmentLayout.Validate(template, layout.Take(1).ToArray(), Definitions, mapFurniture: new[] { original }), Does.Contain("нельзя удалять"));
+        definition.CanRotate = false;
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, mapFurniture: new[] { original }), Does.Contain("нельзя поворачивать"));
+        definition.CanRotate = true;
+        var clone = original.Copy(); clone.Id = "clone";
+        Assert.That(ApartmentLayout.Validate(template, layout.Append(clone).ToArray(), Definitions, mapFurniture: new[] { original }), Does.Contain("каталоге"));
+        layout.Last().Furniture = "chair";
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, mapFurniture: new[] { original }), Does.Contain("подменить"));
+    }
+
     private static ApartmentTemplatePrototype Template() => new()
     {
         ID = "test", Width = 8, Height = 8, Catalog = new() { "chair", "table" },

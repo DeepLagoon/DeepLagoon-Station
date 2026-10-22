@@ -24,7 +24,11 @@ public sealed partial class GridEditorSystem
             !_drafts.TryGetValue(args.SenderSession, out var draft) || draft.Token != ev.Token ||
             draft.PreviewGeneration != ev.Generation || !Exists(draft.Grid)) return;
         var expansion = ev.Expansion ?? new GridEditorExpansion();
-        if (expansion.Left < 0 || expansion.Right < 0 || expansion.Bottom < 0 || expansion.Top < 0 ||
+        if ((long) draft.Width + expansion.Left + expansion.Right < 1 ||
+            (long) draft.Height + expansion.Bottom + expansion.Top < 1 ||
+            (long) draft.X - expansion.Left < int.MinValue || (long) draft.Y - expansion.Bottom < int.MinValue ||
+            (long) draft.X + draft.Width + expansion.Right > int.MaxValue ||
+            (long) draft.Y + draft.Height + expansion.Top > int.MaxValue ||
             (long) draft.Width + expansion.Left + expansion.Right > int.MaxValue ||
             (long) draft.Height + expansion.Bottom + expansion.Top > int.MaxValue) return;
         var seen = new HashSet<string>();

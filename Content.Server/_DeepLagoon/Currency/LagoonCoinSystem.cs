@@ -28,18 +28,19 @@ using Robust.Shared.Timing;
 namespace Content.Server._DeepLagoon.Currency;
 
 /// <summary>A separate donation wallet. Gameplay bank deposits never reach this system.</summary>
-public sealed class LagoonCoinSystem : EntitySystem
+public sealed partial class LagoonCoinSystem : EntitySystem
 {
-    [Dependency] private readonly IServerDbManager _db = default!;
-    [Dependency] private readonly IPlayerManager _players = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly ITaskManager _tasks = default!;
-    [Dependency] private readonly IResourceManager _resources = default!;
-    [Dependency] private readonly IAfkManager _afk = default!;
-    [Dependency] private readonly GameTicker _ticker = default!;
-    [Dependency] private readonly SharedDiscordBoostSystem _supporters = default!;
-    [Dependency] private readonly SharedRoleSystem _roles = default!;
-    [Dependency] private readonly ObjectivesSystem _objectives = default!;
+    [Dependency] private IServerDbManager _db = default!;
+    [Dependency] private IPlayerManager _players = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private ITaskManager _tasks = default!;
+    [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IAfkManager _afk = default!;
+    [Dependency] private GameTicker _ticker = default!;
+    [Dependency] private SharedDiscordBoostSystem _supporters = default!;
+    [Dependency] private SharedRoleSystem _roles = default!;
+    [Dependency] private ObjectivesSystem _objectives = default!;
+    [Dependency] private Content.Server.Chat.Managers.IChatManager _chat = default!;
 
     private readonly HashSet<NetUserId> _ready = new();
     private readonly HashSet<NetUserId> _spawned = new();
@@ -254,6 +255,7 @@ public sealed class LagoonCoinSystem : EntitySystem
                             reward.Reason, reward.Actor, reward.Played, reward.Bonus);
                         _outbox.Complete(Pending(reward));
                         SendBalance(reward.User, result.Balance);
+                        NotifyReward(reward.User, result, reward.Reason);
                     }
                     finally { _walletOperations.Release(); }
                 }
@@ -303,6 +305,7 @@ public sealed class LagoonCoinSystem : EntitySystem
         {
             var result = await _db.AwardLagoonCoinsAsync(user, operationId ?? $"admin:{Guid.NewGuid():N}", amount, reason, actor);
             SendBalance(user, result.Balance);
+            NotifyReward(user, result, reason);
             return result;
         }
         finally { _walletOperations.Release(); }
@@ -312,6 +315,24 @@ public sealed class LagoonCoinSystem : EntitySystem
     {
         if (_players.TryGetSessionById(user, out var session) && session.Channel.IsConnected)
             RaiseNetworkEvent(new LagoonCoinBalanceEvent(balance), session);
+    }
+
+    private void NotifyReward(NetUserId user, LagoonCoinResult result, string reason)
+    {
+        if (!result.Applied || result.Awarded <= 0 ||
+            !_players.TryGetSessionById(user, out var session) || !session.Channel.IsConnected)
+            return;
+
+        var description = reason switch
+        {
+            "ready" => Loc.GetString("lagoon-coin-reason-ready"),
+            "playtime" => Loc.GetString("lagoon-coin-reason-playtime"),
+            "antagonist-objective" => Loc.GetString("lagoon-coin-reason-objective"),
+            _ => reason,
+        };
+        _chat.DispatchServerMessage(session, Loc.GetString("lagoon-coin-received",
+            ("amount", result.Awarded), ("balance", result.Balance), ("reason", description)), suppressLog: true);
+        RaiseNetworkEvent(new LagoonCoinRewardEvent(result.Awarded, result.Balance, reason), session);
     }
 
     private async void OnBalanceRequest(LagoonCoinBalanceRequest ev, EntitySessionEventArgs args)

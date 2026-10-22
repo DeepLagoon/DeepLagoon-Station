@@ -1,0 +1,18 @@
+# Глобальные настройки возбуждения. Максимум = порог смерти моба * healthMultiplier.
+# Если порога смерти нет, используется fallbackHealth. Текущий урон максимум не уменьшает.
+- type: interactionPanelArousal
+  id: InteractionPanelArousal
+  healthMultiplier: 1
+  fallbackHealth: 100
+  decayPerSecond: 1
+  recoveryDuration: 10
+  resetMessage: dl-interaction-panel-arousal-reset
+  chatColor: "#E8A0CF"
+  vignetteColor: "#B84B93"
+  vignetteMaxAlpha: 0.65
+  # Списки ID из interaction_panel_sounds.yml. Пусто = без звука.
+  # Один ID = один звук, несколько = случайный выбор при каждом сбросе.
+  maleSounds: []
+  femaleSounds: []
+  unsexedSounds: []
+  unknownSounds: [] # Мобы без HumanoidAppearance / известного пола.

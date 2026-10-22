@@ -23,7 +23,7 @@ public static class VendingMachinePricing
         // determined dynamically by their contents/inventory), it then falls back to the default mystery
         // hardcoded value of 20xMarketModifier.
         var cost = 20;
-        if (prototype != null && prototype.TryGetComponent<StaticPriceComponent>(out var priceComponent, entities.ComponentFactory))
+        if (prototype != null && prototype.TryComp<StaticPriceComponent>(out var priceComponent, entities.ComponentFactory))
         {
             if (priceComponent.Price != 0)
             {
@@ -32,8 +32,8 @@ public static class VendingMachinePricing
             }
             else
             {
-                if (prototype.TryGetComponent<StackPriceComponent>(out var stackPrice, entities.ComponentFactory)
-                    && prototype.TryGetComponent<StackComponent>(out var stack, entities.ComponentFactory))
+                if (prototype.TryComp<StackPriceComponent>(out var stackPrice, entities.ComponentFactory)
+                    && prototype.TryComp<StackComponent>(out var stack, entities.ComponentFactory))
                 {
                     var price = stackPrice.Price * stack.Count;
                     cost = (int)(price * priceModifier);
@@ -45,7 +45,7 @@ public static class VendingMachinePricing
         else
             cost = (int)(cost * priceModifier);
 
-        if (prototype != null && prototype.TryGetComponent<SolutionContainerManagerComponent>(out var priceSolutions, entities.ComponentFactory))
+        if (prototype != null && prototype.TryComp<SolutionContainerManagerComponent>(out var priceSolutions, entities.ComponentFactory))
         {
             if (priceSolutions.Solutions != null)
             {
@@ -71,11 +71,11 @@ public static class VendingMachinePricing
         {
             var price = 0.0;
 
-            if (prototype.TryGetComponent<StaticPriceComponent>(out var staticComp, entities.ComponentFactory) && staticComp.VendPrice > 0.0)
+            if (prototype.TryComp<StaticPriceComponent>(out var staticComp, entities.ComponentFactory) && staticComp.VendPrice > 0.0)
             {
                 price += staticComp.VendPrice;
             }
-            else if (prototype.TryGetComponent<StackPriceComponent>(out var stackComp, entities.ComponentFactory) && stackComp.VendPrice > 0.0)
+            else if (prototype.TryComp<StackPriceComponent>(out var stackComp, entities.ComponentFactory) && stackComp.VendPrice > 0.0)
             {
                 price += stackComp.VendPrice;
             }

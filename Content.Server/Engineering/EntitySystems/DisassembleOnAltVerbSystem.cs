@@ -66,11 +66,11 @@ namespace Content.Server.Engineering.EntitySystems
             if (HasComp<Content.Shared._DeepLagoon.Apartments.ApartmentProtectedGridComponent>(transformComp.GridUid))
                 return;
 
-            var entity = EntityManager.SpawnEntity(component.Prototype, transformComp.Coordinates);
+            var entity = Spawn(component.Prototype, transformComp.Coordinates);
 
             _handsSystem.TryPickup(user, entity);
 
-            EntityManager.DeleteEntity(uid);
+            Del(uid);
         }
     }
 }

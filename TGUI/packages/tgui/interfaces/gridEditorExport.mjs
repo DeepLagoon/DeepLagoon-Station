@@ -2,7 +2,7 @@ import { dump } from 'js-yaml';
 
 // A construction plan, independent of the live world and the server editing session.
 // Runtime component overrides are deliberately left to the server map export.
-export function exportGridDraft(items, bounds, expansion) {
+export function exportGridDraft(items, bounds, expansion, environment = {}) {
   const floors = new Map();
   for (const item of items) {
     if (!['tile', 'entity', 'decal'].includes(item.kind) || !item.prototype ||
@@ -38,6 +38,11 @@ export function exportGridDraft(items, bounds, expansion) {
       decals: { [id]: `${item.x},${item.y}` },
     })) } },
   ];
+  if (environment.alwaysPowered || environment.forceGravity || environment.safeAtmosphere) components.push({
+    type: 'GridEnvironment', alwaysPowered: !!environment.alwaysPowered,
+    forceGravity: !!environment.forceGravity, safeAtmosphere: !!environment.safeAtmosphere,
+  });
+  if (environment.apartmentProtected) components.push({ type: 'ApartmentProtectedGrid' });
   const groups = new Map([['', [{ uid: 1, components }]]]);
   let uid = 1;
   for (const item of items.filter(i => i.kind === 'entity')) {

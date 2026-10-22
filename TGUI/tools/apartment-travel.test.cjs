@@ -18,29 +18,30 @@ function render(data) {
   return renderToStaticMarkup(React.createElement(context.Panel));
 }
 
-test('entrance menu lets a first-time owner invite nearby players and accept an invitation', () => {
-  const html = render({ canManage: true, canDepart: true, entryOpen: true,
-    people: [{ user: 'guest', name: 'Сосед' }], invitations: [{ user: 'owner', name: 'Хозяин' }] });
-  assert.match(html, /Вход в квартиру на жилой остановке/);
-  assert.match(html, /Сдать снаряжение и отправиться домой/);
-  assert.match(html, /Пригласить/);
-  assert.match(html, /Принять и отправиться/);
-  assert.doesNotMatch(html, /Вернуться на остановку/);
-});
-
-test('home terminal exposes return to guests and reserves editing for the owner', () => {
+test('terminal directs travel through the cabin and exposes editing only to the owner', () => {
   const guest = render({ atHome: true, canManage: false });
-  const owner = render({ atHome: true, canManage: true, entryOpen: true });
-  assert.match(guest, /Терминал квартиры/);
-  assert.match(guest, /Вернуться на остановку/);
-  assert.doesNotMatch(guest, /Обустройство квартиры/);
+  const owner = render({ atHome: true, canManage: true });
+  assert.match(guest, /пультом лифта/);
+  assert.doesNotMatch(guest, /Обустройство квартиры|Пригласить|Принять и отправиться/);
   assert.match(owner, /Обустройство квартиры/);
-  assert.doesNotMatch(owner, /Сдать снаряжение и отправиться домой/);
 });
 
-test('pending boarding disables departure, acceptance and invitations', () => {
-  const html = render({ pending: true, canDepart: true, canManage: true, entryOpen: true,
-    people: [{ user: 'guest', name: 'Сосед' }], invitations: [{ user: 'owner', name: 'Хозяин' }] });
-  for (const text of ['Сдать снаряжение и отправиться домой', 'Принять и отправиться', 'Пригласить'])
-    assert.match(html, new RegExp('<button disabled="">' + text + '</button>'));
+function renderElevator(data) {
+  const source = fs.readFileSync(path.resolve(__dirname, '../packages/tgui/interfaces/ApartmentElevator.jsx'), 'utf8')
+    .replace(/^import .*;\r?$/gm, '').replace(/export const /g, 'const ');
+  const code = transformSync(source + '\nglobalThis.Panel = ApartmentElevator;', { loader: 'jsx' }).code;
+  const context = vm.createContext({ React, useState: React.useState, useBackend: () => ({ data, act() {} }) });
+  vm.runInContext(code, context);
+  return renderToStaticMarkup(React.createElement(context.Panel));
+}
+test('elevator shows the personal number and only offers return inside an apartment', () => {
+  const outward = renderElevator({ number: 142, atHome: false, busy: false });
+  assert.match(outward, /Ваш номер/);
+  assert.match(outward, /142/);
+  assert.match(outward, /Номер квартиры/);
+  assert.doesNotMatch(outward, /Пригласить|Принять и отправиться/);
+  const inward = renderElevator({ number: 142, atHome: true, busy: true });
+  assert.match(inward, /Вернуться на жилую остановку/);
+  assert.match(inward, /disabled/);
+  assert.doesNotMatch(inward, /id="apartment-number"/);
 });

@@ -346,6 +346,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             }
 
             sprite.LayerSetData(index, layerData);
+            if (TryComp<Content.Shared._DeepLagoon.LustWish.LustWishPaletteComponent>(equipment, out var palette))
+                sprite.LayerSetColor(index, palette.Color);
             layer.Offset += slotDef.Offset;
 
             if (displacementData is not null)

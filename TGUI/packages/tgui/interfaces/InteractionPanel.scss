@@ -22,6 +22,9 @@
   &__identity { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: 4px; }
   &__identity small, &__identity span { color: #91a9b9; font-size: 11px; }
   &__identity strong { color: #b7e7dc; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  &__arousal { position: relative; height: 18px; overflow: hidden; border: 1px solid #8054a6; border-radius: 4px; background: #261735; }
+  &__arousalFill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #7942b5, #b475ed); transition: width .2s ease-out; }
+  &__arousal span { position: relative; display: block; padding: 1px 5px; color: #f3e7ff; font-size: 10px; line-height: 14px; white-space: nowrap; }
   &__tabs { display: flex; gap: 4px; margin: 8px 8px 6px; flex-shrink: 0; border-bottom: 1px solid #37515e; }
   &__tabs button { flex: 1; border: 0; border-bottom: 2px solid transparent; border-radius: 3px 3px 0 0; padding: 6px; background: transparent; color: #9bb0bc; }
   &__tabs button[aria-pressed=true] { background: #243b48; color: #b4e7de; border-bottom-color: var(--ip-accent); }
@@ -108,3 +111,8 @@
   label > span { flex: 1 1 130px; }
   select { min-width: 150px; max-width: 100%; padding: 6px; color: inherit; background: #27394c; border: 1px solid #526b83; }
 }
+ .InteractionPanel__gear { flex: 1; min-height: 0; overflow: auto; padding: 8px; }
+ .InteractionPanel__gearControls { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+ .InteractionPanel__gearItem { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-bottom: 1px solid #654a79; }
+ .InteractionPanel__gear button, .InteractionPanel__gear select { min-height: 30px; max-width: 100%; }
+ .InteractionPanel__tabs { flex-wrap: wrap; }

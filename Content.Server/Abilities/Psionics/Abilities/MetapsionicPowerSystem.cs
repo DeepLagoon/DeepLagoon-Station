@@ -4,11 +4,11 @@ using Content.Shared.Actions.Events;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class MetapsionicPowerSystem : EntitySystem
+    public sealed partial class MetapsionicPowerSystem : EntitySystem
     {
-        [Dependency] private readonly EntityLookupSystem _lookup = default!;
-        [Dependency] private readonly SharedPopupSystem _popups = default!;
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private EntityLookupSystem _lookup = default!;
+        [Dependency] private SharedPopupSystem _popups = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
 
 
         public override void Initialize()

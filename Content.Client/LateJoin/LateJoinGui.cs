@@ -67,7 +67,7 @@ namespace Content.Client.LateJoin
             SelectedId += x =>
             {
                 var (station, jobId) = x;
-                Logger.InfoS("latejoin", $"Late joining as ID: {jobId}");
+                Logger.GetSawmill("latejoin").Info( $"Late joining as ID: {jobId}");
                 _consoleHost.ExecuteCommand($"joingame {CommandParsing.Escape(jobId)} {station}");
                 Close();
             };
@@ -83,7 +83,7 @@ namespace Content.Client.LateJoin
             _jobCategories.Clear();
 
             if (!_gameTicker.DisallowedLateJoin && _gameTicker.StationNames.Count == 0)
-                Logger.Warning("No stations exist, nothing to display in late-join GUI");
+                Logger.GetSawmill(Robust.Shared.Log.LogManager.ROOT).Warning("No stations exist, nothing to display in late-join GUI");
 
             foreach (var (id, name) in _gameTicker.StationNames)
             {
@@ -318,6 +318,7 @@ namespace Content.Client.LateJoin
             }
         }
 
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

@@ -20,6 +20,8 @@ public sealed partial class TguiPanel : Control
     private Button? _styleButton;
     private bool _styleBound;
     private bool _styleInitialized;
+    private readonly bool _forceTgui;
+    private bool UseTguiStyle(string key) => _forceTgui || WindowInterfaceStyle.UseTgui(key);
     /// <summary>Separate window types may share a frontend component but keep independent choices.</summary>
     public string? InterfaceStyleKey { get; set; }
     private string StyleKey => InterfaceStyleKey ?? (_interface == "ChatComposer" ? "Chat" : _interface);
@@ -109,8 +111,9 @@ public sealed partial class TguiPanel : Control
     private TguiWindowControls? _windowControls;
     private readonly BoxContainer _failure = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, Visible = false };
 
-    public TguiPanel(bool suspendWhenHidden = false, bool inheritChatAppearance = true, bool captureKeyboard = false, bool showWindowControls = true)
+    public TguiPanel(bool suspendWhenHidden = false, bool inheritChatAppearance = true, bool captureKeyboard = false, bool showWindowControls = true, bool forceTgui = false)
     {
+        _forceTgui = forceTgui;
         _inheritChatAppearance = inheritChatAppearance;
         _showWindowControls = showWindowControls;
         // All panels suspend while hidden, including native-only sessions. No hidden CEF windows.
@@ -163,7 +166,7 @@ public sealed partial class TguiPanel : Control
         _interface = interfaceName;
         _data = dataJson;
         _title = title;
-        if (!_styleInitialized) Web.Visible = WindowInterfaceStyle.UseTgui(StyleKey);
+        if (!_styleInitialized) Web.Visible = UseTguiStyle(StyleKey);
         if (_usingNative) _native?.UpdateState(_interface, _data);
         Publish();
     }
@@ -178,7 +181,7 @@ public sealed partial class TguiPanel : Control
     /// <summary>Keep a full replay snapshot, but send only changed dynamic fields while the document is alive.</summary>
     public void SetIncrementalState(string interfaceName, TguiData data, string title = "DeepLagoon")
     {
-        if (!_styleInitialized) Web.Visible = WindowInterfaceStyle.UseTgui(InterfaceStyleKey ?? (interfaceName == "ChatComposer" ? "Chat" : interfaceName));
+        if (!_styleInitialized) Web.Visible = UseTguiStyle(InterfaceStyleKey ?? (interfaceName == "ChatComposer" ? "Chat" : interfaceName));
         var previous = _incrementalData;
         _incrementalData = data;
         _data = data.ToString();
@@ -315,12 +318,12 @@ public sealed partial class TguiPanel : Control
             _styleInitialized = true;
             // Bind outside traversal: typed fallbacks can replace and dispose their host.
             _modeChangePending = true;
-            Web.Visible = WindowInterfaceStyle.UseTgui(StyleKey);
+            Web.Visible = UseTguiStyle(StyleKey);
             UserInterfaceManager.DeferAction(() =>
             {
                 _modeChangePending = false;
                 if (Disposed) return;
-                if (!_styleBound)
+                if (!_styleBound && !_forceTgui)
                 {
                     _styleBound = true;
                     _styleButton = WindowInterfaceStyle.Attach(FloatingWindow() ?? (Control) this, StyleKey, () => !_usingNative, SelectStyle);
@@ -328,7 +331,7 @@ public sealed partial class TguiPanel : Control
                         host is not Content.Client.UserInterface.Controls.FancyWindow && host is not DefaultWindow)
                         _styleButton.Margin = new Thickness(0, 8, 96, 0);
                 }
-                if (!WindowInterfaceStyle.UseTgui(StyleKey)) SwitchToNative();
+                if (!UseTguiStyle(StyleKey)) SwitchToNative();
             });
         }
         _windowControls?.SetTitle(_title);

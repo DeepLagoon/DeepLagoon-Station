@@ -11,7 +11,7 @@ using static Content.Shared.Damage.DamageableSystem;
 namespace Content.Shared._DeepLagoon.Apartments;
 
 /// <summary>Protects the entrance on both sides, including predicted door interactions.</summary>
-public sealed class SharedApartmentEntranceSystem : EntitySystem
+public sealed partial class SharedApartmentEntranceSystem : EntitySystem
 {
     [Dependency] private INetManager _net = default!;
     [Dependency] private SharedDoorSystem _doors = default!;

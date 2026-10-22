@@ -18,13 +18,13 @@ using Content.Shared.Tag;
 
 namespace Content.Shared.Shadowkin;
 
-public abstract class SharedEtherealSystem : EntitySystem
+public abstract partial class SharedEtherealSystem : EntitySystem
 {
-    [Dependency] private readonly SharedPhysicsSystem _physics = default!;
-    [Dependency] private readonly SharedPopupSystem _popup = default!;
-    [Dependency] private readonly IGameTiming _gameTiming = default!;
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly TagSystem _tag = default!;
+    [Dependency] private SharedPhysicsSystem _physics = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private IGameTiming _gameTiming = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private TagSystem _tag = default!;
 
     public override void Initialize()
     {

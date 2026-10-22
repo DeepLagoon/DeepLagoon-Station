@@ -3,9 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { copyLayout, validateLayout } from './apartmentLayout.mjs';
 import './ApartmentEditor.scss';
+import { useApartmentViewport } from './useApartmentViewport';
 
 const Sprite = ({ images = [] }) => <span className="ApartmentEditor__sprite">
   {images.map((image, i) => <img key={i} src={image.url} alt="" draggable={false} style={{ filter: image.color && image.color !== '#ffffff' ? `drop-shadow(0 0 0 ${image.color})` : undefined }} />)}
+</span>;
+
+const PlanSprite = ({ images = [] }) => <span className="ApartmentEditor__planSprite">
+  {images.map((image, index) => <img key={index} src={image.url} alt="" draggable={false} style={image.native ? {
+    width: `${image.width / 32 * 100}%`, height: `${image.height / 32 * 100}%`,
+    left: `${50 + image.m31 * 100}%`, top: `${50 - image.m32 * 100}%`,
+    transform: `translate(-50%, -50%) matrix(${image.m11}, ${-image.m12}, ${-image.m21}, ${image.m22}, 0, 0)`,
+  } : undefined} />)}
 </span>;
 
 export const ApartmentEditor = () => {
@@ -20,10 +29,17 @@ export const ApartmentEditor = () => {
   const [pending, setPending] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const plan = useRef(null);
+  const viewport = useRef(null);
+  const { view, zoom, cellSize, panning, fit, setScale, events: viewportEvents } = useApartmentViewport(viewport, data.width, data.height, data.token);
+  const [gridLines, setGridLines] = useState(true);
   const drag = useRef(null);
   const current = useRef(draft);
   const counter = useRef(0);
   const room = { ...data, catalog: data.catalog || [] };
+  const originX = data.scene?.x || 0, originY = data.scene?.y || 0;
+  const floors = new Map((data.scene?.tiles || []).map(tile => [`${tile.x},${tile.y}`, tile]));
+  const fixed = new Set((data.scene?.occupied || []).map(cell => `${cell.x},${cell.y}`));
+  const addedCount = draft.filter(item => !room.catalog.find(def => def.id === item.furniture)?.existingOnly).length;
   const errors = validateLayout(draft, room);
   const valid = !Object.keys(errors).length;
   const dirty = JSON.stringify(draft) !== JSON.stringify(data.layout || []);
@@ -51,7 +67,7 @@ export const ApartmentEditor = () => {
   const change = (next) => { remember(); update(next); };
   const cellAt = (event) => {
     const rect = plan.current.getBoundingClientRect();
-    return { x: Math.floor((event.clientX - rect.left) / rect.width * data.width), y: data.height - 1 - Math.floor((event.clientY - rect.top) / rect.height * data.height) };
+    return { x: originX + Math.floor((event.clientX - rect.left) / rect.width * data.width), y: originY + data.height - 1 - Math.floor((event.clientY - rect.top) / rect.height * data.height) };
   };
   const pointerDown = (event) => {
     if (before || pending || event.button !== 0) return;
@@ -86,10 +102,11 @@ export const ApartmentEditor = () => {
     update(current.current.map((item) => item.id === gesture.id ? { ...item, x, y } : item));
   };
   const rotate = () => {
+    if ((brush ? room.catalog.find(item => item.id === brush) : definition)?.canRotate === false) return;
     if (hover && brush) setHover({ ...hover, rotation: (hover.rotation + 1) % 4 });
     else if (selectedItem) change(draft.map((item) => item.id === selected ? { ...item, rotation: (item.rotation + 1) % 4 } : item));
   };
-  const remove = () => { if (selectedItem) { change(draft.filter((item) => item.id !== selected)); setSelected(null); } };
+  const remove = () => { if (selectedItem && !definition?.existingOnly) { change(draft.filter((item) => item.id !== selected)); setSelected(null); } };
   const stepBack = () => {
     if (!undo.length) return;
     setRedo((history) => [...history, copyLayout(draft)]); update(copyLayout(undo[undo.length - 1])); setUndo(undo.slice(0, -1));
@@ -115,47 +132,67 @@ export const ApartmentEditor = () => {
   const close = () => dirty ? setConfirmClose(true) : act('close');
 
   return <div className="ApartmentEditor">
-    <header><div><strong>{data.name || 'Обустройство квартиры'}</strong><small>{before ? 'Сохранённая обстановка' : 'Примерка — изменения ещё не применены'}</small></div><button onClick={close} aria-label="Закрыть редактор">×</button></header>
+    <header><div><strong>{data.name || 'Обустройство квартиры'}{data.number ? ` · Квартира ${data.number}` : ''}</strong><small>{before ? 'Сохранённая обстановка' : 'Примерка — изменения ещё не применены'}</small></div><button onClick={close} aria-label="Закрыть редактор">×</button></header>
     <div className="ApartmentEditor__body">
       <aside><h3>Мебель</h3><p>Выберите предмет и нажмите на свободное место.</p>
-        {room.catalog.map((item) => {
+        {room.catalog.filter(item => !item.existingOnly).map((item) => {
           const count = draft.filter((p) => p.furniture === item.id).length;
-          return <button key={item.id} className={brush === item.id ? 'selected' : ''} disabled={before || pending || count >= item.maxCount || draft.length >= data.maxFurniture}
+          return <button key={item.id} className={brush === item.id ? 'selected' : ''} disabled={before || pending || count >= item.maxCount || addedCount >= data.maxFurniture}
             onClick={() => { setBrush(item.id); setSelected(null); setHover(null); }}><Sprite images={item.images} /><span>{item.name}<small>{count} / {item.maxCount}</small></span></button>;
         })}
-        <p>В прототипе все предметы доступны бесплатно.</p>
+        <h3>Исходный интерьер</h3><p>Выберите предмет, затем укажите новое место на плане.</p>
+        {room.catalog.filter(item => item.existingOnly).map(item => <button key={item.id} disabled={before || pending} className={selected === item.placementId ? 'selected' : ''}
+          onClick={() => { setSelected(item.placementId); setBrush(null); setHover(null); }}>{item.name}</button>)}
       </aside>
       <main><div className="ApartmentEditor__toolbar">
         <button disabled={!undo.length || before || pending} onClick={stepBack}>Отменить</button>
         <button disabled={!redo.length || before || pending} onClick={stepForward}>Повторить</button>
         <button disabled={pending} className={before ? 'selected' : ''} onClick={() => { setBefore(!before); setHover(null); }}>{before ? 'Показать проект' : 'До / После'}</button>
+        <button aria-label="Уменьшить масштаб" onClick={() => setScale(zoom / 1.25)}>−</button>
+        <span aria-label="Масштаб">{Math.round(zoom * 100)}%</span>
+        <button aria-label="Увеличить масштаб" onClick={() => setScale(zoom * 1.25)}>+</button>
+        <button onClick={fit}>Уместить</button>
+        <button aria-pressed={gridLines} onClick={() => setGridLines(!gridLines)}>Сетка</button>
       </div>
-        <div ref={plan} className={`ApartmentEditor__plan ${before ? 'before' : ''}`} tabIndex={0} aria-label="План квартиры"
-          style={{ aspectRatio: `${data.width}/${data.height}`, '--columns': data.width, '--rows': data.height }}
+        <div ref={viewport} className={`ApartmentEditor__viewport ${panning ? 'panning' : ''}`} {...viewportEvents}>
+        <div className="ApartmentEditor__surface" style={{ width: data.width * cellSize + view.width, height: data.height * cellSize + view.height }}>
+        <div ref={plan} className={`ApartmentEditor__plan ${before ? 'before' : ''} ${gridLines ? 'grid' : ''}`} tabIndex={0} aria-label="План квартиры"
+          style={{ left: view.width / 2, top: view.height / 2, width: data.width * cellSize, height: data.height * cellSize, '--cell': `${cellSize}px`, '--columns': data.width, '--rows': data.height }}
           onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={(event) => { if (drag.current) pointerMove(event); drag.current = null; }} onPointerCancel={() => { if (drag.current?.moved) update(drag.current.original); drag.current = null; }}
           onPointerLeave={() => { if (!drag.current) setHover(null); }}>
           {Array.from({ length: (data.width || 0) * (data.height || 0) }, (_, index) => {
-            const x = index % data.width, y = data.height - 1 - Math.floor(index / data.width);
-            const wall = x === 0 || y === 0 || x === data.width - 1 || y === data.height - 1;
+            const x = originX + index % data.width, y = originY + data.height - 1 - Math.floor(index / data.width);
+            const tile = floors.get(`${x},${y}`);
+            const wall = !data.scene && (x === 0 || y === 0 || x === data.width - 1 || y === data.height - 1);
             const arrival = x === data.arrivalX && y === data.arrivalY;
-            const terminal = x === data.arrivalX && y === data.arrivalY + 1;
-            return <div key={index} className={`ApartmentEditor__tile ${wall ? 'wall' : ''} ${arrival || terminal ? 'reserved' : ''}`}>{arrival ? 'Вход' : terminal ? 'Выход' : ''}</div>;
+            const terminal = !data.scene && x === data.arrivalX && y === data.arrivalY + 1;
+            return <div key={index} data-cell={`${x},${y}`} className={`ApartmentEditor__tile ${wall || fixed.has(`${x},${y}`) ? 'wall' : ''} ${data.scene && !tile ? 'void' : ''} ${arrival || terminal ? 'reserved' : ''}`}>
+              <span>{arrival ? 'Вход' : terminal ? 'Выход' : ''}</span>
+            </div>;
           })}
-          {displayed.map((item) => {
+          {(data.scene?.objects || []).filter(object => fixed.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).map(object => <div key={object.id}
+            className={`ApartmentEditor__fixture ${object.images?.length ? 'sprite' : ''}`} title={object.name}
+            style={{ left: `${(object.x - originX - .5) / data.width * 100}%`, top: `${(originY + data.height - object.y - .5) / data.height * 100}%`, width: `${100 / data.width}%`, height: `${100 / data.height}%` }}>
+            <span style={{ transform: `rotate(${object.noRotation ? 0 : -object.rotation}deg)` }}>{object.images?.length > 0 && <PlanSprite images={object.images} />}</span>
+          </div>)}
+          {[...displayed].sort((a, b) => (room.catalog.find(def => def.id === a.furniture)?.drawDepth || 0)
+            - (room.catalog.find(def => def.id === b.furniture)?.drawDepth || 0) || b.y - a.y).map((item, index) => {
             const def = room.catalog.find((entry) => entry.id === item.furniture);
             if (!def) return null;
             const width = item.rotation % 2 ? def.height : def.width, height = item.rotation % 2 ? def.width : def.height;
             return <div key={item.id} data-placement={item.id} title={displayErrors[item.id] || def.name}
               className={`ApartmentEditor__ghost ${selected === item.id ? 'selected' : ''} ${displayErrors[item.id] ? 'invalid' : ''} ${item.id === '__hover' ? 'hover' : ''}`}
-              style={{ left: `${item.x / data.width * 100}%`, top: `${(data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
-              <span style={{ transform: `rotate(${-item.rotation * 90}deg)` }}><Sprite images={def.images} /></span>
+              style={{ zIndex: index + 1, left: `${(item.x - originX) / data.width * 100}%`, top: `${(originY + data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
+              <span style={{ width: cellSize, height: cellSize, transform: `rotate(${def.noRotation ? 0 : -item.rotation * 90}deg)` }}><PlanSprite images={def.images} /></span>
             </div>;
           })}
         </div>
-        <div className="ApartmentEditor__selection"><span>{definition ? `${definition.name} · Нажмите новую клетку, чтобы переместить` : (brush ? 'Нажмите на план, чтобы разместить предмет' : 'Перетаскивайте мебель или выберите её и нажмите новую клетку')}</span>
-          <button disabled={before || pending || (!selectedItem && !hover)} onClick={rotate}>Повернуть · R</button>
-          <button disabled={before || pending || !selectedItem} onClick={remove}>Убрать · Delete</button></div>
-        <p className={valid ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'} role="status">{Object.values(errors)[0] || `${draft.length} / ${data.maxFurniture} предметов · Выход свободен`}</p>
+        </div>
+        </div>
+        <div className="ApartmentEditor__selection"><span>{definition ? `${definition.name} · Нажмите новую клетку, чтобы переместить` : (brush ? 'Нажмите на план, чтобы разместить предмет' : 'ЛКМ — мебель · ПКМ / СКМ — перемещение вида')}</span>
+          <button disabled={before || pending || (!selectedItem && !hover) || definition?.canRotate === false} onClick={rotate}>Повернуть · R</button>
+          <button disabled={before || pending || !selectedItem || definition?.existingOnly} onClick={remove}>Убрать · Delete</button></div>
+        <p className={valid ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'} role="status">{Object.values(errors)[0] || `${addedCount} / ${data.maxFurniture} предметов · Выход свободен`}</p>
         {data.status && <p className={data.success ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'}>{data.status}</p>}
       </main>
     </div>

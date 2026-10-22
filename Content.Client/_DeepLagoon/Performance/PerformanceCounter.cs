@@ -5,7 +5,7 @@ using Robust.Shared.Utility;
 
 namespace Content.Client._DeepLagoon.Performance;
 
-public sealed class PerformanceCounter : Label
+public sealed partial class PerformanceCounter : Label
 {
     [Dependency] private IClientNetManager _netManager = default!;
     [Dependency] private IEntityManager _entities = default!;

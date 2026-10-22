@@ -9,12 +9,12 @@ using Content.Shared.Psionics;
 
 namespace Content.Server.Psionics
 {
-    public sealed class PsionicInvisibilitySystem : EntitySystem
+    public sealed partial class PsionicInvisibilitySystem : EntitySystem
     {
-        [Dependency] private readonly VisibilitySystem _visibilitySystem = default!;
-        [Dependency] private readonly PsionicInvisibilityPowerSystem _invisSystem = default!;
-        [Dependency] private readonly NpcFactionSystem _npcFactonSystem = default!;
-        [Dependency] private readonly SharedEyeSystem _eye = default!;
+        [Dependency] private VisibilitySystem _visibilitySystem = default!;
+        [Dependency] private PsionicInvisibilityPowerSystem _invisSystem = default!;
+        [Dependency] private NpcFactionSystem _npcFactonSystem = default!;
+        [Dependency] private SharedEyeSystem _eye = default!;
         public override void Initialize()
         {
             base.Initialize();
@@ -77,7 +77,7 @@ namespace Content.Server.Psionics
 
         private void OnInvisInit(EntityUid uid, PsionicallyInvisibleComponent component, ComponentStartup args)
         {
-            var visibility = EntityManager.EnsureComponent<VisibilityComponent>(uid);
+            var visibility = EnsureComp<VisibilityComponent>(uid);
 
             _visibilitySystem.AddLayer((uid, visibility), (int) VisibilityFlags.PsionicInvisibility, false);
             _visibilitySystem.RemoveLayer((uid, visibility), (int) VisibilityFlags.Normal, false);
@@ -111,14 +111,14 @@ namespace Content.Server.Psionics
         {
             if (set == true)
             {
-                if (EntityManager.TryGetComponent(uid, out EyeComponent? eye))
+                if (TryComp(uid, out EyeComponent? eye))
                 {
                     _eye.SetVisibilityMask(uid, eye.VisibilityMask | (int) VisibilityFlags.PsionicInvisibility, eye);
                 }
             }
             else
             {
-                if (EntityManager.TryGetComponent(uid, out EyeComponent? eye))
+                if (TryComp(uid, out EyeComponent? eye))
                 {
                     _eye.SetVisibilityMask(uid, eye.VisibilityMask & ~(int) VisibilityFlags.PsionicInvisibility, eye);
                 }

@@ -20,21 +20,21 @@ using Content.Shared.NPC.Systems;
 
 namespace Content.Server.Abilities.Psionics;
 
-public sealed class PsionicAbilitiesSystem : EntitySystem
+public sealed partial class PsionicAbilitiesSystem : EntitySystem
 {
-    [Dependency] private readonly IComponentFactory _componentFactory = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly StatusEffectsSystem _statusEffectsSystem = default!;
-    [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-    [Dependency] private readonly SharedPopupSystem _popups = default!;
-    [Dependency] private readonly ISerializationManager _serialization = default!;
-    [Dependency] private readonly ISharedPlayerManager _playerManager = default!;
-    [Dependency] private readonly IChatManager _chatManager = default!;
-    [Dependency] private readonly PsionicFamiliarSystem _psionicFamiliar = default!;
-    [Dependency] private readonly IConfigurationManager _config = default!;
-    [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
-    [Dependency] private readonly GhostSystem _ghost = default!;
-    [Dependency] private readonly MindSystem _mind = default!;
+    [Dependency] private IComponentFactory _componentFactory = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private StatusEffectsSystem _statusEffectsSystem = default!;
+    [Dependency] private IPrototypeManager _prototypeManager = default!;
+    [Dependency] private SharedPopupSystem _popups = default!;
+    [Dependency] private ISerializationManager _serialization = default!;
+    [Dependency] private ISharedPlayerManager _playerManager = default!;
+    [Dependency] private IChatManager _chatManager = default!;
+    [Dependency] private PsionicFamiliarSystem _psionicFamiliar = default!;
+    [Dependency] private IConfigurationManager _config = default!;
+    [Dependency] private NpcFactionSystem _npcFaction = default!;
+    [Dependency] private GhostSystem _ghost = default!;
+    [Dependency] private MindSystem _mind = default!;
 
     public override void Initialize()
     {
@@ -58,7 +58,7 @@ public sealed class PsionicAbilitiesSystem : EntitySystem
 
     private void OnPsionicShutdown(EntityUid uid, PsionicComponent component, ComponentShutdown args)
     {
-        if (!EntityManager.EntityExists(uid)
+        if (!Exists(uid)
             || HasComp<MindbrokenComponent>(uid))
             return;
 

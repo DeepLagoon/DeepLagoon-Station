@@ -126,3 +126,61 @@
     - state: computer
     - state: generic
   - type: ApartmentTerminal
+
+- type: entity
+  id: DLApartmentElevatorPanel
+  parent: BaseStructure
+  name: apartment elevator panel
+  description: Select an apartment number. Everyone inside the cabin travels together.
+  components:
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: _DeepLagoon/Structures/apartment_elevator.rsi
+    state: panel
+    drawdepth: WallMountedItems
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Fixtures
+    fixtures:
+      fix1:
+        hard: false
+  - type: ApartmentElevator
+    cabinMin: "-1,-3"
+    cabinMax: "1,-1"
+    doorOffsets: ["0,-4"]
+    travelTime: 12
+    travelSound: !type:SoundPathSpecifier
+      path: /Audio/_DeepLagoon/Apartments/travel.ogg
+    arrivalSound: !type:SoundPathSpecifier
+      path: /Audio/_DeepLagoon/Apartments/arrival.ogg
+  - type: NoDeconstruct
+
+# Cosmetic mist only: no reagents, gas, spreading, or inhalation damage.
+- type: entity
+  id: DLApartmentElevatorMist
+  name: elevator mist
+  categories: [HideSpawnMenu]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: Effects/chemsmoke.rsi
+    state: chemsmoke
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 2
+
+- type: apartmentTemplate
+  id: DLApartmentBasic
+  name: dl-apartment-basic
+  version: 1
+  map: /Maps/_DeepLagoon/Apartments/apartments_basic.yml
+  width: 11
+  height: 16
+  arrival: "4,8"
+  maxFurniture: 20
+  maxVisitors: 4
+  reservedCells: ["3,12", "4,12", "5,12", "3,13", "4,13", "5,13", "3,14", "4,14", "5,14", "4,10", "4,11"]
+  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant]
+  furniture: []

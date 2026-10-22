@@ -155,7 +155,8 @@ dl-interaction-panel-review = Название: { $name }
     Звук: { $sound }
 
     Сохранённое действие появится в вашем списке. Создание, изменения и использование видны администрации.
-dl-interaction-panel-mana-reset = { $mob } опустошил свою ману до нуля.
+dl-interaction-panel-arousal-reset = { $mob } расслабляется; возбуждение спадает.
+dl-interaction-panel-arousal = Ваше возбуждение
 
 dl-interaction-panel-compact-target = Цель взаимодействия
 dl-interaction-panel-compact-expand = Развернуть все группы

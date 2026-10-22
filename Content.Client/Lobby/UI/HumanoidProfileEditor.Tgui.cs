@@ -102,7 +102,7 @@ public sealed partial class HumanoidProfileEditor
         _prototypeManager.PrototypesReloaded += ReloadTguiCatalog;
         _editorAppearance.Load(_resManager);
         TabContainer.AddChild(_editorSettingsTab);
-        _profileWeb = new TguiPanel(suspendWhenHidden: true, inheritChatAppearance: false, showWindowControls: false) { Name = "CharacterTgui" };
+        _profileWeb = new TguiPanel(suspendWhenHidden: true, inheritChatAppearance: false, showWindowControls: false, forceTgui: true) { Name = "CharacterTgui" };
         _profileWeb.OnAction += (action, payload) => HandleTguiProfileAction(action, payload);
         _personalLoadoutEditor.TguiMode = true;
         _nativeSpriteParent = SpriteView.Parent;
@@ -124,16 +124,6 @@ public sealed partial class HumanoidProfileEditor
         EditorColumn.AddChild(_tguiHost);
         _profileWeb.SetNativeFallback(RestoreNativeEditor);
         _profileWeb.SetTguiRestore(RestoreTguiEditor);
-        _profileWeb.BindStyle(EditorColumn, "CharacterEditor", () => !_profileWeb.UsingNative, next =>
-        {
-            if (next) _profileWeb.SwitchToTgui();
-            else _profileWeb.SwitchToNative();
-        }, next =>
-        {
-            if (!next || _nativeTattoos?.Dirty != true) return true;
-            if (_nativeBody != null) NativeInterfacePanel.Text(_nativeBody, Loc.GetString("dl-ui-window-unsaved"));
-            return false;
-        });
         TabContainer.OnTabChanged += SelectTguiTab;
         SelectTguiTab(TabContainer.CurrentTab);
     }
@@ -147,14 +137,13 @@ public sealed partial class HumanoidProfileEditor
         UserInterfaceManager.DeferAction(() => { if (!Disposed) PublishTguiProfile(); });
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         if (disposing) _prototypeManager.PrototypesReloaded -= ReloadTguiCatalog;
         if (disposing && _tguiHost is { Parent: null })
         {
-#pragma warning disable CS0618
             _tguiHost.Dispose();
-#pragma warning restore CS0618
         }
         base.Dispose(disposing);
     }
@@ -299,8 +288,8 @@ public sealed partial class HumanoidProfileEditor
         }
         var species = _prototypeManager.Index(p.Species);
         data.String("name", p.Name).Number("age", p.Age).String("species", p.Species.Id)
-            .Number("sex", (int) p.Sex).Number("gender", (int) p.Gender)
-            .Number("spawn", (int) p.SpawnPriority).Number("height", p.Appearance.Height).Number("width", p.Appearance.Width)
+            .Number("sex", (int)p.Sex).Number("gender", (int)p.Gender)
+            .Number("spawn", (int)p.SpawnPriority).Number("height", p.Appearance.Height).Number("width", p.Appearance.Width)
             .String("hairStyle", p.Appearance.HairStyleId).String("beardStyle", p.Appearance.FacialHairStyleId)
             .String("hairColor", p.Appearance.HairColor.ToHexNoAlpha()).String("beardColor", p.Appearance.FacialHairColor.ToHexNoAlpha())
             .String("eyeColor", p.Appearance.EyeColor.ToHexNoAlpha()).String("skinColor", p.Appearance.SkinColor.ToHexNoAlpha())
@@ -308,14 +297,14 @@ public sealed partial class HumanoidProfileEditor
             .Bool("beardLocked", _markingManager.MustMatchSkin(p.Species, HumanoidVisualLayers.FacialHair, out _, _prototypeManager))
             .Number("skinTone", Skin.Value).Bool("humanSkin", species.SkinColoration == HumanoidSkinColor.HumanToned)
             .Number("minAge", species.MinAge).Number("maxAge", species.MaxAge)
-            .Number("erp", (int) p.ERPConsent).Number("noncon", (int) p.NonConConsent).Number("vore", (int) p.VoreConsent)
-            .Number("unavailable", (int) p.PreferenceUnavailable).String("company", p.Company);
+            .Number("erp", (int)p.ERPConsent).Number("noncon", (int)p.NonConConsent).Number("vore", (int)p.VoreConsent)
+            .Number("unavailable", (int)p.PreferenceUnavailable).String("company", p.Company);
         if (mode == "appearance" && includeCatalogs)
         {
             data.Array("speciesOptions", _species.Select(s => Choice(s.ID, Loc.GetString(s.Name))))
-                .Array("sexOptions", species.Sexes.Select(s => Choice(((int) s).ToString(), Loc.GetString($"humanoid-profile-editor-sex-{s.ToString().ToLowerInvariant()}-text"))))
-                .Array("genderOptions", Enum.GetValues<Gender>().Select(g => Choice(((int) g).ToString(), Loc.GetString($"humanoid-profile-editor-pronouns-{g.ToString().ToLowerInvariant()}-text"))))
-                .Array("spawnOptions", Enum.GetValues<SpawnPriorityPreference>().Select(s => Choice(((int) s).ToString(), Loc.GetString($"humanoid-profile-editor-preference-spawn-priority-{s.ToString().ToLowerInvariant()}"))))
+                .Array("sexOptions", species.Sexes.Select(s => Choice(((int)s).ToString(), Loc.GetString($"humanoid-profile-editor-sex-{s.ToString().ToLowerInvariant()}-text"))))
+                .Array("genderOptions", Enum.GetValues<Gender>().Select(g => Choice(((int)g).ToString(), Loc.GetString($"humanoid-profile-editor-pronouns-{g.ToString().ToLowerInvariant()}-text"))))
+                .Array("spawnOptions", Enum.GetValues<SpawnPriorityPreference>().Select(s => Choice(((int)s).ToString(), Loc.GetString($"humanoid-profile-editor-preference-spawn-priority-{s.ToString().ToLowerInvariant()}"))))
                 .Array("hairOptions", HairChoices(false)).Array("beardOptions", HairChoices(true));
         }
         else if (mode == "jobs")
@@ -419,9 +408,9 @@ public sealed partial class HumanoidProfileEditor
 
     private TguiData JobDynamicData(JobPrototype job)
     {
-        var allowed = _requirements.IsAllowed(job, (HumanoidCharacterProfile?) _preferencesManager.Preferences?.SelectedCharacter, out var reason);
+        var allowed = _requirements.IsAllowed(job, (HumanoidCharacterProfile?)_preferencesManager.Preferences?.SelectedCharacter, out var reason);
         return new TguiData().Bool("allowed", allowed).String("reason", reason?.ToString() ?? "")
-            .Number("priority", (int) (Profile?.JobPriorities.GetValueOrDefault(job.ID, JobPriority.Never) ?? JobPriority.Never));
+            .Number("priority", (int)(Profile?.JobPriorities.GetValueOrDefault(job.ID, JobPriority.Never) ?? JobPriority.Never));
     }
 
     private bool CanSelectTguiTrait(TraitPrototype trait)
@@ -544,10 +533,11 @@ public sealed partial class HumanoidProfileEditor
             case "character-card":
                 Content.Client._DeepLagoon.CharacterInfo.CharacterCardWindow.Open(PreviewDummy, Profile.Name, Profile.FlavorText, Profile.OocNotes, (byte)Profile.ERPConsent, (byte)Profile.NonConConsent, (byte)Profile.VoreConsent, CharacterSlot ?? -1); break;
             case "headshot-gallery":
-                if (CharacterSlot is not {} gallerySlot || args.String("operation") is not {} operation || operation is not ("toggle" or "primary" or "delete")) return false;
+                if (CharacterSlot is not { } gallerySlot || args.String("operation") is not { } operation || operation is not ("toggle" or "primary" or "delete")) return false;
                 RefreshGallery(gallerySlot, operation, value); break;
-            case "headshot-upload": case "headshot-add":
-                if (CharacterSlot is not {} slot) return false;
+            case "headshot-upload":
+            case "headshot-add":
+                if (CharacterSlot is not { } slot) return false;
                 EnsureHeadshotPreview(slot, Profile.HeadshotId);
                 var existingPreview = _headshotPreviews[slot];
                 _headshotPreviews[slot] = (existingPreview.Id, existingPreview.Image, "Загрузка…");
@@ -567,7 +557,7 @@ public sealed partial class HumanoidProfileEditor
                     }
                 }, action == "headshot-add", value); break;
             case "headshot-download":
-                if (CharacterSlot is not {} downloadSlot) return false;
+                if (CharacterSlot is not { } downloadSlot) return false;
                 _entManager.System<Content.Client._DeepLagoon.CharacterInfo.HeadshotSystem>().Download(downloadSlot); break;
             case "ooc":
                 if (value.Length > HumanoidCharacterProfile.MaxDescLength) return false;
@@ -575,7 +565,10 @@ public sealed partial class HumanoidProfileEditor
             case "flavor":
                 if (value.Length > HumanoidCharacterProfile.MaxDescLength) return false;
                 OnFlavorTextChange(value); break;
-            case "marking-add": case "marking-remove": case "marking-color": case "marking-move":
+            case "marking-add":
+            case "marking-remove":
+            case "marking-color":
+            case "marking-move":
                 if (!HandleTguiMarking(action, args, value)) return false;
                 break;
 #if DEBUG
@@ -610,19 +603,21 @@ public sealed partial class HumanoidProfileEditor
                 if (!args.TryInt("value", out var age) || age < species.MinAge || age > species.MaxAge) return false;
                 SetAge(age); UpdateAgeEdit(); break;
             case "sex":
-                if (!args.TryInt("value", out var sex) || !species.Sexes.Contains((Sex) sex)) return false;
-                SetSex((Sex) sex); UpdateSexControls(); UpdateHairPickers(); break;
+                if (!args.TryInt("value", out var sex) || !species.Sexes.Contains((Sex)sex)) return false;
+                SetSex((Sex)sex); UpdateSexControls(); UpdateHairPickers(); break;
             case "gender":
-                if (!args.TryInt("value", out var gender) || !Enum.IsDefined((Gender) gender)) return false;
-                SetGender((Gender) gender); UpdateGenderControls(); break;
+                if (!args.TryInt("value", out var gender) || !Enum.IsDefined((Gender)gender)) return false;
+                SetGender((Gender)gender); UpdateGenderControls(); break;
             case "spawn":
-                if (!args.TryInt("value", out var spawn) || !Enum.IsDefined((SpawnPriorityPreference) spawn)) return false;
-                SetSpawnPriority((SpawnPriorityPreference) spawn); UpdateSpawnPriorityControls(); break;
-            case "height": case "width":
+                if (!args.TryInt("value", out var spawn) || !Enum.IsDefined((SpawnPriorityPreference)spawn)) return false;
+                SetSpawnPriority((SpawnPriorityPreference)spawn); UpdateSpawnPriorityControls(); break;
+            case "height":
+            case "width":
                 if (!args.TryFloat("value", out var size) || size < 0.8f || size > 1.2f) return false;
                 if (action == "height") { SetHeight(size); UpdateHeightControls(); } else { SetWidth(size); UpdateWidthControls(); }
                 break;
-            case "hair-style": case "beard-style":
+            case "hair-style":
+            case "beard-style":
                 var beard = action == "beard-style";
                 var category = beard ? MarkingCategories.FacialHair : MarkingCategories.Hair;
                 var empty = beard ? HairStyles.DefaultFacialHairStyle : HairStyles.DefaultHairStyle;
@@ -630,7 +625,10 @@ public sealed partial class HumanoidProfileEditor
                     !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, marking, _prototypeManager))) return false;
                 Profile = Profile.WithCharacterAppearance(beard ? Profile.Appearance.WithFacialHairStyleName(value) : Profile.Appearance.WithHairStyleName(value));
                 UpdateHairPickers(); UpdateCMarkingsHair(); UpdateCMarkingsFacialHair(); ReloadProfilePreview(); break;
-            case "hair-color": case "beard-color": case "eye-color": case "skin-color":
+            case "hair-color":
+            case "beard-color":
+            case "eye-color":
+            case "skin-color":
                 if (value.Length != 7 || value[0] != '#') return false;
                 Color color;
                 try { color = Color.FromHex(value); } catch (Exception) { return false; }
@@ -656,21 +654,23 @@ public sealed partial class HumanoidProfileEditor
             case "skin-tone":
                 if (species.SkinColoration != HumanoidSkinColor.HumanToned || !args.TryFloat("value", out var tone) || tone < 0 || tone > 100) return false;
                 Skin.Value = tone; OnSkinColorOnValueChanged(); break;
-            case "erp": case "noncon": case "vore":
-                if (!args.TryInt("value", out var consent) || !Enum.IsDefined((InteractionPanelConsent) consent)) return false;
+            case "erp":
+            case "noncon":
+            case "vore":
+                if (!args.TryInt("value", out var consent) || !Enum.IsDefined((InteractionPanelConsent)consent)) return false;
                 var consentCategory = action == "erp" ? InteractionPanelCategory.Erotic : action == "noncon" ? InteractionPanelCategory.NonCon : InteractionPanelCategory.Vore;
-                Profile = Profile.WithInteractionPanelConsent(consentCategory, (InteractionPanelConsent) consent); UpdateInteractionPanelPreferences(); SetDirty(); break;
+                Profile = Profile.WithInteractionPanelConsent(consentCategory, (InteractionPanelConsent)consent); UpdateInteractionPanelPreferences(); SetDirty(); break;
             case "job":
                 if (args.String("id") is not { } jobId || !_prototypeManager.TryIndex<JobPrototype>(jobId, out var job) || !job.SetPreference ||
-                    !_requirements.IsAllowed(job, (HumanoidCharacterProfile?) _preferencesManager.Preferences?.SelectedCharacter, out _) ||
-                    !args.TryInt("value", out var priority) || !Enum.IsDefined((JobPriority) priority)) return false;
-                if ((JobPriority) priority == JobPriority.High)
+                    !_requirements.IsAllowed(job, (HumanoidCharacterProfile?)_preferencesManager.Preferences?.SelectedCharacter, out _) ||
+                    !args.TryInt("value", out var priority) || !Enum.IsDefined((JobPriority)priority)) return false;
+                if ((JobPriority)priority == JobPriority.High)
                     foreach (var (id, previous) in Profile.JobPriorities.ToArray())
                         if (id != jobId && previous == JobPriority.High) Profile = Profile.WithJobPriority(id, JobPriority.Medium);
-                Profile = Profile.WithJobPriority(jobId, (JobPriority) priority); UpdateJobPriorities(); ReloadPreview(); break;
+                Profile = Profile.WithJobPriority(jobId, (JobPriority)priority); UpdateJobPriorities(); ReloadPreview(); break;
             case "unavailable":
-                if (!args.TryInt("value", out var unavailable) || !Enum.IsDefined((PreferenceUnavailableMode) unavailable)) return false;
-                Profile = Profile.WithPreferenceUnavailable((PreferenceUnavailableMode) unavailable); PreferenceUnavailableButton.SelectId(unavailable); SetDirty(); break;
+                if (!args.TryInt("value", out var unavailable) || !Enum.IsDefined((PreferenceUnavailableMode)unavailable)) return false;
+                Profile = Profile.WithPreferenceUnavailable((PreferenceUnavailableMode)unavailable); PreferenceUnavailableButton.SelectId(unavailable); SetDirty(); break;
             case "trait":
                 if (args.String("id") is not { } traitId || !_prototypeManager.TryIndex<TraitPrototype>(traitId, out var trait)) return false;
                 if (Profile.TraitPreferences.Contains(trait.ID)) Profile = Profile.WithoutTraitPreference(trait.ID, _prototypeManager);

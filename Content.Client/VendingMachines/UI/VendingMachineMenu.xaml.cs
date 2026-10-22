@@ -39,6 +39,7 @@ namespace Content.Client.VendingMachines.UI
             VendingContents.ItemKeyBindDown += (args, data) => OnItemSelected?.Invoke(args, data);
         }
 
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

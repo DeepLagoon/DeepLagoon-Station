@@ -6,10 +6,10 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Client._DeepLagoon.WebUI;
 
-public sealed class WikiRoutingConfiguration
+public sealed partial class WikiRoutingConfiguration
 {
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     private string? _previousConfiguration;
     private string? _previousDefaults;
@@ -45,7 +45,7 @@ public sealed class WikiRoutingConfiguration
         try { _cached = new WikiRouteTable(defaults, configuration); }
         catch (ArgumentException error)
         {
-            Logger.Error("Invalid wiki.routes; using prototype defaults: " + error.Message);
+            Logger.GetSawmill(Robust.Shared.Log.LogManager.ROOT).Error("Invalid wiki.routes; using prototype defaults: " + error.Message);
             _cached = new WikiRouteTable(defaults, "");
         }
         return _cached;

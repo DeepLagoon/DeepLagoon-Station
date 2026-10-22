@@ -8,7 +8,7 @@ namespace Content.Server.Abilities.Psionics;
 [RegisterComponent]
 public sealed partial class PsionicSummonedWeaponComponent : Component;
 
-public sealed class PsionicSummonedWeaponSystem : EntitySystem
+public sealed partial class PsionicSummonedWeaponSystem : EntitySystem
 {
     [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
     [Dependency] private SharedHandsSystem _hands = default!;

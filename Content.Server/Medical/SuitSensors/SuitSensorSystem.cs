@@ -23,14 +23,14 @@ using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Content.Shared.DeviceNetwork.Components;
-using Content.Shared.Medical.SuitSensor;
+
 using Robust.Shared.Timing;
-using System.Numerics; //Frontier modification
+ //Frontier modification
 using Content.Server.Salvage.Expeditions;
 using Content.Server._Mono.Radar; // Monolith
 using Content.Server.Explosion.EntitySystems;
 using Content.Server._NF.Medical.SuitSensors; // Frontier modification
-using Content.Shared.DeviceNetwork.Components;
+
 
 namespace Content.Server.Medical.SuitSensors;
 
@@ -400,7 +400,7 @@ public sealed partial class SuitSensorSystem : EntitySystem
 
         // get health mob state
         var isAlive = false;
-        if (EntityManager.TryGetComponent(sensor.User.Value, out MobStateComponent? mobState))
+        if (TryComp(sensor.User.Value, out MobStateComponent? mobState))
             isAlive = !_mobStateSystem.IsDead(sensor.User.Value, mobState);
 
         // get mob total damage

@@ -13,11 +13,11 @@ using Robust.Shared.Random;
 
 namespace Content.Client.PsionicsRecords;
 
-public sealed class PsionicsRecordsConsoleBoundUserInterface : BoundUserInterface
+public sealed partial class PsionicsRecordsConsoleBoundUserInterface : BoundUserInterface
 {
-    [Dependency] private readonly IPrototypeManager _proto = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
+    [Dependency] private IPrototypeManager _proto = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private IPlayerManager _playerManager = default!;
     private readonly AccessReaderSystem _accessReader;
 
     private PsionicsRecordsConsoleWindow? _window;

@@ -12,15 +12,15 @@ using Robust.Shared.Audio.Systems;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class DispelPowerSystem : EntitySystem
+    public sealed partial class DispelPowerSystem : EntitySystem
     {
-        [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
-        [Dependency] private readonly DamageableSystem _damageableSystem = default!;
-        [Dependency] private readonly GuardianSystem _guardianSystem = default!;
-        [Dependency] private readonly IRobustRandom _random = default!;
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-        [Dependency] private readonly SharedAudioSystem _audioSystem = default!;
-        [Dependency] private readonly PopupSystem _popupSystem = default!;
+        [Dependency] private StatusEffectsSystem _statusEffects = default!;
+        [Dependency] private DamageableSystem _damageableSystem = default!;
+        [Dependency] private GuardianSystem _guardianSystem = default!;
+        [Dependency] private IRobustRandom _random = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private SharedAudioSystem _audioSystem = default!;
+        [Dependency] private PopupSystem _popupSystem = default!;
 
 
         public override void Initialize()

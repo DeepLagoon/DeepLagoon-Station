@@ -7,14 +7,14 @@ using Robust.Shared.Serialization;
 
 namespace Content.Shared.Abilities.Psionics
 {
-    public sealed class SharedPsionicAbilitiesSystem : EntitySystem
+    public sealed partial class SharedPsionicAbilitiesSystem : EntitySystem
     {
-        [Dependency] private readonly EntityLookupSystem _lookup = default!;
-        [Dependency] private readonly SharedPopupSystem _popups = default!;
-        [Dependency] private readonly ISharedAdminLogManager _adminLogger = default!;
-        [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
-        [Dependency] private readonly IRobustRandom _robustRandom = default!;
-        [Dependency] private readonly ContestsSystem _contests = default!;
+        [Dependency] private EntityLookupSystem _lookup = default!;
+        [Dependency] private SharedPopupSystem _popups = default!;
+        [Dependency] private ISharedAdminLogManager _adminLogger = default!;
+        [Dependency] private GlimmerSystem _glimmerSystem = default!;
+        [Dependency] private IRobustRandom _robustRandom = default!;
+        [Dependency] private ContestsSystem _contests = default!;
 
         public override void Initialize()
         {

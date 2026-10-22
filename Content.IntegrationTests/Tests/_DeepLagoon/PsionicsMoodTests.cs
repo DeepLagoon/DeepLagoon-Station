@@ -172,7 +172,7 @@ public sealed class PsionicsMoodTests
                          ("GlimmerProber", "prober"), ("ComputerPsionicsRecords", "registry") })
             {
                 var prototype = prototypes.Index<EntityPrototype>(id);
-                Assert.That(prototype.TryGetComponent<Robust.Client.GameObjects.SpriteComponent>(out var sprite, factory), Is.True, id);
+                Assert.That(prototype.TryComp<Robust.Client.GameObjects.SpriteComponent>(out var sprite, factory), Is.True, id);
                 Assert.That(sprite.BaseRSI.TryGetState(state, out _), Is.True, $"{id}: {state}");
             }
         });

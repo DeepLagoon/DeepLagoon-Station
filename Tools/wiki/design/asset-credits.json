@@ -1,0 +1,61 @@
+[
+  {
+    "file": "logo.png",
+    "source": "Resources/Textures/_DeepLagoon/Logo/logo.png"
+  },
+  {
+    "file": "arrival.webp",
+    "source": "Resources/Textures/LobbyScreens/terminalstation.webp",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "aserovich on discord",
+    "attribution": "Resources/Textures/LobbyScreens/attributions.yml"
+  },
+  {
+    "file": "dispenser.png",
+    "source": "Resources/Textures/Structures/dispensers.rsi/industrial-working.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Taken from Shiptest."
+  },
+  {
+    "file": "chemmaster.png",
+    "source": "Resources/Textures/Structures/Machines/mixer.rsi/mixer_loaded.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Taken from Shiptest. Edited by _starch_ for SS14."
+  },
+  {
+    "file": "beaker.png",
+    "source": "Resources/Textures/Objects/Specific/Chemistry/beaker.rsi/beaker.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Taken from cev-eris at https://github.com/discordia-space/CEV-Eris/commit/740ff31a81313086cf16761f3677cf1e2ab46c93"
+  },
+  {
+    "file": "shaker.png",
+    "source": "Resources/Textures/Objects/Consumable/Drinks/shaker.rsi/icon.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "https://github.com/discordia-space/CEV-Eris/raw/f7aa28fd4b4d0386c3393d829681ebca526f1d2d/icons/obj/drinks.dmi"
+  },
+  {
+    "file": "gin.png",
+    "source": "Resources/Textures/Objects/Consumable/Drinks/ginbottle.rsi/icon.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "https://github.com/discordia-space/CEV-Eris/raw/f7aa28fd4b4d0386c3393d829681ebca526f1d2d/icons/obj/drinks.dmi"
+  },
+  {
+    "file": "vermouth.png",
+    "source": "Resources/Textures/Objects/Consumable/Drinks/vermouthbottle.rsi/icon.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "https://github.com/discordia-space/CEV-Eris/raw/f7aa28fd4b4d0386c3393d829681ebca526f1d2d/icons/obj/drinks.dmi"
+  },
+  {
+    "file": "martini.png",
+    "source": "Resources/Textures/Objects/Consumable/Drinks/martiniglass.rsi/icon.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "https://github.com/discordia-space/CEV-Eris/raw/f7aa28fd4b4d0386c3393d829681ebca526f1d2d/icons/obj/drinks.dmi. Fill levels by Tayrtahn on GitHub."
+  },
+  {
+    "file": "bartender.png",
+    "source": "Resources/Textures/Markers/jobs.rsi/bartender.png",
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Taken from https://github.com/vgstation-coders/vgstation13/blob/e71d6c4fba5a51f99b81c295dcaec4fc2f58fb19/icons/mob/screen1.dmi | cburn and cluwne made by brainfood1183 (github). brigmed made by PuroSlavKing (Github)"
+  }
+]

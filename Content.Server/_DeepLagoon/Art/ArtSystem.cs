@@ -19,19 +19,19 @@ using Robust.Shared.Timing;
 
 namespace Content.Server._DeepLagoon.Art;
 
-public sealed class ArtSystem : EntitySystem
+public sealed partial class ArtSystem : EntitySystem
 {
-    [Dependency] private readonly UserInterfaceSystem _ui = default!;
-    [Dependency] private readonly SharedHandsSystem _hands = default!;
-    [Dependency] private readonly SharedInteractionSystem _interaction = default!;
-    [Dependency] private readonly SharedContainerSystem _containers = default!;
-    [Dependency] private readonly PopupSystem _popup = default!;
-    [Dependency] private readonly ISharedPlayerManager _players = default!;
-    [Dependency] private readonly IServerDbManager _db = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly TagSystem _tags = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
+    [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private SharedInteractionSystem _interaction = default!;
+    [Dependency] private SharedContainerSystem _containers = default!;
+    [Dependency] private PopupSystem _popup = default!;
+    [Dependency] private ISharedPlayerManager _players = default!;
+    [Dependency] private IServerDbManager _db = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private TagSystem _tags = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
     private sealed class Upload(int count, TimeSpan expires)
     {
         public readonly int Count = count;

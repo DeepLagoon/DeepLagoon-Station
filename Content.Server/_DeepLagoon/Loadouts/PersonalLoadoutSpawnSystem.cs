@@ -9,13 +9,13 @@ using Content.Shared.Storage.EntitySystems;
 
 namespace Content.Server._DeepLagoon.Loadouts;
 
-public sealed class PersonalLoadoutSpawnSystem : EntitySystem
+public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
 {
-    [Dependency] private readonly PersonalLoadoutEquipSystem _equipment = default!;
-    [Dependency] private readonly InventorySystem _inventory = default!;
-    [Dependency] private readonly SharedStorageSystem _storage = default!;
-    [Dependency] private readonly SharedHandsSystem _hands = default!;
-    [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
+    [Dependency] private PersonalLoadoutEquipSystem _equipment = default!;
+    [Dependency] private InventorySystem _inventory = default!;
+    [Dependency] private SharedStorageSystem _storage = default!;
+    [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private SharedAppearanceSystem _appearance = default!;
 
     public override void Initialize()
     {

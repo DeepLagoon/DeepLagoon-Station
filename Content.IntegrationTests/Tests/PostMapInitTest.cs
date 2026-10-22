@@ -25,7 +25,7 @@ using Robust.Shared.EntitySerialization;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.IoC;
 using Robust.Shared.Utility;
-using YamlDotNet.RepresentationModel;
+
 using Content.IntegrationTests.Tests._NF;
 
 namespace Content.IntegrationTests.Tests

@@ -26,14 +26,14 @@ public sealed partial class GridEditorSystem
         var gridY = (int) MathF.Floor(bounds.Bottom / grid.TileSize);
         var gridRight = (int) MathF.Ceiling(bounds.Right / grid.TileSize);
         var gridTop = (int) MathF.Ceiling(bounds.Top / grid.TileSize);
-        var minX = gridX - 4; var minY = gridY - 4;
-        var maxX = gridRight + 4; var maxY = gridTop + 4;
+        var minX = gridX; var minY = gridY;
+        var maxX = gridRight; var maxY = gridTop;
         foreach (var item in items)
         {
-            minX = Math.Min(minX, (int) MathF.Floor(item.X) - 4);
-            minY = Math.Min(minY, (int) MathF.Floor(item.Y) - 4);
-            maxX = Math.Max(maxX, (int) MathF.Ceiling(item.X) + 5);
-            maxY = Math.Max(maxY, (int) MathF.Ceiling(item.Y) + 5);
+            minX = Math.Min(minX, (int) MathF.Floor(item.X));
+            minY = Math.Min(minY, (int) MathF.Floor(item.Y));
+            maxX = Math.Max(maxX, (int) MathF.Floor(item.X) + 1);
+            maxY = Math.Max(maxY, (int) MathF.Floor(item.Y) + 1);
         }
         // The applied empty editing extent is shared; each viewer keeps its own camera.
         foreach (var (_, draft) in viewers)

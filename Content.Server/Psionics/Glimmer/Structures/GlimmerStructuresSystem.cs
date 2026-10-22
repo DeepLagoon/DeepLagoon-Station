@@ -11,10 +11,10 @@ namespace Content.Server.Psionics.Glimmer;
 /// <summary>
 /// Handles structures which add/subtract glimmer.
 /// </summary>
-public sealed class GlimmerStructuresSystem : EntitySystem
+public sealed partial class GlimmerStructuresSystem : EntitySystem
 {
-    [Dependency] private readonly PowerReceiverSystem _powerReceiverSystem = default!;
-    [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
+    [Dependency] private PowerReceiverSystem _powerReceiverSystem = default!;
+    [Dependency] private GlimmerSystem _glimmerSystem = default!;
 
     public override void Initialize()
     {

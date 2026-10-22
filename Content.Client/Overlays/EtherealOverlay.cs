@@ -7,10 +7,10 @@ using Content.Shared.Shadowkin;
 
 namespace Content.Client.Overlays;
 
-public sealed class EtherealOverlay : Overlay
+public sealed partial class EtherealOverlay : Overlay
 {
-    [Dependency] private readonly IPrototypeManager _prototype = default!;
-    [Dependency] private readonly IPlayerManager _player = default!;
+    [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private IPlayerManager _player = default!;
     [Dependency] IEntityManager _entityManager = default!;
 
     public override bool RequestScreenTexture => true;

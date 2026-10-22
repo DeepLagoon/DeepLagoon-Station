@@ -4,9 +4,9 @@ using Content.Shared.StatusEffect;
 
 namespace Content.Shared.Abilities.Psionics
 {
-    public sealed class PsionicItemsSystem : EntitySystem
+    public sealed partial class PsionicItemsSystem : EntitySystem
     {
-        [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
+        [Dependency] private StatusEffectsSystem _statusEffects = default!;
         public override void Initialize()
         {
             base.Initialize();

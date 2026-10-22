@@ -8,11 +8,11 @@ using Content.Shared.Popups;
 using Content.Shared.Clothing.Components;
 
 namespace Content.Server.Shadowkin;
-public sealed class ShowEtherealSystem : EntitySystem
+public sealed partial class ShowEtherealSystem : EntitySystem
 {
-    [Dependency] private readonly EyeSystem _eye = default!;
-    [Dependency] private readonly SharedPopupSystem _popup = default!;
-    [Dependency] private readonly IGameTiming _gameTiming = default!;
+    [Dependency] private EyeSystem _eye = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private IGameTiming _gameTiming = default!;
     public override void Initialize()
     {
         base.Initialize();

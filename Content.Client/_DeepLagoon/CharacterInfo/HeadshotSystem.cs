@@ -12,7 +12,7 @@ using Robust.Shared.Utility;
 using System.Text;
 
 namespace Content.Client._DeepLagoon.CharacterInfo;
-public sealed class HeadshotSystem : EntitySystem
+public sealed partial class HeadshotSystem : EntitySystem
 {
     [Dependency] private IFileDialogManager _dialogs = default!;
     [Dependency] private IClientPreferencesManager _preferences = default!;

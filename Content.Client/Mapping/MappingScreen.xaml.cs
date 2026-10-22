@@ -213,6 +213,7 @@ public sealed partial class MappingScreen : InGameScreen
     }
 
     // Exodus-Start Dispose palette picker so its FavoritesChanged subscription doesn't leak.
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

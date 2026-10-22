@@ -2,6 +2,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Content.Server.Atmos.EntitySystems;
+using Content.Server._DeepLagoon.Mapping;
+using Robust.Shared.EntitySerialization.Systems;
+using Robust.Shared.Utility;
 using Content.Server.Atmos.Components;
 using Content.Server.Bed.Components;
 using Content.Server.Construction.Components;
@@ -61,6 +64,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         public required ApartmentTemplatePrototype Template;
         public required ApartmentDelta Delta;
         public readonly Dictionary<string, EntityUid> Furniture = new();
+        public readonly Dictionary<string, ApartmentMapFurniture> MapFurniture = new();
         public required ApartmentGuestAccess Guests;
         public bool Frozen;
         public TimeSpan IdleSince;
@@ -76,8 +80,14 @@ public sealed partial class ApartmentSystem : EntitySystem
         public EntityUid? Uniform;
     }
 
+    [Dependency] private MapLoaderSystem _mapLoader = default!;
+
+    private readonly ApartmentRoundNumbers _numbers = new();
+    public int Number(NetUserId owner) => _numbers.Number(owner.UserId);
+    public NetUserId? NumberOwner(int number) => _numbers.Owner(number) is { } owner ? new NetUserId(owner) : null;
+
     private readonly Dictionary<NetUserId, Instance> _instances = new();
-    // Small round metadata survives grid unloading. Invitations never keep empty grids alive.
+    // Round metadata survives grid unloading without keeping empty grids alive.
     private readonly Dictionary<NetUserId, ApartmentGuestAccess> _guestAccess = new();
     private readonly Dictionary<NetUserId, string> _templates = new();
     private readonly Dictionary<NetUserId, Visit> _visits = new();
@@ -129,7 +139,7 @@ public sealed partial class ApartmentSystem : EntitySystem
 
         // Keep the normal arrival point and loadout for leaving the apartment.
         // A failed load leaves the player at their normal latejoin spawn.
-        if (!Enter(args.Player, args.Player.UserId, out var message))
+        if (!Enter(args.Player, args.Player.UserId, out var message, spawnAtBed: true))
             Log.Warning($"Could not spawn latejoining player {args.Player.UserId} in their apartment: {message}");
     }
 
@@ -160,7 +170,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     private ApartmentFurniturePrototype? Catalog(string id) =>
         _prototypes.TryIndex<ApartmentFurniturePrototype>(id, out var furniture) ? furniture : null;
 
-    public bool Enter(ICommonSession session, NetUserId owner, out string message, string templateId = "DLApartmentStudio", EntityCoordinates? returnPoint = null)
+    public bool Enter(ICommonSession session, NetUserId owner, out string message, string? templateId = null, EntityCoordinates? returnPoint = null, bool spawnAtBed = false)
     {
         message = "";
         if (!Enabled) { message = "Прототип отключён: cvar deeplagoon.apartments_enabled true"; return false; }
@@ -169,11 +179,10 @@ public sealed partial class ApartmentSystem : EntitySystem
         { message = "Для посещения нужен живой персонаж."; return false; }
         if (TryComp<BuckleComponent>(body, out var buckle) && buckle.Buckled)
         { message = "Сначала встаньте с сиденья."; return false; }
+        templateId ??= _config.GetCVar(ApartmentCVars.DefaultTemplate);
         EnsureMaps();
         if (!_instances.TryGetValue(owner, out var instance))
         {
-            if (owner != session.UserId && (!_guestAccess.TryGetValue(owner, out var access) || !access.MayEnter(session.UserId.UserId, _timing.RealTime)))
-            { message = "Приглашение отсутствует или истекло."; return false; }
             if (_instances.Count >= Math.Max(1, _config.GetCVar(ApartmentCVars.LoadedLimit)))
             { message = "Достигнут лимит загруженных квартир. Подождите выгрузки пустых помещений."; return false; }
             try { instance = Create(owner, _templates.GetValueOrDefault(owner, templateId)); }
@@ -182,8 +191,6 @@ public sealed partial class ApartmentSystem : EntitySystem
             _guestAccess[owner] = instance.Guests;
             _templates[owner] = instance.Template.ID;
         }
-        if (owner != session.UserId && !instance.Guests.MayEnter(session.UserId.UserId, _timing.RealTime))
-        { message = "Хозяин не приглашал вас в эту квартиру."; return false; }
         if (_visits.Values.Count(v => v.Apartment == instance) >= instance.Template.MaxVisitors)
         { message = "В квартире больше нет мест."; return false; }
         if (returnPoint is { } returnCoordinates && !returnCoordinates.IsValid(EntityManager))
@@ -196,7 +203,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             DepositGear(visit);
             Wake(instance);
             EnsureComp<ApartmentResidentComponent>(body);
-            _transform.SetCoordinates(body, new EntityCoordinates(instance.Grid, new Vector2(instance.Template.Arrival.X + .5f, instance.Template.Arrival.Y + .5f)));
+            _transform.SetCoordinates(body, ArrivalCoordinates(instance, spawnAtBed));
             _visits.Add(session.UserId, visit);
         }
         catch (Exception e)
@@ -212,15 +219,53 @@ public sealed partial class ApartmentSystem : EntitySystem
         return true;
     }
 
+    private EntityCoordinates ArrivalCoordinates(Instance instance, bool spawnAtBed)
+    {
+        var arrival = new Vector2(instance.Template.Arrival.X + .5f, instance.Template.Arrival.Y + .5f);
+        var coordinates = new EntityCoordinates(instance.Grid, arrival);
+        if (!spawnAtBed)
+            return coordinates;
+
+        var distance = float.PositiveInfinity;
+        var beds = EntityQueryEnumerator<StrapComponent, TransformComponent, MetaDataComponent>();
+        while (beds.MoveNext(out _, out var strap, out var transform, out var metadata))
+        {
+            if (transform.ParentUid != instance.Grid || !transform.Anchored || strap.BuckledEntities.Count > 0 ||
+                metadata.EntityPrototype is not { } prototype ||
+                !_prototypes.EnumerateParents(prototype, includeSelf: true).Any(parent => parent.ID == "Bed"))
+                continue;
+            var candidateDistance = Vector2.DistanceSquared(arrival, transform.LocalPosition);
+            if (candidateDistance >= distance)
+                continue;
+            distance = candidateDistance;
+            coordinates = transform.Coordinates;
+        }
+        return coordinates;
+    }
+
     private Instance Create(NetUserId owner, string templateId)
     {
         var saved = Store.Load(owner.UserId);
         var template = _prototypes.Index<ApartmentTemplatePrototype>(saved?.Template ?? templateId);
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);
-        var layout = ApartmentLayout.Resolve(template, delta);
-        if (ApartmentLayout.Validate(template, layout, Catalog) is { } error) throw new InvalidOperationException(error);
-        var grid = _maps.CreateGridEntity(Comp<MapComponent>(_activeMap).MapId);
+        var layout = template.Map == null ? ApartmentLayout.Resolve(template, delta) : new List<ApartmentPlacement>();
+        if (template.Map == null && ApartmentLayout.Validate(template, layout, Catalog) is { } error) throw new InvalidOperationException(error);
+        Entity<MapGridComponent> grid;
+        if (template.Map is { } path)
+        {
+            if (!_mapLoader.TryLoadGridTracked(Comp<MapComponent>(_activeMap).MapId, new ResPath(path), out var loaded,
+                    new Robust.Shared.EntitySerialization.DeserializationOptions { StoreYamlUids = true }))
+                throw new InvalidOperationException("Cannot load apartment template map.");
+            grid = loaded.Value;
+            var bounds = grid.Comp.LocalAABB;
+            if (bounds.Left < 0 || bounds.Bottom < 0 || bounds.Right > template.Width || bounds.Top > template.Height)
+            {
+                Del(grid);
+                throw new InvalidOperationException("Apartment map must fit within its declared template bounds at the local origin.");
+            }
+        }
+        else grid = _maps.CreateGridEntity(Comp<MapComponent>(_activeMap).MapId);
         EnsureComp<ApartmentGridComponent>(grid);
         EnsureComp<ApartmentProtectedGridComponent>(grid);
         // Grid initialization installs a black implicit roof. Apartments use constant
@@ -234,18 +279,42 @@ public sealed partial class ApartmentSystem : EntitySystem
         try
         {
             _transform.SetCoordinates(grid, new EntityCoordinates(_activeMap, position));
-            var tile = new Tile(_tiles[template.Floor].TileId);
-            var tiles = new List<(Vector2i, Tile)>();
-            for (var x = 0; x < template.Width; x++)
-            for (var y = 0; y < template.Height; y++) tiles.Add((new Vector2i(x, y), tile));
-            _map.SetTiles(grid, tiles);
-            for (var x = 0; x < template.Width; x++)
-            for (var y = 0; y < template.Height; y++)
-                if (x == 0 || y == 0 || x == template.Width - 1 || y == template.Height - 1)
-                    Spawn(template.Wall, new EntityCoordinates(grid, new Vector2(x + .5f, y + .5f)));
-            var terminal = Spawn("DLApartmentTerminal", new EntityCoordinates(grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + 1.5f)));
-            RemComp<ConstructionComponent>(terminal);
-            foreach (var item in layout) instance.Furniture[item.Id] = SpawnFurniture(item, grid);
+            if (template.Map == null)
+            {
+                var tile = new Tile(_tiles[template.Floor].TileId);
+                var tiles = new List<(Vector2i, Tile)>();
+                for (var x = 0; x < template.Width; x++)
+                for (var y = 0; y < template.Height; y++) tiles.Add((new Vector2i(x, y), tile));
+                _map.SetTiles(grid, tiles);
+                for (var x = 0; x < template.Width; x++)
+                for (var y = 0; y < template.Height; y++)
+                    if (x == 0 || y == 0 || x == template.Width - 1 || y == template.Height - 1)
+                        Spawn(template.Wall, new EntityCoordinates(grid, new Vector2(x + .5f, y + .5f)));
+            }
+            var hasTerminal = false;
+            var terminals = EntityQueryEnumerator<ApartmentTerminalComponent, TransformComponent>();
+            while (terminals.MoveNext(out var terminal, out _, out var transform))
+            {
+                if (transform.GridUid != grid.Owner)
+                    continue;
+                hasTerminal = true;
+                RemComp<ConstructionComponent>(terminal);
+            }
+            if (!hasTerminal)
+            {
+                var terminal = Spawn("DLApartmentTerminal", new EntityCoordinates(grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + 1.5f)));
+                RemComp<ConstructionComponent>(terminal);
+            }
+            if (template.Map != null) RegisterMapFurniture(instance);
+            layout = ApartmentLayout.Resolve(template, delta, MapBaseline(instance));
+            if (template.Map != null && ApartmentLayout.Validate(template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance)) is { } mapError)
+                throw new InvalidOperationException(mapError);
+            foreach (var item in layout)
+                if (instance.MapFurniture.TryGetValue(item.Id, out var mapped))
+                {
+                    if (!item.SameAs(mapped.Baseline)) MoveMapFurniture(instance, item);
+                }
+                else instance.Furniture[item.Id] = SpawnFurniture(item, grid);
             return instance;
         }
         catch { Del(grid); throw; }
@@ -385,15 +454,18 @@ public sealed partial class ApartmentSystem : EntitySystem
         visit.Gear.Clear();
     }
 
-    public bool OpenEditor(ICommonSession session)
+    public bool OpenEditor(ICommonSession session, EntityUid? terminal = null)
     {
         if (!Enabled || !_visits.TryGetValue(session.UserId, out var visit) || visit.Apartment.Owner != session.UserId || session.AttachedEntity != visit.Body ||
             HasComp<ApartmentTripPendingComponent>(visit.Body) || Transform(visit.Body).GridUid != visit.Apartment.Grid) return false;
         var instance = visit.Apartment;
+        if (terminal is { } console && (!HasComp<ApartmentTerminalComponent>(console) || Transform(console).GridUid != instance.Grid)) return false;
         var token = Guid.NewGuid();
         _editors[session.UserId] = token;
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
-            ApartmentLayout.Resolve(instance.Template, instance.Delta), instance.Furniture.ToDictionary(p => p.Key, p => GetNetEntity(p.Value))), session);
+            CurrentLayout(instance), instance.Furniture.Where(p => Exists(p.Value) && Transform(p.Value).ParentUid == instance.Grid)
+                .ToDictionary(p => p.Key, p => GetNetEntity(p.Value)),
+            CaptureRoom(instance), Number(instance.Owner), instance.MapFurniture.Values.ToList()), session);
         return true;
     }
 
@@ -404,7 +476,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         var session = actor.PlayerSession;
         args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-apartment-exit"), Act = () => { RequestLeave(session.UserId, out var message); Result(session, false, message, _visits.ContainsKey(session.UserId) ? visit.Apartment.Delta.Revision : -1); } });
         if (visit.Apartment.Owner == session.UserId)
-            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-apartment-edit"), Act = () => OpenEditor(session) });
+            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-apartment-edit"), Act = () => OpenEditor(session, terminal.Owner) });
     }
 
     private void OnAction(ApartmentActionEvent ev, EntitySessionEventArgs args)
@@ -417,7 +489,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     private void OnApply(ApartmentApplyEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
-        if (ev.Layout == null || ev.Layout.Count > 64 || ev.Layout.Any(p => p == null))
+        var mapCount = _visits.TryGetValue(session.UserId, out var current) ? current.Apartment.MapFurniture.Count : 0;
+        if (ev.Layout == null || ev.Layout.Count > 64 + mapCount || ev.Layout.Any(p => p == null))
         { Result(session, false, "Некорректный проект квартиры.", -1); return; }
         var error = Apply(session, ev.Token, ev.Revision, ev.Layout);
         var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : -1;
@@ -436,9 +509,13 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (revision != instance.Delta.Revision) return "Обстановка изменилась. Откройте редактор заново.";
         if (_lastApply.TryGetValue(session.UserId, out var last) && _timing.RealTime - last < TimeSpan.FromMilliseconds(500)) return "Подождите перед повторным сохранением.";
         _lastApply[session.UserId] = _timing.RealTime;
-        if (ApartmentLayout.Validate(instance.Template, layout, Catalog) is { } error) return error;
-        var old = ApartmentLayout.Resolve(instance.Template, instance.Delta).ToDictionary(p => p.Id);
+        if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance)) is { } error) return error;
+        var old = CurrentLayout(instance).ToDictionary(p => p.Id);
         var touched = layout.Where(p => !old.TryGetValue(p.Id, out var previous) || !p.SameAs(previous)).ToList();
+        if (instance.MapFurniture.Keys.Any(id => !instance.Furniture.TryGetValue(id, out var entity) || !Exists(entity)))
+            return "Исходный предмет квартиры удалён. Откройте квартиру заново после её перезагрузки.";
+        if (touched.Any(p => instance.Furniture.TryGetValue(p.Id, out var entity) && TryComp<StrapComponent>(entity, out var strap) && strap.BuckledEntities.Count > 0))
+            return "Перед перестановкой освободите мебель от пассажиров.";
         if (TryComp<BuckleComponent>(visit.Body, out var buckle) && buckle.Buckled) return "Перед применением встаньте с сиденья.";
         foreach (var participant in _visits.Values.Where(v => v.Apartment == instance && Exists(v.Body)))
         {
@@ -446,14 +523,14 @@ public sealed partial class ApartmentSystem : EntitySystem
                 return "Посетитель сидит на мебели. Попросите его встать.";
             var pos = Transform(participant.Body).LocalPosition;
             var cell = new Vector2i((int) MathF.Floor(pos.X), (int) MathF.Floor(pos.Y));
-            if (touched.Any(p => ApartmentLayout.Cells(p, Catalog(p.Furniture)!).Contains(cell))) return "Посетитель находится на месте новой мебели.";
+            if (touched.Any(p => ApartmentLayout.Cells(p, Catalog(instance, p.Furniture)!).Contains(cell))) return "Посетитель находится на месте новой мебели.";
         }
         var prepared = new Dictionary<string, EntityUid>();
-        var delta = ApartmentLayout.Diff(instance.Template, layout, revision + 1);
+        var delta = ApartmentLayout.Diff(instance.Template, layout, revision + 1, MapBaseline(instance));
         var committed = false;
         try
         {
-            foreach (var p in touched) prepared[p.Id] = SpawnFurniture(p, _sleepMap);
+            foreach (var p in touched.Where(p => !instance.MapFurniture.ContainsKey(p.Id))) prepared[p.Id] = SpawnFurniture(p, _sleepMap);
             if (!Store.Save(session.UserId.UserId, delta, revision)) return "Сохранение изменилось. Откройте квартиру заново.";
             committed = true;
         }
@@ -472,6 +549,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             if (layout.All(p => p.Id != id) || prepared.ContainsKey(id)) { Del(entity); instance.Furniture.Remove(id); }
         foreach (var p in touched)
         {
+            if (instance.MapFurniture.ContainsKey(p.Id)) { MoveMapFurniture(instance, p); continue; }
             var entity = prepared[p.Id];
             _transform.SetCoordinates(entity, new EntityCoordinates(instance.Grid, new Vector2(p.X + .5f, p.Y + .5f)));
             _transform.AnchorEntity(entity);
@@ -488,8 +566,12 @@ public sealed partial class ApartmentSystem : EntitySystem
 
     // AutomaticAtmosSystem normally creates mutable vacuum tiles on any large grid.
     // Residential grids always breathe the map's immutable mixture, including after mass changes.
-    private void OnGridMassChanged(Entity<ApartmentGridComponent> entity, ref MassDataChangedEvent args) =>
-        RemComp<GridAtmosphereComponent>(entity);
+    private void OnGridMassChanged(Entity<ApartmentGridComponent> entity, ref MassDataChangedEvent args)
+    {
+        if (TryComp<Content.Shared._DeepLagoon.Mapping.GridEnvironmentComponent>(entity, out var environment) && environment.SafeAtmosphere)
+            _atmos.SetSafeGridAtmosphere(entity);
+        else RemComp<GridAtmosphereComponent>(entity);
+    }
 
     private void OnStatus(object? sender, SessionStatusEventArgs args)
     {
@@ -507,6 +589,7 @@ public sealed partial class ApartmentSystem : EntitySystem
 
     public void RefreshActivity(Instance instance)
     {
+        if (HasComp<ApartmentElevatorReservedComponent>(instance.Grid)) { Wake(instance); return; }
         var active = _visits.Any(p => p.Value.Apartment == instance && _players.TryGetSessionById(p.Key, out var session) &&
             session.Status == SessionStatus.InGame && session.AttachedEntity == p.Value.Body);
         if (active) { Wake(instance); return; }
@@ -533,6 +616,7 @@ public sealed partial class ApartmentSystem : EntitySystem
 
     private void Cleanup()
     {
+        _numbers.Reset();
         foreach (var visit in _visits.Values)
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }

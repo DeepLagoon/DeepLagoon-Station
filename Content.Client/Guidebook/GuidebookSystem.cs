@@ -27,7 +27,7 @@ namespace Content.Client.Guidebook;
 /// </summary>
 public sealed partial class GuidebookSystem : EntitySystem
 {
-    [Dependency] private readonly IUserInterfaceManager _ui = default!;
+    [Dependency] private IUserInterfaceManager _ui = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private SharedAudioSystem _audioSystem = default!;

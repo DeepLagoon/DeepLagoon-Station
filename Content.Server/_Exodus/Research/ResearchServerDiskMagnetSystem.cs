@@ -14,7 +14,7 @@ namespace Content.Server._Exodus.Research;
 /// Finds nearby entities allowed by <see cref="ResearchServerDiskMagnetComponent.Whitelist"/>
 /// and lets their systems handle insertion into an R&amp;D server.
 /// </summary>
-public sealed class ResearchServerDiskMagnetSystem : EntitySystem
+public sealed partial class ResearchServerDiskMagnetSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private EntityWhitelistSystem _whitelist = default!;
@@ -93,7 +93,7 @@ public sealed class ResearchServerDiskMagnetSystem : EntitySystem
             return;
 
         var nextScan = TimeSpan.MaxValue;
-        var query = EntityManager.AllEntityQueryEnumerator<ResearchServerDiskMagnetComponent,
+        var query = AllEntityQuery<ResearchServerDiskMagnetComponent,
             ResearchServerComponent,
             TransformComponent>();
 

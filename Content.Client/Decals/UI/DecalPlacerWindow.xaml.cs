@@ -310,6 +310,7 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
     }
 
     // Exodus-Start drop subscriptions and owned windows when this instance is destroyed.
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

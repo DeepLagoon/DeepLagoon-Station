@@ -1,0 +1,83 @@
+- type: reagent
+  id: DLCrocin
+  name: reagent-name-dl-crocin
+  desc: reagent-desc-dl-crocin
+  group: Medicine
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#E978B4"
+  metabolisms:
+    Medicine:
+      metabolismRate: 0.5
+      effects:
+      - !type:AdjustArousal
+        amount: 6
+
+- type: reagent
+  id: DLCamphor
+  name: reagent-name-dl-camphor
+  desc: reagent-desc-dl-camphor
+  group: Medicine
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: "#A8CDE3"
+  metabolisms:
+    Medicine:
+      metabolismRate: 0.5
+      effects:
+      - !type:AdjustArousal
+        amount: -12
+
+- type: entity
+  parent: Pill
+  id: DLLustWishCrocinPill
+  name: crocin pill
+  suffix: 10u
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLCrocin
+          Quantity: 10
+
+- type: entity
+  parent: Pill
+  id: DLLustWishCamphorPill
+  name: camphor pill
+  suffix: 10u
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: DLCamphor
+          Quantity: 10
+
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishCrocinBottle
+  name: crocin bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLCrocin
+          Quantity: 30
+
+- type: entity
+  parent: ChemistryEmptyBottle01
+  id: DLLustWishCamphorBottle
+  name: camphor bottle
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        maxVol: 30
+        reagents:
+        - ReagentId: DLCamphor
+          Quantity: 30

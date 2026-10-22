@@ -6,9 +6,9 @@ using Robust.Shared.Serialization;
 namespace Content.Shared._DeepLagoon.DiscordLink;
 
 /// <summary>Server checks the linked Discord identity; client receives only its own status.</summary>
-public abstract class SharedDiscordBoostSystem : EntitySystem
+public abstract partial class SharedDiscordBoostSystem : EntitySystem
 {
-    [Dependency] private readonly ISharedAdminManager _admins = default!;
+    [Dependency] private ISharedAdminManager _admins = default!;
 
     public bool HasHostAccess(ICommonSession? session)
         => session != null && _admins.HasAdminFlag(session, AdminFlags.Host, includeDeAdmin: true);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
+import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, resizeExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
@@ -310,6 +310,27 @@ test('preview deltas distinguish clearing an intent from deleting a world object
   assert.deepEqual(previewPatch([], [deletion]), [deletion]);
   assert.deepEqual(previewPatch([deletion], []), [{id:'e:1',kind:'clear'}]);
   assert.deepEqual(previewPatch([tile], [tile]), []);
+});
+
+test('resize contracts every edge to occupied cells and keeps one cell on an empty grid', () => {
+  const bounds = {x:-10,y:-10,width:20,height:20}, zero = {left:0,right:0,bottom:0,top:0};
+  const items = [{x:-2,y:-3,kind:'tile'}, {x:3.5,y:4.5,kind:'entity'}];
+  assert.deepEqual(resizeExpansion(bounds, zero, ['left','top'], 100, 100, items),
+    {left:-8,right:0,bottom:0,top:-5});
+  assert.deepEqual(resizeExpansion(bounds, zero, ['right','bottom'], -100, -100, items),
+    {left:0,right:-6,bottom:-7,top:0});
+  assert.deepEqual(resizeExpansion(bounds, zero, ['right','top'], -100, 100, []),
+    {left:0,right:-19,bottom:0,top:-19});
+  assert.deepEqual(resizeExpansion(bounds, { ...zero, right:5 }, ['right'], -7, 0, []),
+    {...zero,right:-2});
+});
+
+test('live patches preserve a contracted draft and do not undo a remote contraction', () => {
+  const previous = {x:-10,y:-10,width:20,height:20}, next = {x:-5,y:-5,width:10,height:10};
+  assert.deepEqual(rebaseExpansion(previous, next, {left:0,right:0,bottom:0,top:0}),
+    {left:0,right:0,bottom:0,top:0});
+  assert.deepEqual(rebaseExpansion(previous, {x:-11,y:-10,width:21,height:20},
+    {left:-2,right:-3,bottom:-4,top:-5}), {left:-3,right:-3,bottom:-4,top:-5});
 });
 
 test('foreign drafts are visible but local edits take priority and are never mutated', () => {

@@ -1,4 +1,4 @@
-﻿using Content.Shared.Abilities.Psionics;
+using Content.Shared.Abilities.Psionics;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Events;
 using Content.Shared.Doors.Components;
@@ -10,12 +10,12 @@ using Robust.Shared.Player;
 namespace Content.Server.Abilities.Psionics;
 
 
-public sealed class AnoigoPowerSystem : EntitySystem
+public sealed partial class AnoigoPowerSystem : EntitySystem
 {
-    [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-    [Dependency] private readonly SharedDoorSystem _door = default!;
-    [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedActionsSystem _actions = default!;
+    [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+    [Dependency] private SharedDoorSystem _door = default!;
+    [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private SharedActionsSystem _actions = default!;
 
     public override void Initialize()
     {

@@ -4,10 +4,10 @@ using Robust.Shared.Player;
 
 namespace Content.Client._DeepLagoon.DiscordLink;
 
-public sealed class DiscordBoostSystem : SharedDiscordBoostSystem
+public sealed partial class DiscordBoostSystem : SharedDiscordBoostSystem
 {
-    [Dependency] private readonly Robust.Client.Player.IPlayerManager _players = default!;
-    [Dependency] private readonly IBaseClient _client = default!;
+    [Dependency] private Robust.Client.Player.IPlayerManager _players = default!;
+    [Dependency] private IBaseClient _client = default!;
     private DateTime _expiresAt;
     private DateTime _boostyExpiresAt;
     private int _boostyTier;

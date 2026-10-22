@@ -8,11 +8,11 @@ using Robust.Server.GameObjects;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class DarkSwapSystem : EntitySystem
+    public sealed partial class DarkSwapSystem : EntitySystem
     {
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
-        [Dependency] private readonly SharedPopupSystem _popup = default!;
-        [Dependency] private readonly PhysicsSystem _physics = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private SharedPopupSystem _popup = default!;
+        [Dependency] private PhysicsSystem _physics = default!;
 
         public override void Initialize()
         {

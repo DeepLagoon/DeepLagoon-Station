@@ -77,32 +77,6 @@
     DLBreastsReduction: 3
 
 - type: reaction
-  id: DLAnusGrowth
-  minTemp: 370
-  reactants:
-    Silicon:
-      amount: 1
-    Aluminium:
-      amount: 1
-    Sugar:
-      amount: 1
-  products:
-    DLAnusGrowth: 3
-
-- type: reaction
-  id: DLAnusReduction
-  minTemp: 370
-  reactants:
-    Silicon:
-      amount: 1
-    Copper:
-      amount: 1
-    Sugar:
-      amount: 1
-  products:
-    DLAnusReduction: 3
-
-- type: reaction
   id: DLPenisGrowth
   minTemp: 370
   reactants:

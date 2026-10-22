@@ -9,9 +9,9 @@ namespace Content.Shared.Psionics.Glimmer;
 /// <summary>
 /// This handles setting / reading the value of glimmer.
 /// </summary>
-public sealed class GlimmerSystem : EntitySystem
+public sealed partial class GlimmerSystem : EntitySystem
 {
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
 
     private double _glimmerInput = 0;
 

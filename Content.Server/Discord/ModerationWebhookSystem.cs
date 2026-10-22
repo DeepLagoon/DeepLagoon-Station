@@ -16,11 +16,11 @@ using Robust.Shared.Network;
 namespace Content.Server.Discord;
 
 /// <summary>Per-runtime persistent outbox. Discord outages never prevent moderation actions.</summary>
-public sealed class ModerationWebhookSystem : EntitySystem
+public sealed partial class ModerationWebhookSystem : EntitySystem
 {
-    [Dependency] private readonly IServerDbManager _database = default!;
-    [Dependency] private readonly IConfigurationManager _config = default!;
-    [Dependency] private readonly IResourceManager _resources = default!;
+    [Dependency] private IServerDbManager _database = default!;
+    [Dependency] private IConfigurationManager _config = default!;
+    [Dependency] private IResourceManager _resources = default!;
 
     private HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(15) };
     private readonly CancellationTokenSource _stop = new();

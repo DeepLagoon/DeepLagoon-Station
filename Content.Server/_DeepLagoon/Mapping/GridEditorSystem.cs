@@ -61,6 +61,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         base.Initialize();
         SubscribeNetworkEvent<GridEditorApplyEvent>(Apply);
         SubscribeNetworkEvent<GridEditorAtmosRequest>(Atmos);
+        SubscribeNetworkEvent<GridEditorEnvironmentRequest>(Environment);
         SubscribeNetworkEvent<GridEditorCloseEvent>((_, args) => CloseEditor(args.SenderSession));
         SubscribeNetworkEvent<GridEditorDraftUpdateEvent>(Preview);
         SubscribeNetworkEvent<GridEditorRegionEvent>((ev, args) =>
@@ -88,7 +89,6 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         if (!_admins.HasAdminFlag(player, AdminFlags.Mapping)) return "Нужны права Mapping.";
         if (!TryComp<MapGridComponent>(grid, out var component)) return "Grid не найден.";
-        if (HasComp<ApartmentGridComponent>(grid)) return "Квартиры редактируются через apartment edit.";
         var bounds = component.LocalAABB;
         var x = (int) MathF.Floor(bounds.Left) - 4;
         var y = (int) MathF.Floor(bounds.Bottom) - 4;
@@ -105,7 +105,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         }
         var children = Transform(grid).ChildEnumerator;
         while (children.MoveNext(out var uid))
-            if (TryComp<TransformComponent>(uid, out var transform) && TryComp<MetaDataComponent>(uid, out var meta) &&
+            if (TryComp(uid, out TransformComponent? transform) && TryComp(uid, out MetaDataComponent? meta) &&
                 !HasComp<ActorComponent>(uid) && meta.EntityPrototype != null)
                 Include(transform.LocalPosition.X, transform.LocalPosition.Y);
         if (TryComp<DecalGridComponent>(grid, out var decals))
@@ -130,6 +130,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         RaiseNetworkEvent(new GridEditorStateEvent(GetNetEntity(grid), draft.Token, x, y, width, height, draft.Items, initialized,
             draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight, SourcePath(grid)), player);
         PublishPreviews(grid);
+        PublishEnvironment(player, draft);
         return $"Редактор grid открыт: ({x}, {y}), {width}×{height}.";
     }
 
@@ -194,7 +195,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         var children = Transform(draft.Grid).ChildEnumerator;
         while (children.MoveNext(out var uid))
         {
-            if (!TryComp<TransformComponent>(uid, out var transform) || !TryComp<MetaDataComponent>(uid, out var meta) ||
+            if (!TryComp(uid, out TransformComponent? transform) || !TryComp(uid, out MetaDataComponent? meta) ||
                 HasComp<ActorComponent>(uid) || meta.EntityPrototype == null ||
                 !contains(transform.LocalPosition.X, transform.LocalPosition.Y)) continue;
             var id = "e:" + GetNetEntity(uid);
@@ -227,11 +228,10 @@ public sealed partial class GridEditorSystem : EntitySystem
         var right = (long) draft.X + draft.Width; var top = (long) draft.Y + draft.Height;
         if (ev.Expansion is { } expansion)
         {
-            if (expansion.Left < 0 || expansion.Right < 0 || expansion.Bottom < 0 || expansion.Top < 0)
-            { Result("Некорректные границы области редактирования."); return; }
             var newLeft = (long) left - expansion.Left; var newBottom = (long) bottom - expansion.Bottom;
             right += expansion.Right; top += expansion.Top;
             if (newLeft < int.MinValue || newBottom < int.MinValue || right > int.MaxValue || top > int.MaxValue ||
+                right <= newLeft || top <= newBottom ||
                 right - newLeft > int.MaxValue || top - newBottom > int.MaxValue)
             { Result("Координаты области выходят за допустимый диапазон."); return; }
             left = (int) newLeft; bottom = (int) newBottom;
@@ -368,10 +368,23 @@ public sealed partial class GridEditorSystem : EntitySystem
                     ? existingEntity : Spawn(item.Prototype, coords);
                 foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
                 var transform = Comp<TransformComponent>(uid);
-                if (transform.Anchored) _transform.Unanchor(uid, transform);
-                _transform.SetCoordinates(uid, coords);
+                if (item.Anchored)
+                {
+                    var cell = new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y));
+                    if (!_transform.AnchorEntity((uid, transform, MetaData(uid)), (draft.Grid, gridComp), cell))
+                        throw new InvalidOperationException($"Cannot anchor {ToPrettyString(uid)} on edited grid {draft.Grid} at {cell}.");
+                }
+                else
+                {
+                    if (transform.Anchored) _transform.Unanchor(uid, transform);
+                    _transform.SetCoordinates(uid, coords);
+                }
                 _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
-                if (item.Anchored) _transform.AnchorEntity(uid);
+                if (transform.Anchored && (transform.ParentUid != draft.Grid || transform.GridUid != draft.Grid))
+                {
+                    _transform.Unanchor(uid, transform);
+                    throw new InvalidOperationException($"Edited entity {ToPrettyString(uid)} has an incompatible anchored parent.");
+                }
             }
             if (changed.Any(i => i.Kind == "decal")) EnsureComp<DecalGridComponent>(draft.Grid);
             foreach (var item in changed.Where(i => i.Kind == "decal"))
@@ -410,7 +423,10 @@ public sealed partial class GridEditorSystem : EntitySystem
 
     private void PublishPatch(ICommonSession player, Draft draft, int left, int bottom, long right, long top)
     {
-        draft.X = left; draft.Y = bottom; draft.Width = (int) (right - left); draft.Height = (int) (top - bottom);
+        foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid))
+        {
+            viewer.X = left; viewer.Y = bottom; viewer.Width = (int) (right - left); viewer.Height = (int) (top - bottom);
+        }
         draft.Preview.Clear(); draft.PreviewExpansion = new(); draft.PreviewGeneration++;
         SynchronizeGrid(draft.Grid, player);
         PublishPreviews(draft.Grid);

@@ -15,7 +15,7 @@ namespace Content.Shared._Crescent.Hardpoints;
 /// <summary>
 /// This handles...
 /// </summary>
-public class SharedHardpointSystem : EntitySystem
+public partial class SharedHardpointSystem : EntitySystem
 {
     [Dependency] private SharedTransformSystem _transformSystem = default!;
     private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();

@@ -13,11 +13,11 @@ using Robust.Shared.Map;
 
 namespace Content.Server.StationEvents.Events;
 
-public sealed class GlimmerMobRule : StationEventSystem<GlimmerMobRuleComponent>
+public sealed partial class GlimmerMobRule : StationEventSystem<GlimmerMobRuleComponent>
 {
-    [Dependency] private readonly GameTicker _gameTicker = default!;
-    [Dependency] private readonly GlimmerSystem _glimmer = default!;
-    [Dependency] private readonly StationSystem _stations = default!;
+    [Dependency] private GameTicker _gameTicker = default!;
+    [Dependency] private GlimmerSystem _glimmer = default!;
+    [Dependency] private StationSystem _stations = default!;
 
     protected override void Started(EntityUid uid, GlimmerMobRuleComponent comp, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {

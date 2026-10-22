@@ -310,6 +310,7 @@ public partial class ChatBox : UIWidget
         _controller.NotifyChatFocus(false);
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         CloseComposer();

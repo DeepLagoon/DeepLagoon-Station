@@ -246,6 +246,7 @@ public sealed class LobbyButtonArtwork : Control
         handle.DrawTextureRect(texture, UIBox2.FromDimensions(origin, size));
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         if (disposing)

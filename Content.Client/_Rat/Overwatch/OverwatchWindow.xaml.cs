@@ -504,6 +504,7 @@ public sealed partial class OverwatchWindow : FancyWindow
     }
 
     /// <inheritdoc/>
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         foreach (var row in _memberRows.Values)

@@ -195,6 +195,7 @@ public sealed class NativeArtEditor : BoxContainer
             _send("save", new TguiData().Number("index", index).Number("count", count)
                 .String("text", document.Substring(index * ArtLimits.ChunkChars, Math.Min(ArtLimits.ChunkChars, document.Length - index * ArtLimits.ChunkChars))).ToString());
     }
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing) { if (disposing) foreach (var layer in _layers) layer.Dispose(); base.Dispose(disposing); }
 }
 
@@ -246,6 +247,7 @@ public class NativeImage : Control
         if (_texture != null) handle.DrawTextureRect(_texture, PixelSizeBox);
     }
     protected override void ExitedTree() { _texture?.Dispose(); _texture = null; base.ExitedTree(); }
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing) { _texture?.Dispose(); _texture = null; base.Dispose(disposing); }
 }
 

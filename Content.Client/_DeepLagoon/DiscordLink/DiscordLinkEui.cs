@@ -27,8 +27,8 @@ public sealed partial class DiscordLinkEui : BaseEui
     private readonly LineEdit _code = new() { Editable = false };
     private readonly Button _generate = new() { Text = "Создать код" };
     private readonly Button _existing = new() { Text = "У меня уже есть аккаунт" };
-    [Dependency] private readonly IClipboardManager _clipboard = default!;
-    [Dependency] private readonly IBaseClient _client = default!;
+    [Dependency] private IClipboardManager _clipboard = default!;
+    [Dependency] private IBaseClient _client = default!;
     private readonly Button _copy = new() { Text = "Копировать код", Disabled = true };
     private bool _serverClosed;
 

@@ -11,12 +11,12 @@ using Content.Shared.Zombies;
 
 namespace Content.Server.StationEvents.Events;
 
-internal sealed class NoosphericStormRule : StationEventSystem<NoosphericStormRuleComponent>
+internal sealed partial class NoosphericStormRule : StationEventSystem<NoosphericStormRuleComponent>
 {
-    [Dependency] private readonly PsionicAbilitiesSystem _psionicAbilitiesSystem = default!;
-    [Dependency] private readonly MobStateSystem _mobStateSystem = default!;
-    [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
-    [Dependency] private readonly IRobustRandom _robustRandom = default!;
+    [Dependency] private PsionicAbilitiesSystem _psionicAbilitiesSystem = default!;
+    [Dependency] private MobStateSystem _mobStateSystem = default!;
+    [Dependency] private GlimmerSystem _glimmerSystem = default!;
+    [Dependency] private IRobustRandom _robustRandom = default!;
 
     protected override void Started(EntityUid uid, NoosphericStormRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {
@@ -24,7 +24,7 @@ internal sealed class NoosphericStormRule : StationEventSystem<NoosphericStormRu
 
         List<EntityUid> validList = new();
 
-        var query = EntityManager.EntityQueryEnumerator<PsionicComponent>();
+        var query = EntityQueryEnumerator<PsionicComponent>();
         while (query.MoveNext(out var Psionic, out var PsionicComponent))
         {
             if (_mobStateSystem.IsDead(Psionic)

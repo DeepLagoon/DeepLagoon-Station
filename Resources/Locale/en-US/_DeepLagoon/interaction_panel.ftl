@@ -139,7 +139,8 @@ dl-interaction-panel-review = Name: { $name }
     Sound: { $sound }
 
     The saved action will appear in your list. Creation, edits and use are visible to administrators.
-dl-interaction-panel-mana-reset = { $mob } emptied their mana to zero.
+dl-interaction-panel-arousal-reset = { $mob } relaxes as their arousal subsides.
+dl-interaction-panel-arousal = Your arousal
 
 dl-interaction-panel-category-neutral = Neutral
 dl-interaction-panel-category-erotic = { dl-interaction-panel-category-erp }

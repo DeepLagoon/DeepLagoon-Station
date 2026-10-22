@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "WhiteMoon / SPLURT / Bubber / Skyrat / tgstation contributors. Converted DMI to RSI; states renamed. Sources: https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/GAGS/icons/collar.dmi (state pet_collar_obj); https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/GAGS/icons/collar.dmi (state pet_tag_obj); https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/GAGS/icons/collar.dmi (state pet_collar_mob); https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/GAGS/icons/collar.dmi (state pet_tag_mob)",
+  "states": [
+    {
+      "name": "icon"
+    },
+    {
+      "name": "worn",
+      "directions": 4
+    }
+  ]
+}

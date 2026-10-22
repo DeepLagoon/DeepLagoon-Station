@@ -13,14 +13,14 @@ using Robust.Shared.Timing;
 
 namespace Content.Server._Battlefield14.FactionTracking;
 
-public sealed class FactionTrackingSystem : EntitySystem
+public sealed partial class FactionTrackingSystem : EntitySystem
 {
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
-    [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly SharedJobSystem _jobs = default!;
-    [Dependency] private readonly MobStateSystem _mobState = default!;
-    [Dependency] private readonly IServerPreferencesManager _prefsManager = default!;
+    [Dependency] private IPlayerManager _playerManager = default!;
+    [Dependency] private IPrototypeManager _prototypeManager = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private SharedJobSystem _jobs = default!;
+    [Dependency] private MobStateSystem _mobState = default!;
+    [Dependency] private IServerPreferencesManager _prefsManager = default!;
 
     public static readonly HashSet<string> BluforDepartments = new() { "Security" };
     public static readonly HashSet<string> RedforDepartments = new() { "Antag" };

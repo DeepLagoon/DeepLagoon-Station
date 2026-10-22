@@ -14,7 +14,7 @@ namespace Content.Server.Atmos.EntitySystems;
 /// This system handles the adding and removing of entities to a processing list,
 /// as well as any field changes via the API.</para>
 /// </summary>
-public sealed class DeltaPressureSystem : EntitySystem
+public sealed partial class DeltaPressureSystem : EntitySystem
 {
     [Dependency] private AtmosphereSystem _atmosphereSystem = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();

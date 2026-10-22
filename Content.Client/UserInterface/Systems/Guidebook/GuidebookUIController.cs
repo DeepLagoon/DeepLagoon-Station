@@ -19,11 +19,11 @@ namespace Content.Client.UserInterface.Systems.Guidebook;
 public sealed partial class GuidebookUIController : UIController, IOnStateEntered<LobbyState>, IOnStateEntered<GameplayState>, IOnStateExited<LobbyState>, IOnStateExited<GameplayState>, IOnSystemChanged<GuidebookSystem>
 {
     [UISystemDependency] private readonly GuidebookSystem _guidebookSystem = default!;
-    [Dependency] private readonly JobRequirementsManager _jobRequirements = default!;
-    [Dependency] private readonly WikiRoutingConfiguration _routing = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly IEntityManager _entities = default!;
-    [Dependency] private readonly IUriOpener _uri = default!;
+    [Dependency] private JobRequirementsManager _jobRequirements = default!;
+    [Dependency] private WikiRoutingConfiguration _routing = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private IEntityManager _entities = default!;
+    [Dependency] private IUriOpener _uri = default!;
     private GuidebookWindow? _localWindow;
     private WikiGuidebookWindow? _guideWindow;
     private MenuButton? GuidebookButton => UIManager.GetActiveUIWidgetOrNull<MenuBar.Widgets.GameTopMenuBar>()?.GuidebookButton;

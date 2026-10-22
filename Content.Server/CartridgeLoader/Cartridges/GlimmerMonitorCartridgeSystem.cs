@@ -1,13 +1,13 @@
-﻿using Content.Shared.CartridgeLoader;
+using Content.Shared.CartridgeLoader;
 using Content.Shared.CartridgeLoader.Cartridges;
 using Content.Server.Psionics.Glimmer;
 
 namespace Content.Server.CartridgeLoader.Cartridges;
 
-public sealed class GlimmerMonitorCartridgeSystem : EntitySystem
+public sealed partial class GlimmerMonitorCartridgeSystem : EntitySystem
 {
-    [Dependency] private readonly CartridgeLoaderSystem? _cartridgeLoaderSystem = default!;
-    [Dependency] private readonly PassiveGlimmerReductionSystem _glimmerReductionSystem = default!;
+    [Dependency] private CartridgeLoaderSystem? _cartridgeLoaderSystem = default!;
+    [Dependency] private PassiveGlimmerReductionSystem _glimmerReductionSystem = default!;
 
     public override void Initialize()
     {
@@ -29,7 +29,7 @@ public sealed class GlimmerMonitorCartridgeSystem : EntitySystem
         if (args is not GlimmerMonitorSyncMessageEvent)
             return;
 
-        UpdateUiState(uid, EntityManager.GetEntity(args.LoaderUid), component);
+        UpdateUiState(uid, GetEntity(args.LoaderUid), component);
     }
 
     public void UpdateUiState(EntityUid uid, EntityUid loaderUid, GlimmerMonitorCartridgeComponent? component)

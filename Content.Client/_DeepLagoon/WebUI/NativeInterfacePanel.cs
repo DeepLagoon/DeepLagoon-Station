@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Content.Shared._DeepLagoon.InteractionPanel;
+using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Utility;
@@ -29,13 +30,14 @@ public sealed partial class NativeInterfacePanel : BoxContainer
     private NativeGridEditor? _grid;
     private NativeArtEditor? _art;
     private NativeTattooEditor? _tattoo;
+    private NativeApartmentElevator? _elevator;
     private readonly Dictionary<string, string> _interactionDraft = new();
     private int _interactionTab;
     private string _interactionSearch = "";
 
     public static bool Supports(string name) => name is "InteractionPanel" or "CharacterCard" or
         "CharacterHeadshotLibrary" or "CharacterSavePrompt" or "ApartmentTravel" or "ApartmentTerminal" or
-        "ApartmentEditor" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
+        "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
 
     public NativeInterfacePanel(Action<string, string> send, Action close)
     {
@@ -69,6 +71,17 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         _data = NativeUiData.Parse(json);
         if (_interface == name)
         {
+            if (name == "InteractionPanel" && _data.Bool("arousalOnly") && _interactionArousal != null)
+            {
+                UpdateInteractionArousal();
+                return;
+            }
+            if (name == "InteractionPanel" && _data.Bool("gearOnly") && _interactionGear != null)
+            {
+                UpdateInteractionGear();
+                return;
+            }
+            if (_elevator != null) { _elevator.Update(_data); return; }
             if (_apartment != null) { _apartment.Update(_data); return; }
             if (_grid != null) { _grid.Update(_data); return; }
             if (_art != null) { _art.Update(_data); return; }
@@ -78,6 +91,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         _body.RemoveAllChildren();
         switch (name)
         {
+            case "ApartmentElevator": _elevator = new NativeApartmentElevator(_send); _body.AddChild(_elevator); _elevator.Update(_data); break;
             case "ApartmentTravel": case "ApartmentTerminal": Travel(); break;
             case "CharacterCard": Card(); break;
             case "CharacterHeadshotLibrary": Gallery(); break;
@@ -214,9 +228,66 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         if (gallery.Array("images").Count() < gallery.Int("capacity")) Button(_body, "Добавить изображение", () => Send("headshot-add"));
     }
 
+    private ProgressBar? _interactionArousal;
+    private Label? _interactionArousalLabel;
+    private BoxContainer? _interactionGear;
+
+    private void UpdateInteractionGear()
+    {
+        if (_interactionGear == null) return;
+        var box = _interactionGear;
+        box.RemoveAllChildren();
+        Text(box, Loc.GetString("dl-interaction-panel-gear-help"));
+        void Gear(BoxContainer parent, string operation, string slot = "", string value = "", bool enabled = true) =>
+            Button(parent, Loc.GetString("dl-interaction-panel-gear-" + operation),
+                () => Send("gear", new TguiData().String("operation", operation).String("slot", slot).String("value", value)), enabled);
+        Text(box, Loc.GetString("dl-interaction-panel-gear-held") + ": " + _data.String("heldName"));
+        Gear(box, "attach", enabled: _data.String("heldSlot").Length > 0);
+        if (_data.Bool("self")) Gear(box, "release-all");
+        foreach (var item in _data.Array("gear"))
+        {
+            var slot = item.String("slot");
+            Text(box, Loc.GetString("dl-lustwish-slot-" + slot) + ": " + item.String("name"));
+            var row = Row(); box.AddChild(row);
+            Gear(row, "remove", slot, enabled: !item.Bool("locked"));
+            Gear(row, item.Bool("locked") ? "unlock" : "lock", slot);
+            if (_data.Bool("self")) Gear(row, "escape", slot);
+            if (slot == "neck") Gear(box, item.Bool("leashed") ? "unleash" : "leash", slot);
+            if (item.Bool("electronic"))
+            {
+                Gear(box, "pair", slot); Gear(box, "mode", slot, (item.Int("intensity") % 3 + 1).ToString());
+            }
+            if (item.Bool("electronic") || item.Bool("hypnosis")) Gear(box, "toggle", slot, item.Bool("active") ? "0" : "1");
+            if (item.Bool("shock")) Gear(box, "pulse", slot);
+            if (item.Bool("colorable")) Options(box, _data.Array("gearColors").Select(c => (c.String("id"), c.String("name"))),
+                color => Send("gear", new TguiData().String("operation", "color").String("slot", slot).String("value", color)));
+        }
+    }
+
+    private void UpdateInteractionArousal()
+    {
+        if (_interactionArousal == null || _interactionArousalLabel == null) return;
+        var maximum = _data.Float("arousalMaximum");
+        var fraction = maximum > 0 ? Math.Clamp(_data.Float("arousalCurrent") / maximum, 0, 1) : 0;
+        _interactionArousal.Value = fraction;
+        _interactionArousalLabel.Text = $"{Loc.GetString("dl-interaction-panel-arousal")} · {MathF.Round(fraction * 100)}%";
+    }
+
     private void Interaction()
     {
         Text(_body, _data.String("name")); Text(_body, _data.String("status"));
+        var meter = new PanelContainer { HorizontalExpand = true, MinHeight = 20 };
+        _interactionArousal = new ProgressBar
+        {
+            MinValue = 0, MaxValue = 1, HorizontalExpand = true, MinHeight = 20,
+            BackgroundStyleBoxOverride = new StyleBoxFlat(Color.FromHex("#261735")),
+            ForegroundStyleBoxOverride = new StyleBoxFlat(Color.FromHex("#9A5BD2")),
+        };
+        _interactionArousalLabel = new Label { HorizontalAlignment = HAlignment.Center, VerticalAlignment = VAlignment.Center };
+        meter.AddChild(_interactionArousal);
+        meter.AddChild(_interactionArousalLabel);
+        _body.AddChild(meter);
+        UpdateInteractionArousal();
         var selectedTab = _interactionTab;
         var tabs = new TabContainer { HorizontalExpand = true }; _body.AddChild(tabs);
         tabs.OnTabChanged += tab => _interactionTab = tab;
@@ -304,7 +375,10 @@ public sealed partial class NativeInterfacePanel : BoxContainer
             var remove = Button(row, "Удалить", () => { }); var confirmed = false;
             remove.OnPressed += _ => { if (confirmed) Send("delete", new TguiData().String("id", action.String("id"))); else { confirmed = true; remove.Text = "Подтвердить удаление"; } };
         }
-        tabs.CurrentTab = Math.Clamp(selectedTab, 0, 2);
+        _interactionGear = Column(); tabs.AddChild(_interactionGear);
+        TabContainer.SetTabTitle(_interactionGear, Loc.GetString("dl-interaction-panel-tab-gear"));
+        UpdateInteractionGear();
+        tabs.CurrentTab = Math.Clamp(selectedTab, 0, 3);
     }
 }
 

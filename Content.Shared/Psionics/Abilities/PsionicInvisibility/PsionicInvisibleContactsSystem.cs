@@ -9,10 +9,10 @@ namespace Content.Shared.Psionics;
 /// <summary>
 /// Allows an entity to become psionically invisible when touching certain entities.
 /// </summary>
-public sealed class PsionicInvisibleContactsSystem : EntitySystem
+public sealed partial class PsionicInvisibleContactsSystem : EntitySystem
 {
-    [Dependency] private readonly SharedStealthSystem _stealth = default!;
-    [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
+    [Dependency] private SharedStealthSystem _stealth = default!;
+    [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
 
     public override void Initialize()
     {

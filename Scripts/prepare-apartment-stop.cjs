@@ -105,17 +105,9 @@ const mv = network(cell(substation), [cell(apc), ...byProto('CableMV').map(cell)
 const lv = network(cell(apc), [...receivers.map(cell), ...byProto('CableApcExtension').map(cell)]);
 wires('CableHV', hv); wires('CableMV', mv); wires('CableApcExtension', lv);
 
-// Native TileAtmosCollectionSerializer v2: one standard-air mixture, bit masks per 4x4 chunk.
-const atmosTiles = {};
-for (const key of floors) {
-  const [x, y] = key.split(',').map(Number), cx = Math.floor(x / 4), cy = Math.floor(y / 4);
-  const chunk = atmosTiles[`${cx},${cy}`] ??= { 0: 0 };
-  chunk[0] |= 1 << ((x - cx * 4) + (y - cy * 4) * 4);
-}
-Object.assign(component(root, 'GridAtmosphere'), { version: 2, data: {
-  chunkSize: 4, tiles: atmosTiles,
-  uniqueMixes: [{ volume: 2500, temperature: 293.15, moles: { Oxygen: 21.824879, Nitrogen: 82.10312 } }],
-} });
+// Safe air follows the grid, including exposed floors beside the shuttle dock.
+Object.assign(component(root, 'GridEnvironment'), { safeAtmosphere: true });
+root.components = root.components.filter(part => part.type !== 'GridAtmosphere');
 Object.assign(component(root, 'ProtectedGrid'), { preventFloorRemoval: true, preventFloorPlacement: true,
   preventRCDUse: true, preventEmpEvents: true, preventExplosions: true, preventArtifactTriggers: true, killHostileMobs: true });
 Object.assign(component(root, 'PacifiedZoneGenerator'), { wholeGrid: true, disallowAllCombat: true });

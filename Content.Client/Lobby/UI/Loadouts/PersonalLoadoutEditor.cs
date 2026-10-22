@@ -25,9 +25,9 @@ namespace Content.Client.Lobby.UI.Loadouts;
 /// <summary>The Einstein category browser, backed by the target's saved role loadouts.</summary>
 public sealed partial class PersonalLoadoutEditor : BoxContainer
 {
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly IEntityManager _entities = default!;
-    [Dependency] private readonly IResourceCache _resources = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private IEntityManager _entities = default!;
+    [Dependency] private IResourceCache _resources = default!;
     private readonly Label _points = new();
     private readonly ProgressBar _bar = new() { MaxHeight = 8, Margin = new Thickness(0, 5) };
     private readonly Button _showUnavailable = new() { ToggleMode = true, Text = Loc.GetString("dl-loadout-show-unavailable") };

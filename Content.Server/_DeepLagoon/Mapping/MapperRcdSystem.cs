@@ -320,7 +320,7 @@ public sealed partial class MapperRcdSystem : SharedMapperRcdSystem
         var wantedDir = entry.Rotatable ? direction : Direction.South;
         var wantedLayer = AtmosPipeLayer.Primary;
 
-        if (entry.Slot == MapperRcdSlot.Pipe && proto.TryGetComponent<AtmosPipeLayersComponent>(out var layers, _compFactory))
+        if (entry.Slot == MapperRcdSlot.Pipe && proto.TryComp<AtmosPipeLayersComponent>(out var layers, _compFactory))
         {
             // The entry holds the primary layer prototype; the requested layer swaps it for its alternative.
             if (_pipeLayers.TryGetAlternativePrototype(layers, pipeLayer, out var altId) &&
@@ -329,7 +329,7 @@ public sealed partial class MapperRcdSystem : SharedMapperRcdSystem
                 proto = altProto;
             }
 
-            if (proto.TryGetComponent<AtmosPipeLayersComponent>(out var resolved, _compFactory))
+            if (proto.TryComp<AtmosPipeLayersComponent>(out var resolved, _compFactory))
                 wantedLayer = resolved.CurrentPipeLayer;
         }
 

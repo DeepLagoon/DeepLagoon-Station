@@ -10,7 +10,7 @@ using Robust.Shared.Configuration;
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>Native onboarding, including connections that skip the lobby.</summary>
-public sealed class InterfaceStyleUIController : UIController,
+public sealed partial class InterfaceStyleUIController : UIController,
     IOnStateEntered<LobbyState>, IOnStateEntered<GameplayState>,
     IOnStateExited<LobbyState>, IOnStateExited<GameplayState>
 {

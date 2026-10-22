@@ -23,16 +23,16 @@ namespace Content.Server.PsionicsRecords.Systems;
 /// <summary>
 /// Handles all UI for Psionics records console
 /// </summary>
-public sealed class PsionicsRecordsConsoleSystem : SharedPsionicsRecordsConsoleSystem
+public sealed partial class PsionicsRecordsConsoleSystem : SharedPsionicsRecordsConsoleSystem
 {
-    [Dependency] private readonly AccessReaderSystem _access = default!;
-    [Dependency] private readonly PsionicsRecordsSystem _psionicsRecords = default!;
-    [Dependency] private readonly PopupSystem _popup = default!;
-    [Dependency] private readonly RadioSystem _radio = default!;
-    [Dependency] private readonly SharedIdCardSystem _idCard = default!;
-    [Dependency] private readonly StationRecordsSystem _stationRecords = default!;
-    [Dependency] private readonly StationSystem _station = default!;
-    [Dependency] private readonly UserInterfaceSystem _ui = default!;
+    [Dependency] private AccessReaderSystem _access = default!;
+    [Dependency] private PsionicsRecordsSystem _psionicsRecords = default!;
+    [Dependency] private PopupSystem _popup = default!;
+    [Dependency] private RadioSystem _radio = default!;
+    [Dependency] private SharedIdCardSystem _idCard = default!;
+    [Dependency] private StationRecordsSystem _stationRecords = default!;
+    [Dependency] private StationSystem _station = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
 
     public override void Initialize()
     {

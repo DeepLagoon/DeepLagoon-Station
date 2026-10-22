@@ -4,10 +4,10 @@ using Content.Shared.Actions.Events;
 
 namespace Content.Server.Abilities.Psionics
 {
-    public sealed class TelegnosisPowerSystem : EntitySystem
+    public sealed partial class TelegnosisPowerSystem : EntitySystem
     {
-        [Dependency] private readonly MindSwapPowerSystem _mindSwap = default!;
-        [Dependency] private readonly SharedPsionicAbilitiesSystem _psionics = default!;
+        [Dependency] private MindSwapPowerSystem _mindSwap = default!;
+        [Dependency] private SharedPsionicAbilitiesSystem _psionics = default!;
 
         public override void Initialize()
         {

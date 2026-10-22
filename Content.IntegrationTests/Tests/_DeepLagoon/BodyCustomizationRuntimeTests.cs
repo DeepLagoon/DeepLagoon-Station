@@ -1,14 +1,17 @@
 using System.Linq;
+using System.Reflection;
 using Content.Server._DeepLagoon.BodyCustomization;
 using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared._DeepLagoon.InteractionPanel;
 using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.EntityEffects;
 using Content.Shared.FixedPoint;
 using Content.Shared.Humanoid;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Localization;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
@@ -18,7 +21,7 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class BodyCustomizationRuntimeTests
 {
     private static readonly string[] Reagents = ["DLButtGrowth", "DLButtReduction", "DLBellyGrowth", "DLBellyReduction",
-        "DLBreastsGrowth", "DLBreastsReduction", "DLAnusGrowth", "DLAnusReduction", "DLPenisGrowth", "DLPenisReduction"];
+        "DLBreastsGrowth", "DLBreastsReduction", "DLPenisGrowth", "DLPenisReduction"];
 
     [Test]
     public async Task RecipesRequireHeatHaveNoCompetingRecipesAndPillsContainOneDose()
@@ -103,9 +106,114 @@ public sealed class BodyCustomizationRuntimeTests
             Assert.That(system.SetVisibility(uid, "womb", 1), Is.False);
             Assert.That(system.SetVisibility(uid, "missing", 1), Is.False);
             humanoid.BodyFeatures.Single(f => f.Part == "penis").Enabled = false;
-            Assert.That(system.ApplyDose(uid, "penis", 1, 5), Is.False);
             Assert.That(system.SetVisibility(uid, "penis", 1), Is.False);
             entities.DeleteEntity(uid);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task MissingFeaturesRequireGrowthOverdoseAndReductionNeverCreatesThem()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            foreach (var id in Reagents)
+            foreach (var disabled in new[] { false, true })
+            {
+                var uid = entities.SpawnEntity("MobHuman", MapCoordinates.Nullspace);
+                var humanoid = entities.GetComponent<HumanoidAppearanceComponent>(uid);
+                var reagent = prototypes.Index<ReagentPrototype>(id);
+                var metabolism = reagent.Metabolisms!.Single().Value;
+                Assert.That(metabolism.MetabolismRate, Is.EqualTo(FixedPoint2.New(0.25f)));
+                var effect = (ChangeBodyFeatureSize) metabolism.Effects.Single();
+                var original = BodyCustomizationCatalog.Default(effect.Part);
+                humanoid.BodyFeatures = disabled ? [original] : [];
+                var low = new Solution(); low.AddReagent(id, FixedPoint2.New(effect.CreationThreshold - 0.25f));
+                effect.Effect(new EntityEffectReagentArgs(uid, entities, null, low, 5, reagent, null, 1));
+                Assert.That(humanoid.BodyFeatures.Any(f => f.Enabled), Is.False, "A normal dose cannot create a feature");
+                var overdose = new Solution(); overdose.AddReagent(id, FixedPoint2.New(effect.CreationThreshold));
+                effect.Effect(new EntityEffectReagentArgs(uid, entities, null, overdose, FixedPoint2.New(0.25f), reagent, null, 1));
+                Assert.That(humanoid.BodyFeatures.Any(f => f.Enabled), Is.EqualTo(effect.Direction > 0));
+                Assert.That(original.Enabled, Is.False, "Saved features must not be mutated");
+                if (effect.Direction > 0)
+                {
+                    var sizes = BodyCustomizationCatalog.Sizes(effect.Part, humanoid.BodyFeatures.Single().Shape);
+                    Assert.That(humanoid.BodyFeatures.Single().Size, Is.EqualTo(sizes.First()));
+                    effect.Effect(new EntityEffectReagentArgs(uid, entities, null, overdose, FixedPoint2.New(4.75f), reagent, null, 1));
+                    Assert.That(humanoid.BodyFeatures.Single().Size, Is.EqualTo(sizes[1]));
+                }
+                entities.DeleteEntity(uid);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task ChemicalPreferenceBlocksDosesAndCreationAndClearsPartialProgress()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var map = await pair.CreateTestMap();
+        EntityUid user = default;
+        EntityUid mind = default;
+        await pair.Server.WaitPost(() =>
+        {
+            var entities = pair.Server.EntMan;
+            user = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var minds = entities.System<Content.Server.Mind.MindSystem>();
+            mind = minds.GetOrCreateMind(pair.Server.PlayerMan.Sessions.Single().UserId).Owner;
+            minds.TransferTo(mind, user);
+            var feature = BodyCustomizationCatalog.Default("breasts");
+            feature.Enabled = true;
+            entities.GetComponent<HumanoidAppearanceComponent>(user).BodyFeatures = [feature];
+            Assert.That(entities.System<BodyCustomizationSystem>().ApplyDose(user, "breasts", 1, 4), Is.False);
+        });
+        await pair.Client.WaitPost(() => pair.Client.CfgMan.SetCVar(BodyCustomizationCVars.ChemicalChanges, false));
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var tab = new Content.Client._DV.Options.UI.Tabs.DeltaTab();
+            var checkBox = tab.FindControl<Robust.Client.UserInterface.Controls.CheckBox>("BodyChemicalChangesCheckBox");
+            Assert.That(checkBox.Text, Is.EqualTo(Loc.GetString("ui-options-body-chemical-changes")));
+            Assert.That(checkBox.Pressed, Is.False);
+            checkBox.Pressed = true;
+            var toggled = (Action<Robust.Client.UserInterface.Controls.BaseButton.ButtonToggledEventArgs>)
+                typeof(Robust.Client.UserInterface.Controls.BaseButton).GetField("OnToggled", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .GetValue(checkBox)!;
+            toggled(new Robust.Client.UserInterface.Controls.BaseButton.ButtonToggledEventArgs(true, checkBox, null!));
+            Assert.That(tab.FindControl<Robust.Client.UserInterface.Controls.Button>("ApplyButton").Disabled, Is.False);
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var system = entities.System<BodyCustomizationSystem>();
+            var before = entities.GetComponent<HumanoidAppearanceComponent>(user).BodyFeatures.Select(f => f.Clone()).ToList();
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            foreach (var id in Reagents)
+            {
+                var reagent = prototypes.Index<ReagentPrototype>(id);
+                var effect = (ChangeBodyFeatureSize) reagent.Metabolisms!.Single().Value.Effects.Single();
+                Assert.That(system.ApplyDose(user, effect.Part, effect.Direction, 100), Is.False);
+            }
+            Assert.That(BodyCustomizationCatalog.ContentEquals(before,
+                entities.GetComponent<HumanoidAppearanceComponent>(user).BodyFeatures), Is.True);
+            Assert.That(entities.GetComponent<BodySizeDoseComponent>(user).Doses, Is.Empty);
+            entities.System<Content.Server.Mind.MindSystem>().Visit(mind, entities.SpawnEntity("MobObserver", map.GridCoords));
+            Assert.That(system.ApplyDose(user, "penis", 1, 5), Is.False, "The owner's preference also protects their body while ghosting");
+        });
+        await pair.Client.WaitPost(() => pair.Client.CfgMan.SetCVar(BodyCustomizationCVars.ChemicalChanges, true));
+        await pair.RunTicksSync(30);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var system = entities.System<BodyCustomizationSystem>();
+            Assert.That(system.ApplyDose(user, "breasts", 1, 1), Is.False, "Old partial doses must be discarded");
+            Assert.That(system.ApplyDose(user, "breasts", 1, 4), Is.True);
+            Assert.That(system.ApplyDose(user, "penis", 1, 5), Is.True);
+            entities.System<Content.Server.Mind.MindSystem>().UnVisit(mind);
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null);
         });
         await pair.CleanReturnAsync();
     }

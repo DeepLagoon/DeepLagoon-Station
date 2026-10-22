@@ -158,6 +158,7 @@ public sealed class GhostRoleTguiHost : Container
         base.ExitedTree();
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         if (disposing) ClearPreviews();

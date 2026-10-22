@@ -25,22 +25,22 @@ using Robust.Shared.Utility;
 
 namespace Content.Server.Psionics.Glimmer;
 
-public sealed class GlimmerReactiveSystem : EntitySystem
+public sealed partial class GlimmerReactiveSystem : EntitySystem
 {
-    [Dependency] private readonly GlimmerSystem _glimmerSystem = default!;
-    [Dependency] private readonly SharedAppearanceSystem _appearanceSystem = default!;
-    [Dependency] private readonly ElectrocutionSystem _electrocutionSystem = default!;
-    [Dependency] private readonly SharedAudioSystem _sharedAudioSystem = default!;
-    [Dependency] private readonly SharedAmbientSoundSystem _sharedAmbientSoundSystem = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly LightningSystem _lightning = default!;
-    [Dependency] private readonly ExplosionSystem _explosionSystem = default!;
-    [Dependency] private readonly EntityLookupSystem _entityLookupSystem = default!;
-    [Dependency] private readonly SharedDestructibleSystem _destructibleSystem = default!;
-    [Dependency] private readonly GhostSystem _ghostSystem = default!;
-    [Dependency] private readonly RevenantSystem _revenantSystem = default!;
-    [Dependency] private readonly SharedTransformSystem _transformSystem = default!;
-    [Dependency] private readonly SharedPointLightSystem _pointLightSystem = default!;
+    [Dependency] private GlimmerSystem _glimmerSystem = default!;
+    [Dependency] private SharedAppearanceSystem _appearanceSystem = default!;
+    [Dependency] private ElectrocutionSystem _electrocutionSystem = default!;
+    [Dependency] private SharedAudioSystem _sharedAudioSystem = default!;
+    [Dependency] private SharedAmbientSoundSystem _sharedAmbientSoundSystem = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private LightningSystem _lightning = default!;
+    [Dependency] private ExplosionSystem _explosionSystem = default!;
+    [Dependency] private EntityLookupSystem _entityLookupSystem = default!;
+    [Dependency] private SharedDestructibleSystem _destructibleSystem = default!;
+    [Dependency] private GhostSystem _ghostSystem = default!;
+    [Dependency] private RevenantSystem _revenantSystem = default!;
+    [Dependency] private SharedTransformSystem _transformSystem = default!;
+    [Dependency] private SharedPointLightSystem _pointLightSystem = default!;
     private ISawmill _sawmill = default!;
 
     public float Accumulator = 0;

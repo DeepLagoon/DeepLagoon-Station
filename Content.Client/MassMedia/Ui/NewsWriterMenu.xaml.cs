@@ -87,6 +87,7 @@ public sealed partial class NewsWriterMenu : FancyWindow
         ArticleEditorPanel.Margin =  new Thickness(Width - 1, margin.Top, margin.Right, margin.Bottom);
     }
 
+    [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

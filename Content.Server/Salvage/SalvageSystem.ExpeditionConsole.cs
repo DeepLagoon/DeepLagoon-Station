@@ -86,7 +86,7 @@ public sealed partial class SalvageSystem
                     continue;
 
                 // If we have a docked entity, get its grid
-                if (TryComp<TransformComponent>(dock.DockedWith.Value, out var dockedXform) && dockedXform.GridUid != null)
+                if (TryComp(dock.DockedWith.Value, out TransformComponent? dockedXform) && dockedXform.GridUid != null)
                 {
                     dockedGrids.Add(dockedXform.GridUid.Value);
 
@@ -104,7 +104,7 @@ public sealed partial class SalvageSystem
                             continue;
 
                         // If we have a docked entity and it's not our grid, add its grid to the exclusion list
-                        if (TryComp<TransformComponent>(parentDock.DockedWith.Value, out var siblingDockedXform) &&
+                        if (TryComp(parentDock.DockedWith.Value, out TransformComponent? siblingDockedXform) &&
                             siblingDockedXform.GridUid != null &&
                             siblingDockedXform.GridUid != grid)
                         {

@@ -84,3 +84,13 @@ test('malformed coordinates produce an explicit error instead of a corrupt file'
   assert.throws(() => document([floor(NaN, 0)]), /координат/);
   assert.throws(() => document([floor(.5, 0)]), /целыми/);
 });
+
+test('draft preserves autonomous power, forced gravity, safe air and residential protection', () => {
+  const options = { alwaysPowered: true, forceGravity: true, safeAtmosphere: true, apartmentProtected: true };
+  const result = load(exportGridDraft([floor(0, 0)], bounds, noExpansion, options));
+  const components = gridComponents(result);
+  assert.deepEqual(components.find(c => c.type === 'GridEnvironment'), { type: 'GridEnvironment', alwaysPowered: true, forceGravity: true, safeAtmosphere: true });
+  assert.ok(components.some(c => c.type === 'ApartmentProtectedGrid'));
+  const ordinary = gridComponents(document([floor(0, 0)]));
+  assert.equal(ordinary.some(c => c.type === 'GridEnvironment'), false);
+});

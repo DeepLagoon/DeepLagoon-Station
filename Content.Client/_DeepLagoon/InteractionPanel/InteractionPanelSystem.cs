@@ -10,6 +10,7 @@ using Robust.Shared.Configuration;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Player;
 using Content.Shared._DeepLagoon.InteractionPanel;
+using Content.Shared._DeepLagoon.LustWish;
 using Content.Shared.GameTicking;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;
@@ -35,6 +36,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeNetworkEvent<InteractionPanelLibraryEvent>(args => _panel?.SetLibrary(args));
         SubscribeNetworkEvent<InteractionPanelPanelEvent>(OnPanel);
         SubscribeNetworkEvent<InteractionPanelBodyStateEvent>(args => _panel?.SetBodyState(args));
+        SubscribeNetworkEvent<LustWishGearStateEvent>(args => { if (_panel?.Target == args.Target) _panel.SetGearState(args); });
         SubscribeNetworkEvent<InteractionPanelAskEvent>(OnAsk);
         SubscribeNetworkEvent<InteractionPanelStatusEvent>(args => _panel?.SetStatus(args));
         SubscribeNetworkEvent<InteractionPanelAnimationEvent>(OnAnimation);
@@ -59,6 +61,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
             _cfg.GetCVar(InteractionPanelCVars.Interval));
         _panel = window;
         window.ActionRequested += id => RaiseNetworkEvent(new InteractionPanelActionEvent(args.Target, id));
+        window.GearRequested += (operation, slot, value) => RaiseNetworkEvent(new LustWishGearRequestEvent(args.Target, operation, slot, value));
         window.BodyVisibilityRequested += (part, visibility) => RaiseNetworkEvent(new InteractionPanelBodyVisibilityEvent(part, visibility));
         window.RepeatRequested += (id, enabled, interval) => RaiseNetworkEvent(new InteractionPanelRepeatEvent(args.Target, id, enabled, interval));
         window.PreferencesChanged += () => SavePreferences(window);
@@ -72,6 +75,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         window.DeleteRequested += id => RaiseNetworkEvent(new InteractionPanelCustomDeleteEvent(id));
         window.OpenCentered();
         RaiseNetworkEvent(new InteractionPanelLibraryRequestEvent());
+        RaiseNetworkEvent(new LustWishGearRequestEvent(args.Target, "query"));
     }
 
     private void SavePreferences(InteractionPanelWindow window)

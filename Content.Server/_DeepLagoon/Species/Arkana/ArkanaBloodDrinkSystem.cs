@@ -24,13 +24,13 @@ using System;
 
 namespace Content.Server._DeepLagoon.Species.Arkana;
 
-public sealed class ArkanaBloodDrinkSystem : EntitySystem
+public sealed partial class ArkanaBloodDrinkSystem : EntitySystem
 {
-    [Dependency] private readonly PopupSystem _popup = default!;
-    [Dependency] private readonly DoAfterSystem _doAfter = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
-    [Dependency] private readonly StomachSystem _stomach = default!;
-    [Dependency] private readonly SharedSolutionContainerSystem _solutions = default!;
+    [Dependency] private PopupSystem _popup = default!;
+    [Dependency] private DoAfterSystem _doAfter = default!;
+    [Dependency] private IPrototypeManager _proto = default!;
+    [Dependency] private StomachSystem _stomach = default!;
+    [Dependency] private SharedSolutionContainerSystem _solutions = default!;
 
     private static readonly TimeSpan DrinkDelay = TimeSpan.FromSeconds(3);
     private const float StartPiercingDamage = 0.7f;
@@ -86,7 +86,7 @@ public sealed class ArkanaBloodDrinkSystem : EntitySystem
 
     }
 
-    [Dependency] private readonly DamageableSystem _damageableSystem = default!;
+    [Dependency] private DamageableSystem _damageableSystem = default!;
 
     private void OnDoAfter(EntityUid uid, HumanoidAppearanceComponent userAppearance, ref ArkanaBloodDrinkDoAfterEvent ev)
     {
@@ -147,5 +147,5 @@ public sealed class ArkanaBloodDrinkSystem : EntitySystem
         }
     }
 
-    [Dependency] private readonly BodySystem _body = default!;
+    [Dependency] private BodySystem _body = default!;
 }

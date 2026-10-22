@@ -227,7 +227,7 @@ public sealed partial class FireControlSystem : EntitySystem
         while (query.MoveNext(out var controllable, out var controlComp))
         {
             if (_xform.GetGrid(controllable) == grid
-                && EntityManager.GetComponent<TransformComponent>(controllable).Anchored
+                && Comp<TransformComponent>(controllable).Anchored
                 && _power.IsPowered(controllable)) // Exodus fire-control event-driven UI updates
                 TryRegister(controllable, controlComp);
         }

@@ -9,10 +9,10 @@ using Robust.Shared.Network;
 namespace Content.Server._DeepLagoon.Currency;
 
 [AdminCommand(AdminFlags.Host)]
-public sealed class LagoonCoinGrantCommand : IConsoleCommand
+public sealed partial class LagoonCoinGrantCommand : IConsoleCommand
 {
-    [Dependency] private readonly IPlayerManager _players = default!;
-    [Dependency] private readonly IEntityManager _entities = default!;
+    [Dependency] private IPlayerManager _players = default!;
+    [Dependency] private IEntityManager _entities = default!;
     public string Command => "lc:add";
     public string Description => "Выдать Lagoon Coin игроку. Требуется HOST; причина обязательна.";
     public string Help => "lc:add <имя онлайн-игрока или UUID> <количество> <причина>";

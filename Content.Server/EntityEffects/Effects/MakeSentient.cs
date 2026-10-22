@@ -10,7 +10,7 @@ using Content.Shared.Humanoid;
 using Content.Shared._EinsteinEngines.Language.Components;
 using Content.Shared._EinsteinEngines.Language.Events;
 using Robust.Shared.Prototypes;
-using Content.Shared.Humanoid; //Delta-V - Banning humanoids from becoming ghost roles.
+ //Delta-V - Banning humanoids from becoming ghost roles.
 
 namespace Content.Server.EntityEffects.Effects;
 

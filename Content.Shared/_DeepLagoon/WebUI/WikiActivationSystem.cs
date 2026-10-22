@@ -7,10 +7,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Shared._DeepLagoon.WebUI;
 
 /// <summary>When a paper book is configured to open help, its ordinary BUI must not also open on the server.</summary>
-public sealed class WikiActivationSystem : EntitySystem
+public sealed partial class WikiActivationSystem : EntitySystem
 {
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     private string? _previous;
     private WikiRouteTable? _routes;

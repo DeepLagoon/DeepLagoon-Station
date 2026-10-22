@@ -15,11 +15,11 @@ namespace Content.Server.StationEvents.Events;
 /// <summary>
 /// Forces a mind swap on all non-insulated potential psionic entities.
 /// </summary>
-internal sealed class MassMindSwapRule : StationEventSystem<MassMindSwapRuleComponent>
+internal sealed partial class MassMindSwapRule : StationEventSystem<MassMindSwapRuleComponent>
 {
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly MobStateSystem _mobStateSystem = default!;
-    [Dependency] private readonly MindSwapPowerSystem _mindSwap = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private MobStateSystem _mobStateSystem = default!;
+    [Dependency] private MindSwapPowerSystem _mindSwap = default!;
 
     protected override void Started(EntityUid uid, MassMindSwapRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {

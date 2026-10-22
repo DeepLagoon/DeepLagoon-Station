@@ -1,0 +1,4 @@
+.dlwiki .feature-item{position:relative}
+.dlwiki .feature-item>div{min-width:0}.dlwiki .feature-item h3{padding:0!important;border:0!important;margin:4px 0 8px!important}.dlwiki .feature-item h3 .dl-feature-link{color:var(--ink);text-decoration:none}.dlwiki .feature-item .dl-feature-link:after{content:"";position:absolute;inset:0;display:block}.dlwiki .feature-item:hover h3 .dl-feature-link{color:var(--accent)}
+
+.dlwiki .feature-item h3,.dlwiki .feature-item .dl-feature-link{position:static!important}

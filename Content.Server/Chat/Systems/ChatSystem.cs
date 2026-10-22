@@ -436,7 +436,7 @@ public sealed partial class ChatSystem : SharedChatSystem
             return;
         }
 
-        if (!EntityManager.TryGetComponent<StationDataComponent>(station, out var stationDataComp)) return;
+        if (!TryComp<StationDataComponent>(station, out var stationDataComp)) return;
 
         var filter = _stationSystem.GetInStation(stationDataComp);
 
@@ -658,6 +658,8 @@ public sealed partial class ChatSystem : SharedChatSystem
         foreach (var (session, data) in GetRecipients(source, WhisperMuffledRange))
         {
             if (session.AttachedEntity is not { Valid: true } listener)
+                continue;
+            if (listener != source && TryComp<Content.Shared._DeepLagoon.LustWish.LustWishWornEffectsComponent>(listener, out var sensory) && sensory.Deaf)
                 continue;
 
             if (MessageRangeCheck(session, data, range) != MessageRangeCheckResult.Full)
@@ -955,6 +957,9 @@ public sealed partial class ChatSystem : SharedChatSystem
             if (session.AttachedEntity is not { Valid: true } playerEntity)
                 continue;
             EntityUid listener = session.AttachedEntity.Value;
+            if (channel == ChatChannel.Local && listener != source &&
+                TryComp<Content.Shared._DeepLagoon.LustWish.LustWishWornEffectsComponent>(listener, out var sensory) && sensory.Deaf)
+                continue;
 
             // If the channel does not support languages, or the entity can understand the message, send the original message, otherwise send the obfuscated version
             if (channel == ChatChannel.LOOC || channel == ChatChannel.Emotes || _language.CanUnderstand(listener, language.ID))

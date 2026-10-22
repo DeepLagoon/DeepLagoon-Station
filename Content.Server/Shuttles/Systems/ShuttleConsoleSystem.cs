@@ -276,12 +276,12 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         var consoleXform = Transform(uid);
         var shuttleGrid = consoleXform.GridUid;
 
-        Logger.DebugS("shuttle", $"Server received FTL lock request with {args.DockedEntities.Count} entities, enabled={args.Enabled}");
+        Logger.GetSawmill("shuttle").Debug( $"Server received FTL lock request with {args.DockedEntities.Count} entities, enabled={args.Enabled}");
 
         // If the shuttleGrid is null, we can't do anything
         if (shuttleGrid == null)
         {
-            Logger.DebugS("shuttle", $"Cannot toggle FTL lock: console {ToPrettyString(uid)} is not on a grid");
+            Logger.GetSawmill("shuttle").Debug( $"Cannot toggle FTL lock: console {ToPrettyString(uid)} is not on a grid");
             return;
         }
 
@@ -299,14 +299,14 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             }
 
             SetFTLLock(dockedEntity, args.Enabled);
-            Logger.DebugS("shuttle", $"Setting FTL lock for {ToPrettyString(dockedEntity)} to {args.Enabled}");
+            Logger.GetSawmill("shuttle").Debug( $"Setting FTL lock for {ToPrettyString(dockedEntity)} to {args.Enabled}");
         }
 
         // If we didn't process the main grid yet, do it now
         if (!processedMainGrid && shuttleGrid != null)
         {
             SetFTLLock(shuttleGrid.Value, args.Enabled);
-            Logger.DebugS("shuttle", $"Setting FTL lock for main grid {ToPrettyString(shuttleGrid.Value)} to {args.Enabled}");
+            Logger.GetSawmill("shuttle").Debug( $"Setting FTL lock for main grid {ToPrettyString(shuttleGrid.Value)} to {args.Enabled}");
         }
     }
 
@@ -480,7 +480,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 
     public void AddPilot(EntityUid uid, EntityUid entity, ShuttleConsoleComponent component)
     {
-        if (!EntityManager.TryGetComponent(entity, out PilotComponent? pilotComponent)
+        if (!TryComp(entity, out PilotComponent? pilotComponent)
         || component.SubscribedPilots.Contains(entity))
         {
             return;
@@ -494,7 +494,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 
         pilotComponent.Console = uid;
         ActionBlockerSystem.UpdateCanMove(entity);
-        pilotComponent.Position = EntityManager.GetComponent<TransformComponent>(entity).Coordinates;
+        pilotComponent.Position = Comp<TransformComponent>(entity).Coordinates;
         Dirty(entity, pilotComponent);
     }
 
@@ -517,12 +517,12 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         _popup.PopupEntity(Loc.GetString("shuttle-pilot-end"), pilotUid, pilotUid);
 
         if (pilotComponent.LifeStage < ComponentLifeStage.Stopping)
-            EntityManager.RemoveComponent<PilotComponent>(pilotUid);
+            RemComp<PilotComponent>(pilotUid);
     }
 
     public void RemovePilot(EntityUid entity)
     {
-        if (!EntityManager.TryGetComponent(entity, out PilotComponent? pilotComponent))
+        if (!TryComp(entity, out PilotComponent? pilotComponent))
             return;
 
         RemovePilot(entity, pilotComponent);
@@ -622,7 +622,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     private void HandleJobSlotsOnPowerChange(EntityUid consoleUid, ShuttleConsoleComponent component, bool powered)
     {
         // Get the console's transform to find the grid
-        if (!TryComp<TransformComponent>(consoleUid, out var consoleXform) || consoleXform.GridUid == null)
+        if (!TryComp(consoleUid, out TransformComponent? consoleXform) || consoleXform.GridUid == null)
             return;
 
         var gridUid = consoleXform.GridUid.Value;

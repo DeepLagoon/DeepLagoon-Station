@@ -9,10 +9,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>One availability check for shortcuts; the server remains authoritative.</summary>
-public sealed class EmoteShortcutSystem : EntitySystem
+public sealed partial class EmoteShortcutSystem : EntitySystem
 {
-    [Dependency] private readonly ISharedPlayerManager _player = default!;
-    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private ISharedPlayerManager _player = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     public IEnumerable<EmotePrototype> Available() => _prototypes.EnumeratePrototypes<EmotePrototype>()
         .Where(CanPlay).OrderBy(emote => Loc.GetString(emote.Name));

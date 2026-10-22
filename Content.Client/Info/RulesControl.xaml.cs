@@ -15,7 +15,7 @@ public sealed partial class RulesControl : BoxContainer, ILinkClickHandler
 {
     [Dependency] private DocumentParsingManager _parsingMan = default!;
 
-    [Dependency] private readonly WikiRoutingConfiguration _routing = default!;
+    [Dependency] private WikiRoutingConfiguration _routing = default!;
     private WikiDocumentView? _wiki;
     private string? _currentEntry;
     private readonly Stack<string> _priorEntries = new();

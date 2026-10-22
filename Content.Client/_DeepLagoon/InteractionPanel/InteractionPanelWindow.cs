@@ -4,7 +4,9 @@ using Content.Client._DeepLagoon.WebUI;
 using Content.Client.Lobby.UI;
 using Content.Shared._DeepLagoon.InteractionPanel;
 using Content.Shared._DeepLagoon.BodyCustomization;
+using Content.Shared._DeepLagoon.LustWish;
 using Robust.Client.Graphics;
+using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
@@ -46,7 +48,33 @@ public sealed class InteractionPanelWindow : BaseWindow
     public event Action<InteractionPanelCustomAction>? SaveRequested;
     public event Action<string>? DeleteRequested;
     public event Action<string, int>? BodyVisibilityRequested;
+    public event Action<string, string, string>? GearRequested;
+    private LustWishGearStateEvent? _gear;
+    public void SetGearState(LustWishGearStateEvent state)
+    {
+        _gear = state;
+        Publish(gearOnly: true);
+    }
     private BodyFeature[] _bodyFeatures = [];
+    private readonly IEntityManager _entities = IoCManager.Resolve<IEntityManager>();
+    private readonly IPlayerManager _players = IoCManager.Resolve<IPlayerManager>();
+    private float _arousalCurrent;
+    private float _arousalMaximum = 100;
+
+    private bool UpdateArousal()
+    {
+        var current = 0f;
+        var maximum = 100f;
+        if (_entities.TryGetComponent(_players.LocalEntity, out InteractionPanelArousalComponent? arousal))
+        {
+            maximum = float.IsFinite(arousal.Maximum) && arousal.Maximum > 0 ? arousal.Maximum : 100;
+            current = float.IsFinite(arousal.Current) ? Math.Clamp(arousal.Current, 0, maximum) : 0;
+        }
+        if (_arousalCurrent == current && _arousalMaximum == maximum) return false;
+        _arousalCurrent = current;
+        _arousalMaximum = maximum;
+        return true;
+    }
 
     public void SetBodyState(InteractionPanelBodyStateEvent state)
     {
@@ -88,6 +116,7 @@ public sealed class InteractionPanelWindow : BaseWindow
         _panel.NativeModeChanged += () => preview.Visible = !_panel.UsingNative;
         _panel.OnClose += Close;
         _panel.OnAction += OnAction;
+        UpdateArousal();
         Publish();
     }
 
@@ -117,9 +146,17 @@ public sealed class InteractionPanelWindow : BaseWindow
         Publish();
     }
 
-    private void Publish()
+    private void Publish(bool arousalOnly = false, bool gearOnly = false)
     {
         var state = new TguiData().String("name", _data.Name).Bool("self", _data.Self)
+            .Number("arousalCurrent", _arousalCurrent).Number("arousalMaximum", _arousalMaximum)
+            .Bool("arousalOnly", arousalOnly)
+            .Bool("gearOnly", gearOnly)
+            .String("heldName", _gear?.HeldName ?? "").String("heldSlot", _gear?.HeldSlot ?? "")
+            .Array("gear", (_gear?.Entries ?? []).Select(g => new TguiData().String("slot", g.Slot).String("slotName", Loc.GetString("dl-lustwish-slot-" + g.Slot)).String("name", g.Name)
+                .Bool("locked", g.Locked).Bool("active", g.Active).Bool("electronic", g.Electronic).Bool("shock", g.Shock).Bool("hypnosis", g.Hypnosis)
+                .Number("intensity", g.Intensity).Bool("colorable", g.Colorable).Bool("leashed", g.Leashed)))
+            .Array("gearColors", LustWishEquipment.Colors.Select(c => new TguiData().String("id", c).String("name", c)))
             .Array("bodyFeatures", _bodyFeatures.Where(f => f.Enabled && f.Part != "womb").Select(f =>
                 new TguiData().String("part", f.Part).String("name", BodyCustomizationCatalog.Names[f.Part]).Number("visibility", f.Visibility)))
             .Bool("humanoid", _data.Humanoid).Bool("debug", _data.DebugPreferences)
@@ -149,6 +186,11 @@ public sealed class InteractionPanelWindow : BaseWindow
         if (action == "stop") { RepeatRequested?.Invoke("", false, Interval); return; }
         if (!TguiActionData.TryParse(payload, out var parsed) || parsed == null) return;
         var id = parsed.String("id") ?? "";
+        if (action == "gear")
+        {
+            GearRequested?.Invoke(parsed.String("operation") ?? "", parsed.String("slot") ?? "", parsed.String("value") ?? "");
+            return;
+        }
         if (action == "body-visibility" && parsed.TryInt("value", out var visibility) && visibility is >= 0 and <= 2
             && _bodyFeatures.Any(f => f.Enabled && f.Part == id && f.Part != "womb"))
         {
@@ -224,6 +266,7 @@ public sealed class InteractionPanelWindow : BaseWindow
     {
         base.FrameUpdate(args);
         if (Parent == null) return;
+        if (UpdateArousal()) Publish(arousalOnly: true);
         MinSize = Vector2.Min(new Vector2(360, 420), Parent.Size);
         if (Size.X > Parent.Size.X || Size.Y > Parent.Size.Y) SetSize = Vector2.Min(Size, Parent.Size);
         LayoutContainer.SetPosition(this, Vector2.Clamp(Position, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - Size)));
@@ -242,7 +285,7 @@ public sealed class InteractionPanelWindow : BaseWindow
 
     private static readonly string[] LabelKeys =
     [
-        "open", "self-mode", "debug", "search", "clear", "favorites", "favorite-toggle", "empty", "stop", "repeat", "speed",
+        "open", "arousal", "self-mode", "debug", "search", "clear", "favorites", "favorite-toggle", "empty", "stop", "repeat", "speed",
         "action-hint", "unavailable", "tab-actions", "tab-custom", "editor-help", "editor-title", "editor-template", "editor-example",
         "editor-preference", "editor-region", "editor-self", "editor-other", "editor-humanoid", "editor-animal", "editor-color",
         "editor-sound", "editor-new", "editor-save", "editor-delete", "editor-you", "editor-target", "sound-none", "edit", "back",
@@ -250,6 +293,8 @@ public sealed class InteractionPanelWindow : BaseWindow
         "validation-template-long", "validation-tokens", "validation-hidden", "validation-targets", "validation-actors", "validation-color",
         "compact-target", "compact-expand", "compact-collapse", "compact-available", "compact-found", "compact-close", "compact-preview",
         "tab-body", "body-own", "body-empty", "body-hidden", "body-under", "body-over",
+        "tab-gear", "gear-help", "gear-empty", "gear-held", "gear-attach", "gear-remove", "gear-escape", "gear-release-all",
+        "gear-lock", "gear-unlock", "gear-pair", "gear-toggle", "gear-mode", "gear-pulse", "gear-leash", "gear-unleash", "gear-color",
         "compact-delete-confirm", "compact-cancel", "compact-locked", "compact-all", "compact-help", "compact-seconds", "sounds-all", "compact-available-only", "compact-body-hint", "body-all",
     ];
 }

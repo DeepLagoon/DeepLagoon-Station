@@ -70,6 +70,7 @@ namespace Content.Client.ContextMenu.UI
             };
         }
 
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
         protected override void Dispose(bool disposing)
         {
             MenuBody.OnChildRemoved -= ctrl => _uiController.OnRemoveElement(this, ctrl);

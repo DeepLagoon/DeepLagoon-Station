@@ -18,22 +18,23 @@ public sealed class TguiSpriteImages
 {
     private readonly Dictionary<SpriteSpecifier, string> _frames = new();
     private readonly Dictionary<string, List<TguiData>> _items = new();
-    private readonly Dictionary<ResPath, string> _tileFrames = new();
+    private readonly Dictionary<(ResPath, byte), string> _tileFrames = new();
     public void Reset() { _frames.Clear(); _items.Clear(); _tileFrames.Clear(); }
 
-    /// <summary>Tile sprites can be variant strips. Catalogue icons use the first 32×32 frame.</summary>
-    public string TileFrame(ResPath path)
+    /// <summary>Tile sprites can be variant strips. Select one 32×32 frame.</summary>
+    public string TileFrame(ResPath path, byte variant = 0)
     {
-        if (_tileFrames.TryGetValue(path, out var cached)) return cached;
+        if (_tileFrames.TryGetValue((path, variant), out var cached)) return cached;
         try
         {
             using var input = IoCManager.Resolve<IResourceCache>().ContentFileRead(new ResPath("/Textures") / path);
             using var image = Image.Load<Rgba32>(input);
-            using var frame = image.Clone(context => context.Crop(new Rectangle(0, 0, Math.Min(32, image.Width), Math.Min(32, image.Height))));
+            var x = Math.Min(variant * 32, Math.Max(0, image.Width - 32));
+            using var frame = image.Clone(context => context.Crop(new Rectangle(x, 0, Math.Min(32, image.Width), Math.Min(32, image.Height))));
             using var output = new MemoryStream(); frame.SaveAsPng(output);
-            return _tileFrames[path] = "data:image/png;base64," + Convert.ToBase64String(output.ToArray());
+            return _tileFrames[(path, variant)] = "data:image/png;base64," + Convert.ToBase64String(output.ToArray());
         }
-        catch (Exception) { return _tileFrames[path] = ""; }
+        catch (Exception) { return _tileFrames[(path, variant)] = ""; }
     }
 
     public string Frame(SpriteSpecifier spec)
@@ -112,6 +113,15 @@ public sealed class TguiSpriteImages
     {
         var proto = IoCManager.Resolve<IPrototypeManager>().Index<EntityPrototype>(id);
         if (!proto.TryGetComponent<SpriteComponent>(out var sprite)) return Item(id);
+        var result = MapSprite(sprite).ToList();
+        return result.Count == 0 ? Item(id) : result;
+    }
+
+    public IEnumerable<TguiData> MapEntity(EntityUid entity) =>
+        IoCManager.Resolve<IEntityManager>().TryGetComponent<SpriteComponent>(entity, out var sprite) ? MapSprite(sprite) : [];
+
+    private IEnumerable<TguiData> MapSprite(SpriteComponent sprite)
+    {
         var result = new List<TguiData>();
         foreach (var layer in sprite.AllLayers.Where(layer => layer.Visible && layer.ActualRsi != null && layer.RsiState.IsValid))
         {
@@ -123,7 +133,7 @@ public sealed class TguiSpriteImages
                 .Number("m11", matrix.M11).Number("m12", matrix.M12).Number("m21", matrix.M21).Number("m22", matrix.M22)
                 .Number("m31", matrix.M31).Number("m32", matrix.M32));
         }
-        return result.Count == 0 ? Item(id) : result;
+        return result;
     }
 
     public IEnumerable<TguiData> Item(string id)
