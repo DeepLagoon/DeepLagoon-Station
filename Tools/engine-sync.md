@@ -12,7 +12,8 @@ official launcher-selected signed WebView, compiles the Release client and serve
 and runs the existing sandbox/JSON tests against the official engine source.
 Only then does it commit and push the Station engine gitlink. It never forces a
 push: concurrent Station changes are picked up by the next run. An unchanged
-engine skips the builds. No running server is deployed or restarted.
+engine skips cloning Station and skips the builds on scheduled runs.
+No running server is deployed or restarted.
 
 Ordinary fork commits keep the official engine version (currently `292.0.1`).
 The version comes from `MSBuild/Robust.Engine.Version.props` and must match

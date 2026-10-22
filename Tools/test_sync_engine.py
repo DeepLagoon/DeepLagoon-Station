@@ -78,6 +78,12 @@ class EngineSyncTests(unittest.TestCase):
         self.assertFalse(sync_engine.prepare(self.root)["changed"])
         self.assertEqual("", self.git(self.root, "status", "--porcelain"))
 
+    def test_shallow_actions_checkout_can_advance(self):
+        self.git(self.engine, "fetch", "--depth=1", str(self.fork), self.previous)
+        self.assertEqual("true", self.git(self.engine, "rev-parse", "--is-shallow-repository"))
+        candidate = self.commit()
+        self.assertEqual(candidate, sync_engine.prepare(self.root)["engine_commit"])
+
     def test_protected_change_rejected_before_checkout(self):
         self.commit("Robust.Client/Entry.cs")
         with self.assertRaisesRegex(compatibility.CompatibilityError, "Unreviewed"):

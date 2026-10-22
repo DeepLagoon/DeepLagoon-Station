@@ -67,7 +67,7 @@ def prepare(root=compatibility.ROOT):
     # No silent downgrade, branch rewrite, or unrelated engine history.
     git(engine, "merge-base", "--is-ancestor", previous, candidate)
     release = "refs/tags/v" + version
-    git(engine, "fetch", "--no-tags", "--no-recurse-submodules", OFFICIAL_REMOTE,
+    git(engine, "fetch", "--depth=1", "--no-tags", "--no-recurse-submodules", OFFICIAL_REMOTE,
         "+" + release + ":" + release)
     changed = set(filter(None, git(engine, "diff", "--no-ext-diff", "--no-textconv",
                                  "--name-only", release, candidate, "--").splitlines()))

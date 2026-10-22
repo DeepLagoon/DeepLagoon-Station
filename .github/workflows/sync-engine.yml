@@ -25,15 +25,37 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check whether the engine changed without cloning Station
+        id: probe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, urllib.request
+          request = urllib.request.Request(
+              'https://api.github.com/repos/DeepLagoon/DeepLagoon-Station/contents/RobustToolbox?ref=main',
+              headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                       'Accept': 'application/vnd.github+json', 'User-Agent': 'DeepLagoon-engine-sync'})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              pinned = json.load(response)['sha']
+          remote = subprocess.check_output(
+              ['git', 'ls-remote', '--exit-code', 'https://github.com/DeepLagoon/RobustToolbox.git',
+               'refs/heads/main'], text=True, timeout=60).split()[0]
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('changed=' + str(remote != pinned).lower() + '\n')
+          PY
       - uses: actions/checkout@v4.2.2
+        if: steps.probe.outputs.changed == 'true' || github.event_name != 'schedule'
         with:
           ref: main
-          fetch-depth: 0
+          fetch-depth: 1
           submodules: recursive
           persist-credentials: false
       - name: Test sync and compatibility checks
+        if: steps.probe.outputs.changed == 'true' || github.event_name != 'schedule'
         run: python3 -m unittest discover -s Tools -p 'test*engine*.py' -q
       - name: Prepare latest compatible engine commit
+        if: steps.probe.outputs.changed == 'true' || github.event_name != 'schedule'
         id: engine
         run: python3 Tools/sync_engine.py
       - uses: actions/setup-dotnet@v4.1.0
