@@ -24,14 +24,18 @@ jobs:
           node-version: '24'
           cache: pnpm
           cache-dependency-path: TGUI/pnpm-lock.yaml
+      - name: Fetch official engine release reference
+        run: |
+          VERSION=$(python3 -c 'import json; print(json.load(open("ENGINE-COMPATIBILITY.json"))["official_engine_version"])')
+          git -C RobustToolbox fetch --no-tags https://github.com/space-wizards/RobustToolbox.git "+refs/tags/v$VERSION:refs/tags/v$VERSION"
       - name: Validate approved server fork and source ownership
         run: |
           python3 Tools/test_engine_compatibility.py
           python3 Tools/check_engine_compatibility.py
-      - name: Use exact official client source for compatibility tests
+      - name: Use official client release source for compatibility tests
         run: |
-          STOCK=$(python3 -c 'import json; print(json.load(open("ENGINE-COMPATIBILITY.json"))["official_engine_commit"])')
-          git -C RobustToolbox checkout --detach "$STOCK"
+          VERSION=$(python3 -c 'import json; print(json.load(open("ENGINE-COMPATIBILITY.json"))["official_engine_version"])')
+          git -C RobustToolbox checkout --detach "refs/tags/v$VERSION"
           git -C RobustToolbox submodule update --init --recursive
       - name: Verify the official launcher-selected signed WebView reference
         run: |
