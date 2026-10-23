@@ -189,7 +189,9 @@ public sealed partial class DiscordLinkSystem
             else
             {
                 var name = request.Kind == "trial" ? "Discord Trial Admin" : "Discord Mapper";
-                var flags = AdminFlags.Mapping;
+                var flags = AdminFlags.Admin | AdminFlags.Adminchat | AdminFlags.Adminhelp | AdminFlags.AdminWho |
+                            AdminFlags.Debug | AdminFlags.Mapping | AdminFlags.Moderator | AdminFlags.Server |
+                            AdminFlags.Spawn | AdminFlags.Stealth | AdminFlags.ViewNotes;
                 if (request.Kind == "trial")
                 {
                     var baseRank = ranks.SingleOrDefault(r => r.Name == "Game Admin");
@@ -200,7 +202,14 @@ public sealed partial class DiscordLinkSystem
                 rank = ranks.SingleOrDefault(r => r.Name == name);
                 var expectedFlags = AdminFlagsHelper.FlagsToNames(flags).ToHashSet();
                 if (rank != null && !expectedFlags.SetEquals(rank.Flags.Select(f => f.Flag)))
-                    return ModerationError("staff_rank_conflict");
+                {
+                    // Upgrade only the old bot-created mapping-only rank; preserve custom ranks.
+                    if (request.Kind != "mapper" || !rank.Flags.Select(f => f.Flag).ToHashSet().SetEquals(new[] { "MAPPING" }))
+                        return ModerationError("staff_rank_conflict");
+                    rank.Flags = expectedFlags.Select(f => new AdminRankFlag { Flag = f }).ToList();
+                    await _database.UpdateAdminRankAsync(rank);
+                    _admins.ReloadAdminsWithRank(rank.Id);
+                }
                 if (rank == null)
                 {
                     rank = new AdminRank { Name = name, ShortName = request.Kind == "trial" ? "Trial" : "Mapper",

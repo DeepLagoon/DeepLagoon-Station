@@ -100,8 +100,28 @@ public sealed class DiscordModerationTests
             await Call("staff_add", new { Kind = "mapper" });
             var mapper = await database.GetAdminDataForAsync(uid);
             var mapperRank = await database.GetAdminRankAsync(mapper!.AdminRankId!.Value);
-            Assert.That(mapperRank!.Flags.Select(f => f.Flag), Is.EquivalentTo(new[] { "MAPPING" }));
+            var mapperFlags = new[] { "ADMIN", "ADMINCHAT", "ADMINHELP", "ADMINWHO", "DEBUG", "MAPPING",
+                "MODERATOR", "SERVER", "SPAWN", "STEALTH", "VIEWNOTES" };
+            Assert.That(mapperRank!.Flags.Select(f => f.Flag), Is.EquivalentTo(mapperFlags));
+            Assert.That(AdminFlagsHelper.NamesToFlags(mapperRank.Flags.Select(f => f.Flag)) &
+                (AdminFlags.Ban | AdminFlags.MassBan), Is.EqualTo(AdminFlags.None));
             Assert.That((await Call("staff_remove", new { Kind = "admin" })).GetProperty("error").GetString(), Is.EqualTo("staff_conflict"));
+            await Call("staff_remove", new { Kind = "mapper" });
+            Assert.That(await database.GetAdminDataForAsync(uid), Is.Null);
+            Assert.That(store.StaffGrant(uid.UserId), Is.Null);
+
+            mapperRank.Flags = new() { new AdminRankFlag { Flag = "MAPPING" } };
+            await database.UpdateAdminRankAsync(mapperRank);
+            Assert.That((await Call("staff_add", new { Kind = "mapper" })).GetProperty("ok").GetBoolean(), Is.True);
+            mapperRank = await database.GetAdminRankAsync(mapperRank.Id);
+            Assert.That(mapperRank!.Flags.Select(f => f.Flag), Is.EquivalentTo(mapperFlags));
+            Assert.That((await Call("staff_add", new { Kind = "mapper" })).GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That((await Call("staff_status")).GetProperty("kind").GetString(), Is.EqualTo("mapper"));
+
+            mapperRank.Flags.Add(new AdminRankFlag { Flag = "BAN" });
+            await database.UpdateAdminRankAsync(mapperRank);
+            Assert.That((await Call("staff_add", new { Kind = "mapper" })).GetProperty("error").GetString(), Is.EqualTo("staff_rank_conflict"));
+            Assert.That((await database.GetAdminRankAsync(mapperRank.Id))!.Flags.Select(f => f.Flag), Does.Contain("BAN"));
             await Call("staff_remove", new { Kind = "mapper" });
 
             await database.AddAdminAsync(new DbAdmin { UserId = uid.UserId, Flags = new() });
