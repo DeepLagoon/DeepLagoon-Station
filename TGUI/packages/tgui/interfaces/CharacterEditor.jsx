@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { Button, Dropdown, Section } from '../components';
 import './CharacterEditor.scss';
-import { ColorSquare, ColorTransferContext } from '../components/PlayerColorPicker';
+import { ColorSquare, ColorTransferContext, EditorColorDialogProvider } from '../components/PlayerColorPicker';
 import { playerTheme, TintedSprite } from '../components/PlayerTheme';
 import { CharacterText } from '../components/CharacterText';
 import { CharacterTextEditor } from '../components/CharacterTextEditor';
@@ -11,7 +11,7 @@ import { CharacterHeadshots } from './CharacterHeadshots';
 import { EquipmentBrowser } from './EquipmentBrowser';
 import { filter as fuzzyFilter } from './fuzzySearch'; // DeepLagoon: fuzzy search
 import { CharacterEditorSettings, editorAppearance } from './CharacterEditorSettings';
-import { TattooEditor } from './TattooStudio';
+import { CharacterAppearance } from './CharacterAppearance';
 import { configureNativeChatBackground, clearNativeChatBackground } from '../../tgui-panel/chat/nativeBackground';
 
 const Field = ({ label, children }) => <label className="CharacterEditor__field"><span>{label}</span>{children}</label>;
@@ -76,6 +76,29 @@ export const CharacterEditor = () => {
   const traits = useMemo(() => (data.traits || []).map(trait => ({ ...trait, ...data.traitState?.[trait.id] }))
     .filter(trait => trait.visible !== false), [data.traits, data.traitState]);
   const backgroundRoot = useRef(null);
+  const previewTarget = useRef(null);
+  useEffect(() => {
+    if (data.mode !== 'markings' || !previewTarget.current) return;
+    let frame;
+    let previous = '';
+    const publish = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rect = previewTarget.current?.getBoundingClientRect();
+        if (!rect) return;
+        const bounds = { x: Math.round(rect.x), y: Math.round(rect.y), width: Math.round(rect.width), height: Math.round(rect.height) };
+        const key = JSON.stringify(bounds);
+        if (key !== previous) { previous = key; act('preview-bounds', bounds); }
+      });
+    };
+    const observer = new ResizeObserver(publish);
+    observer.observe(backgroundRoot.current);
+    observer.observe(previewTarget.current);
+    document.addEventListener('scroll', publish, true);
+    window.addEventListener('resize', publish);
+    publish();
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); document.removeEventListener('scroll', publish, true); window.removeEventListener('resize', publish); };
+  }, [data.mode, data.available]);
   const activeBackground = useRef(null);
   const appearance = data.appearance || {};
   useEffect(() => {
@@ -130,7 +153,7 @@ export const CharacterEditor = () => {
   const matchedJobs = new Set(fuzzyFilter(departments.flatMap(department => department.jobs), search, job => job.name));
   const matchedMarkings = new Set(fuzzyFilter(data.markingOptions || [], search, option => option.name));
   const theme = playerTheme(JSON.stringify({ settings: appearance }));
-  return <ColorTransferContext.Provider value={transfer}><div ref={backgroundRoot} className={'CharacterEditor Chat ' + theme.className + ' CharacterEditor--' + data.mode +
+  return <EditorColorDialogProvider data={data} act={act}><ColorTransferContext.Provider value={transfer}><div ref={backgroundRoot} className={'CharacterEditor Chat ' + theme.className + ' CharacterEditor--' + data.mode +
     (appearance.smoothScroll ? ' CharacterEditor--smooth' : '') + (appearance.hoverEffect ? ' CharacterEditor--hover' : '')}
     style={{ ...theme.style, ...editorAppearance(appearance) }}>
     <header className="CharacterEditor__header">
@@ -146,11 +169,11 @@ export const CharacterEditor = () => {
         {data.setup && <Button icon="times" onClick={()=>act('setup/close')}>Закрыть</Button>}
       </div>
     </header>
-    <aside className="CharacterEditor__preview" onWheel={event=>{const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left+64||event.clientX>bounds.right-64)return;event.preventDefault();act('rotate',{value:event.deltaY>0?1:-1});}}><div className="CharacterEditor__previewSpace" />
+    {data.mode !== 'markings' && <aside className="CharacterEditor__preview" onWheel={event=>{const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left+64||event.clientX>bounds.right-64)return;event.preventDefault();act('rotate',{value:event.deltaY>0?1:-1});}}><div className="CharacterEditor__previewSpace" />
       <div className="CharacterEditor__floor" style={{ backgroundImage: data.previewFloor ? `url("${data.previewFloor}")` : undefined }} />
       <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button></div>
       <div className="CharacterEditor__slots">{(data.previewSlots||[]).map((slot,index)=><button type="button" key={slot.id} title={slot.name} style={{gridColumn:index%2?3:1,gridRow:Math.floor(index/2)+1}} aria-label={slot.name} aria-pressed={slot.selected} onClick={()=>act('preview-slot',{value:slot.id})} onContextMenu={event=>{event.preventDefault();act('preview-slot-remove',{value:slot.id});}}><div className="CharacterEditor__sprite">{(slot.images.length?slot.images:[{url:slot.background,color:"#ffffff"}]).map((image,i)=><TintedSprite key={i} image={image.url} color={image.color} />)}</div></button>)}</div>
-    </aside>
+    </aside>}
     <main className="CharacterEditor__content">
     {data.setup && <>
       <div className="CharacterEditor__tabs"><Button onClick={()=>setCharactersOpen(!charactersOpen)} selected={charactersOpen}>Персонажи</Button><Button onClick={()=>setStatsOpen(!statsOpen)} selected={statsOpen}>Статистика</Button>{data.setup.notes&&<Button onClick={()=>act('setup/notes')}>Заметки администрации</Button>}</div>
@@ -257,21 +280,9 @@ export const CharacterEditor = () => {
       {[['flavor','Описание персонажа',data.flavorText],['ooc','OOC заметки',data.oocNotes]].map(([key,label,value])=><Section key={key} title={label}><CharacterTextEditor label={label} value={value||''} maxLength={data.maxFlavorLength} onChange={change(key)} /><details><summary>Предпросмотр форматирования</summary><div className="CharacterText"><CharacterText text={value}/></div></details></Section>)}
     </>}
     {data.mode === 'markings' && <>
-      <details className="CharacterEditor__tattoos" open={tattooPanelOpen} onToggle={event => setTattooPanelOpen(event.currentTarget.open)}>
-        <summary>Татуировки ({data.tattooEditor?.tattoos?.length || 0})</summary>
-        <Section>
-          <Button role="button" color="bad" disabled={!data.tattooEditor?.tattoos?.length || data.tattooEditor?.fileBusy} onClick={() => act('tattoo-clear')}>Очистить все татуировки</Button>
-          <p>Создавайте и рисуйте татуировки прямо здесь — тату-машинка и предметы в руках не нужны.</p>
-          <TattooEditor data={data.tattooEditor} act={act} active={tattooPanelOpen} />
-        </Section>
-      </details>
-      <Section title="Выбранные особенности">{(data.markings||[]).map(marking=><div key={marking.index}>
-        <strong>{marking.name}</strong><Button onClick={()=>act('marking-remove',{index:marking.index})}>Удалить</Button>
-        <Button onClick={()=>act('marking-move',{index:marking.index,value:-1})}>↑</Button><Button onClick={()=>act('marking-move',{index:marking.index,value:1})}>↓</Button>
-        {(marking.colors||[]).map((color,i)=><ColorEditor key={i} label={'Цвет '+(i+1)} value={color.name} disabled={marking.locked} onChange={value=>act('marking-color',{index:marking.index,layer:i,value})} />)}
-      </div>)}</Section>
-      <DraftInput label="Поиск" value={search} onCommit={setSearch} />
-      {[...new Set((data.markingOptions||[]).map(m=>m.category))].map(category=><details key={category}><summary>{category}</summary><div className="CharacterEditor__tiles">{data.markingOptions.filter(m=>m.category===category&&matchedMarkings.has(m)).map(option=><button type="button" key={option.id} onClick={()=>act('marking-add',{value:option.id})}><div className="CharacterEditor__sprite">{option.iconId ? <LazySprite id={option.iconId} /> : (option.images||[]).map((image,i)=><img key={i} src={image.url} alt="" />)}</div>{option.name}</button>)}</div></details>)}
+      <DraftInput label="Поиск особенностей" value={search} onCommit={setSearch} />
+      <CharacterAppearance data={data} act={act} matched={matchedMarkings} previewRef={previewTarget}
+        tattooPanelOpen={tattooPanelOpen} setTattooPanelOpen={setTattooPanelOpen} />
     </>}
     {data.mode === 'company' && <Section title="Компания"><div className="CharacterEditor__companies">{(data.companyOptions||[]).map(company=><article key={company.id}>
       <header><strong>{company.name}</strong><Button selected={company.id===data.company} onClick={()=>act('company',{value:company.id})}>{company.id===data.company?'Выбрана':'Выбрать'}</Button></header>
@@ -279,5 +290,5 @@ export const CharacterEditor = () => {
       <Button disabled={!company.wikiUrl} onClick={()=>act('company-wiki',{value:company.id})}>Страница компании на вики</Button>{!company.wikiUrl&&<small>Страница пока не добавлена.</small>}</details>
     </article>)}</div></Section>}
     </main>
-  </div></ColorTransferContext.Provider>;
+  </div></ColorTransferContext.Provider></EditorColorDialogProvider>;
 };

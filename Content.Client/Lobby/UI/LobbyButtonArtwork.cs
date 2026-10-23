@@ -31,15 +31,13 @@ public sealed class LobbyButtonArtwork : Control
     private readonly bool _utility;
     private float _clickFlash;
     private readonly bool _nativeText;
-    private readonly bool _preserveTooltip;
 
-    private LobbyButtonArtwork(Button button, Func<(RSI, string)>? select, bool utility = false, bool nativeText = false, bool preserveTooltip = false)
+    private LobbyButtonArtwork(Button button, Func<(RSI, string)>? select, bool utility = false, bool nativeText = false)
     {
         _button = button;
         _select = select;
         _utility = utility;
         _nativeText = nativeText;
-        _preserveTooltip = preserveTooltip;
         _wasDisabled = button.Disabled;
         MouseFilter = MouseFilterMode.Ignore;
         button.OnButtonDown += OnButtonDown;
@@ -48,9 +46,9 @@ public sealed class LobbyButtonArtwork : Control
             RectClipContent = true;
     }
 
-    public static void AttachUtility(Button button, bool nativeText = false, bool preserveTooltip = false)
+    public static void AttachUtility(Button button, bool nativeText = false)
     {
-        Attach(button, null, utility: true, nativeText: nativeText, preserveTooltip: preserveTooltip);
+        Attach(button, null, utility: true, nativeText: nativeText);
     }
 
     public static void Attach(Button button, string asset, Func<string> state)
@@ -68,14 +66,13 @@ public sealed class LobbyButtonArtwork : Control
         Attach(button, () => button.ToggleMode ? (ready, button.Pressed ? "ready" : "not_ready") : (join, "join_game"));
     }
 
-    private static void Attach(Button button, Func<(RSI, string)>? select, bool utility = false, bool nativeText = false, bool preserveTooltip = false)
+    private static void Attach(Button button, Func<(RSI, string)>? select, bool utility = false, bool nativeText = false)
     {
         button.StyleBoxOverride = new StyleBoxEmpty();
         button.MuteSounds = true;
         // Keep Text available to LobbyState, but don't render duplicate captions.
         button.Label.Visible = nativeText;
-        if (!preserveTooltip)
-            button.ToolTip = button.Text;
+        button.ToolTip = null;
         if (nativeText)
         {
             button.Label.Orphan();
@@ -84,7 +81,7 @@ public sealed class LobbyButtonArtwork : Control
             button.Label.Align = Label.AlignMode.Left;
             button.Label.OutlineThicknessOverride = 0;
         }
-        button.AddChild(new LobbyButtonArtwork(button, select, utility, nativeText, preserveTooltip));
+        button.AddChild(new LobbyButtonArtwork(button, select, utility, nativeText));
         if (nativeText)
             button.AddChild(button.Label);
     }
@@ -157,8 +154,6 @@ public sealed class LobbyButtonArtwork : Control
             return;
         _clickFlash = Math.Max(0, _clickFlash - args.DeltaSeconds);
 
-        if (!_preserveTooltip && _button.ToolTip != _button.Text)
-            _button.ToolTip = _button.Text;
         if (_utility)
             return;
         var (rsi, state) = _select!.Invoke();
@@ -211,8 +206,7 @@ public sealed class LobbyButtonArtwork : Control
                 if (_nativeText && _button.Pressed)
                     handle.DrawRect(PixelSizeBox, LobbyConsoleTheme.Green.WithAlpha(0.26f), false);
             }
-            // Keep ChangelogButton's unread marker available in its tooltip, while
-            // retaining the approved short screen caption and green palette.
+            // Keep the short changelog caption; unread entries use the caution color.
             var text = (_button is Content.Client.Changelog.ChangelogButton
                 ? Loc.GetString("changelog-button") : _button.Text ?? "").Trim();
             var cells = Math.Max(1, text.Length * 6 - 1);

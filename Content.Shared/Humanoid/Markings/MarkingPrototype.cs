@@ -17,6 +17,15 @@ namespace Content.Shared.Humanoid.Markings
         [DataField("markingCategory", required: true)]
         public MarkingCategories MarkingCategory { get; private set; } = default!;
 
+        [DataField]
+        public bool EditorHidden { get; private set; }
+
+        [DataField]
+        public bool EditorExclusive { get; private set; }
+
+        [DataField]
+        public List<string> EditorLinkedMarkings { get; private set; } = new();
+
         [DataField("speciesRestriction")]
         public List<string>? SpeciesRestrictions { get; private set; }
 
@@ -34,6 +43,9 @@ namespace Content.Shared.Humanoid.Markings
 
         [DataField("sprites", required: true)]
         public List<SpriteSpecifier> Sprites { get; private set; } = default!;
+
+        [DataField]
+        public Dictionary<string, HumanoidVisualLayers> SpriteLayers { get; private set; } = new();
 
         // impstation edit - allow markings to support shaders
 		[DataField("shader")]

@@ -1,0 +1,183 @@
+- type: entity
+  id: MobSynth
+  parent: PlayerSiliconHumanoidBase
+  name: Synthetic
+  description: A synthetic humanoid with a customizable outer shell.
+  save: false
+  components:
+  - type: Sprite
+    noRot: true
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.HumanoidVisualLayers.TailExtras"]
+    - map: ["enum.HumanoidVisualLayers.Chest"]
+    - map: ["enum.HumanoidVisualLayers.Head"]
+    - map: ["enum.HumanoidVisualLayers.Snout"]
+    - map: ["enum.HumanoidVisualLayers.Eyes"]
+    - map: ["enum.HumanoidVisualLayers.RArm"]
+    - map: ["enum.HumanoidVisualLayers.LArm"]
+    - map: ["enum.HumanoidVisualLayers.RLeg"]
+    - map: ["enum.HumanoidVisualLayers.LLeg"]
+    - shader: StencilClear
+      sprite: Mobs/Species/Human/parts.rsi
+      state: l_leg
+    - shader: StencilMask
+      map: ["enum.HumanoidVisualLayers.StencilMask"]
+      sprite: Mobs/Customization/masking_helpers.rsi
+      state: female_full
+      visible: false
+    - map: ["enum.HumanoidVisualLayers.LFoot"]
+    - map: ["enum.HumanoidVisualLayers.RFoot"]
+    - map: ["socks"]
+    - map: ["underpants"]
+    - map: ["undershirt"]
+    - map: ["jumpsuit"]
+    - map: [ "balaclava" ]
+    - map: ["enum.HumanoidVisualLayers.LHand"]
+    - map: ["enum.HumanoidVisualLayers.RHand"]
+    - map: ["enum.HumanoidVisualLayers.Handcuffs"]
+      color: "#ffffff"
+      sprite: Objects/Misc/handcuffs.rsi
+      state: body-overlay-2
+      visible: false
+    - map: ["id"]
+    - map: ["gloves"]
+    - map: ["shoes"]
+    - map: ["ears"]
+    - map: ["outerClothing"]
+    - map: ["eyes"]
+    - map: ["belt"]
+    - map: ["neck"]
+    - map: ["back"]
+    - map: ["enum.HumanoidVisualLayers.FacialHair"]
+    - map: ["enum.HumanoidVisualLayers.Hair"]
+    - map: ["enum.HumanoidVisualLayers.HeadSide"]
+    - map: ["enum.HumanoidVisualLayers.HeadTop"]
+    - map: [ "helmetcover" ]
+    - map: [ "helmetattachment" ]
+    - map: ["mask"]
+    - map: ["head"]
+    - map: ["pocket1"]
+    - map: ["pocket2"]
+    - map: ["enum.HumanoidVisualLayers.Tail"]
+    - map: ["clownedon"] # Dynamically generated
+      sprite: "Effects/creampie.rsi"
+      state: "creampie_human"
+      visible: false
+  #- type: Bloodstream This is left commented out because it's not necessary for a robot, but you may want it.
+  #  damageBleedModifiers: BloodlossIPC
+  #  bloodReagent: Oil
+  #  bleedReductionAmount: 0
+  #  bloodMaxVolume: 500
+  #  chemicalMaxVolume: 0
+  #  bleedPuddleThreshold: 3
+  #  bleedRefreshAmount: 0
+  #  bloodLossThreshold: 0
+  #  maxBleedAmount: 14
+  #  bloodlossDamage:
+  #    types:
+  #      Burn: 1.5
+  #  bloodlossHealDamage:
+  #    types:
+  #      Burn: 0
+  - type: HumanoidAppearance
+    species: Synth
+    hideLayersOnEquip:
+    - Hair
+    - Snout
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: full
+  - type: Body
+    prototype: Synth
+  - type: Inventory
+    templateId: human
+  - type: LanguageKnowledge
+    speaks:
+    - TauCetiBasic
+    - RobotTalk
+    understands:
+    - TauCetiBasic
+    - RobotTalk
+  - type: PowerCellSlot
+    cellSlotId: cell_slot
+    fitsInCharger: true
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        locked: true
+        name: power-cell-slot-component-slot-name-default
+        startingItem: PowerCellMedium
+  - type: BatterySlotRequiresLock
+    itemSlot: cell_slot
+  - type: Lock
+    locked: true
+    lockOnClick: false
+    unlockOnClick: false
+    lockTime: 5
+    unlockTime: 5
+  - type: Silicon
+    entityType: enum.SiliconType.Player
+    batteryPowered: true
+    drainPerSecond: 0.65
+  - type: BatteryDrinker
+  - type: WeldingHealable
+  - type: SiliconDownOnDead
+  - type: NpcFactionMember
+    factions:
+    - NanoTrasen
+- type: entity
+  id: MobSynthDummy
+  parent: MobHumanDummy
+  name: Synthetic
+  save: false
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    noRot: true
+    # TODO BODY Turn these into individual body parts?
+    layers:
+    - map: ["enum.HumanoidVisualLayers.TailExtras"]
+    - map: [ "enum.HumanoidVisualLayers.Chest" ]
+    - map: [ "enum.HumanoidVisualLayers.Head" ]
+    - map: [ "enum.HumanoidVisualLayers.Snout" ]
+    - map: [ "enum.HumanoidVisualLayers.Eyes" ]
+    - map: [ "enum.HumanoidVisualLayers.RArm" ]
+    - map: [ "enum.HumanoidVisualLayers.LArm" ]
+    - map: [ "enum.HumanoidVisualLayers.RLeg" ]
+    - map: [ "enum.HumanoidVisualLayers.LLeg" ]
+    - map: ["jumpsuit"]
+    - map: [ "balaclava" ]
+    - map: ["enum.HumanoidVisualLayers.LFoot"]
+    - map: ["enum.HumanoidVisualLayers.RFoot"]
+    - map: ["enum.HumanoidVisualLayers.LHand"]
+    - map: ["enum.HumanoidVisualLayers.RHand"]
+    - map: ["enum.HumanoidVisualLayers.Handcuffs"]
+      color: "#ffffff"
+      sprite: Objects/Misc/handcuffs.rsi
+      state: body-overlay-2
+      visible: false
+    - map: [ "gloves" ]
+    - map: [ "shoes" ]
+    - map: [ "ears" ]
+    - map: [ "outerClothing" ] # mono - i hate you upstream
+    - map: [ "eyes" ]
+    - map: [ "belt" ]
+    - map: [ "id" ]
+    - map: [ "back" ]
+    - map: [ "neck" ]
+    - map: [ "enum.HumanoidVisualLayers.FacialHair" ]
+    - map: [ "enum.HumanoidVisualLayers.Hair" ]
+    - map: [ "enum.HumanoidVisualLayers.HeadSide" ]
+    - map: [ "enum.HumanoidVisualLayers.HeadTop" ]
+    - map: [ "enum.HumanoidVisualLayers.Tail" ]
+    - map: [ "helmetcover" ]
+    - map: [ "helmetattachment" ]
+    - map: [ "mask" ]
+    - map: [ "head" ]
+    - map: [ "pocket1" ]
+    - map: [ "pocket2" ]
+  - type: HumanoidAppearance
+    species: Synth

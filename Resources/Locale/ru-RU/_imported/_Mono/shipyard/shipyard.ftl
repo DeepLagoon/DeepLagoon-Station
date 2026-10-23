@@ -1,4 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
+shipyard-preview-ui-title = Предпросмотр корабля
+shipyard-preview-load-failed = Не удалось загрузить предпросмотр корабля. Попробуйте ещё раз.
 
 shipyard-direction-message = Ваш { $shipName } расположен на расстоянии { $distance } метров, направление - { $direction }!
 

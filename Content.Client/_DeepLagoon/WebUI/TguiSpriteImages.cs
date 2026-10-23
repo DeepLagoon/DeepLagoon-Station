@@ -14,12 +14,12 @@ using Color = Robust.Shared.Maths.Color;
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>Read first sprite frames from packaged resources, without GPU readbacks.</summary>
-public sealed class TguiSpriteImages
+public sealed partial class TguiSpriteImages
 {
     private readonly Dictionary<SpriteSpecifier, string> _frames = new();
     private readonly Dictionary<string, List<TguiData>> _items = new();
     private readonly Dictionary<(ResPath, byte), string> _tileFrames = new();
-    public void Reset() { _frames.Clear(); _items.Clear(); _tileFrames.Clear(); }
+    public void Reset() { _frames.Clear(); _items.Clear(); _tileFrames.Clear(); _directionalFrames.Clear(); }
 
     /// <summary>Tile sprites can be variant strips. Select one 32×32 frame.</summary>
     public string TileFrame(ResPath path, byte variant = 0)

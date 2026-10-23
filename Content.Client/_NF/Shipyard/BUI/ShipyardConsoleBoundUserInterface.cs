@@ -114,7 +114,6 @@ public sealed partial class ShipyardConsoleBoundUserInterface : BoundUserInterfa
         }
 
         var vessel = row.Vessel;
-        SendMessage(new ShipyardConsolePreviewMessage());
-        _preview.TryPreviewGrid(vessel);
+        _preview.Open(vessel);
     }
 }

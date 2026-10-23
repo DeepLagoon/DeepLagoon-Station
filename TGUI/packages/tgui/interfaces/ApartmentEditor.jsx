@@ -4,6 +4,7 @@ import { useBackend } from '../backend';
 import { copyLayout, validateLayout } from './apartmentLayout.mjs';
 import './ApartmentEditor.scss';
 import { useApartmentViewport } from './useApartmentViewport';
+import { NavMapPlan } from './NavMapPlan.jsx';
 
 const Sprite = ({ images = [] }) => <span className="ApartmentEditor__sprite">
   {images.map((image, i) => <img key={i} src={image.url} alt="" draggable={false} style={{ filter: image.color && image.color !== '#ffffff' ? `drop-shadow(0 0 0 ${image.color})` : undefined }} />)}
@@ -160,6 +161,9 @@ export const ApartmentEditor = () => {
           style={{ left: view.width / 2, top: view.height / 2, width: data.width * cellSize, height: data.height * cellSize, '--cell': `${cellSize}px`, '--columns': data.width, '--rows': data.height }}
           onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={(event) => { if (drag.current) pointerMove(event); drag.current = null; }} onPointerCancel={() => { if (drag.current?.moved) update(drag.current.original); drag.current = null; }}
           onPointerLeave={() => { if (!drag.current) setHover(null); }}>
+          <NavMapPlan tiles={data.scene?.tiles || Array.from({ length: data.width * data.height }, (_, i) => ({ x: i % data.width, y: Math.floor(i / data.width) }))}
+            structures={data.scene?.objects.filter(object => object.wall || object.door) || []}
+            area={{ x: originX, y: originY, width: data.width, height: data.height }} />
           {Array.from({ length: (data.width || 0) * (data.height || 0) }, (_, index) => {
             const x = originX + index % data.width, y = originY + data.height - 1 - Math.floor(index / data.width);
             const tile = floors.get(`${x},${y}`);
@@ -170,7 +174,7 @@ export const ApartmentEditor = () => {
               <span>{arrival ? 'Вход' : terminal ? 'Выход' : ''}</span>
             </div>;
           })}
-          {(data.scene?.objects || []).filter(object => fixed.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).map(object => <div key={object.id}
+          {(data.scene?.objects || []).filter(object => !object.wall && !object.door && fixed.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).map(object => <div key={object.id}
             className={`ApartmentEditor__fixture ${object.images?.length ? 'sprite' : ''}`} title={object.name}
             style={{ left: `${(object.x - originX - .5) / data.width * 100}%`, top: `${(originY + data.height - object.y - .5) / data.height * 100}%`, width: `${100 / data.width}%`, height: `${100 / data.height}%` }}>
             <span style={{ transform: `rotate(${object.noRotation ? 0 : -object.rotation}deg)` }}>{object.images?.length > 0 && <PlanSprite images={object.images} />}</span>

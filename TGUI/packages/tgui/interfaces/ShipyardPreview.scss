@@ -1,0 +1,16 @@
+body:has(.ShipyardPreview) { zoom: 1 !important; }
+.ShipyardPreview {
+  position: fixed; inset: 0; display: flex; flex-direction: column; background: #10171b; color: #d8e5ed; font: 14px/1.4 sans-serif;
+  header, &__toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; flex-shrink: 0; border-bottom: 1px solid #344045; }
+  header { justify-content: space-between; }
+  small { display: block; color: #a8b4b8; }
+  button { background: #233139; color: inherit; border: 1px solid #596b73; border-radius: 4px; padding: 6px 12px; cursor: pointer; }
+  button:hover { background: #344951; }
+  &__viewport { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; touch-action: none; }
+  &__viewport.panning { cursor: grabbing; }
+  &__surface { position: relative; }
+  &__plan { position: absolute; }
+  &__plan canvas { position: absolute; pointer-events: none; }
+  &__error { padding: 24px; color: #e99a91; }
+  &__progress { padding: 8px 14px; color: #a8b4b8; }
+}

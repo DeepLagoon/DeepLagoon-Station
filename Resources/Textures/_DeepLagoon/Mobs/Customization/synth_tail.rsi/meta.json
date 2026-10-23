@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "User-supplied Sprites pack, provided by iamasay. Original artist not specified. Source metadata declares CC-BY-SA-3.0; original reference: https://github.com/tgstation/tgstation/blob/08898964e67a0d517ca4e47eec7039394b694ac2/icons/mob/species/lizard/bodyparts.dmi",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "synth_tail",
+      "directions": 4
+    },
+    {
+      "name": "synth_tail_back",
+      "directions": 4
+    },
+    {
+      "name": "synth_tail_forward",
+      "directions": 4
+    }
+  ]
+}

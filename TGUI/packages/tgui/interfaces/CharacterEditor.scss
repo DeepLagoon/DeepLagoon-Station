@@ -182,3 +182,42 @@
   justify-self: start;
   width: fit-content;
 }
+.CharacterEditor--markings {
+  .CharacterEditor__content { padding-inline: 0; }
+  .CharacterEditor__anatomy { min-width: 0; }
+  .CharacterEditor__anatomySides { display: grid; grid-template-columns: minmax(0, 1fr) clamp(112px, 24vw, 232px) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .CharacterEditor__anatomyLeft, .CharacterEditor__anatomyRight { min-width: 0; max-height: 390px; overflow-y: auto; overflow-x: hidden; }
+  .CharacterEditor__anatomySides h3 { text-align: center; margin: 6px 0 10px; }
+  .CharacterEditor__anatomyPreview { min-width: 0; position: sticky; top: 0; }
+  .CharacterEditor__anatomySpace { height: clamp(210px, 34vw, 320px); position: relative; }
+  .CharacterEditor__anatomyFloor { position: absolute; width: 128px; max-width: 100%; height: 64px; left: 50%; bottom: 8px; transform: translateX(-50%); background-size: 64px; image-rendering: pixelated; opacity: .35; }
+  .CharacterEditor__anatomyRotation { display: flex; justify-content: center; gap: 8px; }
+  .CharacterEditor__anatomyLower { margin-top: 18px; min-width: 0; }
+  .CharacterEditor__tiles { grid-template-columns: repeat(auto-fill, minmax(min(100%, 100px), 1fr)); }
+  .CharacterEditor__tiles button { overflow-wrap: anywhere; min-width: 0; }
+  .CharacterEditor__markingRow { display: flex; align-items: center; gap: 5px; margin: 8px 0; min-width: 0; }
+  .CharacterEditor__markingRow strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .CharacterEditor__markingRow > .Button { padding: 4px; flex: 0 0 auto; }
+  .CharacterEditor__markingColors { display: flex; flex: 0 0 auto; gap: 4px; }
+  .CharacterEditor__markingColors .ColorSquare { margin: 0; }
+  .CharacterEditor__markingColors .ColorSquare > span { display: none; }
+  .CharacterEditor__markingColors .ColorSquare > button { width: 26px; height: 26px; }
+}
+.CharacterEditor .ColorSquare { display: inline-flex; align-items: center; gap: 6px; margin: 4px 0; min-width: 0; }
+.CharacterEditor .ColorSquare > button { flex: 0 0 30px; }
+.CharacterEditor .ColorSquare > span { min-width: 0; }
+.CharacterColorDialog { box-sizing: border-box; height: 100vh; overflow: hidden; color: var(--player-text, #ddd); background: var(--player-surface, #202632); font: 14px Arial, sans-serif; }
+.CharacterColorDialog header { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 52px; box-sizing: border-box; padding: 6px 10px; background: #152333; color: #eaf2ff; }
+.CharacterColorDialog header strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.CharacterColorDialog main { overflow-y: auto; height: calc(100% - 52px); box-sizing: border-box; padding: 12px; }
+.CharacterColorDialog__modes { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.CharacterColorDialog input { box-sizing: border-box; padding: 5px; color: var(--editor-control-text, #eee); background: var(--editor-control-bg, #252b35); border: 1px solid #646473; }
+.CharacterColorDialog .PlayerColorPicker__rgb { flex-direction: column; }
+.CharacterColorDialog .PlayerColorPicker__rgb input { flex: 1; width: auto; }
+@media (max-width: 699px) {
+  .CharacterEditor--markings .CharacterEditor__anatomySides { gap: 6px; }
+  .CharacterEditor--markings .CharacterEditor__markingRow { gap: 3px; }
+  .CharacterEditor--markings .CharacterEditor__markingRow > .Button { display: none; }
+  .CharacterEditor--markings .CharacterEditor__markingRow > .Button:first-of-type { display: inline-flex; }
+  .CharacterEditor--markings .CharacterEditor__markingColors .ColorSquare > button { width: 22px; height: 22px; flex-basis: 22px; }
+}

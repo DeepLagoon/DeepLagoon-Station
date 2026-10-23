@@ -32,7 +32,7 @@ public sealed class LobbyEntryDrawer : Container
     {
         RectClipContent = true;
         ToggleButton = new Button { Text = ">" };
-        LobbyButtonArtwork.AttachUtility(ToggleButton, nativeText: true, preserveTooltip: true);
+        LobbyButtonArtwork.AttachUtility(ToggleButton, nativeText: true);
         ToggleButton.StyleBoxOverride = new StyleBoxFlat
         {
             BackgroundColor = LobbyConsoleTheme.Screen,
@@ -61,7 +61,6 @@ public sealed class LobbyEntryDrawer : Container
         if (ChildCount == 2)
             GetChild(0).Visible = !Collapsed;
         ToggleButton.Text = Collapsed ? "<" : ">";
-        ToggleButton.ToolTip = Loc.GetString(Collapsed ? "deeplagoon-lobby-expand-entry" : "deeplagoon-lobby-collapse-entry");
     }
 
     protected override Vector2 MeasureOverride(Vector2 availableSize)

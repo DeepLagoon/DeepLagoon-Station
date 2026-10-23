@@ -1,70 +1,112 @@
+using System.IO;
 using System.Linq;
 using System.Numerics;
-using Content.Client.Mind;
-using Content.Shared._Mono.Shipyard;
+using Content.Client._DeepLagoon.WebUI;
+using Content.Client.UserInterface.Controls;
 using Content.Shared._NF.Shipyard.Prototypes;
-using Content.Shared.Anomaly;
+using Content.Shared.GameTicking;
+using Content.Shared.Tag;
 using Robust.Client.GameObjects;
-using Robust.Shared.EntitySerialization;
-using Robust.Shared.EntitySerialization.Systems;
-using Robust.Shared.Map;
-using Robust.Shared.Map.Components;
-using Robust.Shared.Utility;
+using Robust.Shared.ContentPack;
+using Robust.Shared.Player;
+using Robust.Shared.Prototypes;
 
 namespace Content.Client._Mono.Shipyard;
 
-/// <summary>
-/// This handles spawning client-side grid and getting data from it.
-/// </summary>
-public sealed partial class ShipyardPreviewSystem : SharedShipyardPreviewSystem
+/// <summary>A local, read-only plan. Ship maps and their gameplay components are never instantiated.</summary>
+public sealed class ShipyardPreviewSystem : EntitySystem
 {
-    [Dependency] private MapSystem _map = default!;
-    [Dependency] private MapLoaderSystem _loader = default!;
-    [Dependency] private MetaDataSystem _meta = default!;
-    [Dependency] private TransformSystem _xform = default!;
-    [Dependency] private MindSystem _mind = default!;
+    [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private TagSystem _tags = default!;
+    private readonly TguiSpriteImages _images = new();
+    private ShipyardPreviewWindow? _window;
+    public bool IsOpen => _window != null;
 
-    public Entity<MapGridComponent>? CurrentGrid;
     public override void Initialize()
     {
         base.Initialize();
-
+        SubscribeLocalEvent<LocalPlayerDetachedEvent>(_ => Close());
+        SubscribeNetworkEvent<RoundRestartCleanupEvent>(_ => Close());
     }
 
-    public bool TryPreviewGrid(VesselPrototype vessel)
+    public override void Shutdown() { Close(); base.Shutdown(); }
+
+    public void Open(VesselPrototype vessel)
     {
-        CachePreviewMap();
-
-        var opts = new DeserializationOptions();
-        if (!_loader.TryLoadGrid(_previewMap,
-                vessel.ShuttlePath,
-                out var grid,
-                opts))
-            return false;
-
-        _xform.SetMapCoordinates(grid.Value, new MapCoordinates(Vector2.Zero, _previewMap));
-        _meta.SetEntityName(grid.Value, vessel.Name);
-        CurrentGrid = grid.Value;
-        return true;
+        Close();
+        var window = _window = new ShipyardPreviewWindow();
+        window.OnClose += Close;
+        window.Panel.OnClose += Close;
+        window.Panel.OnAction += (action, _) => { if (action == "close") Close(); };
+        try
+        {
+            using var reader = _resources.ContentFileReadText(vessel.ShuttlePath);
+            window.Panel.SetState("ShipyardPreview", BuildData(vessel, ShipyardPreviewScene.Read(reader)).ToString(), vessel.Name);
+        }
+        catch (Exception exception)
+        {
+            Log.Warning($"Unable to read preview for {vessel.ID}: {exception.Message}");
+            window.Panel.SetState("ShipyardPreview", new TguiData().String("name", vessel.Name)
+                .String("error", Loc.GetString("shipyard-preview-load-failed")).ToString(), vessel.Name);
+        }
+        window.OpenCentered();
     }
 
-    public FormattedMessage GetGridData()
+    public TguiData BuildData(VesselPrototype vessel, ShipyardPreviewScene scene)
     {
-        var msg = new FormattedMessage();
-        if (CurrentGrid == null)
-            return msg;
-
-        msg.AddMarkupOrThrow(
-            Loc.GetString("shipyard-preview-tile-count", ("count", _map.GetAllTiles(CurrentGrid.Value.Owner, CurrentGrid.Value.Comp).Count().ToString()))
-            );
-
-        return msg;
+        var objects = scene.Items.Where(item => item.Kind == "entity" && _prototypes.HasIndex<EntityPrototype>(item.Prototype)).ToList();
+        var definitions = objects.Select(item => item.Prototype).Distinct().ToDictionary(id => id, id => _prototypes.Index<EntityPrototype>(id));
+        bool Wall(EntityPrototype proto) => proto.TryGetComponent<TagComponent>(out var tags) && (_tags.HasTag(tags, "Wall") || _tags.HasTag(tags, "Window"));
+        bool Door(EntityPrototype proto) => proto.TryGetComponent<Content.Shared.Pinpointer.NavMapDoorComponent>(out _);
+        var structures = objects.Where(item => Wall(definitions[item.Prototype]) || Door(definitions[item.Prototype])).ToList();
+        var walls = new TguiWallImages(_images, objects, _prototypes);
+        var equipment = objects.Except(structures).Concat(scene.Items.Where(item => item.Kind == "decal")).ToList();
+        return new TguiData().String("token", vessel.ID).String("name", vessel.Name).String("description", vessel.Description)
+            .Number("x", scene.X).Number("y", scene.Y).Number("width", scene.Width).Number("height", scene.Height)
+            .Array("tiles", scene.Items.Where(item => item.Kind == "tile").Select(item => new TguiData().Number("x", item.X).Number("y", item.Y)))
+            .Array("structures", structures.Select(item => new TguiData().Number("x", item.X).Number("y", item.Y)
+                .Number("rotation", item.Rotation).Bool("door", Door(definitions[item.Prototype]))
+                .Bool("noRotation", definitions[item.Prototype].TryGetComponent<SpriteComponent>(out var sprite) && sprite.NoRotation)
+                .Array("images", Wall(definitions[item.Prototype]) ? walls.Images(item) : Array.Empty<TguiData>())))
+            .Array("items", equipment.Select(item => new TguiData().String("id", item.Id).String("kind", item.Kind)
+                .String("prototype", item.Prototype).Number("x", item.X).Number("y", item.Y).Number("rotation", item.Rotation)
+                .String("color", item.Color).Number("z", item.Z)))
+            .Array("visuals", equipment.Select(item => (item.Kind, item.Prototype)).Distinct().Select(key =>
+            {
+                if (key.Kind == "decal")
+                    return new TguiData().String("kind", key.Kind).String("id", key.Prototype)
+                        .Array("images", _prototypes.TryIndex<Content.Shared.Decals.DecalPrototype>(key.Prototype, out var decal)
+                            ? new[] { new TguiData().String("url", _images.Frame(decal.Sprite)) } : Array.Empty<TguiData>());
+                var proto = definitions[key.Prototype];
+                proto.TryGetComponent<SpriteComponent>(out var sprite);
+                return new TguiData().String("kind", key.Kind).String("id", key.Prototype)
+                    .Bool("noRotation", sprite?.NoRotation ?? false).Number("drawDepth", sprite?.DrawDepth ?? 0)
+                    .Array("images", _images.MapItem(key.Prototype));
+            }));
     }
 
-    public void Dispose()
+    public void Close()
     {
-        Del(CurrentGrid);
-        CurrentGrid = null;
+        var window = _window;
+        _window = null;
+        _images.Reset();
+        if (window == null) return;
+        window.OnClose -= Close;
+        window.Panel.OnClose -= Close;
+        window.Close();
+        window.Dispose();
     }
 }
 
+public sealed class ShipyardPreviewWindow : FancyWindow
+{
+    public readonly TguiPanel Panel = new(forceTgui: true);
+    public ShipyardPreviewWindow()
+    {
+        Title = Loc.GetString("shipyard-preview-ui-title");
+        SetSize = new Vector2(1000, 720);
+        MinSize = new Vector2(560, 400);
+        ContentsContainer.AddChild(Panel);
+    }
+}

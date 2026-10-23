@@ -34,12 +34,10 @@ public sealed class LobbyMusicPlayer : LobbyConsolePanel
             label.OutlineThicknessOverride = 0;
             details.AddChild(label);
         }
-        Previous.ToolTip = Loc.GetString("deeplagoon-lobby-music-previous");
-        Next.ToolTip = Loc.GetString("deeplagoon-lobby-music-next");
         _buttons = new BoxContainer { SeparationOverride = 8 };
         foreach (var button in new[] { Previous, Pause, Next })
         {
-            LobbyButtonArtwork.AttachUtility(button, nativeText: true, preserveTooltip: true);
+            LobbyButtonArtwork.AttachUtility(button, nativeText: true);
             button.Label.Align = Label.AlignMode.Center;
             button.Label.FontOverride = LobbyConsoleTheme.GetFont(button == Pause ? 13 : 18);
             _buttons.AddChild(button);
@@ -64,7 +62,6 @@ public sealed class LobbyMusicPlayer : LobbyConsolePanel
         _artist.ToolTip = artist;
         Previous.Disabled = Next.Disabled = !canSwitch;
         Pause.Text = Loc.GetString(paused ? "deeplagoon-lobby-music-resume" : "deeplagoon-lobby-music-pause");
-        Pause.ToolTip = Loc.GetString(paused ? "deeplagoon-lobby-music-resume-tooltip" : "deeplagoon-lobby-music-pause-tooltip");
         Pause.Disabled = !canPause;
         _cover.Texture = cover is { } path && IoCManager.Resolve<IResourceCache>()
             .TryGetResource<TextureResource>(path, out var resource) ? resource.Texture : null;

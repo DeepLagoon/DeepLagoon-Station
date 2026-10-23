@@ -1,0 +1,1649 @@
+- type: marking
+  id: SynthHumanHead
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: head_m
+  editorExclusive: true
+- type: marking
+  id: SynthHumanHeadFemale
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: head_f
+  editorExclusive: true
+- type: marking
+  id: SynthHumanChest
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: torso_m
+  editorExclusive: true
+- type: marking
+  id: SynthHumanChestFemale
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: torso_f
+  editorExclusive: true
+- type: marking
+  id: SynthHumanLArm
+  bodyPart: LArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: l_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthHumanLHand
+- type: marking
+  id: SynthHumanRArm
+  bodyPart: RArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: r_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthHumanRHand
+- type: marking
+  id: SynthHumanLHand
+  bodyPart: LHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: l_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthHumanRHand
+  bodyPart: RHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: r_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthHumanLLeg
+  bodyPart: LLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: l_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthHumanLFoot
+- type: marking
+  id: SynthHumanRLeg
+  bodyPart: RLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: r_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthHumanRFoot
+- type: marking
+  id: SynthHumanLFoot
+  bodyPart: LFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: l_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthHumanRFoot
+  bodyPart: RFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: Mobs/Species/Human/parts.rsi
+    state: r_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthVulpkaninHead
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: head_m
+  editorExclusive: true
+- type: marking
+  id: SynthVulpkaninHeadFemale
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: head_f
+  editorExclusive: true
+- type: marking
+  id: SynthVulpkaninChest
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: torso_m
+  editorExclusive: true
+- type: marking
+  id: SynthVulpkaninChestFemale
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: torso_f
+  editorExclusive: true
+- type: marking
+  id: SynthVulpkaninLArm
+  bodyPart: LArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: l_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthVulpkaninLHand
+- type: marking
+  id: SynthVulpkaninRArm
+  bodyPart: RArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: r_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthVulpkaninRHand
+- type: marking
+  id: SynthVulpkaninLHand
+  bodyPart: LHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: l_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthVulpkaninRHand
+  bodyPart: RHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: r_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthVulpkaninLLeg
+  bodyPart: LLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: l_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthVulpkaninLFoot
+- type: marking
+  id: SynthVulpkaninRLeg
+  bodyPart: RLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: r_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthVulpkaninRFoot
+- type: marking
+  id: SynthVulpkaninLFoot
+  bodyPart: LFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: l_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthVulpkaninRFoot
+  bodyPart: RFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
+    state: r_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthFeroxiHead
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: head_m
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiHeadFemale
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: head_f
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiChest
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: torso_m
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiChestFemale
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: torso_f
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiLArm
+  bodyPart: LArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: l_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthFeroxiLHand
+- type: marking
+  id: SynthFeroxiRArm
+  bodyPart: RArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: r_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthFeroxiRHand
+- type: marking
+  id: SynthFeroxiLHand
+  bodyPart: LHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: l_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthFeroxiRHand
+  bodyPart: RHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: r_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthFeroxiLLeg
+  bodyPart: LLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: l_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthFeroxiLFoot
+- type: marking
+  id: SynthFeroxiRLeg
+  bodyPart: RLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: r_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthFeroxiRFoot
+- type: marking
+  id: SynthFeroxiLFoot
+  bodyPart: LFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: l_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthFeroxiRFoot
+  bodyPart: RFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
+    state: r_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalHead
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: head_m
+  editorExclusive: true
+- type: marking
+  id: SynthMechanicalHeadFemale
+  bodyPart: Head
+  markingCategory: Head
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: head_f
+  editorExclusive: true
+- type: marking
+  id: SynthMechanicalChest
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: torso_m
+  editorExclusive: true
+- type: marking
+  id: SynthMechanicalChestFemale
+  bodyPart: Chest
+  markingCategory: Chest
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: torso_f
+  editorExclusive: true
+- type: marking
+  id: SynthMechanicalLArm
+  bodyPart: LArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalLHand
+- type: marking
+  id: SynthMechanicalRArm
+  bodyPart: RArm
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_arm
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalRHand
+- type: marking
+  id: SynthMechanicalLHand
+  bodyPart: LHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalRHand
+  bodyPart: RHand
+  markingCategory: Arms
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_hand
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalLLeg
+  bodyPart: LLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalLFoot
+- type: marking
+  id: SynthMechanicalRLeg
+  bodyPart: RLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_leg
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalRFoot
+- type: marking
+  id: SynthMechanicalLFoot
+  bodyPart: LFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalRFoot
+  bodyPart: RFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_foot
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalLLegDigitigrade
+  bodyPart: LLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_leg_digi
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalLFootDigitigrade
+- type: marking
+  id: SynthMechanicalRLegDigitigrade
+  bodyPart: RLeg
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_leg_digi
+  editorExclusive: true
+  editorLinkedMarkings:
+  - SynthMechanicalRFootDigitigrade
+- type: marking
+  id: SynthMechanicalLFootDigitigrade
+  bodyPart: LFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_foot_digi
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthMechanicalRFootDigitigrade
+  bodyPart: RFoot
+  markingCategory: Legs
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_foot_digi
+  editorExclusive: true
+  editorHidden: true
+- type: marking
+  id: SynthFeroxiEars
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
+    state: feroxi-ears
+  - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
+    state: feroxi-ears-inner
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnout
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiEarsTips
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
+    state: feroxi-ears
+  - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
+    state: feroxi-ears-inner
+  - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
+    state: feroxi-ears-tips
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnoutStripe
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-stripe
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnoutCountershading
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-countershading
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnoutCountershadingStripe
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-countershading
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-stripe
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnoutNurse
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-nurse
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiSnoutNurseCountershading
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-countershading
+  - sprite: _DV/Mobs/Customization/Feroxi/snout_markings.rsi
+    state: feroxi-snout-nurse
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiStripedTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiStripedTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal-stripes
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTipTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-second-dorsal-tip
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTipTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-second-dorsal-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal-tip
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTailBlitz
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal-stripes
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTailBlitzNoDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTwoToneTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTwoToneTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiStripeTwoToneTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiStripeTwoToneTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-stripes
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal-stripes
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTipTwoToneTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-second-dorsal-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  editorExclusive: true
+- type: marking
+  id: SynthFeroxiTipTwoToneTailAndDorsal
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-top-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-bottom-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-second-dorsal-tip
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-tail-under
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal
+  - sprite: _DV/Mobs/Customization/Feroxi/tail_markings.rsi
+    state: feroxi-dorsal-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEar
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarFade
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp-fade
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarSharp
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: vulp-sharp
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarJackal
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: jackal
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: jackal-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarTerrier
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: terrier
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: terrier-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarWolf
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: wolf
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: wolf-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarFennec
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: fennec
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: fennec-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarFox
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: fox
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarOtie
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: otie
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: otie-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarTajaran
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: msai
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: msai-inner
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarShock
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: shock
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarCoyote
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: coyote
+  editorExclusive: true
+- type: marking
+  id: SynthVulpEarDalmatian
+  bodyPart: HeadTop
+  markingCategory: HeadTop
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/ear_markings.rsi
+    state: dalmatian
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutAlt
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: muzzle_alt
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnout
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: muzzle
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutSharp
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: muzzle_sharp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutFade
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: muzzle_fade
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutNose
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutMask
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: mask
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: nose
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutVulpine
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: vulpine
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: vulpine-lines
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutSwift
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: vulpine-lines
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutBlaze
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: blaze
+  editorExclusive: true
+- type: marking
+  id: SynthVulpSnoutPatch
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/head_markings.rsi
+    state: patch
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp-fade
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailTip
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_wag
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_wag-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailWagTip
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_wag
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_wag-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailAlt
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_alt
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_alt-fade
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailAltTip
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_alt
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: vulp_alt-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailLong
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: long
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: long-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFox
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox-fade
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFoxTip
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFoxWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox_wag
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox_wag-fade
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFoxWagTip
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox_wag
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox_wag-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailBushy
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: bushfluff
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailBushyWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: bushfluff_wag
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailCoyote
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: coyote
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailCoyoteWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: coyote_wag
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailCorgiWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: corgi_wag
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailHusky
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: husky-inner
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: husky-outer
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailHuskyAlt
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: husky
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFox2
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox2
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFox3
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox3
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fox3-tip
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFennec
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fennec
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailOtie
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: otie
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailFluffy
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: fluffy
+  editorExclusive: true
+- type: marking
+  id: SynthVulpTailDalmatianWag
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DV/Mobs/Customization/Vulpkanin/tail_markings.rsi
+    state: dalmatian_wag
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryBare
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: bare
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryBig
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: big
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryExpanded
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: expanded
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryFullmask
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: fullmask
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHighbare
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: highbare
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryLessbare
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: lessbare
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryMask
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: mask
+  editorExclusive: true
+- type: marking
+  id: SynthAccessorySimple
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: simple
+  editorExclusive: true
+- type: marking
+  id: SynthAccessorySquer
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: squer
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryUnathifull
+  bodyPart: Snout
+  markingCategory: Snout
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_snout.rsi
+    state: unathifull
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHorn
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: horn
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHornLights
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: horn_lights
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHornquadrato
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: hornquadrato
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHorns
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: horns
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHornsLights
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: horns_lights
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryHornsquadrato
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: hornsquadrato
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryShort
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: short
+  editorExclusive: true
+- type: marking
+  id: SynthAccessoryAntennaSimple
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: simple
+  editorExclusive: true
+- type: marking
+  id: SynthAccessorySimpleLights
+  bodyPart: HeadSide
+  markingCategory: HeadSide
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_antenaes.rsi
+    state: simple_lights
+  editorExclusive: true
+- type: marking
+  id: SynthAccessorySynthTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_tail.rsi
+    state: synth_tail_forward
+  - sprite: _DeepLagoon/Mobs/Customization/synth_tail.rsi
+    state: synth_tail_back
+  editorExclusive: true
+  spriteLayers:
+    synth_tail_forward: TailExtras
+    synth_tail_back: Tail
+- type: marking
+  id: SynthPlatedBelly
+  bodyPart: Chest
+  markingCategory: Special
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_markings.rsi
+    state: plated_belly
+  editorExclusive: true
+- type: marking
+  id: SynthSoftNeck
+  bodyPart: Chest
+  markingCategory: Special
+  speciesRestriction:
+  - Synth
+  sprites:
+  - sprite: _DeepLagoon/Mobs/Customization/synth_markings.rsi
+    state: soft_neck
+  editorExclusive: true

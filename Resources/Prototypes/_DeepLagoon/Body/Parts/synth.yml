@@ -1,0 +1,110 @@
+- type: entity
+  id: HeadSynth
+  parent: HeadIPC
+  name: synthetic head
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: head_m
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: head_m
+- type: entity
+  id: TorsoSynth
+  parent: TorsoIPC
+  name: synthetic torso
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: torso_m
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: torso_m
+- type: entity
+  id: RightArmSynth
+  parent: RightArmIPC
+  name: synthetic right arm
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_arm
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_arm
+- type: entity
+  id: LeftArmSynth
+  parent: LeftArmIPC
+  name: synthetic left arm
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_arm
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_arm
+- type: entity
+  id: RightHandSynth
+  parent: RightHandIPC
+  name: synthetic right hand
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_hand
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_hand
+- type: entity
+  id: LeftHandSynth
+  parent: LeftHandIPC
+  name: synthetic left hand
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_hand
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_hand
+- type: entity
+  id: RightLegSynth
+  parent: RightLegIPC
+  name: synthetic right leg
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_leg
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_leg
+- type: entity
+  id: LeftLegSynth
+  parent: LeftLegIPC
+  name: synthetic left leg
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_leg
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_leg
+- type: entity
+  id: RightFootSynth
+  parent: RightFootIPC
+  name: synthetic right foot
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_foot
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: r_foot
+- type: entity
+  id: LeftFootSynth
+  parent: LeftFootIPC
+  name: synthetic left foot
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_foot
+  - type: Icon
+    sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
+    state: l_foot

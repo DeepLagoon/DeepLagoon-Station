@@ -9,9 +9,10 @@ voucher-current-cooldown-seconds = This voucher is on cooldown for [color=yellow
 voucher-current-cooldown-minutes = This voucher is on cooldown for [color=yellow]{NATURALFIXED($cooldown, 1)}[/color] minutes.
 
 shipyard-console-preview = Preview
-shipyard-preview-ui-title = Previewer 100
+shipyard-preview-ui-title = Ship preview
 
 shipyard-preview-data-label = Ship data:
 shipyard-preview-tile-count = Tile count: {$count}
 
 shipyard-preview-exit = Exit preview
+shipyard-preview-load-failed = Unable to load the ship preview. Please try again.

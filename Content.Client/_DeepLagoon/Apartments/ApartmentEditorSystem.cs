@@ -111,21 +111,26 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
                 return entry;
             }));
         if (_state.Scene is { } scene)
+        {
+            var walls = new TguiWallImages(_images, scene.Objects, _prototypes);
             data.Object("scene", new TguiData().Number("x", scene.X).Number("y", scene.Y)
                 .Array("tiles", scene.Tiles.Select(tile => new TguiData().Number("x", tile.X).Number("y", tile.Y)))
                 .Array("objects", scene.Objects.Select(item =>
                 {
                     var prototype = _prototypes.Index<EntityPrototype>(item.Prototype);
-                    var wall = prototype.TryGetComponent<Content.Shared.Tag.TagComponent>(out var tags) && _tags.HasTag(tags, "Wall");
+                    var wall = prototype.TryGetComponent<Content.Shared.Tag.TagComponent>(out var tags) && (_tags.HasTag(tags, "Wall") || _tags.HasTag(tags, "Window"));
                     prototype.TryGetComponent<SpriteComponent>(out var sprite);
                     var entry = new TguiData().String("id", item.Id).String("prototype", item.Prototype)
                         .String("name", prototype.Name).Number("x", item.X).Number("y", item.Y).Bool("wall", wall)
+                        .Bool("door", prototype.TryGetComponent<Content.Shared.Pinpointer.NavMapDoorComponent>(out _))
                         .Number("rotation", item.Rotation).Bool("noRotation", sprite?.NoRotation ?? false);
-                    if (!wall) entry.Array("images", _images.MapItem(item.Prototype));
+                    if (wall) entry.Array("images", walls.Images(item));
+                    else if (!prototype.TryGetComponent<Content.Shared.Pinpointer.NavMapDoorComponent>(out _)) entry.Array("images", _images.MapItem(item.Prototype));
                     return entry;
                 }))
                 .Array("occupied", scene.Occupied.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("blocked", scene.Blocked.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y))));
+        }
         _window.Panel.SetState("ApartmentEditor", data.ToString(), "Обустройство квартиры");
     }
 

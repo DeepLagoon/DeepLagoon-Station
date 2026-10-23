@@ -113,6 +113,9 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 
         if (proto.BaseSprite != null)
             sprite.LayerSetSprite(layerIndex, proto.BaseSprite);
+        else
+            EntityManager.System<SpriteSystem>().LayerSetTexture((sprite.Owner, sprite), layerIndex,
+                (Robust.Client.Graphics.Texture?) null);
     }
 
     /// <summary>
@@ -328,7 +331,11 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 
             if (!sprite.LayerMapTryGet(layerId, out _))
             {
-                var layer = sprite.AddLayer(markingSprite, targetLayer + j + 1);
+                var insertionLayer = targetLayer + j + 1;
+                if (markingPrototype.SpriteLayers.TryGetValue(rsi.RsiState, out var anchor)
+                    && sprite.LayerMapTryGet(anchor, out var anchorLayer))
+                    insertionLayer = anchorLayer + 1;
+                var layer = sprite.AddLayer(markingSprite, insertionLayer);
                 sprite.LayerMapSet(layerId, layer);
                 sprite.LayerSetSprite(layerId, selectedSprite);
             }
@@ -352,6 +359,10 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
             if (colors != null && j < colors.Count)
             {
                 sprite.LayerSetColor(layerId, colors[j]);
+            }
+            else if (colors is { Count: > 0 } && markingPrototype.SpriteLayers.Count > 0)
+            {
+                sprite.LayerSetColor(layerId, colors[0]);
             }
             else
             {

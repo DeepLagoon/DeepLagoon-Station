@@ -96,6 +96,7 @@ public sealed partial class HumanoidProfileEditor
     };
     private readonly Dictionary<Control, bool> _nativeTabVisibility = new();
     private Control? _nativeSpriteParent;
+    private bool _clothesBeforeMarkings;
 
     private void InitializeTguiEditor()
     {
@@ -141,6 +142,7 @@ public sealed partial class HumanoidProfileEditor
     protected override void Dispose(bool disposing)
     {
         if (disposing) _prototypeManager.PrototypesReloaded -= ReloadTguiCatalog;
+        if (disposing) CloseColorPicker();
         if (disposing && _tguiHost is { Parent: null })
         {
             _tguiHost.Dispose();
@@ -204,7 +206,21 @@ public sealed partial class HumanoidProfileEditor
     private void SelectTguiTab(int tab)
     {
         if (_profileWeb == null) return;
+        CloseColorPicker();
+        var wasMarkings = _tguiMode == "markings";
         _tguiMode = TguiTabMode(tab);
+        if (_tguiMode == "markings" && !wasMarkings)
+        {
+            _clothesBeforeMarkings = ShowClothes.Pressed;
+            ShowClothes.SetClickPressed(false);
+            ReloadPreview();
+        }
+        else if (wasMarkings && _tguiMode != "markings")
+        {
+            ShowClothes.SetClickPressed(_clothesBeforeMarkings);
+            ReloadPreview();
+        }
+        if (_tguiHost != null) _tguiHost.MarkingsLayout = _tguiMode == "markings";
         _profileWeb.Visible = _tguiMode != "native";
         _tguiHost?.InvalidateArrange();
         PublishTguiProfile();
@@ -248,6 +264,7 @@ public sealed partial class HumanoidProfileEditor
     {
         var data = new TguiData().String("mode", mode).Bool("available", Profile != null)
             .Bool("dirty", IsDirty).Bool("showClothes", ShowClothes.Pressed).Bool("libraryOpen", _libraryWindow != null);
+        data.Bool("colorPickerOpen", _colorWindow != null).Object("colorPickerResult", _colorPickerResult);
         data.Object("appearance", _editorAppearance.Data());
         data.String("previewFloor", _tguiImages.Frame(new SpriteSpecifier.Texture(new ResPath("Tiles/steel.png"))));
         data.Bool("extendedHeadshot", _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetSupporterTier(_playerManager.LocalSession) >= 2);
@@ -277,13 +294,23 @@ public sealed partial class HumanoidProfileEditor
         if (mode == "markings")
         {
             data.Object("tattooEditor", _tattooEditor.Build(PreviewDummy, p.Appearance.Tattoos, _tattooStatus).Bool("fileBusy", _tattooFileBusy));
-            data.Array("markings", p.Appearance.Markings.Select((marking, index) =>
-                new TguiData().Number("index", index).String("name", Loc.GetString($"marking-{marking.MarkingId}"))
+            data.Array("markings", p.Appearance.Markings.Select((marking, index) => (marking, index))
+                .Where(entry => !_markingManager.TryGetMarking(entry.marking, out var definition) || !definition.EditorHidden)
+                .Select(entry =>
+                {
+                    var (marking, index) = entry;
+                    _markingManager.TryGetMarking(marking, out var definition);
+                    return new TguiData().Number("index", index).String("id", marking.MarkingId).String("name", Loc.GetString($"marking-{marking.MarkingId}"))
+                    .String("part", definition?.BodyPart.ToString() ?? "Special")
+                    .String("categoryId", definition?.MarkingCategory.ToString() ?? "Special")
                     .Bool("locked", !_markingManager.TryGetMarking(marking, out var proto) || proto.ForcedColoring || _markingManager.MustMatchSkin(p.Species, proto.BodyPart, out _, _prototypeManager))
-                    .Array("colors", marking.MarkingColors.Select(color => Choice("", color.ToHexNoAlpha())))));
+                    .Array("colors", marking.MarkingColors.Select(color => Choice("", color.ToHexNoAlpha())));
+                }));
             if (includeCatalogs) data.Array("markingOptions", _markingManager.Markings.Values.Where(m => m.MarkingCategory is not (MarkingCategories.Hair or MarkingCategories.FacialHair)
-                && _markingManager.CanBeApplied(p.Species, p.Sex, m, _prototypeManager))
-                .Select(m => Choice(m.ID, Loc.GetString($"marking-{m.ID}")).String("category", Loc.GetString($"markings-category-{m.MarkingCategory}"))
+                && !m.EditorHidden && _markingManager.CanBeApplied(p.Species, p.Sex, m, _prototypeManager))
+                .Select(m => Choice(m.ID, Loc.GetString($"marking-{m.ID}")).String("category", Loc.GetString(m.EditorLinkedMarkings.Count > 0
+                    ? $"markings-bodypart-{m.BodyPart}" : $"markings-category-{m.MarkingCategory}"))
+                    .String("part", m.BodyPart.ToString()).String("categoryId", m.MarkingCategory.ToString())
                     .String("iconId", "marking/" + m.ID)));
         }
         var species = _prototypeManager.Index(p.Species);
@@ -442,6 +469,15 @@ public sealed partial class HumanoidProfileEditor
     public bool HandleTguiProfileAction(string action, string payload)
     {
         if (!TguiActionData.TryParse(payload, out var args)) return false;
+        if (action.StartsWith("color-picker-", StringComparison.Ordinal)) return HandleColorPicker(action, args!);
+        if (action == "preview-bounds")
+        {
+            if (_tguiMode != "markings" || !args!.TryFloat("x", out var x) || !args.TryFloat("y", out var y)
+                || !args.TryFloat("width", out var width) || !args.TryFloat("height", out var height)
+                || width <= 0 || height <= 0) return false;
+            _tguiHost?.SetPreviewBounds(new System.Numerics.Vector2(x, y), new System.Numerics.Vector2(width, height));
+            return true;
+        }
         if (action.StartsWith("tattoo-", StringComparison.Ordinal)
             && action != "tattoo-preview-direction" && action != "tattoo-remove" && action != "tattoo-clear" && action != "tattoo-export"
             && !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled))
@@ -585,7 +621,7 @@ public sealed partial class HumanoidProfileEditor
             case "export": ExportProfile(); break;
             case "export-image": ExportImage(); break;
             case "open-images": _resManager.UserData.OpenOsWindow(Content.Client.Sprite.ContentSpriteSystem.Exports); break;
-            case "clothes": ShowClothes.SetClickPressed(!ShowClothes.Pressed); ReloadPreview(); break;
+            case "clothes": if (_tguiMode == "markings") return false; ShowClothes.SetClickPressed(!ShowClothes.Pressed); ReloadPreview(); break;
             case "rotate":
                 if (!args.TryInt("value", out var turn) || turn is not (-1 or 1)) return false;
                 _previewRotation = (Direction)(((int)_previewRotation + (turn < 0 ? 6 : 2)) % 8);
@@ -694,24 +730,26 @@ public sealed partial class HumanoidProfileEditor
     private bool HandleTguiMarking(string action, TguiActionData args, string value)
     {
         if (Profile == null) return false;
+        if (action != "marking-color") CloseColorPicker();
         var list = Profile.Appearance.Markings.Select(m => new Marking(m)).ToList();
         var points = _prototypeManager.Index(Profile.Species).MarkingPoints;
-        var set = new MarkingSet(list, points, _markingManager, _prototypeManager);
         if (action == "marking-add")
         {
+            CloseColorPicker();
             if (!_markingManager.Markings.TryGetValue(value, out var prototype) || prototype.MarkingCategory is MarkingCategories.Hair or MarkingCategories.FacialHair ||
-                !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager) || set.PointsLeft(prototype.MarkingCategory) == 0 || list.Any(m => m.MarkingId == value)) return false;
-            var marking = prototype.AsMarking();
-            var colors = MarkingColoring.GetMarkingLayerColors(prototype, Profile.Appearance.SkinColor, Profile.Appearance.EyeColor, set);
-            for (var i = 0; i < colors.Count; i++) marking.SetColor(i, colors[i]);
-            if (_markingManager.MustMatchSkin(Profile.Species, prototype.BodyPart, out var alpha, _prototypeManager)) marking.SetColor(Profile.Appearance.SkinColor.WithAlpha(alpha));
-            list.Add(marking);
+                prototype.EditorHidden || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager)) return false;
+            if (!TrySelectTguiMarking(list, prototype, points)) return false;
         }
         else
         {
             if (!args.TryInt("index", out var index) || index < 0 || index >= list.Count) return false;
             var marking = list[index];
-            if (action == "marking-remove") list.RemoveAt(index);
+            if (action == "marking-remove")
+            {
+                list.RemoveAt(index);
+                if (_markingManager.TryGetMarking(marking, out var removed))
+                    list.RemoveAll(linked => removed.EditorLinkedMarkings.Contains(linked.MarkingId));
+            }
             else if (action == "marking-move")
             {
                 if (!args.TryInt("value", out var direction) || direction is not (-1 or 1) || !_markingManager.TryGetMarking(marking, out var prototype)) return false;
@@ -729,8 +767,11 @@ public sealed partial class HumanoidProfileEditor
                 if (!_markingManager.TryGetMarking(marking, out var prototype) || prototype.ForcedColoring || _markingManager.MustMatchSkin(Profile.Species, prototype.BodyPart, out _, _prototypeManager) ||
                     !args.TryInt("layer", out var layer) || layer < 0 || layer >= marking.MarkingColors.Count || !Color.TryFromHex(value, out var color)) return false;
                 marking.SetColor(layer, color);
+                foreach (var linked in list.Where(linked => prototype.EditorLinkedMarkings.Contains(linked.MarkingId)))
+                    linked.SetColor(color);
             }
         }
+        RestoreTguiBodyMarkings(list, points);
         var updated = new MarkingSet(list, points, _markingManager, _prototypeManager);
         updated.EnsureSpecies(Profile.Species, Profile.Appearance.SkinColor, _markingManager, _prototypeManager);
         updated.EnsureSexes(Profile.Sex, _markingManager);

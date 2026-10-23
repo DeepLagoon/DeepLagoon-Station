@@ -1,0 +1,98 @@
+- type: species
+  id: Synth
+  name: species-name-synth
+  roundStart: true
+  prototype: MobSynth
+  sprites: MobSynthSprites
+  markingLimits: MobSynthMarkingLimits
+  dollPrototype: MobSynthDummy
+  skinColoration: Hues
+  defaultSkinTone: '#d9b89b'
+  minAge: 1
+  maxAge: 240
+  youngAge: 18
+  oldAge: 80
+- type: speciesBaseSprites
+  id: MobSynthSprites
+  sprites:
+    Head: MobSynthHead
+    Chest: MobSynthTorso
+    LArm: MobHumanoidAnyMarking
+    RArm: MobHumanoidAnyMarking
+    LHand: MobHumanoidAnyMarking
+    RHand: MobHumanoidAnyMarking
+    LLeg: MobHumanoidAnyMarking
+    RLeg: MobHumanoidAnyMarking
+    LFoot: MobHumanoidAnyMarking
+    RFoot: MobHumanoidAnyMarking
+    Hair: MobHumanoidAnyMarking
+    FacialHair: MobHumanoidAnyMarking
+    Snout: MobHumanoidAnyMarking
+    HeadTop: MobHumanoidAnyMarking
+    HeadSide: MobHumanoidAnyMarking
+    Tail: MobHumanoidAnyMarking
+    Eyes: MobHumanoidEyes
+    Special: MobHumanoidAnyMarking
+    TailExtras: MobHumanoidAnyMarking
+- type: humanoidBaseSprite
+  id: MobSynthHead
+- type: humanoidBaseSprite
+  id: MobSynthHeadMale
+- type: humanoidBaseSprite
+  id: MobSynthHeadFemale
+- type: humanoidBaseSprite
+  id: MobSynthTorso
+- type: humanoidBaseSprite
+  id: MobSynthTorsoMale
+- type: humanoidBaseSprite
+  id: MobSynthTorsoFemale
+- type: markingPoints
+  id: MobSynthMarkingLimits
+  points:
+    Head:
+      points: 1
+      required: true
+      defaultMarkings:
+      - SynthHumanHead
+    Chest:
+      points: 1
+      required: true
+      defaultMarkings:
+      - SynthHumanChest
+    Arms:
+      points: 4
+      required: true
+      defaultMarkings:
+      - SynthHumanLArm
+      - SynthHumanRArm
+      - SynthHumanLHand
+      - SynthHumanRHand
+    Legs:
+      points: 4
+      required: true
+      defaultMarkings:
+      - SynthHumanLLeg
+      - SynthHumanRLeg
+      - SynthHumanLFoot
+      - SynthHumanRFoot
+    Hair:
+      points: 1
+      required: false
+    FacialHair:
+      points: 1
+      required: false
+    Snout:
+      points: 2
+      required: false
+    HeadTop:
+      points: 2
+      required: false
+    HeadSide:
+      points: 2
+      required: false
+    Tail:
+      points: 1
+      required: false
+    Special:
+      points: 2
+      required: false
