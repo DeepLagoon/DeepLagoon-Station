@@ -9,6 +9,16 @@ namespace Content.Tests.Server;
 public sealed class ApartmentRoundNumbersTests
 {
     [Test]
+    public void ChangingTemplateInvalidatesOnlyTheOwnersOldNumber()
+    {
+        var numbers = new ApartmentRoundNumbers(); var owner = Guid.NewGuid(); var guest = Guid.NewGuid();
+        var old = numbers.Number(owner); var guests = numbers.Number(guest);
+        var changed = numbers.Rotate(owner);
+        Assert.That(changed, Is.Not.EqualTo(old)); Assert.That(numbers.Owner(old), Is.Null);
+        Assert.That(numbers.Owner(changed), Is.EqualTo(owner)); Assert.That(numbers.Number(guest), Is.EqualTo(guests));
+    }
+
+    [Test]
     public void NumbersAreUniqueStableWithinRoundAndInvalidatedOnRestart()
     {
         var registry = new ApartmentRoundNumbers();

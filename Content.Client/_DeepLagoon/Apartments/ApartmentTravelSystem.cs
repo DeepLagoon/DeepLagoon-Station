@@ -43,6 +43,7 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
     private void OnAction(string action, string payload)
     {
         if (_state == null) return;
+        if (action == "shop") { EntityManager.System<ApartmentShopSystem>().Open(); return; }
         if (action == "close") { Close(true); return; }
         if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
         if (!Enum.TryParse<ApartmentTravelAction>(action, true, out var operation) || !Enum.IsDefined(operation)) return;

@@ -43,6 +43,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     public ApartmentFurniturePrototype? Catalog(string id) => _state?.MapFurniture.FirstOrDefault(item => item.Baseline.Furniture == id)?.Definition()
         ?? (_prototypes.TryIndex<ApartmentFurniturePrototype>(id, out var item) ? item : null);
     public EntityUid? Grid => _state == null ? null : GetEntity(_state.Grid);
+    public bool Lobby => _state?.Lobby ?? false;
     public bool ShowDraft { get; private set; } = true;
     public bool IsOpen => _window != null;
 
@@ -88,7 +89,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     {
         if (_window == null || _state == null || Template == null) return;
         var data = new TguiData().String("template", Template.ID).String("name", Loc.GetString(Template.Name))
-            .Number("number", _state.Number)
+            .Number("number", _state.Number).Bool("lobby", _state.Lobby)
             .Number("revision", _state.Revision).String("token", _state.Token.ToString())
             .Number("width", _state.Scene?.Width ?? Template.Width).Number("height", _state.Scene?.Height ?? Template.Height)
             .Number("maxFurniture", Template.MaxFurniture).Number("arrivalX", Template.Arrival.X).Number("arrivalY", Template.Arrival.Y)
@@ -142,7 +143,9 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     private void OnAction(string action, string payload)
     {
         if (_state == null) return;
+        if (action == "shop") { EntityManager.System<ApartmentShopSystem>().Open(); return; }
         if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
+        if (action == "exit" && Lobby) { CloseEditor(true); return; }
         if (action == "exit") { RaiseNetworkEvent(new ApartmentActionEvent("exit")); return; }
         if (action == "close") { CloseEditor(true); return; }
         if (action == "before") { ShowDraft = false; RestoreSprites(); return; }
@@ -180,7 +183,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
 
     private void HideSprites()
     {
-        if (_state == null || !ShowDraft) return;
+        if (_state == null || _state.Lobby || !ShowDraft) return;
         foreach (var net in _state.Entities.Values)
         {
             var uid = GetEntity(net);
@@ -203,7 +206,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         var window = _window;
         _window = null;
         _state = null; Template = null; Draft.Clear();
-        if (notify) RaiseNetworkEvent(new ApartmentActionEvent("close"));
+        if (notify && window != null) RaiseNetworkEvent(new ApartmentActionEvent("close"));
         if (window == null) return;
         window.Panel.Web.ReleaseTextInput();
         window.Close();
@@ -216,7 +219,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        if (_window == null) return;
+        if (_window == null || Lobby) return;
         if (_player.LocalEntity is not { } body || !TryComp(body, out TransformComponent? transform) || transform.GridUid != Grid)
         {
             // The editor event may arrive before the new grid's first PVS state.

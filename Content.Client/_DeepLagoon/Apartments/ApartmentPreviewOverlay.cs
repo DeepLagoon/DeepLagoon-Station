@@ -28,7 +28,7 @@ public sealed class ApartmentPreviewOverlay : Overlay
 
     protected override void Draw(in OverlayDrawArgs args)
     {
-        if (!_editor.IsOpen || !_editor.ShowDraft || _editor.Grid is not { } grid || _editor.Template == null ||
+        if (_editor.Lobby || !_editor.IsOpen || !_editor.ShowDraft || _editor.Grid is not { } grid || _editor.Template == null ||
             !_entities.TryGetComponent<TransformComponent>(grid, out var transform) || transform.MapID != args.MapId) return;
         ApartmentFurniturePrototype? Catalog(string id) => _editor.Catalog(id);
         var valid = ApartmentLayout.Validate(_editor.Template, _editor.Draft, Catalog, _editor.RoomScene, _editor.MapBaseline) == null;

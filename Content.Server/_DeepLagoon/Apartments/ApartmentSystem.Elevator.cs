@@ -9,9 +9,10 @@ public sealed partial class ApartmentSystem
     {
         if (!Enabled) throw new InvalidOperationException("Apartments disabled.");
         EnsureMaps();
+        RefreshSelectedInstance(owner);
         if (!_instances.TryGetValue(owner, out var instance))
         {
-            if (_instances.Count >= Math.Max(1, _config.GetCVar(ApartmentCVars.LoadedLimit)))
+            if (_instances.Count + _retiring.Count >= Math.Max(1, _config.GetCVar(ApartmentCVars.LoadedLimit)))
                 throw new InvalidOperationException("Apartment limit reached.");
             instance = Create(owner, _templates.GetValueOrDefault(owner, _config.GetCVar(ApartmentCVars.DefaultTemplate)));
             _instances.Add(owner, instance);

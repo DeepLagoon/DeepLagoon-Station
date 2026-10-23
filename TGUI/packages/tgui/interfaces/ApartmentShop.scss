@@ -1,0 +1,5 @@
+.ApartmentShop { height: 100vh; display: flex; flex-direction: column; color: #e7f0f4; background: #12212b; font: 14px/1.5 sans-serif;
+  header, footer { display: flex; gap: 8px; padding: 12px; flex-shrink: 0; border-bottom: 1px solid #496371; } header strong { flex: 1; }
+  main { flex: 1; overflow: auto; padding: 12px; } button { background: #233b49; color: inherit; border: 1px solid #496371; border-radius: 5px; padding: 8px 12px; cursor: pointer; } button:disabled { opacity: .5; cursor: default; }
+  article { display: flex; gap: 12px; align-items: center; padding: 12px; border: 1px solid #496371; margin: 8px 0; } article div { flex: 1; } small { display: block; color: #acc3cf; } section { border: 1px solid #71bdd5; padding: 12px; } section button { margin-right: 8px; }
+}

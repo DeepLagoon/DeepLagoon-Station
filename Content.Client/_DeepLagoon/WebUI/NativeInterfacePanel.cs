@@ -37,7 +37,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
 
     public static bool Supports(string name) => name is "InteractionPanel" or "CharacterCard" or
         "CharacterHeadshotLibrary" or "CharacterSavePrompt" or "ApartmentTravel" or "ApartmentTerminal" or
-        "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
+        "ApartmentShop" or "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
 
     public NativeInterfacePanel(Action<string, string> send, Action close)
     {
@@ -102,6 +102,25 @@ public sealed partial class NativeInterfacePanel : BoxContainer
                 Button(_body, "Отмена", () => Send("cancel"));
                 break;
             case "InteractionPanel": Interaction(); break;
+            case "ApartmentShop":
+                Text(_body, "Номер квартиры: " + _data.String("number"));
+                Text(_body, _data.String("message"));
+                foreach (var entry in _data.Array("templates"))
+                {
+                    Text(_body, entry.String("name") + " · " + entry.String("price") + " LC");
+                    if (entry.Bool("selected")) { Text(_body, "Выбрано"); continue; }
+                    var confirmation = Column(); confirmation.Visible = false;
+                    Button(_body, entry.Bool("owned") ? "Выбрать" : "Купить и выбрать", () => confirmation.Visible = true);
+                    Text(confirmation, entry.Bool("owned") ? "Выбрать этот шаблон?" : "Купить за " + entry.String("price") + " LC и выбрать?");
+                    var confirm = Button(confirmation, "Подтвердить", () =>
+                        Send("select", new TguiData().String("template", entry.String("id"))));
+                    confirm.OnPressed += _ => confirm.Disabled = true;
+                    Button(confirmation, "Отмена", () => confirmation.Visible = false);
+                    _body.AddChild(confirmation);
+                }
+                Button(_body, "Обустройство", () => Send("edit"));
+                if (_data.Bool("legacy")) Button(_body, "Покинуть старую квартиру", () => Send("legacyExit"));
+                break;
             case "ApartmentEditor": _apartment = new NativeApartmentEditor(_send); _body.AddChild(_apartment); _apartment.Update(_data); break;
             case "GridEditor": _grid = new NativeGridEditor(_send); _body.AddChild(_grid); _grid.Update(_data); break;
             case "ArtStudio": _art = new NativeArtEditor(_send); _body.AddChild(_art); _art.Update(_data); break;
@@ -164,7 +183,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         if (_data.Bool("atHome"))
         {
             Button(_body, "Вернуться на остановку", () => Send("return"), !pending);
-            if (_data.Bool("canManage")) Button(_body, "Обустройство квартиры", () => Send("edit"), !pending);
+            if (_data.Bool("canManage")) { Button(_body, "Обустройство квартиры", () => Send("edit"), !pending); Button(_body, "Шаблоны квартир", () => Send("shop"), !pending); }
         }
         else
         {

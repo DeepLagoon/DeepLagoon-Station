@@ -25,3 +25,13 @@
 }
 .TattooStudioPage { min-height: 100vh; background: #111b24; }
 @media (max-width: 500px) { .TattooStudio__workspace { grid-template-columns: 1fr; } }
+
+.TattooSelect__options { position: fixed; z-index: 100000; overflow-y: auto; padding: 3px; box-sizing: border-box;
+  background: #17232e; color: #e6ecf2; border: 1px solid #78bce9; border-radius: 3px; box-shadow: 0 6px 18px #0009;
+  button { display: block; width: 100%; padding: 7px; text-align: left; border: 0; color: inherit; background: transparent; font: 12px sans-serif; cursor: pointer; }
+  button[data-active='true'] { background: #285775; } button[aria-selected='true'] { color: #a9d8fb; }
+}
+
+.TattooStudio__switch { position: fixed; inset: 0; z-index: 99999; background: #0009; display: grid; place-items: center; padding: 12px;
+  > div { max-width: 480px; background: #17232e; border: 1px solid #78bce9; padding: 16px; } button { margin: 4px; }
+}

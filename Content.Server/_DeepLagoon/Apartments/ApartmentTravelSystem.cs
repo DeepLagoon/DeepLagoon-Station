@@ -229,6 +229,9 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
         Publish(session, message);
     }
 
+    public bool ReturnLegacy(ICommonSession session) => _apartments.TryGetVisit(session.UserId, out var apartment, out _)
+        && apartment.Template.Map == null && PrepareReturn(session.UserId) && _apartments.Leave(session.UserId, out _);
+
     private bool PrepareReturn(NetUserId user)
     {
         if (!_apartments.UsesResidentialTransit(user)) return true;

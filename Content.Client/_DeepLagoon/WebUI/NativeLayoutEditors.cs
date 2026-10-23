@@ -50,6 +50,7 @@ public sealed class NativeApartmentEditor : BoxContainer
         var controls = NativeInterfacePanel.Row(); AddChild(controls);
         NativeInterfacePanel.Button(controls, Loc.GetString("dl-ui-native-apply"), () => { if (_applying) return; _applying = true; Send("apply", Layout()); });
         NativeInterfacePanel.Button(controls, Loc.GetString("dl-ui-native-reset"), Reset);
+        NativeInterfacePanel.Button(controls, "Шаблоны квартир", () => Send("shop"));
         NativeInterfacePanel.Button(controls, "До", () => Send("before"));
         NativeInterfacePanel.Button(controls, "После", () => Send("after"));
         NativeInterfacePanel.Button(controls, "Выйти из квартиры", () => { if (Dirty) _status.Text = Loc.GetString("dl-ui-native-unsaved"); else Send("exit"); });

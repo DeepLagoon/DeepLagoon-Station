@@ -196,9 +196,9 @@ export const ApartmentEditor = () => {
         {data.status && <p className={data.success ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'}>{data.status}</p>}
       </main>
     </div>
-    <footer><button disabled={pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
+    <footer><button disabled={pending || dirty} onClick={() => act('shop')}>Шаблоны квартир</button><button disabled={pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
       <button disabled={pending || !valid || !dirty || before || !!brush} className="primary" onClick={() => { setPending(true); act('apply', { layout: draft }); }}>{pending ? 'Сохранение…' : 'Применить'}</button>
-      <button disabled={pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>Вернуться из квартиры</button></footer>
+      <button disabled={pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>{data.lobby ? 'Закрыть обустройство' : 'Вернуться из квартиры'}</button></footer>
     {confirmClose && <div className="ApartmentEditor__veil"><div role="dialog" aria-label="Несохранённые изменения"><strong>Изменения ещё не применены</strong><p>Закрыть редактор и отказаться от черновика?</p><button onClick={() => setConfirmClose(false)}>Продолжить обустройство</button><button onClick={() => act(confirmClose === 'exit' ? 'exit' : 'close')}>Отказаться от изменений</button></div></div>}
   </div>;
 };

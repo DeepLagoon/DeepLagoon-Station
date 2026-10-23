@@ -113,6 +113,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         base.Initialize();
         SubscribeNetworkEvent<ApartmentApplyEvent>(OnApply);
+        SubscribeNetworkEvent<ApartmentShopRequest>(OpenShop);
+        SubscribeNetworkEvent<ApartmentShopAction>(ShopAction);
         SubscribeNetworkEvent<ApartmentActionEvent>(OnAction);
         SubscribeLocalEvent<ApartmentTerminalComponent, GetVerbsEvent<AlternativeVerb>>(OnVerbs);
         SubscribeLocalEvent<ApartmentResidentComponent, BeforeDamageChangedEvent>(OnDamage);
@@ -136,14 +138,17 @@ public sealed partial class ApartmentSystem : EntitySystem
 
     private void OnPlayerSpawnComplete(PlayerSpawnCompleteEvent args)
     {
-        if (!Enabled || !args.LateJoin || args.Player.AttachedEntity != args.Mob)
+        if (!Enabled || args.Silent || args.Player.AttachedEntity != args.Mob)
             return;
 
+        _editors.Remove(args.Player.UserId);
+        if (_lobbyEditors.Remove(args.Player.UserId))
+            Result(args.Player, true, "", -1);
         // Keep the normal arrival point and loadout for leaving the apartment.
-        // A failed load leaves the player at their normal latejoin spawn.
+        // A failed load leaves the player at their normal spawn.
         if (!Enter(args.Player, args.Player.UserId, out var message, spawnAtBed: true))
         {
-            Log.Warning($"Could not spawn latejoining player {args.Player.UserId} in their apartment: {message}");
+            Log.Warning($"Could not spawn player {args.Player.UserId} in their apartment: {message}");
             return;
         }
 
@@ -188,9 +193,11 @@ public sealed partial class ApartmentSystem : EntitySystem
         { message = "Сначала встаньте с сиденья."; return false; }
         templateId ??= _config.GetCVar(ApartmentCVars.DefaultTemplate);
         EnsureMaps();
+        try { RefreshSelectedInstance(owner); }
+        catch { message = "Сначала освободите предыдущую квартиру и дождитесь завершения поездки."; return false; }
         if (!_instances.TryGetValue(owner, out var instance))
         {
-            if (_instances.Count >= Math.Max(1, _config.GetCVar(ApartmentCVars.LoadedLimit)))
+            if (_instances.Count + _retiring.Count >= Math.Max(1, _config.GetCVar(ApartmentCVars.LoadedLimit)))
             { message = "Достигнут лимит загруженных квартир. Подождите выгрузки пустых помещений."; return false; }
             try { instance = Create(owner, _templates.GetValueOrDefault(owner, templateId)); }
             catch (Exception e) { Log.Error($"Apartment load failed for {owner}: {e}"); message = "Не удалось загрузить квартиру; сохранение оставлено без изменений."; return false; }
@@ -250,9 +257,11 @@ public sealed partial class ApartmentSystem : EntitySystem
         return coordinates;
     }
 
-    private Instance Create(NetUserId owner, string templateId)
+    private Instance Create(NetUserId owner, string templateId) => CreateFresh(owner, templateId, false);
+
+    private Instance CreateFresh(NetUserId owner, string templateId, bool ignoreSaved)
     {
-        var saved = Store.Load(owner.UserId);
+        var saved = ignoreSaved ? null : SelectedLayout(owner);
         var template = _prototypes.Index<ApartmentTemplatePrototype>(saved?.Template ?? templateId);
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);
@@ -312,6 +321,8 @@ public sealed partial class ApartmentSystem : EntitySystem
                 var terminal = Spawn("DLApartmentTerminal", new EntityCoordinates(grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + 1.5f)));
                 RemComp<ConstructionComponent>(terminal);
             }
+            if (Available(template) && !EntityQuery<ApartmentElevatorComponent, TransformComponent>().Any(pair => pair.Item2.GridUid == grid.Owner && pair.Item2.Anchored))
+                throw new InvalidOperationException("Apartment template must contain an anchored elevator panel.");
             if (template.Map != null) RegisterMapFurniture(instance);
             layout = ApartmentLayout.Resolve(template, delta, MapBaseline(instance));
             if (template.Map != null && ApartmentLayout.Validate(template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance)) is { } mapError)
@@ -331,16 +342,16 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         // Reserve frozen apartments too: waking them must restore the same free location.
         // Maps have no fixed edge, so extend the rows when the current ones are full.
-        var columns = _instances.Values.Select(i => i.Position.X + i.Template.Width + ApartmentGap)
+        var columns = _instances.Values.Concat(_retiring).Select(i => i.Position.X + i.Template.Width + ApartmentGap)
             .Append(0f).Distinct().OrderBy(x => x).ToArray();
-        var rows = _instances.Values.Select(i => i.Position.Y + i.Template.Height + ApartmentGap)
+        var rows = _instances.Values.Concat(_retiring).Select(i => i.Position.Y + i.Template.Height + ApartmentGap)
             .Append(0f).Distinct().OrderBy(y => y);
         foreach (var y in rows)
         foreach (var x in columns)
         {
             if (x + template.Width > ApartmentRowWidth)
                 continue;
-            if (_instances.Values.Any(i =>
+            if (_instances.Values.Concat(_retiring).Any(i =>
                     x < i.Position.X + i.Template.Width + ApartmentGap &&
                     x + template.Width + ApartmentGap > i.Position.X &&
                     y < i.Position.Y + i.Template.Height + ApartmentGap &&
@@ -466,6 +477,11 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (!Enabled || !_visits.TryGetValue(session.UserId, out var visit) || visit.Apartment.Owner != session.UserId || session.AttachedEntity != visit.Body ||
             HasComp<ApartmentTripPendingComponent>(visit.Body) || Transform(visit.Body).GridUid != visit.Apartment.Grid) return false;
         var instance = visit.Apartment;
+        if (Store.Load(session.UserId.UserId) is { } selected && selected.Template != instance.Template.ID)
+        {
+            PublishShop(session, "Сначала спуститесь на остановку и поднимитесь в выбранную квартиру по новому номеру.");
+            return false;
+        }
         if (terminal is { } console && (!HasComp<ApartmentTerminalComponent>(console) || Transform(console).GridUid != instance.Grid)) return false;
         var token = Guid.NewGuid();
         _editors[session.UserId] = token;
@@ -489,30 +505,32 @@ public sealed partial class ApartmentSystem : EntitySystem
     private void OnAction(ApartmentActionEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
-        if (ev.Action == "close") { _editors.Remove(session.UserId); return; }
+        if (ev.Action == "close") { _editors.Remove(session.UserId); _lobbyEditors.Remove(session.UserId); return; }
         if (ev.Action == "exit") { RequestLeave(session.UserId, out var message); Result(session, false, message, _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : -1); }
     }
 
     private void OnApply(ApartmentApplyEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
-        var mapCount = _visits.TryGetValue(session.UserId, out var current) ? current.Apartment.MapFurniture.Count : 0;
+        var mapCount = _visits.TryGetValue(session.UserId, out var current) ? current.Apartment.MapFurniture.Count : _lobbyEditors.GetValueOrDefault(session.UserId)?.MapFurniture.Count ?? 0;
         if (ev.Layout == null || ev.Layout.Count > 64 + mapCount || ev.Layout.Any(p => p == null))
         { Result(session, false, "Некорректный проект квартиры.", -1); return; }
         var error = Apply(session, ev.Token, ev.Revision, ev.Layout);
-        var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : -1;
+        var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : _lobbyEditors.GetValueOrDefault(session.UserId)?.Delta.Revision ?? -1;
         Result(session, error == null, error ?? "Обстановка сохранена.", revision);
-        if (error == null) OpenEditor(session);
+        if (error == null) { if (InLobby(session)) OpenLobbyEditor(session); else OpenEditor(session); }
     }
 
     public string? Apply(ICommonSession session, Guid token, int revision, IReadOnlyList<ApartmentPlacement> layout)
     {
-        if (!Enabled || !_editors.TryGetValue(session.UserId, out var expected) || token != expected ||
-            !_visits.TryGetValue(session.UserId, out var visit) || visit.Apartment.Owner != session.UserId ||
-            session.AttachedEntity != visit.Body || Transform(visit.Body).GridUid != visit.Apartment.Grid)
+        if (!Enabled || !_editors.TryGetValue(session.UserId, out var expected) || token != expected) return "Нет доступа к редактированию квартиры.";
+        var lobby = InLobby(session) && _lobbyEditors.ContainsKey(session.UserId);
+        _visits.TryGetValue(session.UserId, out var visit);
+        var instance = lobby ? _lobbyEditors[session.UserId] : visit?.Apartment;
+        if (instance == null || instance.Owner != session.UserId || !lobby && (visit == null || session.AttachedEntity != visit.Body || Transform(visit.Body).GridUid != instance.Grid))
             return "Нет доступа к редактированию квартиры.";
-        var instance = visit.Apartment;
-        if (HasComp<ApartmentTripPendingComponent>(visit.Body)) return "Дождитесь завершения поездки.";
+        if (Store.Load(session.UserId.UserId) is { } selected && selected.Template != instance.Template.ID) return "Шаблон квартиры изменён. Откройте обустройство заново.";
+        if (!lobby && HasComp<ApartmentTripPendingComponent>(visit!.Body)) return "Дождитесь завершения поездки.";
         if (revision != instance.Delta.Revision) return "Обстановка изменилась. Откройте редактор заново.";
         if (_lastApply.TryGetValue(session.UserId, out var last) && _timing.RealTime - last < TimeSpan.FromMilliseconds(500)) return "Подождите перед повторным сохранением.";
         _lastApply[session.UserId] = _timing.RealTime;
@@ -523,10 +541,10 @@ public sealed partial class ApartmentSystem : EntitySystem
             return "Исходный предмет квартиры удалён. Откройте квартиру заново после её перезагрузки.";
         if (touched.Any(p => instance.Furniture.TryGetValue(p.Id, out var entity) && TryComp<StrapComponent>(entity, out var strap) && strap.BuckledEntities.Count > 0))
             return "Перед перестановкой освободите мебель от пассажиров.";
-        if (TryComp<BuckleComponent>(visit.Body, out var buckle) && buckle.Buckled) return "Перед применением встаньте с сиденья.";
+        if (!lobby && TryComp<BuckleComponent>(visit!.Body, out var buckle) && buckle.Buckled) return "Перед применением встаньте с сиденья.";
         foreach (var participant in _visits.Values.Where(v => v.Apartment == instance && Exists(v.Body)))
         {
-            if (participant.Body != visit.Body && TryComp<BuckleComponent>(participant.Body, out var otherBuckle) && otherBuckle.Buckled)
+            if (participant.Body != visit?.Body && TryComp<BuckleComponent>(participant.Body, out var otherBuckle) && otherBuckle.Buckled)
                 return "Посетитель сидит на мебели. Попросите его встать.";
             var pos = Transform(participant.Body).LocalPosition;
             var cell = new Vector2i((int) MathF.Floor(pos.X), (int) MathF.Floor(pos.Y));
@@ -582,8 +600,13 @@ public sealed partial class ApartmentSystem : EntitySystem
 
     private void OnStatus(object? sender, SessionStatusEventArgs args)
     {
+        if (args.NewStatus == SessionStatus.Disconnected)
+        {
+            _editors.Remove(args.Session.UserId);
+            _lobbyEditors.Remove(args.Session.UserId);
+            _shopTokens.Remove(args.Session.UserId);
+        }
         if (!_visits.TryGetValue(args.Session.UserId, out var visit)) return;
-        if (args.NewStatus == SessionStatus.Disconnected) _editors.Remove(args.Session.UserId);
         RefreshActivity(visit.Apartment);
     }
 
@@ -609,15 +632,18 @@ public sealed partial class ApartmentSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        if (_timing.RealTime < _nextUpdate || _instances.Count == 0) return;
+        if (_timing.RealTime < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0) return;
         _nextUpdate = _timing.RealTime + TimeSpan.FromSeconds(1);
-        foreach (var instance in _instances.Values.ToArray())
+        foreach (var instance in _instances.Values.Concat(_retiring).ToArray())
         {
+            if (_lobbyEditors.TryGetValue(instance.Owner, out var editing) && editing == instance && _editors.ContainsKey(instance.Owner) &&
+                _players.TryGetSessionById(instance.Owner, out var viewer) && InLobby(viewer)) continue;
             RefreshActivity(instance);
-            if (!instance.Frozen || _visits.Values.Any(v => v.Apartment == instance) ||
+            if (HasComp<ApartmentElevatorReservedComponent>(instance.Grid) || !instance.Frozen || _visits.Values.Any(v => v.Apartment == instance) ||
                 _timing.RealTime - instance.IdleSince < TimeSpan.FromSeconds(Math.Max(1, _config.GetCVar(ApartmentCVars.EmptyTimeout)))) continue;
             Del(instance.Grid);
-            _instances.Remove(instance.Owner);
+            if (_instances.GetValueOrDefault(instance.Owner) == instance) _instances.Remove(instance.Owner);
+            _retiring.Remove(instance);
         }
     }
 
@@ -627,7 +653,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         foreach (var visit in _visits.Values)
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }
-        _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear();
+        _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);
         _activeMap = _sleepMap = EntityUid.Invalid;

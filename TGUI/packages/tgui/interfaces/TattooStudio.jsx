@@ -6,6 +6,7 @@ import { simplifyPoints } from './tattooStrokeUtils';
 import { makeCanvas, makeLayer, paint, flatten, cloneLayers, loadBitmap, encodeBitmap, strokeWork } from './tattooBitmapUtils';
 import { initialView, canvasPoint, zoomAt } from './tattooViewportUtils';
 import './TattooStudio.scss';
+import { TattooSelect } from './TattooSelect';
 
 const views = ['Спереди', 'Сзади', 'Справа', 'Слева'];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -20,6 +21,8 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
   const [color, setColor] = useState('#182030'), [width, setWidth] = useState(6), [glow, setGlow] = useState(false);
   const [mode, setMode] = useState('brush'), [transform, setTransform] = useState(defaults);
   const [draft, setDraft] = useState(null), [version, refresh] = useState(0), [status, setStatus] = useState('');
+  const [partSwitch, setPartSwitch] = useState(null);
+  const pendingPart = useRef(null);
   const [editing, setEditing] = useState(false), [loading, setLoading] = useState(false), [saving, setSaving] = useState(false);
   const [view, setView] = useState(initialView);
   const viewRef = useRef(view); viewRef.current = view;
@@ -63,6 +66,7 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
   useEffect(() => {
     if (saving && tattoo && tattoo.strokes.length === 0 && tattoo.artworkProof && tattoo.artworkProof !== work.current?.savedProof) {
       work.current = null; setSaving(false); setEditing(false); setStatus('Рисунок завершён. Слои и история объединены.');
+      if (pendingPart.current) { const next = pendingPart.current; pendingPart.current = null; setPartSwitch(null); switchPart(next); }
     } else if (saving && data.status && !data.pending && !data.fileBusy) { setSaving(false); setStatus(data.status); }
   }, [tattoos, data.pending, data.fileBusy, data.status, saving]);
 
@@ -108,6 +112,17 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
     ctx.restore();
   }, [tattoos, part, direction, selected, transform, draft, version, body?.color, view]);
 
+  const switchPart = value => {
+    work.current = null; gesture.current = null; setDraft(null); setEditing(false); autoEditId.current = '';
+    setPart(value); setSelected(tattoos.find(t => t.part === value && t.direction === direction)?.id || '');
+  };
+  const requestPart = value => {
+    if (value === part) return;
+    const changed = editing && (work.current?.undo.length > 0 || ['x', 'y', 'scale', 'rotation', 'opacity'].some(key => transform[key] !== tattoo?.[key]));
+    if (changed) { setPartSwitch(value); return; }
+    if (editing && tattoo && !(tattoo.strokes || []).length && !tattoo.normalBitmap && !tattoo.glowBitmap) act('tattoo-remove', { id: tattoo.id });
+    switchPart(value);
+  };
   const choose = t => { if (editing || blocked) return; setSelected(t.id); setPart(t.part); setDirection(t.direction); act('tattoo-preview-direction', { direction: t.direction }); };
   const startEditing = async () => {
     if (!tattoo || blocked || editing) return;
@@ -234,8 +249,9 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
   const changeLayer = callback => { checkpoint(); callback(); update(); };
   return <div className="TattooStudio">
     <div className="TattooStudio__locations">
-      <label>Область <select aria-label="Область татуировки" disabled={editing || blocked} value={part} onChange={e => { setPart(e.target.value); setSelected(tattoos.find(t => t.part === e.target.value && t.direction === direction)?.id || ''); }}>
-        {parts.map(p => <option key={p.id} value={p.id}>{p.name}{data.machine && p.covered ? ' — закрыта' : ''}</option>)}</select></label>
+      <label>Область <TattooSelect label="Область татуировки" disabled={!!data.disabled || !!data.pending || !!data.fileBusy || loading || saving} value={part}
+        options={parts.map(p => ({ value: p.id, label: p.name + (data.machine && p.covered ? ' — закрыта' : '') }))}
+        onChange={requestPart} /></label>
       <div className="TattooStudio__views">{views.map((v, i) => <button type="button" key={v} disabled={editing || blocked} aria-pressed={direction === i} onClick={() => { setDirection(i); setSelected(tattoos.find(t => t.part === part && t.direction === i)?.id || ''); act('tattoo-preview-direction', { direction: i }); }}>{v}</button>)}</div>
       <button type="button" disabled={editing || blocked || !body || tattoos.length >= (data.maxTattoos || 8)} onClick={() => { expectedNew.current = true; act('tattoo-add', { part, direction }); }}>Новая татуировка</button>
     </div>
@@ -269,7 +285,9 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
       <div className="TattooStudio__placement">
         <p>{editing ? 'Слои и история существуют только до завершения рисунка. Завершите рисунок перед сохранением персонажа или закрытием окна.' : tattoo ? 'Редактируйте рисунок или загрузите PNG вместо него. Экспорт сохраняет оба вида чернил; размещение на теле настраивается отдельно.' : 'Создайте татуировку на выбранной области и ракурсе, затем рисуйте или загрузите PNG.'}</p>
         {w && <fieldset disabled={blocked}>
-          <label>Слои <select aria-label="Слой рисунка" value={w.active} onChange={e => { w.active = Number(e.target.value); update(); }}>{w.layers.map((l, i) => <option key={i} value={i}>{i + 1}. {l.name}</option>)}</select></label>
+          <label>Слои <TattooSelect label="Слой рисунка" disabled={blocked} value={w.active}
+            options={w.layers.map((layer, index) => ({ value: index, label: `${index + 1}. ${layer.name}` }))}
+            onChange={value => { w.active = Number(value); update(); }} /></label>
           <input aria-label="Название слоя" value={active.name} maxLength={40} onChange={e => { active.name = e.target.value; update(); }} />
           <label><input aria-label="Видимость слоя" type="checkbox" checked={active.visible} onChange={e => changeLayer(() => { active.visible = e.target.checked; })} /> Видимый слой</label>
           <label>Непрозрачность слоя <input aria-label="Непрозрачность слоя" type="range" min="0" max="1" step=".01" value={active.opacity} onChange={e => { active.opacity = Number(e.target.value); update(); }} /></label>
@@ -290,6 +308,12 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
         {(data.status || status || blocked) && <p role="status">{data.disabled ? 'Нанесение татуировок выключено в настройках.' : data.status || status || (data.pending ? 'Нанесение…' : 'Область закрыта одеждой.')}</p>}
       </div>
     </div>
+    {partSwitch && <div className="TattooStudio__switch" role="alertdialog" aria-label="Смена области татуировки"><div>
+      <p>В рисунке есть несохранённые изменения. Сохранить их перед сменой области?</p>
+      <button disabled={saving || blocked} onClick={() => { pendingPart.current = partSwitch; finish(); }}>Сохранить и перейти</button>
+      <button disabled={saving} onClick={() => { const next = partSwitch; pendingPart.current = null; setPartSwitch(null); switchPart(next); }}>Отбросить изменения</button>
+      <button disabled={saving || blocked} onClick={() => { pendingPart.current = null; setPartSwitch(null); }}>Остаться</button>
+    </div></div>}
   </div>;
 };
 export const TattooStudio = () => { const { data, act } = useBackend(); return <div className="TattooStudioPage"><TattooEditor data={data} act={act} /></div>; };

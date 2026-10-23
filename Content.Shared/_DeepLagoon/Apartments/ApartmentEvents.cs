@@ -42,8 +42,9 @@ public sealed class ApartmentRoomScene
 [Serializable, NetSerializable]
 public sealed class ApartmentEditorEvent(NetEntity grid, string template, int revision, Guid token,
     List<ApartmentPlacement> layout, Dictionary<string, NetEntity> entities, ApartmentRoomScene? scene = null, int number = 0,
-    List<ApartmentMapFurniture>? mapFurniture = null) : EntityEventArgs
+    List<ApartmentMapFurniture>? mapFurniture = null, bool lobby = false) : EntityEventArgs
 {
+    public readonly bool Lobby = lobby;
     public readonly NetEntity Grid = grid;
     public readonly string Template = template;
     public readonly int Revision = revision;
@@ -75,4 +76,29 @@ public sealed class ApartmentResultEvent(bool success, string message, int revis
     public readonly bool Success = success;
     public readonly string Message = message;
     public readonly int Revision = revision;
+}
+
+[Serializable, NetSerializable]
+public sealed class ApartmentShopRequest : EntityEventArgs;
+[Serializable, NetSerializable]
+public sealed class ApartmentShopAction(Guid token, string action, string template = "") : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Action = action, Template = template;
+}
+[Serializable, NetSerializable]
+public sealed class ApartmentShopEntry
+{
+    public string Id = "", Name = "";
+    public long Price;
+    public bool Owned, Selected;
+}
+[Serializable, NetSerializable]
+public sealed class ApartmentShopState(Guid token, List<ApartmentShopEntry> templates, int number, bool lobby, bool legacy, string message) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly List<ApartmentShopEntry> Templates = templates;
+    public readonly int Number = number;
+    public readonly bool Lobby = lobby, Legacy = legacy;
+    public readonly string Message = message;
 }
