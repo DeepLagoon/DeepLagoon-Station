@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import './PlayerColorPicker.scss';
+import { useThrottledChange } from './useThrottledChange';
 
 export const ColorTransferContext = createContext(null);
 export const ColorDialogContext = createContext(null);
@@ -45,8 +46,20 @@ export const PlayerColorPicker = ({value='#ffffff', onChange, channels=false, mo
   const [hsv,setHsv]=useState(()=>rgbToHsv(value));
   const [hex,setHex]=useState(value);
   const dragging=useRef(false);
-  useEffect(()=>{if(value.toLowerCase()!==hsvToHex(hsv))setHsv(rgbToHsv(value));setHex(value);},[value]);
-  const commit = next => {setHsv(next);const color=hsvToHex(next);setHex(color);onChange(color);};
+  const [send,flush]=useThrottledChange(onChange);
+  useEffect(()=>{if(dragging.current)return;if(value.toLowerCase()!==hsvToHex(hsv))setHsv(rgbToHsv(value));setHex(value);},[value]);
+  const commit = next => {setHsv(next);const color=hsvToHex(next);setHex(color);send(color);};
+  const endDrag = () => {dragging.current=false;flush();};
+  useEffect(() => {
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+    window.addEventListener('blur', endDrag);
+    return () => {
+      window.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointercancel', endDrag);
+      window.removeEventListener('blur', endDrag);
+    };
+  }, [flush]);
   const pick = e => {
     const bounds=e.currentTarget.getBoundingClientRect(), radius=bounds.width/2;
     const x=e.clientX-bounds.left-radius, y=e.clientY-bounds.top-radius;
@@ -58,14 +71,14 @@ export const PlayerColorPicker = ({value='#ffffff', onChange, channels=false, mo
       style={{filter:`brightness(${hsv[2]})`}}
       onPointerDown={e=>{dragging.current=true;e.currentTarget.setPointerCapture(e.pointerId);pick(e);}}
       onPointerMove={e=>{if(dragging.current)pick(e);}}
-      onPointerUp={()=>{dragging.current=false;}} onPointerCancel={()=>{dragging.current=false;}}
+      onPointerUp={endDrag} onPointerCancel={endDrag}
       onKeyDown={e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();commit([(hsv[0]+(e.key==='ArrowRight'?1:359))%360,hsv[1],hsv[2]]);}}}>
       <span style={{left:`${50+Math.cos(hsv[0]*Math.PI/180)*hsv[1]*50}%`,top:`${50+Math.sin(hsv[0]*Math.PI/180)*hsv[1]*50}%`}} />
     </div>}
-    {mode === 'wheel' && <label>Яркость <input type="range" min="0" max="1" step="0.01" value={hsv[2]} onChange={e=>commit([hsv[0],hsv[1],Number(e.target.value)])} /></label>}
-    <label>HEX <input aria-label="HEX" value={hex} maxLength={7} onChange={e=>setHex(e.target.value)} onBlur={()=>{if(/^#[0-9a-f]{6}$/i.test(hex)){setHsv(rgbToHsv(hex));onChange(hex);}else setHex(value);}} /></label>
+    {mode === 'wheel' && <label>Яркость <input type="range" min="0" max="1" step="0.01" value={hsv[2]} onPointerDown={()=>{dragging.current=true;}} onBlur={endDrag} onChange={e=>commit([hsv[0],hsv[1],Number(e.target.value)])} /></label>}
+    <label>HEX <input aria-label="HEX" value={hex} maxLength={7} onChange={e=>setHex(e.target.value)} onBlur={()=>{if(/^#[0-9a-f]{6}$/i.test(hex)){setHsv(rgbToHsv(hex));send(hex);flush();}else setHex(value);}} /></label>
     {(channels || mode === 'hsv') && <>
-      {['H','S','V'].map((label,i)=><label key={label}>{label}<input aria-label={label} type="range" min="0" max={i===0?360:1} step={i===0?1:0.01} value={hsv[i]} onChange={e=>{const next=[...hsv];next[i]=Number(e.target.value);commit(next);}} /></label>)}
+      {['H','S','V'].map((label,i)=><label key={label}>{label}<input aria-label={label} type="range" min="0" max={i===0?360:1} step={i===0?1:0.01} value={hsv[i]} onPointerDown={()=>{dragging.current=true;}} onBlur={endDrag} onChange={e=>{const next=[...hsv];next[i]=Number(e.target.value);commit(next);}} /></label>)}
     </>}
     {(channels || mode === 'rgb') && <>
       <div className="PlayerColorPicker__rgb">{['R','G','B'].map((label,i)=><label key={label}>{label}<input aria-label={label} type="number" min="0" max="255" value={parseInt(hsvToHex(hsv).slice(1+i*2,3+i*2),16)} onChange={e=>{const rgb=[1,3,5].map(n=>parseInt(hsvToHex(hsv).slice(n,n+2),16));rgb[i]=Math.min(255,Math.max(0,Number(e.target.value)));commit(rgbToHsv('#'+rgb.map(n=>n.toString(16).padStart(2,'0')).join('')));}} /></label>)}</div>

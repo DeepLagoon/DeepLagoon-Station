@@ -5,12 +5,13 @@ using Robust.Client.UserInterface.Controls;
 
 namespace Content.Client.Lobby.UI;
 
-/// <summary>Character and entry controls fold toward chat without changing chat geometry.</summary>
-public sealed class LobbyEntryDrawer : Container
+/// <summary>Utilities, server information and votes fold toward chat without changing its geometry.</summary>
+public sealed class LobbyUtilityDrawer : Container
 {
-    public const float BodyWidth = 340;
+    public const float BodyWidth = LobbyConsoleTheme.SidebarWidth;
     public const float TabWidth = 32;
     public const float ExpandedWidth = BodyWidth + TabWidth + 4;
+    public const float MinimumExpandedWidth = 256;
     public Button ToggleButton { get; }
     private bool _collapsed;
 
@@ -28,7 +29,7 @@ public sealed class LobbyEntryDrawer : Container
         }
     }
 
-    public LobbyEntryDrawer()
+    public LobbyUtilityDrawer()
     {
         RectClipContent = true;
         ToggleButton = new Button { Text = ">" };
@@ -66,9 +67,9 @@ public sealed class LobbyEntryDrawer : Container
     protected override Vector2 MeasureOverride(Vector2 availableSize)
     {
         if (ChildCount == 2 && !Collapsed)
-            GetChild(0).Measure(new Vector2(BodyWidth, availableSize.Y));
+            GetChild(0).Measure(new Vector2(Math.Max(0, Math.Min(BodyWidth, availableSize.X - TabWidth - 4)), availableSize.Y));
         ToggleButton.Measure(new Vector2(TabWidth, 56));
-        return new Vector2(Collapsed ? TabWidth : ExpandedWidth, 0);
+        return new Vector2(Collapsed ? TabWidth : Math.Min(ExpandedWidth, availableSize.X), 0);
     }
 
     protected override Vector2 ArrangeOverride(Vector2 finalSize)
@@ -76,9 +77,8 @@ public sealed class LobbyEntryDrawer : Container
         if (ChildCount == 2 && !Collapsed)
         {
             var content = GetChild(0);
-            var height = Math.Min(content.DesiredSize.Y, finalSize.Y);
-            content.Arrange(UIBox2.FromDimensions(new Vector2(0, (finalSize.Y - height) / 2),
-                new Vector2(BodyWidth, height)));
+            content.Arrange(UIBox2.FromDimensions(Vector2.Zero,
+                new Vector2(Math.Max(0, finalSize.X - TabWidth - 4), finalSize.Y)));
         }
         ToggleButton.Arrange(UIBox2.FromDimensions(new Vector2(finalSize.X - TabWidth, Math.Max(0, (finalSize.Y - 56) / 2)),
             new Vector2(TabWidth, Math.Min(56, finalSize.Y))));

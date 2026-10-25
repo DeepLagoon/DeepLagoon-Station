@@ -6,7 +6,7 @@ safety-deposit-console-header = Управление банковскими яч
 
 safety-deposit-console-purchase-section = Купить новый сейф
 
-safety-deposit-console-bank-payment-note = Оплата списывается с секторного счёта и накоплений.
+safety-deposit-console-bank-payment-note = Оплата списывается со счёта персонажа.
 
 safety-deposit-console-purchase-small = Малый (2x2) — ${$cost}
 

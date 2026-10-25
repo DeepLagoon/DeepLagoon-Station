@@ -146,7 +146,7 @@ namespace Content.Server.Preferences.Managers
 
             prefsData.Prefs = new PlayerPreferences(profiles, slot, curPrefs.AdminOOCColor, curPrefs.ChatPanelSettings);
 
-            // Currency transactions already saved the bank balance atomically with account savings.
+            // Bank transactions already saved the character balance atomically.
             if (persist && ShouldStorePrefs(session.Channel.AuthType))
                 await _db.SaveCharacterSlotAsync(userId, profile, slot);
         }

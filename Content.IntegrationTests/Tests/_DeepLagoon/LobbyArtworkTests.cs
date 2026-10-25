@@ -48,14 +48,16 @@ public sealed class LobbyArtworkTests
     }
 
     [Test]
-    public async Task LobbyEntryDrawerFoldsBesideFullHeightChatAndPreservesNativeControls()
+    public async Task LobbyUtilitiesFoldBesideChatWithCharacterActionsAndMusicOnTheLeft()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         await pair.Client.WaitAssertion(() =>
         {
             using var lobby = new LobbyGui();
             var actions = lobby.FindControl<Control>("DefaultState");
-            Assert.That(actions.Parent, Is.SameAs(lobby.EntryDrawer));
+            Assert.That(actions.Parent, Is.SameAs(lobby.LeftSide));
+            Assert.That(lobby.UtilityScroll.Parent, Is.SameAs(lobby.UtilityDrawer));
+            Assert.That(lobby.MusicPlayer.Parent, Is.SameAs(lobby.LeftSide));
             Assert.That(lobby.ChatPanel.Parent, Is.SameAs(lobby.RightSide));
             var setup = lobby.CharacterPreview.CharacterSetupButton;
             Assert.That(lobby.ButtonPanel.Children.Any(child => child == setup.Parent), Is.True);
@@ -145,10 +147,10 @@ public sealed class LobbyArtworkTests
                 Assert.That(lobby.RightSide.Position.X + lobby.RightSide.Width,
                     Is.EqualTo(lobby.MainContainer.Width).Within(0.001f));
                 Assert.That(lobby.ButtonPanel.GlobalPosition.X + lobby.ButtonPanel.Width / 2,
-                    Is.EqualTo(lobby.EntryDrawer.GlobalPosition.X + LobbyEntryDrawer.BodyWidth / 2).Within(8));
-                Assert.That(lobby.ButtonPanel.Position.Y + lobby.ButtonPanel.Height,
-                    Is.LessThanOrEqualTo(lobby.CharacterPreview.Position.Y));
-                Assert.That(lobby.EntryDrawer.GlobalPosition.X + lobby.EntryDrawer.Width,
+                    Is.EqualTo(lobby.LeftSide.GlobalPosition.X + lobby.LeftSide.Width / 2).Within(8));
+                Assert.That(lobby.CharacterPreview.Position.Y + lobby.CharacterPreview.Height,
+                    Is.LessThanOrEqualTo(lobby.ButtonPanel.Position.Y));
+                Assert.That(lobby.UtilityDrawer.GlobalPosition.X + lobby.UtilityDrawer.Width,
                     Is.LessThan(lobby.ChatPanel.GlobalPosition.X));
                 Assert.That(lobby.ChatPanel.Height, Is.EqualTo(lobby.MainContainer.Height).Within(0.001f),
                     "Chat must retain the entire viewport height beside the drawer");
@@ -164,7 +166,7 @@ public sealed class LobbyArtworkTests
                 var heading = lobby.CharacterPreview.FindControl<Control>("Header");
                 Assert.That(heading.HorizontalAlignment, Is.EqualTo(Control.HAlignment.Center));
                 Assert.That(popup.GlobalPosition.X,
-                    Is.EqualTo(lobby.MainContainer.GlobalPosition.X).Within(1), "Votes must stay at the left edge");
+                    Is.EqualTo(lobby.UtilityDrawer.GlobalPosition.X).Within(1), "Votes must stay beside chat");
                 Assert.That(popup.Width, Is.EqualTo(lobby.ServerConsole.Width).Within(1), "Vote cards must fill the same sidebar width as the console");
                 var timer = bar.Parent!.Children.OfType<LobbyVoteTimer>().Single();
                 Assert.That(timer.GlobalPosition.Y + timer.Height, Is.LessThanOrEqualTo(bar.GlobalPosition.Y),
@@ -178,18 +180,26 @@ public sealed class LobbyArtworkTests
                     Is.EqualTo(lobby.CharacterPreview.GlobalPosition.X + lobby.CharacterPreview.Width / 2).Within(1));
                 var chatSize = lobby.ChatPanel.Size;
                 var chatPosition = lobby.ChatPanel.GlobalPosition;
-                var tabPosition = lobby.EntryDrawer.ToggleButton.GlobalPosition;
-                lobby.EntryDrawer.Collapsed = true;
+                var tabPosition = lobby.UtilityDrawer.ToggleButton.GlobalPosition;
+                var characterPosition = lobby.CharacterPreview.GlobalPosition;
+                var musicPosition = lobby.MusicPlayer.GlobalPosition;
+                Assert.That(lobby.MusicPlayer.Position.Y + lobby.MusicPlayer.Height, Is.EqualTo(lobby.LeftSide.Height).Within(1));
+                Assert.That(lobby.LeftSide.Position.X + lobby.LeftSide.Width, Is.LessThan(lobby.UtilityDrawer.Position.X));
+                lobby.UtilityDrawer.Collapsed = true;
                 lobby.MainContainer.Measure(size);
                 lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
-                Assert.That(actions.Visible, Is.False);
-                Assert.That(lobby.EntryDrawer.Width, Is.EqualTo(LobbyEntryDrawer.TabWidth));
+                Assert.That(lobby.UtilityScroll.Visible, Is.False);
+                Assert.That(actions.Visible, Is.True);
+                Assert.That(lobby.CharacterPreview.GlobalPosition, Is.EqualTo(characterPosition));
+                Assert.That(lobby.MusicPlayer.GlobalPosition, Is.EqualTo(musicPosition));
+                Assert.That(lobby.UtilityDrawer.Width, Is.EqualTo(LobbyUtilityDrawer.TabWidth));
                 Assert.That(lobby.ChatPanel.Size, Is.EqualTo(chatSize));
                 Assert.That(lobby.ChatPanel.GlobalPosition, Is.EqualTo(chatPosition));
-                Assert.That(Vector2.Distance(lobby.EntryDrawer.ToggleButton.GlobalPosition, tabPosition), Is.LessThan(0.001f));
+                Assert.That(Vector2.Distance(lobby.UtilityDrawer.ToggleButton.GlobalPosition, tabPosition), Is.LessThan(0.001f));
                 lobby.SwitchState(LobbyGui.LobbyGuiState.Default);
-                Assert.That(actions.Visible, Is.False, "Lobby refresh cannot reopen a folded drawer");
-                lobby.EntryDrawer.Collapsed = false;
+                Assert.That(lobby.UtilityScroll.Visible, Is.False, "Lobby refresh cannot reopen folded utilities");
+                Assert.That(actions.Visible, Is.True);
+                lobby.UtilityDrawer.Collapsed = false;
                 lobby.MainContainer.Measure(size);
                 lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
                 Assert.That(actions.Visible, Is.True);

@@ -25,7 +25,6 @@ using Content.Shared.Chat;
 using Content.Shared.Players.PlayTimeTracking;
 using Content.Shared.Players.RateLimiting;
 using Content.Client._Mono.Company; // Mono
-using Content.Client._DeepLagoon.Money; // Mono
 
 namespace Content.Client.IoC
 {
@@ -35,6 +34,7 @@ namespace Content.Client.IoC
         {
             var collection = IoCManager.Instance!;
             collection.Register<Content.Client._DeepLagoon.WebUI.WebViewLifetimeRegistry>();
+            collection.Register<Content.Client._DeepLagoon.WebUI.TguiSpriteImages>();
             collection.Register<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>();
             collection.Register<Content.Client._Exodus.Decals.IDecalPlacementManager, Content.Client._Exodus.Decals.DecalPlacementManager>();
 
@@ -66,7 +66,6 @@ namespace Content.Client.IoC
             collection.Register<SharedPlayerRateLimitManager, PlayerRateLimitManager>();
             collection.Register<TitleWindowManager>();
             collection.Register<CompanyManager>(); // Mono
-            collection.Register<MoneyManager>(); // Mono
         }
     }
 }

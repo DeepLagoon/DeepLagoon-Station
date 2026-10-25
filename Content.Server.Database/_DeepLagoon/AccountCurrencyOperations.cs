@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Server.Database;
 
-public readonly record struct MoneyPayment(long MoneyBalance, int BankCost);
-public readonly record struct MoneyTransfer(long SenderBalance, long RecipientBalance);
+public readonly record struct BankTransfer(int SenderBalance, int RecipientBalance);
 public readonly record struct LagoonCoinResult(long Balance, long Awarded, bool Applied);
 
 public sealed class InsufficientLagoonCoinsException : InvalidOperationException
@@ -66,23 +65,25 @@ public static class AccountCurrencyOperations
             throw new InvalidOperationException("Player preferences do not exist.");
     }
 
-    public static async Task<long> ChangeMoney(ServerDbContext db, Guid user, long amount, bool set = false,
+    public static async Task<int> WithdrawBank(ServerDbContext db, Guid user, int slot, int expectedBalance, int amount,
         CancellationToken cancel = default)
     {
+        if (amount <= 0 || expectedBalance < amount)
+            throw new InvalidOperationException("Insufficient character bank balance.");
         await using var transaction = await db.Database.BeginTransactionAsync(cancel);
         await LockAccount(db, user, cancel);
-        var row = await db.Preference.SingleAsync(p => p.UserId == user, cancel);
-        var balance = set ? amount : checked(row.Money + amount);
-        if (balance < 0)
-            throw new InvalidOperationException("Insufficient Money.");
-        row.Money = balance;
+        var profile = await db.Profile.SingleAsync(p => p.Preference.UserId == user && p.Slot == slot, cancel);
+        if (profile.BankBalance != expectedBalance)
+            throw new InvalidOperationException("Character bank balance changed; retry the payment.");
+        profile.BankBalance -= amount;
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
-        return balance;
+        return profile.BankBalance;
     }
 
-    public static async Task<MoneyTransfer> TransferMoney(ServerDbContext db, Guid sender, Guid recipient,
-        long amount, CancellationToken cancel = default)
+    public static async Task<BankTransfer> TransferBank(ServerDbContext db, Guid sender, int senderSlot,
+        int senderBalance, Guid recipient, int recipientSlot, int recipientBalance, int amount,
+        CancellationToken cancel = default)
     {
         if (sender == recipient || amount <= 0)
             throw new ArgumentException("A transfer requires two different accounts and a positive amount.");
@@ -90,60 +91,34 @@ public static class AccountCurrencyOperations
         // Deterministic locking order prevents opposite-direction transfers from deadlocking.
         await LockAccount(db, sender.CompareTo(recipient) < 0 ? sender : recipient, cancel);
         await LockAccount(db, sender.CompareTo(recipient) < 0 ? recipient : sender, cancel);
-        var from = await db.Preference.SingleAsync(p => p.UserId == sender, cancel);
-        var to = await db.Preference.SingleAsync(p => p.UserId == recipient, cancel);
-        if (from.Money < amount)
-            throw new InvalidOperationException("Insufficient Money.");
-        var recipientBalance = checked(to.Money + amount);
-        from.Money -= amount;
-        to.Money = recipientBalance;
+        var from = await db.Profile.SingleAsync(p => p.Preference.UserId == sender && p.Slot == senderSlot, cancel);
+        var to = await db.Profile.SingleAsync(p => p.Preference.UserId == recipient && p.Slot == recipientSlot, cancel);
+        if (from.BankBalance != senderBalance || to.BankBalance != recipientBalance)
+            throw new InvalidOperationException("Character bank balance changed; retry the transfer.");
+        if (from.BankBalance < amount || to.BankBalance < 0)
+            throw new InvalidOperationException("Insufficient character bank balance.");
+        var balance = checked(to.BankBalance + amount);
+        from.BankBalance -= amount;
+        to.BankBalance = balance;
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
-        return new MoneyTransfer(from.Money, to.Money);
+        return new BankTransfer(from.BankBalance, to.BankBalance);
     }
 
-    /// <summary>Spend savings first; return the remaining cost payable by the character bank.</summary>
-    public static async Task<MoneyPayment> PayWithBank(ServerDbContext db, Guid user, int bankBalance,
-        int amount, CancellationToken cancel = default, int? profileSlot = null, bool useSavings = true)
+    public static async Task<int> DepositBank(ServerDbContext db, Guid user, int profileSlot,
+        int expectedBankBalance, int amount, CancellationToken cancel = default)
     {
-        if (amount <= 0 || bankBalance < 0)
+        if (amount <= 0 || expectedBankBalance < 0)
             throw new ArgumentOutOfRangeException(nameof(amount));
         await using var transaction = await db.Database.BeginTransactionAsync(cancel);
         await LockAccount(db, user, cancel);
-        var row = await db.Preference.SingleAsync(p => p.UserId == user, cancel);
-        var moneyCost = useSavings ? Math.Min(row.Money, amount) : 0;
-        var bankCost = checked((int)(amount - moneyCost));
-        if (bankCost > bankBalance)
-            throw new InvalidOperationException("Insufficient Money and bank balance.");
-        if (profileSlot != null)
-        {
-            var profile = await db.Profile.SingleAsync(p => p.PreferenceId == row.Id && p.Slot == profileSlot, cancel);
-            if (profile.BankBalance != bankBalance)
-                throw new InvalidOperationException("Character bank balance changed; retry the payment.");
-            profile.BankBalance -= bankCost;
-        }
-        row.Money -= moneyCost;
-        await db.SaveChangesAsync(cancel);
-        await transaction.CommitAsync(cancel);
-        return new MoneyPayment(row.Money, bankCost);
-    }
-
-    public static async Task<long> DepositWithBank(ServerDbContext db, Guid user, int profileSlot,
-        int expectedBankBalance, int bankAmount, long moneyAmount, CancellationToken cancel = default)
-    {
-        if (bankAmount < 0 || moneyAmount < 0 || (bankAmount == 0 && moneyAmount == 0))
-            throw new ArgumentOutOfRangeException(nameof(bankAmount));
-        await using var transaction = await db.Database.BeginTransactionAsync(cancel);
-        await LockAccount(db, user, cancel);
-        var row = await db.Preference.SingleAsync(p => p.UserId == user, cancel);
-        var profile = await db.Profile.SingleAsync(p => p.PreferenceId == row.Id && p.Slot == profileSlot, cancel);
+        var profile = await db.Profile.SingleAsync(p => p.Preference.UserId == user && p.Slot == profileSlot, cancel);
         if (profile.BankBalance != expectedBankBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the deposit.");
-        profile.BankBalance = checked(profile.BankBalance + bankAmount);
-        row.Money = checked(row.Money + moneyAmount);
+        profile.BankBalance = checked(profile.BankBalance + amount);
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
-        return row.Money;
+        return profile.BankBalance;
     }
 
     public static async Task<LagoonCoinResult> AwardLagoonCoins(ServerDbContext db, Guid user,

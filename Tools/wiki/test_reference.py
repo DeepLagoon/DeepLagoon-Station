@@ -98,6 +98,13 @@ class ReferenceTests(unittest.TestCase):
         self.assertNotIn('Прямого рецепта', text)
         self.assertEqual(self.blocks().cooking('Empty'), '')
 
+    def test_automation_groups_visually_identical_mapped_variants_and_shows_ports(self):
+        self.data.raw['sinkPort']['AutomationSlotInput'] = {'name':'Приём предметов'}
+        self.data.raw['entity'].update({key:{'id':key,'name':'Факс','components':[{'type':'AutomationSlots','slots':[{'input':'AutomationSlotInput','output':None}]}]} for key in ('FaxA','FaxB')})
+        text = self.blocks().automation()
+        self.assertEqual(text.count('class="dl-entity"'), 1)
+        self.assertIn('Приём: Приём предметов', text)
+
     def test_new_managed_page_human_edit_is_not_overwritten(self):
         page={'path':'sample','title':'Sample','description':'new','content':'new','scriptCss':'','tags':[],'id':None}
         (self.root/'pages.json').write_text(json.dumps([page]),encoding='utf-8')

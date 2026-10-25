@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { GridEditorSelect } from './GridEditorSelect';
 import { buildRoute, deleteRoutePoint, insertRoutePoint, moveRoutePoint, pipePorts, readRoute, routeCells, routeProfile, routeProfiles, routePrototypes } from './gridEditorRouting.mjs';
 
 const rotateAngle=rotation=>-rotation*Math.PI/180;
@@ -66,12 +67,12 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
   const cells=useMemo(()=>routeCells(graph),[graph]);
   const controls=<>
     <label><input type="checkbox" checked={visible} onChange={e=>setVisible(e.target.checked)}/>Показать сети поверх пола</label>
-    <select aria-label="Режим трассы" value={profile.kind} disabled={locked||!!graph.nodes.length} onChange={e=>setProfileId(routeProfiles.find(p=>p.kind===e.target.value).id)}>
-      <option value="wire">Провода</option><option value="gas">Газовые трубы</option><option value="disposal">Мусоросброс</option>
-    </select>
-    <select title={profile.name} aria-label="Тип сети" value={profileId} disabled={locked||!!graph.nodes.length} onChange={e=>setProfileId(e.target.value)}>
-      {routeProfiles.filter(p=>p.kind===profile.kind).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-    </select>
+    <GridEditorSelect aria-label="Режим трассы" value={profile.kind} disabled={locked||!!graph.nodes.length}
+      options={[{ value: 'wire', label: 'Провода' }, { value: 'gas', label: 'Газовые трубы' }, { value: 'disposal', label: 'Мусоросброс' }]}
+      onChange={kind=>setProfileId(routeProfiles.find(p=>p.kind===kind).id)} />
+    <GridEditorSelect title={profile.name} aria-label="Тип сети" value={profileId} disabled={locked||!!graph.nodes.length}
+      options={routeProfiles.filter(p=>p.kind===profile.kind).map(p=>({ value: p.id, label: p.name }))}
+      onChange={setProfileId} />
     <label><input type="checkbox" checked={vertical} onChange={e=>setVertical(e.target.checked)}/>Новые участки сначала по вертикали</label>
     {profile.kind==='gas'&&<label><input type="checkbox" checked={capped} onChange={e=>setCapped(e.target.checked)}/>Закрытые концы труб</label>}
     {!!graph.nodes.length&&<>

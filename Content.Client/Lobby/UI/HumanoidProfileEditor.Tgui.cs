@@ -44,7 +44,8 @@ public sealed partial class HumanoidProfileEditor
     }
     private int _publishedSupporterBonus = -1;
     private float _tguiRefresh;
-    private readonly TguiSpriteImages _tguiImages = new();
+    private bool _tguiPublishPending;
+    private static TguiSpriteImages _tguiImages => TguiSpriteImages.Shared;
     private readonly Dictionary<int, (string Id, string Image, string Status)> _headshotPreviews = new();
     private readonly Dictionary<int, Guid> _headshotReads = new();
     private string _tguiMode = "appearance";
@@ -163,6 +164,10 @@ public sealed partial class HumanoidProfileEditor
     private void RestoreNativeEditor()
     {
         if (_tguiHost?.Parent == null || _profileWeb == null) return;
+        UpdateMarkings();
+        UpdateHairPickers();
+        UpdateCMarkingsHair();
+        UpdateCMarkingsFacialHair();
         _profileWeb.Visible = false;
         TabContainer.Orphan();
         SpriteView.Orphan();
@@ -239,6 +244,11 @@ public sealed partial class HumanoidProfileEditor
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
+        if (_tguiPublishPending)
+        {
+            _tguiPublishPending = false;
+            FlushTguiProfile();
+        }
         _tguiRefresh -= args.DeltaSeconds;
         if (_tguiRefresh > 0 || _profileWeb == null || !_profileWeb.VisibleInTree) return;
         _tguiRefresh = 0.2f;
@@ -247,7 +257,9 @@ public sealed partial class HumanoidProfileEditor
             PublishTguiProfile();
     }
 
-    private void PublishTguiProfile()
+    private void PublishTguiProfile() => _tguiPublishPending = true;
+
+    private void FlushTguiProfile()
     {
         RefreshNativeExtras();
         if (_libraryWindow != null)
@@ -289,7 +301,7 @@ public sealed partial class HumanoidProfileEditor
         if (includeCatalogs) data.Array("tabs", Enumerable.Range(0, TabContainer.ChildCount)
             .Where(i => TabContainer.GetChild(i) != _nativeBody?.Parent && TabContainer.GetChild(i) != _nativeTattoos?.Parent)
             .Select(i => new TguiData().Number("id", i)
-            .String("name", TguiTabMode(i) switch { "settings" => "Настройки", "appearance" => "Основное", "jobs" => "Профессии", "traits" => "Черты", "company" => "Компания", "markings" => "Внешность", "equipment" => "Снаряжение", "saved" => "Сохранённые предметы", _ => "Описание" })
+            .String("name", Loc.GetString("dl-character-editor-tab-" + TguiTabMode(i)))
             .String("mode", TguiTabMode(i))));
         if (mode == "saved") data.Array("savedItems", _savedItemEntities.Where(_entManager.EntityExists).Select(entity =>
             new TguiData().String("name", _entManager.GetComponent<MetaDataComponent>(entity).EntityName)
@@ -656,13 +668,13 @@ public sealed partial class HumanoidProfileEditor
                 break;
             case "species":
                 if (!_species.Any(s => s.ID == value)) return false;
-                SetSpecies(value); UpdateAgeEdit(); UpdateHairPickers(); UpdateSkinColor(); break;
+                SetSpecies(value); UpdateAgeEdit(); UpdateSkinColor(); break;
             case "age":
                 if (!args.TryInt("value", out var age) || age < species.MinAge || age > species.MaxAge) return false;
                 SetAge(age); UpdateAgeEdit(); break;
             case "sex":
                 if (!args.TryInt("value", out var sex) || !species.Sexes.Contains((Sex)sex)) return false;
-                SetSex((Sex)sex); UpdateSexControls(); UpdateHairPickers(); break;
+                SetSex((Sex)sex); UpdateSexControls(); break;
             case "gender":
                 if (!args.TryInt("value", out var gender) || !Enum.IsDefined((Gender)gender)) return false;
                 SetGender((Gender)gender); UpdateGenderControls(); break;
@@ -682,7 +694,7 @@ public sealed partial class HumanoidProfileEditor
                 if (value != empty && (!_markingManager.Markings.TryGetValue(value, out var marking) || marking.MarkingCategory != category ||
                     !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, marking, _prototypeManager))) return false;
                 Profile = Profile.WithCharacterAppearance(beard ? Profile.Appearance.WithFacialHairStyleName(value) : Profile.Appearance.WithHairStyleName(value));
-                UpdateHairPickers(); UpdateCMarkingsHair(); UpdateCMarkingsFacialHair(); ReloadProfilePreview(); break;
+                ReloadProfilePreview(); break;
             case "hair-color":
             case "beard-color":
             case "eye-color":
@@ -695,7 +707,7 @@ public sealed partial class HumanoidProfileEditor
                     var layer = action == "hair-color" ? HumanoidVisualLayers.Hair : HumanoidVisualLayers.FacialHair;
                     if (_markingManager.MustMatchSkin(Profile.Species, layer, out _, _prototypeManager)) return false;
                     Profile = Profile.WithCharacterAppearance(action == "hair-color" ? Profile.Appearance.WithHairColor(color) : Profile.Appearance.WithFacialHairColor(color));
-                    UpdateHairPickers(); UpdateCMarkingsHair(); UpdateCMarkingsFacialHair(); ReloadProfilePreview();
+                    ReloadProfilePreview();
                 }
                 else if (action == "eye-color")
                 {
@@ -791,7 +803,6 @@ public sealed partial class HumanoidProfileEditor
         updated.EnsureSpecies(Profile.Species, Profile.Appearance.SkinColor, _markingManager, _prototypeManager);
         updated.EnsureSexes(Profile.Sex, _markingManager);
         OnMarkingChange(updated);
-        UpdateMarkings();
         return true;
     }
 }

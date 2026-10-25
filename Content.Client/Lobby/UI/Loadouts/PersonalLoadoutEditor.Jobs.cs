@@ -16,7 +16,6 @@ namespace Content.Client.Lobby.UI.Loadouts;
 
 public sealed partial class PersonalLoadoutEditor
 {
-    [Dependency] private Content.Client._DeepLagoon.Money.MoneyManager _coins = default!;
     private readonly OptionButton _jobSelector = new() { HorizontalExpand = true };
     private readonly List<string> _equipmentJobs = new();
     private readonly Label _jobBalance = new();
@@ -69,7 +68,7 @@ public sealed partial class PersonalLoadoutEditor
             if (job.ID == _job)
                 _jobSelector.SelectId(index);
         }
-        _jobBalance.Text = Loc.GetString("frontier-loadout-balance", ("balance", BankSystemExtensions.ToSpesoString(_profile!.BankBalance)), ("savings", BankSystemExtensions.ToSpesoString(_coins.GetLastKnownBalance())));
+        _jobBalance.Text = Loc.GetString("frontier-loadout-balance", ("balance", BankSystemExtensions.ToSpesoString(_profile!.BankBalance)));
         _roleName.Visible = false;
         if (_prototypes.TryIndex<RoleLoadoutPrototype>(LoadoutSystem.GetJobPrototype(_job), out var proto))
         {

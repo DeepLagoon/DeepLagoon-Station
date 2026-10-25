@@ -14,6 +14,7 @@ public sealed class WikiDocumentView : BoxContainer
     private readonly WikiRoutingConfiguration _configuration = IoCManager.Resolve<WikiRoutingConfiguration>();
     private readonly WebViewControl _web = new() { HorizontalExpand = true, VerticalExpand = true };
     private readonly Label _status = new();
+    private string? _statusKey;
     private readonly HashSet<string> _paths = new();
     private readonly string _treeScript;
     private string _origin = "";
@@ -52,7 +53,7 @@ public sealed class WikiDocumentView : BoxContainer
         if (!WikiNavigationPolicy.IsOrigin(_origin) || !WikiNavigationPolicy.IsPath(path))
         {
             _web.Visible = false;
-            _status.Text = Loc.GetString("wiki-page-unmapped");
+            SetStatus("wiki-page-unmapped");
             return;
         }
         _paths.Add(path);
@@ -60,8 +61,15 @@ public sealed class WikiDocumentView : BoxContainer
         _ensureViewport = true;
         _loadSeconds = 0;
         _treeRefresh = 0;
-        _status.Text = Loc.GetString("wiki-loading");
+        SetStatus("wiki-loading");
         _web.Url = _origin + path;
+    }
+
+    private void SetStatus(string key)
+    {
+        if (_statusKey == key) return;
+        _statusKey = key;
+        _status.Text = Loc.GetString(key);
     }
 
     public void Reload() { _loadSeconds = 0; _web.Reload(); }
@@ -101,7 +109,7 @@ public sealed class WikiDocumentView : BoxContainer
             _web.ExecuteJavaScript("window.__deepLagoonWikiConfig=" + new TguiData()
                 .String("root", _treeRoot).String("locale", _treeLocale) + ";" + _treeScript);
         }
-        _status.Text = Loc.GetString(_web.IsLoading
+        SetStatus(_web.IsLoading
             ? (_loadSeconds >= 30 ? "wiki-load-timeout" : "wiki-loading") : "wiki-load-hint");
     }
 

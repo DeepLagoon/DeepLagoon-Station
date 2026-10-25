@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {repairProseBlocks} from './render_prose.mjs';
 const station=path.resolve(process.argv[2]);
 const folder=path.resolve(process.argv[3]);
 const {marked}=await import(pathToFileURL(path.join(station,'TGUI/node_modules/marked/lib/marked.esm.js')));
@@ -13,8 +14,14 @@ marked.use({renderer:{heading({tokens,depth,text}){
 }}});
 const pages=JSON.parse(fs.readFileSync(path.join(folder,'pages-source.json'),'utf8'));
 for(const page of pages){
+ if(page.preserveExact){
+  delete page.preserveExact;delete page.prefix;delete page.suffix;delete page.markdown;
+  continue;
+ }
  headingCounts=new Map();
- const body=(page.content??marked.parse(page.markdown)).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+ let body=page.content??marked.parse(page.markdown);
+ if(!page.path.endsWith('/writing'))body=repairProseBlocks(body,text=>marked.parse(text));
+ body=body.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
  const ids=new Set();
  page.content=(page.prefix+body+page.suffix).replace(/\sid="([^"]+)"/g,(full,id)=>{
   let unique=id,n=2;while(ids.has(unique))unique=id+'-'+n++;

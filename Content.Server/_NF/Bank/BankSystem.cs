@@ -1,5 +1,4 @@
 using System.Threading;
-using Content.Server._DeepLagoon.Money;
 using Content.Server.Database;
 using Content.Server.Preferences.Managers;
 using Content.Server.GameTicking;
@@ -14,6 +13,7 @@ using Content.Shared._Mono.Traits.Physical;
 using Content.Shared._NF.Bank.Events;
 using Content.Shared.GameTicking;
 using Robust.Shared.Network;
+using Robust.Shared.Asynchronous;
 
 namespace Content.Server._NF.Bank;
 
@@ -22,8 +22,8 @@ public sealed partial class BankSystem : SharedBankSystem
     [Dependency] private IServerPreferencesManager _prefsManager = default!;
     [Dependency] private ISharedPlayerManager _playerManager = default!;
     [Dependency] private IServerDbManager _db = default!;
-    [Dependency] private MoneyManager _coins = default!;
-    private readonly HashSet<NetUserId> _moneyPayments = new();
+    [Dependency] private ITaskManager _tasks = default!;
+    private readonly HashSet<NetUserId> _bankPayments = new();
 
     private ISawmill _log = default!;
 
@@ -125,7 +125,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="mobUid">The UID that the bank account is connected to, typically the player controlled mob</param>
     /// <param name="amount">The amount of spesos to remove from the bank account</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
-    public bool TryBankDeposit(EntityUid mobUid, int amount, bool tax = true)
+    public bool TryBankDeposit(EntityUid mobUid, int amount)
     {
         // Mono start
         if (!_cfg.GetCVar(MonoCVars.DepositEnabled))
@@ -164,20 +164,11 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        int toSector = amount;
-        int toLongTerm = 0;
-        if (tax)
-        {
-            GetTaxedDepositAmount(amount, bank.Balance, out var afterTax, out var taxedAway);
-            toSector = afterTax;
-            toLongTerm = taxedAway;
-        }
-
-        if (TryBankDeposit(session, prefs, profile, toSector, out var newBalance, toLongTerm))
+        if (TryBankDeposit(session, prefs, profile, amount, out var newBalance))
         {
             bank.Balance = newBalance.Value;
             Dirty(mobUid, bank);
-            _log.Info($"{mobUid} deposited {amount} (sector: {toSector}, savings: {toLongTerm})");
+            _log.Info($"{mobUid} deposited {amount}");
             return true;
         }
 
@@ -193,12 +184,11 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="profile">The profile of the character whose account is being withdrawn.</param>
     /// <param name="amount">The number of spesos to be withdrawn.</param>
     /// <param name="newBalance">The new value of the bank account.</param>
-    /// <param name="spendLongTerm">Whether to also, and preferentially, spend long-term currency.</param>
     /// <returns>true if the transaction was successful, false if it was not.  When successful, newBalance contains the character's new balance.</returns>
-    public bool TryBankWithdraw(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance, bool spendLongTerm = false)
+    public bool TryBankWithdraw(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance)
     {
         newBalance = null; // Default return
-        if (amount <= 0)
+        if (amount <= 0 || amount > profile.BankBalance)
         {
             _log.Info($"TryBankWithdraw: {amount} is invalid. Admin remove money variation.");
             return false;
@@ -210,23 +200,23 @@ public sealed partial class BankSystem : SharedBankSystem
             _log.Info($"TryBankWithdraw: {session.UserId} tried to adjust the balance of {profile.Name}, but they were not in the user's character set.");
             return false;
         }
-        if (!_moneyPayments.Add(session.UserId))
+        if (!_bankPayments.Add(session.UserId))
             return false;
         try
         {
-            if (!_coins.TryPayWithBank(session.UserId, profile.BankBalance, amount, index, spendLongTerm, out var bankCost))
-                return false;
-            var balance = profile.BankBalance - bankCost;
+            var payment = _db.WithdrawBankAsync(session.UserId, index, profile.BankBalance, amount);
+            _tasks.BlockWaitOnTask(payment);
+            var balance = payment.GetAwaiter().GetResult();
             _prefsManager.SetProfile(session.UserId, index, profile.WithBankBalance(balance), persist: false)
                 .GetAwaiter().GetResult();
             newBalance = balance;
         }
         catch (Exception e)
         {
-            _log.Error($"Bank payment failed for {session.UserId}: {e}");
+            _log.Warning($"Bank payment rejected for {session.UserId}: {e.Message}");
             return false;
         }
-        finally { _moneyPayments.Remove(session.UserId); }
+        finally { _bankPayments.Remove(session.UserId); }
         // Update any active admin UI with new balance
         RaiseLocalEvent(new BalanceChangedEvent(session, newBalance.Value));
         return true;
@@ -242,10 +232,10 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="amount">The number of spesos to be deposited.</param>
     /// <param name="newBalance">The new value of the bank account.</param>
     /// <returns>true if the transaction was successful, false if it was not.  When successful, newBalance contains the character's new balance.</returns>
-    public bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance, long savingsAmount = 0)
+    public bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance)
     {
         newBalance = null; // Default return
-        if (amount < 0 || savingsAmount < 0 || (amount == 0 && savingsAmount == 0))
+        if (amount <= 0)
         {
             _log.Info($"TryBankDeposit: {amount} is invalid. Admin add money variation.");
             return false;
@@ -259,17 +249,22 @@ public sealed partial class BankSystem : SharedBankSystem
             _log.Info($"{session.UserId} tried to adjust the balance of {profile.Name}, but they were not in the user's character set.");
             return false;
         }
-        if (!_moneyPayments.Add(session.UserId))
+        if (!_bankPayments.Add(session.UserId))
             return false;
         try
         {
-            if (!_coins.TryDepositWithBank(session.UserId, index, profile.BankBalance, amount, savingsAmount))
-                return false;
-            newBalance = profile.BankBalance + amount;
+            var deposit = _db.DepositBankAsync(session.UserId, index, profile.BankBalance, amount);
+            _tasks.BlockWaitOnTask(deposit);
+            newBalance = deposit.GetAwaiter().GetResult();
             _prefsManager.SetProfile(session.UserId, index, profile.WithBankBalance(newBalance.Value), persist: false)
                 .GetAwaiter().GetResult();
         }
-        finally { _moneyPayments.Remove(session.UserId); }
+        catch (Exception e)
+        {
+            _log.Warning($"Bank deposit rejected: {e.Message}");
+            return false;
+        }
+        finally { _bankPayments.Remove(session.UserId); }
         // Update any active admin UI with new balance
         RaiseLocalEvent(new BalanceChangedEvent(session, newBalance.Value));
         return true;
@@ -312,7 +307,7 @@ public sealed partial class BankSystem : SharedBankSystem
 
         try
         {
-            await _db.PayMoneyWithBankAsync(userId, profile.BankBalance, amount, profileSlot: index, useSavings: false);
+            await _db.WithdrawBankAsync(userId, index, profile.BankBalance, amount);
         }
         catch (Exception e) { _log.Warning($"Offline withdrawal rejected: {e.Message}"); return false; }
         if (_prefsManager.TryGetCachedPreferences(userId, out _))
@@ -352,7 +347,7 @@ public sealed partial class BankSystem : SharedBankSystem
 
         try
         {
-            await _db.DepositMoneyWithBankAsync(userId, index, profile.BankBalance, amount, 0);
+            await _db.DepositBankAsync(userId, index, profile.BankBalance, amount);
         }
         catch (Exception e) { _log.Warning($"Offline deposit rejected: {e.Message}"); return false; }
         if (_prefsManager.TryGetCachedPreferences(userId, out _))

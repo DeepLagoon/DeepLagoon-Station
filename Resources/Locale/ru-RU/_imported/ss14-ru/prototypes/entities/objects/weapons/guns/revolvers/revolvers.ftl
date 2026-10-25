@@ -8,11 +8,11 @@ ent-WeaponRevolverDeckard = Декард
     .suffix = Револьвер
 
 ent-WeaponRevolverInspector = Инспектор
-    .desc = Лучший друг детектива. Использует патроны калибра .45 магнум.
+    .desc = Лучший друг детектива. Использует патроны калибра .357 магнум.
     .suffix = Револьвер
 
 ent-WeaponRevolverMateba = Матеба
-    .desc = Знаковое оружие ужасающих эскадронов смерти. Использует патроны калибра .45 магнум.
+    .desc = Знаковое оружие ужасающих эскадронов смерти. Использует патроны калибра .357 магнум.
     .suffix = Револьвер
 
 ent-WeaponRevolverMatebaAP = { ent-WeaponRevolverMateba }
@@ -20,9 +20,9 @@ ent-WeaponRevolverMatebaAP = { ent-WeaponRevolverMateba }
     .desc = { ent-WeaponRevolverMateba.desc }
 
 ent-WeaponRevolverPython = Питон
-    .desc = Надёжный револьвер, предпочитаемый агентами Синдиката. Использует патроны калибра .45 магнум.
+    .desc = Надёжный револьвер, способный стрелять очередями по два выстрела. Использует патроны калибра .357 магнум.
     .suffix = Револьвер
 
 ent-WeaponRevolverPythonAP = Питон
-    .desc = Надёжный револьвер, предпочитаемый агентами Синдиката. Использует патроны калибра .45 магнум.
+    .desc = { ent-WeaponRevolverPython.desc }
     .suffix = Револьвер, Бронебойный

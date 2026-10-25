@@ -14,8 +14,8 @@ namespace Content.Client.Lobby.UI.Loadouts;
 public sealed partial class PersonalLoadoutEditor
 {
     public bool TguiMode;
-    private readonly TguiSpriteImages _images = new();
-    public void ResetTguiCache() { _images.Reset(); _cachedTguiState = null; }
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared;
+    public void ResetTguiCache() => _cachedTguiState = null;
 
     public IEnumerable<TguiData> CreateTguiSlots(EntityUid preview)
     {
@@ -69,16 +69,13 @@ public sealed partial class PersonalLoadoutEditor
     private SlotDefinition? _cachedTguiSlot;
     private TguiData? _cachedTguiState;
     private int _cachedTguiPoints;
-    private long _cachedTguiMoney = -1;
 
     public TguiData CreateTguiState()
     {
         var system = _entities.System<PersonalLoadoutSystem>();
         var points = system.GetPoints(_session);
-        var money = _coins.GetLastKnownBalance();
-        if (_cachedTguiPoints == points && _cachedTguiMoney == money && _cachedTguiState != null && ReferenceEquals(_profile, _cachedTguiProfile) && _job == _cachedTguiJob && ReferenceEquals(_slotFilter, _cachedTguiSlot)) return _cachedTguiState;
+        if (_cachedTguiPoints == points && _cachedTguiState != null && ReferenceEquals(_profile, _cachedTguiProfile) && _job == _cachedTguiJob && ReferenceEquals(_slotFilter, _cachedTguiSlot)) return _cachedTguiState;
         _cachedTguiPoints = points;
-        _cachedTguiMoney = money;
         _cachedTguiProfile = _profile;
         _cachedTguiJob = _job;
         _cachedTguiSlot = _slotFilter;
@@ -90,7 +87,6 @@ public sealed partial class PersonalLoadoutEditor
         var spent = selected.Values.Sum(item => _prototypes.Index(item.Prototype).PersonalCost);
         data.String("job", _job).String("roleName", _jobRole?.EntityName).Bool("customRoleName", _roleName.Visible)
             .String("balance", BankSystemExtensions.ToSpesoString(_profile.BankBalance))
-            .String("savings", BankSystemExtensions.ToSpesoString(_coins.GetLastKnownBalance()))
             .String("cost", BankSystemExtensions.ToSpesoString(_jobRole?.SelectedLoadouts.Values.SelectMany(items => items)
                 .Sum(item => _prototypes.TryIndex(item.Prototype, out var proto) && !system.FullyUnequipped(proto, _jobRole!.UnequippedSlots) ? proto.Price : 0) ?? 0))
             .Number("points", Math.Max(0, system.GetPoints(_session) - spent)).Number("maxPoints", system.GetPoints(_session))

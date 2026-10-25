@@ -28,9 +28,11 @@ public class CharacterAuxiliaryWindow : BaseWindow
     {
         base.FrameUpdate(args);
         if (Parent == null) return;
-        MinSize = Vector2.Min(new Vector2(360, 240), Parent.Size);
+        var minSize = Vector2.Min(new Vector2(360, 240), Parent.Size);
+        if (MinSize != minSize) MinSize = minSize;
         if (Size.X > Parent.Size.X || Size.Y > Parent.Size.Y) SetSize = Vector2.Min(Size, Parent.Size);
-        LayoutContainer.SetPosition(this, Vector2.Clamp(Position, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - Size)));
+        var position = Vector2.Clamp(Position, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - Size));
+        if (Position != position) LayoutContainer.SetPosition(this, position);
     }
 
     protected override DragMode GetDragModeFor(Vector2 pointer)

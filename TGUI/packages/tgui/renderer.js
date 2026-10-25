@@ -23,7 +23,12 @@ export const createRenderer = getVNode => () => {
   perf.mark('render/start');
   // Start rendering
   if (!reactRoot) {
-    reactRoot = createRoot(document.getElementById('react-root'));
+    reactRoot = createRoot(document.getElementById('react-root'), {
+      onUncaughtError: (error, info) => {
+        logger.error('uncaught render error', error, info?.componentStack);
+        window.dispatchEvent(new ErrorEvent('error', { error, message: String(error) }));
+      },
+    });
   }
   reactRoot.render(getVNode());
   perf.mark('render/finish');

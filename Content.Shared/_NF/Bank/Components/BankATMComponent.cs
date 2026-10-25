@@ -15,7 +15,7 @@ public sealed partial class BankATMComponent : Component
 
     public static string CashSlotId = "bank-ATM-cashSlot";
 
-    // A dictionary of the accounts to credit, and fractions to remove from each deposit.
+    // Legacy prototype data; personal ATM deposits are always credited in full.
     [DataField]
     public Dictionary<SectorBankAccount, float> TaxAccounts = new();
 

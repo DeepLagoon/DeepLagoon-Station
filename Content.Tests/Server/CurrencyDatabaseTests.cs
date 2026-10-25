@@ -190,30 +190,42 @@ public sealed class CurrencyDatabaseTests
         Assert.That(page1.All(r => r.Amount != 0), Is.True);
     }
 
-    [Test]
-    public async Task ConcurrentMoneyChangesAreNotLost()
+    private async Task SaveBank(Guid user, int balance, int slot = 0)
     {
-        await Task.WhenAll(Enumerable.Range(0, 12).Select(async _ =>
-        {
-            await using var db = new SqliteServerDbContext(_options);
-            await AccountCurrencyOperations.ChangeMoney(db, _user, 1);
-        }));
-        await using var read = new SqliteServerDbContext(_options);
-        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(22));
+        var backend = new ServerDbSqlite(() => _options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
+        await backend.SaveCharacterSlotAsync(new NetUserId(user), new HumanoidCharacterProfile().WithBankBalance(balance), slot);
     }
 
     [Test]
-    public async Task ConcurrentTransfersCannotSpendTheSameMoneyTwice()
+    public async Task ConcurrentDepositsRejectStaleBalanceWithoutChangingArchivedMoney()
     {
+        await SaveBank(_user, 10);
+        var outcomes = await Task.WhenAll(Enumerable.Range(0, 12).Select(async _ =>
+        {
+            await using var db = new SqliteServerDbContext(_options);
+            try { await AccountCurrencyOperations.DepositBank(db, _user, 0, 10, 1); return true; }
+            catch (InvalidOperationException) { return false; }
+        }));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That(outcomes.Count(p => p), Is.EqualTo(1));
+        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(11));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task ConcurrentTransfersCannotSpendTheSameCharacterBalanceTwice()
+    {
+        await SaveBank(_user, 10);
+        await SaveBank(_recipient, 0);
         async Task<bool> Transfer()
         {
             await using var db = new SqliteServerDbContext(_options);
-            try { await AccountCurrencyOperations.TransferMoney(db, _user, _recipient, 8); return true; }
+            try { await AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, 0, 8); return true; }
             catch (InvalidOperationException) { return false; }
         }
         var outcomes = await Task.WhenAll(Transfer(), Transfer());
         await using var read = new SqliteServerDbContext(_options);
-        var balances = await read.Preference.Select(p => p.Money).ToArrayAsync();
+        var balances = await read.Profile.Select(p => p.BankBalance).ToArrayAsync();
         Assert.Multiple(() =>
         {
             Assert.That(outcomes.Count(p => p), Is.EqualTo(1));
@@ -221,68 +233,98 @@ public sealed class CurrencyDatabaseTests
             Assert.That(balances, Does.Contain(2));
             Assert.That(balances, Does.Contain(8));
         });
-    }
-
-    [Test]
-    public async Task FailedTransferAndOverflowLeaveBothAccountsUnchanged()
-    {
-        await using (var db = new SqliteServerDbContext(_options))
-            await AccountCurrencyOperations.ChangeMoney(db, _recipient, long.MaxValue, set: true);
-        await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.TransferMoney(db, _user, _recipient, 1));
-        await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.ChangeMoney(db, _user, -11));
-        await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferMoney(db, _user, Guid.NewGuid(), 1));
-        await using var read = new SqliteServerDbContext(_options);
         Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
-        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _recipient)).Money, Is.EqualTo(long.MaxValue));
     }
 
     [Test]
-    public async Task PaymentConfirmsSavingsAndRejectsInsufficientFunds()
+    public async Task FailedTransferAndOverflowLeaveBothCharacterAccountsUnchanged()
     {
+        await SaveBank(_user, 10);
+        await SaveBank(_recipient, int.MaxValue);
         await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.PayWithBank(db, _user, 2, 13));
+            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, int.MaxValue, 1));
         await using (var db = new SqliteServerDbContext(_options))
-        {
-            var payment = await AccountCurrencyOperations.PayWithBank(db, _user, 2, 12);
-            Assert.That(payment, Is.EqualTo(new MoneyPayment(0, 2)));
-        }
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, int.MaxValue, 11));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, Guid.NewGuid(), 0, 0, 1));
         await using var read = new SqliteServerDbContext(_options);
-        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.Zero);
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _user)).BankBalance, Is.EqualTo(10));
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient)).BankBalance, Is.EqualTo(int.MaxValue));
+    }
+
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(1)]
+    public async Task SelfAndNonPositiveTransfersAreRejected(int amount)
+    {
+        await SaveBank(_user, 10);
+        await using var db = new SqliteServerDbContext(_options);
+        Assert.ThrowsAsync<ArgumentException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10,
+            amount > 0 ? _user : _recipient, 0, 0, amount));
+        Assert.That((await db.Profile.SingleAsync()).BankBalance, Is.EqualTo(10));
     }
 
     [Test]
-    public async Task BankAndMoneyCommitTogetherAndDelayedProfileSaveCannotUndoPayment()
+    public async Task PaymentUsesOnlyCharacterBalanceEvenWhenArchivedMoneyExists()
+    {
+        await SaveBank(_user, 2);
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.WithdrawBank(db, _user, 0, 2, 12));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await AccountCurrencyOperations.WithdrawBank(db, _user, 0, 2, 2), Is.Zero);
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.Zero);
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task DelayedProfileSaveCannotUndoCharacterPayment()
     {
         var user = new NetUserId(_user);
         var backend = new ServerDbSqlite(() => _options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
         var profile = new HumanoidCharacterProfile().WithBankBalance(7);
         await backend.SaveCharacterSlotAsync(user, profile, 0);
         await using (var db = new SqliteServerDbContext(_options))
-            await AccountCurrencyOperations.PayWithBank(db, _user, 7, 15, profileSlot: 0);
-        // A profile captured before the purchase arrives after its transaction.
+            await AccountCurrencyOperations.WithdrawBank(db, _user, 0, 7, 5);
         await backend.SaveCharacterSlotAsync(user, profile, 0);
         await using var read = new SqliteServerDbContext(_options);
         Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(2));
-        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.Zero);
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
         await using var rejected = new SqliteServerDbContext(_options);
-        Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.PayWithBank(rejected, _user, 7, 1, profileSlot: 0));
+        Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.WithdrawBank(rejected, _user, 0, 7, 1));
     }
 
     [Test]
-    public async Task TaxedDepositIsAtomicIncludingAnEntirelySavingsDeposit()
+    public async Task FullDepositReachesCharacterAndOverflowRollsBack()
     {
-        var backend = new ServerDbSqlite(() => _options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
-        await backend.SaveCharacterSlotAsync(new NetUserId(_user), new HumanoidCharacterProfile().WithBankBalance(7), 0);
+        await SaveBank(_user, 7);
         await using (var db = new SqliteServerDbContext(_options))
-            await AccountCurrencyOperations.DepositWithBank(db, _user, 0, 7, 0, 9);
+            Assert.That(await AccountCurrencyOperations.DepositBank(db, _user, 0, 7, 9), Is.EqualTo(16));
         await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.DepositWithBank(db, _user, 0, 7, int.MaxValue, 1));
+            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 16, int.MaxValue));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 7, 9));
         await using var read = new SqliteServerDbContext(_options);
-        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(19));
-        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(7));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
+        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(16));
+    }
+
+    [Test]
+    public async Task TransferChangesOnlySpecifiedCharactersAndPreservesLagoonCoins()
+    {
+        await SaveBank(_user, 50);
+        await SaveBank(_recipient, 60);
+        await SaveBank(_user, 10, 1);
+        await SaveBank(_recipient, 20, 1);
+        await using (var db = new SqliteServerDbContext(_options))
+            await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "transfer-test", 5, "admin");
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await AccountCurrencyOperations.TransferBank(db, _user, 1, 10, _recipient, 1, 20, 3), Is.EqualTo(new BankTransfer(7, 23)));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _user && p.Slot == 0)).BankBalance, Is.EqualTo(50));
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient && p.Slot == 0)).BankBalance, Is.EqualTo(60));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).LagoonCoins, Is.EqualTo(5));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
     }
 
     [Test]
@@ -376,6 +418,45 @@ public sealed class CurrencyDatabaseTests
         var result = await AccountCurrencyOperations.AwardLagoonCoins(second, _user, "time:2", 0, "playtime",
             playedTicks: TimeSpan.TicksPerHour / 2, subscriberTicks: TimeSpan.TicksPerHour / 2);
         Assert.That(result.Balance, Is.EqualTo(3));
+    }
+
+    [TestCase(false, 2)]
+    [TestCase(true, 4)]
+    public async Task PlaytimePaysOnlyAtEachFullAccumulatedHour(bool subscribed, long hourlyReward)
+    {
+        async Task<LagoonCoinResult> Save(string key, long ticks)
+        {
+            // A new context also exercises the persisted remainder after reconnecting.
+            await using var db = new SqliteServerDbContext(_options);
+            return await AccountCurrencyOperations.AwardLagoonCoins(db, _user, key, 0, "playtime",
+                playedTicks: ticks, subscriberTicks: subscribed ? ticks : 0);
+        }
+
+        Assert.That((await Save("before-disconnect", TimeSpan.FromMinutes(59).Ticks)).Awarded, Is.Zero);
+        Assert.That((await Save("reconnected", 0)).Awarded, Is.Zero, "Connecting alone must not pay LC.");
+        Assert.That((await Save("after-reconnect", TimeSpan.FromSeconds(59).Ticks)).Awarded, Is.Zero);
+
+        await using (var db = new SqliteServerDbContext(_options))
+        {
+            var ready = await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "round:1:ready", 5, "ready");
+            Assert.That(ready.Awarded, Is.EqualTo(5), "The Ready reward must remain separate from playtime.");
+        }
+
+        var firstHour = await Save("first-hour", TimeSpan.TicksPerSecond);
+        Assert.That(firstHour, Is.EqualTo(new LagoonCoinResult(5 + hourlyReward, hourlyReward, true)));
+        Assert.That((await Save("first-hour", TimeSpan.TicksPerSecond)).Applied, Is.False);
+        Assert.That((await Save("almost-second-hour", TimeSpan.TicksPerHour - 1)).Awarded, Is.Zero);
+        var secondHour = await Save("second-hour", 1);
+        Assert.That(secondHour, Is.EqualTo(new LagoonCoinResult(5 + 2 * hourlyReward, hourlyReward, true)));
+
+        await using var read = new SqliteServerDbContext(_options);
+        var row = await read.Preference.SingleAsync(p => p.UserId == _user);
+        Assert.Multiple(() =>
+        {
+            Assert.That(row.LagoonCoinPlayedTicks, Is.Zero);
+            Assert.That(row.LagoonCoinBonusTicks, Is.Zero);
+            Assert.That(row.Money, Is.EqualTo(10));
+        });
     }
 
     [Test]

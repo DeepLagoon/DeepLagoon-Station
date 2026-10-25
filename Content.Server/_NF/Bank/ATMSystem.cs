@@ -3,7 +3,6 @@
  * Copyright (c) 2024 New Frontiers Contributors
  * See AGPLv3.txt for details.
  */
-using Content.Server._DeepLagoon.Money;
 using Content.Server.Popups;
 using Content.Server.Stack;
 using Content.Shared._NF.Bank.BUI;
@@ -16,7 +15,6 @@ using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
 using Robust.Shared.Prototypes;
 using Content.Server.Administration.Logs;
-using Content.Shared._Mono.CCVar; // Mono
 using Content.Shared.Database;
 using Robust.Shared.Audio.Systems;
 
@@ -52,7 +50,7 @@ public sealed partial class BankSystem
         // to keep the window stateful
         GetInsertedCashAmount(component, out var deposit);
 
-        var state = new BankATMMenuInterfaceState(0, 0, false, deposit);
+        var state = new BankATMMenuInterfaceState(0, false, deposit);
 
         // check for a bank account
         if (!TryComp<BankAccountComponent>(player, out var bank))
@@ -65,7 +63,6 @@ public sealed partial class BankSystem
         }
 
         state.Balance = bank.Balance;
-        state.Savings = GetEntSavings(player);
 
         // check for sufficient funds
         if (bank.Balance < args.Amount)
@@ -109,7 +106,7 @@ public sealed partial class BankSystem
         // Dynamically knows what kind of cash to look for according to BankATMComponent
         GetInsertedCashAmount(component, out var deposit);
 
-        var state = new BankATMMenuInterfaceState(0, 0, false, deposit);
+        var state = new BankATMMenuInterfaceState(0, false, deposit);
 
         // make sure the user actually has a bank
         if (!TryComp<BankAccountComponent>(player, out var bank))
@@ -122,8 +119,6 @@ public sealed partial class BankSystem
         }
 
         state.Balance = bank.Balance;
-        if (_playerManager.TryGetSessionByEntity(player, out var session))
-            state.Savings = _coins.GetMoneyBalance(session.UserId) ?? 0;
 
         // validating the cash slot was setup correctly in the yaml
         if (component.CashSlot.ContainerSlot is not BaseContainer cashSlot)
@@ -156,16 +151,6 @@ public sealed partial class BankSystem
             return;
         }
 
-        var originalDeposit = deposit;
-        foreach (var (account, taxCoeff) in component.TaxAccounts)
-        {
-            if (!float.IsFinite(taxCoeff) || taxCoeff <= 0.0f)
-                continue;
-            var tax = (int)Math.Floor(originalDeposit * taxCoeff);
-            TrySectorDeposit(account, tax, LedgerEntryType.AtmTax); // Mono BlackMarketAtmTax->AtmTax
-            deposit -= tax; // Charge the user whether or not the deposit went through.
-        }
-
         state.Enabled = true;
 
         // try to deposit the inserted cash into a player's bank acount. Validation happens on the banking system but we still indicate error.
@@ -183,8 +168,6 @@ public sealed partial class BankSystem
 
         state.Deposit = 0;
         state.Balance = bank.Balance;
-        if (session != null)
-            state.Savings = _coins.GetMoneyBalance(session.UserId) ?? 0;
 
         // yeet and delete the stack in the cash slot after success
         _containerSystem.CleanContainer(cashSlot);
@@ -208,8 +191,7 @@ public sealed partial class BankSystem
             if (!TryComp<BankAccountComponent>(player, out var bank))
                 continue;
 
-            var state = new BankATMMenuInterfaceState(bank.Balance, 0, true, deposit);
-            state.Savings = GetEntSavings(player);
+            var state = new BankATMMenuInterfaceState(bank.Balance, true, deposit);
 
             if (component.CashSlot.ContainerSlot?.ContainedEntity is not { Valid : true } cash)
                 state.Deposit = 0;
@@ -229,7 +211,7 @@ public sealed partial class BankSystem
 
         GetInsertedCashAmount(component, out var deposit);
 
-        var state = new BankATMMenuInterfaceState(0, 0, false, deposit);
+        var state = new BankATMMenuInterfaceState(0, false, deposit);
 
         if (!TryComp<BankAccountComponent>(player, out var bank))
         {
@@ -239,7 +221,6 @@ public sealed partial class BankSystem
         }
 
         state.Balance = bank.Balance;
-        state.Savings = GetEntSavings(player);
 
         state.Enabled = true;
         _uiSystem.SetUiState(uid, args.UiKey, state);
@@ -282,10 +263,4 @@ public sealed partial class BankSystem
             _popup.PopupEntity(text, player);
     }
 
-    private long GetEntSavings(EntityUid uid)
-    {
-        if (_playerManager.TryGetSessionByEntity(uid, out var session))
-            return _coins.GetMoneyBalance(session.UserId) ?? 0;
-        return 0;
-    }
 }

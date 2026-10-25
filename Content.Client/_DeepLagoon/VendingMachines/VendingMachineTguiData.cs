@@ -12,7 +12,7 @@ namespace Content.Client._DeepLagoon.VendingMachines;
 public sealed class VendingMachineTguiData(IEntityManager entities)
 {
     private readonly IPrototypeManager _prototypes = IoCManager.Resolve<IPrototypeManager>();
-    private readonly TguiSpriteImages _images = new();
+    private static TguiSpriteImages _images => TguiSpriteImages.Shared;
 
     public static string Key(VendingMachineInventoryEntry entry) => $"{(int) entry.Type}:{entry.ID}";
 

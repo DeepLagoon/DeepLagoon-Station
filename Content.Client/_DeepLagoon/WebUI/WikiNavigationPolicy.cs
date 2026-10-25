@@ -19,6 +19,8 @@ public static class WikiNavigationPolicy
     {
         return TryUri(url, out var uri) && IsWiki(uri, origin) &&
             (uri.AbsolutePath.StartsWith("/_assets/", StringComparison.Ordinal) ||
+             uri.AbsolutePath.StartsWith("/wiki-design-assets/", StringComparison.Ordinal) ||
+             uri.AbsolutePath.StartsWith("/guidebook/in_game/assets/", StringComparison.Ordinal) ||
              uri.AbsolutePath == "/anima_00168_.png" || uri.AbsolutePath == "/favicon.ico");
     }
 

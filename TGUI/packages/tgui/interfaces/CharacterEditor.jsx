@@ -4,6 +4,7 @@ import { useBackend } from '../backend';
 import { Button, Dropdown, Section } from '../components';
 import './CharacterEditor.scss';
 import { ColorSquare, ColorTransferContext, EditorColorDialogProvider } from '../components/PlayerColorPicker';
+import { useThrottledChange } from '../components/useThrottledChange';
 import { playerTheme, TintedSprite } from '../components/PlayerTheme';
 import { CharacterText } from '../components/CharacterText';
 import { CharacterTextEditor } from '../components/CharacterTextEditor';
@@ -28,6 +29,29 @@ const DraftInput = ({ label, value, onCommit, type = 'text', min, max }) => {
     onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /></Field>;
 };
 const ColorEditor = ColorSquare;
+const SizeSlider = ({ label, value, onChange }) => {
+  const [local, setLocal] = useState(value);
+  const dragging = useRef(false);
+  const [send, flush] = useThrottledChange(onChange);
+  useEffect(() => { if (!dragging.current) setLocal(value); }, [value]);
+  useEffect(() => {
+    const end = () => { dragging.current = false; flush(); };
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    window.addEventListener('blur', end);
+    return () => {
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      window.removeEventListener('blur', end);
+    };
+  }, [flush]);
+  return <>
+    <input aria-label={label} type="range" min="0.8" max="1.2" step="0.01" value={local}
+      onPointerDown={() => { dragging.current = true; }} onBlur={flush}
+      onChange={event => { const next = Number(event.target.value); setLocal(next); send(next); }} />
+    <span className="CharacterEditor__rangeValue">{Math.round(local * 100)}%</span>
+  </>;
+};
 const consentOptions = [{ id: '0', name: 'Запрещено' }, { id: '1', name: 'Спросить' }, { id: '2', name: 'Разрешено' }];
 const priorities = [{ id: '0', name: 'Никогда' }, { id: '1', name: 'Низкий' }, { id: '2', name: 'Средний' }, { id: '3', name: 'Высокий' }];
 
@@ -152,7 +176,7 @@ export const CharacterEditor = () => {
   // DeepLagoon: fuzzy search; one list per search, so the typo rule counts all jobs (or all markings) together
   const matchedJobs = new Set(fuzzyFilter(departments.flatMap(department => department.jobs), search, job => job.name));
   const matchedMarkings = new Set(fuzzyFilter(data.markingOptions || [], search, option => option.name));
-  const theme = playerTheme(JSON.stringify({ settings: appearance }));
+  const theme = playerTheme(appearance);
   return <EditorColorDialogProvider data={data} act={act}><ColorTransferContext.Provider value={transfer}><div ref={backgroundRoot} className={'CharacterEditor Chat ' + theme.className + ' CharacterEditor--' + data.mode +
     (appearance.smoothScroll ? ' CharacterEditor--smooth' : '') + (appearance.hoverEffect ? ' CharacterEditor--hover' : '')}
     style={{ ...theme.style, ...editorAppearance(appearance) }}>
@@ -215,8 +239,7 @@ export const CharacterEditor = () => {
         <Select label="Vore" value={data.vore} options={consentOptions} onChange={change('vore')} />
         <Select label="Приоритет появления" value={data.spawn} options={data.spawnOptions} onChange={change('spawn')} />
         {['height', 'width'].map((key, index) => <Field key={key} label={['Рост', 'Ширина'][index]}>
-          <input aria-label={['Рост', 'Ширина'][index]} type="range" min="0.8" max="1.2" step="0.01" value={data[key]} onChange={event => change(key)(Number(event.target.value))} />
-          <span className="CharacterEditor__rangeValue">{Math.round(data[key] * 100)}%</span>
+          <SizeSlider key={data.setup?.selected} label={['Рост', 'Ширина'][index]} value={data[key]} onChange={change(key)} />
           <Button fluid onClick={() => change(key)(1)}>Сбросить</Button>
         </Field>)}
       </div>

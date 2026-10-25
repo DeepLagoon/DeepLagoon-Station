@@ -290,7 +290,7 @@ export const LatheConsole = () => {
     ],
   );
 
-  const theme = playerTheme(data.chatState);
+  const theme = playerTheme(data.chatAppearance);
   const rootClass = `LatheConsole ${theme.className}`;
 
   if (!labels || !data.recipes) {

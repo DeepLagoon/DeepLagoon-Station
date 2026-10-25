@@ -16,6 +16,7 @@ public partial class ChatBox
     private float _emoteRefresh;
     private string _lastEmoteState = "";
     private string? _lastWebHistoryPayload;
+    private readonly WebChatMessageCache _webPayloads = new();
     private string? _cachedWebSettingsSource;
     private ChatTabsSettings? _cachedWebSettings;
     public GameWebView? WebChat => _webChat;
@@ -141,7 +142,7 @@ public partial class ChatBox
     {
         if (_useVanillaChat || _webChat?.IsReady != true || _repopulatingWeb || message.HideChat)
             return;
-        _webChat.Send("chat/message", WebChatMessageFormatter.BuildPayload(message));
+        _webChat.Send("chat/message", _webPayloads.GetPayload(message));
         _lastWebHistoryPayload = null;
     }
 
@@ -152,7 +153,8 @@ public partial class ChatBox
         for (var i = _controller.History.Count - 1; i >= 0 && messages.Count < 2500; i--)
             if (!_controller.History[i].Msg.HideChat) messages.Add(_controller.History[i].Msg);
         messages.Reverse();
-        var payload = "[" + string.Join(',', messages.Select(WebChatMessageFormatter.BuildPayload)) + "]";
+        _webPayloads.Retain(messages);
+        var payload = "[" + string.Join(',', messages.Select(_webPayloads.GetPayload)) + "]";
         if (!force && payload == _lastWebHistoryPayload) return;
         _lastWebHistoryPayload = payload;
         // Replace messages in the existing document. Reloading it flashes the

@@ -24,7 +24,6 @@ using Robust.Shared.Timing;
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>Developer preview. Actual game actions use WebUiBoundUserInterface.</summary>
-[AnyCommand]
 public sealed class WebUiPreviewCommand : IConsoleCommand
 {
     public string Command => "tgui_preview";

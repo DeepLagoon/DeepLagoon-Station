@@ -3,11 +3,15 @@
   parent: WeaponShotgunSawn
   id: WeaponShotgunSawnLumen
   suffix: Lumenblast
-  description: Groovy! Uses .50 shotgun shells.
+  description: Groovy! Accepts .50 and 12 gauge shotgun shells. Loaded with .50 Lumenblast shells.
   components:
   - type: BallisticAmmoProvider
     capacity: 2
     proto: ShellShotgunLumen
+    whitelist:
+      tags:
+      - ShellShotgun12_gaugeBuckshot
+      - ShellShotgun
 - type: entity
   name: antique Bulldog
   parent: WeaponShotgunBulldog

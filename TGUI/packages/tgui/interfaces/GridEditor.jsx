@@ -6,6 +6,7 @@ import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorDecalSprite } from './GridEditorDecalSprite';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
+import { GridEditorSelect } from './GridEditorSelect';
 import { GridEditorAtmos } from './GridEditorAtmos';
 import { GridEditorPeers, useGridEditorPeers } from './GridEditorPeers';
 import { useGridEditorRoutes, GridEditorNetworks, GridEditorRouteHandles } from './GridEditorRoutes';
@@ -187,7 +188,7 @@ export const GridEditor = () => {
   };
   const panFrame = time => {
     const pan = keyboardPan.current; pan.frame = null;
-    if (!pan.keys.size || gesture.current || document.hidden || document.activeElement?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator]')) { stopKeyboardPan(); return; }
+    if (!pan.keys.size || gesture.current || document.hidden || document.activeElement?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator],[role=combobox]')) { stopKeyboardPan(); return; }
     const dx = Number(pan.keys.has('ArrowRight')) - Number(pan.keys.has('ArrowLeft'));
     const dy = Number(pan.keys.has('ArrowDown')) - Number(pan.keys.has('ArrowUp'));
     const distance = Math.min(50, Math.max(0, time - pan.time)) / 1000 * 600 * (pan.shift ? 4 : 1);
@@ -687,7 +688,7 @@ export const GridEditor = () => {
   useEffect(() => {
     const key = (event) => {
       if (event.ctrlKey && event.code === 'KeyS') { event.preventDefault(); downloadDraft(); return; }
-      if (event.target?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator]')) return;
+      if (event.target?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator],[role=combobox]')) return;
       if (failure || contextMenu || confirmClose) {
         if (editorKey(event) === 'escape') { event.preventDefault(); if (failure) setFailure(null); else if (contextMenu) setContextMenu(null); else setConfirmClose(false); }
         return;
@@ -957,9 +958,9 @@ export const GridEditor = () => {
         <section className="GridEditor__panelSection" data-panel="mirror" hidden={activePanel !== 'mirror'}>
         <strong>Зеркальный маппинг</strong>
         <label><input type="checkbox" checked={mirror.enabled} disabled={locked} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, enabled: event.target.checked }); }} />Дублировать правки</label>
-        <select aria-label="Ось зеркальности" value={mirror.axis} disabled={locked} onChange={event => { const axis = event.target.value; mirrorPairs.current.clear(); setMirror({ ...mirror, axis, center: axis === 'x' ? gridBounds.x + gridBounds.width / 2 : gridBounds.y + gridBounds.height / 2 }); }}>
-          <option value="x">Вертикальная ось</option><option value="y">Горизонтальная ось</option>
-        </select>
+        <GridEditorSelect aria-label="Ось зеркальности" value={mirror.axis} disabled={locked}
+          options={[{ value: 'x', label: 'Вертикальная ось' }, { value: 'y', label: 'Горизонтальная ось' }]}
+          onChange={axis => { mirrorPairs.current.clear(); setMirror({ ...mirror, axis, center: axis === 'x' ? gridBounds.x + gridBounds.width / 2 : gridBounds.y + gridBounds.height / 2 }); }} />
         <label>Координата оси <input aria-label="Координата оси зеркальности" type="number" step={.5} disabled={locked} value={mirror.center} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, center: Math.round(Number(event.target.value) * 2) / 2 }); }} /></label>
         </section>
         <section className="GridEditor__panelSection" data-panel="reference" hidden={activePanel !== 'reference'}>{reference.controls}</section>

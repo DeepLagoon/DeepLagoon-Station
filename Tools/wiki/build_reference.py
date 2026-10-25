@@ -17,6 +17,13 @@ import tomllib
 from game_data import GameData, slug, source_path
 from reference_blocks import Blocks, E, GROUPS
 from article_filters import CHEMICALS_PATH, filter_chemicals
+from editorial_content import article_body, article_title, protected_page
+from guide_directory import GUIDES_PATH, DIRECTORY_CSS, directory
+from controls_reference import ControlsReference, CONTROLS_PATH, CONTROLS_CSS
+from editorial_cleanup import clean_article, prepare_embeds, refresh_generated, layout_species
+from prose_editorial import editorial_prose
+from weapon_reference import build_weapon_reference, CATALOGUES, PREFIX as WEAPONS_PREFIX
+from industrial_reference import build_industrial_reference
 
 
 EDITORIAL = {
@@ -123,6 +130,9 @@ EXTRA_CSS = '''
 .dlwiki .book .dl-reaction{background:transparent}.dlwiki .dl-reference-index{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}.dlwiki .dl-reference-index a{display:block;border-bottom:1px solid var(--line);padding:12px 4px;color:var(--accent)}
 .dlwiki .dl-reference-index small{display:block;color:var(--muted)}.dlwiki .dl-metadata{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding:18px 0;margin-top:32px;overflow-wrap:anywhere}
 .dlwiki .dl-chapter{padding-top:20px;margin-top:30px;border-top:3px double var(--line)}.dlwiki .dl-chapter>h2{margin-top:0}
+.dlwiki .article-grid>.prose{width:100%;max-width:100%;overflow-wrap:anywhere}.dlwiki .dl-controls-table{width:100%;max-width:100%}.dlwiki .article-head>div{min-width:0;overflow-wrap:anywhere}.dlwiki .book{min-width:0;max-width:100%}
+.dlwiki .prose pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.dlwiki .prose code{white-space:pre-wrap;overflow-wrap:anywhere}
+.dlwiki .dl-species-portrait{display:inline-flex;flex-direction:column;align-items:center;vertical-align:top;gap:14px;width:180px;max-width:100%;padding:20px;margin:0 18px 24px 0!important;border:1px solid var(--line);background:var(--surface)}.dlwiki .dl-species-portrait .dl-sprite{width:128px;height:128px;flex-basis:128px}.dlwiki .dl-species-portrait figcaption{font-size:14px;line-height:1.5;color:var(--ink);text-align:center}
 @media(max-width:700px){.dlwiki .dl-entities,.dlwiki .dl-reference-index{grid-template-columns:1fr}.dlwiki .dl-equation{gap:6px;font-size:12px;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr)}.dlwiki .dl-reaction{padding:12px}.dlwiki .dl-reagent-body{padding:0 12px 14px}.dlwiki .dl-entity{padding:12px;gap:12px}.dlwiki .dl-entity .dl-sprite{flex-basis:56px;width:56px;height:56px}.dlwiki .book .dl-reagent>summary{padding:12px;font-size:16px}}
 '''
 
@@ -142,6 +152,7 @@ def main():
     data = GameData(station, output / 'prototypes.json')
     assert not data.duplicates, data.duplicates
     blocks = Blocks(data, output)
+    controls = ControlsReference(station)
     snapshots = {p['path']: p for file in sorted((output / 'before').glob('*.json')) if (p := read_json(file))}
     def canonical_source(source):
         proposed = source_path(source, station)
@@ -215,7 +226,21 @@ def main():
             return body_cache[path]
         source = docs.get(path)
         old = snapshots.get(path, {})
-        text = EDITORIAL.get(path, old.get('content', ''))
+        text = article_body(old['content']) if old.get('content') else EDITORIAL.get(path, '')
+        if protected_page(path):
+            body_cache[path] = text
+            return text
+        weapon_html = build_weapon_reference(path, data, blocks)
+        if weapon_html is not None:
+            body_cache[path] = weapon_html
+            return weapon_html
+        industrial_html = build_industrial_reference(path, data, blocks)
+        if industrial_html is not None:
+            body_cache[path] = industrial_html
+            return industrial_html
+        text = controls.editorial_body(path, text)
+        text = editorial_prose(path, text, data)
+        text = clean_article(path, text, data)
         text = re.sub(r'^\s*#\s+[^\n]+\n?', '', text, count=1)
         text = re.sub(r'(?m)^# ', '## ', text)
         text = text.replace('Для статической вики понадобится отдельная выгрузка списка и свойств реагентов.', '')
@@ -228,6 +253,8 @@ def main():
         for match in re.finditer(r'<(Guide\w+Embed)\b([^>]*?)/?>', xml, flags=re.S):
             attrs = dict(re.findall(r'(\w+)="([^"]*)"', match[2]))
             embeds.append((match[1], attrs))
+        text, embeds = refresh_generated(path, text, embeds, blocks)
+        embeds = prepare_embeds(path, text, embeds, data)
         automatic = {(attrs.get('Group') or attrs.get('Discipline') or ''): (kind, attrs) for kind, attrs in embeds if kind not in ('GuideEntityEmbed', 'GuideReagentEmbed')}
         replaced = set()
         def entity_replacement(match):
@@ -260,6 +287,8 @@ def main():
             replaced.add((kind, key))
             used_embeds[kind] += 1
             rendered = blocks.embed(kind, attrs)
+            if not rendered:
+                continue
             if kind == 'GuideEntityEmbed':
                 equipment.append(rendered)
             else:
@@ -278,8 +307,11 @@ def main():
             raw_path = route.removeprefix('/ru/')
             if raw_path.startswith('in_game/') and 'guidebook/' + raw_path in snapshots:
                 text = text.replace(url, '/ru/guidebook/' + raw_path + (sep + anchor if sep else ''))
-        if link_targets[path]:
-            text += '\n\n## Связанные разделы\n\n' + '\n'.join('- [' + snapshots.get(target, {}).get('title', next((data.loc(data.get('guideEntry', key).get('name', key)) for key, value in guides.items() if value == target), target.rsplit('/', 1)[-1])) + '](/ru/' + target + ')' for target in sorted(link_targets[path]))
+        missing_related = {target for target in link_targets[path] if '/ru/' + target not in text}
+        if missing_related:
+            text += '\n\n## Связанные разделы\n\n' + '\n'.join('- [' + article_title(target, snapshots.get(target, {}).get('title', next((data.loc(data.get('guideEntry', key).get('name', key)) for key, value in guides.items() if value == target), target.rsplit('/', 1)[-1]))) + '](/ru/' + target + ')' for target in sorted(missing_related))
+        text = clean_article(path, text, data)
+        text = layout_species(path, text, data, blocks)
         body_cache[path] = text
         return text
 
@@ -307,12 +339,12 @@ def main():
     assert len(routes) == len(route_pairs) == 521
     assert len({k for k, _ in routes}) == 521
 
-    css = ((args.design / 'theme.css').read_text(encoding='utf-8') + EXTRA_CSS).replace('.dlwiki', '.dlwiki.dlwiki.dlwiki').replace('.btn.primary', '.btn.dl-primary')
+    css = ((args.design / 'theme.css').read_text(encoding='utf-8') + EXTRA_CSS + CONTROLS_CSS + DIRECTORY_CSS).replace('.dlwiki', '.dlwiki.dlwiki.dlwiki').replace('.btn.primary', '.btn.dl-primary')
     (output / 'page-styles.css').write_text(css, encoding='utf-8')
     logo = blocks.asset(station / 'Resources/Textures/_DeepLagoon/Logo/logo.png')
     css = css.replace('assets/', '/station-assets/')
     def header(theme='a'):
-        return f'<div class="dlwiki theme-{theme}"><header class="masthead"><div class="wrap masthead-inner"><a class="brand" href="/ru/home"><img src="{logo}" alt="Эмблема DeepLagoon"><span>DEEP LAGOON<small>БИБЛИОТЕКА СЕКТОРА</small></span></a><nav class="topnav" aria-label="Основная навигация"><a href="/ru/home">Главная</a><a href="/ru/in_game">Гайды</a><a href="/ru/guidebook/in_game/books">Книги</a></nav></div></header>'
+        return f'<div class="dlwiki theme-{theme}"><header class="masthead"><div class="wrap masthead-inner"><a class="brand" href="/ru/home"><img src="{logo}" alt="Эмблема DeepLagoon"><span>DEEP LAGOON<small>БИБЛИОТЕКА СЕКТОРА</small></span></a><nav class="topnav" aria-label="Основная навигация"><a href="/ru/home">Главная</a><a href="/ru/{GUIDES_PATH}">Гайды</a><a href="/ru/guidebook/in_game/books">Книги</a></nav></div></header>'
     footer = '<footer class="footer"><div class="wrap footer-row"><span>DeepLagoon · Библиотека сектора</span><a href="/ru/guidebook/in_game/illustrations">Источники иллюстраций</a></div></footer></div>'
     pages = []
     def add(path, title, markdown='', html_content=None, book=False, sources=None):
@@ -321,8 +353,14 @@ def main():
             if html_content is not None:
                 html_content = filter_chemicals(html_content)
         old = snapshots.get(path)
+        if old and protected_page(path):
+            pages.append({**{key: old[key] for key in ('path', 'title', 'id', 'description', 'content', 'scriptCss', 'editor', 'isPublished', 'isPrivate')},
+                          'tags': [tag['tag'] for tag in old.get('tags', [])],
+                          'beforeUpdatedAt': old.get('updatedAt'), 'markdown': '', 'prefix': '', 'suffix': '', 'sources': sources or [], 'preserveExact': True})
+            return
+        title = article_title(path, title)
         if book:
-            prefix = header('b').replace('dlwiki theme-b', 'dlwiki theme-b dl-book-page') + '<main class="wrap"><div class="breadcrumb"><a href="/ru/guidebook/in_game/books">Книжная полка</a> / ' + E(title) + '</div><div class="book-stage"><article class="book"><div class="running"><span>Библиотека DeepLagoon</span><span>Прикладные руководства</span></div><header class="titlepage"><span class="eyebrow">ИЗ КОЛЛЕКЦИИ БОРТОВЫХ ИЗДАНИЙ</span><h1>' + E(title) + '</h1><div class="ornament" aria-hidden="true">— ❦ —</div><p>Иллюстрированное руководство<br>для работы и жизни в секторе.</p></header><div class="prose">'
+            prefix = header('b').replace('dlwiki theme-b', 'dlwiki theme-b dl-book-page') + '<main class="wrap"><div class="breadcrumb"><a href="/ru/guidebook/in_game/books">Книжная полка</a> / ' + E(title) + '</div><div class="book-stage"><article class="book"><div class="running"><span>Библиотека DeepLagoon</span><span>Прикладные руководства</span></div><header class="titlepage"><h1>' + E(title) + '</h1><div class="ornament" aria-hidden="true">— ❦ —</div></header><div class="prose">'
             suffix = '</div><div class="folio"><span>' + E(title) + '</span><span>DeepLagoon</span></div></article></div></main>' + footer
         else:
             prefix = header() + '<main class="wrap"><div class="breadcrumb"><a href="/ru/in_game">Справочник</a> / ' + E(title) + '</div><header class="article-head"><div><span class="eyebrow">БОРТОВОЙ СПРАВОЧНИК · DEEPLAGOON</span><h1>' + E(title) + '</h1></div></header><div class="article-grid"><article class="prose">'
@@ -340,7 +378,12 @@ def main():
     for path, source in sorted(docs.items()):
         if path not in snapshots:
             continue
-        add(path, snapshots[path]['title'], body(path), sources=[str(source.relative_to(station))])
+        sources = [str(source.relative_to(station))]
+        if path.startswith(WEAPONS_PREFIX):
+            sources.extend(data.sources[('entity', key)] for key in CATALOGUES.get(path.removeprefix(WEAPONS_PREFIX), ()) if ('entity', key) in data.sources)
+        if path.startswith('guidebook/in_game/imported/mono/economy/') or path == 'guidebook/in_game/imported/nf/medical/medical-recipes':
+            sources.extend(['Resources/Prototypes/_Mono/Recipes/Lathes', 'Resources/Prototypes/_Mono/Entities/Structures/Machines', 'Resources/Prototypes/_NF/Entities/Structures/Machines'])
+        add(path, snapshots[path]['title'], body(path), sources=sources)
     for group in sorted({data.get('reagent', key).get('group', 'Unknown') for key in data.raw['reagent']}):
         add('guidebook/in_game/reagents/' + slug(group), GROUPS.get(group, group), html_content=blocks.reagent_group(group), sources=['Resources/Prototypes/Reagents', 'Resources/Prototypes/Recipes/Reactions'])
     for identifier, title in collection_ids.items():
@@ -372,8 +415,8 @@ def main():
         add(path, data.name('entity', identifier), '\n\n'.join(chapters), book=True,
             sources=[data.sources.get(('entity', identifier), '')])
 
-    books_index = '\n'.join(f'- [{data.name("entity", key)}](/ru/{path})' for key, path in sorted(book_routes.items()))
-    add('guidebook/in_game/books', 'Книжная полка', 'Книги открываются в оформлении бортовых печатных изданий. Выберите руководство по теме.\n\n' + books_index)
+    books_index = '\n'.join(f'- [{article_title(path, data.name("entity", key))}](/ru/{path})' for key, path in sorted(book_routes.items()))
+    add('guidebook/in_game/books', 'Книжная полка', books_index)
     # Build all source-driven content before resolving historical broken links.
     existing_paths = set(snapshots) | {p['path'] for p in pages}
     def repair_href(match):
@@ -392,21 +435,11 @@ def main():
         page['markdown'] = re.sub(r'\]\((/ru/[^)\s]+)\)', repair_href, page['markdown'])
     # Unknown legacy guide IDs are reported for editorial resolution, not invented.
     (output / 'unresolved-guides.json').write_text(json.dumps(sorted(unresolved), ensure_ascii=False, indent=2), encoding='utf-8')
-    index = 'Материалы по профессиям, устройствам и механикам DeepLagoon. Рецепты и карточки формируются из действующих прототипов.\n\n'
-    categories = defaultdict(list)
-    for page in pages:
-        if page['path'].startswith('guidebook/in_game/') and '/books/' not in page['path'] and '/reagents/' not in page['path']:
-            parts = page['path'].split('/')
-            category = parts[2] if len(parts) > 3 else 'Основное'
-            categories[category].append(page)
-    category_names = {'medical':'Медицина','service':'Сервис и кухня','engineering':'Инженерия',
-                      'science':'Наука','cargo':'Снабжение и утилизация','new-player':'Первые шаги',
-                      'reference-tables':'Справочные таблицы','imported':'Механики сектора и дополнительные системы',
-                      'security':'Служба безопасности','psionics':'Псионика','chemical-tabs':'Группы реагентов','rules':'Правила и регламенты'}
-    for category, items in sorted(categories.items()):
-        index += '\n## ' + category_names.get(category, category) + '\n\n' + '\n'.join('- [' + page['title'] + '](/ru/' + page['path'] + ')' for page in sorted(items, key=lambda p: p['title'])) + '\n'
-    add('in_game', 'Бортовой справочник', index)
-    add('guidebook', 'Справочник DeepLagoon', index)
+    directory_pages = [*pages, {'path':'guidebook/in_game/chemistry/bicaridine', 'title':'Первая партия бикаридина'}]
+    index = directory(directory_pages)
+    add(GUIDES_PATH, 'Практические гайды', html_content=index)
+    add('in_game', 'Бортовой справочник', html_content=index)
+    add('guidebook', 'Справочник DeepLagoon', html_content=index)
 
     # The approved homepage is variant A; all book pages above use variant B.
     home = (args.design / 'wikijs/a-home.html').read_text(encoding='utf-8')
@@ -416,11 +449,12 @@ def main():
         home = home.replace('/wiki-design-assets/' + asset['file'], url)
     home = home.replace('/ru/in_game/chemistry/bicaridine', '/ru/guidebook/in_game/chemistry/bicaridine')
     home = home.replace('/ru/in_game/books/bartenders-manual', '/ru/' + book_routes['BookBartendersManual'])
-    home = home.replace('href="/ru/guidebook/in_game/chemistry/bicaridine">Гайды', 'href="/ru/in_game">Гайды')
+    home = home.replace('href="/ru/guidebook/in_game/chemistry/bicaridine" >Гайды', 'href="/ru/' + GUIDES_PATH + '" >Гайды')
+    home = home.replace('href="/ru/guidebook/in_game/chemistry/bicaridine">Гайды', 'href="/ru/' + GUIDES_PATH + '">Гайды')
     home = home.replace('href="/ru/' + book_routes['BookBartendersManual'] + '">Книги', 'href="/ru/guidebook/in_game/books">Книги')
     home = home.replace('href="/ru/' + book_routes['BookBartendersManual'] + '"><span class="number">03</span>Книжная полка', 'href="/ru/guidebook/in_game/books"><span class="number">03</span>Книжная полка')
     home = re.sub(r'Макет для выбора оформления · 21 октября 2026.*?Открыть действующую вики ↗</a>', 'Рецепты и справка DeepLagoon<br><a href="/ru/guidebook/in_game/illustrations">Источники иллюстраций</a>', home, flags=re.S)
-    home = home.replace('href="/ru/guidebook/in_game/chemistry/bicaridine">Практические гайды', 'href="/ru/in_game">Практические гайды')
+    home = home.replace('href="/ru/guidebook/in_game/chemistry/bicaridine"><span class="number">02</span>Практические гайды', 'href="/ru/' + GUIDES_PATH + '"><span class="number">02</span>Практические гайды')
     add('home', 'Главная', html_content=home)
     pages[-1]['scriptCss'] += '\n' + (args.design / 'home-features.css').read_text(encoding='utf-8').replace('.dlwiki','.dlwiki.dlwiki.dlwiki')
     pages[-1]['prefix'] = pages[-1]['suffix'] = ''

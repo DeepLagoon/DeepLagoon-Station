@@ -54,10 +54,13 @@ public sealed class InterfaceStyleTests
                 }
             });
         }
-        await CheckSize(new(440, 270));
+        await CheckSize(new(440, 190));
         await pair.Client.WaitAssertion(() => type.GetMethod("SetEmoteMode")!.Invoke(window, new object[] { true }));
         await pair.Client.WaitRunTicks(3);
         await CheckSize(new(840, 460));
+        await pair.Client.WaitAssertion(() => type.GetMethod("SetEmoteMode")!.Invoke(window, new object[] { false }));
+        await pair.Client.WaitRunTicks(3);
+        await CheckSize(new(440, 190));
         await pair.Client.WaitAssertion(() => window.Close());
         await pair.CleanReturnAsync();
     }

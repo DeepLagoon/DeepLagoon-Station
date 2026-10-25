@@ -10,9 +10,25 @@
     xmlns:widgets="clr-namespace:Content.Client.UserInterface.Systems.Chat.Widgets">
     <lobbyUi:LobbyBackground Name="Background" Access="Public" Stretch="KeepAspectCovered" />
     <lobbyUi:LobbyColumns Name="MainContainer" Access="Public" Margin="16">
-        <!-- Secondary actions and votes are anchored to the left edge. -->
-        <BoxContainer Name="LeftSide" Orientation="Vertical" SeparationOverride="8" RectClipContent="True">
-            <ScrollContainer VerticalExpand="True" HScrollEnabled="False">
+        <BoxContainer Name="LeftSide" Access="Public" Orientation="Vertical" SeparationOverride="8" RectClipContent="True">
+            <ScrollContainer Name="DefaultState" VerticalExpand="True" HScrollEnabled="False">
+                <BoxContainer Name="CenterContents" Access="Public" Orientation="Vertical" SeparationOverride="12">
+                    <lobbyUi:LobbyCharacterPreviewPanel Name="CharacterPreview" Access="Public" />
+                    <lobbyUi:LobbyButtonPanel Name="ButtonPanel" Access="Public" HorizontalAlignment="Center">
+                        <Button Name="ReadyButton" Access="Public" ToggleMode="True" Text="{Loc 'ui-lobby-ready-up-button'}" />
+                        <cc:UICommandButton Name="ObserveButton" Access="Public" Command="observe"
+                                            Text="{Loc 'ui-lobby-observe-button'}"
+                                            WindowType="{x:Type lobbyUi:ObserveWarningWindow}" />
+                        <Control Name="CharacterSetupSlot" />
+                    </lobbyUi:LobbyButtonPanel>
+                    <Label Name="StartTime" Access="Public" HorizontalAlignment="Center" StyleClasses="LabelBig"
+                           FontColorOverride="{x:Static maths:Color.LightGray}" />
+                </BoxContainer>
+            </ScrollContainer>
+            <lobbyUi:LobbyMusicPlayer Name="MusicPlayer" Access="Public" />
+        </BoxContainer>
+        <lobbyUi:LobbyUtilityDrawer Name="UtilityDrawer" Access="Public">
+            <ScrollContainer Name="UtilityScroll" Access="Public" HScrollEnabled="False">
                 <BoxContainer Orientation="Vertical" SeparationOverride="12">
                     <lobbyUi:LobbyButtonTray Name="UtilityTray" Access="Public">
                         <BoxContainer Orientation="Vertical" SeparationOverride="0">
@@ -33,25 +49,7 @@
                     <BoxContainer Name="VoteContainer" Access="Public" Orientation="Vertical" SeparationOverride="12" HorizontalExpand="True" />
                 </BoxContainer>
             </ScrollContainer>
-            <lobbyUi:LobbyMusicPlayer Name="MusicPlayer" Access="Public" />
-        </BoxContainer>
-        <!-- The character drawer folds beside chat, which retains its full height. -->
-        <lobbyUi:LobbyEntryDrawer Name="EntryDrawer" Access="Public">
-            <ScrollContainer Name="DefaultState" HScrollEnabled="False" ReturnMeasure="True">
-                <BoxContainer Name="CenterContents" Access="Public" Orientation="Vertical" SeparationOverride="12">
-                    <lobbyUi:LobbyButtonPanel Name="ButtonPanel" Access="Public" HorizontalAlignment="Center">
-                        <Button Name="ReadyButton" Access="Public" ToggleMode="True" Text="{Loc 'ui-lobby-ready-up-button'}" />
-                        <cc:UICommandButton Name="ObserveButton" Access="Public" Command="observe"
-                                            Text="{Loc 'ui-lobby-observe-button'}"
-                                            WindowType="{x:Type lobbyUi:ObserveWarningWindow}" />
-                        <Control Name="CharacterSetupSlot" />
-                    </lobbyUi:LobbyButtonPanel>
-                    <lobbyUi:LobbyCharacterPreviewPanel Name="CharacterPreview" Access="Public" />
-                    <Label Name="StartTime" Access="Public" HorizontalAlignment="Center" StyleClasses="LabelBig"
-                           FontColorOverride="{x:Static maths:Color.LightGray}" />
-                </BoxContainer>
-            </ScrollContainer>
-        </lobbyUi:LobbyEntryDrawer>
+        </lobbyUi:LobbyUtilityDrawer>
         <Control Name="RightSide" Access="Public">
             <PanelContainer Name="ChatPanel" Access="Public" StyleClasses="AngleRect" RectClipContent="True">
                 <BoxContainer Orientation="Vertical" HorizontalExpand="True">

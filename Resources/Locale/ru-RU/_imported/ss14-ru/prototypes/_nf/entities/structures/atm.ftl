@@ -4,7 +4,7 @@ ent-ComputerBankATMBase = { ent-BaseComputer }
     .desc = { ent-BaseComputer.desc }
 
 ent-ComputerBankATMDeposit = банкомат
-    .desc = Используется для ввода и вывода средств с личного банковского счета. Комиссия за депозит: 5%.
+    .desc = Используется для ввода и вывода средств со счёта персонажа. Взнос зачисляется полностью.
 
 ent-ComputerBankATMDepositFree = банкомат
     .desc = Используется для ввода и вывода средств с личного банковского счета.
@@ -35,11 +35,11 @@ ent-ComputerWallmountWithdrawBankATM = { ent-ComputerBankATMDepositFree }
     .desc = { ent-ComputerBankATMDepositFree.desc }
 
 ent-ComputerBlackMarketBankATM = { ent-ComputerBankATMDeposit }
-    .desc = Имеет сомнительного вида доработки и наклейку с надписью «КОМИССИЯ ЗА ДЕПОЗИТ 5%».
+    .desc = Имеет сомнительного вида доработки. Взнос зачисляется полностью на счёт персонажа.
     .suffix = Династия Фаэтон
 
 ent-ComputerWallmountBlackMarketBankATM = { ent-ComputerBankATMDeposit }
-    .desc = Имеет сомнительного вида доработки и наклейку с надписью «КОМИССИЯ ЗА ДЕПОЗИТ 5%».
+    .desc = Имеет сомнительного вида доработки. Взнос зачисляется полностью на счёт персонажа.
     .suffix = Настенный, Династия Фаэтон
 
 ent-BaseStationAdminBankATM = консоль управления счётом станции

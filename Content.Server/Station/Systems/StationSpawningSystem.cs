@@ -27,7 +27,6 @@ using Robust.Shared.Random;
 using Robust.Shared.Utility;
 using Content.Server.Spawners.Components;
 using Content.Shared._NF.Bank.Components; // DeltaV
-using Content.Server._DeepLagoon.Money; // Mono
 using Content.Server._Mono.Persistence; // Mono
 using Content.Server._NF.Bank; // Frontier
 using Content.Server.Preferences.Managers; // Frontier
@@ -60,7 +59,6 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
     [Dependency] private InternalEncryptionKeySpawner _internalEncryption = default!; // Goobstation
 
     [Dependency] private BankSystem _bank = default!; // Frontier
-    [Dependency] private MoneyManager _coins = default!; // Mono
     [Dependency] private PersistentProfileSystem _persistence = default!; // Mono
     private bool _randomizeCharacters;
 
@@ -192,7 +190,6 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             /// Frontier: overwriting EquipRoleLoadout
             //EquipRoleLoadout(entity.Value, loadout, roleProto!);
             long initialBankBalance = profile!.BankBalance; //Frontier
-            initialBankBalance += session == null ? 0L : Math.Min(int.MaxValue, _coins.GetConfirmedMoneyBalance(session.UserId) ?? 0L);
             initialBankBalance = Math.Min(int.MaxValue, initialBankBalance);
             var bankBalance = initialBankBalance; //Frontier
             bool hasBalance = false; // Frontier
@@ -223,7 +220,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             }
             var totalCost = (int)(initialBankBalance - plannedBalance);
             int? paidBankBalance = null;
-            if (totalCost > 0 && !_bank.TryBankWithdraw(session!, prefs!, profile!, totalCost, out paidBankBalance, true))
+            if (totalCost > 0 && !_bank.TryBankWithdraw(session!, prefs!, profile!, totalCost, out paidBankBalance))
                 bankBalance = 0;
 
             // Order loadout selections by the order they appear on the prototype.

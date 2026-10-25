@@ -18,7 +18,7 @@
   name: bank ATM
   id: ComputerBankATMDeposit
   parent: ComputerBankATMBase
-  description: Used to deposit and withdraw funds from a personal bank account. 5% deposit fee.
+  description: Used to deposit and withdraw funds from a personal bank account. Deposits are credited in full.
   abstract: true
   components:
   - type: BankATM
@@ -171,7 +171,7 @@
   parent: [BaseStructureDisableToolUse, BaseStructureDestructible, ComputerBankATMDeposit]
   id: ComputerBlackMarketBankATM
   name: phaethon treasury ATM #mono
-  description: An ATM connected to the Phaethon Dynasties treasury. There is a 5% deposit fee. #mono
+  description: An ATM connected to the Phaethon Dynasties treasury. Deposits are credited in full. #mono
   components:
   - type: Sprite
     netsync: false
@@ -197,7 +197,7 @@
   parent: [BaseStructureDisableToolUse, BaseStructureDestructible, BaseStructureComputerWallmount, ComputerBankATMDeposit]
   id: ComputerWallmountBlackMarketBankATM
   name: phaethon treasury ATM #mono
-  description: An ATM connected to the Phaethon Dynasties treasury. There is a 5% deposit fee. #mono
+  description: An ATM connected to the Phaethon Dynasties treasury. Deposits are credited in full. #mono
   components:
   - type: Sprite
     netsync: false

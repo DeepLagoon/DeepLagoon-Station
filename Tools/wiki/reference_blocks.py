@@ -3,8 +3,12 @@ from collections import defaultdict
 import hashlib
 import html
 import json
+import math
 from pathlib import Path
+import re
 import struct
+import re
+from urllib.parse import quote
 
 from game_data import slug
 
@@ -81,22 +85,35 @@ class Blocks:
         components = self.data.components(identifier)
         sprite = components.get('Sprite', {})
         icon = components.get('Icon', {})
-        if icon.get('sprite'):
-            sprite = icon
-        rsi = sprite.get('sprite')
-        if not rsi:
-            return ''
-        directory = self.data.station / 'Resources/Textures' / str(rsi).lstrip('/')
-        if not directory.is_dir():
-            self.missing_images.add(identifier)
-            return ''
-        meta = json.loads((directory / 'meta.json').read_text(encoding='utf-8-sig'))
-        frame = meta.get('size', {'x': 32, 'y': 32})
-        layers = sprite.get('layers') or [{'state': sprite.get('state', 'icon')}]
+        if not sprite.get('sprite') and not icon.get('sprite'):
+            for kind in ('Action', 'InstantAction', 'EntityTargetAction', 'WorldTargetAction'):
+                action_icon = components.get(kind, {}).get('icon')
+                if isinstance(action_icon, dict) and action_icon.get('sprite'):
+                    icon = action_icon
+                    break
+        humanoid = self.data.humanoid_sprite_layers(identifier)
+        if humanoid is not None:
+            layers = humanoid
+        else:
+            if icon.get('sprite'):
+                sprite = icon
+            layers = sprite.get('layers') or [{'state': sprite.get('state', 'icon')}]
+            if not any(layer.get('visible') is not False and layer.get('state') for layer in layers) and sprite.get('state'):
+                layers = [{'state': sprite['state']}]
         result = []
         for layer in layers:
             if layer.get('visible') is False or not layer.get('state'):
                 continue
+            rsi = layer.get('sprite') or sprite.get('sprite')
+            if not rsi:
+                continue
+            texture_path = str(rsi).lstrip('/').removeprefix('Textures/')
+            directory = self.data.station / 'Resources/Textures' / texture_path
+            if not directory.is_dir():
+                self.missing_images.add(identifier)
+                continue
+            meta = json.loads((directory / 'meta.json').read_text(encoding='utf-8-sig'))
+            frame = meta.get('size', {'x': 32, 'y': 32})
             path = directory / (str(layer['state']) + '.png')
             if not path.is_file():
                 continue
@@ -104,21 +121,49 @@ class Blocks:
             width, height = struct.unpack('>II', path.read_bytes()[16:24])
             cols, rows = width / frame['x'], height / frame['y']
             extra = ''
-            color = layer.get('color', '')
+            color = layer.get('color', sprite.get('color', ''))
             if isinstance(color, str) and color.startswith('#') and len(color) in (4, 7, 9):
-                extra = f'background-color:{E(color)};background-image:none;mask-image:url({url});mask-size:calc(100% * {cols:g}) calc(100% * {rows:g});mask-repeat:no-repeat;'
+                code = ''.join(char * 2 for char in color[1:]) if len(color) == 4 else color[1:]
+                try:
+                    channels = [int(code[index:index + 2], 16) / 255 for index in range(0, len(code), 2)]
+                except ValueError:
+                    channels = []
+                if channels:
+                    red, green, blue = channels[:3]
+                    alpha = channels[3] if len(channels) == 4 else 1
+                    matrix = f'{red:g} 0 0 0 0 0 {green:g} 0 0 0 0 0 {blue:g} 0 0 0 0 0 {alpha:g} 0'
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg"><filter id="t" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="' + matrix + '"/></filter></svg>'
+                    extra = "filter:url('data:image/svg+xml," + quote(svg, safe='') + "#t');"
             result.append(f'<span style="background-image:url({url});background-size:calc(100% * {cols:g}) calc(100% * {rows:g});{extra}"></span>')
         if not result:
             self.missing_images.add(identifier)
             return ''
-        return f'<span class="dl-sprite" role="img" aria-label="{E(self.data.name("entity", identifier))}">' + ''.join(result) + '</span>'
+        label = self.data.humanoid_species_name(identifier) or self.data.name('entity', identifier)
+        scale_style = ''
+        if humanoid is not None:
+            scale = components.get('Sprite', {}).get('scale')
+            if isinstance(scale, str):
+                scale = re.split(r'[,\s]+', scale.strip())
+            elif isinstance(scale, dict):
+                scale = [scale.get('x'), scale.get('y')]
+            if isinstance(scale, (list, tuple)) and len(scale) == 2:
+                try:
+                    x, y = map(float, scale)
+                    if math.isfinite(x) and math.isfinite(y) and x > 0 and y > 0:
+                        scale_style = f' style="transform:scale({x:g},{y:g});transform-origin:center bottom"'
+                except (TypeError, ValueError):
+                    pass
+        return f'<span class="dl-sprite" role="img" aria-label="{E(label)}"{scale_style}>' + ''.join(result) + '</span>'
 
     def entity(self, identifier, compact=False):
         value = self.data.get('entity', identifier)
         if not value:
             self.missing_entities.add(identifier)
-            return f'<aside class="note warning">Объект <code>{E(identifier)}</code> отсутствует в текущих прототипах. Старая инструкция с ним требует пересмотра.</aside>'
+            return ''
         name, description = self.data.name('entity', identifier), self.data.description('entity', identifier)
+        species = self.data.humanoid_species_name(identifier)
+        if species:
+            name, description = species, ''
         description = description if '{' not in description else ''
         components = self.data.components(identifier)
         stats = []
@@ -127,7 +172,12 @@ class Blocks:
                 stats.append('Ёмкость: ' + amount(info['maxVol']) + ' ед.')
         if components.get('ChemMaster', {}).get('pillDosageLimit') is not None:
             stats.append('Лимит дозы таблетки: ' + amount(components['ChemMaster']['pillDosageLimit']) + ' ед.')
-        card = f'<div class="dl-entity">{self.icon(identifier)}<div><strong>{E(name)}</strong>'
+        slots = components.get('AutomationSlots', {}).get('slots', [])
+        for direction, kind, label in [('input', 'sinkPort', 'Приём'), ('output', 'sourcePort', 'Выдача')]:
+            ports = list(dict.fromkeys(slot[direction] for slot in slots if slot.get(direction)))
+            if ports:
+                stats.append(label + ': ' + ', '.join(self.data.name(kind, key) for key in ports))
+        card = f'<div class="dl-entity" data-entity-id="{E(identifier)}">{self.icon(identifier)}<div><strong>{E(name)}</strong>'
         if description:
             card += f'<p>{E(description)}</p>'
         if stats:
@@ -229,7 +279,7 @@ class Blocks:
 
     def reagent_group(self, group):
         keys = [key for key in self.data.raw['reagent'] if not self.data.raw['reagent'][key].get('abstract') and self.data.get('reagent', key).get('group', 'Unknown') == group]
-        return '<div class="dl-generated"><p class="muted">' + E(GROUPS.get(group, group)) + f' · {len(keys)} реагентов. Откройте карточку, чтобы посмотреть состав и условия.</p>' + ''.join(self.reagent(key) for key in sorted(keys, key=lambda k: self.data.name('reagent', k).casefold())) + '</div>'
+        return '<div class="dl-generated"><p class="muted">' + E(GROUPS.get(group, group)) + f' · {len(keys)} реагентов.</p>' + ''.join(self.reagent(key) for key in sorted(keys, key=lambda k: self.data.name('reagent', k).casefold())) + '</div>'
 
     def cooking(self, group=None, medical=False):
         recipes = [value for value in self.data.raw['microwaveMealRecipe'].values()
@@ -272,7 +322,14 @@ class Blocks:
 
     def automation(self):
         keys = [key for key in self.data.raw['entity'] if not self.data.raw['entity'][key].get('abstract') and 'AutomationSlots' in self.data.components(key)]
-        return '<div class="dl-entities">' + ''.join(self.entity(key, True) for key in sorted(keys)) + '</div>'
+        seen, cards = set(), []
+        for key in sorted(keys):
+            card = self.entity(key, True)
+            identity = re.sub(r' data-entity-id="[^"]*"', '', card)
+            if identity not in seen:
+                seen.add(identity)
+                cards.append(card)
+        return '<div class="dl-entities dl-automation">' + ''.join(cards) + '</div>'
 
     def embed(self, kind, attrs):
         if kind == 'GuideEntityEmbed':
@@ -280,13 +337,16 @@ class Blocks:
         if kind == 'GuideReagentEmbed':
             return self.reagent(attrs.get('Reagent', ''))
         if kind == 'GuideReagentGroupEmbed':
-            return self.reagent_group(attrs.get('Group', ''))
-        if kind == 'GuideMicrowaveGroupEmbed':
-            return self.cooking(attrs.get('Group', ''))
-        if kind == 'GuideMedicalGroupEmbed':
-            return self.cooking(medical=True)
-        if kind == 'GuideTechDisciplineEmbed':
-            return self.technology(attrs.get('Discipline', ''))
-        if kind == 'GuideAutomationSlotsEmbed':
-            return self.automation()
-        raise ValueError(f'Unsupported guidebook embed: {kind}')
+            rendered = self.reagent_group(attrs.get('Group', ''))
+        elif kind == 'GuideMicrowaveGroupEmbed':
+            rendered = self.cooking(attrs.get('Group', ''))
+        elif kind == 'GuideMedicalGroupEmbed':
+            rendered = self.cooking(medical=True)
+        elif kind == 'GuideTechDisciplineEmbed':
+            rendered = self.technology(attrs.get('Discipline', ''))
+        elif kind == 'GuideAutomationSlotsEmbed':
+            rendered = self.automation()
+        else:
+            raise ValueError(f'Unsupported guidebook embed: {kind}')
+        key = attrs.get('Group') or attrs.get('Discipline') or ''
+        return f'<div class="dl-source-block" data-guide-kind="{E(kind)}" data-guide-key="{E(key)}">{rendered}</div>' if rendered else ''

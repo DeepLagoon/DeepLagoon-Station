@@ -10,6 +10,37 @@ namespace Content.Tests._DeepLagoon;
 public sealed class TguiActionDataTests
 {
     [Test]
+    public void NestedObjectsKeepTheirOwnScalarsAndRejectDuplicateNames()
+    {
+        Assert.That(TguiActionData.TryParse("{\"theme\":\"outer\",\"settings\":{\"theme\":\"light\",\"chatBgColor\":null,\"child\":{\"value\":3}}}", out var data), Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(data.String("theme"), Is.EqualTo("outer"));
+            Assert.That(data.String("settings"), Is.Null);
+            Assert.That(data.Object("settings").String("theme"), Is.EqualTo("light"));
+            Assert.That(data.Object("settings").String("chatBgColor"), Is.Null);
+            Assert.That(data.Object("settings").Object("child").String("value"), Is.EqualTo("3"));
+            Assert.That(TguiActionData.TryParse("{\"settings\":{\"theme\":1,\"theme\":2}}", out _), Is.False);
+        });
+    }
+
+    [Test]
+    public void AppearanceContainsOnlyThemeFieldsAndHandlesNullOrMalformedSettings()
+    {
+        var json = "{\"settings\":{\"theme\":\"light\",\"chatBgColor\":\"#123456\",\"chatTextColor\":null,\"fontSize\":14},\"messages\":[1,2]}";
+        using var appearance = JsonDocument.Parse(TguiPanel.ChatAppearance(json));
+        Assert.Multiple(() =>
+        {
+            Assert.That(appearance.RootElement.GetProperty("theme").GetString(), Is.EqualTo("light"));
+            Assert.That(appearance.RootElement.GetProperty("chatBgColor").GetString(), Is.EqualTo("#123456"));
+            Assert.That(appearance.RootElement.TryGetProperty("chatTextColor", out _), Is.False);
+            Assert.That(appearance.RootElement.TryGetProperty("fontSize", out _), Is.False);
+            Assert.That(TguiPanel.ChatAppearance("{settings: yaml}"), Is.EqualTo("{}"));
+            Assert.That(TguiPanel.ChatAppearance("{\"settings\":null}"), Is.EqualTo("{}"));
+        });
+    }
+
+    [Test]
     public void ScalarsRoundTripWithoutForkApis()
     {
         var values = new Dictionary<string, object>

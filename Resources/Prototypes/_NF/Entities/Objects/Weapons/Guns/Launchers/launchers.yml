@@ -5,6 +5,10 @@
   components:
   - type: BallisticAmmoProvider
     proto: 40mmGrenadeEMP
+    whitelist:
+      tags:
+      - Grenade
+      - LessLethalGrenade
 
 - type: entity
   suffix: EMP

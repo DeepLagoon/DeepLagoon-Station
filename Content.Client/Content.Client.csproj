@@ -26,6 +26,23 @@
   </ItemGroup>
   <Import Project="..\RobustToolbox\Imports\Shared.props" />
 
+  <!-- The SDK's deps.json inputs do not track changes between source and signed references. -->
+  <Target Name="TrackWebViewDependencyInputs" BeforeTargets="GenerateBuildDependencyFile"
+          Condition="'$(GenerateDependencyFile)' == 'true'">
+    <PropertyGroup>
+      <_WebViewDependencyInputs>$(IntermediateOutputPath)$(MSBuildProjectName).WebViewReference.cache</_WebViewDependencyInputs>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_WebViewDependencyInputs)"
+                      Lines="FullRelease=$(FullRelease);WebViewSignedReference=$(WebViewSignedReference)"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <PropertyGroup>
+      <MSBuildAllProjects>$(MSBuildAllProjects);$(_WebViewDependencyInputs)</MSBuildAllProjects>
+    </PropertyGroup>
+    <ItemGroup>
+      <FileWrites Include="$(_WebViewDependencyInputs)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="RequireSignedWebViewReference" BeforeTargets="ResolveReferences"
           Condition="'$(FullRelease)' == 'True'">
     <Error Condition="'$(WebViewSignedReference)' == '' or !Exists('$(WebViewSignedReference)')"

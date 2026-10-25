@@ -11,25 +11,38 @@ async function render(config, pathname, pages) {
   const element = (tag) => {
     const node = {
       tag, style: {}, children: [],
-      append(...children) { this.children.push(...children); },
+      attributes: {},
+      classList: {
+        values: new Set(),
+        add(...values) { values.forEach(value => this.values.add(value)); },
+        remove(...values) { values.forEach(value => this.values.delete(value)); },
+        toggle(value) { if (this.values.delete(value)) return false; this.values.add(value); return true; },
+      },
+      setAttribute(name, value) { this.attributes[name] = value; },
+      append(...children) { this.children.push(...children); children.forEach(child => { child.parent = this; }); },
       replaceChildren(...children) { this.children = children; },
+      remove() { this.parent.children = this.parent.children.filter(child => child !== this); },
     };
     created.push(node);
     return node;
   };
   const body = element('body');
+  const head = element('head');
   const window = { __deepLagoonWikiConfig: config };
-  vm.runInNewContext(script, {
+  const context = {
     window,
     location: { pathname },
-    document: { body, createElement: element },
+    document: { body, head, createElement: element,
+      getElementById: id => [...body.children, ...head.children].find(node => node.id === id) },
     fetch: async (url, options) => {
       requests.push({ url, options });
       return { ok: true, json: async () => ({ data: { pages: { tree: pages } } }) };
     },
-  });
+  };
+  const run = () => vm.runInNewContext(script, context);
+  run();
   await new Promise(setImmediate);
-  return { created, requests, window };
+  return { created, requests, window, body, head, context, run };
 }
 
 test('configured locale and nested root drive GraphQL, filtering and every article URL', async () => {
@@ -67,4 +80,30 @@ test('default Russian tree remains supported', async () => {
     { path: 'in_game/chemistry', title: 'Chemistry' },
   ]);
   assert.equal(result.created.find((node) => node.tag === 'a').href, '/ru/in_game/chemistry');
+});
+
+test('repeated injection keeps one viewer and leaving the tree restores the page', async () => {
+  const result = await render({ root: '/ru/in_game', locale: 'ru' }, '/ru/in_game', []);
+  result.run();
+  assert.equal(result.requests.length, 1);
+  assert.equal(result.head.children.length, 1);
+  assert.equal(result.body.children.length, 2);
+  assert.ok(result.body.classList.values.has('dl-game-wiki'));
+  assert.equal(result.body.style.marginLeft, undefined);
+  const toggle = result.created.find(node => node.id === 'dl-game-wiki-toggle');
+  toggle.onclick();
+  assert.equal(toggle.attributes['aria-expanded'], 'true');
+  assert.ok(result.body.classList.values.has('dl-game-wiki-tree-open'));
+  toggle.onclick();
+  assert.equal(toggle.attributes['aria-expanded'], 'false');
+  result.context.location.pathname = '/ru/rules';
+  result.run();
+  assert.equal(result.head.children.length, 0);
+  assert.equal(result.body.children.length, 0);
+  assert.equal(result.body.classList.values.size, 0);
+  assert.equal(result.window.__deepLagoonGuideTree, false);
+  result.context.location.pathname = '/ru/in_game/jobs';
+  result.run();
+  assert.equal(result.requests.length, 2);
+  assert.equal(result.head.children.length, 1);
 });

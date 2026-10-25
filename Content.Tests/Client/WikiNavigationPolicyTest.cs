@@ -49,6 +49,14 @@ public sealed class WikiNavigationPolicyTest
     public void TreeRequestsStayOnOwnEndpoint(string url, bool expected)
         => Assert.That(WikiNavigationPolicy.IsTreeRequest(url), Is.EqualTo(expected));
 
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/wiki-design-assets/logo.png", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/guidebook/in_game/assets/dl-beaker.png", true)]
+    [TestCase("https://example.com/guidebook/in_game/assets/dl-beaker.png", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/guidebook/in_game/assets_other/image.png", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/graphql", false)]
+    public void PublishedArticleAssetsStayOnWikiOrigin(string url, bool expected)
+        => Assert.That(WikiNavigationPolicy.IsAsset(url), Is.EqualTo(expected));
+
     [TestCase("https://docs.example.org/en/manual/jobs", true)]
     [TestCase("https://docs.example.org/en/rules", true)]
     [TestCase("https://docs.example.org/en/manual_other", false)]

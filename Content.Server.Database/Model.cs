@@ -442,6 +442,7 @@ namespace Content.Server.Database
         public Guid UserId { get; set; }
         public int SelectedCharacterSlot { get; set; }
         public string AdminOOCColor { get; set; } = null!;
+        // Archived account savings; gameplay uses only Profile.BankBalance and LagoonCoins.
         [Column("mono_coins")] public long Money { get; set; } = 0;
         public List<Profile> Profiles { get; } = new();
     }

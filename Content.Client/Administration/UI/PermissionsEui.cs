@@ -209,6 +209,9 @@ namespace Content.Client.Administration.UI
             _menu.Status.Text = s.IsLoading ? Loc.GetString("permissions-eui-loading") :
                 s.Error != null ? Loc.GetString(s.Error) :
                 Loc.GetString("permissions-eui-counts", ("admins", s.Admins.Length), ("ranks", s.AdminRanks.Count));
+            if (!s.IsLoading && s.Error == null && (s.Admins.Any(a => !string.IsNullOrEmpty(a.UnknownFlags)) ||
+                    s.AdminRanks.Values.Any(r => !string.IsNullOrEmpty(r.UnknownFlags))))
+                _menu.Status.Text += " " + Loc.GetString("permissions-eui-unknown-flags-warning");
             _menu.Status.ToolTip = _menu.Status.Text;
 
             if (s.IsLoading)
@@ -233,6 +236,11 @@ namespace Content.Client.Administration.UI
                 var al = _menu.AdminsList;
                 var name = admin.UserName ?? admin.UserId.ToString();
                 s.AdminRanks.TryGetValue(admin.RankId ?? NoRank, out var assignedRank);
+                var unknownFlags = admin.UnknownFlags;
+                if (!string.IsNullOrEmpty(assignedRank.UnknownFlags))
+                    unknownFlags = string.IsNullOrEmpty(unknownFlags) ? assignedRank.UnknownFlags : unknownFlags + ", " + assignedRank.UnknownFlags;
+                var invalidMessage = string.IsNullOrEmpty(unknownFlags) ? null :
+                    Loc.GetString("permissions-eui-unknown-flags", ("flags", unknownFlags));
                 var matches = name.Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
                     admin.UserId.ToString().Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
                     admin.Title?.Contains(search, System.StringComparison.OrdinalIgnoreCase) == true ||
@@ -281,8 +289,10 @@ namespace Content.Client.Administration.UI
 
                 al.AddChild(new Label
                 {
-                    Text = string.Join(' ', AdminFlagsHelper.FlagsToNames((combinedFlags & ~admin.NegFlags))),
-                    ToolTip = string.Join(' ', AdminFlagsHelper.FlagsToNames(combinedFlags & ~admin.NegFlags)) + "\n" + flagsText,
+                    Text = invalidMessage == null ? string.Join(' ', AdminFlagsHelper.FlagsToNames(combinedFlags & ~admin.NegFlags)) :
+                        Loc.GetString("permissions-eui-invalid-entry"),
+                    ToolTip = string.Join(' ', AdminFlagsHelper.FlagsToNames(combinedFlags & ~admin.NegFlags)) + "\n" + flagsText +
+                        (invalidMessage == null ? "" : "\n" + invalidMessage),
                     ClipText = true,
                     HorizontalExpand = true,
                     HorizontalAlignment = Control.HAlignment.Center,
@@ -297,6 +307,11 @@ namespace Content.Client.Administration.UI
                     editButton.Disabled = true;
                     editButton.ToolTip = Loc.GetString("permissions-eui-do-not-have-required-flags-to-edit-admin-tooltip");
                 }
+                if (invalidMessage != null)
+                {
+                    editButton.Disabled = true;
+                    editButton.ToolTip = invalidMessage;
+                }
             }
 
             _menu.AdminRanksList.RemoveAllChildren();
@@ -306,11 +321,13 @@ namespace Content.Client.Administration.UI
                 if (!rank.Name.Contains(search, System.StringComparison.OrdinalIgnoreCase))
                     continue;
                 var flagsText = string.Join(' ', AdminFlagsHelper.FlagsToNames(rank.Flags).Select(f => $"+{f}"));
+                var invalidMessage = string.IsNullOrEmpty(rank.UnknownFlags) ? null :
+                    Loc.GetString("permissions-eui-unknown-flags", ("flags", rank.UnknownFlags));
                 _menu.AdminRanksList.AddChild(new Label { Text = rank.Name });
                 _menu.AdminRanksList.AddChild(new Label
                 {
-                    Text = flagsText,
-                    ToolTip = flagsText,
+                    Text = invalidMessage == null ? flagsText : Loc.GetString("permissions-eui-invalid-entry"),
+                    ToolTip = flagsText + (invalidMessage == null ? "" : "\n" + invalidMessage),
                     ClipText = true,
                     HorizontalExpand = true,
                     HorizontalAlignment = Control.HAlignment.Center,
@@ -323,6 +340,11 @@ namespace Content.Client.Administration.UI
                 {
                     editButton.Disabled = true;
                     editButton.ToolTip = Loc.GetString("permissions-eui-do-not-have-required-flags-to-edit-rank-tooltip");
+                }
+                if (invalidMessage != null)
+                {
+                    editButton.Disabled = true;
+                    editButton.ToolTip = invalidMessage;
                 }
             }
         }
@@ -448,6 +470,8 @@ namespace Content.Client.Administration.UI
                 RankButton.AddItem(Loc.GetString("permissions-eui-edit-admin-window-no-rank-button"), NoRank);
                 foreach (var (rId, rank) in ui._ranks)
                 {
+                    if (!string.IsNullOrEmpty(rank.UnknownFlags))
+                        continue;
                     RankButton.AddItem(rank.Name, rId);
                 }
 

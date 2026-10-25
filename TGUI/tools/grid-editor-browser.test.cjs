@@ -58,6 +58,68 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await page.goto(url+'/');
     await page.waitForFunction(()=>window.sceneCaches?.some(cache=>cache.stats.rasterized>0));
     await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    const selectOption=async(name,label)=>{
+      await page.getByRole('combobox',{name,exact:true}).click();
+      await page.getByRole('option',{name:label,exact:true}).click();
+      assert.equal(await page.getByRole('combobox',{name,exact:true}).getAttribute('aria-expanded'),'false');
+      assert.ok((await page.getByRole('combobox',{name,exact:true}).innerText()).includes(label));
+    };
+    await openPanel(page,'Сети');
+    assert.equal(await page.locator('.GridEditor select').count(),0,'Menus must render inside the WebView document');
+    await selectOption('Режим трассы','Газовые трубы');
+    await selectOption('Тип сети','Газовые трубы · слой 3');
+    await selectOption('Режим трассы','Мусоросброс');
+    await selectOption('Тип сети','Трубы мусоросброса');
+    await selectOption('Режим трассы','Провода');
+    await selectOption('Тип сети','Кабель низкого напряжения');
+    const network=page.getByRole('combobox',{name:'Тип сети',exact:true});
+    await network.click(); await page.keyboard.press('Escape');
+    assert.equal(await network.getAttribute('aria-expanded'),'false');
+    assert.match(await network.innerText(),/низкого/);
+    await network.click(); await page.getByRole('checkbox',{name:'Показать сети поверх пола',exact:true}).click();
+    assert.equal(await network.getAttribute('aria-expanded'),'false');
+    await network.click(); await page.keyboard.press('Tab');
+    assert.equal(await network.getAttribute('aria-expanded'),'false');
+    await openPanel(page,'Зеркало');
+    await selectOption('Ось зеркальности','Горизонтальная ось');
+    const axis=page.getByRole('combobox',{name:'Ось зеркальности',exact:true});
+    const camera=()=>page.locator('.GridEditor__viewport').evaluate(e=>({x:e.scrollLeft,y:e.scrollTop}));
+    const beforeCamera=await camera();
+    await axis.press('ArrowDown'); await axis.press('Home'); await axis.press('Enter');
+    assert.match(await axis.innerText(),/Вертикальная/);
+    assert.deepEqual(await camera(),beforeCamera,'Menu arrows must not pan the map');
+    await axis.press('Space'); await axis.press('End'); await axis.press('Space');
+    assert.match(await axis.innerText(),/Горизонтальная/);
+    const native=async code=>{
+      await page.evaluate(code=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code,down:true}})),code);
+      await page.waitForTimeout(30);
+      await page.evaluate(code=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code,down:false}})),code);
+    };
+    await native('Space'); await native('ArrowUp'); await native('Enter');
+    assert.match(await axis.innerText(),/Вертикальная/);
+    assert.equal(await axis.getAttribute('aria-expanded'),'false');
+    assert.deepEqual(await camera(),beforeCamera,'Native menu arrows must not pan the map');
+    await native('Enter'); await native('ArrowDown'); await native('Escape');
+    assert.match(await axis.innerText(),/Вертикальная/);
+    assert.equal(await axis.getAttribute('aria-expanded'),'false');
+    for(const width of [736,320]){
+      await page.setViewportSize({width,height:900});await axis.click();
+      const bounds=await page.getByRole('listbox',{name:'Ось зеркальности',exact:true}).boundingBox();
+      assert.ok(bounds.x>=0&&bounds.x+bounds.width<=width,'Menu fits narrow viewport');
+      await page.screenshot({path:path.join(output,'select-'+width+'.png')});
+      await page.getByRole('option',{name:'Горизонтальная ось',exact:true}).click();
+    }
+    await page.setViewportSize({width:1440,height:900});
+    await page.getByRole('button',{name:'Закрыть панель',exact:true}).click();
+    await page.getByRole('button',{name:'До / После',exact:true}).click();
+    await openPanel(page,'Сети');
+    assert.equal(await page.getByRole('combobox',{name:'Режим трассы',exact:true}).isDisabled(),true);
+    assert.equal(await network.isDisabled(),true);
+    await openPanel(page,'Зеркало');assert.equal(await axis.isDisabled(),true);
+    report.dropdowns={mouse:true,keyboard:true,nativeKeys:true,noMapPan:true,outsideClick:true,escape:true,tab:true,narrowViewport:true,disabled:true};
+    await page.goto(url+'/');
+    await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    if(process.env.GRID_EDITOR_SELECT_ONLY){assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'select-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;}
     assert.equal(await page.locator('.GridEditor__catalog').isVisible(),false);
     assert.equal(await page.locator('.GridEditor__properties').isVisible(),false);
     for(const width of [1440,736,320]){
@@ -357,13 +419,13 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await page.getByRole('checkbox',{name:'Показать сети поверх пола',exact:true}).check();
     await page.waitForSelector('.GridEditor__networks');
     // Gas routes automatically choose the elbow and do not create another voltage cable.
-    await page.getByRole('combobox',{name:'Режим трассы',exact:true}).selectOption('gas');
-    await page.getByRole('combobox',{name:'Тип сети',exact:true}).selectOption('gas0');
+    await selectOption('Режим трассы','Газовые трубы');
+    await selectOption('Тип сети','Газовые трубы · слой 1');
     for(const [x,y]of [[2,0],[4,2]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
     await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
     await page.getByRole('button',{name:'Применить',exact:true}).click();
     await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='GasPipeBend'));
-    await page.getByRole('combobox',{name:'Режим трассы',exact:true}).selectOption('disposal');
+    await selectOption('Режим трассы','Мусоросброс');
     for(const [x,y]of [[-3,-1],[-1,1]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
     assert.equal(await page.getByRole('button',{name:/Точка трассы/}).count(),5);
     await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();

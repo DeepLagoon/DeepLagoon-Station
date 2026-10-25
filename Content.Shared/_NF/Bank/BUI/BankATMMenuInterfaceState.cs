@@ -11,11 +11,6 @@ public sealed class BankATMMenuInterfaceState : BoundUserInterfaceState
     public int Balance;
 
     /// <summary>
-    /// Savings of the player using the ATM.
-    /// </summary>
-    public long Savings;
-
-    /// <summary>
     /// are the buttons enabled
     /// </summary>
     public bool Enabled;
@@ -25,10 +20,9 @@ public sealed class BankATMMenuInterfaceState : BoundUserInterfaceState
     /// </summary>
     public int Deposit;
 
-    public BankATMMenuInterfaceState(int balance, long savings, bool enabled, int deposit)
+    public BankATMMenuInterfaceState(int balance, bool enabled, int deposit)
     {
         Balance = balance;
-        Savings = savings;
         Enabled = enabled;
         Deposit = deposit;
     }

@@ -51,15 +51,11 @@ namespace Content.Server.Database
         Task<PlayerPreferences?> GetPlayerPreferencesAsync(NetUserId userId, CancellationToken cancel);
         #endregion
 
-        #region Money
-        Task<long> GetMoneyAsync(NetUserId userId, CancellationToken cancel = default);
-        Task<long> SetMoneyAsync(NetUserId userId, long balance, CancellationToken cancel = default);
-        Task<long> AddMoneyAsync(NetUserId userId, long amount, CancellationToken cancel = default);
-        Task<MoneyTransfer> TransferMoneyAsync(NetUserId sender, NetUserId recipient, long amount, CancellationToken cancel = default);
-        Task<MoneyPayment> PayMoneyWithBankAsync(NetUserId user, int bankBalance, int amount, CancellationToken cancel = default,
-            int? profileSlot = null, bool useSavings = true);
-        Task<long> DepositMoneyWithBankAsync(NetUserId user, int profileSlot, int expectedBankBalance,
-            int bankAmount, long moneyAmount, CancellationToken cancel = default);
+        #region Currencies
+        Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default);
+        Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default);
+        Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
+            NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default);
         Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default);
         Task<List<LagoonCoinOperation>> GetLagoonCoinHistoryAsync(NetUserId user, int page, CancellationToken cancel = default);
         Task<LagoonCoinOperation?> ClaimLagoonCoinWebhookAsync(Guid owner, CancellationToken cancel = default);
@@ -542,24 +538,6 @@ namespace Content.Server.Database
         {
             DbReadOpsMetric.Inc();
             return RunDbCommand(() => _db.GetPlayerPreferencesAsync(userId, cancel));
-        }
-
-        public Task<long> GetMoneyAsync(NetUserId userId, CancellationToken cancel = default)
-        {
-            DbReadOpsMetric.Inc();
-            return RunDbCommand(() => _db.GetMoneyAsync(userId, cancel));
-        }
-
-        public Task<long> SetMoneyAsync(NetUserId userId, long balance, CancellationToken cancel = default)
-        {
-            DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.SetMoneyAsync(userId, balance, cancel));
-        }
-
-        public Task<long> AddMoneyAsync(NetUserId userId, long amount, CancellationToken cancel = default)
-        {
-            DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.AddMoneyAsync(userId, amount, cancel));
         }
 
         public Task AssignUserIdAsync(string name, NetUserId userId)

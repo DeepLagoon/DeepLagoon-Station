@@ -39,7 +39,6 @@ using Robust.Shared.Replays;
 using Robust.Shared.Timing;
 using Content.Client._NF.Emp.Overlays; // Frontier
 using Content.Client._Mono.Company; // Mono
-using Content.Client._DeepLagoon.Money; // Mono
 
 namespace Content.Client.Entry
 {
@@ -78,7 +77,6 @@ namespace Content.Client.Entry
         [Dependency] private TitleWindowManager _titleWindowManager = default!;
         [Dependency] private IEntitySystemManager _entitySystemManager = default!;
         [Dependency] private CompanyManager _companyManager = default!; // Mono
-        [Dependency] private MoneyManager _coinsManager = default!; // Mono
 
         public override void Init()
         {
@@ -142,7 +140,6 @@ namespace Content.Client.Entry
             _jobRequirements.Initialize();
             _playbackMan.Initialize();
             _companyManager.Initialize(); // Mono
-            _coinsManager.Initialize(); // Mono
 
             //AUTOSCALING default Setup!
             _configManager.SetCVar("interface.resolutionAutoScaleUpperCutoffX", 1080);

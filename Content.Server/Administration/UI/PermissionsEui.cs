@@ -24,6 +24,7 @@ namespace Content.Server.Administration.UI
         private bool _isLoading;
         private string? _error;
         private readonly System.Threading.SemaphoreSlim _messageLock = new(1, 1);
+        private static readonly HashSet<string> KnownFlagNames = AdminFlagsHelper.FlagsToNames(AdminFlagsHelper.Everything).ToHashSet();
 
         private readonly List<(Admin a, string? lastUserName)> _admins = new List<(Admin, string? lastUserName)>();
         private readonly List<DbAdminRank> _adminRanks = new();
@@ -73,8 +74,9 @@ namespace Content.Server.Administration.UI
                 Error = _error,
                 Admins = _admins.Select(p => new PermissionsEuiState.AdminData
                 {
-                    PosFlags = AdminFlagsHelper.NamesToFlags(p.a.Flags.Where(f => !f.Negative).Select(f => f.Flag)),
-                    NegFlags = AdminFlagsHelper.NamesToFlags(p.a.Flags.Where(f => f.Negative).Select(f => f.Flag)),
+                    PosFlags = ReadKnownFlags(p.a.Flags.Where(f => !f.Negative).Select(f => f.Flag)),
+                    NegFlags = ReadKnownFlags(p.a.Flags.Where(f => f.Negative).Select(f => f.Flag)),
+                    UnknownFlags = UnknownFlagText(p.a.Flags.Select(f => f.Flag)),
                     Title = p.a.Title,
                     RankId = p.a.AdminRankId,
                     UserId = new NetUserId(p.a.UserId),
@@ -85,7 +87,8 @@ namespace Content.Server.Administration.UI
 
                 AdminRanks = _adminRanks.ToDictionary(a => a.Id, a => new PermissionsEuiState.AdminRankData
                 {
-                    Flags = AdminFlagsHelper.NamesToFlags(a.Flags.Select(p => p.Flag)),
+                    Flags = ReadKnownFlags(a.Flags.Select(p => p.Flag)),
+                    UnknownFlags = UnknownFlagText(a.Flags.Select(p => p.Flag)),
                     Name = a.Name,
                     ShortName = a.ShortName
                 })
@@ -429,6 +432,8 @@ namespace Content.Server.Administration.UI
 
                 ret = rank.Name;
 
+                if (!CheckStoredFlags(rank.Flags.Select(f => f.Flag)))
+                    return (true, null);
                 var rankFlags = AdminFlagsHelper.NamesToFlags(rank.Flags.Select(p => p.Flag));
                 if (!UserAdminFlagCheck(rankFlags))
                 {
@@ -459,11 +464,6 @@ namespace Content.Server.Administration.UI
             try
             {
                 var (admins, ranks) = await _db.GetAllAdminAndRanksAsync();
-                // Validate before publishing so a bad persisted flag produces a visible error.
-                foreach (var admin in admins)
-                    AdminFlagsHelper.NamesToFlags(admin.Item1.Flags.Select(f => f.Flag));
-                foreach (var rank in ranks)
-                    AdminFlagsHelper.NamesToFlags(rank.Flags.Select(f => f.Flag));
                 _admins.Clear();
                 _admins.AddRange(admins);
                 _adminRanks.Clear();
@@ -505,6 +505,9 @@ namespace Content.Server.Administration.UI
 
         private bool CanTouchAdmin(Admin admin)
         {
+            if (!CheckStoredFlags(admin.Flags.Select(f => f.Flag).Concat(
+                    admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>())))
+                return false;
             var posFlags = AdminFlagsHelper.NamesToFlags(admin.Flags.Where(f => !f.Negative).Select(f => f.Flag));
             var rankFlags = AdminFlagsHelper.NamesToFlags(
                 admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>());
@@ -517,6 +520,8 @@ namespace Content.Server.Administration.UI
 
         private bool CanTouchRank(DbAdminRank rank)
         {
+            if (!CheckStoredFlags(rank.Flags.Select(f => f.Flag)))
+                return false;
             var rankFlags = AdminFlagsHelper.NamesToFlags(rank.Flags.Select(f => f.Flag));
 
             var allowed = UserAdminFlagCheck(rankFlags);
@@ -529,6 +534,20 @@ namespace Content.Server.Administration.UI
             if (!string.IsNullOrWhiteSpace(name) && (flags & ~AdminFlagsHelper.Everything) == 0)
                 return true;
             _error = "permissions-eui-rank-invalid";
+            return false;
+        }
+
+        private static AdminFlags ReadKnownFlags(IEnumerable<string> names)
+            => AdminFlagsHelper.NamesToFlags(names.Where(KnownFlagNames.Contains));
+
+        private static string UnknownFlagText(IEnumerable<string> names)
+            => string.Join(", ", names.Where(f => !KnownFlagNames.Contains(f)).Distinct());
+
+        private bool CheckStoredFlags(IEnumerable<string> names)
+        {
+            if (names.All(KnownFlagNames.Contains))
+                return true;
+            _error = "permissions-eui-stored-flags-invalid";
             return false;
         }
     }

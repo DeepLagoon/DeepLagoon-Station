@@ -1,5 +1,4 @@
 using Content.Server._Mono.Company; // Mono
-using Content.Server._DeepLagoon.Money; // Mono
 using Content.Server._NF.Auth;
 using Content.Server.Administration;
 using Content.Server.Administration.Logs;
@@ -81,7 +80,6 @@ namespace Content.Server.IoC
             IoCManager.Register<CVarControlManager>();
             IoCManager.Register<MiniAuthManager>(); //Frontier
             IoCManager.Register<CompanyManager>(); // Mono
-            IoCManager.Register<MoneyManager>(); // Mono
 
             IoCManager.Register<DiscordLink>();
             IoCManager.Register<DiscordChatLink>();

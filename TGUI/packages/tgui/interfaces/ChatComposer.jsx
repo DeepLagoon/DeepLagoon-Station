@@ -4,7 +4,8 @@ import { Button, Dropdown } from '../components';
 import './ChatComposer.scss';
 
 export const ChatComposer = () => {
-  const { data, act } = useBackend();
+  const { data, act: sendAction } = useBackend();
+  const act = (action, payload = {}) => sendAction(action, { ...payload, session: data.session });
   const [text, setText] = useState(data.text || '');
   const input = useRef();
   const timer = useRef();
@@ -33,8 +34,9 @@ export const ChatComposer = () => {
       cancelAnimationFrame(second);
       document.removeEventListener('keydown', cycle, true);
     };
-  }, []);
+  }, [data.revision]);
   useEffect(() => {
+    clearTimeout(timer.current);
     setText(data.text || '');
     latest.current = data.text || '';
   }, [data.revision]);
@@ -93,7 +95,7 @@ export const ChatComposer = () => {
             } else if (latest.current.trim()) dispatch('submit');
           }
         }} />
-      <footer><span>Enter / Num Enter — отправить · Shift+Enter — новая строка · Tab — канал <small>{text.length}/{data.maxLength}</small></span>
+      <footer><small>{text.length}/{data.maxLength}</small>
         <Button icon="paper-plane" disabled={!text.trim()} onClick={() => dispatch('submit')}>Отправить</Button></footer>
     </section>
   </div>;

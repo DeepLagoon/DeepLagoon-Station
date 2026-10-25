@@ -16,6 +16,8 @@ namespace Content.Client._DeepLagoon.WebUI;
 public sealed class GameWebView : Control
 {
     private const string Root = "/Web/DeepLagoon/";
+    private TimeSpan _logWindow;
+    private int _logCount;
     private static readonly byte[] BridgeAck = Convert.FromBase64String(
         "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
     private WebViewControl? _view;
@@ -399,6 +401,9 @@ public sealed class GameWebView : Control
                     Robust.Shared.Log.Logger.GetSawmill("tgui").Error("Unhandled script error in packaged TGUI; scheduling recovery.");
                     _healthWait = 15;
                     break;
+                case "log":
+                    LogPage(payload);
+                    break;
                 case "native-background":
                     _background?.Configure(payload);
                     break;
@@ -427,6 +432,22 @@ public sealed class GameWebView : Control
                     break;
             }
         }
+    }
+
+    private void LogPage(string payload)
+    {
+        var now = IoCManager.Resolve<IGameTiming>().RealTime;
+        if (now - _logWindow >= TimeSpan.FromSeconds(1)) { _logWindow = now; _logCount = 0; }
+        if (++_logCount > 5 || !TguiActionData.TryParse(payload, out var entry)) return;
+        var level = entry!.String("level");
+        if (level is not ("warn" or "error")) return;
+        var ns = entry.String("ns") ?? "";
+        var message = entry.String("message") ?? "";
+        if (ns.Length > 64) ns = ns[..64];
+        if (message.Length > 2048) message = message[..2048];
+        var log = Robust.Shared.Log.Logger.GetSawmill("tgui.page");
+        if (level == "error") log.Error("{Document} [{Namespace}] {Message}", _documentUrl, ns, message);
+        else log.Warning("{Document} [{Namespace}] {Message}", _documentUrl, ns, message);
     }
 
     protected override void ExitedTree()

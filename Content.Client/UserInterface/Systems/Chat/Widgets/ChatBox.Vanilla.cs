@@ -17,7 +17,7 @@ public partial class ChatBox
             _cfg.GetCVar(Content.Shared._DeepLagoon.WebUI.WebUiCVars.WindowStyles), "Chat",
             vanilla || !Content.Client._DeepLagoon.WebUI.TguiPanel.Enabled ? 2 : 1);
         _useVanillaChat = vanilla;
-        CloseComposer();
+        DisposeComposer();
         ChatInput.Visible = vanilla || !_webChatRequested;
         if (vanilla)
         {

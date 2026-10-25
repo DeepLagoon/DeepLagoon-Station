@@ -25,25 +25,24 @@ public sealed partial class ServerDbManager
         return RunDbCommand(() => _db.CompleteLagoonCoinWebhookAsync(user, key, owner, cancel));
     }
 
-    public Task<MoneyTransfer> TransferMoneyAsync(NetUserId sender, NetUserId recipient, long amount,
-        CancellationToken cancel = default)
+    public Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default)
     {
         DbWriteOpsMetric.Inc();
-        return RunDbCommand(() => _db.TransferMoneyAsync(sender, recipient, amount, cancel));
+        return RunDbCommand(() => _db.WithdrawBankAsync(user, slot, expectedBalance, amount, cancel));
     }
 
-    public Task<MoneyPayment> PayMoneyWithBankAsync(NetUserId user, int bankBalance, int amount,
-        CancellationToken cancel = default, int? profileSlot = null, bool useSavings = true)
+    public Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default)
     {
         DbWriteOpsMetric.Inc();
-        return RunDbCommand(() => _db.PayMoneyWithBankAsync(user, bankBalance, amount, cancel, profileSlot, useSavings));
+        return RunDbCommand(() => _db.DepositBankAsync(user, slot, expectedBalance, amount, cancel));
     }
 
-    public Task<long> DepositMoneyWithBankAsync(NetUserId user, int profileSlot, int expectedBankBalance,
-        int bankAmount, long moneyAmount, CancellationToken cancel = default)
+    public Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
+        NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default)
     {
         DbWriteOpsMetric.Inc();
-        return RunDbCommand(() => _db.DepositMoneyWithBankAsync(user, profileSlot, expectedBankBalance, bankAmount, moneyAmount, cancel));
+        return RunDbCommand(() => _db.TransferBankAsync(sender, senderSlot, senderBalance,
+            recipient, recipientSlot, recipientBalance, amount, cancel));
     }
 
     public Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default)

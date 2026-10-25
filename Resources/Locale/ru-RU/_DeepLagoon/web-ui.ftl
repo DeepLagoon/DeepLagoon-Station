@@ -7,3 +7,4 @@ wiki-load-hint = Если страница не загрузилась, пров
 wiki-page-unmapped = Для этого раздела ещё не назначена страница вики.
 
 ui-options-vanilla-chat = Классический чат
+dl-chat-composer-title = Чат

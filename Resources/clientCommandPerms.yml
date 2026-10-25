@@ -73,6 +73,7 @@
     - fullstatereset
     - dumpentities
     - fuckrules # Frontier
+    - tgui_preview # DeepLagoon
 
 - Flags: MAPPING
   Commands:

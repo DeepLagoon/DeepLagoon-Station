@@ -103,12 +103,82 @@ const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
     await page.evaluate(() => window.update(JSON.stringify({ type: 'update', payload: { data: { traitState: { A: { visible: true, selected: true }, B: { visible: false, selected: false } } } } })));
     await page.getByText('Trait A (1)', { exact: true }).waitFor();
     assert.equal(await page.getByText('Trait B (1)', { exact: true }).count(), 0);
+
+    await publish(state);
+    const height = page.getByRole('slider', { name: 'Рост', exact: true });
+    await height.waitFor();
+    await page.evaluate(() => { window.__sent = []; });
+    await height.evaluate(input => {
+      input.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      for (let i = 0; i <= 40; i++) {
+        set.call(input, String(0.8 + i / 100));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      window.dispatchEvent(new PointerEvent('pointerup'));
+    });
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'act/height' && message.payload.value === 1.2));
+    const heights = await page.evaluate(() => window.__sent.filter(message => message.type === 'act/height'));
+    assert.ok(heights.length <= 3, `41 slider changes should be coalesced: ${heights.length}`);
+    assert.equal(heights.at(-1).payload.value, 1.2, 'Release must flush the final size');
+    await page.evaluate(() => { window.__sent = []; });
+    await page.locator('.CharacterEditor__rotation .Button').first().evaluate(button => { button.click(); button.click(); });
+    await page.waitForFunction(() => window.__sent.filter(message => message.type === 'act/rotate').length === 2);
+    const zoom = await page.evaluate(() => document.body.style.zoom);
+    await page.evaluate(() => document.dispatchEvent(new WheelEvent('wheel', { ctrlKey: true, deltaY: -100, bubbles: true, cancelable: true })));
+    assert.equal(await page.evaluate(() => document.body.style.zoom), zoom, 'Embedded editor must not install page zoom');
+
+    const show = (name, data) => page.evaluate(({ name, data }) => window.update(JSON.stringify({ type: 'update', payload: {
+      replaceData: true, replaceStaticData: true, resetPartialData: true, static_data: {},
+      config: { interface: name, status: 2, window: { key: 'deeplagoon', fancy: false } }, data,
+    } })), { name, data });
+    await show('CharacterColorPicker', { id: 'color-test', value: '#ff0000', appearance: { theme: 'light' } });
+    await page.getByRole('button', { name: 'HSV', exact: true }).click();
+    await page.evaluate(() => { window.__sent = []; });
+    await page.getByRole('slider', { name: 'H', exact: true }).evaluate(input => {
+      input.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      for (let i = 0; i <= 120; i++) {
+        set.call(input, String(i));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      window.dispatchEvent(new PointerEvent('pointerup'));
+    });
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'act/color-picker-change' && message.payload.value === '#00ff00'));
+    assert.ok(await page.evaluate(() => window.__sent.filter(message => message.type === 'act/color-picker-change').length <= 3), 'Color changes must be throttled');
+    assert.ok(await page.locator('.CharacterColorDialog.theme-light').count(), 'Theme object reaches the color dialog');
+
+    await show('ChatComposer', { session: 1, revision: 1, text: 'first', channel: '1', emoteChannel: '2', maxLength: 1000, channels: [] });
+    await page.getByRole('textbox', { name: 'Сообщение', exact: true }).waitFor();
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'act/presented' && message.payload.session === 1));
+    await show('ChatComposer', { session: 2, revision: 2, text: '', channel: '1', emoteChannel: '2', maxLength: 1000, channels: [] });
+    await page.keyboard.type('second opening');
+    await page.getByRole('textbox', { name: 'Сообщение', exact: true }).press('Enter');
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'act/submit' && message.payload.session === 2 && message.payload.text === 'second opening'));
+
     await publish({ available: false, mode: 'appearance' });
     await page.getByText('Выберите персонажа.', { exact: false }).waitFor();
     assert.equal(await page.locator('.HairCarousel').count(), 0);
     assert.deepEqual(errors, []);
+
+    await page.waitForTimeout(1050);
+    await page.evaluate(() => {
+      window.__sent = [];
+      for (let i = 0; i < 20; i++) Byond.topic({ type: 'log', level: 'warn', ns: 'test', message: 'x'.repeat(5000) });
+    });
+    await page.waitForFunction(() => window.__sent.filter(message => message.type === 'log').length === 5);
+    assert.ok(await page.evaluate(() => window.__sent.filter(message => message.type === 'log').every(message => message.payload.message.length === 2048)));
+    await page.waitForTimeout(1050);
+    await publish({ ...state, departments: {} });
+    await page.getByRole('alert').waitFor();
+    await page.getByRole('button', { name: 'Перезагрузить окно / Reload window', exact: true }).waitFor();
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'log' && message.payload.level === 'error' && message.payload.ns === 'render'));
+    await page.getByRole('button', { name: 'Перезагрузить окно / Reload window', exact: true }).click();
+    await page.waitForFunction(() => window.__tguiAppBooted__);
+    await publish(state);
+    await page.getByRole('slider', { name: 'Рост', exact: true }).waitFor();
     assert.equal(await page.evaluate(() => window.__fetchBridgeRequests > 0), transport === 'fetch' || transport === 'post');
-    console.log(`PASS: production boot, collapsed catalogue, ${visibleIds.length} visible icons, carousel lazy loading, colour update, health pong, empty profile, no JS errors`);
+    console.log(`PASS: production boot, ${visibleIds.length} lazy icons, incremental catalogues, size/color throttle and release, repeated clicks, embedded zoom, composer reuse, bounded page logs, error fallback and reload`);
   } finally {
     await browser?.close();
     await new Promise(resolve => server.close(resolve));

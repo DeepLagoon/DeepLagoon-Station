@@ -144,6 +144,10 @@ public sealed partial class ApartmentSystem : EntitySystem
         _editors.Remove(args.Player.UserId);
         if (_lobbyEditors.Remove(args.Player.UserId))
             Result(args.Player, true, "", -1);
+
+        if (!args.LateJoin)
+            return;
+
         // Keep the normal arrival point and loadout for leaving the apartment.
         // A failed load leaves the player at their normal spawn.
         if (!Enter(args.Player, args.Player.UserId, out var message, spawnAtBed: true))

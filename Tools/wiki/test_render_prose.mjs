@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {repairProseBlocks} from './render_prose.mjs';
+const calls=[];
+const render=text=>{calls.push(text);return '<p>'+text+'</p>'};
+const source='<pre><code>## Трубные сети\n\nРаспределение газов &amp; давление\n</code></pre>';
+const repaired=repairProseBlocks(source,render);
+assert.equal(calls[0],'## Трубные сети\n\nРаспределение газов & давление\n');
+assert.ok(!repaired.includes('<pre>'));
+assert.equal(repairProseBlocks(repaired,render),repaired);
+const code='<pre><code class="language-python">print("Привет")</code></pre>';
+assert.equal(repairProseBlocks(code,render),code);
+assert.equal(repairProseBlocks('<pre><code>using Something;</code></pre>',render),'<pre><code>using Something;</code></pre>');
+console.log('Prose rendering regressions passed.');

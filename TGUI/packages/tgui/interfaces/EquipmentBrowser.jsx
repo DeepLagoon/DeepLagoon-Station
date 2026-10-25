@@ -38,7 +38,7 @@ export const EquipmentBrowser = memo(({data={},act}) => {
   return <div className="EquipmentBrowser">
     <Section title="Снаряжение"><Dropdown selected={data.job} options={(data.jobs||[]).map(job=>({value:job.id,displayText:job.name}))} onSelected={value=>act('job',{value})} />
       <div className="EquipmentBrowser__summary" aria-label="Бюджет снаряжения">
-        <div><span>Доступно Money</span><strong>{data.savings} + {data.balance}</strong></div>
+        <div><span>Счёт персонажа</span><strong>{data.balance}</strong></div>
         <div><span>Стоимость снаряжения</span><strong>{data.cost}</strong></div>
         <div><span>Очки снаряжения</span><strong>{data.points} / {data.maxPoints}</strong><progress max={Math.max(1,data.maxPoints||0)} value={data.points||0} /></div>
       </div>

@@ -1,5 +1,4 @@
 using System.IO;
-using Content.Server._DeepLagoon.Money;
 using Content.Server.Administration.Logs;
 using Content.Server.Database;
 using Content.Server.GameTicking;
@@ -47,7 +46,6 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
     [Dependency] private GameTicker _gameTicker = default!;
     [Dependency] private IComponentFactory _componentFactory = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
-    [Dependency] private MoneyManager _coinBase = default!; // I had to.
     [Dependency] private ISharedPlayerManager _playerManager = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private Content.Shared.Whitelist.EntityWhitelistSystem _whitelist = default!;
@@ -275,24 +273,25 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         }
 
         long initialBankBalance = bank.Balance;
-        initialBankBalance += _coinBase.GetMoneyBalance(userId) ?? 0L;
         var bankBalance = initialBankBalance;
         bankBalance -= cost;
 
         if (initialBankBalance < cost)
         {
-            ConsolePopup(player, $"Insufficient funds. You need ${cost:N0}, but only have ${bank.Balance:N0} in bank and ${initialBankBalance-bank.Balance:N0} in savings.");
+            ConsolePopup(player, $"Insufficient funds. You need ${cost:N0}, but only have ${bank.Balance:N0} in your character account.");
             PlayDenySound(uid, component);
             return;
         }
 
         // Withdraw from bank
-        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, (int)(initialBankBalance - bankBalance), out var newBalance, true))
+        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, (int)(initialBankBalance - bankBalance), out var newBalance))
         {
             ConsolePopup(player, "Transaction failed.");
             PlayDenySound(uid, component);
             return;
         }
+
+        _bankSystem.SetConfirmedBankBalance(player, newBalance.Value);
 
         var characterIndex = prefs.SelectedCharacterIndex;
         var characterName = MetaData(player).EntityName;

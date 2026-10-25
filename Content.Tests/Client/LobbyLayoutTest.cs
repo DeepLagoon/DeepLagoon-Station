@@ -43,11 +43,11 @@ public sealed class LobbyLayoutTest : RobustUnitTest
     [TestCase(1280, 720, 600)]
     [TestCase(1024, 600, 465)]
     [TestCase(800, 600, 400)]
-    public void CharacterDrawerSitsBesideFullHeightChatWithoutOverlappingUtilities(int width, int height, int chatWidth)
+    public void CharacterAndMusicStayLeftOfUtilitiesAndFullHeightChat(int width, int height, int chatWidth)
     {
         using var layout = new LobbyColumns { SidePanelWidth = chatWidth };
         var left = new Control();
-        var drawer = new Control { SetWidth = LobbyEntryDrawer.ExpandedWidth };
+        var drawer = new DrawerStub { RequestedWidth = LobbyUtilityDrawer.ExpandedWidth };
         var right = new Control();
         layout.AddChild(left);
         layout.AddChild(drawer);
@@ -67,7 +67,7 @@ public sealed class LobbyLayoutTest : RobustUnitTest
         layout.SidePanelWidth = 100;
         layout.Measure(size);
         layout.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
-        Assert.That(right.Width, Is.EqualTo(100), "Chat width is independent of the character drawer");
+        Assert.That(right.Width, Is.EqualTo(100), "Chat width is independent of the utility drawer");
         size = new Vector2(1000, 600);
         layout.Measure(size);
         layout.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
@@ -77,24 +77,36 @@ public sealed class LobbyLayoutTest : RobustUnitTest
     [TestCase(1080)]
     [TestCase(720)]
     [TestCase(600)]
-    public void FoldingEntryDrawerCannotChangeChatPositionWidthOrHeight(int height)
+    public void FoldingUtilitiesCannotMoveCharacterMusicOrChat(int height)
     {
         using var layout = new LobbyColumns();
-        var drawer = new Control { SetWidth = LobbyEntryDrawer.ExpandedWidth };
+        var drawer = new DrawerStub { RequestedWidth = LobbyUtilityDrawer.ExpandedWidth };
         var chat = new Control();
-        layout.AddChild(new Control()); layout.AddChild(drawer); layout.AddChild(chat);
+        var left = new Control();
+        layout.AddChild(left); layout.AddChild(drawer); layout.AddChild(chat);
         var size = new Vector2(1280, height);
         void Arrange() { layout.Measure(size); layout.Arrange(UIBox2.FromDimensions(Vector2.Zero, size)); }
         Arrange();
         var position = chat.Position;
         var chatSize = chat.Size;
-        drawer.SetWidth = LobbyEntryDrawer.TabWidth;
+        var leftSize = left.Size;
+        drawer.RequestedWidth = LobbyUtilityDrawer.TabWidth;
+        drawer.InvalidateMeasure();
         // These detached controls do not receive the UI's queued child-measure pass.
         layout.InvalidateMeasure();
         Arrange();
         Assert.That(chat.Position, Is.EqualTo(position));
         Assert.That(chat.Size, Is.EqualTo(chatSize));
         Assert.That(chat.Height, Is.EqualTo(height));
-        Assert.That(drawer.Width, Is.EqualTo(LobbyEntryDrawer.TabWidth));
+        Assert.That(left.Position, Is.EqualTo(Vector2.Zero));
+        Assert.That(left.Size, Is.EqualTo(leftSize));
+        Assert.That(drawer.Width, Is.EqualTo(LobbyUtilityDrawer.TabWidth));
+    }
+
+    private sealed class DrawerStub : Control
+    {
+        public float RequestedWidth;
+
+        protected override Vector2 MeasureOverride(Vector2 availableSize) => new(RequestedWidth, 0);
     }
 }

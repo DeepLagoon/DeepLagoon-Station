@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 import re
 import json
+import colorsys
 import yaml
 
 
@@ -152,3 +153,125 @@ class GameData:
 
     def components(self, identifier):
         return {c['type']: c for c in self.get('entity', identifier).get('components', [])}
+
+    def doll_species(self, identifier):
+        """Dolls are loaded with their species profile in-game, not their inherited Icon."""
+        return next((self.get('species', key) for key in self.raw['species']
+                     if self.get('species', key).get('dollPrototype') == identifier), {})
+
+    def illustration_species(self, identifier):
+        return self.doll_species(identifier) or next((self.get('species', key) for key in self.raw['species']
+                     if self.get('species', key).get('prototype') == identifier), {})
+
+    def humanoid_species_name(self, identifier):
+        species = self.illustration_species(identifier)
+        return self.loc(species.get('name', species.get('id', '')))
+
+    @staticmethod
+    def _rgb(color):
+        value = str(color).lstrip('#')
+        if len(value) == 3:
+            value = ''.join(c * 2 for c in value)
+        if len(value) not in (6, 8):
+            return 1., 1., 1.
+        return tuple(int(value[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+    @staticmethod
+    def _hex(rgb, alpha=1):
+        return '#' + ''.join(f'{round(max(0, min(1, v)) * 255):02x}' for v in (*rgb, alpha))
+
+    def _skin_color(self, species):
+        coloration = species.get('skinColoration', 'HumanToned')
+        if coloration == 'HumanToned':
+            tone = max(0, min(100, species.get('defaultHumanSkinTone', 20)))
+            offset = tone - 20
+            hue, saturation, value = (25 + max(0, -offset)) / 360, (20 + max(0, offset)) / 100, (100 - max(0, offset)) / 100
+            return self._hex(colorsys.hsv_to_rgb(hue, saturation, value))
+        rgb = self._rgb(species.get('defaultSkinTone', '#ffffff'))
+        if coloration == 'TintedHues':
+            # Mirrors SkinColor.TintedHues: ToHsl, modify saturation/lightness, FromHsv.
+            hue, lightness, saturation = colorsys.rgb_to_hls(*rgb)
+            rgb = colorsys.hsv_to_rgb(hue, saturation * .1, .85 + lightness * .15)
+        return self._hex(rgb)
+
+    def _marking_color(self, definition, skin, eyes, categories):
+        definition = definition or {}
+        for kind in [definition.get('type', {'effectType': 'SkinColoring'}), *definition.get('fallbackTypes', [])]:
+            name = kind.get('effectType')
+            color = None
+            if name == 'SkinColoring':
+                color = skin
+            elif name == 'EyeColoring':
+                color = eyes
+            elif name == 'SimpleColoring':
+                color = kind.get('color', '#ffffff')
+            elif name == 'CategoryColoring':
+                color = categories.get(kind.get('category'))
+            elif name == 'TattooColoring':
+                hue, saturation, _ = colorsys.rgb_to_hsv(*self._rgb(skin))
+                color = self._hex(colorsys.hsv_to_rgb(hue, saturation, .4))
+            if color:
+                return self._hex(tuple(1 - c for c in self._rgb(color))) if kind.get('negative') else color
+        return definition.get('fallbackColor', '#ffffff')
+
+    def humanoid_sprite_layers(self, identifier):
+        """Static species-profile illustration; None keeps ordinary entity icon rendering.
+
+        Resolve dolls and canonical bodies through the species prototype because
+        some inherit another species' appearance component. Equipped NPC variants
+        keep their own rendering path; a bare body would misrepresent their outfit.
+        """
+        species = self.illustration_species(identifier)
+        if not species:
+            return [] if identifier.endswith('Dummy') and 'HumanoidAppearance' in self.components(identifier) else None
+        components = self.components(identifier)
+        if 'HumanoidAppearance' not in components:
+            return None
+        sprites = self.get('speciesBaseSprites', species.get('sprites', '')).get('sprites', {})
+        if not sprites:
+            return []
+        appearance = components['HumanoidAppearance']
+        skin, eyes = self._skin_color(species), appearance.get('eyeColor', '#000000')
+        hidden = set(appearance.get('permanentlyHidden', []))
+        sex = appearance.get('sex', 'Male')
+        order = []
+        for layer in components.get('Sprite', {}).get('layers', []):
+            for key in layer.get('map', []):
+                if str(key).startswith('enum.HumanoidVisualLayers.'):
+                    order.append(key.rsplit('.', 1)[1])
+        order.extend(key for key in sprites if key not in order)
+        rendered = defaultdict(list)
+        settings = {}
+        for part, key in sprites.items():
+            morphed = key + sex if key and part in ('Head', 'Chest') and sex != 'Unsexed' else key
+            info = self.get('humanoidBaseSprite', morphed) or self.get('humanoidBaseSprite', key)
+            settings[part] = info
+            image = info.get('baseSprite')
+            if not isinstance(image, dict) or part in hidden:
+                continue
+            layer = dict(image)
+            if info.get('matchSkin', True):
+                layer['color'] = self._hex(self._rgb(eyes if part == 'Eyes' else skin), info.get('layerAlpha', 1))
+            rendered[part].append(layer)
+        categories = {}
+        points = self.get('markingPoints', species.get('markingLimits', '')).get('points', {})
+        for category, point in points.items():
+            for key in point.get('defaultMarkings', [])[:point.get('points', 0)]:
+                marking = self.get('marking', key)
+                part = marking.get('bodyPart')
+                setting = settings.get(part)
+                if setting is None or not setting.get('allowsMarkings', True) or part in hidden:
+                    continue
+                coloring = marking.get('coloring', {})
+                for image in marking.get('sprites', []):
+                    if not isinstance(image, dict):
+                        continue
+                    definition = (coloring.get('layers') or {}).get(image.get('state'), coloring.get('default'))
+                    color = self._marking_color(definition, skin, eyes, categories)
+                    if setting.get('markingsMatchSkin'):
+                        color = self._hex(self._rgb(skin), setting.get('layerAlpha', 1))
+                    layer = dict(image, color=color)
+                    anchor = marking.get('spriteLayers', {}).get(image.get('state'), part)
+                    rendered[anchor].append(layer)
+                    categories.setdefault(category, color)
+        return [layer for part in order for layer in rendered[part]]

@@ -12,10 +12,10 @@
   header { padding-right: 144px; min-height: 22px; flex-shrink: 0; }
   header > div { min-width: 0; }
   header strong { display: block; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  small { display: block; margin-top: 5px; color: #9fb3cd; font-size: 11px; }
+  small { color: #9fb3cd; font-size: 11px; }
   &__channel { display: flex; align-items: center; gap: 12px; margin: 16px 0 12px; color: #a7bed9; }
   textarea {
-    display: block; box-sizing: border-box; width: 100%; min-height: 40px; flex: 1;
+    display: block; box-sizing: border-box; width: 100%; min-height: 44px; flex: 1;
     padding: 12px; resize: none;
     background: #101a28; color: #edf3fc; font: inherit; line-height: 1.5;
     border: 1px solid transparent; border-radius: 9px; outline: none;

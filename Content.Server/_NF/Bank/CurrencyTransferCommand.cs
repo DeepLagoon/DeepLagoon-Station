@@ -1,27 +1,26 @@
 using System.Linq;
 using Content.Server.Chat.Managers;
-using Content.Server.Database;
 using Content.Shared.Administration;
 using Content.Shared.Chat;
 using Robust.Server.Player;
 using Robust.Shared.Console;
 using Robust.Shared.Player;
 
-namespace Content.Server._DeepLagoon.Money;
+namespace Content.Server._NF.Bank;
 
 /// <summary>
-/// Player command for transferring Money to other players.
+/// Player command for transferring funds between selected character accounts.
 /// </summary>
 [AnyCommand]
 public sealed partial class CurrencyTransferCommand : LocalizedCommands
 {
     [Dependency] private IPlayerManager _playerManager = default!;
-    [Dependency] private MoneyManager _coins = default!;
+    [Dependency] private IEntityManager _entities = default!;
     [Dependency] private IChatManager _chatManager = default!;
 
     public override string Command => "currency:transfer";
 
-    public override async void Execute(IConsoleShell shell, string argStr, string[] args)
+    public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
         if (args.Length < 2)
         {
@@ -31,7 +30,7 @@ public sealed partial class CurrencyTransferCommand : LocalizedCommands
 
         var targetPlayerName = args[0];
 
-        if (!long.TryParse(args[1], out var amount))
+        if (!int.TryParse(args[1], out var amount))
         {
             shell.WriteError("Amount must be a valid integer.");
             return;
@@ -75,20 +74,16 @@ public sealed partial class CurrencyTransferCommand : LocalizedCommands
             return;
         }
 
-        var senderUserId = senderSession.UserId;
-        var targetUserId = targetSession.UserId;
-
-        try
+        if (_entities.System<BankSystem>().TryTransfer(senderSession, targetSession, amount, out var transfer))
         {
-            var transfer = await _coins.TransferMoneyAsync(senderUserId, targetUserId, amount);
             var newSenderBalance = transfer.SenderBalance;
             var newTargetBalance = transfer.RecipientBalance;
 
             // Notify both players
-            shell.WriteLine($"Successfully transferred ${amount} to {targetPlayerName}. New balance: ${newSenderBalance}");
+            shell.WriteLine(Loc.GetString("bank-transfer-sent", ("amount", amount), ("player", targetPlayerName), ("balance", newSenderBalance)));
 
             // Notify the target player via chat
-            var notificationMessage = $"Received ${amount} from {senderSession.Name}. New balance: ${newTargetBalance}";
+            var notificationMessage = Loc.GetString("bank-transfer-received", ("amount", amount), ("player", senderSession.Name), ("balance", newTargetBalance));
             _chatManager.ChatMessageToOne(
                 ChatChannel.Notifications,
                 notificationMessage,
@@ -97,9 +92,9 @@ public sealed partial class CurrencyTransferCommand : LocalizedCommands
                 false,
                 targetSession.Channel);
         }
-        catch (Exception ex)
+        else
         {
-            shell.WriteError($"Transfer failed due to database error: {ex.Message}");
+            shell.WriteError(Loc.GetString("bank-transfer-rejected"));
         }
     }
 

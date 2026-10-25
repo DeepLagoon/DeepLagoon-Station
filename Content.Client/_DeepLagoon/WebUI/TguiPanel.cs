@@ -103,7 +103,7 @@ public sealed partial class TguiPanel : Control
     private ScreenCoordinates _dragPointer;
     private Vector2 _dragOrigin;
     private bool _dragging;
-    private string _chatState = "";
+    private string _chatAppearance = "{}";
     private string? _chatSettings;
     private float _appearanceRefresh;
     private readonly bool _inheritChatAppearance;
@@ -349,7 +349,8 @@ public sealed partial class TguiPanel : Control
             {
                 _chatSettings = settings;
                 var state = Content.Client.UserInterface.Systems.Chat.Controls.ChatTabsSettings.Deserialize(settings)?.WebState ?? "";
-                if (state != _chatState) { _chatState = state; Publish(); }
+                var appearance = ChatAppearance(state);
+                if (appearance != _chatAppearance) { _chatAppearance = appearance; Publish(); }
             }
         }
         if (_dragWindow == null || _input == null) return;
@@ -376,6 +377,16 @@ public sealed partial class TguiPanel : Control
             "\"config\":{\"interface\":" + GameWebView.Quote(_interface) +
             ",\"title\":" + GameWebView.Quote(_title) +
             ",\"status\":2,\"window\":{\"key\":\"deeplagoon\",\"fancy\":false}},\"data\":" + data[..^1] +
-            (string.IsNullOrWhiteSpace(data[1..^1]) ? "" : ",") + "\"chatState\":" + GameWebView.Quote(_chatState) + "}}");
+            (string.IsNullOrWhiteSpace(data[1..^1]) ? "" : ",") + "\"chatAppearance\":" + _chatAppearance + "}}");
+    }
+
+    internal static string ChatAppearance(string chatState)
+    {
+        var appearance = new TguiData();
+        if (!TguiActionData.TryParse(chatState, out var state) || state!.Object("settings") is not { } settings)
+            return appearance.ToString();
+        foreach (var key in new[] { "theme", "chatBgColor", "chatTextColor" })
+            if (settings.String(key) is { } value) appearance.String(key, value);
+        return appearance.ToString();
     }
 }

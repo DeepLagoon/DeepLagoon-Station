@@ -13,6 +13,8 @@ namespace Content.Client.UserInterface.Systems.Chat.Widgets;
 public partial class ChatBox
 {
     private ComposerWindow? _composer;
+    private ComposerWindow? _composerWindow;
+    private int _composerSession;
     private int _composerRevision;
     private IInputManager? _composerInput;
     private bool _composerComposing;
@@ -26,7 +28,7 @@ public partial class ChatBox
             Resizable = false;
             // Keep layout and browser startup active, but hide the blank bootstrap frame.
             Modulate = Color.Transparent;
-            SetSize = new Vector2(440, 270);
+            SetSize = new Vector2(440, 190);
             AddChild(Panel);
         }
 
@@ -34,7 +36,7 @@ public partial class ChatBox
         {
             if (_emote == emote || TguiWindowControls.IsMaximized(this)) return;
             _emote = emote;
-            var size = emote ? new Vector2(840, 460) : new Vector2(440, 270);
+            var size = emote ? new Vector2(840, 460) : new Vector2(440, 190);
             if (Parent is not { } root) { SetSize = size; return; }
             size = Vector2.Min(size, root.Size);
             var position = Position + (Size - size) / 2;
@@ -47,10 +49,12 @@ public partial class ChatBox
     {
         if (_composer == null)
         {
-            var window = new ComposerWindow();
+            _composerSession++;
+            var window = _composerWindow ??= new ComposerWindow();
+            window.Modulate = Color.Transparent;
             var available = UserInterfaceManager.WindowRoot.Size;
             if (available.X > 0 && available.Y > 0)
-                window.SetSize = Vector2.Min(new Vector2(440, 270), available);
+                window.SetSize = Vector2.Min(window.SetSize, available);
             _composer = window;
             _composerInput = IoCManager.Resolve<IInputManager>();
             _composerInput.FirstChanceOnKeyEvent += OnComposerKey;
@@ -59,18 +63,8 @@ public partial class ChatBox
             window.Panel.OnClose += CloseComposer;
             window.OnClose += CloseComposer;
             window.Panel.Web.Ready += window.Panel.Web.FocusTextInput;
-            window.Panel.Web.Failed += () =>
-            {
-                CloseComposer();
-                SetChatMode(true, true);
-                ChatInput.Input.GrabKeyboardFocus();
-            };
-            window.Panel.SetNativeFallback(() =>
-            {
-                CloseComposer();
-                SetChatMode(true, true);
-                ChatInput.Input.GrabKeyboardFocus();
-            });
+            window.Panel.Web.Failed += OnComposerFailed;
+            window.Panel.SetNativeFallback(OnComposerFailed);
             window.OpenCentered();
         }
         _composerRevision++;
@@ -86,11 +80,11 @@ public partial class ChatBox
             .Where(channel => (_controller.SelectableChannels & channel) != 0)
             .Select(channel => "{\"id\":" + GameWebView.Quote(((uint) channel).ToString()) +
                 ",\"name\":" + GameWebView.Quote(ChannelSelectorButton.ChannelSelectorName(channel)) + "}");
-        _composer?.Panel.SetState("ChatComposer", "{\"revision\":" + _composerRevision + ",\"text\":" + GameWebView.Quote(ChatInput.Input.Text) +
+        _composer?.Panel.SetState("ChatComposer", "{\"session\":" + _composerSession + ",\"revision\":" + _composerRevision + ",\"text\":" + GameWebView.Quote(ChatInput.Input.Text) +
             ",\"channel\":" + GameWebView.Quote(((uint) SelectedChannel).ToString()) +
             ",\"emoteChannel\":" + GameWebView.Quote(((uint) ChatSelectChannel.Emotes).ToString()) +
             ",\"maxLength\":" + _controller.MaxMessageLength +
-            ",\"channels\":[" + string.Join(",", channels) + "]}", "Чат");
+            ",\"channels\":[" + string.Join(",", channels) + "]}", Loc.GetString("dl-chat-composer-title"));
     }
 
     private void OnComposerChannelsChanged(ChatSelectChannel channels)
@@ -104,6 +98,8 @@ public partial class ChatBox
 
     private void HandleComposerAction(string action, string payload)
     {
+        if (_composer == null || !TguiActionData.TryParse(payload, out var envelope) ||
+            !envelope!.TryInt("session", out var session) || session != _composerSession) return;
         if (action == "presented")
         {
             if (_composer != null) _composer.Modulate = Color.White;
@@ -178,9 +174,27 @@ public partial class ChatBox
         _composerInput = null;
         _composerComposing = false;
         _controller.SelectableChannelsChanged -= OnComposerChannelsChanged;
+        window.Panel.OnAction -= HandleComposerAction;
+        window.Panel.OnClose -= CloseComposer;
+        window.OnClose -= CloseComposer;
+        window.Panel.Web.Ready -= window.Panel.Web.FocusTextInput;
+        window.Panel.Web.Failed -= OnComposerFailed;
         window.Panel.Web.ReleaseTextInput();
         window.Close();
-        window.Dispose();
         _controller.NotifyChatFocus(false);
+    }
+
+    private void OnComposerFailed()
+    {
+        DisposeComposer();
+        SetChatMode(true, true);
+        ChatInput.Input.GrabKeyboardFocus();
+    }
+
+    private void DisposeComposer()
+    {
+        CloseComposer();
+        _composerWindow?.Dispose();
+        _composerWindow = null;
     }
 }

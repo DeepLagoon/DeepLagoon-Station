@@ -9,7 +9,7 @@ import './CharacterEditor.scss';
 export const CharacterColorPicker = () => {
   const { data, act } = useBackend();
   const [mode, setMode] = useState('wheel');
-  const theme = playerTheme(JSON.stringify({ settings: data.appearance || {} }));
+  const theme = playerTheme(data.appearance);
   return <div className={'CharacterColorDialog ' + theme.className}
     role="dialog" aria-label={data.title || 'Выбор цвета'}
     onKeyDown={event => { if (event.key === 'Escape') act('color-picker-close', { id: data.id }); }}

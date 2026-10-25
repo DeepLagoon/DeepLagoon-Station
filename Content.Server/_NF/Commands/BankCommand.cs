@@ -136,7 +136,7 @@ public sealed partial class BankCommand : IConsoleCommand
             // Player is in-game with entity that has bank account - use entity methods which will update the profile
             if (amount > 0)
             {
-                success = bankSystem.TryBankDeposit(playerEntity.Value, amount, false);
+                success = bankSystem.TryBankDeposit(playerEntity.Value, amount);
                 if (success)
                 {
                     // Get updated balance after deposit

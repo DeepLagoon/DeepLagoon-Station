@@ -11,6 +11,7 @@ import { perf } from 'common/perf';
 import { setupHotReloading } from 'tgui-dev-server/link/client.cjs';
 
 import { FindBar } from './components/FindBar';
+import { InterfaceErrorBoundary } from './components/InterfaceErrorBoundary';
 import { isDragOrResizeActive } from './drag';
 import { setupGlobalEvents } from './events';
 import { setupHotKeys } from './hotkeys';
@@ -40,7 +41,9 @@ const renderApp = createRenderer(() => {
   const Component = getRoutedComponent(store);
   return (
     <>
-      <Component />
+      <InterfaceErrorBoundary key={store.getState()?.backend?.config?.interface}>
+        <Component />
+      </InterfaceErrorBoundary>
       <FindBar key={getFindBarInstanceKey()} />
     </>
   );

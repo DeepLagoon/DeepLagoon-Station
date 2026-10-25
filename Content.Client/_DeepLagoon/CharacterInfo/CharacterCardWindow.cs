@@ -23,7 +23,7 @@ public sealed class CharacterCardWindow : FancyWindow
     {
         _entity = entity;
         _slot = slot;
-        Title="Профиль персонажа"; SetSize=new Vector2(950,740); MinSize=new Vector2(640,600);
+        Title=Loc.GetString("dl-character-card-title"); SetSize=new Vector2(950,740); MinSize=new Vector2(640,600);
         _sprite.SetEntity(entity);
         _data=new TguiData().String("name",name).String("flavor",flavor).String("ooc",ooc).Number("erp",erp).Number("noncon",nonCon).Number("vore",vore);
         _host=new CardHost(_panel,_sprite); ContentsContainer.AddChild(_host);

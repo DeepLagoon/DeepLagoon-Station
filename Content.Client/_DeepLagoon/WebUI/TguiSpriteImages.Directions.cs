@@ -27,17 +27,17 @@ public sealed partial class TguiSpriteImages
             var rsi = resources.GetResource<RSIResource>(root).RSI;
             var selected = rsi[state];
             var packed = !resources.TryContentFileRead(root / (state + ".png"), out var stream);
-            stream ??= resources.ContentFileRead(root.WithExtension("rsic"));
             using var input = stream;
-            using var image = Image.Load<Rgba32>(input);
+            var sheet = packed ? Sheet(resources, root) : null;
+            using var unpacked = packed ? null : Image.Load<Rgba32>(input!);
+            var image = sheet?.Image ?? unpacked!;
             Rectangle rectangle;
             if (packed)
             {
-                var regions = rsi.Select(entry => ((AtlasTexture) entry.Frame0).SubRegion).ToArray();
                 var frameDirection = selected.RsiDirections == RsiDirectionType.Dir1 ? RsiDirection.South : direction;
                 var region = ((AtlasTexture) selected.GetFrame(frameDirection, 0)).SubRegion;
-                rectangle = new Rectangle((int) (region.Left - regions.Min(region => region.Left)),
-                    (int) (region.Top - regions.Min(region => region.Top)), rsi.Size.X, rsi.Size.Y);
+                rectangle = new Rectangle((int) region.Left - sheet!.Left,
+                    (int) region.Top - sheet.Top, rsi.Size.X, rsi.Size.Y);
             }
             else
             {

@@ -29,11 +29,12 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class LagoonCoinIntegrationTests
 {
     [Test]
-    public async Task WalletOperationsPublishOnceToOnlineOwnerAndNeverChangeMoney()
+    public async Task WalletOperationsPublishOnceToOnlineOwnerAndNeverChangeCharacterBank()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
         List<LagoonCoinRewardEvent> rewards = null!;
+        var initialBankBalance = 0;
         await pair.Client.WaitPost(() =>
         {
             var recorder = pair.Client.EntMan.System<RewardRecorder>();
@@ -48,10 +49,7 @@ public sealed class LagoonCoinIntegrationTests
             var player = pair.Server.PlayerMan.Sessions.Single();
             var ticker = entities.System<GameTicker>();
             var tasks = pair.Server.ResolveDependency<ITaskManager>();
-            var money = pair.Server.ResolveDependency<Content.Server._DeepLagoon.Money.MoneyManager>();
-            var setMoney = money.SetMoneyBalanceAsync(player.UserId, 42);
-            tasks.BlockWaitOnTask(setMoney);
-            setMoney.GetAwaiter().GetResult();
+            initialBankBalance = ReadBankBalance(pair.Server.ResolveDependency<IServerDbManager>(), tasks, player.UserId);
 
             ticker.ToggleReady(player, true);
             ticker.ToggleReady(player, false);
@@ -86,7 +84,7 @@ public sealed class LagoonCoinIntegrationTests
             entities.EventBus.RaiseEvent(EventSource.Local, new RoundEndedEvent(123, TimeSpan.FromMinutes(30)));
             entities.System<ServerWallet>().Update(0);
             var database = pair.Server.ResolveDependency<IServerDbManager>();
-            Assert.That(database.GetMoneyAsync(player.UserId).GetAwaiter().GetResult(), Is.EqualTo(42));
+            Assert.That(ReadBankBalance(database, pair.Server.ResolveDependency<ITaskManager>(), player.UserId), Is.EqualTo(initialBankBalance));
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
@@ -182,9 +180,7 @@ public sealed class LagoonCoinIntegrationTests
             var grant = wallet.Grant(offline, 9, "Offline grant", null, "admin:integration-offline");
             tasks.BlockWaitOnTask(grant);
             Assert.That(grant.GetAwaiter().GetResult().Balance, Is.EqualTo(9));
-            var money = database.GetMoneyAsync(user);
-            tasks.BlockWaitOnTask(money);
-            Assert.That(money.GetAwaiter().GetResult(), Is.EqualTo(42));
+            Assert.That(ReadBankBalance(database, tasks, user), Is.EqualTo(initialBankBalance));
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
@@ -208,6 +204,7 @@ public sealed class LagoonCoinIntegrationTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         List<LagoonCoinRewardEvent> rewards = null!;
+        var initialBankBalance = 0;
         await pair.Client.WaitPost(() =>
         {
             var recorder = pair.Client.EntMan.System<RewardRecorder>();
@@ -219,10 +216,8 @@ public sealed class LagoonCoinIntegrationTests
         await pair.Server.WaitAssertion(() =>
         {
             var session = pair.Server.PlayerMan.Sessions.Single();
-            var money = pair.Server.ResolveDependency<Content.Server._DeepLagoon.Money.MoneyManager>();
-            var save = money.SetMoneyBalanceAsync(session.UserId, 42);
-            pair.Server.ResolveDependency<ITaskManager>().BlockWaitOnTask(save);
-            save.GetAwaiter().GetResult();
+            initialBankBalance = ReadBankBalance(pair.Server.ResolveDependency<IServerDbManager>(),
+                pair.Server.ResolveDependency<ITaskManager>(), session.UserId);
         });
 
         async Task SaveHalfHour() => await pair.Server.WaitAssertion(() =>
@@ -282,13 +277,18 @@ public sealed class LagoonCoinIntegrationTests
         {
             var session = pair.Server.PlayerMan.Sessions.Single();
             var database = pair.Server.ResolveDependency<IServerDbManager>();
-            var getMoney = database.GetMoneyAsync(session.UserId);
-            pair.Server.ResolveDependency<ITaskManager>().BlockWaitOnTask(getMoney);
-            Assert.That(getMoney.GetAwaiter().GetResult(), Is.EqualTo(42));
+            Assert.That(ReadBankBalance(database, pair.Server.ResolveDependency<ITaskManager>(), session.UserId), Is.EqualTo(initialBankBalance));
         });
         await pair.CleanReturnAsync();
     }
 
+
+    private static int ReadBankBalance(IServerDbManager database, ITaskManager tasks, NetUserId user)
+    {
+        var preferences = database.GetPlayerPreferencesAsync(user, default);
+        tasks.BlockWaitOnTask(preferences);
+        return ((HumanoidCharacterProfile) preferences.GetAwaiter().GetResult()!.SelectedCharacter).BankBalance;
+    }
 
     private static T Find<T>(Control root, string name) where T : Control
         => Descendants(root).OfType<T>().Single(control => control.Name == name);

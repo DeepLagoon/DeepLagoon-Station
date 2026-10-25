@@ -16,7 +16,7 @@ namespace Content.Client.Lobby.UI
     {
         [Dependency] private IClientConsoleHost _consoleHost = default!;
 
-        private string _lastLobbyState = "";
+        private (string?, string?, string?)? _lastLobbyState;
 
         public LobbyGui()
         {
@@ -81,14 +81,14 @@ namespace Content.Client.Lobby.UI
         {
             base.FrameUpdate(args);
             HeaderContainer.Visible = LobbyInfoScroll.Visible = StartTime.Visible = Chat.WebChat == null;
-            var state = new Content.Client._DeepLagoon.WebUI.TguiData().String("server", ServerName.Text)
-                .String("time", StationTime.Text).String("status", StartTime.Text).ToString();
+            var state = (ServerName.Text, StationTime.Text, StartTime.Text);
             if (Chat.WebChat?.IsReady == true && state != _lastLobbyState)
             {
                 _lastLobbyState = state;
-                Chat.WebChat.Send("deeplagoon/lobby-status", state);
+                Chat.WebChat.Send("deeplagoon/lobby-status", new Content.Client._DeepLagoon.WebUI.TguiData()
+                    .String("server", state.Item1).String("time", state.Item2).String("status", state.Item3).ToString());
             }
-            if (Chat.WebChat?.IsReady != true) _lastLobbyState = "";
+            if (Chat.WebChat?.IsReady != true) _lastLobbyState = null;
         }
 
         public void SwitchState(LobbyGuiState state)
@@ -98,11 +98,11 @@ namespace Content.Client.Lobby.UI
             switch (state)
             {
                 case LobbyGuiState.Default:
-                    DefaultState.Visible = !EntryDrawer.Collapsed;
+                    DefaultState.Visible = true;
                     RightSide.Visible = true;
                     break;
                 case LobbyGuiState.CharacterSetup:
-                      DefaultState.Visible = !EntryDrawer.Collapsed;
+                      DefaultState.Visible = true;
                       RightSide.Visible = true;
                       UserInterfaceManager.GetUIController<LobbyUIController>().OpenCharacterEditor();
 

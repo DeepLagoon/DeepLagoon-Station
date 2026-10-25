@@ -313,7 +313,7 @@ public partial class ChatBox : UIWidget
     [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
-        CloseComposer();
+        DisposeComposer();
         DisposeWebSettings();
         _cfg.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, ApplyChatMode);
         _cfg.UnsubValueChanged(Content.Shared._DeepLagoon.WebUI.WebUiCVars.InterfaceStyle, ApplyInterfaceStyle);

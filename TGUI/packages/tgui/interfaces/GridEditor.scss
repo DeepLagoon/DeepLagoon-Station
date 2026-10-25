@@ -149,7 +149,14 @@ body:has(.GridEditor) { zoom: 1 !important; }
   &__properties > .GridEditor__panelHeading { position: sticky; top: 0; z-index: 1; }
   &__panelSection { display: flex; flex-direction: column; gap: 9px; padding: 12px;
     > button { text-align: left; overflow-wrap: anywhere; }
-    select { width: 100%; min-width: 0; background: #13212c; border: 1px solid #456070; color: inherit; padding: 6px; }
+    .GridEditor__select { min-width: 0;
+      [role=combobox] { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; padding: 6px; background: #13212c; text-align: left; }
+      [role=combobox] > span:first-child { overflow-wrap: anywhere; }
+      [role=listbox] { max-height: 200px; overflow-y: auto; border: 1px solid #456070; background: #13212c; }
+      [role=option] { display: block; width: 100%; border: 0; border-radius: 0; text-align: left; overflow-wrap: anywhere; }
+      [role=option][aria-selected=true] { color: #80d6df; }
+      [role=option][data-active=true] { background: #32667b; }
+    }
     label { flex-wrap: wrap; }
     input[type=range] { width: 100%; accent-color: #80d6df; }
     input[type=number] { margin-left: auto; }

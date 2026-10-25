@@ -120,6 +120,10 @@ public sealed class ApartmentIntegrationTests
             SpawnComplete(false);
             Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+            Assert.That(system.Instances.ContainsKey(session.UserId), Is.False);
+            Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var roundStartUniform), Is.True);
+            Assert.That(roundStartUniform, Is.EqualTo(uniform));
+            Assert.That(entities.GetComponent<MetaDataComponent>(uniform).EntityPaused, Is.False);
 
             SpawnComplete(true);
             Assert.That(system.TryGetVisit(session.UserId, out var home, out var resident), Is.True);

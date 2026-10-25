@@ -23,6 +23,7 @@ namespace Content.Shared.Administration
             public bool Online;
             public AdminFlags PosFlags;
             public AdminFlags NegFlags;
+            public string? UnknownFlags;
             public int? RankId;
         }
 
@@ -32,6 +33,7 @@ namespace Content.Shared.Administration
             public string Name;
             public string ShortName; // Mono
             public AdminFlags Flags;
+            public string? UnknownFlags;
         }
     }
 

@@ -5,6 +5,7 @@ using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -16,10 +17,22 @@ namespace Content.Client._DeepLagoon.WebUI;
 /// <summary>Read first sprite frames from packaged resources, without GPU readbacks.</summary>
 public sealed partial class TguiSpriteImages
 {
+    public static TguiSpriteImages Shared => IoCManager.Resolve<TguiSpriteImages>();
+
     private readonly Dictionary<SpriteSpecifier, string> _frames = new();
     private readonly Dictionary<string, List<TguiData>> _items = new();
     private readonly Dictionary<(ResPath, byte), string> _tileFrames = new();
-    public void Reset() { _frames.Clear(); _items.Clear(); _tileFrames.Clear(); _directionalFrames.Clear(); }
+    private readonly Dictionary<ResPath, PackedSheet> _sheets = new();
+    private sealed record PackedSheet(Image<Rgba32> Image, RSI Rsi, int Left, int Top);
+
+    public void Reset()
+    {
+        _frames.Clear();
+        _items.Clear();
+        _tileFrames.Clear();
+        _directionalFrames.Clear();
+        ReleaseSheets();
+    }
 
     /// <summary>Tile sprites can be variant strips. Select one 32×32 frame.</summary>
     public string TileFrame(ResPath path, byte variant = 0)
@@ -49,12 +62,11 @@ public sealed partial class TguiSpriteImages
         };
         try
         {
-            var packed = false;
-            if (!resources.TryContentFileRead(path, out var stream) && spec is SpriteSpecifier.Rsi packedRsi)
+            if (!resources.TryContentFileRead(path, out var stream))
             {
-                var root = new ResPath("/Textures") / packedRsi.RsiPath;
-                stream = resources.ContentFileRead(root.WithExtension("rsic"));
-                packed = true;
+                if (spec is not SpriteSpecifier.Rsi packedRsi) return _frames[spec] = "";
+                var sheet = Sheet(resources, new ResPath("/Textures") / packedRsi.RsiPath);
+                return _frames[spec] = PackedFrame(sheet.Image, sheet.Rsi, packedRsi.RsiState, sheet.Left, sheet.Top);
             }
             if (stream == null) return _frames[spec] = "";
             using var input = stream;
@@ -62,9 +74,6 @@ public sealed partial class TguiSpriteImages
             using var output = new MemoryStream();
             if (spec is SpriteSpecifier.Rsi rsi)
             {
-                if (packed)
-                    return _frames[spec] = PackedFrame(image,
-                        resources.GetResource<RSIResource>(new ResPath("/Textures") / rsi.RsiPath).RSI, rsi.RsiState);
                 var size = resources.GetResource<RSIResource>(new ResPath("/Textures") / rsi.RsiPath).RSI.Size;
                 using var frame = image.Clone(context => context.Crop(new Rectangle(0, 0, size.X, size.Y)));
                 frame.SaveAsPng(output);
@@ -75,17 +84,49 @@ public sealed partial class TguiSpriteImages
         catch (Exception) { return _frames[spec] = ""; }
     }
 
+    private PackedSheet Sheet(IResourceCache resources, ResPath path)
+    {
+        if (_sheets.TryGetValue(path, out var sheet)) return sheet;
+        var rsi = resources.GetResource<RSIResource>(path).RSI;
+        var (left, top) = Origin(rsi);
+        using var input = resources.ContentFileRead(path.WithExtension("rsic"));
+        var image = Image.Load<Rgba32>(input);
+        sheet = new PackedSheet(image, rsi, left, top);
+        // Share decoded sheets within a batch, then release their pixel buffers.
+        if (_sheets.Count == 0) Timer.Spawn(0, ReleaseSheets);
+        _sheets.Add(path, sheet);
+        return sheet;
+    }
+
+    private void ReleaseSheets()
+    {
+        foreach (var sheet in _sheets.Values) sheet.Image.Dispose();
+        _sheets.Clear();
+    }
+
     public static string PackedFrame(Image<Rgba32> image, RSI rsi, string stateName)
+    {
+        if (!rsi.TryGetState(stateName, out _))
+            throw new InvalidDataException("RSIC state not found: " + stateName);
+        var (left, top) = Origin(rsi);
+        return PackedFrame(image, rsi, stateName, left, top);
+    }
+
+    private static (int Left, int Top) Origin(RSI rsi)
     {
         // The first south frame of the first state is at sheet index zero.
         // All states share a GPU atlas offset; its minimum X/Y is the RSI origin.
         // Subtract it to recover coordinates inside this RSI's packed PNG.
+        var regions = rsi.Select(state => ((AtlasTexture) state.Frame0).SubRegion).ToArray();
+        return ((int) regions.Min(r => r.Left), (int) regions.Min(r => r.Top));
+    }
+
+    private static string PackedFrame(Image<Rgba32> image, RSI rsi, string stateName, int left, int top)
+    {
         if (!rsi.TryGetState(stateName, out var selected))
             throw new InvalidDataException("RSIC state not found: " + stateName);
-        var regions = rsi.Select(state => ((AtlasTexture) state.Frame0).SubRegion).ToArray();
         var region = ((AtlasTexture) selected.Frame0).SubRegion;
-        var rectangle = new Rectangle((int) (region.Left - regions.Min(r => r.Left)),
-            (int) (region.Top - regions.Min(r => r.Top)), rsi.Size.X, rsi.Size.Y);
+        var rectangle = new Rectangle((int) region.Left - left, (int) region.Top - top, rsi.Size.X, rsi.Size.Y);
         using var frame = image.Clone(context => context.Crop(rectangle));
         using var output = new MemoryStream();
         frame.SaveAsPng(output);

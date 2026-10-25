@@ -7,8 +7,10 @@ namespace Content.Client._DeepLagoon.WebUI;
 public sealed class TguiActionData
 {
     private readonly IReadOnlyDictionary<string, string> _root;
+    private readonly Dictionary<string, TguiActionData> _objects = new(StringComparer.Ordinal);
     private TguiActionData(IReadOnlyDictionary<string, string> root) => _root = root;
     public string? String(string key) => _root.TryGetValue(key, out var value) ? value : null;
+    public TguiActionData? Object(string key) => _objects.GetValueOrDefault(key);
     public bool TryInt(string key, out int value) => int.TryParse(String(key), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     public bool TryFloat(string key, out float value) => float.TryParse(String(key), NumberStyles.Float, CultureInfo.InvariantCulture, out value)
         && float.IsFinite(value);
@@ -21,33 +23,45 @@ public sealed class TguiActionData
         if (maxLength is < 1 or > 1048576 || payload.Length > maxLength) return false;
         var root = new ScalarJsonReader(payload).Read();
         if (root == null) return false;
-        data = new TguiActionData(root);
+        data = root;
         return true;
     }
 
-    /// <summary>Strict, bounded JSON reader; only root scalar fields are retained.</summary>
+    /// <summary>Strict, bounded JSON reader; arrays are validated without retaining their contents.</summary>
     private sealed class ScalarJsonReader(string text)
     {
         private int _position;
 
-        public Dictionary<string, string>? Read()
+        public TguiActionData? Read()
         {
             var fields = new Dictionary<string, string>(StringComparer.Ordinal);
-            if (!Object(1, fields)) return null;
+            var data = new TguiActionData(fields);
+            if (!Object(1, fields, data._objects)) return null;
             Whitespace();
-            return _position == text.Length ? fields : null;
+            return _position == text.Length ? data : null;
         }
 
-        private bool Object(int depth, Dictionary<string, string>? fields)
+        private bool Object(int depth, Dictionary<string, string>? fields, Dictionary<string, TguiActionData>? objects = null)
         {
             if (depth > 16 || !Take('{')) return false;
             if (Take('}')) return true;
             var names = new HashSet<string>(StringComparer.Ordinal);
             do
             {
-                if (!String(out var key) || !names.Add(key) || !Take(':') ||
-                    !Value(depth, out var value)) return false;
-                if (value != null && fields != null) fields.Add(key, value);
+                if (!String(out var key) || !names.Add(key) || !Take(':')) return false;
+                Whitespace();
+                if (At('{') && objects != null)
+                {
+                    var nestedFields = new Dictionary<string, string>(StringComparer.Ordinal);
+                    var nested = new TguiActionData(nestedFields);
+                    if (!Object(depth + 1, nestedFields, nested._objects)) return false;
+                    objects.Add(key, nested);
+                }
+                else
+                {
+                    if (!Value(depth, out var value)) return false;
+                    if (value != null && fields != null) fields.Add(key, value);
+                }
                 if (Take('}')) return true;
             } while (Take(','));
             return false;
