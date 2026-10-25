@@ -71,7 +71,10 @@ public sealed partial class SalvageSystem
     {
         args.State = new SalvageExpeditionComponentState()
         {
-            Stage = component.Stage
+            Stage = component.Stage,
+            EndTime = component.EndTime,
+            ObjectivesTotal = component.ObjectivesTotal,
+            ObjectivesCompleted = component.ObjectivesCompleted
         };
     }
 

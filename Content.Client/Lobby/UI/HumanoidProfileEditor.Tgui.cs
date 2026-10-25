@@ -32,6 +32,16 @@ public sealed partial class HumanoidProfileEditor
     private HumanoidCharacterProfile? _publishedTguiProfile;
     private bool _publishedTguiDirty;
     private bool _publishedTguiClothes;
+    private bool _publishedTattoosBanned;
+    private CharacterEditorWindow? EditorWindow
+    {
+        get
+        {
+            for (Control? parent = Parent; parent != null; parent = parent.Parent)
+                if (parent is CharacterEditorWindow window) return window;
+            return null;
+        }
+    }
     private int _publishedSupporterBonus = -1;
     private float _tguiRefresh;
     private readonly TguiSpriteImages _tguiImages = new();
@@ -53,7 +63,7 @@ public sealed partial class HumanoidProfileEditor
         {
             var result = await IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Tattoos.TattooArtworkSystem>().Authorize(basis, recipe);
             if (Disposed || (_profileWeb == null && _nativeTattoos == null) || Profile != original || CharacterSlot != slot
-                || !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)) return;
+                || _requirements.TattoosBanned || !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)) return;
             var appearance = Profile.Appearance.Clone(); next[next.FindIndex(t => t.Id == basis.Id)] = result;
             appearance.Tattoos = next; Profile = Profile.WithCharacterAppearance(appearance);
             _tattooStatus = ""; ReloadProfilePreview(); SetDirty();
@@ -75,7 +85,7 @@ public sealed partial class HumanoidProfileEditor
                 if (Disposed || (_profileWeb == null && _nativeTattoos == null) || Profile == null || CharacterSlot != slot) return;
                 _tattooStatus = result.Status;
                 if (result.Tattoo == null) return;
-                if (!_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)
+                if (_requirements.TattoosBanned || !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)
                     || !Profile.Appearance.Tattoos.Any(t => t.ContentEquals(template)))
                 { _tattooStatus = "Настройки или рисунок изменились. Повторите загрузку PNG."; return; }
                 var appearance = Profile.Appearance.Clone();
@@ -233,7 +243,7 @@ public sealed partial class HumanoidProfileEditor
         if (_tguiRefresh > 0 || _profileWeb == null || !_profileWeb.VisibleInTree) return;
         _tguiRefresh = 0.2f;
         var bonus = _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetLoadoutPointBonus(_playerManager.LocalSession);
-        if (!ReferenceEquals(Profile, _publishedTguiProfile) || IsDirty != _publishedTguiDirty || ShowClothes.Pressed != _publishedTguiClothes || bonus != _publishedSupporterBonus)
+        if (!ReferenceEquals(Profile, _publishedTguiProfile) || IsDirty != _publishedTguiDirty || ShowClothes.Pressed != _publishedTguiClothes || bonus != _publishedSupporterBonus || _requirements.TattoosBanned != _publishedTattoosBanned)
             PublishTguiProfile();
     }
 
@@ -245,6 +255,7 @@ public sealed partial class HumanoidProfileEditor
         if (_profileWeb == null) return;
         _publishedTguiProfile = Profile;
         _publishedTguiDirty = IsDirty;
+        _publishedTattoosBanned = _requirements.TattoosBanned;
         _publishedTguiClothes = ShowClothes.Pressed;
         _publishedSupporterBonus = _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetLoadoutPointBonus(_playerManager.LocalSession);
         if (_tguiMode != "native")
@@ -263,8 +274,9 @@ public sealed partial class HumanoidProfileEditor
     public TguiData CreateTguiProfileState(string mode, bool includeCatalogs = true)
     {
         var data = new TguiData().String("mode", mode).Bool("available", Profile != null)
-            .Bool("dirty", IsDirty).Bool("showClothes", ShowClothes.Pressed).Bool("libraryOpen", _libraryWindow != null);
-        data.Bool("colorPickerOpen", _colorWindow != null).Object("colorPickerResult", _colorPickerResult);
+            .Bool("maximized", EditorWindow?.Maximized == true).Bool("dirty", IsDirty).Bool("showClothes", ShowClothes.Pressed).Bool("libraryOpen", _libraryWindow != null);
+        data.Bool("colorPickerOpen", _colorWindow != null).Object("colorPickerResult", _colorPickerResult)
+            .Bool("combineMarkings", _combineMarkings);
         data.Object("appearance", _editorAppearance.Data());
         data.String("previewFloor", _tguiImages.Frame(new SpriteSpecifier.Texture(new ResPath("Tiles/steel.png"))));
         data.Bool("extendedHeadshot", _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetSupporterTier(_playerManager.LocalSession) >= 2);
@@ -296,6 +308,7 @@ public sealed partial class HumanoidProfileEditor
             data.Object("tattooEditor", _tattooEditor.Build(PreviewDummy, p.Appearance.Tattoos, _tattooStatus).Bool("fileBusy", _tattooFileBusy));
             data.Array("markings", p.Appearance.Markings.Select((marking, index) => (marking, index))
                 .Where(entry => !_markingManager.TryGetMarking(entry.marking, out var definition) || !definition.EditorHidden)
+                .OrderByDescending(entry => entry.marking.DrawOrder)
                 .Select(entry =>
                 {
                     var (marking, index) = entry;
@@ -469,6 +482,14 @@ public sealed partial class HumanoidProfileEditor
     public bool HandleTguiProfileAction(string action, string payload)
     {
         if (!TguiActionData.TryParse(payload, out var args)) return false;
+        if (action == "window-maximize")
+        {
+            if (EditorWindow is not { } window || !bool.TryParse(args!.String("value"), out var maximized)) return false;
+            if (window.Maximized != maximized) window.ToggleMaximize();
+            PublishTguiProfile(); return true;
+        }
+        if (_requirements.TattoosBanned && action.StartsWith("tattoo-", StringComparison.Ordinal) && action != "tattoo-preview-direction")
+        { _tattooStatus = Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanMessage; PublishTguiProfile(); return false; }
         if (action.StartsWith("color-picker-", StringComparison.Ordinal)) return HandleColorPicker(action, args!);
         if (action == "preview-bounds")
         {
@@ -621,6 +642,7 @@ public sealed partial class HumanoidProfileEditor
             case "export": ExportProfile(); break;
             case "export-image": ExportImage(); break;
             case "open-images": _resManager.UserData.OpenOsWindow(Content.Client.Sprite.ContentSpriteSystem.Exports); break;
+            case "marking-combine": _combineMarkings = !_combineMarkings; break;
             case "clothes": if (_tguiMode == "markings") return false; ShowClothes.SetClickPressed(!ShowClothes.Pressed); ReloadPreview(); break;
             case "rotate":
                 if (!args.TryInt("value", out var turn) || turn is not (-1 or 1)) return false;
@@ -752,15 +774,8 @@ public sealed partial class HumanoidProfileEditor
             }
             else if (action == "marking-move")
             {
-                if (!args.TryInt("value", out var direction) || direction is not (-1 or 1) || !_markingManager.TryGetMarking(marking, out var prototype)) return false;
-                var other = index + direction;
-                while (other >= 0 && other < list.Count)
-                {
-                    if (_markingManager.TryGetMarking(list[other], out var otherProto) && otherProto.MarkingCategory == prototype.MarkingCategory) break;
-                    other += direction;
-                }
-                if (other < 0 || other >= list.Count) return false;
-                (list[index], list[other]) = (list[other], list[index]);
+                if (!args.TryInt("value", out var direction) || direction is not (-1 or 1)
+                    || !MoveTguiMarking(list, marking, direction)) return false;
             }
             else
             {

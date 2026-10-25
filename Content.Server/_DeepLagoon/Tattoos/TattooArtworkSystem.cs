@@ -22,6 +22,8 @@ public sealed partial class TattooArtworkSystem : EntitySystem
     private TattooArtworkProof _proof = default!;
     private readonly Dictionary<NetUserId, TimeSpan> _cooldowns = new();
     private readonly HashSet<NetUserId> _busy = new();
+    [Dependency] private Content.Server.Administration.Managers.IBanManager _bans = default!;
+    public bool IsBanned(NetUserId user) => _bans.GetRoleBans(user)?.Contains(TattooAccess.BanRole) == true;
     public override void Initialize()
     {
         var path = new ResPath("/tattoo-authority.key");
@@ -50,6 +52,7 @@ public sealed partial class TattooArtworkSystem : EntitySystem
     {
         var session = args.SenderSession;
         void Reply(Tattoo? result, string error = "") { if (session.Channel.IsConnected) RaiseNetworkEvent(new TattooArtworkReply(ev.Request, result, error), session.Channel); }
+        if (IsBanned(session.UserId)) { Reply(null, TattooAccess.BanMessage); return; }
         if (_busy.Count >= 2 || _busy.Contains(session.UserId) || _cooldowns.GetValueOrDefault(session.UserId) > _timing.CurTime)
         { Reply(null, "Сервер обрабатывает рисунки. Повторите через секунду."); return; }
         if (_cooldowns.Count > 4096) foreach (var id in _cooldowns.Where(p => p.Value <= _timing.CurTime).Select(p => p.Key).ToArray()) _cooldowns.Remove(id);
@@ -67,6 +70,7 @@ public sealed partial class TattooArtworkSystem : EntitySystem
             var basis = ev.Basis.Clone();
             var recipe = ev.Recipe.Length == 0 ? "[{\"useBase\":true}]" : ev.Recipe;
             var result = await Task.Run(() => TattooArtworkRenderer.Render(basis, recipe));
+            if (IsBanned(session.UserId)) { Reply(null, TattooAccess.BanMessage); return; }
             // Entitlement may have expired while the worker was running.
             if (imported && EntityManager.System<SharedDiscordBoostSystem>().GetSupporterTier(session) < 3)
             { Reply(null, "Право импорта истекло. Повторите после обновления статуса."); return; }

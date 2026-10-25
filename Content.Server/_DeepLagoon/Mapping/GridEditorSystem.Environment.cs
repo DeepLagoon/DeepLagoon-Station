@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Administration;
@@ -9,6 +10,30 @@ namespace Content.Server._DeepLagoon.Mapping;
 
 public sealed partial class GridEditorSystem
 {
+    private void RenameGrid(GridEditorNameRequest args, EntitySessionEventArgs sessionArgs)
+    {
+        var player = sessionArgs.SenderSession;
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+            draft.Token != args.Token || !HasComp<MapGridComponent>(draft.Grid)) return;
+        var name = args.Name?.Trim() ?? "";
+        if (name.Length is < 1 or > GridEditorNameRequest.MaxLength || name.Any(char.IsControl))
+        {
+            RaiseNetworkEvent(new GridEditorNameResult(draft.Token,
+                $"Название должно содержать от 1 до {GridEditorNameRequest.MaxLength} символов без переносов строк и управляющих символов."), player);
+            return;
+        }
+        var previous = MetaData(draft.Grid).EntityName;
+        if (name != previous)
+        {
+            EntityManager.System<Robust.Shared.GameObjects.MetaDataSystem>().SetEntityName(draft.Grid, name);
+            _logs.Add(LogType.AdminMessage, LogImpact.Low,
+                $"{player.Name} renamed grid {ToPrettyString(draft.Grid)} from '{previous}' to '{name}' using grid editor");
+        }
+        foreach (var (viewer, other) in _drafts)
+            if (other.Grid == draft.Grid) PublishEnvironment(viewer, other);
+        RaiseNetworkEvent(new GridEditorNameResult(draft.Token), player);
+    }
+
     private void Environment(GridEditorEnvironmentRequest args, EntitySessionEventArgs sessionArgs)
     {
         var player = sessionArgs.SenderSession;
@@ -28,6 +53,7 @@ public sealed partial class GridEditorSystem
     {
         TryComp<GridEnvironmentComponent>(draft.Grid, out var environment);
         RaiseNetworkEvent(new GridEditorEnvironmentState(draft.Token, environment?.AlwaysPowered ?? false,
-            environment?.ForceGravity ?? false, environment?.SafeAtmosphere ?? false, HasComp<ApartmentProtectedGridComponent>(draft.Grid)), player);
+            environment?.ForceGravity ?? false, environment?.SafeAtmosphere ?? false, HasComp<ApartmentProtectedGridComponent>(draft.Grid),
+            MetaData(draft.Grid).EntityName), player);
     }
 }

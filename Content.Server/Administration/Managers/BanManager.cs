@@ -111,7 +111,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
             return null;
 
         return _cachedRoleBans.TryGetValue(session, out var roleBans)
-            ? roleBans.Select(banDef => banDef.Role).ToHashSet()
+            ? roleBans.Where(ban => ban.ExpirationTime == null || ban.ExpirationTime > DateTimeOffset.UtcNow).Select(banDef => banDef.Role).ToHashSet()
             : null;
     }
 
@@ -243,12 +243,13 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
 
     public async Task CreateRoleBanAsync(NetUserId? target, string? targetUsername, NetUserId? banningAdmin, (IPAddress, int)? addressRange, ImmutableTypedHwid? hwid, string role, uint? minutes, NoteSeverity severity, string reason, DateTimeOffset timeOfBan)
     {
-        if (!_prototypeManager.TryIndex(role, out JobPrototype? _))
+        if (role != Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanRole && !_prototypeManager.TryIndex(role, out JobPrototype? _))
         {
             throw new ArgumentException($"Invalid role '{role}'", nameof(role));
         }
 
-        role = string.Concat(JobPrefix, role);
+        if (role != Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanRole)
+            role = string.Concat(JobPrefix, role);
         DateTimeOffset? expires = null;
         if (minutes > 0)
         {
@@ -344,7 +345,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
         var roleBans = _cachedRoleBans.GetValueOrDefault(pSession) ?? new List<ServerRoleBanDef>();
         var bans = new MsgRoleBans()
         {
-            Bans = roleBans.Select(o => o.Role).ToList()
+            Bans = roleBans.Where(ban => ban.ExpirationTime == null || ban.ExpirationTime > DateTimeOffset.UtcNow).Select(o => o.Role).ToList()
         };
 
         _sawmill.Debug($"Sent rolebans to {pSession.Name}");

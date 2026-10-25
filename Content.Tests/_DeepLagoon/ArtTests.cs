@@ -109,11 +109,48 @@ public sealed class ArtTests
         Assert.That(await db.GetArtworkPoolAsync(), Is.EqualTo(new[] { id }));
         var loaded = await db.GetArtworkAsync(id);
         Assert.Multiple(() => { Assert.That(loaded.Document, Is.EqualTo(baked.Json)); Assert.That(loaded.Preview, Is.EqualTo(baked.Preview)); Assert.That(loaded.Author, Is.EqualTo(author)); });
+        var listed = await db.ListArtworksAsync("хУдОж", 0);
+        Assert.That(listed.Single().Id, Is.EqualTo(id));
+        Assert.That(listed.Single().Document, Is.Empty, "Library pages must not load editable layers");
+        Assert.That((await db.ListArtworksAsync(author.ToString(), 0)).Single().Id, Is.EqualTo(id));
+        Assert.That(await db.ListArtworksAsync("no matching artwork", 0), Is.Empty);
+        Assert.That(await db.DeleteArtworkAsync(id), Is.True);
+        Assert.That(await db.DeleteArtworkAsync(id), Is.False);
+        Assert.That(await db.ArchiveArtworkAsync(Row()), Is.EqualTo(id), "Removed revisions must remain tombstoned");
         await using var read = new SqliteServerDbContext(options);
         Assert.That(await read.ArchivedArtworks.CountAsync(), Is.EqualTo(1));
-        await read.ArchivedArtworks.ExecuteUpdateAsync(s => s.SetProperty(w => w.Hidden, true));
+        var removed = await read.ArchivedArtworks.SingleAsync();
+        Assert.That(removed.Document, Is.Empty);
+        Assert.That(removed.Preview, Is.Empty);
+        Assert.That(removed.Hidden, Is.True);
+        Assert.That(await db.ListArtworksAsync("", 0), Is.Empty);
         Assert.That(await db.GetArtworkPoolAsync(), Is.Empty);
         Assert.That(await db.GetArtworkAsync(id), Is.Null);
+        read.ArchivedArtworks.AddRange(Enumerable.Range(0, 22).Select(i => new ArchivedArtwork
+        {
+            Id = Guid.NewGuid(), WorkId = Guid.NewGuid(), RevisionHash = baked.Hash,
+            Title = "Страница " + i, AuthorName = "Неизвестный", CreatedAt = DateTime.UtcNow.AddMinutes(i),
+        }));
+        await read.SaveChangesAsync();
+        var first = await db.ListArtworksAsync("", 0);
+        var second = await db.ListArtworksAsync("", 1);
+        Assert.That(first, Has.Count.EqualTo(ArtModerationEuiState.PageSize + 1));
+        Assert.That(second, Has.Count.EqualTo(2));
+        Assert.That(first.Take(ArtModerationEuiState.PageSize).Select(a => a.Id).Intersect(second.Select(a => a.Id)), Is.Empty);
+        Assert.That(await db.ListArtworksAsync("no matching artwork", 0), Is.Empty, "Unknown authors must not match arbitrary searches");
+        Assert.That((await db.ListArtworksAsync("стРАНИца", 1)), Has.Count.EqualTo(2));
+    }
+    [Test]
+    public void ModerationImagePreservesFullResolutionAndRevisionHash()
+    {
+        var json = Project(new ArtDocument.Layer { Png = Png(new Rgba32(90, 110, 130)) });
+        var normal = ArtDocument.Bake(json);
+        var full = ArtDocument.Bake(json, fullResolution: true);
+        using var image = Image.Load<Rgba32>(Convert.FromBase64String(full.Preview));
+        Assert.That(image.Width, Is.EqualTo(ArtLimits.Resolution));
+        Assert.That(image.Height, Is.EqualTo(ArtLimits.Resolution));
+        Assert.That(full.Hash, Is.EqualTo(normal.Hash));
+        Assert.That(full.Json, Is.EqualTo(normal.Json));
     }
     [Test]
     public void PostgresMigrationMatchesModelAndAddsOnlyTheArchive()

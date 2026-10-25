@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Linq;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
 using Content.Shared.Humanoid.Prototypes;
@@ -39,11 +40,20 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         EntityManager.System<Content.Client._DeepLagoon.Tattoos.TattooVisualizerSystem>().Refresh(sprite.Owner, component, sprite);
 
         sprite[sprite.LayerMapReserveBlank(HumanoidVisualLayers.Eyes)].Color = component.EyeColor;
-        if (component.ClientOldPlantigradeLegs != component.PlantigradeLegs)
+        var plantigrade = UsesPlantigradeClothing(component);
+        if (component.ClientOldPlantigradeLegs != plantigrade)
         {
-            component.ClientOldPlantigradeLegs = component.PlantigradeLegs;
+            component.ClientOldPlantigradeLegs = plantigrade;
             EntityManager.System<Content.Client.Clothing.ClientClothingSystem>().RefreshLegShape(sprite.Owner);
         }
+    }
+
+    public bool UsesPlantigradeClothing(HumanoidAppearanceComponent humanoid)
+    {
+        var species = _prototypeManager.Index(humanoid.Species);
+        return species.MarkingLegShape
+            ? !_markingManager.HasDigitigradeLegs(humanoid.MarkingSet)
+            : humanoid.PlantigradeLegs && species.PlantigradeSprites != null;
     }
 
     private static bool IsHidden(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer)
@@ -195,7 +205,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 profile.Appearance.EyeColor,
                 markings
             );
-            markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors));
+            markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder });
         }
 
         markings.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _prototypeManager);
@@ -239,13 +249,13 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         // Really, markings should probably be a separate component altogether.
         ClearAllMarkings(humanoid, sprite);
 
-        foreach (var markingList in humanoid.MarkingSet.Markings.Values)
+        foreach (var marking in humanoid.MarkingSet.Markings.Values.SelectMany(list => list)
+                     .OrderByDescending(marking => marking.DrawOrder)
+                     .ThenByDescending(marking => _markingManager.TryGetMarking(marking, out var prototype)
+                         && sprite.LayerMapTryGet(prototype.BodyPart, out var layer) ? layer : -1))
         {
-            foreach (var marking in markingList)
-            {
-                if (_markingManager.TryGetMarking(marking, out var markingPrototype))
-                    ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, humanoid, sprite);
-            }
+            if (_markingManager.TryGetMarking(marking, out var markingPrototype))
+                ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, humanoid, sprite);
         }
 
         humanoid.ClientOldMarkings = new MarkingSet(humanoid.MarkingSet);
@@ -302,7 +312,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         HumanoidAppearanceComponent humanoid,
         SpriteComponent sprite)
     {
-        if (!sprite.LayerMapTryGet(markingPrototype.BodyPart, out int targetLayer))
+        if (!sprite.LayerMapTryGet(markingPrototype.GetLayerAnchor(_prototypeManager.Index(humanoid.Species)), out int targetLayer))
         {
             return;
         }

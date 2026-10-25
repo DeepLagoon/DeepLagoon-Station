@@ -1,7 +1,7 @@
 import { dump } from 'js-yaml';
 
-// A construction plan, independent of the live world and the server editing session.
-// Runtime component overrides are deliberately left to the server map export.
+// Geometry plan for the server export. Existing entity IDs let the native serializer
+// retain component values and references before overlaying these unsaved transforms.
 export function exportGridDraft(items, bounds, expansion, environment = {}) {
   const floors = new Map();
   for (const item of items) {
@@ -27,7 +27,7 @@ export function exportGridDraft(items, bounds, expansion, environment = {}) {
     bytes[offset + 6] = tile.mirror || 0;
   }
   const components = [
-    { type: 'MetaData', name: 'grid' },
+    { type: 'MetaData', name: environment.gridName || 'grid' },
     { type: 'Transform', parent: 'invalid' },
     { type: 'MapGrid', chunks: Object.fromEntries([...chunks].map(([ind, bytes]) =>
       [ind, { ind, tiles: btoa(String.fromCharCode(...bytes)), version: 7 }])) },
@@ -44,13 +44,16 @@ export function exportGridDraft(items, bounds, expansion, environment = {}) {
   });
   if (environment.apartmentProtected) components.push({ type: 'ApartmentProtectedGrid' });
   const groups = new Map([['', [{ uid: 1, components }]]]);
+  const gridEditorIds = {};
   let uid = 1;
   for (const item of items.filter(i => i.kind === 'entity')) {
     if (!groups.has(item.prototype)) groups.set(item.prototype, []);
     groups.get(item.prototype).push({ uid: ++uid, components: [{ type: 'Transform', parent: 1,
       pos: `${item.x},${item.y}`, rot: item.rotation || 0, anchored: !!item.anchored }] });
+    gridEditorIds[uid] = item.id;
   }
-  return '# Grid editor construction draft. Entities use prototype defaults, without live-round component state.\n' + dump({
+  return dump({
+    gridEditorIds,
     meta: { format: 7, category: 'Grid', entityCount: uid },
     maps: [], grids: [1], orphans: [1], nullspace: [],
     tilemap: Object.fromEntries([...tileIds].map(([name, id]) => [id, name])),

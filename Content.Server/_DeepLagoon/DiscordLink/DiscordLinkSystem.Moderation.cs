@@ -73,6 +73,8 @@ public sealed partial class DiscordLinkSystem
         if (!_enabled) return ModerationError("unavailable");
         if (_store?.MergePending(uid.UserId) == true) return ModerationError("merge_pending");
         var admin = await _database.GetAdminDataForAsync(uid);
+        if (request.Operation is "admin_flags" or "staff_flags")
+            return await ChangeDiscordAdminFlag(request, uid, actor, admin);
         if (request.Operation == "staff_status")
         {
             var rank = admin?.AdminRankId is {} rankId ? await _database.GetAdminRankAsync(rankId) : null;
@@ -233,7 +235,42 @@ public sealed partial class DiscordLinkSystem
         return new ApiResult(HttpStatusCode.OK, new { ok = true, uid = uid.ToString() });
     }
 
+    private static AdminFlags EffectiveAdminFlags(DbAdmin admin)
+    {
+        var rank = AdminFlagsHelper.NamesToFlags(admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>());
+        var positive = AdminFlagsHelper.NamesToFlags(admin.Flags.Where(f => !f.Negative).Select(f => f.Flag));
+        var negative = AdminFlagsHelper.NamesToFlags(admin.Flags.Where(f => f.Negative).Select(f => f.Flag));
+        return (rank | positive) & ~negative;
+    }
+
+    private async Task<ApiResult> ChangeDiscordAdminFlag(ModerationRequest request, NetUserId uid, NetUserId actor, DbAdmin? admin)
+    {
+        var author = await _database.GetAdminDataForAsync(actor);
+        var authority = author is { Suspended: false } ? EffectiveAdminFlags(author) : AdminFlags.None;
+        if ((authority & AdminFlags.Host) != 0) authority = AdminFlagsHelper.Everything;
+        if ((authority & AdminFlags.Permissions) == 0) return ModerationError("permissions_denied");
+        if (request.Operation == "admin_flags")
+            return new ApiResult(HttpStatusCode.OK, new { rows = AdminFlagsHelper.FlagsToNames(authority) });
+        var flagName = request.Flag?.Trim().ToUpperInvariant();
+        if (flagName == null || !AdminFlagsHelper.FlagsToNames(AdminFlagsHelper.Everything).Contains(flagName) ||
+            request.Mode is not ("grant" or "deny" or "inherit")) return ModerationError("invalid_request");
+        if (admin == null) return ModerationError("admin_not_found");
+        var flag = AdminFlagsHelper.NameToFlag(flagName);
+        var targetFlags = AdminFlagsHelper.NamesToFlags(admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>()) |
+                          AdminFlagsHelper.NamesToFlags(admin.Flags.Where(f => !f.Negative).Select(f => f.Flag));
+        if (((targetFlags | flag) & ~authority) != 0) return ModerationError("permissions_denied");
+        admin.Flags.RemoveAll(f => f.Flag == flagName);
+        if (request.Mode != "inherit")
+            admin.Flags.Add(new AdminFlag { Flag = flagName, Negative = request.Mode == "deny" });
+        await _database.UpdateAdminAsync(admin, actorName: request.ActorName ?? actor.ToString());
+        if (_players.TryGetSessionById(uid, out var session)) _admins.ReloadAdmin(session);
+        Log.Info($"Discord permissions: target={uid} actor={actor} flag={flagName} mode={request.Mode}");
+        return new ApiResult(HttpStatusCode.OK, new { ok = true, uid = uid.ToString(), flag = flagName,
+            mode = request.Mode, flags = AdminFlagsHelper.FlagsToNames(EffectiveAdminFlags(admin)), suspended = admin.Suspended });
+    }
+
     private sealed record ModerationRequest(string Operation, string Uid, string ActorUid,
         string? Message = null, uint Minutes = 0, string Severity = "Medium", string? Job = null,
-        int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null);
+        int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null,
+        string? Flag = null, string? Mode = null);
 }

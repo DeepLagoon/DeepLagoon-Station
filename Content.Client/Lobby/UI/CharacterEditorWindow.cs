@@ -11,6 +11,35 @@ namespace Content.Client.Lobby.UI;
 public sealed class CharacterEditorWindow : BaseWindow
 {
     public event Action? CloseRequested;
+    public bool Maximized { get; private set; }
+    private Vector2 _restoreSize, _restorePosition;
+    private bool _restoreResizable;
+    private Vector2? _pendingRestorePosition;
+
+    public void ToggleMaximize()
+    {
+        if (Parent == null) return;
+        if (!Maximized)
+        {
+            _pendingRestorePosition = null;
+            _restoreSize = Size;
+            _restorePosition = Position;
+            _restoreResizable = Resizable;
+            Maximized = true;
+            Resizable = false;
+            SetSize = Parent.Size;
+            LayoutContainer.SetPosition(this, Vector2.Zero);
+        }
+        else
+        {
+            Maximized = false;
+            Resizable = _restoreResizable;
+            var size = Vector2.Min(_restoreSize, Parent.Size);
+            SetSize = size;
+            _pendingRestorePosition = _restorePosition;
+            LayoutContainer.SetPosition(this, Vector2.Clamp(_restorePosition, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - size)));
+        }
+    }
 
     public CharacterEditorWindow(Control editor)
     {
@@ -38,9 +67,11 @@ public sealed class CharacterEditorWindow : BaseWindow
         base.FrameUpdate(args);
         if (Parent == null) return;
         MinSize = Vector2.Min(new Vector2(420, 360), Parent.Size);
-        var size = Vector2.Min(Size, Parent.Size);
+        var size = Maximized ? Parent.Size : Vector2.Min(_pendingRestorePosition != null ? _restoreSize : Size, Parent.Size);
         if (Size != size) SetSize = size;
-        LayoutContainer.SetPosition(this, Vector2.Clamp(Position, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - size)));
+        var position = Maximized ? Vector2.Zero : Vector2.Clamp(_pendingRestorePosition ?? Position, Vector2.Zero, Vector2.Max(Vector2.Zero, Parent.Size - size));
+        if (_pendingRestorePosition != null && Size == size && Position == position) _pendingRestorePosition = null;
+        LayoutContainer.SetPosition(this, position);
     }
 
     protected override DragMode GetDragModeFor(Vector2 pointer)

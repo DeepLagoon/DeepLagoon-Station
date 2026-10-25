@@ -289,8 +289,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         var displacementData = inventory.Displacements.GetValueOrDefault(slot); //Default unsexed map
 
         var humanoid = CompOrNull<HumanoidAppearanceComponent>(equipee);
-        var plantigrade = humanoid is { PlantigradeLegs: true } &&
-            _legPrototypes.Index(humanoid.Species).PlantigradeSprites != null;
+        var plantigrade = humanoid != null && EntityManager.System<Content.Client.Humanoid.HumanoidAppearanceSystem>()
+            .UsesPlantigradeClothing(humanoid);
         var equipeeSex = humanoid?.Sex;
         if (equipeeSex != null)
         {
@@ -308,6 +308,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         if (plantigrade && slot == "shoes") displacementData = null;
+        if (plantigrade && humanoid != null && _legPrototypes.Index(humanoid.Species).MarkingLegShape)
+            displacementData = null;
 
         // add the new layers
         foreach (var (key, layerData) in ev.Layers)

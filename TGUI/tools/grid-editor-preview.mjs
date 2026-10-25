@@ -66,12 +66,14 @@ function App() {
   },[]);
   const act = (action, payload) => {
     window.fixtureActions ||= []; window.fixtureActions.push({action,payload});
+    if (action === 'setGridName') setData(d=>({...d,gridName:payload.name,gridNameError:'',gridNameResultVersion:(d.gridNameResultVersion||0)+1}));
     if (action === 'referenceImport') { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.onchange=()=>{const reader=new FileReader();reader.onload=()=>setData(d=>({...d,referenceImage:reader.result,referenceVersion:Date.now()}));reader.readAsDataURL(input.files[0]);}; input.click(); }
 
     if (fail && ['applyStart', 'download'].includes(action)) { setData(d => ({ ...d, status: 'Проверочный отказ сервера: карта была изменена другим маппером. Обновите grid.', success: false, resultVersion: Date.now() })); return; }
     if (action === 'routeVisuals') setData(d=>({...d,routeVisuals:catalog.filter(i=>payload.prototypes.includes(i.id))}));
     if (action === 'search') { const entries = catalog.filter(i => (payload.category === 'all' || i.category === payload.category || payload.category === 'favorites' && data.favorites.some(f => f.id === i.id && f.kind === i.kind)) && (i.name.toLowerCase().includes(payload.query.toLowerCase()) || i.id.toLowerCase().includes(payload.query.toLowerCase()))); setData(d => ({ ...d, catalog: entries.slice(payload.page * 48, (payload.page + 1) * 48), catalogCount: entries.length, catalogPage: payload.page, catalogCategory: payload.category, catalogQuery: payload.query })); }
     if (action === 'favorite') setData(d => ({ ...d, favorites: d.favorites.some(f => f.kind === payload.kind && f.id === payload.id) ? d.favorites.filter(f => f.kind !== payload.kind || f.id !== payload.id) : [...d.favorites, payload] }));
+    if (action === 'hotbarSet') setData(d => ({ ...d, hotbar: [...(d.hotbar || []).filter(entry => entry.slot !== payload.slot), ...(payload.id ? [payload] : [])] }));
     if (action === 'deleteTemplate') setData(d => ({ ...d, templates: d.templates.filter(t => t.id !== payload.id) }));
     if (action === 'previewStart') { previewUpload={...payload,items:[]}; setData(d=>({...d,previewId:payload.id,previewNext:0})); }
     if (action === 'previewChunk') {

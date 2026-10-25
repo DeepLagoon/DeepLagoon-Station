@@ -24,6 +24,8 @@ public sealed partial class TattooMachineSystem : EntitySystem
     [Dependency] private SharedMindSystem _mind = default!;
     private float _preferenceTimer;
     private readonly Dictionary<EntityUid, int> _revisions = new();
+    private readonly Dictionary<Robust.Shared.Network.NetUserId, bool> _banStates = new();
+    [Dependency] private Content.Server.Administration.Managers.IBanManager _bans = default!;
 
     public override void Initialize()
     {
@@ -40,7 +42,7 @@ public sealed partial class TattooMachineSystem : EntitySystem
         else if (_mind.TryGetMind(uid, out _, out var mind) && mind.UserId is { } user
             && _players.TryGetSessionById(user, out var owner)) session = owner;
         if (session != null && session.Status != SessionStatus.Disconnected)
-            return _cfg.GetClientCVar(session.Channel, TattooCVars.Enabled);
+            return !EntityManager.System<TattooArtworkSystem>().IsBanned(session.UserId) && _cfg.GetClientCVar(session.Channel, TattooCVars.Enabled);
         // Preserve the last choice while disconnected; NPCs default to enabled.
         return !TryComp<HumanoidAppearanceComponent>(uid, out var humanoid) || humanoid.TattoosEnabled;
     }
@@ -59,6 +61,13 @@ public sealed partial class TattooMachineSystem : EntitySystem
         _preferenceTimer += frameTime;
         if (_preferenceTimer < .25f) return;
         _preferenceTimer = 0;
+        foreach (var user in _banStates.Keys.Where(user => !_players.TryGetSessionById(user, out _)).ToArray()) _banStates.Remove(user);
+        foreach (var session in _players.Sessions)
+        {
+            var banned = EntityManager.System<TattooArtworkSystem>().IsBanned(session.UserId);
+            if (_banStates.TryGetValue(session.UserId, out var previous) && previous != banned) _bans.SendRoleBans(session);
+            _banStates[session.UserId] = banned;
+        }
         var bodies = EntityQueryEnumerator<HumanoidAppearanceComponent>();
         while (bodies.MoveNext(out var uid, out var humanoid)) SyncPreference(uid, humanoid);
         var machines = EntityQueryEnumerator<TattooMachineComponent>();

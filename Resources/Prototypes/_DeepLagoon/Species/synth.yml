@@ -5,6 +5,8 @@
   prototype: MobSynth
   sprites: MobSynthSprites
   markingLimits: MobSynthMarkingLimits
+  markingLegShape: true
+  bodyMarkingAnchor: Chest
   dollPrototype: MobSynthDummy
   skinColoration: Hues
   defaultSkinTone: '#d9b89b'
@@ -50,17 +52,17 @@
   id: MobSynthMarkingLimits
   points:
     Head:
-      points: 1
+      points: 8
       required: true
       defaultMarkings:
       - SynthHumanHead
     Chest:
-      points: 1
+      points: 8
       required: true
       defaultMarkings:
       - SynthHumanChest
     Arms:
-      points: 4
+      points: 16
       required: true
       defaultMarkings:
       - SynthHumanLArm
@@ -68,7 +70,7 @@
       - SynthHumanLHand
       - SynthHumanRHand
     Legs:
-      points: 4
+      points: 20
       required: true
       defaultMarkings:
       - SynthHumanLLeg
@@ -82,16 +84,16 @@
       points: 1
       required: false
     Snout:
-      points: 2
+      points: 26
       required: false
     HeadTop:
-      points: 2
+      points: 15
       required: false
     HeadSide:
-      points: 2
+      points: 9
       required: false
     Tail:
-      points: 1
+      points: 39
       required: false
     Special:
       points: 2

@@ -1,0 +1,14 @@
+- type: shader
+  id: AmbientOcclusionSubtract
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/ambient_occlusion_subtract.swsl
+
+- type: shader
+  id: AmbientOcclusionAdd
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/ambient_occlusion_add.swsl
+
+- type: shader
+  id: AmbientOcclusion
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/ambient_occlusion.swsl

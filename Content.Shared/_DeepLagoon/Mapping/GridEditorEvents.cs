@@ -77,6 +77,21 @@ public sealed class GridEditorDownloadEvent(Guid token, Guid request, bool whole
 }
 
 [Serializable, NetSerializable]
+public sealed class GridEditorDraftFileStart(Guid token, Guid request, int length) : EntityEventArgs
+{
+    public readonly Guid Token = token, Request = request;
+    public readonly int Length = length;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorDraftFileChunk(Guid token, Guid request, int index, string text) : EntityEventArgs
+{
+    public readonly Guid Token = token, Request = request;
+    public readonly int Index = index;
+    public readonly string Text = text;
+}
+
+[Serializable, NetSerializable]
 public sealed class GridEditorFileEvent(Guid request, int index, int count, byte[] bytes, string error = "") : EntityEventArgs
 {
     public readonly Guid Request = request;
@@ -133,8 +148,24 @@ public sealed class GridEditorEnvironmentRequest(Guid token, string setting, boo
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorEnvironmentState(Guid token, bool alwaysPowered, bool forceGravity, bool safeAtmosphere, bool apartmentProtected) : EntityEventArgs
+public sealed class GridEditorEnvironmentState(Guid token, bool alwaysPowered, bool forceGravity, bool safeAtmosphere, bool apartmentProtected, string gridName = "") : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly bool AlwaysPowered = alwaysPowered, ForceGravity = forceGravity, SafeAtmosphere = safeAtmosphere, ApartmentProtected = apartmentProtected;
+    public readonly string GridName = gridName;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorNameRequest(Guid token, string name) : EntityEventArgs
+{
+    public const int MaxLength = 128;
+    public readonly Guid Token = token;
+    public readonly string Name = name;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorNameResult(Guid token, string error = "") : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Error = error;
 }

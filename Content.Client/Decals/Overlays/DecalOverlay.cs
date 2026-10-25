@@ -31,10 +31,16 @@ namespace Content.Client.Decals.Overlays
 
         protected override void Draw(in OverlayDrawArgs args)
         {
-            if (args.MapId == MapId.Nullspace)
+            if (_entManager.GetComponent<MetaDataComponent>(Grid.Owner).EntityPaused)
                 return;
 
-            var owner = Grid.Owner;
+            DrawGrid(args, Grid.Owner);
+        }
+
+        internal void DrawGrid(in OverlayDrawArgs args, EntityUid owner)
+        {
+            if (args.MapId == MapId.Nullspace)
+                return;
 
             if (!_entManager.TryGetComponent(owner, out DecalGridComponent? decalGrid) ||
                 !_entManager.TryGetComponent(owner, out TransformComponent? xform))

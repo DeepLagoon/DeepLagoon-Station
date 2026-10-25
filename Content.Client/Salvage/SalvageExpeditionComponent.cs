@@ -7,6 +7,8 @@ namespace Content.Client.Salvage;
 [RegisterComponent]
 public sealed partial class SalvageExpeditionComponent : SharedSalvageExpeditionComponent
 {
+    public TimeSpan EndTime;
+
     /// <summary>
     /// Mono: used for ContentAudioSystem.AmbientMusic.cs & SpaceBiomeSystem.cs to communicate biome on FTL
     /// </summary>

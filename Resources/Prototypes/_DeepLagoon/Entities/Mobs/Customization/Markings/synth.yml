@@ -93,6 +93,7 @@
   sprites:
   - sprite: Mobs/Species/Human/parts.rsi
     state: l_leg
+  digitigrade: false
   editorExclusive: true
   editorLinkedMarkings:
   - SynthHumanLFoot
@@ -105,6 +106,7 @@
   sprites:
   - sprite: Mobs/Species/Human/parts.rsi
     state: r_leg
+  digitigrade: false
   editorExclusive: true
   editorLinkedMarkings:
   - SynthHumanRFoot
@@ -225,6 +227,7 @@
   sprites:
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: l_leg
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthVulpkaninLFoot
@@ -237,6 +240,7 @@
   sprites:
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: r_leg
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthVulpkaninRFoot
@@ -357,6 +361,7 @@
   sprites:
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: l_leg
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthFeroxiLFoot
@@ -369,6 +374,7 @@
   sprites:
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: r_leg
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthFeroxiRFoot
@@ -489,6 +495,7 @@
   sprites:
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_leg
+  digitigrade: false
   editorExclusive: true
   editorLinkedMarkings:
   - SynthMechanicalLFoot
@@ -501,6 +508,7 @@
   sprites:
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_leg
+  digitigrade: false
   editorExclusive: true
   editorLinkedMarkings:
   - SynthMechanicalRFoot
@@ -535,6 +543,7 @@
   sprites:
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_leg_digi
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthMechanicalLFootDigitigrade
@@ -547,6 +556,7 @@
   sprites:
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_leg_digi
+  digitigrade: true
   editorExclusive: true
   editorLinkedMarkings:
   - SynthMechanicalRFootDigitigrade
@@ -1639,7 +1649,7 @@
   editorExclusive: true
 - type: marking
   id: SynthSoftNeck
-  bodyPart: Chest
+  bodyPart: Snout
   markingCategory: Special
   speciesRestriction:
   - Synth

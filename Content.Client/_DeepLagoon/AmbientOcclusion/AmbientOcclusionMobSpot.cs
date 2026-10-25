@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Content.Client._DeepLagoon.AmbientOcclusion;
 
-/// <summary>One shared, nearest-sampled contact texture; floor clipping never requires a viewport mask.</summary>
+/// <summary>One shared, nearest-sampled contact texture with floor-clipped geometry.</summary>
 internal static class AmbientOcclusionMobSpot
 {
     private const int Size = AmbientOcclusionMask.Steps;

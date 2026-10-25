@@ -1,0 +1,16 @@
+dl-art-moderation-title = Библиотека картин
+dl-art-moderation-search = Название, имя персонажа или UUID аккаунта
+dl-art-moderation-refresh = Найти / обновить
+dl-art-moderation-previous = Назад
+dl-art-moderation-next = Далее
+dl-art-moderation-delete = Удалить эту ревизию картины
+dl-art-moderation-confirm = Подтвердить удаление из архива, холстов и рамок
+dl-art-moderation-untitled = Без названия
+dl-art-moderation-empty = Картины не найдены
+dl-art-moderation-author = Персонаж: { $name }
+dl-art-moderation-account = Аккаунт: { $name }
+dl-art-moderation-id = ID записи: { $id }
+dl-art-moderation-loading = Загрузка…
+dl-art-moderation-missing = Картина уже удалена. Список обновлён.
+dl-art-moderation-removed = Ревизия картины удалена и заблокирована для повторного архивирования.
+dl-art-moderation-error = Не удалось выполнить действие. Повторите попытку.

@@ -116,6 +116,13 @@ namespace Content.Server.Preferences.Managers
             // Mono
             if (!authoritative && profile is HumanoidCharacterProfile humanoid)
             {
+                if (_entityManager.System<Content.Server._DeepLagoon.Tattoos.TattooArtworkSystem>().IsBanned(userId))
+                {
+                    var appearance = humanoid.Appearance.Clone();
+                    appearance.Tattoos = curPrefs.Characters.TryGetValue(slot, out var stored) && stored is HumanoidCharacterProfile previous
+                        ? Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(previous.Appearance.Tattoos) : [];
+                    humanoid = humanoid.WithCharacterAppearance(appearance);
+                }
                 var previousTattoos = curPrefs.Characters.Values.OfType<HumanoidCharacterProfile>().SelectMany(p => p.Appearance.Tattoos);
                 if (humanoid.Appearance.Tattoos.Any(t => !_entityManager.System<Content.Server._DeepLagoon.Tattoos.TattooArtworkSystem>().Accept(userId, t, previousTattoos)))
                     return;

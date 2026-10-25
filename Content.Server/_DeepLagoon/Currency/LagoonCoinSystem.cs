@@ -255,7 +255,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
                             reward.Reason, reward.Actor, reward.Played, reward.Bonus);
                         _outbox.Complete(Pending(reward));
                         SendBalance(reward.User, result.Balance);
-                        NotifyReward(reward.User, result, reward.Reason);
+                        NotifyOperation(reward.User, result, reward.Reason);
                     }
                     finally { _walletOperations.Release(); }
                 }
@@ -305,7 +305,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         {
             var result = await _db.AwardLagoonCoinsAsync(user, operationId ?? $"admin:{Guid.NewGuid():N}", amount, reason, actor);
             SendBalance(user, result.Balance);
-            NotifyReward(user, result, reason);
+            NotifyOperation(user, result, reason);
             return result;
         }
         finally { _walletOperations.Release(); }
@@ -317,10 +317,11 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             RaiseNetworkEvent(new LagoonCoinBalanceEvent(balance), session);
     }
 
-    private void NotifyReward(NetUserId user, LagoonCoinResult result, string reason)
+    private void NotifyOperation(NetUserId user, LagoonCoinResult result, string reason)
     {
-        if (!result.Applied || result.Awarded <= 0 ||
-            !_players.TryGetSessionById(user, out var session) || !session.Channel.IsConnected)
+        if (!result.Applied || result.Awarded == 0 ||
+            !_players.TryGetSessionById(user, out var session) ||
+            session.Status != SessionStatus.InGame || !session.Channel.IsConnected)
             return;
 
         var description = reason switch
@@ -330,7 +331,8 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             "antagonist-objective" => Loc.GetString("lagoon-coin-reason-objective"),
             _ => reason,
         };
-        _chat.DispatchServerMessage(session, Loc.GetString("lagoon-coin-received",
+        var message = result.Awarded > 0 ? "lagoon-coin-received" : "lagoon-coin-deducted";
+        _chat.DispatchServerMessage(session, Loc.GetString(message,
             ("amount", result.Awarded), ("balance", result.Balance), ("reason", description)), suppressLog: true);
         RaiseNetworkEvent(new LagoonCoinRewardEvent(result.Awarded, result.Balance, reason), session);
     }

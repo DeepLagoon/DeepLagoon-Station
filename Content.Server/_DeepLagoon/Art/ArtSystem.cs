@@ -225,6 +225,13 @@ public sealed partial class ArtSystem : EntitySystem
         try
         {
             var id = await _db.ArchiveArtworkAsync(record);
+            if (await _db.GetArtworkAsync(id) == null || _removedArt.Contains((record.WorkId, record.RevisionHash)))
+            {
+                if (Exists(ev.Used) && canvas.WorkId == record.WorkId && canvas.RevisionHash == record.RevisionHash)
+                    ClearRemovedCanvas(ev.Used, canvas);
+                if (Exists(uid) && Exists(ev.User)) _popup.PopupEntity(Loc.GetString("dl-art-moderation-removed"), uid, ev.User);
+                return;
+            }
             if (_pool != null && !_pool.Contains(id)) _pool.Add(id);
             if (Exists(uid) && Exists(ev.User)) _popup.PopupEntity(Loc.GetString("dl-art-archived"), uid, ev.User);
         }
@@ -263,7 +270,7 @@ public sealed partial class ArtSystem : EntitySystem
             if (_available.Count == 0) _available.AddRange(pool);
             var index = _random.Next(_available.Count); var id = _available[index]; _available.RemoveAt(index);
             var work = await _db.GetArtworkAsync(id);
-            if (work == null || round != _round || !Exists(uid) || Slot(uid).ContainedEntity != null) return;
+            if (work == null || _removedArt.Contains((work.WorkId, work.RevisionHash)) || round != _round || !Exists(uid) || Slot(uid).ContainedEntity != null) return;
             var canvas = Spawn("DLArtCanvas", Transform(uid).Coordinates);
             var data = Comp<ArtCanvasComponent>(canvas);
             data.Document = work.Document; data.SavedPreview = work.Preview; data.Title = work.Title;

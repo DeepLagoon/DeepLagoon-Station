@@ -49,6 +49,9 @@ public sealed partial class GridEditorSystem : EntitySystem
         public int PreviewGeneration, PreviewRevision;
         public GridEditorExpansion PreviewExpansion = new();
         public TimeSpan LastDownload;
+        public Guid FileRequest;
+        public StringBuilder? FilePlan;
+        public int FileLength, FileIndex;
         public int GridX, GridY, GridWidth, GridHeight;
         public readonly Dictionary<string, EntityUid> Entities = new();
         public readonly Dictionary<string, EntityUid> KnownEntities = new();
@@ -62,6 +65,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         SubscribeNetworkEvent<GridEditorApplyEvent>(Apply);
         SubscribeNetworkEvent<GridEditorAtmosRequest>(Atmos);
         SubscribeNetworkEvent<GridEditorEnvironmentRequest>(Environment);
+        SubscribeNetworkEvent<GridEditorNameRequest>(RenameGrid);
         SubscribeNetworkEvent<GridEditorCloseEvent>((_, args) => CloseEditor(args.SenderSession));
         SubscribeNetworkEvent<GridEditorDraftUpdateEvent>(Preview);
         SubscribeNetworkEvent<GridEditorRegionEvent>((ev, args) =>
@@ -71,6 +75,8 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (!message.Contains("открыт")) RaiseNetworkEvent(new GridEditorResultEvent(message, false), args.SenderSession);
         });
         SubscribeNetworkEvent<GridEditorDownloadEvent>(Download);
+        SubscribeNetworkEvent<GridEditorDraftFileStart>(StartDraftFile);
+        SubscribeNetworkEvent<GridEditorDraftFileChunk>(DraftFileChunk);
     }
 
     public override void Update(float frameTime)
@@ -148,8 +154,8 @@ public sealed partial class GridEditorSystem : EntitySystem
             draft.Token != token || !Exists(draft.Grid))
         { error = "Нет действующей сессии Mapping."; return null; }
         var map = Transform(draft.Grid).MapUid;
-        if (map == null || !TryComp<MapComponent>(map, out var component) || component.MapInitialized)
-        { error = "Карта уже инициализирована. Откройте исходную карту в режиме mapping перед сохранением."; return null; }
+        if (map == null || !HasComp<MapComponent>(map))
+        { error = "Карта не найдена."; return null; }
         if (draft.LastDownload > TimeSpan.Zero && _timing.RealTime - draft.LastDownload < TimeSpan.FromSeconds(3))
         { error = "Подождите несколько секунд перед повторным скачиванием."; return null; }
         draft.LastDownload = _timing.RealTime;

@@ -540,16 +540,18 @@ namespace Content.Server.Database
             await using var tx =
                 await db.DbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancel);
 
-            // Join with the player table to find their last seen username, if they have one.
+            // Read the full admin roster independently of player history and live sessions.
             var admins = await db.PgDbContext.Admin
                 .Include(a => a.Flags)
-                .GroupJoin(db.PgDbContext.Player, a => a.UserId, p => p.UserId, (a, grouping) => new {a, grouping})
-                .SelectMany(t => t.grouping.DefaultIfEmpty(), (t, p) => new {t.a, p!.LastSeenUserName})
                 .ToArrayAsync(cancel);
+            var ids = admins.Select(a => a.UserId).ToArray();
+            var names = await db.PgDbContext.Player.Where(p => ids.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.LastSeenUserName })
+                .ToDictionaryAsync(p => p.UserId, p => p.LastSeenUserName, cancel);
 
             var adminRanks = await db.DbContext.AdminRank.Include(a => a.Flags).ToArrayAsync(cancel);
 
-            return (admins.Select(p => (p.a, p.LastSeenUserName)).ToArray(), adminRanks)!;
+            return (admins.Select(a => (a, names.GetValueOrDefault(a.UserId))).ToArray(), adminRanks);
         }
 
         protected override IQueryable<AdminLog> StartAdminLogsQuery(ServerDbContext db, LogFilter? filter = null)

@@ -166,6 +166,7 @@ export const CharacterEditor = () => {
         </Button>
         <Button disabled={!data.dirty} color="good" onClick={()=>act('save')}>Сохранить</Button>
         <Button disabled={!data.dirty} onClick={()=>act('reset')}>Сбросить</Button>
+        <Button icon={data.maximized ? "compress" : "expand"} onClick={() => act("window-maximize", { value: !data.maximized })}>{data.maximized ? "Свернуть" : "Развернуть"}</Button>
         {data.setup && <Button icon="times" onClick={()=>act('setup/close')}>Закрыть</Button>}
       </div>
     </header>

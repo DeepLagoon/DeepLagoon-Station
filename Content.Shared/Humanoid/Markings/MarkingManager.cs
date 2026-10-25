@@ -14,6 +14,15 @@ namespace Content.Shared.Humanoid.Markings
         public FrozenDictionary<MarkingCategories, FrozenDictionary<string, MarkingPrototype>> CategorizedMarkings = default!;
         public FrozenDictionary<string, MarkingPrototype> Markings = default!;
 
+        public bool HasDigitigradeLegs(MarkingSet set)
+        {
+            return set.Markings.Values.SelectMany(list => list)
+                .Where(marking => marking.Visible && TryGetMarking(marking, out var prototype) && prototype.Digitigrade != null)
+                .OrderByDescending(marking => marking.DrawOrder)
+                .GroupBy(marking => Markings[marking.MarkingId].BodyPart)
+                .Any(leg => Markings[leg.First().MarkingId].Digitigrade == true);
+        }
+
         public void Initialize()
         {
             _prototypeManager.PrototypesReloaded += OnPrototypeReload;

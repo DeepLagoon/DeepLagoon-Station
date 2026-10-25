@@ -34,6 +34,7 @@ public sealed partial class BanPanel : DefaultWindow
     // This is less efficient than just holding a reference to the root control and enumerating children, but you
     // have to know how the controls are nested, which makes the code more complicated.
     private readonly List<CheckBox> _roleCheckboxes = new();
+    private readonly Dictionary<CheckBox, string> _roleIds = new();
     private readonly ISawmill _banpanelSawmill;
 
     [Dependency] private IGameTiming _gameTiming = default!;
@@ -151,6 +152,7 @@ public sealed partial class BanPanel : DefaultWindow
         }
 
         CreateRoleGroup("Antagonist", prototypeManager.EnumeratePrototypes<AntagPrototype>().Select(p => p.ID), Color.Red);
+        CreateRoleGroup(Loc.GetString("tattoo-ban-group"), [Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanRole], Color.White);
     }
 
     private void CreateRoleGroup(string roleName, IEnumerable<string> roleList, Color color)
@@ -241,7 +243,7 @@ public sealed partial class BanPanel : DefaultWindow
         var roleCheckbox = new CheckBox
         {
             Name = $"{role}RoleCheckbox",
-            Text = role
+            Text = role == Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanRole ? Loc.GetString("tattoo-ban-role") : role
         };
         roleCheckbox.OnToggled += args =>
         {
@@ -252,6 +254,7 @@ public sealed partial class BanPanel : DefaultWindow
         };
         container.AddChild(roleCheckbox);
         _roleCheckboxes.Add(roleCheckbox);
+        _roleIds[roleCheckbox] = role;
     }
 
     public void UpdateBanFlag(bool newFlag)
@@ -469,7 +472,7 @@ public sealed partial class BanPanel : DefaultWindow
             if (_roleCheckboxes.Count == 0)
                 throw new DebugAssertException("RoleCheckboxes was empty");
 
-            rolesList.AddRange(_roleCheckboxes.Where(c => c is { Pressed: true, Text: { } }).Select(c => c.Text!));
+            rolesList.AddRange(_roleCheckboxes.Where(c => c is { Pressed: true, Text: { } }).Select(c => _roleIds[c]));
 
             if (rolesList.Count == 0)
             {

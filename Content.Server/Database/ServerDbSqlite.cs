@@ -476,13 +476,15 @@ namespace Content.Server.Database
 
             var admins = await db.SqliteDbContext.Admin
                 .Include(a => a.Flags)
-                .GroupJoin(db.SqliteDbContext.Player, a => a.UserId, p => p.UserId, (a, grouping) => new {a, grouping})
-                .SelectMany(t => t.grouping.DefaultIfEmpty(), (t, p) => new {t.a, p!.LastSeenUserName})
                 .ToArrayAsync(cancel);
+            var ids = admins.Select(a => a.UserId).ToArray();
+            var names = await db.SqliteDbContext.Player.Where(p => ids.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.LastSeenUserName })
+                .ToDictionaryAsync(p => p.UserId, p => p.LastSeenUserName, cancel);
 
             var adminRanks = await db.DbContext.AdminRank.Include(a => a.Flags).ToArrayAsync(cancel);
 
-            return (admins.Select(p => (p.a, p.LastSeenUserName)).ToArray(), adminRanks)!;
+            return (admins.Select(a => (a, names.GetValueOrDefault(a.UserId))).ToArray(), adminRanks);
         }
 
         protected override IQueryable<AdminLog> StartAdminLogsQuery(ServerDbContext db, LogFilter? filter = null)

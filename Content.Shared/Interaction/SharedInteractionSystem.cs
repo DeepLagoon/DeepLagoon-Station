@@ -204,6 +204,11 @@ namespace Content.Shared.Interaction
             if (target.Comp.ParentUid == user.Owner)
                 return true;
 
+            // Geometry can arrive in separate snapshots. Wall-mounted UI visibility
+            // follows the server's obstruction check rather than closing on incomplete client state.
+            if (_net.IsClient && _wallMountQuery.HasComp(target))
+                return _ignoreUiRangeQuery.HasComp(user) || IsAccessible(user, target) && _transform.InRange(user, target, range);
+
             return InRangeAndAccessible(user, target, range) || _ignoreUiRangeQuery.HasComp(user);
         }
 
@@ -761,7 +766,7 @@ namespace Content.Shared.Interaction
             var inRange = true;
             MapCoordinates originPos = default;
             var targetPos = _transform.ToMapCoordinates(otherCoordinates);
-            Angle targetRot = default;
+            var targetRot = _transform.GetWorldRotation(otherCoordinates.EntityId) + otherAngle;
 
             // So essentially:
             // 1. If fixtures available check nearest point. We take in coordinates / angles because we might want to use a lag compensated position
@@ -823,8 +828,6 @@ namespace Content.Shared.Interaction
             else
             {
                 originPos = _transform.GetMapCoordinates(origin, origin);
-                var otherParent = (other.Comp ?? Transform(other)).ParentUid;
-                targetRot = otherParent.IsValid() ? Transform(otherParent).LocalRotation + otherAngle : otherAngle;
             }
 
             // Do a raycast to check if relevant

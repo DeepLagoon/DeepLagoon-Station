@@ -1,4 +1,6 @@
 lagoon-coin-received = Received +{ $amount } Lagoon Coin: { $reason }. Balance: { $balance } LC.
+lagoon-coin-deducted = Deduction { $amount } Lagoon Coin: { $reason }. Balance: { $balance } LC.
+lagoon-coin-debit-title = { $amount } Lagoon Coin
 lagoon-coin-reason-ready = joining the round through Ready
 lagoon-coin-reason-playtime = time played
 lagoon-coin-reason-objective = completed antagonist objective

@@ -10,6 +10,75 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class TattooAuthorizationTests
 {
     [Test]
+    public async Task TattooBanBlocksArtworkAndForgedProfileEditsAndCanBePardoned()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var user = default(NetUserId);
+        var slot = 0;
+        var original = new Tattoo();
+        Task operation = Task.CompletedTask;
+        await pair.Server.WaitPost(() =>
+        {
+            var session = pair.Server.PlayerMan.Sessions.Single(); user = session.UserId;
+            var prefs = pair.Server.ResolveDependency<IServerPreferencesManager>();
+            slot = prefs.GetPreferences(user).SelectedCharacterIndex;
+            var profile = (HumanoidCharacterProfile)prefs.GetPreferences(user).GetProfile(slot);
+            var appearance = profile.Appearance.Clone(); appearance.Tattoos = [original];
+            operation = prefs.SetProfile(user, slot, profile.WithCharacterAppearance(appearance), persist: false);
+        });
+        await operation;
+        await pair.Server.WaitPost(() =>
+        {
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            operation = pair.Server.ResolveDependency<Content.Server.Administration.Managers.IBanManager>().CreateRoleBanAsync(
+                user, session.Name, null, null, null, TattooAccess.BanRole, 0, Content.Shared.Database.NoteSeverity.Medium,
+                "Tattoo access regression test", DateTimeOffset.UtcNow);
+        });
+        await pair.RunTicksSync(60); await operation; await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(pair.Client.ResolveDependency<Content.Client.Players.PlayTimeTracking.JobRequirementsManager>().TattoosBanned, Is.True);
+            var uid = pair.Client.EntMan.SpawnEntity("MobHumanDummy", Robust.Shared.Map.MapCoordinates.Nullspace);
+            try
+            {
+                using var state = System.Text.Json.JsonDocument.Parse(new Content.Client._DeepLagoon.Tattoos.TattooEditorData().Build(uid, []).ToString());
+                Assert.That(state.RootElement.GetProperty("disabled").GetBoolean(), Is.True);
+                Assert.That(state.RootElement.GetProperty("status").GetString(), Is.EqualTo(TattooAccess.BanMessage));
+            }
+            finally { pair.Client.EntMan.DeleteEntity(uid); }
+        });
+        Task<Tattoo> pending = null;
+        await pair.Client.WaitPost(() => pending = pair.Client.EntMan.System<Content.Client._DeepLagoon.Tattoos.TattooArtworkSystem>().Authorize(new Tattoo()));
+        await pair.RunTicksSync(60);
+        Assert.That(pending.IsFaulted, Is.True);
+        Assert.That(pending.Exception!.GetBaseException().Message, Is.EqualTo(TattooAccess.BanMessage));
+        await pair.Server.WaitPost(() =>
+        {
+            var prefs = pair.Server.ResolveDependency<IServerPreferencesManager>();
+            var profile = (HumanoidCharacterProfile)prefs.GetPreferences(user).GetProfile(slot);
+            var appearance = profile.Appearance.Clone(); appearance.Tattoos = [new Tattoo()];
+            operation = prefs.SetProfile(user, slot, profile.WithCharacterAppearance(appearance), authoritative: false, persist: false);
+            var body = pair.Server.EntMan.SpawnEntity("MobHuman", Robust.Shared.Map.MapCoordinates.Nullspace);
+            var session = pair.Server.PlayerMan.Sessions.Single(); pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            Assert.That(pair.Server.EntMan.System<Content.Server._DeepLagoon.Tattoos.TattooMachineSystem>().TattoosAllowed(body), Is.False);
+            pair.Server.PlayerMan.SetAttachedEntity(session, null); pair.Server.EntMan.DeleteEntity(body);
+        });
+        await operation;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var profile = (HumanoidCharacterProfile)pair.Server.ResolveDependency<IServerPreferencesManager>().GetPreferences(user).GetProfile(slot);
+            Assert.That(profile.Appearance.Tattoos.Single().ContentEquals(original), Is.True, "A raw profile packet must preserve stored ink while banned.");
+        });
+        var records = await pair.Server.ResolveDependency<Content.Server.Database.IServerDbManager>().GetServerRoleBansAsync(null, user, null, null);
+        var id = records.Single(b => b.Role == TattooAccess.BanRole).Id!.Value;
+        await pair.Server.WaitPost(() => operation = pair.Server.ResolveDependency<Content.Server.Administration.Managers.IBanManager>().PardonRoleBan(id, null, DateTimeOffset.UtcNow));
+        await pair.RunTicksSync(60); await operation; await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() => Assert.That(pair.Client.ResolveDependency<Content.Client.Players.PlayTimeTracking.JobRequirementsManager>().TattoosBanned, Is.False));
+        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<Content.Server._DeepLagoon.Tattoos.TattooArtworkSystem>().IsBanned(user), Is.False));
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ForgedImportIsRejectedOverGameChannelAndCannotEnterPreferences()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

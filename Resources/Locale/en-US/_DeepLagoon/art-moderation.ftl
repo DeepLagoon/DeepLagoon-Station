@@ -1,0 +1,16 @@
+dl-art-moderation-title = Artwork library
+dl-art-moderation-search = Title, character name or account UUID
+dl-art-moderation-refresh = Search / refresh
+dl-art-moderation-previous = Previous
+dl-art-moderation-next = Next
+dl-art-moderation-delete = Delete this artwork revision
+dl-art-moderation-confirm = Confirm removal from archive, canvases and frames
+dl-art-moderation-untitled = Untitled
+dl-art-moderation-empty = No artworks found
+dl-art-moderation-author = Character: { $name }
+dl-art-moderation-account = Account: { $name }
+dl-art-moderation-id = Record ID: { $id }
+dl-art-moderation-loading = Loading…
+dl-art-moderation-missing = Artwork already removed. List refreshed.
+dl-art-moderation-removed = Artwork revision removed and blocked from rearchiving.
+dl-art-moderation-error = Action failed. Please try again.

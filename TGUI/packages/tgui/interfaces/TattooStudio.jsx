@@ -73,9 +73,9 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
   const bitmap = png => {
     if (!png) return null;
     if (!images.current.has(png)) {
-      const img = new Image(); images.current.set(png, img); img.onload = () => mounted.current && update(); img.src = 'data:image/png;base64,' + png;
+      const img = new Image(); images.current.set(png, img); img.onload = () => mounted.current && update(); img.src = png.startsWith('data:') ? png : 'data:image/png;base64,' + png;
       // Cache only the current artwork, not every previous edit.
-      if (images.current.size > 32) images.current.delete(images.current.keys().next().value);
+      if (images.current.size > 128) images.current.delete(images.current.keys().next().value);
     }
     const img = images.current.get(png); return img?.complete && img.naturalWidth ? img : null;
   };
@@ -84,33 +84,52 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
     ctx.clearRect(0, 0, 512, 512); if (!mask.current) return;
     ctx.save(); ctx.translate(256 + view.x * 512, 256 + view.y * 512);
     ctx.scale(view.zoom, view.zoom); ctx.translate(-256, -256);
-    const skin = makeCanvas(), skinCtx = skin.getContext('2d'); skinCtx.imageSmoothingEnabled = false;
-    if (bodyPreview.current) skinCtx.drawImage(bodyPreview.current, 0, 0, 256, 256);
-    else {
-      skinCtx.drawImage(mask.current, 0, 0, 256, 256); skinCtx.globalCompositeOperation = 'source-atop';
-      skinCtx.fillStyle = body?.color || '#bc9579'; skinCtx.fillRect(0, 0, 256, 256);
-    }
-    ctx.imageSmoothingEnabled = false; ctx.drawImage(skin, 0, 0, 512, 512);
-    for (const t of tattoos.filter(t => t.part === part && t.direction === direction)) {
-      const p = t.id === selected ? transform : t;
-      let channels;
-      if (work.current?.id === t.id) channels = flatten(work.current.layers, work.current.active, draft);
+    const placement = frame => {
+      const p = frame?.placement;
+      return p ? new DOMMatrix([p.a, p.b, p.c, p.d, p.e, p.f]) : new DOMMatrix();
+    };
+    const anchor = placement(body?.frames?.find(f => f.direction === direction)).inverse();
+    // Draw context first, then the selected area at full opacity. Each part keeps its own ink mask.
+    for (const area of [...parts.filter(p => p.id !== part), ...(body ? [body] : [])]) {
+      const frame = area.frames?.find(f => f.direction === direction);
+      const areaMask = area.id === part ? mask.current : bitmap(frame?.image);
+      if (!areaMask) continue;
+      const surface = document.createElement('canvas'); surface.width = surface.height = 512;
+      const context = surface.getContext('2d');
+      const skin = makeCanvas(), skinCtx = skin.getContext('2d'); skinCtx.imageSmoothingEnabled = false;
+      const preview = area.id === part ? bodyPreview.current : bitmap(frame?.previewImage);
+      if (preview) skinCtx.drawImage(preview, 0, 0, 256, 256);
       else {
-        channels = [makeCanvas(), makeCanvas()];
-        [t.normalBitmap, t.glowBitmap].forEach((png, i) => { const img = bitmap(png); if (img) channels[i].getContext('2d').drawImage(img, 0, 0); });
-        (t.strokes || []).forEach(s => channels.forEach((c, i) => paint(c.getContext('2d'), { ...s, points: decode(s.points) }, !!i)));
+        skinCtx.drawImage(areaMask, 0, 0, 256, 256); skinCtx.globalCompositeOperation = 'source-atop';
+        skinCtx.fillStyle = area.color || '#bc9579'; skinCtx.fillRect(0, 0, 256, 256);
       }
-      for (const ink of channels) {
-        const placed = document.createElement('canvas'); placed.width = placed.height = 512;
-        const c = placed.getContext('2d'); c.globalAlpha = p.opacity; c.translate(p.x * 512, p.y * 512);
-        c.rotate(p.rotation * Math.PI / 180); c.scale(p.scale * (t.mirrored ? -1 : 1), p.scale);
-        c.drawImage(ink, -256, -256, 512, 512); c.resetTransform(); c.globalAlpha = 1;
-        c.globalCompositeOperation = 'destination-in'; c.imageSmoothingEnabled = false; c.drawImage(mask.current, 0, 0, 512, 512);
-        ctx.imageSmoothingEnabled = true; ctx.drawImage(placed, 0, 0);
+      context.imageSmoothingEnabled = false; context.drawImage(skin, 0, 0, 512, 512);
+      for (const t of tattoos.filter(t => t.part === area.id && t.direction === direction)) {
+        const p = t.id === selected ? transform : t;
+        let channels;
+        if (work.current?.id === t.id) channels = flatten(work.current.layers, work.current.active, draft);
+        else {
+          channels = [makeCanvas(), makeCanvas()];
+          [t.normalBitmap, t.glowBitmap].forEach((png, i) => { const img = bitmap(png); if (img) channels[i].getContext('2d').drawImage(img, 0, 0); });
+          (t.strokes || []).forEach(s => channels.forEach((c, i) => paint(c.getContext('2d'), { ...s, points: decode(s.points) }, !!i)));
+        }
+        for (const ink of channels) {
+          const placed = document.createElement('canvas'); placed.width = placed.height = 512;
+          const c = placed.getContext('2d'); c.globalAlpha = p.opacity; c.translate(p.x * 512, p.y * 512);
+          c.rotate(p.rotation * Math.PI / 180); c.scale(p.scale * (t.mirrored ? -1 : 1), p.scale);
+          c.drawImage(ink, -256, -256, 512, 512); c.resetTransform(); c.globalAlpha = 1;
+          c.globalCompositeOperation = 'destination-in'; c.imageSmoothingEnabled = false; c.drawImage(areaMask, 0, 0, 512, 512);
+          context.imageSmoothingEnabled = true; context.drawImage(placed, 0, 0);
+        }
       }
+      const relative = anchor.multiply(placement(frame));
+      if (![relative.a, relative.b, relative.c, relative.d, relative.e, relative.f].every(Number.isFinite)) continue;
+      ctx.save(); ctx.transform(relative.a, relative.b, relative.c, relative.d, relative.e * 512, relative.f * 512);
+      ctx.globalAlpha = area.id === part ? 1 : .22;
+      ctx.drawImage(surface, 0, 0); ctx.restore();
     }
     ctx.restore();
-  }, [tattoos, part, direction, selected, transform, draft, version, body?.color, view]);
+  }, [tattoos, part, direction, selected, transform, draft, version, parts, body?.color, view]);
 
   const switchPart = value => {
     work.current = null; gesture.current = null; setDraft(null); setEditing(false); autoEditId.current = '';
@@ -257,7 +276,7 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
     </div>
     <div className="TattooStudio__list">{tattoos.map((t, i) => <button type="button" key={t.id} disabled={editing || blocked} aria-pressed={selected === t.id} onClick={() => choose(t)}>{i + 1}. {t.name} · {views[t.direction]}</button>)}</div>
     <div className="TattooStudio__tools">
-      <button type="button" disabled={!tattoo || editing || loading || saving || data.pending || data.fileBusy} onClick={() => act('tattoo-export', { id: tattoo.id })}>Сохранить PNG</button>
+      <button type="button" disabled={!tattoo || editing || loading || saving || data.pending || data.fileBusy || data.banned} onClick={() => act('tattoo-export', { id: tattoo.id })}>Сохранить PNG</button>
       <button type="button" disabled={!tattoo || editing || blocked} onClick={() => act('tattoo-import', { id: tattoo.id })}>Загрузить PNG</button>
       {!editing ? <button type="button" disabled={!tattoo || blocked} onClick={startEditing}>Редактировать рисунок</button> : <>
         <button type="button" disabled={blocked} onClick={finish}>Завершить рисунок</button>
@@ -305,7 +324,7 @@ export const TattooEditor = ({ data = {}, act, active: editorActive = true }) =>
           <button type="button" disabled={editing} onClick={() => act('tattoo-remove', { id: tattoo.id })}>Удалить татуировку</button>
         </fieldset>
         <small>Свечение видно в темноте. Одежда перекрывает оба вида чернил.</small>
-        {(data.status || status || blocked) && <p role="status">{data.disabled ? 'Нанесение татуировок выключено в настройках.' : data.status || status || (data.pending ? 'Нанесение…' : 'Область закрыта одеждой.')}</p>}
+        {(data.status || status || blocked) && <p role="status">{data.status || (data.disabled ? 'Нанесение татуировок выключено в настройках.' : status || (data.pending ? 'Нанесение…' : 'Область закрыта одеждой.'))}</p>}
       </div>
     </div>
     {partSwitch && <div className="TattooStudio__switch" role="alertdialog" aria-label="Смена области татуировки"><div>

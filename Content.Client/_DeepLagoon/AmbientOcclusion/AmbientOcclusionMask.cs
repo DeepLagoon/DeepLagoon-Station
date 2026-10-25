@@ -98,7 +98,7 @@ internal sealed class AmbientOcclusionMask : IDisposable
                 {
                     var horizontal = Math.Max((mask & 1) != 0 ? Falloff(x) : 0, (mask & 2) != 0 ? Falloff(Steps - 1 - x) : 0);
                     var vertical = Math.Max((mask & 4) != 0 ? Falloff(y) : 0, (mask & 8) != 0 ? Falloff(Steps - 1 - y) : 0);
-                    samples[y * Steps + x] = Math.Min(0.22f, 0.22f * (Math.Max(horizontal, vertical) + 0.35f * Math.Min(horizontal, vertical)));
+                    samples[y * Steps + x] = 0.22f * Math.Max(horizontal, vertical);
                 }
         }
         return result;

@@ -14,13 +14,15 @@ public sealed partial class GridEditorSystem
     private Stream? _download;
     private Guid _downloadRequest;
     private int _downloadIndex, _downloadCount;
+    private readonly HashSet<int> _downloadReceived = new();
     private bool _downloadBusy;
     private string? _draftFileId;
     private StringBuilder? _draftFile;
     private int _draftFileLength, _draftFileChunks, _draftFileNext;
+    private string? _draftUpload;
+    private int _draftUploadNext;
 
-    // Export the browser's frozen construction draft locally. No apply event, server session,
-    // map initialization check, or mutation of the live grid is involved.
+    // Freeze the browser's geometry, then ask the server to preserve native component state.
     private bool DraftFileAction(string action, MappingDataNode root)
     {
         if (action is not ("draftFileStart" or "draftFileChunk")) return false;
@@ -30,6 +32,7 @@ public sealed partial class GridEditorSystem
         {
             if (action == "draftFileStart")
             {
+                if (_state == null) throw new InvalidOperationException("Сессия редактора закрыта. Откройте grid заново.");
                 if (_downloadBusy) throw new InvalidOperationException("Дождитесь завершения предыдущего сохранения.");
                 if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "length"), out var length) || length is < 1 or > 32 * 1024 * 1024 ||
                     !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != (length + 1023) / 1024)
@@ -50,9 +53,11 @@ public sealed partial class GridEditorSystem
                 if (_draftFileNext == _draftFileChunks)
                 {
                     if (_draftFile.Length != _draftFileLength) throw new InvalidDataException("Неполный файл черновика.");
-                    var bytes = Encoding.UTF8.GetBytes(_draftFile.ToString());
+                    if (_state == null) throw new InvalidOperationException("Сессия редактора закрыта.");
+                    var plan = _draftFile.ToString(); _draftUpload = plan; _draftUploadNext = 0;
                     _draftFile = null;
-                    SaveDownloadedFile(bytes, _downloadRequest);
+                    _download = new MemoryStream(); _downloadIndex = 0; _downloadCount = 0; _downloadReceived.Clear();
+                    RaiseNetworkEvent(new GridEditorDraftFileStart(_state.Token, _downloadRequest, plan.Length));
                     return true;
                 }
             }
@@ -71,13 +76,25 @@ public sealed partial class GridEditorSystem
     private void FinishDraftFile(string id) => _window?.Panel.Web.Send("update", new TguiData().Object("data",
         new TguiData().String("draftFileFinished", id)).ToString());
 
+    private void ReceiveDraftFileAck(GridEditorDraftFileChunk ev)
+    {
+        // The server requests each next part with an empty chunk. Events within one tick can be reordered.
+        if (_draftUpload == null || _state?.Token != ev.Token || ev.Request != _downloadRequest ||
+            ev.Text.Length != 0 || ev.Index != _draftUploadNext) return;
+        var start = ev.Index * 32768;
+        if (start < 0 || start >= _draftUpload.Length) return;
+        _draftUploadNext++;
+        RaiseNetworkEvent(new GridEditorDraftFileChunk(ev.Token, ev.Request, ev.Index,
+            _draftUpload.Substring(start, Math.Min(32768, _draftUpload.Length - start))));
+    }
+
     private void BeginDownload(bool wholeMap)
     {
         if (_downloadBusy || _state == null) return;
         _downloadBusy = true;
         DownloadState(true);
         _download = new MemoryStream();
-        _downloadRequest = Guid.NewGuid(); _downloadIndex = 0; _downloadCount = 0;
+        _downloadRequest = Guid.NewGuid(); _downloadIndex = 0; _downloadCount = 0; _downloadReceived.Clear();
         RaiseNetworkEvent(new GridEditorDownloadEvent(_state.Token, _downloadRequest, wholeMap));
     }
 
@@ -87,9 +104,12 @@ public sealed partial class GridEditorSystem
         try
         {
             if (ev.Error.Length > 0) throw new IOException(ev.Error);
-            if (ev.Count is < 1 or > 512 || ev.Index != _downloadIndex || ev.Bytes.Length > 65536 ||
+            if (ev.Count is < 1 or > 512 || ev.Index < 0 || ev.Index >= ev.Count || ev.Bytes.Length is < 1 or > 65536 ||
+                ev.Index < ev.Count - 1 && ev.Bytes.Length != 65536 ||
                 _downloadCount != 0 && _downloadCount != ev.Count) throw new InvalidDataException("Неполный файл карты.");
             _downloadCount = ev.Count;
+            if (!_downloadReceived.Add(ev.Index)) return;
+            _download.Position = (long) ev.Index * 65536;
             _download.Write(ev.Bytes); _downloadIndex++;
             if (_downloadIndex != _downloadCount) return;
             var bytes = ((MemoryStream) _download).ToArray();
@@ -119,7 +139,8 @@ public sealed partial class GridEditorSystem
     private void CancelDownload()
     {
         _download?.Dispose(); _download = null; _downloadBusy = false;
-        _draftFile = null;
+        _downloadRequest = Guid.Empty;
+        _draftFile = null; _draftUpload = null; _downloadReceived.Clear();
         if (_draftFileId != null) FinishDraftFile(_draftFileId);
         _draftFileId = null;
         DownloadState(false);

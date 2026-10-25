@@ -1,4 +1,16 @@
 import { spriteLayers, spriteBounds } from './gridEditorSprites.mjs';
+export const editableItem = (item, layers) => !!layers[item.kind] &&
+  (layers.decalZ === undefined || item.kind === 'decal' && (item.z || 0) === layers.decalZ);
+
+export function scopeDecalChanges(previous, next, z) {
+  const before = new Map(previous.map(item => [item.id, item]));
+  const editable = item => item.kind === 'decal' && (item.z || 0) === z;
+  const result = next.filter(item => before.has(item.id) ? editable(before.get(item.id)) && item.kind === 'decal' : editable(item));
+  return [...previous.filter(item => !editable(item)), ...result];
+}
+
+export const decalTemplate = (items, z) => items.filter(item => item.kind === 'decal').map(item => ({ ...item, z }));
+
 export const copyItems = (items) => items.map((item) => ({ ...item }));
 export const tileId = (x, y) => `t:${x}:${y}`;
 export const cellOf = (item) => ({ x: Math.floor(item.x), y: Math.floor(item.y) });
@@ -33,9 +45,11 @@ export function stamp(items, cells, brush, options, nextId) {
     if (kind === 'tile' && item.kind === 'tile') return false;
     return !(options.replace && brush.category === 'wall' && item.kind === 'entity' && options.isWall(item.prototype));
   });
-  const occupied = new Set(result.map(item => `${item.kind}:${item.prototype}:${Math.floor(item.x)}:${Math.floor(item.y)}`));
+  const placementKey = item => `${item.kind}:${item.prototype}:${Math.floor(item.x)}:${Math.floor(item.y)}` +
+    (item.kind === 'decal' ? `:${item.z || 0}:${item.color}:${item.rotation}:${!!item.cleanable}` : '');
+  const occupied = new Set(result.map(placementKey));
   for (const cell of cells) {
-    const key = `${kind}:${brush.id}:${cell.x}:${cell.y}`;
+    const key = placementKey({ kind, prototype: brush.id, x: cell.x, y: cell.y, ...options });
     if (occupied.has(key)) continue;
     occupied.add(key);
     result.push({ id: kind === 'tile' ? tileId(cell.x, cell.y) : nextId(), kind, prototype: brush.id,
@@ -122,7 +136,7 @@ export const cellRectangle = (a, b) => ({ x: Math.min(a.x, b.x), y: Math.min(a.y
 
 export function eraseRectangle(items, rectangle, layers, mirror = null) {
   const reflected = mirror?.enabled ? { ...rectangle, [mirror.axis]: 2 * mirror.center - rectangle[mirror.axis] - rectangle[mirror.axis === 'x' ? 'width' : 'height'] } : null;
-  return items.filter(item => !layers[item.kind] || !inside(cellOf(item), rectangle) && !(reflected && inside(cellOf(item), reflected)));
+  return items.filter(item => !editableItem(item, layers) || !inside(cellOf(item), rectangle) && !(reflected && inside(cellOf(item), reflected)));
 }
 
 export function moveSelection(items, ids, dx, dy, area) {
@@ -171,7 +185,7 @@ export function insertTemplate(draft, items, target, turns, nextId) {
     if (item.kind === 'tile') {
       item.id = tileId(item.x, item.y); result = result.filter((i) => i.id !== item.id);
     } else {
-      if (result.some((i) => i.kind === item.kind && i.prototype === item.prototype && i.x === item.x && i.y === item.y && i.rotation === item.rotation)) continue;
+      if (result.some((i) => i.kind === item.kind && i.prototype === item.prototype && i.x === item.x && i.y === item.y && i.rotation === item.rotation && (item.kind !== 'decal' || i.z === item.z && i.color === item.color && i.cleanable === item.cleanable))) continue;
       item.id = nextId();
     }
     result.push(item);
@@ -234,13 +248,13 @@ export function expansionRects(bounds, expansion) {
 
 export function itemsAtPoint(items, point, layers, visual, opaque = () => true) {
   return items.map((item, index) => ({ item, index })).filter(({ item }) => {
-    if (!layers[item.kind]) return false;
-    if(item.kind==='entity' && visual(item)?.images?.some(image=>image.native)){
+    if (!editableItem(item, layers)) return false;
+    if(item.kind==='decal' || item.kind==='entity' && visual(item)?.images?.some(image=>image.native)){
       return spriteLayers(item,visual(item)).some(layer=>{
         const x=point.x-layer.x,y=point.y-layer.y,det=layer.a*layer.d-layer.b*layer.c;
         if(Math.abs(det)<1e-8)return false;
         const u=(layer.d*x-layer.c*y)/det/layer.width+.5,v=.5-(-layer.b*x+layer.a*y)/det/layer.height;
-        return u>=0&&u<1&&v>=0&&v<1&&opaque([layer.image],u,v);
+        return u>=0&&u<1&&v>=0&&v<1&&opaque([{...layer.image,native:true}],u,v);
       });
     }
     const left = item.x - (item.kind === 'entity' ? .5 : 0);
@@ -297,15 +311,15 @@ export function mirrorChanges(previous, next, mirror, area, nextId, pairs = new 
   const before = new Map(previous.map(item => [item.id, item]));
   const result = new Map(next.map(item => [item.id, item]));
   const touched = new Set();
-  const samePosition = (a, b) => a.kind === b.kind && a.prototype === b.prototype && Math.abs(a.x - b.x) < .0001 && Math.abs(a.y - b.y) < .0001;
-  const positionKey = item => `${item.kind}:${item.prototype}:${item.x.toFixed(4)}:${item.y.toFixed(4)}`;
+  const samePosition = (a, b) => a.kind === b.kind && a.prototype === b.prototype && (a.kind !== 'decal' || a.z === b.z) && Math.abs(a.x - b.x) < .0001 && Math.abs(a.y - b.y) < .0001;
+  const positionKey = item => `${item.kind}:${item.prototype}:${item.x.toFixed(4)}:${item.y.toFixed(4)}:${item.kind === 'decal' ? item.z : ''}`;
   const positions = new Map(previous.map(item => [positionKey(item), item]));
   const counterpart = item => {
     const reflected = reflectedItem(item, mirror, isDiagonal);
     return before.get(pairs.get(item.id)) || positions.get(positionKey(reflected));
   };
   const removedCells = new Map();
-  const cellKey = item => `${item.kind}:${Math.floor(item.x)}:${Math.floor(item.y)}`;
+  const cellKey = item => `${item.kind}:${Math.floor(item.x)}:${Math.floor(item.y)}:${item.kind === 'decal' ? item.z : ''}`;
   for (const item of previous) {
     const key = cellKey(item);
     if (!removedCells.has(key)) removedCells.set(key, []);
@@ -319,7 +333,7 @@ export function mirrorChanges(previous, next, mirror, area, nextId, pairs = new 
     const item = items[0], axis = mirror.axis;
     const cell = { x: Math.floor(item.x), y: Math.floor(item.y) };
     cell[axis] = Math.floor(2 * mirror.center - cell[axis] - 1);
-    eraseCells.add(`${item.kind}:${cell.x}:${cell.y}`);
+    eraseCells.add(cellKey({ ...item, ...cell }));
   }
   for (const item of next) if (eraseCells.has(cellKey(item))) result.delete(item.id);
   for (const item of previous) if (!result.has(item.id)) {

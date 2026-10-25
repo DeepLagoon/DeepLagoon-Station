@@ -2,7 +2,9 @@
 
 Client-only contact shading; enabled by default. The default renderer is Silhouette.
 RobustToolbox is unmodified. Lighting and dynamic shadows use the engine normally.
-The overlay runs below entity sprites and before the final FOV pass.
+The overlay runs below entity sprites and before the final FOV pass. It is the only
+AO overlay: the old `light.ambient_occlusion` pass has been retired so the graphics
+toggle controls all contact shadows.
 
 ## Settings
 
@@ -22,14 +24,29 @@ contact toggle. Walls remain shaded when structure/mob contacts are disabled.
 Walls and structures reuse their current sprite frames, with an expanded black
 silhouette displaced exactly four source pixels (screen vector 2.4,-3.2).
 Directions, animation frames and layer transforms are read through public APIs.
-The original sprite is never modified. One copy is drawn per eligible layer;
+The original sprite is never modified. One silhouette is sampled per eligible layer;
 custom-shader, shader-parameter and unshaded layers are excluded.
-Items, point lights and airlocks cast no silhouettes. Enabled occluders still
+Items, point lights, airlocks and entities with `PuddleComponent` cast no silhouettes.
+Puddles are also excluded from Mask and Legacy contacts. Enabled occluders still
 block visibility regardless of caster eligibility.
 
 Mobs use one shared 16×16 nearest-filtered weak contact texture, clipped to
-nonempty floor tiles and excluded from wall tiles. Silhouette allocates no large
-viewport masks and performs no recurring mask uploads.
+nonempty floor tiles and excluded from wall tiles. All renderers share one linear
+RGBA8 GPU target per viewport, cleared to black with alpha one each frame and
+resized/disposed with the viewport. Silhouette performs no recurring CPU mask uploads.
+
+Every contact uses adjacent stock Subtract/Add draws. With source and destination
+alpha fixed at one, their RGB result is `max(0, previous - opacity) + opacity`,
+which equals `max(previous, opacity)`. This combines sprite layers, structures,
+mobs and overlapping grids without accumulating darkness or depending on draw
+order. The paired draws must stay adjacent, and the target must remain linear
+UNORM (not sRGB or floating-point), because subtraction relies on clamping at zero.
+
+The resulting mask is composited once, using the current viewport light map at
+each pixel. Shadow opacity is multiplied by `1 - smoothstep(0, 1, brightestChannel)`:
+light fades the shadow out, full light removes it, and saturated colored lights
+work too. Fullbright/disabled map lighting also removes AO. The world is darkened
+only in this final pass; entity sprites and the final FOV pass retain their order.
 
 A spatial query and current-state eligibility checks run each draw. Hidden,
 contained, detached, terminating and invisible entities are excluded. Current
@@ -52,17 +69,21 @@ processing and visibility-index reuse. AO CPU excludes deferred renderer/GPU wor
 Sequential phases may encounter different scene loads; FPS differences are not
 universal guarantees.
 
-Before feature-test cleanup, the build, sandbox check and 21 targeted tests passed.
-Feature-specific tests, benchmark output and temporary validation builds were
-removed at the user's request. Other project tests remain intact.
-Player testing demonstrated substantially lower CPU cost than Mask/Legacy.
-No direct in-game visual verification was performed by the coding agent.
+`Content.Tests/_DeepLagoon/AmbientOcclusionTests.cs` checks puddle exclusion.
+`node Tools/ambient-occlusion/render.test.cjs` runs the production shader bodies
+with stock blend factors in WebGL 1 / OpenGL ES 2. Set `PLAYWRIGHT_PATH` when
+Playwright is installed outside the normal Node module path. The checks cover
+mixed casters, transparent layers, reversed order, repeated overlap, removal and
+white/colored lighting. Local results go to `.local/codex/ao-lighting/`.
+
+Paired blending adds a draw per shadow primitive and a viewport composite; use
+`ao_profile` to measure a running client after changes. Browser shader checks do
+not establish native-client rendering or in-game performance.
 
 ## Limits
 
 This is artistic contact shading, not physical ambient occlusion. Silhouettes
-can extend slightly over neighboring surfaces, and different sprites/mob spots
-can accumulate darkness where they overlap. Unsupported shader layers may omit
+can extend slightly over neighboring surfaces. Unsupported shader layers may omit
 parts of a silhouette. Walls are identified by the Wall tag for wall-only settings.
 Objects without a grid are excluded. Dense scenes beyond the caster budget omit
 some shadows. Verify building/removing walls, airlocks, hidden entities, rotated

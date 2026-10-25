@@ -23,6 +23,10 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Maths;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Utility;
+using Robust.Shared.Serialization.Markdown;
+using Robust.Shared.Serialization.Markdown.Mapping;
+using Robust.Shared.Serialization.Markdown.Sequence;
+using Robust.Shared.Serialization.Markdown.Value;
 using ClientEditor = Content.Client._DeepLagoon.Mapping.GridEditorSystem;
 using ServerEditor = Content.Server._DeepLagoon.Mapping.GridEditorSystem;
 
@@ -31,6 +35,264 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class GridEditorTests
 {
+    [Test]
+    public async Task DraftAndMapExportsPreserveComponentValuesAndContainersWithoutApplyingDraft()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var frozenPlan = "";
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: true);
+            var grid = map.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            map.SetTiles(grid, grid.Comp, new() { (new(0, 0), floor), (new(1, 0), floor) });
+            entities.System<MetaDataSystem>().SetEntityName(grid, "Грид с настройками");
+            var chair = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+            entities.System<MetaDataSystem>().SetEntityName(chair, "Особый стул");
+            var settings = entities.AddComponent<Content.Shared.Lock.LockComponent>(chair);
+            foreach (var (field, value) in new[] { ("Locked", false), ("LockOnClick", true), ("UnlockOnClick", false), ("BreakOnAccessBreaker", false) })
+                typeof(Content.Shared.Lock.LockComponent).GetField(field)!.SetValue(settings, value);
+            var paper = entities.SpawnEntity("Paper", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+            entities.System<MetaDataSystem>().SetEntityName(paper, "Содержимое контейнера");
+            var containers = entities.System<Robust.Shared.Containers.SharedContainerSystem>();
+            Assert.That(containers.Insert(paper, containers.EnsureContainer<Robust.Shared.Containers.Container>(chair, "keepsake")), Is.True);
+            var removed = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(1.5f, .5f)));
+            entities.System<MetaDataSystem>().SetEntityName(removed, "Удалённый в черновике");
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            var editor = entities.System<ServerEditor>();
+            Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var draft = ((IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+            var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
+            var items = (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
+            var id = items.Single(item => item.Kind == "entity" && item.X == .5f).Id;
+            var bytes = new byte[16 * 16 * 7];
+            // Plan tile ID 1 deliberately differs from the native serializer's allocation.
+            System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(2 * 7, 4), 1);
+            var plan = $$"""
+                gridEditorIds:
+                  2: '{{id}}'
+                  3: new_chair
+                tilemap: {0: Space, 1: Plating}
+                entities:
+                - proto: ''
+                  entities:
+                  - uid: 1
+                    components:
+                    - type: MapGrid
+                      chunks:
+                        0,0: {ind: '0,0', tiles: '{{Convert.ToBase64String(bytes)}}', version: 7}
+                    - type: DecalGrid
+                      chunkCollection: {version: 2, nodes: []}
+                - proto: ChairWood
+                  entities:
+                  - uid: 2
+                    components:
+                    - {type: Transform, parent: 1, pos: '2.5,0.5', rot: 90, anchored: true}
+                  - uid: 3
+                    components:
+                    - {type: Transform, parent: 1, pos: '3.5,0.5', rot: 0, anchored: false}
+                """;
+            frozenPlan = plan + "\n# " + new string('Ж', 40000) + "\n";
+            Assert.Throws<System.IO.InvalidDataException>(() => editor.ExportDraft(player, Guid.NewGuid(), plan));
+            var yaml = editor.ExportDraft(player, token, plan);
+            Assert.That(yaml, Does.Not.Contain("gridEditorIds"));
+            var loadOptions = new Robust.Shared.EntitySerialization.MapLoadOptions
+            {
+                DeserializationOptions = new Robust.Shared.EntitySerialization.DeserializationOptions { LogOrphanedGrids = false }
+            };
+            using (var reader = new System.IO.StringReader(yaml))
+            {
+                Assert.That(entities.System<MapLoaderSystem>().TryLoadGeneric(reader, "preserved-draft", out var loaded, loadOptions), Is.True);
+                var loadedGrid = loaded!.Grids.Single();
+                Assert.That(entities.GetComponent<MetaDataComponent>(loadedGrid).EntityName, Is.EqualTo("Грид с настройками"));
+                Assert.That(map.GetTileRef(loadedGrid, loadedGrid.Comp, new Vector2i(0, 0)).Tile.IsEmpty, Is.True);
+                Assert.That(map.GetTileRef(loadedGrid, loadedGrid.Comp, new Vector2i(2, 0)).Tile.TypeId, Is.EqualTo(floor.TypeId));
+                var loadedChair = loaded.Entities.Single(uid => entities.GetComponent<MetaDataComponent>(uid).EntityName == "Особый стул");
+                var loadedSettings = entities.GetComponent<Content.Shared.Lock.LockComponent>(loadedChair);
+                Assert.That(loadedSettings.Locked, Is.False); Assert.That(loadedSettings.LockOnClick, Is.True);
+                Assert.That(loadedSettings.UnlockOnClick, Is.False); Assert.That(loadedSettings.BreakOnAccessBreaker, Is.False);
+                Assert.That(entities.GetComponent<TransformComponent>(loadedChair).LocalPosition, Is.EqualTo(new Vector2(2.5f, .5f)));
+                Assert.That(entities.GetComponent<TransformComponent>(loadedChair).Anchored, Is.True);
+                var loadedPaper = loaded.Entities.Single(uid => entities.GetComponent<MetaDataComponent>(uid).EntityName == "Содержимое контейнера");
+                Assert.That(containers.GetContainer(loadedChair, "keepsake").ContainedEntities, Does.Contain(loadedPaper));
+                Assert.That(loaded.Entities.Any(uid => entities.GetComponent<MetaDataComponent>(uid).EntityName == "Удалённый в черновике"), Is.False);
+                Assert.That(loaded.Entities.Count(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "ChairWood"), Is.EqualTo(2));
+            }
+            Assert.That(entities.GetComponent<TransformComponent>(chair).LocalPosition, Is.EqualTo(new Vector2(.5f, .5f)));
+            Assert.That(entities.EntityExists(removed), Is.True);
+            Assert.That(map.GetTileRef(grid, grid.Comp, new Vector2i(0, 0)).Tile.IsEmpty, Is.False);
+            Assert.That(map.GetTileRef(grid, grid.Comp, new Vector2i(2, 0)).Tile.IsEmpty, Is.True);
+            foreach (var wholeMap in new[] { false, true })
+            {
+                draft.GetType().GetField("LastDownload")!.SetValue(draft, TimeSpan.Zero);
+                var native = editor.Export(player, token, wholeMap, out var error);
+                Assert.That(native, Is.Not.Null, error);
+                using var reader = new System.IO.StringReader(native!);
+                Assert.That(entities.System<MapLoaderSystem>().TryLoadGeneric(reader, "preserved-native", out var loaded, loadOptions), Is.True);
+                var saved = loaded!.Entities.Single(uid => entities.GetComponent<MetaDataComponent>(uid).EntityName == "Особый стул");
+                Assert.That(entities.GetComponent<Content.Shared.Lock.LockComponent>(saved).UnlockOnClick, Is.False);
+                Assert.That(containers.GetContainer(saved, "keepsake").ContainedEntities.Count, Is.EqualTo(1));
+            }
+            draft.GetType().GetField("LastDownload")!.SetValue(draft, TimeSpan.Zero);
+        });
+        await pair.RunTicksSync(20);
+        using var savedFile = new System.IO.MemoryStream();
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            var dialogs = new Moq.Mock<Robust.Client.UserInterface.IFileDialogManager>();
+            dialogs.Setup(dialog => dialog.SaveFile(Moq.It.IsAny<Robust.Client.UserInterface.FileDialogFilters?>(), true,
+                    System.IO.FileAccess.ReadWrite, System.IO.FileShare.None))
+                .Returns(Task.FromResult<(System.IO.Stream, bool)?>((savedFile, false)));
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(ClientEditor).GetField("_dialogs", flags)!.SetValue(editor, dialogs.Object);
+            var action = typeof(ClientEditor).GetMethod("Action", flags)!;
+            void Send(string name, object payload) => action.Invoke(editor, new[] { name, JsonSerializer.Serialize(payload) });
+            var chunks = (frozenPlan.Length + 1023) / 1024;
+            Send("draftFileStart", new { id = "native-transfer", length = frozenPlan.Length, chunks });
+            for (var index = 0; index < chunks; index++) Send("draftFileChunk", new { id = "native-transfer", index,
+                text = frozenPlan.Substring(index * 1024, Math.Min(1024, frozenPlan.Length - index * 1024)) });
+        });
+        await pair.RunTicksSync(90);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var downloaded = System.Text.Encoding.UTF8.GetString(savedFile.ToArray());
+            Assert.That(downloaded, Does.Contain("Особый стул"));
+            using var reader = new System.IO.StringReader(downloaded);
+            var document = (MappingDataNode) DataNodeParser.ParseYamlStream(reader).Single().Root;
+            var savedLock = document.Get<SequenceDataNode>("entities").Cast<MappingDataNode>()
+                .SelectMany(group => group.Get<SequenceDataNode>("entities").Cast<MappingDataNode>())
+                .SelectMany(entity => entity.TryGet<SequenceDataNode>("components", out var components)
+                    ? components.Cast<MappingDataNode>() : Enumerable.Empty<MappingDataNode>())
+                .Single(component => component.Get<ValueDataNode>("type").Value == "Lock");
+            Assert.That(bool.Parse(savedLock.Get<ValueDataNode>("unlockOnClick").Value), Is.False);
+            Assert.That(downloaded, Does.Not.Contain("gridEditorIds"));
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            Assert.That(typeof(ClientEditor).GetField("_downloadBusy", flags)!.GetValue(pair.Client.EntMan.System<ClientEditor>()), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task HotbarPersistsExplicitSlotsAndClearingAcrossLibraryReload()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var map = pair.Server.EntMan.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: false);
+            var grid = map.CreateGridEntity(mapId);
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            Assert.That(pair.Server.EntMan.System<ServerEditor>().Open(player, grid), Does.Contain("открыт"));
+        });
+        await pair.RunTicksSync(20);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var action = typeof(ClientEditor).GetMethod("Action", flags)!;
+            void Slot(int slot, string? id = null) => action.Invoke(editor, new object[] { "hotbarSet", JsonSerializer.Serialize(new { slot, kind = "entity", id = id ?? "" }) });
+            Slot(0, "ChairWood"); Slot(25, "WallSolid"); Slot(0);
+            typeof(ClientEditor).GetField("_libraryLoaded", flags)!.SetValue(editor, false);
+            typeof(ClientEditor).GetMethod("LoadLibrary", flags)!.Invoke(editor, null);
+            var hotbar = (IDictionary) typeof(ClientEditor).GetField("_hotbar", flags)!.GetValue(editor)!;
+            Assert.That(hotbar.Contains(0), Is.False);
+            Assert.That(hotbar.Contains(25), Is.True);
+            using var file = pair.Client.ResolveDependency<IResourceManager>().UserData.OpenText(new ResPath("/grid-editor/library.json"));
+            var json = JsonDocument.Parse(file.ReadToEnd());
+            Assert.That(json.RootElement.GetProperty("hotbar").EnumerateArray().Single().GetProperty("slot").GetInt32(), Is.EqualTo(25));
+            // Native events queued during one tick need not arrive in insertion order.
+            using var saved = new System.IO.MemoryStream();
+            var dialogs = new Moq.Mock<Robust.Client.UserInterface.IFileDialogManager>();
+            dialogs.Setup(dialog => dialog.SaveFile(Moq.It.IsAny<Robust.Client.UserInterface.FileDialogFilters?>(), true,
+                    System.IO.FileAccess.ReadWrite, System.IO.FileShare.None))
+                .Returns(Task.FromResult<(System.IO.Stream, bool)?>((saved, false)));
+            typeof(ClientEditor).GetField("_dialogs", flags)!.SetValue(editor, dialogs.Object);
+            var request = Guid.NewGuid();
+            typeof(ClientEditor).GetField("_downloadRequest", flags)!.SetValue(editor, request);
+            typeof(ClientEditor).GetField("_download", flags)!.SetValue(editor, new System.IO.MemoryStream());
+            typeof(ClientEditor).GetField("_downloadIndex", flags)!.SetValue(editor, 0);
+            typeof(ClientEditor).GetField("_downloadCount", flags)!.SetValue(editor, 0);
+            var bytes = Enumerable.Range(0, 65543).Select(index => (byte) (index % 251)).ToArray();
+            var receive = typeof(ClientEditor).GetMethod("ReceiveFile", flags)!;
+            var last = new GridEditorFileEvent(request, 1, 2, bytes.Skip(65536).ToArray());
+            receive.Invoke(editor, new object[] { last });
+            receive.Invoke(editor, new object[] { last });
+            Assert.That(saved.ToArray(), Is.Empty);
+            receive.Invoke(editor, new object[] { new GridEditorFileEvent(request, 0, 2, bytes.Take(65536).ToArray()) });
+            Assert.That(saved.ToArray(), Is.EqualTo(bytes));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task GridNameRequiresCurrentMappingSessionAndPersistsThroughMapExport()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        EntityUid grid = default;
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        Guid token = default;
+        const string original = "Исходный grid";
+        const string renamed = "Жилой модуль «Маяк»: палуба 2 #1";
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: false);
+            var created = map.CreateGridEntity(mapId); grid = created.Owner;
+            map.SetTile(created, created.Comp, new Vector2i(0, 0), new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
+            entities.System<MetaDataSystem>().SetEntityName(grid, original);
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            Assert.That(entities.System<ServerEditor>().Open(player, grid), Does.Contain("открыт"));
+        });
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>(); token = editor.State!.Token;
+            Assert.That(((GridEditorEnvironmentState) typeof(ClientEditor).GetField("_environmentState", flags)!.GetValue(editor)!).GridName, Is.EqualTo(original));
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var editor = entities.System<ServerEditor>();
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            void Rename(Guid requestToken, string name) => typeof(ServerEditor).GetMethod("RenameGrid", flags)!.Invoke(editor,
+                new object[] { new GridEditorNameRequest(requestToken, name), new EntitySessionEventArgs(player) });
+            Rename(Guid.NewGuid(), "Stale request");
+            foreach (var invalid in new[] { "", "   ", "a\nb", new string('x', GridEditorNameRequest.MaxLength + 1) }) Rename(token, invalid);
+            Assert.That(entities.GetComponent<MetaDataComponent>(grid).EntityName, Is.EqualTo(original));
+        });
+        await pair.RunTicksSync(15);
+        await pair.Client.WaitAssertion(() => typeof(ClientEditor).GetMethod("Action", flags)!.Invoke(pair.Client.EntMan.System<ClientEditor>(),
+            new object[] { "setGridName", JsonSerializer.Serialize(new { name = "  " + renamed + "  " }) }));
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() => Assert.That(((GridEditorEnvironmentState) typeof(ClientEditor).GetField("_environmentState", flags)!
+            .GetValue(pair.Client.EntMan.System<ClientEditor>())!).GridName, Is.EqualTo(renamed)));
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.GetComponent<MetaDataComponent>(grid).EntityName, Is.EqualTo(renamed));
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            var editor = entities.System<ServerEditor>();
+            var yaml = editor.Export(player, token, false, out var error);
+            Assert.That(yaml, Is.Not.Null, error);
+            using var reader = new System.IO.StringReader(yaml!);
+            Assert.That(entities.System<MapLoaderSystem>().TryLoadGeneric(reader, "renamed-grid", out var loaded), Is.True);
+            Assert.That(entities.GetComponent<MetaDataComponent>(loaded!.Grids.Single().Owner).EntityName, Is.EqualTo(renamed));
+            pair.Server.ResolveDependency<IAdminManager>().DeAdmin(player);
+            typeof(ServerEditor).GetMethod("RenameGrid", flags)!.Invoke(editor,
+                new object[] { new GridEditorNameRequest(token, "No permission"), new EntitySessionEventArgs(player) });
+            Assert.That(entities.GetComponent<MetaDataComponent>(grid).EntityName, Is.EqualTo(renamed));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task ComplexMoveCreatesDecalStorageAndRestoresDeletedDraftEntity()
     {

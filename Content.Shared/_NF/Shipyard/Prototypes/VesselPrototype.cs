@@ -24,6 +24,8 @@ public sealed partial class VesselPrototype : IPrototype, IInheritingPrototype
     /// </summary>
     [DataField] public string Name = string.Empty;
 
+    public string LocalizedName => Loc.TryGetString("vessel-name-" + ID, out var name) ? name : Name;
+
     /// <summary>
     ///     The amount of this ship that can active at any given time.
     ///     0 for unlimited.

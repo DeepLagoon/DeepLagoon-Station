@@ -3,14 +3,17 @@
 body:has(.GridEditor) { zoom: 1 !important; }
 
 .GridEditor {
-  position: fixed; inset: 0; height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; color: #d8e5ed; background: #141e28; font-size: 12px;
-  button, input { font: inherit; }
+  position: fixed; inset: 0; height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; color: #deebf3; background: #101923; font-size: 13px;
+  &, * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  button, input, select { font: inherit; }
   button { background: #263746; color: inherit; border: 1px solid #456070; border-radius: 3px; padding: 5px 7px; cursor: pointer; }
   button:hover:not(:disabled), button.active { background: #32667b; border-color: #70cae4; }
   button:disabled { opacity: .4; cursor: default; }
   input:not([type=checkbox]):not([type=color]) { color: inherit; background: #0c1620; border: 1px solid #456070; padding: 6px; min-width: 0; }
   label { display: flex; align-items: center; gap: 4px; }
-  small { color: #90a7b7; display: block; font-size: 10px; }
+  small { color: #a0b5c6; display: block; font-size: 11px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid #80d6df; outline-offset: 2px; }
   header, footer { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 8px; background: #1e2d3b; }
   header strong, footer > span { flex: 1; }
   footer > span { overflow-wrap: anywhere; }
@@ -18,7 +21,7 @@ body:has(.GridEditor) { zoom: 1 !important; }
   footer > button { flex-shrink: 0; }
   .primary { background: #21664e; border-color: #4ba888; }
   .error { color: #ff9a90; }
-  &__body { display: flex; flex: 1; min-height: 0; }
+  &__body { position: relative; display: flex; flex: 1; min-height: 0; }
   aside { padding: 7px; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
   &__catalog { width: var(--catalog-width, 245px); flex-shrink: 0; }
   &__divider { width: 6px; flex: 0 0 6px; cursor: col-resize; touch-action: none; background: #1c2d3a;
@@ -33,8 +36,8 @@ body:has(.GridEditor) { zoom: 1 !important; }
     > button:first-child { flex: 1; min-width: 0; }
     > button:last-child { width: 26px; justify-content: center; padding: 3px; }
   }
-  &__sprite { width: 32px; height: 32px; position: relative; flex-shrink: 0;
-    img { position: absolute; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+  &__sprite { width: 32px; height: 32px; position: relative; flex-shrink: 0; overflow: hidden;
+    img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
   }
   &__pages { display: flex; align-items: center; justify-content: space-between; }
   main { position: relative; flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
@@ -67,11 +70,11 @@ body:has(.GridEditor) { zoom: 1 !important; }
   &__item { &.hovered { outline: 2px solid #ffe681; } &.tile { background: #3b454e; } &.selected { box-shadow: inset 0 0 0 2px #54e8ef; background-color: #33cbdf44; } }
   &__cursor { z-index: 100000; outline: 1px solid #a8e8fa; background: #7fdcf633; opacity: .75; &.erase { background: #ff5e5e66; outline-color: #ff7878; } }
   &__status { padding: 5px 7px; color: #90a7b7; font-size: 10px; }
-  &__properties { width: var(--properties-width, 175px); flex-shrink: 0; overflow-y: auto;
+  &__properties { width: var(--properties-width, 300px); flex-shrink: 0; overflow-y: auto;
     p { margin: 0; overflow-wrap: anywhere; }
     input[type=number] { width: 60px; }
     strong { margin-top: 4px; }
-    small { margin-top: auto; line-height: 1.6; }
+    small { line-height: 1.6; }
   }
   &__veil { position: absolute; inset: 0; background: #0009; display: grid; place-items: center; z-index: 20;
     > div { padding: 20px; border: 1px solid #70cae4; background: #1e2d3b; }
@@ -103,6 +106,96 @@ body:has(.GridEditor) { zoom: 1 !important; }
   }
 }
 
+.GridEditor {
+  header { min-height: 58px; padding: 9px 14px; gap: 12px; background: #1a2835; border-bottom: 1px solid #344b5b; }
+  &__identity { flex: 1; min-width: 0;
+    strong { display: flex; align-items: baseline; gap: 10px; font-weight: 500; min-width: 0; }
+    small { flex-shrink: 0; }
+    code { display: block; margin: 3px 0 0; font-size: 11px; }
+  }
+  &__gridName { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  &__draftStatus { font-size: 12px; color: #a0b5c6; }
+  &__commandBar { display: flex; flex-shrink: 0; align-items: center; gap: 6px; flex-wrap: wrap; padding: 7px 12px; background: #1a2835; border-bottom: 1px solid #344b5b; }
+  &__spacer { flex: 1; }
+  &__currentBrush { display: flex; gap: 7px; align-items: center; max-width: 330px; min-width: 0; background: transparent; border-color: transparent; text-align: left;
+    > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .GridEditor__sprite { width: 24px; height: 24px; }
+  }
+  &__sections { flex-shrink: 0; padding: 7px 12px; gap: 5px; background: #213342; border-bottom: 1px solid #344b5b;
+    button { padding: 5px 9px; background: #1a2835; }
+    button[aria-controls][aria-expanded=true] { background: #234955; border-color: #80d6df; }
+  }
+  &__toolRail { width: 52px; flex: 0 0 52px; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; gap: 8px; padding: 10px 6px; background: #1a2835; border-right: 1px solid #344b5b; overflow-y: auto;
+    button { width: 36px; min-height: 42px; padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; flex-shrink: 0; }
+    button > span { font-size: 18px; line-height: 20px; }
+    button.active small { color: #b1eff3; }
+  }
+  main { z-index: 0; }
+  &__catalog, &__properties { position: absolute; top: 0; bottom: 0; z-index: 15; padding: 0; max-width: calc(100% - 72px); background: #1a2835; box-shadow: 0 8px 24px #0006; }
+  &__catalog { left: 52px; border-right: 1px solid #456070;
+    > nav, > input, > .GridEditor__entries, > .GridEditor__pages { margin-left: 12px; margin-right: 12px; }
+    > input { width: calc(100% - 24px); }
+    > .GridEditor__pages { padding-bottom: 10px; font-size: 11px; color: #a0b5c6; }
+  }
+  &__properties { right: 0; border-left: 1px solid #456070; gap: 0; }
+  &__divider { position: absolute; z-index: 16; top: 0; bottom: 0; width: 5px; background: transparent;
+    &.left { left: calc(52px + var(--catalog-width) - 3px); }
+    &.right { right: calc(var(--properties-width) - 3px); }
+  }
+  &__panelHeading { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; min-height: 50px; background: #1a2835; border-bottom: 1px solid #344b5b;
+    strong { font-weight: 500; margin: 0; }
+    button { padding: 4px 8px; }
+  }
+  &__properties > .GridEditor__panelHeading { position: sticky; top: 0; z-index: 1; }
+  &__panelSection { display: flex; flex-direction: column; gap: 9px; padding: 12px;
+    > button { text-align: left; overflow-wrap: anywhere; }
+    select { width: 100%; min-width: 0; background: #13212c; border: 1px solid #456070; color: inherit; padding: 6px; }
+    label { flex-wrap: wrap; }
+    input[type=range] { width: 100%; accent-color: #80d6df; }
+    input[type=number] { margin-left: auto; }
+    .GridEditor__entry > button:first-child { text-align: left; }
+  }
+  &__viewBar { display: flex; flex-shrink: 0; align-items: center; flex-wrap: wrap; gap: 8px; padding: 6px 10px; min-height: 40px; background: #1a2835; border-top: 1px solid #344b5b; font-size: 11px;
+    button { padding: 4px 7px; }
+    > span:first-child { min-width: 75px; color: #a0b5c6; }
+  }
+  &__help { position: relative; z-index: 18;
+    summary { cursor: pointer; }
+    > div { position: absolute; bottom: calc(100% + 12px); left: -80px; width: min(390px, 70vw); padding: 12px; background: #1a2835; border: 1px solid #456070; box-shadow: 0 4px 18px #0008; line-height: 1.7; }
+  }
+  &__quickAccess { display: flex; flex-shrink: 0; align-items: center; gap: 8px; padding: 7px 12px; min-height: 56px; background: #1a2835; border-top: 1px solid #344b5b; }
+  &__quickEntries { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; overflow: hidden;
+    button { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 38px; min-width: 38px; height: 38px; padding: 4px; }
+    button.drop { border-color: #80d6df; background: #335466; }
+    small { color: #8297a8; font-size: 10px; }
+    .GridEditor__sprite { width: 28px; height: 28px; }
+  }
+  &__quickHint { font-size: 11px; color: #a0b5c6; }
+  footer { min-height: 52px; padding: 8px 12px; border-top: 1px solid #344b5b; background: #1a2835;
+    > span { font-size: 12px; min-width: 120px; }
+    .primary { background: #80d6df; border-color: #80d6df; color: #0b2a30; font-weight: 500; padding: 7px 14px; }
+  }
+  &__loading { top: 10px; }
+  @media (max-width: 620px) {
+    header { padding: 7px 10px; gap: 7px; flex-wrap: wrap; }
+    &__identity strong { flex-direction: column; gap: 1px; }
+    &__draftStatus { max-width: 130px; font-size: 11px; }
+    &__commandBar { padding: 6px; gap: 4px; }
+    &__currentBrush { flex: 1; max-width: calc(100% - 90px); }
+    &__commandBar > .GridEditor__spacer { display: none; }
+    &__sections { padding: 6px; gap: 4px; button { font-size: 11px; flex-grow: 1; } }
+    &__toolRail { width: 44px; flex-basis: 44px; padding: 8px 4px; button { width: 34px; } }
+    &__catalog { left: 44px; }
+    &__divider.left { left: calc(44px + var(--catalog-width) - 3px); }
+    &__viewBar { gap: 5px; padding: 5px 6px; }
+    &__help { display: none; }
+    &__quickAccess { padding: 6px; gap: 5px; > button { font-size: 11px; } }
+    &__quickHint { display: none; }
+    footer { padding: 7px; gap: 7px; > span { flex-basis: 100%; } .primary { margin-left: auto; } }
+  }
+  @media (pointer: coarse) { button { min-height: 38px; } input, select { font-size: 16px; } }
+}
+
 .GridEditor .GridEditor__resizeGrid {
   position: absolute; z-index: 12; padding: 0; min-width: 0; border: 1px solid #54e8ef;
   background: #163f50; touch-action: none;
@@ -129,3 +222,5 @@ body:has(.GridEditor) { zoom: 1 !important; }
 .GridEditor__sourcePath { margin-left:10px; font-size:11px; font-weight:normal; color:#a9d8e9; overflow-wrap:anywhere; user-select:text; }
 
 .GridEditor__routeCanvas { position:absolute; inset:0; pointer-events:auto; touch-action:none; }
+
+.GridEditor__decalLayers { display:flex; flex-direction:column; gap:4px; margin-bottom:6px; }

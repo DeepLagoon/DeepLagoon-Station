@@ -1,7 +1,9 @@
+using Content.Client.Graphics;
 using Content.Client.Rendering;
 using System.Numerics;
 using Stopwatch = System.Diagnostics.Stopwatch;
 using Content.Shared.CCVar;
+using Content.Shared.Fluids.Components;
 using Content.Shared.Tag;
 using Content.Shared.Item;
 using Content.Shared.Mobs.Components;
@@ -14,6 +16,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Graphics;
+using Robust.Shared.Prototypes;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Content.Client._DeepLagoon.AmbientOcclusion;
@@ -30,6 +33,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SpriteSystem _sprites = default!;
     [Dependency] private IClyde _clyde = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private IGameTiming _timing = default!;
     private AmbientOcclusionProfiler? _profiler;
     private ContactOverlay? _overlay;
@@ -81,6 +85,23 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
         private readonly List<EntityUid> _silhouetteCasters = new();
         private readonly Dictionary<EntityUid, int> _casterLayers = new();
         private OwnedTexture? _mobTexture;
+        private readonly OverlayResourceCache<ContactTarget> _targets = new();
+        private Matrix3x2 _targetTransform = Matrix3x2.Identity;
+        private static readonly ProtoId<ShaderPrototype> CompositeShader = "AmbientOcclusion";
+        private AmbientOcclusionBlend? _blend;
+        private AmbientOcclusionBlend Blend => _blend ??= new AmbientOcclusionBlend(system._prototypes);
+
+        private sealed class ContactTarget : IDisposable
+        {
+            public IRenderTexture? Target;
+            public void Dispose() => Target?.Dispose();
+        }
+
+        private readonly record struct ContactDrawArgs(IClydeViewport Viewport, MapId MapId,
+            Box2 WorldAABB, Box2Rotated WorldBounds, DrawingHandleWorld WorldHandle);
+
+        private void SetWorldTransform(DrawingHandleWorld handle, Matrix3x2 transform)
+            => handle.SetTransform(transform * _targetTransform);
         private readonly List<(EntityUid Uid, Box2 Bounds)> _blockers = new();
         private readonly AmbientOcclusionVisibilityIndex _visibility = new();
         private readonly Dictionary<Vector2i, float[]> _contacts = new();
@@ -100,7 +121,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
         {
             var mode = system._profiler?.Mode;
             var enabled = mode.HasValue ? mode != AmbientOcclusionProfileMode.Off : system._cfg.GetCVar(CCVars.AmbientOcclusionEnabled);
-            if (!enabled || args.MapId == MapId.Nullspace)
+            if (!enabled || args.MapId == MapId.Nullspace || args.Viewport.Eye == null)
                 return;
 
             _measure = system._profiler != null;
@@ -111,18 +132,50 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             _silhouette = mode.HasValue ? mode == AmbientOcclusionProfileMode.Silhouette :
                 system._cfg.GetCVar(CCVars.AmbientOcclusionSilhouettes);
             var started = Timestamp();
-            if (_silhouette)
-                DrawSilhouetteScene(args);
-            else if (_legacy)
-                DrawLegacy(args);
-            else
-                DrawMasks(args);
+            var viewport = args.Viewport;
+            var handle = args.WorldHandle;
+            var resources = _targets.GetForViewport(viewport, static _ => new ContactTarget());
+            if (resources.Target?.Size != viewport.RenderTarget.Size)
+            {
+                resources.Target?.Dispose();
+                resources.Target = system._clyde.CreateRenderTarget(viewport.RenderTarget.Size,
+                    new RenderTargetFormatParameters(RenderTargetColorFormat.Rgba8),
+                    new TextureSampleParameters { Filter = false }, "ambient-occlusion-contacts");
+            }
+            var target = resources.Target;
+            var scale = viewport.RenderScale * (target.Size / (Vector2) viewport.Size);
+            _targetTransform = target.GetWorldToLocalMatrix(viewport.Eye, scale);
+            var context = new ContactDrawArgs(viewport, args.MapId, args.WorldAABB, args.WorldBounds, handle);
+            try
+            {
+                // All casters, layers and grids share one maximum-opacity mask, then darken the world once.
+                handle.RenderInRenderTarget(target, () =>
+                {
+                    if (_silhouette)
+                        DrawSilhouetteScene(context);
+                    else if (_legacy)
+                        DrawLegacy(context);
+                    else
+                        DrawMasks(context);
+                }, Color.Black);
+                handle.SetTransform(Matrix3x2.Identity);
+                handle.UseShader(system._prototypes.Index(CompositeShader).Instance());
+                handle.DrawTextureRect(target.Texture, args.WorldBounds);
+                if (_measure) _stats.Commands++;
+            }
+            finally
+            {
+                _targetTransform = Matrix3x2.Identity;
+                handle.SetTransform(Matrix3x2.Identity);
+                handle.UseShader(null);
+            }
             _stats.CpuMs = Elapsed(started);
             system._profiler?.Record(_stats);
         }
 
         protected override void DisposeBehavior()
         {
+            _targets.Dispose();
             _mobTexture?.Dispose();
             foreach (var mask in _masks.Values)
                 mask.Dispose();
@@ -130,10 +183,9 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             base.DisposeBehavior();
         }
 
-        private void DrawMasks(in OverlayDrawArgs args)
+        private void DrawMasks(in ContactDrawArgs args)
         {
             var handle = args.WorldHandle;
-            handle.UseShader(null);
             var intensity = GetIntensity(system._cfg.GetCVar(CCVars.AmbientOcclusionIntensity));
             _grids.Clear();
             system._mapManager.FindGridsIntersecting(args.MapId, system._transform.GetRenderCullingBounds(args.MapId, args.WorldAABB), ref _grids);
@@ -265,10 +317,10 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 if (mask.Upload() && _measure) _stats.UploadBytes += mask.UploadedBytes;
                 _stats.UploadMs += Elapsed(started);
                 started = Timestamp();
-                handle.SetTransform(system._transform.GetRenderWorldMatrix(uid));
-                handle.DrawTextureRectRegion(mask.Texture!, new Box2(min.X * grid.TileSize, min.Y * grid.TileSize,
-                    max.X * grid.TileSize, max.Y * grid.TileSize), subRegion: new UIBox2(0, 0, width, height));
-                if (_measure) _stats.Commands++;
+                SetWorldTransform(handle, system._transform.GetRenderWorldMatrix(uid));
+                Blend.DrawTexture(handle, mask.Texture!, new Box2(min.X * grid.TileSize, min.Y * grid.TileSize,
+                    max.X * grid.TileSize, max.Y * grid.TileSize), Color.White, source: new UIBox2(0, 0, width, height));
+                if (_measure) _stats.Commands += 2;
                 _stats.SubmitMs += Elapsed(started);
                 ClearContacts();
             }
@@ -299,12 +351,11 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             else _stats.IndexHits++;
         }
 
-        private void DrawSilhouetteScene(in OverlayDrawArgs args)
+        private void DrawSilhouetteScene(in ContactDrawArgs args)
         {
             // Switching from comparison modes must also release their large retained textures.
             foreach (var mask in _masks.Values) mask.Dispose();
             _masks.Clear();
-            args.WorldHandle.UseShader(null);
             var started = Timestamp();
             CollectObjects(args);
             _stats.CollectMs += Elapsed(started);
@@ -337,7 +388,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             _walls.Clear();
         }
 
-        private void DrawMobSpots(in OverlayDrawArgs args, float intensity)
+        private void DrawMobSpots(in ContactDrawArgs args, float intensity)
         {
             if (_movingObjects.Count == 0) return;
             if (_mobTexture == null)
@@ -357,7 +408,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 var footprint = new Box2(centre - radius, centre + radius);
                 var min = (footprint.BottomLeft / grid.TileSize).Floored();
                 var max = (footprint.TopRight / grid.TileSize).Floored();
-                args.WorldHandle.SetTransform(system._transform.GetRenderWorldMatrix(obj.Grid));
+                SetWorldTransform(args.WorldHandle, system._transform.GetRenderWorldMatrix(obj.Grid));
                 for (var y = min.Y; y <= max.Y; y++)
                     for (var x = min.X; x <= max.X; x++)
                     {
@@ -365,14 +416,14 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                         if (system._map.GetTileRef(obj.Grid, grid, tile).Tile.IsEmpty || IsWall(obj.Grid, grid, tile)) continue;
                         var floor = Box2.FromDimensions(new Vector2(x, y) * grid.TileSize, new Vector2(grid.TileSize));
                         if (!AmbientOcclusionMobSpot.TryClip(footprint, floor, out var quad, out var source)) continue;
-                        args.WorldHandle.DrawTextureRectRegion(_mobTexture, quad,
+                        Blend.DrawTexture(args.WorldHandle, _mobTexture, quad,
                             new Color(0f, 0f, 0f, obj.Alpha * intensity), source);
-                        if (_measure) _stats.Commands++;
+                        if (_measure) _stats.Commands += 2;
                     }
             }
         }
 
-        private void DrawSilhouettes(in OverlayDrawArgs args, float intensity)
+        private void DrawSilhouettes(in ContactDrawArgs args, float intensity)
         {
             var sprites = system.GetEntityQuery<SpriteComponent>();
             var transforms = system.GetEntityQuery<TransformComponent>();
@@ -386,26 +437,24 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 if (!sprites.TryGetComponent(uid, out var sprite) || !transforms.TryGetComponent(uid, out var xform)) continue;
                 var layers = _casterLayers.GetValueOrDefault(uid);
                 if (layers == 0) continue;
-                // Bound overlapping layers within a sprite. One stronger copy replaces the soft-edge copies.
+                // Maximum blending also combines layers within the same sprite without extra darkness.
                 var worldRotation = system._transform.GetRenderWorldRotation((xform.Owner, xform));
                 var position = system._transform.GetRenderWorldPosition((xform.Owner, xform)) + offset;
                 var direction = sprite.EnableDirectionOverride ? sprite.DirectionOverride : (Direction?)null;
-                var core = new Color(0f, 0f, 0f, 0.16f * intensity / layers);
+                var core = new Color(0f, 0f, 0f, 0.16f * intensity);
                 AmbientOcclusionSilhouette.Render(system._sprites, sprite, args.WorldHandle, eyeRotation,
-                    worldRotation, position, direction, core, scale);
-                if (_measure) _stats.Commands += layers;
+                    worldRotation, position, direction, core, Blend, _targetTransform, scale);
+                if (_measure) _stats.Commands += layers * 2;
             }
-            args.WorldHandle.UseShader(null);
             args.WorldHandle.SetTransform(Matrix3x2.Identity);
         }
 
-        private void DrawLegacy(in OverlayDrawArgs args)
+        private void DrawLegacy(in ContactDrawArgs args)
         {
 
             var intensity = GetIntensity(system._cfg.GetCVar(CCVars.AmbientOcclusionIntensity));
 
             var handle = args.WorldHandle;
-            handle.UseShader(null);
             _grids.Clear();
             system._mapManager.FindGridsIntersecting(args.MapId, system._transform.GetRenderCullingBounds(args.MapId, args.WorldAABB), ref _grids);
             var started = Timestamp();
@@ -415,7 +464,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             {
                 _walls.Clear(); // No stale geometry after construction, deletion, PVS changes or grid movement.
                 var xform = system.Transform(uid);
-                handle.SetTransform(system._transform.GetRenderWorldMatrix((xform.Owner, xform)));
+                SetWorldTransform(handle, system._transform.GetRenderWorldMatrix((xform.Owner, xform)));
                 started = Timestamp();
                 BuildContacts(uid, grid, system._transform.GetInvRenderWorldMatrix(uid), args);
                 _stats.ContactMs += Elapsed(started);
@@ -435,8 +484,8 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                     if (!west && !east && !south && !north && contact == null)
                         continue;
 
-                    var commands = DrawTile(handle, p, grid.TileSize, west, east, south, north, intensity, contact);
-                    if (_measure) _stats.Commands += commands;
+                    var commands = DrawTile(handle, Blend, p, grid.TileSize, west, east, south, north, intensity, contact);
+                    if (_measure) _stats.Commands += commands * 2;
                 }
                 _stats.ComposeMs += Elapsed(started); // Legacy composition includes command submission.
                 ClearContacts();
@@ -449,7 +498,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
 
         internal static float GetIntensity(int percent) => Math.Clamp(percent, 100, 300) / 100f;
 
-        private void CollectObjects(in OverlayDrawArgs args)
+        private void CollectObjects(in ContactDrawArgs args)
         {
             _entities.Clear();
             _objects.Clear();
@@ -474,13 +523,14 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             var mobs = system.GetEntityQuery<MobStateComponent>();
             var lights = system.GetEntityQuery<PointLightComponent>();
             var airlocks = system.GetEntityQuery<AirlockComponent>();
+            var puddles = system.GetEntityQuery<PuddleComponent>();
             foreach (var uid in _entities)
             {
                 // Reject irrelevant candidates before metadata, transforms, tags or layer walks.
                 var hasOccluder = occluders.TryGetComponent(uid, out var occluder) && occluder.Enabled;
                 var caster = sprites.TryGetComponent(uid, out var sprite) &&
                     CanCastContact(sprite.Visible, sprite.ContainerOccluded, sprite.Color.A, sprite.GetScreenTexture,
-                        sprite.DrawDepth) && !items.HasComponent(uid) && !lights.HasComponent(uid) &&
+                        sprite.DrawDepth, puddles.HasComponent(uid)) && !items.HasComponent(uid) && !lights.HasComponent(uid) &&
                     (!_silhouette || !airlocks.HasComponent(uid));
                 if (!caster && !hasOccluder) continue;
                 if (!metas.TryGetComponent(uid, out var meta) ||
@@ -545,8 +595,8 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             }
         }
 
-        internal static bool CanCastContact(bool visible, bool contained, float alpha, bool screenShader, int depth)
-            => visible && !contained && alpha > 0 && !screenShader &&
+        internal static bool CanCastContact(bool visible, bool contained, float alpha, bool screenShader, int depth, bool puddle = false)
+            => !puddle && visible && !contained && alpha > 0 && !screenShader &&
                depth >= (int)Content.Shared.DrawDepth.DrawDepth.FloorObjects &&
                depth <= (int)Content.Shared.DrawDepth.DrawDepth.Overdoors;
 
@@ -557,7 +607,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             _contacts.Clear();
         }
 
-        private void BuildContacts(EntityUid gridUid, MapGridComponent grid, Matrix3x2 inverse, in OverlayDrawArgs args,
+        private void BuildContacts(EntityUid gridUid, MapGridComponent grid, Matrix3x2 inverse, in ContactDrawArgs args,
             bool moving = false)
         {
             ClearContacts();
@@ -705,7 +755,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             return value * value;
         }
 
-        internal static int DrawTile(DrawingHandleWorld handle, Vector2i tile, float size,
+        internal static int DrawTile(DrawingHandleWorld handle, AmbientOcclusionBlend blend, Vector2i tile, float size,
             bool west, bool east, bool south, bool north, float intensity, float[]? contact = null)
         {
             var step = size / Steps;
@@ -726,7 +776,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                         end++;
                     if (alpha > 0)
                     {
-                        handle.DrawRect(new Box2(origin.X + x * step, origin.Y + y * step,
+                        blend.DrawRect(handle, new Box2(origin.X + x * step, origin.Y + y * step,
                             origin.X + end * step, origin.Y + top * step), Color.Black.WithAlpha(alpha));
                         commands++;
                     }
@@ -752,8 +802,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             {
                 var horizontal = Math.Max(west ? Falloff(x) : 0, east ? Falloff(Steps - 1 - x) : 0);
                 // Combine walls and entities once. New maximum is three times the previous maximum.
-                var wall = Math.Min(0.22f, 0.22f * (Math.Max(horizontal, vertical) +
-                    0.35f * Math.Min(horizontal, vertical)));
+                var wall = 0.22f * Math.Max(horizontal, vertical);
                 return Math.Max(wall, contact?[y * Steps + x] ?? 0) * intensity;
             }
         }

@@ -24,6 +24,9 @@ public sealed partial class SalvageSystem : SharedSalvageSystem
             return;
 
         component.Stage = state.Stage;
+        component.EndTime = state.EndTime;
+        component.ObjectivesTotal = state.ObjectivesTotal;
+        component.ObjectivesCompleted = state.ObjectivesCompleted;
 
         if (component.Stage >= ExpeditionStage.MusicCountdown)
         {

@@ -14,6 +14,7 @@ namespace Content.Client.Decals
         [Dependency] private SpriteSystem _sprites = default!;
 
         private DecalOverlay? _overlay;
+        private PausedDecalOverlay? _pausedOverlay;
 
         private HashSet<uint> _removedUids = new();
         private readonly List<Vector2i> _removedChunks = new();
@@ -23,7 +24,9 @@ namespace Content.Client.Decals
             base.Initialize();
 
             _overlay = new DecalOverlay(_sprites, EntityManager, PrototypeManager);
+            _pausedOverlay = new PausedDecalOverlay(EntityManager, _overlay);
             _overlayManager.AddOverlay(_overlay);
+            _overlayManager.AddOverlay(_pausedOverlay);
 
             SubscribeLocalEvent<DecalGridComponent, ComponentHandleState>(OnHandleState);
             SubscribeNetworkEvent<DecalChunkUpdateEvent>(OnChunkUpdate);
@@ -31,16 +34,18 @@ namespace Content.Client.Decals
 
         public void ToggleOverlay()
         {
-            if (_overlay == null)
+            if (_overlay == null || _pausedOverlay == null)
                 return;
 
             if (_overlayManager.HasOverlay<DecalOverlay>())
             {
                 _overlayManager.RemoveOverlay(_overlay);
+                _overlayManager.RemoveOverlay(_pausedOverlay);
             }
             else
             {
                 _overlayManager.AddOverlay(_overlay);
+                _overlayManager.AddOverlay(_pausedOverlay);
             }
         }
 
@@ -48,10 +53,11 @@ namespace Content.Client.Decals
         {
             base.Shutdown();
 
-            if (_overlay == null)
+            if (_overlay == null || _pausedOverlay == null)
                 return;
 
             _overlayManager.RemoveOverlay(_overlay);
+            _overlayManager.RemoveOverlay(_pausedOverlay);
         }
 
         protected override void OnDecalRemoved(EntityUid gridId, uint decalId, DecalGridComponent component, Vector2i indices, DecalChunk chunk)

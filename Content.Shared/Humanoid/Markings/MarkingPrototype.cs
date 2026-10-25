@@ -1,5 +1,6 @@
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
+using Content.Shared.Humanoid.Prototypes;
 
 namespace Content.Shared.Humanoid.Markings
 {
@@ -24,6 +25,9 @@ namespace Content.Shared.Humanoid.Markings
         public bool EditorExclusive { get; private set; }
 
         [DataField]
+        public bool? Digitigrade { get; private set; }
+
+        [DataField]
         public List<string> EditorLinkedMarkings { get; private set; } = new();
 
         [DataField("speciesRestriction")]
@@ -46,6 +50,15 @@ namespace Content.Shared.Humanoid.Markings
 
         [DataField]
         public Dictionary<string, HumanoidVisualLayers> SpriteLayers { get; private set; } = new();
+
+        public HumanoidVisualLayers GetLayerAnchor(SpeciesPrototype species)
+        {
+            return species.BodyMarkingAnchor is { } anchor && BodyPart is
+                HumanoidVisualLayers.Head or HumanoidVisualLayers.Chest or HumanoidVisualLayers.Snout or
+                HumanoidVisualLayers.LArm or HumanoidVisualLayers.RArm or HumanoidVisualLayers.LHand or HumanoidVisualLayers.RHand or
+                HumanoidVisualLayers.LLeg or HumanoidVisualLayers.RLeg or HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot
+                ? anchor : BodyPart;
+        }
 
         // impstation edit - allow markings to support shaders
 		[DataField("shader")]

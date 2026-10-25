@@ -1,39 +1,10 @@
-using Content.Shared.CCVar;
 using Robust.Client.Graphics;
-using Robust.Shared.Configuration;
 
 namespace Content.Client.Light.EntitySystems;
 
 public sealed partial class PlanetLightSystem : EntitySystem
 {
-    [Dependency] private IConfigurationManager _cfgManager = default!;
     [Dependency] private IOverlayManager _overlayMan = default!;
-
-    /// <summary>
-    /// Enables / disables the ambient occlusion overlay.
-    /// </summary>
-    public bool AmbientOcclusion
-    {
-        get => _ambientOcclusion;
-        set
-        {
-            if (_ambientOcclusion == value)
-                return;
-
-            _ambientOcclusion = value;
-
-            if (value)
-            {
-                _overlayMan.AddOverlay(new AmbientOcclusionOverlay());
-            }
-            else
-            {
-                _overlayMan.RemoveOverlay<AmbientOcclusionOverlay>();
-            }
-        }
-    }
-
-    private bool _ambientOcclusion;
 
     public override void Initialize()
     {
@@ -41,11 +12,7 @@ public sealed partial class PlanetLightSystem : EntitySystem
 
         SubscribeLocalEvent<GetClearColorEvent>(OnClearColor);
 
-        _cfgManager.OnValueChanged(CCVars.AmbientOcclusion, val =>
-        {
-            AmbientOcclusion = val;
-        }, true);
-
+        // Contact AO is rendered once by AmbientOcclusionSystem.
         _overlayMan.AddOverlay(new BeforeLightTargetOverlay());
         _overlayMan.AddOverlay(new RoofOverlay(EntityManager));
         _overlayMan.AddOverlay(new TileEmissionOverlay(EntityManager));

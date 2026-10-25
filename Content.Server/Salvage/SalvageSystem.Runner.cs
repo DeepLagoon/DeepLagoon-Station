@@ -288,7 +288,7 @@ public sealed partial class SalvageSystem
 
             var structureAnnounce = false;
 
-            for (var i = 0; i < structure.Structures.Count; i++)
+            for (var i = structure.Structures.Count - 1; i >= 0; i--)
             {
                 var objective = structure.Structures[i];
 
@@ -301,6 +301,8 @@ public sealed partial class SalvageSystem
 
             if (structureAnnounce)
             {
+                comp.ObjectivesCompleted = comp.ObjectivesTotal - structure.Structures.Count;
+                Dirty(uid, comp);
                 Announce(uid, Loc.GetString("salvage-expedition-structure-remaining", ("count", structure.Structures.Count)));
             }
 
@@ -320,7 +322,7 @@ public sealed partial class SalvageSystem
 
             var announce = false;
 
-            for (var i = 0; i < elimination.Megafauna.Count; i++)
+            for (var i = elimination.Megafauna.Count - 1; i >= 0; i--)
             {
                 var mob = elimination.Megafauna[i];
 
@@ -333,6 +335,8 @@ public sealed partial class SalvageSystem
 
             if (announce)
             {
+                comp.ObjectivesCompleted = comp.ObjectivesTotal - elimination.Megafauna.Count;
+                Dirty(uid, comp);
                 Announce(uid, Loc.GetString("salvage-expedition-megafauna-remaining", ("count", elimination.Megafauna.Count)));
             }
 

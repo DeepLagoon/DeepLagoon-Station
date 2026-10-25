@@ -286,7 +286,10 @@ public sealed partial class MarkingSet
             var index = 0;
             while (points.Points > 0 && index < points.DefaultMarkings.Count) // Mono: Change || to &&
             {
-                if (markingManager.Markings.TryGetValue(points.DefaultMarkings[index], out var prototype))
+                if (markingManager.Markings.TryGetValue(points.DefaultMarkings[index], out var prototype)
+                    && !(prototype.EditorExclusive && Markings.TryGetValue(category, out var existing)
+                        && existing.Any(marking => markingManager.TryGetMarking(marking, out var selected)
+                            && selected.BodyPart == prototype.BodyPart)))
                 {
                     var colors = MarkingColoring.GetMarkingLayerColors(
                             prototype,
@@ -579,6 +582,7 @@ public sealed partial class MarkingSet
             return;
         }
 
+        (markings[idx - 1].DrawOrder, markings[idx].DrawOrder) = (markings[idx].DrawOrder, markings[idx - 1].DrawOrder);
         (markings[idx - 1], markings[idx]) = (markings[idx], markings[idx - 1]);
     }
 
@@ -614,6 +618,7 @@ public sealed partial class MarkingSet
             return;
         }
 
+        (markings[idx + 1].DrawOrder, markings[idx].DrawOrder) = (markings[idx].DrawOrder, markings[idx + 1].DrawOrder);
         (markings[idx + 1], markings[idx]) = (markings[idx], markings[idx + 1]);
     }
 

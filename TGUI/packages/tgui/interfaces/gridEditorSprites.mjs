@@ -7,8 +7,11 @@ export function spriteLayers(item, visual) {
   return (visual?.images?.length ? visual.images : [{}]).map(image=>{
     const a=image.native?image.m11:1,b=image.native?image.m12:0,c=image.native?image.m21:0,d=image.native?image.m22:1;
     const x=image.native?image.m31:0,y=image.native?image.m32:0;
+    const width=image.native || item.kind==='decal' ? (image.width || 32)/32 : 1;
+    const height=image.native || item.kind==='decal' ? (image.height || 32)/32 : 1;
+    const centerX=item.kind==='decal'?item.x+width/2:cx,centerY=item.kind==='decal'?item.y+height/2:cy;
     return {image,a:cos*a-sin*b,b:sin*a+cos*b,c:cos*c-sin*d,d:sin*c+cos*d,
-      x:cx+cos*x-sin*y,y:cy+sin*x+cos*y,width:image.native?image.width/32:1,height:image.native?image.height/32:1};
+      x:centerX+cos*x-sin*y,y:centerY+sin*x+cos*y,width,height};
   });
 }
 export function spriteBounds(item,visual) {

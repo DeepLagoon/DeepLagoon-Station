@@ -15,7 +15,7 @@ internal static class AmbientOcclusionSilhouette
 {
     public static void Render(SpriteSystem sprites, SpriteComponent sprite, DrawingHandleWorld drawingHandle,
         Angle eyeRotation, Angle worldRotation, Vector2 worldPosition, Direction? overrideDirection,
-        Color tint, float silhouetteScale = 1f)
+        Color tint, AmbientOcclusionBlend blend, Matrix3x2 targetTransform, float silhouetteScale = 1f)
     {
         var angle = worldRotation + eyeRotation; // angle on-screen. Used to decide the direction of 4/8 directional RSIs
         angle = angle.Reduced().FlipPositive();  // Reduce the angles to fix math shenanigans
@@ -31,6 +31,7 @@ internal static class AmbientOcclusionSilhouette
         var entityMatrix = Matrix3Helpers.CreateTransform(worldPosition, sprite.NoRotation ? -eyeRotation : worldRotation - cardinal);
         var localMatrix = Matrix3x2.Multiply(Matrix3x2.CreateScale(silhouetteScale), sprite.LocalMatrix);
         var spriteMatrix = Matrix3x2.Multiply(localMatrix, entityMatrix);
+        spriteMatrix *= targetTransform;
 
         // Fast path for when all sprites use the same transform matrix
         if (!sprite.GranularLayersRendering)
@@ -38,7 +39,7 @@ internal static class AmbientOcclusionSilhouette
             foreach (var entry in sprite.AllLayers)
             {
                 if (entry is not Layer layer) continue;
-                RenderLayer(layer, drawingHandle, ref spriteMatrix, angle, overrideDirection, tint, sprite.Color.A, sprites);
+                RenderLayer(layer, drawingHandle, ref spriteMatrix, angle, overrideDirection, tint, sprite.Color.A, sprites, blend);
             }
             return;
         }
@@ -46,14 +47,17 @@ internal static class AmbientOcclusionSilhouette
         //Default rendering (NoRotation = false)
         entityMatrix = Matrix3Helpers.CreateTransform(worldPosition, worldRotation);
         var transformDefault = Matrix3x2.Multiply(localMatrix, entityMatrix);
+        transformDefault *= targetTransform;
 
         //Snap to cardinals
         entityMatrix = Matrix3Helpers.CreateTransform(worldPosition, worldRotation - angle.RoundToCardinalAngle());
         var transformSnap = Matrix3x2.Multiply(localMatrix, entityMatrix);
+        transformSnap *= targetTransform;
 
         //No rotation
         entityMatrix = Matrix3Helpers.CreateTransform(worldPosition, -eyeRotation);
         var transformNoRot = Matrix3x2.Multiply(localMatrix, entityMatrix);
+        transformNoRot *= targetTransform;
 
         foreach (var entry in sprite.AllLayers)
         {
@@ -61,16 +65,16 @@ internal static class AmbientOcclusionSilhouette
             switch (layer.RenderingStrategy)
             {
                 case LayerRenderingStrategy.UseSpriteStrategy:
-                    RenderLayer(layer, drawingHandle, ref spriteMatrix, angle, overrideDirection, tint, sprite.Color.A, sprites);
+                    RenderLayer(layer, drawingHandle, ref spriteMatrix, angle, overrideDirection, tint, sprite.Color.A, sprites, blend);
                     break;
                 case LayerRenderingStrategy.Default:
-                    RenderLayer(layer, drawingHandle, ref transformDefault, angle, overrideDirection, tint, sprite.Color.A, sprites);
+                    RenderLayer(layer, drawingHandle, ref transformDefault, angle, overrideDirection, tint, sprite.Color.A, sprites, blend);
                     break;
                 case LayerRenderingStrategy.NoRotation:
-                    RenderLayer(layer, drawingHandle, ref transformNoRot, angle, overrideDirection, tint, sprite.Color.A, sprites);
+                    RenderLayer(layer, drawingHandle, ref transformNoRot, angle, overrideDirection, tint, sprite.Color.A, sprites, blend);
                     break;
                 case LayerRenderingStrategy.SnapToCardinals:
-                    RenderLayer(layer, drawingHandle, ref transformSnap, angle, overrideDirection, tint, sprite.Color.A, sprites);
+                    RenderLayer(layer, drawingHandle, ref transformSnap, angle, overrideDirection, tint, sprite.Color.A, sprites, blend);
                     break;
                 default:
                     break;
@@ -79,7 +83,7 @@ internal static class AmbientOcclusionSilhouette
     }
 
     private static void RenderLayer(Layer layer, DrawingHandleWorld drawingHandle, ref Matrix3x2 spriteMatrix,
-        Angle angle, Direction? overrideDirection, Color tint, float spriteAlpha, SpriteSystem sprites)
+        Angle angle, Direction? overrideDirection, Color tint, float spriteAlpha, SpriteSystem sprites, AmbientOcclusionBlend blend)
     {
         if (!layer.Visible || layer.Blank || layer.ShaderPrototype == SpriteSystem.UnshadedId || layer.Shader != null ||
             layer.CopyToShaderParameters != null || layer.Color.A <= 0)
@@ -95,7 +99,7 @@ internal static class AmbientOcclusionSilhouette
         var transformMatrix = Matrix3x2.Multiply(layerMatrix, spriteMatrix);
         drawingHandle.SetTransform(in transformMatrix);
         var textureSize = texture.Size / (float)EyeManager.PixelsPerMeter;
-        drawingHandle.DrawTextureRectRegion(texture, Box2.FromDimensions(textureSize / -2, textureSize),
+        blend.DrawTexture(drawingHandle, texture, Box2.FromDimensions(textureSize / -2, textureSize),
             tint.WithAlpha(tint.A * spriteAlpha * layer.Color.A));
     }
 }

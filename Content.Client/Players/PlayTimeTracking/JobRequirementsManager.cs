@@ -27,6 +27,7 @@ public sealed partial class JobRequirementsManager : ISharedPlaytimeManager
 
     private readonly Dictionary<string, TimeSpan> _roles = new();
     private readonly List<string> _roleBans = new();
+    public bool TattoosBanned => _roleBans.Contains(Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanRole);
     private readonly List<string> _jobWhitelists = new();
 
     private ISawmill _sawmill = default!;

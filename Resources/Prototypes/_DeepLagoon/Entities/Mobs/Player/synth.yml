@@ -1,6 +1,6 @@
 - type: entity
   id: MobSynth
-  parent: PlayerSiliconHumanoidBase
+  parent: [DeepLagoonDigitigradeInventory, PlayerSiliconHumanoidBase]
   name: Synthetic
   description: A synthetic humanoid with a customizable outer shell.
   save: false
@@ -128,7 +128,7 @@
     - NanoTrasen
 - type: entity
   id: MobSynthDummy
-  parent: MobHumanDummy
+  parent: [DeepLagoonDigitigradeInventory, MobHumanDummy]
   name: Synthetic
   save: false
   categories:

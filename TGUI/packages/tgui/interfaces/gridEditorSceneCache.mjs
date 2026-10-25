@@ -1,4 +1,5 @@
-import { spriteBounds } from './gridEditorSprites.mjs';
+import { tintSprite } from './gridEditorTint.mjs';
+import { spriteBounds, spriteLayers } from './gridEditorSprites.mjs';
 import { drawOrder } from './gridEditorModel.mjs';
 
 export const CHUNK_CELLS = 16;
@@ -31,6 +32,7 @@ export function itemChunks(item, visual) {
 export class GridSceneCache {
   chunks = new Map();
   images = new Map();
+  tints = new Map();
   definitions = new Map();
   revision = 0;
   details = new Map();
@@ -51,13 +53,14 @@ export class GridSceneCache {
 
   async prepare(index, layers, visuals, progress, cancelled) {
     const stopped = () => this.disposed || cancelled();
-    const groups = new Map(), definitions = new Map();
+    const groups = new Map(), definitions = new Map(), usedTints = new Set();
     let processed = 0, deadline = performance.now() + 6;
     progress({ label: 'Подготовка элементов', done: 0, total: index.order.size });
     await yieldFrame();
     for (const bucket of index.values()) for (const item of bucket) {
       if (stopped()) return;
       if (layers[item.kind]) {
+        if (item.kind === 'decal') for (const image of visuals.get(visualKey(item))?.images || []) usedTints.add(`${image.url}:${item.color}`);
         const key = visualKey(item);
         if (!definitions.has(key)) {
           const visual = visuals.get(key);
@@ -127,44 +130,34 @@ export class GridSceneCache {
     for (const [key, chunk] of this.chunks) if (!groups.has(key)) {
       release(chunk); this.chunks.delete(key); this.details.get(key)?.close(); this.details.delete(key);
     }
+    for (const key of this.tints.keys()) if (!usedTints.has(key)) this.tints.delete(key);
     progress(null); this.invalidate();
   }
 
   async bake(group, visuals, sources, overview, stopped) {
     const canvas = surface(CHUNK_CELLS * PIXELS), context = canvas.getContext('2d');
-    const tint = surface(PIXELS), tinted = tint.getContext('2d');
     context.imageSmoothingEnabled = false;
     let deadline = performance.now() + 6;
     for (const item of group.items) {
-      if (stopped()) { canvas.width = tint.width = 0; return null; }
+      if (stopped()) { canvas.width = 0; return null; }
       const visual = visuals.get(visualKey(item));
-      const offset = item.kind === 'entity' ? .5 : 0;
-      const x = (item.x - offset - group.x * CHUNK_CELLS) * PIXELS;
-      const y = ((group.y + 1) * CHUNK_CELLS - 1 - item.y + offset) * PIXELS;
-      context.save(); context.translate(x + PIXELS / 2, y + PIXELS / 2);
-      const rotateTile = item.kind === 'tile' && visual?.allowRotationMirror;
-      context.rotate(-(item.kind === 'tile' ? rotateTile ? (item.mirror & 3) * 90 : 0 : item.kind === 'entity' && visual?.noRotation ? 0 : item.rotation || 0) * Math.PI / 180);
-      if (rotateTile && (item.mirror & 4)) context.scale(-1, 1);
       if (item.kind === 'tile' && !(visual?.images || []).some(image => sources.get(image.url))) {
-        context.fillStyle = '#3b454e'; context.fillRect(-16, -16, 32, 32);
+        context.fillStyle = '#3b454e';
+        context.fillRect((item.x-group.x*CHUNK_CELLS)*PIXELS, ((group.y+1)*CHUNK_CELLS-1-item.y)*PIXELS, PIXELS, PIXELS);
       }
-      context.globalAlpha = item.kind === 'decal' ? .85 : 1;
-      for (const definition of visual?.images || []) {
-        const {url}=definition;
-        const image = sources.get(url); if (!image) continue;
-        if(definition.native && item.kind==='entity') {
-          context.save();context.transform(definition.m11,-definition.m12,-definition.m21,definition.m22,definition.m31*PIXELS,-definition.m32*PIXELS);
-          context.drawImage(image,-definition.width/2,-definition.height/2,definition.width,definition.height);context.restore();continue;
-        }
-        const scale = PIXELS / Math.max(image.width, image.height), width = image.width * scale, height = image.height * scale;
+      for (const layer of spriteLayers(item, visual)) {
+        let image = sources.get(layer.image.url); if (!image) continue;
         if (item.kind === 'decal') {
-          tinted.clearRect(0, 0, PIXELS, PIXELS); tinted.globalCompositeOperation = 'source-over';
-          tinted.drawImage(image, (PIXELS - width) / 2, (PIXELS - height) / 2, width, height);
-          tinted.globalCompositeOperation = 'source-in'; tinted.fillStyle = item.color; tinted.fillRect(0, 0, PIXELS, PIXELS);
-          context.drawImage(tint, -16, -16);
-        } else context.drawImage(image, -width / 2, -height / 2, width, height);
+          const key = `${layer.image.url}:${item.color}`;
+          if (!this.tints.has(key)) this.tints.set(key, tintSprite(image, item.color));
+          image = this.tints.get(key);
+        }
+        const x=(layer.x-group.x*CHUNK_CELLS)*PIXELS, y=((group.y+1)*CHUNK_CELLS-layer.y)*PIXELS;
+        context.save(); context.transform(layer.a,-layer.b,-layer.c,layer.d,x,y);
+        if (item.kind==='tile' && visual?.allowRotationMirror && (item.mirror&4)) context.scale(-1,1);
+        context.drawImage(image,-layer.width*PIXELS/2,-layer.height*PIXELS/2,layer.width*PIXELS,layer.height*PIXELS);
+        context.restore();
       }
-      context.restore();
       if (performance.now() > deadline) { await yieldFrame(); deadline = performance.now() + 6; }
     }
     const levels = new Map();
@@ -175,7 +168,7 @@ export class GridSceneCache {
     // Full-detail snapshots survive eviction in compressed form. Revisiting a
     // chunk decodes its image, without sorting/rasterizing the sprites again.
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    canvas.width = canvas.height = tint.width = tint.height = 0;
+    canvas.width = canvas.height = 0;
     if (!blob) { for (const level of levels.values()) level.width = 0; throw Error('Не удалось подготовить изображение карты.'); }
     this.stats.rasterized++;
     return { ...group, overview, levels, blob, decoding: false, failed: false };
@@ -243,6 +236,6 @@ export class GridSceneCache {
     this.disposed = true;
     for (const chunk of this.chunks.values()) release(chunk);
     for (const image of this.details.values()) image.close();
-    this.chunks.clear(); this.details.clear(); this.wanted.clear(); this.images.clear(); this.definitions.clear();
+    this.chunks.clear(); this.details.clear(); this.wanted.clear(); this.images.clear(); this.tints.clear(); this.definitions.clear();
   }
 }

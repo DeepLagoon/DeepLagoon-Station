@@ -18,6 +18,7 @@ public sealed partial class GridEditorSystem
     [Dependency] private IResourceManager _resources = default!;
     private const string LibraryFile = "/grid-editor/library.json";
     private readonly Dictionary<string, (string Kind, string Prototype)> _favorites = new();
+    private readonly Dictionary<int, (string Kind, string Prototype)> _hotbar = new();
     private readonly Dictionary<string, (string Name, List<GridEditorItem> Items)> _templates = new();
     private bool _libraryLoaded;
     private string _uploadPurpose = "apply", _uploadName = "";
@@ -66,14 +67,30 @@ public sealed partial class GridEditorSystem
                     if (child is MappingDataNode node && Field(node, "id") is { Length: > 0 and <= 64 } id &&
                         Field(node, "name") is { Length: > 0 and <= 64 } name && node.TryGet<SequenceDataNode>("items", out var items) && items.Count is > 0 and <= 512)
                         _templates[id] = (name, ReadItems(items));
+            _hotbar.Clear();
+            if (root.TryGet<SequenceDataNode>("hotbar", out var hotbar))
+            {
+                foreach (var child in hotbar)
+                    if (child is MappingDataNode node && int.TryParse(Field(node, "slot"), out var slot) && slot >= 0)
+                    {
+                        var kind = Field(node, "kind"); var id = Field(node, "id");
+                        if (kind is "entity" or "tile" or "decal" && id.Length is > 0 and <= 200) _hotbar[slot] = (kind, id);
+                    }
+            }
+            else
+                foreach (var entry in _favorites.Values) _hotbar[_hotbar.Count] = entry;
         }
         catch (Exception e) { Log.Warning($"Unable to load grid editor library: {e.Message}"); Status("Не удалось прочитать библиотеку. Исходный файл сохранён.", false); }
     }
 
     private TguiData LibraryData() => new TguiData().Number("version", 1)
+        .Array("hotbar", HotbarData())
         .Array("favorites", _favorites.Values.Select(f => new TguiData().String("kind", f.Kind).String("id", f.Prototype)))
         .Array("templates", _templates.Select(t => new TguiData().String("id", t.Key).String("name", t.Value.Name)
             .Array("items", t.Value.Items.Select(ItemData))));
+
+    private IEnumerable<TguiData> HotbarData() => _hotbar.OrderBy(entry => entry.Key).Select(entry => new TguiData()
+        .Number("slot", entry.Key).String("kind", entry.Value.Kind).String("id", entry.Value.Prototype));
 
     private void PersistLibrary()
     {
@@ -94,18 +111,32 @@ public sealed partial class GridEditorSystem
         var available = _templates.Select(t => new TguiData().String("id", t.Key).String("name", t.Value.Name)
             .Array("items", t.Value.Items.Select(ItemData))).ToList();
         var visuals = _templates.Values.SelectMany(t => t.Items).Select(i => (i.Kind, i.Prototype))
-            .Concat(_favorites.Values.Select(f => (f.Kind, f.Prototype))).Distinct().Select(i =>
+            .Concat(_favorites.Values.Select(f => (f.Kind, f.Prototype))).Concat(_hotbar.Values).Distinct().Select(i =>
             {
                 try { return Visual(i.Kind, i.Prototype); }
                 catch (Exception) { return new TguiData().String("kind", i.Kind).String("id", i.Prototype).Bool("missing", true); }
             });
         _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            .Array("hotbar", HotbarData())
             .Array("favorites", _favorites.Values.Select(f => new TguiData().String("kind", f.Kind).String("id", f.Prototype)))
             .Array("templates", available).Array("libraryVisuals", visuals)).ToString());
     }
 
     private bool LibraryAction(string action, MappingDataNode root)
     {
+        if (action == "hotbarSet")
+        {
+            if (!int.TryParse(Field(root, "slot"), out var slot) || slot < 0) return true;
+            var kind = Field(root, "kind"); var id = Field(root, "id");
+            if (id.Length == 0) _hotbar.Remove(slot);
+            else
+            {
+                if (kind is not ("entity" or "tile" or "decal") || id.Length > 200) return true;
+                _ = Visual(kind, id);
+                _hotbar[slot] = (kind, id);
+            }
+            PersistLibrary(); PublishLibrary(); return true;
+        }
         if (action == "favorite")
         {
             var kind = Field(root, "kind"); var id = Field(root, "id");

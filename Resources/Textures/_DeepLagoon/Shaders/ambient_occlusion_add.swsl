@@ -1,0 +1,11 @@
+light_mode unshaded;
+blend_mode add;
+
+void fragment() {
+    // Keep alpha at one: the stock blend factors then preserve the grayscale mask.
+    highp float opacity = zTexture(UV).a * MODULATE.a;
+    // Exact UNORM steps keep both passes stable under framebuffer dithering.
+    opacity = floor(clamp(opacity, 0.0, 1.0) * 255.0 + 0.5) / 255.0;
+    COLOR = vec4(vec3(opacity), 1.0);
+    MODULATE = vec4(1.0);
+}

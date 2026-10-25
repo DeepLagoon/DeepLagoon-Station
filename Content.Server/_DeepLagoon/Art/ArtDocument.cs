@@ -38,7 +38,7 @@ public static class ArtDocument
         MaxDepth = 8,
     };
 
-    public static Baked Bake(string json)
+    public static Baked Bake(string json, bool fullResolution = false)
     {
         if (json.Length > ArtLimits.MaxDocumentChars) throw new InvalidDataException("dl-art-too-large");
         // Reject duplicate properties rather than allowing a different interpretation by the browser.
@@ -77,7 +77,8 @@ public static class ArtDocument
         if (canonical.Length > ArtLimits.MaxDocumentChars) throw new InvalidDataException("dl-art-too-large");
         // A white paper backing affects presentation, not the transparent editing layers.
         using var paper = new Image<Rgba32>(ArtLimits.Resolution, ArtLimits.Resolution, new Rgba32(247, 240, 221));
-        paper.Mutate(c => c.DrawImage(composite, 1f).Resize(ArtLimits.ThumbnailSize, ArtLimits.ThumbnailSize));
+        paper.Mutate(c => c.DrawImage(composite, 1f));
+        if (!fullResolution) paper.Mutate(c => c.Resize(ArtLimits.ThumbnailSize, ArtLimits.ThumbnailSize));
         return new Baked(canonical, Encode(paper), Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical))), project.Title, hasInk);
     }
 

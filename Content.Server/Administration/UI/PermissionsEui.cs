@@ -22,6 +22,8 @@ namespace Content.Server.Administration.UI
 
         private readonly ISawmill _sawmill;
         private bool _isLoading;
+        private string? _error;
+        private readonly System.Threading.SemaphoreSlim _messageLock = new(1, 1);
 
         private readonly List<(Admin a, string? lastUserName)> _admins = new List<(Admin, string? lastUserName)>();
         private readonly List<DbAdminRank> _adminRanks = new();
@@ -36,7 +38,6 @@ namespace Content.Server.Administration.UI
         {
             base.Opened();
 
-            StateDirty();
             LoadFromDb();
             _adminManager.OnPermsChanged += AdminManagerOnPermsChanged;
         }
@@ -69,6 +70,7 @@ namespace Content.Server.Administration.UI
 
             return new PermissionsEuiState
             {
+                Error = _error,
                 Admins = _admins.Select(p => new PermissionsEuiState.AdminData
                 {
                     PosFlags = AdminFlagsHelper.NamesToFlags(p.a.Flags.Where(f => !f.Negative).Select(f => f.Flag)),
@@ -78,6 +80,7 @@ namespace Content.Server.Administration.UI
                     UserId = new NetUserId(p.a.UserId),
                     UserName = p.lastUserName,
                     Suspended = p.a.Suspended,
+                    Online = _playerManager.TryGetSessionById(new NetUserId(p.a.UserId), out _),
                 }).ToArray(),
 
                 AdminRanks = _adminRanks.ToDictionary(a => a.Id, a => new PermissionsEuiState.AdminRankData
@@ -93,49 +96,71 @@ namespace Content.Server.Administration.UI
         {
             base.HandleMessage(msg);
 
-            switch (msg)
+            await _messageLock.WaitAsync();
+            try
             {
-                case AddAdmin ca:
+                if (IsShutDown || !UserAdminFlagCheck(AdminFlags.Permissions))
+                    return;
+                _error = null;
+
+                switch (msg)
                 {
-                    await HandleCreateAdmin(ca);
-                    break;
+                    case Refresh:
+                        break;
+                    case AddAdmin ca:
+                    {
+                        await HandleCreateAdmin(ca);
+                        break;
+                    }
+
+                    case UpdateAdmin ua:
+                    {
+                        await HandleUpdateAdmin(ua);
+                        break;
+                    }
+
+                    case RemoveAdmin ra:
+                    {
+                        await HandleRemoveAdmin(ra);
+                        break;
+                    }
+
+                    case AddAdminRank ar:
+                    {
+                        await HandleAddAdminRank(ar);
+                        break;
+                    }
+
+                    case UpdateAdminRank ur:
+                    {
+                        await HandleUpdateAdminRank(ur);
+                        break;
+                    }
+
+                    case RemoveAdminRank ra:
+                    {
+                        await HandleRemoveAdminRank(ra);
+                        break;
+                    }
+                    default:
+                        return;
                 }
 
-                case UpdateAdmin ua:
+                if (!IsShutDown)
                 {
-                    await HandleUpdateAdmin(ua);
-                    break;
-                }
-
-                case RemoveAdmin ra:
-                {
-                    await HandleRemoveAdmin(ra);
-                    break;
-                }
-
-                case AddAdminRank ar:
-                {
-                    await HandleAddAdminRank(ar);
-                    break;
-                }
-
-                case UpdateAdminRank ur:
-                {
-                    await HandleUpdateAdminRank(ur);
-                    break;
-                }
-
-                case RemoveAdminRank ra:
-                {
-                    await HandleRemoveAdminRank(ra);
-                    break;
+                    if (_error == null)
+                        await LoadFromDbAsync();
+                    else
+                        StateDirty();
                 }
             }
-
-            if (!IsShutDown)
+            catch (Exception e)
             {
-                LoadFromDb();
+                _sawmill.Error($"Failed to update permissions: {e}");
+                _error = "permissions-eui-save-error";
+                if (!IsShutDown) StateDirty();
             }
+            finally { _messageLock.Release(); }
         }
 
         private async Task HandleRemoveAdminRank(RemoveAdminRank rr)
@@ -159,6 +184,7 @@ namespace Content.Server.Administration.UI
 
         private async Task HandleUpdateAdminRank(UpdateAdminRank ur)
         {
+            if (!CheckRankInput(ur.Name, ur.Flags)) return;
             var rank = await _db.GetAdminRankAsync(ur.Id);
             if (rank == null)
             {
@@ -173,6 +199,7 @@ namespace Content.Server.Administration.UI
 
             if (!UserAdminFlagCheck(ur.Flags))
             {
+                _error = "permissions-eui-denied";
                 _sawmill.Warning($"{Player} tried to give a rank permissions above their authorization.");
                 return;
             }
@@ -191,8 +218,10 @@ namespace Content.Server.Administration.UI
 
         private async Task HandleAddAdminRank(AddAdminRank ar)
         {
+            if (!CheckRankInput(ar.Name, ar.Flags)) return;
             if (!UserAdminFlagCheck(ar.Flags))
             {
+                _error = "permissions-eui-denied";
                 _sawmill.Warning($"{Player} tried to give a rank permissions above their authorization.");
                 return;
             }
@@ -256,6 +285,10 @@ namespace Content.Server.Administration.UI
                 return;
             }
 
+            var (bad, rankName) = await FetchAndCheckRank(ua.RankId);
+            if (bad)
+                return;
+
             admin.Title = ua.Title;
             admin.AdminRankId = ua.RankId;
             admin.Flags = GenAdminFlagList(ua.PosFlags, ua.NegFlags);
@@ -264,12 +297,6 @@ namespace Content.Server.Administration.UI
             await _db.UpdateAdminAsync(admin);
 
             var playerRecord = await _db.GetPlayerRecordByUserId(ua.UserId);
-            var (bad, rankName) = await FetchAndCheckRank(ua.RankId);
-            if (bad)
-            {
-                return;
-            }
-
             var name = playerRecord?.LastSeenUserName ?? ua.UserId.ToString();
             var title = ua.Title ?? "<no title>";
             var flags = AdminFlagsHelper.PosNegFlagsText(ua.PosFlags, ua.NegFlags);
@@ -313,6 +340,7 @@ namespace Content.Server.Administration.UI
                     // username not in DB.
                     // TODO: Notify user.
                     _sawmill.Warning($"{Player} tried to add admin with unknown username {ca.UserNameOrId}.");
+                    _error = "permissions-eui-unknown-player";
                     return;
                 }
 
@@ -324,6 +352,7 @@ namespace Content.Server.Administration.UI
             if (existing != null)
             {
                 // Already exists.
+                _error = "permissions-eui-admin-exists";
                 return;
             }
 
@@ -360,8 +389,14 @@ namespace Content.Server.Administration.UI
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private bool CheckCreatePerms(AdminFlags posFlags, AdminFlags negFlags)
         {
+            if (((posFlags | negFlags) & ~AdminFlagsHelper.Everything) != 0)
+            {
+                _error = "permissions-eui-denied";
+                return false;
+            }
             if ((posFlags & negFlags) != 0)
             {
+                _error = "permissions-eui-denied";
                 // Can't have overlapping pos and neg flags.
                 // Just deny the entire message.
                 return false;
@@ -369,6 +404,7 @@ namespace Content.Server.Administration.UI
 
             if (!UserAdminFlagCheck(posFlags))
             {
+                _error = "permissions-eui-denied";
                 // Can't create an admin with higher perms than yourself, obviously.
                 _sawmill.Warning($"{Player} tried to grant admin powers above their authorization.");
                 return false;
@@ -385,6 +421,7 @@ namespace Content.Server.Administration.UI
                 var rank = await _db.GetAdminRankAsync(r);
                 if (rank == null)
                 {
+                    _error = "permissions-eui-rank-missing";
                     // Tried to set to nonexistent rank.
                     _sawmill.Warning($"{Player} tried to assign nonexistent admin rank.");
                     return (true, null);
@@ -395,6 +432,7 @@ namespace Content.Server.Administration.UI
                 var rankFlags = AdminFlagsHelper.NamesToFlags(rank.Flags.Select(p => p.Flag));
                 if (!UserAdminFlagCheck(rankFlags))
                 {
+                    _error = "permissions-eui-denied";
                     // Can't assign a rank with flags you don't have yourself.
                     _sawmill.Warning($"{Player} tried to assign admin rank above their authorization.");
                     return (true, null);
@@ -406,17 +444,42 @@ namespace Content.Server.Administration.UI
 
         private async void LoadFromDb()
         {
-            StateDirty();
+            await _messageLock.WaitAsync();
+            try
+            {
+                if (!IsShutDown) await LoadFromDbAsync();
+            }
+            finally { _messageLock.Release(); }
+        }
+
+        private async Task LoadFromDbAsync()
+        {
             _isLoading = true;
-            var (admins, ranks) = await _db.GetAllAdminAndRanksAsync();
-
-            _admins.Clear();
-            _admins.AddRange(admins);
-            _adminRanks.Clear();
-            _adminRanks.AddRange(ranks);
-
-            _isLoading = false;
             StateDirty();
+            try
+            {
+                var (admins, ranks) = await _db.GetAllAdminAndRanksAsync();
+                // Validate before publishing so a bad persisted flag produces a visible error.
+                foreach (var admin in admins)
+                    AdminFlagsHelper.NamesToFlags(admin.Item1.Flags.Select(f => f.Flag));
+                foreach (var rank in ranks)
+                    AdminFlagsHelper.NamesToFlags(rank.Flags.Select(f => f.Flag));
+                _admins.Clear();
+                _admins.AddRange(admins);
+                _adminRanks.Clear();
+                _adminRanks.AddRange(ranks);
+                _error = null;
+            }
+            catch (Exception e)
+            {
+                _sawmill.Error($"Failed to load permissions: {e}");
+                _error = "permissions-eui-load-error";
+            }
+            finally
+            {
+                _isLoading = false;
+                if (!IsShutDown) StateDirty();
+            }
         }
 
         private static List<AdminFlag> GenAdminFlagList(AdminFlags posFlags, AdminFlags negFlags)
@@ -447,14 +510,26 @@ namespace Content.Server.Administration.UI
                 admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>());
 
             var totalFlags = posFlags | rankFlags;
-            return UserAdminFlagCheck(totalFlags);
+            var allowed = UserAdminFlagCheck(totalFlags);
+            if (!allowed) _error = "permissions-eui-denied";
+            return allowed;
         }
 
         private bool CanTouchRank(DbAdminRank rank)
         {
             var rankFlags = AdminFlagsHelper.NamesToFlags(rank.Flags.Select(f => f.Flag));
 
-            return UserAdminFlagCheck(rankFlags);
+            var allowed = UserAdminFlagCheck(rankFlags);
+            if (!allowed) _error = "permissions-eui-denied";
+            return allowed;
+        }
+
+        private bool CheckRankInput(string name, AdminFlags flags)
+        {
+            if (!string.IsNullOrWhiteSpace(name) && (flags & ~AdminFlagsHelper.Everything) == 0)
+                return true;
+            _error = "permissions-eui-rank-invalid";
+            return false;
         }
     }
 }

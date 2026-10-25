@@ -419,7 +419,8 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
             {
                 if (!prototype.ForcedColoring)
                 {
-                    AddMarking(uid, marking.MarkingId, marking.MarkingColors, false);
+                    humanoid.MarkingSet.AddBack(prototype.MarkingCategory,
+                        new Marking(marking.MarkingId, marking.MarkingColors) { DrawOrder = marking.DrawOrder });
                 }
                 else
                 {
@@ -458,7 +459,8 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
                 profile.Appearance.EyeColor,
                 humanoid.MarkingSet
             );
-            AddMarking(uid, marking.MarkingId, markingColors, false);
+            humanoid.MarkingSet.AddBack(prototype.MarkingCategory,
+                new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder });
         }
 
         EnsureDefaultMarkings(uid, humanoid);

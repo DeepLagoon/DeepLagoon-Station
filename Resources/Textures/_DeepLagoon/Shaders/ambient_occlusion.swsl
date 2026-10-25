@@ -1,0 +1,10 @@
+blend_mode mix;
+
+void fragment() {
+    // Use the brightest light channel so colored lights also remove the contact shadow.
+    highp float illumination = max(lightSample.r, max(lightSample.g, lightSample.b));
+    highp float shadow = 1.0 - smoothstep(0.0, 1.0, illumination);
+    COLOR = vec4(0.0, 0.0, 0.0, zTexture(UV).r * shadow);
+    lightSample = vec3(1.0);
+    LIGHT.a = 1.0;
+}

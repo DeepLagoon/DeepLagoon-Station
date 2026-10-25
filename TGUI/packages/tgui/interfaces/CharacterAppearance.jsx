@@ -13,9 +13,11 @@ const MarkingRow = ({ marking, act }) => <div className="CharacterEditor__markin
       label={'Цвет ' + (layer + 1) + ': ' + marking.name} value={color.name} disabled={marking.locked}
       onChange={value => act('marking-color', { index: marking.index, layer, value })} />)}
   </div>
-  <Button aria-label={'Удалить: ' + marking.name} icon="times" onClick={() => act('marking-remove', { index: marking.index })} />
-  <Button aria-label={'Выше: ' + marking.name} onClick={() => act('marking-move', { index: marking.index, value: -1 })}>↑</Button>
-  <Button aria-label={'Ниже: ' + marking.name} onClick={() => act('marking-move', { index: marking.index, value: 1 })}>↓</Button>
+  <div className="CharacterEditor__markingActions">
+    <Button role="button" aria-label={'Удалить: ' + marking.name} icon="times" onClick={() => act('marking-remove', { index: marking.index })} />
+    <Button role="button" aria-label={'Выше: ' + marking.name} onClick={() => act('marking-move', { index: marking.index, value: -1 })}>↑</Button>
+    <Button role="button" aria-label={'Ниже: ' + marking.name} onClick={() => act('marking-move', { index: marking.index, value: 1 })}>↓</Button>
+  </div>
 </div>;
 
 const MarkingColumn = ({ position, data, act, matched }) => {
@@ -36,6 +38,8 @@ const MarkingColumn = ({ position, data, act, matched }) => {
 };
 
 export const CharacterAppearance = ({ data, act, matched, previewRef, tattooPanelOpen, setTattooPanelOpen }) => <div className="CharacterEditor__anatomy">
+  <label className="CharacterEditor__combineMarkings"><input type="checkbox" checked={!!data.combineMarkings}
+    onChange={() => act('marking-combine')} /> Комбинировать выборы</label>
   <div className="CharacterEditor__anatomySides">
     <section className="CharacterEditor__anatomyLeft" aria-label="Левые части тела">
       <h3>Левые части тела</h3><MarkingColumn position="left" data={data} act={act} matched={matched} />
@@ -57,7 +61,7 @@ export const CharacterAppearance = ({ data, act, matched, previewRef, tattooPane
     <details className="CharacterEditor__tattoos" open={tattooPanelOpen} onToggle={event => setTattooPanelOpen(event.currentTarget.open)}>
       <summary>Татуировки ({data.tattooEditor?.tattoos?.length || 0})</summary>
       <Section>
-        <Button color="bad" disabled={!data.tattooEditor?.tattoos?.length || data.tattooEditor?.fileBusy} onClick={() => act('tattoo-clear')}>Очистить все татуировки</Button>
+        <Button color="bad" disabled={!data.tattooEditor?.tattoos?.length || data.tattooEditor?.fileBusy || data.tattooEditor?.banned} onClick={() => act('tattoo-clear')}>Очистить все татуировки</Button>
         <TattooEditor data={data.tattooEditor} act={act} active={tattooPanelOpen} />
       </Section>
     </details>

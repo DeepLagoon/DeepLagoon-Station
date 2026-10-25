@@ -1,9 +1,10 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
+import { GridEditorDecalSprite } from './GridEditorDecalSprite';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
 import { GridEditorAtmos } from './GridEditorAtmos';
 import { GridEditorPeers, useGridEditorPeers } from './GridEditorPeers';
@@ -13,8 +14,11 @@ import { exportGridDraft, draftFileChunks } from './gridEditorExport.mjs';
 
 const categories = [['tile', 'Полы'], ['wall', 'Стены'], ['entity', 'Объекты'], ['decal', 'Декали'], ['all', 'Все'], ['favorites', '★ Избранное'], ['templates', 'Шаблоны']];
 const tools = [['pan', 'Перемещение · 1'], ['brush', 'Кисть · 2'], ['line', 'Линия · 3'], ['pick', 'Пипетка · E'], ['route', 'Трасса · 4']];
+const toolIcons = { select: '↖', pan: '✥', brush: '▱', line: '╱', pick: '◉', route: '⌁' };
+const panels = [['properties', 'Свойства'], ['atmos', 'Атмосфера'], ['networks', 'Сети'], ['mirror', 'Зеркало'],
+  ['reference', 'Подложка'], ['layers', 'Слои'], ['templates', 'Шаблоны'], ['grid', 'Грид'], ['files', 'Файлы']];
 const Sprite = ({ images = [], color, cellSize = 32, native = false }) => <>{images.map((image, index) => color ?
-  <i key={index} className="GridEditor__tinted" style={{ backgroundColor: color, maskImage: `url("${image.url}")` }} /> :
+  <GridEditorDecalSprite key={index} image={image} color={color} cellSize={cellSize} native={native} /> :
   <img key={index} src={image.url} alt="" draggable={false} style={native && image.native ? {
     left:'50%',top:'50%',width:image.width*cellSize/32,height:image.height*cellSize/32,maxWidth:'none',maxHeight:'none',transformOrigin:'0 0',
     transform:`matrix(${image.m11},${-image.m12},${-image.m21},${image.m22},${image.m31*cellSize},${-image.m32*cellSize}) translate(-50%,-50%)`
@@ -30,6 +34,7 @@ export const GridEditor = () => {
     else if (action === 'download') failureTitle.current = payload?.scope === 'grid' ? 'Не удалось сохранить grid' : 'Не удалось сохранить карту';
     else if (action === 'draftFileStart') failureTitle.current = 'Не удалось сохранить черновик grid';
     else if (action === 'favorite') failureTitle.current = 'Не удалось сохранить избранное';
+    else if (action === 'hotbarSet') failureTitle.current = 'Не удалось сохранить hotbar';
     else if (action === 'deleteTemplate') failureTitle.current = 'Не удалось удалить шаблон';
     sendAct(action, payload);
   };
@@ -47,11 +52,54 @@ export const GridEditor = () => {
   const [movePreview, setMovePreview] = useState(null);
   const [brush, setBrush] = useState(null), [tool, setTool] = useState('select');
   const [category, setCategory] = useState('tile'), [query, setQuery] = useState('');
+  const [catalogOpen, setCatalogOpen] = useState(false), [activePanel, setActivePanel] = useState(null);
+  const hotbar = useRef(null);
+  const [hotbarSlots, setHotbarSlots] = useState(1), [hotbarDrop, setHotbarDrop] = useState(null);
+  useLayoutEffect(() => {
+    const resize = () => setHotbarSlots(Math.max(1, Math.floor((hotbar.current.clientWidth + 5) / 43)));
+    const observer = new ResizeObserver(resize); observer.observe(hotbar.current); resize();
+    return () => observer.disconnect();
+  }, []);
+  const [gridNameDraft, setGridNameDraft] = useState(null), [gridNameSaving, setGridNameSaving] = useState(false);
+  const gridName = gridNameDraft ?? data.gridName ?? '';
+  useEffect(() => { setGridNameDraft(null); setGridNameSaving(false); }, [data.token]);
+  useEffect(() => { setGridNameDraft(previous => previous?.trim() === (data.gridName || '') ? null : previous); }, [data.gridName]);
+  useEffect(() => {
+    setGridNameSaving(false);
+    if (data.gridNameError) setFailure({ title: 'Не удалось переименовать grid', message: data.gridNameError });
+  }, [data.gridNameResultVersion]);
+  const saveGridName = () => {
+    if (!gridName.trim() || gridName.trim() === (data.gridName || '') || pending || gridNameSaving) return;
+    setGridNameSaving(true); act('setGridName', { name: gridName.trim() });
+  };
+  const openCatalog = nextCategory => {
+    setCatalogOpen(true); setActivePanel(null);
+    if (nextCategory) { chooseCategory(nextCategory); setQuery(''); }
+  };
+  const togglePanel = id => { setActivePanel(previous => previous === id ? null : id); setCatalogOpen(false); };
+  useEffect(() => { if (tool === 'route') { setActivePanel('networks'); setCatalogOpen(false); } }, [tool]);
   const [zoom, setZoom] = useState(1), [gridLines, setGridLines] = useState(true);
   const requestedZoom = useRef(1), zoomCenter = useRef(null), settledCamera = useRef(null);
   const [layers, setLayers] = useState({ tile: true, entity: true, decal: true });
-  const [rotation, setRotation] = useState(0), [color, setColor] = useState('#ffffff');
+  const [rotation, setRotation] = useState(0), [color, setColor] = useState('#ffffffff');
   const [z, setZ] = useState(0), [cleanable, setCleanable] = useState(false);
+  const decalMode = category === 'decal';
+  const editLayers = useMemo(() => decalMode ? { decal: layers.decal, decalZ: z } : layers, [decalMode, layers, z]);
+  const editable = item => editableItem(item, editLayers);
+  const [emptyDecalLayers, setEmptyDecalLayers] = useState([0]);
+  const decalLayers = [...new Set([...emptyDecalLayers, z, ...draft.filter(item => item.kind === 'decal').map(item => item.z || 0)])].sort((a, b) => a - b);
+  const chooseLayer = value => {
+    setZ(value); setSelected([]); selectionRegion.current = null; setContextMenu(null);
+    gesture.current = null; setMovePreview(null); setRubberband(null); setPreviewCells([]);
+  };
+  const chooseCategory = id => {
+    if (id === 'decal' && !decalMode) route.reset();
+    if ((id === 'decal') !== decalMode) {
+      setSelected([]); selectionRegion.current = null; setBrush(null); setTemplateBrush(null); setTool('select');
+      setContextMenu(null); gesture.current = null; setMovePreview(null); setRubberband(null); setPreviewCells([]);
+    }
+    setCategory(id);
+  };
   const [hover, setHover] = useState(null), [previewCells, setPreviewCells] = useState([]);
   const [rubberband, setRubberband] = useState(null), [contextMenu, setContextMenu] = useState(null), [failure, setFailure] = useState(null);
   const atmosRefresh=useRef(null),atmosQueuedAt=useRef(0),atmosEpoch=useRef(data.token);
@@ -60,12 +108,20 @@ export const GridEditor = () => {
   const [before, setBefore] = useState(false), [pending, setPending] = useState(false), [confirmClose, setConfirmClose] = useState(false);
   const [sceneProgress, setSceneProgress] = useState({ label: 'Подготовка карты', done: 0, total: 1, blocking: true });
   const [sceneAttempt, setSceneAttempt] = useState(0);
+  const [showProgress, setShowProgress] = useState(false);
+  const sceneBusy = !!sceneProgress;
+  useEffect(() => {
+    setShowProgress(false);
+    if (!sceneBusy) return;
+    const timer = setTimeout(() => setShowProgress(true), 2000);
+    return () => clearTimeout(timer);
+  }, [sceneBusy, data.token, sceneAttempt]);
   const [clipboard, setClipboard] = useState([]);
   const clipboardRef=useRef([]);
   const [templateBrush, setTemplateBrush] = useState(null), [templateName, setTemplateName] = useState('');
   const viewport = useRef(null), canvas = useRef(null), gesture = useRef(null), current = useRef(draft);
   const root = useRef(null), dividerDrag = useRef(null);
-  const [panelWidths, setPanelWidths] = useState({ left: 245, right: 175 });
+  const [panelWidths, setPanelWidths] = useState({ left: 300, right: 300 });
   const startResize = (side, event) => {
     if (event.button !== 0) return;
     event.preventDefault(); event.stopPropagation();
@@ -74,10 +130,9 @@ export const GridEditor = () => {
   };
   const moveResize = event => {
     const active = dividerDrag.current; if (!active) return;
-    const other = active.side === 'left' ? 'right' : 'left';
     const delta = (event.clientX - active.x) * (active.side === 'left' ? 1 : -1);
-    const maximum = Math.max(140, root.current.clientWidth - panelWidths[other] - 252);
-    setPanelWidths(previous => ({ ...previous, [active.side]: Math.max(140, Math.min(maximum, active.width + delta)) }));
+    const maximum = Math.max(180, root.current.clientWidth - 72);
+    setPanelWidths(previous => ({ ...previous, [active.side]: Math.max(180, Math.min(maximum, active.width + delta)) }));
   };
   const endResize = (event, cancel = false) => {
     if (cancel && dividerDrag.current) setPanelWidths(dividerDrag.current.previous);
@@ -85,17 +140,17 @@ export const GridEditor = () => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
   const divider = side => <div role="separator" aria-label={side === 'left' ? 'Ширина каталога' : 'Ширина свойств'} aria-orientation="vertical"
-    className="GridEditor__divider" tabIndex={0} onPointerDown={event => startResize(side, event)} onPointerMove={moveResize}
+    className={`GridEditor__divider ${side}`} tabIndex={0} onPointerDown={event => startResize(side, event)} onPointerMove={moveResize}
     onPointerUp={event => endResize(event)} onPointerCancel={event => endResize(event, true)}
     onKeyDown={event => { if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return; event.preventDefault();
       const direction = (event.key === 'ArrowRight' ? 1 : -1) * (side === 'left' ? 1 : -1);
-      setPanelWidths(previous => ({ ...previous, [side]: Math.max(140, Math.min(root.current.clientWidth - previous[side === 'left' ? 'right' : 'left'] - 252, previous[side] + direction * 16)) })); }} />;
+      setPanelWidths(previous => ({ ...previous, [side]: Math.max(180, Math.min(Math.max(180, root.current.clientWidth - 72), previous[side] + direction * 16)) })); }} />;
   useEffect(() => {
     const observer = new ResizeObserver(() => {
-      const available = Math.max(280, root.current.clientWidth - 252);
+      const available = Math.max(180, root.current.clientWidth - 72);
       setPanelWidths(previous => {
-        const right = Math.min(previous.right, available - 140);
-        const left = Math.min(previous.left, available - right);
+        const right = Math.min(previous.right, available);
+        const left = Math.min(previous.left, available);
         return left === previous.left && right === previous.right ? previous : { left, right };
       });
     });
@@ -173,7 +228,7 @@ export const GridEditor = () => {
   const changes = itemChanges + (Object.values(expansion).some(Boolean) ? 1 : 0);
   const draftErrors = useMemo(() => validateDraft(draft, area, new Set(localEdits.map(item => item.id))), [draft, area, localEdits]);
   const errors = draftErrors;
-  const locked = before || pending || data.downloading || exporting || sceneProgress?.blocking;
+  const locked = before || pending || gridNameSaving || data.downloading || exporting || sceneProgress?.blocking;
   editingLocked.current=locked;
   const atmosCells = data.atmosCells || [];
   const atmosIndex = useMemo(() => new Map(atmosCells.map(cell => [`${cell.x}:${cell.y}`, cell])), [data.atmosCells]);
@@ -224,18 +279,19 @@ export const GridEditor = () => {
     return x >= 0 && y >= 0 && x < mask.width && y < mask.height && mask.bytes[(Math.floor(y) * mask.width + Math.floor(x)) * 4 + 3] > 16;
   });
   const pointAt = event => { const rect = canvas.current.getBoundingClientRect(); return { x: area.x + (event.clientX - rect.left) / cellSize, y: area.y + area.height - (event.clientY - rect.top) / cellSize }; };
-  const underPointer = point => itemsAtPoint(nearbyItems(spatialIndex, point), point, layers, visual, opaque).filter(item=>route.visible || !routeProfile(item));
+  const underPointer = point => itemsAtPoint(nearbyItems(spatialIndex, point), point, editLayers, visual, opaque).filter(item=>route.visible || !routeProfile(item));
   const nextId = () => `new_${data.token}_${Date.now()}_${counter.current++}`;
   const update = (next, restore = false, duplicate = true) => {
     if (restore) { current.current = next; setDraft(next); return; }
     const previous = gesture.current?.ids ? gesture.current.original : current.current;
     if (duplicate) next = mirrorChanges(previous, next, mirror, area, nextId, mirrorPairs.current, id => !!visuals.get(`entity:${id}`)?.diagonal);
     next = replaceConflicts(previous, next, id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
-    const supported = ensureWallFloors(next, id => visuals.get(`entity:${id}`)?.category === 'wall', baseline, id => !!visuals.get(`entity:${id}`)?.diagonal, current.current);
+    if (decalMode) next = scopeDecalChanges(previous, next, z);
+    const supported = decalMode ? next : ensureWallFloors(next, id => visuals.get(`entity:${id}`)?.category === 'wall', baseline, id => !!visuals.get(`entity:${id}`)?.diagonal, current.current);
     replaceEdits(trackLocalEdits(current.current, supported, editsRef.current));
     current.current = supported; setDraft(supported);
   };
-  const remember = (previous = current.current, edits = editsRef.current) => { setUndo((history) => [...history.slice(-49), { edits: copyItems(edits), expansion: { ...expansion } }]); setRedo([]); };
+  const remember = (previous = current.current, edits = editsRef.current) => { setUndo((history) => [...history.slice(-49), { edits: copyItems(edits), expansion: { ...expansion }, scope: decalMode ? z : null }]); setRedo([]); };
   const change = (next, duplicate = true) => { if (JSON.stringify(next) === JSON.stringify(current.current)) return; remember(); update(next, false, duplicate); };
   const route = useGridEditorRoutes({token:data.token, act, items:draft, area, nextId, locked, toCell:event=>at(event),canvas,
     commit:result=>{change(result.items,false);setSelected([]);},fail:message=>setFailure({title:'Не удалось проложить трассу',message})});
@@ -259,7 +315,7 @@ export const GridEditor = () => {
   const sceneItems = useMemo(()=>route.visible ? displayed : displayed.filter(item=>!routeProfile(item)),[displayed,route.visible]);
   const sceneIndex = useMemo(()=>indexItems(sceneItems),[sceneItems]);
   const startGridResize = (sides, event) => {
-    if (locked || event.button !== 0) return;
+    if (locked || decalMode || event.button !== 0) return;
 
     event.preventDefault(); event.stopPropagation(); remember();
     resizeGrid.current = { sides, x: event.clientX, y: event.clientY, expansion: { ...expansion }, cellSize };
@@ -334,6 +390,7 @@ export const GridEditor = () => {
     if (draftFile.current || data.downloading) return;
     try {
       const yaml = exportGridDraft(current.current, gridBounds, expansion, {
+        gridName: data.gridName,
         alwaysPowered: !!data.alwaysPowered, forceGravity: !!data.forceGravity,
         safeAtmosphere: !!data.safeAtmosphere, apartmentProtected: !!data.apartmentProtected,
       });
@@ -389,7 +446,7 @@ export const GridEditor = () => {
       y: area.y + area.height - 1 - Math.floor((event.clientY - rect.top) / cellSize) };
   };
   const options = { rotation, color, z, cleanable, replace: true, isWall: (id) => visualCache.current.get(`entity:${id}`)?.category === 'wall' };
-  const paint = (cells) => update(stamp(current.current, cells.filter((cell) => inside(cell, area)), brush, options, nextId));
+  const paint = (cells) => { if (!brush || decalMode && brush.kind !== 'decal') return; update(stamp(current.current, cells.filter((cell) => inside(cell, area)), brush, options, nextId)); };
   const down = (event) => {
     const mode = selectHold.current ? 'select' : tool;
     if (event.button === 2) {
@@ -404,7 +461,7 @@ export const GridEditor = () => {
       if (['select', 'pan'].includes(mode)) {
         if (!selectHold.current) { setBrush(null); setTemplateBrush(null); }
         const cell = at(event); if (!inside(cell, area)) return;
-        const entries = (spatialIndex.get(`${cell.x}:${cell.y}`) || []).filter(item => layers[item.kind]).slice().reverse().sort((a, b) => drawOrder(b, visual(b)) - drawOrder(a, visual(a)));
+        const entries = (spatialIndex.get(`${cell.x}:${cell.y}`) || []).filter(item => editable(item)).slice().reverse().sort((a, b) => drawOrder(b, visual(b)) - drawOrder(a, visual(a)));
         setHover(cell); setPointer(pointAt(event));
         const bounds = root.current.getBoundingClientRect();
         const pointed = underPointer(pointAt(event));
@@ -425,7 +482,7 @@ export const GridEditor = () => {
       canvas.current.setPointerCapture(event.pointerId); return;
     }
     if (locked || event.button !== 0) return;
-    if (mode === 'route' && !selectHold.current && !deleteHold.current && !space.current) {
+    if (!decalMode && mode === 'route' && !selectHold.current && !deleteHold.current && !space.current) {
       event.preventDefault();act('focus');canvas.current.focus();const cell=at(event);if(inside(cell,area))route.edit(cell);return;
     }
     event.preventDefault(); act('focus'); canvas.current.focus();
@@ -447,7 +504,7 @@ export const GridEditor = () => {
         const definition = visual(item);
         setBrush({ ...definition, id: item.prototype, kind: item.kind, name: definition?.name || item.prototype,
           category: definition?.category || item.kind, anchored: item.anchored });
-        setRotation(item.rotation); setColor(item.color.slice(0, 7)); setZ(item.z); setCleanable(item.cleanable); setTool('brush');
+        setRotation(item.rotation); setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); setTool('brush');
         setTemplateBrush(null);
       }
       return;
@@ -457,15 +514,16 @@ export const GridEditor = () => {
       selectionRegion.current = null;
       const ids = item ? heldShift ? selected.includes(item.id) ? selected.filter(id => id !== item.id) : [...selected, item.id] : [item.id] : heldShift ? selected : [];
       setSelected(ids);
-      if (item?.kind === 'decal') { setColor(item.color.slice(0, 7)); setZ(item.z); setCleanable(item.cleanable); }
+      if (item?.kind === 'decal') { setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); }
       gesture.current = { selectArea: true, start: cell, px: event.clientX, py: event.clientY,
         originalSelected: selected, additive: heldShift ? selected : [] };
       return;
     }
     if (templateBrush && tool === 'brush') {
-      const projected = projectTemplate(templateBrush.items, cell, rotation / 90);
+      const templateItems = decalMode ? decalTemplate(templateBrush.items, z) : templateBrush.items;
+      const projected = projectTemplate(templateItems, cell, rotation / 90);
       if (projected.some((item) => !inside(item, area))) return;
-      change(insertTemplate(current.current, templateBrush.items, cell, rotation / 90, nextId)); return;
+      change(insertTemplate(current.current, templateItems, cell, rotation / 90, nextId)); return;
     }
     if (!brush) return;
     gesture.current = { start: cell, last: cell, original: copyItems(current.current), drawing: true };
@@ -504,7 +562,7 @@ export const GridEditor = () => {
     } else if (active.selectArea) {
       const rectangle = cellRectangle(active.start, bounded);
       setRubberband(rectangle);
-      setSelected([...new Set([...active.additive, ...current.current.filter((item) => layers[item.kind] &&
+      setSelected([...new Set([...active.additive, ...current.current.filter((item) => editable(item) &&
         inside({ x: Math.floor(item.x), y: Math.floor(item.y) }, rectangle)).map((item) => item.id)])]);
     } else if (active.ids) {
       // Preview the offset only. Rebuilding/validating a large draft on every
@@ -532,7 +590,7 @@ export const GridEditor = () => {
         move(event);
         if (active.selecting && !active.additive.length) {
           const rectangle = cellRectangle(active.start, active.lastMove || active.start);
-          selectionRegion.current = { rectangle, ids: current.current.filter(item => layers[item.kind] && inside({x:Math.floor(item.x),y:Math.floor(item.y)},rectangle)).map(item=>item.id) };
+          selectionRegion.current = { rectangle, ids: current.current.filter(item => editable(item) && inside({x:Math.floor(item.x),y:Math.floor(item.y)},rectangle)).map(item=>item.id) };
         }
       }
     } else if (!active.pan) {
@@ -544,7 +602,7 @@ export const GridEditor = () => {
           const moved = moveSelection(active.original, active.ids, active.offset.dx, active.offset.dy, area);
           update(moved.items); setSelected(moved.ids);
         }
-        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), layers, mirror));
+        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), editLayers, mirror));
         if (active.drawing && tool === 'brush') paint(cellsBetween(active.start, active.last, true));
         if (active.drawing && tool === 'line') paint(cellsBetween(active.start, active.last));
         if (JSON.stringify(current.current) !== JSON.stringify(active.original)) remember(active.original, previousEdits);
@@ -554,18 +612,22 @@ export const GridEditor = () => {
     if (canvas.current.hasPointerCapture(event.pointerId)) canvas.current.releasePointerCapture(event.pointerId);
   };
   const step = (forward) => {
-    const history = forward ? redo : undo; if (!history.length || locked) return;
-    const snapshot = history[history.length - 1];
+    const history = forward ? redo : undo; if (locked) return;
+    const index = history.findLastIndex(entry => (entry.scope ?? null) === (decalMode ? z : null));
+    if (index < 0) return;
+    const snapshot = history[index];
     const next = collaborativeDraft(baseline, data.peerDrafts || [], snapshot.edits || [], id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall');
-    const previous = { edits: copyItems(editsRef.current), expansion: { ...expansion } };
-    if (forward) { setUndo((h) => [...h, previous]); setRedo(history.slice(0, -1)); }
-    else { setRedo((h) => [...h, previous]); setUndo(history.slice(0, -1)); }
-    replaceEdits(copyItems(snapshot.edits || [])); update(next, true); setExpansion(snapshot.expansion); setSelected([]);
+    const previous = { edits: copyItems(editsRef.current), expansion: { ...expansion }, scope: decalMode ? z : null };
+    if (forward) { setUndo((h) => [...h, previous]); setRedo(history.filter((_, i) => i !== index)); }
+    else { setRedo((h) => [...h, previous]); setUndo(history.filter((_, i) => i !== index)); }
+    const scoped = decalMode ? scopeDecalChanges(current.current, next, z) : next;
+    replaceEdits(decalMode ? trackLocalEdits(current.current, scoped, editsRef.current) : copyItems(snapshot.edits || []));
+    update(scoped, true); if (!decalMode) setExpansion(snapshot.expansion); setSelected([]);
   };
   const remove = () => {
     const region = selectionRegion.current;
     const rectangle = region && region.ids.length === selected.length && region.ids.every(id => selected.includes(id)) ? region.rectangle : null;
-    change(rectangle ? eraseRectangle(current.current, rectangle, layers, mirror) : current.current.filter(i => !selected.includes(i.id)));
+    change(rectangle ? eraseRectangle(current.current, rectangle, editLayers, mirror) : current.current.filter(i => !selected.includes(i.id)));
     setSelected([]); selectionRegion.current = null;
   };
   const reflect = (axis = 'x') => {
@@ -583,7 +645,7 @@ export const GridEditor = () => {
   };
   const copySelection = items => { if (!items.length) return; clipboardRef.current=copyItems(items);setClipboard(clipboardRef.current); act('copySelection'); };
   const paste = () => {
-    const copied=clipboardRef.current;
+    const copied=decalMode ? decalTemplate(clipboardRef.current, z) : clipboardRef.current;
     if (!copied.length) return;
     const origin = { x: Math.min(...copied.map((i) => Math.floor(i.x))), y: Math.min(...copied.map((i) => Math.floor(i.y))) };
     const location=lastPointer.current;
@@ -601,7 +663,8 @@ export const GridEditor = () => {
     if (action === 'select' && menuItem) { setSelected([menuItem.id]); setTool('select'); }
     if (action === 'copy' && targets.length) { copySelection(targets); setSelected(targets.map(item => item.id)); setTool('select'); }
     if (action === 'duplicate') {
-      const copied = targets.length ? targets : clipboard;
+      const source = targets.length ? targets : clipboard;
+      const copied = decalMode ? decalTemplate(source, z) : source;
       if (copied.length) {
         const target = { x: contextMenu.cell.x + (targets.length ? 1 : 0), y: contextMenu.cell.y };
         const template = makeTemplate(copied);
@@ -614,7 +677,7 @@ export const GridEditor = () => {
     if (action === 'pick' && menuItem) {
       const definition = visual(menuItem);
       setBrush({ ...definition, id: menuItem.prototype, kind: menuItem.kind, name: definition?.name || menuItem.prototype, category: definition?.category || menuItem.kind, anchored: menuItem.anchored });
-      setTemplateBrush(null); setRotation(menuItem.rotation); setColor(menuItem.color.slice(0, 7)); setZ(menuItem.z); setCleanable(menuItem.cleanable); setSelected([]); setTool('brush');
+      setTemplateBrush(null); setRotation(menuItem.rotation); setColor(menuItem.color || '#ffffffff'); setZ(menuItem.z); setCleanable(menuItem.cleanable); setSelected([]); setTool('brush');
     }
     setContextMenu(null);
   };
@@ -667,7 +730,7 @@ export const GridEditor = () => {
       else if (key === 'r') { event.preventDefault(); rotate(); }
       else if (key === 'escape') { route.reset(); setContextMenu(null); setSelected([]); setTool('select'); setBrush(null); setTemplateBrush(null); }
       else if (!event.ctrlKey && !event.altKey) {
-        const shortcuts = { 1: 'pan', 2: 'brush', 3: 'line', 4: 'route', e: 'pick' };
+        const shortcuts = { 1: 'pan', 2: 'brush', 3: 'line', ...(!decalMode && { 4: 'route' }), e: 'pick' };
         if (shortcuts[key]) { event.preventDefault(); setTool(shortcuts[key]); }
       }
     };
@@ -677,7 +740,7 @@ export const GridEditor = () => {
     document.addEventListener('keydown', key, true); document.addEventListener('keyup', release, true); window.addEventListener('blur', blur); window.addEventListener('grid-editor-key', nativeKey);
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
   }, [draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
-    exporting, data.downloading, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
+    exporting, data.downloading, data.gridName, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, decalMode, z, editLayers, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
   const restoreZoomCenter = () => {
     const center = zoomCenter.current; if (!center) return;
     const node = viewport.current;
@@ -722,13 +785,30 @@ export const GridEditor = () => {
     view.addEventListener('wheel', wheel, { passive: false });
     return () => view.removeEventListener('wheel', wheel);
   }, [zoom]);
-  const pointedItems = useMemo(() => pointer ? underPointer(pointer) : [], [pointer, spatialIndex, layers, visuals, route.visible]);
+  const pointedItems = useMemo(() => pointer ? underPointer(pointer) : [], [pointer, spatialIndex, editLayers, visuals, route.visible]);
   const hoveredItem = (shift || ['pick', 'select'].includes(activeTool)) ? pointedItems[0] : null;
   const selectedItems = useMemo(() => { const ids = new Set(selected); return displayed.filter(item => ids.has(item.id) && (route.visible || !routeProfile(item))); }, [displayed, selected, route.visible]);
   const highlightedItems=useMemo(()=>!movePreview&&hoveredItem&&!selected.includes(hoveredItem.id)?[...selectedItems,hoveredItem]:selectedItems,[selectedItems,hoveredItem,selected,movePreview]);
   const one = selectedItems[0];
   const patchSelected = (patch) => change(current.current.map((i) => selected.includes(i.id) && i.kind !== 'tile' ? { ...i, ...patch } : i));
   const favorite = (kind, id) => (data.favorites || []).some((f) => f.kind === kind && f.id === id);
+  const chooseBrush = entry => {
+    if ((entry.kind === 'decal') !== decalMode) chooseCategory(entry.kind === 'decal' ? 'decal' : entry.category || entry.kind);
+    setBrush(entry); setTemplateBrush(null); setTool('brush'); setSelected([]); setCatalogOpen(false);
+    if (entry.kind === 'decal') setActivePanel('layers');
+  };
+  const dragBrush = (event, entry) => {
+    event.dataTransfer.setData('application/x-grid-editor-brush', JSON.stringify({ kind: entry.kind, id: entry.id }));
+    event.dataTransfer.effectAllowed = 'copy';
+  };
+  const dropBrush = (event, slot) => {
+    event.preventDefault(); setHotbarDrop(null);
+    if (locked) return;
+    try {
+      const entry = JSON.parse(event.dataTransfer.getData('application/x-grid-editor-brush'));
+      if (['tile', 'entity', 'decal'].includes(entry.kind) && typeof entry.id === 'string') act('hotbarSet', { slot, ...entry });
+    } catch { /* A drop from another application is not a catalog entry. */ }
+  };
   const templatePreview = templateBrush && hover && activeTool === 'brush' ? projectTemplate(templateBrush.items, hover, rotation / 90) : [];
   const close = () => changes || route.editing ? setConfirmClose(true) : act('close');
   useEffect(() => { if (data.closeRequested) close(); }, [data.closeRequested]);
@@ -742,42 +822,57 @@ export const GridEditor = () => {
     onDrop={event => { if (event.dataTransfer.files.length) { event.preventDefault(); reference.importFile(event.dataTransfer.files[0]); } }}
     onFocusCapture={e => act('editing', { active: !!e.target.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}
     onBlurCapture={e => act('editing', { active: !!e.relatedTarget?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}>
-    <header><strong>Редактор grid {data.sourcePath && <code className="GridEditor__sourcePath" title={data.sourcePath}>{data.sourcePath}</code>}<small>#{data.grid} · область {area.x}, {area.y} / {area.width}×{area.height}</small></strong><span>{pending ? 'Применение к grid…' : before ? 'Исходный grid' : `${changes} изменений в черновике`}</span><button aria-label="Закрыть" onClick={close} disabled={pending}>×</button></header>
+    <header><div className="GridEditor__identity"><strong><span className="GridEditor__gridName" title={data.gridName || 'Редактор grid'}>{data.gridName || 'Редактор grid'}</span><small>Фокус · #{data.grid} · {area.width}×{area.height}</small></strong>
+      {data.sourcePath && <code className="GridEditor__sourcePath" title={data.sourcePath}>{data.sourcePath}</code>}</div>
+      <span className="GridEditor__draftStatus" role="status">{pending ? 'Применение к grid…' : before ? 'Исходный grid' : `${changes} изменений в черновике`}</span><button aria-label="Закрыть" onClick={close} disabled={pending}>×</button></header>
+    <div className="GridEditor__commandBar">
+      <button className={catalogOpen ? 'active' : ''} aria-expanded={catalogOpen} aria-controls="grid-editor-catalog" onClick={() => catalogOpen ? setCatalogOpen(false) : openCatalog()}>Каталог</button>
+      <button className="GridEditor__currentBrush" onClick={() => openCatalog()} title={brush?.id || templateBrush?.name || 'Открыть каталог'}>
+        {brush && <span className="GridEditor__sprite"><Sprite images={brush.images} color={brush.kind === 'decal' ? color : undefined} /></span>}
+        <span>{templateBrush?.name || brush?.name || brush?.id || 'Выберите прототип'}</span>
+      </button><span className="GridEditor__spacer" />
+      <button aria-label="Отменить · Ctrl+Z" title="Отменить · Ctrl+Z" disabled={!undo.length || locked} onClick={() => step(false)}>↶</button>
+      <button aria-label="Повторить · Ctrl+Shift+Z" title="Повторить · Ctrl+Shift+Z" disabled={!redo.length || locked} onClick={() => step(true)}>↷</button>
+      <button disabled={pending} className={before ? 'active' : ''} aria-pressed={before} onClick={() => setBefore(!before)}>До / После</button>
+    </div>
+    <nav className="GridEditor__sections" aria-label="Разделы редактора">{panels.map(([id, name]) => <button key={id}
+      className={activePanel === id || id === 'atmos' && atmosMode ? 'active' : ''} disabled={id === 'networks' && decalMode}
+      aria-expanded={activePanel === id} aria-controls="grid-editor-properties" onClick={() => { togglePanel(id); if (id === 'atmos') setAtmosMode(true); }}>{name}</button>)}</nav>
     <div className="GridEditor__body">
-      <aside className="GridEditor__catalog">
-        <nav>{categories.map(([id, name]) => <button key={id} className={category === id ? 'active' : ''} onClick={() => setCategory(id)}>{name}</button>)}</nav>
+      <nav className="GridEditor__toolRail" aria-label="Инструменты">{[['select', 'Выделение · S'], ...tools].filter(([id]) => !decalMode || id !== 'route').map(([id, name]) =>
+        <button key={id} aria-label={name} title={name} aria-pressed={activeTool === id} disabled={locked || !!templateBrush && id === 'line'}
+          className={activeTool === id ? 'active' : ''} onClick={() => setTool(id)}><span aria-hidden="true">{toolIcons[id]}</span><small>{id === 'select' ? 'S' : name.split(' · ')[1]}</small></button>)}
+        <button aria-label="Повернуть · R" title="Повернуть · R" disabled={locked} onClick={rotate}>↻<small>R</small></button>
+      </nav>
+      <aside id="grid-editor-catalog" className="GridEditor__catalog" hidden={!catalogOpen} aria-label="Каталог прототипов">
+        <div className="GridEditor__panelHeading"><strong>Каталог</strong><button aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}>×</button></div>
+        <nav>{categories.map(([id, name]) => <button key={id} className={category === id ? 'active' : ''} onClick={() => chooseCategory(id)}>{name}</button>)}</nav>
         <input aria-label="Поиск прототипов" placeholder="Название или ID прототипа…" value={query} onFocus={() => act('focus')} onChange={(e) => setQuery(e.target.value)} />
         <div ref={catalogView} className="GridEditor__entries" onScroll={e => setCatalogScroll(e.currentTarget.scrollTop)}>{category === 'templates' ? (data.templates || []).filter((t) => t.name.toLowerCase().includes(query.toLowerCase())).map((entry) =>
           <div key={entry.id} className="GridEditor__entry"><button disabled={locked} className={templateBrush?.id === entry.id ? 'active' : ''}
-            onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); }}><span>{entry.name}<small>{entry.items.length} элементов · нажмите место на плане</small></span></button>
+            onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setCatalogOpen(false); }}><span>{entry.name}<small>{entry.items.length} элементов · нажмите место на плане</small></span></button>
             <button aria-label={`Удалить шаблон ${entry.name}`} disabled={locked} onClick={() => setConfirmClose({ deleteTemplate: entry.id, name: entry.name })}>×</button></div>) : <div style={{ height: (data.catalogCount || 0) * 64, position: 'relative' }}>{Array.from({ length: Math.max(0, catalogEnd - catalogStart) }, (_, offset) => { const index = catalogStart + offset; const entry = catalogRows[index]; return entry ? <div style={{ position: 'absolute', top: index * 64, height: 64, width: '100%' }} key={`${entry.kind}:${entry.id}`} className="GridEditor__entry"><button disabled={locked} title={entry.id}
-          className={brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} onClick={() => { setBrush(entry); setTemplateBrush(null); setTool('brush'); setSelected([]); }}>
-          <span className="GridEditor__sprite"><Sprite images={entry.images} /></span><span>{entry.name}<small>{entry.id}</small></span></button>
+          draggable={!locked} onDragStart={event => dragBrush(event, entry)} className={brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} onClick={() => chooseBrush(entry)}>
+          <span className="GridEditor__sprite"><Sprite images={entry.images} color={entry.kind === 'decal' ? color : undefined} /></span><span>{entry.name}<small>{entry.id}</small></span></button>
           <button aria-label={`${favorite(entry.kind, entry.id) ? 'Убрать из' : 'Добавить в'} избранное ${entry.name}`} disabled={locked}
             onClick={() => act('favorite', { kind: entry.kind, id: entry.id })}>{favorite(entry.kind, entry.id) ? '★' : '☆'}</button></div> : <div key={index} style={{ position: 'absolute', top: index * 64 }}>Загрузка…</div>; })}</div>}</div>
         <div className="GridEditor__pages">{data.catalogCount || 0} элементов · прокрутите каталог</div>
       </aside>
-      {divider('left')}
+      {catalogOpen && divider('left')}
       <main>
-        {sceneProgress && <div className={`GridEditor__loading ${sceneProgress.blocking ? 'blocking' : ''}`} role="status">
+        {sceneProgress && (showProgress || sceneProgress.error) && <div className={`GridEditor__loading ${sceneProgress.blocking ? 'blocking' : ''}`} role="status">
           <div>{sceneProgress.error ? <><strong>Не удалось подготовить карту</strong><span>{sceneProgress.error}</span>
             <button onClick={() => setSceneAttempt(value => value + 1)}>Повторить</button></> : <>
             <span>{sceneProgress.label} · {Math.round(100 * sceneProgress.done / Math.max(1, sceneProgress.total))}%</span>
             <progress aria-label={sceneProgress.label} value={sceneProgress.done} max={Math.max(1, sceneProgress.total)} />
           </>}</div>
         </div>}
-        <div className="GridEditor__toolbar">{tools.map(([id, name]) => <button key={id} disabled={locked || !!templateBrush && ['line'].includes(id)} className={activeTool === id ? 'active' : ''} onClick={() => setTool(id)}>{name}</button>)}</div>
-        <div className="GridEditor__toolbar"><button disabled={!undo.length || locked} onClick={() => step(false)}>↶</button><button disabled={!redo.length || locked} onClick={() => step(true)}>↷</button>
-          <button disabled={pending} className={before ? 'active' : ''} onClick={() => setBefore(!before)}>До / После</button>
-          <button onClick={fit}>Вписать</button>
-          <label><input type="checkbox" checked={gridLines} onChange={(e) => setGridLines(e.target.checked)} />Сетка</label>
-        </div>
         <div ref={viewport} className="GridEditor__viewport" onScroll={measureView} onContextMenu={(e) => e.preventDefault()}>
           <div className="GridEditor__surface" style={{ width: area.width * cellSize + view.width, height: area.height * cellSize + view.height }}
             onPointerDown={down} onPointerMove={move} onPointerUp={(e) => up(e)} onPointerCancel={(e) => up(e, true)} onPointerLeave={() => { if (!gesture.current) {setHover(null);setPointer(null);lastPointer.current=null;} }}>
           <div ref={canvas} className={`GridEditor__canvas ${gridLines ? 'grid' : ''} ${panning ? 'panning' : ''} tool-${deleteHeld ? 'erase' : activeTool}`} tabIndex={0} aria-label="План grid"
             style={{ left: view.width / 2, top: view.height / 2, width: area.width * cellSize, height: area.height * cellSize, '--cell': `${cellSize}px` }}>
-            {!before && [['left'], ['right'], ['top'], ['bottom'], ['left', 'top'], ['right', 'top'], ['left', 'bottom'], ['right', 'bottom']].map(sides =>
+            {!decalMode && !before && [['left'], ['right'], ['top'], ['bottom'], ['left', 'top'], ['right', 'top'], ['left', 'bottom'], ['right', 'bottom']].map(sides =>
               <button key={sides.join('-')} aria-label={`Растянуть grid: ${sides.join(' ')}`} disabled={locked}
                 className={`GridEditor__resizeGrid ${sides.join(' ')}`} onPointerDown={event => startGridResize(sides, event)}
                 onPointerMove={moveGridResize} onPointerUp={event => endGridResize(event)} onPointerCancel={event => endGridResize(event, true)} />)}
@@ -789,8 +884,8 @@ export const GridEditor = () => {
             {rubberband && <div className={`GridEditor__rubberband ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`} style={{
               left: (rubberband.x - area.x) * cellSize, top: (area.y + area.height - rubberband.y - rubberband.height) * cellSize,
               width: rubberband.width * cellSize, height: rubberband.height * cellSize }} />}
-            {route.visible && layers.entity && <GridEditorNetworks items={allDisplayed} area={area} view={view} cellSize={cellSize}/>}
-            {!before && tool==='route' && <GridEditorRouteHandles route={route} area={area} view={view} cellSize={cellSize} locked={locked}/>}
+            {!decalMode && route.visible && layers.entity && <GridEditorNetworks items={allDisplayed} area={area} view={view} cellSize={cellSize}/>}
+            {!decalMode && !before && tool==='route' && <GridEditorRouteHandles route={route} area={area} view={view} cellSize={cellSize} locked={locked}/>}
             <GridEditorSelection items={highlightedItems} visuals={visuals} area={area} layers={layers} view={view} cellSize={cellSize} offset={movePreview} />
             {((deleteHeld || gesture.current?.erasing || ['brush','line'].includes(activeTool)) ? (previewCells.length ? previewCells : hover ? [hover] : []) : []).map((cell) => <div key={`${cell.x}:${cell.y}`} className={`GridEditor__cursor ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`}
               style={{ left: (cell.x - area.x) * cellSize, top: (area.y + area.height - 1 - cell.y) * cellSize, width: cellSize, height: cellSize }}>
@@ -802,16 +897,44 @@ export const GridEditor = () => {
           </div>
           </div>
         </div>
-        <div className="GridEditor__status">{hover ? `X ${hover.x} · Y ${hover.y}` : 'Координаты grid'} · S: выбрать и копировать под курсором · S + ЛКМ: выделить область · M: отразить ↔ · Shift+M: отразить ↕ · D: удалить выделение · ПКМ + движение: перенос выделения · D + ЛКМ: удалить объект / область · Стрелки: перемещение · Shift + стрелки: быстрее · Space + ЛКМ / СКМ: перемещение · Клик ПКМ: меню / сброс кисти · Shift + ЛКМ: выбор · Колесо: масштаб</div>
       </main>
-      {divider('right')}
-      <aside className="GridEditor__properties">
+      {activePanel && divider('right')}
+      <aside id="grid-editor-properties" className="GridEditor__properties" hidden={!activePanel} aria-label="Панель настроек">
+        <div className="GridEditor__panelHeading"><strong>{panels.find(([id]) => id === activePanel)?.[1]}</strong><button aria-label="Закрыть панель" onClick={() => setActivePanel(null)}>×</button></div>
+        <section className="GridEditor__panelSection" hidden={activePanel !== 'layers'}>
+        {!decalMode && <button disabled={locked} onClick={() => chooseCategory('decal')}>Режим декалирования</button>}
+        {decalMode && <section className="GridEditor__decalLayers" aria-label="Слои декалей">
+          <strong>Режим декалирования</strong><small>Инструменты изменяют только декали активного слоя. Остальная карта служит фоном.</small>
+          {decalLayers.map(layer => <button key={layer} className={z === layer ? 'active' : ''} disabled={locked} onClick={() => chooseLayer(layer)}>
+            Слой {layer} · {draft.filter(item => item.kind === 'decal' && (item.z || 0) === layer).length}</button>)}
+          <button disabled={locked || decalLayers.length >= 201} onClick={() => {
+            const value = Array.from({ length: 201 }, (_, i) => i <= 100 ? i : 100 - i).find(value => !decalLayers.includes(value));
+            if (value !== undefined) { setEmptyDecalLayers(values => [...values, value]); chooseLayer(value); }
+          }}>Добавить слой декалей</button>
+          <button disabled={locked} onClick={() => { const items = current.current.filter(editable); setSelected(items.map(item => item.id)); if (items.length === 1) { setColor(items[0].color); setRotation(items[0].rotation); setCleanable(items[0].cleanable); } setTool('select'); selectionRegion.current = null; }}>Выделить слой</button>
+          <button disabled={locked} onClick={() => { change(current.current.filter(item => !editable(item))); setSelected([]); selectionRegion.current = null; }}>Удалить слой</button>
+        </section>}
+        {(decalMode || brush?.kind === 'decal' || one?.kind === 'decal') && <>
+          <label>Цвет <input aria-label="Цвет декали" type="color" value={color.slice(0, 7)} disabled={locked} onChange={(e) => { const value = e.target.value + (color.slice(7) || 'ff'); setColor(value); if (one?.kind === 'decal') patchSelected({ color: value }); }} /></label>
+          <label>Непрозрачность <input aria-label="Непрозрачность декали" type="range" min="0" max="255" value={parseInt(color.slice(7) || 'ff', 16)} disabled={locked} onChange={e => {
+            const value = color.slice(0, 7) + Number(e.target.value).toString(16).padStart(2, '0'); setColor(value);
+            if (one?.kind === 'decal') patchSelected({ color: value });
+          }} /></label>
+          <label>Слой декали <input aria-label="Слой декали" type="number" min={-100} max={100} value={z} disabled={locked} onChange={(e) => { const value = Math.max(-100, Math.min(100, Number(e.target.value))); if (decalMode) chooseLayer(value); else { setZ(value); if (one?.kind === 'decal') patchSelected({ z: value }); } }} /></label>
+          <label><input type="checkbox" checked={cleanable} disabled={locked} onChange={(e) => { setCleanable(e.target.checked); if (one?.kind === 'decal') patchSelected({ cleanable: e.target.checked }); }} />Можно смыть</label>
+        </>}
+        </section>
+        <section className="GridEditor__panelSection" hidden={activePanel !== 'properties'}>
         {!!pointedItems.length && <><strong>Под курсором</strong>{pointedItems.slice(0, 8).map(item => <button key={item.id} disabled={locked} onPointerDown={e => e.preventDefault()} onClick={() => {
-          if (tool === 'pick') { const definition = visual(item); setBrush({ ...definition, id: item.prototype, kind: item.kind, anchored: item.anchored }); setRotation(item.rotation); setColor(item.color.slice(0, 7)); setZ(item.z); setCleanable(item.cleanable); setTemplateBrush(null); setTool('brush'); }
+          if (tool === 'pick') { const definition = visual(item); setBrush({ ...definition, id: item.prototype, kind: item.kind, anchored: item.anchored }); setRotation(item.rotation); setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); setTemplateBrush(null); setTool('brush'); }
           else { setSelected([item.id]); setTool('select'); }
         }}>{visual(item)?.name || item.prototype}</button>)}</>}
-        <details open={tool==='route'||route.editing}><summary>Провода и трубы</summary>{route.controls}</details>
-        {tool!=='route'&&<button disabled={locked} onClick={()=>setTool('route')}>Редактировать трассы</button>}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="networks" hidden={activePanel !== 'networks'}>
+        {!decalMode && <><strong>Провода и трубы</strong>{route.controls}</>}
+        {!decalMode&&tool!=='route'&&<button disabled={locked} onClick={()=>setTool('route')}>Редактировать трассы</button>}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="mirror" hidden={activePanel !== 'mirror'}>
         <strong>Зеркальный маппинг</strong>
         <label><input type="checkbox" checked={mirror.enabled} disabled={locked} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, enabled: event.target.checked }); }} />Дублировать правки</label>
         <select aria-label="Ось зеркальности" value={mirror.axis} disabled={locked} onChange={event => { const axis = event.target.value; mirrorPairs.current.clear(); setMirror({ ...mirror, axis, center: axis === 'x' ? gridBounds.x + gridBounds.width / 2 : gridBounds.y + gridBounds.height / 2 }); }}>
@@ -819,11 +942,9 @@ export const GridEditor = () => {
         </select>
         <label>Координата оси <input aria-label="Координата оси зеркальности" type="number" step={.5} disabled={locked} value={mirror.center} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, center: Math.round(Number(event.target.value) * 2) / 2 }); }} /></label>
         <small>Добавление, перенос, поворот и удаление отражаются относительно оси. Применяются вместе с черновиком.</small>
-        {reference.controls}
-        {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
-          <small>Черновики доступны для выделения и правки всем участникам. Последняя правка элемента заменяет предыдущую.</small>
-          {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
-        </>}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="reference" hidden={activePanel !== 'reference'}>{reference.controls}</section>
+        <section className="GridEditor__panelSection" data-panel="atmos" hidden={activePanel !== 'atmos'}>
         <strong>Атмосфера</strong>
         <label><input type="checkbox" checked={atmosMode} onChange={event => setAtmosMode(event.target.checked)} />Диагностика утечек</label>
         {atmosMode && <>
@@ -844,17 +965,36 @@ export const GridEditor = () => {
           </>}
           {hoverAtmos && <small>Клетка {hoverAtmos.x}, {hoverAtmos.y}: {{ sealed: 'герметично', leaking: 'есть выход наружу', blocked: 'воздух заблокирован', space: 'космический тайл' }[hoverAtmos.status]}, {hoverAtmos.pressure.toFixed(1)} кПа.</small>}
         </>}
-        <strong>Слои</strong>{[['tile', 'Полы'], ['entity', 'Объекты и стены'], ['decal', 'Декали']].map(([id, name]) => <label key={id}><input type="checkbox" checked={layers[id]} onChange={(e) => setLayers({ ...layers, [id]: e.target.checked })} />{name}</label>)}
-        <strong>Область grid · {area.width}×{area.height}</strong>
-        <small>Тяните края или углы сетки мышью. Новая область пустая: полы и объекты размещаются кистью. Изменения сохраняются кнопкой «Применить».</small>
+
+        </section>
+        <section className="GridEditor__panelSection" data-panel="layers" hidden={activePanel !== 'layers'}>
+        <strong>Видимость</strong>{[['tile', 'Полы'], ['entity', 'Объекты и стены'], ['decal', 'Декали']].map(([id, name]) => <label key={id}><input type="checkbox" checked={layers[id]} onChange={(e) => setLayers({ ...layers, [id]: e.target.checked })} />{name}</label>)}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="grid" hidden={activePanel !== 'grid'}>
+        <label htmlFor="grid-editor-name">Название грида</label>
+        <input id="grid-editor-name" aria-label="Название грида" value={gridName} maxLength={data.gridNameMaxLength || 128}
+          disabled={pending || gridNameSaving} placeholder="Например: Жилой модуль «Маяк»" onChange={event => setGridNameDraft(event.target.value)}
+          onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); saveGridName(); } }} />
+        <button disabled={pending || gridNameSaving || !gridName.trim() || gridName.trim() === (data.gridName || '')} onClick={saveGridName}>
+          {gridNameSaving ? 'Сохранение названия…' : 'Сохранить название'}</button>
+        <small>Название сохраняется сразу для всего грида и включается в экспорт карты и черновика.</small>
+        {!decalMode && <><strong>Область grid · {area.width}×{area.height}</strong>
+        <small>Тяните края или углы сетки мышью. Новая область пустая: полы и объекты размещаются кистью. Изменения сохраняются кнопкой «Применить».</small></>}
+        <button className={data.alwaysPowered ? 'active' : ''} aria-pressed={!!data.alwaysPowered} disabled={pending}
+          onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })}>Автономное питание</button>
+        <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
+          onClick={() => act('setGridGravity', { enabled: !data.forceGravity })}>Постоянная гравитация</button>
+        <small>Питание и гравитация применяются сразу ко всему гриду и сохраняются в карте.</small>
+        {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
+          <small>Черновики доступны для выделения и правки всем участникам. Последняя правка элемента заменяет предыдущую.</small>
+          {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
+        </>}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="properties" hidden={activePanel !== 'properties'}>
         <strong>{selected.length ? `Выбрано: ${selected.length}` : 'Кисть'}</strong><p>{one?.prototype || templateBrush?.name || brush?.name || 'Выберите элемент каталога'}</p>
         <button disabled={locked} onClick={rotate}>Повернуть · R ({activeTool === 'select' && one ? one.rotation : rotation}°)</button>
         <small>Стены, окна, столы и шкафы автоматически заменяют конструкции в целевой клетке.</small>
-        {(brush?.kind === 'decal' || one?.kind === 'decal') && <>
-          <label>Цвет <input aria-label="Цвет декали" type="color" value={color} disabled={locked} onChange={(e) => { setColor(e.target.value); if (one?.kind === 'decal') patchSelected({ color: e.target.value }); }} /></label>
-          <label>Слой декали <input aria-label="Слой декали" type="number" min={-100} max={100} value={z} disabled={locked} onChange={(e) => { const value = Math.max(-100, Math.min(100, Number(e.target.value))); setZ(value); if (one?.kind === 'decal') patchSelected({ z: value }); }} /></label>
-          <label><input type="checkbox" checked={cleanable} disabled={locked} onChange={(e) => { setCleanable(e.target.checked); if (one?.kind === 'decal') patchSelected({ cleanable: e.target.checked }); }} />Можно смыть</label>
-        </>}
+
         {one?.kind === 'entity' && <label><input type="checkbox" disabled={locked} checked={one.anchored} onChange={(e) => patchSelected({ anchored: e.target.checked })} />Закреплён</label>}
         {one && one.kind !== 'tile' && selected.length === 1 && ['x', 'y'].map((axis) => <label key={axis}>{axis.toUpperCase()}
           <input type="number" aria-label={`Координата ${axis.toUpperCase()}`} step={0.125} value={one[axis]} disabled={locked}
@@ -863,25 +1003,50 @@ export const GridEditor = () => {
         <button disabled={locked || !selected.length} onClick={remove}>Удалить · D / Delete</button>
         <button disabled={locked || !selected.length} onClick={() => copySelection(draft.filter((i) => selected.includes(i.id)))}>Копировать · Ctrl+C</button>
         <button disabled={locked || !clipboard.length} onClick={paste}>Вставить · Ctrl+V</button>
+        <small>Под стенами автоматически добавляется обшивка Plating. Существующий пол сохраняется.</small>
+        </section>
+        <section className="GridEditor__panelSection" data-panel="templates" hidden={activePanel !== 'templates'}>
         <strong>Свой шаблон</strong><input aria-label="Имя шаблона" placeholder="Например: каюта 5×4" value={templateName} maxLength={64} onFocus={() => act('focus')} onChange={(e) => setTemplateName(e.target.value)} />
         <button disabled={locked || !selected.length || selected.length > 512 || !templateName.trim()} onClick={() =>
           startTransfer(makeTemplate(draft.filter((i) => selected.includes(i.id))), 'template', templateName.trim())}>Сохранить выделение</button>
         <small>Шаблоны и избранное сохраняются на этом компьютере.</small>
-        <small>Под стенами автоматически добавляется обшивка Plating. Существующий пол сохраняется.</small>
-        <small>Удерживайте S: выделение объектов.<br />ЛКМ + движение: рамка, в том числе поверх объектов.<br />Shift + ЛКМ: объект под подсветкой.<br />ПКМ + движение: перенос выделенной группы.<br />Клик ПКМ: меню клетки или сброс кисти.<br />1: перемещение · 2: кисть · 3: линия · E: пипетка.<br />Кисть: растяните область добавления.<br />D + ЛКМ: удалить объект или область.<br />Ctrl+Z / Ctrl+Shift+Z: история.<br />Esc: сброс инструмента.<br />Правки отправляются кнопкой «Применить».</small>
+        {(data.templates || []).map(entry => <div key={entry.id} className="GridEditor__entry"><button disabled={locked} className={templateBrush?.id === entry.id ? 'active' : ''}
+          onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setActivePanel(null); }}><span>{entry.name}<small>{entry.items.length} элементов · нажмите место на плане</small></span></button>
+          <button aria-label={`Удалить шаблон ${entry.name}`} disabled={locked} onClick={() => setConfirmClose({ deleteTemplate: entry.id, name: entry.name })}>×</button></div>)}
+        </section>
+        <section className="GridEditor__panelSection" data-panel="files" hidden={activePanel !== 'files'}>
+          <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S · Сохраняет несохранённые правки и значения компонентов существующих объектов.">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
+          <button disabled={locked || !!changes} onClick={() => act('download', { scope: 'grid' })}>Исходный grid</button>
+          <button disabled={locked || !!changes} onClick={() => act('download', { scope: 'map' })}>Скачать карту</button>
+          <small>Все варианты сохраняют значения компонентов. Черновик включает несохранённые правки без применения к карте.</small>
+        </section>
       </aside>
     </div>
+    <div className="GridEditor__viewBar"><span>{hover ? `X ${hover.x} · Y ${hover.y}` : 'Координаты grid'}</span>
+      <label><input type="checkbox" checked={gridLines} onChange={event => setGridLines(event.target.checked)} />Сетка</label>
+      <details className="GridEditor__help"><summary>Управление</summary><div>S: выбрать и копировать под курсором · S + ЛКМ: выделить область · M: отразить ↔ · Shift+M: отразить ↕ · D: удалить выделение · ПКМ + движение: перенос выделения · D + ЛКМ: удалить объект / область · Стрелки: перемещение · Shift + стрелки: быстрее · Space + ЛКМ / СКМ: перемещение · Клик ПКМ: меню / сброс кисти · Shift + ЛКМ: выбор · Колесо: масштаб</div></details>
+      <span className="GridEditor__spacer" /><button aria-label="Уменьшить масштаб" onClick={() => setScale(requestedZoom.current / 1.15)}>−</button><span>{Math.round(zoom * 100)}%</span>
+      <button aria-label="Увеличить масштаб" onClick={() => setScale(requestedZoom.current * 1.15)}>+</button><button onClick={fit}>Вписать</button>
+    </div>
+    <div className="GridEditor__quickAccess" aria-label="Hotbar"><span title="Перетащите прототип из каталога. ПКМ — очистить слот.">Hotbar</span>
+      <div ref={hotbar} className="GridEditor__quickEntries">{Array.from({ length: hotbarSlots }, (_, slot) => {
+        const saved = (data.hotbar || []).find(entry => entry.slot === slot), entry = saved && visuals.get(`${saved.kind}:${saved.id}`);
+        return <button key={slot} disabled={locked} draggable={!!entry && !locked} onDragStart={event => dragBrush(event, entry)}
+          aria-label={`Слот ${slot + 1}${saved ? `: ${entry?.name || saved.id}` : ': пусто'}`}
+          title={saved ? `${entry?.name || saved.id} · ${saved.id}\nПКМ — очистить слот` : 'Перетащите прототип из каталога'}
+          className={`${entry && brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} ${hotbarDrop === slot ? 'drop' : ''}`}
+          onDragOver={event => { if (!locked && event.dataTransfer.types.includes('application/x-grid-editor-brush')) { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setHotbarDrop(slot); } }}
+          onDragLeave={() => setHotbarDrop(null)} onDrop={event => dropBrush(event, slot)}
+          onContextMenu={event => { event.preventDefault(); if (!locked && saved) act('hotbarSet', { slot }); }}
+          onClick={() => entry ? chooseBrush(entry) : openCatalog()}>
+          {entry ? <span className="GridEditor__sprite"><Sprite images={entry.images} color={entry.kind === 'decal' ? color : undefined} /></span> : <small>{slot + 1}</small>}
+        </button>;
+      })}</div>
+      <span className="GridEditor__quickHint">R — поворот</span>
+    </div>
     {errors && <div className="GridEditor__errorBanner" role="alert"><strong>Нельзя применить черновик</strong><span>{errors}</span></div>}
-    <footer><span className={errors || data.success === false ? 'error' : ''} role="status">{errors || (data.success === false && data.status) || (changes ? 'Черновик можно скачать без применения к grid' : data.status) || 'Изменения отправляются кнопкой «Применить»'}</span>
-      <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S · Сохранить текущий план в .yml, включая все несохранённые изменения и расширение. Объекты создаются по прототипам; настройки компонентов из раунда не переносятся.">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
-      <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'grid' })} title="Сохранить серверный grid со всеми настройками компонентов. Сначала примените черновик.">Исходный grid</button>
-      <button disabled={locked || !!changes || data.initialized} onClick={() => act('download', { scope: 'map' })} title="Скачать всю карту в .yml">Скачать карту</button>
-      <button className={data.alwaysPowered ? 'active' : ''} aria-pressed={!!data.alwaysPowered} disabled={pending}
-        onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })} title="Применяется сразу ко всему гриду и сохраняется в карте, включая черновик.">Автономное питание</button>
-      <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
-        onClick={() => act('setGridGravity', { enabled: !data.forceGravity })} title="Применяется сразу; генератор и электричество не требуются.">Постоянная гравитация</button>
-      <button className={atmosMode ? 'active' : ''} disabled={pending} onClick={() => setAtmosMode(!atmosMode)}>Атмосфера</button>
-      <button disabled={pending || !changes} onClick={() => { remember(); replaceEdits([]); update(copyItems(baseline), true); setSelected([]); setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>
+    <footer><span className={errors || data.success === false ? 'error' : ''} role="status">{errors || data.status || ''}</span>
+      <button disabled={pending || !changes} onClick={() => { remember(); const next = decalMode ? scopeDecalChanges(current.current, baseline, z) : copyItems(baseline); replaceEdits(decalMode ? trackLocalEdits(current.current, next, editsRef.current) : []); update(next, true); setSelected([]); if (!decalMode) setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>
       <button className="primary" disabled={locked || route.editing || !changes || !!errors} onClick={apply} title={route.editing?'Сначала завершите трассу кнопкой «Трассу в черновик»':undefined}>{pending ? 'Применение…' : 'Применить'}</button></footer>
     {contextMenu && <div className="GridEditor__contextBackdrop" onPointerDown={event => { if (event.target === event.currentTarget) { event.preventDefault(); setContextMenu(null); } }} onContextMenu={event => event.preventDefault()}>
       <div className="GridEditor__radial" role="dialog" aria-label="Меню клетки" style={{ left: contextMenu.x, top: contextMenu.y }}>

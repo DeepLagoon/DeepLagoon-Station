@@ -4,6 +4,7 @@ using Content.Client._DeepLagoon.WebUI;
 using Content.Shared._DeepLagoon.Tattoos;
 using Content.Shared.Humanoid;
 using Robust.Client.GameObjects;
+using Robust.Client.Utility;
 using Robust.Shared.Graphics.RSI;
 using Robust.Shared.Prototypes;
 using System.Text;
@@ -49,10 +50,12 @@ public sealed class TattooEditorData
 
     public TguiData Build(EntityUid target, List<Tattoo> tattoos, string status = "", bool machine = false)
     {
+        var banned = IoCManager.Resolve<Content.Client.Players.PlayTimeTracking.JobRequirementsManager>().TattoosBanned;
+        if (banned) status = TattooAccess.BanMessage;
         var entities = IoCManager.Resolve<IEntityManager>();
-        var data = new TguiData().String("status", status).Bool("machine", machine)
+        var data = new TguiData().String("status", status).Bool("machine", machine).Bool("banned", banned)
             .Bool("externalPngAllowed", TattooFileDialogs.CanImportExternalPng)
-            .Bool("disabled", !IoCManager.Resolve<IConfigurationManager>().GetCVar(TattooCVars.Enabled))
+            .Bool("disabled", banned || !IoCManager.Resolve<IConfigurationManager>().GetCVar(TattooCVars.Enabled))
             .Number("maxTattoos", Tattoo.MaxTattoos).Number("maxStrokes", Tattoo.MaxStrokes)
             .Number("maxPoints", Tattoo.MaxPoints).Number("maxLayers", Tattoo.MaxLayers)
             .Number("maxBitmapChars", Tattoo.MaxBitmapChars).Number("maxTattooBitmapChars", Tattoo.MaxTattooBitmapChars)
@@ -64,10 +67,10 @@ public sealed class TattooEditorData
         data.Array("parts", Tattoo.BodyParts.Where(part => TattooBody.Allows(humanoid, part, prototypes)).Select(part =>
         {
             var frames = new List<TguiData>();
-            if (sprite.LayerMapTryGet(part, out var index) && sprite[index].ActualRsi is { } rsi
-                && rsi.TryGetState(sprite[index].RsiState, out var state))
+            if (TattooBodyPreview.TrySource(humanoid, sprite, prototypes, part, out var index))
             {
-                var anatomyLayers = entities.System<Content.Client._DeepLagoon.BodyCustomization.BodyCustomizationVisualizerSystem>().LayerIndices(target, sprite, part);
+                var anatomyLayers = TattooBodyPreview.ContourLayers(humanoid, sprite, prototypes, part,
+                    entities.System<Content.Client._DeepLagoon.BodyCustomization.BodyCustomizationVisualizerSystem>().LayerIndices(target, sprite, part));
                 for (var direction = 0; direction < 4; direction++)
                 {
                     var key = TattooBodyPreview.Key(sprite, new[] { index }.Concat(anatomyLayers), direction);
@@ -87,7 +90,8 @@ public sealed class TattooEditorData
                         if (_bodyPreviews.Count >= 128) _bodyPreviews.Clear();
                         _bodyPreviews[previewKey] = preview;
                     }
-                    frames.Add(new TguiData().Number("direction", direction).String("image", png).String("previewImage", preview));
+                    frames.Add(new TguiData().Number("direction", direction).String("image", png).String("previewImage", preview)
+                        .Object("placement", Placement((SpriteComponent.Layer)sprite[index], direction)));
                 }
             }
             return new TguiData().String("id", part.ToString()).String("name", PartName(part))
@@ -95,6 +99,18 @@ public sealed class TattooEditorData
                 .Bool("covered", humanoid.HiddenLayers.ContainsKey(part)).Array("frames", frames);
         }));
         return data;
+    }
+
+    private static TguiData Placement(SpriteComponent.Layer layer, int direction)
+    {
+        var state = layer.ActualState!;
+        layer.GetLayerDrawMatrix(unchecked((RsiDirection)(state.RsiDirections == RsiDirectionType.Dir1 ? 0 : direction)).OffsetRsiDir(layer.DirOffset), out var matrix);
+        var a = matrix.M11 * state.Size.X / Robust.Client.Graphics.EyeManager.PixelsPerMeter;
+        var b = -matrix.M12 * state.Size.X / Robust.Client.Graphics.EyeManager.PixelsPerMeter;
+        var c = -matrix.M21 * state.Size.Y / Robust.Client.Graphics.EyeManager.PixelsPerMeter;
+        var d = matrix.M22 * state.Size.Y / Robust.Client.Graphics.EyeManager.PixelsPerMeter;
+        return new TguiData().Number("a", a).Number("b", b).Number("c", c).Number("d", d)
+            .Number("e", .5f + matrix.M31 - (a + c) / 2).Number("f", .5f - matrix.M32 - (b + d) / 2);
     }
 
     private static TguiData ToData(Tattoo t) => new TguiData().String("id", t.Id).String("part", t.BodyPart.ToString())

@@ -42,7 +42,7 @@ public sealed partial class DragDropSystem : SharedDragDropSystem
     [Dependency] private ActionBlockerSystem _actionBlockerSystem = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
-    [Dependency] private SharedTransformSystem _transformSystem = default!;
+    [Dependency] private TransformSystem _transformSystem = default!;
 
     // how often to recheck possible targets (prevents calling expensive
     // check logic each update)
@@ -246,6 +246,8 @@ public sealed partial class DragDropSystem : SharedDragDropSystem
             // pop up drag shadow under mouse
             var mousePos = _eyeManager.PixelToMap(screenPos);
             _dragShadow = EntityManager.SpawnEntity("dragshadow", mousePos);
+            if (Transform(_dragShadow.Value).MapUid is { } map)
+                _transformSystem.SetParent(_dragShadow.Value, map);
             var dragSprite = Comp<SpriteComponent>(_dragShadow.Value);
             dragSprite.CopyFrom(draggedSprite);
             dragSprite.RenderOrder = EntityManager.CurrentTick.Value;
@@ -254,7 +256,7 @@ public sealed partial class DragDropSystem : SharedDragDropSystem
             dragSprite.DrawDepth = (int) DrawDepth.Overlays;
             if (!dragSprite.NoRotation)
             {
-                _transformSystem.SetWorldRotationNoLerp(_dragShadow.Value, _transformSystem.GetWorldRotation(_draggedEntity.Value));
+                _transformSystem.SetWorldRotationNoLerp(_dragShadow.Value, _transformSystem.GetRenderWorldRotation(_draggedEntity.Value));
             }
 
             // drag initiated
@@ -559,6 +561,7 @@ public sealed partial class DragDropSystem : SharedDragDropSystem
         {
             var mousePos = _eyeManager.PixelToMap(_inputManager.MouseScreenPosition);
             _transformSystem.SetWorldPosition(_dragShadow.Value, mousePos.Position);
+            _transformSystem.SnapRenderTransform(_dragShadow.Value);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Content.Shared.Administration
     public sealed class PermissionsEuiState : EuiStateBase
     {
         public bool IsLoading;
+        public string? Error;
 
         public AdminData[] Admins = Array.Empty<AdminData>();
         public Dictionary<int, AdminRankData> AdminRanks = new();
@@ -19,6 +20,7 @@ namespace Content.Shared.Administration
             public string? UserName;
             public string? Title;
             public bool Suspended;
+            public bool Online;
             public AdminFlags PosFlags;
             public AdminFlags NegFlags;
             public int? RankId;
@@ -35,6 +37,9 @@ namespace Content.Shared.Administration
 
     public static class PermissionsEuiMsg
     {
+        [Serializable, NetSerializable]
+        public sealed class Refresh : EuiMessageBase;
+
         [Serializable, NetSerializable]
         public sealed class AddAdmin : EuiMessageBase
         {

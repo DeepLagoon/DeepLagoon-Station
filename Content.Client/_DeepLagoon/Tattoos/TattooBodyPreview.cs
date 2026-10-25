@@ -16,6 +16,21 @@ namespace Content.Client._DeepLagoon.Tattoos;
 /// <summary>Snapshots actual skin, markings and cosmetic anatomy, without clothing or ink.</summary>
 public static class TattooBodyPreview
 {
+    public static bool TrySource(HumanoidAppearanceComponent humanoid, SpriteComponent sprite, IPrototypeManager prototypes,
+        HumanoidVisualLayers part, out int index)
+    {
+        if (sprite.LayerMapTryGet(part, out index) && ((SpriteComponent.Layer)sprite[index]).ActualState != null) return true;
+        foreach (var layer in MarkingLayers(humanoid, sprite, prototypes, part, visibleOnly: true))
+            if (((SpriteComponent.Layer)sprite[layer]).ActualState != null) { index = layer; return true; }
+        index = -1;
+        return false;
+    }
+
+    public static int[] ContourLayers(HumanoidAppearanceComponent humanoid, SpriteComponent sprite, IPrototypeManager prototypes,
+        HumanoidVisualLayers part, IEnumerable<int> anatomy)
+        => anatomy.Concat(sprite.LayerMapTryGet(part, out var index) && ((SpriteComponent.Layer)sprite[index]).ActualState != null
+            ? Array.Empty<int>() : MarkingLayers(humanoid, sprite, prototypes, part, visibleOnly: true)).Distinct().ToArray();
+
     public static int[] MarkingLayers(HumanoidAppearanceComponent humanoid, SpriteComponent sprite,
         IPrototypeManager prototypes, HumanoidVisualLayers? part = null, bool visibleOnly = false)
     {
@@ -31,10 +46,10 @@ public static class TattooBodyPreview
         return layers.Order().ToArray();
     }
 
-    public static string Key(SpriteComponent sprite, IEnumerable<int> layers, int direction) => direction + "/" + sprite.Color.ToHex() + "/" +
+    public static string Key(SpriteComponent sprite, IEnumerable<int> layers, int direction, bool animation = true) => direction + "/" + sprite.Color.ToHex() + "/" +
         string.Join(';', layers.Select(i => {
             var l = (SpriteComponent.Layer)sprite[i];
-            return $"{l.ActualRsi?.Path}/{l.State}/{l.AnimationFrame}/{l.Color.ToHex()}/{l.Scale}/{l.Offset}/{l.Rotation}/{l.DirOffset}";
+            return $"{l.ActualRsi?.Path}/{l.State}/{(animation ? l.AnimationFrame : 0)}/{l.Color.ToHex()}/{l.Scale}/{l.Offset}/{l.Rotation}/{l.DirOffset}";
         }));
 
     public static Image<Rgba32> Render(SpriteComponent sprite, int bodyIndex, IEnumerable<int> markingIndices, int direction,
@@ -66,7 +81,7 @@ public static class TattooBodyPreview
         if (anatomyIndices != null)
         {
             layer.GetLayerDrawMatrix(unchecked((RsiDirection)DirectionFor(layer, direction)), out var matrix);
-            foreach (var index in anatomyIndices)
+            foreach (var index in anatomyIndices.Where(index => index != bodyIndex))
             {
                 var anatomy = (SpriteComponent.Layer)sprite[index];
                 if (anatomy.ActualState != null) Composite(skin, anatomy, DirectionFor(anatomy, direction), matrix, sprite);

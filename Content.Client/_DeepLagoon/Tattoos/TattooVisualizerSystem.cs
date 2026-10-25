@@ -60,7 +60,8 @@ public sealed partial class TattooVisualizerSystem : EntitySystem
     {
         var tattoos = Tattoo.Sanitize(humanoid.Tattoos);
         var key = Fingerprint(tattoos) + string.Join(';', tattoos.Select(t =>
-            sprite.LayerMapTryGet(t.BodyPart, out var index) ? $"{sprite[index].ActualRsi?.Path}/{sprite[index].RsiState}" : "missing"))
+            TattooBodyPreview.TrySource(humanoid, sprite, _prototypes, t.BodyPart, out var index)
+                ? TattooBodyPreview.Key(sprite, new[] { index }.Concat(TattooBodyPreview.MarkingLayers(humanoid, sprite, _prototypes, t.BodyPart, visibleOnly: true)), t.Direction, animation: false) : "missing"))
             + "/anatomy/" + string.Join(';', humanoid.BodyFeatures.Select(f => $"{f.Part}/{f.Enabled}/{f.Shape}/{f.Size}/{f.Visibility}/{f.SecondaryEnabled}/{f.SecondaryColor}"));
         var anatomy = EntityManager.System<Content.Client._DeepLagoon.BodyCustomization.BodyCustomizationVisualizerSystem>();
         var anatomyEnd = anatomy.LastLayerIndex(uid, sprite);
@@ -80,8 +81,8 @@ public sealed partial class TattooVisualizerSystem : EntitySystem
         {
             foreach (var tattoo in tattoos)
             {
-                if (!humanoid.BaseLayers.TryGetValue(tattoo.BodyPart, out var body) || !body.AllowsMarkings
-                    || !sprite.LayerMapTryGet(tattoo.BodyPart, out var target)) continue;
+                if (!TattooBody.Allows(humanoid, tattoo.BodyPart, _prototypes)
+                    || !TattooBodyPreview.TrySource(humanoid, sprite, _prototypes, tattoo.BodyPart, out var target)) continue;
                 var source = (SpriteComponent.Layer) sprite[target];
                 if (source.ActualRsi == null || source.ActualState is not { } state) continue;
                 // Skin RSI states are small. Keep custom/animated resources bounded too.
@@ -97,7 +98,7 @@ public sealed partial class TattooVisualizerSystem : EntitySystem
                     using var canvas = new Image<Rgba32>(state.Size.X, state.Size.Y, new Rgba32(255, 255, 255, 255));
                     using var ink = TattooRasterizer.Render(tattoo, glow, canvas);
                     var texture = Upload(ink, visuals);
-                    var anatomyLayers = anatomy.LayerIndices(uid, sprite, tattoo.BodyPart);
+                    var anatomyLayers = TattooBodyPreview.ContourLayers(humanoid, sprite, _prototypes, tattoo.BodyPart, anatomy.LayerIndices(uid, sprite, tattoo.BodyPart));
                     var anatomyTexture = texture;
                     if (anatomyLayers.Length > 0)
                     {
@@ -125,7 +126,7 @@ public sealed partial class TattooVisualizerSystem : EntitySystem
                     shader.SetParameter("directionCount", state.DelayCount);
                     shader.SetParameter("inkOpacity", 1f);
                     var layerKey = "dl-tattoo/" + tattoo.Id + "/" + glow;
-                    sprite.LayerMapTryGet(tattoo.BodyPart, out target);
+                    TattooBodyPreview.TrySource(humanoid, sprite, _prototypes, tattoo.BodyPart, out target);
                     // Recompute live indices: removing cached ink shifts anatomy and markings.
                     // Parts configured above clothing also keep their ink above those clothes.
                     var insertion = Math.Max(target + 1, Math.Max(anatomy.LastLayerIndex(uid, sprite),
@@ -177,8 +178,8 @@ public sealed partial class TattooVisualizerSystem : EntitySystem
         {
             var allowed = _players.LocalEntity == uid || (_cfg.GetCVar(TattooCVars.Enabled) && humanoid.TattoosEnabled);
             var visible = allowed && !humanoid.HiddenLayers.ContainsKey(part) && !humanoid.PermanentlyHidden.Contains(part)
-                && humanoid.BaseLayers.TryGetValue(part, out var body) && body.AllowsMarkings
-                && sprite.LayerMapTryGet(part, out var target) && sprite[target].Visible;
+                && TattooBody.Allows(humanoid, part, _prototypes)
+                && TattooBodyPreview.TrySource(humanoid, sprite, _prototypes, part, out var target) && sprite[target].Visible;
             if (sprite.LayerMapTryGet(key, out var index)) _sprites.LayerSetVisible((uid, sprite), index, visible);
         }
     }

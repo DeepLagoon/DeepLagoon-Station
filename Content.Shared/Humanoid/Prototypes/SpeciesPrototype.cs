@@ -51,6 +51,14 @@ public sealed partial class SpeciesPrototype : IPrototype
     [DataField]
     public ResPath? PlantigradeMarkings { get; private set; }
 
+    /// <summary>Use the selected leg markings to choose clothing displacement.</summary>
+    [DataField]
+    public bool MarkingLegShape { get; private set; }
+
+    /// <summary>Optional shared anchor for freely ordered anatomy markings, below clothing.</summary>
+    [DataField]
+    public HumanoidVisualLayers? BodyMarkingAnchor { get; private set; }
+
     /// <summary>
     ///     Default skin tone for this species. This applies for non-human skin tones.
     /// </summary>

@@ -452,6 +452,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                 var uid = _entManager.SpawnEntity(shaggy, spawnPosition);
                 _entManager.AddComponent<SalvageStructureComponent>(uid);
                 structureComp.Structures.Add(uid);
+                _entManager.GetComponent<SalvageExpeditionComponent>(mapUid).ObjectivesTotal++;
                 break;
             }
         }
@@ -476,6 +477,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         // not removing ghost role since its 1 megafauna, expect that you won't be able to cheese it.
         var eliminationComp = _entManager.EnsureComponent<SalvageEliminationExpeditionComponent>(gridUid);
         eliminationComp.Megafauna.Add(uid);
+        _entManager.GetComponent<SalvageExpeditionComponent>(gridUid).ObjectivesTotal++;
 
         // spawn less mobs than usual since there's megafauna to deal with too
         await SpawnMobsRandomRooms(mission, dungeon, faction, grid, random, 0.5f);

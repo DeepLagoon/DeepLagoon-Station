@@ -135,7 +135,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
             .ToList();
 
         vesselList.Sort((x, y) =>
-            string.Compare(x!.Name, y!.Name, StringComparison.CurrentCultureIgnoreCase));
+            string.Compare(x!.LocalizedName, y!.LocalizedName, StringComparison.CurrentCultureIgnoreCase));
         return vesselList;
     }
 
@@ -144,7 +144,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
     /// </summary>
     private void AddVesselsToControls(IEnumerable<VesselPrototype?> vessels, string search, bool free, bool canPurchase)
     {
-        foreach (var prototype in FuzzySearch.Rank(vessels, search, vessel => vessel?.Name)) // DeepLagoon: fuzzy search
+        foreach (var prototype in FuzzySearch.Rank(vessels, search, vessel => vessel?.LocalizedName)) // DeepLagoon: fuzzy search
         {
             // Filter any ships
             if (_category != null && !prototype!.Category.Equals(_category))
@@ -165,7 +165,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
             var vesselEntry = new VesselRow
             {
                 Vessel = prototype,
-                VesselName = { Text = prototype!.Name },
+                VesselName = { Text = prototype!.LocalizedName },
                 VesselDescription = { Text = prototype!.Description }, // Mono
                 Purchase = { Text = Loc.GetString("shipyard-console-purchase-available"), Disabled = !canPurchase },
                 Guidebook = { Disabled = prototype.GuidebookPage is null && !IoCManager.Resolve<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>().Read().Contains("vessel:" + prototype.ID), TooltipDelay = 0.2f, ToolTip = prototype.Description },

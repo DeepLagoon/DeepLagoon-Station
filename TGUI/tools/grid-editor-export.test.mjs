@@ -25,6 +25,13 @@ function tiles(doc) {
   return result;
 }
 
+test('draft export preserves the grid name, including Cyrillic, quotes and YAML punctuation', () => {
+  const gridName = 'Жилой модуль «Маяк»: палуба 2 #1';
+  const doc = load(exportGridDraft([floor(0, 0)], bounds, noExpansion, { gridName }));
+  assert.equal(gridComponents(doc).find(c => c.type === 'MetaData').name, gridName);
+  assert.equal(gridComponents(document([floor(0, 0)])).find(c => c.type === 'MetaData').name, 'grid');
+});
+
 test('draft YAML round-trips negative chunk boundaries and all tile metadata', () => {
   const positions = [-17, -16, -1, 0, 15, 16, 257];
   const input = positions.flatMap(x => positions.map(y => ({ ...floor(x, y, 'FloorSteel'), flags: 255, variant: 3, mirror: 7 })));
@@ -46,6 +53,8 @@ test('exports final snapshot: additions, removals, moved objects, exact rotation
   const table = doc.entities.find(group => group.proto === 'Table').entities[0];
   assert.deepEqual(table.components[0], { type: 'Transform', parent: 1, pos: '-0.5,0.5', rot: 90, anchored: true });
   const beaker = doc.entities.find(group => group.proto === 'Beaker').entities[0];
+  assert.equal(doc.gridEditorIds[table.uid], 'e:42', 'Existing native state must be matched by editor ID');
+  assert.equal(doc.gridEditorIds[beaker.uid], 'new_1');
   assert.equal(beaker.components[0].rot, 17.25); assert.notEqual(beaker.uid, table.uid);
   const decal = gridComponents(doc).find(c => c.type === 'DecalGrid').chunkCollection;
   assert.equal(decal.version, 2);

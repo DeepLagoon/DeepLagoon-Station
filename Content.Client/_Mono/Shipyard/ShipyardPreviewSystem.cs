@@ -42,13 +42,13 @@ public sealed class ShipyardPreviewSystem : EntitySystem
         try
         {
             using var reader = _resources.ContentFileReadText(vessel.ShuttlePath);
-            window.Panel.SetState("ShipyardPreview", BuildData(vessel, ShipyardPreviewScene.Read(reader)).ToString(), vessel.Name);
+            window.Panel.SetState("ShipyardPreview", BuildData(vessel, ShipyardPreviewScene.Read(reader)).ToString(), vessel.LocalizedName);
         }
         catch (Exception exception)
         {
             Log.Warning($"Unable to read preview for {vessel.ID}: {exception.Message}");
-            window.Panel.SetState("ShipyardPreview", new TguiData().String("name", vessel.Name)
-                .String("error", Loc.GetString("shipyard-preview-load-failed")).ToString(), vessel.Name);
+            window.Panel.SetState("ShipyardPreview", new TguiData().String("name", vessel.LocalizedName)
+                .String("error", Loc.GetString("shipyard-preview-load-failed")).ToString(), vessel.LocalizedName);
         }
         window.OpenCentered();
     }
@@ -62,7 +62,7 @@ public sealed class ShipyardPreviewSystem : EntitySystem
         var structures = objects.Where(item => Wall(definitions[item.Prototype]) || Door(definitions[item.Prototype])).ToList();
         var walls = new TguiWallImages(_images, objects, _prototypes);
         var equipment = objects.Except(structures).Concat(scene.Items.Where(item => item.Kind == "decal")).ToList();
-        return new TguiData().String("token", vessel.ID).String("name", vessel.Name).String("description", vessel.Description)
+        return new TguiData().String("token", vessel.ID).String("name", vessel.LocalizedName).String("description", vessel.Description)
             .Number("x", scene.X).Number("y", scene.Y).Number("width", scene.Width).Number("height", scene.Height)
             .Array("tiles", scene.Items.Where(item => item.Kind == "tile").Select(item => new TguiData().Number("x", item.X).Number("y", item.Y)))
             .Array("structures", structures.Select(item => new TguiData().Number("x", item.X).Number("y", item.Y)

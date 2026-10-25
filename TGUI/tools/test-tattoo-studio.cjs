@@ -7,7 +7,7 @@ const { randomUUID } = require('node:crypto');
 const playwright = require(process.env.TATTOO_PLAYWRIGHT || 'playwright');
 const root = path.resolve(__dirname, '../..');
 const assets = path.join(root, 'Resources/Web/DeepLagoon');
-const output = path.join(root, '.local/codex/apartment-templates/tattoo-qa');
+const output = path.join(root, '.local/codex/tattoo-editor/browser');
 fs.mkdirSync(output, { recursive: true });
 const torsoPng = fs.readFileSync(path.join(root, 'Resources/Textures/Mobs/Species/Human/parts.rsi/torso_m.png')).toString('base64');
 let masks;
@@ -53,6 +53,7 @@ const server = http.createServer((request, response) => {
     else if (action === 'tattoo-import' && tattoo && exportedTattoo) {
       tattoo.normalBitmap = exportedTattoo.normal; tattoo.glowBitmap = exportedTattoo.glow; tattoo.strokes = [];
     }
+    else if (action === 'window-maximize') state.maximized = args.value;
     else if (action === 'tattoo-clear') tattooData.tattoos = [];
     else if (action === 'tattoo-add') tattooData.tattoos.push({ id: randomUUID().replaceAll('-', ''), part: args.part, name: 'Грудь', direction: args.direction,
       x: .5, y: .5, scale: 1, rotation: 0, opacity: 1, strokes: [], normalBitmap: "", glowBitmap: "", mirrored: false });
@@ -225,8 +226,25 @@ const server = http.createServer((request, response) => {
     assert.equal(await page.getByRole('button', { name: /Завершить рисунок|Редактировать рисунок/, exact: true }).isDisabled(), true);
     state.disabled = false; await publish();
     await page.waitForFunction(() => [...document.querySelectorAll('button')].some(b => /Завершить рисунок|Редактировать рисунок/.test(b.textContent) && !b.disabled));
-    testInterface = 'CharacterEditor'; state = { available: true, mode: 'markings', tattooEditor: state };
+    state.disabled = true; state.banned = true; state.status = 'Доступ к системе татуировок заблокирован администрацией.'; await publish();
+    await page.getByText(state.status, { exact: true }).waitFor();
+    assert.equal(await page.getByRole('button', { name: 'Новая татуировка', exact: true }).isDisabled(), true);
+    assert.equal(await page.getByRole('button', { name: 'Сохранить PNG', exact: true }).isDisabled(), true);
+    state.disabled = state.banned = false; state.status = ''; await publish();
+    testInterface = 'CharacterEditor'; state = { available: true, mode: 'markings', setup: {}, tattooEditor: state };
     await publish();
+    const actions = page.locator('.CharacterEditor__headerActions');
+    assert.match(await actions.innerText(), /Сбросить[\s\S]*Развернуть[\s\S]*Закрыть/);
+    await actions.getByText('Развернуть', { exact: true }).click();
+    await actions.getByText('Свернуть', { exact: true }).waitFor();
+    await actions.getByText('Свернуть', { exact: true }).click();
+    await actions.getByText('Развернуть', { exact: true }).waitFor();
+    await page.setViewportSize({ width: 420, height: 760 });
+    const headerFits = await actions.evaluate(node => [...node.children].every(button => {
+      const bounds = button.getBoundingClientRect(); return bounds.left >= 0 && bounds.right <= window.innerWidth;
+    }));
+    assert.equal(headerFits, true, 'All five header actions must fit the minimum editor width');
+    await page.setViewportSize({ width: 920, height: 760 });
     const panel = page.locator('details.CharacterEditor__tattoos');
     await panel.waitFor();
     assert.equal(await panel.evaluate(node => node.open), false, 'Tattoo section starts collapsed');
@@ -234,13 +252,13 @@ const server = http.createServer((request, response) => {
       'A collapsed editor must not start a hidden drawing session');
     await panel.locator('summary').click();
     assert.equal(await panel.evaluate(node => node.open), true);
-    await page.getByRole('button', { name: 'Очистить все татуировки', exact: true }).click();
+    await page.getByText('Очистить все татуировки', { exact: true }).click();
     await page.waitForFunction(() => document.querySelector('details.CharacterEditor__tattoos summary')?.textContent === 'Татуировки (0)');
     assert.deepEqual(state.tattooEditor.tattoos, []);
     await page.getByRole('button', { name: 'Новая татуировка', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('details.CharacterEditor__tattoos summary')?.textContent === 'Татуировки (1)');
     await page.waitForFunction(() => document.body.textContent.includes('Завершить рисунок'));
-    await page.getByRole('button', { name: 'Очистить все татуировки', exact: true }).click();
+    await page.getByText('Очистить все татуировки', { exact: true }).click();
     await page.waitForFunction(() => !document.body.textContent.includes('Завершить рисунок'));
     assert.equal(await page.getByRole('button', { name: 'Новая татуировка', exact: true }).isDisabled(), false, 'Clear also discards the active drawing session');
     state.tattooEditor.parts.push({ ...state.tattooEditor.parts[0], id: 'Head', name: 'Голова' });
@@ -254,6 +272,7 @@ const server = http.createServer((request, response) => {
     await page.getByRole('button', { name: 'Завершить рисунок', exact: true }).waitFor();
     const head = state.tattooEditor.tattoos.at(-1);
     assert.equal(head.part, 'Head');
+    await page.locator('.TattooStudio__canvas').scrollIntoViewIfNeeded();
     const draw = await page.locator('.TattooStudio__canvas').boundingBox();
     await page.mouse.move(draw.x + draw.width / 2, draw.y + draw.height / 2);
     await page.mouse.down(); await page.mouse.move(draw.x + draw.width * .55, draw.y + draw.height * .55); await page.mouse.up();
@@ -268,9 +287,41 @@ const server = http.createServer((request, response) => {
     await region.click(); await page.keyboard.press('Escape');
     assert.equal(await page.getByRole('listbox', { name: 'Область татуировки' }).count(), 0);
     await page.screenshot({ path: path.join(output, 'body-part-dropdown.png'), fullPage: true });
+    const contextFrames = await page.evaluate(() => {
+      const mask = (x, y, width, height) => {
+        const c = document.createElement('canvas'); c.width = c.height = 32;
+        const ctx = c.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, width, height); return c.toDataURL();
+      };
+      const ink = color => {
+        const c = document.createElement('canvas'); c.width = c.height = 256;
+        const ctx = c.getContext('2d'); ctx.fillStyle = color; ctx.fillRect(0, 0, 256, 256); return c.toDataURL().split(',')[1];
+      };
+      return { chest: mask(10, 14, 12, 12), head: mask(13, 2, 6, 8), red: ink('#ff0000'), green: ink('#00ff00') };
+    });
+    testInterface = 'TattooStudio';
+    const makeInk = (id, part, png) => ({ id, part, name: part, direction: 0, x: .5, y: .5, scale: 1, rotation: 0, opacity: 1, strokes: [], normalBitmap: png, glowBitmap: '' });
+    state = { maxTattoos: 8, tattoos: [makeInk('head-context', 'Head', contextFrames.red), makeInk('chest-context', 'Chest', contextFrames.green)], parts: [
+      { id: 'Chest', name: 'Грудь', frames: [{ direction: 0, image: contextFrames.chest, previewImage: contextFrames.chest }] },
+      { id: 'Head', name: 'Голова', frames: [{ direction: 0, image: contextFrames.head, previewImage: contextFrames.head,
+        placement: { a: 1, b: 0, c: 0, d: 1, e: .1, f: .05 } }] },
+    ] };
+    await publish();
+    await page.waitForFunction(() => {
+      const ctx = document.querySelector('.TattooStudio__canvas')?.getContext('2d'); if (!ctx) return false;
+      const head = ctx.getImageData(307, 128, 1, 1).data, chest = ctx.getImageData(256, 320, 1, 1).data;
+      return head[0] > 250 && head[3] >= 54 && head[3] <= 58 && chest[1] > 250 && chest[3] === 255;
+    });
+    await page.getByRole('combobox', { name: 'Область татуировки', exact: true }).click();
+    await page.getByRole('option', { name: 'Голова', exact: true }).click();
+    await page.waitForFunction(() => {
+      const ctx = document.querySelector('.TattooStudio__canvas').getContext('2d');
+      const head = ctx.getImageData(256, 102, 1, 1).data, chest = ctx.getImageData(205, 294, 1, 1).data;
+      return head[0] > 250 && head[3] === 255 && chest[1] > 250 && chest[3] >= 54 && chest[3] <= 58;
+    });
+    await page.screenshot({ path: path.join(output, 'dimmed-body-context.png'), fullPage: true });
     assert.deepEqual(errors, []);
-    fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ passed: true, autoEditing: true, wheelZoom: true, panDuringEditing: true, unfinishedPlacement: true, temporaryLayers: true, painting70Strokes: true, reopenLayers: 1, noSavedHistory: true, maskLeaks: clipped, errors }, null, 2));
-    console.log('PASS: auto editing, wheel zoom, pan, unfinished placement, temporary layers, 70 strokes, bake, reopen, erase, undo reset, glow, mirror, copy, clipping, covered skin');
+    fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ passed: true, dimmedBodyParts: true, contextInk: true, bodyPlacement: true, maximizeRestoreButton: true, tattooBanUi: true, autoEditing: true, wheelZoom: true, panDuringEditing: true, unfinishedPlacement: true, temporaryLayers: true, painting70Strokes: true, reopenLayers: 1, noSavedHistory: true, maskLeaks: clipped, errors }, null, 2));
+    console.log('PASS: dimmed body and ink, body placement, maximize/restore, tattoo ban UI, auto editing, wheel zoom, pan, unfinished placement, temporary layers, 70 strokes, bake, reopen, erase, undo reset, glow, mirror, copy, clipping, covered skin');
   } catch (error) {
     console.error('Page errors:', errors);
     console.error('Rendered page:', await page.locator('body').innerText());

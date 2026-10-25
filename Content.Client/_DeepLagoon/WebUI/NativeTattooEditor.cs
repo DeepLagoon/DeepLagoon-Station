@@ -28,6 +28,7 @@ public sealed class NativeTattooEditor : BoxContainer
     {
         _state = data;
         // Server state/status changes must not destroy an unfinished local stroke recipe.
+        if (_state.Bool("banned")) { _strokes.Clear(); _points.Clear(); }
         if (!Dirty) Rebuild();
     }
     private void Rebuild()

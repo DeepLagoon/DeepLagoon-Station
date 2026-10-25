@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, resizeExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
+import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, resizeExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
@@ -448,4 +448,42 @@ test('mirrored rectangle erases destination-only decals even when the source rec
     const chair = { ...decal, id: 'hidden', kind: 'entity' };
     assert.deepEqual(eraseRectangle([decal, chair], rectangle, { decal: true }, mirror), [chair]);
   }
+});
+
+
+test('decal layer scopes protect floors, entities, and all other Z layers for every mutation', () => {
+  const floor={id:'t:0:0',kind:'tile',prototype:'Plating',x:0,y:0};
+  const entity={id:'e',kind:'entity',prototype:'Wall',x:.5,y:.5};
+  const decal={id:'d0',kind:'decal',prototype:'Stripe',x:0,y:0,z:0,color:'#2080a080',rotation:90,cleanable:true};
+  const other={...decal,id:'d2',z:2};
+  const original=[floor,entity,decal,other],layers={decal:true,decalZ:0};
+  assert.deepEqual(original.filter(item=>editableItem(item,layers)),[decal]);
+  const erased=eraseRectangle(original,{x:0,y:0,width:1,height:1},layers);
+  assert.deepEqual(erased,[floor,entity,other]);
+  assert.deepEqual(scopeDecalChanges(original,[],0),[floor,entity,other]);
+  const changed=scopeDecalChanges(original,[{...entity,x:9},{...other,color:'#ff0000'}, {...decal,x:1,color:'#ff004480'}],0);
+  assert.deepEqual(changed,[floor,entity,other,{...decal,x:1,color:'#ff004480'}]);
+  assert.deepEqual(decalTemplate(original,7),[{...decal,z:7},{...other,z:7}]);
+  const visual=()=>({images:[{url:'stripe'}]});
+  assert.deepEqual(itemsAtPoint(original,{x:.5,y:.5},layers,visual).map(item=>item.id),['d0']);
+});
+
+test('identical decals may occupy independent layers and keep independent color and alpha', () => {
+  const brush={kind:'decal',id:'Stripe'},cell=[{x:0,y:0}];
+  const base=stamp([],cell,brush,{...options,z:0,color:'#ffffffff'},nextId);
+  const stacked=stamp(base,cell,brush,{...options,z:2,color:'#2080a080'},nextId);
+  assert.equal(stacked.length,2);
+  assert.equal(stamp(stacked,cell,brush,{...options,z:2,color:'#2080a080'},nextId).length,2);
+  const pasted=insertTemplate(stacked,makeTemplate([{...stacked[0],z:3}]),{x:0,y:0},0,nextId);
+  assert.equal(pasted.length,3);
+  const reflected=mirrorChanges(stacked,stacked.filter(item=>item.z!==0),{enabled:true,axis:'x',center:.5},area,nextId);
+  assert.ok(reflected.some(item=>item.z===2));
+});
+
+
+test('wide decals use native dimensions for rotated bounds and pixel picking', () => {
+  const item={id:'wide',kind:'decal',prototype:'Banner',x:0,y:0,z:3,rotation:90};
+  const visual=()=>({images:[{url:'wide',width:64,height:32}]});
+  assert.equal(itemsAtPoint([item],{x:1,y:1.25},{decal:true,decalZ:3},visual).length,1);
+  assert.equal(itemsAtPoint([item],{x:.1,y:.5},{decal:true,decalZ:3},visual).length,0);
 });

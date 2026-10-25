@@ -1,4 +1,5 @@
 using System.Linq;
+using Robust.Client.Utility;
 using System.Reflection;
 using System.Text.Json;
 using Content.Client.Lobby;
@@ -28,6 +29,97 @@ public sealed class TattooIntegrationTests
         NormalBitmap = Content.Tests._DeepLagoon.TattooTests.Bitmap(),
         GlowBitmap = Content.Tests._DeepLagoon.TattooTests.Bitmap(true),
     };
+
+    [Test]
+    public async Task CharacterEditorMaximizeRestoresItsSizeAndPosition()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        CharacterEditorWindow window = null;
+        HumanoidProfileEditor editor = null;
+        await pair.Client.WaitPost(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>(); lobby.OpenCharacterEditor();
+            window = ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single();
+            editor = (HumanoidProfileEditor)typeof(LobbyUIController).GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+        });
+        await pair.RunTicksSync(5);
+        var size = System.Numerics.Vector2.Zero; var position = size;
+        await pair.Client.WaitAssertion(() =>
+        {
+            size = window.Size; position = window.Position;
+            Assert.That(editor.HandleTguiProfileAction("window-maximize", "{\"value\":true}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("window-maximize", "{\"value\":true}"), Is.True, "Repeated requests must be idempotent.");
+        });
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(window.Maximized, Is.True);
+            Assert.That(window.Size, Is.EqualTo(window.Parent!.Size));
+            Assert.That(window.Position, Is.EqualTo(System.Numerics.Vector2.Zero));
+            using var state = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
+            Assert.That(state.RootElement.GetProperty("maximized").GetBoolean(), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("window-maximize", "{\"value\":false}"), Is.True);
+        });
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(window.Maximized, Is.False);
+            Assert.That(window.Size, Is.EqualTo(size));
+            Assert.That(window.Position, Is.EqualTo(position));
+            window.CloseConfirmed();
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SyntheticMarkingShellsPublishTattooAreasAndRenderBothInkChannels()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity("MobSynthDummy", MapCoordinates.Nullspace);
+            try
+            {
+                var profile = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
+                var tattoo = Drawing(); profile.Appearance.Tattoos.Add(tattoo);
+                var appearance = entities.System<Content.Client.Humanoid.HumanoidAppearanceSystem>();
+                appearance.LoadProfile(uid, profile);
+                var humanoid = entities.GetComponent<HumanoidAppearanceComponent>(uid);
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                var data = new TattooEditorData();
+                using var state = JsonDocument.Parse(data.Build(uid, profile.Appearance.Tattoos).ToString());
+                var parts = state.RootElement.GetProperty("parts").EnumerateArray().ToArray();
+                Assert.That(parts.Length, Is.EqualTo(Tattoo.BodyParts.Length));
+                foreach (var part in parts)
+                {
+                    var frames = part.GetProperty("frames").EnumerateArray().ToArray();
+                    Assert.That(frames.Length, Is.EqualTo(4));
+                    var hasSkin = false;
+                    foreach (var frame in frames)
+                    {
+                        using var mask = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(Convert.FromBase64String(frame.GetProperty("image").GetString()!.Split(',')[1]));
+                        hasSkin |= mask.GetPixelSpan().ToArray().Any(pixel => pixel.A > 0);
+                        Assert.That(frame.GetProperty("previewImage").GetString(), Does.StartWith("data:image/png;base64,"));
+                        Assert.That(frame.GetProperty("placement").GetProperty("a").GetSingle(), Is.GreaterThan(0));
+                    }
+                    Assert.That(hasSkin, Is.True, $"{part.GetProperty("id").GetString()} must expose skin in at least one view; the far arm has an empty side frame.");
+                }
+                foreach (var glow in new[] { false, true })
+                {
+                    Assert.That(sprite.LayerMapTryGet($"dl-tattoo/{tattoo.Id}/{glow}", out var index), Is.True);
+                    Assert.That(sprite[index].Visible, Is.True);
+                    Assert.That(index, Is.GreaterThan(sprite.LayerMapGet("SynthHumanChest-torso_m")));
+                }
+                humanoid.PermanentlyHidden.Add(HumanoidVisualLayers.Chest);
+                using var hidden = JsonDocument.Parse(data.Build(uid, profile.Appearance.Tattoos).ToString());
+                Assert.That(hidden.RootElement.GetProperty("parts").EnumerateArray().Any(p => p.GetProperty("id").GetString() == "Chest"), Is.False);
+            }
+            finally { entities.DeleteEntity(uid); }
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [Test]
     public async Task OrdinaryAndLuminousLayersStayBelowClothingAndFollowHiddenBodyParts()

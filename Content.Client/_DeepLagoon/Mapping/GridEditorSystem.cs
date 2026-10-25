@@ -49,6 +49,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         _input.FirstChanceOnKeyEvent += EditorKey;
         SubscribeNetworkEvent<GridEditorStateEvent>(Open);
         SubscribeNetworkEvent<GridEditorPatchEvent>(Patch);
+        SubscribeNetworkEvent<GridEditorNameResult>(NameResult);
         SubscribeNetworkEvent<GridEditorAtmosResult>(AtmosResult);
         SubscribeNetworkEvent<GridEditorEnvironmentState>(EnvironmentState);
         SubscribeNetworkEvent<GridEditorDraftsEvent>(PeerDrafts);
@@ -56,6 +57,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             new TguiData().Object("data", new TguiData().String("status", ev.Message).Bool("success", ev.Success)
                 .Number("resultVersion", ++_resultVersion)).ToString()));
         SubscribeNetworkEvent<GridEditorFileEvent>(ReceiveFile);
+        SubscribeNetworkEvent<GridEditorDraftFileChunk>(ReceiveDraftFileAck);
     }
 
     public override void Shutdown() { _input.FirstChanceOnKeyEvent -= EditorKey; Close(true); base.Shutdown(); }
@@ -87,6 +89,7 @@ public sealed partial class GridEditorSystem : EntitySystem
 
     private void Open(GridEditorStateEvent ev)
     {
+        CancelDownload();
         _uploadId = null; _upload.Clear();
         _state = ev;
         _environmentState = null;
@@ -119,6 +122,8 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (_window == null || _state is not { } ev) return;
         var visuals = ev.Items.Select(i => (i.Kind, i.Prototype)).Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
         _window.Panel.SetState("GridEditor", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
+            .String("gridName", _environmentState?.GridName ?? "").Number("gridNameMaxLength", GridEditorNameRequest.MaxLength)
+            .String("gridNameError", "").Number("gridNameResultVersion", _nameResultVersion)
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
             .Bool("alwaysPowered", _environmentState?.AlwaysPowered ?? false).Bool("forceGravity", _environmentState?.ForceGravity ?? false)
@@ -132,11 +137,19 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (_state == null || _state.Token != state.Token) return;
         _environmentState = state;
         _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
-            .Bool("alwaysPowered", state.AlwaysPowered).Bool("forceGravity", state.ForceGravity)
+            .String("gridName", state.GridName).Bool("alwaysPowered", state.AlwaysPowered).Bool("forceGravity", state.ForceGravity)
             .Bool("safeAtmosphere", state.SafeAtmosphere).Bool("apartmentProtected", state.ApartmentProtected)).ToString());
     }
 
     private int _atmosVersion;
+    private int _nameResultVersion;
+    private void NameResult(GridEditorNameResult result)
+    {
+        if (_state == null || _state.Token != result.Token) return;
+        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            .Number("gridNameResultVersion", ++_nameResultVersion).String("gridNameError", result.Error)).ToString());
+    }
+
     private void AtmosResult(GridEditorAtmosResult ev)
     {
         if (_state == null || _state.Token != ev.Token) return;
@@ -197,10 +210,11 @@ public sealed partial class GridEditorSystem : EntitySystem
         }
         var spec = kind == "decal" ? _prototypes.Index<DecalPrototype>(id).Sprite :
             _prototypes.Index<ContentTileDefinition>(id).Sprite is { } path ? new SpriteSpecifier.Texture(path) : null;
+        var size = kind == "decal" && spec != null ? EntityManager.System<SpriteSystem>().Frame0(spec).Size : new Vector2i(32, 32);
         return data.Bool("allowRotationMirror", kind == "tile" && _prototypes.Index<ContentTileDefinition>(id).AllowRotationMirror)
             .Array("images", spec == null ? Array.Empty<TguiData>() :
             new[] { new TguiData().String("url", kind == "tile" && spec is SpriteSpecifier.Texture texture ?
-                _images.TileFrame(texture.TexturePath) : _images.Frame(spec)).String("color", "#ffffff") });
+                _images.TileFrame(texture.TexturePath) : _images.Frame(spec)).String("color", "#ffffff").Number("width", size.X).Number("height", size.Y) });
     }
 
     private static TguiData ItemData(GridEditorItem i) => new TguiData().String("id", i.Id).String("kind", i.Kind)
@@ -257,6 +271,11 @@ public sealed partial class GridEditorSystem : EntitySystem
             {
                 RaiseNetworkEvent(new GridEditorEnvironmentRequest(_state.Token,
                     action == "setGridPower" ? "power" : "gravity", Field(root, "enabled") == "true"));
+                return;
+            }
+            if (action == "setGridName")
+            {
+                RaiseNetworkEvent(new GridEditorNameRequest(_state.Token, Field(root, "name")));
                 return;
             }
             if (action is "diagnoseAtmos" or "fillAtmos")

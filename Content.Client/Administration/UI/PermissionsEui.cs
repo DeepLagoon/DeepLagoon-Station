@@ -31,6 +31,7 @@ namespace Content.Client.Administration.UI
 
         private Dictionary<int, PermissionsEuiState.AdminRankData> _ranks =
             new();
+        private PermissionsEuiState? _state;
 
         public PermissionsEui()
         {
@@ -39,6 +40,8 @@ namespace Content.Client.Administration.UI
             _menu = new Menu(this);
             _menu.AddAdminButton.OnPressed += AddAdminPressed;
             _menu.AddAdminRankButton.OnPressed += AddAdminRankPressed;
+            _menu.RefreshButton.OnPressed += _ => SendMessage(new Refresh());
+            _menu.Search.OnTextChanged += _ => { if (_state != null) RenderState(_state); };
             _menu.OnClose += CloseEverything;
         }
 
@@ -200,21 +203,48 @@ namespace Content.Client.Administration.UI
         public override void HandleState(EuiStateBase state)
         {
             var s = (PermissionsEuiState) state;
+            _menu.RefreshButton.Disabled = s.IsLoading;
+            _menu.AddAdminButton.Disabled = s.IsLoading || s.Error != null;
+            _menu.AddAdminRankButton.Disabled = s.IsLoading || s.Error != null;
+            _menu.Status.Text = s.IsLoading ? Loc.GetString("permissions-eui-loading") :
+                s.Error != null ? Loc.GetString(s.Error) :
+                Loc.GetString("permissions-eui-counts", ("admins", s.Admins.Length), ("ranks", s.AdminRanks.Count));
+            _menu.Status.ToolTip = _menu.Status.Text;
 
             if (s.IsLoading)
             {
                 return;
             }
 
+            _state = s;
+            RenderState(s);
+        }
+
+        private void RenderState(PermissionsEuiState s)
+        {
             _ranks = s.AdminRanks;
+            var search = _menu.Search.Text.Trim();
 
             _menu.AdminsList.RemoveAllChildren();
-            foreach (var admin in s.Admins.OrderBy(d => d.UserName))
+            foreach (var key in new[] { "player", "status", "title", "rank", "flags", "actions" })
+                _menu.AdminsList.AddChild(new Label { Text = Loc.GetString("permissions-eui-column-" + key), ClipText = key == "flags" });
+            foreach (var admin in s.Admins.OrderBy(d => d.UserName ?? d.UserId.ToString()))
             {
                 var al = _menu.AdminsList;
                 var name = admin.UserName ?? admin.UserId.ToString();
+                s.AdminRanks.TryGetValue(admin.RankId ?? NoRank, out var assignedRank);
+                var matches = name.Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
+                    admin.UserId.ToString().Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
+                    admin.Title?.Contains(search, System.StringComparison.OrdinalIgnoreCase) == true ||
+                    assignedRank.Name?.Contains(search, System.StringComparison.OrdinalIgnoreCase) == true;
+                if (!matches)
+                    continue;
 
-                al.AddChild(new Label { Text = name });
+                al.AddChild(new Label { Text = name, ToolTip = admin.UserId + "\n" +
+                    Loc.GetString(admin.Online ? "permissions-eui-online" : "permissions-eui-offline") +
+                    (admin.Suspended ? "\n" + Loc.GetString("permissions-eui-edit-admin-window-suspended") : "") });
+                al.AddChild(new Label { Text = Loc.GetString(admin.Suspended ? "permissions-eui-suspended" :
+                    admin.Online ? "permissions-eui-online" : "permissions-eui-offline") });
 
                 var titleControl = new Label { Text = admin.Title ?? Loc.GetString("permissions-eui-edit-admin-title-control-text").ToLowerInvariant() };
                 if (admin.Title == null) // none
@@ -227,10 +257,9 @@ namespace Content.Client.Administration.UI
                 bool italic;
                 string rank;
                 var combinedFlags = admin.PosFlags;
-                if (admin.RankId is { } rankId)
+                if (admin.RankId is { } rankId && s.AdminRanks.TryGetValue(rankId, out var rankData))
                 {
                     italic = false;
-                    var rankData = s.AdminRanks[rankId];
                     rank = rankData.Name;
                     combinedFlags |= rankData.Flags;
                 }
@@ -252,7 +281,9 @@ namespace Content.Client.Administration.UI
 
                 al.AddChild(new Label
                 {
-                    Text = flagsText,
+                    Text = string.Join(' ', AdminFlagsHelper.FlagsToNames((combinedFlags & ~admin.NegFlags))),
+                    ToolTip = string.Join(' ', AdminFlagsHelper.FlagsToNames(combinedFlags & ~admin.NegFlags)) + "\n" + flagsText,
+                    ClipText = true,
                     HorizontalExpand = true,
                     HorizontalAlignment = Control.HAlignment.Center,
                 });
@@ -269,14 +300,18 @@ namespace Content.Client.Administration.UI
             }
 
             _menu.AdminRanksList.RemoveAllChildren();
-            foreach (var kv in s.AdminRanks)
+            foreach (var kv in s.AdminRanks.OrderBy(r => r.Value.Name))
             {
                 var rank = kv.Value;
+                if (!rank.Name.Contains(search, System.StringComparison.OrdinalIgnoreCase))
+                    continue;
                 var flagsText = string.Join(' ', AdminFlagsHelper.FlagsToNames(rank.Flags).Select(f => $"+{f}"));
                 _menu.AdminRanksList.AddChild(new Label { Text = rank.Name });
                 _menu.AdminRanksList.AddChild(new Label
                 {
                     Text = flagsText,
+                    ToolTip = flagsText,
+                    ClipText = true,
                     HorizontalExpand = true,
                     HorizontalAlignment = Control.HAlignment.Center,
                 });
@@ -304,6 +339,9 @@ namespace Content.Client.Administration.UI
             public readonly GridContainer AdminRanksList;
             public readonly Button AddAdminButton;
             public readonly Button AddAdminRankButton;
+            public readonly Button RefreshButton;
+            public readonly LineEdit Search;
+            public readonly Label Status;
 
             public Menu(PermissionsEui ui)
             {
@@ -311,6 +349,10 @@ namespace Content.Client.Administration.UI
                 Title = Loc.GetString("permissions-eui-menu-title");
 
                 var tab = new TabContainer();
+                tab.VerticalExpand = true;
+                RefreshButton = new Button { Text = Loc.GetString("permissions-eui-refresh") };
+                Search = new LineEdit { PlaceHolder = Loc.GetString("permissions-eui-search"), HorizontalExpand = true };
+                Status = new Label { ClipText = true };
 
                 AddAdminButton = new Button
                 {
@@ -324,7 +366,7 @@ namespace Content.Client.Administration.UI
                     HorizontalAlignment = HAlignment.Right
                 };
 
-                AdminsList = new GridContainer { Columns = 5, VerticalExpand = true };
+                AdminsList = new GridContainer { Columns = 6, VerticalExpand = true, HorizontalExpand = true };
                 var adminVBox = new BoxContainer
                 {
                     Orientation = LayoutOrientation.Vertical,
@@ -343,7 +385,16 @@ namespace Content.Client.Administration.UI
                 tab.AddChild(adminVBox);
                 tab.AddChild(rankVBox);
 
-                Contents.AddChild(tab);
+                Contents.AddChild(new BoxContainer
+                {
+                    Orientation = LayoutOrientation.Vertical,
+                    Children =
+                    {
+                        new BoxContainer { Children = { Search, RefreshButton } },
+                        Status,
+                        tab
+                    }
+                });
             }
 
             protected override Vector2 ContentsMinimumSize => new Vector2(600, 400);

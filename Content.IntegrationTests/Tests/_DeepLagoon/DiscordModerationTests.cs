@@ -127,6 +127,37 @@ public sealed class DiscordModerationTests
             await database.AddAdminAsync(new DbAdmin { UserId = uid.UserId, Flags = new() });
             Assert.That((await Call("staff_add", new { Kind = "admin" })).GetProperty("error").GetString(), Is.EqualTo("staff_conflict"));
             Assert.That(await database.GetAdminDataForAsync(uid), Is.Not.Null);
+
+            Assert.That((await Call("staff_flags", new { Flag = "BAN", Mode = "grant" })).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            await database.AddAdminAsync(new DbAdmin { UserId = actor.UserId,
+                Flags = new() { new AdminFlag { Flag = "HOST" } } });
+            Assert.That((await Call("staff_flags", new { Flag = "BAN", Mode = "grant" }, other)).GetProperty("error").GetString(), Is.EqualTo("admin_not_found"));
+            foreach (var invalid in new[] { "NONE", "3", "BAN,HOST", "UNKNOWN" })
+                Assert.That((await Call("staff_flags", new { Flag = invalid, Mode = "grant" })).GetProperty("error").GetString(), Is.EqualTo("invalid_request"));
+            Assert.That((await Call("staff_flags", new { Flag = "BAN", Mode = "invalid" })).GetProperty("error").GetString(), Is.EqualTo("invalid_request"));
+            var target = (await database.GetAdminDataForAsync(uid))!;
+            target.AdminRankId = trial.AdminRankId;
+            target.Title = "Keep title";
+            target.Suspended = true;
+            target.Flags.Add(new AdminFlag { Flag = "DEBUG" });
+            await database.UpdateAdminAsync(target);
+            foreach (var mode in new[] { "deny", "deny", "grant", "inherit" })
+            {
+                var result = await Call("staff_flags", new { Flag = "ban", Mode = mode });
+                Assert.That(result.GetProperty("ok").GetBoolean(), Is.True);
+                target = (await database.GetAdminDataForAsync(uid))!;
+                Assert.That(target.AdminRankId, Is.EqualTo(trial.AdminRankId));
+                Assert.That(target.Title, Is.EqualTo("Keep title"));
+                Assert.That(target.Suspended, Is.True);
+                Assert.That(target.Flags.Count(f => f.Flag == "DEBUG" && !f.Negative), Is.EqualTo(1));
+                Assert.That(target.Flags.Count(f => f.Flag == "BAN"), Is.EqualTo(mode == "inherit" ? 0 : 1));
+                Assert.That(result.GetProperty("flags").EnumerateArray().Select(f => f.GetString()).Contains("BAN"), Is.EqualTo(mode != "deny"));
+            }
+            var restricted = (await database.GetAdminDataForAsync(actor))!;
+            restricted.Flags = new() { new AdminFlag { Flag = "PERMISSIONS" }, new AdminFlag { Flag = "BAN" } };
+            await database.UpdateAdminAsync(restricted);
+            Assert.That((await Call("staff_flags", new { Flag = "HOST", Mode = "grant" })).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            Assert.That((await Call("staff_flags", new { Flag = "BAN", Mode = "deny" })).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
         }
         finally
         {
