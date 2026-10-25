@@ -7,6 +7,18 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Head/Modsuits/ussp-varyag.rsi
+  - type: Clothing
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-vox
+  - type: SealableClothingVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-vox
   - type: Armor
     modifiers:
       coefficients:
@@ -56,6 +68,18 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Head/Modsuits/ussp-zastavnik.rsi
+  - type: Clothing
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-vox
+  - type: SealableClothingVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-vox
   - type: Armor
     modifiers:
       coefficients:
@@ -126,6 +150,18 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Head/Modsuits/rogue.rsi
+  - type: Clothing
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-vox
+  - type: SealableClothingVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-vox
   - type: Armor
     modifiers:
       coefficients:
@@ -280,6 +316,18 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Head/Modsuits/mercenary.rsi
+  - type: Clothing
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-vox
+  - type: SealableClothingVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-vox
   - type: RadarConsole
     followEntity: true
     noRotate: true

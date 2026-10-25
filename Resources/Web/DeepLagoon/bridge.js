@@ -101,7 +101,7 @@
         return;
       }
       // Only the explicitly supported TGUI messages enter the C# bridge.
-      if (value.type === 'ready' || value.type === 'close' || value.type === 'suspend' ||
+      if (value.type === 'ready' || value.type === 'close' || value.type === 'suspend' || value.type === 'health/presented' ||
           value.type?.startsWith('act/')) {
         send({ type: value.type === 'suspend' ? 'close' : value.type, payload: payload || {} });
       }

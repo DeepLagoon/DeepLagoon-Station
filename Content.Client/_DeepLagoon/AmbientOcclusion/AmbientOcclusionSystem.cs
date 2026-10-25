@@ -83,7 +83,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
         private readonly List<(EntityUid Uid, EntityUid Grid, Vector2 Position, Vector2 Size, float Alpha)> _movingObjects = new();
         private readonly HashSet<EntityUid> _dynamicCasters = new();
         private readonly List<EntityUid> _silhouetteCasters = new();
-        private readonly Dictionary<EntityUid, int> _casterLayers = new();
+        private readonly Dictionary<EntityUid, (int Layers, float Opacity)> _casterLayers = new();
         private OwnedTexture? _mobTexture;
         private readonly OverlayResourceCache<ContactTarget> _targets = new();
         private Matrix3x2 _targetTransform = Matrix3x2.Identity;
@@ -106,7 +106,8 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
         private readonly AmbientOcclusionVisibilityIndex _visibility = new();
         private readonly Dictionary<Vector2i, float[]> _contacts = new();
         private readonly Stack<float[]> _samples = new();
-        private const int MaxObjects = 512;
+        private int _maxObjects = CCVars.AmbientOcclusionMaxCasters.DefaultValue;
+        private float _drawDistance = CCVars.AmbientOcclusionDrawDistance.DefaultValue;
         private const int MaxContactTiles = 512;
         private readonly Dictionary<EntityUid, AmbientOcclusionMask> _masks = new();
         private readonly List<EntityUid> _unusedMasks = new();
@@ -131,6 +132,10 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             _legacy = mode == AmbientOcclusionProfileMode.Legacy;
             _silhouette = mode.HasValue ? mode == AmbientOcclusionProfileMode.Silhouette :
                 system._cfg.GetCVar(CCVars.AmbientOcclusionSilhouettes);
+            _maxObjects = Math.Clamp(system._cfg.GetCVar(CCVars.AmbientOcclusionMaxCasters),
+                AmbientOcclusionRange.MinCasters, AmbientOcclusionRange.MaxCasters);
+            _drawDistance = Math.Clamp(system._cfg.GetCVar(CCVars.AmbientOcclusionDrawDistance),
+                AmbientOcclusionRange.MinDistance, AmbientOcclusionRange.MaxDistance);
             var started = Timestamp();
             var viewport = args.Viewport;
             var handle = args.WorldHandle;
@@ -211,8 +216,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             else if (args.Viewport.Eye == null)
                 _objects.Clear();
             _stats.ContactMs += Elapsed(started);
-            if (_objects.Count > MaxObjects)
-                _objects.RemoveRange(MaxObjects, _objects.Count - MaxObjects);
+            ApplyCasterBudget();
             _movingObjects.Clear();
             _silhouetteCasters.Clear();
             var mobs = system.GetEntityQuery<MobStateComponent>();
@@ -366,16 +370,23 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             started = Timestamp();
             if (eye.DrawFov) UpdateVisibilityIndex();
             var mobs = system.GetEntityQuery<MobStateComponent>();
-            var count = 0;
-            foreach (var obj in _objects)
+            var write = 0;
+            for (var i = 0; i < _objects.Count; i++)
             {
+                var obj = _objects[i];
                 if (eye.DrawFov)
                 {
                     var blocked = _visibility.IsBlocked(eye.Position.Position, obj.Position, obj.Uid);
                     if (_measure) _stats.LosTests += _visibility.Tests;
                     if (blocked) continue;
                 }
-                if (count++ >= MaxObjects) break;
+                _objects[write++] = obj;
+                if (write >= _maxObjects) break;
+            }
+            _objects.RemoveRange(write, _objects.Count - write);
+            ApplyCasterBudget();
+            foreach (var obj in _objects)
+            {
                 if (mobs.HasComponent(obj.Uid)) _movingObjects.Add(obj);
                 else _silhouetteCasters.Add(obj.Uid);
             }
@@ -435,13 +446,13 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             foreach (var uid in _silhouetteCasters)
             {
                 if (!sprites.TryGetComponent(uid, out var sprite) || !transforms.TryGetComponent(uid, out var xform)) continue;
-                var layers = _casterLayers.GetValueOrDefault(uid);
+                var (layers, opacity) = _casterLayers.GetValueOrDefault(uid);
                 if (layers == 0) continue;
                 // Maximum blending also combines layers within the same sprite without extra darkness.
                 var worldRotation = system._transform.GetRenderWorldRotation((xform.Owner, xform));
                 var position = system._transform.GetRenderWorldPosition((xform.Owner, xform)) + offset;
                 var direction = sprite.EnableDirectionOverride ? sprite.DirectionOverride : (Direction?)null;
-                var core = new Color(0f, 0f, 0f, 0.16f * intensity);
+                var core = new Color(0f, 0f, 0f, 0.16f * intensity * opacity);
                 AmbientOcclusionSilhouette.Render(system._sprites, sprite, args.WorldHandle, eyeRotation,
                     worldRotation, position, direction, core, Blend, _targetTransform, scale);
                 if (_measure) _stats.Commands += layers * 2;
@@ -515,6 +526,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
             if (_measure) _stats.Candidates = _entities.Count;
             phaseStarted = Timestamp();
             var contactRotation = -(args.Viewport.Eye?.Rotation ?? Angle.Zero);
+            var eyePosition = args.Viewport.Eye?.Position.Position ?? args.WorldAABB.Center;
             var metas = system.GetEntityQuery<MetaDataComponent>();
             var transforms = system.GetEntityQuery<TransformComponent>();
             var sprites = system.GetEntityQuery<SpriteComponent>();
@@ -548,6 +560,9 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                     var wall = system._tags.HasTag(uid, "Wall");
                     if ((wall && !_silhouette) || (!wall && !_drawEntities)) continue;
                 }
+                var position = system._transform.GetRenderWorldPosition((xform.Owner, xform));
+                var opacity = AmbientOcclusionRange.GetOpacity(Vector2.Distance(position, eyePosition), _drawDistance);
+                if (opacity <= 0) continue;
                 var mob = mobs.HasComponent(uid);
                 var layers = 0;
                 foreach (var layer in sprite!.AllLayers)
@@ -560,7 +575,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                     if (!_silhouette || mob) break;
                 }
                 if (layers == 0) continue;
-                if (_silhouette && !mob) _casterLayers[uid] = layers;
+                if (_silhouette && !mob) _casterLayers[uid] = (layers, opacity);
 
                 // Mob animation must not change the footprint or require sprite bounds calculation.
                 var bounds = mob || _silhouette ? new Box2(-0.3f, -0.35f, 0.3f, 0.35f) :
@@ -572,27 +587,48 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                     new Vector2(Math.Clamp(bounds.Width * 0.9f, 0.2f, 2f),
                         Math.Clamp(bounds.Height * 0.9f, 0.15f, 2f));
                 // Billboard contact follows the sprite offset; mobs contact the floor near their feet.
-                var position = system._transform.GetRenderWorldPosition((xform.Owner, xform));
                 var contactOffset = sprite.Offset +
                     (mob ? new Vector2(0, bounds.Bottom + 0.18f) : Vector2.Zero);
                 if (contactOffset != Vector2.Zero)
                     position += contactRotation.RotateVec(contactOffset);
-                _objects.Add((uid, grid, position, size, sprite.Color.A * (mob ? 0.3f : 1f)));
+                _objects.Add((uid, grid, position, size, sprite.Color.A * (mob ? 0.3f : 1f) * opacity));
                 if (mob || !xform.Anchored) _dynamicCasters.Add(uid);
             }
 
             _stats.ProcessMs += Elapsed(phaseStarted);
             phaseStarted = Timestamp();
-            var eyePosition = args.Viewport.Eye?.Position.Position ?? args.WorldAABB.Center;
-            if (_legacy || _objects.Count > MaxObjects)
-                _objects.Sort((a, b) => Vector2.DistanceSquared(a.Position, eyePosition)
-                    .CompareTo(Vector2.DistanceSquared(b.Position, eyePosition)));
+            if (_legacy || _objects.Count > _maxObjects * 0.75f)
+                _objects.Sort((a, b) =>
+                {
+                    var distance = Vector2.DistanceSquared(a.Position, eyePosition)
+                        .CompareTo(Vector2.DistanceSquared(b.Position, eyePosition));
+                    return distance != 0 ? distance : a.Uid.CompareTo(b.Uid);
+                });
             _stats.SortMs += Elapsed(phaseStarted);
+            if (_legacy) ApplyCasterBudget();
             if (_measure)
             {
-                _stats.Objects = Math.Min(_objects.Count, MaxObjects);
+                _stats.Objects = Math.Min(_objects.Count, _maxObjects);
                 _stats.Blockers = _blockers.Count;
             }
+        }
+
+        private void ApplyCasterBudget()
+        {
+            var count = _objects.Count;
+            if (count <= _maxObjects * 0.75f)
+                return;
+
+            var retained = Math.Min(count, _maxObjects);
+            for (var i = 0; i < retained; i++)
+            {
+                var obj = _objects[i];
+                var opacity = AmbientOcclusionRange.GetBudgetOpacity(i, _maxObjects);
+                _objects[i] = obj with { Alpha = obj.Alpha * opacity };
+                if (_casterLayers.TryGetValue(obj.Uid, out var caster))
+                    _casterLayers[obj.Uid] = (caster.Layers, caster.Opacity * opacity);
+            }
+            _objects.RemoveRange(retained, count - retained);
         }
 
         internal static bool CanCastContact(bool visible, bool contained, float alpha, bool screenShader, int depth, bool puddle = false)
@@ -616,7 +652,7 @@ public sealed partial class AmbientOcclusionSystem : EntitySystem
                 return;
 
             var objects = moving ? _movingObjects : _objects;
-            var count = Math.Min(objects.Count, moving ? Math.Max(0, MaxObjects - Math.Min(_objects.Count, MaxObjects)) : MaxObjects);
+            var count = Math.Min(objects.Count, moving ? Math.Max(0, _maxObjects - Math.Min(_objects.Count, _maxObjects)) : _maxObjects);
             for (var i = 0; i < count; i++)
             {
                 var obj = objects[i];

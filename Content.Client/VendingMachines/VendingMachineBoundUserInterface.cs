@@ -80,7 +80,8 @@ namespace Content.Client.VendingMachines
             RefreshPaymentState();
             PushTguiState();
 
-            _menu?.Populate(_cachedInventory, _mod, _balance, _cashSlotBalance, _requiresCash);
+            if (_tguiWindow == null)
+                _menu?.Populate(_cachedInventory, _mod, _balance, _cashSlotBalance, _requiresCash);
         }
 
         private void RefreshPaymentState()

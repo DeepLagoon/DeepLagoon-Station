@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Concurrent;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Systems.Chat.Widgets;
 using Content.Shared._DeepLagoon.WebUI;
@@ -12,6 +13,44 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class TguiOptimizationTests
 {
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    [Test]
+    public async Task PresentationCoverRejectsStaleAndHiddenAcknowledgements()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var web = new GameWebView(gatePresentation: true);
+            pair.Client.ResolveDependency<IUserInterfaceManager>().WindowRoot.AddChild(web);
+            var cover = (Control) typeof(GameWebView).GetField("_presentationCover", Private)!.GetValue(web)!;
+            var incoming = (ConcurrentQueue<string>) typeof(GameWebView).GetField("_incoming", Private)!.GetValue(web)!;
+            var dispatch = typeof(GameWebView).GetMethod("DispatchIncoming", Private)!;
+            void Acknowledge(int presentation)
+            {
+                incoming.Enqueue("health%2Fpresented&" + Uri.EscapeDataString(new TguiData().Number("presentation", presentation).ToString()));
+                dispatch.Invoke(web, null);
+            }
+            // Headless does not paint CEF: exercise the content-side presentation protocol.
+            Assert.That(cover.Visible, Is.True);
+            Acknowledge(web.Presentation);
+            Assert.That(cover.Visible, Is.True, "A document that is not ready cannot reveal its texture");
+            typeof(GameWebView).GetField("_ready", Private)!.SetValue(web, true);
+            var old = web.Presentation;
+            web.InvalidatePresentation();
+            Acknowledge(old);
+            Assert.That(cover.Visible, Is.True);
+            web.Visible = false;
+            Acknowledge(web.Presentation);
+            Assert.That(cover.Visible, Is.True);
+            web.Visible = true;
+            Acknowledge(web.Presentation);
+            Assert.That(cover.Visible, Is.False);
+            web.InvalidatePresentation();
+            Assert.That(cover.Visible, Is.True, "Reopening must cover the previous frame again");
+            web.Orphan();
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [Test]
     public async Task ComposerReusesWindowRejectsStaleDraftsAndDisposesOnNativeFallback()

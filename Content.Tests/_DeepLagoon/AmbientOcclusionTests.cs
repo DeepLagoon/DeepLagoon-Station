@@ -9,6 +9,49 @@ namespace Content.Tests._DeepLagoon;
 [TestFixture]
 public sealed class AmbientOcclusionTests
 {
+    [TestCase(8f)]
+    [TestCase(24f)]
+    [TestCase(32f)]
+    public void ContactsFadeBeforeLeavingDrawDistance(float range)
+    {
+        var fadeWidth = Math.Min(4f, range * 0.2f);
+        Assert.That(AmbientOcclusionRange.GetOpacity(0, range), Is.EqualTo(1f));
+        Assert.That(AmbientOcclusionRange.GetOpacity(range - fadeWidth, range), Is.EqualTo(1f).Within(0.00001f));
+        Assert.That(AmbientOcclusionRange.GetOpacity(range - fadeWidth / 2, range), Is.EqualTo(0.5f).Within(0.00001f));
+        Assert.That(AmbientOcclusionRange.GetOpacity(range - 0.01f, range), Is.LessThan(0.001f));
+        Assert.That(AmbientOcclusionRange.GetOpacity(range, range), Is.Zero);
+        Assert.That(AmbientOcclusionRange.GetOpacity(range + 1, range), Is.Zero);
+    }
+
+    [TestCase(256)]
+    [TestCase(768)]
+    [TestCase(2048)]
+    public void BudgetFadeStartsBeforeOverflowAndKeepsNearbyContacts(int limit)
+    {
+        Assert.That(AmbientOcclusionRange.GetBudgetOpacity(0, limit), Is.EqualTo(1f));
+        Assert.That(AmbientOcclusionRange.GetBudgetOpacity(limit * 3 / 4 - 1, limit), Is.EqualTo(1f));
+        Assert.That(AmbientOcclusionRange.GetBudgetOpacity(limit * 7 / 8 - 1, limit), Is.EqualTo(0.5f));
+        Assert.That(AmbientOcclusionRange.GetBudgetOpacity(limit - 1, limit), Is.Zero);
+        Assert.That(AmbientOcclusionRange.GetBudgetOpacity(limit, limit), Is.Zero);
+    }
+
+    [Test]
+    public void MovingAcrossBudgetBoundaryDoesNotRemoveAnOpaqueShadow()
+    {
+        const int limit = 768;
+        var beforeCrossing = AmbientOcclusionRange.GetBudgetOpacity(limit - 2, limit);
+        var atBoundary = AmbientOcclusionRange.GetBudgetOpacity(limit - 1, limit);
+        var afterCrossing = AmbientOcclusionRange.GetBudgetOpacity(limit, limit);
+        Assert.That(beforeCrossing - atBoundary, Is.LessThan(0.001f));
+        Assert.That(atBoundary, Is.EqualTo(afterCrossing));
+        for (var i = 0; i < limit; i++)
+        {
+            var previous = AmbientOcclusionRange.GetBudgetOpacity(i, limit);
+            var next = AmbientOcclusionRange.GetBudgetOpacity(i + 1, limit);
+            Assert.That(previous - next, Is.InRange(0f, 0.01f));
+        }
+    }
+
     [TestCase(ContentDrawDepth.FloorObjects)]
     [TestCase(ContentDrawDepth.Objects)]
     [TestCase(ContentDrawDepth.Mobs)]

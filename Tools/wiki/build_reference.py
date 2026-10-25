@@ -24,6 +24,7 @@ from editorial_cleanup import clean_article, prepare_embeds, refresh_generated, 
 from prose_editorial import editorial_prose
 from weapon_reference import build_weapon_reference, CATALOGUES, PREFIX as WEAPONS_PREFIX
 from industrial_reference import build_industrial_reference
+from book_sources import BOOK_SOURCE_PATHS, DEFERRED_BOOKS
 
 
 EDITORIAL = {
@@ -146,6 +147,7 @@ def main():
     parser.add_argument('--station', type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument('--folder', type=Path, required=True)
     parser.add_argument('--design', type=Path, required=True)
+    parser.add_argument('--refresh-book-links', action='store_true', help='Rebuild reviewed book copies from their guide topics/wiki sources, including existing SOP copies; source articles and deferred books remain protected')
     args = parser.parse_args()
     station = args.station.resolve()
     output = args.folder.resolve()
@@ -353,7 +355,8 @@ def main():
             if html_content is not None:
                 html_content = filter_chemicals(html_content)
         old = snapshots.get(path)
-        if old and protected_page(path):
+        deferred_paths = {'guidebook/in_game/books/' + slug(key.removeprefix('Book')) for key in DEFERRED_BOOKS}
+        if old and protected_page(path) and not (book and args.refresh_book_links and path not in deferred_paths):
             pages.append({**{key: old[key] for key in ('path', 'title', 'id', 'description', 'content', 'scriptCss', 'editor', 'isPublished', 'isPrivate')},
                           'tags': [tag['tag'] for tag in old.get('tags', [])],
                           'beforeUpdatedAt': old.get('updatedAt'), 'markdown': '', 'prefix': '', 'suffix': '', 'sources': sources or [], 'preserveExact': True})
@@ -407,8 +410,9 @@ def main():
         components = data.components(identifier)
         book_guides = components.get('GuideHelp', {}).get('guides', [])
         chapters = []
-        for i, key in enumerate(book_guides, 1):
-            target = guide_path(key)
+        targets = BOOK_SOURCE_PATHS.get(identifier) or [guide_path(key) for key in book_guides]
+        for i, target in enumerate(targets, 1):
+            key = book_guides[min(i - 1, len(book_guides) - 1)]
             title = snapshots.get(target, {}).get('title', data.loc(data.get('guideEntry', key).get('name', key)))
             if target in docs and target in snapshots:
                 chapters.append(f'<section class="dl-chapter"><h2><span class="chapter">Глава {i}</span>{E(title)}</h2>\n\n' + body(target) + '\n\n</section>')

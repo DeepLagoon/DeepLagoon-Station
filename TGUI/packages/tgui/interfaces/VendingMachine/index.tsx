@@ -6,6 +6,7 @@ import { rank } from '../fuzzySearch';
 import { useIcon } from '../tguiIcons';
 import { CabinetWear } from './CabinetWear';
 import { BrandDisplay } from './BrandDisplay';
+import { ProductShelves } from './ProductShelves';
 import './VendingMachine.scss';
 
 type Item = {
@@ -84,9 +85,7 @@ export const VendingMachine = () => {
   const blocked = data.status === 'off' || data.status === 'broken' || data.status === 'busy';
   const status = data.status && data.status !== 'ready' ? t(data.status) : '';
   const quantity = (entry?: Stock) => !entry?.available ? t('unavailable') : entry.unlimited ? t('unlimited') : `${t('remaining')}: ${entry.amount}`;
-  const shelf = useRef<HTMLDivElement>(null);
   const cabinet = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (shelf.current) shelf.current.scrollTop = 0; }, [deferredQuery]);
 
   if (!data.items || !data.labels) return <div className="VendingMachine" aria-busy="true" />;
 
@@ -107,9 +106,9 @@ export const VendingMachine = () => {
       </div>
       <main className="VendingMachine__body">
         <section className="VendingMachine__glass" data-wear-protect="box" aria-label={t('catalogue')}>
-          <div className="VendingMachine__shelves" ref={shelf}>
-            <div className="VendingMachine__grid">
-              {filtered.map(item => {
+          <ProductShelves items={filtered} resetKey={deferredQuery}
+            empty={<p className="VendingMachine__empty" role="status">{t(items.length ? 'no-results' : 'empty')}</p>}
+            renderItem={item => {
                 const entry = stock.get(item.key);
                 const available = entry?.available === true;
                 return (
@@ -131,10 +130,7 @@ export const VendingMachine = () => {
                     </button>
                   </Tooltip>
                 );
-              })}
-              {!filtered.length && <p className="VendingMachine__empty" role="status">{t(items.length ? 'no-results' : 'empty')}</p>}
-            </div>
-          </div>
+              }} />
         </section>
         <aside className="VendingMachine__side" data-wear-protect="box" aria-label={t('preview')}>
           <div className="VendingMachine__display">

@@ -118,7 +118,7 @@ public sealed partial class TguiPanel : Control
         _inheritChatAppearance = inheritChatAppearance;
         _showWindowControls = showWindowControls;
         // All panels suspend while hidden, including native-only sessions. No hidden CEF windows.
-        Web = new GameWebView(suspendWhenHidden: true, captureKeyboard: captureKeyboard) { Visible = false };
+        Web = new GameWebView(suspendWhenHidden: true, captureKeyboard: captureKeyboard, gatePresentation: true) { Visible = false };
         Web.Sending += (type, payload) =>
         {
             if (_usingNative && _native != null) { _native.Receive(type, payload); return; }
@@ -164,6 +164,7 @@ public sealed partial class TguiPanel : Control
     public void SetState(string interfaceName, string dataJson, string title = "DeepLagoon")
     {
         if (_interface == interfaceName && _data == dataJson && _title == title) return;
+        if (_interface != interfaceName) Web.InvalidatePresentation();
         _interface = interfaceName;
         _data = dataJson;
         _title = title;
@@ -189,6 +190,7 @@ public sealed partial class TguiPanel : Control
         if (_usingNative) _native?.UpdateState(interfaceName, _data);
         if (previous == null || _interface != interfaceName || _title != title)
         {
+            if (_interface != interfaceName) Web.InvalidatePresentation();
             _interface = interfaceName;
             _title = title;
             Publish();
@@ -375,6 +377,7 @@ public sealed partial class TguiPanel : Control
         if (data.Length < 2 || data[0] != '{' || data[^1] != '}') data = "{}";
         Web.Send("update", "{\"replaceData\":true," + (_staticData == null ? "" : "\"replaceStaticData\":true,\"resetPartialData\":true,\"static_data\":" + _staticData + ",") +
             "\"config\":{\"interface\":" + GameWebView.Quote(_interface) +
+            ",\"presentation\":" + Web.Presentation +
             ",\"title\":" + GameWebView.Quote(_title) +
             ",\"status\":2,\"window\":{\"key\":\"deeplagoon\",\"fancy\":false}},\"data\":" + data[..^1] +
             (string.IsNullOrWhiteSpace(data[1..^1]) ? "" : ",") + "\"chatAppearance\":" + _chatAppearance + "}}");

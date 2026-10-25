@@ -15,7 +15,7 @@
       color: "#ffd900"
   - type: GuideHelp
     guides:
-    - USSP_Entry
+    - USSP_SoP
   - type: Tag
     tags:
     - Book
@@ -80,7 +80,7 @@
       color: "#ffffff"
   - type: GuideHelp
     guides:
-    - TSFMC_Entry
+    - TSFMC_SOP
   - type: Tag
     tags:
     - Book

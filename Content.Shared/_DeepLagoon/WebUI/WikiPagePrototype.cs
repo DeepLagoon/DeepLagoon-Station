@@ -13,6 +13,7 @@ public sealed partial class WikiPagePrototype : IPrototype
     [DataField(required: true)] public string Path = default!;
     [DataField] public bool Default;
     [DataField] public List<string> GuideEntries = new();
+    [DataField] public Dictionary<string, string> EntityRoutes = new();
 }
 
 [Serializable, NetSerializable]

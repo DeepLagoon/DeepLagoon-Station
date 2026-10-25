@@ -17,6 +17,9 @@ public sealed partial class VendingMachineBoundUserInterface
     private VendingMachineTguiWindow? _tguiWindow;
     private VendingMachineTguiData? _tguiData;
     private string _catalogueKey = "";
+    private string _inventoryKey = "";
+    private TguiData _stockData = new();
+    private static readonly HashSet<string> StockFields = new() { "stock" };
     private string _title = "";
     private bool _classic;
     private bool _hasBankAccount;
@@ -72,16 +75,21 @@ public sealed partial class VendingMachineBoundUserInterface
         if (_refreshWait < 0.25f)
             return;
         _refreshWait = 0;
-        Update();
+        RefreshPaymentState();
+        PushTguiState(inventoryChanged: false);
     }
 
-    private void PushTguiState()
+    private void PushTguiState(bool inventoryChanged = true)
     {
         if (_tguiWindow == null || _tguiData == null)
             return;
 
-        var key = _mod.ToString(CultureInfo.InvariantCulture) + ":" + _requiresCash + ":" +
-                  string.Join(',', _cachedInventory.Select(VendingMachineTguiData.Key));
+        if (inventoryChanged)
+        {
+            _inventoryKey = string.Join(',', _cachedInventory.Select(VendingMachineTguiData.Key));
+            _stockData = new TguiData().Array("stock", VendingMachineTguiData.Stock(_cachedInventory));
+        }
+        var key = _mod.ToString(CultureInfo.InvariantCulture) + ":" + _requiresCash + ":" + _inventoryKey;
         if (key != _catalogueKey)
         {
             _catalogueKey = key;
@@ -93,8 +101,8 @@ public sealed partial class VendingMachineBoundUserInterface
         if (EntMan.TryGetComponent<AppearanceComponent>(Owner, out var appearance))
             EntMan.System<SharedAppearanceSystem>().TryGetData(Owner, VendingMachineVisuals.VisualState, out visual, appearance);
 
-        _tguiWindow.Panel.SetIncrementalState("VendingMachine", new TguiData()
-            .String("title", _title).Array("stock", VendingMachineTguiData.Stock(_cachedInventory))
+        _tguiWindow.Panel.SetIncrementalState("VendingMachine", _stockData.SelectFields(StockFields)
+            .String("title", _title)
             .Bool("hasBankAccount", _hasBankAccount).String("balanceText", BankSystemExtensions.ToSpesoString(_balance))
             .Bool("acceptsCash", _acceptsCash).String("cashText", BankSystemExtensions.ToSpesoString(_cashSlotBalance))
             .Bool("requiresCash", _requiresCash).String("status", visual switch

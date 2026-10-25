@@ -4,6 +4,23 @@
   name: wiki-page-in-game
   path: /ru/in_game
   default: true
+  entityRoutes:
+    BookBartendersManual: /ru/guidebook/in_game/books/bartenders-manual
+    BookChemicalCompendium: /ru/guidebook/in_game/books/chemical-compendium
+    BookEngineersHandbook: /ru/guidebook/in_game/books/engineers-handbook
+    BookHowToCookForFortySpaceman: /ru/guidebook/in_game/books/how-to-cook-for-forty-spaceman
+    BookHowToKeepStationClean: /ru/guidebook/in_game/books/how-to-keep-station-clean
+    BookHowToRockAndStone: /ru/guidebook/in_game/books/how-to-rock-and-stone
+    BookHowToSurvive: /ru/guidebook/in_game/books/how-to-survive
+    BookLeafLoversSecret: /ru/guidebook/in_game/books/leaf-lovers-secret
+    BookMedicalReferenceBook: /ru/guidebook/in_game/books/medical-reference-book
+    BookScientistsGuidebook: /ru/guidebook/in_game/books/scientists-guidebook
+    BookSecurity: /ru/guidebook/in_game/books/security
+    BookSpaceEncyclopedia: /ru/guidebook/in_game/books/space-encyclopedia
+    BookSpaceLaw: /ru/guidebook/in_game/books/space-law
+    BookTSFSOP: /ru/guidebook/in_game/books/tsfsop
+    BookTheBookOfControl: /ru/guidebook/in_game/books/the-book-of-control
+    BookUSSPLaw: /ru/guidebook/in_game/books/ussplaw
 
 - type: wikiPage
   id: Rules

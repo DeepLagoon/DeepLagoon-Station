@@ -4,6 +4,8 @@ using System.Text;
 using Content.Shared._DeepLagoon.WebUI;
 using Robust.Shared.Configuration;
 using Robust.Client.UserInterface;
+using Robust.Client.Graphics;
+using Robust.Client.UserInterface.Controls;
 using Robust.Client.WebView;
 using Robust.Shared.Timing;
 
@@ -46,6 +48,14 @@ public sealed class GameWebView : Control
     private readonly bool _suspendWhenHidden;
     private readonly bool _captureKeyboard;
     private readonly NativeChatBackground _background;
+    private readonly PanelContainer? _presentationCover;
+    public int Presentation { get; private set; } = 1;
+
+    public void InvalidatePresentation()
+    {
+        Presentation++;
+        if (_presentationCover != null) _presentationCover.Visible = true;
+    }
     public bool BrowserActive => _view?.IsInsideTree == true;
     public bool IsReady => _ready;
     public event Action<string, string>? Message;
@@ -135,7 +145,7 @@ public sealed class GameWebView : Control
         SuspendBrowser();
     }
 
-    public GameWebView(bool chat = false, bool suspendWhenHidden = false, bool captureKeyboard = false)
+    public GameWebView(bool chat = false, bool suspendWhenHidden = false, bool captureKeyboard = false, bool gatePresentation = false)
     {
         _captureKeyboard = captureKeyboard;
         _suspendWhenHidden = suspendWhenHidden;
@@ -144,6 +154,17 @@ public sealed class GameWebView : Control
         // It draws nothing until the document publishes an enabled preset.
         _background = new NativeChatBackground();
         AddChild(_background);
+        if (gatePresentation)
+        {
+            // The signed WebView can draw uninitialized GPU memory before CEF's first paint.
+            // Keep drawing underneath the cover so the first real frame uploads normally.
+            _presentationCover = new PanelContainer
+            {
+                PanelOverride = new StyleBoxFlat(Color.FromHex("#171c24")),
+                MouseFilter = MouseFilterMode.Stop,
+            };
+            AddChild(_presentationCover);
+        }
 #if DEBUG
         _devOrigin = TguiDevelopmentPolicy.GetOrigin(IoCManager.Resolve<IConfigurationManager>().GetCVar(WebUiCVars.DevServer));
 #endif
@@ -233,6 +254,7 @@ public sealed class GameWebView : Control
         _healthFailed = false;
         _recovering = false;
         _background?.Reset();
+        InvalidatePresentation();
         _outgoing.Clear();
         while (_incoming.TryDequeue(out _)) { }
         _chunkPayload.Clear();
@@ -268,6 +290,7 @@ public sealed class GameWebView : Control
             {
                 _view ??= CreateView();
                 AddChild(_view);
+                _presentationCover?.SetPositionLast();
                 if (CanKeepWarm) _view.AlwaysActive = true;
             }
             catch (Exception e)
@@ -374,6 +397,12 @@ public sealed class GameWebView : Control
             if (type.Length > 68 || payload.Length > (type == "panel/state_set" ? 32768 : WebUiActionMessage.MaxPayloadLength)) continue;
             switch (type)
             {
+                case "health/presented":
+                    if (_ready && VisibleInTree && TguiActionData.TryParse(payload, out var presented) &&
+                        presented!.TryInt("presentation", out var presentation) && presentation == Presentation &&
+                        _presentationCover != null)
+                        _presentationCover.Visible = false;
+                    break;
                 case "ready":
                     // Vite may reload the document after an HTML/non-component edit.
                     // Keep the native window open and let its owner resend current state.
@@ -483,6 +512,7 @@ public sealed class GameWebView : Control
 
     private void KeepWarm()
     {
+        InvalidatePresentation();
         ReleaseTextInput();
         _view?.ReleaseKeyboardFocus();
         _warmSuspended = true;
@@ -513,6 +543,7 @@ public sealed class GameWebView : Control
 
     private void SuspendBrowser(bool recreate = true)
     {
+        InvalidatePresentation();
         ReleaseTextInput();
         if (_view == null) return;
         if (!WebViewCapabilities.NativeLifecycle)

@@ -8,11 +8,19 @@ toggle controls all contact shadows.
 
 ## Settings
 
-Graphics options provide the AO toggle, intensity (100–300%) and structure/mob
-contact toggle. Walls remain shaded when structure/mob contacts are disabled.
+Graphics options provide the AO toggle, intensity (100–300%), draw distance
+(8–32 meters), caster limit (256–2048) and structure/mob contact toggle.
+Walls remain shaded when structure/mob contacts are disabled.
 
 - `graphics.ambient_occlusion`: true by default.
 - `graphics.ambient_occlusion_intensity`: 300 by default.
+- `graphics.ambient_occlusion_draw_distance`: 24 meters by default, clamped to 8–32.
+  Distance is measured from the viewport eye to the caster in world units (one
+  meter is one standard tile). Contacts fade smoothly over the outer 20% of the
+  distance, up to four meters. The setting affects silhouettes and entity contacts;
+  diagnostic Mask/Legacy wall tile shading still covers the viewport.
+- `graphics.ambient_occlusion_max_casters`: 768 by default (previously a fixed 512),
+  clamped to 256–2048. Raising it keeps more shadows in dense scenes at a CPU/GPU cost.
 - `graphics.ambient_occlusion_entities`: true by default.
 - `graphics.ambient_occlusion_silhouettes`: true by default. Existing saved
   preferences take precedence; use `cvar graphics.ambient_occlusion_silhouettes true`
@@ -53,8 +61,13 @@ contained, detached, terminating and invisible entities are excluded. Current
 caster LOS is checked each frame. The visibility index is reused until blocker
 UIDs or exact bounds change, independent of enumeration order. Construction,
 destruction and visibility changes take effect on the next draw.
-At most 512 nearest visible casters are drawn. Distant contacts beyond the budget
-are omitted. No global sprite scan or timer-delayed visibility cache is used.
+At most the configured number of nearest visible casters are drawn. The farthest
+quarter of that budget fades smoothly by distance rank before being omitted. The
+fade does not shift when a single distant outlier leaves the viewport.
+Equal-distance candidates use a stable entity-ID tie break.
+Hidden casters do not consume the Silhouette/Mask budget. No global sprite scan or
+timer-delayed visibility cache is used. The draw distance cannot extend server PVS
+or reveal entities outside FOV.
 
 ## Diagnostics
 
@@ -69,7 +82,8 @@ processing and visibility-index reuse. AO CPU excludes deferred renderer/GPU wor
 Sequential phases may encounter different scene loads; FPS differences are not
 universal guarantees.
 
-`Content.Tests/_DeepLagoon/AmbientOcclusionTests.cs` checks puddle exclusion.
+`Content.Tests/_DeepLagoon/AmbientOcclusionTests.cs` checks puddle exclusion,
+non-stacking wall corners, draw-distance fading and smooth budget transitions.
 `node Tools/ambient-occlusion/render.test.cjs` runs the production shader bodies
 with stock blend factors in WebGL 1 / OpenGL ES 2. Set `PLAYWRIGHT_PATH` when
 Playwright is installed outside the normal Node module path. The checks cover

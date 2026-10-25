@@ -9,6 +9,8 @@ import './styles/main.scss';
 
 import { perf } from 'common/perf';
 import { setupHotReloading } from 'tgui-dev-server/link/client.cjs';
+import { useLayoutEffect } from 'react';
+import { sendMessage } from './backend';
 
 import { FindBar } from './components/FindBar';
 import { InterfaceErrorBoundary } from './components/InterfaceErrorBoundary';
@@ -30,6 +32,18 @@ window.__pushTguiDebugEvent__?.('bundleLoaded', {
 
 const store = configureStore();
 
+// Confirm a committed interface, then allow a paint before the native host reveals it.
+const PresentationReady = ({ presentation }) => {
+  useLayoutEffect(() => {
+    if (presentation === undefined) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => sendMessage({ type: 'health/presented', payload: { presentation } }));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [presentation]);
+  return null;
+};
+
 const getFindBarInstanceKey = () => {
   const backend = store.getState()?.backend;
   const windowKey = backend?.config?.window?.key || window.__windowId__ || 'tgui';
@@ -44,6 +58,7 @@ const renderApp = createRenderer(() => {
       <InterfaceErrorBoundary key={store.getState()?.backend?.config?.interface}>
         <Component />
       </InterfaceErrorBoundary>
+      <PresentationReady presentation={store.getState()?.backend?.config?.presentation} />
       <FindBar key={getFindBarInstanceKey()} />
     </>
   );

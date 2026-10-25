@@ -7,7 +7,7 @@ const path = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const repo = path.resolve(__dirname, '../..');
 const resources = path.join(repo, 'Resources/Web/DeepLagoon');
-const output = path.join(repo, 'TGUI/node_modules/.cache/vending-machine-browser');
+const output = path.join(repo, '.local/codex/tgui-cache/vending-machine-browser');
 fs.mkdirSync(output, { recursive: true });
 const labels = Object.fromEntries([...fs.readFileSync(path.join(repo, 'Resources/Locale/ru-RU/_DeepLagoon/vending.ftl'), 'utf8')
   .matchAll(/^dl-vending-([\w-]+)\s*=\s*(.+)$/gm)].map(match => [match[1], match[2].trim()]));
@@ -63,13 +63,15 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     }, images);
     await page.goto(`http://127.0.0.1:${server.address().port}/interface.html`);
     await page.waitForFunction(() => window.__tguiAppBooted__);
-    const publish = (dynamic, catalogue = items) => page.evaluate(({ dynamic, catalogue, labels }) => window.update(JSON.stringify({ type: 'update', payload: {
+    let presentation = 0;
+    const publish = (dynamic, catalogue = items) => page.evaluate(({ dynamic, catalogue, labels, presentation }) => window.update(JSON.stringify({ type: 'update', payload: {
       replaceData: true, replaceStaticData: true, resetPartialData: true,
-      config: { interface: 'VendingMachine', title: dynamic.title, status: 2, window: { key: 'deeplagoon', fancy: false } },
+      config: { interface: 'VendingMachine', title: dynamic.title, presentation, status: 2, window: { key: 'deeplagoon', fancy: false } },
       static_data: { items: catalogue, labels }, data: dynamic,
-    } })), { dynamic, catalogue, labels });
+    } })), { dynamic, catalogue, labels, presentation: ++presentation });
     const update = data => page.evaluate(data => window.update(JSON.stringify({ type: 'update', payload: { data } })), data);
     await publish(initial);
+    await page.waitForFunction(() => window.__sent.some(message => message.type === 'health/presented' && message.payload.presentation === 1));
     await page.locator('.VendingMachine__sprite img').first().waitFor();
     await page.waitForFunction(() => document.querySelector('.VendingMachine__wear').style.backgroundImage.includes('data:image/svg+xml'));
     await page.getByRole('heading', { name: 'Getmore', exact: true }).waitFor();
@@ -106,6 +108,8 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     const initialIcons = await page.evaluate(() => window.__sent.filter(message => message.type === 'act/icons').flatMap(message => message.payload.ids.split(',')));
     assert(initialIcons.length > 0 && initialIcons.length < 40, `Only visible icons requested, got ${initialIcons.length}`);
     report.initialIcons = initialIcons.length;
+    report.initialProducts = await page.locator('.VendingMachine__product').count();
+    assert(report.initialProducts > 0 && report.initialProducts < 30, 'Only viewport shelves are mounted');
     const buttons = page.locator('.VendingMachine__product');
     await buttons.nth(1).hover();
     await page.locator('.Tooltip').filter({ hasText: 'Описание товара' }).waitFor();
@@ -161,13 +165,18 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     assert.equal(await page.locator('.VendingMachine__balance').textContent(), '800 $');
     assert.equal(await page.locator('.VendingMachine h2').textContent(), 'Боритос', 'Balance updates preserve selection');
     await page.locator('.VendingMachine__toolbar input').fill('');
-    await page.waitForFunction(() => document.querySelectorAll('.VendingMachine__product').length === 145);
+    await page.waitForFunction(() => document.querySelector('.VendingMachine__count').textContent === '145 / 145');
+    assert(await buttons.count() < 30);
     await page.locator('.VendingMachine__shelves').evaluate(element => { element.scrollTop = element.scrollHeight; });
     await page.waitForFunction(count => window.__sent.filter(message => message.type === 'act/icons').flatMap(message => message.payload.ids.split(',')).length > count, initialIcons.length);
     const loaded = await page.evaluate(() => window.__sent.filter(message => message.type === 'act/icons').flatMap(message => message.payload.ids.split(',')));
     assert.equal(new Set(loaded).size, loaded.length, 'Each icon is requested once, including the same prototype in different inventories');
     assert(loaded.length < 144, 'Scrolling directly to the bottom must not decode the entire catalogue');
     report.iconsAfterScroll = loaded.length;
+    await page.waitForFunction(() => [...document.querySelectorAll('.VendingMachine__product')].some(element => element.textContent.includes('ZZ1')));
+    await buttons.filter({ hasText: 'ZZ1' }).click();
+    await page.locator('.VendingMachine__buy').click();
+    assert.deepEqual(await page.evaluate(() => { const {id,type}=window.__sent.filter(message => message.type === 'act/vend').at(-1).payload; return {id,type}; }), { id: 'FoodSnack0', type: 2 });
 
     // Actual window sizes, including low resolutions and high UI scaling.
     const layouts = [];
@@ -196,11 +205,28 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
       layouts.push([width,height]);
     }
     report.layouts = layouts;
+    // Thousands of items still mount only a few shelves; search and direct bottom scrolling reach all items.
+    const heavy = Array.from({ length: 6000 }, (_, index) => ({ ...items[index % 144], key: `0:Heavy${index}`, id: `Heavy${index}`, code: `H${index}` }));
+    await page.setViewportSize({ width:760, height:660 });
+    await publish({ ...initial, stock: heavy.map(item => ({ key:item.key, available:true, amount:'12' })) }, heavy);
+    await page.waitForFunction(() => document.querySelector('.VendingMachine__count').textContent === '6000 / 6000');
+    report.heavyCatalogue = { items:heavy.length, mounted:await buttons.count() };
+    assert(await buttons.count() < 30, 'A 6000-item catalogue keeps the DOM bounded');
+    await page.locator('.VendingMachine__shelves').evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await buttons.filter({ hasText:'H5999' }).waitFor();
+    report.heavyCatalogue.mountedAtBottom = await buttons.count();
+    assert(await buttons.count() < 30);
+    await page.locator('.VendingMachine__toolbar input').fill('H4321');
+    await buttons.filter({ hasText:'H4321' }).click();
+    await page.locator('.VendingMachine__buy').click();
+    assert.equal(await page.evaluate(() => window.__sent.filter(message => message.type === 'act/vend').at(-1).payload.id), 'Heavy4321');
+    await page.waitForFunction(presentation => window.__sent.some(message => message.type === 'health/presented' && message.payload.presentation === presentation), presentation);
+    await page.locator('.VendingMachine__toolbar input').fill('');
     await page.setViewportSize({ width:760, height:660 });
     await publish(initial, items.slice(0,12));
     await page.locator('.VendingMachine__shelves').evaluate(element => element.scrollTop = 0);
-    await page.locator('.VendingMachine__details-body').evaluate(element => element.scrollTop = 0);
     await buttons.nth(1).click();
+    await page.locator('.VendingMachine__details-body').evaluate(element => element.scrollTop = 0);
     await page.waitForTimeout(240);
     // Keep the cell lit while removing only the transient tooltip from the comparison capture.
     await page.locator('.Tooltip').evaluateAll(elements=>elements.forEach(element=>element.style.visibility='hidden'));
