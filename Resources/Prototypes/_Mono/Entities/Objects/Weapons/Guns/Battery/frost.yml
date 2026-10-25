@@ -45,10 +45,10 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 75
-      name: disable
+      name: "оглушение"
     - proto: BulletEnergyGunLaser
       fireCost: 150
-      name: lethal
+      name: "летальный"
   - type: MagazineVisuals
     magState: mag
     steps: 4

@@ -1,19 +1,19 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BluespaceDungeonBase = Colossus Sector Bluespace Monitoring
+ent-BluespaceDungeonBase = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BaseStationEventShortDelay.desc }
 
-ent-BluespaceDungeonBasalt = { ent-BluespaceDungeonBase }
+ent-BluespaceDungeonBasalt = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BluespaceDungeonBase.desc }
 
-ent-BluespaceDungeonSnow = { ent-BluespaceDungeonBase }
+ent-BluespaceDungeonSnow = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BluespaceDungeonBase.desc }
 
-ent-BluespaceDungeonCave = { ent-BluespaceDungeonBase }
+ent-BluespaceDungeonCave = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BluespaceDungeonBase.desc }
 
-ent-BluespaceDungeonChromite = { ent-BluespaceDungeonBase }
+ent-BluespaceDungeonChromite = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BluespaceDungeonBase.desc }
 
-ent-BluespaceDungeonScrap = { ent-BluespaceDungeonBase }
+ent-BluespaceDungeonScrap = Блюспейс-мониторинг сектора Колосс
     .desc = { ent-BluespaceDungeonBase.desc }

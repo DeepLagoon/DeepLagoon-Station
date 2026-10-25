@@ -115,7 +115,7 @@ ent-CrateSyndicate = ящик Синдиката
     .desc = Стальной ящик тёмного цвета с красными полосами и выдавленной на передней панели литерой S.
 
 ent-CrateTrashCart = мусорная тележка
-    .desc = { ent-StructureWheeled.desc }
+    .desc = { ent-CrateBaseWeldable.desc }
 
 ent-CrateTrashCartJani = мусорная тележка уборщика
     .desc = { ent-CrateBaseSecure.desc }

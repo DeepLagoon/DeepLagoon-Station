@@ -55,7 +55,7 @@
     speed: 120
   - type: NavMapBeacon
     color: "#ff0000"
-    text: nuclear fission explosive
+    text: "ядерное взрывное устройство"
     enabled: false
   - type: NukeLabel
     prefix: nuke-label-neutral

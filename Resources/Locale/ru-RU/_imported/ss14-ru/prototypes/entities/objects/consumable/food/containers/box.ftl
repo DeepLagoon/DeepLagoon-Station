@@ -11,15 +11,15 @@ ent-EggBoxBroken = { ent-FoodContainerEgg }
     .desc = { ent-FoodContainerEgg.desc }
 
 ent-FoodBoxPizza = коробка пиццы
-    .desc = { ent-BaseItem.desc }
+    .desc = Картонная коробка для хранения вещей.
 
 ent-FoodBoxPizzaFilled = коробка пиццы
     .suffix = Заполненная
-    .desc = { ent-FoodBoxPizza.desc }
+    .desc = Картонная коробка для хранения вещей.
 
 ent-FoodBoxPizzaCotton = коробка пиццы
     .suffix = Хлопковая
-    .desc = { ent-FoodBoxPizzaFilled.desc }
+    .desc = Картонная коробка для хранения вещей.
 
 ent-FoodBoxNugget = куриные наггетсы
     .desc = У вас внезапно возникло желание торговать на межгалактическом фондовом рынке.

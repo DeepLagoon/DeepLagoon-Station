@@ -8,55 +8,55 @@
 - type: tile
   id: LatticeCornerNE
   parent: Lattice
-  name: NE lattice
+  name: prototype-text-tile-LatticeCornerNE-name-6b476731ab
   sprite: /Textures/_Mono/Tiles/lattice/ne.png
   vertices: ["1, 0", "1, 1", "0, 1"]
 
 - type: tile
   id: LatticeCornerNW
   parent: Lattice
-  name: NW lattice
+  name: prototype-text-tile-LatticeCornerNW-name-526791a5fc
   sprite: /Textures/_Mono/Tiles/lattice/nw.png
   vertices: ["0, 0", "1, 1", "0, 1"]
 
 - type: tile
   id: LatticeCornerSE
   parent: Lattice
-  name: SE lattice
+  name: prototype-text-tile-LatticeCornerSE-name-0b9bdaff33
   sprite: /Textures/_Mono/Tiles/lattice/se.png
   vertices: ["0, 0", "1, 0", "1, 1"]
 
 - type: tile
   id: LatticeCornerSW
   parent: Lattice
-  name: SW lattice
+  name: prototype-text-tile-LatticeCornerSW-name-bea7afef0a
   sprite: /Textures/_Mono/Tiles/lattice/sw.png
   vertices: ["0, 0", "1, 0", "0, 1"]
 
 - type: tile
   id: PlatingCornerNE
   parent: PlatingSpace
-  name: NE plating
+  name: prototype-text-tile-PlatingCornerNE-name-8c96f8bf38
   sprite: /Textures/_Mono/Tiles/plating/ne.png
   vertices: ["1, 0", "1, 1", "0, 1"]
 
 - type: tile
   id: PlatingCornerNW
   parent: PlatingSpace
-  name: NW plating
+  name: prototype-text-tile-PlatingCornerNW-name-3215aa11bc
   sprite: /Textures/_Mono/Tiles/plating/nw.png
   vertices: ["0, 0", "1, 1", "0, 1"]
 
 - type: tile
   id: PlatingCornerSE
   parent: PlatingSpace
-  name: SE plating
+  name: prototype-text-tile-PlatingCornerSE-name-5b22ca0d92
   sprite: /Textures/_Mono/Tiles/plating/se.png
   vertices: ["0, 0", "1, 0", "1, 1"]
 
 - type: tile
   id: PlatingCornerSW
   parent: PlatingSpace
-  name: SW plating
+  name: prototype-text-tile-PlatingCornerSW-name-48a529301d
   sprite: /Textures/_Mono/Tiles/plating/sw.png
   vertices: ["0, 0", "1, 0", "0, 1"]

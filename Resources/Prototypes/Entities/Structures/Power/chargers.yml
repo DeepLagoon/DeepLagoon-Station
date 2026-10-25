@@ -137,7 +137,7 @@
     slots:
       charger_slot:
         ejectOnInteract: true
-        name: Power cage
+        name: prototype-text-entity-PowerCageRecharger-name-5ad1427037
         whitelist:
           tags:
           - PowerCage

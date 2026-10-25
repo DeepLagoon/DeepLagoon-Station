@@ -8,7 +8,7 @@
     stripTime: 6
     uiWindowPos: 2,1
     strippingWindowPos: 2,4
-    displayName: ID
+    displayName: "ID-карта"
   - name: id
     slotTexture: id
     fullTextureName: template_small
@@ -17,7 +17,7 @@
     stripTime: 6
     uiWindowPos: 2,2
     strippingWindowPos: 2,3
-    displayName: ID
+    displayName: "ID-карта"
   - name: pocket1 # Goobstation - Pocket 1
     slotTexture: pocket
     fullTextureName: template_small
@@ -26,7 +26,7 @@
     stripTime: 3
     uiWindowPos: 0,3
     strippingWindowPos: 0,4
-    displayName: Pocket 1
+    displayName: "Карман 1"
     stripHidden: true
   - name: pocket2 # Goobstation - Pocket 2
     slotTexture: pocket
@@ -36,7 +36,7 @@
     stripTime: 3
     uiWindowPos: 2,3
     strippingWindowPos: 1,4
-    displayName: Pocket 2
+    displayName: "Карман 2"
     stripHidden: true
   - name: pocket3 # Goobstation - Pocket 3
     slotTexture: pocket
@@ -46,7 +46,7 @@
     stripTime: 3
     uiWindowPos: 4,3
     strippingWindowPos: 2,4
-    displayName: Pocket 3
+    displayName: "Карман 3"
     stripHidden: true
   - name: pocket4 # Goobstation - Pocket 4
     slotTexture: pocket
@@ -56,7 +56,7 @@
     stripTime: 3
     uiWindowPos: 6,3
     strippingWindowPos: 3,4
-    displayName: Pocket 4
+    displayName: "Карман 4"
     stripHidden: true
 
   # For drip reasons.
@@ -65,16 +65,16 @@
     slotFlags: HEAD
     uiWindowPos: 0,3 # Goobstation - Moved up slightly
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
   - name: neck # Goobstation - For drip reasons.
     slotTexture: neck
     slotFlags: NECK
     uiWindowPos: 0,2
     strippingWindowPos: 0,1
-    displayName: Neck
+    displayName: "Шея"
   - name: mask
     slotTexture: mask
     slotFlags: MASK
     uiWindowPos: 0,1
     strippingWindowPos: 1,1
-    displayName: Mask
+    displayName: "Маска"

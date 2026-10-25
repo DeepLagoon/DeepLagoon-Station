@@ -527,7 +527,7 @@
   - type: ItemSlots
     slots:
       item:
-        name: Sabre
+        name: prototype-text-entity-ClothingBeltSheath-name-20880c7c72
         insertVerbText: sheath-insert-verb
         ejectVerbText: sheath-eject-verb
         insertSound: /Audio/Items/sheath.ogg

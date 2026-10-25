@@ -3,7 +3,7 @@
   id: Spekter
   parent: BaseVesselIFFDisabled
   name: TSF-SKR Spekter
-  description: Nuclear-powered guided-missile corvette for killing anything smaller than a full-on battlecruiser. Equipped with 6 ASM-220 Trident VLS racks and light point-defense.
+  description: "Ракетный корвет с ядерной силовой установкой для уничтожения всего, что меньше полноценного линейного крейсера. Оснащён шестью вертикальными пусковыми установками ASM-220 Trident и лёгкими средствами точечной обороны."
   price: 500000
   purchasable: false # voucher only - t2
   category: Medium

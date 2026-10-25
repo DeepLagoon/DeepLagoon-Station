@@ -54,7 +54,6 @@ export function useGridEditorReference({ data, act, area, viewport, canvas, cell
       <label>Прозрачность <input aria-label="Прозрачность скриншота" type="range" min={.05} max={1} step={.05} value={image.opacity} onChange={event => patch({ opacity: Number(event.target.value) })} /></label>
       <button onClick={() => patch({ rotation: (image.rotation + 90) % 360 })}>Повернуть скриншот · 90°</button>
       <button onClick={() => { sequence.current++; setImage(null); }}>Убрать скриншот</button>
-      <small>Перетащите изображение к порту. Закрепите подложку, чтобы редактировать карту под ней. Скриншот не сохраняется в карту.</small>
     </>}</>;
   const overlay = image?.visible && <div className="GridEditor__reference" aria-label="Скриншот на плане"
     style={{ left: (image.x - area.x) * cellSize, top: (area.y + area.height - image.y - image.width * image.aspect) * cellSize,

@@ -7,22 +7,22 @@
         - to: strawhat
           steps:
             - tag: Wheat
-              name: wheat bushel
+              name: prototype-text-constructionGraph-StrawHat-name-826a2f9cd3
               icon:
                 sprite: Objects/Specific/Hydroponics/wheat.rsi
                 state: produce
             - tag: Wheat
-              name: wheat bushel
+              name: prototype-text-constructionGraph-StrawHat-name-8500547158
               icon:
                 sprite: Objects/Specific/Hydroponics/wheat.rsi
                 state: produce
             - tag: Wheat
-              name: wheat bushel
+              name: prototype-text-constructionGraph-StrawHat-name-f12c76e399
               icon:
                 sprite: Objects/Specific/Hydroponics/wheat.rsi
                 state: produce
             - tag: Wheat
-              name: wheat bushel
+              name: prototype-text-constructionGraph-StrawHat-name-ee9d7a191b
               icon:
                 sprite: Objects/Specific/Hydroponics/wheat.rsi
                 state: produce

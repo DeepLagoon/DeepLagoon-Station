@@ -1,37 +1,37 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-StructureWeaponRackBase = weapon rack
-    .desc = A storage unit for expedited pacification measures.
+ent-StructureWeaponRackBase = оружейная стойка
+    .desc = { ent-WeaponRackBase.desc }
 
-ent-StructureWeaponRackSlots = { ent-StructureWeaponRackBase }
-    .desc = { ent-StructureWeaponRackBase.desc }
+ent-StructureWeaponRackSlots = оружейная стойка
+    .desc = { ent-WeaponRackBase.desc }
 
 ent-StructureGunRack = стойка для оружия
     .suffix = Пустая
-    .desc = { ent-StructureWeaponRackSlots.desc }
+    .desc = { ent-WeaponRackBase.desc }
 
 ent-StructureGunRackWallmounted = { ent-StructureGunRack }
     .suffix = Пустая, Настенная
-    .desc = { ent-StructureGunRack.desc }
+    .desc = { ent-WeaponRackBase.desc }
 
 ent-StructureMeleeWeaponRack = стойка для оружия ближнего боя
     .suffix = Пустая
-    .desc = { ent-StructureWeaponRackSlots.desc }
+    .desc = { ent-WeaponRackMeleeBase.desc }
 
 ent-StructureMeleeWeaponRackWallmounted = { ent-StructureMeleeWeaponRack }
     .suffix = Пустая, Настенная
-    .desc = { ent-StructureMeleeWeaponRack.desc }
+    .desc = { ent-WeaponRackMeleeBase.desc }
 
 ent-StructurePistolRack = стойка для короткоствольного оружия
     .suffix = Пустая
-    .desc = { ent-StructureWeaponRackSlots.desc }
+    .desc = { ent-WeaponRackPistolBase.desc }
 
 ent-StructurePistolRackWallmounted = { ent-StructurePistolRack }
     .suffix = Пустая, Настенная
-    .desc = { ent-StructurePistolRack.desc }
+    .desc = { ent-WeaponRackPistolBase.desc }
 
 ent-StructurePistolRackLock = стойка для короткоствольного оружия
-    .desc = { ent-StructureWeaponRackBase.desc }
+    .desc = { ent-WeaponRackBase.desc }
 
 ent-StructurePistolRackLockWallmounted = { ent-StructurePistolRackLock }
-    .desc = { ent-StructurePistolRackLock.desc }
+    .desc = { ent-WeaponRackBase.desc }

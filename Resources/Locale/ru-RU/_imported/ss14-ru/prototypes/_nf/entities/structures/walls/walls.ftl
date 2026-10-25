@@ -1,31 +1,31 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-NFAsteroidWall = supercompacted rock
-    .desc = Harder than hard. You'll need some special equipment to blast through this.
+ent-NFAsteroidWall = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallSandstone = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallSandstone = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallNecropolis = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallNecropolis = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallBasaltCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallBasaltCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallSnowCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallSnowCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallAsteroidCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallAsteroidCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallSandCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallSandCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallChromiteCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallChromiteCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.
 
-ent-NFWallAndesiteCobblebrick = { ent-NFAsteroidWall }
-    .desc = { ent-NFAsteroidWall.desc }
+ent-NFWallAndesiteCobblebrick = сверхуплотненная порода
+    .desc = Сложнее, чем кажется. Чтобы справиться с этим, вам понадобится специальное оборудование.

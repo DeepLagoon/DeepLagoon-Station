@@ -10,24 +10,24 @@
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-HoverTaxiBot-name-a07b7c9927
       - tag: BorgHead
         icon:
           sprite: Objects/Specific/Robotics/cyborg_parts.rsi
           state: borg_head
-        name: borg head
+        name: prototype-text-constructionGraph-HoverTaxiBot-name-13c79a0b38
         doAfter: 1
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-HoverTaxiBot-name-3ddf4e8460
         doAfter: 2
       - tag: SmallThrusterMachineCircuitboard
         icon:
           sprite: Objects/Misc/module.rsi
           state: generic
-        name: small thruster machine board
+        name: prototype-text-constructionGraph-HoverTaxiBot-name-dd64aa2eff
         doAfter: 2
       - material: Steel
         amount: 10

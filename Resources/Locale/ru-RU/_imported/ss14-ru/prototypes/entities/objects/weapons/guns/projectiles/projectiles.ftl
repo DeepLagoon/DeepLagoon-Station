@@ -9,10 +9,10 @@ ent-MuzzleFlashEffectOmnilaser = { ent-MuzzleFlashEffect }
 ent-MuzzleFlashEffectHeavyLaser = { ent-MuzzleFlashEffect }
     .desc = { ent-MuzzleFlashEffect.desc }
 
-ent-BaseBullet = BaseBullet
+ent-BaseBullet = базовая пуля
     .desc = Если вы можете видеть это, вы, вероятно, мертвы!
 
-ent-BaseBulletTrigger = { ent-BaseBullet }
+ent-BaseBulletTrigger = базовая пуля
     .desc = { ent-BaseBullet.desc }
 
 ent-BaseBulletPractice = базовая пуля учебная
@@ -48,7 +48,7 @@ ent-WatcherBoltMagmawing = заряд наблюдателя-магмакрыл�
 ent-BulletKinetic = кинетический заряд
     .desc = Не так уж плохо, но вы всё ещё не хотите попасть под это.
 
-ent-BulletKineticShuttle = { ent-BaseBullet }
+ent-BulletKineticShuttle = базовая пуля
     .desc = { ent-BaseBullet.desc }
 
 ent-BulletCharge = заряд

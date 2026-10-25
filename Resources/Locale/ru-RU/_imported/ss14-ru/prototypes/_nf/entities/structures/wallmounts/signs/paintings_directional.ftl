@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-PaintingDirectionalBase = { ent-BaseSignDirectional }
+ent-PaintingDirectionalBase = базовый знак
     .desc = { ent-BaseSignDirectional.desc }
 
 ent-PaintingFireaxeCabinet = шкаф для пожарного топора

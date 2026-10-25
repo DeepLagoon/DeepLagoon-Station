@@ -8,7 +8,7 @@
   id: Keelback
   parent: BaseVessel
   name: VG Keelback
-  description: A medium sized corvette designed for privateering. Equipped with 3 "Paladin" missile launchers and 2 TOVEK's.
+  description: "Средний корвет для каперства. Оснащён тремя ракетными установками Paladin и двумя TOVEK."
   limit: 1
   price: 270000
   purchasable: false # Voucher only

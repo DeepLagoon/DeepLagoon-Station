@@ -22,7 +22,7 @@
         - Unimplantable
       currentMode: Draw
       implanterSlot:
-        name: Implant
+        name: prototype-text-entity-BaseImplanter-name-3764845c7a
         locked: True
         priority: 0
         whitelist:

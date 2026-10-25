@@ -22,7 +22,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLaserCellSMG-name-c95fa617fd
         whitelist:
           tags:
           - MilitaryPowerCellSMG
@@ -78,7 +78,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLaserCellSniper-name-aea6b8ba2b
         whitelist:
           tags:
           - MilitaryPowerCellSniper
@@ -145,7 +145,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLaserCellRevolver-name-b99f3c4e7f
         whitelist:
           tags:
           - MilitaryPowerCellRevolver

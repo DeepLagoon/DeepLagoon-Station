@@ -2,7 +2,7 @@
   id: Pillbox
   parent: BaseVessel
   name: TPC Pillbox
-  description: A modified Takeaway shuttle, turned from a nice little restaurant into a travelling pharmacy and bar, with everything a chemist would need to peddle their wares. The Solars were sniped, and the generator replaced with a Pinch Fusion reactor
+  description: "Модифицированный шаттл Takeaway: уютный ресторанчик переделан в передвижную аптеку и бар со всем необходимым для торговли химика. Солнечные панели сняты, а генератор заменён пинч-термоядерным реактором."
   price: 116484
   category: Medium
   group: Shipyard

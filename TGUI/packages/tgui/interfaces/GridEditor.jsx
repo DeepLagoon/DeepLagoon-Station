@@ -55,6 +55,9 @@ export const GridEditor = () => {
   const [catalogOpen, setCatalogOpen] = useState(false), [activePanel, setActivePanel] = useState(null);
   const hotbar = useRef(null);
   const [hotbarSlots, setHotbarSlots] = useState(1), [hotbarDrop, setHotbarDrop] = useState(null);
+  const catalogDrag = useRef(null), suppressCatalogClick = useRef(false);
+  const [draggedBrush, setDraggedBrush] = useState(null);
+  useEffect(() => { catalogDrag.current = null; setDraggedBrush(null); setHotbarDrop(null); }, [data.token]);
   useLayoutEffect(() => {
     const resize = () => setHotbarSlots(Math.max(1, Math.floor((hotbar.current.clientWidth + 5) / 43)));
     const observer = new ResizeObserver(resize); observer.observe(hotbar.current); resize();
@@ -797,22 +800,39 @@ export const GridEditor = () => {
     setBrush(entry); setTemplateBrush(null); setTool('brush'); setSelected([]); setCatalogOpen(false);
     if (entry.kind === 'decal') setActivePanel('layers');
   };
-  const dragBrush = (event, entry) => {
-    event.dataTransfer.setData('application/x-grid-editor-brush', JSON.stringify({ kind: entry.kind, id: entry.id }));
-    event.dataTransfer.effectAllowed = 'copy';
+  const hotbarAt = event => {
+    const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-hotbar-slot]');
+    return slot ? Number(slot.dataset.hotbarSlot) : null;
   };
-  const dropBrush = (event, slot) => {
-    event.preventDefault(); setHotbarDrop(null);
-    if (locked) return;
-    try {
-      const entry = JSON.parse(event.dataTransfer.getData('application/x-grid-editor-brush'));
-      if (['tile', 'entity', 'decal'].includes(entry.kind) && typeof entry.id === 'string') act('hotbarSet', { slot, ...entry });
-    } catch { /* A drop from another application is not a catalog entry. */ }
+  const startBrushDrag = (event, entry) => {
+    if (locked || event.button !== 0) return;
+    catalogDrag.current = { entry, x: event.clientX, y: event.clientY, pointer: event.pointerId, source: event.currentTarget, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const moveBrushDrag = event => {
+    const drag = catalogDrag.current;
+    if (!drag || drag.pointer !== event.pointerId) return;
+    if (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 5) return;
+    event.preventDefault(); event.stopPropagation(); drag.moved = true;
+    setDraggedBrush({ entry: drag.entry, x: event.clientX, y: event.clientY }); setHotbarDrop(hotbarAt(event));
+  };
+  const endBrushDrag = (event, cancelled = false) => {
+    const drag = catalogDrag.current;
+    if (!drag || drag.pointer !== event.pointerId) return;
+    catalogDrag.current = null; setDraggedBrush(null); setHotbarDrop(null);
+    if (drag.source.hasPointerCapture(event.pointerId)) drag.source.releasePointerCapture(event.pointerId);
+    if (!drag.moved) return;
+    event.preventDefault(); event.stopPropagation(); suppressCatalogClick.current = true;
+    setTimeout(() => { suppressCatalogClick.current = false; }, 0);
+    const slot = hotbarAt(event);
+    if (!cancelled && !locked && slot !== null) act('hotbarSet', { slot, kind: drag.entry.kind, id: drag.entry.id });
   };
   const templatePreview = templateBrush && hover && activeTool === 'brush' ? projectTemplate(templateBrush.items, hover, rotation / 90) : [];
   const close = () => changes || route.editing ? setConfirmClose(true) : act('close');
   useEffect(() => { if (data.closeRequested) close(); }, [data.closeRequested]);
   return <div ref={root} className="GridEditor" style={{ '--catalog-width': `${panelWidths.left}px`, '--properties-width': `${panelWidths.right}px` }} onPointerDownCapture={() => act('focus')}
+    onPointerMoveCapture={moveBrushDrag} onPointerUpCapture={event => endBrushDrag(event)} onPointerCancelCapture={event => endBrushDrag(event, true)}
+    onClickCapture={event => { if (suppressCatalogClick.current) { event.preventDefault(); event.stopPropagation(); suppressCatalogClick.current = false; } }}
     onPasteCapture={event => {
       if (event.target.closest('input,textarea,select,[contenteditable=true]')) return;
       const imageOnly = reference.imagePasteOnly.current; reference.imagePasteOnly.current = false;
@@ -850,9 +870,9 @@ export const GridEditor = () => {
         <input aria-label="Поиск прототипов" placeholder="Название или ID прототипа…" value={query} onFocus={() => act('focus')} onChange={(e) => setQuery(e.target.value)} />
         <div ref={catalogView} className="GridEditor__entries" onScroll={e => setCatalogScroll(e.currentTarget.scrollTop)}>{category === 'templates' ? (data.templates || []).filter((t) => t.name.toLowerCase().includes(query.toLowerCase())).map((entry) =>
           <div key={entry.id} className="GridEditor__entry"><button disabled={locked} className={templateBrush?.id === entry.id ? 'active' : ''}
-            onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setCatalogOpen(false); }}><span>{entry.name}<small>{entry.items.length} элементов · нажмите место на плане</small></span></button>
+            onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setCatalogOpen(false); }}><span>{entry.name}<small>{entry.items.length} элементов</small></span></button>
             <button aria-label={`Удалить шаблон ${entry.name}`} disabled={locked} onClick={() => setConfirmClose({ deleteTemplate: entry.id, name: entry.name })}>×</button></div>) : <div style={{ height: (data.catalogCount || 0) * 64, position: 'relative' }}>{Array.from({ length: Math.max(0, catalogEnd - catalogStart) }, (_, offset) => { const index = catalogStart + offset; const entry = catalogRows[index]; return entry ? <div style={{ position: 'absolute', top: index * 64, height: 64, width: '100%' }} key={`${entry.kind}:${entry.id}`} className="GridEditor__entry"><button disabled={locked} title={entry.id}
-          draggable={!locked} onDragStart={event => dragBrush(event, entry)} className={brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} onClick={() => chooseBrush(entry)}>
+          draggable={false} onPointerDown={event => startBrushDrag(event, entry)} className={brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} onClick={() => chooseBrush(entry)}>
           <span className="GridEditor__sprite"><Sprite images={entry.images} color={entry.kind === 'decal' ? color : undefined} /></span><span>{entry.name}<small>{entry.id}</small></span></button>
           <button aria-label={`${favorite(entry.kind, entry.id) ? 'Убрать из' : 'Добавить в'} избранное ${entry.name}`} disabled={locked}
             onClick={() => act('favorite', { kind: entry.kind, id: entry.id })}>{favorite(entry.kind, entry.id) ? '★' : '☆'}</button></div> : <div key={index} style={{ position: 'absolute', top: index * 64 }}>Загрузка…</div>; })}</div>}</div>
@@ -904,7 +924,7 @@ export const GridEditor = () => {
         <section className="GridEditor__panelSection" hidden={activePanel !== 'layers'}>
         {!decalMode && <button disabled={locked} onClick={() => chooseCategory('decal')}>Режим декалирования</button>}
         {decalMode && <section className="GridEditor__decalLayers" aria-label="Слои декалей">
-          <strong>Режим декалирования</strong><small>Инструменты изменяют только декали активного слоя. Остальная карта служит фоном.</small>
+          <strong>Режим декалирования</strong>
           {decalLayers.map(layer => <button key={layer} className={z === layer ? 'active' : ''} disabled={locked} onClick={() => chooseLayer(layer)}>
             Слой {layer} · {draft.filter(item => item.kind === 'decal' && (item.z || 0) === layer).length}</button>)}
           <button disabled={locked || decalLayers.length >= 201} onClick={() => {
@@ -941,28 +961,24 @@ export const GridEditor = () => {
           <option value="x">Вертикальная ось</option><option value="y">Горизонтальная ось</option>
         </select>
         <label>Координата оси <input aria-label="Координата оси зеркальности" type="number" step={.5} disabled={locked} value={mirror.center} onChange={event => { mirrorPairs.current.clear(); setMirror({ ...mirror, center: Math.round(Number(event.target.value) * 2) / 2 }); }} /></label>
-        <small>Добавление, перенос, поворот и удаление отражаются относительно оси. Применяются вместе с черновиком.</small>
         </section>
         <section className="GridEditor__panelSection" data-panel="reference" hidden={activePanel !== 'reference'}>{reference.controls}</section>
         <section className="GridEditor__panelSection" data-panel="atmos" hidden={activePanel !== 'atmos'}>
         <strong>Атмосфера</strong>
         <label><input type="checkbox" checked={atmosMode} onChange={event => setAtmosMode(event.target.checked)} />Диагностика утечек</label>
         {atmosMode && <>
-          {!atmosCurrent && data.atmosToken===data.token && <small>Показана последняя проверка. Цвета обновятся после завершения новой проверки.</small>}
-          <small>Зелёный — герметично; красный — сообщается с внешней средой; жёлтые грани — выходы воздуха; серый — непроницаемая стена; оранжевый — космический тайл.</small>
-          <small>Проверяются текущие стены и двери применённой карты. Трубы и работающие устройства не анализируются.</small>
-          {changes > 0 ? <small>Примените черновик для проверки новой геометрии. На плане остаётся последняя раскраска применённой карты.</small> : <>
+          {!atmosCurrent && data.atmosToken===data.token && <span>Результат предыдущей проверки</span>}
+          <>
             <span>Герметичных клеток: {data.atmosSealed || 0}. С утечкой: {data.atmosLeaking || 0}. Выходов: {atmosLeaks.length}.</span>
-            <button disabled={atmosBusy || locked} onClick={() => requestAtmos()}>{atmosBusy ? 'Проверка…' : 'Проверить герметичность'}</button>
-            <button disabled={atmosBusy || locked} onClick={() => requestAtmos(true)}>Заполнить герметичные области</button>
-            <small>Стандартный воздух: 101,3 кПа, 20 °C. Негерметичные области и стены без объёма воздуха пропускаются. Повторное заполнение заменяет прежний газ стандартным воздухом.</small>
-            <small>Зелёный — герметично. Красный — область сообщается с космосом. Жёлтые рёбра отмечают выходы наружу; нажмите координаты ниже, чтобы перейти к пробоине.</small>
-            {atmosFillRequested && <small>Заполнено клеток: {data.atmosFilled || 0}.{!data.atmosFilled && !atmosBusy ? ' Открытые в космос области не заполняются.' : ''}</small>}
+            <button disabled={atmosBusy || locked || !!changes} onClick={() => requestAtmos()}>{atmosBusy ? 'Проверка…' : 'Проверить герметичность'}</button>
+            <button disabled={atmosBusy || locked || !!changes} onClick={() => requestAtmos(true)}>Заполнить герметичные области</button>
+            <span>Воздух: 101,3 кПа · 20 °C</span>
+            {atmosFillRequested && <small>Заполнено клеток: {data.atmosFilled || 0}</small>}
             {atmosLeaks.slice(0, 8).map(cell => <button key={`${cell.x}:${cell.y}`} onClick={() => {
               viewport.current.scrollLeft = (cell.x + .5 - area.x) * cellSize;
               viewport.current.scrollTop = (area.y + area.height - cell.y - .5) * cellSize;
             }}>Выход наружу: {cell.x}, {cell.y}</button>)}
-          </>}
+          </>
           {hoverAtmos && <small>Клетка {hoverAtmos.x}, {hoverAtmos.y}: {{ sealed: 'герметично', leaking: 'есть выход наружу', blocked: 'воздух заблокирован', space: 'космический тайл' }[hoverAtmos.status]}, {hoverAtmos.pressure.toFixed(1)} кПа.</small>}
         </>}
 
@@ -973,27 +989,22 @@ export const GridEditor = () => {
         <section className="GridEditor__panelSection" data-panel="grid" hidden={activePanel !== 'grid'}>
         <label htmlFor="grid-editor-name">Название грида</label>
         <input id="grid-editor-name" aria-label="Название грида" value={gridName} maxLength={data.gridNameMaxLength || 128}
-          disabled={pending || gridNameSaving} placeholder="Например: Жилой модуль «Маяк»" onChange={event => setGridNameDraft(event.target.value)}
+          disabled={pending || gridNameSaving} onChange={event => setGridNameDraft(event.target.value)}
           onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); saveGridName(); } }} />
         <button disabled={pending || gridNameSaving || !gridName.trim() || gridName.trim() === (data.gridName || '')} onClick={saveGridName}>
           {gridNameSaving ? 'Сохранение названия…' : 'Сохранить название'}</button>
-        <small>Название сохраняется сразу для всего грида и включается в экспорт карты и черновика.</small>
-        {!decalMode && <><strong>Область grid · {area.width}×{area.height}</strong>
-        <small>Тяните края или углы сетки мышью. Новая область пустая: полы и объекты размещаются кистью. Изменения сохраняются кнопкой «Применить».</small></>}
+        {!decalMode && <strong>Область grid · {area.width}×{area.height}</strong>}
         <button className={data.alwaysPowered ? 'active' : ''} aria-pressed={!!data.alwaysPowered} disabled={pending}
           onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })}>Автономное питание</button>
         <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
           onClick={() => act('setGridGravity', { enabled: !data.forceGravity })}>Постоянная гравитация</button>
-        <small>Питание и гравитация применяются сразу ко всему гриду и сохраняются в карте.</small>
         {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
-          <small>Черновики доступны для выделения и правки всем участникам. Последняя правка элемента заменяет предыдущую.</small>
           {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
         </>}
         </section>
         <section className="GridEditor__panelSection" data-panel="properties" hidden={activePanel !== 'properties'}>
-        <strong>{selected.length ? `Выбрано: ${selected.length}` : 'Кисть'}</strong><p>{one?.prototype || templateBrush?.name || brush?.name || 'Выберите элемент каталога'}</p>
+        <strong>{selected.length ? `Выбрано: ${selected.length}` : 'Кисть'}</strong><p>{one?.prototype || templateBrush?.name || brush?.name || 'Ничего не выбрано'}</p>
         <button disabled={locked} onClick={rotate}>Повернуть · R ({activeTool === 'select' && one ? one.rotation : rotation}°)</button>
-        <small>Стены, окна, столы и шкафы автоматически заменяют конструкции в целевой клетке.</small>
 
         {one?.kind === 'entity' && <label><input type="checkbox" disabled={locked} checked={one.anchored} onChange={(e) => patchSelected({ anchored: e.target.checked })} />Закреплён</label>}
         {one && one.kind !== 'tile' && selected.length === 1 && ['x', 'y'].map((axis) => <label key={axis}>{axis.toUpperCase()}
@@ -1003,22 +1014,19 @@ export const GridEditor = () => {
         <button disabled={locked || !selected.length} onClick={remove}>Удалить · D / Delete</button>
         <button disabled={locked || !selected.length} onClick={() => copySelection(draft.filter((i) => selected.includes(i.id)))}>Копировать · Ctrl+C</button>
         <button disabled={locked || !clipboard.length} onClick={paste}>Вставить · Ctrl+V</button>
-        <small>Под стенами автоматически добавляется обшивка Plating. Существующий пол сохраняется.</small>
         </section>
         <section className="GridEditor__panelSection" data-panel="templates" hidden={activePanel !== 'templates'}>
-        <strong>Свой шаблон</strong><input aria-label="Имя шаблона" placeholder="Например: каюта 5×4" value={templateName} maxLength={64} onFocus={() => act('focus')} onChange={(e) => setTemplateName(e.target.value)} />
+        <strong>Свой шаблон</strong><input aria-label="Имя шаблона" value={templateName} maxLength={64} onFocus={() => act('focus')} onChange={(e) => setTemplateName(e.target.value)} />
         <button disabled={locked || !selected.length || selected.length > 512 || !templateName.trim()} onClick={() =>
           startTransfer(makeTemplate(draft.filter((i) => selected.includes(i.id))), 'template', templateName.trim())}>Сохранить выделение</button>
-        <small>Шаблоны и избранное сохраняются на этом компьютере.</small>
         {(data.templates || []).map(entry => <div key={entry.id} className="GridEditor__entry"><button disabled={locked} className={templateBrush?.id === entry.id ? 'active' : ''}
-          onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setActivePanel(null); }}><span>{entry.name}<small>{entry.items.length} элементов · нажмите место на плане</small></span></button>
+          onClick={() => { setTemplateBrush(entry); setBrush(null); setTool('brush'); setSelected([]); setRotation(0); setActivePanel(null); }}><span>{entry.name}<small>{entry.items.length} элементов</small></span></button>
           <button aria-label={`Удалить шаблон ${entry.name}`} disabled={locked} onClick={() => setConfirmClose({ deleteTemplate: entry.id, name: entry.name })}>×</button></div>)}
         </section>
         <section className="GridEditor__panelSection" data-panel="files" hidden={activePanel !== 'files'}>
-          <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S · Сохраняет несохранённые правки и значения компонентов существующих объектов.">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
+          <button disabled={exporting || data.downloading} onClick={downloadDraft} title="Ctrl+S">{exporting ? 'Сохранение…' : 'Скачать черновик grid'}</button>
           <button disabled={locked || !!changes} onClick={() => act('download', { scope: 'grid' })}>Исходный grid</button>
           <button disabled={locked || !!changes} onClick={() => act('download', { scope: 'map' })}>Скачать карту</button>
-          <small>Все варианты сохраняют значения компонентов. Черновик включает несохранённые правки без применения к карте.</small>
         </section>
       </aside>
     </div>
@@ -1028,15 +1036,13 @@ export const GridEditor = () => {
       <span className="GridEditor__spacer" /><button aria-label="Уменьшить масштаб" onClick={() => setScale(requestedZoom.current / 1.15)}>−</button><span>{Math.round(zoom * 100)}%</span>
       <button aria-label="Увеличить масштаб" onClick={() => setScale(requestedZoom.current * 1.15)}>+</button><button onClick={fit}>Вписать</button>
     </div>
-    <div className="GridEditor__quickAccess" aria-label="Hotbar"><span title="Перетащите прототип из каталога. ПКМ — очистить слот.">Hotbar</span>
+    <div className="GridEditor__quickAccess" aria-label="Hotbar"><span>Hotbar</span>
       <div ref={hotbar} className="GridEditor__quickEntries">{Array.from({ length: hotbarSlots }, (_, slot) => {
         const saved = (data.hotbar || []).find(entry => entry.slot === slot), entry = saved && visuals.get(`${saved.kind}:${saved.id}`);
-        return <button key={slot} disabled={locked} draggable={!!entry && !locked} onDragStart={event => dragBrush(event, entry)}
+        return <button key={slot} data-hotbar-slot={slot} disabled={locked} draggable={false} onPointerDown={event => entry && startBrushDrag(event, entry)}
           aria-label={`Слот ${slot + 1}${saved ? `: ${entry?.name || saved.id}` : ': пусто'}`}
-          title={saved ? `${entry?.name || saved.id} · ${saved.id}\nПКМ — очистить слот` : 'Перетащите прототип из каталога'}
+          title={saved ? `${entry?.name || saved.id} · ${saved.id}` : `Слот ${slot + 1}`}
           className={`${entry && brush?.id === entry.id && brush?.kind === entry.kind ? 'active' : ''} ${hotbarDrop === slot ? 'drop' : ''}`}
-          onDragOver={event => { if (!locked && event.dataTransfer.types.includes('application/x-grid-editor-brush')) { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setHotbarDrop(slot); } }}
-          onDragLeave={() => setHotbarDrop(null)} onDrop={event => dropBrush(event, slot)}
           onContextMenu={event => { event.preventDefault(); if (!locked && saved) act('hotbarSet', { slot }); }}
           onClick={() => entry ? chooseBrush(entry) : openCatalog()}>
           {entry ? <span className="GridEditor__sprite"><Sprite images={entry.images} color={entry.kind === 'decal' ? color : undefined} /></span> : <small>{slot + 1}</small>}
@@ -1044,6 +1050,10 @@ export const GridEditor = () => {
       })}</div>
       <span className="GridEditor__quickHint">R — поворот</span>
     </div>
+    {draggedBrush && <div className="GridEditor__draggedBrush" aria-hidden="true" style={{ left: draggedBrush.x + 12, top: draggedBrush.y + 12 }}>
+      <span className="GridEditor__sprite"><Sprite images={draggedBrush.entry.images} color={draggedBrush.entry.kind === 'decal' ? color : undefined} /></span>
+      {draggedBrush.entry.name || draggedBrush.entry.id}
+    </div>}
     {errors && <div className="GridEditor__errorBanner" role="alert"><strong>Нельзя применить черновик</strong><span>{errors}</span></div>}
     <footer><span className={errors || data.success === false ? 'error' : ''} role="status">{errors || data.status || ''}</span>
       <button disabled={pending || !changes} onClick={() => { remember(); const next = decalMode ? scopeDecalChanges(current.current, baseline, z) : copyItems(baseline); replaceEdits(decalMode ? trackLocalEdits(current.current, next, editsRef.current) : []); update(next, true); setSelected([]); if (!decalMode) setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>

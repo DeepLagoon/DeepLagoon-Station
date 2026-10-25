@@ -1,11 +1,11 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-SyndieDuffelGiftBox = syndicate naval operative bundle
-    .desc = Loot boxes? Here?
+ent-SyndieDuffelGiftBox = набор оперативника синдиката
+    .desc = Лутбоксы? Тут?
     .suffix = NPC Loot
 
-ent-SyndieMessengerGiftBox = syndicate naval operative bundle
-    .desc = Loot boxes? Here?
+ent-SyndieMessengerGiftBox = набор оперативника синдиката
+    .desc = Лутбоксы? Тут?
     .suffix = NPC Loot
 
 ent-ClothingBackpackSyndicateCaptainLootA = { ent-SyndieMessengerGiftBox }

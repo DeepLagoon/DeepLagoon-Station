@@ -62,6 +62,7 @@ ent-OrganAriralKidneys = почки
 ent-TorsoAriral = торс арирала
 
 ent-HeadAriral = голова арирала
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmAriral = левая рука арирала
 
@@ -144,35 +145,35 @@ marking-DemonHornsFat_Horn = Аркана, рога (Толстые)
 marking-DemonHornsFat_Horn-fat_horn = Рога
 
 ent-OrganDemonStomach = { ent-OrganAnimalStomach }
-    .desc = { ent-OrganAnimalStomach.desc }
+    .desc = Желудок.
 
 ent-PartDemon = часть тела арканы
-    .desc = { ent-BaseItem.desc }
+    .desc = Часть тела арканы.
 ent-ChestDemon = грудь арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Грудная клетка арканы.
 ent-HeadDemon = голова арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Голова арканы.
 ent-LeftArmDemon = левая рука арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Левая рука арканы.
 ent-RightArmDemon = правая рука арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Правая рука арканы.
 ent-LeftHandDemon = левая кисть арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Левая кисть арканы.
 ent-RightHandDemon = правая кисть арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Правая кисть арканы.
 ent-LeftLegDemon = левая нога арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Левая нога арканы.
 ent-RightLegDemon = правая нога арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Правая нога арканы.
 ent-LeftFootDemon = левая ступня арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Левая ступня арканы.
 ent-RightFootDemon = правая ступня арканы
-    .desc = { ent-PartDemon.desc }
+    .desc = Правая ступня арканы.
 
 ent-MobDemon = Урист МакАркана
-    .desc = { ent-BaseMobDemon.desc }
+    .desc = Урист МакАркана.
 ent-BaseMobDemon = Урисст МакАркана
-    .desc = { ent-BaseMobSpeciesOrganic.desc }
+    .desc = Урист МакАркана.
     .suffix = Аркана
 ent-MobDemonDummy = Манекен арканы
     .desc = Манекен арканы для настройки персонажа.

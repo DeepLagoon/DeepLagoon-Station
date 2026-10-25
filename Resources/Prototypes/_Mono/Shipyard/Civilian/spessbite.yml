@@ -10,7 +10,7 @@
   id: Spessbite
   parent: BaseVessel
   name: PTI Spessbite
-  description: A food truck, equipped with all manners of amenities cramped into an almost claustrophobic interior. Very cozy, though.
+  description: "Космический фургон-закусочная со всевозможными удобствами, втиснутыми в почти клаустрофобный интерьер. Зато очень уютно."
   price: 54734
   category: Small
   group: Shipyard

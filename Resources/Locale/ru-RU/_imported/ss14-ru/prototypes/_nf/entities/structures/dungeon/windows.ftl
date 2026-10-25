@@ -1,45 +1,45 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-WindowMurkyDungeon = { "" }
-    .desc = A murky glass window, it's hard to see what's on the other side.
+    .desc = { ent-Window.desc }
     .suffix = Dungeon only, DO NOT MAP
 
 ent-WindowDirectionalMurkyDungeon = { "" }
-    .desc = A murky glass window, it's hard to see what's on the other side.
+    .desc = { ent-Window.desc }
     .suffix = Dungeon only, DO NOT MAP
 
-ent-WindowDungeon = { ent-WindowMurkyDungeon }
-    .desc = { ent-WindowMurkyDungeon.desc }
+ent-WindowDungeon = { ent-Window }
+    .desc = { ent-Window.desc }
 
-ent-ReinforcedWindowDungeon = { ent-WindowMurkyDungeon }
-    .desc = { ent-WindowMurkyDungeon.desc }
+ent-ReinforcedWindowDungeon = { ent-ReinforcedWindow }
+    .desc = { ent-ReinforcedWindow.desc }
 
-ent-PlasmaWindowDungeon = { ent-WindowMurkyDungeon }
-    .desc = { ent-WindowMurkyDungeon.desc }
+ent-PlasmaWindowDungeon = { ent-PlasmaWindow }
+    .desc = { ent-PlasmaWindow.desc }
 
-ent-ReinforcedPlasmaWindowDungeon = { ent-WindowMurkyDungeon }
-    .desc = { ent-WindowMurkyDungeon.desc }
+ent-ReinforcedPlasmaWindowDungeon = { ent-ReinforcedPlasmaWindow }
+    .desc = { ent-ReinforcedPlasmaWindow.desc }
 
-ent-ReinforcedUraniumWindowDungeon = { ent-WindowMurkyDungeon }
-    .desc = { ent-WindowMurkyDungeon.desc }
+ent-ReinforcedUraniumWindowDungeon = { ent-ReinforcedUraniumWindow }
+    .desc = { ent-ReinforcedUraniumWindow.desc }
 
-ent-WindowDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-WindowDirectionalDungeon = направленное окно
+    .desc = { ent-Window.desc }
 
-ent-WindowFrostedDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-WindowFrostedDirectionalDungeon = направленное матовое окно
+    .desc = { ent-Window.desc }
 
-ent-WindowReinforcedDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-WindowReinforcedDirectionalDungeon = направленное бронеокно
+    .desc = { ent-Window.desc }
 
-ent-PlasmaWindowDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-PlasmaWindowDirectionalDungeon = направленное плазменное окно
+    .desc = { ent-Window.desc }
 
-ent-PlasmaReinforcedWindowDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-PlasmaReinforcedWindowDirectionalDungeon = направленное плазменное бронеокно
+    .desc = { ent-Window.desc }
 
-ent-UraniumWindowDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-UraniumWindowDirectionalDungeon = направленное урановое окно
+    .desc = { ent-Window.desc }
 
-ent-UraniumReinforcedWindowDirectionalDungeon = { ent-WindowDirectionalMurkyDungeon }
-    .desc = { ent-WindowDirectionalMurkyDungeon.desc }
+ent-UraniumReinforcedWindowDirectionalDungeon = направленное урановое бронеокно
+    .desc = { ent-Window.desc }

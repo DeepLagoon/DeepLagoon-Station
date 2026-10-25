@@ -64,7 +64,7 @@
         - to: frame_mailing
           steps:
             - tag: MailingUnitElectronics
-              name: mailing unit electronics
+              name: prototype-text-constructionGraph-DisposalMachine-name-d4a667ca87
               icon:
                 sprite: "Objects/Misc/module.rsi"
                 state: "net_wired"

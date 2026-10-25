@@ -174,7 +174,7 @@
     blocking: 40
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-BaseTreeCrocus-description-738837d701
       color: "#4f94ad"
       requireDetailRange: false
   - type: Physics
@@ -439,6 +439,6 @@
     blocking: 60
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-FloraBoulderCrocus-description-3d4681c56d
       color: "#4f94ad"
       requireDetailRange: false

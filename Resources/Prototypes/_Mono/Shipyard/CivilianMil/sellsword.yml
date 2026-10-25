@@ -2,7 +2,7 @@
   id: Sellsword
   parent: BaseVessel
   name: UW Sellsword
-  description: An escort picket comprising a claustrophobic, cast-plastitanium coffin enrobing a 203x940mm BOFORS and VESPERA missile pod. Combat life expectancy of 4 minutes. Has a military IFF designation.
+  description: "Корабль эскортного дозора — тесный литой пластитановый гроб вокруг BOFORS 203x940 мм и ракетного блока VESPERA. Ожидаемое время жизни в бою — четыре минуты. Имеет военную метку системы опознавания."
   price: 71650 #appraised at 65029
   category: Small
   access: Mercenary
@@ -24,7 +24,7 @@
       stationProto: StandardFrontierVessel
       gridComponents:
       - type: VesselInfo
-        description: "A warrior-poet's sarcophagus."
+        description: "Саркофаг воина-поэта."
       components:
       - type: StationNameSetup
         mapNameTemplate: 'Sellsword MIL{1}'

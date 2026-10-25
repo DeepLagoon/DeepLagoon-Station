@@ -1,26 +1,26 @@
-﻿- type: stack
+- type: stack
   id: ArtifactFragment
-  name: artifact fragment
+  name: prototype-text-stack-ArtifactFragment-name-21a93300f4
   spawn: ArtifactFragment1
   maxCount: 30
 
 - type: stack
   id: Capacitor
-  name: capacitor
+  name: prototype-text-stack-Capacitor-name-36e7306c59
   icon: { sprite: _NF/Objects/Misc/stock_parts.rsi, state: capacitor } # Frontier
   spawn: CapacitorStockPart
   maxCount: 25 # mono
 
 - type: stack
   id: Manipulator
-  name: micro manipulator
+  name: prototype-text-stack-Manipulator-name-878fa3343f
   icon: { sprite: _NF/Objects/Misc/stock_parts.rsi, state: micro_mani } # Frontier
   spawn: MicroManipulatorStockPart
   maxCount: 25 # mono
 
 - type: stack
   id: MatterBin
-  name: matter bin
+  name: prototype-text-stack-MatterBin-name-25cc2f1a0c
   icon: { sprite: _NF/Objects/Misc/stock_parts.rsi, state: matter_bin } # Frontier
   spawn: MatterBinStockPart
   maxCount: 25 # mono

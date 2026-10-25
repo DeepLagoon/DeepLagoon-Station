@@ -1,28 +1,28 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-WoodenHandle = wooden handle
-    .desc = A normal wooden handle, that can be used in crafting.
+ent-WoodenHandle = деревянная рукоять
+    .desc = Обычная деревянная рукоять, которую можно использовать при изготовлении предметов.
 
-ent-WoodenHandleBat = { ent-WoodenHandle }
-    .desc = { ent-WoodenHandle.desc }
+ent-WoodenHandleBat = деревянная рукоять
+    .desc = Обычная деревянная рукоять, которую можно использовать при изготовлении предметов.
 
-ent-WoodenHandleHammer = { ent-WoodenHandle }
-    .desc = { ent-WoodenHandle.desc }
+ent-WoodenHandleHammer = деревянная рукоять
+    .desc = Обычная деревянная рукоять, которую можно использовать при изготовлении предметов.
 
-ent-ScrapBase = metal scrap
-    .desc = Some metal being prepared for crafting.
+ent-ScrapBase = металлолом
+    .desc = Металл, подготовленный для изготовления предметов.
 
-ent-ScrapHelmet = { ent-ScrapBase }
-    .desc = { ent-ScrapBase.desc }
+ent-ScrapHelmet = металлолом
+    .desc = Металл, подготовленный для изготовления предметов.
 
-ent-ScrapLightVest = { ent-ScrapBase }
-    .desc = { ent-ScrapBase.desc }
+ent-ScrapLightVest = металлолом
+    .desc = Металл, подготовленный для изготовления предметов.
 
-ent-ScrapHeavyVest = { ent-ScrapBase }
-    .desc = { ent-ScrapBase.desc }
+ent-ScrapHeavyVest = металлолом
+    .desc = Металл, подготовленный для изготовления предметов.
 
-ent-ScrapBoots = { ent-ScrapBase }
-    .desc = { ent-ScrapBase.desc }
+ent-ScrapBoots = металлолом
+    .desc = Металл, подготовленный для изготовления предметов.
 
 ent-HeatedMadeKitchenKnife = нагретый кухонный нож
     .desc = Самодельный нож. Вероятно, у вас есть несколько минут, прежде чем он остынет.

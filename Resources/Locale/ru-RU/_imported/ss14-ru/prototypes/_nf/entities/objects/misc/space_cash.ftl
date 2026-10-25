@@ -12,9 +12,9 @@ ent-SpaceCash100000 = { ent-SpaceCash }
     .suffix = 100000
     .desc = { ent-SpaceCash.desc }
 
-ent-SpaceCashCounterfeit = creditts
-    .desc = Valerian Standard C- What the hell...? THESE ARE LOUSY FAKES!!!
+ent-SpaceCashCounterfeit = кредитыы
+    .desc = Валерианские стандартные кре... Какого чёрта?.. ЭТО ЖЕ ПАРШИВЫЕ ПОДДЕЛКИ!!!
 
-ent-SpaceCashCounterfeit200000 = { ent-SpaceCashCounterfeit }
+ent-SpaceCashCounterfeit200000 = кредитыы
     .suffix = 200000
-    .desc = { ent-SpaceCashCounterfeit.desc }
+    .desc = Валерианские стандартные кре... Какого чёрта?.. ЭТО ЖЕ ПАРШИВЫЕ ПОДДЕЛКИ!!!

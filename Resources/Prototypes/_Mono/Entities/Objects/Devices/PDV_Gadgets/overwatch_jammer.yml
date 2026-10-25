@@ -22,6 +22,6 @@
   - type: JamOverwatchOnStuck
   - type: ExtendDescription
     descriptionList: 
-    - description: This item allows for the transport of corpses to Helios without revealing its coordinates to overwatch consoles.
+    - description: prototype-text-entity-OverwatchJammer-description-4c9d7d8d04
       color: "#4f94ad"
       requireDetailRange: true

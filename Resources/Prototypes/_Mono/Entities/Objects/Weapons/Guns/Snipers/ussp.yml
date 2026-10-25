@@ -40,7 +40,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleAK410-name-ca011d26fc
         startingItem: Magazine762x54mmRFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
@@ -50,7 +50,7 @@
           - Magazine762x54mmRFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleAK410-name-cdb7ab497b
         startingItem: Cartridge762x54mmRFMJ
         priority: 1
         whitelist:

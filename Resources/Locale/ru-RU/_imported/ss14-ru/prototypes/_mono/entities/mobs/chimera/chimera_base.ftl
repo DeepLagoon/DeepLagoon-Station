@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-MonoBaseMobLetoferol = chimera fleshbeast
-    .desc = A horribly mutated whatever-this-once-was.
+ent-MonoBaseMobLetoferol = химера
+    .desc = Чудовищно мутировавшее нечто, чем бы оно ни было раньше.
 
-ent-MonoBaseMobLetoferolHumanoid = chimera fleshbeast
-    .desc = A once sentient being covered in putrid flesh and bone. You can see a glimpse of humanity left in its eyes, like whoever it was is still awake.
+ent-MonoBaseMobLetoferolHumanoid = химера
+    .desc = Некогда разумное существо, покрытое гнилой плотью и костью. В его глазах ещё виден проблеск человечности, будто тот, кем оно было, всё ещё в сознании.

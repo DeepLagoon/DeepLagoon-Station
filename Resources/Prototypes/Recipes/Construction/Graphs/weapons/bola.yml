@@ -11,7 +11,7 @@
                 sprite: Objects/Misc/cablecuffs.rsi
                 state: cuff
                 color: red
-              name: cuffs
+              name: prototype-text-constructionGraph-Bola-name-d1d34df02a
             - material: Steel
               amount: 6
               doAfter: 2

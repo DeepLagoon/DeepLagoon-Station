@@ -105,60 +105,60 @@ marking-ChitinidRArmStripes = Хитиновая правая рука (Поло
 
 
 
-marking-ChitinidChestRadiant-radiant_chest = Chest
+marking-ChitinidChestRadiant-radiant_chest = Грудь
 marking-ChitinidChestRadiant = Хитиновая грудь (Сверкающая)
 
-marking-ChitinidHeadRadiant-radiant_head = Head
+marking-ChitinidHeadRadiant-radiant_head = Голова
 marking-ChitinidHeadRadiant = Хитиновая голова (Сверкающая)
 
-marking-ChitinidLLegRadiant-radiant_l_leg = Left Leg
+marking-ChitinidLLegRadiant-radiant_l_leg = Левая нога
 marking-ChitinidLLegRadiant = Хитиновая левая нога (Сверкающая)
 
-marking-ChitinidRLegRadiant-radiant_r_leg = Right Leg
+marking-ChitinidRLegRadiant-radiant_r_leg = Правая нога
 marking-ChitinidRLegRadiant = Хитиновая правая нога (Сверкающая)
 
-marking-ChitinidLArmRadiant-radiant_l_arm = Left Arm
+marking-ChitinidLArmRadiant-radiant_l_arm = Левая рука
 marking-ChitinidLArmRadiant = Хитиновая левая рука (Сверкающая)
 
-marking-ChitinidRArmRadiant-radiant_r_arm = Right Arm
+marking-ChitinidRArmRadiant-radiant_r_arm = Правая рука
 marking-ChitinidRArmRadiant = Хитиновая правая рука (Сверкающая)
 
 
 
-marking-ChitinidChestToxic-toxic_chest = Chest
+marking-ChitinidChestToxic-toxic_chest = Грудь
 marking-ChitinidChestToxic = Хитиновая грудь (токсичная)
 
-marking-ChitinidHeadToxic-toxic_head = Head 
+marking-ChitinidHeadToxic-toxic_head = Голова
 marking-ChitinidHeadToxic = Хитиновая голова (токсичная)
 
-marking-ChitinidLLegToxic-toxic_l_leg = Left Leg
+marking-ChitinidLLegToxic-toxic_l_leg = Левая нога
 marking-ChitinidLLegToxic = Хитиновая левая нога (токсичная)
 
-marking-ChitinidRLegToxic-toxic_r_leg = Right Leg
+marking-ChitinidRLegToxic-toxic_r_leg = Правая нога
 marking-ChitinidRLegToxic = Хитиновая правая нога (токсичная)
 
-marking-ChitinidLArmToxic-toxic_l_arm = Left Arm
+marking-ChitinidLArmToxic-toxic_l_arm = Левая рука
 marking-ChitinidLArmToxic = Хитиновая левая рука (токсичная)
 
-marking-ChitinidRArmToxic-toxic_r_arm = Right Arm
+marking-ChitinidRArmToxic-toxic_r_arm = Правая рука
 marking-ChitinidRArmToxic = Хитиновая правая рука (токсичная)
 
 
 
-marking-ChitinidChestSpotted-spotted_chest = Chest
+marking-ChitinidChestSpotted-spotted_chest = Грудь
 marking-ChitinidChestSpotted = Хитиновая грудь (В крапинку)
 
-marking-ChitinidHeadSpotted-spotted_head = Head
+marking-ChitinidHeadSpotted-spotted_head = Голова
 marking-ChitinidHeadSpotted = Хитиновая голова (В крапинку)
 
-marking-ChitinidLLegSpotted-spotted_l_leg = Left Leg
+marking-ChitinidLLegSpotted-spotted_l_leg = Левая нога
 marking-ChitinidLLegSpotted = Хитиновая левая нога (В крапинку)
 
-marking-ChitinidRLegSpotted-spotted_r_leg = Right Leg
+marking-ChitinidRLegSpotted-spotted_r_leg = Правая нога
 marking-ChitinidRLegSpotted = Хитиновая правая нога (В крапинку)
 
-marking-ChitinidLArmSpotted-spotted_l_arm = Left Arm
+marking-ChitinidLArmSpotted-spotted_l_arm = Левая рука
 marking-ChitinidLArmSpotted = Хитиновая левая рука (В крапинку)
 
-marking-ChitinidRArmSpotted-spotted_r_arm = Right Arm
+marking-ChitinidRArmSpotted-spotted_r_arm = Правая рука
 marking-ChitinidRArmSpotted = Хитиновая правая рука (В крапинку)

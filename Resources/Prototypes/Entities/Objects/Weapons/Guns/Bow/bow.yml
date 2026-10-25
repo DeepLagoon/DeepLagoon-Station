@@ -33,7 +33,7 @@
   - type: ItemSlots
     slots:
       projectiles:
-        name: Projectiles
+        name: prototype-text-entity-BaseBow-name-7acc007cbf
         startingItem: null
         insertSound: /Audio/Weapons/Guns/Misc/arrow_nock.ogg
         whitelist:

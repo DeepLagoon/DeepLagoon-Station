@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-EmblemBase = { ent-BaseSign }
+ent-EmblemBase = базовый знак
     .desc = { ent-BaseSign.desc }
 
-ent-EmblemBroken = { ent-EmblemBase }
+ent-EmblemBroken = базовый знак
     .desc = { ent-EmblemBase.desc }

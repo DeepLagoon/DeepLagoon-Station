@@ -39,7 +39,7 @@ ent-PosterContrabandRIPBadger = спите спокойно, барсуки
 ent-PosterContrabandAmbrosiaVulgaris = Амброзия Вульгарис
     .desc = Этот плакат выглядит довольно психоделично.
 
-ent-PosterContrabandDonutCorp = Donut Corp
+ent-PosterContrabandDonutCorp = Донк Ко.
     .desc = Этот плакат является несанкционированной рекламой Donut Corp.
 
 ent-PosterContrabandEAT = ЕШЬ
@@ -108,22 +108,22 @@ ent-PosterContrabandFreeDrone = дроны не рабы
 ent-PosterContrabandBustyBackdoorExoBabes6 = фигуристые ксено-малышки 6
     .desc = Зарядись (или разрядись) с этими полностью натуральными ксено-малышками!
 
-ent-PosterContrabandRobustSoftdrinks = Robust Softdrinks
+ent-PosterContrabandRobustSoftdrinks = Напитки Робаст
     .desc = Robust Softdrinks: Робастнее чем удар ящиком инструментов по голове!
 
 ent-PosterContrabandShamblersJuice = сок Shambler
     .desc = ~Взболтайте мне немного этого сока Shambler!~
 
-ent-PosterContrabandPwrGame = PWR Game
+ent-PosterContrabandPwrGame = Пвр Гейм
     .desc = СИЛА, которой ЖАЖДУТ геймеры! В партнёрстве с компанией Vlad's Salad.
 
-ent-PosterContrabandSunkist = Sun-kist
+ent-PosterContrabandSunkist = Сан-кист
     .desc = Выпейте звёзд!
 
 ent-PosterContrabandSpaceCola = космическая Кола
     .desc = Твоя любимая кола, в космосе.
 
-ent-PosterContrabandSpaceUp = Space-Up!
+ent-PosterContrabandSpaceUp = Спейс-Ап!
     .desc = Утянет в космос ВКУСОМ!
 
 ent-PosterContrabandKudzu = кудзу
@@ -225,7 +225,7 @@ ent-PosterLegitLoveIan = любовь к Иану
 ent-PosterLegitSpaceCops = космокопы
     .desc = Плакат, рекламирующий телешоу "Космические копы".
 
-ent-PosterLegitUeNo = Ue No
+ent-PosterLegitUeNo = Уе Но
     .desc = Плакат целиком на японском языке.
 
 ent-PosterLegitGetYourLEGS = помни про НОГИ
@@ -307,7 +307,7 @@ ent-PosterLegitMime = мимский постмодерн
     .desc = Постмодернистское изображение мима, превосходно!
 
 ent-PosterLegitCarpMount = настенный карп
-    .desc = Carpe diem!
+    .desc = Лови момент!
 
 ent-PosterLegitSafetyMothDelam = Ниан-хранитель - Меры безопасности при расслаивании
     .desc = Этот информационный плакат использует Ниана-хранителя™, чтобы рассказать читателям о необходимости прятаться в шкафах, если произошло расслоение кристалла суперматерии, чтобы избежать галлюцинаций. Эвакуация может быть лучшей стратегией.
@@ -339,7 +339,7 @@ ent-PosterLegitNTTGC = тактическая карточная игра NanoTr
 ent-PosterLegitSafetyMothSSD = Ниан-хранитель - Космическое расстройство сна
     .desc = Этот информационный плакат использует Ниана-хранителя™, чтобы рассказать читателям о Космическом Расстройстве Сна (КРС) - состоянии, при котором член экипажа перестаёт реагировать на происходящее. "Бережно относитесь к членам экипажа с КРС! В любой момент они могут проснуться!"
 
-ent-PosterLegitOppenhopper = Oppenhopper
+ent-PosterLegitOppenhopper = Опергеймер
     .desc = Постер давно забытого фильма. В нём рассказывается о группе упорных салаг из сектора Мейн, которые противостоят атакам печально известных Ядерных Оперативников. Слоган гласит: «Атаки оперативников будут продолжаться, пока робастность не повысится».
 
 ent-PosterMapBagel = карта Bagel

@@ -1,4 +1,4 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseSign = base sign
+ent-BaseSign = базовый знак
     .desc = { "" }

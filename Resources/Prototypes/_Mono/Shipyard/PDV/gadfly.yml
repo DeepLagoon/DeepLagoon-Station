@@ -2,7 +2,7 @@
   id: Gadfly
   parent: BaseVesselIFFDisabled
   name: PDV Gadfly
-  description: A short-range light support craft armed with 2 40x360mm AK570 autocannons and 2 90x630mm TARNYXs.
+  description: "Лёгкий корабль поддержки малого радиуса действия с двумя автопушками AK570 40x360 мм и двумя TARNYX 90x630 мм."
   price: 68000
   category: Small
   group: BlackMarket

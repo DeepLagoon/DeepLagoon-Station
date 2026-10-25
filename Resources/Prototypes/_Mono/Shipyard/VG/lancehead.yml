@@ -8,7 +8,7 @@
   id: Lancehead
   parent: BaseVessel
   name: VG Lancehead
-  description: A heavy duty artillery platform outsourced to GS. Comes with equipped with a "Charon" class railgun.
+  description: "Тяжёлая артиллерийская платформа, изготовление которой поручили GS. Оснащена рельсотроном класса Charon."
   limit: 1
   price: 220000
   purchasable: false # Voucher only

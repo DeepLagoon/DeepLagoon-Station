@@ -4,7 +4,7 @@
   id: Shiv
   parent: BaseVesselIFFDisabled
   name: TSF-PIN Shiv
-  description: The workhorse of industry of the Solarian fleets; rugged, ancient, some may even say obsolete. Comes with a decent armament and good mining capabilities.
+  description: "Рабочая лошадка промышленности соларианских флотов: крепкая, древняя, а кто-то скажет — устаревшая. Имеет достойное вооружение и хорошие возможности добычи."
   price: 105000
   category: Small
   hyperwarTimelock: 0
@@ -27,7 +27,7 @@
       stationProto: StandardFrontierSecurityVessel
       gridComponents:
       - type: VesselInfo
-        description: "A vessel so rugged you can still see the radiation scarring after the new paintjob."
+        description: "Настолько суровое судно, что даже под новой краской видны радиационные шрамы."
       components:
       - type: StationNameSetup
         mapNameTemplate: 'Shiv TSF{1}'

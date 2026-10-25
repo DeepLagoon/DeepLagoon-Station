@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ExplorerDuffelGiftBox = explorer's bundle
+ent-ExplorerDuffelGiftBox = набор исследователя
     .suffix = NPC Loot
     .desc = { ent-SyndieDuffelGiftBox.desc }
 

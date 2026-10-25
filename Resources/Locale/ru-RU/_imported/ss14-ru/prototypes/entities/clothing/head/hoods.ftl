@@ -58,7 +58,7 @@ ent-ClothingHeadHatHoodWinterBartender = капюшон зимней куртк�
     .desc = { ent-ClothingHeadHatHoodWinterBase.desc }
 
 ent-ClothingHeadHatHoodWinterCaptain = капюшон зимней куртки капитана
-    .desc = An expensive hood, to keep the captain's head warm.
+    .desc = { ent-ClothingHeadHatHoodWinterBase.desc }
 
 ent-ClothingHeadHatHoodWinterCargo = капюшон зимней куртки грузчика
     .desc = { ent-ClothingHeadHatHoodWinterBase.desc }
@@ -67,7 +67,7 @@ ent-ClothingHeadHatHoodWinterCE = капюшон зимней куртки ст�
     .desc = { ent-ClothingHeadHatHoodWinterBase.desc }
 
 ent-ClothingHeadHatHoodWinterCentcom = капюшон зимней куртки Центком
-    .desc = A hood for keeping the central comander's head warm.
+    .desc = Капюшон для сохранения тепла на элитной голове не менее элитного человека.
 
 ent-ClothingHeadHatHoodWinterChem = капюшон зимней куртки химика
     .desc = { ent-ClothingHeadHatHoodWinterBase.desc }

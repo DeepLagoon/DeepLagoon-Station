@@ -1,25 +1,25 @@
 - type: construction
-  name: bedroll
+  name: construction-recipe-NFBedrollCrafting-name
   id: NFBedrollCrafting
   graph: GraphNFBedrollFolded
   startNode: start
   targetNode: NFBedrollFolded
   category: construction-category-utilities
   objectType: Item
-  description: When there's nowhere else to sleep, you'll want to bring at least one thing of comfort.
+  description: construction-recipe-NFBedrollCrafting-description
   icon:
     sprite: _NF/Structures/Furniture/bedroll.rsi
     state: bedroll01
 
 - type: construction
-  name: bedroll
+  name: construction-recipe-NFBedrollAltFoldedCrafting-name
   id: NFBedrollAltFoldedCrafting
   graph: GraphNFBedrollFolded
   startNode: start
   targetNode: NFBedrollAltFolded
   category: construction-category-utilities
   objectType: Item
-  description: When there's nowhere else to sleep, you'll want to bring at least one thing of comfort.
+  description: construction-recipe-NFBedrollAltFoldedCrafting-description
   icon:
     sprite: _NF/Structures/Furniture/bedroll.rsi
     state: bedroll02

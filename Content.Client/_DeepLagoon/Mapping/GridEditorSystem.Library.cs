@@ -45,6 +45,7 @@ public sealed partial class GridEditorSystem
     {
         if (_libraryLoaded) return;
         _libraryLoaded = true;
+        _hotbar.Clear();
         var path = new ResPath(LibraryFile);
         try
         {
@@ -67,8 +68,7 @@ public sealed partial class GridEditorSystem
                     if (child is MappingDataNode node && Field(node, "id") is { Length: > 0 and <= 64 } id &&
                         Field(node, "name") is { Length: > 0 and <= 64 } name && node.TryGet<SequenceDataNode>("items", out var items) && items.Count is > 0 and <= 512)
                         _templates[id] = (name, ReadItems(items));
-            _hotbar.Clear();
-            if (root.TryGet<SequenceDataNode>("hotbar", out var hotbar))
+            if (Field(root, "hotbarVersion") == "2" && root.TryGet<SequenceDataNode>("hotbar", out var hotbar))
             {
                 foreach (var child in hotbar)
                     if (child is MappingDataNode node && int.TryParse(Field(node, "slot"), out var slot) && slot >= 0)
@@ -77,13 +77,12 @@ public sealed partial class GridEditorSystem
                         if (kind is "entity" or "tile" or "decal" && id.Length is > 0 and <= 200) _hotbar[slot] = (kind, id);
                     }
             }
-            else
-                foreach (var entry in _favorites.Values) _hotbar[_hotbar.Count] = entry;
         }
         catch (Exception e) { Log.Warning($"Unable to load grid editor library: {e.Message}"); Status("Не удалось прочитать библиотеку. Исходный файл сохранён.", false); }
     }
 
     private TguiData LibraryData() => new TguiData().Number("version", 1)
+        .Number("hotbarVersion", 2)
         .Array("hotbar", HotbarData())
         .Array("favorites", _favorites.Values.Select(f => new TguiData().String("kind", f.Kind).String("id", f.Prototype)))
         .Array("templates", _templates.Select(t => new TguiData().String("id", t.Key).String("name", t.Value.Name)

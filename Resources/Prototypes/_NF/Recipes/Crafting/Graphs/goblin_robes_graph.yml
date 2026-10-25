@@ -21,13 +21,13 @@
         - to: ClothingOuterEVASuitGoblinNode
           steps:
             - tag: ClothingRobesGoblin
-              name: goblin traditional robes
+              name: prototype-text-constructionGraph-ClothingOuterEVASuitGoblinGraph-name-6006592929
               icon:
                 sprite: _NF/Clothing/OuterClothing/Coats/goblin_robes.rsi
                 state: icon
               doAfter: 10
             - tag: SuitEVA
-              name: EVA suit
+              name: prototype-text-constructionGraph-ClothingOuterEVASuitGoblinGraph-name-a735148814
               icon:
                 sprite: Clothing/OuterClothing/Suits/eva.rsi
                 state: icon

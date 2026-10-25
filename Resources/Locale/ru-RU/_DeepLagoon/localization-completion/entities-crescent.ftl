@@ -1,0 +1,14 @@
+ent-BaseBiomeSource = базовый источник биомов
+ent-BaseDispenser = раздатчик
+    .desc = Раздатчик.
+ent-BiomeSourceClusterA = источник биомов INSO-357k
+ent-BiomeSourceFallback = резервный источник биомов
+ent-BiomeSourceFarReachesI = источник биомов дальних рубежей I
+ent-BiomeSourceFarReachesII = источник биомов дальних рубежей II
+ent-BiomeSourceFarReachesIII = источник биомов дальних рубежей III
+ent-BiomeSourceFarReachesIV = источник биомов дальних рубежей IV
+ent-BiomeSourceInnerRing = источник биомов внутреннего кольца
+ent-BiomeSourceMiddleRing = источник биомов среднего кольца
+ent-BiomeSourceOuterRing = источник биомов внешнего кольца
+ent-BiomeSourceWilds = источник биомов диких земель
+ent-ShipShield = корабельный щит

@@ -2,7 +2,7 @@
   id: Ontos
   parent: BaseVesselIFFDisabled
   name: PDV Ontos
-  description: Carries a large howitzer for fire-support and heavy anti-ship duties with 2 scattercannons for escort duty, but struggles against anything moving faster than a snail.
+  description: "Несёт большую гаубицу для огневой поддержки и борьбы с тяжёлыми кораблями, а также две дробовые пушки для эскортных задач. Испытывает трудности с любой целью быстрее улитки."
   price: 49500
   category: Small
   group: BlackMarket

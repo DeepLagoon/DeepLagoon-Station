@@ -1,37 +1,37 @@
 - type: construction
-  name: label filter
+  name: construction-recipe-AutomationFilterLabel-name
   id: AutomationFilterLabel
   graph: AutomationFilter
   startNode: start
   targetNode: label
   category: construction-category-misc
-  description: A filter that can be installed in a robotic arm. This one scans labels of attached items.
+  description: construction-recipe-AutomationFilterLabel-description
   icon:
     sprite: _Goobstation/Objects/Misc/filter.rsi
     state: icon
   objectType: Item
 
 - type: construction
-  name: name filter
+  name: construction-recipe-AutomationFilterName-name
   id: AutomationFilterName
   graph: AutomationFilter
   startNode: start
   targetNode: name
   category: construction-category-misc
-  description: A filter that can be installed in a robotic arm. This one uses complex AI vision technology to identify items.
+  description: construction-recipe-AutomationFilterName-description
   icon:
     sprite: _Goobstation/Objects/Misc/filter.rsi
     state: icon
   objectType: Item
 
 - type: construction
-  name: stack filter
+  name: construction-recipe-AutomationFilterStack-name
   id: AutomationFilterStack
   graph: AutomationFilter
   startNode: start
   targetNode: stack
   category: construction-category-misc
-  description: A filter that can be installed in a robotic arm. This one weighs items to compare it to a stack size.
+  description: construction-recipe-AutomationFilterStack-description
   icon:
     sprite: _Goobstation/Objects/Misc/filter.rsi
     state: icon
@@ -43,21 +43,21 @@
   startNode: start
   targetNode: pressure
   category: construction-category-misc
-  name: pressure filter
-  description: A filter that can be installed in factory machines. This one has a barometer to check the pressure of gases.
+  name: construction-recipe-AutomationFilterPressure-name
+  description: construction-recipe-AutomationFilterPressure-description
   icon:
     sprite: _Goobstation/Objects/Misc/filter.rsi
     state: icon
   objectType: Item
 
 - type: construction
-  name: combined filter
+  name: construction-recipe-AutomationFilterCombined-name
   id: AutomationFilterCombined
   graph: AutomationFilter
   startNode: start
   targetNode: combined
   category: construction-category-misc
-  description: A filter that can be installed in a robotic arm. This one uses a logic gate to combine 2 installed item filters.
+  description: construction-recipe-AutomationFilterCombined-description
   icon:
     sprite: _Goobstation/Objects/Misc/filter.rsi
     state: icon

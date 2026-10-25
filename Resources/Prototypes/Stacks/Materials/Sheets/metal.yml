@@ -1,20 +1,20 @@
 - type: stack
   id: Steel
-  name: steel
+  name: prototype-text-stack-Steel-name-033b5e5671
   icon: { sprite: /Textures/Objects/Materials/Sheets/metal.rsi, state: steel }
   spawn: SheetSteel1
   maxCount: 100 # mono
 
 - type: stack
   id: Plasteel
-  name: plasteel
+  name: prototype-text-stack-Plasteel-name-c65b6336e6
   icon: { sprite: /Textures/Objects/Materials/Sheets/metal.rsi, state: plasteel }
   spawn: SheetPlasteel1
   maxCount: 100 # mono
 
 - type: stack
   id: Brass
-  name: brass
+  name: prototype-text-stack-Brass-name-ec380492d0
   icon: { sprite: /Textures/Objects/Materials/Sheets/metal.rsi, state: brass }
   spawn: SheetBrass1
   maxCount: 100 # mono

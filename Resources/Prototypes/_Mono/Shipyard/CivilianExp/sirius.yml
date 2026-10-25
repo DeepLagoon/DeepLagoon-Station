@@ -2,7 +2,7 @@
   id: Sirius
   parent: BaseVessel
   name: SKR Sirius
-  description: A basic expeditionary ship with moderately-decent armor and armaments for it's size, and a full chemistry suite on top of it all.
+  description: "Базовый экспедиционный корабль с вполне достойными для его размера бронёй и вооружением, вдобавок оснащённый полноценной химической лабораторией."
   price: 95000
   category: Medium
   group: Expedition

@@ -52,10 +52,10 @@
   group: market
 
 - type: cargoProduct
-  name: "emitter crate"
+  name: "ящик с эмиттером"
   id: EngineSingularityEmitter
   abstract: true # Frontier
-  description: "Contains an emitter. Used only for dangerous applications."
+  description: "Содержит эмиттер. Используется только для опасных задач."
   icon:
     sprite: Structures/Power/Generation/Singularity/emitter.rsi
     state: emitter2

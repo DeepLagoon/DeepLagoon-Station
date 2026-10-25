@@ -30,7 +30,7 @@
           data: 3
 
       - tag: DurandCentralControlModule
-        name: durand central control module
+        name: prototype-text-constructionGraph-Durand-name-6f78174127
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: "mainboard"
@@ -47,7 +47,7 @@
           data: 5
 
       - tag: DurandPeripheralsControlModule
-        name: durand peripherals control module
+        name: prototype-text-constructionGraph-Durand-name-7a93ad9ff9
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: id_mod
@@ -64,7 +64,7 @@
           data: 7
 
       - tag: DurandTargetingControlModule
-        name: durand weapon control and targeting module
+        name: prototype-text-constructionGraph-Durand-name-86e569893d
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: mcontroller
@@ -81,7 +81,7 @@
           data: 9
 
       - tag: CapacitorStockPart
-        name: capacitor
+        name: prototype-text-constructionGraph-Durand-name-1b3bf84ade
         icon:
           sprite: Objects/Misc/stock_parts.rsi
           state: capacitor
@@ -98,7 +98,7 @@
           data: 11
 
       - component: PowerCell
-        name: power cell
+        name: prototype-text-constructionGraph-Durand-name-d4bbc176c1
         store: battery-container
         icon:
           sprite: Objects/Power/power_cells.rsi
@@ -137,7 +137,7 @@
           data: 16
 
       - tag: MechAirTank
-        name: exosuit air tank
+        name: prototype-text-constructionGraph-Durand-name-37e6f585cf
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: mecha_air_tank
@@ -146,7 +146,7 @@
         doAfter: 1
 
       - tag: MechThruster
-        name: exosuit thruster
+        name: prototype-text-constructionGraph-Durand-name-5cd7c02511
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: mecha_bin
@@ -155,7 +155,7 @@
         doAfter: 1
 
       - tag: DurandArmor
-        name: durand armor plates
+        name: prototype-text-constructionGraph-Durand-name-7bda7befad
         icon:
           sprite: "_Goobstation/Objects/Specific/Mech/durand_construction.rsi"
           state: durand_armor
@@ -180,7 +180,7 @@
     - to: tsfdurand
       steps:
       - tag: MechIFFTSF
-        name: TSF Mech IFF
+        name: prototype-text-constructionGraph-Durand-name-7559199bcb
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: tesla
@@ -190,7 +190,7 @@
     - to: pdvdurand
       steps:
       - tag: MechIFFPDV
-        name: PDV Mech IFF
+        name: prototype-text-constructionGraph-Durand-name-624bedb579
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: tesla

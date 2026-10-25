@@ -8,7 +8,7 @@
   id: Guppy
   parent: BaseVessel
   name: SHM Guppy
-  description: A small mining vessel straight from the outer Perseus arm. Reliable, rugged, but rudimentary, the Guppy is a prime vessel for a novice contractor.
+  description: "Небольшое шахтёрское судно прямо из внешнего Рукава Персея. Надёжный, крепкий, но незамысловатый Guppy отлично подходит начинающему контрактнику."
   price: 22000
   category: Small
   group: Shipyard

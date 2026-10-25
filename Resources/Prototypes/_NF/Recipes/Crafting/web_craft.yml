@@ -1,11 +1,11 @@
 - type: construction
-  name: classic web poncho
+  name: construction-recipe-ClothingNeckClassicPonchoWebRecipe-name
   id: ClothingNeckClassicPonchoWebRecipe
   graph: ClothingNeckClassicPonchoWebGraph
   startNode: start
   targetNode: ClothingNeckClassicPonchoWebNode
   category: construction-category-clothing
-  description: Take your glands in one hand, channel the idea of two triangles in the other.
+  description: construction-recipe-ClothingNeckClassicPonchoWebRecipe-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -15,13 +15,13 @@
   objectType: Item
 
 - type: construction
-  name: web poncho
+  name: construction-recipe-ClothingNeckPonchoWebRecipe-name
   id: ClothingNeckPonchoWebRecipe
   graph: ClothingNeckPonchoWebGraph
   startNode: start
   targetNode: ClothingNeckPonchoWebNode
   category: construction-category-clothing
-  description: Imagine wrapping your prey in a cocoon. Now, forget to add the bottom and make it decorative. A cozy treat.
+  description: construction-recipe-ClothingNeckPonchoWebRecipe-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -31,13 +31,13 @@
   objectType: Item
 
 - type: construction
-  name: web cloak
+  name: construction-recipe-ClothingNeckCloakWebRecipe-name
   id: ClothingNeckCloakWebRecipe
   graph: ClothingNeckCloakWebGraph
   startNode: start
   targetNode: ClothingNeckCloakWebNode
   category: construction-category-clothing
-  description: A decorative adornment to celebrate the cunning craftsmanship of spider kind. It is silky! Does not ward off spider attacks.
+  description: construction-recipe-ClothingNeckCloakWebRecipe-description
   entityWhitelist:
     tags:
     - SpiderCraft

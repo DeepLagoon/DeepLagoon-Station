@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-MobBloodCultistBase = культист крови
-    .desc = { ent-MobHumanoidHostileBase.desc }
+    .desc = { ent-MobHumanoidHostileBaseShade.desc }
 
 ent-MobBloodCultistPriest = жрец культа крови
     .desc = Просветлённые шёпотом пустоты, эти люди проходят посвящение в тайные ритуалы. Они руководят сбором крови и совершают обряды, приближая день, когда их божество Нар'Си пробудится.
@@ -33,8 +33,8 @@ ent-MobBloodCultDrainedOne = осушённый
 ent-MobBloodCultShade = культистская тень
     .desc = Призрак культиста, возвращенный в реальность жуткими способами, чтобы пролить еще больше крови во славу Нар'Си.
 
-ent-MobBloodCultDrainedOneNanoTrasen = { ent-BaseC3MobCreatureNoValue }
-    .desc = { ent-BaseC3MobCreatureNoValue.desc }
+ent-MobBloodCultDrainedOneNanoTrasen = { ent-MobBloodCultDrainedOne }
+    .desc = { ent-MobBloodCultDrainedOne.desc }
 
 ent-BloodCultTurret = кровавый пилон
     .desc = С помощью кровавых ритуалов души принесенных в жертву культистов были собраны в этом пилоне, чтобы защитить своих живых собратьев. Атакует неверных.

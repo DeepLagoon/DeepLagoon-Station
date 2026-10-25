@@ -7,7 +7,7 @@
     - to: pyrogelbombempty
       steps:
       - tag: DrinkBottle
-        name: an empty bottle
+        name: prototype-text-constructionGraph-PyrogelBomb-name-7b12632194
         icon:
           sprite: Objects/Consumable/Drinks/vodkabottle.rsi
           state: icon

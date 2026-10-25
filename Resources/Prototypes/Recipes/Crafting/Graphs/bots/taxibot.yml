@@ -10,18 +10,18 @@
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-TaxiBot-name-9357394adc
       - tag: BorgHead
         icon:
           sprite: Objects/Specific/Robotics/cyborg_parts.rsi
           state: borg_head
-        name: borg head
+        name: prototype-text-constructionGraph-TaxiBot-name-366d8bc7e9
         doAfter: 1
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-TaxiBot-name-7b8e203aeb
         doAfter: 2
       - material: Steel
         amount: 5

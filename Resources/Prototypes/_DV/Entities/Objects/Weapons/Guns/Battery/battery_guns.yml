@@ -43,11 +43,11 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 45 # Mono 100->45
-      name: disable
+      name: "оглушение"
       state: disabler
     - proto: BulletEnergyGunLaser
       fireCost: 75 # Mono 200->75
-      name: kill
+      name: "убийство"
       state: lethal
   - type: MagazineVisuals
     magState: mag
@@ -113,11 +113,11 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 45 # Mono 100->45
-      name: disable
+      name: "оглушение"
       state: disabler
     - proto: BulletEnergyGunLaser
       fireCost: 75 # Mono 200->75
-      name: kill
+      name: "убийство"
       state: lethal
   - type: MagazineVisuals
     magState: mag
@@ -179,11 +179,11 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 60 # Mono 100 -> 60
-      name: disable
+      name: "оглушение"
       state: disabler
     - proto: BulletEnergyGunLaser
       fireCost: 90 # Mono 200 -> 90
-      name: lethal
+      name: "летальный"
       state: lethal
     # - proto: BulletEnergyGunIon
     #   fireCost: 500

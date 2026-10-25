@@ -1,54 +1,54 @@
 - type: construction
-  name: torch
+  name: construction-recipe-LightTorch-name
   id: LightTorch
   graph: LightTorch
   startNode: start
   targetNode: torch
   category: construction-category-tools
-  description: A torch fashioned from some wood.
+  description: construction-recipe-LightTorch-description
   icon: { sprite: Objects/Misc/torch.rsi, state: icon }
   objectType: Item
 
 - type: construction
-  name: logic gate
+  name: construction-recipe-LogicGate-name
   id: LogicGate
   graph: LogicGate
   startNode: start
   targetNode: logic_gate
   category: construction-category-tools
-  description: A binary logic gate for signals.
+  description: construction-recipe-LogicGate-description
   icon: { sprite: Objects/Devices/gates.rsi, state: or_icon }
   objectType: Item
 
 - type: construction
-  name: edge detector
+  name: construction-recipe-EdgeDetector-name
   id: EdgeDetector
   graph: LogicGate
   startNode: start
   targetNode: edge_detector
   category: construction-category-tools
-  description: An edge detector for signals.
+  description: construction-recipe-EdgeDetector-description
   icon: { sprite: Objects/Devices/gates.rsi, state: edge_detector }
   objectType: Item
 
 - type: construction
-  name: power sensor
+  name: construction-recipe-PowerSensor-name
   id: PowerSensor
   graph: LogicGate
   startNode: start
   targetNode: power_sensor
   category: construction-category-tools
-  description: A power network checking device for signals.
+  description: construction-recipe-PowerSensor-description
   icon: { sprite: Objects/Devices/gates.rsi, state: power_sensor }
   objectType: Item
 
 - type: construction
-  name: memory cell
+  name: construction-recipe-MemoryCell-name
   id: MemoryCell
   graph: LogicGate
   startNode: start
   targetNode: memory_cell
   category: construction-category-tools
-  description: A memory cell for signals.
+  description: construction-recipe-MemoryCell-description
   icon: { sprite: Objects/Devices/gates.rsi, state: memory_cell }
   objectType: Item

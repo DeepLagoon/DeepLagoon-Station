@@ -29,7 +29,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolUllmanSmartMagnumMK5-name-bd8b8c50b9
         startingItem: Magazine55_SAMPistol
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -40,7 +40,7 @@
             - Magazine55_SAMPistolHighCapacity
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolUllmanSmartMagnumMK5-name-4f468a3336
         startingItem: Cartridge55_SAM
         priority: 1
         whitelist:
@@ -89,7 +89,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolKuosame-name-c2b5dfeee3
         startingItem: Magazine57x28mmPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -99,7 +99,7 @@
           - Magazine57x28mmPistolFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolKuosame-name-118501fc97
         startingItem: Cartridge57x28mmFMJ
         priority: 1
         whitelist:
@@ -129,7 +129,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolDamocles-name-f9bc0afb77
         startingItem: Magazine9x19mmPistolHighCapacityFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -139,7 +139,7 @@
             - Magazine9x19mmPistolHighCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolDamocles-name-a3293987a4
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:

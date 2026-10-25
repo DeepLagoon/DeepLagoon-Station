@@ -32,6 +32,6 @@ ent-WallRockAndesiteLithium = { ent-WallRockAndesite }
     .desc = Рудная жила, богатая литием.
     .suffix = Литий
 
-ent-WallRockScrapPileLithium = { ent-WallRockScrapPile }
+ent-WallRockScrapPileLithium = груда металлолома
     .desc = Рудная жила с литием.
     .suffix = Литий

@@ -5,7 +5,7 @@
   suffix: POI, USSP
   components:
   - type: FaxMachine
-    name: "USSP Station Camelot"
+    name: "Станция СССП «Камелот»"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -13,7 +13,7 @@
   suffix: POI, USSP Commisar
   components:
   - type: FaxMachine
-    name: "USSP Station Camelot Commisar"
+    name: "Комиссар станции СССП «Камелот»"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -21,4 +21,4 @@
   suffix: POI, PDV Jupiter
   components:
   - type: FaxMachine
-    name: "PDV Jupiter-Class Carrier"
+    name: "Авианосец PDV класса «Юпитер»"

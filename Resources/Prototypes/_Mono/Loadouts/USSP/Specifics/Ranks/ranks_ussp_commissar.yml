@@ -1,13 +1,13 @@
 - type: loadout
   id: UsspRankCM1
-  name: USSP CM-1 (Politruk)
+  name: "СССП CM-1 (политрук)"
   components:
   - type: ChatRank
     rank: ussp-cm1
 
 - type: loadout
   id: UsspRankCM2
-  name: USSP CM-2 (Starshiy Politruk)
+  name: "СССП CM-2 (старший политрук)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspStPol
@@ -26,7 +26,7 @@
 
 - type: loadout
   id: UsspRankCM3
-  name: USSP CM-3 (Batalionny Komissar)
+  name: "СССП CM-3 (батальонный комиссар)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspBKom

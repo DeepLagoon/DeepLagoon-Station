@@ -1,6 +1,6 @@
 - type: construction
-  name: machine frame (2x1)
-  description: A machine under construction. Needs more parts.
+  name: construction-recipe-MachineFrame2x1-name
+  description: construction-recipe-MachineFrame2x1-description
   id: MachineFrame2x1
   graph: Machine2x1
   startNode: start
@@ -13,8 +13,8 @@
     state: "icon"
 
 - type: construction
-  name: machine frame (2x2)
-  description: A machine under construction. Needs more parts.
+  name: construction-recipe-MachineFrame2x2-name
+  description: construction-recipe-MachineFrame2x2-description
   id: MachineFrame2x2
   graph: Machine2x2
   startNode: start
@@ -27,8 +27,8 @@
     state: "icon"
 
 - type: construction
-  name: machine frame (3x2)
-  description: A machine under construction. Needs more parts.
+  name: construction-recipe-MachineFrame3x2-name
+  description: construction-recipe-MachineFrame3x2-description
   id: MachineFrame3x2
   graph: Machine3x2
   startNode: start
@@ -41,8 +41,8 @@
     state: "icon"
     
 - type: construction
-  name: machine frame (3x3)
-  description: A machine under construction. Needs more parts.
+  name: construction-recipe-MachineFrame3x3-name
+  description: construction-recipe-MachineFrame3x3-description
   id: MachineFrame3x3
   graph: Machine3x3
   startNode: start

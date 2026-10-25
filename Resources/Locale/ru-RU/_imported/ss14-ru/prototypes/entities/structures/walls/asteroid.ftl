@@ -133,7 +133,7 @@ ent-IronRockDiamond = { ent-IronRock }
     .suffix = Алмазы
 
 ent-WallRock = камень
-    .desc = { ent-BaseStructure.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockCoal = { ent-WallRock }
@@ -181,7 +181,7 @@ ent-WallRockSalt = { ent-WallRock }
     .suffix = Соль
 
 ent-WallRockBasalt = базальт
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockBasaltCoal = { ent-WallRockBasalt }
@@ -229,7 +229,7 @@ ent-WallRockBasaltSalt = { ent-WallRockBasalt }
     .suffix = Соль
 
 ent-WallRockSnow = сугроб
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockSnowCoal = { ent-WallRockSnow }
@@ -277,7 +277,7 @@ ent-WallRockSnowSalt = { ent-WallRockSnow }
     .suffix = Соль
 
 ent-WallRockSand = песчаник
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockSandCoal = { ent-WallRockSand }
@@ -325,7 +325,7 @@ ent-WallRockSandSalt = { ent-WallRockSand }
     .suffix = Соль
 
 ent-WallRockChromite = хромит
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockChromiteCoal = { ent-WallRockChromite }
@@ -373,7 +373,7 @@ ent-WallRockChromiteSalt = { ent-WallRockChromite }
     .suffix = Соль
 
 ent-WallRockAndesite = андезит
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
     .suffix = Планета
 
 ent-WallRockAndesiteCoal = { ent-WallRockAndesite }

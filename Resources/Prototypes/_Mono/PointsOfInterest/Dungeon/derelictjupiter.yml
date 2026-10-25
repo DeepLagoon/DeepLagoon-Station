@@ -46,4 +46,4 @@
         - type: StationDeadDropHintExempt
       gridComponents:
       - type: VesselInfo
-        description: "The remains of the Vanguard's prestigious mech carrier, washed up months after it met its fate in the Outer Cloud. Is this really a good idea?"
+        description: "Останки прославленного мехоносца Авангарда, обнаруженные спустя месяцы после его гибели во Внешнем Облаке. Это точно хорошая идея?"

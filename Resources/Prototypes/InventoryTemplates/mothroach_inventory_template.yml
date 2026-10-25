@@ -6,7 +6,7 @@
     slotFlags: MASK
     uiWindowPos: 1,1
     strippingWindowPos: 1,1
-    displayName: Mask
+    displayName: "Маска"
     whitelist:
       tags:
         - PetWearable
@@ -18,7 +18,7 @@
     slotFlags: NECK
     uiWindowPos: 0,1
     strippingWindowPos: 0,1
-    displayName: Neck
+    displayName: "Шея"
     whitelist:
       tags:
         - PetWearable
@@ -29,7 +29,7 @@
     stripTime: 3
     uiWindowPos: 0,2
     strippingWindowPos: 0,0
-    displayName: Eyes
+    displayName: "Глаза"
     whitelist:
       tags:
         - PetWearable
@@ -42,7 +42,7 @@
     stripTime: 3
     uiWindowPos: 1,0
     strippingWindowPos: 2,5
-    displayName: Suit Storage
+    displayName: "Снаряжение скафандра"
     whitelist:
       components:
         - GasTank
@@ -51,7 +51,7 @@
     slotFlags: HEAD
     uiWindowPos: 1,2
     strippingWindowPos: 1,0
-    displayName: Head
+    displayName: "Голова"
     whitelist:
       tags:
         - PetWearable

@@ -1,100 +1,100 @@
 - type: construction
-  name: livestock crate
+  name: construction-recipe-CrateLivestock-name
   id: CrateLivestock
   graph: CrateLivestock
   startNode: start
   targetNode: cratelivestock
   category: construction-category-storage
-  description: A wooden crate for holding livestock.
+  description: construction-recipe-CrateLivestock-description
   icon: { sprite: Structures/Storage/Crates/livestock.rsi, state: base }
   objectType: Structure
 
 - type: construction
-  name: steel crate
+  name: construction-recipe-CrateGenericSteel-name
   id: CrateGenericSteel
   graph: CrateGenericSteel
   startNode: start
   targetNode: crategenericsteel
   category: construction-category-storage
-  description: A metal crate for storing things.
+  description: construction-recipe-CrateGenericSteel-description
   icon: { sprite: Structures/Storage/Crates/generic.rsi, state: icon }
   objectType: Structure
 
 - type: construction
-  name: freezer
+  name: construction-recipe-CrateFreezer-name
   id: CrateFreezer
   graph: CrateFreezer
   startNode: start
   targetNode: done
   category: construction-category-storage
-  description: A metal freezing crate for storing things.
+  description: construction-recipe-CrateFreezer-description
   icon: { sprite: Structures/Storage/Crates/freezer.rsi, state: icon }
   objectType: Structure
 
 - type: construction
-  name: plastic crate
+  name: construction-recipe-CratePlastic-name
   id: CratePlastic
   graph: CratePlastic
   startNode: start
   targetNode: crateplastic
   category: construction-category-storage
-  description: A plastic crate for storing things.
+  description: construction-recipe-CratePlastic-description
   icon: { sprite: Structures/Storage/Crates/plastic.rsi, state: icon }
   objectType: Structure
 
 - type: construction
-  name: wooden crate
+  name: construction-recipe-CrateWood-name
   id: CrateWood
   graph: CrateWood
   startNode: start
   targetNode: cratewood
   category: construction-category-storage
-  description: A wooden crate for storing things.
+  description: construction-recipe-CrateWood-description
   icon: { sprite: Structures/Storage/Crates/wood.rsi, state: icon }
   objectType: Structure
 
 - type: construction
-  name: cardboard box
+  name: construction-recipe-BigBox-name
   id: BigBox
   graph: BaseBigBox
   startNode: start
   targetNode: basebigbox
   category: construction-category-storage
-  description: A big box for storing things or hiding in.
+  description: construction-recipe-BigBox-description
   icon: { sprite: Structures/Storage/closet.rsi, state: cardboard }
   objectType: Structure
 
 - type: construction
-  name: cardboard box
+  name: construction-recipe-BoxCardboard-name
   id: BoxCardboard
   graph: BoxCardboard
   startNode: start
   targetNode: boxcardboard
   category: construction-category-storage
-  description: A small box for storing things.
+  description: construction-recipe-BoxCardboard-description
   icon: { sprite: Objects/Storage/boxes.rsi, state: box }
   objectType: Item
 
 - type: construction
-  name: pizza box
+  name: construction-recipe-FoodBoxPizza-name
   id: FoodBoxPizza
   graph: FoodBoxPizza
   startNode: start
   targetNode: foodboxpizza
   category: construction-category-storage
-  description: A box for pizza.
+  description: construction-recipe-FoodBoxPizza-description
   icon:
     sprite: Objects/Consumable/Food/Baked/pizza.rsi
     state: box
   objectType: Item
 
 - type: construction
-  name: coffin
+  name: construction-recipe-CrateCoffin-name
   id: CrateCoffin
   graph: CrateCoffin
   startNode: start
   targetNode: cratecoffin
   category: construction-category-storage
-  description: A coffin for storing corpses.
+  description: construction-recipe-CrateCoffin-description
   icon: { sprite: Structures/Storage/Crates/coffin.rsi, state: base }
   objectType: Structure

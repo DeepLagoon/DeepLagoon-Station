@@ -2,7 +2,7 @@
   id: Mercury
   parent: BaseVesselIFFDisabled
   name: TSF-SKR Mercury
-  description: Naval designation Type-32D Guided Missile Corvette. Equipped with 4 heavy frontal facing Paladin AShM pods, and 2 light PD guns.
+  description: "Флотское обозначение — ракетный корвет Type-32D. Оснащён четырьмя тяжёлыми носовыми противокорабельными ракетными блоками Paladin и двумя лёгкими орудиями точечной обороны."
   price: 500000
   purchasable: false # voucher only - T2
   category: Medium

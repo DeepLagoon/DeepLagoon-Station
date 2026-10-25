@@ -8,7 +8,7 @@
   id: Mite
   parent: BaseVessel
   name: Mite
-  description: A heap of scrap of unknown origin, seemingly retrofitted by salvagers into a military ship using salvage weaponry. Was found as a derelict in space and now is being resold without even as much as a cleanup.
+  description: "Куча металлолома неизвестного происхождения, судя по всему переделанная утилизаторами в боевой корабль с вооружением из трофеев. Найдена брошенной в космосе и теперь перепродаётся даже без предварительной уборки."
   price: 69166 # it's a heap of scrap
   category: Small
   group: Scrap

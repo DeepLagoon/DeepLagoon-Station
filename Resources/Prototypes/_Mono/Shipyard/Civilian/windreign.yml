@@ -8,7 +8,7 @@
   id: Windreign
   parent: BaseVessel
   name: HES Windreign
-  description: A large, purpose-built shuttle designed for atmospheric technicians. Armed with 3x AK570, some PD and a heavy ballistic mount.
+  description: "Большой специализированный шаттл для атмосферных техников. Вооружён тремя AK570, несколькими средствами точечной обороны и тяжёлой баллистической установкой."
   price: 220000
   category: Large
   group: Shipyard
@@ -29,7 +29,7 @@
       stationProto: StandardFrontierVessel
       gridComponents:
       - type: VesselInfo
-        description: "The air smells of plasma and sulfur.."
+        description: "В воздухе пахнет плазмой и серой..."
       components:
         - type: StationNameSetup
           mapNameTemplate: 'Windreign CIV{1}'

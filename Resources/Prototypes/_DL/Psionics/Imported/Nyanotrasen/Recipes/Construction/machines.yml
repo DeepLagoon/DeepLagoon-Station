@@ -1,7 +1,7 @@
 - type: construction
   id: GlimmerDrain
-  name: glimmer drain
-  description: Decreases glimmer.
+  name: construction-recipe-GlimmerDrain-name
+  description: construction-recipe-GlimmerDrain-description
   graph: GlimmerDevices
   startNode: start
   targetNode: glimmerDrain
@@ -68,8 +68,8 @@
 
 - type: construction
   id: GlimmerProber
-  name: glimmer prober
-  description: Increases glimmer and research points.
+  name: construction-recipe-GlimmerProber-name
+  description: construction-recipe-GlimmerProber-description
   graph: GlimmerDevices
   startNode: start
   targetNode: glimmerProber

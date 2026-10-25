@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-LetoferolHorrorSpikeSpread = { ent-LetoferolHorrorSpike }
-    .desc = { ent-LetoferolHorrorSpike.desc }
+ent-LetoferolHorrorSpikeSpread = летоферольный костяной шип
+    .desc = Магически созданный объект, который рано или поздно исчезнет.
 
-ent-LetoferolHorrorSpike = letoferol bone spike
-    .desc = { ent-DartAberrantFleshHorrorSpike.desc }
+ent-LetoferolHorrorSpike = летоферольный костяной шип
+    .desc = Магически созданный объект, который рано или поздно исчезнет.

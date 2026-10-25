@@ -10,24 +10,24 @@
         icon:
           sprite: _NF/Objects/Specific/Medical/firstaidkits.rsi # Frontier: _NF prefix
           state: firstaid
-        name: medkit
+        name: prototype-text-constructionGraph-MediBot-name-c0e108945e
       - tag: DiscreteHealthAnalyzer
         icon:
           sprite: Objects/Specific/Medical/healthanalyzer.rsi
           state: analyzer
-        name: health analyzer
+        name: prototype-text-constructionGraph-MediBot-name-f42a7bb73e
         doAfter: 2
       - tag: ProximitySensor
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-MediBot-name-a21f6ecc4e
         doAfter: 2
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-MediBot-name-b417b0f74b
         doAfter: 2
   - node: bot
     entity: MobMedibot

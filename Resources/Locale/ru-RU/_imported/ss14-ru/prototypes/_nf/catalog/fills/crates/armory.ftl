@@ -1,112 +1,112 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-CrateAmmoBoxLethal20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethal20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxBigLethal20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxBigLethal20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubber20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubber20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxBigRubber20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxBigRubber20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPractice20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPractice20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxIncendiary20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxIncendiary20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxUranium20 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxUranium20 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxLethal30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethal30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxBigLethal30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxBigLethal30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubber30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubber30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPractice30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPractice30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxIncendiary30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxIncendiary30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxUranium30 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxUranium30 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxLethal35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethal35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxLethalBig35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethalBig35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubber35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubber35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPractice35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPractice35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxIncendiary35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxIncendiary35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxUranium35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxUranium35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxEmp35 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxEmp35 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxLethal25 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethal25 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxBigLethal25 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxBigLethal25 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubber25 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubber25 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxBigRubber25 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxBigRubber25 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPractice25 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPractice25 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoAmmoBox12_gaugeBuckshotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoAmmoBox12_gaugeBuckshotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubberShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubberShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPracticeShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPracticeShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxIncendiaryShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxIncendiaryShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxUraniumShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxUraniumShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxSlugShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxSlugShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxFlareShotgun = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxFlareShotgun = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxLethal45 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxLethal45 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxRubber45 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxRubber45 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxPractice45 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxPractice45 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxIncendiary45 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxIncendiary45 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }
 
-ent-CrateAmmoBoxUranium45 = { ent-CrateAmmoSecureMercenary }
+ent-CrateAmmoBoxUranium45 = защищённый ящик боеприпасов
     .desc = { ent-CrateAmmoSecureMercenary.desc }

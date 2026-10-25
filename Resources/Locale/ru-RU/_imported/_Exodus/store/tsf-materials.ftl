@@ -19,9 +19,13 @@ uplink-faction-materials-exotic-name = Ящик экзотических мат�
 uplink-faction-materials-exotic-desc = Ящик с 10 листами пластитана, 5 слитками обеднённого урана и 3 пластинами делящегося урана.
 
 ent-CrateMaterialsBasicFilledTsf = ящик базовых материалов
+    .desc = { ent-CrateAmmoSecureMercenary.desc }
 
 ent-CrateMaterialsIndustrialFilledTsf = ящик промышленных материалов
+    .desc = { ent-CrateAmmoSecureMercenary.desc }
 
 ent-CrateMaterialsAdvancedFilledTsf = ящик продвинутых материалов
+    .desc = { ent-CrateAmmoSecureMercenary.desc }
 
 ent-CrateMaterialsExoticFilledTsf = ящик экзотических материалов
+    .desc = { ent-CrateAmmoSecureMercenary.desc }

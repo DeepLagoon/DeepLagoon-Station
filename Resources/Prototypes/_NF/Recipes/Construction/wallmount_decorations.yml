@@ -1,11 +1,11 @@
 - type: construction
-  name: festive ghost streamers
+  name: construction-recipe-PaintingGhostHangingConstruction-name
   id: PaintingGhostHangingConstruction
   graph: PaintingGhostHangingGraph
   startNode: start
   targetNode: PaintingGhostHangingNode
   category: construction-category-misc
-  description: Decorative wall streamers! They look like the people you've lost to the void!
+  description: construction-recipe-PaintingGhostHangingConstruction-description
   objectType: Structure
   placementMode: SnapgridCenter
   canBuildInImpassable: true
@@ -14,13 +14,13 @@
     state: painting_ghost
 
 - type: construction
-  name: festive bat streamers
+  name: construction-recipe-PaintingBatHangingConstruction-name
   id: PaintingBatHangingConstruction
   graph: PaintingBatHangingGraph
   startNode: start
   targetNode: PaintingBatHangingNode
   category: construction-category-misc
-  description: Decorative wall streamers! Bats are scary and also important pollinators!
+  description: construction-recipe-PaintingBatHangingConstruction-description
   objectType: Structure
   placementMode: SnapgridCenter
   canBuildInImpassable: true
@@ -29,13 +29,13 @@
     state: painting_bat
 
 - type: construction
-  name: festive pumpkin streamers
+  name: construction-recipe-PaintingPumpkinHangingConstruction-name
   id: PaintingPumpkinHangingConstruction
   graph: PaintingPumpkinHangingGraph
   startNode: start
   targetNode: PaintingPumpkinHangingNode
   category: construction-category-misc
-  description: Decorative wall streamers! It's decorative gourd season!
+  description: construction-recipe-PaintingPumpkinHangingConstruction-description
   objectType: Structure
   placementMode: SnapgridCenter
   canBuildInImpassable: true

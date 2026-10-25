@@ -8,7 +8,7 @@
   id: Horsefly
   parent: BaseVessel
   name: GSI Horsefly
-  description: A light artillery ship made of scrap fused by a deranged group of mercenaries, it's designed to fire a single shell then die. Isn't supplied with any form of atmosphere, bring your own suit.
+  description: "Лёгкий артиллерийский корабль из спаянного металлолома, созданный безумной группой наёмников. Рассчитан на один выстрел и последующую гибель. Атмосфера отсутствует в любом виде — берите свой скафандр."
   price: 51463 # it's a heap of scrap
   category: Small
   group: Scrap

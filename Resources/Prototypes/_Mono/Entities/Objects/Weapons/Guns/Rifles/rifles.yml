@@ -27,7 +27,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleVulcanFCMC-name-6e4537af8e
         startingItem: Magazine762x51mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
@@ -38,7 +38,7 @@
             - Magazine762x51mmLowCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleVulcanFCMC-name-89a1af72b2
         startingItem: Cartridge762x51mmFMJ
         priority: 1
         whitelist:
@@ -92,7 +92,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRiflePrometheus-name-d5e008327d
         startingItem: Magazine556x45mmFMJ # Mono
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/m16_magin.ogg # Mono
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/skm_magout.ogg # Mono
@@ -102,7 +102,7 @@
             - Magazine556x45mmFMJ # Mono
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRiflePrometheus-name-9955c3f9d4
         startingItem: Cartridge556x45mmFMJ # Mono
         priority: 1
         whitelist:
@@ -155,7 +155,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleMla34-name-e78949665c
         startingItem: MagazineSmart
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg
@@ -165,7 +165,7 @@
           - MagazineSmart
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleMla34-name-315ca46c17
         startingItem: CartridgeSmart
         priority: 1
         whitelist:
@@ -245,7 +245,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleIroh-name-4973f16481
         startingItem: Magazine556x45mmFMJ
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/m16_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/skm_magout.ogg
@@ -255,7 +255,7 @@
           - Magazine556x45mmFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleIroh-name-a02a8a03b3
         startingItem: Cartridge556x45mmFMJ
         priority: 1
         whitelist:

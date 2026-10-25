@@ -9,7 +9,7 @@
   id: Snakelet
   parent: BaseVessel
   name: IED Bomber Drone 'Snakelet'
-  description: A front-heavy fighter with a torpedo launcher. Designed for hit-and-run bombardments.
+  description: "Истребитель с тяжёлой носовой частью и торпедной установкой. Предназначен для налётов по принципу «ударил — отступил»."
   limit: 4
   price: 20000
   purchasable: false #voucher only

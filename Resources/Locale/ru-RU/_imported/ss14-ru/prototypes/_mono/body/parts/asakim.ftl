@@ -7,7 +7,7 @@ ent-TorsoAsakim = торс азакима
     .desc = { ent-PartAsakim.desc }
 
 ent-HeadAsakim = голова азакима
-    .desc = { ent-PartAsakim.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmAsakim = левая рука азакима 
     .desc = { ent-PartAsakim.desc }

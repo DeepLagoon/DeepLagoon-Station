@@ -51,13 +51,13 @@
       - tool: Cutting
 
 - type: construction
-  name: create roof
+  name: construction-recipe-CreateRoof-name
   id: CreateRoof
   graph: CreateRoof
   startNode: start
   targetNode: roof
   category: construction-category-storage
-  description: Creates a roof on the tile its constructed on.
+  description: construction-recipe-CreateRoof-description
   icon: { sprite: Markers/cross.rsi, state: green }
   placementMode: SnapgridCenter
   canRotate: false
@@ -65,13 +65,13 @@
   objectType: Structure
 
 - type: construction
-  name: remove roof
+  name: construction-recipe-RemoveRoof-name
   id: RemoveRoof
   graph: RemoveRoof
   startNode: start
   targetNode: roof
   category: construction-category-storage
-  description: Removes a roof from the tile its constructed on.
+  description: construction-recipe-RemoveRoof-description
   icon: { sprite: Markers/cross.rsi, state: red }
   placementMode: SnapgridCenter
   canRotate: false

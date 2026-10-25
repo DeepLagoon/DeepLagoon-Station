@@ -88,12 +88,12 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-ClothingBackpackLMGBattery-name-cf5e8aa533
         whitelist:
           tags:
           - MilitaryPowerCellLMG
       item:
-        name: LMG
+        name: prototype-text-entity-ClothingBackpackLMGBattery-name-84bf5a7923
         priority: 2
         startingItem: WeaponLaserLMG
         whitelist:

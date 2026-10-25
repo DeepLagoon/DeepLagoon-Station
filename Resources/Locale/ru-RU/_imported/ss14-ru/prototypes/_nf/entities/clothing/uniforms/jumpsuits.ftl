@@ -1,16 +1,16 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingUniformJumpsuitBH = hard-worn suit
-    .desc = Someone who wears this means business.
+ent-ClothingUniformJumpsuitBH = поношенный костюм
+    .desc = Принадлежал деловому бизнесмену.
 
-ent-ClothingUniformJumpsuitBHGrey = noir suit
-    .desc = A grey suit, complete with tie clip.
+ent-ClothingUniformJumpsuitBHGrey = нуарный костюм
+    .desc = Серый костюм с зажимом для галстука.
 
-ent-ClothingUniformJumpsuitChaplainPilgrimVest = pilgrim jumpsuit
-    .desc = Knock-knock. Would you care to have a word about our Lord-n-Savior Nar-Sss.. Err.. Space Jeebus?
+ent-ClothingUniformJumpsuitChaplainPilgrimVest = костюм пилигрима
+    .desc = Тук-Тук! Не жалаете ли поговорить о нашем спасителе Нар.... Космическом Иисусе?
 
-ent-ClothingUniformJumpsuitPilot = pilot jumpsuit
-    .desc = You too think there should be a pocket for your fav smokes?
+ent-ClothingUniformJumpsuitPilot = комбинезон пилота
+    .desc = Вы тоже считаете, что в нём должен быть карман для ваших любимых сигарет?
 
 ent-ClothingUniformJumpsuitNfsd = комбинезон ТСФ
     .desc = Длинный комбинезон, выпущенный для военнослужащих ТСФ. Разработан для уменьшения натирания между ног для комфорта кожи, слизи, чешуи, пуха и дерева.
@@ -45,5 +45,5 @@ ent-ClothingUniformJumpsuitChiefEngineerSyndieNF = { ent-ClothingUniformJumpsuit
 ent-ClothingUniformJumpsuitSyndieFormalNF = { ent-ClothingUniformJumpsuitSyndieFormal }
     .desc = { ent-ClothingUniformJumpsuitSyndieFormal.desc }
 
-ent-ClothingUniformJumpsuitPrivateSec = private security jumpsuit
-    .desc = A specialized uniform for a private security guard. For the discerning private contractor in need of a professional look.
+ent-ClothingUniformJumpsuitPrivateSec = комбинезон частного телохранителя
+    .desc = Специализированная униформа для частного телохранителя. Для взыскательных частных подрядчиков, нуждающихся в профессиональном внешнем виде.

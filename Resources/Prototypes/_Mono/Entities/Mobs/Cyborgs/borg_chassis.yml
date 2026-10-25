@@ -154,7 +154,7 @@
   components:
   - type: Xenoborg
   - type: BorgTransponder
-    name: engi xenoborg
+    name: "инженерный ксеноборг"
     sprite:
       sprite: _Mono/Mobs/Silicon/XENOBORG/xenoborgchassis.rsi
       state: xenoborg_engi
@@ -206,7 +206,7 @@
   components:
   - type: Xenoborg
   - type: BorgTransponder
-    name: stealth xenoborg
+    name: "маскировочный ксеноборг"
     sprite:
       sprite:  _Mono/Mobs/Silicon/XENOBORG/xenoborgchassis.rsi
       state: xenoborg_stealth
@@ -222,7 +222,7 @@
   components:
   - type: Xenoborg
   - type: BorgTransponder
-    name: heavy xenoborg
+    name: "тяжёлый ксеноборг"
     sprite:
       sprite: _Mono/Mobs/Silicon/XENOBORG/xenoborgchassis.rsi
       state: xenoborg_heavy
@@ -241,7 +241,7 @@
   components:
   - type: Xenoborg
   - type: BorgTransponder
-    name: scout xenoborg
+    name: "ксеноборг-разведчик"
     sprite:
       sprite: _Mono/Mobs/Silicon/XENOBORG/xenoborgchassis.rsi
       state: xenoborg_scout
@@ -257,7 +257,7 @@
   components:
   - type: Xenoborg
   - type: BorgTransponder
-    name: stealth xenoborg
+    name: "маскировочный ксеноборг"
     sprite:
       sprite: _Mono/Mobs/Silicon/XENOBORG/xenoborgchassis.rsi
       state: xenoborg_stealth

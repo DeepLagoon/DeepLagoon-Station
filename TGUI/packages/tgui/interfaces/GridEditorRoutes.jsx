@@ -72,8 +72,6 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     <select title={profile.name} aria-label="Тип сети" value={profileId} disabled={locked||!!graph.nodes.length} onChange={e=>setProfileId(e.target.value)}>
       {routeProfiles.filter(p=>p.kind===profile.kind).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
     </select>
-    <small>В инструменте «Трасса»: клик по существующей сети открывает её точки. Клик по пустой клетке продолжает трассу от выбранной точки.</small>
-    <small>Тяните круги и участки линии. Shift+клик по точке удаляет её. Выберите узел, затем кликните в стороне, чтобы создать ответвление.</small>
     <label><input type="checkbox" checked={vertical} onChange={e=>setVertical(e.target.checked)}/>Новые участки сначала по вертикали</label>
     {profile.kind==='gas'&&<label><input type="checkbox" checked={capped} onChange={e=>setCapped(e.target.checked)}/>Закрытые концы труб</label>}
     {!!graph.nodes.length&&<>
@@ -81,7 +79,6 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
       <button disabled={locked} onClick={finish}>Трассу в черновик · Enter</button>
       <button disabled={locked} onClick={()=>removePoint()}>Удалить точку</button>
       <button onClick={reset}>Отменить трассу · Esc</button>
-      <small>После завершения нажмите «Применить». Перенос существующей сети убирает её прежние секции; другие слои сохраняются.</small>
     </>}
   </>;
   return {graph,profile,cells,visible,controls,edit,startDrag,moveDrag,endDrag,split,finish,reset,removePoint,undo,

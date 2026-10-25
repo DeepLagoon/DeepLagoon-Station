@@ -91,12 +91,12 @@
   - type: ItemSlots
     slots:
       combined_filter_a:
-        name: Filter A
+        name: prototype-text-entity-AutomationFilterCombined-name-eda8e60169
         whitelist:
           components:
           - AutomationFilter
       combined_filter_b:
-        name: Filter B
+        name: prototype-text-entity-AutomationFilterCombined-name-9f42e5b9cb
         whitelist:
           components:
           - AutomationFilter

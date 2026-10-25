@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BasePartInorganic = body part
+ent-BasePartInorganic = часть тела
     .desc = { ent-BaseItem.desc }
 
 ent-BasePart = часть тела
@@ -10,7 +10,7 @@ ent-BaseTorso = туловище
     .desc = { ent-BasePart.desc }
 
 ent-BaseHead = голова
-    .desc = { ent-BasePart.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-BaseLeftArm = левая рука
     .desc = { ent-BasePart.desc }

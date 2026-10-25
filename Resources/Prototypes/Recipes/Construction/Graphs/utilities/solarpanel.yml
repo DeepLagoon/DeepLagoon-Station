@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: SolarPanel
   start: start
   graph:
@@ -7,7 +7,7 @@
         - to: solarassembly
           steps:
             - tag: SolarAssemblyFlatpack
-              name: solar assembly parts
+              name: prototype-text-constructionGraph-SolarPanel-name-2f37690e3c
               icon:
                 sprite: Objects/Devices/flatpack.rsi
                 state: solar-assembly-part
@@ -57,7 +57,7 @@
             - !type:EntityAnchored
           steps:
             - tag: SolarTrackerElectronics
-              name: solar tracker electronics
+              name: prototype-text-constructionGraph-SolarPanel-name-081b0fb852
               icon:
                 sprite: Objects/Misc/module.rsi
                 state: engineering

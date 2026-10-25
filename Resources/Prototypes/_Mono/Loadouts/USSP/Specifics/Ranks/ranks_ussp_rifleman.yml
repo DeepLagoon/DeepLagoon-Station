@@ -1,13 +1,13 @@
 - type: loadout
   id: UsspRankOR1
-  name: USSP OR-1 (Ryadovoy)
+  name: "СССП OR-1 (рядовой)"
   components:
   - type: ChatRank
     rank: ussp-or1
 
 - type: loadout
   id: UsspRankOR2
-  name: USSP OR-2 (Efreitor)
+  name: "СССП OR-2 (ефрейтор)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspEfr
@@ -26,7 +26,7 @@
 
 - type: loadout
   id: UsspRankOR3TimeLock100HR
-  name: USSP OR-3 (Mladshiy Serzhant)
+  name: "СССП OR-3 (младший сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspMSzt100hr

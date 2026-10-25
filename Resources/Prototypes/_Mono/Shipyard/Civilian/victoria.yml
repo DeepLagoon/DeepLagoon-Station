@@ -11,7 +11,7 @@
   id: Victoria
   parent: BaseVessel
   name: NOV Victoria
-  description: A reworked hull from an unknown salvage ship, thought by a machine intelligence for the scientist that needs all of the manufactoring capabilities imaginable.
+  description: "Переделанный корпус неизвестного утилизаторского судна, спроектированный машинным интеллектом для учёного, которому нужны все мыслимые производственные возможности."
   price: 87679
   category: Medium
   group: Shipyard

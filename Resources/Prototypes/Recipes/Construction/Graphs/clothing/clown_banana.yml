@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: BananaClownJumpsuit
   start: start
   graph:
@@ -7,19 +7,19 @@
         - to: jumpsuit
           steps:
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownJumpsuit-name-4a858ba637
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownJumpsuit-name-9c1a8481f7
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownJumpsuit-name-5946a68fa3
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
@@ -28,7 +28,7 @@
               amount: 1
               doAfter: 1
             - tag: ClownSuit
-              name: a clown suit
+              name: prototype-text-constructionGraph-BananaClownJumpsuit-name-9eb448fe7e
               icon:
                 sprite: Clothing/Uniforms/Jumpsuit/clown.rsi
                 state: icon
@@ -45,19 +45,19 @@
         - to: shoes
           steps:
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownShoes-name-b0c50a8be7
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownShoes-name-7f9decd5e0
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownShoes-name-bab9fb3224
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
@@ -66,7 +66,7 @@
               amount: 1
               doAfter: 1
             - tag: ClownShoes
-              name: clown shoes
+              name: prototype-text-constructionGraph-BananaClownShoes-name-43a3c07c57
               icon:
                 sprite: Clothing/Shoes/Specific/clown.rsi
                 state: icon
@@ -83,19 +83,19 @@
         - to: mask
           steps:
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownMask-name-5593d2b320
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownMask-name-72626b6414
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
               doAfter: 1
             - tag: BananaPeel
-              name: a banana peel
+              name: prototype-text-constructionGraph-BananaClownMask-name-d40b2cb9e2
               icon:
                 sprite: Objects/Specific/Hydroponics/banana.rsi
                 state: peel
@@ -104,7 +104,7 @@
               amount: 1
               doAfter: 1
             - tag: ClownMask
-              name: a clown mask
+              name: prototype-text-constructionGraph-BananaClownMask-name-097c6abbc8
               icon:
                 sprite: Clothing/Mask/clown.rsi
                 state: icon

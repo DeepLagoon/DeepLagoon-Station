@@ -1,13 +1,13 @@
 - type: loadout
   id: UsspRankOR3
-  name: USSP OR-3 (Mladshiy Serzhant)
+  name: "СССП OR-3 (младший сержант)"
   components:
   - type: ChatRank
     rank: ussp-or3
 
 - type: loadout
   id: UsspRankOR4
-  name: USSP OR-4 (Serzhant)
+  name: "СССП OR-4 (сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspSzt
@@ -26,7 +26,7 @@
 
 - type: loadout
   id: UsspRankOR5
-  name: USSP OR-5 (Starshiy Serzhant)
+  name: "СССП OR-5 (старший сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspStSzt
@@ -45,7 +45,7 @@
 
 - type: loadout
   id: UsspRankOR6
-  name: USSP OR-6 (Starshina)
+  name: "СССП OR-6 (старшина)"
   effects:
   - !type:GroupLoadoutEffect
     proto: UsspSts

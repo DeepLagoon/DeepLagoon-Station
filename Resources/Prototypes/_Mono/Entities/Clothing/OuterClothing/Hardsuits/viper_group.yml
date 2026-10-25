@@ -210,10 +210,10 @@
       path: /Audio/Mecha/sound_mecha_powerloader_step.ogg
   - type: ExtendDescription
     descriptionList:
-    - description: Alt-click or otherwise interact to toggle additional shielding.
+    - description: prototype-text-entity-ClothingOuterHardsuitViperGroupShield-description-8ba376a2b8
       color: "#4f94ad"
       requireDetailRange: true
-    - description: The MEDUSA shield projector is designed to inhibit the velocity of incoming conventional firearms. However, it struggles against anything involving high-energy particles and close-range directed force.
+    - description: prototype-text-entity-ClothingOuterHardsuitViperGroupShield-description-1f19a6ebc3
       color: "#94768c"
       requireDetailRange: true
   - type: ToggleableClothing # Goobstation - Modsuits change - Mono - this is a solution for helmet attachment/cover to not fit on hardsuits

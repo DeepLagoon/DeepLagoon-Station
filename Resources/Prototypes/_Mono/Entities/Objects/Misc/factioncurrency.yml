@@ -89,6 +89,6 @@
         friction: 0.2
   - type: ExtendDescription
     descriptionList:
-    - description: This is a potential objective for PDV infantry in the area!
+    - description: prototype-text-entity-TSFNaniteCanisterLarge-description-e3f3552ad9
       color: "#4f94ad"
       requireDetailRange: false

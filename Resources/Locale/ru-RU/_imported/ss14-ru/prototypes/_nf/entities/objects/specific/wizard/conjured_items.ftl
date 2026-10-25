@@ -1,17 +1,17 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-ConjuredObject10 = { "" }
-    .desc = A magically created entity, that'll vanish from existence eventually.
+    .desc = Магически созданный объект, который рано или поздно исчезнет.
     .suffix = Conjured
 
-ent-SoapConjured = soap
+ent-SoapConjured = мыло
     .desc = { ent-BaseBullet.desc }
 
-ent-SoapletBloodCult = soaplet
+ent-SoapletBloodCult = мыльница
     .desc = { ent-SoapConjured.desc }
 
 ent-ShellSoapConjuredBloodCultCluster = { ent-SoapConjured }
     .desc = { ent-SoapConjured.desc }
 
-ent-SoapletBloodCultSpread = { ent-SoapletBloodCult }
+ent-SoapletBloodCultSpread = обмылок
     .desc = { ent-SoapletBloodCult.desc }

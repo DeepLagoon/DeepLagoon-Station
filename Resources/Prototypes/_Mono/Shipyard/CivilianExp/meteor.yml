@@ -2,7 +2,7 @@
   id: Meteor
   parent: BaseVessel
   name: SKR Meteor
-  description: Lightly-armored hybrid science-salvage ship with a large unpressurized cargo bay. Poorly armed and armored.
+  description: "Легкобронированный исследовательско-утилизаторский корабль с большим негерметичным грузовым отсеком. Вооружение и броня слабые."
   price: 121000
   category: Medium
   group: Expedition

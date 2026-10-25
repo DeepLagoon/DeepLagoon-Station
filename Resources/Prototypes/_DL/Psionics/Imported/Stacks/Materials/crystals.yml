@@ -1,6 +1,6 @@
 - type: stack
   id: Normality
-  name: normality
+  name: prototype-text-stack-Normality-name-a7425a7db5
   icon: { sprite: Objects/Materials/materials.rsi, state: normality }
   spawn: MaterialNormality1
 

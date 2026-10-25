@@ -29,7 +29,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSubMachineGunTypewriterBase-name-51a4294532
         startingItem: Magazine45_ACPSubMachineGunFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg
@@ -39,7 +39,7 @@
             - Magazine45_ACPSubMachineGunFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSubMachineGunTypewriterBase-name-e9c2395bf9
         startingItem: Cartridge45_ACPFMJ
         priority: 1
         whitelist:

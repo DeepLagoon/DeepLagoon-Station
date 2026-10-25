@@ -7,13 +7,13 @@
         - to: medsecHud
           steps:
             - tag: HudMedical
-              name: medical hud
+              name: prototype-text-constructionGraph-HudMedSec-name-0a3ef29ca7
               icon:
                 sprite: Clothing/Eyes/Hud/med.rsi
                 state: icon
               doAfter: 5
             - tag: HudSecurity
-              name: security hud
+              name: prototype-text-constructionGraph-HudMedSec-name-1e940d7c9c
               icon:
                 sprite: Clothing/Eyes/Hud/sec.rsi
                 state: icon
@@ -25,7 +25,7 @@
               amount: 1
               doAfter: 5
             - tag: MicroprocessorEconomy1
-              name: microprocessor
+              name: prototype-text-constructionGraph-HudMedSec-name-16c382d7a2
               icon:
                 sprite: _Mono/Objects/Materials/bayponents.rsi
                 state: "microprocessor1"

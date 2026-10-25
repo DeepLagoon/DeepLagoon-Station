@@ -40,29 +40,29 @@ ent-VendingMachineColaBlack = { ent-VendingMachineCola }
     .desc = { ent-VendingMachineCola.desc }
     .suffix = Чёрный
 
-ent-VendingMachineColaRed = Space Cola
+ent-VendingMachineColaRed = торгомат Спейс Кола
     .desc = Торгует колой, в космосе.
 
-ent-VendingMachineSpaceUp = Space Up
+ent-VendingMachineSpaceUp = торгомат Спейс-Ап!
     .desc = Почувствуйте настоящий взрыв вкусов.
 
 ent-VendingMachineSoda = { ent-VendingMachineCola }
     .desc = { ent-VendingMachineCola.desc }
     .suffix = Красный, Сода
 
-ent-VendingMachineStarkist = Star-kist
+ent-VendingMachineStarkist = торгомат Стар-кист
     .desc = Вкус жидкой звезды.
 
-ent-VendingMachineShamblersJuice = Shambler's Juice
+ent-VendingMachineShamblersJuice = торгомат Сок Шэмблер
     .desc = ~Встряхните мне немного этого сока Shambler!~
 
-ent-VendingMachinePwrGame = Pwr Game
+ent-VendingMachinePwrGame = торгомат ПВР Гейм
     .desc = Вы этого хотите, у нас это есть. В партнёрстве с компанией Vlad's Salad.
 
-ent-VendingMachineDrGibb = Dr. Gibb
+ent-VendingMachineDrGibb = торгомат Доктор Гибб
     .desc = Консервированный взрыв всевозможных вкусов именно у этого производителя!
 
-ent-VendingMachineSmite = Smite!
+ent-VendingMachineSmite = торгомат Смайт
     .desc = Пользуется популярностью у администрации.
 
 ent-VendingMachineCoffee = Лучшие горячие напитки Солнечной
@@ -78,7 +78,7 @@ ent-VendingMachineCola = Прохладительные напитки Robust
 ent-VendingMachineDinnerware = ПосудоМат
     .desc = Поставщик оборудования для кухонь и ресторанов.
 
-ent-VendingMachineDiscount = Discount Dan
+ent-VendingMachineDiscount = Дискаунт Дэн
     .desc = Торговый автомат с закусками из печально известной франшизы "Discount Dan".
 
 ent-VendingMachineEngivend = ИнжеМат
@@ -120,7 +120,7 @@ ent-VendingMachineSnackTeal = { ent-VendingMachineSnack }
     .suffix = Сине-зелёный
     .desc = { ent-VendingMachineSnack.desc }
 
-ent-VendingMachineSnack = Getmore Chocolate Corp
+ent-VendingMachineSnack = Гетмор Шоколад
     .desc = Автомат с закусками, предоставленный корпорацией Getmore Chocolate, базирующейся на Марсе.
     .suffix = Красный
 
@@ -139,7 +139,7 @@ ent-VendingMachineVendomat = Вендомат
 ent-VendingMachineGames = Безобидные развлечения
     .desc = Выдаёт вещи, которые капитан и глава персонала, скорее всего, не оценят, если вы будете развлекаться с ними вместо своей работы...
 
-ent-VendingMachineChang = Mr. Chang
+ent-VendingMachineChang = Мистер Чанг
     .desc = Автомат самообслуживания с китайской едой для всех ваших потребностей в китайской еде.
 
 ent-VendingMachineSalvage = Утильмаг
@@ -148,7 +148,7 @@ ent-VendingMachineSalvage = Утильмаг
 ent-VendingMachineWallmount = торговый автомат
     .desc = { ent-VendingMachine.desc }
 
-ent-VendingMachineDonut = Monkin' Donuts
+ent-VendingMachineDonut = Пончики Монкис
     .desc = Автомат пончиков, предоставленный компанией Robust Industries, LLC.
 
 ent-VendingMachineHydrobe = ГидроШкаф

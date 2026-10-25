@@ -1,21 +1,21 @@
 - type: construction
-  name: quiver (bolts)
+  name: construction-recipe-CraftQuiverBolt-name
   id: CraftQuiverBolt
   graph: CraftQuiverBolt
   startNode: start
   targetNode: CraftQuiverBolt
   category: construction-category-clothing
-  description: A quiver to hold crossbow bolts.
+  description: construction-recipe-CraftQuiverBolt-description
   icon: { sprite: _NF/Objects/Clothing/Belt/crossbow_quiver.rsi, state: icon }
   objectType: Item
 
 - type: construction
-  name: cloth footwraps
+  name: construction-recipe-CraftShoesClothwrap-name
   id: CraftShoesClothwrap
   graph: CraftShoesClothwrap
   startNode: start
   targetNode: CraftShoesClothwrap
   category: construction-category-clothing
-  description: A roll of treated canvas used for wrapping feet or paws.
+  description: construction-recipe-CraftShoesClothwrap-description
   icon: { sprite: _NF/Clothing/Shoes/Misc/clothwrap.rsi, state: icon }
   objectType: Item

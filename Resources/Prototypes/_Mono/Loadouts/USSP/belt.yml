@@ -1,18 +1,18 @@
 - type: loadout
   id: USSPCombatWebbing
-  name: chest rig
+  name: "армейская РПС"
   equipment:
     belt: ClothingBeltMilitaryWebbing
 
 - type: loadout
   id: USSPCombatWebbingLarge
-  name: large chest rig
+  name: "большой нагрудный разгрузочный жилет"
   equipment:
     belt: ClothingBeltWebbingsBigBase
 
 # Brigmedic
 - type: loadout
   id: USSPCombatWebbingMedical
-  name: chest rig (medical)
+  name: "нагрудная разгрузка (медицинская)"
   equipment:
     belt: ClothingBeltMilitaryWebbingMed

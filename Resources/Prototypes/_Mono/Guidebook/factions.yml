@@ -1,6 +1,6 @@
 - type: guideEntry
   id: Factions
-  name: Factions
+  name: prototype-text-guideEntry-Factions-name-0326084eae
   text: "/ServerInfo/_Mono/Guidebook/Factions/factions.xml"
   priority: 1
   children:
@@ -13,7 +13,7 @@
 
 - type: guideEntry
   id: TSFMC_Entry
-  name: TSFMC
+  name: prototype-text-guideEntry-TSFMC_Entry-name-f060dc2148
   text: "/ServerInfo/_Mono/Guidebook/Factions/TSFMC.xml"
   priority: 2
   children:
@@ -24,19 +24,19 @@
 
 - type: guideEntry
   id: PDV_Entry
-  name: PDV
+  name: prototype-text-guideEntry-PDV_Entry-name-e59031d634
   text: "/ServerInfo/_Mono/Guidebook/Factions/PDV.xml"
   priority: 3
 
 - type: guideEntry
   id: Smuggling
-  name: Smuggling
+  name: prototype-text-guideEntry-Smuggling-name-10ad36c55c
   text: "/ServerInfo/_NF/Guidebook/NFSD/Smuggling.xml"
   priority: 4
 
 - type: guideEntry
   id: Defusal
-  name: Defusal
+  name: prototype-text-guideEntry-Defusal-name-51b1c87eda
   text: "/ServerInfo/Guidebook/Security/Defusal.xml"
   priority: 5
 
@@ -48,7 +48,7 @@
 
 - type: guideEntry
   id: TSFMC_org
-  name: Structure
+  name: prototype-text-guideEntry-TSFMC_org-name-0db085fd45
   text: "/ServerInfo/_Mono/Guidebook/Factions/TSFMC_org.xml"
   priority: 3
   children:
@@ -57,25 +57,25 @@
 
 - type: guideEntry
   id: TSFMC_Brigade
-  name: 21st Brigade
+  name: prototype-text-guideEntry-TSFMC_Brigade-name-471f8ce5f5
   text: "/ServerInfo/_Mono/Guidebook/Factions/TSFMC_Brigade.xml"
   priority: 0
 
 - type: guideEntry
   id: TSFMC_Ranks
-  name: Ranks
+  name: prototype-text-guideEntry-TSFMC_Ranks-name-5de335cbb8
   text: "/ServerInfo/_Mono/Guidebook/Factions/TSFMC_Ranks.xml"
   priority: 0
 
 - type: guideEntry
   id: TSFMC_Culture
-  name: Culture
+  name: prototype-text-guideEntry-TSFMC_Culture-name-8f034f9fea
   text: "/ServerInfo/_Mono/Guidebook/Factions/TSFMC_Culture.xml"
   priority: 0
 
 - type: guideEntry
   id: USSP_Entry
-  name: USSP
+  name: prototype-text-guideEntry-USSP_Entry-name-8e972faad9
   text: "/ServerInfo/_Mono/Guidebook/Factions/USSP_Remnants.xml"
   priority: 7
   children:
@@ -90,24 +90,24 @@
 
 - type: guideEntry
   id: USSP_Overview
-  name: Union of Soviet Socialist Planets
+  name: prototype-text-guideEntry-USSP_Overview-name-d816a7e89e
   text: "/ServerInfo/_Mono/Guidebook/Factions/USSP.xml"
   priority: 9
 
 - type: guideEntry
   id: Viper_Group
-  name: The Viper Group
+  name: prototype-text-guideEntry-Viper_Group-name-f7fcbad18a
   text: "/ServerInfo/_Mono/Guidebook/Factions/viper_group.xml"
   priority: 11
 
 - type: guideEntry
   id: MMC
-  name: Mieyo Manufacturing Concern
+  name: prototype-text-guideEntry-MMC-name-f8723e1f9b
   text: "/ServerInfo/_Mono/Guidebook/Factions/mmc.xml"
   priority: 12
 
 - type: guideEntry
   id: Caelestinus
-  name: Caelestinus
+  name: prototype-text-guideEntry-Caelestinus-name-114017092d
   text: "/ServerInfo/_Mono/Guidebook/Factions/caelestinus.xml"
   priority: 4

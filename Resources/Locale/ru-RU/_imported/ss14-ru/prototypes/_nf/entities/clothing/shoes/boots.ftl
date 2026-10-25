@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingShoesBootsNfsdBrown = TSFMC brown boots
-    .desc = Stylish boots for running in circles on a deck during emergencies.
+ent-ClothingShoesBootsNfsdBrown = коричневые ботинки TSFMC
+    .desc = Стильные ботинки для бега кругами по палубе во время чрезвычайных ситуаций.
 
-ent-ClothingShoesBootsNfsdCream = TSFMC cream boots
-    .desc = Stylish boots for running in circles on a deck during emergencies.
+ent-ClothingShoesBootsNfsdCream = кремовые ботинки TSFMC
+    .desc = Стильные ботинки для бега кругами по палубе во время чрезвычайных ситуаций.

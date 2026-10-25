@@ -128,7 +128,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponShotgunBulldog-name-07ac16361e
         startingItem: Magazine12_gaugeBuckshot
         priority: 2
         whitelist:

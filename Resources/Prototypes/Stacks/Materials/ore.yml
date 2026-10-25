@@ -1,48 +1,48 @@
 - type: stack
   id: GoldOre
-  name: gold ore
+  name: prototype-text-stack-GoldOre-name-0172b3366c
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: gold }
   spawn: GoldOre1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: DiamondOre
-  name: rough diamond
+  name: prototype-text-stack-DiamondOre-name-eadb48ac96
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: diamond }
   spawn: DiamondOre1
   maxCount: 100 # mono
 
 - type: stack
   id: SteelOre
-  name: iron ore
+  name: prototype-text-stack-SteelOre-name-46a7ac06db
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: iron }
   spawn: SteelOre1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: PlasmaOre
-  name: plasma ore
+  name: prototype-text-stack-PlasmaOre-name-c361638e96
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: plasma }
   spawn: PlasmaOre1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: SilverOre
-  name: silver ore
+  name: prototype-text-stack-SilverOre-name-21475b6233
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: silver }
   spawn: SilverOre1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: SpaceQuartz
-  name: space quartz
+  name: prototype-text-stack-SpaceQuartz-name-8ed74fac32
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: spacequartz }
   spawn: SpaceQuartz1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: UraniumOre
-  name: uranium ore
+  name: prototype-text-stack-UraniumOre-name-d1e64a1b0d
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: uranium }
   spawn: UraniumOre1
   maxCount: 100 # Frontier: 30<100
@@ -50,21 +50,21 @@
 
 - type: stack
   id: BananiumOre
-  name: bananium ore
+  name: prototype-text-stack-BananiumOre-name-b418addeea
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: bananium }
   spawn: BananiumOre1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: Coal
-  name: coal
+  name: prototype-text-stack-Coal-name-dcde5f37ee
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: coal }
   spawn: Coal1
   maxCount: 100 # Frontier: 30<100
 
 - type: stack
   id: SaltOre
-  name: salt
+  name: prototype-text-stack-SaltOre-name-5272b3aa7e
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: salt }
   spawn: Salt1
   maxCount: 100 # Frontier: 30<100

@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-HappyHonkMcCargo = mccargo meal
+ent-HappyHonkMcCargo = закуски каргонии
     .desc = { ent-HappyHonk.desc }
 
 ent-HappyHonkMcCargoFood = { ent-HappyHonkMcCargo }

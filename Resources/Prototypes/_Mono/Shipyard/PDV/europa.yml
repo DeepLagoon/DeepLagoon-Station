@@ -2,7 +2,7 @@
   id: Europa
   parent: BaseVesselIFFDisabled
   name: PD-VI Europa
-  description: A bulky frigate for long-range patrols equipped with 2-meter-thick reinforced plastitanium armor belts and 4 Longbow 85x680mm autocannons, but lacking in point defense outside of flare launchers and 4 empty hardpoints.
+  description: "Массивный фрегат для дальних патрулей с двухметровыми поясами усиленной пластитановой брони и четырьмя автопушками Longbow 85x680 мм. Из средств точечной обороны — только пусковые установки тепловых ловушек и четыре пустых оружейных крепления."
   limit: 2
   hyperwarLimit: 3
   hyperwarTimelock: 3600

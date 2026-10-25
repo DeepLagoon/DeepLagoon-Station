@@ -39,7 +39,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLMGRatel-name-e7b3ff34ac
         startingItem: AmmoBox762x51mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/lmg_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/lmg_magout.ogg
@@ -51,7 +51,7 @@
           - Magazine762x51mmLowCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponLMGRatel-name-a642fad5be
         startingItem: Cartridge762x51mmFMJ
         priority: 1
         whitelist:

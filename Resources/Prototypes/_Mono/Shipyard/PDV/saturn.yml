@@ -2,7 +2,7 @@
   id: Saturn
   parent: BaseVesselIFFDisabled
   name: HSS Saturn
-  description: A heavy brute of a capital, with large main batteries, a thick interior structure of full plastitanium, and 2 bays for large mechs in the rear. This a ship fit for the Dynasty's finest and most prestigeous.
+  description: "Тяжёлый гигант среди крупных кораблей: мощный главный калибр, толстая внутренняя конструкция целиком из пластитана и два кормовых ангара для больших мехов. Корабль для лучших и самых именитых воинов Династии."
   limit: 1
   hyperwarLimit: 3
   hyperwarTimelock: 3600
@@ -30,7 +30,7 @@
       stationProto: StandardFrontierSecurityVessel
       gridComponents:
       - type: VesselInfo
-        description: "There is a time for flee, and there is a time for fight. A wise leader knows when to make the right choice. But the strike cruisers are already here, Tarkhan, so your right of choice has been revoked."
+        description: "Есть время бежать и время сражаться. Мудрый вождь знает, когда сделать верный выбор. Но ударные крейсеры уже здесь, тархан, так что права выбора вы лишены."
       components:
         - type: StationNameSetup
           mapNameTemplate: 'Saturn HSS{1}'

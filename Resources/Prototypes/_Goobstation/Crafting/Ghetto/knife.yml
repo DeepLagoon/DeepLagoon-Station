@@ -60,8 +60,8 @@
 
 - type: construction
   id: HeatedKnifeConstruction
-  name: handmade kitchen knife
-  description: A normal kitchen knife. May be hot!
+  name: construction-recipe-HeatedKnifeConstruction-name
+  description: construction-recipe-HeatedKnifeConstruction-description
   graph: HeatedKnifeGraph
   startNode: start
   targetNode: BladeForged

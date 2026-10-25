@@ -9,7 +9,7 @@
             - material: MetalRod
               amount: 1
             - tag: PowerCellSmall
-              name: power cell small
+              name: prototype-text-constructionGraph-makeshiftstunprod-name-fb666ebfd2
               icon:
                 sprite: Objects/Power/power_cells.rsi
                 state: small
@@ -18,9 +18,9 @@
                 sprite: Objects/Misc/cablecuffs.rsi
                 state: cuff
                 color: red
-              name: cuffs
+              name: prototype-text-constructionGraph-makeshiftstunprod-name-a95a588dfb
             - tag: Igniter
-              name: igniter
+              name: prototype-text-constructionGraph-makeshiftstunprod-name-2455fe88b6
               icon:
                 sprite: Objects/Devices/igniter.rsi
                 state: icon

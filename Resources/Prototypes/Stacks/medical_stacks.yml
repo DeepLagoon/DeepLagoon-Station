@@ -1,48 +1,48 @@
 - type: stack
   id: Ointment
-  name: ointment
+  name: prototype-text-stack-Ointment-name-cca9eac649
   icon: { sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: ointment }
   spawn: Ointment
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: AloeCream
-  name: aloe cream
+  name: prototype-text-stack-AloeCream-name-4977a8e471
   icon: { sprite: "/Textures/Objects/Specific/Hydroponics/aloe.rsi", state: cream }
   spawn: AloeCream
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: Gauze
-  name: gauze
+  name: prototype-text-stack-Gauze-name-262625e4fd
   icon: { sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: gauze }
   spawn: Gauze
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: Brutepack
-  name: brutepack
+  name: prototype-text-stack-Brutepack-name-a63428282b
   icon: { sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: gauze }
   spawn: Brutepack
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: Bloodpack
-  name: bloodpack
+  name: prototype-text-stack-Bloodpack-name-339d54c8e4
   icon: { sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: bloodpack }
   spawn: Bloodpack
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: MedicatedSuture
-  name: medicated-suture
+  name: prototype-text-stack-MedicatedSuture-name-ea3daa926c
   icon: {sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: medicated-suture }
   spawn: MedicatedSuture
   maxCount: 15 #Mono: Increased stacks from 10 to 15
 
 - type: stack
   id: RegenerativeMesh
-  name: regenerative-mesh
+  name: prototype-text-stack-RegenerativeMesh-name-bb3dd85e5f
   icon: {sprite: "/Textures/Objects/Specific/Medical/medical.rsi", state: regenerative-mesh}
   spawn: RegenerativeMesh
   maxCount: 15 #Mono: Increased stacks from 10 to 15

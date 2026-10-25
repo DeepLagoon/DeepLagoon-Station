@@ -2,7 +2,7 @@
   id: Shirokami
   parent: BaseVessel
   name: SKR-MMC Shirokami
-  description: Compact plastitanium-hulled medical vessel outfitted with chemistry, cryo, and basic treatment options for SAR. Poorly armed for self defence with only 2 40x360mm autocannons.
+  description: "Компактное медицинское судно с пластитановым корпусом, химией, криогеникой и средствами базового лечения для поисково-спасательных операций. Вооружение для самообороны слабое: всего две автопушки 40x360 мм."
   price: 112000
   category: Medium
   group: Medical

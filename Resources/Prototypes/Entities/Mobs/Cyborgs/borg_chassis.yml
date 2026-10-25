@@ -23,7 +23,7 @@
     sprite:
       sprite: Mobs/Silicon/chassis.rsi
       state: robot
-    name: cyborg
+    name: "борг"
   - type: InteractionPopup
     interactSuccessString: petting-success-generic-cyborg
     interactFailureString: petting-failure-generic-cyborg

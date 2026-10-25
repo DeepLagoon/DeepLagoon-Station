@@ -2,7 +2,7 @@
   id: Bazalt
   parent: BaseVesselIFFDisabled
   name: PDV Bazalt
-  description: Light attack craft equipped with a 25x170mm chaingun and a TOVEK missile launcher. Not very durable at all, and doesn't have any basic ammenities like a FTL drive.
+  description: "Лёгкий ударный корабль с цепной пушкой 25x170 мм и ракетной установкой TOVEK. Совсем не отличается прочностью и лишён даже базовых удобств вроде сверхсветового двигателя."
   price: 29500
   category: Small
   group: BlackMarket

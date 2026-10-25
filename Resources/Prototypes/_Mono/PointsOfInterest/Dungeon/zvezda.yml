@@ -41,7 +41,7 @@
       - type: TradeCrateDestination
         destinationProto: Trade
       - type: VesselInfo
-        description: "A half-abandoned decaying station. Sometimes you can hear the hull bend."
+        description: "Полузаброшенная ветшающая станция. Иногда слышно, как прогибается обшивка."
       - type: VesselMusic
         ambientMusicPrototype: CamelotMusic
       - type: DeleteNearbyDrones

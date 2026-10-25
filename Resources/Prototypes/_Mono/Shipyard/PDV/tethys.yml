@@ -2,7 +2,7 @@
   id: Tethys
   parent: BaseVesselIFFDisabled
   name: PDV Tethys
-  description: A stealthy survelliance and early-warning ship for monitoring. Stealth thrusters aren't very good for fighting though, so be careful.
+  description: "Скрытный корабль наблюдения и раннего обнаружения. Двигатели скрытного хода плохо подходят для боя, так что будьте осторожны."
   price: 103700
   category: Medium
   group: BlackMarket

@@ -34,7 +34,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSubMachineGunAK220-name-70a6de1d6e
         startingItem: Magazine9x19mmSubMachineGunFMJ
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/cm82_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/pistol_alt_magout.ogg
@@ -43,7 +43,7 @@
           tags:
           - Magazine9x19mmSubMachineGunFMJ
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSubMachineGunAK220-name-18b756314e
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:

@@ -7,13 +7,13 @@
         - to: glassesSec
           steps:
             - tag: Sunglasses
-              name: sun glasses
+              name: prototype-text-constructionGraph-GlassesSecHUD-name-30bcf84026
               icon:
                 sprite: Clothing/Eyes/Glasses/sunglasses.rsi
                 state: icon
               doAfter: 5
             - tag: HudSecurity
-              name: security hud
+              name: prototype-text-constructionGraph-GlassesSecHUD-name-b021438b1a
               icon:
                 sprite: Clothing/Eyes/Hud/sec.rsi
                 state: icon

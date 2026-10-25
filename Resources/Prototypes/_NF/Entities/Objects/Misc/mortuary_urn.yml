@@ -19,7 +19,7 @@
       ashes_slot:
         insertVerbText: Put Ashes
         ejectVerbText: Empty Ashes
-        name: Urn Contents
+        name: prototype-text-entity-UrnMortuary-name-82aa683a9e
         startingItem: null
         whitelist:
           tags:

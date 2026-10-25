@@ -8,7 +8,7 @@
   id: Triage
   parent: BaseVessel
   name: MI Triage
-  description: A extremely compact medical ship that packs a punch.
+  description: "Чрезвычайно компактный медицинский корабль, способный задать жару."
   price: 64262 #Approx 60262
   category: Small
   group: Medical

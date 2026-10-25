@@ -1,20 +1,20 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingSkirtUniformRandomArmless = colorful sleeveless top and skirt
+ent-ClothingSkirtUniformRandomArmless = разноцветный костюм без рукавов
     .suffix = Skirt
     .desc = { ent-ClothingUniformRandom.desc }
 
-ent-ClothingSkirtUniformRandomStandard = colorful top and skirt
+ent-ClothingSkirtUniformRandomStandard = разноцветный костюм
     .suffix = Skirt
     .desc = { ent-ClothingUniformRandom.desc }
 
-ent-ClothingSkirtUniformRandomBra = colorful bra and skirt
+ent-ClothingSkirtUniformRandomBra = разноцветный бра
     .suffix = Skirt
     .desc = { ent-ClothingUniformRandom.desc }
 
-ent-ClothingSkirtUniformRandomShorts = colorful skirt
+ent-ClothingSkirtUniformRandomShorts = разноцветная юбка
     .suffix = Skirt
     .desc = { ent-ClothingUniformRandom.desc }
 
-ent-ClothingSkirtUniformRandomShirt = colorful patterned top and skirt
+ent-ClothingSkirtUniformRandomShirt = разноцветный топ с юбкой
     .desc = { ent-ClothingUniformRandom.desc }

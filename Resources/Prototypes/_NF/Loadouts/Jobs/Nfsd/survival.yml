@@ -1,7 +1,7 @@
 #T1
 - type: loadout
   id: NfsdBoxSurvivalNfsdOxygen
-  name: extended-oxygen survival box
+  name: "набор выживания с увеличенным запасом кислорода"
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: OxygenBreatherNF
@@ -11,7 +11,7 @@
 
 - type: loadout
   id: NfsdBoxSurvivalNfsdNitrogen
-  name: extended-nitrogen survival box
+  name: "набор выживания с увеличенным запасом азота"
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: NitrogenBreatherNF
@@ -21,7 +21,7 @@
 
 - type: loadout
   id: NfsdBoxSurvivalNfsdVapor
-  name: extended-water-vapor survival box
+  name: "набор выживания с увеличенным запасом водяного пара"
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: WaterBreather

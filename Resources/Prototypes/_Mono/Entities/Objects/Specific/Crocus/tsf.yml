@@ -25,10 +25,10 @@
     - BeaconDestroys
   - type: ExtendDescription
     descriptionList:
-    - description: This is a potential objective for TSF & PDV infantry in the area!
+    - description: prototype-text-entity-CrocusBeaconBroken-description-2727190913
       color: "#4f94ad"
       requireDetailRange: false
-    - description: It's currently in maintenance mode and requires repairs to count towards the TSF objective.
+    - description: prototype-text-entity-CrocusBeaconBroken-description-df5f351569
       color: "#eb4034"
       requireDetailRange: false
 
@@ -78,10 +78,10 @@
     - BeaconRepairs
   - type: ExtendDescription
     descriptionList:
-    - description: This is a potential objective for TSF & PDV infantry in the area!
+    - description: prototype-text-entity-CrocusBeacon-description-b529fad052
       color: "#4f94ad"
       requireDetailRange: false
-    - description: It must be destroyed for the PDV objective.
+    - description: prototype-text-entity-CrocusBeacon-description-f396a35bcd
       color: "#cc34eb"
       requireDetailRange: false
 

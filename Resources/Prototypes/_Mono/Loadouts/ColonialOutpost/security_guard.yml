@@ -27,7 +27,7 @@
 
 - type: loadout
   id: MonoSecurityGuardWebbing
-  name: security carrier (filled)
+  name: "разгрузка охраны (заполненная)"
   equipment:
     belt: ClothingBeltSecurityWebbingFilled
 
@@ -43,7 +43,7 @@
 
 - type: loadout
   id: MonoSecurityGuardAssaultBelt
-  name: assault belt
+  name: "штурмовой пояс"
   equipment:
     belt: ClothingBeltAssault
 

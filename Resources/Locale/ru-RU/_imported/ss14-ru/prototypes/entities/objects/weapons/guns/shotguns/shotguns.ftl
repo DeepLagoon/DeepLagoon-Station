@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponShotgun = BaseWeaponShotgun
+ent-BaseWeaponShotgun = базовый дробовик
     .desc = Дерзай - налетай, целься и стреляй.
     .suffix = Дробовик
 

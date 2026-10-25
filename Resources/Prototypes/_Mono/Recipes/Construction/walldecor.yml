@@ -1,7 +1,7 @@
 - type: construction
   id: RandomPoster
-  name: random poster
-  description: The thinking spacer's solution for a damaged hull.
+  name: construction-recipe-RandomPoster-name
+  description: construction-recipe-RandomPoster-description
   graph: RandomPoster
   startNode: start
   targetNode: randomPoster
@@ -16,8 +16,8 @@
     
 - type: construction
   id: RandomPainting
-  name: random painting
-  description: A happy collection of little accidents.
+  name: construction-recipe-RandomPainting-name
+  description: construction-recipe-RandomPainting-description
   graph: RandomPainting
   startNode: start
   targetNode: randomPainting

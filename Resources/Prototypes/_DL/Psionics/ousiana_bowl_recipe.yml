@@ -1,10 +1,10 @@
 - type: construction
-  name: ousiana dust bowl
+  name: construction-recipe-FoodOusianaDustBowl-name
   id: FoodOusianaDustBowl
   graph: OusianaDustBowl
   startNode: start
   targetNode: ousianadustbowl
   category: construction-category-misc
-  description: A potent powder, which when consumed can break psionic blocks.
+  description: construction-recipe-FoodOusianaDustBowl-description
   icon: { sprite: _DL/Psionics/ousiana_bowl.rsi, state: ousiana }
   objectType: Item

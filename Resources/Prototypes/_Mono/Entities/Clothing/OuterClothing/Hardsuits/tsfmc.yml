@@ -308,6 +308,6 @@
     coefficient: 0.0001
   - type: ExtendDescription
     descriptionList:
-    - description: Alt-click or otherwise interact to toggle additional shielding.
+    - description: prototype-text-entity-ClothingOuterHardsuitM86Mk4-description-b75247f4f1
       color: "#4f94ad"
       requireDetailRange: true

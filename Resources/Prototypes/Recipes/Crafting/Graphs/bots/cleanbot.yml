@@ -10,18 +10,18 @@
         icon:
           sprite: Objects/Tools/bucket.rsi
           state: icon
-        name: bucket
+        name: prototype-text-constructionGraph-CleanBot-name-82b5b2a44e
       - tag: ProximitySensor
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-CleanBot-name-e457730e0e
         doAfter: 2
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-CleanBot-name-f2f5b6e140
         doAfter: 2
   - node: bot
     entity: MobCleanBot

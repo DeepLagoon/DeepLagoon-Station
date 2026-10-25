@@ -1,113 +1,113 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-WeaponCaseShortViper = { ent-WeaponCaseShort }
+ent-WeaponCaseShortViper = оружейный кейс
     .suffix = Подземелье, «Гадюка»
     .desc = { ent-WeaponCaseShort.desc }
 
-ent-WeaponCaseShortAmmoBoxLethal20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxLethal20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxBigLethal20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxBigLethal20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubber20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubber20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxBigRubber20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxBigRubber20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPractice20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPractice20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxIncendiary20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxIncendiary20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxUranium20 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxUranium20 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxLethal30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxLethal30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxBigLethal30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxBigLethal30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubber30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubber30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPractice30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPractice30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxIncendiary30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxIncendiary30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxUranium30 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxUranium30 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxLethal35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxLethal35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubber35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubber35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPractice35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPractice35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxIncendiary35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxIncendiary35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxUranium35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxUranium35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxEmp35 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxEmp35 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxLethal25 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxLethal25 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxBigLethal25 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxBigLethal25 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubber25 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubber25 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxBigRubber25 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxBigRubber25 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPractice25 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPractice25 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoAmmoBox12_gaugeBuckshotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoAmmoBox12_gaugeBuckshotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubberShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubberShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPracticeShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPracticeShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxIncendiaryShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxIncendiaryShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxUraniumShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxUraniumShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxSlugShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxSlugShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxFlareShotgun = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxFlareShotgun = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxLethal45 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxLethal45 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxRubber45 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxRubber45 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxPractice45 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxPractice45 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxIncendiary45 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxIncendiary45 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.
 
-ent-WeaponCaseShortAmmoBoxUranium45 = { ent-WeaponCaseShortAmmo }
-    .desc = { ent-WeaponCaseShortAmmo.desc }
+ent-WeaponCaseShortAmmoBoxUranium45 = ящик боеприпасов
+    .desc = Ящик для хранения боеприпасов.

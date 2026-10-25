@@ -1,10 +1,10 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-CrateTradeContrabandSecure1 = { ent-CrateTradeBaseSecureContraband }
-    .desc = { ent-CrateTradeBaseSecureContraband.desc }
+ent-CrateTradeContrabandSecure1 = ящик припасов династии Фаэтон
+    .desc = Содержит небольшую партию припасов для авангарда династии Фаэтон, которую отправят адресату после продажи на грузовом складе. Курьер получит щедрую плату. Защита от вскрытия растворит содержимое ящика кислотой при его уничтожении.
 
-ent-CrateTradeContrabandSecure2 = { ent-CrateTradeBaseSecureContraband }
-    .desc = { ent-CrateTradeBaseSecureContraband.desc }
+ent-CrateTradeContrabandSecure2 = ящик припасов династии Фаэтон
+    .desc = Содержит небольшую партию припасов для авангарда династии Фаэтон, которую отправят адресату после продажи на грузовом складе. Курьер получит щедрую плату. Защита от вскрытия растворит содержимое ящика кислотой при его уничтожении.
 
-ent-CrateTradeContrabandSecure3 = { ent-CrateTradeBaseSecureContraband }
-    .desc = { ent-CrateTradeBaseSecureContraband.desc }
+ent-CrateTradeContrabandSecure3 = ящик припасов династии Фаэтон
+    .desc = Содержит небольшую партию припасов для авангарда династии Фаэтон, которую отправят адресату после продажи на грузовом складе. Курьер получит щедрую плату. Защита от вскрытия растворит содержимое ящика кислотой при его уничтожении.

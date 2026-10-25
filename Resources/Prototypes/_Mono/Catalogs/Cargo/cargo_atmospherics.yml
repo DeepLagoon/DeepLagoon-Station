@@ -10,8 +10,8 @@
 
 - type: cargoProduct
   id: AtmosphericsTEGCrate
-  name: "TEG Crate"
-  description: "A full set of flatpacked Thermoelectric Generator components, ready to use"
+  name: "Ящик ТЭГ"
+  description: "Полный готовый к использованию комплект упакованных компонентов термоэлектрического генератора."
   icon:
     sprite: Structures/Power/Generation/teg.rsi
     state: teg

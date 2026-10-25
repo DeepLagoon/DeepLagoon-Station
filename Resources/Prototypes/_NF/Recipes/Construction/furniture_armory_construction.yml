@@ -1,12 +1,12 @@
 #weapon racks
 - type: construction
-  name: gun rack
+  name: construction-recipe-GunRackConstruction-name
   id: GunRackConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: GunRackNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-GunRackConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-gun
@@ -17,13 +17,13 @@
     - !type:TileNotBlocked
 
 - type: construction
-  name: gun rack (wall-mounted)
+  name: construction-recipe-GunRackWallmountedConstruction-name
   id: GunRackWallmountedConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: GunRackWallmountedNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-GunRackWallmountedConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-gun-wall
@@ -34,13 +34,13 @@
     - !type:WallmountCondition
 
 - type: construction
-  name: melee weapon rack
+  name: construction-recipe-MeleeRackConstruction-name
   id: MeleeRackConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: MeleeRackNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-MeleeRackConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-melee
@@ -51,13 +51,13 @@
     - !type:TileNotBlocked
 
 - type: construction
-  name: melee weapon rack (wall-mounted)
+  name: construction-recipe-MeleeRackWallmountedConstruction-name
   id: MeleeRackWallmountedConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: MeleeRackWallmountedNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-MeleeRackWallmountedConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-melee-wall
@@ -68,13 +68,13 @@
     - !type:WallmountCondition
 
 - type: construction
-  name: pistol rack
+  name: construction-recipe-PistolRackConstruction-name
   id: PistolRackConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: PistolRackNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-PistolRackConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-pistol
@@ -83,13 +83,13 @@
   canBuildInImpassable: false
 
 - type: construction
-  name: pistol rack (wall-mounted)
+  name: construction-recipe-PistolRackWallmountedConstruction-name
   id: PistolRackWallmountedConstruction
   graph: WeaponRackConstructionGraph
   startNode: start
   targetNode: PistolRackWallmountedNode
   category: construction-category-furniture
-  description: A storage unit for expeditiated pacification measures.
+  description: construction-recipe-PistolRackWallmountedConstruction-description
   icon:
     sprite: _NF/Structures/Furniture/Armory/weapon_rack.rsi
     state: base-pistol-wall

@@ -2,7 +2,7 @@
   id: ZephyrEC
   parent: BaseVessel
   name: TSF-SKR Zephyr-EC
-  description: An old fighter with an TSFN-EC overhaul package, converting it into a light unmanned drone.
+  description: "Старый истребитель с пакетом модернизации TSFN-EC, превращающим его в лёгкий беспилотный дрон."
   limit: 8
   hyperwarLimit: 0
   price: 29194

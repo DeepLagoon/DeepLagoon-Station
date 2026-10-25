@@ -34,7 +34,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleVulcan-name-830e9dd573
         startingItem: Magazine762x51mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
@@ -45,7 +45,7 @@
             - Magazine762x51mmLowCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleVulcan-name-0d02c74775
         startingItem: Cartridge762x51mmFMJ
         priority: 1
         whitelist:
@@ -136,7 +136,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleJackdaw-name-ad873a70fa
         startingItem: Magazine635x40mmCaseless
         insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
@@ -146,7 +146,7 @@
             - Magazine635x40mmCaseless
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleJackdaw-name-0110c32ea3
         startingItem: Cartridge635x40mmCaseless
         priority: 1
         whitelist:

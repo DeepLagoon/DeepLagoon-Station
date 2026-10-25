@@ -8,7 +8,7 @@ job-name-navycaptain = Старший Офицер Зимнего Солнцес
 
 job-name-diplomat = Дипломат ТСФ
 
-job-name-governmentman = ???
+job-name-governmentman = Джи-Мэн
 
 JobNavyOfficer = Офицер Зимнего Солнцестояние
 
@@ -18,4 +18,4 @@ JobNavyCaptain = Старший Офицер Зимнего Солнцестоя
 
 JobDiplomat = Дипломат ТСФ
 
-JobGovernmentMan = ???
+JobGovernmentMan = Джи-Мэн

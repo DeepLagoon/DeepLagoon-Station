@@ -15,7 +15,7 @@
         - to: apc
           steps:
             - component: ApcElectronics
-              name: "APC electronics"
+              name: prototype-text-constructionGraph-APC-name-6eeb0aac21
               doAfter: 2
         - to: start
           completed:

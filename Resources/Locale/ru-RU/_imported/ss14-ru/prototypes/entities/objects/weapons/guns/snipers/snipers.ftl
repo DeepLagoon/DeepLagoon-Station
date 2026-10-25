@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponSniper = BaseWeaponSniper
+ent-BaseWeaponSniper = БазоваяВинтовка
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-WeaponSniperMosin = Кардашёв-Мосин

@@ -19,7 +19,7 @@ ent-ClothingOuterStorageFoldableBaseOpened = { ent-ClothingOuterStorageFoldableB
 ent-ClothingOuterStorageToggleableBase = { ent-ClothingOuterStorageBase }
     .desc = { ent-ClothingOuterStorageBase.desc }
 
-ent-ClothingOuterHardsuitBase = base hardsuit
+ent-ClothingOuterHardsuitBase = базовый скафандр
     .desc = { ent-ClothingOuterBase.desc }
 
 ent-ClothingOuterBaseMedium = { ent-ClothingOuterBase }

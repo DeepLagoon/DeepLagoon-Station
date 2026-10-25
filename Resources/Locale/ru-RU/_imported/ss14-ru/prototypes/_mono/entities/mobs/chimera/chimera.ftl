@@ -1,11 +1,11 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-MobLetoferolHorror = химера
-    .desc = { ent-MonoBaseMobLetoferolHumanoid.desc }
+    .desc = Некогда разумное существо, покрытое гнилой плотью и костью. В его глазах ещё виден проблеск человечности, будто тот, кем оно было, всё ещё в сознании.
 
 ent-MobLetoferolHorrorGhostrole = химера
     .suffix = Гост-роль
-    .desc = { ent-MobLetoferolHorror.desc }
+    .desc = Некогда разумное существо, покрытое гнилой плотью и костью. В его глазах ещё виден проблеск человечности, будто тот, кем оно было, всё ещё в сознании.
 
 ent-MobLetoferolBeast = химера
-    .desc = { ent-MonoBaseMobLetoferol.desc }
+    .desc = Чудовищно мутировавшее нечто, чем бы оно ни было раньше.

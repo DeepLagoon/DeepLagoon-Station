@@ -21,7 +21,7 @@ ent-FoamWeaponBase = { ent-BaseItem }
 ent-FoamCrossbow = поролоновый арбалет
     .desc = Целясь этим в офицеров, будьте готовы словить свинца.
 
-ent-ToyGunBase = ToyGunBase
+ent-ToyGunBase = базовое игрушечное оружие
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-RevolverCapGun = игрушечный пистолет
@@ -59,7 +59,7 @@ ent-BalloonNT = воздушный шарик NanoTrasen
     .desc = Разработан специально для причинения максимального психологического вреда оперативникам Синдиката.
 
 ent-PonderingOrb = шар размышлений
-    .desc = Ponderous, man... Really ponderous.
+    .desc = Задумайся чувак... реально.
 
 ent-ToySword = игрушечный меч
     .desc = Новый пластиковый меч от Sandy-Cat! Имеет реалистичный звук и насыщенный цвет! Почти как настоящий!

@@ -31,7 +31,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSmartLmg-name-6a452cc15e
         startingItem: MagazineSmartLMG
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -41,7 +41,7 @@
           - MagazineSmartLMG
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSmartLmg-name-f9b935be02
         startingItem: CartridgeSmart
         priority: 1
         whitelist:

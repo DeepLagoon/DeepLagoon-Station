@@ -4,7 +4,7 @@
   id: MotleyAnne
   parent: BaseVesselIFFDisabled
   name: PDV-IED Motley Anne
-  description: A support mothership designed to reinforce an engagements back-line with mech and drone ensemble or closer resupplies.
+  description: "Корабль-матка поддержки, предназначенный для усиления тыла боевого порядка группами мехов и дронов либо снабжения вблизи боя."
   price: 280000
   limit: 2
   hyperwarLimit: 0 # For lag and balance reasons, but mostly lag.

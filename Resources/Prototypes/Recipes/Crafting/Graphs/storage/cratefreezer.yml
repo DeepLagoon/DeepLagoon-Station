@@ -12,7 +12,7 @@
         amount: 2
         doAfter: 5
       - tag: FreezerElectronics
-        name: freezer electronics
+        name: prototype-text-constructionGraph-CrateFreezer-name-793b60fd55
         icon:
           sprite: Objects/Misc/module.rsi
           state: door_electronics

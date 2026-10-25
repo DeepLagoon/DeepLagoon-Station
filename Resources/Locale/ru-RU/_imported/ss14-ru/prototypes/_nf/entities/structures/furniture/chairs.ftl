@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-ChairWoodFancyBase = красивый деревянный стул
-    .desc = A chair, but fancy.
+    .desc = Стул, но шикарный.
 
 ent-ChairWoodFancyBlack = красивый чёрный деревянный стул
     .suffix = Чёрный

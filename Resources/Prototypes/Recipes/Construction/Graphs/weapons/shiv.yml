@@ -22,7 +22,7 @@
     - to: icon
       steps:
       - tag: GlassShard
-        name: glass shard
+        name: prototype-text-constructionGraph-Shiv-name-6973b20d8b
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -57,7 +57,7 @@
     - to: icon
       steps:
       - tag: ReinforcedGlassShard
-        name: reinforced glass shard
+        name: prototype-text-constructionGraph-ReinforcedShiv-name-d3c092f9fc
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -92,7 +92,7 @@
     - to: icon
       steps:
       - tag: PlasmaGlassShard
-        name: plasma glass shard
+        name: prototype-text-constructionGraph-PlasmaShiv-name-baa3ba847f
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -127,7 +127,7 @@
     - to: icon
       steps:
       - tag: UraniumGlassShard
-        name: uranium glass shard
+        name: prototype-text-constructionGraph-UraniumShiv-name-2c0d2e2a13
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1

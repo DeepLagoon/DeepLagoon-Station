@@ -7,7 +7,7 @@
   id: Peregrine
   parent: BaseVessel
   name: SKR Peregrine
-  description: A dedicated salvage vessel w/ 6 mining autopulsers. No defensive armaments outside of that. Comes with an FTL drive.
+  description: "Специализированное утилизаторское судно с шестью автоматическими добывающими импульсниками. Другого оборонительного вооружения нет. Оснащено сверхсветовым двигателем."
   price: 128434
   category: Medium
   group: Shipyard

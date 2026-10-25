@@ -1,10 +1,10 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingUniformJumpsuitTshirtJeans = white t-shirt and jeans
-    .desc = Even in space, this combo is still in style.
+ent-ClothingUniformJumpsuitTshirtJeans = белая футболка и джинсы
+    .desc = Даже в космосе это сочетание по-прежнему в моде.
 
-ent-ClothingUniformJumpsuitTshirtJeansGray = gray t-shirt and jeans
-    .desc = Even though there are no forests in space, this combo is still practical.
+ent-ClothingUniformJumpsuitTshirtJeansGray = серая футболка и джинсы
+    .desc = Даже если в космосе нет леса, этот комбо все равно практично.
 
-ent-ClothingUniformJumpsuitTshirtJeansPeach = peach t-shirt and jeans
-    .desc = Even though your favorite emo clothing store is back at home, this combo is still edgy.
+ent-ClothingUniformJumpsuitTshirtJeansPeach = персиковая футболка и джинсы
+    .desc = Даже если ваш любимый магазин эмо одежды давно закрылся, этот комбо все равно остается модным.

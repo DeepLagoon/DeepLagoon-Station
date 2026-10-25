@@ -36,6 +36,102 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class GridEditorTests
 {
     [Test]
+    public async Task RoutedCablesAndPipesStayInstalledAndConnectedAfterApplyAndMove()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        EntityUid grid = default;
+        var prototypes = new[] { "CableHV", "CableMV", "CableApcExtension", "GasPipeStraight", "DisposalPipe" };
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId, runMapInit: true);
+            var created = map.CreateGridEntity(mapId); grid = created.Owner;
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            map.SetTiles(created, created.Comp, Enumerable.Range(0, 5).SelectMany(y => Enumerable.Range(0, 5).Select(x => (new Vector2i(x, y), floor))).ToList());
+            entities.System<SharedTransformSystem>().SetLocalPosition(grid, new Vector2(-12.5f, 37.25f));
+            entities.System<SharedTransformSystem>().SetLocalRotation(grid, Angle.FromDegrees(30));
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            Assert.That(entities.System<ServerEditor>().Open(player, grid), Does.Contain("открыт"));
+        });
+        await pair.RunTicksSync(25);
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var installed = new Dictionary<string, EntityUid[]>();
+        async Task Send(bool move)
+        {
+            await pair.Client.WaitAssertion(() =>
+            {
+                var editor = pair.Client.EntMan.System<ClientEditor>();
+                var action = typeof(ClientEditor).GetMethod("Action", flags)!;
+                var id = Guid.NewGuid().ToString();
+                var items = move ? editor.State!.Items.Where(item => item.Kind == "entity" && prototypes.Contains(item.Prototype))
+                    .Select(item => new GridEditorItem { Id = item.Id, Kind = item.Kind, Prototype = item.Prototype,
+                        X = item.X + 1, Y = item.Y, Rotation = item.Rotation, Anchored = true }).ToList()
+                    : prototypes.SelectMany((prototype, y) => Enumerable.Range(0, 3).Select(x => new GridEditorItem
+                    { Id = $"new_route_{x}_{y}", Kind = "entity", Prototype = prototype, X = x + .5f, Y = y + .5f, Rotation = y < 3 ? 0 : 90, Anchored = true })).ToList();
+                action.Invoke(editor, new object[] { "applyStart", JsonSerializer.Serialize(new { id, count = items.Count, chunks = 1 }) });
+                action.Invoke(editor, new object[] { "applyChunk", JsonSerializer.Serialize(new { id, index = 0,
+                    items = items.Select(item => new { id = item.Id, kind = item.Kind, prototype = item.Prototype, x = item.X, y = item.Y, rotation = item.Rotation, anchored = item.Anchored }) }) });
+            });
+            await pair.RunTicksSync(30);
+            await pair.Server.WaitAssertion(() =>
+            {
+                var entities = pair.Server.EntMan;
+                var children = entities.GetComponent<TransformComponent>(grid).ChildEnumerator;
+                var placed = new List<EntityUid>();
+                while (children.MoveNext(out var uid)) placed.Add(uid);
+                Assert.That(placed.Where(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID.Contains("Stack") == true), Is.Empty, "Installed cables must not turn into loose coils");
+                foreach (var prototype in prototypes)
+                {
+                    var route = placed.Where(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == prototype)
+                        .OrderBy(uid => entities.GetComponent<TransformComponent>(uid).LocalPosition.X).ToArray();
+                    Assert.That(route.Length, Is.EqualTo(3), prototype);
+                    if (move) Assert.That(route, Is.EquivalentTo(installed[prototype]), "Moving a route must preserve its entities and component values");
+                    else installed[prototype] = route;
+                    for (var x = 0; x < 3; x++)
+                    {
+                        var transform = entities.GetComponent<TransformComponent>(route[x]);
+                        Assert.That(transform.Anchored, Is.True, prototype);
+                        Assert.That(transform.ParentUid, Is.EqualTo(grid));
+                        Assert.That(transform.LocalPosition.X, Is.EqualTo(x + .5f + (move ? 1 : 0)).Within(.001f));
+                    }
+                    if (prototype.StartsWith("Cable"))
+                    {
+                        var nodes = route.Select(uid => entities.GetComponent<Content.Shared.NodeContainer.NodeContainerComponent>(uid).Nodes["power"]).ToArray();
+                        Assert.That(nodes[0].NodeGroup, Is.Not.Null, prototype);
+                        Assert.That(nodes.Select(node => node.NodeGroup).Distinct().Count(), Is.EqualTo(1), prototype);
+                    }
+                }
+            });
+        }
+        await Send(false);
+        await Send(true);
+        EntityUid cut = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var children = entities.GetComponent<TransformComponent>(grid).ChildEnumerator;
+            while (children.MoveNext(out var uid))
+                if (entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "CableHV") { cut = uid; break; }
+            Assert.That(cut, Is.Not.EqualTo(EntityUid.Invalid));
+            entities.System<SharedTransformSystem>().Unanchor(cut);
+        });
+        await pair.RunTicksSync(5);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.EntityExists(cut), Is.False, "Ordinary unanchoring must still cut a cable");
+            var children = entities.GetComponent<TransformComponent>(grid).ChildEnumerator;
+            var coils = 0;
+            while (children.MoveNext(out var uid))
+                if (entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "CableHVStack1") coils++;
+            Assert.That(coils, Is.EqualTo(1));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task DraftAndMapExportsPreserveComponentValuesAndContainersWithoutApplyingDraft()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
@@ -196,8 +292,17 @@ public sealed class GridEditorTests
             var editor = pair.Client.EntMan.System<ClientEditor>();
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var action = typeof(ClientEditor).GetMethod("Action", flags)!;
+            var resources = pair.Client.ResolveDependency<IResourceManager>().UserData;
+            resources.CreateDir(new ResPath("/grid-editor"));
+            using (var legacy = resources.OpenWriteText(new ResPath("/grid-editor/library.json")))
+                legacy.Write("""{"version":1,"favorites":[{"kind":"entity","id":"WallSolid"}],"hotbar":[{"slot":0,"kind":"entity","id":"WallSolid"}],"templates":[]}""");
+            typeof(ClientEditor).GetField("_libraryLoaded", flags)!.SetValue(editor, false);
+            typeof(ClientEditor).GetMethod("LoadLibrary", flags)!.Invoke(editor, null);
+            Assert.That(((IDictionary) typeof(ClientEditor).GetField("_hotbar", flags)!.GetValue(editor)!).Count, Is.Zero,
+                "Legacy favorites and automatically seeded slots must not populate a new hotbar");
             void Slot(int slot, string? id = null) => action.Invoke(editor, new object[] { "hotbarSet", JsonSerializer.Serialize(new { slot, kind = "entity", id = id ?? "" }) });
             Slot(0, "ChairWood"); Slot(25, "WallSolid"); Slot(0);
+            action.Invoke(editor, new object[] { "favorite", """{"kind":"tile","id":"Plating"}""" });
             typeof(ClientEditor).GetField("_libraryLoaded", flags)!.SetValue(editor, false);
             typeof(ClientEditor).GetMethod("LoadLibrary", flags)!.Invoke(editor, null);
             var hotbar = (IDictionary) typeof(ClientEditor).GetField("_hotbar", flags)!.GetValue(editor)!;

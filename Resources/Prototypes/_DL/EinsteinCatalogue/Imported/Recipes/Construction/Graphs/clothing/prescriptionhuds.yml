@@ -8,13 +8,13 @@
     - to: prescsechud
       steps:
       - tag: HudSecurity
-        name: security hud
+        name: prototype-text-constructionGraph-PrescriptionSecHud-name-eb7a42711f
         icon:
           sprite: Clothing/Eyes/Hud/med.rsi
           state: icon
         doAfter: 5
       - tag: GlassesNearsight
-        name: glasses
+        name: prototype-text-constructionGraph-PrescriptionSecHud-name-2cceb13bf6
         icon:
           sprite: Clothing/Eyes/Glasses/glasses.rsi
           state: icon
@@ -23,7 +23,7 @@
         amount: 5
         doAfter: 5
       - tag: DrinkSpaceGlue
-        name: space glue
+        name: prototype-text-constructionGraph-PrescriptionSecHud-name-264a2918b2
         icon:
           sprite: Objects/Consumable/Drinks/glue-tube.rsi
           state: icon
@@ -39,13 +39,13 @@
     - to: prescmedhud
       steps:
       - tag: HudMedical
-        name: medical hud
+        name: prototype-text-constructionGraph-PrescriptionMedHud-name-53308b785f
         icon:
           sprite: Clothing/Eyes/Hud/med.rsi
           state: icon
         doAfter: 5
       - tag: GlassesNearsight
-        name: glasses
+        name: prototype-text-constructionGraph-PrescriptionMedHud-name-f27a43bce7
         icon:
           sprite: Clothing/Eyes/Glasses/glasses.rsi
           state: icon
@@ -54,7 +54,7 @@
         amount: 5
         doAfter: 5
       - tag: DrinkSpaceGlue
-        name: space glue
+        name: prototype-text-constructionGraph-PrescriptionMedHud-name-c16c686168
         icon:
           sprite: Objects/Consumable/Drinks/glue-tube.rsi
           state: icon

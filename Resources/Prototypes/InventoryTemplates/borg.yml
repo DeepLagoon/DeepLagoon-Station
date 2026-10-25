@@ -6,14 +6,14 @@
     slotFlags: HEAD
     uiWindowPos: 1,0
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
     offset: 0.015625, -0.09375
   - name: neck
     slotTexture: neck
     slotFlags: NECK
     uiWindowPos: 2,0
     strippingWindowPos: 2,0
-    displayName: Neck
+    displayName: "Шея"
 
 - type: inventoryTemplate
   id: borgShort
@@ -23,14 +23,14 @@
     slotFlags: HEAD
     uiWindowPos: 1,0
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
     offset: 0.015625, -0.1875
   - name: neck
     slotTexture: neck
     slotFlags: NECK
     uiWindowPos: 2,0
     strippingWindowPos: 2,0
-    displayName: Neck
+    displayName: "Шея"
 
 - type: inventoryTemplate
   id: borgTall
@@ -40,14 +40,14 @@
     slotFlags: HEAD
     uiWindowPos: 1,0
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
     offset: 0.015625, 0
   - name: neck
     slotTexture: neck
     slotFlags: NECK
     uiWindowPos: 2,0
     strippingWindowPos: 2,0
-    displayName: Neck
+    displayName: "Шея"
 
 # taller than tall
 - type: inventoryTemplate
@@ -58,11 +58,11 @@
     slotFlags: HEAD
     uiWindowPos: 1,0
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
     offset: 0, 0.09375
   - name: neck
     slotTexture: neck
     slotFlags: NECK
     uiWindowPos: 2,0
     strippingWindowPos: 2,0
-    displayName: Neck
+    displayName: "Шея"

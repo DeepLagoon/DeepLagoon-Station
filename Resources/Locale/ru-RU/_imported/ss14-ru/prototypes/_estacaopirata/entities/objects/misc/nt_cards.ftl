@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-CardBaseNanotrasen = card
+ent-CardBaseNanotrasen = карта
     .desc = { ent-CardBase.desc }
 
 ent-CardSc2OfClubsNanotrasen = { ent-CardBaseNanotrasen }

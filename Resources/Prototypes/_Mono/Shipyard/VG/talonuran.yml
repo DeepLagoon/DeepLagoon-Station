@@ -8,7 +8,7 @@
   id: Talonuran
   parent: BaseVessel
   name: VG Talonuran
-  description: A small heavy support craft, comissioned by the Viper Group for fleet support. Magboots suggested.
+  description: "Малый тяжёлый корабль поддержки, заказанный группой Viper для поддержки флота. Рекомендуются магнитные ботинки."
   price: 68714
   category: Small
   group: Viper

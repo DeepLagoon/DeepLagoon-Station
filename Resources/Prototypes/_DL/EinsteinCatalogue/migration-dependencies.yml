@@ -27,22 +27,22 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
-        startingItem: Magazine45_magnumPistolFMJ
+        name: prototype-text-entity-WeaponPistolN1984-name-d21f284b52
+        startingItem: MagazineMagnum
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
         priority: 2
         whitelist:
           tags:
-            - Magazine45_magnumPistolFMJ
+            - MagazineMagnum
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
-        startingItem: Cartridge45_magnumFMJ
+        name: prototype-text-entity-WeaponPistolN1984-name-ddde19bf33
+        startingItem: CartridgeMagnum
         priority: 1
         whitelist:
           tags:
-            - Cartridge45_magnumFMJ
+            - CartridgeMagnum
 - type: entity
   name: NT Deckard (.45 magnum)
   parent: [BaseWeaponRevolver, BaseC1Contraband] # Frontier: BaseSecurityCommandContraband<BaseC1Contraband
@@ -60,6 +60,11 @@
   - type: Gun
     fireRate: 2
   - type: RevolverAmmoProvider
+    proto: CartridgeMagnum
+    whitelist:
+      tags:
+      - CartridgeMagnum
+      - SpeedLoaderMagnum
     capacity: 5
     chambers: [ True, True, True, True, True ]
     ammoSlots: [ null, null, null, null, null ]
@@ -87,7 +92,11 @@
     availableModes:
     - SemiAuto
   - type: RevolverAmmoProvider
-    proto: Cartridge45_magnumFMJ
+    proto: CartridgeMagnum
+    whitelist:
+      tags:
+      - CartridgeMagnum
+      - SpeedLoaderMagnum
     capacity: 6
     chambers: [ True, True, True, True, True, True ]
     ammoSlots: [ null, null, null, null, null, null ]

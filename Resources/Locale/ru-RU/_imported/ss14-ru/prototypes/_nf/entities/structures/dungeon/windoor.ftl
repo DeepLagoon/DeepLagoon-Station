@@ -1,32 +1,32 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-WindoorMurkyDungeon = { "" }
-    .desc = A windoor with murky glass, it's hard to see what's on the other side.
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
     .suffix = Dungeon only, DO NOT MAP
 
-ent-WindoorDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorDungeon = раздвижное окно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureEngineeringLockedDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureEngineeringLockedDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureBrigLockedDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureBrigLockedDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureMedicalLockedDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureMedicalLockedDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureSecurityLockedDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureSecurityLockedDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecureMercenaryLockedDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecureMercenaryLockedDungeon = раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorPlasmaDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorPlasmaDungeon = плазменное раздвижное окно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.
 
-ent-WindoorSecurePlasmaDungeon = { ent-WindoorMurkyDungeon }
-    .desc = { ent-WindoorMurkyDungeon.desc }
+ent-WindoorSecurePlasmaDungeon = плазменное раздвижное бронеокно
+    .desc = Стеклянная дверь с мутным стеклом: трудно разглядеть, что с другой стороны.

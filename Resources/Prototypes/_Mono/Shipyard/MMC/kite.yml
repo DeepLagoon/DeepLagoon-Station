@@ -3,7 +3,7 @@
   id: Kite
   parent: BaseVessel
   name: MMC-CSC Kite
-  description: A lightly armored escort craft. Armed with 4 autopulsers and 2 TOVEKs for pursuiting fast-movers.
+  description: "Легкобронированный эскортный корабль. Вооружён четырьмя автоимпульсниками и двумя TOVEK для преследования быстрых целей."
   price: 120055
   category: Small
   group: Mieyo

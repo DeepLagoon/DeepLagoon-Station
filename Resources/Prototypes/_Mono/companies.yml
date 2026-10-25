@@ -1,7 +1,7 @@
 # "None" - DO NOT REMOVE!
 - type: company
   id: None
-  name: None
+  name: "никакие"
   color: "#FFFFFF"
 
 # ====DO NOT TOUCH - ADMIN COMPANIES====
@@ -10,47 +10,47 @@
 
 - type: company
   id: TSF
-  name: TSFMC
+  name: "КВП ТСФ"
   color: "#047ABD"
   disabled: true
   companyUplinkCurrency: FederationMilitaryCredit
 
 - type: company
   id: TSFCivilian
-  name: Trans-Solarian Federation
+  name: "Транссолярная Федерация"
   color: "#047ABD"
   disabled: true
   companyUplinkCurrency: FederationMilitaryCredit
 
 - type: company
   id: PDV
-  name: PDV
+  name: "Династия Фаэтон"
   color: "#D2B48C"
   disabled: true
   companyUplinkCurrency: Doubloon
 
 - type: company
   id: PDVCivilian
-  name: Phaethon Dynasty
+  name: "Династия Фаэтон"
   color: "#D2B48C"
   disabled: true
   companyUplinkCurrency: Doubloon
 
 - type: company
   id: MD
-  name: Caelestinus Medical
+  name: "Caelestinus Medical"
   color: "#3B8EEA"
   disabled: true
 
 - type: company
   id: Colonial
-  name: Caelestinus
+  name: "Целестинус"
   color: "#279659"
   disabled: true
 
 - type: company
   id: TSFHighComm
-  name: Winter Solstice
+  name: "Зимнему Солнцестоянию"
   description: winter-solstice-description
   color: "#008CE3"
   disabled: true
@@ -58,7 +58,7 @@
 
 - type: company
   id: PDVHighComm
-  name: Dynasty High Command
+  name: "Верховное командование Династии"
   description: pdv-highcomm-description
   color: "#D2B48C"
   disabled: true
@@ -71,35 +71,35 @@
 
 - type: company
   id: DrakeIndustries
-  name: Drake Industries
+  name: "Drake Industries"
   description: drake-industries-description
   color: "#C97D7D"
   image: /Textures/_Mono/Companies/drake_industries.png
 
 - type: company
   id: SteelHammerManufacturing
-  name: Steel Hammer Manufacturing
+  name: "Steel Hammer Manufacturing"
   description: steel-hammer-description
   color: "#92a2a1"
   image: /Textures/_Mono/Companies/steel_hammer.png
 
 - type: company
   id: HarmonyMedicalEnterprises
-  name: Harmony Medical Enterprises
+  name: "Harmony Medical Enterprises"
   description: harmony-medical-enterprises-description
   color: "#FC7303"
   image: /Textures/_Mono/Companies/HME.png
 
 - type: company
   id: MidnightArmsCo
-  name: Midnight Arms Co.
+  name: "Midnight Arms Co."
   description: midnight-arms-co-description
   color: "#FF2E2E"
   image: /Textures/_Mono/Companies/MACo.png
 
 - type: company
   id: USSP
-  name: USSP
+  name: "СССП"
   color: "#B01340"
   disabled: true # USSP are now USSP-pilled.
   description: ussp-description
@@ -107,7 +107,7 @@
 
 - type: company
   id: MMC
-  name: Mieyo Manufacturing Concern
+  name: "Производственный концерн «Мэйё»"
   color: "#EEEEEE"
   disabled: true
 
@@ -115,20 +115,20 @@
 
 - type: company
   id: DarkMatterEnterprises
-  name: Dark Matter Enterprises
+  name: "Dark Matter Enterprises"
   description: dark-matter-enterprises-description
   color: "#BF00B9"
   image: /Textures/_Mono/Companies/dme.png #DME Logo
 
 - type: company
   id: AetherionDynamics
-  name: Aetherion Dynamics
+  name: "Aetherion Dynamics"
   description: aetherion-dynamics-description
   color: "#7E72B2"
 
 - type: company
   id: HorizonEnergy
-  name: Horizon Energy
+  name: "Horizon Energy"
   description: horizon-energy-description
   color: "#69E37F"
   image: /Textures/_Mono/Companies/horizon_energy.png
@@ -138,34 +138,34 @@
 
 - type: company
   id: UniversalStatesOfAmerica
-  name: Universal States of America
+  name: "Вселенские Штаты Америки"
   description: universal-states-of-america-description
   color: "#0A3161"
   image: /Textures/_Mono/Companies/UNSA.png
 
 - type: company
   id: CivilDefenseMilita
-  name: Civil Defense Militia
+  name: "Ополчение гражданской обороны"
   description: civil-defense-milita-description
   color: "#666600"
 
 - type: company
   id: UllmanIndustries
-  name: Ullman Industries
+  name: "Ullman Industries"
   description: ullman-industries-description
   color: "#52326A"
   image: /Textures/_Mono/Companies/ullman_industries.png
 
 - type: company
   id: NosskeEienResearchandDevelopment
-  name: Nosske-Eien Research and Development
+  name: "Nosske-Eien Research and Development"
   description: nosske-eien-rnd-description
   color: "#9573AF"
   image: /Textures/_Mono/Companies/ne_rd.png
 
 - type: company
   id: blackhawkpmc
-  name: Blackhawk Military Contracting
+  name: "Blackhawk Military Contracting"
   description: blackhawkpmc-description
   color: "#419E23"
   image: /Textures/_Mono/Companies/BMC.png
@@ -188,7 +188,7 @@
 
 - type: company
   id: TheHive
-  name: The Hive
+  name: "Улей"
   description: The-Hive-description
   color: "#5918a8"
 
@@ -196,13 +196,13 @@
 
 - type: company
   id: paycheckbratva
-  name: Paycheck Bratva
+  name: "Братва на зарплате"
   description: paycheck-bratva-description
   color: "#7a0303"
 
 - type: company
   id: CerberusSurplusProvisions
-  name: Cerberus Surplus Provisions
+  name: "Cerberus Surplus Provisions"
   description: cerberus-surplus-provisions
   color: "#aa1010"
   image: /Textures/_Mono/Companies/CSP.png
@@ -210,7 +210,7 @@
 
 - type: company
   id: TheViperGroup
-  name: Viper Group
+  name: "Вайперы"
   description: viper-group-description
   color: "#B82121"
   image: /Textures/_Mono/Companies/thevipergroup.png # Example
@@ -218,7 +218,7 @@
 
 - type: company
   id: RedSailCorsairs
-  name: RedSail Corsairs
+  name: "Корсары Красного Паруса"
   description: redsail-corsairs-description
   color: "#930000"
   image: /Textures/_Mono/Companies/redsailcorsairs.png
@@ -226,7 +226,7 @@
 
 - type: company
   id: PLXCOR
-  name: PLXCOR
+  name: "PLXCOR"
   description: plxcor-description
   color: "#B500B5"
   image: /Textures/_Mono/Companies/PLXCOR.png

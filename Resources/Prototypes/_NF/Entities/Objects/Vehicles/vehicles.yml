@@ -34,7 +34,7 @@
           params:
             volume: -3
       bag:
-        name: stored bag
+        name: prototype-text-entity-VehicleATVNF-name-5b9beac9a9
         whitelist:
           components:
             - Storage
@@ -140,7 +140,7 @@
           params:
             volume: -5
       bag:
-        name: stored bag
+        name: prototype-text-entity-VehicleHoverbikeNF-name-d746a973e3
         whitelist:
           components:
             - Storage
@@ -185,7 +185,7 @@
           params:
             volume: -5
       bag:
-        name: stored bag
+        name: prototype-text-entity-VehicleHoverbikeNFKeys-name-964b1cced0
         whitelist:
           components:
             - Storage
@@ -387,7 +387,7 @@
           params:
             volume: -5
       mailgun:
-        name: rpds
+        name: prototype-text-entity-VehicleHoverbikeMailcarrier-name-87abfdff5d
         whitelist:
           components:
             - Gun # Any gun :(, including RPDS
@@ -429,7 +429,7 @@
           params:
             volume: -5
       mailgun:
-        name: rpds
+        name: prototype-text-entity-VehicleHoverbikeMailcarrierKey-name-6684b29de3
         whitelist:
           components:
             - Gun # Any gun :(, including RPDS
@@ -477,7 +477,7 @@
           params:
             volume: -5
       nfsdbaton:
-        name: stunbaton
+        name: prototype-text-entity-VehicleHoverbikeNfsd-name-2c502231a0
         whitelist:
           components:
             - Stunbaton
@@ -520,7 +520,7 @@
           params:
             volume: -5
       nfsdbaton:
-        name: stunbaton
+        name: prototype-text-entity-VehicleHoverbikeNfsdKey-name-faf6e50f25
         whitelist:
           components:
             - Stunbaton
@@ -564,7 +564,7 @@
           params:
             volume: -5
       piratemusket:
-        name: gun
+        name: prototype-text-entity-VehicleHoverbikePirate-name-90ad8e8538
         whitelist:
           components:
             - Gun
@@ -599,7 +599,7 @@
           params:
             volume: -5
       piratemusket:
-        name: gun
+        name: prototype-text-entity-VehicleHoverbikePirateKey-name-590df722fa
         whitelist:
           components:
             - Gun
@@ -642,7 +642,7 @@
           params:
             volume: -5
       syndicategun:
-        name: gun
+        name: prototype-text-entity-VehicleHoverbikeSyndicate-name-9550045420
         whitelist:
           components:
             - Gun
@@ -682,7 +682,7 @@
           params:
             volume: -5
       syndicategun:
-        name: gun
+        name: prototype-text-entity-VehicleHoverbikeSyndicateKey-name-e11aca460f
         whitelist:
           components:
             - Gun

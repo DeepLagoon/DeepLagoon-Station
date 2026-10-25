@@ -44,7 +44,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponTurretVanquisher-name-1ae3179e05
         startingItem: VanquisherMagazine
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg
@@ -88,7 +88,7 @@
     slots:
       gun_magazine:
         disableEject: true
-        name: Magazine
+        name: prototype-text-entity-WeaponTurretVanquisherInfinite-name-0ec320c57d
         startingItem: VanquisherMagazineInfinite
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg

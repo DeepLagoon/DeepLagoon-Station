@@ -30,7 +30,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponDEWBasilisk-name-0dce4d1c0d
         startingItem: Magazine10Phz
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -40,7 +40,7 @@
           - Magazine10Phz
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponDEWBasilisk-name-3c21dd0da6
         startingItem: Cartridge10Phz
         priority: 1
         whitelist:

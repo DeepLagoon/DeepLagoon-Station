@@ -1,19 +1,19 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-SplatterChemBase = chemical splatter
+ent-SplatterChemBase = химические брызги
     .desc = { ent-BulletWaterShot.desc }
 
-ent-SplatterChemPhlogNapalm = { ent-SplatterChemBase }
+ent-SplatterChemPhlogNapalm = химические брызги
     .desc = { ent-SplatterChemBase.desc }
 
-ent-SplatterChemDrugs = { ent-SplatterChemBase }
+ent-SplatterChemDrugs = химические брызги
     .desc = { ent-SplatterChemBase.desc }
 
-ent-SplatterChemMute = { ent-SplatterChemBase }
+ent-SplatterChemMute = химические брызги
     .desc = { ent-SplatterChemBase.desc }
 
-ent-SplatterChemWeh = { ent-SplatterChemBase }
+ent-SplatterChemWeh = химические брызги
     .desc = { ent-SplatterChemBase.desc }
 
-ent-SplatterChemCold = { ent-SplatterChemBase }
+ent-SplatterChemCold = химические брызги
     .desc = { ent-SplatterChemBase.desc }

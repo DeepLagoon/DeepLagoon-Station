@@ -1,0 +1,13 @@
+ent-MicrophoneRadio = микрофон
+    .desc = Транслирует вашу речь прямо на радиоприёмники слушателей.
+ent-StationRadioReceiverFlatpack = упаковка станционного радиоприёмника
+    .desc = Упаковка, содержащая станционный радиоприёмник.
+ent-StationRadioRigFlatpack = упаковка станционной радиоустановки
+    .desc = Упаковка, содержащая станционную радиоустановку.
+ent-StationRadioServerFlatpack = упаковка сервера станционного радио
+    .desc = Упаковка, содержащая сервер станционного радио.
+ent-VendingMachineFlatpackVendRadio = РадиоУпакМат
+    .desc = Незаменимые технологии для авантюристов в дороге.
+ent-VinylPlayerFlatpack = упаковка проигрывателя винила
+    .desc = Упаковка, содержащая проигрыватель винила.
+research-technology-radio-music-communication = Радио-музыка

@@ -1,18 +1,18 @@
 - type: loadout
   id: NfsdWebbing
-  name: TSFMC webbing (filled)
+  name: "разгрузка TSFMC (заполненная)"
   equipment:
     belt: ClothingBeltNfsdWebbingFilled
 
 - type: loadout
   id: NfsdBelt
-  name: TSFMC belt (filled)
+  name: "пояс TSFMC (заполненный)"
   equipment:
     belt: ClothingBeltNfsdFilled
 
 # Brigmedic
 - type: loadout
   id: BrigmedicClothingBeltBrigmedicWebbing
-  name: TSFMC webbing (filled)
+  name: "разгрузка TSFMC (заполненная)"
   equipment:
     belt: ClothingBeltNfsdWebbingFilledBrigmedic

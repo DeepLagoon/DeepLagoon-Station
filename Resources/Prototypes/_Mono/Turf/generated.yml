@@ -1,307 +1,307 @@
 - type: tile
   id: LatticeHalfV
   parent: Lattice
-  name: V half-lattice
+  name: prototype-text-tile-LatticeHalfV-name-ea92809505
   sprite: /Textures/_Mono/Tiles/lattice/script/half_v.png
   vertices: ['0.25, 0', '0.75, 0', '0.75, 1', '0.25, 1']
 
 - type: tile
   id: LatticeHalfH
   parent: Lattice
-  name: H half-lattice
+  name: prototype-text-tile-LatticeHalfH-name-0b5c192aa3
   sprite: /Textures/_Mono/Tiles/lattice/script/half_h.png
   vertices: ['0, 0.25', '0, 0.75', '1, 0.75', '1, 0.25']
 
 - type: tile
   id: LatticeWedgeN
   parent: Lattice
-  name: north wedge lattice
+  name: prototype-text-tile-LatticeWedgeN-name-4f297d0087
   sprite: /Textures/_Mono/Tiles/lattice/script/wedge_n.png
   vertices: ['0, 1', '1, 1', '0.5, 0.5']
 
 - type: tile
   id: LatticeWedgeE
   parent: Lattice
-  name: east wedge lattice
+  name: prototype-text-tile-LatticeWedgeE-name-0537ce3955
   sprite: /Textures/_Mono/Tiles/lattice/script/wedge_e.png
   vertices: ['1, 1', '1, 0', '0.5, 0.5']
 
 - type: tile
   id: LatticeWedgeS
   parent: Lattice
-  name: south wedge lattice
+  name: prototype-text-tile-LatticeWedgeS-name-c2ab26734d
   sprite: /Textures/_Mono/Tiles/lattice/script/wedge_s.png
   vertices: ['1, 0', '0, 0', '0.5, 0.5']
 
 - type: tile
   id: LatticeWedgeW
   parent: Lattice
-  name: west wedge lattice
+  name: prototype-text-tile-LatticeWedgeW-name-6b08be24d5
   sprite: /Textures/_Mono/Tiles/lattice/script/wedge_w.png
   vertices: ['0, 0', '0, 1', '0.5, 0.5']
 
 - type: tile
   id: LatticeHalfTiltNESLower
   parent: Lattice
-  name: NE-S lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNESLower-name-eb9eb49112
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_ne_s_l.png
   vertices: ['0, 1', '1, 1', '1, 0', '0.5, 0']
 
 - type: tile
   id: LatticeHalfTiltSEWLower
   parent: Lattice
-  name: SE-W lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSEWLower-name-fb9bc43d3d
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_se_w_l.png
   vertices: ['1, 1', '1, 0', '0, 0', '0, 0.5']
 
 - type: tile
   id: LatticeHalfTiltSWNLower
   parent: Lattice
-  name: SW-N lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSWNLower-name-9a0835be67
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_sw_n_l.png
   vertices: ['1, 0', '0, 0', '0, 1', '0.5, 1']
 
 - type: tile
   id: LatticeHalfTiltNWELower
   parent: Lattice
-  name: NW-E lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNWELower-name-170d8f2370
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_nw_e_l.png
   vertices: ['0, 0', '0, 1', '1, 1', '1, 0.5']
 
 - type: tile
   id: LatticeHalfTiltNESUpper
   parent: Lattice
-  name: NE-S upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNESUpper-name-848a594aff
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_ne_s_u.png
   vertices: ['0.5, 1', '1, 1', '1, 0']
 
 - type: tile
   id: LatticeHalfTiltSEWUpper
   parent: Lattice
-  name: SE-W upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSEWUpper-name-d84f370519
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_se_w_u.png
   vertices: ['1, 0.5', '1, 0', '0, 0']
 
 - type: tile
   id: LatticeHalfTiltSWNUpper
   parent: Lattice
-  name: SW-N upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSWNUpper-name-6613f95861
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_sw_n_u.png
   vertices: ['0.5, 0', '0, 0', '0, 1']
 
 - type: tile
   id: LatticeHalfTiltNWEUpper
   parent: Lattice
-  name: NW-E upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNWEUpper-name-fa07ece366
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_nw_e_u.png
   vertices: ['0, 0.5', '0, 1', '1, 1']
 
 - type: tile
   id: LatticeHalfTiltNEWLower
   parent: Lattice
-  name: NE-W lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNEWLower-name-9b0e5b4a86
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_ne_w_l.png
   vertices: ['0, 1', '1, 1', '1, 0', '0, 0.5']
 
 - type: tile
   id: LatticeHalfTiltSENLower
   parent: Lattice
-  name: SE-N lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSENLower-name-24d62413ec
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_se_n_l.png
   vertices: ['1, 1', '1, 0', '0, 0', '0.5, 1']
 
 - type: tile
   id: LatticeHalfTiltSWELower
   parent: Lattice
-  name: SW-E lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSWELower-name-bcae82a419
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_sw_e_l.png
   vertices: ['1, 0', '0, 0', '0, 1', '1, 0.5']
 
 - type: tile
   id: LatticeHalfTiltNWSLower
   parent: Lattice
-  name: NW-S lower half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNWSLower-name-5ebf3bff5a
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_nw_s_l.png
   vertices: ['0, 0', '0, 1', '1, 1', '0.5, 0']
 
 - type: tile
   id: LatticeHalfTiltNEWUpper
   parent: Lattice
-  name: NE-W upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNEWUpper-name-3dd8c13103
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_ne_w_u.png
   vertices: ['0, 1', '1, 1', '1, 0.5']
 
 - type: tile
   id: LatticeHalfTiltSENUpper
   parent: Lattice
-  name: SE-N upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSENUpper-name-b88c160666
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_se_n_u.png
   vertices: ['1, 1', '1, 0', '0.5, 0']
 
 - type: tile
   id: LatticeHalfTiltSWEUpper
   parent: Lattice
-  name: SW-E upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltSWEUpper-name-2ea49c9f3c
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_sw_e_u.png
   vertices: ['1, 0', '0, 0', '0, 0.5']
 
 - type: tile
   id: LatticeHalfTiltNWSUpper
   parent: Lattice
-  name: NW-S upper half-tilt lattice
+  name: prototype-text-tile-LatticeHalfTiltNWSUpper-name-b34f0ff9e9
   sprite: /Textures/_Mono/Tiles/lattice/script/halftilt_nw_s_u.png
   vertices: ['0, 0', '0, 1', '0.5, 1']
 
 - type: tile
   id: PlatingHalfV
   parent: PlatingSpace
-  name: V half-plating
+  name: prototype-text-tile-PlatingHalfV-name-019d11052b
   sprite: /Textures/_Mono/Tiles/plating/script/half_v.png
   vertices: ['0.25, 0', '0.75, 0', '0.75, 1', '0.25, 1']
 
 - type: tile
   id: PlatingHalfH
   parent: PlatingSpace
-  name: H half-plating
+  name: prototype-text-tile-PlatingHalfH-name-c7821ac58b
   sprite: /Textures/_Mono/Tiles/plating/script/half_h.png
   vertices: ['0, 0.25', '0, 0.75', '1, 0.75', '1, 0.25']
 
 - type: tile
   id: PlatingWedgeN
   parent: PlatingSpace
-  name: north wedge plating
+  name: prototype-text-tile-PlatingWedgeN-name-6bc2478d7d
   sprite: /Textures/_Mono/Tiles/plating/script/wedge_n.png
   vertices: ['0, 1', '1, 1', '0.5, 0.5']
 
 - type: tile
   id: PlatingWedgeE
   parent: PlatingSpace
-  name: east wedge plating
+  name: prototype-text-tile-PlatingWedgeE-name-00bfccf42b
   sprite: /Textures/_Mono/Tiles/plating/script/wedge_e.png
   vertices: ['1, 1', '1, 0', '0.5, 0.5']
 
 - type: tile
   id: PlatingWedgeS
   parent: PlatingSpace
-  name: south wedge plating
+  name: prototype-text-tile-PlatingWedgeS-name-edcf8af26a
   sprite: /Textures/_Mono/Tiles/plating/script/wedge_s.png
   vertices: ['1, 0', '0, 0', '0.5, 0.5']
 
 - type: tile
   id: PlatingWedgeW
   parent: PlatingSpace
-  name: west wedge plating
+  name: prototype-text-tile-PlatingWedgeW-name-9644dc7abd
   sprite: /Textures/_Mono/Tiles/plating/script/wedge_w.png
   vertices: ['0, 0', '0, 1', '0.5, 0.5']
 
 - type: tile
   id: PlatingHalfTiltNESLower
   parent: PlatingSpace
-  name: NE-S lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNESLower-name-21f9b30e34
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_ne_s_l.png
   vertices: ['0, 1', '1, 1', '1, 0', '0.5, 0']
 
 - type: tile
   id: PlatingHalfTiltSEWLower
   parent: PlatingSpace
-  name: SE-W lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSEWLower-name-21f3b2fb9a
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_se_w_l.png
   vertices: ['1, 1', '1, 0', '0, 0', '0, 0.5']
 
 - type: tile
   id: PlatingHalfTiltSWNLower
   parent: PlatingSpace
-  name: SW-N lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSWNLower-name-000cb3e837
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_sw_n_l.png
   vertices: ['1, 0', '0, 0', '0, 1', '0.5, 1']
 
 - type: tile
   id: PlatingHalfTiltNWELower
   parent: PlatingSpace
-  name: NW-E lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNWELower-name-9b1b28a406
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_nw_e_l.png
   vertices: ['0, 0', '0, 1', '1, 1', '1, 0.5']
 
 - type: tile
   id: PlatingHalfTiltNESUpper
   parent: PlatingSpace
-  name: NE-S upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNESUpper-name-4af91a84c8
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_ne_s_u.png
   vertices: ['0.5, 1', '1, 1', '1, 0']
 
 - type: tile
   id: PlatingHalfTiltSEWUpper
   parent: PlatingSpace
-  name: SE-W upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSEWUpper-name-cb985afea3
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_se_w_u.png
   vertices: ['1, 0.5', '1, 0', '0, 0']
 
 - type: tile
   id: PlatingHalfTiltSWNUpper
   parent: PlatingSpace
-  name: SW-N upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSWNUpper-name-44ae1b1567
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_sw_n_u.png
   vertices: ['0.5, 0', '0, 0', '0, 1']
 
 - type: tile
   id: PlatingHalfTiltNWEUpper
   parent: PlatingSpace
-  name: NW-E upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNWEUpper-name-3c710a0bee
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_nw_e_u.png
   vertices: ['0, 0.5', '0, 1', '1, 1']
 
 - type: tile
   id: PlatingHalfTiltNEWLower
   parent: PlatingSpace
-  name: NE-W lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNEWLower-name-97c7298f6d
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_ne_w_l.png
   vertices: ['0, 1', '1, 1', '1, 0', '0, 0.5']
 
 - type: tile
   id: PlatingHalfTiltSENLower
   parent: PlatingSpace
-  name: SE-N lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSENLower-name-4b37f373c9
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_se_n_l.png
   vertices: ['1, 1', '1, 0', '0, 0', '0.5, 1']
 
 - type: tile
   id: PlatingHalfTiltSWELower
   parent: PlatingSpace
-  name: SW-E lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSWELower-name-824b4e403c
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_sw_e_l.png
   vertices: ['1, 0', '0, 0', '0, 1', '1, 0.5']
 
 - type: tile
   id: PlatingHalfTiltNWSLower
   parent: PlatingSpace
-  name: NW-S lower half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNWSLower-name-91fb69a902
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_nw_s_l.png
   vertices: ['0, 0', '0, 1', '1, 1', '0.5, 0']
 
 - type: tile
   id: PlatingHalfTiltNEWUpper
   parent: PlatingSpace
-  name: NE-W upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNEWUpper-name-a5930a8227
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_ne_w_u.png
   vertices: ['0, 1', '1, 1', '1, 0.5']
 
 - type: tile
   id: PlatingHalfTiltSENUpper
   parent: PlatingSpace
-  name: SE-N upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSENUpper-name-98b897e687
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_se_n_u.png
   vertices: ['1, 1', '1, 0', '0.5, 0']
 
 - type: tile
   id: PlatingHalfTiltSWEUpper
   parent: PlatingSpace
-  name: SW-E upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltSWEUpper-name-9b3bf9a655
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_sw_e_u.png
   vertices: ['1, 0', '0, 0', '0, 0.5']
 
 - type: tile
   id: PlatingHalfTiltNWSUpper
   parent: PlatingSpace
-  name: NW-S upper half-tilt plating
+  name: prototype-text-tile-PlatingHalfTiltNWSUpper-name-eb8a60a983
   sprite: /Textures/_Mono/Tiles/plating/script/halftilt_nw_s_u.png
   vertices: ['0, 0', '0, 1', '0.5, 1']

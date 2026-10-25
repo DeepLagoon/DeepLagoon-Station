@@ -1,4 +1,4 @@
-﻿# Base
+# Base
 - type: entity
   id: BaseCrossbow
   name: crossbow
@@ -98,7 +98,7 @@
   - type: ItemSlots
     slots:
       projectiles:
-        name: Projectiles
+        name: prototype-text-entity-BaseCrossbow-name-eb42cdbb98
         startingItem: null
         insertSound: /Audio/Weapons/Guns/Misc/arrow_nock.ogg
         whitelist:

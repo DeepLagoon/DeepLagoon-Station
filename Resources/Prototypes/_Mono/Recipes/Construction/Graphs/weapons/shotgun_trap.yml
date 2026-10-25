@@ -13,19 +13,19 @@
               amount: 4
               doAfter: 1
             - tag: ModularReceiver
-              name: modular receiver
+              name: prototype-text-constructionGraph-ShotgunTrap-name-a2d3ebff52
               icon:
                 sprite: Objects/Misc/modular_receiver.rsi
                 state: icon
               doAfter: 2
             - tag: Pipe
-              name: pipe
+              name: prototype-text-constructionGraph-ShotgunTrap-name-fd332545c5
               icon:
                 sprite: Structures/Piping/Atmospherics/pipe.rsi
                 state: pipeStraight
               doAfter: 2
             - tag: RemoteSignaller
-              name: remote signaller
+              name: prototype-text-constructionGraph-ShotgunTrap-name-3cb7a5c88b
               icon:
                 sprite: Objects/Devices/signaller.rsi
                 state: signaller

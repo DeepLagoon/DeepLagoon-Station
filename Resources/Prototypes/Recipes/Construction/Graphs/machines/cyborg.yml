@@ -16,14 +16,14 @@
         store: part-container
 
       - component: Flash
-        name: flash
+        name: prototype-text-constructionGraph-Cyborg-name-28b8b61e64
         store: part-container
         icon:
           sprite: Objects/Weapons/Melee/flash.rsi
           state: flash
 
       - component: Flash
-        name: second flash
+        name: prototype-text-constructionGraph-Cyborg-name-57472aced4
         store: part-container
         icon:
           sprite: Objects/Weapons/Melee/flash.rsi
@@ -38,7 +38,7 @@
     - to: pdvcyborg
       steps:
       - tag: BorgIFFPDV
-        name: PDV Cyborg Intrinsics
+        name: prototype-text-constructionGraph-Cyborg-name-9d06beafb1
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: tesla
@@ -48,7 +48,7 @@
     - to: tsfcyborg
       steps:
       - tag: BorgIFFTSF
-        name: TSF Cyborg Intrinsics
+        name: prototype-text-constructionGraph-Cyborg-name-f86fed4f2e
         icon:
           sprite: Objects/Specific/Mech/mecha_equipment.rsi
           state: tesla
@@ -93,7 +93,7 @@
           - !type:EntityAnchored {}
         steps:
          - tag: AICoreElectronics
-           name: ai core electronics board
+           name: prototype-text-constructionGraph-AiVessel-name-409ff75807
            icon:
              sprite: Objects/Misc/module.rsi
              state: blank_mod
@@ -124,7 +124,7 @@
         - !type:EntityAnchored {}
        steps:
        - tag: Posibrain
-         name: postrionic brain
+         name: prototype-text-constructionGraph-AiVessel-name-7c465f9b49
          icon:
            sprite: Objects/Specific/Robotics/mmi.rsi
            state: posibrain

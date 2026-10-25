@@ -1,192 +1,192 @@
 - type: stack
   id: FloorTileDark
-  name: dark tile
+  name: prototype-text-stack-FloorTileDark-name-4edf890353
   spawn: FloorTileItemDark
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkDiagonalMini
-  name: dark steel diagonal mini tile
+  name: prototype-text-stack-FloorTileDarkDiagonalMini-name-ed447b199f
   spawn: FloorTileItemDarkDiagonalMini
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkDiagonal
-  name: dark steel diagonal tile
+  name: prototype-text-stack-FloorTileDarkDiagonal-name-8fd017def6
   spawn: FloorTileItemDarkDiagonal
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkHerringbone
-  name: dark steel herringbone
+  name: prototype-text-stack-FloorTileDarkHerringbone-name-37bb9e20ab
   spawn: FloorTileItemDarkHerringbone
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkMini
-  name: dark steel mini tile
+  name: prototype-text-stack-FloorTileDarkMini-name-ec892cdce7
   spawn: FloorTileItemDarkMini
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkMono
-  name: dark steel mono tile
+  name: prototype-text-stack-FloorTileDarkMono-name-40a5f7c712
   spawn: FloorTileItemDarkMono
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkPavement
-  name: dark steel pavement
+  name: prototype-text-stack-FloorTileDarkPavement-name-f248a337e6
   spawn: FloorTileItemDarkPavement
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkPavementVertical
-  name: dark steel vertical pavement
+  name: prototype-text-stack-FloorTileDarkPavementVertical-name-bf6a078293
   spawn: FloorTileItemDarkPavementVertical
   maxCount: 30
 
 - type: stack
   id: FloorTileDarkOffset
-  name: offset dark steel tile
+  name: prototype-text-stack-FloorTileDarkOffset-name-50cc62ab45
   spawn: FloorTileItemDarkOffset
   maxCount: 30
 
 - type: stack
   id: FloorTileSteel
-  name: steel tile
+  name: prototype-text-stack-FloorTileSteel-name-f9c49f6497
   spawn: FloorTileItemSteel
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelOffset
-  name: offset steel tile
+  name: prototype-text-stack-FloorTileSteelOffset-name-958622f3e3
   spawn: FloorTileItemSteelOffset
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelDiagonalMini
-  name: steel diagonal mini tile
+  name: prototype-text-stack-FloorTileSteelDiagonalMini-name-4b63c17213
   spawn: FloorTileItemSteelDiagonalMini
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelDiagonal
-  name: steel diagonal tile
+  name: prototype-text-stack-FloorTileSteelDiagonal-name-d427a3ee1f
   spawn: FloorTileItemSteelDiagonal
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelHerringbone
-  name: steel herringbone
+  name: prototype-text-stack-FloorTileSteelHerringbone-name-cc42dbadf0
   spawn: FloorTileItemSteelHerringbone
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelMini
-  name: steel mini tile
+  name: prototype-text-stack-FloorTileSteelMini-name-df7db064a2
   spawn: FloorTileItemSteelMini
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelMono
-  name: steel mono tile
+  name: prototype-text-stack-FloorTileSteelMono-name-5d94056354
   spawn: FloorTileItemSteelMono
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelPavement
-  name: steel pavement
+  name: prototype-text-stack-FloorTileSteelPavement-name-28c9a4ae50
   spawn: FloorTileItemSteelPavement
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelPavementVertical
-  name: steel vertical pavement
+  name: prototype-text-stack-FloorTileSteelPavementVertical-name-93e1152894
   spawn: FloorTileItemSteelPavementVertical
   maxCount: 30
 
 - type: stack
   id: FloorTileWhite
-  name: white tile
+  name: prototype-text-stack-FloorTileWhite-name-686f0ccb05
   spawn: FloorTileItemWhite
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteOffset
-  name: offset white steel tile
+  name: prototype-text-stack-FloorTileWhiteOffset-name-7c7816c218
   spawn: FloorTileItemWhiteOffset
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteDiagonalMini
-  name: white steel diagonal mini tile
+  name: prototype-text-stack-FloorTileWhiteDiagonalMini-name-f876cc7ce0
   spawn: FloorTileItemWhiteDiagonalMini
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteDiagonal
-  name: white steel diagonal tile
+  name: prototype-text-stack-FloorTileWhiteDiagonal-name-d0f34c2809
   spawn: FloorTileItemWhiteDiagonal
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteHerringbone
-  name: white steel herringbone
+  name: prototype-text-stack-FloorTileWhiteHerringbone-name-deec8c37e0
   spawn: FloorTileItemWhiteHerringbone
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteMini
-  name: white steel mini tile
+  name: prototype-text-stack-FloorTileWhiteMini-name-1a2264fcfc
   spawn: FloorTileItemWhiteMini
   maxCount: 30
 
 - type: stack
   id: FloorTileWhiteMono
-  name: white steel mono tile
+  name: prototype-text-stack-FloorTileWhiteMono-name-3b1266ceb9
   spawn: FloorTileItemWhiteMono
   maxCount: 30
 
 - type: stack
   id: FloorTileWhitePavement
-  name: white steel pavement
+  name: prototype-text-stack-FloorTileWhitePavement-name-b5ecb36366
   spawn: FloorTileItemWhitePavement
   maxCount: 30
 
 - type: stack
   id: FloorTileWhitePavementVertical
-  name: white steel vertical pavement
+  name: prototype-text-stack-FloorTileWhitePavementVertical-name-655e620763
   spawn: FloorTileItemWhitePavementVertical
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelCheckerDark
-  name: steel dark checker tile
+  name: prototype-text-stack-FloorTileSteelCheckerDark-name-945db5b6d8
   spawn: FloorTileItemSteelCheckerDark
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelCheckerLight
-  name: steel light checker tile
+  name: prototype-text-stack-FloorTileSteelCheckerLight-name-e170bc08a8
   spawn: FloorTileItemSteelCheckerLight
   maxCount: 30
 
 - type: stack
   id: FloorTileMetalDiamond
-  name: steel tile
+  name: prototype-text-stack-FloorTileMetalDiamond-name-88ed735319
   spawn: FloorTileItemMetalDiamond
   maxCount: 30
 
 - type: stack
   id: FloorTileWood
-  name: wood floor
+  name: prototype-text-stack-FloorTileWood-name-3afb67777c
   spawn: FloorTileItemWood
   maxCount: 30
 
 - type: stack
   id: FloorTileTechmaint
-  name: techmaint floor
+  name: prototype-text-stack-FloorTileTechmaint-name-18f2299100
   spawn: FloorTileItemTechmaint
   maxCount: 30
 
@@ -198,446 +198,446 @@
 
 - type: stack
   id: FloorTileFreezer
-  name: freezer tile
+  name: prototype-text-stack-FloorTileFreezer-name-db04b99670
   spawn: FloorTileItemFreezer
   maxCount: 30
 
 - type: stack
   id: FloorTileShowroom
-  name: showroom tile
+  name: prototype-text-stack-FloorTileShowroom-name-6bc8687bb2
   spawn: FloorTileItemShowroom
   maxCount: 30
 
 - type: stack
   id: FloorTileGCircuit
-  name: green-circuit floor
+  name: prototype-text-stack-FloorTileGCircuit-name-a83435dd1a
   spawn: FloorTileItemGCircuit
   maxCount: 30
 
 - type: stack
   id: FloorTileGold
-  name: gold floor
+  name: prototype-text-stack-FloorTileGold-name-3e37fb4eb9
   spawn: FloorTileItemGold
   maxCount: 30
 
 - type: stack
   id: FloorTileMono
-  name: mono tile
+  name: prototype-text-stack-FloorTileMono-name-5983c7f1b9
   spawn: FloorTileItemMono
   maxCount: 30
 
 - type: stack
   id: FloorTileBrassFilled
-  name: filled brass plate
+  name: prototype-text-stack-FloorTileBrassFilled-name-c8cf0aa3e6
   spawn: FloorTileItemBrassFilled
   maxCount: 30
 
 - type: stack
   id: FloorTileBrassReebe
-  name: smooth brass plate
+  name: prototype-text-stack-FloorTileBrassReebe-name-83111694a2
   spawn: FloorTileItemBrassReebe
   maxCount: 30
 
 - type: stack
   id: FloorTileLino
-  name: linoleum floor
+  name: prototype-text-stack-FloorTileLino-name-d1d19b02b6
   spawn: FloorTileItemLino
   maxCount: 30
 
 - type: stack
   id: FloorTileHydro
-  name: hydro tile
+  name: prototype-text-stack-FloorTileHydro-name-2096921f5e
   spawn: FloorTileItemHydro
   maxCount: 30
 
 - type: stack
   id: FloorTileLime
-  name: lime tile
+  name: prototype-text-stack-FloorTileLime-name-52ce1d6421
   spawn: FloorTileItemLime
   maxCount: 30
 
 - type: stack
   id: FloorTileDirty
-  name: dirty tile
+  name: prototype-text-stack-FloorTileDirty-name-ae6d259b3e
   spawn: FloorTileItemDirty
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleWhite
-  name: white shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleWhite-name-b14b49b14b
   spawn: FloorTileItemShuttleWhite
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleBlue
-  name: blue shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleBlue-name-f5523f43c8
   spawn: FloorTileItemShuttleBlue
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleOrange
-  name: orange shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleOrange-name-660a477052
   spawn: FloorTileItemShuttleOrange
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttlePurple
-  name: purple shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttlePurple-name-57a1a3c529
   spawn: FloorTileItemShuttlePurple
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleRed
-  name: red shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleRed-name-798acbbd68
   spawn: FloorTileItemShuttleRed
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleGrey
-  name: grey shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleGrey-name-6ec75c1480
   spawn: FloorTileItemShuttleGrey
   maxCount: 30
 
 - type: stack
   id: FloorTileStackShuttleBlack
-  name: black shuttle tile
+  name: prototype-text-stack-FloorTileStackShuttleBlack-name-f3f064736f
   spawn: FloorTileItemShuttleBlack
   maxCount: 30
 
 - type: stack
   id: FloorTileStackEighties
-  name: eighties floor tile
+  name: prototype-text-stack-FloorTileStackEighties-name-b9bd876986
   spawn: FloorTileItemEighties
   maxCount: 30
 
 - type: stack
   id: FloorTileStackArcadeBlue
-  name: blue arcade tile
+  name: prototype-text-stack-FloorTileStackArcadeBlue-name-2d6006b6a2
   spawn: FloorTileItemArcadeBlue
   maxCount: 30
 
 - type: stack
   id: FloorTileStackArcadeBlue2
-  name: blue arcade tile
+  name: prototype-text-stack-FloorTileStackArcadeBlue2-name-b639bb15b5
   spawn: FloorTileItemArcadeBlue2
   maxCount: 30
 
 - type: stack
   id: FloorTileStackArcadeRed
-  name: red arcade tile
+  name: prototype-text-stack-FloorTileStackArcadeRed-name-4310f19baf
   spawn: FloorTileItemArcadeRed
   maxCount: 30
 
 - type: stack
   id: FloorCarpetRed
-  name: red carpet tile
+  name: prototype-text-stack-FloorCarpetRed-name-ffc411e109
   spawn: FloorCarpetItemRed
   maxCount: 30
 
 - type: stack
   id: FloorCarpetBlack
-  name: block carpet tile
+  name: prototype-text-stack-FloorCarpetBlack-name-38311c1cc7
   spawn: FloorCarpetItemBlack
   maxCount: 30
 
 - type: stack
   id: FloorCarpetBlue
-  name: blue carpet tile
+  name: prototype-text-stack-FloorCarpetBlue-name-708bd38d54
   spawn: FloorCarpetItemBlue
   maxCount: 30
 
 - type: stack
   id: FloorCarpetGreen
-  name: green carpet tile
+  name: prototype-text-stack-FloorCarpetGreen-name-55a459df39
   spawn: FloorCarpetItemGreen
   maxCount: 30
 
 - type: stack
   id: FloorCarpetOrange
-  name: orange carpet tile
+  name: prototype-text-stack-FloorCarpetOrange-name-475d1530c8
   spawn: FloorCarpetItemOrange
   maxCount: 30
 
 - type: stack
   id: FloorCarpetSkyBlue
-  name: skyblue carpet tile
+  name: prototype-text-stack-FloorCarpetSkyBlue-name-d309544340
   spawn: FloorCarpetItemSkyBlue
   maxCount: 30
 
 - type: stack
   id: FloorCarpetPurple
-  name: purple carpet tile
+  name: prototype-text-stack-FloorCarpetPurple-name-a1e8007eb5
   spawn: FloorCarpetItemPurple
   maxCount: 30
 
 - type: stack
   id: FloorCarpetPink
-  name: pink carpet tile
+  name: prototype-text-stack-FloorCarpetPink-name-51b3b17122
   spawn: FloorCarpetItemPink
   maxCount: 30
 
 - type: stack
   id: FloorCarpetCyan
-  name: cyan carpet tile
+  name: prototype-text-stack-FloorCarpetCyan-name-c580e29d7c
   spawn: FloorCarpetItemCyan
   maxCount: 30
 
 - type: stack
   id: FloorCarpetWhite
-  name: white carpet tile
+  name: prototype-text-stack-FloorCarpetWhite-name-ac1de8b2b9
   spawn: FloorCarpetItemWhite
   maxCount: 30
 
 - type: stack
   id: FloorTileStackCarpetClown
-  name: clown carpet tile
+  name: prototype-text-stack-FloorTileStackCarpetClown-name-4ee4b2bcf6
   spawn: FloorTileItemCarpetClown
   maxCount: 30
 
 - type: stack
   id: FloorTileStackCarpetOffice
-  name: office carpet tile
+  name: prototype-text-stack-FloorTileStackCarpetOffice-name-f33d8ab2e6
   spawn: FloorTileItemCarpetOffice
   maxCount: 30
 
 - type: stack
   id: FloorTileStackBoxing
-  name: boxing ring tile
+  name: prototype-text-stack-FloorTileStackBoxing-name-c5587fb96e
   spawn: FloorTileItemBoxing
   maxCount: 30
 
 - type: stack
   id: FloorTileStackGym
-  name: gym floor tile
+  name: prototype-text-stack-FloorTileStackGym-name-55ed82ae53
   spawn: FloorTileItemGym
   maxCount: 30
 
 - type: stack
   id: FloorTileElevatorShaft
-  name: elevator shaft tile
+  name: prototype-text-stack-FloorTileElevatorShaft-name-28a5a4b9a3
   spawn: FloorTileItemElevatorShaft
   maxCount: 30
 
 - type: stack
   id: FloorTileRockVault
-  name: rock vault tile
+  name: prototype-text-stack-FloorTileRockVault-name-6ff06edad4
   spawn: FloorTileItemRockVault
   maxCount: 30
 
 - type: stack
   id: FloorTileBlue
-  name: blue floor tile
+  name: prototype-text-stack-FloorTileBlue-name-1985f59730
   spawn: FloorTileItemBlue
   maxCount: 30
 
 - type: stack
   id: FloorTileMining
-  name: mining floor tile
+  name: prototype-text-stack-FloorTileMining-name-b7fe5ca88e
   spawn: FloorTileItemMining
   maxCount: 30
 
 - type: stack
   id: FloorTileMiningDark
-  name: dark mining floor tile
+  name: prototype-text-stack-FloorTileMiningDark-name-0651a316ac
   spawn: FloorTileItemMiningDark
   maxCount: 30
 
 - type: stack
   id: FloorTileMiningLight
-  name: light mining floor tile
+  name: prototype-text-stack-FloorTileMiningLight-name-8c586bf5cb
   spawn: FloorTileItemMiningLight
   maxCount: 30
 
 - type: stack
   id: FloorTileBar
-  name: item bar floor tile
+  name: prototype-text-stack-FloorTileBar-name-9afb77fa4c
   spawn: FloorTileItemBar
   maxCount: 30
 
 - type: stack
   id: FloorTileClown
-  name: clown floor tile
+  name: prototype-text-stack-FloorTileClown-name-e727cd5e10
   spawn: FloorTileItemClown
   maxCount: 30
 
 - type: stack
   id: FloorTileMime
-  name: mime floor tile
+  name: prototype-text-stack-FloorTileMime-name-ec6b995205
   spawn: FloorTileItemMime
   maxCount: 30
 
 - type: stack
   id: FloorTileKitchen
-  name: kitchen floor tile
+  name: prototype-text-stack-FloorTileKitchen-name-2bc81b4432
   spawn: FloorTileItemKitchen
   maxCount: 30
 
 - type: stack
   id: FloorTileLaundry
-  name: laundry floor tile
+  name: prototype-text-stack-FloorTileLaundry-name-2c667f3446
   spawn: FloorTileItemLaundry
   maxCount: 30
 
 - type: stack
   id: FloorTileConcrete
-  name: concrete tile
+  name: prototype-text-stack-FloorTileConcrete-name-0729b370b8
   spawn: FloorTileItemGrayConcrete
   maxCount: 30
 
 - type: stack
   id: FloorTileConcreteMono
-  name: concrete mono tile
+  name: prototype-text-stack-FloorTileConcreteMono-name-0468994980
   spawn: FloorTileItemConcreteMono
   maxCount: 30
 
 - type: stack
   id: FloorTileConcreteSmooth
-  name: concrete smooth
+  name: prototype-text-stack-FloorTileConcreteSmooth-name-7c88fe0d57
   spawn: FloorTileItemConcreteSmooth
   maxCount: 30
 
 - type: stack
   id: FloorTileGrayConcrete
-  name: gray concrete tile
+  name: prototype-text-stack-FloorTileGrayConcrete-name-b88d829d59
   spawn: FloorTileItemGrayConcrete
   maxCount: 30
 
 - type: stack
   id: FloorTileGrayConcreteMono
-  name: gray concrete mono tile
+  name: prototype-text-stack-FloorTileGrayConcreteMono-name-ec27fcbd05
   spawn: FloorTileItemGrayConcreteMono
   maxCount: 30
 
 - type: stack
   id: FloorTileGrayConcreteSmooth
-  name: gray concrete smooth
+  name: prototype-text-stack-FloorTileGrayConcreteSmooth-name-408c15c530
   spawn: FloorTileItemGrayConcreteSmooth
   maxCount: 30
 
 - type: stack
   id: FloorTileOldConcrete
-  name: old concrete tile
+  name: prototype-text-stack-FloorTileOldConcrete-name-3fc158c27e
   spawn: FloorTileItemOldConcrete
   maxCount: 30
 
 - type: stack
   id: FloorTileOldConcreteMono
-  name: old concrete mono tile
+  name: prototype-text-stack-FloorTileOldConcreteMono-name-7c7260348f
   spawn: FloorTileItemOldConcreteMono
   maxCount: 30
 
 - type: stack
   id: FloorTileOldConcreteSmooth
-  name: old concrete smooth
+  name: prototype-text-stack-FloorTileOldConcreteSmooth-name-bbf2b3e75a
   spawn: FloorTileItemOldConcreteSmooth
   maxCount: 30
 
 - type: stack
   id: FloorTileSilver
-  name: silver floor tile
+  name: prototype-text-stack-FloorTileSilver-name-5e32eb41e0
   spawn: FloorTileItemSilver
   maxCount: 30
 
 - type: stack
   id: FloorTileBCircuit
-  name: bcircuit floor tile
+  name: prototype-text-stack-FloorTileBCircuit-name-010041c07f
   spawn: FloorTileItemBCircuit
   maxCount: 30
 
 - type: stack
   id: FloorTileRCircuit
-  name: red-circuit floor
+  name: prototype-text-stack-FloorTileRCircuit-name-0b2987bc4c
   spawn: FloorTileItemRCircuit
   maxCount: 30
 
 - type: stack
   id: FloorTileGrass
-  name: grass floor tile
+  name: prototype-text-stack-FloorTileGrass-name-bf4b074031
   spawn: FloorTileItemGrass
   maxCount: 30
 
 - type: stack
   id: FloorTileGrassJungle
-  name: grass jungle floor tile
+  name: prototype-text-stack-FloorTileGrassJungle-name-81c5a700ec
   spawn: FloorTileItemGrassJungle
   maxCount: 30
 
 - type: stack
   id: FloorTileSnow
-  name: snow floor tile
+  name: prototype-text-stack-FloorTileSnow-name-f65f10c40c
   spawn: FloorTileItemSnow
   maxCount: 30
 
 - type: stack
   id: FloorTileWoodPattern
-  name: wood pattern floor
+  name: prototype-text-stack-FloorTileWoodPattern-name-8e6973dda6
   spawn: FloorTileItemWoodPattern
   maxCount: 30
 
 - type: stack
   id: FloorTileFlesh
-  name: flesh floor
+  name: prototype-text-stack-FloorTileFlesh-name-4396937fc8
   spawn: FloorTileItemFlesh
   maxCount: 30
 
 - type: stack
   id: FloorTileSteelMaint
-  name: steel maint floor
+  name: prototype-text-stack-FloorTileSteelMaint-name-d4fa6a444a
   spawn: FloorTileItemSteelMaint
   maxCount: 30
 
 - type: stack
   id: FloorTileGratingMaint
-  name: grating maint floor
+  name: prototype-text-stack-FloorTileGratingMaint-name-032169b340
   spawn: FloorTileItemGratingMaint
   maxCount: 30
 
 - type: stack
   id: FloorTileWeb
-  name: web tile
+  name: prototype-text-stack-FloorTileWeb-name-9a508598af
   spawn: FloorTileItemWeb
   maxCount: 30
 
 # Faux science tiles
 - type: stack
   id: FloorTileAstroGrass
-  name: astro-grass floor
+  name: prototype-text-stack-FloorTileAstroGrass-name-557b0c0382
   spawn: FloorTileItemAstroGrass
   maxCount: 30
 
 - type: stack
   id: FloorTileMowedAstroGrass
-  name: mowed astro-grass floor
+  name: prototype-text-stack-FloorTileMowedAstroGrass-name-abe20b71aa
   spawn: FloorTileItemMowedAstroGrass
   maxCount: 30
 
 - type: stack
   id: FloorTileJungleAstroGrass
-  name: jungle astro-grass floor
+  name: prototype-text-stack-FloorTileJungleAstroGrass-name-657af92680
   spawn: FloorTileItemJungleAstroGrass
   maxCount: 30
 
 - type: stack
   id: FloorTileAstroIce
-  name: astro-ice floor
+  name: prototype-text-stack-FloorTileAstroIce-name-2107b8a372
   spawn: FloorTileItemAstroIce
   maxCount: 30
 
 - type: stack
   id: FloorTileAstroSnow
-  name: astro-snow floor
+  name: prototype-text-stack-FloorTileAstroSnow-name-ef365e5c87
   spawn: FloorTileItemAstroSnow
   maxCount: 30
 
 - type: stack
   id: FloorTileAstroAsteroidSand
-  name: asteroid astro-sand floor
+  name: prototype-text-stack-FloorTileAstroAsteroidSand-name-cd527835e4
   spawn: FloorTileItemAstroAsteroidSand
   maxCount: 30
 
 - type: stack
   id: FloorTileWoodLarge
-  name: large wood floor
+  name: prototype-text-stack-FloorTileWoodLarge-name-4c35311910
   spawn: FloorTileItemWoodLarge
   maxCount: 30
 

@@ -16,17 +16,17 @@ ent-GunneryServerUltra = сервер управления корабельны�
     .desc = { ent-GunneryServerBase.desc }
 
 ent-GunneryServerOmega = сервер управления корабельными орудиями максимальной мощности
-    .desc = { ent-BaseStructureDisableToolUse.desc }
+    .desc = Отвечает за управление корабельных орудий.
 
 ent-GunneryServerStation = станционный сервер управления корабельными орудиями
-    .desc = { ent-BaseStructureDisableToolUse.desc }
+    .desc = Отвечает за управление корабельных орудий.
 
 ent-GunneryServerStationConsolesEnforced = станционный сервер управления корабельными орудиями
     .suffix = Ограничение макс. консолей
-    .desc = { ent-BaseStructureDisableToolUse.desc }
+    .desc = Отвечает за управление корабельных орудий.
 
 ent-ComputerGunneryConsole = консоль контроля корабельными орудиями
     .desc = Обеспечивает интерфейс для управления корабельными орудиями.
 
-ent-ComputerTabletopGunneryConsole = { ent-BaseStructureComputerTabletop }
-    .desc = { ent-BaseStructureComputerTabletop.desc }
+ent-ComputerTabletopGunneryConsole = консоль контроля корабельными орудиями
+    .desc = Обеспечивает интерфейс для управления корабельными орудиями.

@@ -32,6 +32,6 @@ ent-WallRockAndesiteCopper = { ent-WallRockAndesite }
     .desc = Рудная жила, богатая медью.
     .suffix = Медь
 
-ent-WallRockScrapPileCopper = { ent-WallRockScrapPile }
+ent-WallRockScrapPileCopper = груда металлолома
     .desc = Рудная жила с медью.
     .suffix = Медь

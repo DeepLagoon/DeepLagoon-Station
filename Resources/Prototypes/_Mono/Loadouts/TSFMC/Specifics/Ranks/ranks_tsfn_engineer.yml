@@ -1,6 +1,6 @@
 - type: loadout
   id: TsfnEngineerRankW1
-  name: TSFN W1 (WO)
+  name: "TSFN W1 (уорент-офицер)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnEngineerWO
@@ -19,7 +19,7 @@
 
 - type: loadout
   id: TsfnEngineerRankW2
-  name: TSFN W2 (CWO2)
+  name: "TSFN W2 (старший уорент-офицер 2-го класса)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnEngineerCWO2

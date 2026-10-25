@@ -2,49 +2,49 @@
 
 - type: starType
   id: TypeMStar
-  name: Red Dwarf
+  name: "Красный карлик"
   shader: MainSequenceStar
   solarMass: 0.26
   color: '#E62A10'
 
 - type: starType
   id: TypeKStar
-  name: Orange Dwarf
+  name: "Оранжевый карлик"
   shader: MainSequenceStar
   solarMass: 0.62
   color: '#FF8A1C'
 
 - type: starType
   id: TypeGStar
-  name: Yellow Dwarf
+  name: "Жёлтый карлик"
   shader: MainSequenceStar
   solarMass: 0.92
   color: '#FFD13B'
 
 - type: starType
   id: TypeFStar
-  name: Yellow-White Dwarf
+  name: "Жёлто-белый карлик"
   shader: MainSequenceStar
   solarMass: 1.22
   color: '#F2FAFF'
 
 - type: starType
   id: TypeAStar
-  name: White Star
+  name: "Белая звезда"
   shader: MainSequenceStar
   solarMass: 1.75
   color: '#70BDFF'
 
 - type: starType
   id: TypeBStar
-  name: Blue Star
+  name: "Голубая звезда"
   shader: MainSequenceStar
   solarMass: 5.0
   color: '#2B62FF'
 
 - type: starType
   id: StarKyphrus
-  name: Kyphrus
+  name: "Кифрус"
   shader: MainSequenceStar
   solarMass: 0.62
   color: '#FFD2A1'

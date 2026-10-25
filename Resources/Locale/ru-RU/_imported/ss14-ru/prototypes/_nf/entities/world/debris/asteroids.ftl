@@ -45,290 +45,290 @@ ent-NFBaseAsteroidRockGas = { "" }
 ent-NFBaseAsteroidScrapDebris = { ent-NFBaseDebris }
     .desc = { ent-NFBaseDebris.desc }
 
-ent-NFAsteroidDebrisSmall = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisMedium = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisLarge = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisExtraLarge = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisHuge = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisExtraHuge = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisEnormous = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisExtraEnormous = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisMassive = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisExtraMassive = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisGigantic = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidDebrisExtraGigantic = { ent-NFBaseAsteroidDebris }
+ent-NFAsteroidDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidDebris.desc }
 
-ent-NFAsteroidIceDebrisSmall = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisMedium = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisLarge = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisExtraLarge = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisHuge = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisExtraHuge = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisEnormous = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisExtraEnormous = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisMassive = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisExtraMassive = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisGigantic = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidIceDebrisExtraGigantic = { ent-NFBaseAsteroidIceDebris }
+ent-NFAsteroidIceDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidIceDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisSmall = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisMedium = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisLarge = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisExtraLarge = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisHuge = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisExtraHuge = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisEnormous = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisExtraEnormous = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisMassive = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisExtraMassive = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisGigantic = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidAndesiteDebrisExtraGigantic = { ent-NFBaseAsteroidAndesiteDebris }
+ent-NFAsteroidAndesiteDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidAndesiteDebris.desc }
 
-ent-NFAsteroidBasaltDebrisSmall = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisMedium = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisLarge = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisExtraLarge = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisHuge = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisExtraHuge = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisEnormous = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisExtraEnormous = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisMassive = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisExtraMassive = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisGigantic = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidBasaltDebrisExtraGigantic = { ent-NFBaseAsteroidBasaltDebris }
+ent-NFAsteroidBasaltDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidBasaltDebris.desc }
 
-ent-NFAsteroidSandDebrisSmall = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisMedium = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisLarge = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisExtraLarge = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisHuge = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisExtraHuge = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisEnormous = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisExtraEnormous = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisMassive = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisExtraMassive = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisGigantic = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidSandDebrisExtraGigantic = { ent-NFBaseAsteroidSandDebris }
+ent-NFAsteroidSandDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidSandDebris.desc }
 
-ent-NFAsteroidChromiteDebrisSmall = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisMedium = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisLarge = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisExtraLarge = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisHuge = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisExtraHuge = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisEnormous = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisExtraEnormous = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisMassive = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisExtraMassive = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisGigantic = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidChromiteDebrisExtraGigantic = { ent-NFBaseAsteroidChromiteDebris }
+ent-NFAsteroidChromiteDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidChromiteDebris.desc }
 
-ent-NFAsteroidRockDebrisSmall = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisMedium = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisLarge = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisExtraLarge = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisHuge = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisExtraHuge = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisEnormous = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisExtraEnormous = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisMassive = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisExtraMassive = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisGigantic = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidRockDebrisExtraGigantic = { ent-NFBaseAsteroidRockDebris }
+ent-NFAsteroidRockDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidRockDebris.desc }
 
-ent-NFAsteroidScrapDebrisSmall = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisSmall = [Астероид] маленький
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisMedium = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisMedium = [Астероид] средний
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisLarge = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisExtraLarge = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisExtraLarge = [Астероид] большой
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisHuge = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisExtraHuge = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisExtraHuge = [Астероид] огромный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisEnormous = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisExtraEnormous = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisExtraEnormous = [Астероид] неизвестный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisMassive = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisExtraMassive = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisExtraMassive = [Астероид] масштабный
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisGigantic = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }
 
-ent-NFAsteroidScrapDebrisExtraGigantic = { ent-NFBaseAsteroidScrapDebris }
+ent-NFAsteroidScrapDebrisExtraGigantic = [Астероид] гигантский
     .desc = { ent-NFBaseAsteroidScrapDebris.desc }

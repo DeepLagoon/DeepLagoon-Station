@@ -43,7 +43,7 @@ ent-ClothingHeadHatCatEarsValid = { ent-ClothingHeadHatCatEars }
     .suffix = Знак на головой, НЕ МАППИТЬ!
     .desc = { ent-ClothingHeadHatCatEars.desc }
 
-ent-ActionBecomeValid = Become Valid
+ent-ActionBecomeValid = Стать законной целью
     .desc = *замечает ваш знак смерти* owo whats this
 
 ent-ClothingHeadHatDogEars = собачьи ушки

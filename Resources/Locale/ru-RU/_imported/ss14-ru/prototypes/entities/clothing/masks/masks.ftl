@@ -74,7 +74,7 @@ ent-ClothingMaskRat = маска крысы
     .desc = Маска крысы, похожая на крысу. Возможно, они примут вас за обычную крысу.
 
 ent-ClothingMaskFox = маска лисы
-    .desc = What does the fox say?
+    .desc = Чё сказал этот лис?!
 
 ent-ClothingMaskBee = маска пчелы
     .desc = За королеву!

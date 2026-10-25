@@ -2,7 +2,7 @@
   id: Kresta
   parent: BaseVesselIFFDisabled
   name: PDV Kresta
-  description: Krestas are thin-hulled but heavily equipped for their size, with 2 FANG 57x460mm autocannons supported by 2 AK570 40x360mm autocannons.
+  description: "Kresta — корабли с тонким корпусом, но внушительным для своего размера оснащением: две автопушки FANG 57x460 мм при поддержке двух AK570 40x360 мм."
   price: 72000
   category: Small
   group: BlackMarket

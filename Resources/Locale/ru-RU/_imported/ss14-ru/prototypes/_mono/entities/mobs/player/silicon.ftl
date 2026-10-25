@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-AiHeldMono = { "" }
-    .desc = Components added / removed from an entity that gets inserted into an AI core.
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.
 
 ent-BaseBorgChassisRedacted = { ent-BaseBorgChassis }
     .desc = { ent-BaseBorgChassis.desc }
@@ -29,7 +29,7 @@ ent-StationAiBrainRedacted = { ent-StationAiBrain }
     .desc = { ent-StationAiBrain.desc }
 
 ent-AiHeldRedacted = { ent-AiHeldMono }
-    .desc = { ent-AiHeldMono.desc }
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.
 
 ent-PlayerStationAiVessel = { ent-PlayerStationAiEmpty }
     .suffix = Гост-роль, Шаттл
@@ -39,7 +39,7 @@ ent-StationAiBrainVessel = { ent-StationAiBrain }
     .desc = { ent-StationAiBrain.desc }
 
 ent-AiHeldVessel = { ent-AiHeldMono }
-    .desc = { ent-AiHeldMono.desc }
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.
 
 ent-PlayerStationAiTSFMC = { ent-PlayerStationAiEmpty }
     .suffix = Гост-роль, КВП ТСФ
@@ -49,7 +49,7 @@ ent-StationAiBrainTSFMC = { ent-StationAiBrain }
     .desc = { ent-StationAiBrain.desc }
 
 ent-AiHeldTSFMC = { ent-AiHeldMono }
-    .desc = { ent-AiHeldMono.desc }
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.
 
 ent-PlayerStationAiPDV = { ent-PlayerStationAiEmpty }
     .suffix = Гост-роль, ДФ
@@ -59,7 +59,7 @@ ent-StationAiBrainPDV = { ent-StationAiBrain }
     .desc = { ent-StationAiBrain.desc }
 
 ent-AiHeldPDV = { ent-AiHeldMono }
-    .desc = { ent-AiHeldMono.desc }
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.
 
 ent-BaseBorgChassisPDV = { ent-BaseBorgChassis }
     .desc = { ent-BaseBorgChassis.desc }
@@ -72,4 +72,4 @@ ent-PlayerStationAiSecurity = { ent-PlayerStationAiVessel }
     .desc = { ent-PlayerStationAiVessel.desc }
 
 ent-AiHeldSec = { ent-AiHeldMono }
-    .desc = { ent-AiHeldMono.desc }
+    .desc = Компоненты добавляются/удаляются из сущности, которая помещается в ядро ИИ.

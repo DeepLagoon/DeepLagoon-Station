@@ -161,6 +161,6 @@
     - LargeMilitaryPowerCell
   - type: ExtendDescription
     descriptionList:
-    - description: Fits into TSF ballistic & chemical laser GPMGs.
+    - description: prototype-text-entity-LargePowerCellPlasma68x52mm-description-4402355e08
       color: "#4f94ad"
       requireDetailRange: true

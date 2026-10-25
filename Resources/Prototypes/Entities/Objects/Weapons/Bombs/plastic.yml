@@ -83,7 +83,7 @@
     removalTime: 3.0
   - type: ExtendDescription
     descriptionList:
-    - description: Can be thrown to stick to targets.
+    - description: prototype-text-entity-C4-description-7cb3a176ee
       color: "#4f94ad"
       requireDetailRange: true
 

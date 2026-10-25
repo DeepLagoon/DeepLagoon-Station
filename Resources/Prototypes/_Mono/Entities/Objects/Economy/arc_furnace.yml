@@ -411,7 +411,7 @@
         amount: 4
   - type: ExtendDescription
     descriptionList:
-    - description: Can be cut with a knife to create four fragments.
+    - description: prototype-text-entity-ArmorPlateEconomy3-description-db7c3ad835
       color: "#4f94ad"
       requireDetailRange: true
 

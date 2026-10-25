@@ -1,6 +1,6 @@
 - type: crystallizerRecipe
   id: PlasticRecipe
-  name: Plastic (10)
+  name: "Пластик (10)"
   minimumTemperature: 500
   maximumTemperature: 800
   energyRelease: -200
@@ -23,7 +23,7 @@
 
 - type: crystallizerRecipe
   id: Iridite
-  name: Iridite (1)
+  name: "Иридит (1)"
   minimumTemperature: 4900
   maximumTemperature: 14000
   energyRelease: -1290
@@ -47,7 +47,7 @@
 
 - type: crystallizerRecipe
   id: Plastitanium
-  name: Plastitanium (10)
+  name: "Пластитан (10)"
   minimumTemperature: 7920
   maximumTemperature: 8150
   energyRelease: 1840
@@ -70,7 +70,7 @@
 
 - type: crystallizerRecipe
   id: Plasteel
-  name: Plasteel (10)
+  name: "Пласталь (10)"
   minimumTemperature: 1750
   maximumTemperature: 2500
   energyRelease: -2040
@@ -93,7 +93,7 @@
 
 - type: crystallizerRecipe
   id: Plasma
-  name: Plasma (1)
+  name: "Плазма (1)"
   minimumTemperature: 40
   maximumTemperature: 60
   energyRelease: 60
@@ -116,7 +116,7 @@
 
 - type: crystallizerRecipe
   id: Telecrystal
-  name: Telecrystal (1)
+  name: "Телекристалл (1)"
   minimumTemperature: 0
   maximumTemperature: 10
   energyRelease: 1040
@@ -139,7 +139,7 @@
 
 - type: crystallizerRecipe
   id: Diamond
-  name: Diamond (1)
+  name: "Алмаз (1)"
   minimumTemperature: 34800
   maximumTemperature: 37200
   energyRelease: -4250

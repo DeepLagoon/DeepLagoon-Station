@@ -1,8 +1,8 @@
 #bureaucracy
 - type: construction
   id: FilingCabinet
-  name: filing cabinet
-  description: A cabinet for all your filing needs.
+  name: construction-recipe-FilingCabinet-name
+  description: construction-recipe-FilingCabinet-description
   graph: FilingCabinet
   startNode: start
   targetNode: filingCabinet
@@ -18,8 +18,8 @@
 
 - type: construction
   id: TallCabinet
-  name: tall cabinet
-  description: A cabinet for all your filing needs.
+  name: construction-recipe-TallCabinet-name
+  description: construction-recipe-TallCabinet-description
   graph: FilingCabinet
   startNode: start
   targetNode: tallCabinet
@@ -35,8 +35,8 @@
 
 - type: construction
   id: ChestDrawer
-  name: chest drawer
-  description: A small drawer for all your filing needs, Now with wheels!
+  name: construction-recipe-ChestDrawer-name
+  description: construction-recipe-ChestDrawer-description
   graph: FilingCabinet
   startNode: start
   targetNode: chestDrawer
@@ -53,8 +53,8 @@
 # ItemCabinets
 - type: construction
   id: ShowCase
-  name: showcase
-  description: A sturdy showcase for an expensive exhibit.
+  name: construction-recipe-ShowCase-name
+  description: construction-recipe-ShowCase-description
   graph: GlassBox
   startNode: start
   targetNode: glassBox
@@ -72,8 +72,8 @@
 # Normals
 - type: construction
   id: ShelfWood
-  name: wooden shelf
-  description: A convenient place to place, well, anything really.
+  name: construction-recipe-ShelfWood-name
+  description: construction-recipe-ShelfWood-description
   graph: Shelf
   startNode: start
   targetNode: ShelfWood
@@ -88,8 +88,8 @@
 
 - type: construction
   id: ShelfMetal
-  name: metal shelf
-  description: A sturdy place to place, well, anything really.
+  name: construction-recipe-ShelfMetal-name
+  description: construction-recipe-ShelfMetal-description
   graph: Shelf
   startNode: start
   targetNode: ShelfMetal
@@ -104,8 +104,8 @@
 
 - type: construction
   id: ShelfGlass
-  name: glass shelf
-  description: Just like a normal shelf! But fragile and without the walls!
+  name: construction-recipe-ShelfGlass-name
+  description: construction-recipe-ShelfGlass-description
   graph: Shelf
   startNode: start
   targetNode: ShelfGlass
@@ -121,8 +121,8 @@
 # Reinforced
 - type: construction
   id: ShelfRWood
-  name: sturdy wooden shelf
-  description: The perfect place to store all your vintage records.
+  name: construction-recipe-ShelfRWood-name
+  description: construction-recipe-ShelfRWood-description
   graph: Shelf
   startNode: start
   targetNode: ShelfRWood
@@ -137,8 +137,8 @@
 
 - type: construction
   id: ShelfRMetal
-  name: sturdy metal shelf
-  description: Nice and strong, and keeps your maints loot secure.
+  name: construction-recipe-ShelfRMetal-name
+  description: construction-recipe-ShelfRMetal-description
   graph: Shelf
   startNode: start
   targetNode: ShelfRMetal
@@ -153,8 +153,8 @@
 
 - type: construction
   id: ShelfRGlass
-  name: sturdy glass shelf
-  description: See through, decent strength, shiny plastic case. Whats not to love?
+  name: construction-recipe-ShelfRGlass-name
+  description: construction-recipe-ShelfRGlass-description
   graph: Shelf
   startNode: start
   targetNode: ShelfRGlass
@@ -170,8 +170,8 @@
 # Departmental
 - type: construction
   id: ShelfBar
-  name: bar shelf
-  description: A convenient place for all your extra booze, specifically designed to hold more bottles!
+  name: construction-recipe-ShelfBar-name
+  description: construction-recipe-ShelfBar-description
   graph: Shelf
   startNode: start
   targetNode: ShelfBar
@@ -186,8 +186,8 @@
 
 - type: construction
   id: ShelfKitchen
-  name: kitchen shelf
-  description: Holds your knifes, spice, and everything nice!
+  name: construction-recipe-ShelfKitchen-name
+  description: construction-recipe-ShelfKitchen-description
   graph: Shelf
   startNode: start
   targetNode: ShelfKitchen
@@ -202,8 +202,8 @@
 
 - type: construction
   id: ShelfChemistry
-  name: chemical shelf
-  description: Perfect for keeping the most important chemicals safe, and out of the clumsy clowns hands!
+  name: construction-recipe-ShelfChemistry-name
+  description: construction-recipe-ShelfChemistry-description
   graph: Shelf
   startNode: start
   targetNode: ShelfChemistry

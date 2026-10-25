@@ -11,7 +11,7 @@
   - type: IFF
     color: "#37946e"
   - type: VesselInfo
-    description: "Even the air has a thin coat of dust."
+    description: "Даже воздух покрыт тонким слоем пыли."
 
 - type: gameMap
   id: ZetaNode

@@ -1,9 +1,9 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponLauncher = BaseWeaponLauncher
+ent-BaseWeaponLauncher = базовая пусковая установка
     .desc = Дерзай - налетай, целься и стреляй.
 
-ent-WeaponLauncherChinaLake = China Lake
+ent-WeaponLauncherChinaLake = «Чайна Лейк» PA
     .desc = БЛУП.
 
 ent-WeaponLauncherRocket = РПГ-7

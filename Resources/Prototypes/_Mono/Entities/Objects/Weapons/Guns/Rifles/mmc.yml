@@ -33,7 +33,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleOsaka-name-8df37fd69e
         startingItem: Magazine556x45mmFMJ
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/m16_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/skm_magout.ogg
@@ -43,7 +43,7 @@
           - Magazine556x45mmFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleOsaka-name-0cb0a06289
         startingItem: Cartridge556x45mmFMJ
         priority: 1
         whitelist:
@@ -100,7 +100,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleIzumo-name-35647dd684
         startingItem: Magazine556x45mmFMJ
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/m16_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/skm_magout.ogg
@@ -110,7 +110,7 @@
           - Magazine556x45mmFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleIzumo-name-c5ea56333e
         startingItem: Cartridge556x45mmFMJ
         priority: 1
         whitelist:

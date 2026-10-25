@@ -133,9 +133,9 @@ ent-ComputerTabletopPirateBounty = { ent-ComputerPirateBounty }
     .suffix = Настольный
     .desc = { ent-ComputerPirateBounty.desc }
 
-ent-ComputerTabletopContrabandPalletConsolePirate = { ent-ComputerContrabandPalletConsolePirate }
+ent-ComputerTabletopContrabandPalletConsolePirate = консоль сдачи технологий
     .suffix = Настольный
-    .desc = { ent-ComputerContrabandPalletConsolePirate.desc }
+    .desc = Принимает технологии фракций для отправки на исследования и выдаёт взамен жетоны данных.
 
 ent-ComputerTabletopPirateBountyRedemption = { ent-ComputerPirateBountyRedemption }
     .suffix = Настольный

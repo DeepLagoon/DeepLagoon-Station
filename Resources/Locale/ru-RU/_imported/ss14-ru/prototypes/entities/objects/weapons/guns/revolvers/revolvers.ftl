@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponRevolver = BaseWeaponRevolver
+ent-BaseWeaponRevolver = базовый револьвер
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-WeaponRevolverDeckard = Декард

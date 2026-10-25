@@ -22,7 +22,7 @@
       mail_slot:
         insertVerbText: Put in Mail
         ejectVerbText: Take out Mail
-        name: Mail
+        name: prototype-text-entity-MailCapsulePrimed-name-a22e1c8964
         startingItem: null
         whitelist:
           tags:
@@ -37,7 +37,7 @@
       food_slot:
         insertVerbText: Put in Food
         ejectVerbText: Take out Food
-        name: Food
+        name: prototype-text-entity-MailCapsulePrimed-name-e194786210
         startingItem: null
         whitelist:
           components:
@@ -47,7 +47,7 @@
       cash_slot:
         insertVerbText: Put in Cash
         ejectVerbText: Take out Cash
-        name: Cash
+        name: prototype-text-entity-MailCapsulePrimed-name-23f7c98c67
         startingItem: null
         whitelist:
           components:

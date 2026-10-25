@@ -1,6 +1,6 @@
 - type: microwaveMealRecipe
   id: RecipeFoodMothPizzaCotton
-  name: cheese cotton pizza recipe # Frontier: add "cheese"
+  name: prototype-text-microwaveMealRecipe-RecipeFoodMothPizzaCotton-name-e46e21478d # Frontier: add "cheese"
   result: FoodMothPizzaCotton
   time: 30
   solids:
@@ -12,7 +12,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMothMothmallow
-  name: mothmallow recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMothMothmallow-name-f86baff47b
   result: FoodMothMothmallow
   time: 10
   reagents:
@@ -26,7 +26,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMothMoffin
-  name: moffin recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMothMoffin-name-74029d2a89
   result: FoodMothMoffin
   time: 5
   reagents:
@@ -40,7 +40,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMothCottonSoup
-  name: cotton soup recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMothCottonSoup-name-5ea837f692
   result: FoodMothCottonSoup
   time: 10
   reagents:

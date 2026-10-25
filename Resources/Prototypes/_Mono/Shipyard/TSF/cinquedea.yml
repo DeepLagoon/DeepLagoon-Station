@@ -4,7 +4,7 @@
   id: Cinquedea
   parent: BaseVesselIFFDisabled
   name: TSF-ELF Cinquedea
-  description: Moderately armed and heavily armored multipurpose corvette. Armed with 6 Prometheus laser cannons and 2 L-1 Phalanxes for Point Defence. Quick and Agile, perfect for pursuing and finishing off damaged enemy vessels.
+  description: "Многоцелевой корвет с умеренным вооружением и тяжёлой бронёй. Вооружён шестью лазерными пушками Prometheus и двумя L-1 Phalanx для точечной обороны. Быстрый и манёвренный, отлично подходит для преследования и добивания повреждённых вражеских кораблей."
   price: 255000 #242609 baseline. Marked up to an even 250k for being a millitary vessel.
   purchasable: false # voucher only - T2
   category: Medium

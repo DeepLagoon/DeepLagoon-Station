@@ -2,28 +2,28 @@
 
 - type: stack
   id: GroundTobaccoStonecut
-  name: stonecut tobacco
+  name: prototype-text-stack-GroundTobaccoStonecut-name-095d630ff1
   icon: { sprite: /Textures/Objects/Misc/reagent_fillings.rsi, state: powderpile }
   spawn: GroundTobaccoStonecut
   maxCount: 5
 
 - type: stack
   id: ShroomsDried
-  name: dried shrooms
+  name: prototype-text-stack-ShroomsDried-name-e67ecb9af8
   icon: { sprite: /Textures/Objects/Misc/reagent_fillings.rsi, state: powderpile }
   spawn: ShroomsDried
   maxCount: 5
 
 - type: stack
   id: GroundTobaccoShrooms
-  name: fungal whiff tobacco
+  name: prototype-text-stack-GroundTobaccoShrooms-name-874a31cfae
   icon: { sprite: /Textures/Objects/Misc/reagent_fillings.rsi, state: powderpile }
   spawn: GroundTobaccoShrooms
   maxCount: 5
 
 - type: stack
   id: GroundTobaccoDrowsy
-  name: sweet dreams tobacco
+  name: prototype-text-stack-GroundTobaccoDrowsy-name-3c69830b37
   icon: { sprite: /Textures/Objects/Misc/reagent_fillings.rsi, state: powderpile }
   spawn: GroundTobaccoDrowsy
   maxCount: 5

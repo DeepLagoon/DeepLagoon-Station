@@ -7,37 +7,37 @@
     - to: GloriousOrder
       steps:
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-a0fd4847bf
         doAfter: 2
         icon:
           sprite: Clothing/Neck/Medals/gold.rsi
           state: icon
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-52e3fe2391
         doAfter: 2
         icon:
           sprite: Clothing/Neck/Medals/medicalmedal.rsi
           state: icon
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-ab3e0fd039
         doAfter: 2
         icon:
           sprite: _NF/Clothing/Neck/Medals/shield_gold.rsi
           state: icon
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-980874b7c2
         doAfter: 2
         icon:
           sprite: Clothing/Neck/Medals/cargomedal.rsi
           state: icon
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-67b3c0de46
         doAfter: 2
         icon:
           sprite: Clothing/Neck/Medals/sciencemedal.rsi
           state: icon
       - tag: Medal
-        name: any medal
+        name: prototype-text-constructionGraph-ClothingNeckMedalGloriousOrder-name-ddd95debb6
         doAfter: 2
         icon:
           sprite: _NF/Clothing/Neck/Medals/blood_drop.rsi

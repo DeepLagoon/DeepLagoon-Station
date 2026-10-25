@@ -29,7 +29,7 @@
 
 - type: loadout
   id: ContractorSpecialGunEg4
-  name: EG-4 gun case
+  name: "кейс с оружием EG-4"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -39,7 +39,7 @@
 
 - type: loadout
   id: ContractorSpecialGunAnnie
-  name: annie gun case
+  name: "кейс с Энни"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -49,7 +49,7 @@
 
 - type: loadout
   id: ContractorSpecialGunVulcan
-  name: vulcan gun case
+  name: "кейс с Вулканом"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -59,7 +59,7 @@
 
 - type: loadout
   id: ContractorSpecialGunEnforcer
-  name: enforcer gun case
+  name: "кейс с Энфорсером"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -69,7 +69,7 @@
 
 - type: loadout
   id: ContractorSpecialGunVector9mm
-  name: vector gun case (9mm)
+  name: "кейс с Вектором (9 мм)"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -79,7 +79,7 @@
 
 - type: loadout
   id: ContractorSpecialGunVector45Acp
-  name: vector gun case (.45 ACP)
+  name: "кейс с Вектором (.45 ACP)"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -89,7 +89,7 @@
 
 - type: loadout
   id: ContractorSpecialGunBandit
-  name: MR-3C bandit gun case
+  name: "кейс с MR-3C «Бандит»"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
@@ -101,7 +101,7 @@
 
 - type: loadout
   id: ContractorSpecialGunAk502
-  name: AK-502 gun case
+  name: "кейс с AK-502"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
@@ -111,7 +111,7 @@
 
 - type: loadout
   id: ContractorSpecialGunBigLeady
-  name: big leady gun case
+  name: "кейс с «Большой свинцовой»"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
@@ -121,7 +121,7 @@
 
 - type: loadout
   id: ContractorSpecialGunMalandro
-  name: RS-2 Malandro gun case
+  name: "кейс с RS-2 «Маландро»"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
@@ -134,7 +134,7 @@
 
 - type: loadout
   id: ContractorSpecialGunAnaconda
-  name: anaconda gun case
+  name: "кейс с Анакондой"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivRogueDefector
@@ -144,7 +144,7 @@
 
 - type: loadout
   id: ContractorSpecialGunMla73
-  name: MlA-73 gun case
+  name: "кейс с MlA-73"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivRogueDefector
@@ -154,7 +154,7 @@
 
 - type: loadout
   id: ContractorSpecialGunWspr
-  name: WSPR gun case
+  name: "кейс с WSPR"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivRogueDefector
@@ -166,7 +166,7 @@
 
 - type: loadout
   id: ContractorSpecialGunSmartSMG
-  name: abielle smartgun case
+  name: "кейс с умным оружием «Абиэль»"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivSkilled
@@ -176,7 +176,7 @@
 
 - type: loadout
   id: ContractorSpecialGunMla34
-  name: MlA-34 smartgun case
+  name: "кейс с умным оружием MlA-34"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivSkilled
@@ -186,7 +186,7 @@
 
 - type: loadout
   id: ContractorSpecialGunMla79
-  name: MlA-79 smart LMG case
+  name: "кейс с умным ручным пулемётом MlA-79"
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivPro

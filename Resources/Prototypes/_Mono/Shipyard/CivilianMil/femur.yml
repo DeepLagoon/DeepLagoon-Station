@@ -8,7 +8,7 @@
   id: Femur
   parent: BaseVessel
   name: DIS Femur
-  description: A power hungry menace, the DIS Femur is a medium-class FTL capable vessel. Shaped for and equipped with all the necessary tools for aggressive boarding operations. While Drake Industries is generally known for their non aggression policy within the sector, they recently started pumping out this mean hull, no public statements were given by the board of directives.
+  description: "Прожорливый и грозный DIS Femur — средний корабль со сверхсветовым двигателем. Его форма и оснащение рассчитаны на агрессивные абордажные операции. Хотя Drake Industries известна политикой ненападения в секторе, недавно компания начала массово выпускать этот зловещий корпус; совет директоров никаких публичных заявлений не делал."
   price: 100816
   category: Medium
   group: Shipyard

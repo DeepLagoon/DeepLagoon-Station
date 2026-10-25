@@ -2,7 +2,7 @@
   id: Luda
   parent: BaseVesselIFFDisabled
   name: TSFN Luda
-  description: Type-96 Luda-class destroyers are heavy backline strategic vessels. They carry multiple SS-N-40 launchers capable of firing long-range nuclear-capable cruise missiles, but they lack in any other anti-ship armaments compared to other capitals. If the war ever goes all-out, these are the ships that will end it in a week.
+  description: "Эсминцы Type-96 класса Luda — тяжёлые стратегические корабли тылового эшелона. Несут несколько SS-N-40, способных запускать дальние крылатые ракеты с ядерными боеголовками, но уступают другим крупным кораблям по остальному противокорабельному вооружению. Если война разгорится всерьёз, именно такие суда закончат её за неделю."
   limit: 1
   hyperwarLimit: 2
   hyperwarTimelock: 3600
@@ -30,8 +30,7 @@
       stationProto: StandardFrontierSecurityVessel
       gridComponents:
       - type: VesselInfo
-        description: "Revelations, 0-1: “Look to the sky!” the unknowing ones chanted, looking at the skies.
-                      A brilliant streak of white light and plasma lit up the night and dark sky like a false star." # This is what we have a lore advisor for.
+        description: "Откровения, 0-1: «Взгляните в небо!» — скандировали неведающие, глядя ввысь. Яркая полоса белого света и плазмы озарила тёмное ночное небо, словно ложная звезда." # This is what we have a lore advisor for.
       components:
         - type: StationNameSetup
           mapNameTemplate: 'Luda TSFN{1}'

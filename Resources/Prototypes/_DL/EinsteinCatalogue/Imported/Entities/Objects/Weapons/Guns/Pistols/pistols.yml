@@ -20,7 +20,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolViperEmpty-name-cdd81e878f
         startingItem: null
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -30,7 +30,7 @@
           - MagazinePistol
           - MagazinePistolHighCapacity
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolViperEmpty-name-b19b504645
         startingItem: null
         priority: 1
         whitelist:
@@ -56,7 +56,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolN1984Empty-name-fa4b53cd01
         startingItem: null
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -65,7 +65,7 @@
           tags:
           - MagazineMagnum
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolN1984Empty-name-5a37e5b12a
         startingItem: null
         priority: 1
         whitelist:
@@ -91,7 +91,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolMk58Empty-name-f7aacbef8e
         startingItem: null
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -100,7 +100,7 @@
           tags:
           - MagazinePistol
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolMk58Empty-name-69471fee95
         startingItem: null
         priority: 1
         whitelist:

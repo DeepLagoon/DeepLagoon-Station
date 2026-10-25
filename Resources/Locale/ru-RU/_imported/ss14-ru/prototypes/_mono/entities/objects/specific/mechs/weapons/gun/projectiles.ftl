@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-MechPelletShotgun = pellet (0.5 gauge)
+ent-MechPelletShotgun = дробина (0.5 калибра)
     .desc = { ent-BaseBullet.desc }
 
-ent-MechPelletShotgunSpread = { ent-MechPelletShotgun }
+ent-MechPelletShotgunSpread = дробина (0.5 калибра)
     .desc = { ent-MechPelletShotgun.desc }

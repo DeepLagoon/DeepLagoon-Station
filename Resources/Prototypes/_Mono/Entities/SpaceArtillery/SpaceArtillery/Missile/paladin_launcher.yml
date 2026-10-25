@@ -44,7 +44,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponTurretPaladin-name-9bf3b14947
         startingItem: PaladinMagazine
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg
@@ -88,7 +88,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponTurretPaladinInfinite-name-eff1e0a093
         disableEject: true
         startingItem: PaladinMagazineInfinite
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg

@@ -150,7 +150,7 @@
   - type: ESGunTemporaryItemSlotAttachment
     slotName: launcher_mag
     itemSlot:
-      name: UBGL Chamber
+      name: "Патронник подствольного гранатомёта"
       priority: 3
       insertSound: /Audio/_FinalHorizon/Weapons/Guns/MagIn/m203_insertgrenade.ogg
       ejectSound: /Audio/_FinalHorizon/Weapons/Guns/MagOut/m203_openbarrel.ogg
@@ -199,7 +199,7 @@
   - type: ESGunTemporaryItemSlotAttachment
     slotName: launcher_mag
     itemSlot:
-      name: UBGL Chamber
+      name: "Патронник подствольного гранатомёта"
       priority: 3
       insertSound: /Audio/_FinalHorizon/Weapons/Guns/MagIn/gp25_insertgrenade.ogg
       ejectSound: /Audio/_FinalHorizon/Weapons/Guns/MagOut/gp25_openbarrel.ogg

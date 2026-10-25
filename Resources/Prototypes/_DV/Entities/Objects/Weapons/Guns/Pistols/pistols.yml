@@ -22,7 +22,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolMk32-name-5b2ee60cde
         startingItem: Magazine9x19mmPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -33,7 +33,7 @@
             - Magazine9x19mmPistolHighCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolMk32-name-ea7f43300f
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:
@@ -63,7 +63,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolPollock-name-e5d8fa28f8
         startingItem: Magazine9x19mmPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -74,7 +74,7 @@
             - Magazine9x19mmPistolHighCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolPollock-name-7595b23e95
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:

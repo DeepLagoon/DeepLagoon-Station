@@ -1,10 +1,10 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-CultistMessengerGiftBox = blood cultist bundle
-    .desc = Loot boxes? Here?
+ent-CultistMessengerGiftBox = набор кровавого культиста
+    .desc = Лутбоксы? Тут?
     .suffix = NPC Loot
 
-ent-ClothingBackpackBloodCultZealotLootA = cultist gear bundle
+ent-ClothingBackpackBloodCultZealotLootA = набор снаряжения культиста
     .desc = { ent-CultistMessengerGiftBox.desc }
 
 ent-ClothingBackpackBloodCultZealotLootB = { ent-ClothingBackpackBloodCultZealotLootA }

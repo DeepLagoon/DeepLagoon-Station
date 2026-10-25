@@ -40,7 +40,7 @@
         - type: VesselMusic
           ambientMusicPrototype: CamelotMusic
         - type: VesselInfo
-          description: "A rickety old station that has been cobbled together over many many cycles..."
+          description: "Шаткая старая станция, кое-как собиравшаяся на протяжении многих и многих циклов..."
         - type: DeleteNearbyDrones
       components:
         - type: StationNameSetup

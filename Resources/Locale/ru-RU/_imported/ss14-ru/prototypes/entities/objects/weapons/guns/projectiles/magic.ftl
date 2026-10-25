@@ -12,7 +12,7 @@ ent-ProjectileAnomalyFireball = огненный шар
 ent-ProjectileLocker = проклятый шкафчик
     .desc = Проклятый магический шкафчик! Сможете ли вы сопротивляться?
 
-ent-ProjectilePolyboltBase = { ent-BaseBullet }
+ent-ProjectilePolyboltBase = базовая пуля
     .desc = { ent-BaseBullet.desc }
 
 ent-ProjectilePolyboltCarp = полизаряд карпа

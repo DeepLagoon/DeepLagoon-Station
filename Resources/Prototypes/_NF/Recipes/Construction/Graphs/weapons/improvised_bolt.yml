@@ -13,7 +13,7 @@
         amount: 1
         doAfter: 0.5
       - tag: GlassShard
-        name: Glass Shard
+        name: prototype-text-constructionGraph-CraftCrossbowBoltGlassShard-name-5cb3fabaf7
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -36,7 +36,7 @@
         amount: 1
         doAfter: 0.5
       - tag: PlasmaGlassShard
-        name: Plasma Glass Shard
+        name: prototype-text-constructionGraph-CraftCrossbowBoltPlasmaGlassShard-name-60f2695e74
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -59,7 +59,7 @@
         amount: 1
         doAfter: 0.5
       - tag: UraniumGlassShard
-        name: Uranium Glass Shard
+        name: prototype-text-constructionGraph-CraftCrossbowBoltUraniumGlassShard-name-450b95695f
         icon:
           sprite: Objects/Materials/Shards/shard.rsi
           state: shard1
@@ -82,7 +82,7 @@
         amount: 1
         doAfter: 0.5
       - tag: Syringe
-        name: Syringe
+        name: prototype-text-constructionGraph-CraftCrossbowBoltSyringe-name-05cc653df8
         icon:
           sprite: Objects/Specific/Chemistry/syringe.rsi
           state: syringe_base0
@@ -122,13 +122,13 @@
         amount: 1
         doAfter: 0.5
       - tag: ShellShotgun12_gaugeBuckshot
-        name: Shotgun shell
+        name: prototype-text-constructionGraph-CraftCrossbowBoltExplosive-name-921639f8f3
         icon:
           sprite: Objects/Weapons/Guns/Ammunition/Casings/shotgun_shell.rsi
           state: base
         doAfter: 1
       - component: NFFireBomb
-        name: Firebomb
+        name: prototype-text-constructionGraph-CraftCrossbowBoltExplosive-name-eee4ddaa52
         icon:
           sprite: Objects/Weapons/Bombs/ied.rsi
           state: base
@@ -154,13 +154,13 @@
         amount: 5
         doAfter: 0.4
       - component: PowerCell
-        name: Power cell
+        name: prototype-text-constructionGraph-CraftCrossbowBoltEMP-name-4ec77db037
         icon:
           sprite: Objects/Power/power_cells.rsi
           state: high
         doAfter: 0.4
       - component: LogicGate
-        name: Logic gate
+        name: prototype-text-constructionGraph-CraftCrossbowBoltEMP-name-619e5a5c45
         icon:
           sprite: Objects/Devices/gates.rsi
           state: base
@@ -183,7 +183,7 @@
         amount: 1
         doAfter: 0.5
       - tag: Flare
-        name: Flare
+        name: prototype-text-constructionGraph-CraftCrossbowBoltIncendiary-name-ac01ad0772
         icon:
           sprite: Objects/Misc/flare.rsi
           state: icon
@@ -206,7 +206,7 @@
         amount: 1
         doAfter: 0.5
       - tag: ShellShotgun12_gaugeBuckshot
-        name: Shotgun shell
+        name: prototype-text-constructionGraph-CraftCrossbowBoltShrapnel-name-98ffe49a8f
         icon:
           sprite: Objects/Weapons/Guns/Ammunition/Casings/shotgun_shell.rsi
           state: base

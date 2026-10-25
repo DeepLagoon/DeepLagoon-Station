@@ -7,7 +7,7 @@ ent-TorsoHuman = туловище человека
     .desc = { ent-PartHuman.desc }
 
 ent-HeadHuman = голова человека
-    .desc = { ent-PartHuman.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmHuman = левая рука человека
     .desc = { ent-PartHuman.desc }

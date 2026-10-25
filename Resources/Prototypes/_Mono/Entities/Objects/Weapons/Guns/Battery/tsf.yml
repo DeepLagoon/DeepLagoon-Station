@@ -34,7 +34,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponDEWCalico-name-a5ff265c1b
         startingItem: Magazine700Thz
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -44,7 +44,7 @@
           - Magazine700Thz
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponDEWCalico-name-17a140b4a2
         startingItem: Cartridge700Thz
         priority: 1
         whitelist:
@@ -108,7 +108,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponDEWSmilodon-name-30317b7052
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
         priority: 2
@@ -118,7 +118,7 @@
           - Magazine700Thz
         whitelistFailPopup: gun-magazine-whitelist-fail
       ItemCabinet:
-        name: Secondary Magazine
+        name: prototype-text-entity-WeaponDEWSmilodon-name-5e5884fad4
         ejectOnInteract: false
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -129,7 +129,7 @@
           - Magazine700Thz
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponDEWSmilodon-name-d64e962d13
         priority: 1
         whitelist:
           tags:
@@ -181,6 +181,6 @@
     maxAngle: 0
   - type: ExtendDescription
     descriptionList:
-    - description: Continued fire increases accuracy.
+    - description: prototype-text-entity-WeaponDEWSmilodon-description-d58de51838
       color: "#4f94ad"
       requireDetailRange: true

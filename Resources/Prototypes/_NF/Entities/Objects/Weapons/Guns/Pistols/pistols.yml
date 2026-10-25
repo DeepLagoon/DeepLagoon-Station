@@ -6,7 +6,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolMk58Nonlethal-name-d6b19b2df1
         startingItem: Magazine45_ACPPistolRubber
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -16,7 +16,7 @@
             - Magazine45_ACPPistolFMJ
             - Magazine45_ACPPistolHighCapacityFMJ
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolMk58Nonlethal-name-6562da5b85
         startingItem: Cartridge45_ACPRubber
         priority: 1
         whitelist:

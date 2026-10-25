@@ -48,7 +48,7 @@
       steps:
       - component: DoorElectronics
         store: board
-        name: "door electronics circuit board"
+        name: prototype-text-constructionGraph-HeavyAirlock-name-43683960e1
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: "door_electronics"

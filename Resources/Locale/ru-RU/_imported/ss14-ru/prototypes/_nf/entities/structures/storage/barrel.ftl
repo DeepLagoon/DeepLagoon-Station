@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseBarrel = metal barrel
-    .desc = A metal barrel. It can be filled with liquid.
+ent-BaseBarrel = металлическая бочка
+    .desc = Металлическая бочка. Её можно наполнить жидкостью.
 
 ent-MetalBarrelGrey = { ent-BaseBarrel }
     .desc = { ent-BaseBarrel.desc }

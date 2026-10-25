@@ -1,11 +1,11 @@
 - type: stack
   id: FederationMilitaryCredit
-  name: federation military credit
+  name: prototype-text-stack-FederationMilitaryCredit-name-f2fade7eb5
   icon: _NF/Objects/Specific/Security/frontieruplinkcoin.rsi
   spawn: FederationMilitaryCredit1
 
 - type: stack
   id: Doubloon
-  name: data chit
+  name: prototype-text-stack-Doubloon-name-2adf229b0d
   icon: _NF/Objects/Specific/Pirate/pirate_doubloon.rsi
   spawn: Doubloon1

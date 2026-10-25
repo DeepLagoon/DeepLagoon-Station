@@ -1,0 +1,10 @@
+action-speech-spell-cluwne = Х'НК КЛУ'ВН!!!
+action-speech-spell-fireball = ОНИ'СОМА!
+action-speech-spell-forcewall = ТАРКОЛ МИНТИ ЖЕРИ
+action-speech-spell-knock = АУЛИ ОКСИН ФИЕРА
+action-speech-spell-mind-swap = ГИН'Ю КАПАН!
+action-speech-spell-slip = СЛИ ПАРРИ!
+action-speech-spell-smite = ЭЙ НАТ!
+action-speech-spell-summon-guns = ЙОР'НИ ВЕС-КОРФА
+action-speech-spell-summon-magic = РИГОЙН ФЕМА-ВЕРЕКО
+action-speech-spell-summon-magicarp = АЙЕ КХУСЕ ЭУ

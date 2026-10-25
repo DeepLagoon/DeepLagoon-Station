@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponSubMachineGun = BaseSMG
+ent-BaseWeaponSubMachineGun = базовый пистолет-пулемёт
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-WeaponSubMachineGunAtreides = Атрейдес
@@ -14,6 +14,6 @@ ent-WeaponSubMachineGunC20r = C-20r
 ent-WeaponSubMachineGunDrozd = Дрозд
     .desc = Превосходный, полностью автоматический, тяжёлый пистолет-пулемёт. Использует патроны калибра .45ACP.
 
-ent-WeaponSubMachineGunWt550 = WT550
+ent-WeaponSubMachineGunWt550 = UI WT550 (4.6x30 мм)
     .desc = Отличный пистолет-пулемёт, производства NanoTrasen's Small Arms Division. Использует патроны калибра .45ACP.
     .suffix = Пистолет-пулемёт

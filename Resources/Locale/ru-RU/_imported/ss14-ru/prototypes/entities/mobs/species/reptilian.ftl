@@ -5,4 +5,4 @@ ent-BaseMobReptilian = Урисст' МссХэндс
     .suffix = Унатх
 
 ent-MobReptilianDummy = { ent-BaseSpeciesDummy }
-    .desc = { ent-BaseSpeciesDummy.desc }
+    .desc = Манекен рептилии для настройки персонажа.

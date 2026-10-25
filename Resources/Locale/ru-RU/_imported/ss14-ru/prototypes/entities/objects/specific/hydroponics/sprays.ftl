@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-PlantBGoneSpray = Plant-B-Gone
+ent-PlantBGoneSpray = «Долой растения»
     .desc = Уничтожает надоедливые сорняки!
     .suffix = Заполненный
 

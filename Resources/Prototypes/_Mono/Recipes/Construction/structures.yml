@@ -1,11 +1,11 @@
 - type: construction
-  name: diagonal wall
+  name: construction-recipe-wallSolidDiagonal-name
   id: wallSolidDiagonal
   graph: Girder
   startNode: start
   targetNode: wallSolidDiagonal
   category: construction-category-structures
-  description: Keeps the air in and the greytide out.
+  description: construction-recipe-wallSolidDiagonal-description
   icon:
     sprite: /Textures/Structures/Walls/solid_diagonal.rsi
     state: state0
@@ -17,13 +17,13 @@
     - !type:TileNotBlocked
 
 - type: construction
-  name: diagonal reinforced wall
+  name: construction-recipe-wallReinforcedDiagonal-name
   id: wallReinforcedDiagonal
   graph: Girder
   startNode: start
   targetNode: wallReinforcedDiagonal
   category: construction-category-structures
-  description: Keeps the air in and the greytide out.
+  description: construction-recipe-wallReinforcedDiagonal-description
   icon:
     sprite: /Textures/Structures/Walls/reinforced_diagonal.rsi
     state: state0
@@ -35,13 +35,13 @@
     - !type:TileNotBlocked
 
 - type: construction
-  name: diagonal plastitanium wall
+  name: construction-recipe-wallPlastitaniumDiagonal-name
   id: wallPlastitaniumDiagonal
   graph: Girder
   startNode: start
   targetNode: wallPlastitaniumDiagonal
   category: construction-category-structures
-  description: Keeps the air in and the greytide out.
+  description: construction-recipe-wallPlastitaniumDiagonal-description
   icon:
     sprite: /Textures/Structures/Walls/plastitanium_diagonal.rsi
     state: state0
@@ -53,13 +53,13 @@
   - !type:TileNotBlocked
 
 - type: construction
-  name: plastitanium wall
+  name: construction-recipe-PlastitaniumWall-name
   id: PlastitaniumWall
   graph: Girder
   startNode: start
   targetNode: plastitaniumWall
   category: construction-category-structures
-  description: Keeps the air in and the greytide out.
+  description: construction-recipe-PlastitaniumWall-description
   icon:
     sprite: /Textures/Structures/Walls/plastitanium.rsi
     state: full
@@ -71,14 +71,14 @@
   - !type:TileNotBlocked
 
 - type: construction
-  name: directional uranium window
+  name: construction-recipe-UraniumWindowDirectional-name
   id: UraniumWindowDirectional
   graph: WindowDirectional
   startNode: start
   targetNode: uraniumWindowDirectional
   category: construction-category-structures
   canBuildInImpassable: true
-  description: Don't smudge up the glass down there.
+  description: construction-recipe-UraniumWindowDirectional-description
   conditions:
     - !type:EmptyOrWindowValidInTile
     - !type:NoWindowsInTile
@@ -89,14 +89,14 @@
   placementMode: SnapgridCenter
 
 - type: construction
-  name: directional reinforced uranium window
+  name: construction-recipe-UraniumReinforcedWindowDirectional-name
   id: UraniumReinforcedWindowDirectional
   graph: WindowDirectional
   startNode: start
   targetNode: uraniumReinforcedWindowDirectional
   category: construction-category-structures
   canBuildInImpassable: true
-  description: Don't smudge up the glass down there.
+  description: construction-recipe-UraniumReinforcedWindowDirectional-description
   conditions:
     - !type:EmptyOrWindowValidInTile
     - !type:NoWindowsInTile
@@ -107,13 +107,13 @@
   placementMode: SnapgridCenter
 
 - type: construction
-  name: gaslock
+  name: construction-recipe-Gaslock-name
   id: Gaslock
   graph: AirlockShuttle
   startNode: start
   targetNode: gaslock
   category: construction-category-structures
-  description: Connects gas pipes on separate ships or stations together to allow gas transfer. Both sides must be docked and pumping in the same direction to accept flow.
+  description: construction-recipe-Gaslock-description
   icon:
     sprite: _NF/Structures/Piping/Atmospherics/gaslock.rsi
     state: closed
@@ -125,13 +125,13 @@
 
   #Airlocks
 - type: construction
-  name: heavy-duty airlock
+  name: construction-recipe-AirlockHeavy-name
   id: AirlockHeavy
   graph: HeavyAirlock
   startNode: start
   targetNode: airlock
   category: construction-category-structures
-  description: It opens, it closes, and maybe crushes you.
+  description: construction-recipe-AirlockHeavy-description
   icon:
     sprite: _Mono/Structures/Doors/HeavyAirlocks/Standard/standard.rsi
     state: assembly
@@ -142,13 +142,13 @@
   - !type:TileNotBlocked
 
 - type: construction
-  name: heavy-duty glass airlock
+  name: construction-recipe-AirlockHeavyGlass-name
   id: AirlockHeavyGlass
   graph: HeavyAirlock
   startNode: start
   targetNode: glassAirlock
   category: construction-category-structures
-  description: It opens, it closes, and maybe crushes you.
+  description: construction-recipe-AirlockHeavyGlass-description
   icon:
     sprite: _Mono/Structures/Doors/HeavyAirlocks/Glass/standard.rsi
     state: assembly
@@ -160,13 +160,13 @@
 
 # Armor add-ons
 - type: construction
-  name: solid armor add-on
+  name: construction-recipe-WallArmorAddonSolid-name
   id: WallArmorAddonSolid
   graph: WallArmorAddonSolidGraph
   startNode: start
   targetNode: finished
   category: construction-category-structures
-  description: An additional chunk of armor, attached to the side of a vessel. Provides additional protection, but makes the hull more vulnerable to explosives.
+  description: construction-recipe-WallArmorAddonSolid-description
   icon:
     sprite: /Textures/_Mono/Structures/Wallmounts/Addons/armor.rsi
     state: armor-solid
@@ -176,13 +176,13 @@
   canBuildInImpassable: true
 
 - type: construction
-  name: solid armor add-on (left corner)
+  name: construction-recipe-WallArmorAddonSolidCornerL-name
   id: WallArmorAddonSolidCornerL
   graph: WallArmorAddonSolidCornerLGraph
   startNode: start
   targetNode: finished
   category: construction-category-structures
-  description: An additional chunk of armor, attached to the side of a vessel. Provides additional protection, but makes the hull more vulnerable to explosives.
+  description: construction-recipe-WallArmorAddonSolidCornerL-description
   icon:
     sprite: /Textures/_Mono/Structures/Wallmounts/Addons/armor.rsi
     state: armor-solid-cornerL
@@ -192,13 +192,13 @@
   canBuildInImpassable: true
 
 - type: construction
-  name: solid armor add-on (right corner)
+  name: construction-recipe-WallArmorAddonSolidCornerR-name
   id: WallArmorAddonSolidCornerR
   graph: WallArmorAddonSolidCornerRGraph
   startNode: start
   targetNode: finished
   category: construction-category-structures
-  description: An additional chunk of armor, attached to the side of a vessel. Provides additional protection, but makes the hull more vulnerable to explosives.
+  description: construction-recipe-WallArmorAddonSolidCornerR-description
   icon:
     sprite: /Textures/_Mono/Structures/Wallmounts/Addons/armor.rsi
     state: armor-solid-cornerR

@@ -48,13 +48,13 @@
       steps:
       - component: PayloadTrigger
         store: payloadTrigger
-        name: trigger
+        name: prototype-text-constructionGraph-ModularGrenadeGraph-name-24fe1cb072
         doAfter: 0.5
     - to: caseWithPayload
       steps:
       - tag: Payload
         store: payload
-        name: payload
+        name: prototype-text-constructionGraph-ModularGrenadeGraph-name-16e4dc3578
         doAfter: 0.5
 
   - node: caseWithTrigger
@@ -74,7 +74,7 @@
       steps:
       - tag: Payload
         store: payload
-        name: payload
+        name: prototype-text-constructionGraph-ModularGrenadeGraph-name-327e5a02e0
         doAfter: 0.5
 
   - node: caseWithPayload
@@ -94,7 +94,7 @@
       steps:
       - component: PayloadTrigger
         store: payloadTrigger
-        name: trigger
+        name: prototype-text-constructionGraph-ModularGrenadeGraph-name-4aeee613a6
         doAfter: 0.5
 
   - node: grenade

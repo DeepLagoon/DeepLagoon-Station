@@ -1,7 +1,7 @@
 - type: construction
   id: BannerNGC
-  name: TSF banner
-  description: A banner proudly displaying the stars of the Trans-Solar Federation.
+  name: construction-recipe-BannerNGC-name
+  description: construction-recipe-BannerNGC-description
   graph: MonoBannersGraph
   startNode: start
   targetNode: BannerTSFNode
@@ -17,8 +17,8 @@
 
 - type: construction
   id: BannerSHM
-  name: SHM banner
-  description: A banner effectively representing the iconography of Steel Hammer Manufacturing.
+  name: construction-recipe-BannerSHM-name
+  description: construction-recipe-BannerSHM-description
   graph: MonoBannersGraph
   startNode: start
   targetNode: BannerSHMNode
@@ -34,8 +34,8 @@
 
 - type: construction
   id: BannerDrakeIndustries
-  name: DI banner
-  description: A banner harboring Drake Industries' emblem. The mega corp's emblem is woven into a high quality textile that you've doubt you've every seen anywhere else in the sector. Must be why the banner is not attached to, but rather fused on it's pole.
+  name: construction-recipe-BannerDrakeIndustries-name
+  description: construction-recipe-BannerDrakeIndustries-description
   graph: MonoBannersGraph
   startNode: start
   targetNode: BannerDINode
@@ -51,8 +51,8 @@
 
 - type: construction
   id: TargetHuman
-  name: human target
-  description: A shooting target. This one is a human.
+  name: construction-recipe-TargetHuman-name
+  description: construction-recipe-TargetHuman-description
   graph: ShootingTargets
   startNode: start
   targetNode: TargetHuman
@@ -68,8 +68,8 @@
 
 - type: construction
   id: TargetSyndicate
-  name: syndicate target
-  description: A shooting target. This one is a syndicate agent.
+  name: construction-recipe-TargetSyndicate-name
+  description: construction-recipe-TargetSyndicate-description
   graph: ShootingTargets
   startNode: start
   targetNode: TargetSyndicate
@@ -85,8 +85,8 @@
 
 - type: construction
   id: TargetClown
-  name: clown target
-  description: A shooting target. This one is a clown.
+  name: construction-recipe-TargetClown-name
+  description: construction-recipe-TargetClown-description
   graph: ShootingTargets
   startNode: start
   targetNode: TargetClown
@@ -102,8 +102,8 @@
 
 - type: construction
   id: TargetStrange
-  name: strange target
-  description: A shooting target. You aren't quite sure what this one is, but it seems to be extra robust.
+  name: construction-recipe-TargetStrange-name
+  description: construction-recipe-TargetStrange-description
   graph: ShootingTargets
   startNode: start
   targetNode: TargetStrange
@@ -119,12 +119,12 @@
 
 - type: construction
   id: Handrail
-  name: handrail
+  name: construction-recipe-Handrail-name
   graph: MonoSeat
   startNode: start
   targetNode: handrail
   category: construction-category-furniture
-  description: For holding onto.
+  description: construction-recipe-Handrail-description
   icon:
     sprite: _Mono/Structures/Furniture/chairs.rsi
     state: handrail

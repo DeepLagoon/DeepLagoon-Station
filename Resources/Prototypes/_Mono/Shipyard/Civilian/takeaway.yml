@@ -9,7 +9,7 @@
   id: Takeaway
   parent: BaseVessel
   name: UW Takeaway
-  description: An aptly named medium botanical-kitchen vessel with a customer-facing gantry for ordering to-go. Also comes with dine-in.
+  description: "Средний ботанико-кухонный корабль с подходящим названием и наружной площадкой для заказов навынос. Поесть внутри тоже можно."
   price: 80968
   category: Medium
   group: Shipyard

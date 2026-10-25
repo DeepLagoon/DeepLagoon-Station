@@ -3,5 +3,5 @@
 ent-BaseVehicle = { "" }
     .desc = { "" }
 
-ent-VehicleJanicart = janicart
-    .desc = The janitor's trusty steed.
+ent-VehicleJanicart = уборочная машина
+    .desc = Верный конь уборщика.

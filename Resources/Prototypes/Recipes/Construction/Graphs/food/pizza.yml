@@ -16,7 +16,7 @@
     - to: flat-butter
       steps:
       - tag: NFButterStick
-        name: a stick of butter
+        name: prototype-text-constructionGraph-Pizza-name-42e91f2f79
         icon:
           sprite: Objects/Consumable/Food/ingredients.rsi
           state: butter

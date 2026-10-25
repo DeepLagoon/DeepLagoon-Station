@@ -7,7 +7,7 @@
     - type: ItemSlots
       slots:
         gun_magazine:
-          name: Magazine
+          name: prototype-text-entity-WeaponSubMachineGunDrozdRubber-name-fa2ade0032
           startingItem: Magazine45_ACPSubMachineGunRubber
           insertSound: /Audio/Weapons/Guns/MagIn/smg_magin.ogg
           ejectSound: /Audio/Weapons/Guns/MagOut/smg_magout.ogg
@@ -17,7 +17,7 @@
               - Magazine45_ACPSubMachineGunFMJ
           whitelistFailPopup: gun-magazine-whitelist-fail
         gun_chamber:
-          name: Chamber
+          name: prototype-text-entity-WeaponSubMachineGunDrozdRubber-name-a78b845370
           startingItem: Cartridge45_ACPRubber
           priority: 1
           whitelist:

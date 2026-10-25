@@ -4,8 +4,8 @@ ent-FillNPCEmotionalSupportSafe = { "" }
     .suffix = Safe
     .desc = { "" }
 
-ent-CrateNPCEmotionalSupportSafe = { ent-FillNPCEmotionalSupportSafe }
-    .desc = { ent-FillNPCEmotionalSupportSafe.desc }
+ent-CrateNPCEmotionalSupportSafe = ящик с ручными зверушками
+    .desc = { ent-CrateLivestock.desc }
 
 ent-PetCarrierNPCEmotionalSupportSafe = { ent-PetCarrier }
     .desc = { ent-PetCarrier.desc }

@@ -302,7 +302,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLauncherTSFAnubis-name-928ffb619c
         startingItem: Magazine35mmGrenade
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/amr_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/cm82_magout.ogg
@@ -312,7 +312,7 @@
           - Magazine35mmGrenade
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponLauncherTSFAnubis-name-833b212f77
         startingItem: Cartridge35mmGrenadeSAPHE
         priority: 1
         whitelist:
@@ -364,7 +364,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLauncherTSFAnubisEmpty-name-ddf3773286
         startingItem: null
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/amr_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/cm82_magout.ogg
@@ -374,7 +374,7 @@
           - Magazine35mmGrenade
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponLauncherTSFAnubisEmpty-name-7dab0c8347
         startingItem: null
         priority: 1
         whitelist:
@@ -391,7 +391,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLauncherTSFAnubisStinger-name-8dbceeada8
         startingItem: Magazine35mmGrenadeStinger
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/amr_magin.ogg
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/cm82_magout.ogg
@@ -401,7 +401,7 @@
           - Magazine35mmGrenade
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponLauncherTSFAnubisStinger-name-cc9a3b8671
         startingItem: Cartridge35mmGrenadeStinger
         priority: 1
         whitelist:

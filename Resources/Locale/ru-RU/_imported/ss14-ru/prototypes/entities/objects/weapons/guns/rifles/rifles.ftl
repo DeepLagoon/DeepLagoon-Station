@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponRifle = BaseWeaponRifle
+ent-BaseWeaponRifle = базовая винтовка
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-WeaponRifleAk = АКМС

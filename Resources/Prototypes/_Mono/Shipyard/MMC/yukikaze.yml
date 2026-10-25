@@ -3,7 +3,7 @@
   id: Yukikaze
   parent: BaseVessel
   name: MMC-CSC Yukikaze
-  description: A craft with slightly-more armor than the Kite, with a layer of plasteel and plastitanium, plus a shield! Only comes with 2 AK-820s + 2 14x97mm PD guns and very cramped interior however. These are reportedly very capable and distinguished vessels for their cost, and shouldn't have their potential underestimated.
+  description: "Корабль с чуть более серьёзной бронёй, чем у Kite: слой пластали и пластитана, да ещё и щит! Правда, в комплекте всего две AK-820, два орудия точечной обороны 14x97 мм и очень тесный интерьер. Говорят, за свою цену эти суда весьма способны и хорошо себя зарекомендовали, так что недооценивать их не стоит."
   price: 123288
   purchasable: false # Voucher only
   category: Medium

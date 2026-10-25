@@ -23,9 +23,9 @@ ent-WeaponEnergyRevolverRegistered = { ent-WeaponEnergyRevolver }
     .suffix = Зарегистрирован
     .desc = { ent-WeaponEnergyRevolver.desc }
 
-ent-WeaponSubMachineSmartRegistered = { ent-WeaponSubMachineSmart }
+ent-WeaponSubMachineSmartRegistered = умный пистолет-пулемёт MMC Abielle (.160 умные)
     .suffix = Зарегистрирован
-    .desc = { ent-WeaponSubMachineSmart.desc }
+    .desc = Экспериментальное умное оружие, направляющее пули к цели, на которую оно было наведено при выстреле. Слежение работает хорошо, но из-за почти полного отсутствия ствола оружие склонно к безумному разбросу.
 
 ent-WeaponRifleWSPRRegistered = { ent-WeaponRifleWSPR }
     .suffix = Зарегистрирован
@@ -35,7 +35,7 @@ ent-WeaponRifleAnnieRegistered = { ent-WeaponRifleAnnie }
     .suffix = Зарегистрирован
     .desc = { ent-WeaponRifleAnnie.desc }
 
-ent-WeaponRifleAK502Registered = { ent-WeaponRifleAK502 }
+ent-WeaponRifleAK502Registered = NCI АК-502 (7.62x39 мм)
     .suffix = Зарегистрирован
     .desc = { ent-WeaponRifleAK502.desc }
 

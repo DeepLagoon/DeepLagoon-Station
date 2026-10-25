@@ -55,8 +55,8 @@ ent-ComputerMarketConsoleNFHigh = { ent-ComputerCargoOrders }
 ent-ComputerPirateBounty = консоль заказов Династии Фаэтон
     .desc = Просматривайте активные контракты, отслеживайте цели и получайте оплату чипами.
 
-ent-ComputerContrabandPalletConsolePirate = technology hand-in console
-    .desc = Takes faction tech to be sent off to research and grants DC in exchange.
+ent-ComputerContrabandPalletConsolePirate = консоль сдачи технологий
+    .desc = Принимает технологии фракций для отправки на исследования и выдаёт взамен жетоны данных.
 
 ent-ComputerPirateBountyRedemption = консоль обмена наград Империи
     .desc = Контракт выполнен? Обменяйте запрос на чипы и свободны.
@@ -79,11 +79,11 @@ ent-GasSaleConsoleVeryLow = { ent-GasSaleConsole }
 ent-BaseComputerTraffic = { "" }
     .desc = { "" }
 
-ent-BaseComputerTrafficRemote = { ent-BaseStructureDisableToolUse }
-    .desc = { ent-BaseStructureDisableToolUse.desc }
+ent-BaseComputerTrafficRemote = { ent-ComputerShuttle }
+    .desc = { ent-ComputerShuttle.desc }
 
-ent-BaseComputerTrafficLocal = { ent-BaseStructureDisableToolUse }
-    .desc = { ent-BaseStructureDisableToolUse.desc }
+ent-BaseComputerTrafficLocal = { ent-ComputerShuttle }
+    .desc = { ent-ComputerShuttle.desc }
 
 ent-ComputerShuttleFrontierOutpostLocal = консоль сканера масс аванпоста
     .desc = Компьютер для отслеживания близлежащих космических тел вокруг аванпоста, отображающий их позицию и массу.

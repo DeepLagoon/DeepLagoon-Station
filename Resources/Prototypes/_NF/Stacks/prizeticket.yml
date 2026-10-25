@@ -1,6 +1,6 @@
 - type: stack
   id: PrizeTicket
-  name: prize ticket
+  name: prototype-text-stack-PrizeTicket-name-51333ad9ed
   icon: { sprite: _NF/Objects/Fun/prizeticket.rsi, state: ticket }
   spawn: PrizeTicket1
   maxCount: 100

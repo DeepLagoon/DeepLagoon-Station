@@ -33,7 +33,7 @@
             icon:
               sprite: Mobs/Species/Human/parts.rsi
               state: "head_m"
-            name: human head
+            name: prototype-text-constructionGraph-RitualSeat-name-e7ca01bcb2
             doAfter: 1
 
     - node: chairCursed

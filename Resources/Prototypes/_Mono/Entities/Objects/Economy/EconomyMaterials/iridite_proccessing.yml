@@ -28,7 +28,7 @@
 
 - type: stack
   id: IriditeSlag
-  name: iridite slag
+  name: prototype-text-stack-IriditeSlag-name-d1fa70fb96
   icon: { sprite: /Textures/_Mono/Objects/Materials/iridite_midsteps.rsi, state: slag }
   spawn: MaterialIriditeSlag
   maxCount: 5

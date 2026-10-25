@@ -1,16 +1,16 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-DesertSand = sand
-    .desc = Its just some sand.
+ent-DesertSand = песчаная куча
+    .desc = Просто немного песка.
     .suffix = Full
 
-ent-DesertSand1 = { ent-DesertSand }
+ent-DesertSand1 = песчаная куча
     .suffix = 1
-    .desc = { ent-DesertSand.desc }
+    .desc = Просто немного песка.
 
-ent-DesertSand50 = { ent-DesertSand }
+ent-DesertSand50 = песчаная куча
     .suffix = 50
-    .desc = { ent-DesertSand.desc }
+    .desc = Просто немного песка.
 
 ent-hydroponicsSand = песчаная куча
     .desc = { ent-hydroponicsSoil.desc }

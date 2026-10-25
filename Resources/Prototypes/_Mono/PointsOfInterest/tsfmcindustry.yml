@@ -42,7 +42,7 @@
       stationProto: StandardFrontierOutpost
       gridComponents:
       - type: VesselInfo
-        description: "A colony ship from the Federation system, sent to the Colossus Radius for industrial expansion. Home to TSF civilians."
+        description: "Колониальный корабль из системы Федерации, направленный в Радиус Колосса для промышленной экспансии. Дом гражданских ТСФ."
       components:
         - type: StationNameSetup
           mapNameTemplate: 'TSF-CIV "Stellar Blessing"'

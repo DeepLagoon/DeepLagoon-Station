@@ -2,7 +2,7 @@
   id: KortikR
   parent: BaseVesselIFFDisabled
   name: PDV-NCI Kortik-R
-  description: An retrofitted version of old purchased hulls. Equipped with a heavy up-close armament, 2 howitzers for bombardment, and lots of extra hardpoints, but lacking in PD, GCS power, and unable to use shields.
+  description: "Модернизированный вариант закупленных старых корпусов. Оснащён тяжёлым вооружением ближнего боя, двумя гаубицами для бомбардировки и множеством дополнительных креплений, но ему не хватает точечной обороны и мощности системы управления вооружением; использовать щиты он не может."
   limit: 2
   hyperwarLimit: 3
   hyperwarTimelock: 3600

@@ -7,13 +7,13 @@
         - to: shoes
           steps:
             - tag: PlushieLizard #Weh!
-              name: lizard plushie
+              name: prototype-text-constructionGraph-ClothingShoeSlippersLizard-name-ff614b2325
               icon:
                 sprite: Objects/Fun/toys.rsi
                 state: plushie_lizard
               doAfter: 1
             - tag: PlushieLizard
-              name: lizard plushie
+              name: prototype-text-constructionGraph-ClothingShoeSlippersLizard-name-c1f35bf6de
               icon:
                 sprite: Objects/Fun/toys.rsi
                 state: plushie_lizard

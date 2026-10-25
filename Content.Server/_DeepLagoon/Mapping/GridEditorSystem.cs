@@ -4,6 +4,9 @@ using System.Text;
 using System.Numerics;
 using Content.Server.Administration.Managers;
 using Content.Server.Decals;
+using Content.Server.Atmos.Components;
+using Content.Server.Power.Components;
+using Content.Server.Power.EntitySystems;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Administration;
@@ -37,6 +40,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private TagSystem _tags = default!;
+    [Dependency] private CableSystem _cables = default!;
     private readonly Dictionary<ICommonSession, Draft> _drafts = new();
     private sealed class Draft(EntityUid grid, int x, int y, int width, int height)
     {
@@ -365,6 +369,13 @@ public sealed partial class GridEditorSystem : EntitySystem
                 if (item.Kind == "entity" && draft.Entities.TryGetValue(item.Id, out var entity)) Del(entity);
                 if (item.Kind == "decal") _decals.RemoveDecal(draft.Grid, draft.KnownDecals.GetValueOrDefault(item.Id, uint.Parse(item.Id[2..])));
             }
+            // Release moved pipe cells as a batch so overlap checks see the final layout, not the old route.
+            foreach (var item in changed.Where(item => item.Kind == "entity" && item.Anchored))
+                if (draft.KnownEntities.TryGetValue(item.Id, out var pipe) && Exists(pipe) && HasComp<PipeRestrictOverlapComponent>(pipe) &&
+                    TryComp<TransformComponent>(pipe, out var pipeTransform) && pipeTransform.Anchored &&
+                    (pipeTransform.ParentUid != draft.Grid || pipeTransform.LocalPosition != new Vector2(item.X, item.Y) ||
+                        pipeTransform.LocalRotation != Angle.FromDegrees(item.Rotation)))
+                    _transform.Unanchor(pipe, pipeTransform);
             foreach (var item in changed.Where(i => i.Kind == "entity"))
             {
                 var coords = new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y));
@@ -374,10 +385,14 @@ public sealed partial class GridEditorSystem : EntitySystem
                     ? existingEntity : Spawn(item.Prototype, coords);
                 foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
                 var transform = Comp<TransformComponent>(uid);
+                _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
                 if (item.Anchored)
                 {
                     var cell = new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y));
-                    if (!_transform.AnchorEntity((uid, transform, MetaData(uid)), (draft.Grid, gridComp), cell))
+                    var anchored = TryComp<CableComponent>(uid, out var cable)
+                        ? _cables.ReanchorCable((uid, cable, transform), (draft.Grid, gridComp), cell)
+                        : _transform.AnchorEntity((uid, transform, MetaData(uid)), (draft.Grid, gridComp), cell);
+                    if (!anchored || !transform.Anchored)
                         throw new InvalidOperationException($"Cannot anchor {ToPrettyString(uid)} on edited grid {draft.Grid} at {cell}.");
                 }
                 else
@@ -385,7 +400,6 @@ public sealed partial class GridEditorSystem : EntitySystem
                     if (transform.Anchored) _transform.Unanchor(uid, transform);
                     _transform.SetCoordinates(uid, coords);
                 }
-                _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
                 if (transform.Anchored && (transform.ParentUid != draft.Grid || transform.GridUid != draft.Grid))
                 {
                     _transform.Unanchor(uid, transform);

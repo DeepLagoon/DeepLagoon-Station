@@ -1,0 +1,16 @@
+ent-ActionHydrakinCoolOff = Остыть
+    .desc = Сбросить часть внутреннего тепла.
+ent-BaseMobHydrakin = Урист МакГидра
+ent-HeadHydrakin = голова гидракина
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
+ent-LeftArmHydrakin = левая рука гидракина
+ent-LeftFootHydrakin = левая ступня гидракина
+ent-LeftHandHydrakin = левая кисть гидракина
+ent-LeftLegHydrakin = левая нога гидракина
+ent-MobHydrakin = Урист МакГидра
+ent-PartHydrakin = часть тела гидракина
+ent-RightArmHydrakin = правая рука гидракина
+ent-RightFootHydrakin = правая ступня гидракина
+ent-RightHandHydrakin = правая кисть гидракина
+ent-RightLegHydrakin = правая нога гидракина
+ent-TorsoHydrakin = грудь гидракина

@@ -10,7 +10,7 @@
 
 - type: ambientSpaceBiome
   id: CrocusBiome
-  name: Crocus
+  name: "Крокус"
 
 - type: entity
   id: BiomeSourceFallbackCrocusUnderground
@@ -24,7 +24,7 @@
 
 - type: ambientSpaceBiome
   id: CrocusBiomeUnderground
-  name: Jianghui Underground
+  name: "Подземелья Цзянхуэя"
 
 - type: entity
   id: BiomeSourceFallbackJianghuiIndustrial
@@ -38,8 +38,8 @@
 
 - type: ambientSpaceBiome
   id: CrocusBiomeJianghuiIndustrial
-  name: Jianghui Industrial Zone
-  description: "An industrial zone in the upper latitudes of Crocus."
+  name: "Промышленная зона Цзянхуэя"
+  description: "Промышленная зона в верхних широтах Крокуса."
 
 - type: entity
   id: BiomeSourceFallbackJianghuiCity
@@ -53,8 +53,8 @@
 
 - type: ambientSpaceBiome
   id: CrocusBiomeJianghuiCity
-  name: Jianghui Outskirts
-  description: "Freshly-built infrastructure already evacuated and ruined."
+  name: "Окраины Цзянхуэя"
+  description: "Недавно построенная инфраструктура, уже эвакуированная и разрушенная."
 
 - type: entity
   id: BiomeSourceFallbackJianghuiPort
@@ -68,5 +68,5 @@
 
 - type: ambientSpaceBiome
   id: CrocusBiomeJianghuiPort
-  name: Jianghui Industrial Port
-  description: "One of the most important stops in regional supply chains."
+  name: "Промышленный порт Цзянхуэя"
+  description: "Одна из важнейших остановок в региональных цепочках снабжения."

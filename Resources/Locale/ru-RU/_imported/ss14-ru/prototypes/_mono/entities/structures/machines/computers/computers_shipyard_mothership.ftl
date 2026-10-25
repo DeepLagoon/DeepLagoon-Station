@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseCarrierComputer = { ent-BaseStructureDisableToolUse }
+ent-BaseCarrierComputer = консоль верфи
     .desc = Используется на носителях для покупки и продажи кораблей без возврата на станцию.
     .suffix = Носитель
 

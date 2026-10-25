@@ -1,20 +1,20 @@
 - type: loadout
   id: TsfmcRankO2
-  name: TSFMC O-2 (1LT)
+  name: "TSFMC O-2 (первый лейтенант)"
   components:
   - type: ChatRank
     rank: tsf-o2
 
 - type: loadout
   id: TsfmcRankO3
-  name: TSFMC O-3 (CPT)
+  name: "TSFMC O-3 (капитан)"
   components:
   - type: ChatRank
     rank: tsf-o3
 
 - type: loadout
   id: TsfmcRankO4
-  name: TSFMC O-4 (MAJ)
+  name: "TSFMC O-4 (майор)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcCaptain

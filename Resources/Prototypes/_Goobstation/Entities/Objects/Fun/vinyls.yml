@@ -64,7 +64,7 @@
   - type: ItemSlots
     slots:
       vinyl:
-        name: vinyl
+        name: prototype-text-entity-BaseVinylSleeve-name-40b75e82e4
         insertSound: /Audio/_Goobstation/RadioStation/vinyl/vinylEject.ogg
         ejectSound: /Audio/_Goobstation/RadioStation/vinyl/vinylInsert.ogg
         whitelist:

@@ -3,7 +3,7 @@
 ent-ClothingShoesChef = поварские ботинки
     .desc = Прочная обувь, которая минимизирует травмы от падающих предметов или ножей.
 
-ent-ClothingShoesClownBase = { ent-ClothingSlotBase }
+ent-ClothingShoesClownBase = { ent-BaseItem }
     .desc = { ent-ClothingSlotBase.desc }
 
 ent-ClothingShoesClown = клоунские туфли

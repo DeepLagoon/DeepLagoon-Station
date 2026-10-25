@@ -10,17 +10,17 @@
         icon:
           sprite: Structures/Piping/Atmospherics/pipe.rsi
           state: pipeStraight
-        name: pipe
+        name: prototype-text-constructionGraph-ImprovisedShotgunGraph-name-6ac2079713
       - tag: ModularReceiver
         icon:
           sprite: Objects/Misc/modular_receiver.rsi
           state: icon
-        name: modular receiver
+        name: prototype-text-constructionGraph-ImprovisedShotgunGraph-name-f35e8d6b15
       - tag: RifleStock
         icon:
           sprite: Objects/Misc/rifle_stock.rsi
           state: icon
-        name: rifle stock
+        name: prototype-text-constructionGraph-ImprovisedShotgunGraph-name-659e42197e
       - material: Cloth
         amount: 3
         doAfter: 10

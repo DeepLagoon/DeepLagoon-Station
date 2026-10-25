@@ -37,7 +37,7 @@
       steps:
       - tag: AirAlarmElectronics
         store: board
-        name: "air alarm electronics"
+        name: prototype-text-constructionGraph-AirAlarm-name-9888f7b84c
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: "door_electronics" # /tg/ uses the same sprite, right?
@@ -116,7 +116,7 @@
       steps:
       - tag: FireAlarmElectronics
         store: board
-        name: "fire alarm electronics"
+        name: prototype-text-constructionGraph-FireAlarm-name-1b5201787a
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: "door_electronics" # /tg/ uses the same sprite, right?

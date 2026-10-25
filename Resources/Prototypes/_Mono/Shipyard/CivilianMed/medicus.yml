@@ -9,7 +9,7 @@
   id: Medicus
   parent: BaseVessel
   name: UW Medicus #medisus
-  description: A trustworthy medical vessel equipped with cryogenics, botany, chemistry, and paramedic capabilities.
+  description: "Надёжное медицинское судно с криогеникой, ботаникой, химией и возможностями оказания скорой помощи."
   price: 119000 #markup 10% from 108200
   category: Medium
   group: Medical

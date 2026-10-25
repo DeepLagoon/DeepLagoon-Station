@@ -1,6 +1,6 @@
 - type: guideEntry
   id: Economy
-  name: Industrial Components
+  name: prototype-text-guideEntry-Economy-name-20505c90a4
   text: "/ServerInfo/_Mono/Guidebook/Economy/Economy.xml"
   priority: 1
   #children:

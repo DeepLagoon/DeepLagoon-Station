@@ -1,4 +1,4 @@
-mail-metrics-program-name = MailMetrics
+mail-metrics-program-name = Почтовые Метрики
 mail-metrics-header = Прибыль с доставки почты
 mail-metrics-opened = Заработок (открытых)
 mail-metrics-expired = Потери (Просрочено)

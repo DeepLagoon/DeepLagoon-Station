@@ -2,7 +2,7 @@
   id: Akasono
   parent: BaseVessel
   name: MMC Akasono
-  description: A basic gas-harvesting (not processing!) ship. Equipped with a pulser to strip asteroids, a boom for exporting and importing gas, and the equipment to setup a drilling rig. The internal gas tank has a volume of 67.5kL (not counting piping), and is equipped with coolers for condensation & a canister port.
+  description: "Простой корабль для сбора, но не переработки газа! Оснащён импульсником для разработки астероидов, стрелой для ввоза и вывоза газа и оборудованием для развёртывания буровой установки. Внутренний газовый резервуар вмещает 67,5 кл без учёта труб; предусмотрены охладители для конденсации и порт для канистры."
   price: 46000
   category: Small
   group: Mieyo

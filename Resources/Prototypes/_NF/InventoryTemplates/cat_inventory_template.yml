@@ -7,7 +7,7 @@
     slotGroup: MainHotbar
     uiWindowPos: 0,0
     strippingWindowPos: 0,0
-    displayName: Head
+    displayName: "Голова"
     whitelist:
       components:
         - CatWearable
@@ -17,7 +17,7 @@
     slotFlags: MASK
     uiWindowPos: 1,1
     strippingWindowPos: 1,1
-    displayName: Mask
+    displayName: "Маска"
     whitelist:
       tags:
         - PetWearable
@@ -31,7 +31,7 @@
     stripTime: 3
     uiWindowPos: 2,0
     strippingWindowPos: 2,5
-    displayName: Suit Storage
+    displayName: "Снаряжение скафандра"
     whitelist:
       components:
         - GasTank
@@ -43,7 +43,7 @@
     stripTime: 1
     uiWindowPos: 3,1
     strippingWindowPos: 1,5
-    displayName: Belt
+    displayName: "Пояс"
     whitelist:
       components:
         - CatWearable
@@ -54,7 +54,7 @@
     stripTime: 6
     uiWindowPos: 1,1
     strippingWindowPos: 1,2
-    displayName: Suit
+    displayName: "Верхняя одежда"
     whitelist:
       components:
         - CatWearable
@@ -66,4 +66,4 @@
     stripTime: 6
     uiWindowPos: 2,1
     strippingWindowPos: 2,4
-    displayName: ID
+    displayName: "ID-карта"

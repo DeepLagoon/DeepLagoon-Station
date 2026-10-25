@@ -49,6 +49,7 @@ GridSceneCache.prototype.prepare = async function(...args) {
   try {
     const context=await browser.newContext({viewport:{width:1440,height:900}});
     const page=await context.newPage();
+    await page.addInitScript(()=>document.addEventListener('dragstart',event=>event.preventDefault(),true));
     page.on('pageerror',e=>errors.push(e.message));
     const url='http://127.0.0.1:'+server.address().port;
     const report={};
@@ -71,6 +72,7 @@ GridSceneCache.prototype.prepare = async function(...args) {
         assert.equal(await page.locator('.GridEditor__properties').isVisible(),true);
         assert.deepEqual(await page.locator('.GridEditor__viewport').boundingBox(),map,'Settings must not move the map');
         const panel=await page.locator('.GridEditor__properties').boundingBox();assert.ok(panel.x>=0&&panel.x+panel.width<=width);
+        assert.doesNotMatch(await page.locator('.GridEditor__properties').innerText(),/Тяните|клик по|нажмите место|автоматически|сохраняется сразу|Примените черновик|после завершения/i,'Panels must contain controls and live data without usage instructions');
         await page.getByRole('button',{name:'Вписать',exact:true}).click({trial:true});
         await page.getByRole('button',{name:'Закрыть панель',exact:true}).click();
       }
@@ -85,10 +87,18 @@ GridSceneCache.prototype.prepare = async function(...args) {
     const slots=page.locator('.GridEditor__quickEntries > button');
     await page.waitForFunction(()=>document.querySelectorAll('.GridEditor__quickEntries > button').length>8);
     const wideCount=await slots.count();assert.ok(wideCount>8);
+    await page.evaluate(()=>window.fixtureSetData(data=>({...data,favorites:[{kind:'tile',id:'FloorSteel'}]})));
+    assert.equal(await slots.locator('img,canvas').count(),0,'Favorites must not populate an empty hotbar');
     assert.equal(await page.getByText('Изменения отправляются кнопкой «Применить»',{exact:true}).count(),0);
     await openCatalog(page);
-    await page.locator('.GridEditor__catalog button[title="FloorSteel"]').dragTo(slots.nth(1));
+    const dragSource=await page.locator('.GridEditor__catalog button[title="FloorSteel"]').boundingBox(),dropTarget=await slots.nth(1).boundingBox();
+    await page.mouse.move(dragSource.x+dragSource.width/2,dragSource.y+dragSource.height/2);await page.mouse.down();
+    await page.mouse.move(dropTarget.x+dropTarget.width/2,dropTarget.y+dropTarget.height/2,{steps:12});
+    assert.equal(await page.locator('.GridEditor__draggedBrush').count(),1);
+    assert.equal(await slots.nth(1).evaluate(button=>button.classList.contains('drop')),true);
+    await page.mouse.up();
     await page.waitForFunction(()=>window.fixtureGetData().hotbar?.some(entry=>entry.slot===1&&entry.id==='FloorSteel'));
+    assert.equal(await page.locator('.GridEditor__catalog').isVisible(),true,'Dragging must not select the catalog brush or close its drawer');
     await slots.nth(1).click();
     assert.equal(await page.locator('.GridEditor__catalog').isVisible(),false);
     assert.equal(await page.locator('.GridEditor__quickAccess').getByRole('button',{name:'Слот 2: Стальной пол',exact:true}).count(),1);
@@ -108,7 +118,7 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await page.waitForFunction(()=>!window.fixtureGetData().hotbar.some(entry=>entry.slot===1));
     await openCatalog(page);await page.locator('.GridEditor__catalog button[title="FloorSteel"]').click();
     await page.screenshot({path:path.join(output,'hotbar.png')});
-    report.hotbar={slotsByWindowWidth:true,wideCount,catalogDragDrop:true,selection:true,clearSlot:true,thumbnailCentered:true,hintRemoved:true};
+    report.hotbar={slotsByWindowWidth:true,wideCount,catalogPointerDragDropWithNativeDragDisabled:true,initiallyEmptyWithFavorites:true,selection:true,clearSlot:true,thumbnailCentered:true,hintRemoved:true};
     report.focusLayout={defaultFullMap:true,floatingPanelsKeepCamera:true,allSectionsAccessible:true,atmosphereAlwaysVisible:true,quickBrushes:true,widths:[1440,736,320]};
     await openPanel(page,'Грид');
     const gridName='Жилой модуль «Маяк»: палуба 2 #1';

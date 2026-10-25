@@ -1,16 +1,16 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-20mmBulletBase = { ent-BaseBullet }
+ent-20mmBulletBase = базовая пуля
     .desc = { ent-BaseBullet.desc }
 
-ent-30mmBullet = { ent-BaseBullet }
+ent-30mmBullet = базовая пуля
     .desc = { ent-BaseBullet.desc }
 
-ent-AdderBullet = AdderBullet
+ent-AdderBullet = пуля «Гадюки»
     .desc = { ent-20mmBulletBase.desc }
 
-ent-AdderSpread = { ent-AdderBullet }
+ent-AdderSpread = пуля «Гадюки»
     .desc = { ent-AdderBullet.desc }
 
-ent-ShipShardProjectile = { ent-BaseBulletTrigger }
+ent-ShipShardProjectile = базовая пуля
     .desc = { ent-BaseBulletTrigger.desc }

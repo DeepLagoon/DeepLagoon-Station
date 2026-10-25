@@ -3,8 +3,8 @@
 ent-MusicBasePDA = { "" }
     .desc = { "" }
 
-ent-NFAdminPDA = { ent-MusicBasePDA }
-    .desc = { ent-MusicBasePDA.desc }
+ent-NFAdminPDA = КПК админа
+    .desc = Если вы не админ, верните этот КПК ближайшему админу.
 
 ent-SheriffPDA = КПК полковника КВП ТСФ
     .desc = Стандартный КПК сотрудника КВП ТСФ.

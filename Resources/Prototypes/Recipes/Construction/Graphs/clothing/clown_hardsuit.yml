@@ -10,37 +10,37 @@
               amount: 5
               doAfter: 1
             - tag: SuitEVA
-              name: an EVA suit
+              name: prototype-text-constructionGraph-ClownHardsuit-name-85946e4e40
               icon:
                 sprite: Clothing/OuterClothing/Suits/eva.rsi
                 state: icon
               doAfter: 1
             - tag: HelmetEVA
-              name: an EVA helmet
+              name: prototype-text-constructionGraph-ClownHardsuit-name-ff2298f1a0
               icon:
                 sprite: Clothing/Head/Helmets/eva.rsi
                 state: icon
               doAfter: 1
             - tag: CrayonPurple
-              name: purple crayon
+              name: prototype-text-constructionGraph-ClownHardsuit-name-a868ddc672
               icon:
                 sprite: Objects/Fun/crayons.rsi
                 state: purple
               doAfter: 1
             - tag: CrayonRed
-              name: red crayon
+              name: prototype-text-constructionGraph-ClownHardsuit-name-12ef09b3e8
               icon:
                 sprite: Objects/Fun/crayons.rsi
                 state: red
               doAfter: 1
             - tag: CrayonYellow
-              name: yellow crayon
+              name: prototype-text-constructionGraph-ClownHardsuit-name-28f0fc3c83
               icon:
                 sprite: Objects/Fun/crayons.rsi
                 state: yellow
               doAfter: 1
             - tag: ClownRecorder
-              name: clown recorder
+              name: prototype-text-constructionGraph-ClownHardsuit-name-6a04935d42
               icon:
                 sprite: Objects/Fun/clownrecorder.rsi
                 state: icon

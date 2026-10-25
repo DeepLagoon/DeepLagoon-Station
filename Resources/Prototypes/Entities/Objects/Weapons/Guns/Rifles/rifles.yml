@@ -31,7 +31,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-BaseWeaponRifle-name-b269bdea36
         startingItem: Magazine762x39mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
@@ -41,7 +41,7 @@
             - Magazine762x39mmFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-BaseWeaponRifle-name-de43cff0e3
         startingItem: Cartridge762x39mmFMJ
         priority: 1
         whitelist:
@@ -114,7 +114,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleAk-name-46a6a7be12
         startingItem: Magazine762x39mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
@@ -125,7 +125,7 @@
             - Magazine762x39mmLowCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleAk-name-1e8193c85d
         startingItem: Cartridge762x39mmFMJ
         priority: 1
         whitelist:

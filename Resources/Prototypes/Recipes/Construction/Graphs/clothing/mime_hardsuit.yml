@@ -10,31 +10,31 @@
               amount: 5
               doAfter: 1
             - tag: SuitEVA
-              name: an EVA suit
+              name: prototype-text-constructionGraph-MimeHardsuit-name-6adb8ee16d
               icon:
                 sprite: Clothing/OuterClothing/Suits/eva.rsi
                 state: icon
               doAfter: 1
             - tag: HelmetEVA
-              name: an EVA helmet
+              name: prototype-text-constructionGraph-MimeHardsuit-name-c3dcb299cf
               icon:
                 sprite: Clothing/Head/Helmets/eva.rsi
                 state: icon
               doAfter: 1
             - tag: CrayonRed
-              name: red crayon
+              name: prototype-text-constructionGraph-MimeHardsuit-name-624517596f
               icon:
                 sprite: Objects/Fun/crayons.rsi
                 state: red
               doAfter: 1
             - tag: CrayonBlack
-              name: black crayon
+              name: prototype-text-constructionGraph-MimeHardsuit-name-8bd1968e08
               icon:
                 sprite: Objects/Fun/crayons.rsi
                 state: black
               doAfter: 1
             - tag: MimeBelt
-              name: suspenders
+              name: prototype-text-constructionGraph-MimeHardsuit-name-f6a6e9bdb2
               icon:
                 sprite: Clothing/Belt/suspenders_red.rsi
                 state: icon

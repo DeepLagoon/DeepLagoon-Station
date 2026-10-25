@@ -15,8 +15,8 @@ ent-HeavyMechMount = { "" }
 ent-EWARMechMount = { "" }
     .desc = { "" }
 
-ent-BaseAFInterceptor = AF-28 "Broadsword"
-    .desc = One of the first purpose built Armored Frames, made to engage light targets and other Armored Frames.
+ent-BaseAFInterceptor = AF-28 «Палаш»
+    .desc = Один из первых специализированных бронекаркасов, созданный для борьбы с лёгкими целями и другими бронекаркасами.
 
-ent-AFInterceptor = { ent-BaseAFInterceptor }
-    .desc = { ent-BaseAFInterceptor.desc }
+ent-AFInterceptor = AF-28 «Палаш»
+    .desc = Один из первых специализированных бронекаркасов, созданный для борьбы с лёгкими целями и другими бронекаркасами.

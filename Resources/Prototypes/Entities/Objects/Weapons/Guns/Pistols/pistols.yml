@@ -40,7 +40,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-BaseWeaponPistol-name-fdd5586cac
         startingItem: Magazine9x19mmPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -50,7 +50,7 @@
             - Magazine9x19mmPistolFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-BaseWeaponPistol-name-4bd6d164ed
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:
@@ -121,7 +121,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolViper-name-bf7824c8e4
         startingItem: Magazine9x19mmPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -132,7 +132,7 @@
             - Magazine9x19mmPistolHighCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolViper-name-8a21454391
         startingItem: Cartridge9x19mmFMJ
         priority: 1
         whitelist:
@@ -301,7 +301,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolCobra-name-bcc71abda6
         startingItem: Magazine635x40mmCaselessPistol
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -311,7 +311,7 @@
             - Magazine635x40mmCaselessPistol
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolCobra-name-8e6c0947f8
         startingItem: Cartridge635x40mmCaseless
         priority: 1
         whitelist:
@@ -351,7 +351,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolMk58-name-82b278938c
         startingItem: Magazine45_ACPPistolFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -362,7 +362,7 @@
             - Magazine45_ACPPistolHighCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolMk58-name-813fec0364
         startingItem: Cartridge45_ACPFMJ
         priority: 1
         whitelist:

@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: PlushieGhostRevenant
   start: start
   graph:
@@ -7,12 +7,12 @@
         - to: plushie
           steps:
             - tag: PlushieGhost
-              name: ghost soft toy
+              name: prototype-text-constructionGraph-PlushieGhostRevenant-name-d376d18e14
               icon:
                 sprite: Mobs/Ghosts/ghost_human.rsi
                 state: icon
             - tag: Ectoplasm
-              name: ectoplasm
+              name: prototype-text-constructionGraph-PlushieGhostRevenant-name-56c9b18147
               icon:
                 sprite: Mobs/Ghosts/revenant.rsi
                 state: ectoplasm
@@ -29,7 +29,7 @@
     - to: suit
       steps:
       - tag: HideCorgi
-        name: corgi hide
+        name: prototype-text-constructionGraph-ClothingOuterSuitIan-name-15d6ed4765
         icon:
           sprite: Objects/Materials/materials.rsi
           state: corgihide

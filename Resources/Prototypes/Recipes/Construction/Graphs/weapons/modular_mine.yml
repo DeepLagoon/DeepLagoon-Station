@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: ModularMineGraph
   start: start
   graph:
@@ -22,7 +22,7 @@
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-ModularMineGraph-name-9dee2542cc
     - to: start
       completed:
       - !type:SpawnPrototype
@@ -52,7 +52,7 @@
       steps:
       - tag: Payload
         store: payload
-        name: payload
+        name: prototype-text-constructionGraph-ModularMineGraph-name-e5d9b5e9f7
         doAfter: 0.5
 
   - node: mine

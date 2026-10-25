@@ -10,7 +10,7 @@
         icon:
           sprite: Nyanotrasen/Objects/Materials/mothroach.rsi
           state: mothroachhide
-        name: mothroach hide
+        name: prototype-text-constructionGraph-MoffPlushie-name-60689ced97
       - material: Cloth
         amount: 3
         doAfter: 5

@@ -82,16 +82,16 @@ ent-FoodBreadMoldySlice = заплесневелый кусок хлеба
     .desc = Целые станции были разорваны на части из-за споров о том, можно ли это есть.
 
 ent-FoodBreadBaguetteCotton = хлопковый багет
-    .desc = Bon azzétit!
+    .desc = Бон аз-з-зетит!
 
 ent-FoodBreadBaguetteSlice = кростини
-    .desc = Bon ap-petite!
+    .desc = Приятного аппетита!
 
 ent-FoodBreadBaguetteCottonSlice = хлопковый кростини
-    .desc = Bon az-zetite!
+    .desc = Бон аз-з-зетит!
 
 ent-FoodBreadBaguette = багет
-    .desc = Bon appétit!
+    .desc = Бон аппетит!
 
 ent-FoodBreadFrenchToast = сладкие гренки
     .desc = Также известны как французские тосты. Ломтик хлеба, смоченный во взбитой яичной смеси.

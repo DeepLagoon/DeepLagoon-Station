@@ -1,58 +1,58 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingHeadsetCommon = headset
-    .desc = An updated, modular intercom that fits over the head. Takes encryption keys.
+ent-ClothingHeadsetCommon = гарнитура
+    .desc = { ent-ClothingHeadsetAlt.desc }
 
-ent-ClothingHeadsetNfsdBrown = TSFMC headset
+ent-ClothingHeadsetNfsdBrown = гарнитура КВП ТСФ
     .desc = { ent-ClothingHeadset.desc }
 
-ent-ClothingHeadsetNfsdGreen = { ent-ClothingHeadsetNfsdBrown }
+ent-ClothingHeadsetNfsdGreen = гарнитура КВП ТСФ
     .desc = { ent-ClothingHeadsetNfsdBrown.desc }
 
-ent-ClothingHeadsetNfsdCream = { ent-ClothingHeadsetNfsdBrown }
+ent-ClothingHeadsetNfsdCream = гарнитура КВП ТСФ
     .desc = { ent-ClothingHeadsetNfsdBrown.desc }
 
-ent-ClothingHeadsetNfsdBrownCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetNfsdBrownCommon = { ent-ClothingHeadsetNfsdBrown }
+    .desc = { ent-ClothingHeadsetNfsdBrown.desc }
 
-ent-ClothingHeadsetNfsdGreenCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetNfsdGreenCommon = { ent-ClothingHeadsetNfsdGreen }
+    .desc = { ent-ClothingHeadsetNfsdGreen.desc }
 
-ent-ClothingHeadsetNfsdCreamCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetNfsdCreamCommon = { ent-ClothingHeadsetNfsdCream }
+    .desc = { ent-ClothingHeadsetNfsdCream.desc }
 
-ent-ClothingHeadsetGreyCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetGreyCommon = { ent-ClothingHeadsetGrey }
+    .desc = { ent-ClothingHeadsetGrey.desc }
 
-ent-ClothingHeadsetCargoCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetCargoCommon = { ent-ClothingHeadsetCargo }
+    .desc = { ent-ClothingHeadsetCargo.desc }
 
-ent-ClothingHeadsetMiningCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetMiningCommon = { ent-ClothingHeadsetMining }
+    .desc = { ent-ClothingHeadsetMining.desc }
 
-ent-ClothingHeadsetCommandCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetCommandCommon = { ent-ClothingHeadsetCommand }
+    .desc = { ent-ClothingHeadsetCommand.desc }
 
-ent-ClothingHeadsetEngineeringCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetEngineeringCommon = { ent-ClothingHeadsetEngineering }
+    .desc = { ent-ClothingHeadsetEngineering.desc }
 
-ent-ClothingHeadsetMedicalCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetMedicalCommon = { ent-ClothingHeadsetMedical }
+    .desc = { ent-ClothingHeadsetMedical.desc }
 
-ent-ClothingHeadsetScienceCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetScienceCommon = { ent-ClothingHeadsetScience }
+    .desc = { ent-ClothingHeadsetScience.desc }
 
-ent-ClothingHeadsetMedicalScienceCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetMedicalScienceCommon = { ent-ClothingHeadsetMedicalScience }
+    .desc = { ent-ClothingHeadsetMedicalScience.desc }
 
-ent-ClothingHeadsetRoboticsCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetRoboticsCommon = { ent-ClothingHeadsetRobotics }
+    .desc = { ent-ClothingHeadsetRobotics.desc }
 
-ent-ClothingHeadsetSecurityCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetSecurityCommon = { ent-ClothingHeadsetSecurity }
+    .desc = { ent-ClothingHeadsetSecurity.desc }
 
-ent-ClothingHeadsetBrigmedicCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetBrigmedicCommon = { ent-ClothingHeadsetBrigmedic }
+    .desc = { ent-ClothingHeadsetBrigmedic.desc }
 
-ent-ClothingHeadsetServiceCommon = { ent-ClothingHeadsetCommon }
-    .desc = { ent-ClothingHeadsetCommon.desc }
+ent-ClothingHeadsetServiceCommon = { ent-ClothingHeadsetService }
+    .desc = { ent-ClothingHeadsetService.desc }

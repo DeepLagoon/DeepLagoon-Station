@@ -7,7 +7,7 @@ ent-TorsoDiona = туловище дионы
     .desc = { ent-PartDiona.desc }
 
 ent-HeadDiona = голова дионы
-    .desc = { ent-PartDiona.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmDiona = левая рука дионы
     .desc = { ent-PartDiona.desc }

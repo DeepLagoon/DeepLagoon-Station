@@ -42,7 +42,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-BaseWeaponLightMachineGun-name-f20ebeca97
         startingItem: Magazine762x39mmBox
         insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
@@ -51,7 +51,7 @@
           tags:
             - Magazine762x39mmBox
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-BaseWeaponLightMachineGun-name-3ea1efb1f6
         startingItem: Cartridge762x39mmFMJ
         priority: 1
         whitelist:

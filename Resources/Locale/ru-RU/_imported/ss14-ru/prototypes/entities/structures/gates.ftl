@@ -4,7 +4,7 @@ ent-LogicEmptyCircuit = пустая плата
     .desc = Кажется, чего-то не хватает.
 
 ent-BaseLogicItem = { ent-BaseItem }
-    .desc = { ent-BaseItem.desc }
+    .desc = Кажется, чего-то не хватает.
 
 ent-LogicGateOr = логический элемент
     .desc = Логический элемент с двумя портами на вход и одним на выход. Можно изменить логическую операцию с помощью отвёртки.

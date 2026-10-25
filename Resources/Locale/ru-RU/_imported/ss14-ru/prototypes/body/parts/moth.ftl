@@ -7,7 +7,7 @@ ent-TorsoMoth = торс ниана
     .desc = { ent-PartMoth.desc }
 
 ent-HeadMoth = голова ниана
-    .desc = { ent-PartMoth.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmMoth = левая рука ниана
     .desc = { ent-PartMoth.desc }

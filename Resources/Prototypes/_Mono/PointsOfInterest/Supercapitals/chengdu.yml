@@ -29,7 +29,7 @@
       stationProto: RecordsFrontierOutpostCargo
       gridComponents:
       - type: VesselInfo
-        description: "Enough heavy weapons to crack a planet."
+        description: "Столько тяжёлого вооружения хватит, чтобы расколоть планету."
       components:
         - type: StationNameSetup
           mapNameTemplate: 'TSFN Chengdu'

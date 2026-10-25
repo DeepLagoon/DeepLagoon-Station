@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponHeavyMachineGun = BaseWeaponHeavyMachineGun
+ent-BaseWeaponHeavyMachineGun = базовый тяжёлый пулемёт
     .desc = Пали и моли.
 
 ent-WeaponMinigun = миниган

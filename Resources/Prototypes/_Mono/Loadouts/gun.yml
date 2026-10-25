@@ -415,7 +415,7 @@
 
 - type: loadout #Iroh
   id: SecurityGuardIrohLoadout
-  name: iroh gun case
+  name: "кейс с Айро"
   price: 0
   inhand:
   - WeaponCaseLongIrohSecurity

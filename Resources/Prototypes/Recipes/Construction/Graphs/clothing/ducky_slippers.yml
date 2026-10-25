@@ -7,13 +7,13 @@
         - to: shoes
           steps:
             - tag: ToyRubberDuck
-              name: a rubber ducky
+              name: prototype-text-constructionGraph-ClothingShoeSlippersDuck-name-afeaf85da7
               icon:
                 sprite: Objects/Fun/ducky.rsi
                 state: icon
               doAfter: 1
             - tag: ToyRubberDuck
-              name: a rubber ducky
+              name: prototype-text-constructionGraph-ClothingShoeSlippersDuck-name-7380230374
               icon:
                 sprite: Objects/Fun/ducky.rsi
                 state: icon

@@ -1,7 +1,7 @@
 # This file is only for the language traits. If we add species-specific languages to the list of traits,
 # we should add them here in the order they are in the list, for organization. Maybe add more languages later.
 
-trait-category-languages = Languages
+trait-category-languages = Языки
 
 trait-language-foreigner-light-name = Иностранец
 trait-language-foreigner-light-desc =

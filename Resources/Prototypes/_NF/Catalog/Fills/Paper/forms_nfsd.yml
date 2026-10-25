@@ -46,26 +46,7 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Paper
-    content: |2
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Search Warrant[/head]
-
-      [head=3]Warrant Information[/head]
-      [bold]Subject (Person/Vessel IFF):[/bold]
-      [bold]Request Reason:[/bold]
-      [bold]Shift Time Granted:[/bold]
-
-      [head=3]Requestor Information[/head]
-      [bold]Case #:[/bold]
-      [bold]Request Time:[/bold]
-      [bold]Requesting Officer:[/bold]
-      [bold]Officer Rank:[/bold]
-
-
-
-      [color=#AAAAAA]This Warrant is only valid when requested by an agent of the TSFMC and approved, signed, and stamped by a [italic]distinct[/italic] (unless impossible) officer ranked Bailiff or above or a Station Representative.[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Ордер на обыск[/head]\n\n[head=3]Сведения об ордере[/head]\n[bold]Объект (лицо/код опознавания судна):[/bold]\n[bold]Основание запроса:[/bold]\n[bold]Время выдачи по смене:[/bold]\n\n[head=3]Сведения о заявителе[/head]\n[bold]Номер дела:[/bold]\n[bold]Время запроса:[/bold]\n[bold]Офицер-заявитель:[/bold]\n[bold]Звание офицера:[/bold]\n\n\n\n[color=#AAAAAA]Этот ордер действителен только по запросу сотрудника TSFMC, если он утверждён, подписан и заверен печатью [italic]другим[/italic] (если это возможно) офицером в звании капитана КВП ТСФ или выше либо представителем станции.[/color]\n"
 - type: entity # Creator: Starly (Shaw Clifflower)
   id: PaperWrittenNfsdReport
   name: after action report
@@ -73,43 +54,7 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Paper
-    content: |2
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]After Action Report[/head]
-
-      [bold]Case #:[/bold]
-      [bold]Offending Vessel:[/bold]
-
-      [bold]Suspect:[/bold]
-      [bold]Charges (list any escalations):[/bold]
-
-      [bold]Suspect:[/bold]
-      [bold]Charges (list any escalations):[/bold]
-
-      [bold]Responding Vessel:[/bold]
-      [bold]Time of Incident:[/bold]
-      [bold]Officers on Board:[/bold]
-
-      [head=3]Evidence Collected[/head]
-      List all evidence collected below and the officer in possession.
-
-
-
-      [head=3]Incident Summary[/head]
-
-
-
-      [head=3]Commendations[/head]
-
-
-
-      [head=3]Recommendations[/head]
-
-
-
-      [color=#AAAAAA]I, the [italic]Bailiff or Colonel[/italic] of the TSFMC, or an agent acting on their behalf, certify that everything written in this report is correct and truthful. I am aware of the penalties should anything in this report be proven incorrect, falsified, or exaggerated.[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Отчёт по итогам операции[/head]\n\n[bold]Номер дела:[/bold]\n[bold]Судно нарушителя:[/bold]\n\n[bold]Подозреваемый:[/bold]\n[bold]Обвинения (укажите отягчающие обстоятельства):[/bold]\n\n[bold]Подозреваемый:[/bold]\n[bold]Обвинения (укажите отягчающие обстоятельства):[/bold]\n\n[bold]Прибывшее судно:[/bold]\n[bold]Время происшествия:[/bold]\n[bold]Офицеры на борту:[/bold]\n\n[head=3]Собранные доказательства[/head]\nПеречислите ниже все собранные доказательства и офицеров, у которых они находятся.\n\n\n\n[head=3]Описание происшествия[/head]\n\n\n\n[head=3]Представления к поощрению[/head]\n\n\n\n[head=3]Рекомендации[/head]\n\n\n\n[color=#AAAAAA]Я, [italic]капитан КВП ТСФ или полковник[/italic] TSFMC либо действующий от их имени сотрудник, подтверждаю правильность и достоверность всего изложенного в этом отчёте. Я осведомлён об ответственности, если какие-либо сведения будут признаны неверными, поддельными или преувеличенными.[/color]\n"
 - type: entity
   id: PaperWrittenNfsdArrestWarrant
   name: arrest warrant
@@ -117,36 +62,7 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Paper
-    content: |2
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Arrest Warrant[/head]
-
-      [head=2]Defendant(s)[/head]
-      [bold]Name:[/bold]
-      [bold]Description:[/bold]
-
-      [bold]Name:[/bold]
-      [bold]Description:[/bold]
-
-      [bold]Name:[/bold]
-      [bold]Description:[/bold]
-
-      [head=2]Offense Details[/head]
-      [bold]Case #:[/bold]
-      [bold]Approximate Time of Offense:[/bold]
-      [bold]Location of Offense:[/bold]
-      [bold]Charges:[/bold]
-
-      [head=2]Requestor Information[/head]
-      [bold]Requesting Officer:[/bold]
-      [bold]Authorizing Officer:[/bold]
-      [bold]Time of Authorization:[/bold]
-
-
-
-      [color=#AAAAAA]This warrant is only valid when requested by an agent of the TSFMC, and approved, signed and stamped by a distinct (unless impossible) officer ranked Bailiff or above, or a Station Representative.[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Ордер на арест[/head]\n\n[head=2]Обвиняемые[/head]\n[bold]Имя:[/bold]\n[bold]Описание:[/bold]\n\n[bold]Имя:[/bold]\n[bold]Описание:[/bold]\n\n[bold]Имя:[/bold]\n[bold]Описание:[/bold]\n\n[head=2]Сведения о правонарушении[/head]\n[bold]Номер дела:[/bold]\n[bold]Примерное время правонарушения:[/bold]\n[bold]Место правонарушения:[/bold]\n[bold]Обвинения:[/bold]\n\n[head=2]Сведения о заявителе[/head]\n[bold]Офицер-заявитель:[/bold]\n[bold]Офицер, выдавший разрешение:[/bold]\n[bold]Время разрешения:[/bold]\n\n\n\n[color=#AAAAAA]Этот ордер действителен только по запросу сотрудника TSFMC, если он утверждён, подписан и заверен печатью другим (если это возможно) офицером в звании капитана КВП ТСФ или выше либо представителем станции.[/color]\n"
 - type: entity # Creator: Kwentov (Vica)
   id: PaperWrittenNfsdArrestReport
   name: arrest report
@@ -154,36 +70,7 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Paper
-    content: |2
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Arrest Report[/head]
-
-      [head=2]Incident Details[/head]
-      [bold]Case #:[/bold]
-      [bold]Time of Arrest:[/bold]
-      [bold]Location of Arrest:[/bold]
-      [bold]Charges:[/bold]
-
-      [head=2]Arrested Person(s)[/head]
-      [bold]Name:[/bold]
-      [bold]Description:[/bold]
-      [bold]Fine or Punishment:[/bold]
-
-      [bold]Name:[/bold]
-      [bold]Description:[/bold]
-      [bold]Fine or Punishment:[/bold]
-
-      [head=2]Arrestor[/head]
-      [bold]Arresting Officer:[/bold]
-      [bold]Supervisor:[/bold]
-
-
-
-      [color=#AAAAAA]I, the undersigned, hereby swear under oath that all information on this report is accurate and correct to the best of my knowledge at the time of signing.[/color]
-
-
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Отчёт об аресте[/head]\n\n[head=2]Сведения о происшествии[/head]\n[bold]Номер дела:[/bold]\n[bold]Время ареста:[/bold]\n[bold]Место ареста:[/bold]\n[bold]Обвинения:[/bold]\n\n[head=2]Арестованные[/head]\n[bold]Имя:[/bold]\n[bold]Описание:[/bold]\n[bold]Штраф или наказание:[/bold]\n\n[bold]Имя:[/bold]\n[bold]Описание:[/bold]\n[bold]Штраф или наказание:[/bold]\n\n[head=2]Произвёл арест[/head]\n[bold]Офицер, произведший арест:[/bold]\n[bold]Руководитель:[/bold]\n\n\n\n[color=#AAAAAA]Я, нижеподписавшийся, клятвенно подтверждаю, что на момент подписания все сведения в этом отчёте точны и верны, насколько мне известно.[/color]\n"
 - type: entity
   id: PaperWrittenNfsdDutyLog
   name: duty log
@@ -191,36 +78,7 @@
   parent: Paper
   components:
   - type: Paper
-    content: |2 # If editing this, edit PaperWrittenFrontierEmployeePayHistory
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Duty Log[/head]
-
-      [head=2]Colonel[/head]
-      [bold]Name:[/bold]
-      [bold]Sign On Time:[/bold]
-      [bold]Sign Off Time:[/bold]
-
-      [head=2]Officers[/head]
-      [bold]Name:[/bold]
-      [bold]Position:[/bold]
-      [bold]Sign On Time:[/bold]
-      [bold]Sign Off Time:[/bold]
-
-      [bold]Name:[/bold]
-      [bold]Position:[/bold]
-      [bold]Sign On Time:[/bold]
-      [bold]Sign Off Time:[/bold]
-
-      [bold]Name:[/bold]
-      [bold]Position:[/bold]
-      [bold]Sign On Time:[/bold]
-      [bold]Sign Off Time:[/bold]
-
-
-      [color=#AAAAAA]This Form is considered NT Sensitive Data, Class 2, and is for internal TSFMC use only.[/color]
-
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Журнал дежурств[/head]\n\n[head=2]Полковник[/head]\n[bold]Имя:[/bold]\n[bold]Время заступления:[/bold]\n[bold]Время окончания дежурства:[/bold]\n\n[head=2]Офицеры[/head]\n[bold]Имя:[/bold]\n[bold]Должность:[/bold]\n[bold]Время заступления:[/bold]\n[bold]Время окончания дежурства:[/bold]\n\n[bold]Имя:[/bold]\n[bold]Должность:[/bold]\n[bold]Время заступления:[/bold]\n[bold]Время окончания дежурства:[/bold]\n\n[bold]Имя:[/bold]\n[bold]Должность:[/bold]\n[bold]Время заступления:[/bold]\n[bold]Время окончания дежурства:[/bold]\n\n\n[color=#AAAAAA]Этот бланк содержит конфиденциальные данные НТ второго класса и предназначен только для внутреннего использования TSFMC.[/color]\n"
 - type: entity # Based on form made by Blumbee (Aki Suboshi)
   id: PaperWrittenNfsdContrabandTurnover
   name: contraband turnover receipt
@@ -228,32 +86,7 @@
   parent: Paper
   components:
   - type: Paper
-    content: |2 # If updating this, update PaperWrittenFrontierContrabandTurnover
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Contraband Turnover Receipt[/head]
-
-      [bold]Contraband Holder:[/bold]
-      [bold]Total Contraband Value (FMC):[/bold]
-      [bold]Payout per FMC:[/bold] [color=#ff0000]$2,000[/color]
-      [bold]Payout Total:[/bold]
-
-      [bold]C2 Contraband:[/bold]
-          [bullet/]
-          [bullet/]
-          [bullet/]
-
-      [bold]C3 Contraband:[/bold]
-          [bullet/]
-          [bullet/]
-          [bullet/]
-
-      [bold]Shift Time:[/bold]
-
-
-
-      [color=#AAAAAA]This Form is void without the signatures of both Parties and a stamp of Frontier Command (Colonel or Colossus Central's overseer).[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Акт сдачи контрабанды[/head]\n\n[bold]Владелец контрабанды:[/bold]\n[bold]Общая стоимость контрабанды (FMC):[/bold]\n[bold]Выплата за FMC:[/bold] [color=#ff0000]$2,000[/color]\n[bold]Общая выплата:[/bold]\n\n[bold]Контрабанда класса 2:[/bold]\n    [bullet/]\n    [bullet/]\n    [bullet/]\n\n[bold]Контрабанда класса 3:[/bold]\n    [bullet/]\n    [bullet/]\n    [bullet/]\n\n[bold]Время смены:[/bold]\n\n\n\n[color=#AAAAAA]Этот бланк недействителен без подписей обеих сторон и печати командования Фронтира (полковника или смотрителя центральной станции «Колосс»).[/color]\n"
 - type: entity # Based on form made by Blumbee (Aki Suboshi)
   id: PaperWrittenNfsdContrabandAmnesty
   name: contraband amnesty agreement
@@ -261,29 +94,7 @@
   parent: Paper
   components:
   - type: Paper
-    content: |2 # If updating this, update PaperWrittenFrontierContrabandAmnesty
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Contraband Amnesty Agreement[/head]
-
-      [head=3]Contraband Holder[/head]
-          [bold]Name:[/bold]
-          [bold]Species:[/bold]
-          [bold]Vessel IFF:[/bold]
-
-      [bold]Payout per FMC:[/bold] [color=#ff0000]$2,000[/color]
-      [bold]Shift Time:[/bold]
-
-      This document is a contract between the above Contraband Holder and Frontier Command.
-
-      Any crimes of contraband possession for the Contraband Holder will be waived so long as all class 3 contraband items, and any class 2 contraband items not subject to a Class 2 Contraband Permit are turned in within reasonable time (subject to the clause below), and not used for malicious purposes. Noncompliance with this document results in voiding any standing Class 2 Contraband Permits.
-
-      If the Contraband Holder is not paid in full at the above rate for any contraband turned in, they may remain in possession of the contraband without penalty at their discretion.
-
-
-
-      [color=#AAAAAA]This form is void without the signatures of both Parties and a stamp of Frontier Command (Colonel or Colossus Central's overseer).[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Соглашение об амнистии за контрабанду[/head]\n\n[head=3]Владелец контрабанды[/head]\n    [bold]Имя:[/bold]\n    [bold]Вид:[/bold]\n    [bold]Код опознавания судна:[/bold]\n\n[bold]Выплата за FMC:[/bold] [color=#ff0000]$2,000[/color]\n[bold]Время смены:[/bold]\n\nЭтот документ является договором между указанным выше владельцем контрабанды и командованием Фронтира.\n\nВладелец освобождается от ответственности за хранение контрабанды при условии, что все предметы контрабанды класса 3 и все предметы класса 2, не покрытые разрешением на контрабанду класса 2, сданы в разумный срок с учётом условия ниже и не использовались со злым умыслом. Несоблюдение этого документа аннулирует все действующие разрешения на контрабанду класса 2.\n\nЕсли владельцу не выплачено полное вознаграждение за сдаваемую контрабанду по указанному выше тарифу, он вправе по своему усмотрению оставить её у себя без наказания.\n\n\n\n[color=#AAAAAA]Этот бланк недействителен без подписей обеих сторон и печати командования Фронтира (полковника или смотрителя центральной станции «Колосс»).[/color]\n"
 - type: entity # Based on form made by Blumbee (Aki Suboshi)
   id: PaperWrittenNfsdContrabandPermit
   name: class 2 contraband permit
@@ -291,27 +102,7 @@
   parent: Paper
   components:
   - type: Paper
-    content: |2 # If updating this, update PaperWrittenFrontierContrabandPermit
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Class 2 Contraband Permit[/head]
-
-      [bold]Permit Holder:[/bold]
-      [bold]Holder Crew:[/bold]
-          [bullet/]
-          [bullet/]
-          [bullet/]
-
-      [bold]Shift Time:[/bold]
-
-      This Permit allows the Holder and crew, as listed above, to possess and use class 2 contraband.
-      Non-compliance with a Contraband Amnesty agreement voids this Permit.
-      Refer to §6.1.4 of Space Law for a full definition of class 2 contraband.
-
-
-
-      [color=#AAAAAA]This Permit is void without the signature of the Holder and the signature and stamp of the Colonel[/color]
-
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Разрешение на контрабанду класса 2[/head]\n\n[bold]Владелец разрешения:[/bold]\n[bold]Экипаж владельца:[/bold]\n    [bullet/]\n    [bullet/]\n    [bullet/]\n\n[bold]Время смены:[/bold]\n\nЭто разрешение позволяет владельцу и указанным выше членам экипажа хранить и использовать контрабанду класса 2.\nНарушение соглашения об амнистии за контрабанду аннулирует это разрешение.\nПолное определение контрабанды класса 2 приведено в §6.1.4 Космического закона.\n\n\n\n[color=#AAAAAA]Это разрешение недействительно без подписи владельца, а также подписи и печати полковника[/color]\n"
 - type: entity # Based on form made by Starly (Shaw Clifflower)
   id: PaperWrittenNfsdAuthorization
   name: authorization for bluespace threats
@@ -319,33 +110,4 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Paper
-    content: |2 # When updating this, update PaperWrittenFrontierAuthorization
-      [color=#40516e]◥[bold]N[/bold]◣ [bold]Trans-Solar Federation Marine Corps[/bold][/color]
-      [color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]
-      [head=2]Authorization for Bluespace Threats[/head]
-
-      [bold]Vessel Captain:[/bold]
-      [bold]Vessel IFF:[/bold]
-      [bold]Shift Time:[/bold]
-
-      [bold]Issuing Frontier Command:[/bold]
-          [bullet]XXXXXXXX, Colossus Central Overseer
-          [bullet]XXXXXXXX, Colonel
-
-      This document authorizes the above vessel and its captain to assist and cooperate with the TSFMC and Frontier authorities in neutralizing hostile bluespace threats to Frontier. These include, but are not limited to:
-          [bullet] Cultist vessels
-          [bullet] Syndicate vessels
-          [bullet] Wizard Federation vessels
-          [bullet] Arcadia Industries vessels
-
-      This document does NOT deputize the authorized party. The authorized party is not granted special privileges to arrest, detain, and prosecute individuals associated with Nanotrasen.
-
-      [bold]Any contraband seized during operations aboard hostile vessels must be surrendered, either to the TSFMC or the Colossus Central's overseer (further referred to as simply 'Overseer'), for a cash bounty. Failure to surrender contraband will lead to the forfeiture of this agreement, and the authorized party may be liable for criminal charges.[/bold]
-
-      The authorized party is to keep a copy of this document for inspection. The authorized party is expected to maintain contact with TSFMC command and/or the Overseer to minimize casualties.
-
-      Before engaging with hostile vessels, the authorized party is expected to follow any instructions given by the TSFMC for staging or other preparation prior to boarding.
-
-
-
-      [color=#AAAAAA]This Form is void without the signatures of both Parties and a stamp of Frontier Command (Colonel or Colossus Central's overseer).[/color]
+    content: "[color=#40516e]◥[bold]N[/bold]◣ [bold]Корпус морской пехоты Транссолярной Федерации[/bold][/color]\n[color=#40516e]‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾[/color]\n[head=2]Разрешение на борьбу с блюспейс-угрозами[/head]\n\n[bold]Капитан судна:[/bold]\n[bold]Код опознавания судна:[/bold]\n[bold]Время смены:[/bold]\n\n[bold]Выдавшее разрешение командование Фронтира:[/bold]\n    [bullet]XXXXXXXX, смотритель центральной станции «Колосс»\n    [bullet]XXXXXXXX, полковник\n\nЭтот документ разрешает указанному судну и его капитану содействовать TSFMC и властям Фронтира в устранении враждебных блюспейс-угроз Фронтиру. К ним относятся, помимо прочего:\n    [bullet] Корабли культистов\n    [bullet] Корабли Синдиката\n    [bullet] Корабли Федерации волшебников\n    [bullet] Корабли Arcadia Industries\n\nЭтот документ НЕ наделяет уполномоченную сторону статусом сотрудника правопорядка. Ей не предоставляются особые полномочия на арест, задержание и уголовное преследование лиц, связанных с Нанотрейзен.\n\n[bold]Любая контрабанда, захваченная при операциях на вражеских судах, должна быть сдана TSFMC или смотрителю центральной станции «Колосс» (далее — «смотритель») за денежное вознаграждение. Несдача контрабанды аннулирует это соглашение и может повлечь уголовное преследование уполномоченной стороны.[/bold]\n\nУполномоченная сторона обязана хранить копию документа для проверки. Для сокращения потерь следует поддерживать связь с командованием TSFMC и/или смотрителем.\n\nПеред столкновением с вражескими судами уполномоченная сторона должна выполнить все указания TSFMC по развёртыванию и иной подготовке к абордажу.\n\n\n\n[color=#AAAAAA]Этот бланк недействителен без подписей обеих сторон и печати командования Фронтира (полковника или смотрителя центральной станции «Колосс»).[/color]\n"

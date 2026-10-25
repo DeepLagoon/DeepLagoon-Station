@@ -24,7 +24,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLaserCellMG-name-c4fe49f641
         startingItem: MilitaryPowerCellMG
         whitelist:
           tags:
@@ -87,7 +87,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLRC21PPL-name-ad72e6f100
         startingItem: PulsedPlasmaLaserCanister
         whitelist:
           tags:

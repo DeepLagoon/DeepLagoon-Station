@@ -1,6 +1,6 @@
 - type: microwaveMealRecipe
   id: RecipeMoldyBread
-  name: moldy bread recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMoldyBread-name-4fee1e16c6
   result: FoodBreadMoldy
   group: Breads # Frontier: yummy
   time: 20
@@ -13,7 +13,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeCheeseCurds
-  name: cheese curds recipe
+  name: prototype-text-microwaveMealRecipe-RecipeCheeseCurds-name-24419bff22
   result: FoodCheeseCurds
   time: 5
   group: Savory # Frontier: TODO - move to ingredients

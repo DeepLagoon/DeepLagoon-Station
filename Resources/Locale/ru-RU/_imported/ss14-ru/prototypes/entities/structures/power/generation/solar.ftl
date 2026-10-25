@@ -8,7 +8,7 @@ ent-SolarPanel = { ent-SolarPanelBasePhysSprite }
 
 ent-SolarPanelBroken = { ent-SolarPanelBasePhysSprite }
     .suffix = Сломанная
-    .desc = { ent-SolarPanelBasePhysSprite.desc }
+    .desc = Сломанная солнечная панель.
 
 ent-SolarAssembly = каркас солнечной панели
     .desc = Каркас солнечной панели. Закрепите чтобы начать строить солнечную панель или солнечный трекер.

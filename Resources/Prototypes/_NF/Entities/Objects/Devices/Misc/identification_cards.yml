@@ -242,7 +242,7 @@
   name: yip yip ID card
   components:
   - type: PresetIdCard
-    name: Yip Yip
+    name: "Йип-Йип"
 
 - type: entity
   parent: IDCardStandard
@@ -268,7 +268,7 @@
   name: clippy ID card
   components:
   - type: PresetIdCard
-    name: Clippy
+    name: "Скрепыш"
 
 - type: entity
   parent: PDVAsvaranIDCard
@@ -276,7 +276,7 @@
   name: clarpy ID card
   components:
   - type: PresetIdCard
-    name: Clarpy
+    name: "Кларпи"
 
 - type: entity
   parent: DeputyIDCard
@@ -284,4 +284,4 @@
   name: cappy ID card
   components:
   - type: PresetIdCard
-    name: Cappy
+    name: "Кэппи"

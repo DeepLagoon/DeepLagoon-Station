@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
 ent-MobSyndicateNavalBase = агент синдиката
-    .desc = { ent-MobHumanoidHostileBase.desc }
+    .desc = Давно покинул дом, опустошённый излучениями. Готовьтесь к бою.
 
 ent-MobSyndicateNavalCaptainA = капитан синдиката
     .desc = Старший офицер синдиката, исполняет обязанности командира на земле и обеспечивают бесперебойное проведение операций в космосе. Экипирован отличной бронёй и оружием.
@@ -88,7 +88,7 @@ ent-MobSyndicateNavalSaboteurD = { ent-MobSyndicateNavalSaboteurA }
     .desc = { ent-MobSyndicateNavalSaboteurA.desc }
 
 ent-MobExperimentationVictim = пленный
-    .desc = { ent-MobHumanoidHostileBase.desc }
+    .desc = Давно вдали от дома, опустошённые выбросами и всем, что делали с ними похитители.
 
 ent-MobSyndicateNavalCommanderA = командир синдиката
     .desc = Старший офицер, командующий операциями Синдиката на земле, обладает высшей властью и ответственностью на местном уровне. Вооружен штурмовой винтовкой и имеет тяжелую броню.
@@ -115,7 +115,7 @@ ent-MobSyndicateNavalDeckhandD = { ent-MobSyndicateNavalDeckhandA }
     .desc = { ent-MobSyndicateNavalDeckhandA.desc }
 
 ent-MobSyndicateNavalMime = мим синдиката
-    .desc = { ent-MobSyndicateNavalBase.desc }
+    .desc = Давно вдали от дома, опустошённый выбросами... или он всегда был таким?
 
 ent-MobSyndicateNavalChemwarriorA = химвоин синдиката
     .desc = Вооруженные резервуарами с опасными химикатами, химвоины атакуют своих врагов ядовитым распылением.

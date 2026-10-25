@@ -7,7 +7,7 @@ ent-TorsoSlime = туловище слаймолюда
     .desc = { ent-PartSlime.desc }
 
 ent-HeadSlime = череп слаймолюда
-    .desc = { ent-PartSlime.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmSlime = левая рука слаймолюда
     .desc = { ent-PartSlime.desc }

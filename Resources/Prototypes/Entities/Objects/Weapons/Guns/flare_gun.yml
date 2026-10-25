@@ -16,7 +16,7 @@
   - type: ItemSlots
     slots:
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponFlareGun-name-13765f0e8c
         startingItem: null
         priority: 1
         whitelist:

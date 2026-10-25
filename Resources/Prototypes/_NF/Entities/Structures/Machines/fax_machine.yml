@@ -25,7 +25,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Colonial Outpost STC"
+    name: "Диспетчер колониального аванпоста"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -34,7 +34,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Colonial Outpost SR"
+    name: "Представитель колониального аванпоста"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -43,7 +43,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Colonial Outpost Guard"
+    name: "Охрана колониального аванпоста"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -52,7 +52,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Colonial Outpost Reception"
+    name: "Приёмная колониального аванпоста"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineCaptain]
@@ -61,7 +61,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Colonial Outpost Administration"
+    name: "Администрация колониального аванпоста"
 
 # POI
 - type: entity
@@ -71,7 +71,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Omnichurch Beacon"
+    name: "Маяк Всеобщей церкви"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase, FaxMachineShipAntag]
@@ -80,7 +80,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Underground Black Market"
+    name: "Подземный чёрный рынок"
   #- type: ApcPowerReceiver # Mono - comment out
   #  powerDisabled: true #starts off
 
@@ -91,7 +91,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "The Lodge"
+    name: "Ложа"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -100,7 +100,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "The North Pole"
+    name: "Северный полюс"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -109,7 +109,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Tinnia's Rest"
+    name: "Приют Тиннии"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -118,7 +118,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Trade Outpost"
+    name: "Торговый аванпост"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -127,7 +127,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Trade Outpost STC"
+    name: "Диспетчер торгового аванпоста"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -136,7 +136,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Trade Mall STC"
+    name: "Диспетчер торгового центра"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -145,7 +145,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Trade Mall TSFMC Post"
+    name: "Пост TSFMC в торговом центре"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -154,7 +154,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Anomalous Lab"
+    name: "Лаборатория аномалий"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -163,7 +163,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "The Pit"
+    name: "Яма"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -172,7 +172,7 @@
  #  #categories: [ HideSpawnMenu ] # Mono - comment out # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Casey's Casino"
+    name: "Казино Кейси"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -181,7 +181,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Courthouse"
+    name: "Здание суда"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineShipAntag]
@@ -190,7 +190,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Phaethon Imperial Hideout"
+    name: "Имперское убежище Фаэтона"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -199,7 +199,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "TSFMC Outpost Colonel"
+    name: "Полковник аванпоста TSFMC"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -208,7 +208,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "TSFMC Outpost Lawyer"
+    name: "Юрист аванпоста TSFMC"
 
 - type: entity
   parent: FaxMachineBase
@@ -217,7 +217,7 @@
   #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Bahama Mama's"
+    name: "Багама Мама"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -226,7 +226,7 @@
    #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Edison Power Plant"
+    name: "Электростанция Эдисона"
 
 - type: entity
   parent: [BaseStructureDisableToolUse, FaxMachineBase]
@@ -235,7 +235,7 @@
    #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Medical Dispatch"
+    name: "Медицинская диспетчерская"
 
 # Events
 - type: entity
@@ -245,7 +245,7 @@
    #categories: [ HideSpawnMenu ] # Mono - comment out
   components:
   - type: FaxMachine
-    name: "Unknown"
+    name: "Неизвестно"
   #- type: ApcPowerReceiver # Mono - comment out
   #  powerDisabled: false #starts off
 

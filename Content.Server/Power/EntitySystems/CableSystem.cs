@@ -6,6 +6,7 @@ using Content.Shared.Database;
 using Content.Shared.DoAfter;
 using Content.Shared.Interaction;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 using CableCuttingFinishedEvent = Content.Shared.Tools.Systems.CableCuttingFinishedEvent;
 using SharedToolSystem = Content.Shared.Tools.Systems.SharedToolSystem;
 
@@ -13,6 +14,16 @@ namespace Content.Server.Power.EntitySystems;
 
 public sealed partial class CableSystem : EntitySystem
 {
+    private readonly HashSet<EntityUid> _relocatingCables = new();
+
+    /// <summary>Move an installed cable without treating its temporary unanchoring as cutting.</summary>
+    public bool ReanchorCable(Entity<CableComponent, TransformComponent> cable, Entity<MapGridComponent> grid, Vector2i tile)
+    {
+        var added = _relocatingCables.Add(cable.Owner);
+        try { return _transform.AnchorEntity((cable.Owner, cable.Comp2, MetaData(cable.Owner)), grid, tile); }
+        finally { if (added) _relocatingCables.Remove(cable.Owner); }
+    }
+
     [Dependency] private ITileDefinitionManager _tileManager = default!;
     [Dependency] private SharedToolSystem _toolSystem = default!;
     [Dependency] private StackSystem _stack = default!;
@@ -64,8 +75,8 @@ public sealed partial class CableSystem : EntitySystem
         var ev = new CableAnchorStateChangedEvent(args.Transform, args.Detaching);
         RaiseLocalEvent(uid, ref ev);
 
-        if (args.Anchored)
-            return; // huh? it wasn't anchored?
+        if (args.Anchored || _relocatingCables.Contains(uid))
+            return;
 
         // anchor state can change as a result of deletion (detach to null).
         // We don't want to spawn an entity when deleted.

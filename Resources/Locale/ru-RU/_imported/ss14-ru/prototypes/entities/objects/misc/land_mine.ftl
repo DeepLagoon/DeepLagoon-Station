@@ -8,7 +8,7 @@ ent-LandMineKick = { ent-BaseLandMine }
     .suffix = Взведена
 
 ent-LandMineModular = { ent-BaseLandMine }
-    .desc = { ent-BaseLandMine.desc }
+    .desc = Этот плохиш может скрывать в себе множество опасностей. Или велосипедный клаксон.
     .suffix = Взведена
 
 ent-LandMineExplosive = { ent-BaseLandMine }

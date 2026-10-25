@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: HardsuitGoliath
   start: start
   graph:
@@ -10,7 +10,7 @@
         icon:
           sprite: Clothing/OuterClothing/Hardsuits/spatio.rsi
           state: icon
-        name: spationaut hardsuit
+        name: prototype-text-constructionGraph-HardsuitGoliath-name-552503e8c5
         doAfter: 10
       - material: Durathread
         amount: 5

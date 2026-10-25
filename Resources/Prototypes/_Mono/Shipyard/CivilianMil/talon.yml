@@ -2,7 +2,7 @@
   id: Talon
   parent: BaseVessel
   name: GS Talon
-  description: A vessel produced by GS using data taken from some wayward facility, with 4 Dravon autocannons and 2 L85 point defense weapons.
+  description: "Корабль GS, созданный по данным с некой заброшенной базы. Оснащён четырьмя автопушками Dravon и двумя установками точечной обороны L85."
   price: 70000
   category: Small
   group: Shipyard

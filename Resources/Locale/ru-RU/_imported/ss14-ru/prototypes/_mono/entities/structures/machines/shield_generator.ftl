@@ -5,19 +5,19 @@ ent-ShieldGeneratorBase = генератор щита
 
 ent-ShieldGeneratorPOI = генератор щита аванпостов ФС-421 Крепость
     .suffix = Только Точки Интереса
-    .desc = { ent-ShieldGeneratorBase.desc }
+    .desc = «Крепость». Самое новое и лучшее в области стационарных крупномасштабных щитов.
 
 ent-ShieldGeneratorTSFCapital = флагманский генератор щита ЛМ-212 Авангард
     .suffix = Только Флагман ТСФ
-    .desc = { ent-ShieldGeneratorBase.desc }
+    .desc = Тяжёлый щит для крупных кораблей. Хорошая прочность, быстрая перезарядка и защита от столкновений в одном устройстве.
 
 ent-ShieldGenerator = генератор щита МС-500 Титан
     .suffix = Только АСЗ
-    .desc = { ent-ShieldGeneratorBase.desc }
+    .desc = «Титан». Передовой щит с быстрой перезарядкой и превосходной защитой от столкновений.
 
 ent-ShieldGeneratorMedium = генератор щита МС-250 Эгида
     .suffix = Только АСЗ/ТСФ, SCI VOUCHER SHIPS ONLY
-    .desc = { ent-ShieldGeneratorBase.desc }
+    .desc = «Эгида». Передовой щит с долгой перезарядкой и очень высокой прочностью.
 
 ent-ShieldGeneratorSmall = генератор щита МС-100 Сентинел
-    .desc = { ent-ShieldGeneratorBase.desc }
+    .desc = «Страж». Хороший надёжный щит.

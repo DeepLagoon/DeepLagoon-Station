@@ -1,33 +1,33 @@
 - type: loadout
   id: TsfmcCombatWebbing
-  name: chest rig
+  name: "армейская РПС"
   equipment:
     belt: ClothingBeltWebbingsNormalTSFMC
 
 - type: loadout
   id: TsfmcCombatWebbingLarge
-  name: large chest rig
+  name: "большой нагрудный разгрузочный жилет"
   equipment:
     belt: ClothingBeltWebbingsBigTSFMC
 
 # Brigmedic
 - type: loadout
   id: TsfmcCombatWebbingMedical
-  name: chest rig (medical)
+  name: "нагрудная разгрузка (медицинская)"
   equipment:
     belt: ClothingBeltMilitaryWebbingMed
 
 # engi
 - type: loadout
   id: TsfClothingBeltUtilityEngineering
-  name: utility belt (filled)
+  name: "пояс для инструментов (заполненный)"
   equipment:
     belt: ClothingBeltUtilityEngineering
 
 # engi (pro)
 - type: loadout
   id: TsfClothingBeltUtilityEngineeringPro
-  name: utility belt (pro) (filled)
+  name: "профессиональный пояс для инструментов (заполненный)"
   effects:
   - !type:GroupLoadoutEffect
     proto: ProTsfEngineer

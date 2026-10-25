@@ -43,7 +43,7 @@
     blocking: 80
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-N14BarricadeSandbagSingle-description-3820344c08
       color: "#4f94ad"
       requireDetailRange: false
 
@@ -91,7 +91,7 @@
     blocking: 10
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-N14BarricadeTanktrap-description-472d3f0004
       color: "#4f94ad"
       requireDetailRange: false
 
@@ -189,7 +189,7 @@
     blocking: 100
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-N14BarricadeMetal-description-358a303daf
       color: "#4f94ad"
       requireDetailRange: false
 

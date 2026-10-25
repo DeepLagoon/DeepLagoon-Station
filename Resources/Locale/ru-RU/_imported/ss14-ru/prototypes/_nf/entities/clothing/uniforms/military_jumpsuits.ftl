@@ -1,71 +1,71 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingUniformJumpsuitMilitaryColorGrey = grey jumpsuit
-    .desc = A tasteful grey jumpsuit that reminds you of the good old days.
+ent-ClothingUniformJumpsuitMilitaryColorGrey = серый комбинезон
+    .desc = Элегантный серый комбинезон, который напомнит вам о старых добрых временах.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorBlack = black jumpsuit
-    .desc = A generic black jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorBlack = черный комбинезон
+    .desc = Обычный черный комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorBlue = blue jumpsuit
-    .desc = A generic blue jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorBlue = синий комбинезон
+    .desc = Обычный синий комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorDarkBlue = dark blue jumpsuit
-    .desc = A generic dark blue jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorDarkBlue = темно-синий комбинезон
+    .desc = Обычный темно-синий комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorTeal = teal jumpsuit
-    .desc = A generic teal jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorTeal = бирюзовый комбинезон
+    .desc = Обычный бирюзовый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorGreen = green jumpsuit
-    .desc = A generic green jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorGreen = зеленый комбинезон
+    .desc = Обычный зеленый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorDarkGreen = dark green jumpsuit
-    .desc = A generic dark green jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorDarkGreen = темно-зеленый комбинезон
+    .desc = Обычный темно-зеленый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorOrange = orange jumpsuit
-    .desc = A generic orange jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorOrange = оранжевый комбинезон
+    .desc = Обычный оранжевый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorPink = pink jumpsuit
-    .desc = A generic pink jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorPink = розовый комбинезон
+    .desc = Обычный розовый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorRed = red jumpsuit
-    .desc = A generic red jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorRed = красный комбинезон
+    .desc = Обычный красный комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorYellow = yellow jumpsuit
-    .desc = A generic yellow jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorYellow = желтый комбинезон
+    .desc = Обычный желтый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorPurple = purple jumpsuit
-    .desc = A generic purple jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorPurple = фиолетовый комбинезон
+    .desc = Обычный фиолетовый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorLightBrown = light brown jumpsuit
-    .desc = A generic light brown jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorLightBrown = светло-коричневый комбинезон
+    .desc = Обычный светло-коричневый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorBrown = brown jumpsuit
-    .desc = A generic brown jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorBrown = коричневый комбинезон
+    .desc = Обычный коричневый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryColorMaroon = maroon jumpsuit
-    .desc = A generic maroon jumpsuit with no rank markings.
+ent-ClothingUniformJumpsuitMilitaryColorMaroon = темно-бордовый комбинезон
+    .desc = Обычный темно-бордовый комбинезон без знаков различия.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryContractor = contractor jumpsuit
-    .desc = A sturdy jumpsuit, commonly issued to NT contractors.
+ent-ClothingUniformJumpsuitMilitaryContractor = комбинезон подрядчика
+    .desc = Прочный комбинезон, обычно выдаваемый новым контрактникам.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryContractorTac = contractor jumpsuit
-    .desc = A sturdy jumpsuit, commonly issued to NT contractors.
+ent-ClothingUniformJumpsuitMilitaryContractorTac = комбинезон подрядчика
+    .desc = Прочный комбинезон, обычно выдаваемый новым контрактникам.
     .suffix = Military, Tac
 
 ent-ClothingUniformJumpsuitMilitaryCaptain = { ent-ClothingUniformJumpsuitCaptain }
@@ -125,30 +125,30 @@ ent-ClothingUniformJumpsuitMilitaryScientist = { ent-ClothingUniformJumpsuitScie
     .desc = { ent-ClothingUniformJumpsuitScientist.desc }
 
 ent-ClothingUniformJumpsuitMilitaryResearchDirector = { ent-ClothingUniformJumpsuitResearchDirector }
-    .desc = It's a jumpsuit worn by those with the know-how to achieve the position of Research Director. Its fabric provides minor protection from biological contaminants.
+    .desc = Этот комбинезон носят те, кто обладает навыками для достижения должности научного директора. Его ткань обеспечивает незначительную защиту от биологических загрязнений.
     .suffix = Military
 
-ent-ClothingUniformJumpsuitMilitaryService = service worker jumpsuit
-    .desc = A standard issue jumpsuit for NT service workers.
+ent-ClothingUniformJumpsuitMilitaryService = комбинезон работника сервиса
+    .desc = Стандартный комбинезон для работников сферы обслуживания.
     .suffix = Military
 
 ent-ClothingUniformJumpsuitMilitaryHydroponics = { ent-ClothingUniformJumpsuitHydroponics }
     .suffix = Military
     .desc = { ent-ClothingUniformJumpsuitHydroponics.desc }
 
-ent-ClothingUniformJumpsuitMilitaryPilot = { ent-ClothingUniformJumpsuitPilot }
+ent-ClothingUniformJumpsuitMilitaryPilot = комбинезон пилота
     .suffix = Military
-    .desc = { ent-ClothingUniformJumpsuitPilot.desc }
+    .desc = Ты думаешь, что здесь должно быть место для твоих любимых сигарет, верно?
 
 ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenary = { ent-ClothingUniformJumpsuitMercenary }
     .suffix = Military
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic = mercenary medic jumpsuit
+ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic = комбинезон наёмника-медика
     .suffix = Military
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain = mercenary captain jumpsuit
+ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain = комбинезон капитана наёмников
     .suffix = Military
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
@@ -156,10 +156,10 @@ ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenary = { ent-ClothingUnifo
     .suffix = Military, Blue
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic = mercenary medic jumpsuit
+ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic = комбинезон наёмника-медика
     .suffix = Military, Blue
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain = mercenary captain jumpsuit
+ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain = комбинезон капитана наёмников
     .suffix = Military, Blue
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }

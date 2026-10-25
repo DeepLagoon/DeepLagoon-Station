@@ -50,7 +50,7 @@
           steps:
             - tag: FirelockElectronics
               store: board
-              name: firelock electronics
+              name: prototype-text-constructionGraph-Firelock-name-c68511bbb5
               icon:
                 sprite: "Objects/Misc/module.rsi"
                 state: "mainboard"

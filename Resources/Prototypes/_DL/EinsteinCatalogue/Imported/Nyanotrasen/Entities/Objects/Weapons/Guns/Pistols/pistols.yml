@@ -39,7 +39,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolUniversal-name-af7cdb7ef7
         startingItem: MagazineUniversalMagnum
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -48,7 +48,7 @@
           tags:
           - MagazineUniversalMagnum
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolUniversal-name-3cb6b7c5a9
         startingItem: CartridgeMagnum
         priority: 1
         whitelist:
@@ -67,7 +67,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponPistolUniversalEmpty-name-16519a4c16
         startingItem: null
         insertSound: /Audio/Weapons/Guns/MagIn/pistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
@@ -76,7 +76,7 @@
           tags:
           - MagazineUniversalMagnum
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponPistolUniversalEmpty-name-fc726aa986
         startingItem: null
         priority: 1
         whitelist:

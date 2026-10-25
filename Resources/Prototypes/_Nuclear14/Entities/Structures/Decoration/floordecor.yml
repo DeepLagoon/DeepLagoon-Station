@@ -475,7 +475,7 @@
     blocking: 20
   - type: ExtendDescription
     descriptionList:
-    - description: You can fire over this if you stand near it.
+    - description: prototype-text-entity-N14DecorFloorPalletStack-description-3dc0053bf2
       color: "#4f94ad"
       requireDetailRange: false
 

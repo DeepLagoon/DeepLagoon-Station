@@ -6,44 +6,44 @@ ent-SensorOff = { "" }
 ent-PirateClothingUniformJumpsuitMercenary = { ent-ClothingUniformJumpsuitMercenary }
     .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-PirateClothingUniformJumpskirtMercenary = { ent-ClothingUniformJumpskirtMercenary }
-    .desc = { ent-ClothingUniformJumpskirtMercenary.desc }
+ent-PirateClothingUniformJumpskirtMercenary = юбка наёмника
+    .desc = { ent-ClothingUniformJumpsuitMercenary.desc }
 
-ent-PirateClothingUniformJumpsuitPrivateSec = { ent-ClothingUniformJumpsuitPrivateSec }
-    .desc = { ent-ClothingUniformJumpsuitPrivateSec.desc }
+ent-PirateClothingUniformJumpsuitPrivateSec = комбинезон частного телохранителя
+    .desc = Специализированная униформа для частного охранника. Для взыскательных частных подрядчиков, нуждающихся в профессиональном внешнем виде.
 
-ent-PirateClothingUniformJumpskirtPrivateSec = { ent-ClothingUniformJumpskirtPrivateSec }
-    .desc = { ent-ClothingUniformJumpskirtPrivateSec.desc }
+ent-PirateClothingUniformJumpskirtPrivateSec = юбка-комбинезон частного охранника
+    .desc = Специализированная униформа для частного охранника. Для взыскательных частных подрядчиков, нуждающихся в профессиональном внешнем виде.
 
 ent-PirateClothingUniformJumpsuitMilitaryTurtleneckMercenary = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenary }
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenary.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic }
+ent-PirateClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic = комбинезон наёмника-медика
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain }
+ent-PirateClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain = комбинезон капитана наёмников
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain.desc }
 
 ent-PirateClothingUniformJumpsuitMilitaryTurtleneckBlueMercenary = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenary }
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenary.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic }
+ent-PirateClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic = комбинезон наёмника-медика
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain }
+ent-PirateClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain = комбинезон капитана наёмников
     .desc = { ent-ClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryPilot = { ent-ClothingUniformJumpsuitMilitaryPilot }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryPilot.desc }
+ent-PirateClothingUniformJumpsuitMilitaryPilot = комбинезон пилота
+    .desc = Вы тоже считаете, что в нём должен быть карман для ваших любимых сигарет?
 
-ent-PirateClothingUniformJumpsuitPilot = { ent-ClothingUniformJumpsuitPilot }
-    .desc = { ent-ClothingUniformJumpsuitPilot.desc }
+ent-PirateClothingUniformJumpsuitPilot = комбинезон пилота
+    .desc = Вы тоже считаете, что в нём должен быть карман для ваших любимых сигарет?
 
-ent-PirateClothingUniformJumpsuitMilitaryContractor = { ent-ClothingUniformJumpsuitMilitaryContractor }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryContractor.desc }
+ent-PirateClothingUniformJumpsuitMilitaryContractor = комбинезон подрядчика
+    .desc = Прочный комбинезон, обычно выдаваемый новым контрактникам.
 
-ent-PirateClothingUniformJumpsuitMilitaryContractorTac = { ent-ClothingUniformJumpsuitMilitaryContractorTac }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryContractorTac.desc }
+ent-PirateClothingUniformJumpsuitMilitaryContractorTac = комбинезон подрядчика
+    .desc = Прочный комбинезон, обычно выдаваемый новым контрактникам.
 
 ent-PirateClothingUniformJumpsuitAtmos = { ent-ClothingUniformJumpsuitAtmos }
     .desc = { ent-ClothingUniformJumpsuitAtmos.desc }
@@ -240,17 +240,17 @@ ent-PirateClothingUniformJumpskirtLibrarian = { ent-ClothingUniformJumpskirtLibr
 ent-PirateClothingUniformJumpsuitReporter = { ent-ClothingUniformJumpsuitReporter }
     .desc = { ent-ClothingUniformJumpsuitReporter.desc }
 
-ent-PirateClothingUniformJumpsuitBH = { ent-ClothingUniformJumpsuitBH }
-    .desc = { ent-ClothingUniformJumpsuitBH.desc }
+ent-PirateClothingUniformJumpsuitBH = поношенный костюм
+    .desc = Тот, кто носит это, олицетворяет занятость.
 
-ent-PirateClothingUniformJumpskirtBH = { ent-ClothingUniformJumpskirtBH }
-    .desc = { ent-ClothingUniformJumpskirtBH.desc }
+ent-PirateClothingUniformJumpskirtBH = поношенный костюм
+    .desc = Тот, кто носит это, олицетворяет занятость.
 
-ent-PirateClothingUniformJumpsuitBHGrey = { ent-ClothingUniformJumpsuitBHGrey }
-    .desc = { ent-ClothingUniformJumpsuitBHGrey.desc }
+ent-PirateClothingUniformJumpsuitBHGrey = нуарный костюм
+    .desc = Серый костюм с зажимом для галстука.
 
-ent-PirateClothingUniformJumpskirtBHGrey = { ent-ClothingUniformJumpskirtBHGrey }
-    .desc = { ent-ClothingUniformJumpskirtBHGrey.desc }
+ent-PirateClothingUniformJumpskirtBHGrey = нуарный костюм
+    .desc = Серый костюм с зажимом для галстука.
 
 ent-PirateUniformScrubsColorGreen = { ent-UniformScrubsColorGreen }
     .desc = { ent-UniformScrubsColorGreen.desc }
@@ -378,20 +378,20 @@ ent-PirateClothingUniformJumpskirtYellowTurtleneckDress = { ent-ClothingUniformJ
 ent-PirateClothingUniformJumpskirtYellowOldDress = { ent-ClothingUniformJumpskirtYellowOldDress }
     .desc = { ent-ClothingUniformJumpskirtYellowOldDress.desc }
 
-ent-PirateClothingUniformRandomPunkCroptop = { ent-ClothingUniformRandomPunkCroptop }
-    .desc = { ent-ClothingUniformRandomPunkCroptop.desc }
+ent-PirateClothingUniformRandomPunkCroptop = панковский комбинезон с укороченным топом
+    .desc = { ent-ClothingUniformRandomArmless.desc }
 
-ent-PirateClothingUniformRandomPunkTanktop = { ent-ClothingUniformRandomPunkTanktop }
-    .desc = { ent-ClothingUniformRandomPunkTanktop.desc }
+ent-PirateClothingUniformRandomPunkTanktop = панковский комбинезон
+    .desc = { ent-ClothingUniformRandomArmless.desc }
 
-ent-PirateClothingUniformRandomArmlessNoSkirt = { ent-ClothingUniformRandomArmlessNoSkirt }
-    .desc = { ent-ClothingUniformRandomArmlessNoSkirt.desc }
+ent-PirateClothingUniformRandomArmlessNoSkirt = красочный панковский комбинезон
+    .desc = { ent-ClothingUniformRandomArmless.desc }
 
-ent-PirateClothingUniformRandomPunkCroptopShorts = { ent-ClothingUniformRandomPunkCroptopShorts }
-    .desc = { ent-ClothingUniformRandomPunkCroptopShorts.desc }
+ent-PirateClothingUniformRandomPunkCroptopShorts = панковский комбинезон с укороченным топом
+    .desc = { ent-ClothingUniformRandomArmless.desc }
 
-ent-PirateClothingUniformRandomPunkTanktopShorts = { ent-ClothingUniformRandomPunkTanktopShorts }
-    .desc = { ent-ClothingUniformRandomPunkTanktopShorts.desc }
+ent-PirateClothingUniformRandomPunkTanktopShorts = панковский комбинезон
+    .desc = { ent-ClothingUniformRandomArmless.desc }
 
 ent-PirateClothingUniformRandomArmless = { ent-ClothingUniformRandomArmless }
     .desc = { ent-ClothingUniformRandomArmless.desc }
@@ -405,19 +405,19 @@ ent-PirateClothingUniformRandomShorts = { ent-ClothingUniformRandomShorts }
 ent-PirateClothingUniformRandomShirt = { ent-ClothingUniformRandomShirt }
     .desc = { ent-ClothingUniformRandomShirt.desc }
 
-ent-PirateClothingSkirtUniformRandomArmless = { ent-ClothingSkirtUniformRandomArmless }
+ent-PirateClothingSkirtUniformRandomArmless = разноцветный костюм без рукавов
     .desc = { ent-ClothingSkirtUniformRandomArmless.desc }
 
-ent-PirateClothingSkirtUniformRandomStandard = { ent-ClothingSkirtUniformRandomStandard }
+ent-PirateClothingSkirtUniformRandomStandard = разноцветный костюм
     .desc = { ent-ClothingSkirtUniformRandomStandard.desc }
 
-ent-PirateClothingSkirtUniformRandomBra = { ent-ClothingSkirtUniformRandomBra }
+ent-PirateClothingSkirtUniformRandomBra = разноцветный бра
     .desc = { ent-ClothingSkirtUniformRandomBra.desc }
 
-ent-PirateClothingSkirtUniformRandomShorts = { ent-ClothingSkirtUniformRandomShorts }
+ent-PirateClothingSkirtUniformRandomShorts = разноцветная юбка
     .desc = { ent-ClothingSkirtUniformRandomShorts.desc }
 
-ent-PirateClothingSkirtUniformRandomShirt = { ent-ClothingSkirtUniformRandomShirt }
+ent-PirateClothingSkirtUniformRandomShirt = разноцветный топ с юбкой
     .desc = { ent-ClothingSkirtUniformRandomShirt.desc }
 
 ent-PirateClothingUniformJumpsuitMonasticRobeDark = { ent-ClothingUniformJumpsuitMonasticRobeDark }
@@ -426,8 +426,8 @@ ent-PirateClothingUniformJumpsuitMonasticRobeDark = { ent-ClothingUniformJumpsui
 ent-PirateClothingUniformJumpsuitMonasticRobeLight = { ent-ClothingUniformJumpsuitMonasticRobeLight }
     .desc = { ent-ClothingUniformJumpsuitMonasticRobeLight.desc }
 
-ent-PirateClothingUniformJumpsuitChaplainPilgrimVest = { ent-ClothingUniformJumpsuitChaplainPilgrimVest }
-    .desc = { ent-ClothingUniformJumpsuitChaplainPilgrimVest.desc }
+ent-PirateClothingUniformJumpsuitChaplainPilgrimVest = костюм пилигрима
+    .desc = Тук-Тук! Не жалаете ли поговорить о нашем спасителе Нар.... Космическом Иисусе?
 
 ent-PirateClothingUniformJumpsuitQMTurtleneck = { ent-ClothingUniformJumpsuitQMTurtleneck }
     .desc = { ent-ClothingUniformJumpsuitQMTurtleneck.desc }
@@ -492,8 +492,8 @@ ent-PirateClothingUniformJumpsuitJester = { ent-ClothingUniformJumpsuitJester }
 ent-PirateClothingUniformJumpsuitJesterAlt = { ent-ClothingUniformJumpsuitJesterAlt }
     .desc = { ent-ClothingUniformJumpsuitJesterAlt.desc }
 
-ent-PirateClothingUniformJumpsuitKilt = { ent-ClothingUniformJumpsuitKilt }
-    .desc = { ent-ClothingUniformJumpsuitKilt.desc }
+ent-PirateClothingUniformJumpsuitKilt = килт
+    .desc = Модная одежка для девчонок и мальчишек.
 
 ent-PirateClothingUniformJumpsuitDameDane = { ent-ClothingUniformJumpsuitDameDane }
     .desc = { ent-ClothingUniformJumpsuitDameDane.desc }
@@ -501,11 +501,11 @@ ent-PirateClothingUniformJumpsuitDameDane = { ent-ClothingUniformJumpsuitDameDan
 ent-PirateClothingUniformJumpsuitKimono = { ent-ClothingUniformJumpsuitKimono }
     .desc = { ent-ClothingUniformJumpsuitKimono.desc }
 
-ent-PirateClothingKimonoPink = { ent-ClothingKimonoPink }
-    .desc = { ent-ClothingKimonoPink.desc }
+ent-PirateClothingKimonoPink = розовое кимоно
+    .desc = Довольно гламурно, не правда ли?
 
-ent-PirateClothingKimonoBlue = { ent-ClothingKimonoBlue }
-    .desc = { ent-ClothingKimonoBlue.desc }
+ent-PirateClothingKimonoBlue = синее кимоно
+    .desc = Синее, как даль. Или как песня, застрявшая в голове на три дня.
 
 ent-PirateClothingUniformJumpsuitGladiator = { ent-ClothingUniformJumpsuitGladiator }
     .desc = { ent-ClothingUniformJumpsuitGladiator.desc }
@@ -534,14 +534,14 @@ ent-PirateClothingUniformJumpsuitMime = { ent-ClothingUniformJumpsuitMime }
 ent-PirateClothingUniformJumpskirtMime = { ent-ClothingUniformJumpskirtMime }
     .desc = { ent-ClothingUniformJumpskirtMime.desc }
 
-ent-PirateClothingUniformJumpsuitTshirtJeans = { ent-ClothingUniformJumpsuitTshirtJeans }
-    .desc = { ent-ClothingUniformJumpsuitTshirtJeans.desc }
+ent-PirateClothingUniformJumpsuitTshirtJeans = белая футболка и джинсы
+    .desc = Даже в космосе это сочетание по-прежнему в моде.
 
-ent-PirateClothingUniformJumpsuitTshirtJeansGray = { ent-ClothingUniformJumpsuitTshirtJeansGray }
-    .desc = { ent-ClothingUniformJumpsuitTshirtJeansGray.desc }
+ent-PirateClothingUniformJumpsuitTshirtJeansGray = серая футболка и джинсы
+    .desc = Даже если в космосе нет леса, этот комбо все равно практично.
 
-ent-PirateClothingUniformJumpsuitTshirtJeansPeach = { ent-ClothingUniformJumpsuitTshirtJeansPeach }
-    .desc = { ent-ClothingUniformJumpsuitTshirtJeansPeach.desc }
+ent-PirateClothingUniformJumpsuitTshirtJeansPeach = персиковая футболка и джинсы
+    .desc = Даже если ваш любимый магазин эмо одежды давно закрылся, этот комбо все равно остается модным.
 
 ent-PirateClothingUniformJumpsuitCaptain = { ent-ClothingUniformJumpsuitCaptain }
     .desc = { ent-ClothingUniformJumpsuitCaptain.desc }
@@ -598,55 +598,55 @@ ent-PirateClothingUniformJumpsuitMilitaryScientist = { ent-ClothingUniformJumpsu
     .desc = { ent-ClothingUniformJumpsuitMilitaryScientist.desc }
 
 ent-PirateClothingUniformJumpsuitMilitaryResearchDirector = { ent-ClothingUniformJumpsuitMilitaryResearchDirector }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryResearchDirector.desc }
+    .desc = Этот комбинезон носят те, кто обладает навыками для достижения должности научного директора. Его ткань обеспечивает незначительную защиту от биологических загрязнений.
 
-ent-PirateClothingUniformJumpsuitMilitaryService = { ent-ClothingUniformJumpsuitMilitaryService }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryService.desc }
+ent-PirateClothingUniformJumpsuitMilitaryService = комбинезон работника сервиса
+    .desc = Стандартный комбинезон для работников сферы обслуживания.
 
 ent-PirateClothingUniformJumpsuitMilitaryHydroponics = { ent-ClothingUniformJumpsuitMilitaryHydroponics }
     .desc = { ent-ClothingUniformJumpsuitMilitaryHydroponics.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorGrey = { ent-ClothingUniformJumpsuitMilitaryColorGrey }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorGrey.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorGrey = { ent-ClothingUniformJumpsuitColorGrey }
+    .desc = { ent-ClothingUniformJumpsuitColorGrey.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorBlack = { ent-ClothingUniformJumpsuitMilitaryColorBlack }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorBlack.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorBlack = { ent-ClothingUniformJumpsuitColorBlack }
+    .desc = { ent-ClothingUniformJumpsuitColorBlack.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorBlue = { ent-ClothingUniformJumpsuitMilitaryColorBlue }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorBlue.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorBlue = { ent-ClothingUniformJumpsuitColorBlue }
+    .desc = { ent-ClothingUniformJumpsuitColorBlue.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorDarkBlue = { ent-ClothingUniformJumpsuitMilitaryColorDarkBlue }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorDarkBlue.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorDarkBlue = { ent-ClothingUniformJumpsuitColorDarkBlue }
+    .desc = { ent-ClothingUniformJumpsuitColorDarkBlue.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorTeal = { ent-ClothingUniformJumpsuitMilitaryColorTeal }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorTeal.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorTeal = { ent-ClothingUniformJumpsuitColorTeal }
+    .desc = { ent-ClothingUniformJumpsuitColorTeal.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorGreen = { ent-ClothingUniformJumpsuitMilitaryColorGreen }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorGreen.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorGreen = { ent-ClothingUniformJumpsuitColorGreen }
+    .desc = { ent-ClothingUniformJumpsuitColorGreen.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorDarkGreen = { ent-ClothingUniformJumpsuitMilitaryColorDarkGreen }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorDarkGreen.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorDarkGreen = { ent-ClothingUniformJumpsuitColorDarkGreen }
+    .desc = { ent-ClothingUniformJumpsuitColorDarkGreen.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorOrange = { ent-ClothingUniformJumpsuitMilitaryColorOrange }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorOrange.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorOrange = { ent-ClothingUniformJumpsuitColorOrange }
+    .desc = Обычный оранжевый комбинезон без знаков различия.
 
-ent-PirateClothingUniformJumpsuitMilitaryColorPink = { ent-ClothingUniformJumpsuitMilitaryColorPink }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorPink.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorPink = { ent-ClothingUniformJumpsuitColorPink }
+    .desc = Обычный розовый комбинезон без знаков различия.
 
-ent-PirateClothingUniformJumpsuitMilitaryColorRed = { ent-ClothingUniformJumpsuitMilitaryColorRed }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorRed.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorRed = { ent-ClothingUniformJumpsuitColorRed }
+    .desc = { ent-ClothingUniformJumpsuitColorRed.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorYellow = { ent-ClothingUniformJumpsuitMilitaryColorYellow }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorYellow.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorYellow = { ent-ClothingUniformJumpsuitColorYellow }
+    .desc = { ent-ClothingUniformJumpsuitColorYellow.desc }
 
-ent-PirateClothingUniformJumpsuitMilitaryColorPurple = { ent-ClothingUniformJumpsuitMilitaryColorPurple }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorPurple.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorPurple = { ent-ClothingUniformJumpsuitColorPurple }
+    .desc = Обычный фиолетовый комбинезон без знаков различия.
 
-ent-PirateClothingUniformJumpsuitMilitaryColorLightBrown = { ent-ClothingUniformJumpsuitMilitaryColorLightBrown }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorLightBrown.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorLightBrown = светло-коричневый комбинезон
+    .desc = Обычный светло-коричневый комбинезон без знаков различия.
 
-ent-PirateClothingUniformJumpsuitMilitaryColorBrown = { ent-ClothingUniformJumpsuitMilitaryColorBrown }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorBrown.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorBrown = коричневый комбинезон
+    .desc = Обычный коричневый комбинезон без знаков различия.
 
-ent-PirateClothingUniformJumpsuitMilitaryColorMaroon = { ent-ClothingUniformJumpsuitMilitaryColorMaroon }
-    .desc = { ent-ClothingUniformJumpsuitMilitaryColorMaroon.desc }
+ent-PirateClothingUniformJumpsuitMilitaryColorMaroon = бордовый комбинезон
+    .desc = Обычный бордовый комбинезон без знаков различия.

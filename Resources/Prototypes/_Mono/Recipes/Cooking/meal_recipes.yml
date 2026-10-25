@@ -1,6 +1,6 @@
 - type: microwaveMealRecipe
   id: RecipeFriedResomiBucket
-  name: bucket of fried resomi recipe
+  name: prototype-text-microwaveMealRecipe-RecipeFriedResomiBucket-name-219d6c60da
   result: FoodMeatResomiBucket
   time: 5
   group: Savory
@@ -12,7 +12,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeBatteredResomi
-  name: battered resomi recipe
+  name: prototype-text-microwaveMealRecipe-RecipeBatteredResomi-name-37994a8847
   result: FoodMeatResomiBattered
   time: 5
   group: Savory
@@ -26,7 +26,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeFriedChickenBucket
-  name: bucket of fried chicken recipe
+  name: prototype-text-microwaveMealRecipe-RecipeFriedChickenBucket-name-4eebd32c60
   result: FoodMeatChickenBucket
   time: 5
   group: Savory
@@ -38,7 +38,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeBiscuitSimple
-  name: simple cookie recipe
+  name: prototype-text-microwaveMealRecipe-RecipeBiscuitSimple-name-ffb2cff00a
   result: FoodBakedBiscuitSimple
   resultCount: 4 # Frontier
   time: 10 # Frontier - 5<10
@@ -52,7 +52,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMacaroni
-  name: macaroni & cheese recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMacaroni-name-067e741392
   result: FoodMacaroni
   time: 10
   group: Pasta
@@ -67,7 +67,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMustardMothRoachburger
-  name: mustardmothroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMustardMothRoachburger-name-9cd78e0587
   result: FoodBurgerMustardMothRoach
   group: Savory
   solids:
@@ -78,7 +78,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeBoomRoachburger
-  name: boomroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeBoomRoachburger-name-a5b1a9d831
   result: FoodBurgerBoomRoach
   group: Savory
   solids:
@@ -89,7 +89,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeImperiRoachburger
-  name: imperiroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeImperiRoachburger-name-d6f9230807
   result: FoodBurgerImperiRoach
   group: Savory
   solids:
@@ -100,7 +100,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeOwORoachburger
-  name: oworoachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeOwORoachburger-name-99ea1dcc09
   result: FoodBurgerOwORoach
   group: Savory
   solids:
@@ -111,7 +111,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeMopRoachburger
-  name: moproachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeMopRoachburger-name-5f39886098
   result: FoodBurgerMopRoach
   group: Savory
   solids:
@@ -122,7 +122,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeCecropiMothRoachburger
-  name: cecropimothroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeCecropiMothRoachburger-name-4750c87269
   result: FoodBurgerCecropiaMothRoach
   group: Savory
   solids:
@@ -133,7 +133,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeleopardMothRoachburger
-  name: leopardmothroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeleopardMothRoachburger-name-3b60e2646c
   result: FoodBurgerLeopardMothRoach
   group: Savory
   solids:
@@ -144,7 +144,7 @@
 
 - type: microwaveMealRecipe
   id: RecipeLunarMothRoachburger
-  name: lunarmothroachburger recipe
+  name: prototype-text-microwaveMealRecipe-RecipeLunarMothRoachburger-name-2fdab88979
   result: FoodBurgerLunarMothRoach
   group: Savory
   solids:

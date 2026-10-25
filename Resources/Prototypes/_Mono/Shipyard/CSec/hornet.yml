@@ -2,7 +2,7 @@
   id: Hornet
   parent: BaseVessel
   name: CASC Hornet
-  description: Short-ranged patrol corvette with limited capabilities. Outfitted with both non-lethal TARNYXs, and lethal missile racks plus plasma cannons.
+  description: "Патрульный корвет малого радиуса действия с ограниченными возможностями. Оснащён нелетальными TARNYX, а также летальными ракетными установками и плазменными пушками."
   price: 120000
   category: Medium
   group: Sr

@@ -50,7 +50,7 @@
       BlackMarket: 0.25
   - type: ExtendDescription
     descriptionList:
-    - description: Selling this item will fund the PDV.
+    - description: prototype-text-entity-FentanylSolidified-description-ac86a824e5
       color: "#4f94ad"
       requireDetailRange: true
   - type: SoldAlert

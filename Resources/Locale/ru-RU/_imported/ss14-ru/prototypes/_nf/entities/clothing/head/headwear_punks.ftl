@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingHeadHatHoodAcidRaincoat = acid raincoat hood
-    .desc = Mostly transparent raincoat hood made out of acid resistant polymers.
+ent-ClothingHeadHatHoodAcidRaincoat = капюшон кислотного дождевика
+    .desc = Почти прозрачный капюшон дождевика, изготовленный из кислотостойких полимеров.
 
 ent-ClothingHeadHatHoodAcidRaincoatBlue = { ent-ClothingHeadHatHoodAcidRaincoat }
     .desc = { ent-ClothingHeadHatHoodAcidRaincoat.desc }

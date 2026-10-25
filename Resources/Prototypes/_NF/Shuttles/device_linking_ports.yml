@@ -2,40 +2,40 @@
 
 - type: sourcePort
   id: device-button-1
-  name: Button 1
-  description: "Button 1"
+  name: prototype-text-sourcePort-device-button-1-name-38279bfdda
+  description: prototype-text-sourcePort-device-button-1-description-8f1040c770
 
 - type: sourcePort
   id: device-button-2
-  name: Button 2
-  description: "Button 2"
+  name: prototype-text-sourcePort-device-button-2-name-a65f2e269b
+  description: prototype-text-sourcePort-device-button-2-description-2984e4d41c
 
 - type: sourcePort
   id: device-button-3
-  name: Button 3
-  description: "Button 3"
+  name: prototype-text-sourcePort-device-button-3-name-ebcf8706cf
+  description: prototype-text-sourcePort-device-button-3-description-b54eae42b3
 
 - type: sourcePort
   id: device-button-4
-  name: Button 4
-  description: "Button 4"
+  name: prototype-text-sourcePort-device-button-4-name-f7d41fcdd7
+  description: prototype-text-sourcePort-device-button-4-description-d7288f11b2
 
 - type: sourcePort
   id: device-button-5
-  name: Button 5
-  description: "Button 5"
+  name: prototype-text-sourcePort-device-button-5-name-804b561886
+  description: prototype-text-sourcePort-device-button-5-description-b5377dac11
 
 - type: sourcePort
   id: device-button-6
-  name: Button 6
-  description: "Button 6"
+  name: prototype-text-sourcePort-device-button-6-name-c6b64bf265
+  description: prototype-text-sourcePort-device-button-6-description-9b8f0b4793
 
 - type: sourcePort
   id: device-button-7
-  name: Button 7
-  description: "Button 7"
+  name: prototype-text-sourcePort-device-button-7-name-ee5e470b81
+  description: prototype-text-sourcePort-device-button-7-description-9babffecec
 
 - type: sourcePort
   id: device-button-8
-  name: Button 8
-  description: "Button 8"
+  name: prototype-text-sourcePort-device-button-8-name-f25b3c12cc
+  description: prototype-text-sourcePort-device-button-8-description-8d38adae88

@@ -44,11 +44,11 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 50
-      name: disable
+      name: "оглушение"
       state: disabler
     - proto: BulletEnergyGunLaser
       fireCost: 100
-      name: lethal
+      name: "летальный"
       state: lethal
   - type: MagazineVisuals
     magState: mag
@@ -113,11 +113,11 @@
     fireModes:
     - proto: BulletDisabler
       fireCost: 50
-      name: disable
+      name: "оглушение"
       state: disabler
     - proto: BulletEnergyGunLaser
       fireCost: 100
-      name: lethal
+      name: "летальный"
       state: lethal
   - type: MagazineVisuals
     magState: mag

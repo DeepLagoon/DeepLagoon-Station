@@ -13,61 +13,61 @@
               amount: 1
               doAfter: 0.5
             - tag: GlassShard
-              name: glass shard
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-aa19e7ac78
               icon:
                 sprite: Objects/Materials/Shards/shard.rsi
                 state: shard1
               doAfter: 0.5
             - tag: GlassShard
-              name: glass shard
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-4b5fc0903a
               icon:
                 sprite: Objects/Materials/Shards/shard.rsi
                 state: shard2
               doAfter: 0.5
             - tag: GlassShard
-              name: glass shard
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-6a7a707be7
               icon:
                 sprite: Objects/Materials/Shards/shard.rsi
                 state: shard1
               doAfter: 0.5
             - tag: GlassShard
-              name: glass shard
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-d054b10059
               icon:
                 sprite: Objects/Materials/Shards/shard.rsi
                 state: shard3
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-de0cb178f9
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-75b53a6c9c
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-2001b3cdf4
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-9696ffc304
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-b4bdb54fc1
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit
               doAfter: 0.5
             - tag: Matchstick
-              name: match stick
+              name: prototype-text-constructionGraph-ImprovisedShotgunShellGraph-name-05fbd3c074
               icon:
                 sprite: Objects/Tools/matches.rsi
                 state: match_unlit

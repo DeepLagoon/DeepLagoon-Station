@@ -1,37 +1,37 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-SpaceBlade = space blade
-    .desc = Let it drip
+ent-SpaceBlade = космоспиннер
+    .desc = Пусть крутится
 
 ent-SpaceBladeRedOrange = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeBlue = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeFrontier = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeGoldBlue = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeMail = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeEyeball = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeBlade = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeCheck = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeSec = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeMoff = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится
 
 ent-SpaceBladeTesla = { ent-SpaceBlade }
-    .desc = { ent-SpaceBlade.desc }
+    .desc = Пусть крутится

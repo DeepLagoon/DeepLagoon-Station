@@ -1,20 +1,20 @@
 - type: stack
   id: FuelPlasma
-  name: fuel-grade plasma
+  name: prototype-text-stack-FuelPlasma-name-ff4a365099
   icon: { sprite: _NF/Objects/Specific/Fuel/fuelgrade_material.rsi, state: plasma }
   spawn: FuelPlasma1
   maxCount: 75 # Mono
 
 - type: stack
   id: FuelUranium
-  name: fuel-grade uranium
+  name: prototype-text-stack-FuelUranium-name-ba267a1331
   icon: { sprite: _NF/Objects/Specific/Fuel/fuelgrade_material.rsi, state: uranium }
   spawn: FuelUranium1
   maxCount: 75 # Mono
 
 - type: stack
   id: FuelBananium
-  name: fuel-grade bananium
+  name: prototype-text-stack-FuelBananium-name-7501841fdc
   icon: { sprite: _NF/Objects/Specific/Fuel/fuelgrade_material.rsi, state: bananium }
   spawn: FuelBananium1
   maxCount: 75 # Mono

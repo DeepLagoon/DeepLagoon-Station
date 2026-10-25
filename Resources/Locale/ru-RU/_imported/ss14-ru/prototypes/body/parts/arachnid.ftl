@@ -7,7 +7,7 @@ ent-TorsoArachnid = туловище арахнида
     .desc = { ent-PartArachnid.desc }
 
 ent-HeadArachnid = голова арахнида
-    .desc = { ent-PartArachnid.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmArachnid = левая рука арахнида
     .desc = { ent-PartArachnid.desc }

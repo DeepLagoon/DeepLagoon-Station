@@ -1,19 +1,19 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-PunkHandsGlovesBaseballBat = punk gloves
-    .desc = Colorful gloves that do not keep you from frying.
+ent-PunkHandsGlovesBaseballBat = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.
 
-ent-PunkHandsGlovesFireaxe = { ent-PunkHandsGlovesBaseballBat }
-    .desc = { ent-PunkHandsGlovesBaseballBat.desc }
+ent-PunkHandsGlovesFireaxe = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.
 
-ent-PunkHandsGlovesSledgehammer = { ent-PunkHandsGlovesBaseballBat }
-    .desc = { ent-PunkHandsGlovesBaseballBat.desc }
+ent-PunkHandsGlovesSledgehammer = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.
 
-ent-PunkHandsGlovesShotgun = { ent-PunkHandsGlovesBaseballBat }
-    .desc = { ent-PunkHandsGlovesBaseballBat.desc }
+ent-PunkHandsGlovesShotgun = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.
 
-ent-PunkHandsGlovesSmg = { ent-PunkHandsGlovesBaseballBat }
-    .desc = { ent-PunkHandsGlovesBaseballBat.desc }
+ent-PunkHandsGlovesSmg = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.
 
-ent-PunkHandsGlovesLaserGun = { ent-PunkHandsGlovesBaseballBat }
-    .desc = { ent-PunkHandsGlovesBaseballBat.desc }
+ent-PunkHandsGlovesLaserGun = перчатки панка
+    .desc = Цветные перчатки, которые не спасут от удара током.

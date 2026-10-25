@@ -20,7 +20,7 @@
       - type: VesselMusic
         ambientMusicPrototype: ColossusCentralMusic
       - type: VesselInfo
-        description: "The closest thing to civilization in this sector. You almost feel safe."
+        description: "Самое близкое к цивилизации место в секторе. Здесь почти чувствуешь себя в безопасности."
       - type: DeleteNearbyDrones
         distance: 4000
       components:

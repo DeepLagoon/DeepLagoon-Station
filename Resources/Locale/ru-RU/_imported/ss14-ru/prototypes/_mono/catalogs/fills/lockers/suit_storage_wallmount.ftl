@@ -1,94 +1,94 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-SuitStorageWallmountQuartermaster = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountQuartermaster = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountMining = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountMining = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountMercenary = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountMercenary = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountPrivateSecurity = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountPrivateSecurity = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountScaf = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountScaf = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountPilot = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountPilot = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVA = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVA = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVAAlternate = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVAAlternate = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVAEmergency = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVAEmergency = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVAPrisoner = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVAPrisoner = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVASyndicate = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVASyndicate = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEVAPirate = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEVAPirate = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountNTSRA = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountNTSRA = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountBasic = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountBasic = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountEngi = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountEngi = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountAtmos = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountAtmos = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountSec = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountSec = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountCE = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountCE = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountCMO = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountCMO = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountRD = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountRD = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountHOS = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountHOS = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountWarden = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountWarden = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountCaptain = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountCaptain = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountSalv = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountSalv = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountSyndie = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountSyndie = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountPirateCap = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountPirateCap = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountWizard = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountWizard = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountClown = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountClown = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountM82c = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountM82c = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountM82b = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountM82b = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }
 
-ent-SuitStorageWallmountM86 = { ent-SuitStorageWallmount }
-    .desc = { ent-SuitStorageWallmount.desc }
+ent-SuitStorageWallmountM86 = настенный блок хранения скафандра
+    .desc = { ent-LockerWallMedical.desc }

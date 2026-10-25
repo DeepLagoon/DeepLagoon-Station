@@ -11,7 +11,7 @@
   - type: ItemSlots
     slots:
       item:
-        name: Plunger
+        name: prototype-text-entity-ClothingNeckCloakJanitor-name-2422c232ec
        # insertVerbText: cloak-insert-verb
        # ejectVerbText: cloak-eject-verb
         whitelist:

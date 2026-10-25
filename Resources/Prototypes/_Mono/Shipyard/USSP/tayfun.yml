@@ -4,7 +4,7 @@
   id: Tayfun
   parent: BaseVesselIFFDisabled
   name: NCS Tayfun
-  description: An armored gunship with 4 90mms, 2 30mms, and 2 VESPERA missile pods.
+  description: "Бронированный артиллерийский корабль с четырьмя 90-мм и двумя 30-мм орудиями, а также двумя ракетными блоками VESPERA."
   price: 98532
   purchasable: false # voucher only
   category: Medium

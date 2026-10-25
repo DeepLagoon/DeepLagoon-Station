@@ -71,7 +71,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleWSPRTarkhan-name-ebdcdac340
         startingItem: AmmoBox762x51mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/lmg_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/lmg_magout.ogg
@@ -83,7 +83,7 @@
           - Magazine762x51mmLowCapacityFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleWSPRTarkhan-name-c3601846a9
         startingItem: Cartridge762x51mmFMJ
         priority: 1
         whitelist:
@@ -192,7 +192,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponLMGPKMS-name-8a1d386deb
         startingItem: AmmoBox556x45mmFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/lmg_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/lmg_magout.ogg
@@ -204,7 +204,7 @@
           - Magazine556x45mmFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponLMGPKMS-name-e4224654c3
         startingItem: Cartridge556x45mmFMJ
         priority: 1
         whitelist:

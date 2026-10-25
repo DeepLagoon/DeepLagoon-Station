@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-CardBase = card
+ent-CardBase = карта
     .desc = { ent-BaseItem.desc }
 
 ent-CardSc2OfClubsBlack = { ent-CardBase }

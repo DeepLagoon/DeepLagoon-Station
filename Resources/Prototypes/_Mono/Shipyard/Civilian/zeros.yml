@@ -9,7 +9,7 @@
   id: Zeros
   parent: BaseVessel
   name: JIN Zeros
-  description: A truck stop diner ship designed to resemble a semi-truck, complete with a EVA accessable dining room and a small cargo bay.
+  description: "Корабль-закусочная для космических дальнобойщиков, стилизованный под седельный тягач: есть обеденный зал с доступом из открытого космоса и небольшой грузовой отсек."
   price: 153578
   category: Large
   group: Shipyard

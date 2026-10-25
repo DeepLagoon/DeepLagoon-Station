@@ -1,13 +1,13 @@
 - type: loadout
   id: TsfnCorpsmanRankE2
-  name: TSFN Corpsmen E-2 (HA)
+  name: "Санитар TSFN E-2 (помощник санитара)"
   components:
   - type: ChatRank
     rank: tsfn-e2
 
 - type: loadout
   id: TsfnCorpsmanRankE3
-  name: TSFN Corpsmen E-3 (HN)
+  name: "Санитар TSFN E-3 (санитар)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCorpsmanHN
@@ -26,7 +26,7 @@
 
 - type: loadout
   id: TsfnCorpsmanRankE4
-  name: TSFN Corpsmen E-4 (HM3)
+  name: "Санитар TSFN E-4 (санитар 3-го класса)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCorpsmanHM3
@@ -45,7 +45,7 @@
 
 - type: loadout
   id: TsfnCorpsmanRankE5
-  name: TSFN Corpsmen E-5 (HM2)
+  name: "Санитар TSFN E-5 (санитар 2-го класса)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCorpsmanHM2
@@ -64,7 +64,7 @@
 
 - type: loadout
   id: TsfnCorpsmanRankE6
-  name: TSFN Corpsmen E-6 (HM1)
+  name: "Санитар TSFN E-6 (санитар 1-го класса)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCorpsmanHM1
@@ -83,7 +83,7 @@
 
 - type: loadout
   id: TsfnCorpsmanRankE7
-  name: TSFN Corpsmen E-7 (HMC)
+  name: "Санитар TSFN E-7 (старший санитар)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCorpsmanHMC

@@ -1,13 +1,13 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingShoesBootsMagSecurity = security magboots
-    .desc = Security magnetic boots, often used during extravehicular activity to ensure the user remains safely attached to the vehicle.
+ent-ClothingShoesBootsMagSecurity = боевые магнитные сапоги
+    .desc = Магнитные сапоги, используемые во время работы вне корабля, чтобы оставаться надёжно прикреплённым к поверхности.
 
-ent-ClothingShoesBootsMagMercenary = mercenary magboots
-    .desc = Mercenary magnetic boots, often used during extravehicular activity to ensure the user remains safely attached to the vehicle.
+ent-ClothingShoesBootsMagMercenary = магнитные сапоги наёмника
+    .desc = Магнитные сапоги, используемые во время работы вне корабля, чтобы оставаться надёжно прикреплённым к поверхности.
 
-ent-ClothingShoesBootsMagNfsd = TSFMC magboots
+ent-ClothingShoesBootsMagNfsd = магнитные ботинки TSFMC
     .desc = { ent-ClothingShoesBootsMagSecurity.desc }
 
-ent-ClothingShoesBootsMagPirate = pirate magboots
-    .desc = Pirate magnetic boots, often used during extravehicular activity to ensure the user remains safely attached to the vehicle.
+ent-ClothingShoesBootsMagPirate = пиратские магнитные сапоги
+    .desc = Магнитные сапоги, используемые во время работы вне корабля, чтобы оставаться надёжно прикреплённым к поверхности.

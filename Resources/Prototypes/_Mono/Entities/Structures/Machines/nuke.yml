@@ -54,7 +54,7 @@
     speed: 120
   - type: NavMapBeacon
     color: "#666666"
-    text: antimatter annihilation assembly
+    text: "антиматериальный аннигиляционный модуль"
     enabled: false
   - type: NukeLabel
   - type: Lock

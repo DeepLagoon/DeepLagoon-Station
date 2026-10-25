@@ -2,7 +2,7 @@
   id: Noble
   parent: BaseVessel
   name: SKR Noble
-  description: A slightly heavier mining craft, equipped with 4 mining pulsers and a magnet, but no self defense and poor armor.
+  description: "Несколько более тяжёлое шахтёрское судно с четырьмя добывающими импульсниками и магнитом, но без средств самообороны и с плохой бронёй."
   price: 94365
   category: Small
   group: Shipyard

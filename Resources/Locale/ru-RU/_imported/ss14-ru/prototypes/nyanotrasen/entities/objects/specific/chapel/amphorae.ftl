@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseAmphora = amphora
-    .desc = It's an earthenware jar suitable for carrying liquids, an example of ancient technology.
+ent-BaseAmphora = амфора
+    .desc = Глиняный кувшин для переноски жидкостей. Образец древней технологии.
 
-ent-Amphora = { ent-BaseAmphora }
-    .desc = { ent-BaseAmphora.desc }
+ent-Amphora = амфора
+    .desc = Глиняный кувшин для переноски жидкостей. Образец древней технологии.

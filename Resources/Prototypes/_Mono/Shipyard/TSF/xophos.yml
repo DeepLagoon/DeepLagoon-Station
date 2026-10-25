@@ -3,7 +3,7 @@
   id: Xiphos
   parent: BaseVesselIFFDisabled
   name: TSF-ELF Xiphos
-  description: A rapid-response patrol craft with EMP capabilities. Equipped with a holding cell to transport prisoners.
+  description: "Патрульный корабль быстрого реагирования со средствами ЭМИ-поражения. Оснащён камерой для перевозки заключённых."
   price: 120000
   category: Small
   group: Security

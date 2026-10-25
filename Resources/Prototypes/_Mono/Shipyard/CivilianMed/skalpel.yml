@@ -2,7 +2,7 @@
   id: Skalpel
   parent: BaseVessel
   name: SKR Skalpel
-  description: A rather bulky lightly-equipped entry-level medical ship. Comes with chemistry and a medical bay for S&R, and a very basic cryonics setup.
+  description: "Довольно громоздкий медицинский корабль начального уровня со скромным оснащением. Есть химия, медотсек для поисково-спасательных операций и простейшая криогенная установка."
   price: 87200
   category: Medium
   group: Medical

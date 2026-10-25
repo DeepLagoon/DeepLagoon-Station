@@ -42,7 +42,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSubMachineGunDrozd-name-a77d737931
         startingItem: Magazine45_ACPSubMachineGunFMJ
         insertSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagIn/skm_magin.ogg # Mono
         ejectSound: /Audio/_Mono/Weapons/Guns/SmallArms/MagOut/m16_magout.ogg # Mono
@@ -52,7 +52,7 @@
           - Magazine45_ACPSubMachineGunFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSubMachineGunDrozd-name-c586119b6a
         startingItem: Cartridge45_ACPFMJ
         priority: 1
         whitelist:

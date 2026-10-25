@@ -3,8 +3,8 @@
 ent-BaseHandheldInstrument = { ent-BaseItem }
     .desc = Это музыкальный инструмент.
 
-ent-BasePlaceableInstrument = baseinstrument
+ent-BasePlaceableInstrument = базовый музыкальный инструмент
     .desc = { ent-BaseStructureDynamic.desc }
 
-ent-BasePlaceableInstrumentRotatable = baseinstrumentrotatable
+ent-BasePlaceableInstrumentRotatable = базовый поворотный музыкальный инструмент
     .desc = { ent-BasePlaceableInstrument.desc }

@@ -258,7 +258,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-BallisticArtilleryBaseMagazine-name-f867bab668
         priority: 2
         whitelist:
           tags:

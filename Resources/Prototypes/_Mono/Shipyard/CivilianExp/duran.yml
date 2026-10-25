@@ -6,7 +6,7 @@
   id: Duran
   parent: BaseVessel
   name: SRA Duran
-  description: A general-purpose expeditionary vessel with a complementary kitchen. Cheap, slow, and has the structural integrity of a crunchy autumn leaf, but by god does it have soul.
+  description: "Универсальное экспедиционное судно с кухней в придачу. Дешёвое, медленное и прочное, как хрустящий осенний лист, но, чёрт возьми, с душой."
   price: 60456
   category: Medium
   group: Expedition

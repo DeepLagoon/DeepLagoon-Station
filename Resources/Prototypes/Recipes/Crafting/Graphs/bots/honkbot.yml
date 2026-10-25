@@ -10,23 +10,23 @@
         icon:
           sprite: _NF/Objects/Storage/Happyhonk/clown.rsi # Frontier: add _NF prefix
           state: box
-        name: happy honk meal
+        name: prototype-text-constructionGraph-HonkBot-name-2d4b75142a
       - tag: BikeHorn
         icon:
             sprite: Objects/Fun/bikehorn.rsi
             state: icon
-        name: bike horn
+        name: prototype-text-constructionGraph-HonkBot-name-eebdced037
         doAfter: 2
       - tag: ProximitySensor
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-HonkBot-name-65556bbc7a
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-HonkBot-name-5a632c381a
         doAfter: 2
   - node: bot
     entity: MobHonkBot
@@ -43,23 +43,23 @@
         icon:
           sprite: _NF/Objects/Storage/Happyhonk/clown.rsi # Frontier: add _NF prefix
           state: box
-        name: woeful cluwne meal
+        name: prototype-text-constructionGraph-JonkBot-name-fa41dfb84a
       - tag: CluwneHorn
         icon:
           sprite: Objects/Fun/cluwnehorn.rsi
           state: icon
-        name: broken bike horn
+        name: prototype-text-constructionGraph-JonkBot-name-cf17593657
         doAfter: 2
       - tag: ProximitySensor
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-JonkBot-name-d85f8c3444
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-JonkBot-name-88e58dad25
         doAfter: 2
   - node: bot
     entity: MobJonkBot

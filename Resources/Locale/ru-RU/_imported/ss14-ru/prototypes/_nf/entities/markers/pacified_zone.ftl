@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BasePacifiedZone = pacified zone
+ent-BasePacifiedZone = Мирная зона
     .desc = { ent-MarkerBase.desc }
 
-ent-BasePacifiedZonePanicBunker = { ent-BasePacifiedZone }
+ent-BasePacifiedZonePanicBunker = Мирная зона от новичков
     .desc = { ent-BasePacifiedZone.desc }

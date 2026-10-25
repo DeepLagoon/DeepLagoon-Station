@@ -58,7 +58,7 @@
   - type: ItemSlots
     slots:
       vinyl:
-        name: vinyl
+        name: prototype-text-entity-VinylPlayer-name-2111fb7429
         whitelist:
           components:
           - Vinyl

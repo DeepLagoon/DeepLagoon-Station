@@ -1,11 +1,11 @@
 - type: construction
-  name: web tile
+  name: construction-recipe-TileWeb-name
   id: TileWeb
   graph: WebObjects
   startNode: start
   targetNode: tile
   category: construction-category-tiles
-  description: "Nice and smooth."
+  description: construction-recipe-TileWeb-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -15,13 +15,13 @@
   objectType: Item
 
 - type: construction
-  name: web winter coat
+  name: construction-recipe-ClothingOuterWinterWeb-name
   id: ClothingOuterWinterWeb
   graph: WebObjects
   startNode: start
   targetNode: coat
   category: construction-category-clothing
-  description: "Surprisingly warm and durable."
+  description: construction-recipe-ClothingOuterWinterWeb-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -31,13 +31,13 @@
   objectType: Item
 
 - type: construction
-  name: web jumpsuit
+  name: construction-recipe-ClothingUniformJumpsuitWeb-name
   id: ClothingUniformJumpsuitWeb
   graph: WebObjects
   startNode: start
   targetNode: jumpsuit
   category: construction-category-clothing
-  description: "At least it's something."
+  description: construction-recipe-ClothingUniformJumpsuitWeb-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -47,13 +47,13 @@
   objectType: Item
 
 - type: construction
-  name: web jumpskirt
+  name: construction-recipe-ClothingUniformJumpskirtWeb-name
   id: ClothingUniformJumpskirtWeb
   graph: WebObjects
   startNode: start
   targetNode: jumpskirt
   category: construction-category-clothing
-  description: "At least it's something."
+  description: construction-recipe-ClothingUniformJumpskirtWeb-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -63,13 +63,13 @@
   objectType: Item
 
 - type: construction
-  name: silk woven cloth
+  name: construction-recipe-SilkWovenCloth-name
   id: SilkWovenCloth
   graph: WebObjects
   startNode: start
   targetNode: cloth
   category: construction-category-materials
-  description: "Feels just like cloth, strangely enough."
+  description: construction-recipe-SilkWovenCloth-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -79,13 +79,13 @@
   objectType: Item
 
 - type: construction
-  name: web shield
+  name: construction-recipe-WebShield-name
   id: WebShield
   graph: WebObjects
   startNode: start
   targetNode: shield
   category: construction-category-clothing
-  description: "It's thick enough to handle a few blows, but probably not heat."
+  description: construction-recipe-WebShield-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -95,13 +95,13 @@
   objectType: Item
 
 - type: construction
-  name: web winter boots
+  name: construction-recipe-ClothingShoesBootsWinterWeb-name
   id: ClothingShoesBootsWinterWeb
   graph: WebObjects
   startNode: start
   targetNode: boots
   category: construction-category-clothing
-  description: "Tightly woven web should protect against the cold"
+  description: construction-recipe-ClothingShoesBootsWinterWeb-description
   entityWhitelist:
     tags:
     - SpiderCraft
@@ -111,13 +111,13 @@
   objectType: Item
 
 - type: construction
-  name: web cocoon
+  name: construction-recipe-WebCocoon-name
   id: WebCocoon
   graph: WebObjects
   startNode: start
   targetNode: cocoon
   category: construction-category-clothing
-  description: "Strong web cocoon used to restrain criminal or preys, its also prevent rotting."
+  description: construction-recipe-WebCocoon-description
   entityWhitelist:
     tags:
     - SpiderCraft

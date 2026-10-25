@@ -1,13 +1,13 @@
 - type: loadout
   id: TsfmcRankE1
-  name: TSFMC E-1 (PVT)
+  name: "TSFMC E-1 (рядовой)"
   components:
   - type: ChatRank
     rank: tsf-e1
 
 - type: loadout
   id: TsfmcRankE2
-  name: TSFMC E-2 (PFC)
+  name: "TSFMC E-2 (рядовой первого класса)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcMarinePfc
@@ -17,7 +17,7 @@
 
 - type: loadout
   id: TsfmcRankE3
-  name: TSFMC E-3 (LCPL)
+  name: "TSFMC E-3 (младший капрал)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcMarineLCpl
@@ -27,7 +27,7 @@
 
 - type: loadout
   id: TsfmcRankE4
-  name: TSFMC E-4 (CPL)
+  name: "TSFMC E-4 (капрал)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcMarineCpl
@@ -37,7 +37,7 @@
 
 - type: loadout
   id: TsfmcRankE5Timelock20Hr
-  name: TSFMC E-5 (SGT)
+  name: "TSFMC E-5 (сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcMarineSgt

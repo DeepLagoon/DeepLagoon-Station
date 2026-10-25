@@ -1,66 +1,66 @@
 #fallback, don't remove
 - type: ambientSpaceBiome
   id: BiomeDefault
-  name: Uncharted Space
+  name: "Неизведанный космос"
 
 #expedition biome - hardcoded in SpawnSalvageMissionJob.cs
 - type: ambientSpaceBiome
   id: BiomeExpedition
-  name: Expedition
-  description: "Uncharted land."
+  name: "Экспедиционный"
+  description: "Неизведанная земля."
 
 #ftl biome - hardcoded in ShuttleSystem.FasterThanLight.cs
 - type: ambientSpaceBiome
   id: BiomeFTL
-  name: Hyperspace
-  description: "Upon the pale horse, with Hell behind you."
+  name: "Гиперпространство"
+  description: "На бледном коне, и ад следует за вами."
 
 #far reaches
 
 - type: ambientSpaceBiome
   id: BiomeFarReachesIV
-  name: Outer Cloud IV
-  description: "Is it really worth it?"
+  name: "Внешнее Облако IV"
+  description: "Оно того стоит?"
 
 - type: ambientSpaceBiome
   id: BiomeFarReachesIII
-  name: Outer Cloud III
-  description: "Things have learnt to walk that ought to crawl."
+  name: "Внешнее Облако III"
+  description: "То, чему положено ползать, научилось ходить."
 
 - type: ambientSpaceBiome
   id: BiomeFarReachesII
-  name: Outer Cloud II
-  description: "There's nothing this far out anymore. Or that's what you would find yourself wishing."
+  name: "Внешнее Облако II"
+  description: "Так далеко уже ничего нет. Или вам хотелось бы так думать."
 
 - type: ambientSpaceBiome
   id: BiomeFarReachesI
-  name: Outer Cloud I
-  description: "You feel like the asteroids are moving even while you aren't. Or watching you. Or both."
+  name: "Внешнее Облако I"
+  description: "Кажется, астероиды движутся, даже когда вы стоите. Или наблюдают за вами. Или и то и другое."
 
 #actual biomes
 - type: ambientSpaceBiome
   id: BiomeOuterRing
-  name: Cloud Interstitial
-  description: "Beyond the inner rubicon. The radio chatter wanes and the stars grow dimmer."
+  name: "Межоблачье"
+  description: "За внутренним Рубиконом. Радиопереговоры затихают, звёзды тускнеют."
 
 - type: ambientSpaceBiome
   id: BiomeMiddleRing
-  name: Inner Rubicon
-  description: "A wreath of wealth, opportunity, and possibly danger."
+  name: "Внутренний Рубикон"
+  description: "Венец богатства, возможностей и, вероятно, опасностей."
 
 - type: ambientSpaceBiome
   id: BiomeInnerRing
-  name: Colossus Inner Region
-  description: "Civilised space. The constellations seen from here are burned into your memory."
+  name: "Внутренняя область Колосса"
+  description: "Цивилизованный космос. Видимые отсюда созвездия навсегда выжжены в вашей памяти."
 
 # clusters
 - type: ambientSpaceBiome
   id: BiomeClusterA
-  name: INSO-357k
-  description: "A stellar graveyard of husks and drifting rocks."
+  name: "INSO-357k"
+  description: "Звёздное кладбище мёртвых оболочек и дрейфующих камней."
 
 - type: ambientSpaceBiome
   id: BiomeWilds
-  name: LINEAR-21 Asteroid Cluster
-  description: "Ocean-span of regolith riches. Shapes occasionally quiver on sensors."
+  name: "Астероидное скопление LINEAR-21"
+  description: "Океан реголитовых богатств. Иногда на сенсорах подрагивают силуэты."
 

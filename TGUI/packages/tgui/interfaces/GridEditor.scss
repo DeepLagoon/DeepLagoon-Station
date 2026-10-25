@@ -171,6 +171,7 @@ body:has(.GridEditor) { zoom: 1 !important; }
     .GridEditor__sprite { width: 28px; height: 28px; }
   }
   &__quickHint { font-size: 11px; color: #a0b5c6; }
+  &__draggedBrush { position: fixed; z-index: 100; pointer-events: none; display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: #263746ed; border: 1px solid #80d6df; border-radius: 3px; }
   footer { min-height: 52px; padding: 8px 12px; border-top: 1px solid #344b5b; background: #1a2835;
     > span { font-size: 12px; min-width: 120px; }
     .primary { background: #80d6df; border-color: #80d6df; color: #0b2a30; font-weight: 500; padding: 7px 14px; }

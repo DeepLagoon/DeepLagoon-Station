@@ -3,7 +3,7 @@
 ent-ClothingShoesBootsMagSecurityFilled = { ent-ClothingShoesBootsMagSecurity }
     .desc = { ent-ClothingShoesBootsMagSecurity.desc }
 
-ent-ClothingShoesBootsMagNfsdFilled = { ent-ClothingShoesBootsMagNfsd }
+ent-ClothingShoesBootsMagNfsdFilled = магнитные ботинки TSFMC
     .desc = { ent-ClothingShoesBootsMagNfsd.desc }
 
 ent-ClothingShoesBootsMagPirateFilled = { ent-ClothingShoesBootsMagPirate }
@@ -12,8 +12,8 @@ ent-ClothingShoesBootsMagPirateFilled = { ent-ClothingShoesBootsMagPirate }
 ent-ClothingShoesBootsMagMercenaryFilled = { ent-ClothingShoesBootsMagMercenary }
     .desc = { ent-ClothingShoesBootsMagMercenary.desc }
 
-ent-ClothingShoesBootsNfsdBrownFilled = { ent-ClothingShoesBootsNfsdBrown }
+ent-ClothingShoesBootsNfsdBrownFilled = коричневые ботинки TSFMC
     .desc = { ent-ClothingShoesBootsNfsdBrown.desc }
 
-ent-ClothingShoesBootsNfsdCreamFilled = { ent-ClothingShoesBootsNfsdCream }
+ent-ClothingShoesBootsNfsdCreamFilled = кремовые ботинки TSFMC
     .desc = { ent-ClothingShoesBootsNfsdCream.desc }

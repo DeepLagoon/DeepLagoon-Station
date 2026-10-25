@@ -3,8 +3,8 @@
 - type: vessel
   id: QJ490
   parent: BaseVessel
-  name: GS QJ-490/C
-  description: Comes with 2 AK-570s, 2 Vanyks and an Equinox autocannon. Rather fast to accelerate but lacking in missile countermeasures. After it's decomissioning from the TSFMC fleet, GS purchased and retrofitted the design, the old energy weapons and logistically demanding bomb bay having been swapped out for more conventional arms.
+  name: "GS QJ-490/C"
+  description: "Оснащён двумя AK-570, двумя Vanyk и автопушкой Equinox. Быстро разгоняется, но средств противоракетной защиты не хватает. После списания из флота TSFMC компания GS выкупила и переоснастила проект, заменив старое энергетическое вооружение и требовательный к снабжению бомбоотсек более обычными орудиями."
   price: 43000
   category: Small
   shuttlePath: /SharedMaps/_Mono/Shuttles/CivilianMil/qj490.yml

@@ -39,7 +39,7 @@ ent-WeaponRifleNovaliteC1Expedition = { ent-WeaponRifleNovaliteC1 }
 ent-WeaponRifleVulcanExpedition = { ent-WeaponRifleVulcan }
     .desc = { ent-WeaponRifleVulcan.desc }
 
-ent-WeaponSubMachineGunWt550Expedition = { ent-WeaponSubMachineGunWt550 }
+ent-WeaponSubMachineGunWt550Expedition = UI WT550 (4.6x30 мм)
     .desc = { ent-WeaponSubMachineGunWt550.desc }
 
 ent-WeaponSubMachineGunAtreidesExpedition = { ent-WeaponSubMachineGunAtreides }

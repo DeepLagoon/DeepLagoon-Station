@@ -1,11 +1,11 @@
 - type: construction
-  name: computer (tabletop)
+  name: construction-recipe-ConstructionComputerTabletop-name
   id: ConstructionComputerTabletop
   graph: ComputerTabletop
   startNode: start
   targetNode: tabletop computer
   category: construction-category-machines
-  description: A frame used to construct anything with a computer circuitboard.
+  description: construction-recipe-ConstructionComputerTabletop-description
   placementMode: SnapgridCenter
   canBuildInImpassable: false
   icon:
@@ -13,13 +13,13 @@
     state: computer_tabletop_frame
 
 - type: construction
-  name: computer (wallmount)
+  name: construction-recipe-ConstructionComputerWallmount-name
   id: ConstructionComputerWallmount
   graph: ComputerWallmount
   startNode: start
   targetNode: wallmount computer
   category: construction-category-machines
-  description: A frame used to construct anything with a computer circuitboard.
+  description: construction-recipe-ConstructionComputerWallmount-description
   icon:
     sprite: _NF/Structures/Machines/computer_wallmount.rsi
     state: computer_wallmount_frame

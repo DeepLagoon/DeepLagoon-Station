@@ -10,35 +10,35 @@
         icon:
           sprite: _NF/Objects/Storage/Happyhonk/mime.rsi # Frontier: add _NF prefix
           state: box
-        name: mime edition happy honk meal
+        name: prototype-text-constructionGraph-MimeBot-name-36243201f6
       - tag: MimeBelt
         icon:
             sprite: Clothing/Belt/suspenders_red.rsi
             state: icon
-        name: suspenders
+        name: prototype-text-constructionGraph-MimeBot-name-3854592244
         doAfter: 2
       - tag: ProximitySensor
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-MimeBot-name-7c51355fcf
       - tag: BorgHead
         icon:
           sprite: Objects/Specific/Robotics/cyborg_parts.rsi
           state: borg_head
-        name: borg head
+        name: prototype-text-constructionGraph-MimeBot-name-f8fbd824d8
         doAfter: 2
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-MimeBot-name-800a0c5fd5
         doAfter: 2
       - tag: BorgArm
         icon:
           sprite: Mobs/Silicon/drone.rsi
           state: l_hand
-        name: borg arm
+        name: prototype-text-constructionGraph-MimeBot-name-e6ab551888
         doAfter: 2
   - node: bot
     entity: MobMimeBot

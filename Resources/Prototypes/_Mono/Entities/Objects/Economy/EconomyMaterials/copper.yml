@@ -74,7 +74,7 @@
 
 - type: stack
   id: Copper
-  name: copper
+  name: prototype-text-stack-Copper-name-341e2b269d
   icon: { sprite: /Textures/_Mono/Objects/Materials/industry-sheets.rsi, state: copper }
   spawn: SheetCopper1
   maxCount: 100

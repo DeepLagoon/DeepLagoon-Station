@@ -7,6 +7,6 @@
 
 - type: stack
   id: MMCIndustrialCredit
-  name: MMC industrial credits
+  name: prototype-text-stack-MMCIndustrialCredit-name-33619a8d31
   icon: { sprite: _Mono/Objects/Specific/MMC/mmc_ticket.rsi, state: ticket }
   spawn: MMCIndustrialCredit

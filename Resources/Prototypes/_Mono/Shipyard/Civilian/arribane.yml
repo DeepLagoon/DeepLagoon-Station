@@ -8,7 +8,7 @@
   id: Arribane
   parent: BaseVessel
   name: HES Arribane
-  description: A shuttle purpose built by Horizon Energy for atmospheric work and gas mining. Living quarters are cramped, but comfortable.
+  description: "Шаттл Horizon Energy, специально построенный для атмосферных работ и добычи газа. Жилые помещения тесные, но удобные."
   price: 138252
   category: Large
   group: Shipyard

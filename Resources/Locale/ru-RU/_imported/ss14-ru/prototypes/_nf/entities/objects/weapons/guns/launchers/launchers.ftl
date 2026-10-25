@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-WeaponLauncherChinaLakeEmp = { ent-WeaponLauncherChinaLake }
+ent-WeaponLauncherChinaLakeEmp = «Чайна Лейк» PA
     .suffix = ЭМИ
     .desc = { ent-WeaponLauncherChinaLake.desc }
 

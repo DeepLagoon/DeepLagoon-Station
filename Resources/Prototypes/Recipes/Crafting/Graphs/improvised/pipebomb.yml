@@ -10,7 +10,7 @@
         icon:
           sprite: Structures/Piping/Atmospherics/pipe.rsi
           state: pipeStraight
-        name: pipe
+        name: prototype-text-constructionGraph-PipeBomb-name-3f2ebc0e9d
       - material: Steel
         amount: 1
         doAfter: 3

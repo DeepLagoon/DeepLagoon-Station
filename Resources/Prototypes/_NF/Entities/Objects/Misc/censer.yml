@@ -20,7 +20,7 @@
   - type: ItemSlots
   - type: SmokingPipe
     bowl_slot:
-      name: Bowl
+      name: prototype-text-entity-Censer-name-3e8bcc07ce
       whitelist:
         tags:
           - Smokable

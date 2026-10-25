@@ -2,7 +2,7 @@
   id: Osa
   parent: BaseVesselIFFDisabled
   name: PDV-NCI Osa-II
-  description: Osa II-class are cheap rocket-artillery corvettes carrying heavy anti-ship Vanquisher rocket pods and multiple 57x460mm autocannons, but lack any PD or guided missiles. Be careful to not shoot down your own rockets if you load flak.
+  description: "Osa II — дешёвые корветы ракетной артиллерии с тяжёлыми противокорабельными ракетными блоками Vanquisher и несколькими автопушками 57x460 мм. Ни точечной обороны, ни управляемых ракет нет. Заряжая зенитные снаряды, постарайтесь не сбить собственные ракеты."
   hyperwarTimelock: 1800
   price: 150000
   purchasable: false # Voucher only - T1

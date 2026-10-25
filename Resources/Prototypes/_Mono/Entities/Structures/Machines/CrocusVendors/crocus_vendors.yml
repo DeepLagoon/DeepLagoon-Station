@@ -14,166 +14,166 @@
   - type: CMAutomatedVendor
     pointsType: CrocusPoints
     sections:
-    - name: Longarm
+    - name: "Основное оружие"
       choices: { Longarm: 1 }
       entries:
       - id: WeaponRifleLecter
-        name: QBZ-410 Lecter (6.8x52mm caseless)
+        name: "QBZ-410 Лектер (6,8×52 мм безгильзовые)"
         recommended: true
         points: 1
       - id: WeaponSubMachineGunDrozd
-        name: CS/LR-8 Drozd (.45 ACP)
+        name: "CS/LR-8 Дрозд (.45 ACP)"
         recommended: true
       - id: WeaponLMGGrizzly
-        name: QJY-68 Grizzly (6.8x52mm caseless)
+        name: "QJY-68 Гризли (6,8×52 мм безгильзовые)"
         points: 2
       - id: WeaponShotgunKammerer
-        name: Kammerer (12 gauge)
+        name: "Каммерер (12-й калибр)"
       - id: WeaponShotgunEnforcer
-        name: Enforcer (12 gauge)
+        name: "Энфорсер (12-й калибр)"
         points: 1
-    - name: Longarm Ammo
+    - name: "Боеприпасы основного оружия"
       choices: { LongarmAmmo: 8 }
       entries:
       - id: Magazine68x52mmCaseless
-        name: 30-round magazine (6.8x52mm caseless)
+        name: "Магазин на 30 патронов (6,8×52 мм безгильзовые)"
       - id: AmmoBox68x52mmCaseless
-        name: 80-round ammo box (6.8x52mm caseless)
+        name: "Коробка на 80 патронов (6,8×52 мм безгильзовые)"
       - id: Magazine45_ACPSubMachineGunFMJ
-        name: 30-round magazine (.45 ACP)
+        name: "Магазин на 30 патронов (.45 ACP)"
       - id: AmmoBox45_ACPFMJ
-        name: 80-round ammo box (.45 ACP)
+        name: "Коробка на 80 патронов (.45 ACP)"
       - id: AmmoBox12_gaugeBuckshot
-        name: 32-round shell box (12 gauge buckshot)
+        name: "Коробка на 32 патрона (12-й калибр, картечь)"
       - id: AmmoBox12_gaugeSlug
-        name: 32-round shell box (12 gauge slug)
+        name: "Коробка на 32 патрона (12-й калибр, пуля)"
       - id: AmmoBox12_gaugeFlare
-        name: 32-round shell box (12 gauge flare)
+        name: "Коробка на 32 патрона (12-й калибр, сигнальные)"
       - id: 40mmGrenadeFragmentation
-        name: 40mm fragmentation grenade
+        name: "Осколочная граната 40 мм"
         recommended: true
       - id: 40mmGrenadeThermobaric
-        name: 40mm thermobaric grenade
+        name: "Термобарическая граната 40 мм"
         recommended: true
       - id: 40mmGrenadeBaton
-        name: 40mm baton grenade
+        name: "Травматическая граната 40 мм"
       - id: 40mmGrenadeFlash
-        name: 40mm flash grenade
-    - name: Sidearm
+        name: "Световая граната 40 мм"
+    - name: "Личное оружие"
       choices: { Sidearm: 1 }
       entries:
       - id: WeaponPistolMk58
-        name: Mk-58 (.45 ACP)
+        name: "МК-58 (.45 ACP)"
       - id: WeaponRevolverInspector
-        name: Garter (.357 magnum)
-    - name: Sidearm Ammo
+        name: "Гартер (.357 магнум)"
+    - name: "Боеприпасы личного оружия"
       choices: { SidearmAmmo: 4 }
       entries:
       # NO AMMO BOX FOR THE SIDEARM!! It gets it from primary ammo anyways.
       - id: Magazine45_ACPPistolFMJ
-        name: 17-round magazine (.45 ACP)
+        name: "Магазин на 17 патронов (.45 ACP)"
       - id: SpeedLoader357_magnumFMJ
-        name: 6-round speedloader (.357 magnum)
+        name: "Спидлоадер на 6 патронов (.357 магнум)"
       - id: AmmoBox357_magnumFMJ
-        name: 32-round ammo box (.357 magnum)
-    - name: Attachments
+        name: "Коробка на 32 патрона (.357 магнум)"
+    - name: "Оружейные модули"
       choices: { Attachments: 1 }
       entries:
       - id: GunAttachmentSuppressorMulticalRifle
-        name: MULTI-CAL rifle suppressor
+        name: "Винтовочный глушитель MULTI-CAL"
         points: 1
       - id: GunAttachmentSuppressorMulticalPistol
-        name: MULTI-CAL pistol suppressor
+        name: "Пистолетный глушитель MULTI-CAL"
       - id: GunAttachmentGripErebusLAM
-        name: Zenit-PRL LAM
+        name: "Лазерный целеуказатель «Зенит-PRL»"
       - id: GunAttachmentGripPistolLAM
-        name: Soyuz-PRL LAM
+        name: "Лазерный целеуказатель «Союз-PRL»"
       - id: GunAttachmentGripErebusLight
-        name: LM-300 Light
+        name: "Фонарь LM-300"
       - id: GunAttachmentQLG20
-        name: QLG-20 UBGL (Lecter only)
+        name: "Подствольный гранатомёт QLG-20 (только Лектер)"
         points: 1
-    - name: Utilities
+    - name: "Полезное снаряжение"
       choices: { Utilities: 3 }
       entries:
       - id: CMVendorBundleNightvision
-        name: NODs kit
+        name: "Комплект ночного видения"
         points: 1
         recommended: true
       - id: ExGrenade
-        name: explosive grenade
+        name: "Взрывная граната"
         recommended: true
         points: 1
       - id: GrenadeFlashBang
-        name: flashbang
+        name: "Светошумовая граната"
         recommended: true
       - id: SmokeGrenade
-        name: smoke grenade
+        name: "Дымовая граната"
         recommended: true
       - id: BreachingCharge
-        name: breaching charge
+        name: "Заряд для взлома"
       - id: Floodlight
-        name: floodlight
+        name: "Прожектор"
       - id: PinpointerSyndicateCrocusBeacon
-        name: radio-uplink beacon pinpointer
+        name: "Пинпоинтер маяка радиоаплинка"
       - id: RemoteSignallerAdvanced
-        name: remote signaller
+        name: "Дистанционный сигналлер"
       - id: DefibrillatorCompact
-        name: compact defibrillator
+        name: "Компактный дефибриллятор"
         points: 1
       - id: HandheldHealthAnalyzer
-        name: handheld health analyzer
+        name: "Ручной анализатор здоровья"
       - id: CMVendorBundleSurgery
-        name: surgical kit
+        name: "Хирургический набор"
         points: 1
       - id: SecBreachingHammer
-        name: breaching hammer
+        name: "Штурмовой молот"
         points: 1
       - id: WeaponShotgunHelepolis
-        name: UW12-B Helepolis breaching shotgun
+        name: "Штурмовой дробовик UW12-B «Гелеполис»"
         points: 1
       - id: WeaponLauncherMyoko
-        name: F/87 "Myoko" LAW
+        name: "Лёгкое противотанковое оружие F/87 «Мёко»"
         points: 2
-    - name: Eyewear
+    - name: "Очки и визоры"
       choices: { Eyewear: 1 }
       entries:
       - id: ClothingEyesHudMedSec
-        name: med-sec HUD
+        name: "Медицинский визор службы безопасности"
         recommended: true
         points: 1
       - id: ClothingEyesHudSecurity
-        name: security HUD
+        name: "Визор службы безопасности"
         recommended: true
       - id: ClothingEyesHudMedical
-        name: medical HUD
+        name: "Медицинский визор"
       - id: ClothingEyesHudDiagnostic
-        name: diagnostic HUD
+        name: "Диагностический визор"
       - id: ClothingEyesBallisticGogglesRedCrocus
-        name: anti-flash goggles
-    - name: Medical Supplies
+        name: "Очки с защитой от вспышек"
+    - name: "Медицинские принадлежности"
       choices: { Meds: 4 }
       entries:
       - id: Tourniquet
-        name: tourniquet
+        name: "Жгут"
         recommended: true
       - id: Gauze
-        name: gauze
+        name: "Марля"
         recommended: true
         points: 1
       - id: Brutepack
-        name: bruise pack
+        name: "Перевязочный пакет"
       - id: Bloodpack
-        name: blood pack
+        name: "Пакет крови"
       - id: Ointment
-        name: ointment
-    - name: Species Specific
+        name: "Мазь"
+    - name: "Для отдельных видов"
       choices: { SpeciesSpecific: 2 }
       entries:
       - id: ExtendedEmergencyNitrogenTankFilled
-        name: nitrogen air tank
+        name: "Баллон с азотом"
       - id: PowerCellMedium
-        name: power cell
+        name: "Батарея"
 
 - type: entity
   parent: ColMarTechBase
@@ -191,167 +191,167 @@
   - type: CMAutomatedVendor
     pointsType: CrocusPoints
     sections:
-    - name: Longarm
+    - name: "Основное оружие"
       choices: { Longarm: 1 }
       entries:
       - id: WeaponRifleVympel
-        name: M-32 Vympel (5.56x45mm)
+        name: "М-32 Вымпел (5,56×45 мм)"
         recommended: true
         points: 1
       - id: WeaponSubMachineGunC20r
-        name: C-20r (9x19mm)
+        name: "C-20r (9×19 мм)"
         recommended: true
       - id: WeaponSubMachineGunMla73
-        name: MlA-73 (6.35x40mm caseless)
+        name: "MlA-73 (6,35×40 мм безгильзовые)"
         points: 2
       - id: WeaponLMGPKMS
-        name: PKMS (5.56x45mm)
+        name: "ПКМС (5,56×45 мм)"
         points: 2
       - id: WeaponShotgunKammerer
-        name: Kammerer (12 gauge)
-    - name: Longarm Ammo
+        name: "Каммерер (12-й калибр)"
+    - name: "Боеприпасы основного оружия"
       choices: { LongarmAmmo: 8 }
       entries:
       - id: Magazine556x45mmFMJ
-        name: 30-round magazine (5.56x45mm)
+        name: "Магазин на 30 патронов (5,56×45 мм)"
       - id: AmmoBox556x45mmFMJ
-        name: 80-round ammo box (5.56x45mm)
+        name: "Коробка на 80 патронов (5,56×45 мм)"
       - id: Magazine9x19mmSubMachineGunFMJ
-        name: 30-round magazine (9x19mm)
+        name: "Магазин на 30 патронов (9×19 мм)"
       - id: AmmoBox9x19mmFMJ
-        name: 80-round ammo box (9x19mm)
+        name: "Коробка на 80 патронов (9×19 мм)"
       - id: Magazine635x40mmCaseless
-        name: 30-round magazine (6.35x40mm caseless)
+        name: "Магазин на 30 патронов (6,35×40 мм безгильзовые)"
       - id: AmmoBox635x40mmCaseless
-        name: 80-round magazine (6.35x40mm caseless)
+        name: "Магазин на 80 патронов (6,35×40 мм безгильзовые)"
       - id: AmmoBox12_gaugeBuckshot
-        name: 32-round shell box (12 gauge buckshot)
+        name: "Коробка на 32 патрона (12-й калибр, картечь)"
       - id: AmmoBox12_gaugeSlug
-        name: 32-round shell box (12 gauge slug)
+        name: "Коробка на 32 патрона (12-й калибр, пуля)"
       - id: AmmoBox12_gaugeFlare
-        name: 32-round shell box (12 gauge flare)
+        name: "Коробка на 32 патрона (12-й калибр, сигнальные)"
       - id: 40mmGrenadeFragmentation
-        name: 40mm fragmentation grenade
+        name: "Осколочная граната 40 мм"
         recommended: true
       - id: 40mmGrenadeThermobaric
-        name: 40mm thermobaric grenade
+        name: "Термобарическая граната 40 мм"
         recommended: true
       - id: 40mmGrenadeBaton
-        name: 40mm baton grenade
+        name: "Травматическая граната 40 мм"
       - id: 40mmGrenadeFlash
-        name: 40mm flash grenade
-    - name: Sidearm
+        name: "Световая граната 40 мм"
+    - name: "Личное оружие"
       choices: { Sidearm: 1 }
       entries:
       - id: WeaponPistolViper
-        name: PT-45A Viper (9x19mm)
+        name: "PT-45A Гадюка (9×19 мм)"
       - id: WeaponRevolverPython
-        name: Python (.357 magnum)
-    - name: Sidearm Ammo
+        name: "Питон (.357 магнум)"
+    - name: "Боеприпасы личного оружия"
       choices: { SidearmAmmo: 4 }
       entries:
       # NO AMMO BOX FOR THE SIDEARM!! It gets it from primary ammo anyways.
       - id: Magazine9x19mmPistolFMJ
-        name: 19-round magazine (9x19mm)
+        name: "Магазин на 19 патронов (9×19 мм)"
       - id: SpeedLoader357_magnumFMJ
-        name: 6-round speedloader (.357 magnum)
+        name: "Спидлоадер на 6 патронов (.357 магнум)"
       - id: AmmoBox357_magnumFMJ
-        name: 32-round ammo box (.357 magnum)
-    - name: Attachments
+        name: "Коробка на 32 патрона (.357 магнум)"
+    - name: "Оружейные модули"
       choices: { Attachments: 1 }
       entries:
       - id: GunAttachmentSuppressorMulticalRifle
-        name: MULTI-CAL rifle suppressor
+        name: "Винтовочный глушитель MULTI-CAL"
         points: 1
       - id: GunAttachmentSuppressorMulticalPistol
-        name: MULTI-CAL pistol suppressor
+        name: "Пистолетный глушитель MULTI-CAL"
       - id: GunAttachmentGripErebusLAM
-        name: Zenit-PRL LAM
+        name: "Лазерный целеуказатель «Зенит-PRL»"
       - id: GunAttachmentGripPistolLAM
-        name: Soyuz-PRL LAM
+        name: "Лазерный целеуказатель «Союз-PRL»"
       - id: GunAttachmentGripErebusLight
-        name: LM-300 Light
+        name: "Фонарь LM-300"
       - id: GunAttachmentRKR40
-        name: RKR/40 UBGL (Vympel only)
+        name: "Подствольный гранатомёт RKR/40 (только Вымпел)"
         points: 1
-    - name: Utilities
+    - name: "Полезное снаряжение"
       choices: { Utilities: 3 }
       entries:
       - id: CMVendorBundleNightvision
-        name: NODs kit
+        name: "Комплект ночного видения"
         points: 1
         recommended: true
       - id: ExGrenade
-        name: explosive grenade
+        name: "Взрывная граната"
         recommended: true
         points: 1
       - id: GrenadeFlashBang
-        name: flashbang
+        name: "Светошумовая граната"
         recommended: true
       - id: SmokeGrenade
-        name: smoke grenade
+        name: "Дымовая граната"
         recommended: true
       - id: BreachingCharge
-        name: breaching charge
+        name: "Заряд для взлома"
       - id: Floodlight
-        name: floodlight
+        name: "Прожектор"
       - id: PinpointerSyndicateCrocusBeacon
-        name: radio-uplink beacon pinpointer
+        name: "Пинпоинтер маяка радиоаплинка"
       - id: RemoteSignallerAdvanced
-        name: remote signaller
+        name: "Дистанционный сигналлер"
       - id: DefibrillatorCompact
-        name: compact defibrillator
+        name: "Компактный дефибриллятор"
         points: 1
       - id: HandheldHealthAnalyzer
-        name: handheld health analyzer
+        name: "Ручной анализатор здоровья"
       - id: CMVendorBundleSurgery
-        name: surgical kit
+        name: "Хирургический набор"
         points: 1
       - id: SecBreachingHammer
-        name: breaching hammer
+        name: "Штурмовой молот"
         points: 1
       - id: WeaponShotgunHelepolis
-        name: UW12-B Helepolis breaching shotgun
+        name: "Штурмовой дробовик UW12-B «Гелеполис»"
         points: 1
       - id: WeaponLauncherMyoko
-        name: F/87 "Myoko" LAW
+        name: "Лёгкое противотанковое оружие F/87 «Мёко»"
         points: 2
-    - name: Eyewear
+    - name: "Очки и визоры"
       choices: { Eyewear: 1 }
       entries:
       - id: ClothingEyesHudMedSec
-        name: med-sec HUD
+        name: "Медицинский визор службы безопасности"
         recommended: true
         points: 1
       - id: ClothingEyesHudSecurity
-        name: security HUD
+        name: "Визор службы безопасности"
         recommended: true
       - id: ClothingEyesHudMedical
-        name: medical HUD
+        name: "Медицинский визор"
       - id: ClothingEyesHudDiagnostic
-        name: diagnostic HUD
+        name: "Диагностический визор"
       - id: ClothingEyesBallisticGogglesRedCrocus
-        name: anti-flash goggles
-    - name: Medical Supplies
+        name: "Очки с защитой от вспышек"
+    - name: "Медицинские принадлежности"
       choices: { Meds: 4 }
       entries:
       - id: Tourniquet
-        name: tourniquet
+        name: "Жгут"
         recommended: true
       - id: Gauze
-        name: gauze
+        name: "Марля"
         recommended: true
         points: 1
       - id: Brutepack
-        name: bruise pack
+        name: "Перевязочный пакет"
       - id: Bloodpack
-        name: blood pack
+        name: "Пакет крови"
       - id: Ointment
-        name: ointment
-    - name: Species Specific
+        name: "Мазь"
+    - name: "Для отдельных видов"
       choices: { SpeciesSpecific: 2 }
       entries:
       - id: ExtendedEmergencyNitrogenTankFilled
-        name: nitrogen air tank
+        name: "Баллон с азотом"
       - id: PowerCellMedium
-        name: power cell
+        name: "Батарея"

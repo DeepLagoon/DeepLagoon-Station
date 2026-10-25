@@ -33,7 +33,7 @@
 
 - type: stack
   id: MaterialIndustryElectronics
-  name: electronic parts package
+  name: prototype-text-stack-MaterialIndustryElectronics-name-291640184a
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-electronics }
   spawn: MaterialIndustryElectronics
   maxCount: 5
@@ -78,7 +78,7 @@
 
 - type: stack
   id: MaterialIndustryElectronicsAdvanced
-  name: advanced electronic parts package
+  name: prototype-text-stack-MaterialIndustryElectronicsAdvanced-name-75850403e4
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-electronics-advanced }
   spawn: MaterialIndustryElectronicsAdvanced
   maxCount: 5
@@ -123,7 +123,7 @@
 
 - type: stack
   id: MaterialIndustryFCS
-  name: fire-control system parts package
+  name: prototype-text-stack-MaterialIndustryFCS-name-e013052d36
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-fcs }
   spawn: MaterialIndustryFCS
   maxCount: 5
@@ -168,7 +168,7 @@
 
 - type: stack
   id: MaterialIndustryMechanical
-  name: mechanical parts package
+  name: prototype-text-stack-MaterialIndustryMechanical-name-d71d8a0b6d
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-mechanical }
   spawn: MaterialIndustryMechanical
   maxCount: 5
@@ -213,7 +213,7 @@
 
 - type: stack
   id: MaterialIndustryPlates
-  name: mechanical parts package
+  name: prototype-text-stack-MaterialIndustryPlates-name-dc55e85147
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-plates }
   spawn: MaterialIndustryPlates
   maxCount: 5
@@ -258,7 +258,7 @@
 
 - type: stack
   id: MaterialIndustryRecievers
-  name: reciever parts package
+  name: prototype-text-stack-MaterialIndustryRecievers-name-c694742b30
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-recievers }
   spawn: MaterialIndustryRecievers
   maxCount: 5
@@ -303,7 +303,7 @@
 
 - type: stack
   id: MaterialIndustrySensors
-  name: sensors parts package
+  name: prototype-text-stack-MaterialIndustrySensors-name-818166bf0a
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-sensors }
   spawn: MaterialIndustrySensors
   maxCount: 5
@@ -348,7 +348,7 @@
 
 - type: stack
   id: MaterialIndustryShip
-  name: ship parts package
+  name: prototype-text-stack-MaterialIndustryShip-name-a9b520d694
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-ship }
   spawn: MaterialIndustryShip
   maxCount: 5
@@ -393,7 +393,7 @@
 
 - type: stack
   id: MaterialIndustrySterile
-  name: sterile parts package
+  name: prototype-text-stack-MaterialIndustrySterile-name-4185e7b217
   icon: { sprite: /Textures/_Mono/Objects/Materials/productbrick.rsi, state: preset-steriles }
   spawn: MaterialIndustrySterile
   maxCount: 5

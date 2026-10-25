@@ -30,7 +30,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponAMRShenzhen-name-caa5dc0147
         startingItem: MagazineShenzhen
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -40,7 +40,7 @@
           - MagazineShenzhen
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponAMRShenzhen-name-7527d34327
         startingItem: CartridgeShenzhen
         priority: 1
         whitelist:
@@ -103,7 +103,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponAMRShenzhenEmpty-name-668a013317
         startingItem: null
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -113,7 +113,7 @@
           - MagazineShenzhen
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponAMRShenzhenEmpty-name-4eb9ca6f49
         startingItem: null
         priority: 1
         whitelist:
@@ -156,7 +156,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleMR8C-name-0587b40e03
         startingItem: Magazine8x65mmSKR
         insertSound: /Audio/Weapons/Guns/MagIn/sfrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/hpistol_magout.ogg
@@ -166,7 +166,7 @@
           - Magazine8x65mmSKR
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleMR8C-name-c2a0490a30
         startingItem: Cartridge8x65mmSKR
         priority: 1
         whitelist:
@@ -300,7 +300,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponRifleMR3C-name-f9a310e6c7
         startingItem: Magazine8x65mmSKR # Mono
         insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
@@ -310,7 +310,7 @@
           - Magazine8x65mmSKR # Mono
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponRifleMR3C-name-1cb1139a24
         startingItem: Cartridge8x65mmSKR # Mono
         priority: 1
         whitelist:

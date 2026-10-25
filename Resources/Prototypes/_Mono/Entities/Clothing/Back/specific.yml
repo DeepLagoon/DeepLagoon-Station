@@ -127,7 +127,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-ClothingBackpackJack-name-4e5a54319c
         startingItem: Magazine4_gaugeBuckshot
         whitelist:
           tags:

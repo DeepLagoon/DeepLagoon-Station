@@ -7,7 +7,7 @@ ent-TorsoReptilian = туловище унатха
     .desc = { ent-PartReptilian.desc }
 
 ent-HeadReptilian = голова унатха
-    .desc = { ent-PartReptilian.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmReptilian = левая рука унатха
     .desc = { ent-PartReptilian.desc }

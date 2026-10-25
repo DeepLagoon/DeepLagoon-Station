@@ -1,7 +1,7 @@
 # Stack
 - type: stack
   id: Fulton
-  name: fulton
+  name: prototype-text-stack-Fulton-name-72570f22db
   icon:
     sprite: /Textures/Objects/Tools/fulton.rsi
     state: extraction_pack

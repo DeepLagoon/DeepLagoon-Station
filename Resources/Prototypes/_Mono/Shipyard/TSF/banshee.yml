@@ -3,7 +3,7 @@
   id: Banshee
   parent: BaseVesselIFFDisabled
   name: TSF-SKR Banshee
-  description: A close-up brawler capable of eviscerating anything that dares to get in range with a large central impulse driver and 4 plasma cannons. Heavily lacking in the area of long-range weaponry though.
+  description: "Корабль ближнего боя, способный выпотрошить любого, кто рискнёт подойти, с помощью большого центрального импульсного ускорителя и четырёх плазменных пушек. С дальнобойным вооружением, впрочем, всё очень плохо."
   limit: 3
   hyperwarLimit: 6
   hyperwarTimelock: 1800

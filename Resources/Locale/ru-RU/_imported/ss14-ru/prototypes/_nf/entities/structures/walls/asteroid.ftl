@@ -7,113 +7,113 @@ ent-NFIronRockOre = { ent-IronRock }
     .desc = { ent-IronRock.desc }
 
 ent-NFWallRockOre = { ent-WallRock }
-    .desc = { ent-WallRock.desc }
+    .desc = { ent-WallWood.desc }
 
 ent-NFWallRockBasaltOre = { ent-WallRockBasalt }
-    .desc = { ent-WallRockBasalt.desc }
+    .desc = { ent-WallWood.desc }
 
 ent-NFWallRockSnowOre = { ent-WallRockSnow }
-    .desc = { ent-WallRockSnow.desc }
+    .desc = { ent-WallWood.desc }
 
 ent-NFWallRockSandOre = { ent-WallRockSand }
-    .desc = { ent-WallRockSand.desc }
+    .desc = { ent-WallWood.desc }
 
 ent-NFWallRockChromiteOre = { ent-WallRockChromite }
-    .desc = { ent-WallRockChromite.desc }
+    .desc = { ent-WallWood.desc }
 
 ent-NFWallRockAndesiteOre = { ent-WallRockAndesite }
-    .desc = { ent-WallRockAndesite.desc }
+    .desc = { ent-WallWood.desc }
 
-ent-WallRockScrapPile = scrap pile
-    .desc = A pile of scrap.
+ent-WallRockScrapPile = груда металлолома
+    .desc = Огромная груда металлолома.
     .suffix = Scrap
 
-ent-WallRockScrapPileBot = { ent-WallRockScrapPile }
-    .desc = { ent-WallRockScrapPile.desc }
+ent-WallRockScrapPileBot = груда металлолома
+    .desc = Огромная груда металлолома.
 
-ent-WallRockScrapPileCoal = { ent-WallRockScrapPile }
-    .desc = An ore vein with coal.
+ent-WallRockScrapPileCoal = груда металлолома
+    .desc = Рудная жила с углём.
     .suffix = Coal
 
-ent-WallRockScrapPileCoalBot = { ent-WallRockScrapPileCoal }
-    .desc = { ent-WallRockScrapPileCoal.desc }
+ent-WallRockScrapPileCoalBot = груда металлолома
+    .desc = Рудная жила с углём.
 
-ent-WallRockScrapPileGold = { ent-WallRockScrapPile }
-    .desc = An ore vein with gold.
+ent-WallRockScrapPileGold = груда металлолома
+    .desc = Рудная жила с золотом.
     .suffix = Gold
 
-ent-WallRockScrapPileGoldBot = { ent-WallRockScrapPileGold }
-    .desc = { ent-WallRockScrapPileGold.desc }
+ent-WallRockScrapPileGoldBot = груда металлолома
+    .desc = Рудная жила с золотом.
 
-ent-WallRockScrapPileDiamond = { ent-WallRockScrapPile }
-    .desc = An ore vein with diamond.
+ent-WallRockScrapPileDiamond = груда металлолома
+    .desc = Рудная жила с алмазами.
     .suffix = Diamond
 
-ent-WallRockScrapPileDiamondBot = { ent-WallRockScrapPileDiamond }
-    .desc = { ent-WallRockScrapPileDiamond.desc }
+ent-WallRockScrapPileDiamondBot = груда металлолома
+    .desc = Рудная жила с алмазами.
 
-ent-WallRockScrapPilePlasma = { ent-WallRockScrapPile }
-    .desc = An ore vein with plasma.
+ent-WallRockScrapPilePlasma = груда металлолома
+    .desc = Рудная жила с плазмой.
     .suffix = Plasma
 
-ent-WallRockScrapPilePlasmaBot = { ent-WallRockScrapPilePlasma }
-    .desc = { ent-WallRockScrapPilePlasma.desc }
+ent-WallRockScrapPilePlasmaBot = груда металлолома
+    .desc = Рудная жила с плазмой.
 
-ent-WallRockScrapPileQuartz = { ent-WallRockScrapPile }
-    .desc = An ore vein with quartz.
+ent-WallRockScrapPileQuartz = груда металлолома
+    .desc = Рудная жила с кварцем.
     .suffix = Quartz
 
-ent-WallRockScrapPileQuartzBot = { ent-WallRockScrapPileQuartz }
-    .desc = { ent-WallRockScrapPileQuartz.desc }
+ent-WallRockScrapPileQuartzBot = груда металлолома
+    .desc = Рудная жила с кварцем.
 
-ent-WallRockScrapPileSilver = { ent-WallRockScrapPile }
-    .desc = An ore vein with silver.
+ent-WallRockScrapPileSilver = груда металлолома
+    .desc = Рудная жила с серебром.
     .suffix = Silver
 
-ent-WallRockScrapPileSilverBot = { ent-WallRockScrapPileSilver }
-    .desc = { ent-WallRockScrapPileSilver.desc }
+ent-WallRockScrapPileSilverBot = груда металлолома
+    .desc = Рудная жила с серебром.
 
-ent-WallRockScrapPileIron = { ent-WallRockScrapPile }
-    .desc = An ore vein with iron.
+ent-WallRockScrapPileIron = груда металлолома
+    .desc = Рудная жила с железом.
     .suffix = Iron
 
-ent-WallRockScrapPileIronBot = { ent-WallRockScrapPileIron }
-    .desc = { ent-WallRockScrapPileIron.desc }
+ent-WallRockScrapPileIronBot = груда металлолома
+    .desc = Рудная жила с железом.
 
-ent-WallRockScrapPileUranium = { ent-WallRockScrapPile }
-    .desc = An ore vein with uranium.
+ent-WallRockScrapPileUranium = груда металлолома
+    .desc = Рудная жила с ураном.
     .suffix = Uranium
 
-ent-WallRockScrapPileUraniumBot = { ent-WallRockScrapPileUranium }
-    .desc = { ent-WallRockScrapPileUranium.desc }
+ent-WallRockScrapPileUraniumBot = груда металлолома
+    .desc = Рудная жила с ураном.
 
-ent-WallRockScrapPileBananium = { ent-WallRockScrapPile }
-    .desc = An ore vein with bananium.
+ent-WallRockScrapPileBananium = груда металлолома
+    .desc = Рудная жила с бананиумом.
     .suffix = Bananium
 
-ent-WallRockScrapPileBananiumBot = { ent-WallRockScrapPileBananium }
-    .desc = { ent-WallRockScrapPileBananium.desc }
+ent-WallRockScrapPileBananiumBot = груда металлолома
+    .desc = Рудная жила с бананиумом.
 
-ent-WallRockScrapPileSalt = { ent-WallRockScrapPile }
-    .desc = An ore vein with salt.
+ent-WallRockScrapPileSalt = груда металлолома
+    .desc = Рудная жила с солью.
     .suffix = Salt
 
-ent-WallRockScrapPileSaltBot = { ent-WallRockScrapPileSalt }
-    .desc = { ent-WallRockScrapPileSalt.desc }
+ent-WallRockScrapPileSaltBot = груда металлолома
+    .desc = Рудная жила с солью.
 
-ent-WallRockScrapPileArtifactFragment = { ent-WallRockScrapPile }
-    .desc = A scrap pile. What's that sticking out of it?
+ent-WallRockScrapPileArtifactFragment = груда металлолома
+    .desc = Куча металлолома. Что это из неё торчит?
     .suffix = Artifact Fragment
 
-ent-WallRockScrapPileArtifactFragmentBot = { ent-WallRockScrapPileArtifactFragment }
-    .desc = { ent-WallRockScrapPileArtifactFragment.desc }
+ent-WallRockScrapPileArtifactFragmentBot = груда металлолома
+    .desc = Куча металлолома. Что это из неё торчит?
 
-ent-WallRockScrapPileBluespace = { ent-WallRockScrapPile }
-    .desc = An ore vein with bluespace.
+ent-WallRockScrapPileBluespace = груда металлолома
+    .desc = Рудная жила с блюспейс-кристаллами.
     .suffix = Bluespace
 
-ent-WallRockScrapPileBluespaceBot = { ent-WallRockScrapPileBluespace }
-    .desc = { ent-WallRockScrapPileBluespace.desc }
+ent-WallRockScrapPileBluespaceBot = груда металлолома
+    .desc = Рудная жила с блюспейс-кристаллами.
 
 ent-AsteroidRockQuartzCrabNF = { ent-AsteroidRockQuartzCrab }
     .desc = { ent-AsteroidRockQuartzCrab.desc }

@@ -8,13 +8,13 @@
     - to: glassesCorps
       steps:
       - tag: Sunglasses
-        name: sun glasses
+        name: prototype-text-constructionGraph-GlassesCorpsHUD-name-19a7965ea0
         icon:
           sprite: Clothing/Eyes/Glasses/sunglasses.rsi
           state: icon
         doAfter: 5
       - tag: HudMedicalSecurity
-        name: medsec hud
+        name: prototype-text-constructionGraph-GlassesCorpsHUD-name-4612176b53
         icon:
           sprite: Clothing/Eyes/Hud/medsec.rsi
           state: icon

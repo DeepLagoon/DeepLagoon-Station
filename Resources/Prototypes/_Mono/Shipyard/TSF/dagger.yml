@@ -2,7 +2,7 @@
   id: Dagger
   parent: BaseVesselIFFDisabled
   name: TSF-SKR Dagger
-  description: Straight from the shipyards of Sol, this ship is equipped with a single M381 mass driver as its main armament for long-range fire support. Don't let them get close.
+  description: "Прямо с верфей Сол: основное вооружение этого корабля — единственный масс-драйвер M381 для дальней огневой поддержки. Не подпускайте врага близко."
   limit: 3
   hyperwarLimit: 6
   price: 150000

@@ -10,12 +10,12 @@
         icon:
           sprite: Objects/Misc/proximity_sensor.rsi
           state: icon
-        name: proximity sensor
+        name: prototype-text-constructionGraph-SupplyBot-name-f8735a3188
       - tag: BorgHead
         icon:
           sprite: Objects/Specific/Robotics/cyborg_parts.rsi
           state: borg_head
-        name: borg head
+        name: prototype-text-constructionGraph-SupplyBot-name-3f8a442285
         doAfter: 1
       - material: Steel
         amount: 10

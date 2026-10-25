@@ -1,8 +1,8 @@
 #Atmos lives in the utilities category and so too shall Canisters
 - type: construction
-  name: storage canister
+  name: construction-recipe-NFStorageCanister-name
   id: NFStorageCanister
-  description: A hefty canister for storing medium amounts of atmospheric gasses.
+  description: construction-recipe-NFStorageCanister-description
   graph: NFStorageCanister
   startNode: start
   targetNode: storagecanister

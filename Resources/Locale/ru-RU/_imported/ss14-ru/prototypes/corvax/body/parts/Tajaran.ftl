@@ -7,7 +7,7 @@ ent-TorsoTajaran = торс таярана
     .desc = { ent-PartTajaran.desc }
 
 ent-HeadTajaran = голова таярана
-    .desc = { ent-PartTajaran.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmTajaran = левая рука таярана
     .desc = { ent-PartTajaran.desc }

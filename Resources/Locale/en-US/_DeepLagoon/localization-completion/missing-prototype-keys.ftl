@@ -1,0 +1,11 @@
+bank-currency-display-spesos = spesos
+bank-currency-display-spesos-fake = counterfeit spesos
+ghost-role-information-Imperiroach-description = A highly trained elite member of the PDV. Beware its explosive personality.
+ghost-role-information-Imperiroach-name = Imperiroach
+ghost-role-information-familiar-description = A psionic familiar summoned to serve its master.
+ghost-role-information-familiar-name = Familiar
+job-name-detective-nf = Frontier Detective
+job-name-station-representative = Station Representative
+job-name-station-traffic-controller = Station Traffic Controller
+job-name-valet = Valet
+station-ai-mind-slot = AI core

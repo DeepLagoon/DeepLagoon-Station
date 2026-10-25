@@ -3,7 +3,7 @@
 
 - type: planetType
   id: PlanetTypeVolcanic
-  name: Volcanic
+  name: "Вулканическая"
   shader: RockyPlanet
   earthMass: 0.8
   palette: PaletteVolcanicMagma
@@ -23,7 +23,7 @@
 
 - type: planetType
   id: PlanetTypeDesert
-  name: Desert
+  name: "Пустыня"
   shader: RockyPlanet
   earthMass: 1.5
   palette: PaletteDesertMars
@@ -42,7 +42,7 @@
 
 - type: planetType
   id: PlanetTypeHabitable
-  name: Habitable
+  name: "Пригодная для жизни"
   shader: RockyPlanet
   earthMass: 1.0
   palette: PaletteHabitableEarth
@@ -62,7 +62,7 @@
 
 - type: planetType
   id: PlanetTypeIce
-  name: Ice
+  name: "Ледяная"
   shader: RockyPlanet
   earthMass: 1.5
   palette: PaletteIceDeep
@@ -82,7 +82,7 @@
 
 - type: planetType
   id: PlanetTypeBarren
-  name: Barren
+  name: "Безжизненная"
   shader: RockyPlanet
   earthMass: 1.0
   palette: PaletteBarrenLunar
@@ -100,7 +100,7 @@
 
 - type: planetType
   id: PlanetTypeGasGiant
-  name: Gas Giant
+  name: "Газовый гигант"
   shader: GasGiant
   earthMass: 650.0
   palette: PaletteGasGiantJupiter
@@ -114,7 +114,7 @@
 
 - type: planetType
   id: PlanetTypeIceGiant
-  name: Ice Giant
+  name: "Ледяной гигант"
   shader: IceGiant
   earthMass: 45.0
   palette: PaletteIceGiantNeptune
@@ -129,7 +129,7 @@
 
 - type: planetType
   id: PlanetFervidus
-  name: Fervidus
+  name: "Фервидус"
   shader: RockyPlanet
   earthMass: 0.7
   rotation: 0.4
@@ -150,7 +150,7 @@
 
 - type: planetType
   id: PlanetMerak
-  name: Merak
+  name: "Мерак"
   shader: RockyPlanet
   earthMass: 1.4
   rotation: 2.1
@@ -170,7 +170,7 @@
 
 - type: planetType
   id: PlanetAsclepiu
-  name: Asclepiu
+  name: "Асклепиу"
   shader: RockyPlanet
   earthMass: 1.05
   rotation: 5.3
@@ -191,7 +191,7 @@
 
 - type: planetType
   id: PlanetThrascias
-  name: Thrascias
+  name: "Траскиас"
   shader: IceGiant
   earthMass: 540.0
   rotation: 1.2
@@ -205,7 +205,7 @@
 
 - type: planetType
   id: PlanetAerumna
-  name: Aerumna
+  name: "Аэрумна"
   shader: RockyPlanet
   earthMass: 0.95
   rotation: 3.9

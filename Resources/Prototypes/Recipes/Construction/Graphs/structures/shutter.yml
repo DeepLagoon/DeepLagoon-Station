@@ -45,7 +45,7 @@
               anchored: true
           steps:
             - component: DoorElectronics
-              name: door electronics
+              name: prototype-text-constructionGraph-Shutters-name-d07a716c26
               icon:
                 sprite: "Objects/Misc/module.rsi"
                 state: "door_electronics"

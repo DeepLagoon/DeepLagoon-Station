@@ -7,7 +7,7 @@ ent-TorsoGingerbread = туловище пряничного человечка
     .desc = { ent-PartGingerbread.desc }
 
 ent-HeadGingerbread = голова пряничного человечка
-    .desc = { ent-PartGingerbread.desc }
+    .desc = Нет смысла жить без веселья: умнеют мозги, а голова глупеет.
 
 ent-LeftArmGingerbread = левая рука пряничного человечка
     .desc = { ent-PartGingerbread.desc }

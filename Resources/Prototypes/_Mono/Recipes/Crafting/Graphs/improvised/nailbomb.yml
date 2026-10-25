@@ -10,7 +10,7 @@
         icon:
           sprite: Structures/Piping/Atmospherics/pipe.rsi
           state: pipeStraight
-        name: pipe
+        name: prototype-text-constructionGraph-NailBomb-name-c43a127feb
       - material: Steel
         amount: 1
         doAfter: 3

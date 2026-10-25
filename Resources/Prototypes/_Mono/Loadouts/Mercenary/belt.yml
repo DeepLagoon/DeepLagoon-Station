@@ -59,7 +59,7 @@
     belt: ClothingBeltBandolier
 
 - type: loadout
-  name: security belt (empty)
+  name: "пояс службы безопасности (пустой)"
   id: MercenaryClothingBeltSecurityEmpty
   price: 0
   equipment:

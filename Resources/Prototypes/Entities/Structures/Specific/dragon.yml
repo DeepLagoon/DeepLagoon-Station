@@ -28,7 +28,7 @@
     netsync: false
   - type: NavMapBeacon
     color: "#ff0000"
-    text: carp rift
+    text: "карповый разлом"
     # only show after making the announcement at 50%
     enabled: false
   - type: Damageable

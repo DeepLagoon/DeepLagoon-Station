@@ -1,6 +1,6 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-BaseWeaponPistol = BasePistol
+ent-BaseWeaponPistol = базовый пистолет
     .desc = Дерзай - налетай, целься и стреляй.
 
 ent-WeaponPistolViper = Гадюка

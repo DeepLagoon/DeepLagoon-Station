@@ -7,25 +7,25 @@
     - to: WeaponHFKatana
       steps:
       - tag: Katana
-        name: a katana
+        name: prototype-text-constructionGraph-GraphWeaponHFKatana-name-34c2c365c9
         icon:
           sprite: Objects/Weapons/Melee/katana.rsi
           state: icon
         doAfter: 1
       - tag: Igniter
-        name: igniter
+        name: prototype-text-constructionGraph-GraphWeaponHFKatana-name-dde32d9391
         icon:
           sprite: Objects/Devices/igniter.rsi
           state: icon
         doAfter: 1
       - tag: SmallAIChip
-        name: a super-compact AI chip
+        name: prototype-text-constructionGraph-GraphWeaponHFKatana-name-19e6c437dd
         icon:
           sprite: Objects/Misc/potatoai_chip.rsi
           state: icon
         doAfter: 1
       - tag: AdvancedLaserPistol
-        name: an advanced laser pistol
+        name: prototype-text-constructionGraph-GraphWeaponHFKatana-name-082074d1ba
         icon:
           sprite: Objects/Weapons/Guns/Battery/advancedlasergun.rsi
           state: icon

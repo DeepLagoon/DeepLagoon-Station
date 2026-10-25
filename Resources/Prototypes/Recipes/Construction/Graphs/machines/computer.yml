@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: Computer
   start: start
   graph:
@@ -24,7 +24,7 @@
           steps:
             - component: ComputerBoard
               store: board
-              name: any computer circuit board
+              name: prototype-text-constructionGraph-Computer-name-066cb3b93b
               icon:
                 sprite: "Objects/Misc/module.rsi"
                 state: "id_mod"

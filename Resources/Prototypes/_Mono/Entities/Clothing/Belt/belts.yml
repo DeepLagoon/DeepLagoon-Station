@@ -253,7 +253,7 @@
   - type: ItemSlots
     slots:
       sheath:
-        name: Sabre
+        name: prototype-text-entity-ClothingBeltSheathVizier-name-46ca32721e
         insertVerbText: sheath-insert-verb
         ejectVerbText: sheath-eject-verb
         insertSound: /Audio/Items/sheath.ogg
@@ -262,7 +262,7 @@
           tags:
           - Shamshir
       holster:
-        name: Dragoon
+        name: prototype-text-entity-ClothingBeltSheathVizier-name-979b6a529a
         whitelist:
           tags:
           - Dragoon

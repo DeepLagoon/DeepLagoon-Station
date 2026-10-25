@@ -115,13 +115,13 @@
       - tool: Cutting
 
 - type: construction
-  name: steel mono catwalk
+  name: construction-recipe-SteelMonoCatwalk-name
   id: SteelMonoCatwalk
   graph: SteelMonoCatwalk
   startNode: start
   targetNode: MonoCatwalk
   category: construction-category-structures
-  description: Just like a lattice. Except it looks better.
+  description: construction-recipe-SteelMonoCatwalk-description
   conditions:
   - !type:TileNotBlocked
     failIfSpace: false
@@ -163,13 +163,13 @@
       - tool: Cutting
 
 - type: construction
-  name: dark mono catwalk
+  name: construction-recipe-DarkMonoCatwalk-name
   id: DarkMonoCatwalk
   graph: DarkMonoCatwalk
   startNode: start
   targetNode: MonoCatwalk
   category: construction-category-structures
-  description: Just like a lattice. Except it looks better.
+  description: construction-recipe-DarkMonoCatwalk-description
   conditions:
   - !type:TileNotBlocked
     failIfSpace: false
@@ -211,13 +211,13 @@
       - tool: Cutting
 
 - type: construction
-  name: white mono catwalk
+  name: construction-recipe-WhiteMonoCatwalk-name
   id: WhiteMonoCatwalk
   graph: WhiteMonoCatwalk
   startNode: start
   targetNode: MonoCatwalk
   category: construction-category-structures
-  description: Just like a lattice. Except it looks better.
+  description: construction-recipe-WhiteMonoCatwalk-description
   conditions:
   - !type:TileNotBlocked
     failIfSpace: false

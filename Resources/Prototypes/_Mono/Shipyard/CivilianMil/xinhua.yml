@@ -2,7 +2,7 @@
   id: Xinhua
   parent: BaseVessel
   name: MSH Xinhua
-  description: A light corvette that failed to attract the attention of any defense suppliers. Well-armed, with the hardpoints and gunnery power to supplement it even more, but lacking heavily in free internal space.
+  description: "Лёгкий корвет, который так и не заинтересовал поставщиков оборонного ведомства. Хорошо вооружён, а крепления и мощность систем вооружения позволяют усилить его ещё больше, но свободного места внутри катастрофически мало."
   price: 196000
   category: Large
   group: Shipyard

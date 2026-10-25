@@ -1,11 +1,11 @@
 - type: construction
-  name: crass knuckles
+  name: construction-recipe-CrassKnuckles-name
   id: CrassKnuckles
   graph: GraphWeaponBrassKnucklesWhoopie
   startNode: start
   targetNode: WeaponBrassKnucklesWhoopie
   category: construction-category-weapons
-  description: Questionably silent, questionably deadly.
+  description: construction-recipe-CrassKnuckles-description
   icon:
     sprite: _NF/Objects/Weapons/Melee/crassknuckles.rsi
     state: icon

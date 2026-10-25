@@ -2,7 +2,7 @@
 
 - type: loadout
   id: TsfnCNRankE1
-  name: TSFN HJ1 (HJ1-LNG)
+  name: "TSFN HJ1 (HJ1-LNG)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -12,7 +12,7 @@
 
 - type: loadout
   id: TsfnCNRankE2
-  name: TSFN HJ2 (HJ2-SHW)
+  name: "TSFN HJ2 (HJ2-SHW)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -22,7 +22,7 @@
 
 - type: loadout
   id: TsfnCNRankE3
-  name: TSFN HJ3 (HJ3-ZW)
+  name: "TSFN HJ3 (HJ3-ZW)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -32,7 +32,7 @@
 
 - type: loadout
   id: TsfnCNRankE4
-  name: TSFN HJ4 (HJ4-SW)
+  name: "TSFN HJ4 (HJ4-SW)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -44,7 +44,7 @@
 
 - type: loadout
   id: TsfnCNRankE5
-  name: TSFN HJ5 (HJ5-SHX)
+  name: "TSFN HJ5 (HJ5-SHX)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -54,7 +54,7 @@
 
 - type: loadout
   id: TsfnCNRankE6
-  name: TSFN HJ6 (HJ6-ZX)
+  name: "TSFN HJ6 (HJ6-ZX)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -64,7 +64,7 @@
 
 - type: loadout
   id: TsfnCNRankE7
-  name: TSFN HJ7 (HJ7-SX)
+  name: "TSFN HJ7 (HJ7-SX)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -74,7 +74,7 @@
 
 - type: loadout
   id: TsfnCNRankE8
-  name: TSFN HJ8 (HJ8-DX)
+  name: "TSFN HJ8 (HJ8-DX)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking
@@ -86,7 +86,7 @@
 
 - type: loadout
   id: TsfnCNRankE9
-  name: TSFN HJ9 (HJ9-SHJ)
+  name: "TSFN HJ9 (HJ9-SHJ)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfnCNRanking

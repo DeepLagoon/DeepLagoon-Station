@@ -1,7 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-ClothingBackpackDuffelNfsdBrown = TSFMC duffel
+ent-ClothingBackpackDuffelNfsdBrown = вещмешок TSFMC
     .desc = { ent-ClothingBackpackDuffelSecurity.desc }
 
-ent-ClothingBackpackDuffelNfsdCream = { ent-ClothingBackpackDuffelNfsdBrown }
+ent-ClothingBackpackDuffelNfsdCream = вещмешок TSFMC
     .desc = { ent-ClothingBackpackDuffelNfsdBrown.desc }

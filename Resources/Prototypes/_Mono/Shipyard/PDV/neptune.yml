@@ -4,7 +4,7 @@
   id: Neptune
   parent: BaseVesselIFFDisabled
   name: PDW Neptune
-  description: Equipped with heavy frontal armor, 6 Fang heavy 90mms, and 2 Trident torpedoes. Good for dealing with heavier targets in head on brawls, but it lacks capabilities to fight nimble and small targets.
+  description: "Оснащён тяжёлой лобовой бронёй, шестью тяжёлыми 90-мм Fang и двумя торпедами Trident. Хорошо справляется с крупными целями в лобовой схватке, но плохо приспособлен к борьбе с мелкими и проворными противниками."
   price: 208340
   purchasable: false # voucher only - T2
   category: Medium

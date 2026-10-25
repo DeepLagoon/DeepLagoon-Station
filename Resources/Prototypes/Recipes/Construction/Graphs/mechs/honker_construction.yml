@@ -1,4 +1,4 @@
-﻿- type: constructionGraph
+- type: constructionGraph
   id: Honker
   start: start
   graph:
@@ -14,7 +14,7 @@
           data: 1
 
       - tag: HonkerCentralControlModule
-        name: H.O.N.K. central control module
+        name: prototype-text-constructionGraph-Honker-name-27bebeccba
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: "mainboard"
@@ -31,7 +31,7 @@
           data: 3
 
       - tag: HonkerPeripheralsControlModule
-        name: H.O.N.K. peripherals control module
+        name: prototype-text-constructionGraph-Honker-name-9013c131cd
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: id_mod
@@ -48,7 +48,7 @@
           data: 5
 
       - tag: HonkerTargetingControlModule
-        name: H.O.N.K. weapon control and targeting module
+        name: prototype-text-constructionGraph-Honker-name-c5a54fdc21
         icon:
           sprite: "Objects/Misc/module.rsi"
           state: id_mod
@@ -68,7 +68,7 @@
 #currently mechs don't support upgrading. add them back in once that's squared away.
 
       - component: PowerCell
-        name: power cell
+        name: prototype-text-constructionGraph-Honker-name-535e0c350d
         store: battery-container
         icon:
           sprite: Objects/Power/power_cells.rsi
@@ -89,7 +89,7 @@
         icon:
           sprite: "Clothing/Mask/clown.rsi"
           state: "icon"
-        name: "a clown's mask"
+        name: prototype-text-constructionGraph-Honker-name-034069c4f9
         doAfter: 1
         completed:
         - !type:VisualizerDataInt
@@ -100,7 +100,7 @@
         icon:
           sprite: "Clothing/Shoes/Specific/clown.rsi"
           state: "icon"
-        name: "a clown's shoes"
+        name: prototype-text-constructionGraph-Honker-name-0121de601f
         doAfter: 1
         completed:
         - !type:VisualizerDataInt

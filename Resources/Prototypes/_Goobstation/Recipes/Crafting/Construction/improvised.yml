@@ -1,8 +1,8 @@
 - type: construction
   id: HexNutDouble
-  name: Hex Nut
+  name: construction-recipe-HexNutDouble-name
   category: construction-category-misc
-  description: Two hex nuts handcrafted from one steel.
+  description: construction-recipe-HexNutDouble-description
   graph: HexNutDoubleGraph
   startNode: start
   targetNode: HexNutStack
@@ -13,9 +13,9 @@
 
 - type: construction
   id: Screw
-  name: Screw
+  name: construction-recipe-Screw-name
   category: construction-category-misc
-  description: Two screws crafted from one steel.
+  description: construction-recipe-Screw-description
   graph: ScrewGraph
   startNode: start
   targetNode: ScrewStack
@@ -26,8 +26,8 @@
 
 - type: construction
   id: ContrabandSatchelCraft
-  name: contraband bag
-  description: A steel bag for hiding from metal detectors.
+  name: construction-recipe-ContrabandSatchelCraft-name
+  description: construction-recipe-ContrabandSatchelCraft-description
   graph: ContrabandSatchelGraph
   category: construction-category-misc
   startNode: start
@@ -39,9 +39,9 @@
 
 - type: construction
   id: MakeshiftDefibCraft
-  name: makeshift defibrillator
+  name: construction-recipe-MakeshiftDefibCraft-name
   category: construction-category-misc
-  description: Stupidly complex makeshift defibrillator for all your needs.
+  description: construction-recipe-MakeshiftDefibCraft-description
   graph: MakeshiftDefibGraph
   startNode: start
   targetNode: final
@@ -52,9 +52,9 @@
 
 - type: construction
   id: TideFlipperCraft
-  name: makeshift tide flipper
+  name: construction-recipe-TideFlipperCraft-name
   category: construction-category-misc
-  description: Makeshift hand remote that can be used to hack doors without access.
+  description: construction-recipe-TideFlipperCraft-description
   graph: TideFlipperZeroGraph
   startNode: start
   targetNode: final
@@ -65,9 +65,9 @@
 
 - type: construction
   id: MetalBaseballBatCrafting
-  name: makeshift metal baseball bat
+  name: construction-recipe-MetalBaseballBatCrafting-name
   category: construction-category-weapons
-  description: Makeshift hard and robust metal baseball bat with a wooden handle.
+  description: construction-recipe-MetalBaseballBatCrafting-description
   graph: MetalBaseballBatGraph
   startNode: start
   targetNode: final
@@ -78,9 +78,9 @@
 
 - type: construction
   id: HandmadeHammerCrafting
-  name: handmade hammer
+  name: construction-recipe-HandmadeHammerCrafting-name
   category: construction-category-weapons
-  description: A normal handmade hammer.
+  description: construction-recipe-HandmadeHammerCrafting-description
   graph: HammerConstructionGraph
   startNode: start
   targetNode: final
@@ -91,9 +91,9 @@
 
 - type: construction
   id: MakeshiftJammerCrafting
-  name: makeshift jammer
+  name: construction-recipe-MakeshiftJammerCrafting-name
   category: construction-category-misc
-  description: Makeshift jammer, not efficient, but it does its job.
+  description: construction-recipe-MakeshiftJammerCrafting-description
   graph: MakeshiftJammerGraph
   startNode: start
   targetNode: final
@@ -104,9 +104,9 @@
 
 - type: construction
   id: MakeshiftIDCard
-  name: makeshift id card
+  name: construction-recipe-MakeshiftIDCard-name
   category: construction-category-misc
-  description: Makeshift ID card for tiding purposes.
+  description: construction-recipe-MakeshiftIDCard-description
   graph: MakeshiftIDCardGraph
   startNode: start
   targetNode: final
@@ -117,9 +117,9 @@
 
 - type: construction
   id: MakeshiftToolbox
-  name: makeshift toolbox
+  name: construction-recipe-MakeshiftToolbox-name
   category: construction-category-weapons
-  description: The weapon of the Tide order.
+  description: construction-recipe-MakeshiftToolbox-description
   graph: MakeshiftToolboxGraph
   startNode: start
   targetNode: final
@@ -131,9 +131,9 @@
 
 - type: construction
   id: HeavyBootsCrafting
-  name: makeshift metal boots
+  name: construction-recipe-HeavyBootsCrafting-name
   category: construction-category-clothing
-  description: Makeshift heavy metal boots.
+  description: construction-recipe-HeavyBootsCrafting-description
   graph: HeavyBootsGraph
   startNode: start
   targetNode: final
@@ -144,9 +144,9 @@
 
 - type: construction
   id: MakeshiftHelmetCraft
-  name: makeshift light helmet
+  name: construction-recipe-MakeshiftHelmetCraft-name
   category: construction-category-clothing
-  description: Makeshift light helmet for protection.
+  description: construction-recipe-MakeshiftHelmetCraft-description
   graph: MakeshiftHelmetGraph
   startNode: start
   targetNode: final
@@ -157,9 +157,9 @@
 
 - type: construction
   id: MakeshiftLightVestCraft
-  name: makeshift light vest
+  name: construction-recipe-MakeshiftLightVestCraft-name
   category: construction-category-clothing
-  description: Complex makeshift light vest for protection. Open a blacksmith man.
+  description: construction-recipe-MakeshiftLightVestCraft-description
   graph: MakeshiftLightVestGraph
   startNode: start
   targetNode: final
@@ -170,9 +170,9 @@
 
 - type: construction
   id: MakeshiftHeavyVestCraft
-  name: makeshift heavy vest
+  name: construction-recipe-MakeshiftHeavyVestCraft-name
   category: construction-category-clothing
-  description: A complex heavy armor vest, made with steel, plasteel, and nails.
+  description: construction-recipe-MakeshiftHeavyVestCraft-description
   graph: MakeshiftHeavyVestGraph
   startNode: start
   targetNode: final

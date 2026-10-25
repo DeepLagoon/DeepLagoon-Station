@@ -1,4 +1,4 @@
-chat-sign-language-message-wrap = [italic][BubbleHeader][Name]{$entityName}[/Name][/BubbleHeader] [BubbleContent]{$verb} "[font="{$fontType}" size={$fontSize}][color={$color}]{$message}[/color][/font]"[/italic][/BubbleContent]
+chat-sign-language-message-wrap = [italic][BubbleHeader][Name]{ $entityName }[/Name][/BubbleHeader] [BubbleContent]{ $verb } "[font="{ $fontType }" size={ $fontSize }][color={ $color }]{ $message }[/color][/font]"[/italic][/BubbleContent]
 chat-sign-language-whisper-wrap = [italic][BubbleHeader][Name]{$entityName}[/Name][/BubbleHeader] [BubbleContent] делает едва заметные жесты "[font="{$fontType}" size={$fontSize}][color={$color}]{$message}[/color][/font]"[/italic][/BubbleContent]
 
 chat-speech-verb-sign-1 = Жесты
@@ -6,7 +6,7 @@ chat-speech-verb-sign-2 = Знаки
 chat-speech-verb-sign-3 = Взмахи
 
 # Tajaran stuffs
-chat-sign-tajaran-language-message-wrap = [italic][BubbleHeader][Name]{$entityName}[/Name][/BubbleHeader] [BubbleContent]{$verb} "[font="{$fontType}" size={$fontSize}][color={$color}]{$message}[/color][/font]"[/italic][/BubbleContent]
+chat-sign-tajaran-language-message-wrap = [italic][BubbleHeader][Name]{ $entityName }[/Name][/BubbleHeader] [BubbleContent]{ $verb } "[font="{ $fontType }" size={ $fontSize }][color={ $color }]{ $message }[/color][/font]"[/italic][/BubbleContent]
 chat-sign-tajaran-language-whisper-wrap = [italic][BubbleHeader][Name]{$entityName}[/Name][/BubbleHeader] [BubbleContent]едва заметно {$verb} "[font="{$fontType}" size={$fontSize}][color={$color}]{$message}[/color][/font]"[/italic][/BubbleContent]
 
 # Did I ever tell you the definition of insanity?

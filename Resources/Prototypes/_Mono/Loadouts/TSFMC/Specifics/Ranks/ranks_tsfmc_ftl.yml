@@ -1,13 +1,13 @@
 - type: loadout
   id: TsfmcRankE4FTL
-  name: TSFMC E-4 (CPL)
+  name: "TSFMC E-4 (капрал)"
   components:
   - type: ChatRank
     rank: tsf-e4
 
 - type: loadout
   id: TsfmcRankE5FTL
-  name: TSFMC E-5 (SGT)
+  name: "TSFMC E-5 (сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcFTLSgt
@@ -17,7 +17,7 @@
 
 - type: loadout
   id: TsfmcRankE6FTL
-  name: TSFMC E-6 (SSGT)
+  name: "TSFMC E-6 (штаб-сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcFTLSSgt
@@ -45,7 +45,7 @@
 
 - type: loadout
   id: TsfmcRankE7FTL
-  name: TSFMC E-7 (GYSGT) # Gay sergeant
+  name: "TSFMC E-7 (артиллерийский сержант)" # Gay sergeant
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcFTLGySgt
@@ -64,7 +64,7 @@
 
 - type: loadout
   id: TsfmcRankE8FTL
-  name: TSFMC E-8 (MSGT)
+  name: "TSFMC E-8 (мастер-сержант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcFTLMSgt
@@ -83,7 +83,7 @@
 
 - type: loadout
   id: TsfmcRankO1
-  name: TSFMC O-1 (2LT)
+  name: "TSFMC O-1 (второй лейтенант)"
   effects:
   - !type:GroupLoadoutEffect
     proto: TsfmcFTLO1

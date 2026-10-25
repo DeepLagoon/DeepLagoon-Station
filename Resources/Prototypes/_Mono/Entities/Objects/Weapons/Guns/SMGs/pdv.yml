@@ -30,7 +30,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSubMachineGunMla73-name-c14af3f7a7
         startingItem: Magazine635x40mmCaseless
         insertSound: /Audio/Weapons/Guns/MagIn/hpistol_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/sfrifle_magout.ogg
@@ -41,7 +41,7 @@
           - Magazine9x19mmSubMachineGunFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSubMachineGunMla73-name-54b88f41a7
         startingItem: Cartridge635x40mmCaseless
         priority: 1
         whitelist:
@@ -150,7 +150,7 @@
   - type: ItemSlots
     slots:
       gun_magazine:
-        name: Magazine
+        name: prototype-text-entity-WeaponSubMachineGunAtreides-name-6c0a114292
         startingItem: Magazine57x28mmSubMachineGunFMJ
         insertSound: /Audio/Weapons/Guns/MagIn/smg_magin.ogg
         ejectSound: /Audio/Weapons/Guns/MagOut/smg_magout.ogg
@@ -160,7 +160,7 @@
           - Magazine57x28mmSubMachineGunFMJ
         whitelistFailPopup: gun-magazine-whitelist-fail
       gun_chamber:
-        name: Chamber
+        name: prototype-text-entity-WeaponSubMachineGunAtreides-name-4e579db00a
         startingItem: Cartridge57x28mmFMJ
         priority: 1
         whitelist:

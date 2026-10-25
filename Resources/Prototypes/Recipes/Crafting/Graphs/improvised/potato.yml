@@ -7,7 +7,7 @@
         - to: potatobattery
           steps:
             - tag: Potato
-              name: a potato
+              name: prototype-text-constructionGraph-PowerCellPotato-name-011591190e
               icon:
                 sprite: Objects/Specific/Hydroponics/potato.rsi
                 state: produce
@@ -30,13 +30,13 @@
         - to: potatoai
           steps:
             - tag: PotatoBattery
-              name: a potato battery
+              name: prototype-text-constructionGraph-PotatoAI-name-5b32bacd07
               icon:
                 sprite: Objects/Power/power_cells.rsi
                 state: potato
               doAfter: 1
             - tag: SmallAIChip
-              name: a super-compact AI chip
+              name: prototype-text-constructionGraph-PotatoAI-name-5a4cc7c7fd
               icon:
                 sprite: Objects/Misc/potatoai_chip.rsi
                 state: icon

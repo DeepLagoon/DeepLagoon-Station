@@ -18,7 +18,7 @@
 
 - type: stack
   id: FloorTileTechmaintSterile
-  name: sterile techmaint tile
+  name: prototype-text-stack-FloorTileTechmaintSterile-name-4f2e05d82f
   spawn: FloorTileItemTechmaintSterile
   maxCount: 30
 
@@ -42,7 +42,7 @@
 
 - type: stack
   id: FloorTileMaintSterile
-  name: sterile maint tile
+  name: prototype-text-stack-FloorTileMaintSterile-name-a8a966931f
   spawn: FloorTileItemMaintSterile
   maxCount: 30
 
@@ -66,7 +66,7 @@
 
 - type: stack
   id: FloorTileMaintMonoSterile
-  name: sterile maint mono tile
+  name: prototype-text-stack-FloorTileMaintMonoSterile-name-2feaef3963
   spawn: FloorTileItemMaintMonoSterile
   maxCount: 30
 
@@ -90,7 +90,7 @@
 
 - type: stack
   id: FloorTileGrid
-  name: maintenance grid tile
+  name: prototype-text-stack-FloorTileGrid-name-b52a984331
   spawn: FloorTileItemGrid
   maxCount: 30
 
@@ -112,7 +112,7 @@
 
 - type: stack
   id: FloorTileGridDark
-  name: dark maintenance grid tile
+  name: prototype-text-stack-FloorTileGridDark-name-c17ed06b83
   spawn: FloorTileItemGridDark
   maxCount: 30
 
@@ -138,7 +138,7 @@
 
 - type: stack
   id: FloorSteelAlt
-  name: commercial steel tile
+  name: prototype-text-stack-FloorSteelAlt-name-a52b052bbb
   spawn: FloorTileItemSteelCommercial
   maxCount: 30
 
@@ -162,7 +162,7 @@
 
 - type: stack
   id: FloorTileSteelMonoAlt
-  name: commercial mono steel tile
+  name: prototype-text-stack-FloorTileSteelMonoAlt-name-6c656d7533
   spawn: FloorTileItemSteelMonoCommercial
   maxCount: 30
 
@@ -186,7 +186,7 @@
 
 - type: stack
   id: FloorDarkSteelAlt
-  name: commercial dark steel tile
+  name: prototype-text-stack-FloorDarkSteelAlt-name-3f9ae8d84b
   spawn: FloorTileItemDarkSteelCommercial
   maxCount: 30
 
@@ -210,7 +210,7 @@
 
 - type: stack
   id: FloorTileDarkSteelMonoAlt
-  name: commercial mono dark steel tile
+  name: prototype-text-stack-FloorTileDarkSteelMonoAlt-name-7b1830a674
   spawn: FloorTileItemSteelDarkMonoCommercial
   maxCount: 30
 
@@ -234,7 +234,7 @@
 
 - type: stack
   id: FloorTileTechMaintAlt
-  name: mechanical maintenance tile
+  name: prototype-text-stack-FloorTileTechMaintAlt-name-cf51ac8138
   spawn: FloorTileItemTechMaintAlt
   maxCount: 30
 
@@ -258,7 +258,7 @@
 
 - type: stack
   id: FloorGreySteelAlt
-  name: commercial grey steel tile
+  name: prototype-text-stack-FloorGreySteelAlt-name-925528c54f
   spawn: FloorTileItemGreySteelCommercial
   maxCount: 30
 
@@ -282,7 +282,7 @@
 
 - type: stack
   id: FloorTileGreySteelMonoAlt
-  name: commercial mono grey steel tile
+  name: prototype-text-stack-FloorTileGreySteelMonoAlt-name-e108d678fa
   spawn: FloorTileItemSteelGreyMonoCommercial
   maxCount: 30
 
@@ -307,7 +307,7 @@
 
 - type: stack
   id: FloorTileCatwalkHorizontal
-  name: horizontal catwalk tile
+  name: prototype-text-stack-FloorTileCatwalkHorizontal-name-b3441f0398
   spawn: FloorTileItemCatwalkHorizontal
   maxCount: 30
 
@@ -330,6 +330,6 @@
 
 - type: stack
   id: FloorTileCatwalkVertical
-  name: vertical catwalk tile
+  name: prototype-text-stack-FloorTileCatwalkVertical-name-f55d19bee0
   spawn: FloorTileItemCatwalkVertical
   maxCount: 30
