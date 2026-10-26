@@ -5,6 +5,7 @@ namespace Content.Shared._DeepLagoon.Apartments;
 /// <summary>Pure layout rules, shared by the server and preview. No spawning, wallet or storage dependencies.</summary>
 public static class ApartmentLayout
 {
+    public const int SafetyLimit = 400;
     public static List<ApartmentPlacement> Resolve(ApartmentTemplatePrototype template, ApartmentDelta delta,
         IEnumerable<ApartmentPlacement>? mapFurniture = null)
     {
@@ -49,10 +50,10 @@ public static class ApartmentLayout
 
     public static string? Validate(ApartmentTemplatePrototype template, IReadOnlyList<ApartmentPlacement> layout,
         Func<string, ApartmentFurniturePrototype?> catalog, ApartmentRoomScene? scene = null,
-        IEnumerable<ApartmentPlacement>? mapFurniture = null)
+        IEnumerable<ApartmentPlacement>? mapFurniture = null, Func<string, int>? stock = null, bool validateStock = true)
     {
         var mapped = (mapFurniture ?? []).ToDictionary(p => p.Id);
-        if (layout.Count(p => !mapped.ContainsKey(p.Id)) > template.MaxFurniture || layout.Count > 64 + mapped.Count) return "Превышен лимит мебели.";
+        if (layout.Count > SafetyLimit) return "Не удалось разместить мебель: слишком много объектов.";
         if (mapped.Keys.Any(id => layout.All(p => p.Id != id))) return "Исходный интерьер можно перемещать, но нельзя удалять.";
         var ids = new HashSet<string>();
         var occupied = new HashSet<Vector2i>();
@@ -70,13 +71,15 @@ public static class ApartmentLayout
             var original = template.Furniture.FirstOrDefault(item => item.Id == p.Id);
             if (original != null && original.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
             if (mapped.TryGetValue(p.Id, out var mapOriginal) && mapOriginal.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
-            counts[p.Furniture] = counts.GetValueOrDefault(p.Furniture) + 1;
-            if (counts[p.Furniture] > furniture.MaxCount) return "Недостаточно доступных экземпляров мебели.";
+            counts[furniture.StockKey] = counts.GetValueOrDefault(furniture.StockKey) + 1;
+            if (validateStock && counts[furniture.StockKey] > (furniture.ExistingOnly ? 1 : stock?.Invoke(furniture.StockKey) ?? furniture.MaxCount))
+                return "Недостаточно доступных экземпляров мебели. Откройте ещё один набор в обустройстве.";
             foreach (var cell in Cells(p, furniture))
             {
                 if (floors != null ? !floors.Contains(cell) : cell.X < 1 || cell.Y < 1 || cell.X >= template.Width - 1 || cell.Y >= template.Height - 1)
                     return "Предмет пересекается со стеной.";
-                if (scene?.Occupied.Contains(cell) == true) return "Место занято стационарным объектом квартиры.";
+                if (furniture.Layer == "Wall" && scene?.Walls.Contains(cell) != true) return "Настенный декор нужно разместить на стене.";
+                if (scene?.Occupied.Contains(cell) == true && (furniture.Layer != "Wall" || !scene.Walls.Contains(cell))) return "Место занято стационарным объектом квартиры.";
                 if (template.ReservedCells.Contains(cell)) return "Площадку лифта и коридор нельзя занимать мебелью.";
                 if (cell == template.Arrival || scene == null && cell == template.Arrival + new Vector2i(0, 1))
                     return "Площадка прибытия и терминал должны оставаться свободными.";

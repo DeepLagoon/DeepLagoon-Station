@@ -345,6 +345,9 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 if (markingPrototype.SpriteLayers.TryGetValue(rsi.RsiState, out var anchor)
                     && sprite.LayerMapTryGet(anchor, out var anchorLayer))
                     insertionLayer = anchorLayer + 1;
+                if (markingPrototype.SpriteLayersBefore.TryGetValue(rsi.RsiState, out var before)
+                    && sprite.LayerMapTryGet(before, out var beforeLayer))
+                    insertionLayer = beforeLayer;
                 var layer = sprite.AddLayer(markingSprite, insertionLayer);
                 sprite.LayerMapSet(layerId, layer);
                 sprite.LayerSetSprite(layerId, selectedSprite);

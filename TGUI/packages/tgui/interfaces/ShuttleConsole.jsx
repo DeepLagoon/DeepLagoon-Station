@@ -39,7 +39,7 @@ export const ShuttleConsole = () => {
           ...(nav.zLevel ? [['Высота', nav.altitude], ['Вертикальная скорость', nav.vertical], ['Режим полёта', nav.travel]] : [])].map(([label, value]) =>
           <div key={label}><dt>{label}</dt><dd>{value || '—'}</dd></div>)}</dl></section>
       {mode === 0 && <>
-        <details className="ShuttleConsole__settings"><summary><Sticker>Настройки пилотирования</Sticker></summary><section><div className="ShuttleConsole__keys">
+        <details className="ShuttleConsole__settings" open><summary><Sticker>Настройки пилотирования</Sticker></summary><section><div className="ShuttleConsole__keys">
           <Key selected={nav.iff} onClick={() => send('nav', 'iff')}>IFF</Key>
           <Key selected={nav.details} onClick={() => send('nav', 'details')}>Подробно</Key>
           <Key selected={nav.docks} onClick={() => send('nav', 'docks')}>Доки</Key>
@@ -50,7 +50,7 @@ export const ShuttleConsole = () => {
         <div className="ShuttleConsole__fields"><Field label="Дальность IFF" type="number" value={nav.range} onCommit={value => send('nav', 'range', value)} />
           <Field label="Предел скорости" type="number" value={nav.speed} onCommit={value => send('nav', 'speed', value)} /></div>
         </section></details>
-        <section><Sticker>Управление орудиями</Sticker><div className="ShuttleConsole__status">{weapons.status || 'Нет связи'}</div>
+        <details className="ShuttleConsole__settings"><summary><Sticker>Управление орудиями</Sticker></summary><section><div className="ShuttleConsole__status">{weapons.status || 'Нет связи'}</div>
           <div className="ShuttleConsole__keys">{[['refresh', 'Связь'], ['all', 'Все'], ['none', 'Снять']].map(([id, label]) =>
             <Key key={id} onClick={() => send('weapon', id)}>{label}</Key>)}</div>
           <div className="ShuttleConsole__keys">{[['ballistic', 'Баллистика'], ['energy', 'Энергия'], ['missile', 'Ракеты']].map(([id, label]) =>
@@ -63,7 +63,7 @@ export const ShuttleConsole = () => {
               title={weapon.reloadSeconds > 0 ? `Готовность через ${weapon.reloadSeconds.toFixed(1)} с` : 'Готово к стрельбе'} />}
           </Key>)}
             {!(weapons.entries || []).length && <p>Подключите сервер орудий.</p>}</div>
-        </section>
+        </section></details>
         <section className="ShuttleConsole__ports"><div className="ShuttleConsole__terminal-title">СЕТЕВЫЕ ПОРТЫ / I/O</div>
           <div className="ShuttleConsole__port-list">{(nav.ports || []).map(port => <Key key={port.id} disabled={port.disabled}
             onClick={() => send('nav', 'port', port.id)}>{port.name}</Key>)}</div></section>

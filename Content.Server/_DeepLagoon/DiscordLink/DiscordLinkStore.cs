@@ -38,6 +38,7 @@ public sealed class DiscordLinkStore : IDisposable
         Execute("""
             PRAGMA journal_mode=WAL;
             CREATE TABLE IF NOT EXISTS discord_staff_grants (ss14_uid TEXT PRIMARY KEY, kind TEXT NOT NULL, rank_id INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS discord_spark (discord_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_boosty (discord_id TEXT PRIMARY KEY, tier INTEGER NOT NULL, expires_at INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_supporter_palette (id INTEGER PRIMARY KEY CHECK(id=1), boost INTEGER NOT NULL, tier1 INTEGER NOT NULL, tier2 INTEGER NOT NULL, tier3 INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_boosts (discord_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);
@@ -132,12 +133,19 @@ public sealed class DiscordLinkStore : IDisposable
         return _supporterCache[uid] = status;
     }
 
-    public void SetSupporter(string discordId, bool boostActive, int tier, int[] colors)
+    public bool HasSpark(Guid uid)
+    {
+        using var command = Command("SELECT s.expires_at FROM discord_spark s JOIN discord_links l ON l.discord_id=s.discord_id WHERE l.ss14_uid=$uid", ("$uid", uid.ToString()));
+        return command.ExecuteScalar() is long until && until > _now();
+    }
+    public void SetSupporter(string discordId, bool boostActive, int tier, int[] colors, bool spark = false)
     {
         if (tier is < 0 or > 3 || colors.Length != 4 || colors.Any(c => c is < 0 or > 0xFFFFFF))
             throw new ArgumentException("Invalid supporter state");
         using var transaction = _db.BeginTransaction();
         SetBoost(discordId, boostActive);
+        if (spark) Execute("INSERT INTO discord_spark VALUES($id,$until) ON CONFLICT(discord_id) DO UPDATE SET expires_at=excluded.expires_at", ("$id", discordId), ("$until", _now() + 900));
+        else Execute("DELETE FROM discord_spark WHERE discord_id=$id", ("$id", discordId));
         if (tier > 0)
             Execute("INSERT INTO discord_boosty VALUES($id,$tier,$expires) ON CONFLICT(discord_id) DO UPDATE SET tier=excluded.tier,expires_at=excluded.expires_at",
                 ("$id", discordId), ("$tier", tier), ("$expires", _now() + 900));

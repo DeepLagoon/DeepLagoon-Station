@@ -31,7 +31,7 @@ public sealed class ApartmentPreviewOverlay : Overlay
         if (_editor.Lobby || !_editor.IsOpen || !_editor.ShowDraft || _editor.Grid is not { } grid || _editor.Template == null ||
             !_entities.TryGetComponent<TransformComponent>(grid, out var transform) || transform.MapID != args.MapId) return;
         ApartmentFurniturePrototype? Catalog(string id) => _editor.Catalog(id);
-        var valid = ApartmentLayout.Validate(_editor.Template, _editor.Draft, Catalog, _editor.RoomScene, _editor.MapBaseline) == null;
+        var valid = ApartmentLayout.Validate(_editor.Template, _editor.Draft, Catalog, _editor.RoomScene, _editor.MapBaseline, stock: _editor.FurnitureStockFor) == null;
         var handle = args.WorldHandle;
         handle.SetTransform(_transform.GetRenderWorldMatrix(grid));
         foreach (var p in _editor.Draft)

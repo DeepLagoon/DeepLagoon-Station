@@ -113,6 +113,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         base.Initialize();
         SubscribeNetworkEvent<ApartmentApplyEvent>(OnApply);
+        SubscribeNetworkEvent<ApartmentCommerceRequest>(OnCommerceRequest);
+        SubscribeNetworkEvent<ApartmentFurniturePurchaseEvent>(OnFurniturePurchase);
         SubscribeNetworkEvent<ApartmentShopRequest>(OpenShop);
         SubscribeNetworkEvent<ApartmentShopAction>(ShopAction);
         SubscribeNetworkEvent<ApartmentActionEvent>(OnAction);
@@ -270,7 +272,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);
         var layout = template.Map == null ? ApartmentLayout.Resolve(template, delta) : new List<ApartmentPlacement>();
-        if (template.Map == null && ApartmentLayout.Validate(template, layout, Catalog) is { } error) throw new InvalidOperationException(error);
+        if (template.Map == null && ApartmentLayout.Validate(template, layout, Catalog, validateStock: false) is { } error) throw new InvalidOperationException(error);
         Entity<MapGridComponent> grid;
         if (template.Map is { } path)
         {
@@ -329,7 +331,7 @@ public sealed partial class ApartmentSystem : EntitySystem
                 throw new InvalidOperationException("Apartment template must contain an anchored elevator panel.");
             if (template.Map != null) RegisterMapFurniture(instance);
             layout = ApartmentLayout.Resolve(template, delta, MapBaseline(instance));
-            if (template.Map != null && ApartmentLayout.Validate(template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance)) is { } mapError)
+            if (template.Map != null && ApartmentLayout.Validate(template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance), validateStock: false) is { } mapError)
                 throw new InvalidOperationException(mapError);
             foreach (var item in layout)
                 if (instance.MapFurniture.TryGetValue(item.Id, out var mapped))
@@ -492,7 +494,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
             CurrentLayout(instance), instance.Furniture.Where(p => Exists(p.Value) && Transform(p.Value).ParentUid == instance.Grid)
                 .ToDictionary(p => p.Key, p => GetNetEntity(p.Value)),
-            CaptureRoom(instance), Number(instance.Owner), instance.MapFurniture.Values.ToList()), session);
+            CaptureRoom(instance), Number(instance.Owner), instance.MapFurniture.Values.ToList(), ownedFurniture: _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
         return true;
     }
 
@@ -509,7 +511,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     private void OnAction(ApartmentActionEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
-        if (ev.Action == "close") { _editors.Remove(session.UserId); _lobbyEditors.Remove(session.UserId); return; }
+        if (ev.Action == "close") { _editors.Remove(session.UserId); _lobbyEditors.Remove(session.UserId); _commerceRequests.Remove(session.UserId); return; }
         if (ev.Action == "exit") { RequestLeave(session.UserId, out var message); Result(session, false, message, _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : -1); }
     }
 
@@ -517,7 +519,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         var session = args.SenderSession;
         var mapCount = _visits.TryGetValue(session.UserId, out var current) ? current.Apartment.MapFurniture.Count : _lobbyEditors.GetValueOrDefault(session.UserId)?.MapFurniture.Count ?? 0;
-        if (ev.Layout == null || ev.Layout.Count > 64 + mapCount || ev.Layout.Any(p => p == null))
+        if (ev.Layout == null || ev.Layout.Count > ApartmentLayout.SafetyLimit || ev.Layout.Any(p => p == null))
         { Result(session, false, "Некорректный проект квартиры.", -1); return; }
         var error = Apply(session, ev.Token, ev.Revision, ev.Layout);
         var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : _lobbyEditors.GetValueOrDefault(session.UserId)?.Delta.Revision ?? -1;
@@ -538,7 +540,9 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (revision != instance.Delta.Revision) return "Обстановка изменилась. Откройте редактор заново.";
         if (_lastApply.TryGetValue(session.UserId, out var last) && _timing.RealTime - last < TimeSpan.FromMilliseconds(500)) return "Подождите перед повторным сохранением.";
         _lastApply[session.UserId] = _timing.RealTime;
-        if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance)) is { } error) return error;
+        var account = _economy.Cached(session.UserId);
+        if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance),
+                stock: id => FurnitureCapacity(id, account)) is { } error) return error;
         var old = CurrentLayout(instance).ToDictionary(p => p.Id);
         var touched = layout.Where(p => !old.TryGetValue(p.Id, out var previous) || !p.SameAs(previous)).ToList();
         if (instance.MapFurniture.Keys.Any(id => !instance.Furniture.TryGetValue(id, out var entity) || !Exists(entity)))
@@ -657,6 +661,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         foreach (var visit in _visits.Values)
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }
+        _commerceRequests.Clear();
         _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);

@@ -65,52 +65,20 @@ namespace Content.Client.Credits
 
         private void PopulatePatrons(BoxContainer patronsContainer)
         {
-            var patrons = LoadPatrons();
-
-            // Do not show "become a patron" button on Steam builds
-            // since Patreon violates Valve's rules about alternative storefronts.
-            var linkPatreon = _cfg.GetCVar(CCVars.InfoLinksPatreon);
-            if (!_cfg.GetCVar(CCVars.BrandingSteam) && linkPatreon != "")
-            {
-                Button patronButton;
-                patronsContainer.AddChild(patronButton = new Button
-                {
-                    Text = Loc.GetString("credits-window-become-patron-button"),
-                    HorizontalAlignment = HAlignment.Center
-                });
-
-                patronButton.OnPressed +=
-                    _ => IoCManager.Resolve<IUriOpener>().OpenUri(linkPatreon);
-            }
-
-            var first = true;
-            foreach (var tier in patrons.GroupBy(p => p.Tier).OrderBy(p => PatronTierPriority[p.Key]))
-            {
-                if (!first)
-                {
-                    patronsContainer.AddChild(new Control {MinSize = new Vector2(0, 10)});
-                }
-
-                first = false;
-                patronsContainer.AddChild(new Label {StyleClasses = {StyleBase.StyleClassLabelHeading}, Text = $"{tier.Key}"});
-
-                var msg = string.Join(", ", tier.OrderBy(p => p.Name).Select(p => p.Name));
-
-                var label = new RichTextLabel();
-                label.SetMessage(msg);
-
-                patronsContainer.AddChild(label);
-            }
-        }
-
-        private IEnumerable<PatronEntry> LoadPatrons()
-        {
-            var yamlStream = _resourceManager.ContentFileReadYaml(new ("/Credits/Patrons.yml"));
-            var sequence = (YamlSequenceNode) yamlStream.Documents[0].RootNode;
-
-            return sequence
-                .Cast<YamlMappingNode>()
-                .Select(m => new PatronEntry(m["Name"].AsString(), m["Tier"].AsString()));
+            var system = IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Currency.LagoonEconomySystem>();
+            var names = new RichTextLabel();
+            var support = new Button { Text = "Поддержать на Boosty", HorizontalAlignment = HAlignment.Center };
+            support.OnPressed += _ => IoCManager.Resolve<IUriOpener>().OpenUri("https://boosty.to/iamasay");
+            patronsContainer.AddChild(support);
+            patronsContainer.AddChild(new Label { Text = "Спасибо всем, кто когда-либо покупал подписку за деньги." });
+            patronsContainer.AddChild(names);
+            void Update() => names.SetMessage(system.PaidNamesLoaded
+                ? system.PaidNames.Length == 0 ? "Подтверждённых оплат в истории пока нет." : string.Join(", ", system.PaidNames)
+                : "Загрузка истории Boosty с сервера…");
+            system.PaidNamesChanged += Update;
+            OnClose += () => system.PaidNamesChanged -= Update;
+            Update();
+            system.RequestPaidNames();
         }
 
         private void PopulateContributors(BoxContainer ss14ContributorsContainer)

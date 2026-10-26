@@ -177,7 +177,7 @@ public sealed partial class ShuttleConsoleWindow : FancyWindow,
         MapContainer.SetConsole(owner);
 
         NavContainer.UpdateState(cState.NavState);
-        CombatPanel.Visible = cState.FireControlState != null;
+        NavContainer.SetFireControlAvailable(cState.FireControlState != null);
         if (cState.FireControlState is { } fireState)
         {
             CombatPanel.UpdateStatus(fireState);

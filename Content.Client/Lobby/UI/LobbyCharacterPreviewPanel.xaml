@@ -21,7 +21,7 @@
                 <Button Name="CharacterSetup" Text="{Loc 'lobby-character-preview-panel-character-setup-button'}"
                         HorizontalAlignment="Center"
                         Margin="0 5 0 0"/>
-                <Button Name="Apartments" Text="КВАРТИРА И ОБУСТРОЙСТВО" HorizontalAlignment="Center" MinWidth="224" MinHeight="36" />
+                <Label Name="SubscriptionLevel" Text="Без подписки" HorizontalAlignment="Center" />
                 <BoxContainer HorizontalAlignment="Center" SeparationOverride="6">
                     <Label Text="Lagoon Coin:" />
                     <lobby:LobbySegmentCounter Name="LagoonCoins" />

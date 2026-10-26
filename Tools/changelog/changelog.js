@@ -1,154 +1,98 @@
-// Dependencies
-const fs = require("fs");
-const yaml = require("js-yaml");
-const axios = require("axios");
+const fs = require('node:fs');
+const path = require('node:path');
+const yaml = require('js-yaml');
 
-// Use GitHub token if available
-if (process.env.GITHUB_TOKEN) axios.defaults.headers.common["Authorization"] = `Bearer ${process.env.GITHUB_TOKEN}`;
+const TYPES = { add: 'Add', remove: 'Remove', tweak: 'Tweak', fix: 'Fix' };
 
-// Regexes
-const HeaderRegex = /^\s*(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+/im; // :cl: or 🆑 [0] followed by optional author name [1]
-const EntryRegex = /^ *[*-]? *(add|remove|tweak|fix): *([^\n\r]+)\r?$/img; // * or - followed by change type [0] and change message [1]
-const CommentRegex = /<!--.*?-->/gs; // HTML comments
+function parseChanges(body, fallbackAuthor) {
+    const lines = (body || '').replace(/<!--[^]*?-->/g, '').split(/\r?\n/);
+    const changes = [];
+    let author = fallbackAuthor;
+    let active = false;
+    let found = false;
+    for (const line of lines) {
+        const header = /^\s*(?::cl:|🆑)\s*(.*?)\s*$/iu.exec(line);
+        if (header) {
+            if (!found) author = header[1] || fallbackAuthor;
+            found = active = true;
+            continue;
+        }
+        if (!active) continue;
+        const entry = /^\s*(?:[-*]\s*)?(add|remove|tweak|fix):\s*(\S.*?)\s*$/iu.exec(line);
+        if (entry) changes.push({ type: TYPES[entry[1].toLowerCase()], message: entry[2] });
+        else if (line.trim()) active = false;
+    }
+    if (!found || changes.length === 0) return null;
+    if (changes.length > 100 || changes.some(c => c.message.length > 1400) || author.length > 100)
+        throw new Error('Changelog exceeds the shared delivery limits');
+    return { author, changes };
+}
 
-// Main function
+function validPull(pr, repository) {
+    return !!(pr.merged_at && pr.merged !== false && pr.base?.ref === 'main' &&
+        pr.base?.repo?.full_name?.toLowerCase() === repository.toLowerCase());
+}
+
+function appendPulls(document, pulls, repository) {
+    if (!document || typeof document !== 'object' || !Array.isArray(document.Entries))
+        throw new Error('Invalid changelog document');
+    const known = new Set(document.Entries.map(entry => entry.url));
+    let next = document.Entries.reduce((max, entry) => Math.max(max, Number.isSafeInteger(entry.id) ? entry.id : 0), 0);
+    let count = 0;
+    for (const pr of [...pulls].sort((a, b) => new Date(a.merged_at) - new Date(b.merged_at) || a.number - b.number)) {
+        if (!validPull(pr, repository)) continue;
+        const url = `https://github.com/${repository}/pull/${pr.number}`;
+        const parsed = parseChanges(pr.body, pr.user?.login || 'unknown');
+        if (parsed && !known.has(url)) {
+            document.Entries.push({ ...parsed, id: ++next, time: new Date(pr.merged_at).toISOString(), url });
+            known.add(url);
+            count++;
+        }
+        if (!document.GeneratedThrough || new Date(document.GeneratedThrough) < new Date(pr.merged_at))
+            document.GeneratedThrough = new Date(pr.merged_at).toISOString();
+    }
+    return count;
+}
+
+async function collectPulls(getPage, since, maximumPages = 100) {
+    const result = [];
+    for (let page = 1; page <= maximumPages; page++) {
+        const rows = await getPage(page);
+        if (!Array.isArray(rows)) throw new Error('Invalid PR page');
+        result.push(...rows.filter(pr => pr.merged_at && new Date(pr.merged_at) >= since));
+        if (rows.length < 100 || new Date(rows[rows.length - 1].updated_at) < since) return result;
+    }
+    throw new Error('PR backlog page limit reached; watermark was not advanced');
+}
+
 async function main() {
-    // Get PR details
-    const pr = await axios.get(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/pulls/${process.env.PR_NUMBER}`);
-    const { merged_at, body, user } = pr.data;
-
-    // Remove comments from the body
-    commentlessBody = body.replace(CommentRegex, '');
-
-    // Get author
-    const headerMatch = HeaderRegex.exec(commentlessBody);
-    if (!headerMatch) {
-        console.log("No changelog entry found, skipping");
-        return;
+    const repository = process.env.GITHUB_REPOSITORY;
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository || '')) throw new Error('Invalid repository');
+    const axios = require('axios');
+    const api = axios.create({ baseURL: `https://api.github.com/repos/${repository}/`, timeout: 15000,
+        maxRedirects: 0, maxContentLength: 10_000_000,
+        headers: { Accept: 'application/vnd.github+json', ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) } });
+    const file = path.resolve(__dirname, '../..', process.env.CHANGELOG_DIR || 'Resources/Changelog/Monolith.yml');
+    const original = fs.readFileSync(file, 'utf8');
+    const document = yaml.load(original);
+    const current = process.env.PR_NUMBER ? (await api.get(`pulls/${process.env.PR_NUMBER}`)).data : null;
+    if (current && !validPull(current, repository)) throw new Error('PR is not merged into this repository main');
+    // Overlap the durable watermark to recover replaced workflow runs and API visibility delays.
+    const anchor = process.env.CHANGELOG_SINCE || document.GeneratedThrough || current?.merged_at || new Date().toISOString();
+    const since = new Date(new Date(anchor).getTime() - 86400000);
+    if (Number.isNaN(since.getTime())) throw new Error('Invalid backlog date');
+    const pulls = await collectPulls(async page => (await api.get('pulls', { params: {
+        state: 'closed', base: 'main', sort: 'updated', direction: 'desc', per_page: 100, page } })).data, since);
+    if (current) pulls.push(current);
+    const before = JSON.stringify(document);
+    const added = appendPulls(document, pulls, repository);
+    if (before !== JSON.stringify(document)) {
+        const temporary = file + '.tmp';
+        fs.writeFileSync(temporary, yaml.dump(document, { noRefs: true, lineWidth: 100, sortKeys: false }));
+        fs.renameSync(temporary, file);
     }
-
-    let author = headerMatch[1];
-    if (!author) {
-        console.log("No author found, setting it to author of the PR\n");
-        author = user.login;
-    }
-
-    // Get all changes from the body
-    const entries = getChanges(commentlessBody);
-
-
-    // Time is something like 2021-08-29T20:00:00Z
-    // Time should be something like 2023-02-18T00:00:00.0000000+00:00
-    let time = merged_at;
-    if (time)
-    {
-        time = time.replace("z", ".0000000+00:00").replace("Z", ".0000000+00:00");
-    }
-    else
-    {
-        console.log("Pull request was not merged, skipping");
-        return;
-    }
-
-
-    // Construct changelog yml entry
-    const entry = {
-        author: author,
-        changes: entries,
-        id: getHighestCLNumber() + 1,
-        time: time,
-        url: `https://github.com/${process.env.GITHUB_REPOSITORY}/pull/${process.env.PR_NUMBER}`,
-    };
-
-    // Write changelogs
-    writeChangelog(entry);
-
-    console.log(`Changelog updated with changes from PR #${process.env.PR_NUMBER}`);
+    console.log(`Changelog: ${added} new PR entries; existing history retained`);
 }
 
-
-// Code chunking
-
-// Get all changes from the PR body
-function getChanges(body) {
-    const matches = [];
-    const entries = [];
-
-    for (const match of body.matchAll(EntryRegex)) {
-        matches.push([match[1], match[2]]);
-    }
-
-    if (!matches)
-    {
-        console.log("No changes found, skipping");
-        return;
-    }
-
-
-    // Check change types and construct changelog entry
-    matches.forEach((entry) => {
-        let type;
-
-        switch (entry[0].toLowerCase()) {
-            case "add":
-                type = "Add";
-                break;
-            case "remove":
-                type = "Remove";
-                break;
-            case "tweak":
-                type = "Tweak";
-                break;
-            case "fix":
-                type = "Fix";
-                break;
-            default:
-                break;
-        }
-
-        if (type) {
-            entries.push({
-                type: type,
-                message: entry[1],
-            });
-        }
-    });
-
-    return entries;
-}
-
-// Get the highest changelog number from the changelogs file
-function getHighestCLNumber() {
-    // Read changelogs file
-    const file = fs.readFileSync(`../../${process.env.CHANGELOG_DIR}`, "utf8");
-
-    // Get list of CL numbers
-    const data = yaml.load(file);
-    const entries = data && data.Entries ? Array.from(data.Entries) : [];
-    const clNumbers = entries.map((entry) => entry.id);
-
-    // Return highest changelog number
-    return Math.max(...clNumbers, 0);
-}
-
-function writeChangelog(entry) {
-    let data = { Entries: [] };
-
-    // Create a new changelogs file if it does not exist
-    if (fs.existsSync(`../../${process.env.CHANGELOG_DIR}`)) {
-        const file = fs.readFileSync(`../../${process.env.CHANGELOG_DIR}`, "utf8");
-        data = yaml.load(file);
-    }
-
-    data.Entries.push(entry);
-
-    // Write updated changelogs file
-    fs.writeFileSync(
-        `../../${process.env.CHANGELOG_DIR}`,
-        "Entries:\n" +
-            yaml.dump(data.Entries, { indent: 2 }).replace(/^---/, "")
-    );
-}
-
-// Run main
-main();
+module.exports = { parseChanges, appendPulls, collectPulls, validPull };
+if (require.main === module) main().catch(error => { console.error(`Changelog generation failed: ${error.name}`); process.exitCode = 1; });

@@ -24,6 +24,11 @@ public sealed partial class ApartmentFurniturePrototype : IPrototype
     [DataField(required: true)] public EntProtoId Entity;
     [DataField] public Vector2i Size = Vector2i.One;
     [DataField] public int MaxCount = 4;
+    [DataField] public string Product = "";
+    public string StockKey => Product.Length == 0 ? ID : Product;
+    [DataField] public long Price;
+    [DataField] public string Category = "Мебель";
+    [DataField] public string Layer = "Furniture";
     [DataField] public bool BlocksMovement = true;
     [DataField] public bool ExistingOnly;
     [DataField] public bool AllowsOverlap;
@@ -45,7 +50,7 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
     [DataField] public int Height = 8;
     [DataField] public string Floor = "FloorWood";
     [DataField] public EntProtoId Wall = "WallSolid";
-    [DataField] public int MaxFurniture = 24;
+    [DataField] public int MaxFurniture = ApartmentLayout.SafetyLimit;
     [DataField] public int MaxVisitors = 4;
     [DataField] public Vector2i Arrival = new(1, 1);
     [DataField] public List<ProtoId<ApartmentFurniturePrototype>> Catalog = new();

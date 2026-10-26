@@ -5,6 +5,16 @@ Adapted from the local WhiteMoon-Station checkout at
 ZZPLURT vendor extensions. The DM implementation is not copied into SS14.
 Imported art is CC-BY-SA-3.0; each RSI records its source paths and revision.
 `Tools/lustwish/assets.json` and `import_assets.py` reproduce the conversion.
+`items.json`, `import_items.py` and `source_metadata.json` preserve original
+names and descriptions, including inherited DM metadata. Names remain original
+in both locales. Russian descriptions come from `descriptions.ru.json`; the
+importer validates full coverage and retains the translation on reimport.
+Descriptions that were empty in WhiteMoon remain empty. English descriptions
+and raw prototype metadata retain the source text. `slot_mapping.json` documents
+the source-to-SS14 slot mapping.
+Run `python Tools/lustwish/verify.py` for an offline metadata, slot and RSI check;
+run `python Tools/lustwish/import_items.py <WhiteMoon checkout> --check` to compare
+against the pinned source itself.
 
 ## Placing and using the machine
 
@@ -27,9 +37,11 @@ suits, rabbit/kitty ears, cap, heels, evening gloves, harness, knee boots, latex
 suit/half-suit, corset, latex gloves/heels/stockings, maid headband/uniform/latex
 uniform, blindfold, leather/cloth loincloths, open-toed boots, pillow, leather
 storage belt, padded handcuffs, massager, feather, cyan stage outfit and decorative
-goggles. The ordinary maid costume uses the existing SS14 mini maid outfit.
-The two recolorable costumes and eight collar designs use a seven-color palette.
-Held items have color verbs; attached items have color controls in the panel.
+goggles. The maid costume uses its imported source prototype.
+Recolorable clothing grants a **Change color** action while held or equipped.
+The normal action bar opens a native color wheel with brightness and Apply.
+The server accepts opaque RGB colors and verifies that the player still holds
+or wears the item. The Accessories tab has no palette dropdown.
 Species-specific BYOND overlays and shape switching are not carried over. The blindfold blinds; handcuffs restrain hands using the
 native cuff system; the belt stores items.
 
@@ -51,6 +63,15 @@ it resets it to zero and starts ten seconds of recovery, during which positive
 adjustments are ignored. Negative adjustments clamp to zero. The local player's
 existing vignette now uses pink tones. No preferences are modified.
 
+Interaction Panel sex restrictions accept either the selected body Sex or enabled
+primary body features. Penis/testicles add Male compatibility; vagina/womb add
+Female compatibility. Disabled features and secondary features do not contribute;
+hiding a feature does not remove it. Both compatibilities can coexist. Unsexed
+still refers to the selected Sex, and gender/pronouns are unaffected. Initiator
+and target restrictions are checked independently. The server revalidates every
+request, consent response and repeat; appearance changes update an open panel
+without replacing its window.
+
 Action catalogs use `arousalGain`; the old `manaGain` field remains a fallback
 for existing custom catalogs. No automatic gain is added to existing actions
 that did not previously specify it. Reset messages remain private to the two
@@ -58,30 +79,40 @@ participants. No sound is configured for reaching capacity.
 
 ## Paired interaction portals
 
-Use `DLLustWishPortalKit` in hand to place one endpoint at your position.
-Use it again elsewhere to place its linked endpoint and consume the kit.
-Through the context menu, a participant chooses **Connect to portal** and stays
-within ordinary accessible interaction range. Someone at the opposite endpoint
-can choose **Interact through portal** to open the existing interaction panel.
-Both sides may connect. Only one participant may register at each endpoint.
+Click an anchored wall with the held `DLLustWishPortalKit` to mount an endpoint
+on the facing surface. Click another wall to mount the peer and consume the kit.
+Floor clicks and using the kit in hand do not place endpoints. Endpoints are
+children of their supports, preserving placement on moving and rotating grids.
+Breaking, deleting or unanchoring a support removes its endpoint and releases
+the participant immediately. The surviving peer becomes disconnected.
 
-This preserves the source's remote interaction concept without teleporting
-people or implementing anatomy projections. Normal living-player and category
-consent checks in the interaction panel continue to apply, including its
-existing development-build debug override. Every action/repeat rechecks reach.
-Disconnecting, moving out of accessible range, becoming unable to interact,
-or destroying an endpoint revokes the relay. Deleting an endpoint clears the
-surviving peer's references. Remote interactions do not play movement animations
-between the actual characters. There is no anonymous-mode identity substitution.
+Drag a character onto a complete portal pair to use the native chair buckle
+flow. One character occupies the pair. Their upper sprite half remains at the
+entrance; a replicated copy displays the lower half at the exit. Native clothing,
+color and appearance layers are copied. Unbuckling restores the complete sprite
+and removes the projection. Losing a support releases and reparents the character
+before the support's children are deleted.
+
+The Interaction Panel opens on the actual body or the projected half, and keeps
+its existing category consent checks. Both endpoints grant ordinary local reach
+to that body; releasing or destroying an endpoint revokes remote reach.
+Speech, whispers and positional sounds take the shortest direct or single portal
+route, while remote view subscriptions deliver the required entities. The camera
+remains on the player's normal eye. There is no anonymous identity substitution.
+Equipment operations still require physical reach and cannot move items through
+the portal.
 
 ## Equipment tab
 
 The **Accessories** tab is available in both TGUI and the native fallback. Hold an
-accessory in the active hand and select Attach. Accessories occupy separate
-neck, wrists, ankles, hands, head, eyes, ears and torso containers, leaving normal
-SS14 inventory slots available. The attached item remains a real entity; its worn
-sprite and palette replicate to clients. Ordinary costumes use native clothing
-slots and the checkout's HELMET / INNERCLOTHING state names.
+accessory in the active hand and select Attach, or equip clothing through normal
+inventory controls. Collars use neck/neck2/neck3 (the same NECK slot flags as
+cloaks); mittens use gloves, hoods head, goggles eyes, headphones ears/head/neck,
+and leashes the belt slot. Costumes use the corresponding native clothing slots.
+Only non-clothing attachments such as wrist/ankle ropes and the external torso
+device retain separate accessory containers. Native removal clears effects, and
+native attempts to dress another player use the same consent setting as the tab.
+Worn sprites use the checkout's HELMET / INNERCLOTHING / HAND state names.
 
 Actions on another character use the interaction panel's Erotic consent setting:
 No rejects, Ask requests explicit approval, Yes permits the action. Equipment does
@@ -147,8 +178,9 @@ per-feature accumulator. Cycle timing follows SS14's metabolizer.
 Normal growth only resizes an existing enabled feature. As in the source's
 overdose creation path, a missing or disabled feature starts at minimum size when
 the remaining growth concentration reaches 17 units for belly/butt or 20 units for
-chest/genital growth. Reduction never creates missing features. Eight 30-unit
-bottles are sold using these existing reagents. The chemical-change preference
+chest/genital growth. Reduction never creates missing features. Four original growth bottles are sold using these existing reagents.
+The four Station-only reduction bottle prototypes remain compatible with saved
+maps, but are no longer substituted into the source vendor catalog. The chemical-change preference
 continues to block creation/resizing and clear unfinished doses; saved character
 profiles and editor limits remain separate from runtime changes. Gender changes,
 source-specific physiological side effects and anatomical simulation are excluded.
@@ -160,17 +192,18 @@ source-specific physiological side effects and anatomical simulation are exclude
   is an external torso accessory, and serviettes use native puddle cleaning.
 - Mind/size/tracking collar variants, transforming Chief Screws plush, NIF software,
   MOD modules and cyborg upgrades are not ported as inert substitutes.
-- Portal garments and body-projection relays are not included; the paired
-  interaction-window portals remain the SS14 adaptation.
+- Portal garments and organ-specific attachment relays are not included. The wall
+  portals use a native buckle and a split character sprite instead.
 
 ## Validation
 
 The integration tests exercise catalog spawning, dose/recovery behavior,
 portal lifetime, payment-card toggling, equipment consent snapshots, keys,
 restraints, sensory effects, battery exhaustion, finite packs and kit deployment.
-A connected-client check verifies replicated accessory layers and native clothing
-tints. The existing apartment atmosphere test also builds and passes after its
-missing mapping-extension import was corrected.
+A connected-client check verifies native clothing tints and the color action.
+The portal regression exercises wall-only placement, native drag/drop, remote
+reach and speech, positional audio delivery, split-sprite replication, grid movement
+and support lifetime.
 `TGUI/tools/lustwish-browser.test.cjs` checks the built interface at 420/360 pixels,
 the purple meter, accessory controls and preservation of a custom-action draft.
 Use `PLAYWRIGHT_MODULE` to point to an installed Playwright module when needed.

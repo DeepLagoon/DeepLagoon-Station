@@ -48,8 +48,12 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
 
     public override int GetBoostyTier(ICommonSession? session)
         => session != null && session.Channel.AuthType == LoginType.LoggedIn && _enabled
-            ? _store?.BoostyStatus(session.UserId.UserId).Tier ?? 0 : 0;
+            ? Math.Max(_store?.BoostyStatus(session.UserId.UserId).Tier ?? 0, Content.Shared.Database.LagoonEconomyRules.GameTier(EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session))) : 0;
 
+    public override bool HasSpark(ICommonSession? session) => session != null && session.Channel.AuthType == LoginType.LoggedIn && _enabled && ((_store?.HasSpark(session.UserId.UserId) ?? false) || EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session) >= 1);
+    public int RawProductTier(ICommonSession session) => session.Channel.AuthType == LoginType.LoggedIn && _enabled
+        ? Content.Shared.Database.LagoonEconomyRules.ProductTier(_store?.BoostyStatus(session.UserId.UserId).Tier ?? 0, _store?.HasSpark(session.UserId.UserId) ?? false, HasActiveBoost(session)) : 0;
+    public override int GetPurchasedProductTier(ICommonSession? session) => EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().PurchasedTier(session);
     public override int[] RoleColors => _store?.SupporterColors() ?? DefaultRoleColors;
 
     private void PublishBoosts()
@@ -62,15 +66,18 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
                 continue;
             var remaining = HasActiveBoost(session) ? _store!.BoostRemaining(session.UserId.UserId) : 0;
             var tier = GetBoostyTier(session);
-            var boostyRemaining = tier > 0 ? _store!.BoostyStatus(session.UserId.UserId).Remaining : 0;
-            if (remaining == 0 && tier == 0 && palette == null && !_boostPublished.ContainsKey(session))
+            var spark = HasSpark(session);
+            var purchased = EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().PurchasedStatus(session);
+            var boostyRemaining = tier > 0 ? Math.Max(_store?.BoostyStatus(session.UserId.UserId).Remaining ?? 0,
+                EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session) > 1 ? 60 : 0) : 0;
+            if (remaining == 0 && tier == 0 && !spark && purchased.Tier == 0 && palette == null && !_boostPublished.ContainsKey(session))
                 continue;
             var colors = palette ?? DefaultRoleColors;
-            var fingerprint = $"{(remaining > 0 ? now + remaining : 0)}/{tier}/{(boostyRemaining > 0 ? now + boostyRemaining : 0)}/{string.Join(',', colors)}";
+            var fingerprint = $"{now / 300}/{spark}/{purchased.Tier}/{purchased.Seconds}/{(remaining > 0 ? now + remaining : 0)}/{tier}/{(boostyRemaining > 0 ? now + boostyRemaining : 0)}/{string.Join(',', colors)}";
             if (_boostPublished.TryGetValue(session, out var previous) && previous == fingerprint)
                 continue;
             _boostPublished[session] = fingerprint;
-            RaiseNetworkEvent(new DiscordBoostStatusEvent(remaining, tier, boostyRemaining, colors), session);
+            RaiseNetworkEvent(new DiscordBoostStatusEvent(remaining, tier, boostyRemaining, colors, spark, purchased.Tier, purchased.Seconds), session);
         }
     }
 
@@ -348,7 +355,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
                         if (request.BoostActive == null || request.BoostyTier is not (>= 0 and <= 3) ||
                             request.RoleColors is not { Length: 4 } || request.RoleColors.Any(c => c is < 0 or > 0xFFFFFF))
                             return new ApiResult(HttpStatusCode.BadRequest, new { error = "invalid_request" });
-                        _store.SetSupporter(request.DiscordId, request.BoostActive.Value, request.BoostyTier.Value, request.RoleColors);
+                        _store.SetSupporter(request.DiscordId, request.BoostActive.Value, request.BoostyTier.Value, request.RoleColors, request.Spark);
                         PublishBoosts();
                         return new ApiResult(HttpStatusCode.OK, new { boost_active = request.BoostActive.Value, boosty_tier = request.BoostyTier.Value });
                     }
@@ -562,6 +569,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         [property: System.Text.Json.Serialization.JsonPropertyName("discord_username")] string? DiscordUsername = null,
         [property: System.Text.Json.Serialization.JsonPropertyName("boost_active")] bool? BoostActive = null,
         [property: System.Text.Json.Serialization.JsonPropertyName("boosty_tier")] int? BoostyTier = null,
-        [property: System.Text.Json.Serialization.JsonPropertyName("role_colors")] int[]? RoleColors = null);
+        [property: System.Text.Json.Serialization.JsonPropertyName("role_colors")] int[]? RoleColors = null,
+        [property: System.Text.Json.Serialization.JsonPropertyName("spark")] bool Spark = false);
     private sealed record ApiResult(HttpStatusCode Status, object Body);
 }

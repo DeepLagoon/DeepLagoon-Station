@@ -37,7 +37,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
 
     public static bool Supports(string name) => name is "InteractionPanel" or "CharacterCard" or
         "CharacterHeadshotLibrary" or "CharacterSavePrompt" or "ApartmentTravel" or "ApartmentTerminal" or
-        "ApartmentShop" or "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
+        "LagoonEconomy" or "ApartmentShop" or "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
 
     public NativeInterfacePanel(Action<string, string> send, Action close)
     {
@@ -91,6 +91,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         _body.RemoveAllChildren();
         switch (name)
         {
+            case "LagoonEconomy": Economy(); break;
             case "ApartmentElevator": _elevator = new NativeApartmentElevator(_send); _body.AddChild(_elevator); _elevator.Update(_data); break;
             case "ApartmentTravel": case "ApartmentTerminal": Travel(); break;
             case "CharacterCard": Card(); break;
@@ -104,6 +105,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
             case "InteractionPanel": Interaction(); break;
             case "ApartmentShop":
                 Text(_body, "Номер квартиры: " + _data.String("number"));
+                if (long.TryParse(_data.String("balance"), out var shopBalance) && shopBalance >= 0) Text(_body, "Баланс: " + _data.String("balance") + " LC");
                 Text(_body, _data.String("message"));
                 foreach (var entry in _data.Array("templates"))
                 {
@@ -271,15 +273,13 @@ public sealed partial class NativeInterfacePanel : BoxContainer
             Gear(row, "remove", slot, enabled: !item.Bool("locked"));
             Gear(row, item.Bool("locked") ? "unlock" : "lock", slot);
             if (_data.Bool("self")) Gear(row, "escape", slot);
-            if (slot == "neck") Gear(box, item.Bool("leashed") ? "unleash" : "leash", slot);
+            if (slot.StartsWith("neck", StringComparison.Ordinal)) Gear(box, item.Bool("leashed") ? "unleash" : "leash", slot);
             if (item.Bool("electronic"))
             {
                 Gear(box, "pair", slot); Gear(box, "mode", slot, (item.Int("intensity") % 3 + 1).ToString());
             }
             if (item.Bool("electronic") || item.Bool("hypnosis")) Gear(box, "toggle", slot, item.Bool("active") ? "0" : "1");
             if (item.Bool("shock")) Gear(box, "pulse", slot);
-            if (item.Bool("colorable")) Options(box, _data.Array("gearColors").Select(c => (c.String("id"), c.String("name"))),
-                color => Send("gear", new TguiData().String("operation", "color").String("slot", slot).String("value", color)));
         }
     }
 

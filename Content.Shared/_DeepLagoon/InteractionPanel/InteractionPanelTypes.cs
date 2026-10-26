@@ -2,6 +2,7 @@ using Content.Shared.Preferences;
 using Content.Shared.Humanoid;
 using System.Linq;
 using Robust.Shared.Serialization;
+using Robust.Shared.Random;
 using Content.Shared._DeepLagoon.BodyCustomization;
 
 namespace Content.Shared._DeepLagoon.InteractionPanel;
@@ -24,13 +25,26 @@ public enum InteractionPanelActionFlags : byte
 
 public sealed record InteractionPanelActionDefinition(string Id, string Body, InteractionPanelCategory Category,
     InteractionPanelActionFlags Flags = InteractionPanelActionFlags.INTERACTION_OTHER | InteractionPanelActionFlags.INTERACTION_HUMANOID,
-    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ArousalGain = 0, string[]? Sounds = null)
+    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ArousalGain = 0, string[]? Sounds = null, string[]? Messages = null, string[]? SelfMessages = null)
 {
-    // Отсутствующее ограничение допускает и мобов без HumanoidAppearance.
-    // Если список задан, отсутствие пола не считается совпадением; пустой список запрещает всех.
+    public bool HasMessageVariants(bool self) => (self ? SelfMessages : Messages) is { Length: > 0 };
+
+    public string MessageKey(bool self, IRobustRandom random)
+    {
+        var messages = self ? SelfMessages : Messages;
+        return messages is { Length: > 0 } ? random.Pick(messages)
+            : $"dl-interaction-panel-{(self ? "self" : "result")}-{Id}";
+    }
+
+    // An omitted restriction allows any body; an empty restriction allows none.
     public bool SupportsSexes(Sex? user, Sex? target) =>
-        (UserSexes == null || user.HasValue && UserSexes.Contains(user.Value)) &&
-        (TargetSexes == null || target.HasValue && TargetSexes.Contains(target.Value));
+        SupportsSexTraits(InteractionPanelSexRules.GetTraits(user), InteractionPanelSexRules.GetTraits(target));
+
+    public bool SupportsSexTraits(InteractionPanelSexTraits user, InteractionPanelSexTraits target) =>
+        Matches(UserSexes, user) && Matches(TargetSexes, target);
+
+    private static bool Matches(Sex[]? restriction, InteractionPanelSexTraits traits) =>
+        restriction == null || restriction.Any(sex => (InteractionPanelSexRules.GetTraits(sex) & traits) != 0);
 
     public bool Supports(bool self, bool humanoid = true) =>
         (Flags & (self ? InteractionPanelActionFlags.INTERACTION_SELF : InteractionPanelActionFlags.INTERACTION_OTHER)) != 0 &&
@@ -63,7 +77,7 @@ public sealed class InteractionPanelOpenEvent(NetEntity target) : EntityEventArg
 }
 
 [Serializable, NetSerializable]
-public sealed class InteractionPanelPanelEvent(NetEntity target, string name, string[] actions, bool self = false, bool debugPreferences = false, bool humanoid = true, Sex? userSex = null, Sex? targetSex = null) : EntityEventArgs
+public sealed class InteractionPanelPanelEvent(NetEntity target, string name, string[] actions, bool self = false, bool debugPreferences = false, bool humanoid = true, Sex? userSex = null, Sex? targetSex = null, InteractionPanelSexTraits? userSexTraits = null, InteractionPanelSexTraits? targetSexTraits = null) : EntityEventArgs
 {
     public NetEntity Target = target;
     public string Name = name;
@@ -73,6 +87,17 @@ public sealed class InteractionPanelPanelEvent(NetEntity target, string name, st
     public bool Humanoid = humanoid;
     public Sex? UserSex = userSex;
     public Sex? TargetSex = targetSex;
+    public InteractionPanelSexTraits UserSexTraits = userSexTraits ?? InteractionPanelSexRules.GetTraits(userSex);
+    public InteractionPanelSexTraits TargetSexTraits = targetSexTraits ?? InteractionPanelSexRules.GetTraits(targetSex);
+}
+
+[Serializable, NetSerializable]
+public sealed class InteractionPanelAvailabilityEvent(NetEntity target, string[] actions, InteractionPanelSexTraits userSexTraits, InteractionPanelSexTraits targetSexTraits) : EntityEventArgs
+{
+    public NetEntity Target = target;
+    public string[] Actions = actions;
+    public InteractionPanelSexTraits UserSexTraits = userSexTraits;
+    public InteractionPanelSexTraits TargetSexTraits = targetSexTraits;
 }
 
 [Serializable, NetSerializable]

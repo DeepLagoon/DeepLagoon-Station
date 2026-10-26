@@ -39,6 +39,7 @@ public sealed partial class NavScreen : BoxContainer
             VerticalExpand = true
         };
         AddChild(FireControlPanel);
+        WeaponControlsToggle.OnToggled += args => FireControlPanel.Visible = args.Pressed;
         IoCManager.InjectDependencies(this);
         _xformSystem = _entManager.System<SharedTransformSystem>();
 
@@ -52,6 +53,12 @@ public sealed partial class NavScreen : BoxContainer
         DockToggle.Pressed = NavRadar.ShowDocks;
 
         NfInitialize(); // Frontier Initialization for the NavScreen
+    }
+
+    public void SetFireControlAvailable(bool available)
+    {
+        WeaponControlsToggle.Visible = available;
+        FireControlPanel.Visible = available && WeaponControlsToggle.Pressed;
     }
 
     // Frontier - IFF search

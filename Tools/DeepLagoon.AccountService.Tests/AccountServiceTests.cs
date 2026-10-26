@@ -14,7 +14,7 @@ using Npgsql;
 namespace DeepLagoon.AccountService.Tests;
 
 [TestFixture]
-public sealed class AccountServiceTests
+public sealed partial class AccountServiceTests
 {
     private string _directory = null!;
     private ServiceSettings _settings = null!;
@@ -250,19 +250,26 @@ public sealed class AccountServiceTests
     }
 
     [Test]
-    public async Task MoneyTransferAndExternalLcUpdatePreserveSeparateWallets()
+    public async Task BankTransferAndExternalLcUpdatePreserveSeparateWallets()
     {
+        await using (var setup = _settings.OpenDatabase())
+        {
+            var source = await setup.Profile.SingleAsync(p => p.Preference.UserId == _user && p.Slot == 0);
+            source.BankBalance = 777; await setup.SaveChangesAsync();
+        }
         async Task TransferMoney()
         {
             await using var db = _settings.OpenDatabase();
-            await AccountCurrencyOperations.TransferMoney(db, _user, _other, 25);
+            await AccountCurrencyOperations.TransferBank(db, _user, 0, 777, _other, 0, 0, 25);
         }
         await Task.WhenAll(TransferMoney(), Call("lc_add", Change()));
         await using var fresh = _settings.OpenDatabase();
         var sender = await fresh.Preference.SingleAsync(p => p.UserId == _user);
         var recipient = await fresh.Preference.SingleAsync(p => p.UserId == _other);
-        Assert.That(sender.Money, Is.EqualTo(752));
-        Assert.That(recipient.Money, Is.EqualTo(25));
+        Assert.That(sender.Money, Is.EqualTo(777));
+        Assert.That(recipient.Money, Is.Zero);
+        Assert.That(await fresh.Profile.Where(p => p.Preference.UserId == _user && p.Slot == 0).Select(p => p.BankBalance).SingleAsync(), Is.EqualTo(752));
+        Assert.That(await fresh.Profile.Where(p => p.Preference.UserId == _other && p.Slot == 0).Select(p => p.BankBalance).SingleAsync(), Is.EqualTo(25));
         Assert.That(sender.LagoonCoins, Is.EqualTo(10));
         Assert.That(recipient.LagoonCoins, Is.Zero);
     }
@@ -283,6 +290,8 @@ public sealed class AccountServiceTests
     [Test]
     public async Task ReadOnlyIdentityLeaseKeepsWalAvailableAfterLastWriterCloses()
     {
+        using var ready = await _http.GetAsync("/health/ready");
+        Assert.That(ready.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         using (var writer = new SqliteConnection($"Data Source={_settings.LinkDatabase};Pooling=False"))
         {
             writer.Open();

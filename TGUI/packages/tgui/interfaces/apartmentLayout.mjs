@@ -20,7 +20,7 @@ export const validateLayout = (layout, room) => {
   const staticBlocked = new Set((room.scene?.blocked || []).map(cell => `${cell.x},${cell.y}`));
   const mapped = room.catalog.filter(def => def.existingOnly);
   if (mapped.some(def => !layout.some(item => item.id === def.placementId && item.furniture === def.id))) errors.general = 'Исходную обстановку нельзя удалять или заменять.';
-  if (layout.filter(item => !mapped.some(def => def.placementId === item.id)).length > room.maxFurniture) errors.general = 'Превышен лимит мебели.';
+  if (layout.length > 400) errors.general = 'Не удалось разместить мебель: слишком много объектов.';
   for (const item of layout) {
     const def = room.catalog.find((entry) => entry.id === item.furniture);
     if (!def) { errors[item.id] = 'Предмет отсутствует в каталоге.'; continue; }
@@ -31,13 +31,15 @@ export const validateLayout = (layout, room) => {
       errors[item.id] = 'Некорректное положение.'; continue;
     }
     if (def.canRotate === false && item.rotation !== 0) errors[item.id] = 'Этот предмет нельзя поворачивать.';
-    counts[item.furniture] = (counts[item.furniture] || 0) + 1;
-    if (counts[item.furniture] > def.maxCount) errors[item.id] = 'Недостаточно доступных экземпляров.';
+    const stockKey = def.product || item.furniture;
+    counts[stockKey] = (counts[stockKey] || 0) + 1;
+    if (counts[stockKey] > def.maxCount) errors[item.id] = 'Недостаточно доступных экземпляров.';
     for (const [x, y] of footprint(item, def)) {
       const key = `${x},${y}`;
       if ((room.reservedCells || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = 'Площадку лифта и коридор нельзя занимать мебелью.';
       if (floors ? !floors.has(key) : x < 1 || y < 1 || x >= room.width - 1 || y >= room.height - 1) errors[item.id] = 'Предмет пересекается со стеной.';
-      if (fixed.has(key)) errors[item.id] = 'Место занято стационарным объектом квартиры.';
+      if (def.layer === "Wall" && !(room.scene?.walls || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = "Настенный декор нужно разместить на стене.";
+      if (fixed.has(key) && def.layer !== "Wall") errors[item.id] = 'Место занято стационарным объектом квартиры.';
       if (x === room.arrivalX && (y === room.arrivalY || !room.scene && y === room.arrivalY + 1)) errors[item.id] = 'Площадка прибытия и терминал должны оставаться свободными.';
       if (!def.allowsOverlap && occupied.has(key)) {
         errors[item.id] = errors[occupied.get(key)] = 'Предметы пересекаются.';
@@ -68,4 +70,18 @@ export const validateLayout = (layout, room) => {
     if (!blocked.has(key) && !reachable.has(key)) errors.general = 'Мебель перекрывает проход к выходу.';
   }
   return errors;
+};
+
+// Keep the common WebView action limit unchanged; assemble large editor drafts locally.
+export const sendApartmentLayout = (act, operation, layout) => {
+  if (JSON.stringify({ layout }).length <= 6000) { act(operation, { layout }); return; }
+  const chunks = [];
+  let part = [];
+  for (const item of layout) {
+    if (part.length && JSON.stringify({ layout: [...part, item] }).length > 4000) { chunks.push(part); part = []; }
+    part.push(item);
+  }
+  if (part.length) chunks.push(part);
+  const upload = crypto.randomUUID();
+  chunks.forEach((items, index) => act('layoutChunk', { upload, operation, index, count: chunks.length, layout: items }));
 };

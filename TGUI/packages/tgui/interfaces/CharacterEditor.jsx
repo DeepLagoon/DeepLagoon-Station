@@ -55,12 +55,28 @@ const SizeSlider = ({ label, value, onChange }) => {
 const consentOptions = [{ id: '0', name: 'Запрещено' }, { id: '1', name: 'Спросить' }, { id: '2', name: 'Разрешено' }];
 const priorities = [{ id: '0', name: 'Никогда' }, { id: '1', name: 'Низкий' }, { id: '2', name: 'Средний' }, { id: '3', name: 'Высокий' }];
 
-const HairCarousel = ({options,selected,color,onSelect}) => {
-  const track=useRef(null);
-  const turn=direction=>track.current?.scrollBy({left:direction*track.current.clientWidth,behavior:'smooth'});
-  return <div className="HairCarousel"><button type="button" aria-label="Предыдущие четыре" onClick={()=>turn(-1)}>◀</button><div className="HairCarousel__track" ref={track}>
-    {options.map(option=><button type="button" key={option.id} aria-pressed={selected===option.id} onClick={()=>onSelect(option.id)}><div className="CharacterEditor__sprite">{option.iconId ? <LazySprite id={option.iconId} color={color} /> : (option.images||[]).map((image,i)=><TintedSprite key={i} image={image.url} color={color} />)}</div><span>{option.name}</span></button>)}
-  </div><button type="button" aria-label="Следующие четыре" onClick={()=>turn(1)}>▶</button></div>;
+const HairCarousel = ({ options, selected, color, onSelect, face, beard }) => {
+  const track = useRef(null);
+  const [query, setQuery] = useState('');
+  const filtered = useMemo(() => fuzzyFilter(options, query, option => option.name + ' ' + option.id), [options, query]);
+  useEffect(() => { if (track.current) track.current.scrollLeft = 0; }, [query]);
+  const turn = direction => track.current?.scrollBy({ left: direction * track.current.clientWidth, behavior: 'smooth' });
+  const label = beard ? 'Поиск бороды и усов' : 'Поиск причёски';
+  return <div className="HairCarousel__browser">
+    <input type="search" aria-label={label} placeholder={label + '…'} value={query} onChange={event => setQuery(event.target.value)} />
+    {filtered.length ? <div className="HairCarousel">
+      <button type="button" aria-label="Предыдущие четыре" onClick={() => turn(-1)}>◀</button>
+      <div className="HairCarousel__track" ref={track}>
+        {filtered.map(option => <button type="button" key={option.id} aria-pressed={selected === option.id} onClick={() => onSelect(option.id)}>
+          <div className="CharacterEditor__sprite">
+            {face && <img className="HairCarousel__face" src={face} alt="" />}
+            {option.iconId ? <LazySprite id={option.iconId} color={color} />
+              : (option.images || []).map((image, i) => <TintedSprite key={i} image={image.url} color={color} />)}
+          </div><span>{option.name}</span>
+        </button>)}
+      </div><button type="button" aria-label="Следующие четыре" onClick={() => turn(1)}>▶</button>
+    </div> : <p role="status">Ничего не найдено</p>}
+  </div>;
 };
 
 const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
@@ -261,7 +277,7 @@ export const CharacterEditor = () => {
           const locked = data[key + 'Locked'];
           const missing = data[key + 'Style'] === (index ? 'FacialHairShaved' : 'HairBald');
           return <Section key={key} title={index ? 'Борода и усы' : 'Причёска'}>
-            <details><summary>{index ? 'Выбор бороды и усов' : 'Выбор причёски'}</summary><HairCarousel options={data[key+'Options']||[]} selected={data[key+'Style']} color={locked ? data.skinColor : data[key+'Color']} onSelect={change(key+'-style')} /></details>
+            <details><summary>{index ? 'Выбор бороды и усов' : 'Выбор причёски'}</summary><HairCarousel options={data[key+'Options']||[]} selected={data[key+'Style']} color={locked ? data.skinColor : data[key+'Color']} face={data.hairPreviewImage} beard={!!index} onSelect={change(key+'-style')} /></details>
             <ColorEditor label={index ? 'Цвет бороды' : 'Цвет волос'} value={locked ? data.skinColor : data[key + 'Color']}
               disabled={locked || missing} onChange={change(key + '-color')} />
           </Section>;

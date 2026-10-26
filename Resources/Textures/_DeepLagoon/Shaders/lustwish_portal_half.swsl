@@ -1,0 +1,9 @@
+uniform highp float split;
+uniform highp float lower;
+
+void fragment() {
+    COLOR = zTexture(UV);
+    if ((lower < 0.5 && UV.y >= split) || (lower >= 0.5 && UV.y < split)) {
+        COLOR.a = 0.0;
+    }
+}

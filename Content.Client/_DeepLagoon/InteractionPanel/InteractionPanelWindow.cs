@@ -76,6 +76,16 @@ public sealed class InteractionPanelWindow : BaseWindow
         return true;
     }
 
+    public void SetAvailability(InteractionPanelAvailabilityEvent state)
+    {
+        if (state.Target != Target) return;
+        _data.UserSexTraits = state.UserSexTraits;
+        _data.TargetSexTraits = state.TargetSexTraits;
+        _available.RemoveWhere(id => !id.StartsWith("custom:", StringComparison.Ordinal));
+        _available.UnionWith(state.Actions);
+        Publish();
+    }
+
     public void SetBodyState(InteractionPanelBodyStateEvent state)
     {
         _bodyFeatures = state.Features;
@@ -169,7 +179,7 @@ public sealed class InteractionPanelWindow : BaseWindow
             .Array("categories", Enum.GetValues<InteractionPanelCategory>().Select(category => new TguiData()
                 .Number("id", (int) category).String("name", Loc.GetString("dl-interaction-panel-category-" + category.ToString().ToLowerInvariant()))))
             .Array("sounds", _sounds)
-            .Array("actions", _definitions.Where(a => a.Supports(_data.Self, _data.Humanoid) && a.SupportsSexes(_data.UserSex, _data.TargetSex))
+            .Array("actions", _definitions.Where(a => a.Supports(_data.Self, _data.Humanoid) && a.SupportsSexTraits(_data.UserSexTraits, _data.TargetSexTraits))
                 .Select(a => new TguiData().String("id", a.Id).String("name", ActionName(a)).String("body", a.Body)
                     .Number("category", (int) a.Category).Bool("available", _available.Contains(a.Id))
                     .Bool("favorite", _favorites.Contains(a.Id)).Bool("repeating", _repeating.Contains(a.Id))))

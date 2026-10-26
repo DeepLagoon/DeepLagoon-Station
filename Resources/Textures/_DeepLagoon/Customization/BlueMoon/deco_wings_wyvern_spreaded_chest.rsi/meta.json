@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "size": {
+    "x": 96,
+    "y": 34
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Citadel, SPLURT, BlueMoon and NovaSector contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/e9ece923dd956fb78ae6cb83e1eaaf259b61a432/modular_bluemoon/icons/mob/human/wings_96x34.dmi. Definitions: modular_bluemoon/code/modules/mob/dead/new_player/sprite_accessories/wings.dm. Palette regions split into tintable layers; origin preserved with transparent padding.",
+  "states": [
+    {
+      "name": "m_wingsopen_wyvern_behind_primary_0",
+      "directions": 4
+    },
+    {
+      "name": "m_wingsopen_wyvern_behind_secondary_1",
+      "directions": 4
+    },
+    {
+      "name": "m_wingsopen_wyvern_behind_tertiary_2",
+      "directions": 4
+    },
+    {
+      "name": "m_wingsopen_wyvern_front_primary_3",
+      "directions": 4
+    },
+    {
+      "name": "m_wingsopen_wyvern_front_secondary_4",
+      "directions": 4
+    },
+    {
+      "name": "m_wingsopen_wyvern_front_tertiary_5",
+      "directions": 4
+    }
+  ]
+}

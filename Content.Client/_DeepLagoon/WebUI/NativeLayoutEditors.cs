@@ -5,7 +5,7 @@ using Robust.Client.UserInterface.Controls;
 namespace Content.Client._DeepLagoon.WebUI;
 
 /// <summary>Native coordinate/catalogue editor; changes stay local until Apply.</summary>
-public sealed class NativeApartmentEditor : BoxContainer
+public sealed partial class NativeApartmentEditor : BoxContainer
 {
     private readonly Action<string, string> _send;
     private readonly BoxContainer _list = NativeInterfacePanel.Column();
@@ -34,7 +34,7 @@ public sealed class NativeApartmentEditor : BoxContainer
         NativeInterfacePanel.Button(zoom, "−", () => Zoom(scale / 1.25f));
         NativeInterfacePanel.Button(zoom, "+", () => Zoom(scale * 1.25f));
         NativeInterfacePanel.Button(zoom, "Сбросить масштаб", () => Zoom(1));
-        AddChild(_status); AddChild(_catalog);
+        AddChild(_status); InitializeCommerce(); AddChild(_catalog);
         var fields = NativeInterfacePanel.Row(); AddChild(fields);
         _x = NativeInterfacePanel.Field(fields, "X", "0"); _y = NativeInterfacePanel.Field(fields, "Y", "0");
         _rotation = NativeInterfacePanel.Field(fields, "Поворот (0 / 90 / 180 / 270)", "0");
@@ -42,6 +42,7 @@ public sealed class NativeApartmentEditor : BoxContainer
         {
             if (_applying || _furniture.Length == 0 || !int.TryParse(_x.Text, out var x) || !int.TryParse(_y.Text, out var y)
                 || !int.TryParse(_rotation.Text, out var rotation) || rotation < 0 || rotation > 270 || rotation % 90 != 0) return;
+            if (!CanAddFurniture()) { _status.Text = "Нет свободных экземпляров этой модели. Добавьте ещё один набор в каталоге."; return; }
             var id = Guid.NewGuid().ToString("N");
             _ids.Add(id); _draft.Add(new TguiData().String("id", id).String("furniture", _furniture).Number("x", x).Number("y", y).Number("rotation", rotation / 90));
             Changed();
@@ -58,16 +59,17 @@ public sealed class NativeApartmentEditor : BoxContainer
 
     public void Update(NativeUiData data)
     {
-        if (data.Int("revision") == _revision && data.String("token") == _state.String("token")) return;
+        if (data.Int("revision") == _revision && data.String("token") == _state.String("token"))
+        {
+            _state = data; UpdateCommerce(); PlacementOptions(); Refresh(); return;
+        }
         if (data.String("number") != _state.String("number") || data.String("template") != _state.String("template")) Dirty = false;
         _state = data;
+        UpdateCommerce();
         _roomTitle.Text = data.String("name") + " · Квартира " + data.String("number");
         if (Dirty && !_applying) { _status.Text = "Планировка на сервере изменилась. Сбросьте черновик для загрузки новой версии."; return; }
         _revision = data.Int("revision"); _applying = false;
-        _catalog.RemoveAllChildren();
-        var options = data.Array("catalog").Where(i => !i.Bool("existingOnly")).Select(i => (i.String("id"), i.String("name"))).ToArray();
-        _furniture = options.FirstOrDefault().Item1 ?? "";
-        NativeInterfacePanel.Options(_catalog, options, id => _furniture = id);
+        PlacementOptions();
         Reset();
     }
 

@@ -51,3 +51,4 @@ shuttle-console-verb-lock-ship = Заблокировать шаттл
 shuttle-console-verb-unlock-ship = Разблокировать шаттл
 
 shuttle-ftl-proximity = Невозможно совершить БСС прыжок пока рядом есть другие шаттлы.
+shuttle-console-weapon-controls-toggle = Управление орудиями

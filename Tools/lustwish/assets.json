@@ -406,6 +406,10 @@
         "icon": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
           "pinkcuffs"
+        ],
+        "equipped-BELT": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi",
+          "pinkcuffs"
         ]
       }
     },
@@ -536,6 +540,18 @@
               "pet_tag_mob"
             ]
           ]
+        },
+        "equipped-NECK": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_collar_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "pet_tag_mob"
+            ]
+          ]
         }
       }
     },
@@ -551,6 +567,14 @@
           ]
         },
         "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "choker_mob"
+            ]
+          ]
+        },
+        "equipped-NECK": {
           "layers": [
             [
               "modular_skyrat/modules/GAGS/icons/collar.dmi",
@@ -578,6 +602,14 @@
               "thinchoker_mob"
             ]
           ]
+        },
+        "equipped-NECK": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "thinchoker_mob"
+            ]
+          ]
         }
       }
     },
@@ -597,6 +629,18 @@
           ]
         },
         "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "bell_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "bell_tag_mob"
+            ]
+          ]
+        },
+        "equipped-NECK": {
           "layers": [
             [
               "modular_skyrat/modules/GAGS/icons/collar.dmi",
@@ -636,6 +680,18 @@
               "cow_tag_mob"
             ]
           ]
+        },
+        "equipped-NECK": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cow_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cow_tag_mob"
+            ]
+          ]
         }
       }
     },
@@ -655,6 +711,18 @@
           ]
         },
         "worn": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cross_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "cross_tag_mob"
+            ]
+          ]
+        },
+        "equipped-NECK": {
           "layers": [
             [
               "modular_skyrat/modules/GAGS/icons/collar.dmi",
@@ -694,6 +762,18 @@
               "spike_tag_mob"
             ]
           ]
+        },
+        "equipped-NECK": {
+          "layers": [
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_mob"
+            ],
+            [
+              "modular_skyrat/modules/GAGS/icons/collar.dmi",
+              "spike_tag_mob"
+            ]
+          ]
         }
       }
     },
@@ -705,6 +785,10 @@
           "collar_cyan"
         ],
         "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
+          "collar_cyan"
+        ],
+        "equipped-NECK": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
           "collar_cyan"
         ]
@@ -721,6 +805,10 @@
         "worn": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_gloves.dmi",
           "ballmittens"
+        ],
+        "equipped-HAND": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_gloves.dmi",
+          "ballmittens"
         ]
       },
       "neutralize": true
@@ -733,6 +821,10 @@
           "hypnogoggles_pink"
         ],
         "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_eyes.dmi",
+          "hypnogoggles_pink"
+        ],
+        "equipped-EYES": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_eyes.dmi",
           "hypnogoggles_pink"
         ]
@@ -749,6 +841,10 @@
         "worn": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_hats.dmi",
           "dephelmet_pink"
+        ],
+        "equipped-HELMET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_hats.dmi",
+          "dephelmet_pink"
         ]
       },
       "neutralize": true
@@ -761,6 +857,18 @@
           "kinkphones_pink_off"
         ],
         "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_ears.dmi",
+          "kinkphones_pink_off"
+        ],
+        "equipped-EARS": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_ears.dmi",
+          "kinkphones_pink_off"
+        ],
+        "equipped-HELMET": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_ears.dmi",
+          "kinkphones_pink_off"
+        ],
+        "equipped-NECK": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_ears.dmi",
           "kinkphones_pink_off"
         ]
@@ -798,6 +906,10 @@
       "states": {
         "icon": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_belts.dmi",
+          "neckleash_pink"
+        ],
+        "equipped-BELT": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_belts.dmi",
           "neckleash_pink"
         ]
       },
@@ -838,6 +950,10 @@
           "shockcollar"
         ],
         "worn": [
+          "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
+          "shockcollar"
+        ],
+        "equipped-NECK": [
           "modular_skyrat/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_neck.dmi",
           "shockcollar"
         ]

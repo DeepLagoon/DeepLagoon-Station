@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Citadel, SPLURT, BlueMoon and NovaSector contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/e9ece923dd956fb78ae6cb83e1eaaf259b61a432/modular_citadel/icons/mob/mam_markings.dmi. Definitions: code/modules/mob/dead/new_player/sprite_accessories/body_markings.dm. Palette regions split into tintable layers; origin preserved with transparent padding.",
+  "states": [
+    {
+      "name": "skunk_chest_m_primary_0",
+      "directions": 4
+    },
+    {
+      "name": "skunk_chest_m_secondary_1",
+      "directions": 4
+    }
+  ]
+}

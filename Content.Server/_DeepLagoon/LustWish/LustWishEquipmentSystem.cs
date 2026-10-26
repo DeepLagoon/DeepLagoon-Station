@@ -5,6 +5,7 @@ using Content.Server._DeepLagoon.InteractionPanel;
 using Content.Shared._DeepLagoon.InteractionPanel;
 using Content.Shared._DeepLagoon.LustWish;
 using Content.Shared.ActionBlocker;
+using Content.Shared.Actions;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Database;
 using Content.Shared.DoAfter;
@@ -23,6 +24,9 @@ using Content.Shared.Movement.Pulling.Systems;
 using Content.Shared.Power.EntitySystems;
 using Content.Shared.Stunnable;
 using Content.Shared.Verbs;
+using Content.Shared.Inventory;
+using Content.Shared.Clothing;
+using Content.Shared.Clothing.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
@@ -33,6 +37,8 @@ namespace Content.Server._DeepLagoon.LustWish;
 public sealed partial class LustWishEquipmentSystem : EntitySystem
 {
     [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private InventorySystem _inventory = default!;
+    [Dependency] private SharedActionsSystem _actions = default!;
     [Dependency] private SharedContainerSystem _containers = default!;
     [Dependency] private SharedInteractionSystem _interaction = default!;
     [Dependency] private ActionBlockerSystem _blocker = default!;
@@ -56,13 +62,28 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
     private readonly Dictionary<(EntityUid, EntityUid), TimeSpan> _askCooldown = new();
     private readonly HashSet<(EntityUid, EntityUid)> _blocked = new();
     private sealed record Pending(EntityUid User, EntityUid Target, EntityUid Item, EntityUid? Held,
-        string Operation, string Slot, string Value, ICommonSession Recipient, TimeSpan Expires, bool Remote);
+        string Operation, string Slot, string Value, ICommonSession Recipient, TimeSpan Expires, bool Remote, bool Native);
 
     public override void Initialize()
     {
         SubscribeNetworkEvent<LustWishGearRequestEvent>(OnRequest);
+        InitializeNativeInventory();
+        SubscribeNetworkEvent<LustWishSetColorEvent>(OnSetColor);
+        SubscribeLocalEvent<LustWishPaletteComponent, LustWishChooseColorEvent>(OnChooseColor);
         SubscribeNetworkEvent<InteractionPanelAnswerEvent>(OnAnswer);
         SubscribeLocalEvent<LustWishAccessoryComponent, ComponentShutdown>(OnAccessoryShutdown);
+        SubscribeLocalEvent<LustWishAccessoryComponent, ClothingGotEquippedEvent>((Entity<LustWishAccessoryComponent> ent, ref ClothingGotEquippedEvent ev) =>
+        {
+            if (ent.Comp.InventorySlots.Length == 0 || ev.Clothing.InSlot is not { } slot || !ent.Comp.InventorySlots.Contains(slot)) return;
+            ent.Comp.Slot = slot; ent.Comp.Wearer = ev.Wearer;
+            Refresh(ev.Wearer); SendWatchers(ev.Wearer);
+        });
+        SubscribeLocalEvent<LustWishAccessoryComponent, ClothingGotUnequippedEvent>((Entity<LustWishAccessoryComponent> ent, ref ClothingGotUnequippedEvent ev) =>
+        {
+            if (ent.Comp.InventorySlots.Length == 0 || ent.Comp.Wearer != ev.Wearer) return;
+            StopLeash(ent.Comp); ent.Comp.Wearer = null; ent.Comp.Active = false;
+            Refresh(ev.Wearer); SendWatchers(ev.Wearer);
+        });
         SubscribeLocalEvent<LustWishWornEffectsComponent, LustWishEscapeEvent>(OnEscape);
         SubscribeLocalEvent<LustWishWornEffectsComponent, GetVerbsEvent<AlternativeVerb>>((Entity<LustWishWornEffectsComponent> ent, ref GetVerbsEvent<AlternativeVerb> ev) =>
         {
@@ -73,6 +94,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         {
             if (!TryComp<LustWishAccessoryComponent>(ev.Entity, out var accessory) || accessory.Wearer != ent.Owner) return;
             StopLeash(accessory); accessory.Wearer = null; accessory.Active = false;
+            if (accessory.InventorySlots.Length == 0 && TryComp<LustWishPaletteComponent>(ev.Entity, out var palette)) _actions.RemoveAction(ent.Owner, palette.ColorAction);
             if (!Terminating(ent.Owner)) Refresh(ent.Owner);
         });
         SubscribeLocalEvent<LustWishRemoteComponent, UseInHandEvent>(OnRemote);
@@ -85,15 +107,17 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
             if (ent.Comp.Used || !_solutions.TryGetSolution(ent.Owner, "absorbed", out _, out var solution) || solution.Volume <= 0) return;
             ent.Comp.Used = true;
             RemCompDeferred<AbsorbentComponent>(ent.Owner);
-            EntityManager.System<MetaDataSystem>().SetEntityName(ent.Owner, Loc.GetString("dl-lustwish-wipe-used"));
+            var metadata = EntityManager.System<MetaDataSystem>();
+            metadata.SetEntityName(ent.Owner, Loc.GetString("dl-lustwish-wipe-used"));
+            metadata.SetEntityDescription(ent.Owner, Loc.GetString("dl-lustwish-wipe-used-description"));
         });
         SubscribeLocalEvent<LustWishFurnitureKitComponent, UseInHandEvent>(OnFurniture);
         SubscribeLocalEvent<LustWishFurnitureKitComponent, LustWishBuildEvent>(OnBuild);
         SubscribeLocalEvent<LustWishWornEffectsComponent, ContainerIsRemovingAttemptEvent>((Entity<LustWishWornEffectsComponent> ent, ref ContainerIsRemovingAttemptEvent ev) =>
         {
             var containerId = ev.Container.ID;
-            if (containerId.StartsWith(LustWishEquipment.ContainerPrefix, StringComparison.Ordinal) &&
-                TryComp<LustWishAccessoryComponent>(ev.EntityUid, out var item) && item.Wearer == ent.Owner) ev.Cancel();
+            if (TryComp<LustWishAccessoryComponent>(ev.EntityUid, out var item) && item.Wearer == ent.Owner &&
+                (item.Locked || containerId.StartsWith(LustWishEquipment.ContainerPrefix, StringComparison.Ordinal))) ev.Cancel();
         });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => { _watchers.Clear(); _lastStates.Clear(); _pending.Clear(); _askCooldown.Clear(); _blocked.Clear(); });
     }
@@ -105,6 +129,11 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         HasComp<HumanoidAppearanceComponent>(target) && _interaction.InRangeAndAccessible(user, target);
     public IEnumerable<(EntityUid Uid, LustWishAccessoryComponent Accessory)> Attached(EntityUid wearer)
     {
+        if (TryComp<InventoryComponent>(wearer, out var inventory))
+            foreach (var slot in inventory.Slots)
+                if (_inventory.TryGetSlotEntity(wearer, slot.Name, out var item, inventory) &&
+                    TryComp<LustWishAccessoryComponent>(item, out var accessory) && accessory.Wearer == wearer && accessory.InventorySlots.Contains(slot.Name))
+                    yield return (item.Value, accessory);
         foreach (var slot in LustWishEquipment.Slots)
             if (_containers.TryGetContainer(wearer, LustWishEquipment.ContainerPrefix + slot, out var container))
                 foreach (var uid in container.ContainedEntities)
@@ -138,20 +167,20 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         Request(user, target, uid, held, args.Operation, args.Slot, args.Value, false);
     }
 
-    private void Request(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote)
+    private void Request(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote, bool native = false)
     {
         if (!Alive(user) || !Alive(target) || !_blocker.CanConsciouslyPerformAction(user)) return;
         if (!(user == target && operation == "remove") && !_blocker.CanInteract(user, target)) return;
         if (remote && (held is not { } controllerUid || !TryComp<LustWishRemoteComponent>(controllerUid, out var controller) ||
             controller.Device != item || !RemoteInRange(user, target, controller.Range))) return;
-        if (user == target) { Apply(user, target, item, held, operation, slot, value, remote); return; }
+        if (user == target) { Apply(user, target, item, held, operation, slot, value, remote, native); return; }
         if (Consent(user) == InteractionPanelConsent.No || Consent(target) == InteractionPanelConsent.No) return;
         if (Consent(target) == InteractionPanelConsent.Yes)
-        { Apply(user, target, item, held, operation, slot, value, remote); return; }
+        { Apply(user, target, item, held, operation, slot, value, remote, native); return; }
         if (!TryComp<ActorComponent>(target, out var actor) || _blocked.Contains((target, user)) ||
             _pending.Values.Any(p => p.Target == target) || _askCooldown.GetValueOrDefault((user, target)) > _timing.CurTime) return;
         var token = Guid.NewGuid();
-        _pending[token] = new(user, target, item, held, operation, slot, value, actor.PlayerSession, _timing.CurTime + TimeSpan.FromSeconds(20), remote);
+        _pending[token] = new(user, target, item, held, operation, slot, value, actor.PlayerSession, _timing.CurTime + TimeSpan.FromSeconds(20), remote, native);
         _askCooldown[(user, target)] = _timing.CurTime + TimeSpan.FromSeconds(5);
         RaiseNetworkEvent(new InteractionPanelAskEvent(token, Name(user), "", Loc.GetString("dl-lustwish-equipment-request"),
             $"{Loc.GetString("dl-lustwish-op-" + operation)}: {Name(item)}"), actor.PlayerSession);
@@ -165,10 +194,10 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         if (args.Block) _blocked.Add((pending.Target, pending.User));
         if (!args.Accepted || pending.Expires <= _timing.CurTime || Consent(pending.Target) == InteractionPanelConsent.No ||
             Consent(pending.User) == InteractionPanelConsent.No) return;
-        Apply(pending.User, pending.Target, pending.Item, pending.Held, pending.Operation, pending.Slot, pending.Value, pending.Remote);
+        Apply(pending.User, pending.Target, pending.Item, pending.Held, pending.Operation, pending.Slot, pending.Value, pending.Remote, pending.Native);
     }
 
-    private bool Apply(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote)
+    private bool Apply(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote, bool native = false)
     {
         if (!Alive(user) || !Alive(target) || !Exists(item) || !_blocker.CanConsciouslyPerformAction(user) ||
             held != _hands.GetActiveItem(user)) return false;
@@ -178,7 +207,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
             if (held is not { } remoteUid || !TryComp<LustWishRemoteComponent>(remoteUid, out var controller) || controller.Device != item ||
                 !RemoteInRange(user, target, controller.Range)) return false;
         }
-        else if (!Accessible(user, target) || !_panels.CanAccessEquipment(user, target)) return false;
+        else if (!Accessible(user, target) || !(native || _panels.CanAccessEquipment(user, target))) return false;
         if (operation == "color-held")
         {
             if (held != item || !LustWishEquipment.Colors.Contains(value) || !TryComp<LustWishPaletteComponent>(item, out var palette)) return false;
@@ -187,10 +216,22 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         if (!TryComp<LustWishAccessoryComponent>(item, out var accessory)) return false;
         if (operation == "attach")
         {
-            if (held != item || accessory.Wearer != null || !LustWishEquipment.Slots.Contains(accessory.Slot) || At(target, accessory.Slot) != null) return false;
-            var container = _containers.EnsureContainer<ContainerSlot>(target, LustWishEquipment.ContainerPrefix + accessory.Slot);
-            if (!_hands.TryDropIntoContainer(user, item, container)) return false;
-            accessory.Wearer = target;
+            if ((!native && held != item) || accessory.Wearer != null) return false;
+            if (accessory.InventorySlots.Length > 0)
+            {
+                var nativeSlot = native && accessory.InventorySlots.Contains(slot) ? slot : accessory.InventorySlots.FirstOrDefault(s => _inventory.HasSlot(target, s) && !_inventory.TryGetSlotEntity(target, s, out _));
+                if (nativeSlot == null) return false;
+                _approvedNative.Add((user, target, item));
+                try { if (!_inventory.TryEquip(user, target, item, nativeSlot)) return false; }
+                finally { _approvedNative.Remove((user, target, item)); }
+            }
+            else
+            {
+                if (!LustWishEquipment.Slots.Contains(accessory.Slot) || At(target, accessory.Slot) != null) return false;
+                var container = _containers.EnsureContainer<ContainerSlot>(target, LustWishEquipment.ContainerPrefix + accessory.Slot);
+                if (!_hands.TryDropIntoContainer(user, item, container)) return false;
+                accessory.Wearer = target;
+            }
         }
         else
         {
@@ -222,7 +263,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
                     accessory.NextPulse = _timing.CurTime + TimeSpan.FromSeconds(10);
                     _stun.TryStun(target, TimeSpan.FromSeconds(0.5), false); break;
                 case "leash":
-                    if (accessory.Slot != "neck" || held is not { } leash || !HasComp<LustWishLeashComponent>(leash) || accessory.LeashHolder != null) return false;
+                    if (!(accessory.Slot == "neck" || accessory.InventorySlots.Contains("neck")) || held is not { } leash || !HasComp<LustWishLeashComponent>(leash) || accessory.LeashHolder != null) return false;
                     if (!_pulling.TryStartPull(user, target)) return false;
                     accessory.LeashHolder = user; accessory.Leash = leash; break;
                 case "unleash": StopLeash(accessory); break;
@@ -244,6 +285,9 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         var c = EnsureComp<LustWishWornEffectsComponent>(wearer);
         var attached = Attached(wearer).ToArray();
         var gear = attached.Select(a => a.Accessory).ToArray();
+        foreach (var (item, accessory) in attached)
+            if (accessory.InventorySlots.Length == 0 && TryComp<LustWishPaletteComponent>(item, out var palette))
+            { _actions.AddAction(wearer, ref palette.ColorAction, "ActionLustWishChooseColor", item); Dirty(item, palette); }
         c.Items = attached.ToDictionary(a => a.Accessory.Slot, a => GetNetEntity(a.Uid));
         c.LeashHolder = gear.Select(a => a.LeashHolder).FirstOrDefault(h => h != null) is { } holder ? GetNetEntity(holder) : null;
         c.HandsBlocked = gear.Any(a => a.RestrictHands); c.LegsRestricted = gear.Any(a => a.RestrictLegs);
@@ -255,7 +299,10 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
     {
         if (accessory.Wearer is not { } wearer) return;
         StopLeash(accessory); accessory.Active = false; accessory.Wearer = null;
-        if (_containers.TryGetContainer(wearer, LustWishEquipment.ContainerPrefix + accessory.Slot, out var container)) _containers.Remove(item, container);
+        if (accessory.InventorySlots.Length == 0 && TryComp<LustWishPaletteComponent>(item, out var palette)) _actions.RemoveAction(wearer, palette.ColorAction);
+        if (accessory.InventorySlots.Length > 0)
+            _inventory.TryUnequip(user, wearer, accessory.Slot, force: true);
+        else if (_containers.TryGetContainer(wearer, LustWishEquipment.ContainerPrefix + accessory.Slot, out var container)) _containers.Remove(item, container);
         Refresh(wearer);
         _hands.TryPickupAnyHand(user, item);
     }
@@ -272,6 +319,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
     {
         if (component.Wearer is not { } wearer) return;
         StopLeash(component); component.Wearer = null; component.Active = false;
+        if (component.InventorySlots.Length == 0 && TryComp<LustWishPaletteComponent>(uid, out var palette)) _actions.RemoveAction(wearer, palette.ColorAction);
         if (Exists(wearer) && !Terminating(wearer)) Refresh(wearer);
     }
 
@@ -305,9 +353,8 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
     private void OnPaletteVerbs(EntityUid uid, LustWishPaletteComponent component, GetVerbsEvent<AlternativeVerb> args)
     {
         if (!args.CanInteract || !args.CanAccess || !_hands.IsHolding(args.User, uid, out _)) return;
-        foreach (var hex in LustWishEquipment.Colors)
-            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-lustwish-op-color") + " " + hex,
-                Act = () => { if (_hands.IsHolding(args.User, uid, out _) && _blocker.CanInteract(args.User, uid)) { component.Color = Color.FromHex(hex); Dirty(uid, component); } } });
+        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-lustwish-color-action"),
+            Act = () => OpenColorPicker(uid, component, args.User) });
     }
 
     private void OnCopyKey(EntityUid uid, LustWishKeyComponent component, InteractUsingEvent args)

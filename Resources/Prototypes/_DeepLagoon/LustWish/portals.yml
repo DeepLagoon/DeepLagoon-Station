@@ -1,8 +1,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishPortalKit
-  name: LustWish portal kit
-  description: Use in hand to place the first endpoint, then use again elsewhere to place its partner. Connect through the context menu. Leaving the endpoint disconnects you.
+  name: "Lustwish Portal Bore"
+  description: "A device utilizing bluespace technology to transpose portions of people from one space to another."
   components:
   - type: LustWishPortalKit
   - type: Sprite
@@ -12,20 +12,24 @@
     size: Normal
   - type: StaticPrice
     price: 100
-
 - type: entity
   parent: BaseStructure
   id: DLLustWishPortal
-  name: LustWish portal
-  description: A paired interaction window. It relays interactions to a connected participant without transporting their body. Use the context menu to connect or disconnect.
+  name: "LustWish Portal"
+  description: "A portal that people can partially fit through."
   components:
   - type: LustWishPortal
+  - type: Strap
+    position: Stand
+    rotation: 0
+    size: 100
+  - type: Eye
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Portal.rsi
     state: portal
     noRot: true
   - type: Transform
-    anchored: true
+    anchored: false
   - type: Physics
     canCollide: false
   - type: Damageable
@@ -33,9 +37,26 @@
     damageModifierSet: Metallic
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 100
       behaviors:
       - !type:DoActsBehavior
-        acts: [Destruction]
+        acts:
+        - Destruction
+
+- type: entity
+  parent: BaseStructure
+  id: DLLustWishPortalProjection
+  name: LustWish Portal
+  description: A portal that people can partially fit through.
+  components:
+  - type: LustWishProjection
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/Portal.rsi
+    state: portal
+    visible: false
+    noRot: true
+  - type: Transform
+    anchored: false
+  - type: Physics
+    canCollide: false

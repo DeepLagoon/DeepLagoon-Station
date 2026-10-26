@@ -54,7 +54,7 @@ public sealed partial class LustWishVisualSystem : EntitySystem
             foreach (var (slot, netEntity) in gear.Items)
             {
                 if (!TryGetEntity(netEntity, out var item) || item == null) { ready = false; continue; }
-                if (!TryComp<LustWishAccessoryComponent>(item, out var accessory) || accessory.WornSprite == null) continue;
+                if (!TryComp<LustWishAccessoryComponent>(item, out var accessory) || accessory.InventorySlots.Length > 0 || accessory.WornSprite == null) continue;
                 var layer = _sprites.AddLayer((wearer, sprite), accessory.WornSprite, sprite.AllLayers.Count());
                 var key = "lustwish/" + slot; sprite.LayerMapSet(key, layer); keys.Add(key);
                 if (TryComp<LustWishPaletteComponent>(item, out var tint)) sprite.LayerSetColor(layer, tint.Color);
@@ -66,7 +66,7 @@ public sealed partial class LustWishVisualSystem : EntitySystem
         {
             var audioQuery = EntityQueryEnumerator<AudioComponent>();
             while (audioQuery.MoveNext(out _, out var audio))
-                if (!audio.Global) audio.Volume = audio.Params.Volume + (deaf ? -30 : 0);
+                if (!audio.Global && audio.Gain > 0) audio.Volume = audio.Params.Volume + (deaf ? -30 : 0);
         }
         _wasDeaf = deaf;
     }

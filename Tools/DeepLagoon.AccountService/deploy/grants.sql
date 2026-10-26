@@ -6,6 +6,9 @@ GRANT SELECT ON preference, lagoon_coin_operations TO lagoon_accounts;
 GRANT UPDATE (lagoon_coins, lagoon_coin_played_ticks, lagoon_coin_bonus_ticks)
     ON preference TO lagoon_accounts;
 GRANT INSERT ON lagoon_coin_operations TO lagoon_accounts;
+GRANT SELECT, INSERT, UPDATE ON lagoon_economy_records TO lagoon_accounts;
+GRANT SELECT (user_id, first_seen_time, last_seen_user_name) ON player TO lagoon_accounts;
+GRANT SELECT (player_id, tracker, time_spent) ON play_time TO lagoon_accounts;
 GRANT SELECT, INSERT, DELETE ON whitelist TO lagoon_accounts;
 GRANT SELECT (user_id) ON admin TO lagoon_accounts;
 ALTER ROLE lagoon_accounts SET statement_timeout = '8s';

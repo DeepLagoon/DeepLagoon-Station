@@ -6,6 +6,12 @@ Presence, shape, size stage, skin/custom color and visibility are
 stored in `HumanoidCharacterAppearance.BodyFeatures`, persisted by both database
 providers and loaded into networked `HumanoidAppearanceComponent.BodyFeatures`.
 Existing profiles default to no additional parts. Choices are independent of sex.
+
+Interaction Panel sex conditions match the selected Sex or enabled primary body
+features: penis/testicles count for Male, vagina/womb for Female. Hidden parts
+count; disabled parts and secondary features do not. Both conditions may match
+one character. Unsexed still requires the selected Unsexed value. This does not
+change saved sex, gender or pronouns. Changes refresh open interaction panels.
 Breasts include the separate color toggle and nipple overlay from
 https://github.com/BlueMoon-Labs/BlueMoon-Station/pull/4108, pinned to commit
 `e0681c819a195c390ded3109b2109ea09b2486c1`. The source's supported states are the

@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 namespace Content.Server._DeepLagoon.Currency;
 
 public sealed record PendingLagoonCoinReward(Guid User, string Key, long Amount, string Reason,
-    Guid? Actor = null, long Played = 0, long Bonus = 0);
+    Guid? Actor = null, long Played = 0, long Bonus = 0, Content.Server.Database.LagoonActivity? Activity = null);
 
 /// <summary>Durable delivery queue; delete only after the game DB commits the idempotent operation.</summary>
 public sealed class LagoonCoinOutbox : IDisposable

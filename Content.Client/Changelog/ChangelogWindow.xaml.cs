@@ -60,17 +60,20 @@ namespace Content.Client.Changelog
             Tabs.DisposeAllChildren();
 
             var i = 0;
+            var mainTab = 0;
             foreach (var changelog in changelogs)
             {
                 var tab = new ChangelogTab { AdminOnly = changelog.AdminOnly };
                 tab.PopulateChangelog(changelog);
 
+                if (changelog.Name == ChangelogManager.MainChangelogName) mainTab = i;
                 Tabs.AddChild(tab);
                 Tabs.SetTabTitle(i++, Loc.GetString($"changelog-tab-title-{changelog.Name}"));
             }
 
             VersionLabel.Text = _changelog.GetClientVersion();
 
+            Tabs.CurrentTab = mainTab;
             TabsUpdated();
         }
 

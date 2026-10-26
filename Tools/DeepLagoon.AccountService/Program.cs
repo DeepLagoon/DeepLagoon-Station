@@ -32,8 +32,20 @@ public static class Program
         });
         var app = builder.Build();
         var operations = app.Services.GetRequiredService<AccountOperations>();
-        await operations.CheckSchema();
-        app.MapGet("/health", () => Results.Json(new { ready = true }));
+        var slots = new SemaphoreSlim(16, 16);
+        var healthSlots = new SemaphoreSlim(1, 1);
+        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1 }));
+        async Task<IResult> Readiness(HttpContext context)
+        {
+            using var lease = new AccountRequestLease(healthSlots);
+            if (!lease.Acquired) return Results.Json(new { ready = false }, statusCode: 503);
+            using var cancel = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
+            cancel.CancelAfter(TimeSpan.FromSeconds(3));
+            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1 }); }
+            catch { return Results.Json(new { ready = false, economy_api_version = 1 }, statusCode: 503); }
+        }
+        app.MapGet("/health", (Func<HttpContext, Task<IResult>>) Readiness);
+        app.MapGet("/health/ready", (Func<HttpContext, Task<IResult>>) Readiness);
         app.MapPost("/deeplagoon/discord/{action}", async (HttpContext context, string action) =>
         {
             if (context.Connection.RemoteIpAddress is not { } peer || !IPAddress.IsLoopback(peer))
@@ -42,6 +54,7 @@ public static class Program
             {
                 "whitelist" or "remove_whitelist" => settings.WhitelistToken,
                 "lc_add" or "lc_remove" or "lc_history" => settings.CoinToken,
+                _ when action.StartsWith("economy_", StringComparison.Ordinal) => settings.CoinToken,
                 _ => null,
             };
             if (token == null) return Results.NotFound();
@@ -49,10 +62,19 @@ public static class Program
                     Encoding.UTF8.GetBytes(context.Request.Headers.Authorization.ToString()),
                     Encoding.UTF8.GetBytes("Bearer " + token)))
                 return Results.Unauthorized();
+            using var requestLease = new AccountRequestLease(slots);
+            if (!requestLease.Acquired) return Results.Json(new { error = "busy" }, statusCode: 429);
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
             deadline.CancelAfter(TimeSpan.FromSeconds(10));
             try
             {
+                if (action.StartsWith("economy_", StringComparison.Ordinal))
+                {
+                    var economy = await JsonSerializer.DeserializeAsync<EconomyRequest>(context.Request.Body,
+                        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower }, deadline.Token);
+                    if (economy == null) return Results.BadRequest(new { error = "invalid_request" });
+                    return Results.Json(await operations.ExecuteEconomy(action, economy, deadline.Token));
+                }
                 var request = await JsonSerializer.DeserializeAsync<AccountRequest>(context.Request.Body,
                     new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower }, deadline.Token);
                 if (request == null) return Results.BadRequest(new { error = "invalid_request" });
@@ -115,14 +137,23 @@ public sealed class AccountError(string code, int status = 409) : Exception(code
 public sealed record IdentityLink(Guid Uid, string Username);
 
 /// <summary>No game status requests, ECS, or game thread dependencies.</summary>
-public sealed class AccountOperations(ServiceSettings settings) : IDisposable
+public sealed partial class AccountOperations(ServiceSettings settings) : IDisposable
 {
     // Keep a read-only WAL connection alive independently of the game. Otherwise
     // the last game writer can remove WAL/SHM on shutdown, leaving a narrowly
     // privileged reader unable to recreate them in the protected directory.
     private SqliteConnection? _linkLease;
+    private readonly object _linkLeaseLock = new();
 
-    public void Dispose() => _linkLease?.Dispose();
+    public void Dispose()
+    {
+        lock (_linkLeaseLock) { _linkLease?.Dispose(); _linkLease = null; }
+    }
+
+    private SqliteConnection EnsureLinkLease()
+    {
+        lock (_linkLeaseLock) return _linkLease ??= OpenLinks();
+    }
 
     private SqliteConnection OpenLinks()
     {
@@ -132,15 +163,16 @@ public sealed class AccountOperations(ServiceSettings settings) : IDisposable
         return db;
     }
 
-    public async Task CheckSchema()
+    public async Task CheckSchema(CancellationToken cancel = default)
     {
         await using var db = settings.OpenDatabase();
         // Never create or migrate the game's schema from this narrowly privileged service.
-        await db.Preference.Select(p => new { p.UserId, p.LagoonCoins, p.LagoonCoinPlayedTicks, p.LagoonCoinBonusTicks }).Take(1).ToListAsync();
-        await db.LagoonCoinOperations.Take(1).ToListAsync();
-        await db.Whitelist.Take(1).ToListAsync();
-        await db.Admin.Select(a => a.UserId).Take(1).ToListAsync();
-        var links = _linkLease ??= OpenLinks();
+        await db.Preference.Select(p => new { p.UserId, p.LagoonCoins, p.LagoonCoinPlayedTicks, p.LagoonCoinBonusTicks }).Take(1).ToListAsync(cancel);
+        await db.LagoonCoinOperations.Take(1).ToListAsync(cancel);
+        await db.LagoonEconomyRecords.Take(1).ToListAsync(cancel);
+        await db.Whitelist.Take(1).ToListAsync(cancel);
+        await db.Admin.Select(a => a.UserId).Take(1).ToListAsync(cancel);
+        var links = EnsureLinkLease();
         using var command = links.CreateCommand();
         command.CommandText = "SELECT discord_id,ss14_uid,username FROM discord_links LIMIT 1; SELECT official_uid,canonical_uid,discord_id FROM discord_account_merge_pending LIMIT 1; SELECT official_uid,canonical_uid,discord_id FROM discord_account_aliases LIMIT 1";
         command.ExecuteNonQuery();
@@ -149,6 +181,7 @@ public sealed class AccountOperations(ServiceSettings settings) : IDisposable
 
     private IdentityLink? FindLink(string discord)
     {
+        EnsureLinkLease();
         using var db = OpenLinks();
         using var command = db.CreateCommand();
         command.CommandText = "SELECT ss14_uid,username FROM discord_links WHERE discord_id=$discord";

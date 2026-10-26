@@ -35,6 +35,7 @@ public sealed class ApartmentRoomScene
     public int X, Y, Width, Height;
     public readonly List<GridEditorItem> Tiles = new();
     public readonly List<GridEditorItem> Objects = new();
+    public readonly HashSet<Vector2i> Walls = new();
     public readonly HashSet<Vector2i> Occupied = new();
     public readonly HashSet<Vector2i> Blocked = new();
 }
@@ -42,8 +43,9 @@ public sealed class ApartmentRoomScene
 [Serializable, NetSerializable]
 public sealed class ApartmentEditorEvent(NetEntity grid, string template, int revision, Guid token,
     List<ApartmentPlacement> layout, Dictionary<string, NetEntity> entities, ApartmentRoomScene? scene = null, int number = 0,
-    List<ApartmentMapFurniture>? mapFurniture = null, bool lobby = false) : EntityEventArgs
+    List<ApartmentMapFurniture>? mapFurniture = null, bool lobby = false, string[]? ownedFurniture = null) : EntityEventArgs
 {
+    public readonly string[] OwnedFurniture = ownedFurniture ?? [];
     public readonly bool Lobby = lobby;
     public readonly NetEntity Grid = grid;
     public readonly string Template = template;
@@ -89,15 +91,18 @@ public sealed class ApartmentShopAction(Guid token, string action, string templa
 [Serializable, NetSerializable]
 public sealed class ApartmentShopEntry
 {
-    public string Id = "", Name = "";
+    public string Id = "", Name = "", Category = "", Entity = "";
+    public int MaxCount;
     public long Price;
     public bool Owned, Selected;
 }
 [Serializable, NetSerializable]
-public sealed class ApartmentShopState(Guid token, List<ApartmentShopEntry> templates, int number, bool lobby, bool legacy, string message) : EntityEventArgs
+public sealed class ApartmentShopState(Guid token, List<ApartmentShopEntry> templates, int number, bool lobby, bool legacy, string message, List<ApartmentShopEntry>? furniture = null, long balance = -1) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly List<ApartmentShopEntry> Templates = templates;
+    public readonly List<ApartmentShopEntry> Furniture = furniture ?? [];
+    public readonly long Balance = balance;
     public readonly int Number = number;
     public readonly bool Lobby = lobby, Legacy = legacy;
     public readonly string Message = message;

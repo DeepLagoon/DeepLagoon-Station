@@ -1,6 +1,6 @@
 dl-apartment-studio = Lagoon studio
 dl-apartment-protected-rcd = RCD use is prohibited in this safe zone.
-dl-apartment-sofa = Sofa
+dl-apartment-sofa = Базовый модульный диван
 dl-apartment-chair = Wooden chair
 dl-apartment-table = Wooden table
 dl-apartment-bed = Bed

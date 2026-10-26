@@ -1,5 +1,5 @@
 credits-window-title = Credits
-credits-window-patrons-tab = Patrons
+credits-window-patrons-tab = Boosty
 credits-window-ss14contributorslist-tab = Credits
 credits-window-licenses-tab = Open Source Licenses
 credits-window-become-patron-button = Become a Patron

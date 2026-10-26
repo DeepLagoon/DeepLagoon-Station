@@ -1,0 +1,467 @@
+{
+  "DLLustWishCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishChoker": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishThinChoker": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishBellCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishCowCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishCrossCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishSpikeCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishKinkCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishMittens": {
+    "source": "ITEM_SLOT_GLOVES",
+    "nativeFlags": [
+      "GLOVES"
+    ],
+    "nativeSlots": [
+      "gloves"
+    ]
+  },
+  "DLLustWishHypnoGlasses": {
+    "source": "ITEM_SLOT_EYES",
+    "nativeFlags": [
+      "EYES"
+    ],
+    "nativeSlots": [
+      "eyes"
+    ]
+  },
+  "DLLustWishSensoryHood": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishHeadphones": {
+    "source": "ITEM_SLOT_EARS | ITEM_SLOT_HEAD | ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "EARS",
+      "HEAD",
+      "NECK"
+    ],
+    "nativeSlots": [
+      "ears",
+      "head",
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishLeash": {
+    "source": "ITEM_SLOT_BELT",
+    "nativeFlags": [
+      "BELT"
+    ],
+    "nativeSlots": [
+      "belt"
+    ]
+  },
+  "DLLustWishShockCollar": {
+    "source": "ITEM_SLOT_NECK",
+    "nativeFlags": [
+      "NECK"
+    ],
+    "nativeSlots": [
+      "neck",
+      "neck2",
+      "neck3"
+    ]
+  },
+  "DLLustWishColorMaid": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishColorClubSuit": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishChaps": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishBunnySuit": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishBunnySuitWhite": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishRabbitEars": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishKittyEars": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishDominaCap": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishDominaHeels": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishEveningGloves": {
+    "source": "ITEM_SLOT_GLOVES",
+    "nativeFlags": [
+      "GLOVES"
+    ],
+    "nativeSlots": [
+      "gloves"
+    ]
+  },
+  "DLLustWishHarness": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishKneeBoots": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishLatexSuit": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishCorset": {
+    "source": "ITEM_SLOT_OCLOTHING",
+    "nativeFlags": [
+      "OUTERCLOTHING"
+    ],
+    "nativeSlots": [
+      "outerClothing"
+    ]
+  },
+  "DLLustWishLatexHalfSuit": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishLatexGloves": {
+    "source": "ITEM_SLOT_GLOVES",
+    "nativeFlags": [
+      "GLOVES"
+    ],
+    "nativeSlots": [
+      "gloves"
+    ]
+  },
+  "DLLustWishLatexHeels": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishLatexSocks": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishMaidHeadband": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishMaidUniform": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishLatexMaid": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishBlindfold": {
+    "source": "ITEM_SLOT_EYES",
+    "nativeFlags": [
+      "EYES"
+    ],
+    "nativeSlots": [
+      "eyes"
+    ]
+  },
+  "DLLustWishLoincloth": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishClothLoincloth": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishToelessBoots": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishSingerUniform": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishSingerJacket": {
+    "source": "ITEM_SLOT_OCLOTHING",
+    "nativeFlags": [
+      "OUTERCLOTHING"
+    ],
+    "nativeSlots": [
+      "outerClothing"
+    ]
+  },
+  "DLLustWishSingerHair": {
+    "source": "ITEM_SLOT_HEAD",
+    "nativeFlags": [
+      "HEAD"
+    ],
+    "nativeSlots": [
+      "head"
+    ]
+  },
+  "DLLustWishSingerGloves": {
+    "source": "ITEM_SLOT_GLOVES",
+    "nativeFlags": [
+      "GLOVES"
+    ],
+    "nativeSlots": [
+      "gloves"
+    ]
+  },
+  "DLLustWishSingerLeggings": {
+    "source": "ITEM_SLOT_FEET",
+    "nativeFlags": [
+      "FEET"
+    ],
+    "nativeSlots": [
+      "shoes"
+    ]
+  },
+  "DLLustWishBelt": {
+    "source": "ITEM_SLOT_BELT",
+    "nativeFlags": [
+      "BELT"
+    ],
+    "nativeSlots": [
+      "belt"
+    ]
+  },
+  "DLLustWishJabroni": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishHandcuffs": {
+    "source": "ITEM_SLOT_BELT | ITEM_SLOT_HANDCUFFED",
+    "nativeFlags": [
+      "BELT"
+    ],
+    "nativeSlots": [
+      "belt"
+    ]
+  },
+  "DLLustWishStageOutfit": {
+    "source": "ITEM_SLOT_ICLOTHING",
+    "nativeFlags": [
+      "INNERCLOTHING"
+    ],
+    "nativeSlots": [
+      "jumpsuit"
+    ]
+  },
+  "DLLustWishNiceGoggles": {
+    "source": "ITEM_SLOT_EYES",
+    "nativeFlags": [
+      "EYES"
+    ],
+    "nativeSlots": [
+      "eyes"
+    ]
+  }
+}

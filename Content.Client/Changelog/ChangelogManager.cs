@@ -19,7 +19,7 @@ namespace Content.Client.Changelog
         [Dependency] private IConfigurationManager _configManager = default!;
 
         private const string SawmillName = "changelog";
-        public const string MainChangelogName = "Changelog";
+        public const string MainChangelogName = "Monolith";
 
         private ISawmill _sawmill = default!;
 
@@ -42,7 +42,7 @@ namespace Content.Client.Changelog
             NewChangelogEntries = false;
             NewChangelogEntriesChanged?.Invoke();
 
-            using var sw = _resource.UserData.OpenWriteText(new ($"/changelog_last_seen_{_configManager.GetCVar(CCVars.ServerId)}"));
+            using var sw = _resource.UserData.OpenWriteText(new ($"/changelog_last_seen_{MainChangelogName}_{_configManager.GetCVar(CCVars.ServerId)}"));
 
             sw.Write(MaxId.ToString());
         }
@@ -68,7 +68,7 @@ namespace Content.Client.Changelog
                 return;
             }
 
-            var changelog = changelogs[0];
+            var changelog = mainChangelogs[0];
             if (mainChangelogs.Length > 1)
             {
                 _sawmill.Error($"More than one file found in Resource/Changelog with name {MainChangelogName}");
@@ -81,10 +81,10 @@ namespace Content.Client.Changelog
 
             MaxId = changelog.Entries.Max(c => c.Id);
 
-            var path = new ResPath($"/changelog_last_seen_{_configManager.GetCVar(CCVars.ServerId)}");
+            var path = new ResPath($"/changelog_last_seen_{MainChangelogName}_{_configManager.GetCVar(CCVars.ServerId)}");
             if (_resource.UserData.TryReadAllText(path, out var lastReadIdText))
             {
-                LastReadId = int.Parse(lastReadIdText);
+                LastReadId = int.TryParse(lastReadIdText, out var saved) ? Math.Max(0, saved) : 0;
             }
 
             NewChangelogEntries = LastReadId < MaxId;
@@ -155,6 +155,9 @@ namespace Content.Client.Changelog
             ///     If left unspecified, the name of the file is used instead.
             ///     Used during localization to find the user-displayed name of this changelog.
             /// </summary>
+            [DataField("GeneratedThrough")]
+            public string GeneratedThrough = string.Empty;
+
             [DataField("Name")]
             public string Name = string.Empty;
 

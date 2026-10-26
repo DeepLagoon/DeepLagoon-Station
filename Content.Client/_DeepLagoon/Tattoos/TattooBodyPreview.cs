@@ -74,6 +74,20 @@ public static class TattooBodyPreview
         return result;
     }
 
+    public static Image<Rgba32> RenderLayers(SpriteComponent sprite, int anchorIndex, IEnumerable<int> indices, int direction)
+    {
+        var anchor = (SpriteComponent.Layer)sprite[anchorIndex];
+        var state = anchor.ActualState ?? throw new InvalidOperationException("The anchor has no RSI state.");
+        var result = new Image<Rgba32>(state.Size.X, state.Size.Y);
+        anchor.GetLayerDrawMatrix(unchecked((RsiDirection)DirectionFor(anchor, direction)), out var matrix);
+        foreach (var index in indices.Distinct().Order())
+        {
+            var layer = (SpriteComponent.Layer)sprite[index];
+            if (layer.ActualState != null) Composite(result, layer, DirectionFor(layer, direction), matrix, sprite);
+        }
+        return result;
+    }
+
     public static Image<Rgba32> ReadSkin(SpriteComponent sprite, int bodyIndex, int direction, IEnumerable<int>? anatomyIndices = null)
     {
         var layer = (SpriteComponent.Layer)sprite[bodyIndex]; var state = layer.ActualState!;

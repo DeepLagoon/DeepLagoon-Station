@@ -15,15 +15,20 @@ public abstract partial class SharedDiscordBoostSystem : EntitySystem
 
     // Effective feature entitlement; the actual Discord/Boosty subscription stays unchanged.
     public int GetSupporterTier(ICommonSession? session)
-        => HasHostAccess(session) ? 3 : GetBoostyTier(session);
+        => HasHostAccess(session) ? 3 : Content.Shared.Database.LagoonEconomyRules.GameTier(GetProductTier(session));
 
     public abstract bool HasActiveBoost(ICommonSession? session);
     public abstract int GetBoostyTier(ICommonSession? session);
     public abstract int[] RoleColors { get; }
+    public virtual bool HasSpark(ICommonSession? session) => false;
+    public virtual int GetPurchasedProductTier(ICommonSession? session) => 0;
+    public int GetProductTier(ICommonSession? session) => Math.Max(GetPurchasedProductTier(session),
+        Content.Shared.Database.LagoonEconomyRules.ProductTier(GetBoostyTier(session), HasSpark(session), HasActiveBoost(session)));
+    public bool HasOocColorAccess(ICommonSession? session) => GetProductTier(session) > 0;
 
-    // Supporter levels form a hierarchy: Booster -> Boosty 1 -> Boosty 2 -> Boosty 3.
+    // An active Discord boost grants the Impulse feature level; higher levels take precedence.
     public static int LoadoutPointBonus(bool discordBooster, int boostyTier)
-        => boostyTier > 0 ? 3 * (Math.Clamp(boostyTier, 1, 3) + 1) : discordBooster ? 3 : 0;
+        => boostyTier > 0 ? 3 * (Math.Clamp(boostyTier, 1, 3) + 1) : discordBooster ? 6 : 0;
 
     public int GetLoadoutPointBonus(ICommonSession? session)
         => LoadoutPointBonus(HasActiveBoost(session), GetSupporterTier(session));
@@ -56,10 +61,13 @@ public abstract partial class SharedDiscordBoostSystem : EntitySystem
 public enum DonorCategory : byte { None, DiscordBoost, Boosty }
 
 [Serializable, NetSerializable]
-public sealed class DiscordBoostStatusEvent(int remainingSeconds, int boostyTier = 0, int boostyRemainingSeconds = 0, int[]? roleColors = null) : EntityEventArgs
+public sealed class DiscordBoostStatusEvent(int remainingSeconds, int boostyTier = 0, int boostyRemainingSeconds = 0, int[]? roleColors = null, bool spark = false, int purchasedTier = 0, int purchasedSeconds = 0) : EntityEventArgs
 {
     public int RemainingSeconds = remainingSeconds;
     public int BoostyTier = boostyTier;
+    public bool Spark = spark;
+    public int PurchasedTier = purchasedTier;
+    public int PurchasedSeconds = purchasedSeconds;
     public int BoostyRemainingSeconds = boostyRemainingSeconds;
     public int[] RoleColors = roleColors ?? SharedDiscordBoostSystem.DefaultRoleColors;
 }

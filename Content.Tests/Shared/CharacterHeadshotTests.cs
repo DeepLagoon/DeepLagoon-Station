@@ -102,7 +102,7 @@ public sealed class CharacterHeadshotTests
     }
 
     [TestCase(false, 0, 0)]
-    [TestCase(true, 0, 3)]
+    [TestCase(true, 0, 6)]
     [TestCase(false, 1, 6)]
     [TestCase(true, 1, 6)]
     [TestCase(false, 2, 9)]

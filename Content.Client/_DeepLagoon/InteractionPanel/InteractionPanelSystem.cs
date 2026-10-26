@@ -36,6 +36,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeNetworkEvent<InteractionPanelLibraryEvent>(args => _panel?.SetLibrary(args));
         SubscribeNetworkEvent<InteractionPanelPanelEvent>(OnPanel);
         SubscribeNetworkEvent<InteractionPanelBodyStateEvent>(args => _panel?.SetBodyState(args));
+        SubscribeNetworkEvent<InteractionPanelAvailabilityEvent>(args => _panel?.SetAvailability(args));
         SubscribeNetworkEvent<LustWishGearStateEvent>(args => { if (_panel?.Target == args.Target) _panel.SetGearState(args); });
         SubscribeNetworkEvent<InteractionPanelAskEvent>(OnAsk);
         SubscribeNetworkEvent<InteractionPanelStatusEvent>(args => _panel?.SetStatus(args));
@@ -45,7 +46,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
 
     private bool OpenFromPointer(in PointerInputCmdHandler.PointerInputCmdArgs args)
     {
-        if (!HasComp<MobStateComponent>(args.EntityUid)) return false;
+        if (!HasComp<MobStateComponent>(args.EntityUid) && !HasComp<Content.Shared._DeepLagoon.LustWish.LustWishProjectionComponent>(args.EntityUid)) return false;
         RaiseNetworkEvent(new InteractionPanelOpenEvent(GetNetEntity(args.EntityUid)));
         return true;
     }

@@ -72,18 +72,24 @@ public sealed class LustWishTests
             pair.Server.PlayerMan.SetAttachedEntity(sessions[1], user);
             var hands = entities.System<SharedHandsSystem>();
             var transforms = entities.System<SharedTransformSystem>();
+            var mapSystem = entities.System<SharedMapSystem>();
+            for (var x=0; x<=31; x++)
+                for (var y=0; y<=2; y++)
+                    mapSystem.SetTile(map.Grid.Owner,map.Grid.Comp,new EntityCoordinates(map.Grid,new Vector2(x,y)),map.Tile.Tile);
+            var wallA = entities.SpawnEntity("WallSolid", new EntityCoordinates(map.Grid, new Vector2(.5f, 1.5f)));
+            var wallB = entities.SpawnEntity("WallSolid", new EntityCoordinates(map.Grid, new Vector2(20.5f, 1.5f)));
             var kit = entities.SpawnEntity("DLLustWishPortalKit", coordinates);
             Assert.That(hands.TryPickupAnyHand(target, kit), Is.True);
-            entities.EventBus.RaiseLocalEvent(kit, new UseInHandEvent(target));
+            entities.EventBus.RaiseLocalEvent(kit, new AfterInteractEvent(target, kit, wallA, coordinates, true));
             var kitComponent = entities.GetComponent<LustWishPortalKitComponent>(kit);
             Assert.That(kitComponent.FirstPortal, Is.Not.Null);
             var first = kitComponent.FirstPortal.Value;
             transforms.SetCoordinates(target, distant);
-            entities.EventBus.RaiseLocalEvent(kit, new UseInHandEvent(target));
+            entities.EventBus.RaiseLocalEvent(kit, new AfterInteractEvent(target, kit, wallB, distant, true));
             Assert.That(kitComponent.Completed, Is.True);
             var second = entities.GetComponent<LustWishPortalComponent>(first).Peer!.Value;
             Assert.That(entities.GetComponent<LustWishPortalComponent>(second).Peer, Is.EqualTo(first));
-            entities.EventBus.RaiseLocalEvent(kit, new UseInHandEvent(target));
+            entities.EventBus.RaiseLocalEvent(kit, new AfterInteractEvent(target, kit, wallA, coordinates, true));
             Assert.That(entities.GetComponent<LustWishPortalComponent>(first).Peer, Is.EqualTo(second), "A spent kit cannot create a third endpoint");
             transforms.SetCoordinates(target, coordinates);
             var portals = entities.System<LustWishPortalSystem>();
@@ -93,8 +99,9 @@ public sealed class LustWishTests
             portals.Disconnect(target);
             Assert.That(portals.CanRelay(user, target), Is.False);
             Assert.That(portals.TryConnect(first, target), Is.True);
+            portals.Disconnect(target);
             transforms.SetCoordinates(target, distant);
-            Assert.That(portals.CanRelay(user, target), Is.False, "Moving away must revoke access before the next update");
+            Assert.That(portals.CanRelay(user, target), Is.False, "Unbuckling revokes remote access immediately");
             transforms.SetCoordinates(target, coordinates);
             Assert.That(portals.TryConnect(first, target), Is.True);
             entities.DeleteEntity(first);

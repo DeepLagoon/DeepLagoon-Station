@@ -1,9 +1,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishCollar
-  name: tagged collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "pet collar"
+  description: "It's for pets. Though you probably could wear it yourself, you'd doubtless be the subject of ridicule."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Collar.rsi
@@ -13,15 +12,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/Collar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/Collar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishChoker
-  name: choker
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "choker"
+  description: "Quite fashionable... if you're somebody who's just read their first BDSM-themed erotica novel."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Choker.rsi
@@ -31,15 +34,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/Choker.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/Choker.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishThinChoker
-  name: thin choker
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "thin choker"
+  description: "Like the normal one, but thinner!"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/ThinChoker.rsi
@@ -49,15 +56,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/ThinChoker.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/ThinChoker.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishBellCollar
-  name: bell collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "bell collar"
+  description: "A loud and annoying collar for your little kitten!"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/BellCollar.rsi
@@ -67,15 +78,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/BellCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/BellCollar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishCowCollar
-  name: cowbell collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "cowbell collar"
+  description: "Don't fear the reaper, now your pet doesn't have to."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/CowCollar.rsi
@@ -85,15 +100,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/CowCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/CowCollar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishCrossCollar
-  name: cross collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "cross collar"
+  description: "A religious punishment, probably."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/CrossCollar.rsi
@@ -103,15 +122,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/CrossCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/CrossCollar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishSpikeCollar
-  name: spiked collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "spiked collar"
+  description: "A collar for a moody pet. Or a pitbull."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/SpikeCollar.rsi
@@ -121,15 +144,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/SpikeCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/SpikeCollar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishKinkCollar
-  name: wide collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "collar"
+  description: "A nice, tight collar. It fits snug to your skin"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/KinkCollar.rsi
@@ -139,15 +166,19 @@
   - type: LustWishPalette
   - type: LustWishAccessory
     slot: neck
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/KinkCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/KinkCollar.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishMittens
-  name: restrictive mittens
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "ball mittens"
+  description: "A nice, comfortable pair of inflatable ball gloves."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Mittens.rsi
@@ -156,17 +187,19 @@
     price: 25
   - type: LustWishPalette
   - type: LustWishAccessory
-    slot: hands
+    slot: gloves
     restrictHands: true
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/Mittens.rsi
-      state: worn
+    inventorySlots:
+    - gloves
+  - type: Clothing
+    slots:
+    - GLOVES
+    sprite: _DeepLagoon/LustWish/Mittens.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishHypnoGlasses
-  name: hypnotic glasses
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "hypnotic goggles"
+  description: "Woaa-a-ah... This is lewd."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/HypnoGlasses.rsi
@@ -177,15 +210,17 @@
   - type: LustWishAccessory
     slot: eyes
     hypnosis: true
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/HypnoGlasses.rsi
-      state: worn
+    inventorySlots:
+    - eyes
+  - type: Clothing
+    slots:
+    - EYES
+    sprite: _DeepLagoon/LustWish/HypnoGlasses.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishSensoryHood
-  name: sensory hood
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "deprivation helmet"
+  description: "Completely cuts off the wearer from the outside world."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/SensoryHood.rsi
@@ -197,15 +232,17 @@
     slot: head
     blind: true
     deaf: true
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/SensoryHood.rsi
-      state: worn
+    inventorySlots:
+    - head
+  - type: Clothing
+    slots:
+    - HEAD
+    sprite: _DeepLagoon/LustWish/SensoryHood.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishHeadphones
-  name: soundproof headphones
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "kinky headphones"
+  description: "Protect your ears from loud noises. It has a switch on the right hand side."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Headphones.rsi
@@ -216,15 +253,23 @@
   - type: LustWishAccessory
     slot: ears
     deaf: true
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/Headphones.rsi
-      state: worn
+    inventorySlots:
+    - ears
+    - head
+    - neck
+    - neck2
+    - neck3
+  - type: Clothing
+    slots:
+    - EARS
+    - HEAD
+    - NECK
+    sprite: _DeepLagoon/LustWish/Headphones.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishRope
-  name: wrist rope
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "shibari ropes"
+  description: "Coil of bondage ropes."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Rope.rsi
@@ -238,9 +283,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishAnkleRope
-  name: ankle rope
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "shibari ropes"
+  description: "Coil of bondage ropes."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/AnkleRope.rsi
@@ -254,9 +298,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishLeash
-  name: leash
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "leash"
+  description: "A guiding hand's best friend; in a sleek, semi-elastic package. Can either clip to a collar or be affixed to the neck on its own."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Leash.rsi
@@ -265,12 +308,15 @@
     price: 25
   - type: LustWishPalette
   - type: LustWishLeash
+  - type: Clothing
+    slots:
+    - BELT
+    sprite: _DeepLagoon/LustWish/Leash.rsi
 - type: entity
   parent: BaseItem
   id: DLLustWishKey
-  name: accessory key
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "collar key"
+  description: "A key for a tiny lock on a collar or bag."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Key.rsi
@@ -281,9 +327,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishRemote
-  name: accessory remote
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "remote signaling device"
+  description: "Used to remotely activate devices. Allows for syncing when using a secure signaler on another."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Remote.rsi
@@ -294,9 +339,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishRemoteMassager
-  name: remote torso massager
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "signal vibrating egg"
+  description: "A vibrating sex toy with remote control capability. Use a signaller to turn it on."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/RemoteMassager.rsi
@@ -323,9 +367,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishShockCollar
-  name: electric collar
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "shock collar"
+  description: "A reinforced metal collar. It has some sort of wiring near the front."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/ShockCollar.rsi
@@ -336,9 +379,10 @@
     slot: neck
     electronic: true
     shock: true
-    wornSprite:
-      sprite: _DeepLagoon/LustWish/ShockCollar.rsi
-      state: worn
+    inventorySlots:
+    - neck
+    - neck2
+    - neck3
   - type: PowerCellSlot
     cellSlotId: cell_slot
   - type: ContainerContainer
@@ -352,12 +396,15 @@
         whitelist:
           components:
           - PowerCell
+  - type: Clothing
+    slots:
+    - NECK
+    sprite: _DeepLagoon/LustWish/ShockCollar.rsi
 - type: entity
   parent: ClothingUniformBase
   id: DLLustWishColorMaid
-  name: recolorable maid costume
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "maid costume"
+  description: "Maid in China."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/ColorMaid.rsi
@@ -367,12 +414,13 @@
   - type: LustWishPalette
   - type: Clothing
     sprite: _DeepLagoon/LustWish/ColorMaid.rsi
+    slots:
+    - INNERCLOTHING
 - type: entity
   parent: ClothingUniformBase
   id: DLLustWishColorClubSuit
-  name: recolorable club outfit
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "stripper outfit"
+  description: "An item of clothing that leaves little to the imagination."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/ColorClubSuit.rsi
@@ -382,12 +430,13 @@
   - type: LustWishPalette
   - type: Clothing
     sprite: _DeepLagoon/LustWish/ColorClubSuit.rsi
+    slots:
+    - INNERCLOTHING
 - type: entity
   parent: BaseItem
   id: DLLustWishWipe
-  name: disposable wipe
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "serviette"
+  description: "To clean all the mess."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/Wipe.rsi
@@ -404,9 +453,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishWipePack
-  name: pack of wipes
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "pack of serviettes"
+  description: "I wonder why LustWish makes them..."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/WipePack.rsi
@@ -419,9 +467,8 @@
 - type: entity
   parent: Bed
   id: DLLustWishPaddedBed
-  name: padded restraint bed
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "bdsm bed"
+  description: "A latex bed with D-rings on the sides. Looks comfortable."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/PaddedBed.rsi
@@ -438,9 +485,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishPaddedBedKit
-  name: padded restraint bed construction kit
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "construction kit"
+  description: "Used for constructing various things"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/PaddedBedKit.rsi
@@ -452,9 +498,8 @@
 - type: entity
   parent: ChairBase
   id: DLLustWishXStand
-  name: cross stand
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "x stand"
+  description: "A stand for buckling people in an X shape."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/XStand.rsi
@@ -471,9 +516,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishXStandKit
-  name: cross stand construction kit
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "construction kit"
+  description: "Used for constructing various things"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/XStandKit.rsi
@@ -485,9 +529,8 @@
 - type: entity
   parent: ChairBase
   id: DLLustWishRopeStand
-  name: rope stand
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "shibari stand"
+  description: "A stand for buckling people with ropes."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/RopeStand.rsi
@@ -504,9 +547,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishRopeStandKit
-  name: rope stand construction kit
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "construction kit"
+  description: "Used for constructing various things"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/RopeStandKit.rsi
@@ -518,9 +560,8 @@
 - type: entity
   parent: BaseStructure
   id: DLLustWishDancePole
-  name: dance pole
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "stripper pole"
+  description: "A pole fastened to the ceiling and floor, used to show of one's goods to company."
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/DancePole.rsi
@@ -534,9 +575,8 @@
 - type: entity
   parent: BaseItem
   id: DLLustWishDancePoleKit
-  name: dance pole construction kit
-  description: Equipment from the LustWish collection. Manage attachments through
-    the Interaction Panel.
+  name: "construction kit"
+  description: "Used for constructing various things"
   components:
   - type: Sprite
     sprite: _DeepLagoon/LustWish/DancePoleKit.rsi
@@ -548,7 +588,8 @@
 - type: entity
   parent: ChemistryEmptyBottle01
   id: DLLustWishDLButtGrowthBottle
-  name: hips growth reagent bottle
+  name: "denbu tincture bottle"
+  description: "A bottle of natural vitamins and valentines plant extract that causes butt enlargement."
   components:
   - type: SolutionContainerManager
     solutions:
@@ -560,7 +601,8 @@
 - type: entity
   parent: ChemistryEmptyBottle01
   id: DLLustWishDLBellyGrowthBottle
-  name: belly growth reagent bottle
+  name: "belladine nectar bottle"
+  description: "A bottle containing a volatile collodial mixture that encourages abdominal expansion."
   components:
   - type: SolutionContainerManager
     solutions:
@@ -572,7 +614,8 @@
 - type: entity
   parent: ChemistryEmptyBottle01
   id: DLLustWishDLBreastsGrowthBottle
-  name: chest growth reagent bottle
+  name: "succubus milk bottle"
+  description: "A bottle of strong breast enlargement reagent."
   components:
   - type: SolutionContainerManager
     solutions:
@@ -584,7 +627,8 @@
 - type: entity
   parent: ChemistryEmptyBottle01
   id: DLLustWishDLPenisGrowthBottle
-  name: body feature growth reagent bottle
+  name: "incubus draft bottle"
+  description: "A bottle of strong penis enlargement reagent."
   components:
   - type: SolutionContainerManager
     solutions:
@@ -643,6 +687,8 @@
           Quantity: 30
 - type: constructionGraph
   id: DLLustWishPaddedBed
+  name: "bdsm bed"
+  description: "A latex bed with D-rings on the sides. Looks comfortable."
   start: built
   graph:
   - node: built
@@ -653,16 +699,18 @@
       - tool: Screwing
         doAfter: 3
       conditions:
-      - !type:NFStrapEmpty
+      - !type:NFStrapEmpty ''
       completed:
       - !type:SpawnPrototype
         prototype: DLLustWishPaddedBedKit
         amount: 1
   - node: packed
     actions:
-    - !type:DestroyEntity
+    - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishXStand
+  name: "x stand"
+  description: "A stand for buckling people in an X shape."
   start: built
   graph:
   - node: built
@@ -673,16 +721,18 @@
       - tool: Screwing
         doAfter: 3
       conditions:
-      - !type:NFStrapEmpty
+      - !type:NFStrapEmpty ''
       completed:
       - !type:SpawnPrototype
         prototype: DLLustWishXStandKit
         amount: 1
   - node: packed
     actions:
-    - !type:DestroyEntity
+    - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishRopeStand
+  name: "shibari stand"
+  description: "A stand for buckling people with ropes."
   start: built
   graph:
   - node: built
@@ -693,16 +743,18 @@
       - tool: Screwing
         doAfter: 3
       conditions:
-      - !type:NFStrapEmpty
+      - !type:NFStrapEmpty ''
       completed:
       - !type:SpawnPrototype
         prototype: DLLustWishRopeStandKit
         amount: 1
   - node: packed
     actions:
-    - !type:DestroyEntity
+    - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishDancePole
+  name: "stripper pole"
+  description: "A pole fastened to the ceiling and floor, used to show of one's goods to company."
   start: built
   graph:
   - node: built
@@ -713,11 +765,11 @@
       - tool: Screwing
         doAfter: 3
       conditions:
-      - !type:NFStrapEmpty
+      - !type:NFStrapEmpty ''
       completed:
       - !type:SpawnPrototype
         prototype: DLLustWishDancePoleKit
         amount: 1
   - node: packed
     actions:
-    - !type:DestroyEntity
+    - !type:DestroyEntity ''

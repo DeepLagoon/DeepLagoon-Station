@@ -4,7 +4,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const resources = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
-const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../.local/codex/apartment-interior/apartment-room-preview.json'), 'utf8'));
+const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT || path.resolve(__dirname, '../../.local/codex/apartment-interior/apartment-room-preview.json'), 'utf8'));
 
 (async () => {
   const server = http.createServer((req, res) => {
@@ -36,7 +36,7 @@ const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../.local/co
     } })), data);
     await page.locator('.ApartmentEditor__fixture').first().waitFor({ state: 'attached' });
     const occupiedCells = new Set(data.scene.occupied.map(cell => `${cell.x},${cell.y}`));
-    assert.equal(await page.locator('.ApartmentEditor__fixture').count(), data.scene.objects.filter(object => occupiedCells.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).length);
+    assert.equal(await page.locator('.ApartmentEditor__fixture').count(), data.scene.objects.filter(object => !object.wall && !object.door && occupiedCells.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).length);
     assert.equal(await page.locator('.ApartmentEditor__ghost .ApartmentEditor__planSprite').count(), data.layout.length);
     await page.waitForFunction(() => [...document.querySelectorAll('.ApartmentEditor__planSprite img')].every(image => image.complete && image.naturalWidth > 0));
     for (const item of data.layout) {
@@ -77,8 +77,8 @@ const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../.local/co
     const free = data.scene.tiles.filter(cell => !fixed.has(`${cell.x},${cell.y}`) && !reserved.has(`${cell.x},${cell.y}`) && !data.layout.some(item => item.x === cell.x && item.y === cell.y) && (cell.x !== data.arrivalX || cell.y !== data.arrivalY));
     const mapped = data.catalog.find(item => item.id === 'map_80') || data.catalog.find(item => item.existingOnly);
     const original = data.layout.find(item => item.id === mapped.placementId);
-    const mappedIndex = data.catalog.filter(item => !item.existingOnly).length + data.catalog.filter(item => item.existingOnly).findIndex(item => item.id === mapped.id);
-    await page.locator('.ApartmentEditor aside button').nth(mappedIndex).click();
+    await page.getByRole('button', { name: 'Исходный интерьер', exact: true }).click();
+    await page.locator(`[data-existing="${mapped.id}"]`).click();
     assert.equal(await page.getByRole('button', { name: 'Убрать · Delete', exact: true }).isDisabled(), true);
     await page.getByRole('button', { name: 'Увеличить масштаб', exact: true }).click();
     const enlarged = await page.locator('.ApartmentEditor__plan').boundingBox();
@@ -124,7 +124,8 @@ const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../.local/co
     assert.equal(await page.locator(`[data-placement="${original.id}"]`).count(), 1);
     await page.getByRole('button', { name: 'Отменить', exact: true }).click();
     assert.equal(await page.locator('.ApartmentEditor footer .primary').isDisabled(), true);
-    await page.locator('.ApartmentEditor aside button').nth(data.catalog.findIndex(item => item.id === 'DLAptChair')).click();
+    await page.getByRole('button', { name: 'Все', exact: true }).click();
+    await page.locator('[data-place="DLAptChair"]').click();
     await page.locator(`[data-cell="${free[1].x},${free[1].y}"]`).click();
     assert.equal(await page.locator('.ApartmentEditor__ghost:not(.hover)').count(), data.layout.length + 1);
     const obstacle = data.scene.occupied.find(cell => !reserved.has(`${cell.x},${cell.y}`) && (cell.x !== data.arrivalX || cell.y !== data.arrivalY));

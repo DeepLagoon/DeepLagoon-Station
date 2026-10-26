@@ -1,0 +1,491 @@
+{
+  "revision": "634692776c7b38f998c12907bdbabe3aae46df65",
+  "items": {
+    "DLLustWishChaps": {
+      "sourceType": "/obj/item/clothing/under/pants/skyrat/chaps",
+      "name": "black chaps",
+      "description": "Yeehaw",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishBunnySuit": {
+      "sourceType": "/obj/item/clothing/under/costume/bunnylewd",
+      "name": "bunny suit",
+      "description": "Makes the wearer more attractive, even men.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishBunnySuitWhite": {
+      "sourceType": "/obj/item/clothing/under/costume/bunnylewd/white",
+      "name": "white bunny suit",
+      "description": "Makes the wearer more attractive, even men.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishRabbitEars": {
+      "sourceType": "/obj/item/clothing/head/costume/rabbitears",
+      "name": "rabbit ears",
+      "description": "Wearing these makes you look useless, and only good for your sex appeal.",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishKittyEars": {
+      "sourceType": "/obj/item/clothing/head/costume/kitty",
+      "name": "kitty ears",
+      "description": "A pair of kitty ears. Meow!",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishDominaCap": {
+      "sourceType": "/obj/item/clothing/head/domina_cap",
+      "name": "dominant cap",
+      "description": "For special types of inspections.",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishDominaHeels": {
+      "sourceType": "/obj/item/clothing/shoes/latex_heels/domina_heels",
+      "name": "dominant heels",
+      "description": "A pair of aesthetically pleasing heels.",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishEveningGloves": {
+      "sourceType": "/obj/item/clothing/gloves/evening",
+      "name": "evening gloves",
+      "description": "Thin, pretty gloves intended for use in regal feminine attire, but knowing Space China these are just for some maid fetish.",
+      "sourceSlots": "ITEM_SLOT_GLOVES"
+    },
+    "DLLustWishHarness": {
+      "sourceType": "/obj/item/clothing/under/misc/skyrat/gear_harness",
+      "name": "gear harness",
+      "description": "A simple, inconspicuous harness replacement for a jumpsuit.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishKneeBoots": {
+      "sourceType": "/obj/item/clothing/shoes/jackboots/knee",
+      "name": "knee boots",
+      "description": "Black leather boots that go up to the knee.",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishLatexSuit": {
+      "sourceType": "/obj/item/clothing/under/misc/latex_catsuit",
+      "name": "latex catsuit",
+      "description": "A shiny uniform that fits snugly to the skin.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishCorset": {
+      "sourceType": "/obj/item/clothing/suit/corset",
+      "name": "corset",
+      "description": "A tight latex corset. How can anybody fit in THAT?",
+      "sourceSlots": "ITEM_SLOT_OCLOTHING"
+    },
+    "DLLustWishLatexHalfSuit": {
+      "sourceType": "/obj/item/clothing/under/misc/latex_halfcatsuit",
+      "name": "latex half-catsuit",
+      "description": "A shiny uniform that fits snugly to the skin. The legs have been cut off this one.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishLatexGloves": {
+      "sourceType": "/obj/item/clothing/gloves/latex_gloves",
+      "name": "latex gloves",
+      "description": "Awesome looking gloves that are satisfying to the touch.",
+      "sourceSlots": "ITEM_SLOT_GLOVES"
+    },
+    "DLLustWishLatexHeels": {
+      "sourceType": "/obj/item/clothing/shoes/latex_heels",
+      "name": "latex heels",
+      "description": "Lace up before use. It's pretty difficult to walk in these.",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishLatexSocks": {
+      "sourceType": "/obj/item/clothing/shoes/latex_socks",
+      "name": "latex socks",
+      "description": "A pair of shiny, split-toe socks made of some strange material.",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishMaidHeadband": {
+      "sourceType": "/obj/item/clothing/head/costume/skyrat/maid",
+      "name": "maid headband",
+      "description": "Maid in China.",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishMaidUniform": {
+      "sourceType": "/obj/item/clothing/under/rank/civilian/janitor/maid",
+      "name": "maid uniform",
+      "description": "A simple maid uniform for housekeeping.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishLatexMaid": {
+      "sourceType": "/obj/item/clothing/under/costume/lewdmaid",
+      "name": "latex maid costume",
+      "description": "A maid costume made of a thick latex.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishBlindfold": {
+      "sourceType": "/obj/item/clothing/glasses/blindfold/kinky",
+      "name": "kinky blindfold",
+      "description": "Covers the eyes, preventing sight. But it looks so nice...",
+      "sourceSlots": "ITEM_SLOT_EYES"
+    },
+    "DLLustWishLoincloth": {
+      "sourceType": "/obj/item/clothing/under/costume/loincloth/sensor",
+      "name": "loincloth",
+      "description": "A simple leather covering. It's better than wearing nothing at least.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishClothLoincloth": {
+      "sourceType": "/obj/item/clothing/under/costume/loincloth/cloth/sensor",
+      "name": "loincloth",
+      "description": "A simple cloth covering. It's better than wearing nothing at least.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishToelessBoots": {
+      "sourceType": "/obj/item/clothing/shoes/jackboots/toeless",
+      "name": "toe-less jackboots",
+      "description": "Modified pair of jackboots, particularly friendly to those species whose toes hold claws.",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishSingerUniform": {
+      "sourceType": "/obj/item/clothing/under/mikubikini",
+      "name": "starlight singer bikini",
+      "description": " ",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishSingerJacket": {
+      "sourceType": "/obj/item/clothing/suit/mikujacket",
+      "name": "starlight singer jacket",
+      "description": " ",
+      "sourceSlots": "ITEM_SLOT_OCLOTHING"
+    },
+    "DLLustWishSingerHair": {
+      "sourceType": "/obj/item/clothing/head/mikuhair",
+      "name": "starlight singer hair",
+      "description": " ",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishSingerGloves": {
+      "sourceType": "/obj/item/clothing/gloves/mikugloves",
+      "name": "starlight singer gloves",
+      "description": " ",
+      "sourceSlots": "ITEM_SLOT_GLOVES"
+    },
+    "DLLustWishSingerLeggings": {
+      "sourceType": "/obj/item/clothing/shoes/sneakers/mikuleggings",
+      "name": "starlight singer leggings",
+      "description": " ",
+      "sourceSlots": "ITEM_SLOT_FEET"
+    },
+    "DLLustWishJabroni": {
+      "sourceType": "/obj/item/clothing/under/costume/jabroni",
+      "name": "jabroni outfit",
+      "description": "The leather club is two sectors down.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishStageOutfit": {
+      "sourceType": "/obj/item/clothing/under/stripper_outfit",
+      "name": "stripper outfit",
+      "description": "An item of clothing that leaves little to the imagination.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishNiceGoggles": {
+      "sourceType": "/obj/item/clothing/glasses/nice_goggles",
+      "name": "surprisingly nice looking goggles",
+      "description": "It has an inscription engraved on the handle. Kubic. How strange.",
+      "sourceSlots": "ITEM_SLOT_EYES"
+    },
+    "DLLustWishCollar": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar",
+      "name": "pet collar",
+      "description": "It's for pets. Though you probably could wear it yourself, you'd doubtless be the subject of ridicule.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishChoker": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/choker",
+      "name": "choker",
+      "description": "Quite fashionable... if you're somebody who's just read their first BDSM-themed erotica novel.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishThinChoker": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/thinchoker",
+      "name": "thin choker",
+      "description": "Like the normal one, but thinner!",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishBellCollar": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/locked/bell",
+      "name": "bell collar",
+      "description": "A loud and annoying collar for your little kitten!",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishCowCollar": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/locked/cow",
+      "name": "cowbell collar",
+      "description": "Don't fear the reaper, now your pet doesn't have to.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishCrossCollar": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/locked/cross",
+      "name": "cross collar",
+      "description": "A religious punishment, probably.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishSpikeCollar": {
+      "sourceType": "/obj/item/clothing/neck/human_petcollar/locked/spike",
+      "name": "spiked collar",
+      "description": "A collar for a moody pet. Or a pitbull.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishKinkCollar": {
+      "sourceType": "/obj/item/clothing/neck/kink_collar",
+      "name": "collar",
+      "description": "A nice, tight collar. It fits snug to your skin",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishMittens": {
+      "sourceType": "/obj/item/clothing/gloves/ball_mittens",
+      "name": "ball mittens",
+      "description": "A nice, comfortable pair of inflatable ball gloves.",
+      "sourceSlots": "ITEM_SLOT_GLOVES"
+    },
+    "DLLustWishHypnoGlasses": {
+      "sourceType": "/obj/item/clothing/glasses/hypno",
+      "name": "hypnotic goggles",
+      "description": "Woaa-a-ah... This is lewd.",
+      "sourceSlots": "ITEM_SLOT_EYES"
+    },
+    "DLLustWishSensoryHood": {
+      "sourceType": "/obj/item/clothing/head/deprivation_helmet",
+      "name": "deprivation helmet",
+      "description": "Completely cuts off the wearer from the outside world.",
+      "sourceSlots": "ITEM_SLOT_HEAD"
+    },
+    "DLLustWishHeadphones": {
+      "sourceType": "/obj/item/clothing/ears/kinky_headphones",
+      "name": "kinky headphones",
+      "description": "Protect your ears from loud noises. It has a switch on the right hand side.",
+      "sourceSlots": "ITEM_SLOT_EARS | ITEM_SLOT_HEAD | ITEM_SLOT_NECK"
+    },
+    "DLLustWishLeash": {
+      "sourceType": "/obj/item/clothing/erp_leash",
+      "name": "leash",
+      "description": "A guiding hand's best friend; in a sleek, semi-elastic package. Can either clip to a collar or be affixed to the neck on its own.",
+      "sourceSlots": "ITEM_SLOT_BELT"
+    },
+    "DLLustWishRemoteMassager": {
+      "sourceType": "/obj/item/clothing/sextoy/eggvib/signalvib",
+      "name": "signal vibrating egg",
+      "description": "A vibrating sex toy with remote control capability. Use a signaller to turn it on.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishMassager": {
+      "sourceType": "/obj/item/clothing/sextoy/magic_wand",
+      "name": "magic wand",
+      "description": "Not sure where is magic in this thing, but if you press button - it makes funny vibrations",
+      "sourceSlots": "0"
+    },
+    "DLLustWishColorMaid": {
+      "sourceType": "/obj/item/clothing/under/costume/maid",
+      "name": "maid costume",
+      "description": "Maid in China.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishColorClubSuit": {
+      "sourceType": "/obj/item/clothing/under/stripper_outfit",
+      "name": "stripper outfit",
+      "description": "An item of clothing that leaves little to the imagination.",
+      "sourceSlots": "ITEM_SLOT_ICLOTHING"
+    },
+    "DLLustWishPillow": {
+      "sourceType": "/obj/item/fancy_pillow",
+      "name": "pillow",
+      "description": "A big, soft pillow.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishBelt": {
+      "sourceType": "/obj/item/storage/belt/erpbelt",
+      "name": "leather belt",
+      "description": "Used to hold sex toys. Looks pretty good.",
+      "sourceSlots": "ITEM_SLOT_BELT"
+    },
+    "DLLustWishHandcuffs": {
+      "sourceType": "/obj/item/restraints/handcuffs/lewd",
+      "name": "kinky handcuffs",
+      "description": "Fake handcuffs meant for erotic roleplay.",
+      "sourceSlots": "ITEM_SLOT_BELT | ITEM_SLOT_HANDCUFFED"
+    },
+    "DLLustWishFeather": {
+      "sourceType": "/obj/item/tickle_feather",
+      "name": "tickling feather",
+      "description": "A rather ticklish feather that can be used in both mirth and malice.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishEliteCard": {
+      "sourceType": "/obj/item/lustwish_discount",
+      "name": "LustWish elite card",
+      "description": "A strange card with a blue lamia on the back.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishSinvoxPlush": {
+      "sourceType": "/obj/item/toy/plush/sinvox",
+      "name": "sinister vox plushie",
+      "description": "An evil looking toy. It's got a vox beak that splits into mandibles like a bug;its tail looks like a copy of the xenomorph plushie stitched together poorly.Property and copyright of VOXXXED Studios...",
+      "sourceSlots": "0"
+    },
+    "DLLustWishRope": {
+      "sourceType": "/obj/item/stack/shibari_rope",
+      "name": "shibari ropes",
+      "description": "Coil of bondage ropes.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishAnkleRope": {
+      "sourceType": "/obj/item/stack/shibari_rope",
+      "name": "shibari ropes",
+      "description": "Coil of bondage ropes.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishKey": {
+      "sourceType": "/obj/item/key/collar",
+      "name": "collar key",
+      "description": "A key for a tiny lock on a collar or bag.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishRemote": {
+      "sourceType": "/obj/item/assembly/signaler",
+      "name": "remote signaling device",
+      "description": "Used to remotely activate devices. Allows for syncing when using a secure signaler on another.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishShockCollar": {
+      "sourceType": "/obj/item/electropack/shockcollar",
+      "name": "shock collar",
+      "description": "A reinforced metal collar. It has some sort of wiring near the front.",
+      "sourceSlots": "ITEM_SLOT_NECK"
+    },
+    "DLLustWishWipe": {
+      "sourceType": "/obj/item/serviette",
+      "name": "serviette",
+      "description": "To clean all the mess.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishWipePack": {
+      "sourceType": "/obj/item/serviette_pack",
+      "name": "pack of serviettes",
+      "description": "I wonder why LustWish makes them...",
+      "sourceSlots": "0"
+    },
+    "DLLustWishPortalKit": {
+      "sourceType": "/obj/item/wallframe/lewd_portal",
+      "name": "Lustwish Portal Bore",
+      "description": "A device utilizing bluespace technology to transpose portions of people from one space to another.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishPaddedBed": {
+      "sourceType": "/obj/structure/bed/bdsm_bed",
+      "name": "bdsm bed",
+      "description": "A latex bed with D-rings on the sides. Looks comfortable.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishXStand": {
+      "sourceType": "/obj/structure/chair/x_stand",
+      "name": "x stand",
+      "description": "A stand for buckling people in an X shape.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishRopeStand": {
+      "sourceType": "/obj/structure/chair/shibari_stand",
+      "name": "shibari stand",
+      "description": "A stand for buckling people with ropes.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDancePole": {
+      "sourceType": "/obj/structure/stripper_pole",
+      "name": "stripper pole",
+      "description": "A pole fastened to the ceiling and floor, used to show of one's goods to company.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishPortal": {
+      "sourceType": "/obj/structure/lewd_portal",
+      "name": "LustWish Portal",
+      "description": "A portal that people can partially fit through.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishPaddedBedKit": {
+      "sourceType": "/obj/item/construction_kit/bdsm/bed",
+      "name": "construction kit",
+      "description": "Used for constructing various things",
+      "sourceSlots": "0"
+    },
+    "DLLustWishXStandKit": {
+      "sourceType": "/obj/item/construction_kit/bdsm/x_stand",
+      "name": "construction kit",
+      "description": "Used for constructing various things",
+      "sourceSlots": "0"
+    },
+    "DLLustWishRopeStandKit": {
+      "sourceType": "/obj/item/construction_kit/bdsm/shibari",
+      "name": "construction kit",
+      "description": "Used for constructing various things",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDancePoleKit": {
+      "sourceType": "/obj/item/construction_kit/pole",
+      "name": "construction kit",
+      "description": "Used for constructing various things",
+      "sourceSlots": "0"
+    },
+    "DLLustWishCrocinPill": {
+      "sourceType": "/obj/item/reagent_containers/applicator/pill/crocin",
+      "name": "crocin pill (10u)",
+      "description": "I've fallen, and I can't get it up!",
+      "sourceSlots": "0"
+    },
+    "DLLustWishCrocinBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/crocin",
+      "name": "crocin bottle",
+      "description": "A bottle of mild aphrodisiac. Increases libido.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishCamphorPill": {
+      "sourceType": "/obj/item/reagent_containers/applicator/pill/camphor",
+      "name": "camphor pill (10u)",
+      "description": "For the early bird.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishCamphorBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/camphor",
+      "name": "camphor bottle",
+      "description": "A bottle of mild anaphrodisiac. Reduces libido.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDLButtGrowthBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/butt_enlarger",
+      "name": "denbu tincture bottle",
+      "description": "A bottle of natural vitamins and valentines plant extract that causes butt enlargement.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDLBellyGrowthBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/belly_enlarger",
+      "name": "belladine nectar bottle",
+      "description": "A bottle containing a volatile collodial mixture that encourages abdominal expansion.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDLBreastsGrowthBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/succubus_milk",
+      "name": "succubus milk bottle",
+      "description": "A bottle of strong breast enlargement reagent.",
+      "sourceSlots": "0"
+    },
+    "DLLustWishDLPenisGrowthBottle": {
+      "sourceType": "/obj/item/reagent_containers/cup/bottle/incubus_draft",
+      "name": "incubus draft bottle",
+      "description": "A bottle of strong penis enlargement reagent.",
+      "sourceSlots": "0"
+    },
+    "VendingMachineLustWish": {
+      "sourceType": "/obj/machinery/vending/dorms",
+      "name": "LustWish",
+      "description": "A vending machine with various toys. Not for the faint of heart.",
+      "sourceSlots": "0"
+    },
+    "VendingMachineRestockLustWish": {
+      "sourceType": "/obj/item/vending_refill/lustwish",
+      "name": "resupply canister",
+      "description": "A vending machine restock cart.",
+      "sourceSlots": "0"
+    }
+  }
+}

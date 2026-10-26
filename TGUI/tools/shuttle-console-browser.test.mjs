@@ -281,15 +281,26 @@ try {
     }
     await page.getByRole('button', { name: 'Порт 8', exact: true }).click();
     assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'nav' && a.payload.id === 'port' && a.payload.value === '8')));
+    const pilotSettings = page.locator('details').filter({ hasText: 'Настройки пилотирования' });
+    const weaponSettings = page.locator('details').filter({ hasText: 'Управление орудиями' });
+    assert.ok(await pilotSettings.evaluate(el => el.open), 'Pilot controls must start expanded');
+    assert.equal(await weaponSettings.evaluate(el => el.open), false, 'Weapon controls must start collapsed');
+    assert.equal(await page.getByRole('button', { name: 'Баллистика', exact: true }).isVisible(), false);
+    await weaponSettings.locator('summary').click();
     await page.getByRole('button', { name: 'Баллистика', exact: true }).click();
     assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'weapon' && a.payload.id === 'ballistic')));
     const search = page.getByLabel('Название / компания');
-    await page.locator('summary').click();
     await search.fill('Пелагея'); await page.evaluate(() => window.telemetry());
     assert.equal(await search.inputValue(), 'Пелагея');
     await search.press('Enter');
     assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'nav' && a.payload.id === 'search' && a.payload.value === 'Пелагея')));
-    await page.locator('summary').click();
+    await weaponSettings.locator('summary').click();
+    await page.evaluate(() => window.telemetry());
+    assert.equal(await weaponSettings.evaluate(el => el.open), false, 'Telemetry must leave weapon controls collapsed');
+    await pilotSettings.locator('summary').click();
+    await page.evaluate(() => window.telemetry());
+    assert.equal(await pilotSettings.evaluate(el => el.open), false, 'Telemetry must preserve collapsed pilot controls');
+    await pilotSettings.locator('summary').click();
     await page.getByRole('button', { name: 'Карта / FTL', exact: true }).click();
     await page.getByRole('button', { name: 'Станция DeepLagoon', exact: true }).click();
     assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'map' && a.payload.id === 'target')));
@@ -306,24 +317,20 @@ try {
         thrusters:{expected:2,missing:0},weapons:{expected:3,missing:0},structures:{expected:15,missing:1},tiles:{expected:2000,missing:1}});
     });
     await page.getByRole('button', { name: 'Состояние', exact: true }).click();
-    await page.locator('.ShuttleHull__display canvas').waitFor();
-    assert.equal(await page.locator('.ShuttleConsole__viewport').count(), 0, 'Schematic must replace the native radar viewport');
-    const schematic = await page.locator('.ShuttleHull__display canvas').evaluate(el => ({width:el.width,height:el.height,
-      missing:[...el.getContext('2d').getImageData(32,15,1,1).data]}));
-    assert.equal(schematic.width,64); assert.equal(schematic.height,32);
-    assert.deepEqual(schematic.missing,[204,68,66,255], 'Missing structures must remain on the abstract silhouette in red');
+    await page.getByRole('status', { name: 'Мониторинг состояния шаттла', exact: true }).waitFor();
+    assert.equal(await page.locator('.ShuttleConsole__viewport').count(), 1, 'Hull monitoring must provide a viewport for the native NavMapControl');
     assert.ok(await page.locator('.ShuttleHull__summary').nth(1).innerText().then(text=>text.includes('14 / 15')));
     const board = await page.locator('.ShuttleHull__summary').first().innerText();
     assert.ok(board.includes('87%') && board.includes('Есть · 2') && board.includes('Есть · 1'));
     assert.ok(board.includes('4.5 МДж / 9.0 МДж'));
     assert.equal(await page.locator('.ShuttleHull__summary').first().locator('.ShuttleHull__missing').evaluate(el=>getComputedStyle(el).color), 'rgb(231, 124, 119)');
-    assert.equal(await page.locator('.ShuttleHull__display canvas').count(),1, 'Large ships must use one bounded bitmap');
+    await page.getByRole('button', { name: 'Очистить историю повреждений', exact: true }).click();
+    assert.ok(await page.evaluate(() => window.actions.some(a => a.action === 'resetHullHistory')));
     await page.screenshot({path:path.join(output,`status-${width}.png`)});
     await page.evaluate(() => window.previewHull({present:true,width:2,height:1,cells:btoa(String.fromCharCode(5,17)),
       thrusters:{expected:1,missing:0},structures:{expected:1,missing:0}}));
-    await page.waitForFunction(()=>document.querySelector('.ShuttleHull__display canvas').width===2);
-    assert.deepEqual(await page.locator('.ShuttleHull__display canvas').evaluate(el=>[...el.getContext('2d').getImageData(1,0,1,1).data]),
-      [134,147,149,255], 'Replacement must clear red marks');
+    await page.waitForFunction(()=>document.querySelector('.ShuttleHull__summary').textContent.includes('100%'));
+    assert.equal(await page.locator('.ShuttleHull__summary').nth(1).locator('.ShuttleHull__missing').count(), 0, 'Reset telemetry must clear missing-system warnings');
     await page.getByRole('button', { name: 'Пилот / орудия', exact: true }).click();
     await renderRadar();
     const screenshot = path.join(output, width === 1285 ? 'shuttle-ports.png' : `shuttle-${width}.png`);

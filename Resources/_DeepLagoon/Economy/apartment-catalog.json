@@ -1,0 +1,2360 @@
+{
+  "version": 1,
+  "catalog": [
+    {
+      "sku": "apt-decor-001",
+      "category": "Бесплатная база",
+      "name": "Базовый диван",
+      "price_lc": 0,
+      "placement_limit": 4,
+      "base_entity": "DLAptSofaEntity",
+      "status": "Бесплатно сейчас",
+      "source": {
+        "path": "Resources/Prototypes/_DeepLagoon/Apartments/apartments.yml",
+        "line": 82,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptSofa",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-002",
+      "category": "Бесплатная база",
+      "name": "Базовый деревянный стул",
+      "price_lc": 0,
+      "placement_limit": 4,
+      "base_entity": "DLAptChairEntity",
+      "status": "Бесплатно сейчас",
+      "source": {
+        "path": "Resources/Prototypes/_DeepLagoon/Apartments/apartments.yml",
+        "line": 90,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptChair",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-003",
+      "category": "Бесплатная база",
+      "name": "Базовый деревянный стол",
+      "price_lc": 0,
+      "placement_limit": 3,
+      "base_entity": "DLAptTableEntity",
+      "status": "Бесплатно сейчас",
+      "source": {
+        "path": "Resources/Prototypes/_DeepLagoon/Apartments/apartments.yml",
+        "line": 98,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptTable",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-004",
+      "category": "Бесплатная база",
+      "name": "Базовая кровать",
+      "price_lc": 0,
+      "placement_limit": 2,
+      "base_entity": "DLAptBedEntity",
+      "status": "Бесплатно сейчас",
+      "source": {
+        "path": "Resources/Prototypes/_DeepLagoon/Apartments/apartments.yml",
+        "line": 103,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptBed",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-005",
+      "category": "Бесплатная база",
+      "name": "Базовое растение",
+      "price_lc": 0,
+      "placement_limit": 4,
+      "base_entity": "DLAptPlantEntity",
+      "status": "Бесплатно сейчас",
+      "source": {
+        "path": "Resources/Prototypes/_DeepLagoon/Apartments/apartments.yml",
+        "line": 111,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptPlant",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-006",
+      "category": "Стулья и кресла",
+      "name": "Чёрный стул",
+      "price_lc": 35,
+      "placement_limit": 6,
+      "base_entity": "ChairBlack",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 129,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor006",
+      "entity": "DLAptDecor006Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-007",
+      "category": "Стулья и кресла",
+      "name": "Табурет",
+      "price_lc": 35,
+      "placement_limit": 6,
+      "base_entity": "Stool",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 138,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor007",
+      "entity": "DLAptDecor007Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-008",
+      "category": "Стулья и кресла",
+      "name": "Барный стул",
+      "price_lc": 45,
+      "placement_limit": 6,
+      "base_entity": "StoolBar",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 150,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor008",
+      "entity": "DLAptDecor008Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-009",
+      "category": "Стулья и кресла",
+      "name": "Светлое офисное кресло",
+      "price_lc": 60,
+      "placement_limit": 6,
+      "base_entity": "ChairOfficeLight",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 172,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor009",
+      "entity": "DLAptDecor009Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-010",
+      "category": "Стулья и кресла",
+      "name": "Тёмное офисное кресло",
+      "price_lc": 60,
+      "placement_limit": 6,
+      "base_entity": "ChairOfficeDark",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 183,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor010",
+      "entity": "DLAptDecor010Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-011",
+      "category": "Стулья и кресла",
+      "name": "Мягкое кресло",
+      "price_lc": 80,
+      "placement_limit": 6,
+      "base_entity": "ComfyChair",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 194,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor011",
+      "entity": "DLAptDecor011Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-012",
+      "category": "Стулья и кресла",
+      "name": "Латунное кресло",
+      "price_lc": 90,
+      "placement_limit": 6,
+      "base_entity": "ChairBrass",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/chairs.yml",
+        "line": 161,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor012",
+      "entity": "DLAptDecor012Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-013",
+      "category": "Стулья и кресла",
+      "name": "Фиолетовый стул с обивкой",
+      "price_lc": 80,
+      "placement_limit": 6,
+      "base_entity": "ChairWoodFancyPurple",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/_NF/Entities/Structures/Furniture/chairs.yml",
+        "line": 92,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor013",
+      "entity": "DLAptDecor013Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-014",
+      "category": "Стулья и кресла",
+      "name": "Зелёный стул с обивкой",
+      "price_lc": 80,
+      "placement_limit": 6,
+      "base_entity": "ChairWoodFancyGreen",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/_NF/Entities/Structures/Furniture/chairs.yml",
+        "line": 62,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor014",
+      "entity": "DLAptDecor014Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-015",
+      "category": "Модульные диваны",
+      "name": "Левый модуль дивана",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaLeft",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 214,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor015",
+      "entity": "DLAptDecor015Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-016",
+      "category": "Модульные диваны",
+      "name": "Правый модуль дивана",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaRight",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 225,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor016",
+      "entity": "DLAptDecor016Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-017",
+      "category": "Модульные диваны",
+      "name": "Угловой модуль дивана",
+      "price_lc": 75,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaCorner",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 236,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor017",
+      "entity": "DLAptDecor017Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-018",
+      "category": "Модульные диваны",
+      "name": "Середина корпоративного дивана",
+      "price_lc": 95,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaCorpMiddle",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 272,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor018",
+      "entity": "DLAptDecor018Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-019",
+      "category": "Модульные диваны",
+      "name": "Левый корпоративный модуль",
+      "price_lc": 95,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaCorpLeft",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 285,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor019",
+      "entity": "DLAptDecor019Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-020",
+      "category": "Модульные диваны",
+      "name": "Правый корпоративный модуль",
+      "price_lc": 95,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaCorpRight",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 296,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor020",
+      "entity": "DLAptDecor020Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-021",
+      "category": "Модульные диваны",
+      "name": "Корпоративный угловой модуль",
+      "price_lc": 120,
+      "placement_limit": 8,
+      "base_entity": "BenchSofaCorpCorner",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/SimpleStation14/benches.yml",
+        "line": 307,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor021",
+      "entity": "DLAptDecor021Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-022",
+      "category": "Столы и стойки",
+      "name": "Чёрный стол",
+      "price_lc": 50,
+      "placement_limit": 8,
+      "base_entity": "TableBlack",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 205,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor022",
+      "entity": "DLAptDecor022Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-023",
+      "category": "Столы и стойки",
+      "name": "Стеклянный стол",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "TableGlass",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 287,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor023",
+      "entity": "DLAptDecor023Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-024",
+      "category": "Столы и стойки",
+      "name": "Каменный стол",
+      "price_lc": 75,
+      "placement_limit": 8,
+      "base_entity": "TableStone",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 625,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor024",
+      "entity": "DLAptDecor024Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-025",
+      "category": "Столы и стойки",
+      "name": "Латунный стол",
+      "price_lc": 90,
+      "placement_limit": 8,
+      "base_entity": "TableBrass",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 486,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor025",
+      "entity": "DLAptDecor025Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-026",
+      "category": "Столы и стойки",
+      "name": "Деревянная стойка",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "TableCounterWood",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 912,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor026",
+      "entity": "DLAptDecor026Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-027",
+      "category": "Столы и стойки",
+      "name": "Металлическая стойка",
+      "price_lc": 75,
+      "placement_limit": 8,
+      "base_entity": "TableCounterMetal",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 962,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor027",
+      "entity": "DLAptDecor027Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-028",
+      "category": "Столы и стойки",
+      "name": "Синий стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 750,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor028",
+      "entity": "DLAptDecor028Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-029",
+      "category": "Столы и стойки",
+      "name": "Фиолетовый стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyPurple",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 810,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor029",
+      "entity": "DLAptDecor029Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-030",
+      "category": "Столы и стойки",
+      "name": "Розовый стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyPink",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 825,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor030",
+      "entity": "DLAptDecor030Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-031",
+      "category": "Столы и стойки",
+      "name": "Белый стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyWhite",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 870,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor031",
+      "entity": "DLAptDecor031Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-032",
+      "category": "Столы и стойки",
+      "name": "Зелёный стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyGreen",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 840,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor032",
+      "entity": "DLAptDecor032Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-033",
+      "category": "Столы и стойки",
+      "name": "Оранжевый стол с покрытием",
+      "price_lc": 80,
+      "placement_limit": 8,
+      "base_entity": "TableFancyOrange",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/Tables/tables.yml",
+        "line": 855,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor033",
+      "entity": "DLAptDecor033Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-034",
+      "category": "Спальня",
+      "name": "Матрас",
+      "price_lc": 35,
+      "placement_limit": 3,
+      "base_entity": "Mattress",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/beds.yml",
+        "line": 128,
+        "abstract": false
+      },
+      "note": "Убрать лечение и любые игровые награды; сохранить сидение/сон как взаимодействие.",
+      "furniture": "DLAptDecor034",
+      "entity": "DLAptDecor034Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-035",
+      "category": "Спальня",
+      "name": "Лежанка",
+      "price_lc": 50,
+      "placement_limit": 3,
+      "base_entity": "DogBed",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/beds.yml",
+        "line": 95,
+        "abstract": false
+      },
+      "note": "Убрать лечение и любые игровые награды; сохранить сидение/сон как взаимодействие.",
+      "furniture": "DLAptDecor035",
+      "entity": "DLAptDecor035Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-036",
+      "category": "Спальня",
+      "name": "Кушетка",
+      "price_lc": 110,
+      "placement_limit": 3,
+      "base_entity": "PsychBed",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/beds.yml",
+        "line": 188,
+        "abstract": false
+      },
+      "note": "Убрать лечение и любые игровые награды; сохранить сидение/сон как взаимодействие.",
+      "furniture": "DLAptDecor036",
+      "entity": "DLAptDecor036Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-037",
+      "category": "Спальня",
+      "name": "Деревянная кровать",
+      "price_lc": 100,
+      "placement_limit": 3,
+      "base_entity": "N14BedWood",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/_Nuclear14/Entities/Structures/Furniture/beds.yml",
+        "line": 24,
+        "abstract": false
+      },
+      "note": "Убрать лечение и любые игровые награды; сохранить сидение/сон как взаимодействие.",
+      "furniture": "DLAptDecor037",
+      "entity": "DLAptDecor037Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-038",
+      "category": "Спальня",
+      "name": "Двухъярусная кровать",
+      "price_lc": 180,
+      "placement_limit": 3,
+      "base_entity": "N14BedWoodBunk",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/_Nuclear14/Entities/Structures/Furniture/beds.yml",
+        "line": 36,
+        "abstract": false
+      },
+      "note": "Убрать лечение и любые игровые награды; сохранить сидение/сон как взаимодействие.",
+      "furniture": "DLAptDecor038",
+      "entity": "DLAptDecor038Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-039",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 2",
+      "price_lc": 25,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant2",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 68,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor039",
+      "entity": "DLAptDecor039Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-040",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 3",
+      "price_lc": 25,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant3",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 75,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor040",
+      "entity": "DLAptDecor040Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-041",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 4",
+      "price_lc": 25,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant4",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 82,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor041",
+      "entity": "DLAptDecor041Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-042",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 5",
+      "price_lc": 25,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant5",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 89,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor042",
+      "entity": "DLAptDecor042Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-043",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 6",
+      "price_lc": 35,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant6",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 96,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor043",
+      "entity": "DLAptDecor043Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-044",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 7",
+      "price_lc": 35,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant7",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 103,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor044",
+      "entity": "DLAptDecor044Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-045",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 8",
+      "price_lc": 35,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant8",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 110,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor045",
+      "entity": "DLAptDecor045Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-046",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 10",
+      "price_lc": 35,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant10",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 129,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor046",
+      "entity": "DLAptDecor046Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-047",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 11",
+      "price_lc": 45,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant11",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 137,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor047",
+      "entity": "DLAptDecor047Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-048",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 12",
+      "price_lc": 45,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant12",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 144,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor048",
+      "entity": "DLAptDecor048Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-049",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 13",
+      "price_lc": 45,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant13",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 151,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor049",
+      "entity": "DLAptDecor049Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-050",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 14",
+      "price_lc": 45,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant14",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 158,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor050",
+      "entity": "DLAptDecor050Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-051",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 15",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant15",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 165,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor051",
+      "entity": "DLAptDecor051Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-052",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 16",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant16",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 172,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor052",
+      "entity": "DLAptDecor052Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-053",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 17",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant17",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 179,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor053",
+      "entity": "DLAptDecor053Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-054",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 18",
+      "price_lc": 55,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant18",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 186,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor054",
+      "entity": "DLAptDecor054Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-055",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 19",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant19",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 193,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor055",
+      "entity": "DLAptDecor055Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-056",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 20",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant20",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 200,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor056",
+      "entity": "DLAptDecor056Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-057",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 21",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant21",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 207,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor057",
+      "entity": "DLAptDecor057Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-058",
+      "category": "Растения",
+      "name": "Растение в горшке · вариант 22",
+      "price_lc": 65,
+      "placement_limit": 8,
+      "base_entity": "PottedPlant22",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/potted_plants.yml",
+        "line": 214,
+        "abstract": false
+      },
+      "note": "Номера соответствуют прототипам. Русские ботанические названия уточнить после просмотра спрайтов; убрать тайники.",
+      "furniture": "DLAptDecor058",
+      "entity": "DLAptDecor058Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-059",
+      "category": "Ковры",
+      "name": "Красный ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "Carpet",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 41,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor059",
+      "entity": "DLAptDecor059Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-060",
+      "category": "Ковры",
+      "name": "Чёрный ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetBlack",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 70,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor060",
+      "entity": "DLAptDecor060Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-061",
+      "category": "Ковры",
+      "name": "Розовый ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetPink",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 100,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor061",
+      "entity": "DLAptDecor061Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-062",
+      "category": "Ковры",
+      "name": "Синий ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 130,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor062",
+      "entity": "DLAptDecor062Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-063",
+      "category": "Ковры",
+      "name": "Зелёный ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetGreen",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 160,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor063",
+      "entity": "DLAptDecor063Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-064",
+      "category": "Ковры",
+      "name": "Оранжевый ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetOrange",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 190,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor064",
+      "entity": "DLAptDecor064Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-065",
+      "category": "Ковры",
+      "name": "Светло-синий ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetSBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 220,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor065",
+      "entity": "DLAptDecor065Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-066",
+      "category": "Ковры",
+      "name": "Фиолетовый ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetPurple",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 250,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor066",
+      "entity": "DLAptDecor066Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-067",
+      "category": "Ковры",
+      "name": "Бирюзовый ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetCyan",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 280,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor067",
+      "entity": "DLAptDecor067Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-068",
+      "category": "Ковры",
+      "name": "Белый ковёр",
+      "price_lc": 45,
+      "placement_limit": 32,
+      "base_entity": "CarpetWhite",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/carpets.yml",
+        "line": 310,
+        "abstract": false
+      },
+      "note": "Одна покупка открывает до 32 сегментов; напольный слой, не занимает место стула или стола.",
+      "furniture": "DLAptDecor068",
+      "entity": "DLAptDecor068Entity",
+      "layer": "Floor",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-069",
+      "category": "Шторы",
+      "name": "Чёрные шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsBlack",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 87,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor069",
+      "entity": "DLAptDecor069Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-070",
+      "category": "Шторы",
+      "name": "Синие шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 117,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor070",
+      "entity": "DLAptDecor070Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-071",
+      "category": "Шторы",
+      "name": "Бирюзовые шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsCyan",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 147,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor071",
+      "entity": "DLAptDecor071Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-072",
+      "category": "Шторы",
+      "name": "Зелёные шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsGreen",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 177,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor072",
+      "entity": "DLAptDecor072Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-073",
+      "category": "Шторы",
+      "name": "Оранжевые шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsOrange",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 207,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor073",
+      "entity": "DLAptDecor073Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-074",
+      "category": "Шторы",
+      "name": "Розовые шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsPink",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 237,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor074",
+      "entity": "DLAptDecor074Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-075",
+      "category": "Шторы",
+      "name": "Фиолетовые шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsPurple",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 267,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor075",
+      "entity": "DLAptDecor075Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-076",
+      "category": "Шторы",
+      "name": "Красные шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsRed",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 297,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor076",
+      "entity": "DLAptDecor076Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-077",
+      "category": "Шторы",
+      "name": "Белые шторы",
+      "price_lc": 60,
+      "placement_limit": 8,
+      "base_entity": "CurtainsWhite",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/curtains.yml",
+        "line": 327,
+        "abstract": false
+      },
+      "note": "Открытое и закрытое состояния входят в одну покупку.",
+      "furniture": "DLAptDecor077",
+      "entity": "DLAptDecor077Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-078",
+      "category": "Картины",
+      "name": "Абстракция № 1",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingMoony",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 61,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor078",
+      "entity": "DLAptDecor078Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-079",
+      "category": "Картины",
+      "name": "Постоянство памяти",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingPersistenceOfMemory",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 70,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor079",
+      "entity": "DLAptDecor079Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-080",
+      "category": "Картины",
+      "name": "Сын человеческий",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingTheSonOfMan",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 79,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor080",
+      "entity": "DLAptDecor080Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-081",
+      "category": "Картины",
+      "name": "Поцелуй",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingTheKiss",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 88,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor081",
+      "entity": "DLAptDecor081Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-082",
+      "category": "Картины",
+      "name": "Крик",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingTheScream",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 97,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor082",
+      "entity": "DLAptDecor082Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-083",
+      "category": "Картины",
+      "name": "Большая волна",
+      "price_lc": 90,
+      "placement_limit": 4,
+      "base_entity": "PaintingTheGreatWave",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 106,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor083",
+      "entity": "DLAptDecor083Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-084",
+      "category": "Картины",
+      "name": "Ночная терраса кафе",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingCafeTerraceAtNight",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 115,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor084",
+      "entity": "DLAptDecor084Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-085",
+      "category": "Картины",
+      "name": "Полуночники",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingNightHawks",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 124,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor085",
+      "entity": "DLAptDecor085Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-086",
+      "category": "Картины",
+      "name": "Старый гитарист",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingOldGuitarist",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 160,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor086",
+      "entity": "DLAptDecor086Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-087",
+      "category": "Картины",
+      "name": "Красный, синий и жёлтый",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingRedBlueYellow",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 196,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor087",
+      "entity": "DLAptDecor087Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-088",
+      "category": "Картины",
+      "name": "Спящая цыганка",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "PaintingSleepingGypsy",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/Signs/paintings.yml",
+        "line": 187,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor088",
+      "entity": "DLAptDecor088Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-089",
+      "category": "Картины",
+      "name": "Большой улов",
+      "price_lc": 90,
+      "placement_limit": 4,
+      "base_entity": "PaintingMothBigCatch",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Nyanotrasen/Entities/Structures/Wallmount/paintings.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Настенный слой; визуальная модель уже есть, квартирный вариант и проверка размещения нужны.",
+      "furniture": "DLAptDecor089",
+      "entity": "DLAptDecor089Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-090",
+      "category": "Баннеры",
+      "name": "Баннер «Синий»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 156,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor090",
+      "entity": "DLAptDecor090Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-091",
+      "category": "Баннеры",
+      "name": "Баннер «Красный»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerRed",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 169,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor091",
+      "entity": "DLAptDecor091Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-092",
+      "category": "Баннеры",
+      "name": "Баннер «Жёлтый»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerYellow",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 182,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor092",
+      "entity": "DLAptDecor092Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-093",
+      "category": "Баннеры",
+      "name": "Баннер «Зелёный»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerGreen",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 195,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor093",
+      "entity": "DLAptDecor093Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-094",
+      "category": "Баннеры",
+      "name": "Баннер «Снабжение»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerCargo",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 65,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor094",
+      "entity": "DLAptDecor094Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-095",
+      "category": "Баннеры",
+      "name": "Баннер «Инженерия»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerEngineering",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 78,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor095",
+      "entity": "DLAptDecor095Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-096",
+      "category": "Баннеры",
+      "name": "Баннер «Наука»",
+      "price_lc": 70,
+      "placement_limit": 4,
+      "base_entity": "BannerScience",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/banners.yml",
+        "line": 130,
+        "abstract": false
+      },
+      "note": "",
+      "furniture": "DLAptDecor096",
+      "entity": "DLAptDecor096Entity",
+      "layer": "Wall",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-097",
+      "category": "Освещение",
+      "name": "Настольная лампа",
+      "price_lc": 60,
+      "placement_limit": 4,
+      "base_entity": "Lamp",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Objects/Misc/fluff_lights.yml",
+        "line": 58,
+        "abstract": false
+      },
+      "note": "Квартирное питание без батарей/ресурсной добычи; общий бюджет динамического света — до 6 источников на квартиру.",
+      "furniture": "DLAptDecor097",
+      "entity": "DLAptDecor097Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-098",
+      "category": "Освещение",
+      "name": "Золотая лампа",
+      "price_lc": 120,
+      "placement_limit": 4,
+      "base_entity": "LampGold",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Objects/Misc/fluff_lights.yml",
+        "line": 101,
+        "abstract": false
+      },
+      "note": "Квартирное питание без батарей/ресурсной добычи; общий бюджет динамического света — до 6 источников на квартиру.",
+      "furniture": "DLAptDecor098",
+      "entity": "DLAptDecor098Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-099",
+      "category": "Освещение",
+      "name": "Напольный светильник",
+      "price_lc": 80,
+      "placement_limit": 4,
+      "base_entity": "LightPostSmall",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Lighting/ground_lighting.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Квартирное питание без батарей/ресурсной добычи; общий бюджет динамического света — до 6 источников на квартиру.",
+      "furniture": "DLAptDecor099",
+      "entity": "DLAptDecor099Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-100",
+      "category": "Шкафы и полки",
+      "name": "Книжный шкаф",
+      "price_lc": 100,
+      "placement_limit": 4,
+      "base_entity": "Bookshelf",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/bookshelf.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Покупка открывает модель, но не увеличивает межраундовое хранилище снаряжения; книжные наполнения не выдаются.",
+      "furniture": "DLAptDecor100",
+      "entity": "DLAptDecor100Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-101",
+      "category": "Шкафы и полки",
+      "name": "Комод",
+      "price_lc": 100,
+      "placement_limit": 4,
+      "base_entity": "Dresser",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Furniture/dresser.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Покупка открывает модель, но не увеличивает межраундовое хранилище снаряжения; книжные наполнения не выдаются.",
+      "furniture": "DLAptDecor101",
+      "entity": "DLAptDecor101Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-102",
+      "category": "Шкафы и полки",
+      "name": "Деревянная полка",
+      "price_lc": 50,
+      "placement_limit": 4,
+      "base_entity": "ShelfWood",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/shelfs.yml",
+        "line": 81,
+        "abstract": false
+      },
+      "note": "Покупка открывает модель, но не увеличивает межраундовое хранилище снаряжения; книжные наполнения не выдаются.",
+      "furniture": "DLAptDecor102",
+      "entity": "DLAptDecor102Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-103",
+      "category": "Шкафы и полки",
+      "name": "Стеклянная полка",
+      "price_lc": 75,
+      "placement_limit": 4,
+      "base_entity": "ShelfGlass",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Wallmounts/shelfs.yml",
+        "line": 146,
+        "abstract": false
+      },
+      "note": "Покупка открывает модель, но не увеличивает межраундовое хранилище снаряжения; книжные наполнения не выдаются.",
+      "furniture": "DLAptDecor103",
+      "entity": "DLAptDecor103Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-104",
+      "category": "Музыка и досуг",
+      "name": "Музыкальный автомат",
+      "price_lc": 240,
+      "placement_limit": 2,
+      "base_entity": "Jukebox",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Machines/jukebox.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Только локальные развлечения. Убрать призы, валюту, телепортацию, разборку и содержимое контейнеров; звук ограничить квартирой.",
+      "furniture": "DLAptDecor104",
+      "entity": "DLAptDecor104Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-105",
+      "category": "Музыка и досуг",
+      "name": "Рояль",
+      "price_lc": 300,
+      "placement_limit": 2,
+      "base_entity": "PianoInstrument",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Objects/Fun/Instruments/instruments_structures.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Только локальные развлечения. Убрать призы, валюту, телепортацию, разборку и содержимое контейнеров; звук ограничить квартирой.",
+      "furniture": "DLAptDecor105",
+      "entity": "DLAptDecor105Entity",
+      "layer": "Furniture",
+      "size": "2,2",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-106",
+      "category": "Музыка и досуг",
+      "name": "Пианино",
+      "price_lc": 240,
+      "placement_limit": 2,
+      "base_entity": "UprightPianoInstrument",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Objects/Fun/Instruments/instruments_structures.yml",
+        "line": 13,
+        "abstract": false
+      },
+      "note": "Только локальные развлечения. Убрать призы, валюту, телепортацию, разборку и содержимое контейнеров; звук ограничить квартирой.",
+      "furniture": "DLAptDecor106",
+      "entity": "DLAptDecor106Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-107",
+      "category": "Музыка и досуг",
+      "name": "Аркада с блоками",
+      "price_lc": 240,
+      "placement_limit": 2,
+      "base_entity": "BlockGameArcade",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Machines/Computers/arcades.yml",
+        "line": 197,
+        "abstract": false
+      },
+      "note": "Только локальные развлечения. Убрать призы, валюту, телепортацию, разборку и содержимое контейнеров; звук ограничить квартирой.",
+      "furniture": "DLAptDecor107",
+      "entity": "DLAptDecor107Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-108",
+      "category": "Музыка и досуг",
+      "name": "Аркада «Космический злодей»",
+      "price_lc": 240,
+      "placement_limit": 2,
+      "base_entity": "SpaceVillainArcade",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Machines/Computers/arcades.yml",
+        "line": 57,
+        "abstract": false
+      },
+      "note": "Только локальные развлечения. Убрать призы, валюту, телепортацию, разборку и содержимое контейнеров; звук ограничить квартирой.",
+      "furniture": "DLAptDecor108",
+      "entity": "DLAptDecor108Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-109",
+      "category": "Акценты интерьера",
+      "name": "Декоративный камин",
+      "price_lc": 220,
+      "placement_limit": 2,
+      "base_entity": "Fireplace",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/fireplace.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Камин без горения/газа/урона/производства тепла. У декоративных статуй убрать ресурсные награды.",
+      "furniture": "DLAptDecor109",
+      "entity": "DLAptDecor109Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-110",
+      "category": "Акценты интерьера",
+      "name": "Красная статуя",
+      "price_lc": 200,
+      "placement_limit": 2,
+      "base_entity": "StatueVenusRed",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/statues.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Камин без горения/газа/урона/производства тепла. У декоративных статуй убрать ресурсные награды.",
+      "furniture": "DLAptDecor110",
+      "entity": "DLAptDecor110Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-111",
+      "category": "Акценты интерьера",
+      "name": "Синяя статуя",
+      "price_lc": 200,
+      "placement_limit": 2,
+      "base_entity": "StatueVenusBlue",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/statues.yml",
+        "line": 15,
+        "abstract": false
+      },
+      "note": "Камин без горения/газа/урона/производства тепла. У декоративных статуй убрать ресурсные награды.",
+      "furniture": "DLAptDecor111",
+      "entity": "DLAptDecor111Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-112",
+      "category": "Акценты интерьера",
+      "name": "Украшенная ель",
+      "price_lc": 150,
+      "placement_limit": 2,
+      "base_entity": "DecoratedFirTree",
+      "status": "Адаптация существующей модели",
+      "source": {
+        "path": "Resources/Prototypes/Entities/Structures/Decoration/decorated_fir_tree.yml",
+        "line": 1,
+        "abstract": false
+      },
+      "note": "Камин без горения/газа/урона/производства тепла. У декоративных статуй убрать ресурсные награды.",
+      "furniture": "DLAptDecor112",
+      "entity": "DLAptDecor112Entity",
+      "layer": "Furniture",
+      "size": "1,1",
+      "available": true
+    },
+    {
+      "sku": "apt-decor-113",
+      "category": "Новый тематический декор",
+      "name": "Аквариум",
+      "price_lc": 180,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая графика/анимация; рыбы являются частью декора, без мобов и добычи.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-114",
+      "category": "Новый тематический декор",
+      "name": "Террариум",
+      "price_lc": 150,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая графика; закрытый декоративный объект без выращивания ресурсов.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-115",
+      "category": "Новый тематический декор",
+      "name": "Проектор туманности",
+      "price_lc": 240,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новый локальный эффект на стену, отключаемый гостями; без полноэкранной вспышки.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-116",
+      "category": "Новый тематический декор",
+      "name": "Неоновая табличка с текстом",
+      "price_lc": 160,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая графика/редактор текста; серверная проверка текста, без разметки и ссылок.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-117",
+      "category": "Новый тематический декор",
+      "name": "Неоновая эмблема Lagoon",
+      "price_lc": 120,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая графика эмблемы и мягкое локальное свечение.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-118",
+      "category": "Новый тематический декор",
+      "name": "Голографический питомец",
+      "price_lc": 300,
+      "placement_limit": 1,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая анимация, без ИИ/коллизии/боевых функций; максимум один на квартиру.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-119",
+      "category": "Новый тематический декор",
+      "name": "Макет шаттла на столе",
+      "price_lc": 120,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая графика настольного декора, без функций транспорта.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-120",
+      "category": "Новый тематический декор",
+      "name": "Панно с кои",
+      "price_lc": 140,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая настенная графика.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-121",
+      "category": "Новый тематический декор",
+      "name": "Рамка с собственным изображением",
+      "price_lc": 200,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая проверка и хранение пользовательских изображений; использовать механизм очистки портретов, но отдельное право владения.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    },
+    {
+      "sku": "apt-decor-122",
+      "category": "Новый тематический декор",
+      "name": "Бумажные звёзды",
+      "price_lc": 25,
+      "placement_limit": 4,
+      "base_entity": null,
+      "status": "Новая разработка",
+      "source": null,
+      "note": "Новая простая графика настенного декора.",
+      "available": false,
+      "reason": "Новая графика и интерактивные функции — отдельный этап; товар не продаётся."
+    }
+  ]
+}

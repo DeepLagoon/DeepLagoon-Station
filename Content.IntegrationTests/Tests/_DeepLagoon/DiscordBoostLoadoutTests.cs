@@ -19,6 +19,7 @@ using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
 using NUnit.Framework;
 using Robust.Shared.Configuration;
+using Robust.Shared.Localization;
 using Robust.Shared.Enums;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Network;
@@ -105,7 +106,7 @@ public sealed class DiscordBoostLoadoutTests
                 Assert.That(systems.GetEntitySystem<SharedDiscordBoostSystem>(), Is.SameAs(linking));
                 Assert.That(loadouts.CanUse(prototype, profile, "Passenger", session, out _), Is.False);
                 store.SetBoost(discord, true);
-                Assert.That(loadouts.GetPoints(session), Is.EqualTo(loadouts.Points + 3));
+                Assert.That(loadouts.GetPoints(session), Is.EqualTo(loadouts.Points + 6));
                 Assert.That(loadouts.CanUse(prototype, profile, "Passenger", session, out _), Is.True);
                 Assert.That(loadouts.CanUse(prototype, profile, "Passenger", null, out _), Is.False);
                 auth.SetValue(session, LoginType.GuestAssigned);
@@ -134,7 +135,14 @@ public sealed class DiscordBoostLoadoutTests
                     }
                 }
                 store.SetSupporter(discord, true, 0, colors);
-                Assert.That(loadouts.CanUse(prototypes.Index(new Robust.Shared.Prototypes.ProtoId<LoadoutPrototype>("TestBoostyTier1")), profile, "Passenger", session, out _), Is.False);
+                Assert.That(supporters.GetBoostyTier(session), Is.Zero);
+                Assert.That(supporters.GetProductTier(session), Is.EqualTo(2));
+                Assert.That(supporters.GetSupporterTier(session), Is.EqualTo(1));
+                Assert.That(supporters.HasOocColorAccess(session), Is.True);
+                Assert.That(loadouts.CanUse(prototypes.Index(new Robust.Shared.Prototypes.ProtoId<LoadoutPrototype>("TestBoostyTier1")), profile, "Passenger", session, out _), Is.True);
+                Assert.That(loadouts.CanUse(prototypes.Index(new Robust.Shared.Prototypes.ProtoId<LoadoutPrototype>("TestBoostyTier2")), profile, "Passenger", session, out _), Is.False);
+                store.SetSupporter(discord, false, 0, colors);
+                Assert.That(supporters.GetProductTier(session), Is.Zero);
                 Assert.That(supporters.GetDonorColor(DonorCategory.Boosty, 1).ToHex(), Does.StartWith("#223344"));
             });
         }
@@ -147,6 +155,22 @@ public sealed class DiscordBoostLoadoutTests
             });
             await server.RemoveDummySession(session);
         }
+        var boosterNetwork = server.ResolveDependency<IEntityManager>().EntityNetManager!;
+        await server.WaitPost(() =>
+        {
+            var realSession = server.ResolveDependency<Robust.Server.Player.IPlayerManager>().Sessions.Single();
+            boosterNetwork.SendSystemNetworkMessage(new DiscordBoostStatusEvent(900), realSession.Channel);
+        });
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var local = pair.Client.ResolveDependency<Robust.Client.Player.IPlayerManager>().LocalSession;
+            var supporters = pair.Client.ResolveDependency<IEntitySystemManager>().GetEntitySystem<SharedDiscordBoostSystem>();
+            Assert.That(supporters.GetProductTier(local), Is.EqualTo(2));
+            Assert.That(supporters.GetSupporterTier(local), Is.EqualTo(1));
+            Assert.That(supporters.GetLoadoutPointBonus(local), Is.EqualTo(6));
+            Assert.That(supporters.HasOocColorAccess(local), Is.True);
+        });
         // Exercise delivery of tier and palette data over the real test connection.
         var network = server.ResolveDependency<IEntityManager>().EntityNetManager!;
         await server.WaitPost(() =>
@@ -176,7 +200,8 @@ public sealed class DiscordBoostLoadoutTests
             Assert.That(buttons.Length, Is.EqualTo(3));
             for (var tier = 1; tier <= 3; tier++)
             {
-                var button = buttons.Single(b => b.ToolTip!.Contains("tier " + tier));
+                var donorLabel = Loc.GetString("dl-loadout-donor-boosty", ("tier", tier));
+                var button = buttons.Single(b => b.ToolTip!.Split('\n').Contains(donorLabel));
                 Assert.That(button.Disabled, Is.EqualTo(tier == 3));
                 Assert.That(Descendants(button).OfType<TextureRect>().Count(), Is.EqualTo(tier == 3 ? 2 : 1), "Locked tiles keep the item image and add a lock");
                 var style = (StyleBoxFlat) button.StyleBoxOverride!;

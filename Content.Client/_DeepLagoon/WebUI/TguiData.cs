@@ -8,6 +8,7 @@ public sealed class TguiData
 {
     private readonly Dictionary<string, string> _fields = new();
     public TguiData String(string key, string? value) => Raw(key, GameWebView.Quote(value ?? ""));
+    public TguiData Number(string key, long value) => Raw(key, value.ToString(CultureInfo.InvariantCulture));
     public TguiData Number(string key, int value) => Raw(key, value.ToString(CultureInfo.InvariantCulture));
     public TguiData Number(string key, float value) => Raw(key, (float.IsFinite(value) ? value : 0).ToString(CultureInfo.InvariantCulture));
     public TguiData Bool(string key, bool value) => Raw(key, value ? "true" : "false");

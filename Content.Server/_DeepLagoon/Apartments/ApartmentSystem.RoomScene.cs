@@ -105,6 +105,7 @@ public sealed partial class ApartmentSystem
             scene.Objects.Add(new GridEditorItem { Id = "e:" + GetNetEntity(uid), Kind = "entity", Prototype = metadata.EntityPrototype.ID,
                 X = transform.LocalPosition.X, Y = transform.LocalPosition.Y, Rotation = (float) transform.LocalRotation.Degrees, Anchored = true });
             var cell = new Vector2i((int) MathF.Floor(transform.LocalPosition.X), (int) MathF.Floor(transform.LocalPosition.Y));
+            if (_tags.HasTag(uid, "Wall")) scene.Walls.Add(cell);
             if (HasComp<DoorComponent>(uid) || !IsWallFixture(uid)) scene.Occupied.Add(cell);
             if (!HasComp<DoorComponent>(uid) && TryComp<PhysicsComponent>(uid, out var physics) && physics.CanCollide && physics.Hard &&
                 (physics.CollisionLayer & (int) CollisionGroup.Impassable) != 0) scene.Blocked.Add(cell);

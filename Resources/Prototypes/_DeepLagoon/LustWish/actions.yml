@@ -1,0 +1,12 @@
+- type: entity
+  id: ActionLustWishChooseColor
+  name: Change color
+  description: Open the color wheel for this item.
+  components:
+  - type: InstantAction
+    icon:
+      sprite: _DeepLagoon/LustWish/Collar.rsi
+      state: icon
+    checkCanInteract: false
+    useDelay: 0.5
+    event: !type:LustWishChooseColorEvent ''

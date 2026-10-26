@@ -27,5 +27,9 @@ public sealed partial class InteractionPanelSystem
         EntityManager.System<BodyCustomizationSystem>().SetVisibility(user, args.Part, args.Visibility);
     }
 
-    private void OnBodyChanged(EntityUid uid, HumanoidAppearanceComponent component, ref BodyCustomizationChangedEvent args) => SendBodyState(uid);
+    private void OnBodyChanged(EntityUid uid, HumanoidAppearanceComponent component, ref BodyCustomizationChangedEvent args)
+    {
+        SendBodyState(uid);
+        RefreshAvailability(uid);
+    }
 }

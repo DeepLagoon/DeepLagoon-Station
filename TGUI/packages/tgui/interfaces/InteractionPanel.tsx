@@ -182,7 +182,7 @@ export const InteractionPanel = () => {
               <button disabled={item.locked} onClick={() => send('remove')}>{t('gear-remove')}</button>
               <button onClick={() => send(item.locked ? 'unlock' : 'lock')}>{t(item.locked ? 'gear-unlock' : 'gear-lock')}</button>
               {data.self && <button onClick={() => send('escape')}>{t('gear-escape')}</button>}
-              {item.slot === 'neck' && <button onClick={() => send(item.leashed ? 'unleash' : 'leash')}>{t(item.leashed ? 'gear-unleash' : 'gear-leash')}</button>}
+              {item.slot.startsWith('neck') && <button onClick={() => send(item.leashed ? 'unleash' : 'leash')}>{t(item.leashed ? 'gear-unleash' : 'gear-leash')}</button>}
               {item.electronic && <>
                 <button onClick={() => send('pair')}>{t('gear-pair')}</button>
                 <button onClick={() => send('mode', String(item.intensity % 3 + 1))}>{t('gear-mode')}: {item.intensity}</button>
@@ -190,10 +190,7 @@ export const InteractionPanel = () => {
               {(item.electronic || item.hypnosis) && <button aria-pressed={item.active}
                 onClick={() => send('toggle', item.active ? '0' : '1')}>{t('gear-toggle')}: {item.active ? '●' : '○'}</button>}
               {item.shock && <button onClick={() => send('pulse')}>{t('gear-pulse')}</button>}
-              {item.colorable && <label>{t('gear-color')}
-                <select aria-label={t('gear-color') + ': ' + item.name} defaultValue="" onChange={e => send('color', e.target.value)}>
-                  <option value="" disabled>—</option>{data.gearColors?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select></label>}
+
             </div>
           </section>;
         })}

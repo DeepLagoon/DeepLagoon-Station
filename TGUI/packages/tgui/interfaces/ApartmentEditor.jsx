@@ -1,7 +1,8 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { copyLayout, validateLayout } from './apartmentLayout.mjs';
+import { ApartmentBalance, ApartmentFurnishingCatalog } from './ApartmentFurnishingCatalog';
+import { copyLayout, validateLayout, sendApartmentLayout } from './apartmentLayout.mjs';
 import './ApartmentEditor.scss';
 import { useApartmentViewport } from './useApartmentViewport';
 import { NavMapPlan } from './NavMapPlan.jsx';
@@ -28,6 +29,7 @@ export const ApartmentEditor = () => {
   const [undo, setUndo] = useState([]);
   const [redo, setRedo] = useState([]);
   const [pending, setPending] = useState(false);
+  const [commerceBusy, setCommerceBusy] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const plan = useRef(null);
   const viewport = useRef(null);
@@ -40,11 +42,10 @@ export const ApartmentEditor = () => {
   const originX = data.scene?.x || 0, originY = data.scene?.y || 0;
   const floors = new Map((data.scene?.tiles || []).map(tile => [`${tile.x},${tile.y}`, tile]));
   const fixed = new Set((data.scene?.occupied || []).map(cell => `${cell.x},${cell.y}`));
-  const addedCount = draft.filter(item => !room.catalog.find(def => def.id === item.furniture)?.existingOnly).length;
   const errors = validateLayout(draft, room);
   const valid = !Object.keys(errors).length;
   const dirty = JSON.stringify(draft) !== JSON.stringify(data.layout || []);
-  useInterfaceStyleGuard(dirty || pending);
+  useInterfaceStyleGuard(dirty || pending || commerceBusy);
   const selectedItem = draft.find((item) => item.id === selected);
   const definition = room.catalog.find((item) => item.id === selectedItem?.furniture);
 
@@ -53,10 +54,10 @@ export const ApartmentEditor = () => {
     current.current = next; setDraft(next); setUndo([]); setRedo([]);
     setSelected(null); setBrush(null); setHover(null); setBefore(false); setPending(false);
   }, [data.token]);
-  useEffect(() => { setPending(false); }, [data.status, data.success]);
+  useEffect(() => { setPending(false); }, [data.applySequence]);
   useEffect(() => {
     act(before ? 'before' : 'after');
-    if (!before) act('preview', { layout: hover && brush ? [...draft, hover] : draft });
+    if (!before) sendApartmentLayout(act, 'preview', hover && brush ? [...draft, hover] : draft);
   }, [draft, hover, before]);
 
   const update = (next) => { current.current = next; setDraft(next); };
@@ -71,7 +72,7 @@ export const ApartmentEditor = () => {
     return { x: originX + Math.floor((event.clientX - rect.left) / rect.width * data.width), y: originY + data.height - 1 - Math.floor((event.clientY - rect.top) / rect.height * data.height) };
   };
   const pointerDown = (event) => {
-    if (before || pending || event.button !== 0) return;
+    if (before || pending || commerceBusy || event.button !== 0) return;
     event.preventDefault(); // Keep DOM focus on the plan after a click on a ghost.
     act('focus'); // The native host must also hand keyboard input to this CEF view.
     const cell = cellAt(event);
@@ -91,7 +92,7 @@ export const ApartmentEditor = () => {
     }
   };
   const pointerMove = (event) => {
-    if (before || pending) return;
+    if (before || pending || commerceBusy) return;
     const cell = cellAt(event);
     if (brush) setHover({ id: '__hover', furniture: brush, ...cell, rotation: hover?.rotation || 0 });
     if (!drag.current) return;
@@ -117,7 +118,8 @@ export const ApartmentEditor = () => {
     setUndo((history) => [...history, copyLayout(draft)]); update(copyLayout(redo[redo.length - 1])); setRedo(redo.slice(0, -1));
   };
   const keyDown = (event) => {
-    if (before || pending) return;
+    if (event.target.closest('input, textarea, select, [role="dialog"]')) return;
+    if (before || pending || commerceBusy) return;
     if (event.key.toLowerCase() === 'r') { event.preventDefault(); rotate(); }
     if (event.key === 'Delete') { event.preventDefault(); remove(); }
     if (event.ctrlKey && event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? stepForward() : stepBack(); }
@@ -128,27 +130,21 @@ export const ApartmentEditor = () => {
   useEffect(() => {
     document.addEventListener('keydown', keyDown);
     return () => document.removeEventListener('keydown', keyDown);
-  }, [draft, selected, hover, brush, before, pending, undo, redo]);
+  }, [draft, selected, hover, brush, before, pending, commerceBusy, undo, redo]);
   const displayErrors = validateLayout(displayed, room);
   const close = () => dirty ? setConfirmClose(true) : act('close');
 
   return <div className="ApartmentEditor">
-    <header><div><strong>{data.name || 'Обустройство квартиры'}{data.number ? ` · Квартира ${data.number}` : ''}</strong><small>{before ? 'Сохранённая обстановка' : 'Примерка — изменения ещё не применены'}</small></div><button onClick={close} aria-label="Закрыть редактор">×</button></header>
+    <header><div><strong>{data.name || 'Обустройство квартиры'}{data.number ? ` · Квартира ${data.number}` : ''}</strong><small>{before ? 'Сохранённая обстановка' : 'Примерка — изменения ещё не применены'}</small></div><ApartmentBalance data={data} /><button disabled={commerceBusy} onClick={close} aria-label="Закрыть редактор">×</button></header>
     <div className="ApartmentEditor__body">
-      <aside><h3>Мебель</h3><p>Выберите предмет и нажмите на свободное место.</p>
-        {room.catalog.filter(item => !item.existingOnly).map((item) => {
-          const count = draft.filter((p) => p.furniture === item.id).length;
-          return <button key={item.id} className={brush === item.id ? 'selected' : ''} disabled={before || pending || count >= item.maxCount || addedCount >= data.maxFurniture}
-            onClick={() => { setBrush(item.id); setSelected(null); setHover(null); }}><Sprite images={item.images} /><span>{item.name}<small>{count} / {item.maxCount}</small></span></button>;
-        })}
-        <h3>Исходный интерьер</h3><p>Выберите предмет, затем укажите новое место на плане.</p>
-        {room.catalog.filter(item => item.existingOnly).map(item => <button key={item.id} disabled={before || pending} className={selected === item.placementId ? 'selected' : ''}
-          onClick={() => { setSelected(item.placementId); setBrush(null); setHover(null); }}>{item.name}</button>)}
-      </aside>
+      <ApartmentFurnishingCatalog data={data} room={room} draft={draft} brush={brush} selected={selected}
+        before={before} pending={pending} act={act} Sprite={Sprite} onPurchaseBusy={setCommerceBusy}
+        choose={id => { setBrush(id); setSelected(null); setHover(null); }}
+        selectExisting={id => { setSelected(id); setBrush(null); setHover(null); }} />
       <main><div className="ApartmentEditor__toolbar">
-        <button disabled={!undo.length || before || pending} onClick={stepBack}>Отменить</button>
-        <button disabled={!redo.length || before || pending} onClick={stepForward}>Повторить</button>
-        <button disabled={pending} className={before ? 'selected' : ''} onClick={() => { setBefore(!before); setHover(null); }}>{before ? 'Показать проект' : 'До / После'}</button>
+        <button disabled={!undo.length || before || pending || commerceBusy} onClick={stepBack}>Отменить</button>
+        <button disabled={!redo.length || before || pending || commerceBusy} onClick={stepForward}>Повторить</button>
+        <button disabled={commerceBusy || pending} className={before ? 'selected' : ''} onClick={() => { setBefore(!before); setHover(null); }}>{before ? 'Показать проект' : 'До / После'}</button>
         <button aria-label="Уменьшить масштаб" onClick={() => setScale(zoom / 1.25)}>−</button>
         <span aria-label="Масштаб">{Math.round(zoom * 100)}%</span>
         <button aria-label="Увеличить масштаб" onClick={() => setScale(zoom * 1.25)}>+</button>
@@ -194,15 +190,15 @@ export const ApartmentEditor = () => {
         </div>
         </div>
         <div className="ApartmentEditor__selection"><span>{definition ? `${definition.name} · Нажмите новую клетку, чтобы переместить` : (brush ? 'Нажмите на план, чтобы разместить предмет' : 'ЛКМ — мебель · ПКМ / СКМ — перемещение вида')}</span>
-          <button disabled={before || pending || (!selectedItem && !hover) || definition?.canRotate === false} onClick={rotate}>Повернуть · R</button>
-          <button disabled={before || pending || !selectedItem || definition?.existingOnly} onClick={remove}>Убрать · Delete</button></div>
-        <p className={valid ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'} role="status">{Object.values(errors)[0] || `${addedCount} / ${data.maxFurniture} предметов · Выход свободен`}</p>
+          <button disabled={before || pending || commerceBusy || (!selectedItem && !hover) || definition?.canRotate === false} onClick={rotate}>Повернуть · R</button>
+          <button disabled={before || pending || commerceBusy || !selectedItem || definition?.existingOnly} onClick={remove}>Убрать · Delete</button></div>
+        <p className={valid ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'} role="status">{Object.values(errors)[0] || 'Выход свободен'}</p>
         {data.status && <p className={data.success ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'}>{data.status}</p>}
       </main>
     </div>
-    <footer><button disabled={pending || dirty} onClick={() => act('shop')}>Шаблоны квартир</button><button disabled={pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
-      <button disabled={pending || !valid || !dirty || before || !!brush} className="primary" onClick={() => { setPending(true); act('apply', { layout: draft }); }}>{pending ? 'Сохранение…' : 'Применить'}</button>
-      <button disabled={pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>{data.lobby ? 'Закрыть обустройство' : 'Вернуться из квартиры'}</button></footer>
+    <footer><button disabled={commerceBusy || pending || dirty} onClick={() => act('shop')}>Шаблоны квартир</button><button disabled={commerceBusy || pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
+      <button disabled={commerceBusy || pending || !valid || !dirty || before || !!brush} className="primary" onClick={() => { setPending(true); sendApartmentLayout(act, 'apply', draft); }}>{pending ? 'Сохранение…' : 'Применить'}</button>
+      <button disabled={commerceBusy || pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>{data.lobby ? 'Закрыть обустройство' : 'Вернуться из квартиры'}</button></footer>
     {confirmClose && <div className="ApartmentEditor__veil"><div role="dialog" aria-label="Несохранённые изменения"><strong>Изменения ещё не применены</strong><p>Закрыть редактор и отказаться от черновика?</p><button onClick={() => setConfirmClose(false)}>Продолжить обустройство</button><button onClick={() => act(confirmClose === 'exit' ? 'exit' : 'close')}>Отказаться от изменений</button></div></div>}
   </div>;
 };

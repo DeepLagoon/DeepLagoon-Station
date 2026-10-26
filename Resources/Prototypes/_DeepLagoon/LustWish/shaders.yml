@@ -1,0 +1,7 @@
+- type: shader
+  id: LustWishPortalHalf
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/lustwish_portal_half.swsl
+  params:
+    split: 0.5
+    lower: 0.0

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 64
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Citadel, SPLURT, BlueMoon and NovaSector contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/e9ece923dd956fb78ae6cb83e1eaaf259b61a432/modular_bluemoon/icons/mob/body_markings/large-icons/acradors_ears.dmi. Definitions: modular_bluemoon/code/modules/mob/dead/new_player/sprite_accessories/ears.dm. Palette regions split into tintable layers; origin preserved with transparent padding.",
+  "states": [
+    {
+      "name": "m_ears_acrador_short_side_adj_primary_0",
+      "directions": 4,
+      "delays": [
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "m_ears_acrador_short_side_adj_tertiary_1",
+      "directions": 4,
+      "delays": [
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "m_ears_acrador_short_side_front_primary_2",
+      "directions": 4
+    },
+    {
+      "name": "m_ears_acrador_short_side_front_secondary_3",
+      "directions": 4
+    },
+    {
+      "name": "m_ears_acrador_short_side_front_tertiary_4",
+      "directions": 4
+    }
+  ]
+}

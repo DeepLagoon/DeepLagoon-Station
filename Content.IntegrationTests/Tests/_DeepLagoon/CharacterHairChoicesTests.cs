@@ -54,6 +54,17 @@ public sealed class CharacterHairChoicesTests
             Assert.That(dynamic.RootElement.TryGetProperty("hairOptions", out _), Is.False);
             Assert.That(dynamic.RootElement.TryGetProperty("speciesOptions", out _), Is.False);
             Assert.That(dynamic.RootElement.GetProperty("name").GetString(), Is.EqualTo(editor.Profile!.Name));
+            if (species == "Human")
+            {
+                var face = dynamic.RootElement.GetProperty("hairPreviewImage").GetString();
+                Assert.That(face, Does.StartWith("data:image/png;base64,"), "Hair tiles need the actual character face");
+                Assert.That(editor.HandleTguiProfileAction("eye-color", "{\"value\":\"#12ef34\"}"), Is.True);
+                using var recolored = JsonDocument.Parse(editor.CreateTguiProfileState("appearance", includeCatalogs: false).ToString());
+                Assert.That(recolored.RootElement.GetProperty("hairPreviewImage").GetString(), Is.Not.EqualTo(face), "Face preview must refresh after eye-color edits");
+                Assert.That(editor.HandleTguiProfileAction("hair-color", "{\"value\":\"#3456ef\"}"), Is.True);
+                using var hairRecolored = JsonDocument.Parse(editor.CreateTguiProfileState("appearance", includeCatalogs: false).ToString());
+                Assert.That(hairRecolored.RootElement.GetProperty("hairPreviewImage").GetString(), Is.EqualTo(recolored.RootElement.GetProperty("hairPreviewImage").GetString()), "Hair tint must not tint or regenerate the face");
+            }
             using var jobCatalog = JsonDocument.Parse(editor.CreateTguiProfileState("jobs").ToString());
             using var jobState = JsonDocument.Parse(editor.CreateTguiProfileState("jobs", includeCatalogs: false).ToString());
             Assert.That(jobState.RootElement.TryGetProperty("departments", out _), Is.False);

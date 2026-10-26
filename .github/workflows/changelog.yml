@@ -1,55 +1,57 @@
 name: PR Changelogs
-concurrency: commit_action-${{ github.event.pull_request.base.ref }} # Mono
 on:
   pull_request_target:
     types: [closed]
-
-env:
-  GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
-  CHANGELOG_DIR: Resources/Changelog/Monolith.yml # Mono
-  PR_NUMBER: ${{ github.event.number }}
-
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      since:
+        description: Optional UTC backlog start date
+        required: false
+concurrency:
+  group: changelog-main
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: read
 jobs:
   changelog:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-    permissions:
-      contents: write
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN || github.token }}
+      CHANGELOG_DIR: Resources/Changelog/Monolith.yml
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      CHANGELOG_SINCE: ${{ inputs.since }}
     steps:
-      - name: Checkout Base Branch # Mono
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          ref: "${{ github.event.pull_request.base.ref }}" # Mono
-
-      - name: Setup Git
-        run: |
-          git config --global user.name "${{ vars.CHANGELOG_USER }}"
-          git config --global user.email "${{ vars.CHANGELOG_EMAIL }}"
-        shell: bash
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+          token: ${{ secrets.BOT_TOKEN || github.token }}
+          ref: main
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-
-      - name: Install Dependencies
+          node-version: 22
+      - name: Install and test generator
+        working-directory: Tools/changelog
         run: |
-          cd "Tools/changelog"
-          npm install
+          npm install --ignore-scripts --no-audit --no-fund
+          node --test changelog.test.js
+      - name: Generate and commit current main with bounded conflict recovery
         shell: bash
-
-      - name: Generate Changelog
         run: |
-          cd "Tools/changelog"
-          node changelog.js
-        shell: bash
-
-      - name: Commit Changelog
-        run: |
-          git pull origin "${{ github.event.pull_request.base.ref }}"
-          git add "${{ env.CHANGELOG_DIR }}"
-          git commit -m "Automated Changelog (#${{ env.PR_NUMBER }})"
-          git push origin "${{ github.event.pull_request.base.ref }}"
-        shell: bash
-        continue-on-error: true
+          set -euo pipefail
+          git config user.name 'DeepLagoon Changelog'
+          git config user.email 'changelog@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            node Tools/changelog/changelog.js
+            git add -- "$CHANGELOG_DIR"
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "Automated changelog"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$((attempt * 2))"
+          done
+          echo 'Changelog push failed after five attempts' >&2
+          exit 1

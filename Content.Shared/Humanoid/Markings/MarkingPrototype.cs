@@ -51,6 +51,9 @@ namespace Content.Shared.Humanoid.Markings
         [DataField]
         public Dictionary<string, HumanoidVisualLayers> SpriteLayers { get; private set; } = new();
 
+        [DataField]
+        public Dictionary<string, HumanoidVisualLayers> SpriteLayersBefore { get; private set; } = new();
+
         public HumanoidVisualLayers GetLayerAnchor(SpeciesPrototype species)
         {
             return species.BodyMarkingAnchor is { } anchor && BodyPart is

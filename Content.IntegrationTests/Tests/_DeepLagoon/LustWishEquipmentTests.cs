@@ -70,6 +70,8 @@ public sealed class LustWishEquipmentTests
             var accessory = e.GetComponent<LustWishAccessoryComponent>(collar);
             Request(gear, sessions[0], target, "attach");
             Assert.That(accessory.Wearer, Is.Null, "An unopened panel cannot authorize equipment operations");
+            Consent(target, InteractionPanelConsent.No);
+            Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryEquip(user,target,collar,"neck",silent:true), Is.False, "Native inventory cannot bypass consent");
             panels.OpenPanel(user, target);
             Consent(user, InteractionPanelConsent.Yes);
             Consent(target, InteractionPanelConsent.No);
@@ -94,7 +96,7 @@ public sealed class LustWishEquipmentTests
             Request(gear, sessions[0], target, "lock", "neck");
             Assert.That(accessory.Locked, Is.True);
             var containers = e.System<SharedContainerSystem>();
-            Assert.That(containers.TryGetContainer(target, LustWishEquipment.ContainerPrefix + "neck", out var container), Is.True);
+            Assert.That(containers.TryGetContainer(target, "neck", out var container), Is.True);
             Assert.That(containers.Remove(collar, container), Is.False, "Generic container removal must not bypass the accessory lock");
             var wrongKey = e.SpawnEntity("DLLustWishKey", coords);
             Hold(hands, user, wrongKey);
@@ -267,8 +269,30 @@ public sealed class LustWishEquipmentTests
             var collar = e.SpawnEntity("DLLustWishCollar", coords);
             Hold(e.System<SharedHandsSystem>(), body, collar);
             e.System<InteractionPanelSystem>().OpenPanel(body, body);
-            Request(e.System<LustWishEquipmentSystem>(), session, body, "attach");
+            Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryEquip(body, collar, "neck", silent: true), Is.True, "A collar uses the normal neck inventory slot");
             Request(e.System<LustWishEquipmentSystem>(), session, body, "color", "neck", "#AC70D4");
+            var palette = e.GetComponent<LustWishPaletteComponent>(collar);
+            Assert.That(palette.ColorAction, Is.Not.Null, "Wearing the collar grants the native color action");
+            var choose = new LustWishChooseColorEvent { Performer = body };
+            e.EventBus.RaiseLocalEvent(collar, choose);
+            Assert.That(choose.Handled, Is.True);
+            var setColor = typeof(LustWishEquipmentSystem).GetMethod("OnSetColor", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            setColor.Invoke(e.System<LustWishEquipmentSystem>(), [new LustWishSetColorEvent(e.GetNetEntity(collar), "#AC70D4"), new EntitySessionEventArgs(session)]);
+            Assert.That(palette.Color, Is.EqualTo(Color.FromHex("#AC70D4")));
+            setColor.Invoke(e.System<LustWishEquipmentSystem>(), [new LustWishSetColorEvent(e.GetNetEntity(collar), "#217F93"), new EntitySessionEventArgs(session)]);
+            Assert.That(palette.Color, Is.EqualTo(Color.FromHex("#217F93")), "The wheel accepts colors outside the old presets");
+            setColor.Invoke(e.System<LustWishEquipmentSystem>(), [new LustWishSetColorEvent(e.GetNetEntity(collar), "#AC70D4"), new EntitySessionEventArgs(session)]);
+            var inventory = e.System<Content.Shared.Inventory.InventorySystem>();
+            foreach (var (prototype, slot) in new[] { ("DLLustWishHeadphones", "ears"), ("DLLustWishHeadphones", "head"),
+                ("DLLustWishHeadphones", "neck2"), ("DLLustWishSensoryHood", "head"), ("DLLustWishHypnoGlasses", "eyes"), ("DLLustWishLeash", "belt"), ("DLLustWishMittens", "gloves") })
+            {
+                var clothing=e.SpawnEntity(prototype, coords);
+                Assert.That(inventory.TryEquip(body,clothing,slot,silent:true), Is.True, prototype+" -> "+slot);
+                if (e.TryGetComponent<LustWishAccessoryComponent>(clothing,out var accessory)) Assert.That(accessory.Wearer, Is.EqualTo(body));
+                Assert.That(inventory.TryUnequip(body,slot,silent:true,force:true), Is.True);
+                e.DeleteEntity(clothing);
+            }
+            Assert.That(e.GetComponent<LustWishWornEffectsComponent>(body).HandsBlocked, Is.False, "Native unequip clears restrictions");
             var costume = e.SpawnEntity("DLLustWishColorMaid", coords);
             var tint = e.GetComponent<LustWishPaletteComponent>(costume);
             tint.Color = Color.FromHex("#AC70D4"); e.Dirty(costume, tint);
@@ -279,16 +303,28 @@ public sealed class LustWishEquipmentTests
         await pair.Client.WaitAssertion(() =>
         {
             var e = pair.Client.EntMan;
+            var picker = typeof(Content.Client._DeepLagoon.LustWish.LustWishColorSystem).GetField("_window", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(e.System<Content.Client._DeepLagoon.LustWish.LustWishColorSystem>());
+            Assert.That(picker, Is.Not.Null, "The action opens the player's color wheel");
             var bodyClient = e.GetEntity(bodyNet);
             var collarClient = e.GetEntity(collarNet);
             Assert.That(e.GetComponent<LustWishWornEffectsComponent>(bodyClient).Items["neck"], Is.EqualTo(collarNet));
             Assert.That(e.HasComponent<LustWishAccessoryComponent>(collarClient), Is.True);
             e.System<Content.Client._DeepLagoon.LustWish.LustWishVisualSystem>().FrameUpdate(0);
             var sprite = e.GetComponent<Robust.Client.GameObjects.SpriteComponent>(bodyClient);
-            Assert.That(sprite.LayerMapTryGet("lustwish/neck", out var index), Is.True);
-            Assert.That(sprite.AllLayers.ElementAt(index).Color, Is.EqualTo(Color.FromHex("#AC70D4")));
+            Assert.That(sprite.AllLayers.Any(l => l.RsiState.ToString() == "equipped-NECK" && l.Color == Color.FromHex("#AC70D4")), Is.True);
             Assert.That(sprite.AllLayers.Any(l => l.RsiState.ToString() == "equipped-INNERCLOTHING" && l.Color == Color.FromHex("#AC70D4")), Is.True,
                 "The native uniform layer must use the imported equipped state and current tint");
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e=pair.Server.EntMan;
+            var collar=e.GetEntity(collarNet);
+            Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryUnequip(body,"neck",silent:true), Is.True);
+            var session=pair.Server.PlayerMan.Sessions.Single();
+            typeof(LustWishEquipmentSystem).GetMethod("OnSetColor",BindingFlags.NonPublic|BindingFlags.Instance)!
+                .Invoke(e.System<LustWishEquipmentSystem>(),[new LustWishSetColorEvent(collarNet,"#217F93"),new EntitySessionEventArgs(session)]);
+            Assert.That(e.GetComponent<LustWishPaletteComponent>(collar).Color, Is.EqualTo(Color.FromHex("#AC70D4")), "A stale color wheel cannot recolor an item after unequipping it");
         });
         await pair.Server.WaitPost(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));
         await pair.Server.WaitPost(() => pair.Server.EntMan.DeleteEntity(map.MapUid));

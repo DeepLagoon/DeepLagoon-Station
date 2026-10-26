@@ -21,12 +21,14 @@ public sealed partial class InteractionPanelPrototype : IPrototype
     [DataField(required: true)] public string Body = default!;
     [DataField(required: true)] public InteractionPanelCategory Category;
     [DataField(required: true)] public InteractionPanelActionFlags[] Flags = default!;
-    // Необязательно. Значения: Male, Female, Unsexed. Это Sex тела, не Gender местоимений.
+    // Male/Female match the selected Sex or enabled primary body features. Unsexed matches the selected Sex.
     [DataField] public Sex[]? UserSexes;
     [DataField] public Sex[]? TargetSexes;
     [DataField] public string? Sound;
     // При наличии sounds выбирается один ID из списка; пустой список отключает звук.
     [DataField] public string[]? Sounds;
+    [DataField] public string[]? Messages;
+    [DataField] public string[]? SelfMessages;
     [DataField] public float ArousalGain;
     // Keep existing custom catalogs compatible.
     [DataField("manaGain")] public float LegacyManaGain;
@@ -36,5 +38,5 @@ public sealed partial class InteractionPanelPrototype : IPrototype
 
     public InteractionPanelActionDefinition Definition() => new(ID, Body, Category,
         Flags.Aggregate(InteractionPanelActionFlags.None, (all, flag) => all | flag),
-        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ArousalGain: ArousalGain != 0 ? ArousalGain : LegacyManaGain, Sounds: Sounds);
+        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ArousalGain: ArousalGain != 0 ? ArousalGain : LegacyManaGain, Sounds: Sounds, Messages: Messages, SelfMessages: SelfMessages);
 }

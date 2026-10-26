@@ -43,7 +43,7 @@ namespace Content.Client.Lobby.UI
             LobbyButtonArtwork.AttachReady(ReadyButton);
             LobbyButtonArtwork.Attach(ObserveButton, "observe", () => "observe");
             LobbyButtonArtwork.Attach(setup, "character_setup", () => "character_setup");
-            foreach (var button in new[] { AHelpButton, CallVoteButton, OptionsButton, LeaveButton })
+            foreach (var button in new[] { AHelpButton, CallVoteButton, EconomyButton, ApartmentsButton, OptionsButton, LeaveButton })
                 LobbyButtonArtwork.AttachUtility(button);
 
             // Keep all original callbacks and configured link visibility while restyling.
@@ -58,6 +58,8 @@ namespace Content.Client.Lobby.UI
             });
             HeaderContainer.Visible = LobbyInfoScroll.Visible = StartTime.Visible = false;
 
+            EconomyButton.OnPressed += _ => IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Currency.LagoonEconomySystem>().Open();
+            ApartmentsButton.OnPressed += _ => IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Apartments.ApartmentShopSystem>().Open();
             LeaveButton.OnPressed += _ => _consoleHost.ExecuteCommand("disconnect");
             OptionsButton.OnPressed += _ => UserInterfaceManager.GetUIController<OptionsUIController>().ToggleWindow();
         }

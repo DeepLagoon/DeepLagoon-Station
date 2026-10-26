@@ -19,6 +19,7 @@ using Robust.Shared.Audio;
 using Robust.Shared.Map;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
+using Robust.Shared.Random;
 
 namespace Content.Server._DeepLagoon.InteractionPanel;
 
@@ -32,6 +33,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     [Dependency] private InteractionPanelArousalSystem _arousal = default!;
     [Dependency] private Content.Server._DeepLagoon.LustWish.LustWishPortalSystem _portals = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IRobustRandom _random = default!;
 
     private readonly Dictionary<EntityUid, Panel> _panels = new();
     private readonly Dictionary<(EntityUid User, InteractionPanelCategory Category), TimeSpan> _cooldowns = new();
@@ -42,7 +44,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     private readonly Dictionary<Guid, (Guid Sender, Guid Recipient, TimeSpan Expires)> _askHistory = new();
     private sealed record Panel(EntityUid Target, ICommonSession Session, TimeSpan Expires);
     private sealed record Pending(Guid Token, EntityUid User, EntityUid Target, InteractionPanelCategory Category, ICommonSession Session, ICommonSession Recipient,
-        string Action, TimeSpan Expires);
+        string Action, TimeSpan Expires, string? MessageKey = null);
     private sealed class Repeat(string action, float interval, TimeSpan next)
     {
         public string Action = action;
@@ -70,6 +72,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeNetworkEvent<InteractionPanelCloseEvent>(OnClose);
         SubscribeNetworkEvent<InteractionPanelBodyVisibilityEvent>(OnBodyVisibility);
         SubscribeLocalEvent<HumanoidAppearanceComponent, Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationChangedEvent>(OnBodyChanged);
+        SubscribeLocalEvent<HumanoidAppearanceComponent, SexChangedEvent>((uid, _, _) => RefreshAvailability(uid));
     }
 
     private void OnMobStartup(EntityUid uid, MobStateComponent component, ComponentStartup args)
@@ -107,7 +110,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     private Sex? BodySex(EntityUid uid) => TryComp<HumanoidAppearanceComponent>(uid, out var appearance) ? appearance.Sex : null;
 
     private bool Allowed(EntityUid user, EntityUid target, InteractionPanelActionDefinition action) =>
-        action.Supports(user == target, HasComp<HumanoidAppearanceComponent>(target)) && action.SupportsSexes(BodySex(user), BodySex(target)) && Consent(user, action.Category) != InteractionPanelConsent.No && Consent(target, action.Category) != InteractionPanelConsent.No;
+        action.Supports(user == target, HasComp<HumanoidAppearanceComponent>(target)) && action.SupportsSexTraits(BodySexTraits(user), BodySexTraits(target)) && Consent(user, action.Category) != InteractionPanelConsent.No && Consent(target, action.Category) != InteractionPanelConsent.No;
 
     private void OnVerbs(EntityUid uid, InteractionPanelPreferencesComponent component, GetVerbsEvent<InteractionVerb> args)
     {
@@ -124,6 +127,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
 
     public void OpenPanel(EntityUid user, EntityUid target)
     {
+        target = _portals.ResolveTarget(user, target);
         if ((!CanReach(user, target) && !(user == target && TryComp<MobStateComponent>(user, out var mob) && mob.CurrentState == MobState.Alive &&
             _blocker.CanConsciouslyPerformAction(user))) || !TryComp<ActorComponent>(user, out var actor)) return;
         if (!InteractionPanelActions.DebugConsentOverride && !HasPlayer(target))
@@ -134,7 +138,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         Stop(user);
         _panels[user] = new Panel(target, actor.PlayerSession, _timing.CurTime + TimeSpan.FromMinutes(10));
         var actions = InteractionPanelActionCatalog.Load(_prototypes).Where(a => Allowed(user, target, a)).Select(a => a.Id).ToArray();
-        RaiseNetworkEvent(new InteractionPanelPanelEvent(GetNetEntity(target), Name(target), actions, user == target, InteractionPanelActions.DebugConsentOverride, HasComp<HumanoidAppearanceComponent>(target), BodySex(user), BodySex(target)), actor.PlayerSession);
+        RaiseNetworkEvent(new InteractionPanelPanelEvent(GetNetEntity(target), Name(target), actions, user == target, InteractionPanelActions.DebugConsentOverride, HasComp<HumanoidAppearanceComponent>(target), BodySex(user), BodySex(target), BodySexTraits(user), BodySexTraits(target)), actor.PlayerSession);
         SendBodyState(user);
     }
 
@@ -227,11 +231,15 @@ public sealed partial class InteractionPanelSystem : EntitySystem
             }
             // Ask разрешает один запуск. Автоповтор не создаёт новые окна запросов.
             _repeats.Remove((user, action.Category));
+            var messageKey = action.Template == null && action.HasMessageVariants(user == panel.Target)
+                ? action.MessageKey(user == panel.Target, _random) : null;
             var pending = new Pending(Guid.NewGuid(), user, panel.Target, action.Category, panel.Session, recipient.PlayerSession,
-                action.Id, _timing.CurTime + TimeSpan.FromSeconds(20));
+                action.Id, _timing.CurTime + TimeSpan.FromSeconds(20), messageKey);
             _pending[pending.Token] = pending;
             _askHistory[pending.Token] = (panel.Session.UserId.UserId, recipient.PlayerSession.UserId.UserId, _timing.CurTime + TimeSpan.FromMinutes(2));
-            RaiseNetworkEvent(new InteractionPanelAskEvent(pending.Token, Name(user), action.Id, action.Title, action.Template == null ? null : InteractionPanelCustomRules.Render(action.Template, Name(user), Name(panel.Target))), recipient.PlayerSession);
+            var preview = action.Template != null ? InteractionPanelCustomRules.Render(action.Template, Name(user), Name(panel.Target))
+                : messageKey != null ? Loc.GetString(messageKey, ("user", Name(user)), ("target", Name(panel.Target))) : null;
+            RaiseNetworkEvent(new InteractionPanelAskEvent(pending.Token, Name(user), action.Id, action.Title, preview), recipient.PlayerSession);
             Status(user, "dl-interaction-panel-sent");
             return;
         }
@@ -251,13 +259,13 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         var action = FindAction(pending.User, pending.Action);
         if (pending.Expires < _timing.CurTime || !ValidPanel(pending.User, pending.Session, GetNetEntity(target)) ||
             action == null || !Allowed(pending.User, target, action)) { Stop(pending.User, pending.Category); Status(pending.User, "dl-interaction-panel-unavailable"); return; }
-        Execute(pending.User, target, action);
+        Execute(pending.User, target, action, pending.MessageKey);
     }
 
-    private void Execute(EntityUid user, EntityUid target, InteractionPanelActionDefinition action)
+    private void Execute(EntityUid user, EntityUid target, InteractionPanelActionDefinition action, string? messageKey = null)
     {
         // Все эффекты запускаются здесь, после серверных проверок; клиент не выбирает пути звуков/прототипы.
-        var key = user == target ? $"dl-interaction-panel-self-{action.Id}" : $"dl-interaction-panel-result-{action.Id}";
+        var key = messageKey ?? action.MessageKey(user == target, _random);
         var message = action.Template == null ? Loc.GetString(key, ("user", Name(user)), ("target", Name(target)))
             : InteractionPanelCustomRules.Render(action.Template, Name(user), Name(target));
         _adminLog.Add(LogType.Chat, LogImpact.Low,
@@ -272,6 +280,8 @@ public sealed partial class InteractionPanelSystem : EntitySystem
                 _chat.ChatMessageToOne(ChatChannel.Emotes, message, wrapped, EntityUid.Invalid, false, actor.PlayerSession.Channel, color);
         _arousal.PlayActionSound(target, action);
         _arousal.AdjustArousal(user, target, action.ArousalGain);
+        if (user != target)
+            _arousal.AdjustArousal(target, user, action.ArousalGain);
         if (action.Effect != null) Spawn(action.Effect, new EntityCoordinates(target, Vector2.Zero));
         if (action.Animation != null && _interaction.InRangeAndAccessible(user, target)) RaiseNetworkEvent(new InteractionPanelAnimationEvent(GetNetEntity(user), GetNetEntity(target), action.Animation.Clamped()), Filter.Pvs(user));
         if (_repeats.TryGetValue((user, action.Category), out var repeat)) repeat.Next = _timing.CurTime + TimeSpan.FromSeconds(repeat.Interval);

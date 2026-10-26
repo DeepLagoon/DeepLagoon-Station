@@ -98,6 +98,9 @@ public sealed class LobbyArtworkTests
                 .OfType<Robust.Client.UserInterface.Controls.Button>().ToArray();
             Assert.That(utilities.Length, Is.GreaterThanOrEqualTo(8));
             Assert.That(utilities.All(button => button.MuteSounds && !button.Label.Visible), Is.True);
+            Assert.That(lobby.ApartmentsButton.Parent, Is.SameAs(lobby.UtilityButtons));
+            Assert.That(lobby.EconomyButton.Parent, Is.SameAs(lobby.UtilityButtons));
+            Assert.That(Array.IndexOf(utilities, lobby.ApartmentsButton), Is.EqualTo(Array.IndexOf(utilities, lobby.EconomyButton) + 1));
             Assert.That(lobby.UtilityButtons.Parent?.Parent, Is.SameAs(lobby.UtilityTray));
             Assert.That(lobby.FindControl<Control>("LinkBanner").Parent?.Parent, Is.SameAs(lobby.UtilityTray));
             Assert.That(lobby.FindControl<Control>("DevInfoBanner").Parent?.Parent, Is.SameAs(lobby.UtilityTray));

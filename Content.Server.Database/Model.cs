@@ -22,6 +22,7 @@ namespace Content.Server.Database
         public DbSet<Preference> Preference { get; set; } = null!;
         public DbSet<ArchivedArtwork> ArchivedArtworks { get; set; } = null!;
         public DbSet<LagoonCoinOperation> LagoonCoinOperations { get; set; } = null!;
+        public DbSet<LagoonEconomyRecord> LagoonEconomyRecords { get; set; } = null!;
         public DbSet<Profile> Profile { get; set; } = null!;
         public DbSet<AssignedUserId> AssignedUserId { get; set; } = null!;
         public DbSet<Player> Player { get; set; } = default!;
@@ -54,6 +55,9 @@ namespace Content.Server.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<LagoonEconomyRecord>().HasKey(p => p.Id);
+            modelBuilder.Entity<LagoonEconomyRecord>().Property(p => p.Id).HasMaxLength(200);
+            modelBuilder.Entity<LagoonEconomyRecord>().HasIndex(p => p.UserId);
             modelBuilder.Entity<LagoonCoinOperation>().HasKey(p => new { p.UserId, p.OperationId });
             modelBuilder.Entity<LagoonCoinOperation>().Property(p => p.OperationId).HasMaxLength(200);
             modelBuilder.Entity<LagoonCoinOperation>().Property(p => p.Reason).HasMaxLength(500);

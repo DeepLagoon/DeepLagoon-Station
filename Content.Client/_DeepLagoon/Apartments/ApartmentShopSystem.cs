@@ -22,6 +22,7 @@ public sealed class ApartmentShopSystem : EntitySystem
         }
         _window.Title = "Шаблоны квартир";
         _window.Panel.SetState("ApartmentShop", new TguiData().Number("number", state.Number).Bool("lobby", state.Lobby)
+            .Number("balance", state.Balance)
             .Bool("legacy", state.Legacy).String("message", state.Message).Array("templates", state.Templates.Select(item =>
                 new TguiData().String("id", item.Id).String("name", item.Name).Number("price", item.Price)
                     .Bool("owned", item.Owned).Bool("selected", item.Selected))).ToString(), _window.Title);
@@ -30,6 +31,7 @@ public sealed class ApartmentShopSystem : EntitySystem
     {
         if (_state == null) return;
         if (action == "close") { Close(); return; }
+        if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
         if (!TguiActionData.TryParse(payload, out var fields, 1024)) return;
         RaiseNetworkEvent(new ApartmentShopAction(_state.Token, action, fields!.String("template") ?? ""));
     }

@@ -44,6 +44,9 @@ public sealed partial class LagoonCoinSystem : EntitySystem
 
     private readonly HashSet<NetUserId> _ready = new();
     private readonly HashSet<NetUserId> _spawned = new();
+    private readonly HashSet<NetUserId> _readyCandidates = new();
+    private string _rewardRound = "";
+    private sealed record ActivityBucket(string Day, int Rate, string Round, bool Ready);
     private readonly Dictionary<ICommonSession, Participation> _participation = new();
     private readonly Queue<Reward> _pending = new();
     private readonly Dictionary<NetUserId, TimeSpan> _requests = new();
@@ -64,10 +67,12 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         public bool Subscribed;
         public long Played;
         public long Bonus;
+        public int Rate = 2;
+        public readonly Dictionary<ActivityBucket, long> Buckets = new();
     }
 
     private sealed record Reward(NetUserId User, string Key, long Amount, string Reason,
-        NetUserId? Actor = null, long Played = 0, long Bonus = 0);
+        NetUserId? Actor = null, long Played = 0, long Bonus = 0, LagoonActivity? Activity = null);
 
     public override void Initialize()
     {
@@ -77,7 +82,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         _outbox = new LagoonCoinOutbox(root == null ? ":memory:" : Path.Combine(root, "lagoon-coin-outbox.db"));
         foreach (var saved in _outbox.Load())
             _pending.Enqueue(new Reward(new NetUserId(saved.User), saved.Key, saved.Amount, saved.Reason,
-                saved.Actor == null ? null : new NetUserId(saved.Actor.Value), saved.Played, saved.Bonus));
+                saved.Actor == null ? null : new NetUserId(saved.Actor.Value), saved.Played, saved.Bonus, saved.Activity));
         SubscribeNetworkEvent<LagoonCoinBalanceRequest>(OnBalanceRequest);
         SubscribeLocalEvent<RoundStartingEvent>(_ => _spawned.Clear());
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnSpawn);
@@ -137,8 +142,9 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private void OnStarted(RoundStartedEvent ev)
     {
         _roundEnded = false;
-        foreach (var user in _spawned)
-            Queue(new Reward(user, $"round:{ev.RoundId}:ready", LagoonCoinRules.ReadyReward, "ready"));
+        _rewardRound = ev.RoundId.ToString();
+        _readyCandidates.Clear();
+        _readyCandidates.UnionWith(_spawned);
         _spawned.Clear();
     }
 
@@ -184,8 +190,16 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         var elapsed = Math.Max(0, (now - data.Last).Ticks);
         if (data.Active)
         {
-            data.Played = checked(data.Played + elapsed);
-            if (data.Subscribed) data.Bonus = checked(data.Bonus + elapsed);
+            var start = DateTime.UtcNow.AddTicks(-elapsed);
+            while (elapsed > 0)
+            {
+                var boundary = start.AddHours(3).Date.AddDays(1).AddHours(-3);
+                var ticks = Math.Min(elapsed, Math.Max(1, (boundary - start).Ticks));
+                var bucket = new ActivityBucket(Content.Shared.Database.LagoonEconomyRules.MoscowDay(start), data.Rate, _rewardRound, _readyCandidates.Contains(session.UserId));
+                data.Buckets[bucket] = checked(data.Buckets.GetValueOrDefault(bucket) + ticks);
+                start = start.AddTicks(ticks);
+                elapsed -= ticks;
+            }
         }
         data.Last = now;
         var attached = session.AttachedEntity;
@@ -194,7 +208,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             HasComp<GhostComponent>(attached) || HasComp<Content.Shared._DeepLagoon.Apartments.ApartmentResidentComponent>(attached),
             TryComp<MobStateComponent>(attached, out var mob) && mob.CurrentState is MobState.Alive or MobState.Critical,
             _afk.IsAfk(session));
-        data.Subscribed = LagoonCoinRules.HasSubscription(_supporters.GetBoostyTier(session));
+        data.Rate = Content.Shared.Database.LagoonEconomyRules.HourlyRate(_supporters.GetProductTier(session));
     }
 
     private void SaveParticipation()
@@ -208,9 +222,13 @@ public sealed partial class LagoonCoinSystem : EntitySystem
 
     private void Flush(ICommonSession session, Participation data)
     {
-        if (data.Played == 0) return;
-        Queue(new Reward(session.UserId, $"time:{_run}:{++_sequence}", 0, "playtime", Played: data.Played, Bonus: data.Bonus));
-        data.Played = data.Bonus = 0;
+        foreach (var (bucket, ticks) in data.Buckets)
+        {
+            var key = $"time:{_run}:{++_sequence}";
+            var activity = new LagoonActivity(key, ticks, bucket.Rate, bucket.Day, bucket.Round, bucket.Ready);
+            Queue(new Reward(session.UserId, key, 0, "playtime", Activity: activity));
+        }
+        data.Buckets.Clear();
     }
 
     private void OnStatusChanged(object? sender, SessionStatusEventArgs ev)
@@ -230,7 +248,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private void OnUnAfk(ref UnAFKEvent ev) => Accumulate(ev.Session);
 
     private static PendingLagoonCoinReward Pending(Reward reward)
-        => new(reward.User.UserId, reward.Key, reward.Amount, reward.Reason, reward.Actor?.UserId, reward.Played, reward.Bonus);
+        => new(reward.User.UserId, reward.Key, reward.Amount, reward.Reason, reward.Actor?.UserId, reward.Played, reward.Bonus, reward.Activity);
 
     private void Queue(Reward reward)
     {
@@ -251,11 +269,22 @@ public sealed partial class LagoonCoinSystem : EntitySystem
                     await _walletOperations.WaitAsync();
                     try
                     {
-                        var result = await _db.AwardLagoonCoinsAsync(reward.User, reward.Key, reward.Amount,
-                            reward.Reason, reward.Actor, reward.Played, reward.Bonus);
-                        _outbox.Complete(Pending(reward));
+                        var result = reward.Activity != null
+                            ? await _db.RecordActivityAsync(reward.User, reward.Activity)
+                            : await _db.AwardLagoonCoinsAsync(reward.User, reward.Key, reward.Amount,
+                                reward.Reason, reward.Actor, reward.Played, reward.Bonus);
                         SendBalance(reward.User, result.Balance);
                         NotifyOperation(reward.User, result, reward.Reason);
+                        if (reward.Activity != null)
+                        {
+                            foreach (var referral in await _db.ReferralRewardsAsync(reward.User))
+                            {
+                                var recipient = new NetUserId(referral.User);
+                                SendBalance(recipient, referral.Result.Balance);
+                                NotifyOperation(recipient, referral.Result, "Реферальная награда");
+                            }
+                        }
+                        _outbox.Complete(Pending(reward));
                     }
                     finally { _walletOperations.Release(); }
                 }
@@ -317,6 +346,11 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             RaiseNetworkEvent(new LagoonCoinBalanceEvent(balance), session);
     }
 
+    public void NotifyEconomyOperation(NetUserId user, LagoonEconomySnapshot purchase, string reason)
+    {
+        SendBalance(user, purchase.Balance);
+        NotifyOperation(user, new LagoonCoinResult(purchase.Balance, purchase.Awarded, purchase.Applied), reason);
+    }
     private void NotifyOperation(NetUserId user, LagoonCoinResult result, string reason)
     {
         if (!result.Applied || result.Awarded == 0 ||

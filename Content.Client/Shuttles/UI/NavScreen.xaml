@@ -217,6 +217,12 @@
                     </controls:PanelContainer>
                     <!-- End Frontier - Maximum Shuttle Speed -->
 
+                    <controls:Button Name="WeaponControlsToggle"
+                                     Text="{controls:Loc 'shuttle-console-weapon-controls-toggle'}"
+                                     ToggleMode="True"
+                                     Visible="False"
+                                     HorizontalExpand="True"
+                                     Margin="4 4 4 4"/>
                     <!-- Network Port Buttons -->
                     <controls:PanelContainer VerticalExpand="True" HorizontalExpand="True" Margin="4 4 4 4">
                         <controls:PanelContainer.PanelOverride>

@@ -2,7 +2,7 @@
 
 credits-window-title = Авторы
 
-credits-window-patrons-tab = Патроны
+credits-window-patrons-tab = Бусти
 
 credits-window-ss14contributorslist-tab = Авторы
 

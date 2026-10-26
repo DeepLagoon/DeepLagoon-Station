@@ -3,6 +3,7 @@ using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
+using Content.Shared.Actions;
 
 namespace Content.Shared._DeepLagoon.LustWish;
 
@@ -10,6 +11,7 @@ namespace Content.Shared._DeepLagoon.LustWish;
 public sealed partial class LustWishAccessoryComponent : Component
 {
     [DataField] public string Slot = "neck";
+    [DataField] public string[] InventorySlots = [];
     [DataField] public bool Lockable = true;
     [DataField] public bool RestrictHands;
     [DataField] public bool RestrictLegs;
@@ -34,6 +36,24 @@ public sealed partial class LustWishAccessoryComponent : Component
 public sealed partial class LustWishPaletteComponent : Component
 {
     [DataField, AutoNetworkedField] public Color Color = Color.White;
+    [DataField, AutoNetworkedField] public EntityUid? ColorAction;
+}
+
+public sealed partial class LustWishChooseColorEvent : InstantActionEvent;
+
+[Serializable, NetSerializable]
+public sealed class LustWishColorPickerEvent(NetEntity item, string name, Color color) : EntityEventArgs
+{
+    public NetEntity Item = item;
+    public string Name = name;
+    public Color Color = color;
+}
+
+[Serializable, NetSerializable]
+public sealed class LustWishSetColorEvent(NetEntity item, string color) : EntityEventArgs
+{
+    public NetEntity Item = item;
+    public string Color = color;
 }
 
 [RegisterComponent]

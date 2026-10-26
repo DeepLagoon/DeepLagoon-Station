@@ -93,6 +93,9 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(Store(system).Load(session.UserId.UserId)!.Changed.Single(p => p.Id == plantId).X, Is.EqualTo(free.X));
             pair.Server.ResolveDependency<ITaskManager>().BlockWaitOnTask(entities.System<Content.Server._DeepLagoon.Currency.LagoonCoinSystem>().Grant(session.UserId, 25, "shop-test", null));
             Assert.That(Balance(), Is.EqualTo(25));
+            Show(system, session);
+            Action(system, session, "furniture", "DLAptDecor006");
+            Assert.That(Balance(), Is.EqualTo(25), "The apartment-template endpoint must reject decor purchases");
             Show(system, session); replay = Token(system, session);
             Action(system, session, "select", "ApartmentShopPaidTest");
             Action(system, session, "select", "ApartmentShopPaidTest", replay);
@@ -118,7 +121,7 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(Balance(), Is.EqualTo(15)); Assert.That(system.Number(session.UserId), Is.EqualTo(paidNumber));
             ((IDictionary<NetUserId, PlayerGameStatus>) entities.System<GameTicker>().PlayerGameStatuses)[session.UserId] = PlayerGameStatus.JoinedGame;
             body = entities.SpawnEntity("MobHuman", outside.GridCoords); pair.Server.PlayerMan.SetAttachedEntity(session, body);
-            var spawned = new PlayerSpawnCompleteEvent(body, session, null, false, false, 1, outside.MapUid, HumanoidCharacterProfile.DefaultWithSpecies("Human"));
+            var spawned = new PlayerSpawnCompleteEvent(body, session, null, true, false, 1, outside.MapUid, HumanoidCharacterProfile.DefaultWithSpecies("Human"));
             entities.EventBus.RaiseEvent(EventSource.Local, spawned);
             paidGrid = system.Instances[session.UserId].Grid;
             Assert.That(system.Instances[session.UserId].Template.ID, Is.EqualTo("ApartmentShopPaidTest"));

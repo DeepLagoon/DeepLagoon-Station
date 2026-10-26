@@ -339,6 +339,7 @@ public sealed partial class HumanoidProfileEditor
                     .String("iconId", "marking/" + m.ID)));
         }
         var species = _prototypeManager.Index(p.Species);
+        if (mode == "appearance") data.String("hairPreviewImage", HairPreviewImage());
         data.String("name", p.Name).Number("age", p.Age).String("species", p.Species.Id)
             .Number("sex", (int)p.Sex).Number("gender", (int)p.Gender)
             .Number("spawn", (int)p.SpawnPriority).Number("height", p.Appearance.Height).Number("width", p.Appearance.Width)

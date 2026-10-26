@@ -31,6 +31,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     private ApartmentEditorWindow? _window;
     private ApartmentEditorEvent? _state;
+    private int _applySequence;
     private static TguiSpriteImages _images => TguiSpriteImages.Shared;
     private ApartmentPreviewOverlay? _overlay;
     private readonly Dictionary<EntityUid, bool> _hidden = new();
@@ -51,6 +52,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     {
         base.Initialize();
         SubscribeNetworkEvent<ApartmentEditorEvent>(OnEditor);
+        SubscribeNetworkEvent<ApartmentCommerceStateEvent>(OnCommerce);
         SubscribeNetworkEvent<ApartmentResultEvent>(OnResult);
         _overlay = new ApartmentPreviewOverlay(this, EntityManager);
         _overlays.AddOverlay(_overlay);
@@ -68,6 +70,8 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         if (!_prototypes.TryIndex<ApartmentTemplatePrototype>(ev.Template, out var template)) return;
         RestoreSprites();
         _state = ev;
+        _commerce = _commerceResult = null;
+        _uploadLayout.Clear(); _uploadId = Guid.Empty;
         _openedAt = _timing.RealTime;
         _enteredPreview = false;
         Template = template;
@@ -82,6 +86,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
             _window.OpenCentered();
         }
         Publish();
+        RequestCommerce();
         HideSprites();
     }
 
@@ -92,15 +97,15 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
             .Number("number", _state.Number).Bool("lobby", _state.Lobby)
             .Number("revision", _state.Revision).String("token", _state.Token.ToString())
             .Number("width", _state.Scene?.Width ?? Template.Width).Number("height", _state.Scene?.Height ?? Template.Height)
-            .Number("maxFurniture", Template.MaxFurniture).Number("arrivalX", Template.Arrival.X).Number("arrivalY", Template.Arrival.Y)
+            .Number("maxFurniture", ApartmentLayout.SafetyLimit).Number("arrivalX", Template.Arrival.X).Number("arrivalY", Template.Arrival.Y)
             .Array("reservedCells", Template.ReservedCells.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
             .Array("layout", _state.Layout.Select(PlacementData))
-            .Array("catalog", Template.Catalog.Select(id => Catalog(id)!).Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
+            .Array("catalog", Template.Catalog.Select(id => Catalog(id)!).Where(item => item.Price >= 0).Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
             {
                 var mapped = _state.MapFurniture.FirstOrDefault(entry => entry.Baseline.Furniture == item.ID);
                 var entry = new TguiData().String("id", item.ID).String("name", item.ExistingOnly ? item.Name : Loc.GetString(item.Name))
-                    .Number("width", item.Size.X).Number("height", item.Size.Y).Number("maxCount", item.MaxCount)
-                    .Bool("blocksMovement", item.BlocksMovement).Bool("existingOnly", item.ExistingOnly).Bool("allowsOverlap", item.AllowsOverlap).Bool("canRotate", item.CanRotate);
+                    .Number("width", item.Size.X).Number("height", item.Size.Y).Number("maxCount", ProductStock(item)).String("product", item.StockKey).String("category", item.Category)
+                    .String("layer", item.Layer).Bool("blocksMovement", item.BlocksMovement).Bool("existingOnly", item.ExistingOnly).Bool("allowsOverlap", item.AllowsOverlap).Bool("canRotate", item.CanRotate);
                 if (mapped != null) entry.String("placementId", mapped.Baseline.Id).Number("originalX", mapped.Baseline.X).Number("originalY", mapped.Baseline.Y).Number("originalRotation", mapped.Baseline.Rotation);
                 var prototype = _prototypes.Index<EntityPrototype>(item.Entity);
                 prototype.TryGetComponent<SpriteComponent>(out var sprite);
@@ -114,6 +119,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         {
             var walls = new TguiWallImages(_images, scene.Objects, _prototypes);
             data.Object("scene", new TguiData().Number("x", scene.X).Number("y", scene.Y)
+                .Array("walls", scene.Walls.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("tiles", scene.Tiles.Select(tile => new TguiData().Number("x", tile.X).Number("y", tile.Y)))
                 .Array("objects", scene.Objects.Select(item =>
                 {
@@ -131,6 +137,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
                 .Array("occupied", scene.Occupied.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("blocked", scene.Blocked.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y))));
         }
+        AddCommerceData(data);
         _window.Panel.SetState("ApartmentEditor", data.ToString(), "Обустройство квартиры");
     }
 
@@ -140,7 +147,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     private void OnResult(ApartmentResultEvent ev)
     {
         if (_window is { } window)
-            window.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().String("status", ev.Message)
+            window.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().Number("applySequence", ++_applySequence).String("status", ev.Message)
                 .Bool("success", ev.Success)).ToString());
         if (ev.Revision < 0) CloseEditor(false);
     }
@@ -148,6 +155,9 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     private void OnAction(string action, string payload)
     {
         if (_state == null) return;
+        if (action == "layoutChunk") { ReceiveLayoutChunk(payload); return; }
+        if (action == "buyFurniture") { PurchaseFurniture(payload); return; }
+        if (action == "refreshCommerce") { RequestCommerce(); return; }
         if (action == "shop") { EntityManager.System<ApartmentShopSystem>().Open(); return; }
         if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
         if (action == "exit" && Lobby) { CloseEditor(true); return; }
@@ -155,13 +165,13 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         if (action == "close") { CloseEditor(true); return; }
         if (action == "before") { ShowDraft = false; RestoreSprites(); return; }
         if (action == "after") { ShowDraft = true; HideSprites(); return; }
-        if (action is not ("preview" or "apply") || !TryParseLayout(payload, out var layout, 64 + _state.MapFurniture.Count)) return;
+        if (action is not ("preview" or "apply") || !TryParseLayout(payload, out var layout, ApartmentLayout.SafetyLimit)) return;
         Draft = layout;
         if (action == "apply") RaiseNetworkEvent(new ApartmentApplyEvent(_state.Token, _state.Revision, layout));
     }
 
     /// <summary>Parse bounded JSON through the sandbox-approved YAML reader, as other TGUI panels do.</summary>
-    public static bool TryParseLayout(string payload, out List<ApartmentPlacement> layout, int maxCount = 64)
+    public static bool TryParseLayout(string payload, out List<ApartmentPlacement> layout, int maxCount = ApartmentLayout.SafetyLimit)
     {
         layout = new();
         if (payload.Length > Math.Max(8192, maxCount * 256) || !payload.TrimStart().StartsWith('{')) return false;
@@ -210,7 +220,8 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         RestoreSprites();
         var window = _window;
         _window = null;
-        _state = null; Template = null; Draft.Clear();
+        _uploadLayout.Clear(); _uploadId = Guid.Empty;
+        _state = null; _commerce = _commerceResult = null; _commerceAwaiting = false; Template = null; Draft.Clear();
         if (notify && window != null) RaiseNetworkEvent(new ApartmentActionEvent("close"));
         if (window == null) return;
         window.Panel.Web.ReleaseTextInput();
@@ -243,7 +254,7 @@ public sealed class ApartmentEditorWindow : FancyWindow
     public ApartmentEditorWindow()
     {
         Title = "Обустройство квартиры";
-        SetSize = new Vector2(940, 650);
+        SetSize = new Vector2(1140, 760);
         MinSize = new Vector2(620, 440);
         ContentsContainer.AddChild(Panel);
     }

@@ -16,6 +16,8 @@ public sealed partial class ApartmentSystem
     private readonly Dictionary<NetUserId, Instance> _lobbyEditors = new();
     private readonly List<Instance> _retiring = new();
     private readonly HashSet<NetUserId> _shopping = new();
+    [Dependency] private Content.Server.Database.IServerDbManager _economyDatabase = default!;
+    [Dependency] private LagoonEconomySystem _economy = default!;
     private bool InLobby(ICommonSession session) => _ticker.PlayerGameStatuses.TryGetValue(session.UserId, out var state) && state != PlayerGameStatus.JoinedGame;
     private bool CanManage(ICommonSession session) => Enabled && session.Channel.IsConnected && (InLobby(session) ||
         _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Owner == session.UserId && session.AttachedEntity == visit.Body &&
@@ -48,19 +50,24 @@ public sealed partial class ApartmentSystem
         if (Visitors(instance).Length > 0 || HasComp<ApartmentElevatorReservedComponent>(instance.Grid)) _retiring.Add(instance);
         else Del(instance.Grid);
     }
-    private void OpenShop(ApartmentShopRequest ev, EntitySessionEventArgs args)
+    private async void OpenShop(ApartmentShopRequest ev, EntitySessionEventArgs args)
     {
-        if (CanManage(args.SenderSession)) PublishShop(args.SenderSession);
+        var session = args.SenderSession;
+        if (!CanManage(session) || !_shopping.Add(session.UserId)) return;
+        try { await _economy.Current(session); if (CanManage(session)) PublishShop(session); }
+        catch (Exception e) { Log.Warning($"Apartment shop load failed: {e.GetType().Name}"); }
+        finally { _shopping.Remove(session.UserId); }
     }
     private void PublishShop(ICommonSession session, string message = "")
     {
+        var account = _economy.Cached(session.UserId);
         var selected = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
         var token = Guid.NewGuid(); _shopTokens[session.UserId] = token;
         var entries = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>().Where(Available).OrderBy(p => p.Price).ThenBy(p => p.ID)
-            .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = p.Price,
-                Owned = p.Price == 0 || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
+            .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = Math.Max(0, p.Price - (account?.State.ApartmentCredit ?? 0)),
+                Owned = p.Price == 0 || (account?.State.ApartmentCredit ?? 0) >= p.Price || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
         var legacy = _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Template.Map == null;
-        RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message), session);
+        RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message, balance: account?.Balance ?? -1), session);
     }
     private async void ShopAction(ApartmentShopAction ev, EntitySessionEventArgs args)
     {
@@ -89,7 +96,11 @@ public sealed partial class ApartmentSystem
             {
                 var purchase = Store.BeginPurchase(session.UserId.UserId, template.ID, template.Price);
                 if (purchase.Price > 0)
-                    await _coins.Spend(session.UserId, purchase.Price, "apartment:" + purchase.Operation, "apartment-template:" + template.ID);
+                {
+                    var bought = await _economyDatabase.PurchaseEconomyAsync(session.UserId, new Content.Server.Database.LagoonEconomyPurchase(
+                        "apartment:" + purchase.Operation, "apartment", template.ID, purchase.Price, _economy.ExternalTier(session)));
+                    _economy.Remember(session, bought); _coins.NotifyEconomyOperation(session.UserId, bought, "Квартира: " + Loc.GetString(template.Name));
+                }
                 Store.Grant(session.UserId.UserId, template.ID);
             }
             if (!CanManage(session) || _shopTokens.GetValueOrDefault(session.UserId) != ev.Token) return;
@@ -112,6 +123,6 @@ public sealed partial class ApartmentSystem
         var instance = PrepareElevatorApartment(session.UserId);
         var token = Guid.NewGuid(); _editors[session.UserId] = token; _lobbyEditors[session.UserId] = instance;
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
-            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), instance.MapFurniture.Values.ToList(), true), session);
+            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), instance.MapFurniture.Values.ToList(), true, _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
     }
 }
