@@ -1,20 +1,17 @@
-<p align="center"><img alt="DeepLagoon Station" width="320" src="Resources/Textures/_DeepLagoon/Logo/logo.png" /></p>
+<p align="center"><img alt="DeepLagoon Station" width="320" src=".github/readme-logo.png" /></p>
 
-DeepLagoon Station is a fork of [Frontier Station 14](https://github.com/new-frontiers-14/frontier-station-14) that runs on the [Robust Toolbox](https://github.com/space-wizards/RobustToolbox) engine written in C#.
-
-This is the primary repo for DeepLagoon Station.
+DeepLagoon Station это форк [Monolith-Station](https://github.com/Monolith-Station/Monolith), который, в свою очередь, является форком [Frontier Station 14](https://github.com/new-frontiers-14/frontier-station-14) и всё это добро работает на нашем скромном форке движка [Robust Toolbox](https://github.com/DeepLagoon/RobustToolbox), написанным на языке C#.
 
 If you want to host or create content for DeepLagoon Station, this is the repo you need. It contains both RobustToolbox and the content pack for development of new content packs.
 
 ## Links
 
-[Community](https://deep-lagoon-ss14.ru/) | [GitHub](https://github.com/DeepLagoon/DeepLagoon-Station) | [Steam](https://store.steampowered.com/app/1255460/Space_Station_14/)
+[Discord](https://discord.gg/uW7tgZeqVg) | [GitHub](https://github.com/DeepLagoon/DeepLagoon-Station) | [Boosty](https://boosty.to/iamasay)
 
 ## Contributing
 
-We are happy to accept contributions from anybody. Get in Discord if you want to help. Don't be afraid to ask for help either!
-
-We are not currently accepting translations of the game on our main repository. If you would like to translate the game into another language consider creating a fork or contributing to a fork.
+Мы с радостью примем помощь от каждого, кто способен писать код, делать прототипы, рисовать спрайты, или же проектировать карты.
+Для этого, вы можете посетить наш дискорд и написать соответствующую заявку для доступа к специальным чатам, но это не обязательно. Репозиторий открыт и вы можете сделать PR.
 
 ## Building
 
