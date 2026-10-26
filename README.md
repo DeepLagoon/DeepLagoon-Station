@@ -60,8 +60,4 @@ DeepLagoon Station это форк [Monolith-Station](https://github.com/Monolit
 
 Коммит [2fca06eaba205ae6fe3aceb8ae2a0594f0effee0](https://github.com/new-frontiers-14/frontier-station-14/commit/2fca06eaba205ae6fe3aceb8ae2a0594f0effee0) опубликован 1 июля 2024 года в 16:04 UTC.
 
-Большинство ресурсов распространяется под [CC-BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), если не указано иное. Лицензия и авторство указываются в метаданных ресурса, например в [meta.json спрайта лома](Resources/Textures/Objects/Tools/crowbar.rsi/meta.json).
-
-Часть ресурсов распространяется под [CC-BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) или другими лицензиями с ограничением коммерческого использования. Для коммерческого использования проекта такие ресурсы необходимо заменить, удалить либо получить отдельное разрешение правообладателей. Ресурсы с пометкой `Custom` требуют отдельной проверки условий.
-
 Эта сводка не меняет лицензии и авторские права на отдельные файлы.
