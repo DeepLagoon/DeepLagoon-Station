@@ -25,7 +25,7 @@ public sealed partial class InterfaceStyleUIController : UIController,
     private void Ask()
     {
         if (_window != null || WebUiCVars.HasChosenStyle(_cfg.GetCVar(WebUiCVars.InterfaceStyle))) return;
-        var window = new FancyWindow { Title = Loc.GetString("dl-ui-style-title"), SetSize = new Vector2(500, 240) };
+        var window = new FancyWindow { Title = Loc.GetString("dl-ui-style-title"), SetSize = new Vector2(600, 360) };
         _window = window;
         var contents = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 12 };
         contents.AddChild(new Label { Text = Loc.GetString("dl-ui-style-question") });
