@@ -1,9 +1,13 @@
-# Reporting a security vulnerability
-You can report a security vulnerability through Discord or through email.
+# Сообщение об уязвимости
 
-If you want to send an email, you can contact us at <telecommunications@spacestation14.com>.
-If you want to contact us through Discord, you can join [our server](https://discord.gg/MwDDf6t)
-and then **privately** message anyone with the `@Wizard` or `@SS14 Maintainer` role.
+Если вы обнаружили уязвимость в DeepLagoon Station, присоединитесь к
+[Discord проекта](https://discord.gg/uW7tgZeqVg) и сообщите о ней **личным сообщением**
+администратору проекта или разработчику.
 
-In either case, **do not publicly disclose the vulnerability until we explicitly give
-you permission to do so**.
+В сообщении укажите, какую версию затрагивает проблема, как её воспроизвести
+и к каким последствиям она может привести. Не прикладывайте действующие пароли,
+токены и персональные данные игроков.
+
+**Не публикуйте подробности уязвимости в открытых каналах Discord, GitHub Issues
+или pull request.** Согласуйте с командой проекта срок раскрытия информации,
+чтобы у неё было время подготовить исправление.
