@@ -2,65 +2,66 @@
 
 DeepLagoon Station это форк [Monolith-Station](https://github.com/Monolith-Station/Monolith), который, в свою очередь, является форком [Frontier Station 14](https://github.com/new-frontiers-14/frontier-station-14) и всё это добро работает на нашем скромном форке движка [Robust Toolbox](https://github.com/DeepLagoon/RobustToolbox), написанным на языке C#.
 
-If you want to host or create content for DeepLagoon Station, this is the repo you need. It contains both RobustToolbox and the content pack for development of new content packs.
+Если вы хотите запустить сервер DeepLagoon Station или создавать для него контент, вам нужен этот репозиторий. Он содержит игровой контент и подключает движок RobustToolbox как Git-подмодуль.
 
-## Links
+## Ссылки
 
 [Discord](https://discord.gg/uW7tgZeqVg) | [GitHub](https://github.com/DeepLagoon/DeepLagoon-Station) | [Boosty](https://boosty.to/iamasay)
 
-## Contributing
+## Участие в разработке
 
 Мы с радостью примем помощь от каждого, кто способен писать код, делать прототипы, рисовать спрайты, или же проектировать карты.
 Для этого, вы можете посетить наш дискорд и написать соответствующую заявку для доступа к специальным чатам, но это не обязательно. Репозиторий открыт и вы можете сделать PR.
 
-## Building
+## Сборка
 
-Refer to [the Space Wizards' guide](https://docs.spacestation14.com/en/general-development/setup/setting-up-a-development-environment.html) on setting up a development environment for general information, but keep in mind that Einstein Engines is not the same and many things may not apply.
-We provide some scripts shown below to make the job easier.
+Общие сведения о настройке среды разработки приведены в [руководстве Space Wizards](https://docs.spacestation14.com/en/general-development/setup/setting-up-a-development-environment.html). Учитывайте, что DeepLagoon Station отличается от исходного проекта и часть инструкций может быть неприменима.
+Для удобства в репозитории есть перечисленные ниже скрипты.
 
-### Build dependencies
+### Необходимые инструменты
 
 > - Git
 > - .NET SDK 10.0
 
-
 ### Windows
 
-> 1. Clone this repository
-> 2. Run `Scripts/bat/updateEngine.bat` in a terminal or in file explorer to download the engine
-> 3. Run `Scripts/bat/buildAllDebug.bat` after making any changes to the source
-> 4. Run `Scripts/bat/runQuickAll.bat` to launch the client and the server
-> 5. Connect to localhost in the client and play
+> 1. Клонируйте этот репозиторий.
+> 2. Откройте папку `Scripts/bat` и запустите `updateEngine.bat`, чтобы загрузить движок.
+> 3. После внесения изменений в исходный код запустите `buildAllDebug.bat` из той же папки.
+> 4. Запустите `runQuickAll.bat` из той же папки, чтобы открыть клиент и сервер.
+> 5. В клиенте подключитесь к `localhost`.
 
 ### Linux
 
-> 1. Clone this repository
-> 2. Run `Scripts/sh/updateEngine.sh` in a terminal to download the engine
-> 3. Run `Scripts/sh/buildAllDebug.sh` after making any changes to the source
-> 4. Run `Scripts/sh/runQuickAll.sh` to launch the client and the server
-> 5. Connect to localhost in the client and play
+> 1. Клонируйте этот репозиторий.
+> 2. Запустите `Scripts/sh/updateEngine.sh` в терминале, чтобы загрузить движок.
+> 3. После внесения изменений в исходный код запустите `Scripts/sh/buildAllDebug.sh`.
+> 4. Запустите `Scripts/sh/runQuickAll.sh`, чтобы открыть клиент и сервер.
+> 5. В клиенте подключитесь к `localhost`.
 
-### MacOS
+### macOS
 
-> 1. Clone this repository
-> 2. Run `Scripts/sh/updateEngine.sh` in a terminal to download the engine
-> 3. Run `Scripts/sh/buildAllDebug.sh` after making any changes to the source
-> 4. Run `Scripts/sh/runQuickAll.sh` to launch the client and the server
-> 5. Connect to localhost in the client and play
+> 1. Клонируйте этот репозиторий.
+> 2. Запустите `Scripts/sh/updateEngine.sh` в терминале, чтобы загрузить движок.
+> 3. После внесения изменений в исходный код запустите `Scripts/sh/buildAllDebug.sh`.
+> 4. Запустите `Scripts/sh/runQuickAll.sh`, чтобы открыть клиент и сервер.
+> 5. В клиенте подключитесь к `localhost`.
 
-## License
+## Лицензии
 
-See the REUSE headers for detailed licensing information for each file for the specific licenses contributions are made under. The work as a whole is licensed under GNU Affero General Public License version 3.0.
+Условия лицензирования отдельных файлов указаны в уведомлениях REUSE, заголовках файлов и метаданных ресурсов; при необходимости учитывайте историю их изменений. Проект в целом распространяется под GNU Affero General Public License версии 3.0. Отдельные компоненты сохраняют собственные лицензии.
 
-By default, original code contributed to the Monolith codebase after 04d8ce483f638320d1b85a7aaacdf01442757363 is under Mozilla Public License version 2.0 with Exhibit B removed. See `LICENSE-MPL.txt`.
+По унаследованным условиям Monolith оригинальный код, добавленный в его кодовую базу после коммита [04d8ce483f638320d1b85a7aaacdf01442757363](https://github.com/Monolith-Station/Monolith/commit/04d8ce483f638320d1b85a7aaacdf01442757363), по умолчанию распространяется под Mozilla Public License версии 2.0 с исключённым приложением B. См. [LICENSES/MPL-2.0.txt](LICENSES/MPL-2.0.txt).
 
-Content contributed to this repository after commit 2fca06eaba205ae6fe3aceb8ae2a0594f0effee0 is licensed under the GNU Affero General Public License version 3.0, unless otherwise stated. See `LICENSE-AGPLv3.txt`.
+Для остальных файлов применяются унаследованные условия Frontier, если для конкретного файла не указано иное:
 
-Content contributed to this repository before commit 2fca06eaba205ae6fe3aceb8ae2a0594f0effee0 is licensed under the MIT license, unless otherwise stated. See `LICENSE-MIT.txt`.
+- Код, добавленный после коммита `2fca06eaba205ae6fe3aceb8ae2a0594f0effee0`, распространяется под GNU Affero General Public License версии 3.0. См. [LICENSES/AGPL-3.0-or-later.txt](LICENSES/AGPL-3.0-or-later.txt).
+- Код, добавленный до этого коммита, распространяется под MIT. См. [LICENSES/MIT.txt](LICENSES/MIT.txt).
 
+Коммит [2fca06eaba205ae6fe3aceb8ae2a0594f0effee0](https://github.com/new-frontiers-14/frontier-station-14/commit/2fca06eaba205ae6fe3aceb8ae2a0594f0effee0) опубликован 1 июля 2024 года в 16:04 UTC.
 
-[2fca06eaba205ae6fe3aceb8ae2a0594f0effee0](https://github.com/new-frontiers-14/frontier-station-14/commit/2fca06eaba205ae6fe3aceb8ae2a0594f0effee0) was pushed on July 1, 2024 at 16:04 UTC
+Большинство ресурсов распространяется под [CC-BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), если не указано иное. Лицензия и авторство указываются в метаданных ресурса, например в [meta.json спрайта лома](Resources/Textures/Objects/Tools/crowbar.rsi/meta.json).
 
-Most assets are licensed under [CC-BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) unless stated otherwise. Assets have their license and the copyright in the metadata file. [Example](https://github.com/space-wizards/space-station-14/blob/master/Resources/Textures/Objects/Tools/crowbar.rsi/meta.json).
+Часть ресурсов распространяется под [CC-BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) или другими лицензиями с ограничением коммерческого использования. Для коммерческого использования проекта такие ресурсы необходимо заменить, удалить либо получить отдельное разрешение правообладателей. Ресурсы с пометкой `Custom` требуют отдельной проверки условий.
 
-Note that some assets are licensed under the non-commercial [CC-BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) or similar non-commercial licenses and will need to be removed if you wish to use this project commercially.
+Эта сводка не меняет лицензии и авторские права на отдельные файлы.
