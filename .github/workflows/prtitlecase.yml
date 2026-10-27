@@ -3,8 +3,12 @@ on:
   pull_request_target:
     types: [opened, edited, synchronize]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
-  GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+  GITHUB_TOKEN: ${{ github.token }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
@@ -12,19 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
         with:
-          token: ${{ secrets.BOT_TOKEN }}
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: '24'
 
       - name: Install Dependencies
         run: |
           cd "Tools/prtitlecase"
-          npm install
+          npm ci --ignore-scripts --no-audit --no-fund
+          node --test
         shell: bash
 
       - name: Change Title

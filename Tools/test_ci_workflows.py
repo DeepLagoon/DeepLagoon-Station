@@ -1,0 +1,59 @@
+"""Repository invariants that prevent CI setup from masking content test results."""
+from pathlib import Path
+import unittest
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKFLOWS = ROOT / ".github/workflows"
+
+
+def workflow(name):
+    return yaml.load((WORKFLOWS / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader) or {}
+
+
+class WorkflowContracts(unittest.TestCase):
+    def test_content_builds_prepare_the_engine_before_dotnet(self):
+        for name in ("build-test-debug.yml", "build-map-renderer.yml", "yaml-linter.yml",
+                     "test-packaging.yml", "nf-shipyard-tests.yml", "publish.yml", "publish-testing.yml"):
+            with self.subTest(workflow=name):
+                ready = False
+                for step in workflow(name)["jobs"]["build"]["steps"]:
+                    ready |= step.get("uses") == "./.github/actions/prepare-engine"
+                    if "dotnet " in step.get("run", ""):
+                        self.assertTrue(ready, f"{name} must prepare the official engine baseline before dotnet")
+
+    def test_label_and_comment_automation_has_explicit_write_permissions(self):
+        actions = ("actions-ecosystem/action-add-labels@", "actions-ecosystem/action-remove-labels@",
+                   "pascalgn/size-label-action@", "eps1lon/actions-label-merge-conflict@",
+                   "peter-evans/create-or-update-comment@", "superbrothers/close-pull-request@")
+        for path in WORKFLOWS.glob("*.yml"):
+            data = workflow(path.name)
+            for name, job in data.get("jobs", {}).items():
+                if not any(step.get("uses", "").startswith(actions) for step in job.get("steps", [])):
+                    continue
+                with self.subTest(workflow=path.name, job=name):
+                    permissions = job.get("permissions", data.get("permissions", {}))
+                    self.assertEqual("write", permissions.get("pull-requests"))
+                    if "issues" in data.get("on", {}):
+                        self.assertEqual("write", permissions.get("issues"))
+
+    def test_title_workflow_needs_no_repository_secret_or_untrusted_checkout(self):
+        data = workflow("prtitlecase.yml")
+        self.assertEqual("${{ github.token }}", data["env"]["GITHUB_TOKEN"])
+        self.assertEqual("write", data["permissions"]["pull-requests"])
+        for step in data["jobs"]["prtitlecase"]["steps"]:
+            if not step.get("uses", "").startswith("actions/checkout@"):
+                continue
+            self.assertNotIn("ref", step.get("with", {}), "pull_request_target must use trusted base code")
+            self.assertEqual("false", step["with"]["persist-credentials"])
+
+    def test_yaml_linter_runs_the_configuration_it_built(self):
+        steps = workflow("yaml-linter.yml")["jobs"]["build"]["steps"]
+        commands = [step.get("run", "") for step in steps]
+        self.assertTrue(any("dotnet build --configuration Release" in command for command in commands))
+        self.assertTrue(any("Content.YAMLLinter.csproj --configuration Release --no-build" in command for command in commands))
+
+
+if __name__ == "__main__":
+    unittest.main()

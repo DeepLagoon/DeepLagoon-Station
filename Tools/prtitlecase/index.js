@@ -2,7 +2,7 @@ import axios from 'axios';
 import { titleCase } from 'title-case';
 
 if (process.env.GITHUB_TOKEN) axios.defaults.headers.common['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
-else throw new Error('BOT_TOKEN was not provided in repository secrets or GITHUB_TOKEN was not set correctly.');
+else throw new Error('GITHUB_TOKEN is required to update the pull request title.');
 
 
 // Get PR title

@@ -18,13 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
-      - name: Setup submodule
-        run: |
-          git submodule update --init --recursive
-      - name: Update Engine Submodules
-        run: |
-          cd RobustToolbox/
-          git submodule update --init --recursive
+      - uses: ./.github/actions/prepare-engine
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -45,4 +39,4 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore /p:WarningsAsErrors= /m
       - name: Run Linter
-        run: dotnet run --project Content.YAMLLinter/Content.YAMLLinter.csproj --no-build
+        run: dotnet run --project Content.YAMLLinter/Content.YAMLLinter.csproj --configuration Release --no-build
