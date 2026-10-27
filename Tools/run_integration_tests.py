@@ -31,7 +31,8 @@ def main():
     parser.add_argument("--results", default="test_results")
     parser.add_argument("--group", choices=filters())
     args = parser.parse_args()
-    env = dict(os.environ, DOTNET_gcServer="0")
+    # Leave room for native textures, JIT code and the test runner on small workers.
+    env = dict(os.environ, DOTNET_gcServer="0", DOTNET_GCHeapHardLimit="0x100000000")
     failed = []
     for name, test_filter in filters().items():
         if args.group and args.group != name:

@@ -27,7 +27,7 @@ class IntegrationRunnerTests(unittest.TestCase):
                 self.assertIn('&FullyQualifiedName!~' + term, remaining)
 
     def test_failed_group_fails_the_run_without_skipping_later_groups(self):
-        with patch('sys.argv', ['runner']), patch.object(runner.Path, 'mkdir'), \
+        with patch('builtins.print'), patch('sys.argv', ['runner']), patch.object(runner.Path, 'mkdir'), \
                 patch.object(runner.subprocess, 'run') as run:
             run.return_value.returncode = 0
             results = [type('Result', (), {'returncode': int(i == 1)})() for i in range(len(runner.filters()))]
@@ -37,6 +37,7 @@ class IntegrationRunnerTests(unittest.TestCase):
             for call in run.call_args_list:
                 self.assertIn('NUnit.MapWarningTo=Failed', call.args[0])
                 self.assertEqual('0', call.kwargs['env']['DOTNET_gcServer'])
+                self.assertEqual('0x100000000', call.kwargs['env']['DOTNET_GCHeapHardLimit'])
 
 
 if __name__ == '__main__':
