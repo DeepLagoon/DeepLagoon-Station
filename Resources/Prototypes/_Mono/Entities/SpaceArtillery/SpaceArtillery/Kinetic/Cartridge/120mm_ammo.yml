@@ -69,7 +69,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 10
     intensitySlope: 5
     maxIntensity: 5

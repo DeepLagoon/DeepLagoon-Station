@@ -1,4 +1,4 @@
-import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useDeferredValue, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../../backend';
 import { Tooltip } from '../../components/Tooltip';
 import { TintedSprite } from '../../components/PlayerTheme';
@@ -35,24 +35,11 @@ type Data = {
 const NO_ITEMS: Item[] = [];
 const NO_LABELS: Record<string, string> = {};
 
-/** First-frame layered sprites are shared with the other TGUI catalogues. Nothing animates at rest. */
+/** Shelves already mount only nearby products, including one row for preloading icons. */
 const ProductSprite = memo(({ id, large = false, noImage }: { id: string; large?: boolean; noImage: string }) => {
-  const element = useRef<HTMLSpanElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    if (large) return;
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) {
-        setVisible(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: '100px' });
-    if (element.current) observer.observe(element.current);
-    return () => observer.disconnect();
-  }, [id, large]);
-  const layers = useIcon(large || visible ? id : '');
+  const layers = useIcon(id);
   return (
-    <span ref={element} className={`VendingMachine__sprite${large ? ' VendingMachine__sprite--large' : ''}`} aria-hidden="true">
+    <span className={`VendingMachine__sprite${large ? ' VendingMachine__sprite--large' : ''}`} aria-hidden="true">
       {layers.length ? <>
         {!large && <span className="VendingMachine__sprite-extrusion">{layers.map((layer, index) => layer.color.toLowerCase() === '#ffffff' ? (
           <img key={index} src={layer.url} alt="" draggable={false} />
@@ -66,6 +53,36 @@ const ProductSprite = memo(({ id, large = false, noImage }: { id: string; large?
       </> : <span className="VendingMachine__no-image">{noImage}</span>}
     </span>
   );
+});
+
+const quantity = (labels: Record<string, string>, entry?: Stock) => !entry?.available ? labels.unavailable
+  : entry.unlimited ? labels.unlimited : `${labels.remaining}: ${entry.amount}`;
+
+const ProductCard = memo(({ item, entry, selected, labels, onSelect }: {
+  item: Item;
+  entry?: Stock;
+  selected: boolean;
+  labels: Record<string, string>;
+  onSelect: (key: string) => void;
+}) => {
+  const available = entry?.available === true;
+  const remaining = quantity(labels, entry);
+  return <Tooltip content={<div className="VendingMachine__tip"><strong>{item.name}</strong><p>{item.description}</p><span>{item.priceText} · {remaining}</span></div>}>
+    <button type="button" className={`VendingMachine__product${selected ? ' is-selected' : ''}${available ? '' : ' is-empty'}`}
+      aria-label={`${item.code}. ${item.name}. ${item.priceText}. ${remaining}`}
+      aria-pressed={selected} onClick={() => onSelect(item.key)}>
+      <span className="VendingMachine__quantity">{!available ? '—' : entry.unlimited ? '∞' : `×${entry.amount}`}</span>
+      <span className="VendingMachine__well" aria-hidden="true">
+        <span className="VendingMachine__niche-back" />
+        <span className="VendingMachine__niche-wall is-left" /><span className="VendingMachine__niche-wall is-right" />
+        <span className="VendingMachine__niche-floor"><span className="VendingMachine__floor-light" /></span>
+        <span className="VendingMachine__niche-lamp" /><span className="VendingMachine__light-beam" />
+        <span className="VendingMachine__contact-shadow" />
+        <ProductSprite id={item.id} noImage={labels['no-image']} />
+      </span>
+      <span className="VendingMachine__ticket"><span>{item.code}</span><span>{item.priceText}</span></span>
+    </button>
+  </Tooltip>;
 });
 
 export const VendingMachine = () => {
@@ -84,7 +101,6 @@ export const VendingMachine = () => {
   const isUnavailable = !currentStock?.available;
   const blocked = data.status === 'off' || data.status === 'broken' || data.status === 'busy';
   const status = data.status && data.status !== 'ready' ? t(data.status) : '';
-  const quantity = (entry?: Stock) => !entry?.available ? t('unavailable') : entry.unlimited ? t('unlimited') : `${t('remaining')}: ${entry.amount}`;
   const cabinet = useRef<HTMLDivElement>(null);
 
   if (!data.items || !data.labels) return <div className="VendingMachine" aria-busy="true" />;
@@ -108,29 +124,8 @@ export const VendingMachine = () => {
         <section className="VendingMachine__glass" data-wear-protect="box" aria-label={t('catalogue')}>
           <ProductShelves items={filtered} resetKey={deferredQuery}
             empty={<p className="VendingMachine__empty" role="status">{t(items.length ? 'no-results' : 'empty')}</p>}
-            renderItem={item => {
-                const entry = stock.get(item.key);
-                const available = entry?.available === true;
-                return (
-                  <Tooltip key={item.key} content={<div className="VendingMachine__tip"><strong>{item.name}</strong><p>{item.description}</p><span>{item.priceText} · {quantity(entry)}</span></div>}>
-                    <button type="button" className={`VendingMachine__product${preview?.key === item.key ? ' is-selected' : ''}${available ? '' : ' is-empty'}`}
-                      aria-label={`${item.code}. ${item.name}. ${item.priceText}. ${quantity(entry)}`}
-                      aria-pressed={preview?.key === item.key}
-                      onClick={() => setPreviewKey(item.key)}>
-                      <span className="VendingMachine__quantity">{!available ? '—' : entry.unlimited ? '∞' : `×${entry.amount}`}</span>
-                      <span className="VendingMachine__well" aria-hidden="true">
-                        <span className="VendingMachine__niche-back" />
-                        <span className="VendingMachine__niche-wall is-left" /><span className="VendingMachine__niche-wall is-right" />
-                        <span className="VendingMachine__niche-floor"><span className="VendingMachine__floor-light" /></span>
-                        <span className="VendingMachine__niche-lamp" /><span className="VendingMachine__light-beam" />
-                        <span className="VendingMachine__contact-shadow" />
-                        <ProductSprite id={item.id} noImage={t('no-image')} />
-                      </span>
-                      <span className="VendingMachine__ticket"><span>{item.code}</span><span>{item.priceText}</span></span>
-                    </button>
-                  </Tooltip>
-                );
-              }} />
+            renderItem={item => <ProductCard key={item.key} item={item} entry={stock.get(item.key)}
+              selected={previewKey === item.key} labels={labels} onSelect={setPreviewKey} />} />
         </section>
         <aside className="VendingMachine__side" data-wear-protect="box" aria-label={t('preview')}>
           <div className="VendingMachine__display">
@@ -147,7 +142,7 @@ export const VendingMachine = () => {
                 <div className="VendingMachine__hero"><ProductSprite id={preview.id} large noImage={t('no-image')} /></div>
                 <p className="VendingMachine__description">{preview.description}</p>
               </div>
-              <div className="VendingMachine__price"><strong>{preview.priceText}</strong><span>{quantity(currentStock)}</span></div>
+              <div className="VendingMachine__price"><strong>{preview.priceText}</strong><span>{quantity(labels, currentStock)}</span></div>
               <button type="button" className="VendingMachine__buy" disabled={isUnavailable || blocked}
                 onClick={() => act('vend', { id: preview.id, type: preview.type })}>
                 {isUnavailable ? t('unavailable') : `${t('buy')} · ${preview.priceText}`}

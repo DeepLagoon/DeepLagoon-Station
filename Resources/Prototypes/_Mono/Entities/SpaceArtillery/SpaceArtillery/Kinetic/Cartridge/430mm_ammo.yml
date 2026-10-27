@@ -68,7 +68,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 10800 # This is 3/5th of a subnuclear shell
     intensitySlope: 12
     maxIntensity: 750

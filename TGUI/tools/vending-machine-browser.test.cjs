@@ -43,6 +43,12 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     page.on('pageerror', error => errors.push(String(error)));
     await page.addInitScript(images => {
       window.__sent = [];
+      window.__shelfStyleReads = 0;
+      const nativeStyle = window.getComputedStyle;
+      window.getComputedStyle = function(element, ...args) {
+        if (element.classList.contains('VendingMachine__grid')) window.__shelfStyleReads++;
+        return nativeStyle.call(this, element, ...args);
+      };
       const NativeImage = window.Image;
       window.Image = class extends NativeImage {
         set src(value) {
@@ -110,6 +116,32 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     report.initialIcons = initialIcons.length;
     report.initialProducts = await page.locator('.VendingMachine__product').count();
     assert(report.initialProducts > 0 && report.initialProducts < 30, 'Only viewport shelves are mounted');
+    await page.waitForFunction(() => [...document.querySelectorAll('.VendingMachine__well .VendingMachine__sprite')]
+      .every(element => element.querySelector('img')?.complete));
+    // Moving within the same shelf range must not remeasure CSS or reconcile cards.
+    await page.locator('.VendingMachine__brand').hover();
+    report.fineScroll = await page.evaluate(async () => {
+      const shelf = document.querySelector('.VendingMachine__shelves');
+      const gridStyle = getComputedStyle(document.querySelector('.VendingMachine__grid'));
+      const stride = parseFloat(gridStyle.getPropertyValue('--vm-product-height')) + parseFloat(gridStyle.rowGap);
+      const steps = Math.min(60, Math.max(1, Math.floor(stride - shelf.clientHeight % stride) - 1));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const reads = window.__shelfStyleReads;
+      let mutations = 0;
+      const observer = new MutationObserver(records => mutations += records.length);
+      observer.observe(shelf, { subtree: true, childList: true, attributes: true, characterData: true });
+      const start = performance.now();
+      for (let top = 1; top <= steps; top++) {
+        shelf.scrollTop = top;
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      }
+      observer.disconnect();
+      shelf.scrollTop = 0;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { steps, styleReads: window.__shelfStyleReads - reads, mutations, durationMs: Math.round(performance.now() - start) };
+    });
+    assert.equal(report.fineScroll.styleReads, 0, 'Scrolling reuses measured shelf geometry');
+    assert.equal(report.fineScroll.mutations, 0, 'Scrolling within a shelf range leaves the cards untouched');
     const buttons = page.locator('.VendingMachine__product');
     await buttons.nth(1).hover();
     await page.locator('.Tooltip').filter({ hasText: 'Описание товара' }).waitFor();
@@ -164,6 +196,22 @@ const initial = { title: 'Getmore — торговый автомат', hasBankA
     await page.waitForFunction(() => !document.querySelector('.VendingMachine__buy')?.disabled);
     assert.equal(await page.locator('.VendingMachine__balance').textContent(), '800 $');
     assert.equal(await page.locator('.VendingMachine h2').textContent(), 'Боритос', 'Balance updates preserve selection');
+    const balanceMutations = await page.evaluate(async () => {
+      let mutations = 0;
+      const observer = new MutationObserver(records => mutations += records.length);
+      observer.observe(document.querySelector('.VendingMachine__shelves'), { subtree:true, childList:true, attributes:true, characterData:true });
+      window.update(JSON.stringify({ type:'update', payload:{ data:{ balanceText:'799 $' } } }));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      observer.disconnect();
+      return mutations;
+    });
+    assert.equal(balanceMutations, 0, 'Payment updates do not reconcile the shelf contents');
+    await update({ stock: stock.map(entry => entry.key === '0:FoodSnack1' ? { ...entry, available:false, amount:'0' } : entry) });
+    await page.waitForFunction(() => document.querySelector('.VendingMachine__buy')?.disabled);
+    assert(await buttons.filter({ hasText:'A2' }).first().getAttribute('class').then(value => value.includes('is-empty')),
+      'A mounted card reflects stock changes after memoization');
+    await update({ stock });
+    await page.waitForFunction(() => !document.querySelector('.VendingMachine__buy')?.disabled);
     await page.locator('.VendingMachine__toolbar input').fill('');
     await page.waitForFunction(() => document.querySelector('.VendingMachine__count').textContent === '145 / 145');
     assert(await buttons.count() < 30);

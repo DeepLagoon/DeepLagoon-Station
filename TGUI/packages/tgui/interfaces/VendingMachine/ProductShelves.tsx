@@ -13,38 +13,54 @@ export function ProductShelves<T extends Product>({ items, resetKey, renderItem,
   const shelf = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
-  const [view, setView] = useState({ top: 0, height: 480, columns: 3, stride: 179 });
+  const geometry = useRef({ height: 480, columns: 3, stride: 179 });
+  const [view, setView] = useState({ first: 0, end: 4, columns: 3, stride: 179 });
+  const currentView = useRef(view);
+  const updateRange = useCallback(() => {
+    if (!shelf.current) return;
+    const { height, columns, stride } = geometry.current;
+    const top = shelf.current.scrollTop;
+    const rows = Math.ceil(items.length / columns);
+    const next = {
+      first: Math.min(Math.max(0, rows - 1), Math.max(0, Math.floor(top / stride) - OVERSCAN_ROWS)),
+      end: Math.min(rows, Math.ceil((top + height) / stride) + OVERSCAN_ROWS),
+      columns, stride,
+    };
+    const previous = currentView.current;
+    if (previous.first === next.first && previous.end === next.end &&
+      previous.columns === next.columns && previous.stride === next.stride) return;
+    currentView.current = next;
+    setView(next);
+  }, [items.length]);
+  // CSS and viewport dimensions only change on resize, never because of scrolling.
   const measure = useCallback(() => {
-    frame.current = 0;
     if (!shelf.current || !grid.current) return;
     const style = getComputedStyle(grid.current);
-    const next = {
-      top: shelf.current.scrollTop,
+    geometry.current = {
       height: shelf.current.clientHeight,
       columns: style.gridTemplateColumns.split(' ').length,
       stride: parseFloat(style.getPropertyValue('--vm-product-height')) + parseFloat(style.rowGap),
     };
-    setView(previous => previous.top === next.top && previous.height === next.height &&
-      previous.columns === next.columns && previous.stride === next.stride ? previous : next);
-  }, []);
+    updateRange();
+  }, [updateRange]);
   const schedule = useCallback(() => {
-    if (!frame.current) frame.current = requestAnimationFrame(measure);
-  }, [measure]);
+    if (!frame.current) frame.current = requestAnimationFrame(() => { frame.current = 0; updateRange(); });
+  }, [updateRange]);
   useLayoutEffect(() => {
     measure();
-    const observer = new ResizeObserver(schedule);
+    const observer = new ResizeObserver(measure);
     observer.observe(shelf.current!);
     observer.observe(grid.current!);
     return () => { observer.disconnect(); cancelAnimationFrame(frame.current); frame.current = 0; };
-  }, [measure, schedule]);
+  }, [measure]);
   useLayoutEffect(() => {
     shelf.current!.scrollTop = 0;
     measure();
   }, [resetKey, measure]);
 
   const rows = Math.ceil(items.length / view.columns);
-  const first = Math.min(Math.max(0, rows - 1), Math.max(0, Math.floor(view.top / view.stride) - OVERSCAN_ROWS));
-  const end = Math.min(rows, Math.ceil((view.top + view.height) / view.stride) + OVERSCAN_ROWS);
+  const first = Math.min(Math.max(0, rows - 1), view.first);
+  const end = Math.min(rows, view.end);
   return <div className="VendingMachine__shelves" ref={shelf} onScroll={schedule}>
     <div className="VendingMachine__grid" ref={grid} style={{
       paddingTop: first * view.stride,

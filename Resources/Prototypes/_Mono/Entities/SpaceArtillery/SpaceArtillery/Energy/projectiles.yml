@@ -29,7 +29,7 @@
     color: "#FF0040"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 90
     intensitySlope: 9
     maxIntensity: 12
@@ -66,7 +66,7 @@
     color: "#FF0040"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 30
     intensitySlope: 6
     maxIntensity: 6
@@ -114,7 +114,7 @@
     radarColor: "#FF0040"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 5
     intensitySlope: 1
     maxIntensity: 1
@@ -150,7 +150,7 @@
     radarColor: "#00e5ff"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 32
     intensitySlope: 4
     maxIntensity: 4
@@ -188,7 +188,7 @@
     color: "#FF00AA"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 25
     intensitySlope: 5
     maxIntensity: 5
@@ -290,7 +290,7 @@
     color: "#6BC1FF"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 500
     intensitySlope: 100
     maxIntensity: 20
@@ -331,7 +331,7 @@
     radarColor: "#ffffff"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 25
     intensitySlope: 7
     maxIntensity: 7
@@ -406,7 +406,7 @@
     color: "#ab0707"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 120
     intensitySlope: 45
     maxIntensity: 45
@@ -585,7 +585,7 @@
   - type: TriggerOnSpawn
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 1200
     intensitySlope: 150
     maxIntensity: 30
@@ -598,7 +598,7 @@
   - type: TriggerOnSpawn
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 45
     intensitySlope: 5
     maxIntensity: 5
@@ -611,7 +611,7 @@
   - type: TriggerOnSpawn
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 80
     intensitySlope: 8
     maxIntensity: 8

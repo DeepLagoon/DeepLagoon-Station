@@ -94,7 +94,7 @@
     energy: 0.5
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 8
     intensitySlope: 3
     maxIntensity: 5
@@ -154,7 +154,7 @@
     energy: 0.5
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 50
     intensitySlope: 4
     maxIntensity: 15
@@ -222,7 +222,7 @@
     energy: 0.5
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 130
     intensitySlope: 6
     maxIntensity: 25
@@ -268,7 +268,7 @@
     energy: 0.5
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 70
     intensitySlope: 6
     maxIntensity: 25
@@ -318,7 +318,7 @@
     disableDuration: 5
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 40
     intensitySlope: 10
     maxIntensity: 25
@@ -366,7 +366,7 @@
     energy: 2
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     maxIntensity: 600
     intensitySlope: 3
     totalIntensity: 150

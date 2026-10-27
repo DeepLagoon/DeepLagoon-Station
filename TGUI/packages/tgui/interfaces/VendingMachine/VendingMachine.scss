@@ -84,10 +84,10 @@
     background: linear-gradient(115deg, #ffffff04 0% 17%, transparent 17% 73%, #ffffff03 73%), #0f1710;
     box-shadow: inset 0 0 0 1px #030803, inset 0 0 24px #0008, 0 1px #9caa791f;
   }
-  &__shelves { height: 100%; overflow-y: auto; overflow-x: hidden; padding: 7px 6px 12px; scrollbar-color: #748066 #11190f; scrollbar-width: thin; }
+  &__shelves { contain: layout paint style; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 7px 6px 12px; scrollbar-color: #748066 #11190f; scrollbar-width: thin; }
   &__grid { --vm-product-height: 172px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; align-content: start; overflow-anchor: none; }
   &__product {
-    position: relative; display: block; isolation: isolate;
+    position: relative; display: block; isolation: isolate; contain: layout style;
     min-width: 0; height: var(--vm-product-height); padding: 0; overflow: visible; color: var(--vm-text);
     border: 2px solid; border-color: #687650 #1b2514 #111a0b #596742; border-radius: 3px;
     background: repeating-linear-gradient(1deg, #adbb8606 0 1px, transparent 1px 4px), linear-gradient(120deg, #38452c, #27351f 65%, #435132);
@@ -95,7 +95,7 @@
     &.is-selected { border-color: #a89e6a #4d5734 #253013 #8b8b57; }
     &.is-empty .VendingMachine__sprite { opacity: .35; }
   }
-  &__well { position: absolute; inset: 8px 7px 34px; overflow: hidden; background: #0c1209; border: 1px solid #101a09; border-radius: 2px;
+  &__well { position: absolute; inset: 8px 7px 34px; overflow: hidden; contain: strict; background: #0c1209; border: 1px solid #101a09; border-radius: 2px;
     box-shadow: inset 0 5px 10px #000c, 0 1px #b8c88b23; }
   &__niche-back { position: absolute; inset: 9px var(--vm-niche-depth) 33px;
     background: repeating-linear-gradient(0deg, #9eb17a03 0 1px, transparent 1px 4px), linear-gradient(#0f170b, #192512);
@@ -124,7 +124,7 @@
     background: linear-gradient(110deg, transparent 18%, #ffedc436 38%, transparent 59%); opacity: 0; transition: opacity .18s; }
   &__well &__sprite { position: absolute; width: 89%; max-width: 116px; left: 50%; top: 53%;
     transform: translate(-50%, -44%);
-    transform-style: preserve-3d; z-index: 3; filter: brightness(var(--vm-niche-dark)) saturate(.88); transition: filter .18s; }
+    z-index: 3; filter: brightness(var(--vm-niche-dark)) saturate(.88); transition: filter .18s; }
   &__product.is-selected &__niche-lamp { background: var(--vm-niche-lamp); box-shadow: 0 0 4px var(--vm-niche-lamp), 0 3px 11px color-mix(in srgb, var(--vm-niche-lamp), transparent 25%); }
   &__product.is-selected &__light-beam, &__product.is-selected &__floor-light, &__product.is-selected &__sprite-shine { opacity: var(--vm-niche-light); }
   &__product.is-selected &__well &__sprite { filter: brightness(calc(1 + var(--vm-niche-light) * .22)) saturate(1.08); }

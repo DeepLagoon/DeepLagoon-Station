@@ -31,7 +31,7 @@
     energy: 2
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     maxIntensity: 250
     intensitySlope: 30
     totalIntensity: 2500
@@ -145,7 +145,7 @@
     energy: 2
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     maxIntensity: 250
     intensitySlope: 30
     totalIntensity: 2500
@@ -267,7 +267,7 @@
     maxSpeed: 275
     trackDelay: 1.4
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     maxIntensity: 30
     intensitySlope: 100
     totalIntensity: 100
@@ -371,7 +371,7 @@
     energy: 2
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     maxIntensity: 50
     intensitySlope: 4
     totalIntensity: 150

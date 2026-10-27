@@ -113,7 +113,7 @@
     radarColor: "#FFFFFF"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 2
     intensitySlope: 2
     maxIntensity: 1
@@ -162,7 +162,7 @@
     radarColor: "#FFFFFF"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 2
     intensitySlope: 2
     maxIntensity: 1
@@ -198,7 +198,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 18 # totalIntensity goes first, please.
     intensitySlope: 2
     maxIntensity: 2
@@ -233,7 +233,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 18 # totalIntensity goes first, please.
     intensitySlope: 5
     maxIntensity: 6
@@ -276,7 +276,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 18 # totalIntensity goes first, please.
     intensitySlope: 5
     maxIntensity: 6
@@ -326,7 +326,7 @@
     - state: 90mmHE
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 45
     intensitySlope: 4
     maxIntensity: 3
@@ -567,7 +567,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 40
     intensitySlope: 5
     maxIntensity: 25
@@ -607,7 +607,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 30
     intensitySlope: 5
     maxIntensity: 25
@@ -656,7 +656,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 90
     intensitySlope: 5
     maxIntensity: 60
@@ -695,7 +695,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 600
     intensitySlope: 12
     maxIntensity: 16
@@ -841,7 +841,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 500
     intensitySlope: 10
     maxIntensity: 10
@@ -878,7 +878,7 @@
     color: "#035EFC"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 30
     intensitySlope: 5
     maxIntensity: 5
@@ -1027,7 +1027,7 @@
   - type: ExplodeOnTrigger
   - type: Explosive
     deleteAfterExplosion: false
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 10
     intensitySlope: 10
     maxIntensity: 10
@@ -1213,7 +1213,7 @@
     color: "#fc5a03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 1900
     intensitySlope: 8
     maxIntensity: 90
@@ -1251,7 +1251,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 12
     intensitySlope: 2
     maxIntensity: 2
@@ -1269,7 +1269,7 @@
         Blunt: 60
         Piercing: 10
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 6
     intensitySlope: 2
     maxIntensity: 2
@@ -1304,7 +1304,7 @@
     color: "#FCBA03"
   - type: ExplodeOnTrigger
   - type: Explosive
-    explosionType: Default
+    explosionType: DefaultShipGun
     totalIntensity: 45
     intensitySlope: 5
     maxIntensity: 5
