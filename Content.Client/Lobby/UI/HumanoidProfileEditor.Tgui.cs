@@ -143,6 +143,7 @@ public sealed partial class HumanoidProfileEditor
     private void ReloadTguiCatalog(PrototypesReloadedEventArgs args)
     {
         _catalogKey = null;
+        _selectionCatalogKey = null;
         _tguiImages.Reset();
         _personalLoadoutEditor.ResetTguiCache();
         _companyWebImages.Clear();
@@ -153,7 +154,7 @@ public sealed partial class HumanoidProfileEditor
     protected override void Dispose(bool disposing)
     {
         if (disposing) _prototypeManager.PrototypesReloaded -= ReloadTguiCatalog;
-        if (disposing) CloseColorPicker();
+        if (disposing) { CloseColorPicker(); CloseCatalog(); }
         if (disposing && _tguiHost is { Parent: null })
         {
             _tguiHost.Dispose();
@@ -164,6 +165,7 @@ public sealed partial class HumanoidProfileEditor
     private void RestoreNativeEditor()
     {
         if (_tguiHost?.Parent == null || _profileWeb == null) return;
+        CloseCatalog();
         UpdateMarkings();
         UpdateHairPickers();
         UpdateCMarkingsHair();
@@ -222,6 +224,7 @@ public sealed partial class HumanoidProfileEditor
     {
         if (_profileWeb == null) return;
         CloseColorPicker();
+        CloseCatalog();
         var wasMarkings = _tguiMode == "markings";
         _tguiMode = TguiTabMode(tab);
         if (_tguiMode == "markings" && !wasMarkings)
@@ -262,6 +265,7 @@ public sealed partial class HumanoidProfileEditor
     private void FlushTguiProfile()
     {
         RefreshNativeExtras();
+        PublishCatalog();
         if (_libraryWindow != null)
             _libraryWindow.Panel.SetState("CharacterHeadshotLibrary", CreateTguiProfileState("flavor").ToString());
         if (_profileWeb == null) return;
@@ -503,6 +507,8 @@ public sealed partial class HumanoidProfileEditor
         }
         if (_requirements.TattoosBanned && action.StartsWith("tattoo-", StringComparison.Ordinal) && action != "tattoo-preview-direction")
         { _tattooStatus = Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanMessage; PublishTguiProfile(); return false; }
+        if (action == "catalog-open") return OpenCatalog(args!.String("kind") ?? "");
+        if (action == "catalog-close") { CloseCatalog(); return true; }
         if (action.StartsWith("color-picker-", StringComparison.Ordinal)) return HandleColorPicker(action, args!);
         if (action == "preview-bounds")
         {
@@ -528,24 +534,7 @@ public sealed partial class HumanoidProfileEditor
             if (completed == null) return true;
             args = completed; action = "tattoo-bake";
         }
-        if (action == "icons")
-        {
-            if (args!.String("ids") is not { } ids || _profileWeb == null || Profile == null) return false;
-            var icons = new List<TguiData>();
-            foreach (var id in ids.Split(',').Distinct().Take(100))
-            {
-                if (id.StartsWith("marking/", StringComparison.Ordinal) &&
-                    _markingManager.Markings.TryGetValue(id[8..], out var marking))
-                    icons.Add(new TguiData().String("id", id).Array("layers", marking.Sprites.Select(sprite =>
-                        new TguiData().String("url", _tguiImages.Frame(sprite)).String("color", "#ffffff"))));
-                else if (id.StartsWith("item/", StringComparison.Ordinal) && _prototypeManager.TryIndex<EntityPrototype>(id[5..], out _))
-                    icons.Add(new TguiData().String("id", id).Array("layers", _tguiImages.Item(id[5..])));
-                else
-                    icons.Add(new TguiData().String("id", id).Array("layers", Enumerable.Empty<TguiData>()));
-            }
-            _profileWeb.Web.Send("update", new TguiData().Object("data", new TguiData().Object("iconBatch", new TguiData().Array("icons", icons))).ToString());
-            return true;
-        }
+        if (action == "icons") return _profileWeb != null && SendTguiIcons(_profileWeb, args!);
         if (action.StartsWith("setup/", StringComparison.Ordinal)) { var accepted = SetupAction?.Invoke(action[6..], args!) ?? false; PublishTguiProfile(); return accepted; }
         if (Profile == null) return false;
         var value = args!.String("value") ?? "";
@@ -635,6 +624,7 @@ public sealed partial class HumanoidProfileEditor
             case "flavor":
                 if (value.Length > HumanoidCharacterProfile.MaxDescLength) return false;
                 OnFlavorTextChange(value); break;
+            case "marking-toggle":
             case "marking-add":
             case "marking-remove":
             case "marking-color":
@@ -768,12 +758,17 @@ public sealed partial class HumanoidProfileEditor
         if (action != "marking-color") CloseColorPicker();
         var list = Profile.Appearance.Markings.Select(m => new Marking(m)).ToList();
         var points = _prototypeManager.Index(Profile.Species).MarkingPoints;
-        if (action == "marking-add")
+        if (action is "marking-add" or "marking-toggle")
         {
             CloseColorPicker();
             if (!_markingManager.Markings.TryGetValue(value, out var prototype) || prototype.MarkingCategory is MarkingCategories.Hair or MarkingCategories.FacialHair ||
                 prototype.EditorHidden || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager)) return false;
-            if (!TrySelectTguiMarking(list, prototype, points)) return false;
+            if (action == "marking-toggle" && list.FirstOrDefault(marking => marking.MarkingId == value) is { } current)
+            {
+                list.Remove(current);
+                list.RemoveAll(linked => prototype.EditorLinkedMarkings.Contains(linked.MarkingId));
+            }
+            else if (!TrySelectTguiMarking(list, prototype, points)) return false;
         }
         else
         {
@@ -806,4 +801,24 @@ public sealed partial class HumanoidProfileEditor
         OnMarkingChange(updated);
         return true;
     }
+
+    private bool SendTguiIcons(TguiPanel target, TguiActionData args)
+    {
+        if (args.String("ids") is not { } ids || Profile == null) return false;
+        var icons = new List<TguiData>();
+        foreach (var id in ids.Split(',').Distinct().Take(100))
+        {
+            if (id.StartsWith("marking/", StringComparison.Ordinal) &&
+                _markingManager.Markings.TryGetValue(id[8..], out var marking))
+                icons.Add(new TguiData().String("id", id).Array("layers", marking.Sprites.Select(sprite =>
+                    new TguiData().String("url", _tguiImages.Frame(sprite)).String("color", "#ffffff"))));
+            else if (id.StartsWith("item/", StringComparison.Ordinal) && _prototypeManager.TryIndex<EntityPrototype>(id[5..], out _))
+                icons.Add(new TguiData().String("id", id).Array("layers", _tguiImages.Item(id[5..])));
+            else
+                icons.Add(new TguiData().String("id", id).Array("layers", Enumerable.Empty<TguiData>()));
+        }
+        target.Web.Send("update", new TguiData().Object("data", new TguiData().Object("iconBatch", new TguiData().Array("icons", icons))).ToString());
+        return true;
+    }
+
 }

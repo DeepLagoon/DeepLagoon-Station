@@ -29,7 +29,7 @@ const DraftInput = ({ label, value, onCommit, type = 'text', min, max }) => {
     onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /></Field>;
 };
 const ColorEditor = ColorSquare;
-const SizeSlider = ({ label, value, onChange }) => {
+const SizeSlider = ({ label, value, onChange, vertical = false }) => {
   const [local, setLocal] = useState(value);
   const dragging = useRef(false);
   const [send, flush] = useThrottledChange(onChange);
@@ -45,37 +45,39 @@ const SizeSlider = ({ label, value, onChange }) => {
       window.removeEventListener('blur', end);
     };
   }, [flush]);
-  return <>
-    <input aria-label={label} type="range" min="0.8" max="1.2" step="0.01" value={local}
+  return <input className="CharacterEditor__sizeSlider" aria-label={label} aria-orientation={vertical ? 'vertical' : 'horizontal'}
+      type="range" min="0.8" max="1.2" step="0.01" value={local}
       onPointerDown={() => { dragging.current = true; }} onBlur={flush}
-      onChange={event => { const next = Number(event.target.value); setLocal(next); send(next); }} />
-    <span className="CharacterEditor__rangeValue">{Math.round(local * 100)}%</span>
-  </>;
+      onChange={event => { const next = Number(event.target.value); setLocal(next); send(next); }} />;
 };
 const consentOptions = [{ id: '0', name: 'Запрещено' }, { id: '1', name: 'Спросить' }, { id: '2', name: 'Разрешено' }];
 const priorities = [{ id: '0', name: 'Никогда' }, { id: '1', name: 'Низкий' }, { id: '2', name: 'Средний' }, { id: '3', name: 'Высокий' }];
 
-const HairCarousel = ({ options, selected, color, onSelect, face, beard }) => {
+const HairCarousel = ({ options, selected, color, onSelect, face, beard, act }) => {
   const track = useRef(null);
   const [query, setQuery] = useState('');
   const filtered = useMemo(() => fuzzyFilter(options, query, option => option.name + ' ' + option.id), [options, query]);
   useEffect(() => { if (track.current) track.current.scrollLeft = 0; }, [query]);
   const turn = direction => track.current?.scrollBy({ left: direction * track.current.clientWidth, behavior: 'smooth' });
   const label = beard ? 'Поиск бороды и усов' : 'Поиск причёски';
+  const title = beard ? 'Все бороды и усы' : 'Все причёски';
+  const choice = option => <button type="button" className="cursor-interaction" key={option.id} aria-pressed={selected === option.id} onClick={() => onSelect(option.id)}>
+    <div className="CharacterEditor__sprite">
+      {face && <img className="HairCarousel__face" src={face} alt="" />}
+      {option.iconId ? <LazySprite id={option.iconId} color={color} />
+        : (option.images || []).map((image, i) => <TintedSprite key={i} image={image.url} color={color} />)}
+    </div><span>{option.name}</span>
+  </button>;
   return <div className="HairCarousel__browser">
-    <input type="search" aria-label={label} placeholder={label + '…'} value={query} onChange={event => setQuery(event.target.value)} />
+    <div className="HairCarousel__searchRow"><input type="search" aria-label={label} placeholder={label + '…'} value={query} onChange={event => setQuery(event.target.value)} />
+      <Button role="button" aria-label={title} onClick={() => act('catalog-open', { kind: beard ? 'beard' : 'hair' })}>Все</Button></div>
     {filtered.length ? <div className="HairCarousel">
       <button type="button" aria-label="Предыдущие четыре" onClick={() => turn(-1)}>◀</button>
       <div className="HairCarousel__track" ref={track}>
-        {filtered.map(option => <button type="button" key={option.id} aria-pressed={selected === option.id} onClick={() => onSelect(option.id)}>
-          <div className="CharacterEditor__sprite">
-            {face && <img className="HairCarousel__face" src={face} alt="" />}
-            {option.iconId ? <LazySprite id={option.iconId} color={color} />
-              : (option.images || []).map((image, i) => <TintedSprite key={i} image={image.url} color={color} />)}
-          </div><span>{option.name}</span>
-        </button>)}
+        {filtered.map(choice)}
       </div><button type="button" aria-label="Следующие четыре" onClick={() => turn(1)}>▶</button>
     </div> : <p role="status">Ничего не найдено</p>}
+
   </div>;
 };
 
@@ -210,8 +212,10 @@ export const CharacterEditor = () => {
         {data.setup && <Button icon="times" onClick={()=>act('setup/close')}>Закрыть</Button>}
       </div>
     </header>
-    {data.mode !== 'markings' && <aside className="CharacterEditor__preview" onWheel={event=>{const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left+64||event.clientX>bounds.right-64)return;event.preventDefault();act('rotate',{value:event.deltaY>0?1:-1});}}><div className="CharacterEditor__previewSpace" />
+    {data.mode !== 'markings' && <aside className="CharacterEditor__preview" onWheel={event=>{if(event.target.closest('input[type=range]'))return;const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left+64||event.clientX>bounds.right-64)return;event.preventDefault();act('rotate',{value:event.deltaY>0?1:-1});}}><div className="CharacterEditor__previewSpace" />
       <div className="CharacterEditor__floor" style={{ backgroundImage: data.previewFloor ? `url("${data.previewFloor}")` : undefined }} />
+      <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--height"><SizeSlider label="Рост" value={data.height} onChange={change('height')} vertical /></div>
+      <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--width"><SizeSlider label="Ширина" value={data.width} onChange={change('width')} /></div>
       <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button></div>
       <div className="CharacterEditor__slots">{(data.previewSlots||[]).map((slot,index)=><button type="button" key={slot.id} title={slot.name} style={{gridColumn:index%2?3:1,gridRow:Math.floor(index/2)+1}} aria-label={slot.name} aria-pressed={slot.selected} onClick={()=>act('preview-slot',{value:slot.id})} onContextMenu={event=>{event.preventDefault();act('preview-slot-remove',{value:slot.id});}}><div className="CharacterEditor__sprite">{(slot.images.length?slot.images:[{url:slot.background,color:"#ffffff"}]).map((image,i)=><TintedSprite key={i} image={image.url} color={image.color} />)}</div></button>)}</div>
     </aside>}
@@ -245,8 +249,8 @@ export const CharacterEditor = () => {
         <Button icon="dice" tooltip="Случайное имя" aria-label="Случайное имя" onClick={()=>act('random-name')} />
       </div>
       <div className="CharacterEditor__grid">
-        <div><Select label="Раса" value={data.species} options={data.speciesOptions} onChange={change('species')} />
-          <Button icon="book" onClick={() => act('species-guide')}>Справка о расе</Button></div>
+        <div className="CharacterEditor__speciesRow"><Select label="Раса" value={data.species} options={data.speciesOptions} onChange={change('species')} />
+          <Button role="button" className="CharacterEditor__speciesGuide" icon="book" aria-label="Справка о расе" onClick={() => act('species-guide')}>Справка о расе</Button></div>
         <DraftInput label="Возраст" type="number" min={data.minAge} max={data.maxAge} value={data.age} onCommit={change('age')} />
         <Select label="Пол" value={data.sex} options={data.sexOptions} onChange={change('sex')} />
         <Select label="Местоимения" value={data.gender} options={data.genderOptions} onChange={change('gender')} />
@@ -254,10 +258,6 @@ export const CharacterEditor = () => {
         <Select label="Взаимодействия без согласия" value={data.noncon} options={consentOptions} onChange={change('noncon')} />
         <Select label="Vore" value={data.vore} options={consentOptions} onChange={change('vore')} />
         <Select label="Приоритет появления" value={data.spawn} options={data.spawnOptions} onChange={change('spawn')} />
-        {['height', 'width'].map((key, index) => <Field key={key} label={['Рост', 'Ширина'][index]}>
-          <SizeSlider key={data.setup?.selected} label={['Рост', 'Ширина'][index]} value={data[key]} onChange={change(key)} />
-          <Button fluid onClick={() => change(key)(1)}>Сбросить</Button>
-        </Field>)}
       </div>
       {data.canUsePlantigradeLegs && <label className="CharacterEditor__legShape">
         <input type="checkbox" checked={!!data.plantigradeLegs}
@@ -277,7 +277,7 @@ export const CharacterEditor = () => {
           const locked = data[key + 'Locked'];
           const missing = data[key + 'Style'] === (index ? 'FacialHairShaved' : 'HairBald');
           return <Section key={key} title={index ? 'Борода и усы' : 'Причёска'}>
-            <details><summary>{index ? 'Выбор бороды и усов' : 'Выбор причёски'}</summary><HairCarousel options={data[key+'Options']||[]} selected={data[key+'Style']} color={locked ? data.skinColor : data[key+'Color']} face={data.hairPreviewImage} beard={!!index} onSelect={change(key+'-style')} /></details>
+            <details><summary>{index ? 'Выбор бороды и усов' : 'Выбор причёски'}</summary><HairCarousel act={act} options={data[key+'Options']||[]} selected={data[key+'Style']} color={locked ? data.skinColor : data[key+'Color']} face={data.hairPreviewImage} beard={!!index} onSelect={change(key+'-style')} /></details>
             <ColorEditor label={index ? 'Цвет бороды' : 'Цвет волос'} value={locked ? data.skinColor : data[key + 'Color']}
               disabled={locked || missing} onChange={change(key + '-color')} />
           </Section>;
