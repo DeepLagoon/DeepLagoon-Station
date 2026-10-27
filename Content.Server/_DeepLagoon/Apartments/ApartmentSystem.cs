@@ -147,7 +147,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (_lobbyEditors.Remove(args.Player.UserId))
             Result(args.Player, true, "", -1);
 
-        if (!args.LateJoin)
+        if (!args.LateJoin || !HasComp<ApartmentLatejoinSpawnComponent>(args.Station))
             return;
 
         // Keep the normal arrival point and loadout for leaving the apartment.

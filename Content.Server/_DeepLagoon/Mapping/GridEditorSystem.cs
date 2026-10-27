@@ -70,6 +70,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         SubscribeNetworkEvent<GridEditorAtmosRequest>(Atmos);
         SubscribeNetworkEvent<GridEditorEnvironmentRequest>(Environment);
         SubscribeNetworkEvent<GridEditorNameRequest>(RenameGrid);
+        SubscribeNetworkEvent<GridEditorRepairConnectionsRequest>(RepairConnections);
         SubscribeNetworkEvent<GridEditorCloseEvent>((_, args) => CloseEditor(args.SenderSession));
         SubscribeNetworkEvent<GridEditorDraftUpdateEvent>(Preview);
         SubscribeNetworkEvent<GridEditorRegionEvent>((ev, args) =>
@@ -152,8 +153,12 @@ public sealed partial class GridEditorSystem : EntitySystem
     }
 
     public string? Export(ICommonSession player, Guid token, bool wholeMap, out string error)
+        => Export(player, token, wholeMap, out error, out _);
+
+    private string? Export(ICommonSession player, Guid token, bool wholeMap, out string error, out GridEditorExportIssue? issue)
     {
         error = "";
+        issue = null;
         if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
             draft.Token != token || !Exists(draft.Grid))
         { error = "Нет действующей сессии Mapping."; return null; }
@@ -163,18 +168,26 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (draft.LastDownload > TimeSpan.Zero && _timing.RealTime - draft.LastDownload < TimeSpan.FromSeconds(3))
         { error = "Подождите несколько секунд перед повторным скачиванием."; return null; }
         draft.LastDownload = _timing.RealTime;
-        using var writer = new StringWriter();
-        if (!(wholeMap ? _loader.TrySaveMap(map.Value, writer) : _loader.TrySaveGrid(draft.Grid, writer)))
-        { error = "Не удалось сериализовать карту."; return null; }
-        return writer.ToString();
+        try
+        {
+            return SerializeNativeExport(wholeMap ? map.Value : draft.Grid, draft.Grid,
+                wholeMap ? Robust.Shared.EntitySerialization.FileCategory.Map : Robust.Shared.EntitySerialization.FileCategory.Grid);
+        }
+        catch (ExportException e)
+        {
+            Log.Error($"Grid editor export failed: {e}");
+            issue = e.Issue;
+            error = $"Не удалось сериализовать карту. {e.Message}";
+            return null;
+        }
     }
 
     private void Download(GridEditorDownloadEvent ev, EntitySessionEventArgs args)
     {
         try
         {
-            var yaml = Export(args.SenderSession, ev.Token, ev.WholeMap, out var error);
-            if (yaml == null) { RaiseNetworkEvent(new GridEditorFileEvent(ev.Request, 0, 0, [], error), args.SenderSession); return; }
+            var yaml = Export(args.SenderSession, ev.Token, ev.WholeMap, out var error, out var issue);
+            if (yaml == null) { RaiseNetworkEvent(new GridEditorFileEvent(ev.Request, 0, 0, [], error, issue), args.SenderSession); return; }
             var bytes = Encoding.UTF8.GetBytes(yaml);
             if (bytes.Length > 32 * 1024 * 1024)
             { RaiseNetworkEvent(new GridEditorFileEvent(ev.Request, 0, 0, [], "Карта превышает 32 МБ. Скачайте отдельный grid."), args.SenderSession); return; }

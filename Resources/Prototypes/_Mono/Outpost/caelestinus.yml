@@ -24,6 +24,7 @@
       - type: DeleteNearbyDrones
         distance: 4000
       components:
+        - type: ApartmentLatejoinSpawn
         - type: StationNameSetup
           mapNameTemplate: 'Caelestinus Central'
         - type: StationDeadDrop

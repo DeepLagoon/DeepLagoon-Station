@@ -23,6 +23,7 @@ public sealed class GridEditorSmoothingTests
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true },
             new Robust.UnitTesting.Pool.ExternalTestContext(nameof(AppliedTablesConnectAndRefreshAfterMoving), TestContext.Progress));
         var tables = new List<NetEntity>();
+        var otherTables = new List<NetEntity>();
         EntityUid grid = default;
         Guid token = default;
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,6 +52,15 @@ public sealed class GridEditorSmoothingTests
             var known = (Dictionary<string, EntityUid>) draft.GetType().GetField("KnownEntities")!.GetValue(draft)!;
             tables.Add(entities.GetNetEntity(known["new_left"]));
             tables.Add(entities.GetNetEntity(known["new_right"]));
+            var other = map.CreateGridEntity(mapId);
+            map.SetTiles(other.Owner, other.Comp, new() { (new(0, 0), floor), (new(1, 0), floor) });
+            entities.System<SharedTransformSystem>().SetLocalPosition(other, new Vector2(0, 3));
+            foreach (var x in new[] { .5f, 1.5f })
+            {
+                var table = entities.SpawnEntity("TableWood", new EntityCoordinates(other, new Vector2(x, .5f)));
+                entities.System<SharedTransformSystem>().AnchorEntity(table, entities.GetComponent<TransformComponent>(table));
+                otherTables.Add(entities.GetNetEntity(table));
+            }
         });
         await pair.RunTicksSync(30);
         await pair.Client.WaitAssertion(() =>
@@ -65,6 +75,35 @@ public sealed class GridEditorSmoothingTests
                 Assert.That(sprite.AllLayers.Any(layer => layer.RsiState.Name is "state_1" or "state_4"), Is.True,
                     $"Table {table} must connect: {string.Join(",", sprite.AllLayers.Select(layer => layer.RsiState.Name))}");
             }
+        });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            foreach (var table in tables.Concat(otherTables))
+            {
+                var sprite = entities.GetComponent<SpriteComponent>(entities.GetEntity(table));
+                for (var layer = 0; layer < sprite.AllLayers.Count(); layer++)
+                    sprite.LayerSetState(layer, "state_0");
+            }
+        });
+        await pair.Server.WaitAssertion(() => typeof(Editor).GetMethod("RepairConnections", flags)!.Invoke(
+            pair.Server.EntMan.System<Editor>(), new object[] { new GridEditorRepairConnectionsRequest(Guid.NewGuid()),
+                new EntitySessionEventArgs(pair.Server.PlayerMan.Sessions.Single()) }));
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() => Assert.That(tables.All(table => pair.Client.EntMan.GetComponent<SpriteComponent>(
+            pair.Client.EntMan.GetEntity(table)).AllLayers.All(layer => layer.RsiState.Name == "state_0")), Is.True, "A stale session must not trigger a repair"));
+        await pair.Client.WaitAssertion(() => typeof(Content.Client._DeepLagoon.Mapping.GridEditorSystem)
+            .GetMethod("Action", flags)!.Invoke(pair.Client.EntMan.System<Content.Client._DeepLagoon.Mapping.GridEditorSystem>(),
+                new object[] { "repairConnections", "{}" }));
+        await pair.RunTicksSync(15);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            entities.System<IconSmoothSystem>().FrameUpdate(0);
+            foreach (var table in tables)
+                Assert.That(entities.GetComponent<SpriteComponent>(entities.GetEntity(table)).AllLayers.Any(layer => layer.RsiState.Name is "state_1" or "state_4"), Is.True, "Repair must rebuild corrupted connection sprites");
+            foreach (var table in otherTables)
+                Assert.That(entities.GetComponent<SpriteComponent>(entities.GetEntity(table)).AllLayers.All(layer => layer.RsiState.Name == "state_0"), Is.True, "Other grids must remain untouched");
         });
         foreach (var x in new[] { 3.5f, 1.5f })
         {

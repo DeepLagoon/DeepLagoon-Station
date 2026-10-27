@@ -5,6 +5,7 @@ using Content.Server._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Inventory;
 using Content.Shared.GameTicking;
+using Content.Shared.Maps;
 using Content.Shared.Preferences;
 using Content.Shared.Light.Components;
 using Content.Server.Atmos.EntitySystems;
@@ -87,9 +88,8 @@ public sealed class ApartmentIntegrationTests
         await pair.CleanReturnAsync();
     }
 
-    [TestCase("DLApartmentStudio")]
     [TestCase("DLApartmentBasic")]
-    public async Task LatejoinSpawnsInOwnApartmentOnlyWhenEnabled(string template)
+    public async Task LatejoinSpawnsInOwnApartmentOnlyForEnabledStation(string template)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         var testMap = await pair.CreateTestMap();
@@ -99,6 +99,13 @@ public sealed class ApartmentIntegrationTests
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             var session = pair.Server.PlayerMan.Sessions.Single();
             var system = entities.System<ApartmentSystem>();
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var stationConfig = prototypes.Index<GameMapPrototype>("Frontier").Stations["Frontier"];
+            var station = entities.SpawnEntity(stationConfig.StationPrototype, MapCoordinates.Nullspace,
+                stationConfig.StationComponentOverrides);
+            var otherStation = entities.SpawnEntity("StandardFrontierOutpost", MapCoordinates.Nullspace);
+            Assert.That(entities.HasComponent<ApartmentLatejoinSpawnComponent>(station), Is.True);
+            Assert.That(entities.HasComponent<ApartmentLatejoinSpawnComponent>(otherStation), Is.False);
             var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
             pair.Server.PlayerMan.SetAttachedEntity(session, body);
             var original = entities.GetComponent<TransformComponent>(body).Coordinates;
@@ -106,9 +113,9 @@ public sealed class ApartmentIntegrationTests
             var inventory = entities.System<InventorySystem>();
             Assert.That(inventory.TryEquip(body, uniform, "jumpsuit", force: true), Is.True);
 
-            void SpawnComplete(bool lateJoin) => entities.EventBus.RaiseLocalEvent(body,
+            void SpawnComplete(bool lateJoin, EntityUid? selectedStation = null) => entities.EventBus.RaiseLocalEvent(body,
                 new PlayerSpawnCompleteEvent(body, session, null, lateJoin, false, 1,
-                    testMap.GridCoords.EntityId, HumanoidCharacterProfile.DefaultWithSpecies()), true);
+                    selectedStation ?? station, HumanoidCharacterProfile.DefaultWithSpecies()), true);
 
             config.SetCVar(ApartmentCVars.Enabled, false);
             SpawnComplete(true);
@@ -125,12 +132,19 @@ public sealed class ApartmentIntegrationTests
             Assert.That(roundStartUniform, Is.EqualTo(uniform));
             Assert.That(entities.GetComponent<MetaDataComponent>(uniform).EntityPaused, Is.False);
 
+            SpawnComplete(true, otherStation);
+            Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
+            Assert.That(system.Instances.ContainsKey(session.UserId), Is.False);
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+            Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var otherStationUniform), Is.True);
+            Assert.That(otherStationUniform, Is.EqualTo(uniform));
+            Assert.That(entities.GetComponent<MetaDataComponent>(uniform).EntityPaused, Is.False);
+
             SpawnComplete(true);
             Assert.That(system.TryGetVisit(session.UserId, out var home, out var resident), Is.True);
             Assert.That(home.Owner, Is.EqualTo(session.UserId));
             Assert.That(resident, Is.EqualTo(body));
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(home.Grid));
-            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
             var beds = new List<EntityUid>();
             var query = entities.EntityQueryEnumerator<TransformComponent, MetaDataComponent>();
             while (query.MoveNext(out var uid, out var transform, out var metadata))

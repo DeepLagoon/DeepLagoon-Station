@@ -6,6 +6,19 @@ let id = 0;
 const nextId = () => `new_${id++}`;
 const area = { x: -4, y: -4, width: 16, height: 16 };
 
+test('diagnostics identify every unsupported object and retain legacy edit scoping', async () => {
+  const { draftIssues } = await import('../packages/tgui/interfaces/gridEditorModel.mjs');
+  const old = { id: 'e:old', kind: 'entity', prototype: 'Wall', x: .5, y: .5, anchored: true };
+  const edited = { ...old, id: 'new_wall', x: 3.25, y: -1.5 };
+  const issues = draftIssues([old, edited], area, new Set([edited.id]));
+  assert.ok(issues.length >= 2);
+  assert.ok(issues.every(issue => issue.id === edited.id && issue.x === 3.25 && issue.located));
+  assert.match(issues[0].message, /центре/);
+  assert.match(issues[1].message, /пол/);
+  assert.equal(validateDraft([old, edited], area, new Set([edited.id])), issues[0].message);
+  assert.equal(draftIssues([{ ...old, x: NaN }], area)[0].located, false);
+});
+
 test('wall foundations fill missing cells once and preserve existing floors and their variants', () => {
   const wall = { id: 'w', kind: 'entity', prototype: 'Wall', x: -1.5, y: .5, anchored: true };
   const supported = ensureWallFloors([wall, { ...wall, id: 'second' }], id => id === 'Wall');

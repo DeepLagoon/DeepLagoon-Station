@@ -10,6 +10,17 @@ namespace Content.Server._DeepLagoon.Mapping;
 
 public sealed partial class GridEditorSystem
 {
+    private void RepairConnections(GridEditorRepairConnectionsRequest args, EntitySessionEventArgs sessionArgs)
+    {
+        var player = sessionArgs.SenderSession;
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+            draft.Token != args.Token || !HasComp<MapGridComponent>(draft.Grid)) return;
+        RaiseNetworkEvent(new GridEditorRepairConnectionsEvent(GetNetEntity(draft.Grid)));
+        RaiseNetworkEvent(new GridEditorResultEvent("Пересчёт визуальных соединений grid запрошен у всех клиентов.", true), player);
+        _logs.Add(LogType.AdminMessage, LogImpact.Low,
+            $"{player.Name} requested visual connection repair on {ToPrettyString(draft.Grid)} using grid editor");
+    }
+
     private void RenameGrid(GridEditorNameRequest args, EntitySessionEventArgs sessionArgs)
     {
         var player = sessionArgs.SenderSession;

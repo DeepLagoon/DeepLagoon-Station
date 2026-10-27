@@ -63,6 +63,18 @@ public sealed class GridEditorResultEvent(string message, bool success) : Entity
 public sealed class GridEditorCloseEvent : EntityEventArgs;
 
 [Serializable, NetSerializable]
+public sealed class GridEditorRepairConnectionsRequest(Guid token) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorRepairConnectionsEvent(NetEntity grid) : EntityEventArgs
+{
+    public readonly NetEntity Grid = grid;
+}
+
+[Serializable, NetSerializable]
 public sealed class GridEditorRegionEvent(Guid token, int x, int y) : EntityEventArgs
 {
     public readonly Guid Token = token;
@@ -92,12 +104,21 @@ public sealed class GridEditorDraftFileChunk(Guid token, Guid request, int index
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorFileEvent(Guid request, int index, int count, byte[] bytes, string error = "") : EntityEventArgs
+public sealed class GridEditorFileEvent(Guid request, int index, int count, byte[] bytes, string error = "", GridEditorExportIssue? issue = null) : EntityEventArgs
 {
     public readonly Guid Request = request;
     public readonly int Index = index, Count = count;
     public readonly byte[] Bytes = bytes;
     public readonly string Error = error;
+    public readonly GridEditorExportIssue? Issue = issue;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorExportIssue
+{
+    public string Id = "", Prototype = "", Name = "", Component = "", Message = "";
+    public bool Located;
+    public float X, Y;
 }
 
 /// <summary>Only authoritative items changed by an apply, including assigned entity/decal IDs.</summary>

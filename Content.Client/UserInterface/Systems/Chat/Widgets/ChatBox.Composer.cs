@@ -21,7 +21,7 @@ public partial class ChatBox
 
     private sealed class ComposerWindow : BaseWindow
     {
-        public readonly TguiPanel Panel = new(inheritChatAppearance: false) { WindowControlsInset = new(20, 20) };
+        public readonly TguiPanel Panel = new() { WindowControlsInset = new(20, 20) };
         private bool? _emote;
         public ComposerWindow()
         {

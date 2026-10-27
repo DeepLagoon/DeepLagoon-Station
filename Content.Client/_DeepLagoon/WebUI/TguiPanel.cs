@@ -388,8 +388,17 @@ public sealed partial class TguiPanel : Control
         var appearance = new TguiData();
         if (!TguiActionData.TryParse(chatState, out var state) || state!.Object("settings") is not { } settings)
             return appearance.ToString();
-        foreach (var key in new[] { "theme", "chatBgColor", "chatTextColor" })
+        foreach (var key in new[] { "theme", "chatBgColor", "chatTextColor", "chatStyle" })
             if (settings.String(key) is { } value) appearance.String(key, value);
+        if (settings.Object("styleOverrides") is { } styles)
+        {
+            var overrides = new TguiData();
+            foreach (var key in new[] { "emote", "whisper", "deadsay", "telepathy" })
+                if (styles.Object(key) is { } style)
+                    overrides.Object(key, new TguiData().String("color", style.String("color"))
+                        .Bool("disabled", style.String("disabled") == "true"));
+            appearance.Object("styleOverrides", overrides);
+        }
         return appearance.ToString();
     }
 }

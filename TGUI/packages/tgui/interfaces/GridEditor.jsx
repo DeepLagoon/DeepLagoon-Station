@@ -1,13 +1,14 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
-import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, validateDraft, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorDecalSprite } from './GridEditorDecalSprite';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
 import { GridEditorSelect } from './GridEditorSelect';
 import { GridEditorAtmos } from './GridEditorAtmos';
+import { GridEditorIssues } from './GridEditorIssues';
 import { GridEditorPeers, useGridEditorPeers } from './GridEditorPeers';
 import { useGridEditorRoutes, GridEditorNetworks, GridEditorRouteHandles } from './GridEditorRoutes';
 import { routeProfile } from './gridEditorRouting.mjs';
@@ -17,7 +18,7 @@ const categories = [['tile', 'Полы'], ['wall', 'Стены'], ['entity', 'О
 const tools = [['pan', 'Перемещение · 1'], ['brush', 'Кисть · 2'], ['line', 'Линия · 3'], ['pick', 'Пипетка · E'], ['route', 'Трасса · 4']];
 const toolIcons = { select: '↖', pan: '✥', brush: '▱', line: '╱', pick: '◉', route: '⌁' };
 const panels = [['properties', 'Свойства'], ['atmos', 'Атмосфера'], ['networks', 'Сети'], ['mirror', 'Зеркало'],
-  ['reference', 'Подложка'], ['layers', 'Слои'], ['templates', 'Шаблоны'], ['grid', 'Грид'], ['files', 'Файлы']];
+  ['reference', 'Подложка'], ['layers', 'Слои'], ['templates', 'Шаблоны'], ['grid', 'Грид'], ['files', 'Файлы'], ['issues', 'Ошибки']];
 const Sprite = ({ images = [], color, cellSize = 32, native = false }) => <>{images.map((image, index) => color ?
   <GridEditorDecalSprite key={index} image={image} color={color} cellSize={cellSize} native={native} /> :
   <img key={index} src={image.url} alt="" draggable={false} style={native && image.native ? {
@@ -230,8 +231,17 @@ export const GridEditor = () => {
   const cellSize = 32 * zoom;
   const itemChanges = localEdits.length;
   const changes = itemChanges + (Object.values(expansion).some(Boolean) ? 1 : 0);
-  const draftErrors = useMemo(() => validateDraft(draft, area, new Set(localEdits.map(item => item.id))), [draft, area, localEdits]);
-  const errors = draftErrors;
+  const validationIssues = useMemo(() => draftIssues(draft, area, new Set(localEdits.map(item => item.id))), [draft, area, localEdits]);
+  const exportIssues = data.exportIssues || [];
+  const issues = useMemo(() => [...validationIssues, ...exportIssues], [validationIssues, data.exportIssues]);
+  const errors = validationIssues[0]?.message || '';
+  const showIssue = issue => {
+    setFailure(null); setActivePanel('issues'); setCatalogOpen(false);
+    if (!issue.located || !viewport.current) return;
+    setSelected(draft.some(item => item.id === issue.id) ? [issue.id] : []);
+    viewport.current.scrollLeft = (issue.x + .5 - area.x) * cellSize;
+    viewport.current.scrollTop = (area.y + area.height - issue.y - .5) * cellSize;
+  };
   const locked = before || pending || gridNameSaving || data.downloading || exporting || sceneProgress?.blocking;
   editingLocked.current=locked;
   const atmosCells = data.atmosCells || [];
@@ -908,6 +918,7 @@ export const GridEditor = () => {
             {!decalMode && route.visible && layers.entity && <GridEditorNetworks items={allDisplayed} area={area} view={view} cellSize={cellSize}/>}
             {!decalMode && !before && tool==='route' && <GridEditorRouteHandles route={route} area={area} view={view} cellSize={cellSize} locked={locked}/>}
             <GridEditorSelection items={highlightedItems} visuals={visuals} area={area} layers={layers} view={view} cellSize={cellSize} offset={movePreview} />
+            {!before && <GridEditorIssues issues={issues} area={area} view={view} cellSize={cellSize} />}
             {((deleteHeld || gesture.current?.erasing || ['brush','line'].includes(activeTool)) ? (previewCells.length ? previewCells : hover ? [hover] : []) : []).map((cell) => <div key={`${cell.x}:${cell.y}`} className={`GridEditor__cursor ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`}
               style={{ left: (cell.x - area.x) * cellSize, top: (area.y + area.height - 1 - cell.y) * cellSize, width: cellSize, height: cellSize }}>
               {brush && ['brush', 'line'].includes(activeTool) && <span style={{ transform: `rotate(${brush?.noRotation ? 0 : -rotation}deg)` }}><Sprite images={brush.images} native cellSize={cellSize} color={brush.kind === 'decal' ? color : undefined} /></span>}</div>)}
@@ -922,6 +933,17 @@ export const GridEditor = () => {
       {activePanel && divider('right')}
       <aside id="grid-editor-properties" className="GridEditor__properties" hidden={!activePanel} aria-label="Панель настроек">
         <div className="GridEditor__panelHeading"><strong>{panels.find(([id]) => id === activePanel)?.[1]}</strong><button aria-label="Закрыть панель" onClick={() => setActivePanel(null)}>×</button></div>
+        <section className="GridEditor__panelSection GridEditor__issuesList" hidden={activePanel !== 'issues'}>
+          <strong>Ошибки: {issues.length}</strong>
+          {!!exportIssues.length && <small>Ошибка последнего экспорта. После исправления повторите сохранение.</small>}
+          {issues.map((issue, index) => <button key={index} onClick={() => showIssue(issue)}>
+            <strong>⚠ {issue.name || issue.prototype || issue.id}</strong>
+            {issue.prototype && <span>{issue.prototype}</span>}
+            <span>{issue.id}{issue.located ? ` · (${Math.floor(issue.x)}, ${Math.floor(issue.y)})` : ' · вне текущего grid или без координат'}</span>
+            {issue.component && <span>Компонент: {issue.component}</span>}
+            <span>{issue.message}</span>
+          </button>)}
+        </section>
         <section className="GridEditor__panelSection" hidden={activePanel !== 'layers'}>
         {!decalMode && <button disabled={locked} onClick={() => chooseCategory('decal')}>Режим декалирования</button>}
         {decalMode && <section className="GridEditor__decalLayers" aria-label="Слои декалей">
@@ -999,6 +1021,7 @@ export const GridEditor = () => {
           onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })}>Автономное питание</button>
         <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
           onClick={() => act('setGridGravity', { enabled: !data.forceGravity })}>Постоянная гравитация</button>
+        <button disabled={locked} onClick={() => act('repairConnections', {})}>Починить все соединения</button>
         {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
           {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}
         </>}
@@ -1055,7 +1078,7 @@ export const GridEditor = () => {
       <span className="GridEditor__sprite"><Sprite images={draggedBrush.entry.images} color={draggedBrush.entry.kind === 'decal' ? color : undefined} /></span>
       {draggedBrush.entry.name || draggedBrush.entry.id}
     </div>}
-    {errors && <div className="GridEditor__errorBanner" role="alert"><strong>Нельзя применить черновик</strong><span>{errors}</span></div>}
+    {!!issues.length && <div className="GridEditor__errorBanner" role="alert"><strong>Ошибки: {issues.length}</strong><span>{errors || 'Не удалось сохранить карту'}</span><button onClick={() => showIssue(issues[0])}>Показать на карте</button></div>}
     <footer><span className={errors || data.success === false ? 'error' : ''} role="status">{errors || data.status || ''}</span>
       <button disabled={pending || !changes} onClick={() => { remember(); const next = decalMode ? scopeDecalChanges(current.current, baseline, z) : copyItems(baseline); replaceEdits(decalMode ? trackLocalEdits(current.current, next, editsRef.current) : []); update(next, true); setSelected([]); if (!decalMode) setExpansion({ left: 0, right: 0, bottom: 0, top: 0 }); }}>Сбросить</button>
       <button className="primary" disabled={locked || route.editing || !changes || !!errors} onClick={apply} title={route.editing?'Сначала завершите трассу кнопкой «Трассу в черновик»':undefined}>{pending ? 'Применение…' : 'Применить'}</button></footer>
@@ -1073,6 +1096,6 @@ export const GridEditor = () => {
       if (confirmClose === true) act('close'); else if (confirmClose.deleteTemplate) { act('deleteTemplate', { id: confirmClose.deleteTemplate }); setConfirmClose(false); }
       else { act('region', confirmClose); setConfirmClose(false); }
     }}>{confirmClose.deleteTemplate ? 'Удалить шаблон' : confirmClose === true ? 'Отказаться и закрыть' : 'Отказаться и перейти'}</button></div></div>}
-    {failure && <div className="GridEditor__veil GridEditor__failure"><div role="alertdialog" aria-modal="true" aria-label="Ошибка редактора grid"><strong>{failure.title}</strong><p>{failure.message}</p><button className="primary" autoFocus onClick={() => setFailure(null)}>Понятно</button></div></div>}
+    {failure && <div className="GridEditor__veil GridEditor__failure"><div role="alertdialog" aria-modal="true" aria-label="Ошибка редактора grid"><strong>{failure.title}</strong><p>{failure.message}</p>{!!issues.length && <button onClick={() => showIssue(issues[0])}>Показать ошибку на карте</button>}<button className="primary" autoFocus onClick={() => setFailure(null)}>Понятно</button></div></div>}
   </div>;
 };

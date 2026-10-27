@@ -36,6 +36,55 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class GridEditorTests
 {
     [Test]
+    public async Task ExportFailureReportsComponentEntityAndGridLocalCoordinates()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId);
+            var grid = maps.CreateGridEntity(mapId);
+            maps.SetTiles(grid, grid.Comp, new() { (new(2, -2), new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId)) });
+            var transforms = entities.System<SharedTransformSystem>();
+            transforms.SetLocalPosition(grid, new Vector2(42, -17));
+            transforms.SetLocalRotation(grid, Angle.FromDegrees(30));
+            var chair = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(2.5f, -1.5f)));
+            entities.AddComponent<GridEditorBrokenExportComponent>(chair);
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            var editor = entities.System<ServerEditor>();
+            editor.Open(player, grid);
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var draft = ((IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+            var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
+            object[] args = { player, token, false, "", null };
+            var export = typeof(ServerEditor).GetMethods(flags).Single(method => method.Name == "Export" && method.GetParameters().Length == 5);
+            var failureLevel = pair.ServerLogHandler.FailureLevel;
+            try
+            {
+                pair.ServerLogHandler.FailureLevel = null;
+                Assert.That(export.Invoke(editor, args), Is.Null, "A failing object must never produce a partial download");
+            }
+            finally
+            {
+                pair.ServerLogHandler.FailureLevel = failureLevel;
+            }
+            var issue = (GridEditorExportIssue) args[4];
+            Assert.That(issue.Id, Is.EqualTo("e:" + entities.GetNetEntity(chair)));
+            Assert.That(issue.Prototype, Is.EqualTo("ChairWood"));
+            Assert.That(issue.Component, Is.EqualTo("GridEditorBrokenExport"));
+            Assert.That(issue.Located, Is.True);
+            Assert.That(issue.X, Is.EqualTo(2.5f).Within(.001));
+            Assert.That(issue.Y, Is.EqualTo(-1.5f).Within(.001));
+            Assert.That(issue.Message, Does.Contain("GridEditorBrokenExportValue"));
+            Assert.That(entities.EntityExists(chair), Is.True);
+            Assert.That(entities.GetComponent<TransformComponent>(chair).LocalPosition, Is.EqualTo(new Vector2(2.5f, -1.5f)));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task RoutedCablesAndPipesStayInstalledAndConnectedAfterApplyAndMove()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
@@ -147,6 +196,18 @@ public sealed class GridEditorTests
             entities.System<MetaDataSystem>().SetEntityName(grid, "Грид с настройками");
             var chair = entities.SpawnEntity("ChairWood", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
             entities.System<MetaDataSystem>().SetEntityName(chair, "Особый стул");
+            var vendor = entities.SpawnEntity("VendingMachineTankDispenserEVAPOI", new EntityCoordinates(grid, new Vector2(1.5f, .5f)));
+            var stock = entities.GetComponent<Content.Shared.VendingMachines.VendingMachineComponent>(vendor);
+            foreach (var (inventory, type, amount) in new[]
+            {
+                (stock.Inventory, Content.Shared.VendingMachines.InventoryType.Regular, 3u),
+                (stock.EmaggedInventory, Content.Shared.VendingMachines.InventoryType.Emagged, 2u),
+                (stock.ContrabandInventory, Content.Shared.VendingMachines.InventoryType.Contraband, 0u)
+            })
+            {
+                inventory.Clear();
+                inventory.Add("Paper", new(type, "Paper", amount));
+            }
             var settings = entities.AddComponent<Content.Shared.Lock.LockComponent>(chair);
             foreach (var (field, value) in new[] { ("Locked", false), ("LockOnClick", true), ("UnlockOnClick", false), ("BreakOnAccessBreaker", false) })
                 typeof(Content.Shared.Lock.LockComponent).GetField(field)!.SetValue(settings, value);
@@ -232,6 +293,12 @@ public sealed class GridEditorTests
                 var saved = loaded!.Entities.Single(uid => entities.GetComponent<MetaDataComponent>(uid).EntityName == "Особый стул");
                 Assert.That(entities.GetComponent<Content.Shared.Lock.LockComponent>(saved).UnlockOnClick, Is.False);
                 Assert.That(containers.GetContainer(saved, "keepsake").ContainedEntities.Count, Is.EqualTo(1));
+                var savedStock = entities.GetComponent<Content.Shared.VendingMachines.VendingMachineComponent>(
+                    loaded.Entities.Single(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "VendingMachineTankDispenserEVAPOI"));
+                Assert.That(savedStock.Inventory["Paper"].Amount, Is.EqualTo(3));
+                Assert.That(savedStock.EmaggedInventory["Paper"].Type, Is.EqualTo(Content.Shared.VendingMachines.InventoryType.Emagged));
+                Assert.That(savedStock.EmaggedInventory["Paper"].Amount, Is.EqualTo(2));
+                Assert.That(savedStock.ContrabandInventory["Paper"].Amount, Is.Zero);
             }
             draft.GetType().GetField("LastDownload")!.SetValue(draft, TimeSpan.Zero);
         });
@@ -1079,3 +1146,12 @@ public sealed class GridEditorTests
         await pair.CleanReturnAsync();
     }
 }
+
+[RegisterComponent]
+public sealed partial class GridEditorBrokenExportComponent : Component
+{
+    [Robust.Shared.Serialization.Manager.Attributes.DataField]
+    public GridEditorBrokenExportValue Value = new();
+}
+
+public sealed class GridEditorBrokenExportValue;

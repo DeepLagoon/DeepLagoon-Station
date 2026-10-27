@@ -73,7 +73,9 @@ public sealed partial class GridEditorSystem
         {
             if (draft?.FileRequest == ev.Request) draft.FilePlan = null;
             Log.Error($"Grid editor draft export failed: {e}");
-            DraftFileError(args.SenderSession, ev.Request, e is InvalidDataException ? e.Message : "Ошибка сериализации черновика карты.");
+            RaiseNetworkEvent(new GridEditorFileEvent(ev.Request, 0, 0, [],
+                e is InvalidDataException or ExportException ? e.Message : $"Ошибка сериализации черновика карты: {e.GetBaseException().Message}",
+                (e as ExportException)?.Issue), args.SenderSession);
         }
     }
 
@@ -129,7 +131,7 @@ public sealed partial class GridEditorSystem
         var serializer = new EntitySerializer(_exportDependencies, new SerializationOptions { Category = FileCategory.Grid, ExpectPreInit = false });
         serializer.ErroringEntities.UnionWith(excluded);
         serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= !excluded.Contains(entity.Owner);
-        serializer.SerializeEntityRecursive(roots);
+        SerializeForExport(serializer, roots, draft.Grid);
         var data = serializer.Write();
         var gridId = serializer.YamlUidMap[draft.Grid];
         var grid = serializer.EntityData[gridId].Node;

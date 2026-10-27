@@ -103,6 +103,10 @@ public sealed partial class GridEditorSystem
         if (_download == null || ev.Request != _downloadRequest) return;
         try
         {
+            _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+                .Array("exportIssues", ev.Issue is { } issue ? new[] { new TguiData().String("id", issue.Id)
+                    .String("prototype", issue.Prototype).String("name", issue.Name).String("component", issue.Component)
+                    .String("message", issue.Message).Bool("located", issue.Located).Number("x", issue.X).Number("y", issue.Y) } : Array.Empty<TguiData>())).ToString());
             if (ev.Error.Length > 0) throw new IOException(ev.Error);
             if (ev.Count is < 1 or > 512 || ev.Index < 0 || ev.Index >= ev.Count || ev.Bytes.Length is < 1 or > 65536 ||
                 ev.Index < ev.Count - 1 && ev.Bytes.Length != 65536 ||

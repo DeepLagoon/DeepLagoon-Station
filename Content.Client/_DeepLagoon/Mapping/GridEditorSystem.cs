@@ -50,6 +50,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         SubscribeNetworkEvent<GridEditorStateEvent>(Open);
         SubscribeNetworkEvent<GridEditorPatchEvent>(Patch);
         SubscribeNetworkEvent<GridEditorNameResult>(NameResult);
+        SubscribeNetworkEvent<GridEditorRepairConnectionsEvent>(RepairConnections);
         SubscribeNetworkEvent<GridEditorAtmosResult>(AtmosResult);
         SubscribeNetworkEvent<GridEditorEnvironmentState>(EnvironmentState);
         SubscribeNetworkEvent<GridEditorDraftsEvent>(PeerDrafts);
@@ -128,6 +129,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
             .Bool("alwaysPowered", _environmentState?.AlwaysPowered ?? false).Bool("forceGravity", _environmentState?.ForceGravity ?? false)
             .Bool("safeAtmosphere", _environmentState?.SafeAtmosphere ?? false).Bool("apartmentProtected", _environmentState?.ApartmentProtected ?? false)
+            .Array("exportIssues", Array.Empty<TguiData>())
             .Number("previewGeneration", _previewGeneration).Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals).ToString(), "Редактор grid");
     }
 
@@ -257,6 +259,11 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (yaml.Documents.Count != 1 || yaml.Documents[0].RootNode.ToDataNode() is not MappingDataNode root) return;
             if (DraftFileAction(action, root)) return;
             if (_state == null) return;
+            if (action == "repairConnections")
+            {
+                RaiseNetworkEvent(new GridEditorRepairConnectionsRequest(_state.Token));
+                return;
+            }
             static string Field(MappingDataNode node, string key, string fallback = "") =>
                 node.TryGet<ValueDataNode>(key, out var value) ? value.Value : fallback;
             if (action == "editing") { _editingText = Field(root, "active") == "true"; return; }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { Button, Dropdown } from '../components';
+import { chatComposerChannelStyle } from './chatComposerColors';
 import './ChatComposer.scss';
 
 export const ChatComposer = () => {
@@ -18,23 +19,32 @@ export const ChatComposer = () => {
     const first = requestAnimationFrame(() => {
       second = requestAnimationFrame(() => act('presented'));
     });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [data.revision]);
+  useEffect(() => {
     const cycle = event => {
-      if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey
+      if (event.key === 'Tab' && !event.shiftKey && !event.altKey && !event.metaKey
           && !composing.current && !event.isComposing) {
         event.preventDefault();
         if (!event.repeat) {
           clearTimeout(timer.current);
-          act('cycle', { text: latest.current });
+          const channels = data.channels || [];
+          const index = channels.findIndex(option => String(option.id) === channel);
+          if (channels.length) {
+            const next = (index + (event.ctrlKey ? -1 : 1) + channels.length) % channels.length;
+            act('channel', { text: latest.current, channel: String(channels[next].id) });
+          }
         }
       }
     };
     document.addEventListener('keydown', cycle, true);
     return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
       document.removeEventListener('keydown', cycle, true);
     };
-  }, [data.revision]);
+  }, [data.revision, data.channels, channel]);
   useEffect(() => {
     clearTimeout(timer.current);
     setText(data.text || '');
@@ -71,6 +81,7 @@ export const ChatComposer = () => {
       </header>
       <div className="ChatComposer__channel"><span>Канал</span><Dropdown
         selected={channel} width="180px"
+        style={chatComposerChannelStyle(channel, data.chatAppearance)}
         options={(data.channels || []).map(option => ({ value: String(option.id), displayText: option.name }))}
         onSelected={value => dispatch('channel', latest.current, value)} /></div>
       <textarea ref={input} value={text} maxLength={data.maxLength} aria-label="Сообщение"
@@ -80,6 +91,11 @@ export const ChatComposer = () => {
         onCompositionEnd={() => { composing.current = false; act('composition', { active: false }); }}
         onKeyDown={event => {
           if (event.key === 'Escape') { event.preventDefault(); dispatch('cancel'); }
+          if (event.key === 'Backspace' && event.currentTarget.value === ''
+              && !composing.current && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            dispatch('cancel');
+          }
           if ((event.key === 'Enter' || event.code === 'NumpadEnter' || event.keyCode === 13)
               && !composing.current && !event.nativeEvent.isComposing) {
             event.preventDefault();

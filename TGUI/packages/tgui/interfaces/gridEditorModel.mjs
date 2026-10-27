@@ -74,21 +74,25 @@ export function replaceConflicts(previous, next, isExclusive) {
     !winners.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`) || winners.get(`${Math.floor(item.x)}:${Math.floor(item.y)}`) === item.id);
 }
 
-export function validateDraft(items, area, editedIds = null) {
-  const ids = new Set();
-  const tiles = new Set(items.filter((i) => i.kind === 'tile').map((i) => i.id));
+export function draftIssues(items, area, editedIds = null) {
+  const issues = [], ids = new Set();
+  const tiles = new Set(items.filter(i => i.kind === 'tile').map(i => tileId(Math.floor(i.x), Math.floor(i.y))));
+  const add = (item, message) => issues.push({ ...item, located: Number.isFinite(item.x) && Number.isFinite(item.y), message });
   for (const item of items) {
-    if (ids.has(item.id)) return 'Повторяющийся ID элемента.';
+    if (ids.has(item.id)) add(item, 'Повторяющийся ID элемента.');
     ids.add(item.id);
     if ((!editedIds || editedIds.has(item.id)) && item.kind === 'entity' && item.anchored && (item.x !== Math.floor(item.x) + .5 || item.y !== Math.floor(item.y) + .5))
-      return 'Закреплённые объекты должны находиться в центре тайла.';
-    if (!Number.isFinite(item.x) || !Number.isFinite(item.y) || !inside(item, area)) return 'Элемент вышел за границы области редактирования.';
+      add(item, 'Закреплённые объекты должны находиться в центре тайла.');
+    if (!Number.isFinite(item.x) || !Number.isFinite(item.y) || !inside(item, area)) add(item, 'Элемент вышел за границы области редактирования.');
     if ((!editedIds || editedIds.has(item.id)) && (item.kind === 'decal' || item.anchored) && !tiles.has(tileId(Math.floor(item.x), Math.floor(item.y))))
-      return `Под ${item.kind === 'decal' ? 'декалью' : 'закреплённым объектом'} ${item.prototype} (${Math.floor(item.x)}, ${Math.floor(item.y)}) должен быть пол.`;
+      add(item, `Под ${item.kind === 'decal' ? 'декалью' : 'закреплённым объектом'} ${item.prototype} (${Math.floor(item.x)}, ${Math.floor(item.y)}) должен быть пол.`);
   }
-  return '';
+  return issues;
 }
 
+export function validateDraft(items, area, editedIds = null) {
+  return draftIssues(items, area, editedIds)[0]?.message || '';
+}
 export const changeCount = (original, draft) => {
   const before = new Map(original.map((i) => [i.id, JSON.stringify(i)]));
   const after = new Map(draft.map((i) => [i.id, JSON.stringify(i)]));
