@@ -479,6 +479,7 @@
   - type: Construction
     graph: DLLustWishPaddedBed
     node: built
+    deconstructionTarget: packed
   - type: Strap
     position: Down
     rotation: -90
@@ -510,6 +511,7 @@
   - type: Construction
     graph: DLLustWishXStand
     node: built
+    deconstructionTarget: packed
   - type: Strap
     position: Stand
     rotation: 0
@@ -541,6 +543,7 @@
   - type: Construction
     graph: DLLustWishRopeStand
     node: built
+    deconstructionTarget: packed
   - type: Strap
     position: Stand
     rotation: 0
@@ -572,6 +575,7 @@
   - type: Construction
     graph: DLLustWishDancePole
     node: built
+    deconstructionTarget: packed
 - type: entity
   parent: BaseItem
   id: DLLustWishDancePoleKit

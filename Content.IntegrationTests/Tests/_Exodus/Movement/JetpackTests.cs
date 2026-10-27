@@ -4,6 +4,7 @@ using Content.Shared.Actions;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Item.ItemToggle;
+using Content.Shared.Inventory;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Events;
 using Robust.Shared.Containers;
@@ -26,13 +27,6 @@ public sealed class JetpackTests
   - type: GravityAffected
   - type: MovementSpeedModifier
   - type: ContainerContainer
-
-- type: entity
-  parent: ExodusJetpackTestUser
-  id: ExodusJetpackTestMagbootsUser
-  components:
-  - type: ItemToggle
-  - type: Magboots
 
 - type: entity
   parent: BaseJetpack
@@ -173,17 +167,19 @@ public sealed class JetpackTests
 
         await server.WaitAssertion(() =>
         {
-            var user = entities.SpawnEntity("ExodusJetpackTestMagbootsUser", map.GridCoords);
+            var user = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var boots = entities.SpawnEntity("ClothingShoesBootsMag", map.GridCoords);
+            Assert.That(entities.System<InventorySystem>().TryEquip(user, boots, "shoes", force: true), Is.True);
             var pack = SpawnPack(entities, user);
             jetpacks.SetEnabled(pack, true, user);
             AssertEnabled(entities, user, pack, active: true);
 
-            Assert.That(toggle.TryActivate(user, predicted: false), Is.True);
+            Assert.That(toggle.TryActivate(boots, predicted: false), Is.True);
             AssertEnabled(entities, user, pack, active: false);
-            Assert.That(toggle.TryDeactivate(user, predicted: false), Is.True);
+            Assert.That(toggle.TryDeactivate(boots, predicted: false), Is.True);
             AssertEnabled(entities, user, pack, active: true);
 
-            Assert.That(toggle.TryActivate(user, predicted: false), Is.True);
+            Assert.That(toggle.TryActivate(boots, predicted: false), Is.True);
             AssertEnabled(entities, user, pack, active: false);
             entities.System<SharedTransformSystem>().SetCoordinates(user, new EntityCoordinates(map.MapUid, 50, 50));
             Assert.That(entities.GetComponent<TransformComponent>(user).GridUid, Is.Null);

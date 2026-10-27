@@ -1,5 +1,6 @@
 #nullable enable
 using Content.Shared.CCVar;
+using Content.Shared._NF.CCVar;
 
 namespace Content.IntegrationTests;
 
@@ -25,6 +26,7 @@ public static partial class PoolManager
         (CCVars.GridFill.Name,                "false"),
         (CCVars.PreloadGrids.Name,            "false"),
         (CCVars.ArrivalsShuttles.Name,        "false"),
+        (NFCCVars.PublicTransit.Name,        "false"),
         (CCVars.EmergencyShuttleEnabled.Name, "false"),
         (CCVars.ProcgenPreload.Name,          "false"),
         (CCVars.WorldgenEnabled.Name,         "false"),
