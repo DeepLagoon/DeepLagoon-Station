@@ -61,6 +61,17 @@ class WorkflowContracts(unittest.TestCase):
         self.assertIn("Tools/prepare_signed_webview.py", commands)
         self.assertIn("WebViewSignedReference=", commands)
 
+    def test_integration_tests_release_compiler_memory_without_reducing_coverage(self):
+        steps = workflow("build-test-debug.yml")["jobs"]["build"]["steps"]
+        shutdown = next(i for i, step in enumerate(steps) if step.get("run") == "dotnet build-server shutdown")
+        integrations = next(i for i, step in enumerate(steps) if step.get("name") == "Run Content.IntegrationTests")
+        self.assertLess(shutdown, integrations)
+        command = steps[integrations]["run"]
+        self.assertIn("$env:DOTNET_gcServer=0", command)
+        self.assertIn("NUnit.NumberOfTestWorkers=1", command)
+        self.assertIn('--filter "FullyQualifiedName!~ShipyardTest"', command)
+        self.assertIn("NUnit.MapWarningTo=Failed", command)
+
     def test_yaml_linter_runs_the_configuration_it_built(self):
         steps = workflow("yaml-linter.yml")["jobs"]["build"]["steps"]
         commands = [step.get("run", "") for step in steps]

@@ -48,6 +48,9 @@ jobs:
     - name: Build Project
       run: dotnet build --configuration DebugOpt --no-restore /p:WarningsAsErrors=nullable /m
 
+    - name: Release build servers before tests
+      run: dotnet build-server shutdown
+
     - name: Run Content.Tests
       shell: pwsh
       run: dotnet test --no-build --configuration DebugOpt Content.Tests/Content.Tests.csproj -- NUnit.ConsoleOut=0 NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
@@ -55,8 +58,8 @@ jobs:
     - name: Run Content.IntegrationTests
       shell: pwsh
       run: |
-        $env:DOTNET_gcServer=1
-        dotnet test --no-build --configuration DebugOpt Content.IntegrationTests/Content.IntegrationTests.csproj --filter "FullyQualifiedName!~ShipyardTest" -- NUnit.ConsoleOut=0 NUnit.MapWarningTo=Failed NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
+        $env:DOTNET_gcServer=0
+        dotnet test --no-build --configuration DebugOpt Content.IntegrationTests/Content.IntegrationTests.csproj --filter "FullyQualifiedName!~ShipyardTest" -- NUnit.NumberOfTestWorkers=1 NUnit.ConsoleOut=0 NUnit.MapWarningTo=Failed NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
 
     - name: Archive NUnit3 test results.
       if: always()
