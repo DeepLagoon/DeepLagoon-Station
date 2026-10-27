@@ -687,8 +687,6 @@
           Quantity: 30
 - type: constructionGraph
   id: DLLustWishPaddedBed
-  name: "bdsm bed"
-  description: "A latex bed with D-rings on the sides. Looks comfortable."
   start: built
   graph:
   - node: built
@@ -709,8 +707,6 @@
     - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishXStand
-  name: "x stand"
-  description: "A stand for buckling people in an X shape."
   start: built
   graph:
   - node: built
@@ -731,8 +727,6 @@
     - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishRopeStand
-  name: "shibari stand"
-  description: "A stand for buckling people with ropes."
   start: built
   graph:
   - node: built
@@ -753,8 +747,6 @@
     - !type:DestroyEntity ''
 - type: constructionGraph
   id: DLLustWishDancePole
-  name: "stripper pole"
-  description: "A pole fastened to the ceiling and floor, used to show of one's goods to company."
   start: built
   graph:
   - node: built

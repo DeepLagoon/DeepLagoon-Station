@@ -19,10 +19,6 @@
     - SemiAuto
     soundGunshot:
       path: /Audio/_EE/Weapons/Guns/Gunshots/shotgun.ogg
-    fireOnDropChance: 0
-    shotgunSpreadMultiplier: 1.15
-    shotgunProjectileCountModifier: 1.33
-    ejectionForce: 0.2
   - type: RevolverAmmoProvider
     whitelist:
       tags:
@@ -37,5 +33,3 @@
       path: /Audio/Weapons/Guns/MagIn/shotgun_insert.ogg
   - type: StaticPrice
     price: 5000
-  - type: StealTarget
-    stealGroup: [WeaponCaptain]

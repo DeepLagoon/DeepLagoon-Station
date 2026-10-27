@@ -5,9 +5,6 @@
   id: WeaponPulsePistolHoS
   description: One of the many weapons belonging to the Head of Security's private
     collection. This pistol is engraved with the words, "Forgive Us, Mother Sol'"
-  components:
-  - type: StealTarget
-    stealGroup: [HoSAntiqueWeapon]
 - type: entity
   name: CentCom disabler
   parent: WeaponDisabler
@@ -19,8 +16,6 @@
   - type: BatterySelfRecharger
     autoRecharge: true
     autoRechargeRate: 20
-  - type: StealTarget
-    stealGroup: [NTRepWeapon]
   - type: Gun
     fireRate: 3
     soundGunshot:
@@ -45,6 +40,3 @@
   description: A rare and exotic handgun gifted to the station's Captain. Its ivory
     grip has been engraved with the words, "Glory to the Company, Glory to Mother
     Sol. Phoron will make us all rich."
-  components:
-  - type: StealTarget
-    stealGroup: [WeaponCaptain]

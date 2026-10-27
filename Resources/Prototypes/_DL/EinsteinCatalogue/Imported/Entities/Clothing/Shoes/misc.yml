@@ -63,7 +63,6 @@
   - type: Clothing
     sprite: Clothing/Shoes/Misc/long_high_heels.rsi
   - type: HideLayerClothing
-    force: true
     slots:
     - LFoot
     - RFoot
@@ -81,7 +80,6 @@
   - type: Clothing
     sprite: Clothing/Shoes/Misc/high_heels.rsi
   - type: HideLayerClothing
-    force: true
     slots:
     - LFoot
     - RFoot

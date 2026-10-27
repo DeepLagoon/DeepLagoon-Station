@@ -14,7 +14,10 @@
   - type: PdaBorderColor
     borderColor: "#A32D26"
     accentHColor: "#447987"
+  - type: Sprite
+    sprite: Objects/Devices/pda.rsi
   - type: Icon
+    sprite: Objects/Devices/pda.rsi
     state: pda-hosnano
 - type: entity
   parent: BasePDA
@@ -31,7 +34,10 @@
   - type: PdaBorderColor
     borderColor: "#949137"
     accentHColor: "#447987"
+  - type: Sprite
+    sprite: Objects/Devices/pda.rsi
   - type: Icon
+    sprite: Objects/Devices/pda.rsi
     state: pda-cenano
 - type: entity
   parent: BasePDA
@@ -54,7 +60,10 @@
   - type: PdaBorderColor
     borderColor: "#789876"
     accentHColor: "#447987"
+  - type: Sprite
+    sprite: Objects/Devices/pda.rsi
   - type: Icon
+    sprite: Objects/Devices/pda.rsi
     state: pda-hopnano
 - type: entity
   parent: BasePDA
@@ -76,5 +85,8 @@
       enum.PdaVisuals.PdaType: !type:String 'pda-captainnano'
   - type: PdaBorderColor
     borderColor: "#7C5D00"
+  - type: Sprite
+    sprite: Objects/Devices/pda.rsi
   - type: Icon
+    sprite: Objects/Devices/pda.rsi
     state: pda-captainnano

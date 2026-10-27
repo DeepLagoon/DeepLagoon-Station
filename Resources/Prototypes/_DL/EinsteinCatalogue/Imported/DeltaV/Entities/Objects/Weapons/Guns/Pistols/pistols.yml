@@ -5,9 +5,6 @@
   id: WeaponPistolPollockSecurity
   description: A compact and mass-produced combat pistol. Uses 9x19mm ammo. The
     serial number on the handguard marks this gun as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: viper
   parent: WeaponPistolViperWood
@@ -15,9 +12,6 @@
   description: A small, low-power pistol with pleasant lacquered wooden grips. Uses
     .35 auto ammo. The serial number on the handguard marks this gun as belonging
     to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: viper
   parent: BaseWeaponPistol

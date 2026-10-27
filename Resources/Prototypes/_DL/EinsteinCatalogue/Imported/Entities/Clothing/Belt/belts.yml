@@ -16,8 +16,6 @@
       collection: FootstepTacticalWebbing
       params:
         volume: -10
-    distanceWalking: 2
-    distanceSprinting: 3
 - type: entity
   parent: ClothingBeltBase
   id: ClothingBeltWaistThin
@@ -29,7 +27,6 @@
     state: icon
   - type: Clothing
     sprite: Clothing/Belt/waist_thin.rsi
-    renderLayer: innerBelt
 - type: entity
   parent: ClothingBeltBase
   id: ClothingBeltWaist
@@ -41,7 +38,6 @@
     state: icon
   - type: Clothing
     sprite: Clothing/Belt/waist.rsi
-    renderLayer: innerBelt
 - type: entity
   parent: ClothingBeltBase
   id: ClothingBeltGenericThick
@@ -53,7 +49,6 @@
     state: icon
   - type: Clothing
     sprite: Clothing/Belt/generic_thick.rsi
-    renderLayer: innerBelt
 - type: entity
   parent: ClothingBeltBase
   id: ClothingBeltGenericThin
@@ -65,7 +60,6 @@
     state: icon
   - type: Clothing
     sprite: Clothing/Belt/generic_thin.rsi
-    renderLayer: innerBelt
 - type: entity
   parent: ClothingBeltBase
   id: ClothingBeltGeneric
@@ -77,4 +71,3 @@
     state: icon
   - type: Clothing
     sprite: Clothing/Belt/generic.rsi
-    renderLayer: innerBelt
