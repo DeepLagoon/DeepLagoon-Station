@@ -1,3 +1,4 @@
+#nullable enable
 using Content.Shared.CCVar;
 using Robust.Shared.Configuration;
 using System.Linq;

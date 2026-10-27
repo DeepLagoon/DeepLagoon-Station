@@ -89,6 +89,37 @@ public sealed class CharacterCatalogTests
             catalog = ui.WindowRoot.Children.OfType<CharacterAuxiliaryWindow>().Single();
             ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
             Assert.That(catalog.IsOpen, Is.False, "Closing the editor must close its catalog");
+
+            lobby.OpenCharacterEditor();
+            editor = (HumanoidProfileEditor) typeof(LobbyUIController)
+                .GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), editor.CharacterSlot);
+            draft = editor.Profile;
+            var profilePanel = (TguiPanel) typeof(HumanoidProfileEditor)
+                .GetField("_profileWeb", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!;
+            host = (TguiEditorHost) typeof(HumanoidProfileEditor)
+                .GetField("_tguiHost", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!;
+            Assert.That(editor.HandleTguiProfileAction("catalog-open", "{\"kind\":\"hair\"}"), Is.True);
+            catalog = ui.WindowRoot.Children.OfType<CharacterAuxiliaryWindow>().Single();
+            catalog.Panel.SwitchToNative();
+            Assert.That(catalog.IsOpen, Is.False);
+            Assert.That(profilePanel.UsingNative, Is.True);
+            Assert.That(host.Parent, Is.Null);
+            Assert.That(editor.Profile, Is.SameAs(draft), "Fallback must preserve the current draft");
+            Assert.That(profilePanel.SwitchToTgui(), Is.True);
+            Assert.That(profilePanel.UsingNative, Is.False);
+            Assert.That(host.Parent, Is.Not.Null);
+            Assert.That(editor.HandleTguiProfileAction("color-picker-open",
+                "{\"id\":\"eye-color\",\"value\":\"#12ef34\"}"), Is.True);
+            var colorPicker = ui.WindowRoot.Children.OfType<CharacterAuxiliaryWindow>().Single();
+            colorPicker.Panel.SwitchToNative();
+            Assert.That(colorPicker.IsOpen, Is.False);
+            Assert.That(profilePanel.UsingNative, Is.True);
+            Assert.That(host.Parent, Is.Null);
+            Assert.That(editor.Profile, Is.SameAs(draft));
+            Assert.That(profilePanel.SwitchToTgui(), Is.True);
+            Assert.That(host.Parent, Is.Not.Null);
+            ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
         });
         await pair.CleanReturnAsync();
     }

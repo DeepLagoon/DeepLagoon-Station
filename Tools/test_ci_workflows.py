@@ -48,6 +48,19 @@ class WorkflowContracts(unittest.TestCase):
             self.assertNotIn("ref", step.get("with", {}), "pull_request_target must use trusted base code")
             self.assertEqual("false", step["with"]["persist-credentials"])
 
+    def test_full_release_packaging_verifies_the_official_signed_webview(self):
+        for name in ("test-packaging.yml", "publish.yml", "publish-testing.yml"):
+            with self.subTest(workflow=name):
+                ready = False
+                for step in workflow(name)["jobs"]["build"]["steps"]:
+                    ready |= step.get("uses") == "./.github/actions/prepare-signed-webview"
+                    if "dotnet run --project Content.Packaging" in step.get("run", ""):
+                        self.assertTrue(ready, f"{name} must verify the signed module before FullRelease")
+        action = yaml.safe_load((ROOT / ".github/actions/prepare-signed-webview/action.yml").read_text())
+        commands = "\n".join(step.get("run", "") for step in action["runs"]["steps"])
+        self.assertIn("Tools/prepare_signed_webview.py", commands)
+        self.assertIn("WebViewSignedReference=", commands)
+
     def test_yaml_linter_runs_the_configuration_it_built(self):
         steps = workflow("yaml-linter.yml")["jobs"]["build"]["steps"]
         commands = [step.get("run", "") for step in steps]

@@ -34,6 +34,8 @@ jobs:
 
     - uses: ./.github/actions/prepare-engine
 
+    - uses: ./.github/actions/prepare-signed-webview
+
     - name: Install dependencies
       run: dotnet restore
 

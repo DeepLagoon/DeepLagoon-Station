@@ -57,6 +57,8 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - uses: ./.github/actions/prepare-signed-webview
+
       - name: Install dependencies
         run: dotnet restore
 

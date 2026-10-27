@@ -1,3 +1,4 @@
+#nullable enable
 using Robust.Shared.EntitySerialization.Systems;
 using Content.Server._DeepLagoon.Mapping;
 using System.Linq;
@@ -546,8 +547,8 @@ public sealed class GridEditorTests
         var dummy = await pair.Server.AddDummySession("second_mapper");
         await PoolManager.WaitUntil(pair.Server, () => dummy.Status == SessionStatus.InGame, 600);
         EntityUid grid = default, chair = default;
-        ICommonSession first = null;
-        ServerEditor server = null;
+        ICommonSession first = null!;
+        ServerEditor server = null!;
         object Draft(ICommonSession player) => ((IDictionary) typeof(ServerEditor).GetField("_drafts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(server)!)[player]!;
         Guid Token(ICommonSession player) => (Guid) Draft(player).GetType().GetField("Token")!.GetValue(Draft(player))!;
         List<GridEditorItem> Items(ICommonSession player) => (List<GridEditorItem>) Draft(player).GetType().GetField("Items")!.GetValue(Draft(player))!;
@@ -581,7 +582,7 @@ public sealed class GridEditorTests
                 Assert.That(server.Open(dummy, grid), Does.Contain("открыт"));
             });
             await pair.RunTicksSync(30);
-            Guid firstToken = default; string chairId = null;
+            Guid firstToken = default; string chairId = null!;
             await pair.Client.WaitAssertion(() => { firstToken = pair.Client.EntMan.System<ClientEditor>().State!.Token;
                 chairId = pair.Client.EntMan.System<ClientEditor>().State!.Items.Single(item => item.Prototype == "ChairWood").Id; });
             await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>().SetCoordinates(chair,
@@ -959,7 +960,7 @@ public sealed class GridEditorTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         EntityUid grid = default, chair = default;
-        string decalId = null;
+        string decalId = null!;
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
