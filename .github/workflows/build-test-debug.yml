@@ -16,8 +16,10 @@ jobs:
   build:
     if: github.event.pull_request.draft == false
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
+        shard: [0, 1, 2, 3]
 
     runs-on: ${{ matrix.os }}
 
@@ -25,14 +27,7 @@ jobs:
     - name: Checkout Master
       uses: actions/checkout@v4.2.2
 
-    - name: Setup Submodule
-      run: |
-        git submodule update --init --recursive
-
-    - name: Update Engine Submodules
-      run: |
-        cd RobustToolbox/
-        git submodule update --init --recursive
+    - uses: ./.github/actions/prepare-engine
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
@@ -55,22 +50,23 @@ jobs:
     - name: Build Project
       run: dotnet build --configuration DebugOpt --no-restore /p:WarningsAsErrors=nullable /m
 
+    - name: Release build servers before tests
+      run: dotnet build-server shutdown
+
     - name: Run Content.Tests
+      if: matrix.shard == 0
       shell: pwsh
       run: dotnet test --no-build --configuration DebugOpt Content.Tests/Content.Tests.csproj -- NUnit.ConsoleOut=0 NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
 
     - name: Run Content.IntegrationTests
-      shell: pwsh
-      run: |
-        $env:DOTNET_gcServer=1
-        dotnet test --no-build --configuration DebugOpt Content.IntegrationTests/Content.IntegrationTests.csproj --filter "FullyQualifiedName!~ShipyardTest" -- NUnit.ConsoleOut=0 NUnit.MapWarningTo=Failed NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
+      run: python Tools/run_integration_tests.py --shard-index ${{ matrix.shard }} --shard-count 4
 
     - name: Archive NUnit3 test results.
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: nunit3-results-${{ matrix.os }}
-        path: test_results/*
+        name: nunit3-results-${{ matrix.os }}-${{ matrix.shard }}
+        path: test_results/**
         retention-days: 7
         compression-level: 9
   ci-success:

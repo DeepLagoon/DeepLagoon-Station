@@ -8,7 +8,7 @@ namespace Content.Shared.Coordinates.Helpers
     {
         public static EntityCoordinates SnapToGrid(this EntityCoordinates coordinates, IEntityManager? entMan = null, SharedMapSystem? mapManager = null)
         {
-            IoCManager.Resolve(ref entMan, ref mapManager);
+            IoCManager.Resolve(ref entMan);
 
             var gridId = coordinates.GetGridUid(entMan);
 

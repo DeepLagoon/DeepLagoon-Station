@@ -224,3 +224,39 @@
 .HairCarousel__browser { width:100%; max-width:520px; min-width:0; >input { width:100%; box-sizing:border-box; } }
 .HairCarousel__face { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 .HairCarousel__track .CharacterEditor__sprite { width:100%; height:72px; overflow:hidden; img { width:96px; height:96px; max-width:none; left:calc(50% - 48px); top:0; } }
+
+.CharacterEditor__speciesRow { display:flex; align-items:flex-end; gap:6px; min-width:0; margin-bottom:8px; }
+.CharacterEditor__speciesRow > .CharacterEditor__field { flex:1; min-width:0; margin:0; }
+.CharacterEditor .CharacterEditor__speciesGuide.Button { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; height:var(--editor-control-height); margin:0; padding:5px 8px; font-size:.85em; white-space:nowrap; }
+.HairCarousel__searchRow { display:flex; align-items:center; gap:6px; min-width:0; }
+.HairCarousel__searchRow > input { flex:1; min-width:0; }
+.HairCarousel__searchRow > .Button { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; height:var(--editor-control-height); margin:0; padding:5px 10px; }
+.CharacterEditor__catalogToolbar { flex-shrink:0; padding:10px; }
+.CharacterEditor__catalogToolbar input { width:100%; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
+.CharacterEditor__catalogContent { min-height:0; overflow:auto; padding:0 10px 12px; }
+.CharacterEditor__catalogGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); gap:8px; }
+.CharacterEditor__catalogGrid > button,.CharacterEditor__catalogContent .CharacterEditor__tiles > button { min-width:0; border:1px solid #68788a; border-radius:4px; background:var(--player-surface,#252b35); color:inherit; padding:5px; min-height:112px; font:inherit; overflow-wrap:anywhere; }
+.CharacterEditor__catalogGrid > button[aria-pressed=true],.CharacterEditor__catalogContent button[aria-pressed=true] { background:#3b5676; border:2px solid #a7d2ff; color:#eaf2ff; }
+.CharacterEditor__catalogGroup h3 { margin:8px 0 0; font-size:13px; border-bottom:1px solid #526277; }
+.CharacterEditor .CharacterEditor__markingRow--selected { width:100%; box-sizing:border-box; padding:8px; border-left:3px solid var(--editor-accent,#a7d2ff); border-radius:4px; background:color-mix(in srgb,var(--editor-accent,#a7d2ff) 22%,var(--player-surface,#252b35)); position:relative; }
+.CharacterEditor .CharacterEditor__markingRow--selected .Button { background-color:color-mix(in srgb,var(--editor-accent,#a7d2ff) 28%,var(--player-surface,#252b35)); }
+.CharacterEditor .CharacterEditor__tiles > button[aria-pressed=true] { background-color:color-mix(in srgb,var(--editor-accent,#a7d2ff) 24%,var(--player-surface,#252b35)); }
+.CharacterEditor__selectedMarkings { min-width:0; }
+.CharacterEditor__categoryBrowser { display:grid; grid-template-columns:minmax(0,1fr) minmax(120px,175px); gap:12px; align-items:start; }
+.CharacterEditor__categoryContent { min-width:0; }
+.CharacterEditor__categoryContent > h3 { font-size:1em; margin:0 0 6px; }
+.CharacterEditor__categoryNav { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.CharacterEditor .CharacterEditor__categoryNav > button,.CharacterEditor .CharacterEditor__categoryNav > .Button { width:100%; box-sizing:border-box; margin:0; padding:6px 8px; font:inherit; color:inherit; background-color:#344c66; border:1px solid #6883a0; text-align:left; min-height:30px; overflow-wrap:anywhere; }
+.CharacterEditor .CharacterEditor__categoryNav > button[aria-pressed=true] { background-color:#405b77; border-color:var(--editor-accent); }
+@media(max-width:560px) { .CharacterEditor__categoryBrowser { grid-template-columns:minmax(0,1fr) minmax(100px,115px); gap:8px; } .CharacterEditor__categoryContent .CharacterEditor__tiles { grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); } }
+@media(max-width:420px) { .CharacterEditor .CharacterEditor__speciesGuide.Button { font-size:.75em; padding-inline:5px; } }
+.CharacterEditor__sizeRail { position:absolute; z-index:12; display:flex; align-items:center; justify-content:center; }
+.CharacterEditor__preview > .CharacterEditor__floor { right:104px; }
+.CharacterEditor__preview > .CharacterEditor__sizeRail--height { top:64px; right:74px; width:24px; height:288px; }
+.CharacterEditor__preview > .CharacterEditor__sizeRail--width { top:376px; left:72px; right:104px; height:24px; }
+.CharacterEditor .CharacterEditor__sizeRail > input.CharacterEditor__sizeSlider[type=range] { box-sizing:border-box; display:block; padding:0; margin:0; min-height:0; width:100%; height:24px; }
+.CharacterEditor .CharacterEditor__sizeRail--height > input.CharacterEditor__sizeSlider[type=range] { writing-mode:vertical-lr; direction:rtl; width:24px; height:100%; min-width:0; }
+.CharacterEditor__preview > .CharacterEditor__rotation { top:408px; }
+.CharacterEditor--catalog { display:block; .CharacterEditor__catalogBody { height:100%; display:flex; flex-direction:column; min-height:0; } .CharacterEditor__catalogContent { flex:1; } }
+
+.CharacterEditor--catalog .CharacterEditor__sprite { width:80px; height:80px; }

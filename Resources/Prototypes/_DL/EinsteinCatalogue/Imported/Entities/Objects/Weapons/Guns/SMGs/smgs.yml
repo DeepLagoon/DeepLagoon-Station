@@ -5,9 +5,6 @@
   id: WeaponSubMachineGunC20rHoS
   description: This heavily worn submachine gun is engraved with the words, "Remember
     Mars".
-  components:
-  - type: StealTarget
-    stealGroup: [HoSAntiqueWeapon]
 - type: entity
   name: antique Wt550
   id: WeaponSubMachineGunWt550HoS
@@ -15,6 +12,3 @@
   description: A prized possession of the station's Head of Security. The smell of
     dried blood lingers on this weapon's muzzle. A small torch with 24 stars surrounding
     it has been engraved on the grip.
-  components:
-  - type: StealTarget
-    stealGroup: [HoSAntiqueWeapon]

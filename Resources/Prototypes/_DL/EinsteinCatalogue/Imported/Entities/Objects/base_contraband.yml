@@ -14,4 +14,4 @@
   abstract: true
   components:
   - type: Contraband
-    allowedDepartments: [Security, Logistics]
+    allowedDepartments: [Security, Cargo]

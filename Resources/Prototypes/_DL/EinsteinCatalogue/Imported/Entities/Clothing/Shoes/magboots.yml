@@ -8,6 +8,5 @@
   - type: ToggleClothing
     action: ActionToggleMagboots
   - type: Magboots
-    slot: outerClothing
   - type: ItemToggle
     onUse: false

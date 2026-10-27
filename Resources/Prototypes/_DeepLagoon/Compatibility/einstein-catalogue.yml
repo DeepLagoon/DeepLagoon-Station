@@ -1,0 +1,124 @@
+# Native definitions required by the imported catalogue fills.
+
+- type: entity
+  parent: DrinkJuiceOrangeCarton
+  id: DrinkJuiceOrangeJuicebox
+  name: orange drink carton
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        reagents:
+        - ReagentId: JuiceOrange
+          Quantity: 50
+
+- type: entity
+  parent: DrinkJuiceOrangeCarton
+  id: DrinkJuicePineappleJuicebox
+  name: pineapple drink carton
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        reagents:
+        - ReagentId: JuicePineapple
+          Quantity: 50
+
+- type: entity
+  parent: DrinkJuiceOrangeCarton
+  id: DrinkJuiceAppleJuicebox
+  name: apple drink carton
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        reagents:
+        - ReagentId: JuiceApple
+          Quantity: 50
+
+- type: entity
+  parent: DrinkJuiceOrangeCarton
+  id: DrinkJuiceGrapeJuicebox
+  name: grape drink carton
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        reagents:
+        - ReagentId: JuiceGrape
+          Quantity: 50
+
+- type: entity
+  parent: DrinkJuiceOrangeCarton
+  id: DrinkChocolateJuicebox
+  name: chocolate drink carton
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      drink:
+        reagents:
+        - ReagentId: HotCocoa
+          Quantity: 50
+
+- type: entity
+  parent: Pill
+  id: PillPax
+  name: pill
+  suffix: Pax 10u
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Pax
+          Quantity: 10
+
+- type: entity
+  parent: MagazineMagnumLeverRifle
+  id: MagazineMagnumLeverRifleEmpty
+  suffix: Empty
+  components:
+  - type: BallisticAmmoProvider
+    proto: null
+
+- type: Tag
+  id: Fish
+
+- type: entity
+  parent: Katana
+  id: Wakizashi
+  name: wakizashi
+
+- type: entity
+  parent: Cigar
+  id: CigarRobust
+  name: Cohiba Robusto cigar
+
+- type: entity
+  parent: Pill
+  id: PillChloralHydrate
+  name: pill
+  suffix: ChloralHydrate 20u
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: ChloralHydrate
+          Quantity: 20
+
+- type: entity
+  parent: Pill
+  id: PillCryptobiolin
+  name: pill
+  suffix: Cryptobiolin 20u
+  components:
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Cryptobiolin
+          Quantity: 20

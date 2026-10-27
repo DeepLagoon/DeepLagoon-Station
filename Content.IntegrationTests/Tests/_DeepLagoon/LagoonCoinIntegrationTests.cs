@@ -15,6 +15,7 @@ using Content.Shared._DeepLagoon.Currency;
 using Content.Shared.Mind;
 using Content.Shared.Objectives.Components;
 using Content.Shared.Preferences;
+using Content.Shared.Database;
 using Content.Shared.Roles;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
@@ -60,14 +61,19 @@ public sealed class LagoonCoinIntegrationTests
             entities.EventBus.RaiseEvent(EventSource.Local, spawned);
             entities.EventBus.RaiseEvent(EventSource.Local, spawned);
             entities.EventBus.RaiseEvent(EventSource.Local, new RoundStartedEvent(123));
-            entities.System<ServerWallet>().Update(0);
+            var wallet = entities.System<ServerWallet>();
+            wallet.Update(0);
+            SeedActivity(wallet, player, LagoonEconomyRules.ReadyActivity.Ticks, 2, "123", true);
+            typeof(ServerWallet).GetMethod("SaveParticipation", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(wallet, null);
+            wallet.Update(0);
+            AwaitRewards(pair.Server.ResolveDependency<ITaskManager>(), wallet);
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
         {
             Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(5));
             Assert.That(rewards.Select(ev => (ev.Amount, ev.Balance, ev.Reason)),
-                Is.EqualTo(new[] { (5L, 5L, "ready") }));
+                Is.EqualTo(new[] { (5L, 5L, "playtime") }));
         });
 
         await pair.Server.WaitAssertion(() =>
@@ -75,6 +81,7 @@ public sealed class LagoonCoinIntegrationTests
             var entities = pair.Server.ResolveDependency<IEntityManager>();
             var player = pair.Server.PlayerMan.Sessions.Single();
             var mind = entities.System<MindSystem>().GetOrCreateMind(player.UserId);
+            entities.System<MindSystem>().TransferTo(mind.Owner, mob, mind: mind.Comp);
             entities.System<SharedRoleSystem>().MindAddRole(mind.Owner, "MindRoleTraitor", mind.Comp, silent: true);
             var objective = entities.SpawnEntity(null, MapCoordinates.Nullspace);
             entities.EnsureComponent<ObjectiveComponent>(objective);
@@ -83,15 +90,20 @@ public sealed class LagoonCoinIntegrationTests
             entities.EventBus.RaiseEvent(EventSource.Local, new RoundEndedEvent(123, TimeSpan.FromMinutes(30)));
             entities.EventBus.RaiseEvent(EventSource.Local, new RoundEndedEvent(123, TimeSpan.FromMinutes(30)));
             entities.System<ServerWallet>().Update(0);
+            AwaitRewards(pair.Server.ResolveDependency<ITaskManager>(), entities.System<ServerWallet>());
             var database = pair.Server.ResolveDependency<IServerDbManager>();
-            Assert.That(ReadBankBalance(database, pair.Server.ResolveDependency<ITaskManager>(), player.UserId), Is.EqualTo(initialBankBalance));
+            var tasks = pair.Server.ResolveDependency<ITaskManager>();
+            var history = database.GetLagoonCoinHistoryAsync(player.UserId, 1);
+            tasks.BlockWaitOnTask(history);
+            Assert.That(history.GetAwaiter().GetResult().Count(entry => entry.Amount == 5 && entry.Reason == "ready"), Is.EqualTo(1));
+            Assert.That(ReadBankBalance(database, tasks, player.UserId), Is.EqualTo(initialBankBalance));
         });
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
         {
             Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(7));
             Assert.That(rewards.Select(ev => (ev.Amount, ev.Balance, ev.Reason)),
-                Is.EqualTo(new[] { (5L, 5L, "ready"), (2L, 7L, "antagonist-objective") }));
+                Is.EqualTo(new[] { (5L, 5L, "playtime"), (2L, 7L, "antagonist-objective") }));
             pair.Client.ResolveDependency<IUserInterfaceManager>().PopupRoot.Children.OfType<LagoonCoinRewardNotification>().Single().Clear();
         });
         await pair.Server.WaitAssertion(() =>
@@ -115,7 +127,7 @@ public sealed class LagoonCoinIntegrationTests
         {
             Assert.That(pair.Client.ResolveDependency<IEntityManager>().System<ClientWallet>().Balance, Is.EqualTo(4));
             Assert.That(rewards.Select(ev => (ev.Amount, ev.Balance, ev.Reason)),
-                Is.EqualTo(new[] { (5L, 5L, "ready"), (2L, 7L, "antagonist-objective"), (-3L, 4L, "Discord test debit") }));
+                Is.EqualTo(new[] { (5L, 5L, "playtime"), (2L, 7L, "antagonist-objective"), (-3L, 4L, "Discord test debit") }));
             AssertNotification(-3, 4, "Discord test debit");
         });
 
@@ -198,8 +210,8 @@ public sealed class LagoonCoinIntegrationTests
         await pair.CleanReturnAsync();
     }
 
-    [TestCase(false, 2)]
-    [TestCase(true, 4)]
+    [TestCase(false, 5)]
+    [TestCase(true, 7)]
     public async Task PlaytimeRewardPublishesOnceAboveTheGameViewport(bool subscribed, long expected)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -220,18 +232,13 @@ public sealed class LagoonCoinIntegrationTests
                 pair.Server.ResolveDependency<ITaskManager>(), session.UserId);
         });
 
-        async Task SaveHalfHour() => await pair.Server.WaitAssertion(() =>
+        async Task SaveActivity(long ticks) => await pair.Server.WaitAssertion(() =>
         {
             var wallet = pair.Server.EntMan.System<ServerWallet>();
             wallet.Update(0);
             var session = pair.Server.PlayerMan.Sessions.Single();
-            var participation = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
-            var data = participation[session]!;
-            var type = data.GetType();
-            // Seed already-counted eligible time without waiting an actual hour.
-            type.GetField("Active")!.SetValue(data, false);
-            type.GetField("Played")!.SetValue(data, TimeSpan.TicksPerHour / 2);
-            type.GetField("Bonus")!.SetValue(data, subscribed ? TimeSpan.TicksPerHour / 2 : 0L);
+            // Seed the same rate/day buckets consumed by the production outbox.
+            SeedActivity(wallet, session, ticks, subscribed ? 4 : 2, "", false);
             typeof(ServerWallet).GetMethod("SaveParticipation", flags)!.Invoke(wallet, null);
             wallet.Update(0);
             var drain = (Task) typeof(ServerWallet).GetField("_drainTask", flags)!.GetValue(wallet)!;
@@ -239,7 +246,7 @@ public sealed class LagoonCoinIntegrationTests
             drain.GetAwaiter().GetResult();
         });
 
-        await SaveHalfHour();
+        await SaveActivity(TimeSpan.TicksPerHour / 8);
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
         {
@@ -249,7 +256,7 @@ public sealed class LagoonCoinIntegrationTests
             Assert.That(rewards, Is.Empty, "A fractional-hour checkpoint must not display a zero reward.");
         });
 
-        await SaveHalfHour();
+        await SaveActivity(TimeSpan.TicksPerHour * 7 / 8);
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
         {
@@ -288,6 +295,27 @@ public sealed class LagoonCoinIntegrationTests
         var preferences = database.GetPlayerPreferencesAsync(user, default);
         tasks.BlockWaitOnTask(preferences);
         return ((HumanoidCharacterProfile) preferences.GetAwaiter().GetResult()!.SelectedCharacter).BankBalance;
+    }
+
+    private static void SeedActivity(ServerWallet wallet, Robust.Shared.Player.ICommonSession session,
+        long ticks, int rate, string round, bool ready)
+    {
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var participation = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
+        var data = participation[session]!;
+        data.GetType().GetField("Active")!.SetValue(data, false);
+        var buckets = (IDictionary) data.GetType().GetField("Buckets")!.GetValue(data)!;
+        var bucketType = typeof(ServerWallet).GetNestedType("ActivityBucket", BindingFlags.NonPublic)!;
+        var bucket = Activator.CreateInstance(bucketType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            null, new object[] { LagoonEconomyRules.MoscowDay(DateTime.UtcNow), rate, round, ready }, null)!;
+        buckets[bucket] = ticks;
+    }
+
+    private static void AwaitRewards(ITaskManager tasks, ServerWallet wallet)
+    {
+        var drain = (Task) typeof(ServerWallet).GetField("_drainTask", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(wallet)!;
+        tasks.BlockWaitOnTask(drain);
+        drain.GetAwaiter().GetResult();
     }
 
     private static T Find<T>(Control root, string name) where T : Control

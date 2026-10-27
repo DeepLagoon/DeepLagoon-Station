@@ -54,7 +54,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
 
     public override void Initialize()
     {
-        SubscribeLocalEvent<MobStateComponent, ComponentStartup>(OnMobStartup);
+        SubscribeLocalEvent<MobStateComponent, MapInitEvent>(OnMobMapInit);
         SubscribeLocalEvent<HumanoidAppearanceComponent, InteractionPanelProfileLoadedEvent>(OnProfile);
         SubscribeLocalEvent<InteractionPanelPreferencesComponent, GetVerbsEvent<InteractionVerb>>(OnVerbs);
         SubscribeLocalEvent<InteractionPanelPreferencesComponent, ExaminedEvent>(OnExamine);
@@ -75,7 +75,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeLocalEvent<HumanoidAppearanceComponent, SexChangedEvent>((uid, _, _) => RefreshAvailability(uid));
     }
 
-    private void OnMobStartup(EntityUid uid, MobStateComponent component, ComponentStartup args)
+    private void OnMobMapInit(EntityUid uid, MobStateComponent component, MapInitEvent args)
     {
         EnsureComp<InteractionPanelPreferencesComponent>(uid);
         _arousal.InitializeMob(uid);

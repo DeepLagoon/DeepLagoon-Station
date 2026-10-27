@@ -4,14 +4,12 @@
 - type: latheRecipe
   id: ShellShotgun
   result: ShellShotgun
-  category: Ammo
   completetime: 2
   materials:
     Steel: 20
 - type: latheRecipe
   id: ShellShotgunLumen
   result: ShellShotgunLumen
-  category: Ammo
   completetime: 2
   materials:
     Plastic: 20
@@ -22,7 +20,7 @@
   result: EnergyCutlass
   completetime: 10
   materials:
-    Tungsten: 300
+    Plasteel: 300
     Gold: 300
     Bluespace: 300
     Plasma: 300
@@ -34,17 +32,15 @@
 - type: latheRecipe
   id: WeaponPistolViper
   result: WeaponPistolViperEmpty
-  category: Weapons
   completetime: 6
   materials:
-    Aluminum: 900
+    Steel: 900
     Plasteel: 100
     Plastic: 150
     Silver: 100
 - type: latheRecipe
   id: WeaponPistolN1984
   result: WeaponPistolN1984Empty
-  category: Weapons
   completetime: 6
   materials:
     Steel: 800
@@ -55,18 +51,15 @@
 - type: latheRecipe
   id: MagazineMagnum
   result: MagazineMagnum
-  category: Ammo
   completetime: 5
   materials:
     Steel: 150
 - type: latheRecipe
   id: WeaponPistolMk58
   result: WeaponPistolMk58Empty
-  category: Weapons
   completetime: 6
   materials:
-    Aluminum: 800
-    Steel: 100
+    Steel: 900
     Plastic: 150
 - type: latheRecipe
   parent: BaseAmmoRecipe
@@ -77,14 +70,12 @@
 - type: latheRecipe
   id: MagazineUniversalMagnum
   result: MagazineUniversalMagnum
-  category: Ammo
   completetime: 5
   materials:
     Steel: 200
 - type: latheRecipe
   id: WeaponPistolUniversal
   result: WeaponPistolUniversalEmpty
-  category: Weapons
   completetime: 7
   materials:
     Steel: 1000
@@ -97,7 +88,7 @@
   result: EnergySword
   completetime: 10
   materials:
-    Tungsten: 300
+    Plasteel: 300
     Gold: 300
     Bluespace: 300
     Plasma: 300

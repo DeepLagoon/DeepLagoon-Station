@@ -15,5 +15,3 @@
       collection: FootstepTacticalWebbing
       params:
         volume: -10
-    distanceWalking: 2
-    distanceSprinting: 3

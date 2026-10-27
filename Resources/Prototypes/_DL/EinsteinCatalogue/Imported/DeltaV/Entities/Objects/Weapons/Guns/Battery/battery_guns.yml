@@ -6,9 +6,6 @@
   description: A military grade sidearm, used by many militia forces throughout the
     local sector. The serial number on the handguard marks this gun as belonging to
     an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: PDW-9 Energy Pistol
   parent: BaseWeaponBatterySmall
@@ -79,9 +76,6 @@
   id: WeaponEnergyGunMiniSecurity
   description: A light version of the Energy gun with a smaller capacity. The serial
     number on the handguard marks this gun as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: miniature energy gun
   parent: BaseWeaponBatterySmall

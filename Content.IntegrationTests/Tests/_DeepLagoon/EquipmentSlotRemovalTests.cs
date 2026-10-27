@@ -44,6 +44,8 @@ public sealed class EquipmentSlotRemovalTests
 - type: roleLoadout
   id: JobSlotRemovalTester
   groups: [SlotRemovalTesterMandatory]
+- type: playTimeTracker
+  id: PlayTimeSlotRemovalTester
 - type: job
   id: SlotRemovalTester
   name: generic-unknown

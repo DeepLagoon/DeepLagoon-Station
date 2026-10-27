@@ -215,6 +215,34 @@ public sealed class ShuttleHullConsoleTests
         await pair.CleanReturnAsync();
     }
 
+    [Test]
+    public async Task RemovingTheLastFloorTileUnderAConsoleClearsItsHullState()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        EntityUid console = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId);
+            var grid = maps.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            maps.SetTile(grid, Vector2i.Zero, floor);
+            console = Spawn(entities, grid.Owner, "ComputerShuttle", 0);
+            ReadHull(entities, console);
+            maps.SetTile(grid, Vector2i.Zero, Tile.Empty);
+            Assert.That(entities.GetComponent<TransformComponent>(console).Anchored, Is.False);
+        });
+        await pair.RunTicksSync(2);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var ui = pair.Server.EntMan.GetComponent<UserInterfaceComponent>(console);
+            var state = (ShuttleBoundUserInterfaceState) ui.States[ShuttleConsoleUiKey.Key];
+            Assert.That(state.HullState, Is.Null);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static EntityUid Spawn(IEntityManager entities, EntityUid grid, string prototype, int x)
     {
         return entities.SpawnEntity(prototype, new EntityCoordinates(grid, new Vector2(x + 0.5f, 0.5f)));

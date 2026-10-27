@@ -1,0 +1,7 @@
+name: Prepare engine baseline
+description: Initialize the pinned engine and fetch its official compatibility reference.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: python3 Tools/prepare_ci_engine.py

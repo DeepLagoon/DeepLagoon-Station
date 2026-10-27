@@ -70,7 +70,7 @@ public sealed class TguiEditorHost : Container
         if (_sprite is SpriteView normalView) normalView.Scale = new Vector2(7);
         _sprite.Visible = finalSize.X >= 700 && finalSize.Y >= 520;
         if (_sprite.Visible)
-            _sprite.Arrange(UIBox2.FromDimensions(new Vector2(94, 62 + 48), new Vector2(232, 320)));
+            _sprite.Arrange(UIBox2.FromDimensions(new Vector2(78, 62 + 48), new Vector2(232, 320)));
         return finalSize;
     }
 }

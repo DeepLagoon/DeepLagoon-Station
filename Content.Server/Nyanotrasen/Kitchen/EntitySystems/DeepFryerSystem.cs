@@ -120,7 +120,7 @@ public sealed partial class DeepFryerSystem : SharedDeepfryerSystem
         SubscribeLocalEvent<DeepFryerComponent, DeepFryerRemoveAllItemsMessage>(OnRemoveAllItems);
         SubscribeLocalEvent<DeepFryerComponent, ClearSlagDoAfterEvent>(OnClearSlag);
 
-        SubscribeLocalEvent<DeepFriedComponent, ComponentInit>(OnInitDeepFried);
+        SubscribeLocalEvent<DeepFriedComponent, MapInitEvent>(OnInitDeepFried);
         SubscribeLocalEvent<DeepFriedComponent, ExaminedEvent>(OnExamineFried);
         SubscribeLocalEvent<DeepFriedComponent, PriceCalculationEvent>(OnPriceCalculation);
         SubscribeLocalEvent<DeepFriedComponent, FoodSlicedEvent>(OnSliceDeepFried);
@@ -744,10 +744,10 @@ public sealed partial class DeepFryerSystem : SharedDeepfryerSystem
             args.Solution.MaxVolume, out var _);
     }
 
-    private void OnInitDeepFried(EntityUid uid, DeepFriedComponent component, ComponentInit args)
+    private void OnInitDeepFried(EntityUid uid, DeepFriedComponent component, MapInitEvent args)
     {
         var meta = MetaData(uid);
-        component.OriginalName = meta.EntityName;
+        component.OriginalName ??= meta.EntityName;
         UpdateDeepFriedName(uid, component);
     }
 

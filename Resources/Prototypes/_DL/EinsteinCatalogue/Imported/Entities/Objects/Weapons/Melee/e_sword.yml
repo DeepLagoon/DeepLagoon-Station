@@ -16,8 +16,6 @@
         Slash: 5
         Heat: 12
         Structural: 20
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: antique energy sword
   parent: EnergySword
@@ -29,5 +27,3 @@
     activatedColor: "#00CCFF"
     colorOptions:
     - "#00CCFF"
-  - type: StealTarget
-    stealGroup: [HoSAntiqueWeapon]

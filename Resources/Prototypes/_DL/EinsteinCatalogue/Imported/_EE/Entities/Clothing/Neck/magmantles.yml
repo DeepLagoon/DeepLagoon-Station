@@ -21,10 +21,6 @@
   - type: ToggleClothing
     action: ActionToggleMagmantle
   - type: Magboots
-    activeWalkModifier: 0.7
-    activeSprintModifier: 0.65
-    changeClothingVisuals: true
-    slot: neck
   - type: Appearance
   - type: GenericVisualizer
     visuals:

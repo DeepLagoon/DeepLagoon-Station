@@ -174,7 +174,7 @@ public sealed class MaterialArbitrageTest
         }
 
         // This is the main loop where we actually check for destruction arbitrage
-        Assert.Multiple(async () =>
+        await Assert.MultipleAsync(async () =>
         {
             foreach (var (id, (spawnedEnts, spawnedMats)) in spawnedOnDestroy)
             {
@@ -256,7 +256,7 @@ public sealed class MaterialArbitrageTest
         // This is functionally the same loop as before, but now testing deconstruction rather than destruction.
         // This is pretty braindead. In principle construction graphs can have loops and whatnot.
 
-        Assert.Multiple(async () =>
+        await Assert.MultipleAsync(async () =>
         {
             foreach (var (id, deconstructedMats) in deconstructionMaterials)
             {
@@ -309,7 +309,7 @@ public sealed class MaterialArbitrageTest
 
         // This is functionally the same loop as before, but now testing composition rather than destruction or deconstruction.
         // This doesn't take into account chemicals generated when deconstructing. Maybe it should.
-        Assert.Multiple(async () =>
+        await Assert.MultipleAsync(async () =>
         {
             foreach (var (id, compositionComponent) in physicalCompositions)
             {

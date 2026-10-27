@@ -72,8 +72,6 @@
     - id: FoodBanana
       orGroup: HealthyOrUnhealthySnack
       prob: 0.15
-    - id: PaperWrittenNoteFromMumGeneric
-      prob: 0.1
 - type: entity
   id: LunchboxGeneric
   parent: [BoxCardboard, BaseBagOpenClose]
@@ -104,7 +102,6 @@
     damage:
       types:
         Blunt: 5.5
-    heavyRateModifier: 1.25
     heavyStaminaCost: 5
     angle: 80.5
     soundHit:

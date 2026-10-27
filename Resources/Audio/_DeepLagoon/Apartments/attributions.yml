@@ -1,8 +1,8 @@
 - files: ["arrival.ogg"]
   license: "Custom"
-  copyright: "Provided by the project maintainer; original author and license not specified. First 3 seconds, converted to mono Ogg Vorbis."
-  source: "User-provided elevator-doors-open.mp3"
+  copyright: "Provided by the project maintainer; original author and license not specified. Source file: elevator-doors-open.mp3. First 3 seconds, converted to mono Ogg Vorbis."
+  source: "NA"
 - files: ["travel.ogg"]
   license: "Custom"
-  copyright: "Provided by the project maintainer; original author and license not specified. First 12 seconds, converted to mono Ogg Vorbis."
-  source: "User-provided elevator-ride-version-2.mp3"
+  copyright: "Provided by the project maintainer; original author and license not specified. Source file: elevator-ride-version-2.mp3. First 12 seconds, converted to mono Ogg Vorbis."
+  source: "NA"

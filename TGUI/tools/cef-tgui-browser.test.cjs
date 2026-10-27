@@ -132,6 +132,80 @@ const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
       replaceData: true, replaceStaticData: true, resetPartialData: true, static_data: {},
       config: { interface: name, status: 2, window: { key: 'deeplagoon', fancy: false } }, data,
     } })), { name, data });
+    const width = page.getByRole('slider', { name: 'Ширина', exact: true });
+    const tall = await height.boundingBox(), wide = await width.boundingBox();
+    assert.ok(tall.height > tall.width * 5 && wide.width > wide.height * 5, 'Height is vertical, width is horizontal');
+    assert.ok(tall.x > wide.x + wide.width && wide.y > tall.y + tall.height, 'Height sits right of the preview; width sits below');
+    const race = await page.locator('.CharacterEditor__speciesRow > .CharacterEditor__field').boundingBox();
+    const guide = await page.getByRole('button', { name: 'Справка о расе', exact: true }).boundingBox();
+    assert.ok(guide.x >= race.x + race.width && Math.abs(guide.y + guide.height - race.y - race.height) < 2, 'Race guide shares the selector row');
+    await page.getByText('Выбор причёски', { exact: true }).click();
+    await page.getByRole('button', { name: 'Все причёски', exact: true }).click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/catalog-open' && m.payload.kind === 'hair'));
+    await show('CharacterCatalog', { ...state, kind: 'hair' });
+    assert.equal(await page.locator('.CharacterEditor__catalogGrid > button').count(), 100, 'Floating catalog contains every choice');
+    await page.getByRole('searchbox').fill('Hair 99');
+    await page.getByRole('button', { name: 'Hair 99', exact: true }).click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/hair-style' && m.payload.value === 'Hair99'));
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/catalog-close'));
+    const options = [
+      { id: 'A', name: 'Body A', part: 'Chest', category: 'Торс' },
+      { id: 'B', name: 'Body B', part: 'Chest', category: 'Торс' },
+      { id: 'C', name: 'Head C', part: 'Head', category: 'Голова' },
+    ];
+    const selected = options.slice(0, 2).map((option, index) => ({ ...option, index, colors: [] }));
+    await publish({ ...state, mode: 'markings', markingOptions: options, markings: selected });
+    await page.getByRole('navigation', { name: 'Категории торса, головы и особых деталей' }).waitFor();
+    assert.equal(await page.locator('.CharacterEditor__anatomyLower details > summary').filter({ hasText: /Торс|Голова/ }).count(), 0);
+    assert.equal(await page.locator('.CharacterEditor__sizeSlider').count(), 0, 'Appearance overlay tab must not contain body size sliders');
+    const content = await page.locator('.CharacterEditor__categoryContent').boundingBox();
+    const navigation = await page.locator('.CharacterEditor__categoryNav').boundingBox();
+    assert.ok(navigation.x >= content.x + content.width, 'Category buttons sit to the right of their contents');
+    await page.getByRole('button', { name: 'Голова', exact: true }).click();
+    assert.equal(await page.locator('[data-marking-option=C]').count(), 1);
+    assert.equal(await page.locator('[data-marking-option=A]').count(), 0);
+    await page.getByRole('button', { name: 'Торс', exact: true }).click();
+    await page.evaluate(() => {
+      window.__moves = [];
+      const animate = Element.prototype.animate;
+      Element.prototype.animate = function (frames, options) {
+        if (this.dataset.markingKey) window.__moves.push({ id: this.dataset.markingId, frames, options });
+        return animate.call(this, frames, options);
+      };
+      window.__sent = [];
+    });
+    await page.getByRole('button', { name: 'Ниже: Body A', exact: true }).click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/marking-move' && m.payload.index === 0 && m.payload.value === 1));
+    await page.evaluate(markings => window.update(JSON.stringify({ type: 'update', payload: { data: { markings } } })), [
+      { ...selected[1], index: 0 }, { ...selected[0], index: 1 },
+    ]);
+    await page.waitForFunction(() => window.__moves.length === 2);
+    assert.deepEqual(await page.locator('[data-marking-id]').evaluateAll(nodes => nodes.map(node => node.dataset.markingId)), ['B', 'A']);
+    const row = page.locator('[data-marking-id=A]');
+    assert.notEqual(await row.evaluate(node => getComputedStyle(node).backgroundColor), 'rgba(0, 0, 0, 0)');
+    assert.ok(await row.evaluate(node => [...node.querySelectorAll('.Button')].every(button => {
+      const outer = node.getBoundingClientRect(), inner = button.getBoundingClientRect();
+      return inner.left >= outer.left && inner.right <= outer.right;
+    })), 'Highlight includes action buttons');
+    await page.evaluate(() => { window.__sent = []; });
+    await row.click({ button: 'right' });
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/marking-remove' && m.payload.index === 1));
+    await page.locator('[data-marking-option=A]').click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/marking-toggle' && m.payload.value === 'A'));
+    await page.evaluate(() => window.update(JSON.stringify({ type: 'update', payload: { data: { markings: [] } } })));
+    assert.equal(await page.locator('[data-marking-option=A]').getAttribute('aria-pressed'), 'false');
+    await page.evaluate(() => { window.__sent = []; });
+    await page.locator('[data-marking-option=A]').click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/marking-toggle' && m.payload.value === 'A'));
+    await page.getByRole('button', { name: 'Все особенности в отдельном окне', exact: true }).click();
+    await page.waitForFunction(() => window.__sent.some(m => m.type === 'act/catalog-open' && m.payload.kind === 'markings'));
+    await show('CharacterCatalog', { ...state, kind: 'markings', markingOptions: options, markings: selected });
+    assert.equal(await page.locator('[data-marking-option]').count(), 3);
+    await page.setViewportSize({ width: 360, height: 600 });
+    assert.ok(await page.locator('.CharacterEditor').evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'Resized catalog must not overflow horizontally');
+    await page.setViewportSize({ width: 1100, height: 760 });
+
     await show('CharacterColorPicker', { id: 'color-test', value: '#ff0000', appearance: { theme: 'light' } });
     await page.getByRole('button', { name: 'HSV', exact: true }).click();
     await page.evaluate(() => { window.__sent = []; });
@@ -178,7 +252,7 @@ const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
     await publish(state);
     await page.getByRole('slider', { name: 'Рост', exact: true }).waitFor();
     assert.equal(await page.evaluate(() => window.__fetchBridgeRequests > 0), transport === 'fetch' || transport === 'post');
-    console.log(`PASS: production boot, ${visibleIds.length} lazy icons, incremental catalogues, size/color throttle and release, repeated clicks, embedded zoom, composer reuse, bounded page logs, error fallback and reload`);
+    console.log(`PASS: production boot, native catalog actions and search, overlay toggle/context removal, animated ordering, category layout, slider placement, ${visibleIds.length} lazy icons, incremental catalogues, size/color throttle and release, repeated clicks, embedded zoom, composer reuse, bounded page logs, error fallback and reload`);
   } finally {
     await browser?.close();
     await new Promise(resolve => server.close(resolve));

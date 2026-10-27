@@ -200,8 +200,13 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     private void OnConsoleAnchorChange(EntityUid uid, ShuttleConsoleComponent component,
         ref AnchorStateChangedEvent args)
     {
-        DockingInterfaceState? dockState = null;
-        UpdateState(uid, ref dockState);
+        Robust.Shared.Timing.Timer.Spawn(0, () =>
+        {
+            if (TerminatingOrDeleted(uid) || !HasComp<ShuttleConsoleComponent>(uid))
+                return;
+            DockingInterfaceState? dockState = null;
+            UpdateState(uid, ref dockState);
+        });
     }
 
     private void OnConsolePowerChange(EntityUid uid, ShuttleConsoleComponent component, ref PowerChangedEvent args)
@@ -433,7 +438,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             var state = new ShuttleBoundUserInterfaceState(navState, mapState, dockState)
             {
                 ShieldState = shuttleGridUid is { } shieldGrid ? _shipShields.GetShieldState(shieldGrid) : null,
-                HullState = GetHullState(shuttleGridUid),
+                HullState = consoleXform?.Anchored == true ? GetHullState(shuttleGridUid) : null,
                 FireControlState = EntityManager.System<Content.Server._Mono.FireControl.FireControlSystem>()
                     .GetConsoleState(consoleUid, navState)
             };

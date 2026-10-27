@@ -11,8 +11,9 @@
   - type: Clothing
     sprite: Nyanotrasen/Clothing/Belt/katanasheath.rsi
   - type: Storage
+    maxItemSize: Large
     grid:
-    - 0,0,3,1
+    - 0,0,3,3
     whitelist:
       tags:
       - Katana

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using Content.Client._DeepLagoon.Apartments;
 using Content.Server._DeepLagoon.Apartments;
@@ -40,7 +41,7 @@ public sealed class ApartmentIntegrationTests
             var entities = pair.Server.EntMan;
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
-            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentStudio");
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
             Assert.That(config.GetCVar(ApartmentCVars.LoadedLimit), Is.EqualTo(30));
             var session = pair.Server.PlayerMan.Sessions.Single();
             var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
@@ -123,7 +124,14 @@ public sealed class ApartmentIntegrationTests
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
 
             config.SetCVar(ApartmentCVars.Enabled, true);
-            config.SetCVar(ApartmentCVars.DefaultTemplate, template);
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            if (template == "DLApartmentStudio")
+            {
+                var store = (IApartmentLayoutStore) typeof(ApartmentSystem)
+                    .GetProperty("Store", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(system)!;
+                Assert.That(store.Save(session.UserId.UserId,
+                    new ApartmentDelta { Template = template, TemplateVersion = 1, Revision = 1 }, 0), Is.True);
+            }
             SpawnComplete(false);
             Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
             Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
@@ -143,6 +151,7 @@ public sealed class ApartmentIntegrationTests
             SpawnComplete(true);
             Assert.That(system.TryGetVisit(session.UserId, out var home, out var resident), Is.True);
             Assert.That(home.Owner, Is.EqualTo(session.UserId));
+            Assert.That(home.Template.ID, Is.EqualTo("DLApartmentBasic"));
             Assert.That(resident, Is.EqualTo(body));
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(home.Grid));
             var beds = new List<EntityUid>();
@@ -189,14 +198,14 @@ public sealed class ApartmentIntegrationTests
             var entities = pair.Server.EntMan;
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
-            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentStudio");
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
             body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
             var session = pair.Server.PlayerMan.Sessions.Single();
             pair.Server.PlayerMan.SetAttachedEntity(session, body);
             originalUniform = entities.SpawnEntity("ClothingUniformJumpsuitColorBlue", testMap.GridCoords);
             Assert.That(entities.System<InventorySystem>().TryEquip(body, originalUniform, "jumpsuit", force: true), Is.True);
             var system = entities.System<ApartmentSystem>();
-            Assert.That(system.Enter(session, session.UserId, out var message), Is.True, message);
+            Assert.That(system.Enter(session, session.UserId, out var message, templateId: "DLApartmentStudio"), Is.True, message);
             Assert.That(entities.GetComponent<TransformComponent>(originalUniform).MapID, Is.Not.EqualTo(entities.GetComponent<TransformComponent>(body).MapID));
             Assert.That(entities.GetComponent<MetaDataComponent>(originalUniform).EntityPaused, Is.True);
             grid = system.Instances[session.UserId].Grid;
@@ -288,10 +297,14 @@ public sealed class ApartmentIntegrationTests
             Assert.That(entities.GetComponent<MetaDataComponent>(grid).EntityPaused, Is.True);
             Assert.That(entities.GetComponent<MetaDataComponent>(sofa).EntityPaused, Is.True);
             Assert.That(system.Enter(session, session.UserId, out message), Is.True, message);
-            Assert.That(instance.Frozen, Is.False);
-            Assert.That(entities.GetComponent<MetaDataComponent>(grid).EntityPaused, Is.False);
-            Assert.That(entities.GetComponent<MetaDataComponent>(sofa).EntityPaused, Is.False);
+            var migrated = system.Instances[session.UserId];
+            Assert.That(migrated.Template.ID, Is.EqualTo("DLApartmentBasic"));
+            Assert.That(migrated.Frozen, Is.False);
+            Assert.That(entities.GetComponent<MetaDataComponent>(migrated.Grid).EntityPaused, Is.False);
+            Assert.That(entities.EntityExists(grid), Is.False);
             Assert.That(system.Leave(session.UserId, out message), Is.True, message);
+            Assert.That(entities.System<InventorySystem>().TryGetSlotEntity(body, "jumpsuit", out restored), Is.True);
+            Assert.That(restored, Is.EqualTo(originalUniform));
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
         });

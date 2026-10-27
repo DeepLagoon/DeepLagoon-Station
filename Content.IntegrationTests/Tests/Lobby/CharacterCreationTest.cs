@@ -11,10 +11,11 @@ namespace Content.IntegrationTests.Tests.Lobby
     [TestOf(typeof(ServerPreferencesManager))]
     public sealed class CharacterCreationTest
     {
-        [Test]
-        public async Task CreateDeleteCreateTest()
+        [TestCase(1922730766, 1803840322)]
+        [TestCase(1642676130, 1145912731)]
+        public async Task CreateDeleteCreateTest(int clientSeed, int serverSeed)
         {
-            await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+            await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true, Destructive = true, ClientSeed = clientSeed, ServerSeed = serverSeed });
             var server = pair.Server;
             var client = pair.Client;
 
@@ -65,7 +66,8 @@ namespace Content.IntegrationTests.Tests.Lobby
                 var serverCharacters = serverPrefManager.GetPreferences(clientNetId).Characters;
 
                 Assert.That(serverCharacters, Has.Count.EqualTo(2));
-                Assert.That(serverCharacters[1].MemberwiseEquals(profile));
+                Assert.That(serverCharacters[1].MemberwiseEquals(profile), Is.True,
+                    () => $"Requested:\n{server.ResolveDependency<Robust.Shared.Serialization.Manager.ISerializationManager>().WriteValue(profile, alwaysWrite: true)}\nStored:\n{server.ResolveDependency<Robust.Shared.Serialization.Manager.ISerializationManager>().WriteValue((HumanoidCharacterProfile)serverCharacters[1], alwaysWrite: true)}");
             });
 
             await client.WaitAssertion(() =>
@@ -106,7 +108,8 @@ namespace Content.IntegrationTests.Tests.Lobby
                 var serverCharacters = serverPrefManager.GetPreferences(clientNetId).Characters;
 
                 Assert.That(serverCharacters, Has.Count.EqualTo(2));
-                Assert.That(serverCharacters[1].MemberwiseEquals(profile));
+                Assert.That(serverCharacters[1].MemberwiseEquals(profile), Is.True,
+                    () => $"Requested:\n{server.ResolveDependency<Robust.Shared.Serialization.Manager.ISerializationManager>().WriteValue(profile, alwaysWrite: true)}\nStored:\n{server.ResolveDependency<Robust.Shared.Serialization.Manager.ISerializationManager>().WriteValue((HumanoidCharacterProfile)serverCharacters[1], alwaysWrite: true)}");
             });
             await pair.CleanReturnAsync();
         }
