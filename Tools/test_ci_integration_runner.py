@@ -51,6 +51,17 @@ class IntegrationRunnerTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             runner.discover_fixtures('No tests were discovered')
 
+    def test_fork_methods_release_worlds_between_methods_and_keep_all_cases(self):
+        names = [
+            'Content.IntegrationTests.Tests._DeepLagoon.Example.First(True)',
+            'Content.IntegrationTests.Tests._DeepLagoon.Example.First(False)',
+            'Content.IntegrationTests.Tests._DeepLagoon.Example.Second()',
+        ]
+        selected = runner.discover_fixtures("\n".join(names))["fork-content"]
+        self.assertEqual(2, len(selected))
+        for name in names:
+            self.assertEqual(1, sum(any(prefix in name for prefix in prefixes) for prefixes in selected.values()))
+
     def test_failed_group_fails_the_run_without_skipping_later_groups(self):
         batches = [(name, expression, name) for name, expression in runner.filters().items()]
         with patch('builtins.print'), patch('sys.argv', ['runner']), patch.object(runner.Path, 'mkdir'), \
@@ -62,7 +73,7 @@ class IntegrationRunnerTests(unittest.TestCase):
             for call in run.call_args_list:
                 self.assertIn('NUnit.MapWarningTo=Failed', call.args[0])
                 self.assertEqual('0', call.kwargs['env']['DOTNET_gcServer'])
-                self.assertEqual('0x100000000', call.kwargs['env']['DOTNET_GCHeapHardLimit'])
+                self.assertEqual('0x200000000', call.kwargs['env']['DOTNET_GCHeapHardLimit'])
 
     def test_shards_are_disjoint_and_cover_all_batches(self):
         batches = [(str(index), 'filter-' + str(index), str(index)) for index in range(13)]

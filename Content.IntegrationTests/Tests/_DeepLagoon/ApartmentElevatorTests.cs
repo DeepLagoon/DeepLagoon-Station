@@ -33,10 +33,16 @@ public sealed class ApartmentElevatorTests
         {
             var entities = pair.Server.EntMan;
             pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.Enabled, true);
-            pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentStudio");
+            pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
             var session = pair.Server.PlayerMan.Sessions.Single();
             var apartments = entities.System<ApartmentSystem>();
             var home = apartments.PrepareElevatorApartment(owner);
+            // This fixture installs a one-tile cabin at a known location.
+            var templatePanels = new List<EntityUid>();
+            var panels = entities.EntityQueryEnumerator<ApartmentElevatorComponent, TransformComponent>();
+            while (panels.MoveNext(out var templatePanel, out _, out var templateTransform))
+                if (templateTransform.GridUid == home.Grid) templatePanels.Add(templatePanel);
+            foreach (var oldPanel in templatePanels) entities.DeleteEntity(oldPanel);
             var grid = testMap.Grid.Owner;
             var map = entities.System<SharedMapSystem>();
             for (var x = -2; x <= 3; x++)

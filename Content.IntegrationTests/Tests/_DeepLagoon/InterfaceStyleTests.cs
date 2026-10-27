@@ -202,7 +202,7 @@ public sealed class InterfaceStyleTests
             panel = new TguiPanel(inheritChatAppearance: false);
             panel.OnAction += (action, payload) => actions.Add((action, payload));
             panel.SetState("ApartmentEditor", new TguiData().Number("revision", 1).Array("layout", Array.Empty<TguiData>())
-                .Array("catalog", new[] { new TguiData().String("id", "Chair").String("name", "Стул") }).ToString());
+                .Array("catalog", new[] { new TguiData().String("id", "Chair").String("name", "Стул").Number("maxCount", 1) }).ToString());
             panel.SwitchToNative();
             actions.Clear();
             Press(Descendants(panel).OfType<Button>().Single(button => button.Text == "Добавить мебель в черновик"));

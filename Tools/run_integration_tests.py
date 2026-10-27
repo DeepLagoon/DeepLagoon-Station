@@ -73,7 +73,9 @@ def discover_fixtures(output):
         group = group_for(full_name)
         if group not in FIXTURE_GROUPS:
             continue
-        prefix = fixture_prefix(full_name)
+        # Fork features intentionally create fresh client/server worlds. Bound their
+        # lifetime to one method while keeping its parameterized cases together.
+        prefix = full_name.split("(", 1)[0] if group == "fork-content" else fixture_prefix(full_name)
         fixtures[group].setdefault(prefix, {prefix})
     # Generic or parameterized fixtures can share a prefix. Merge overlapping selections
     # so each discovered case still runs in exactly one process.
@@ -121,7 +123,7 @@ def main():
     if args.shard_count < 1 or not 0 <= args.shard_index < args.shard_count:
         parser.error("Shard index must be in [0, shard count)")
     # Leave room for native textures, JIT code and the test runner on small workers.
-    env = dict(os.environ, DOTNET_gcServer="0", DOTNET_GCHeapHardLimit="0x100000000")
+    env = dict(os.environ, DOTNET_gcServer="0", DOTNET_GCHeapHardLimit="0x200000000")
     failed = []
     for index, (name, test_filter, label) in enumerate(test_batches(args, env)):
         if index % args.shard_count != args.shard_index:
