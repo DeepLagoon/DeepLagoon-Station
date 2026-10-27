@@ -1,5 +1,7 @@
 # Квартирный лифт
 
+Добавление собственных карт, границы квартир и выдача через Discord: [APARTMENT_TEMPLATES.md](DeepLagoon/APARTMENT_TEMPLATES.md).
+
 Размещаемая сущность: `DLApartmentElevatorPanel`. Используется приложенный спрайт 16×16 без изменения пикселей.
 
 ## Карты

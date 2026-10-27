@@ -72,6 +72,8 @@ public sealed partial class DiscordLinkSystem
     {
         if (!_enabled) return ModerationError("unavailable");
         if (_store?.MergePending(uid.UserId) == true) return ModerationError("merge_pending");
+        if (request.Operation is "apartment_catalog" or "apartment_grant")
+            return await DiscordApartments(request, uid, actor);
         var admin = await _database.GetAdminDataForAsync(uid);
         if (request.Operation is "admin_flags" or "staff_flags")
             return await ChangeDiscordAdminFlag(request, uid, actor, admin);
@@ -272,5 +274,5 @@ public sealed partial class DiscordLinkSystem
     private sealed record ModerationRequest(string Operation, string Uid, string ActorUid,
         string? Message = null, uint Minutes = 0, string Severity = "Medium", string? Job = null,
         int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null,
-        string? Flag = null, string? Mode = null);
+        string? Flag = null, string? Mode = null, string? Template = null);
 }

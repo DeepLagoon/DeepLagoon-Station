@@ -57,11 +57,16 @@ public sealed class ApartmentLayoutStoreTests
                 delta.Revision = 2;
                 Assert.That(store.Save(owner, delta, 1), Is.True);
                 Assert.That(store.Load(Guid.NewGuid()), Is.Null);
+                store.BeginPurchase(owner, "host-granted", 0);
+                store.Grant(owner, "host-granted");
+                store.Grant(owner, "host-granted");
             }
             using var reopened = new ApartmentLayoutStore(path);
             var loaded = reopened.Load(owner)!;
             Assert.Multiple(() =>
             {
+                Assert.That(reopened.Owned(owner, "host-granted"), Is.True);
+                Assert.That(reopened.Owned(Guid.NewGuid(), "host-granted"), Is.False);
                 Assert.That(loaded.Revision, Is.EqualTo(2));
                 Assert.That(loaded.TemplateVersion, Is.EqualTo(3));
                 Assert.That(loaded.Removed, Is.EqualTo(new[] { "base_table" }));
