@@ -7,9 +7,15 @@ PyYAML and `rg`. The BlueMoon checkout is read only.
 ```powershell
 python Tools/bluemoon-customization/import_assets.py C:/old_disk/repos/MOLOT-BlueMoon-Station --report .local/codex/bluemoon-customization/import.json
 python Tools/bluemoon-customization/validate_assets.py
+python Tools/bluemoon-customization/validate_alignment.py C:/old_disk/repos/MOLOT-BlueMoon-Station
 python -m unittest discover -s Tools/bluemoon-customization -p test_import_assets.py -v
 node Tools/bluemoon-customization/hair-browser.test.cjs
 ```
+
+`--refresh-existing` updates frames in the existing catalogue without changing
+prototype IDs, localization, selections or deduplication. It checks source
+revisions, state lists and output paths before writing; combine it with
+`--audit` for a read-only comparison.
 
 `--audit` computes the import without changing shipped resources. `--inventory`
 outputs the resolved source definitions instead. Reports must stay in `.local`.
@@ -34,8 +40,13 @@ file, revision, contributors and CC-BY-SA-3.0 license. Style names retain their
 original searchable spelling in both locales.
 
 DMI frame-major order is converted into RSI direction-major order, retaining
-animation delays. Large uncentered overlays receive transparent padding to keep
-BYOND's bottom-left origin. Palette masks become grayscale tintable regions.
+animation delays. Large uncentered overlays receive padding on the left and/or
+bottom to keep BYOND's bottom-left origin at the center of the RSI frame.
+Centered overlays use the source definition's `dimension_x`/`dimension_y`,
+including cases where those dimensions differ from the DMI frame size.
+`validate_alignment.py` independently compares every large source frame's alpha
+mask in world coordinates with the corresponding shipped palette layers, across
+all directions and animation frames. Palette masks become grayscale tintable regions.
 `spriteLayersBefore` anchors rear overlays before the body/head; ordinary
 `spriteLayers` anchors front overlays after their body part. Cosmetic wings use
 the Chest body part so ordinary humanoid species can render them. This import

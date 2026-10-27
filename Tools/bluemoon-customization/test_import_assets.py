@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image, PngImagePlugin
 
-from import_assets import definitions, digest, frames_for, matrix_layers, read_dmi
+from import_assets import definitions, digest, frame_layout, frames_for, matrix_layers, read_dmi
 
 
 class ImportTests(unittest.TestCase):
@@ -48,8 +48,51 @@ class ImportTests(unittest.TestCase):
             image.save(file, format='PNG', pnginfo=info)
             frames, _ = frames_for(file, 'ears')
             self.assertEqual(frames[0][0].size, (32, 96))
-            self.assertEqual(frames[0][0].getpixel((16, 80)), (255, 0, 0, 255))
+            self.assertEqual(frames[0][0].getpixel((16, 48)), (255, 0, 0, 255))
+            # In world coordinates the marker stays at the mob center, not 32px below it.
+            self.assertEqual(frames[0][0].height / 2 - 48, 0)
             read_dmi.cache_clear()
+
+    def test_large_overlays_keep_world_coordinates_in_every_direction_and_frame(self):
+        for width, height, center, dimensions in [
+            (32, 32, False, (32, 32)), (32, 48, False, (32, 32)),
+            (32, 64, False, (32, 32)), (64, 32, False, (32, 32)),
+            (45, 34, False, (32, 32)), (64, 32, True, (64, 32)),
+            (96, 34, True, (96, 32)), (96, 34, True, (46, 34)),
+            (45, 34, True, (46, 34)),
+        ]:
+            with self.subTest(size=(width, height), center=center, dimensions=dimensions), tempfile.TemporaryDirectory() as folder:
+                file = Path(folder) / 'overlay.dmi'
+                sheet = Image.new('RGBA', (width * 8, height))
+                points = [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1), (16, height - 16)]
+                for tile in range(8):
+                    for x, y in points:
+                        sheet.putpixel((tile * width + x, y), (tile + 1, 150, 200, 255))
+                info = PngImagePlugin.PngInfo()
+                info.add_text('Description', f'width = {width}\nheight = {height}\nstate = "overlay"\ndirs = 4\nframes = 2\ndelay = 1,2\n')
+                sheet.save(file, format='PNG', pnginfo=info)
+                frames, _ = frames_for(file, 'overlay', center, dimensions)
+                # Independent BYOND calculation: lower-left alignment plus center_image pixel offsets.
+                pixel_x = -abs(dimensions[0] - 32) / 2 if center else 0
+                pixel_y = -abs(dimensions[1] - 32) / 2 if center else 0
+                for direction, images in enumerate(frames):
+                    for frame, image in enumerate(images):
+                        for x, y in points:
+                            world_x = x - 16 + pixel_x
+                            world_y = height - y - 16 + pixel_y
+                            target = (int(world_x + image.width / 2), int(image.height / 2 - world_y))
+                            self.assertEqual(image.getpixel(target), (frame * 4 + direction + 1, 150, 200, 255))
+                read_dmi.cache_clear()
+
+    def test_unshifted_tall_ears_and_wide_tails_pad_on_opposite_sides(self):
+        self.assertEqual(frame_layout(32, 64), ((32, 96), (0, 0)))
+        self.assertEqual(frame_layout(32, 48), ((32, 64), (0, 0)))
+        self.assertEqual(frame_layout(64, 32), ((96, 32), (32, 0)))
+        self.assertEqual(frame_layout(32, 32), ((32, 32), (0, 0)))
+
+    def test_centered_overlay_uses_declared_dimensions_instead_of_sheet_size(self):
+        self.assertEqual(frame_layout(96, 34, True, (96, 32)), ((96, 36), (0, 0)))
+        self.assertEqual(frame_layout(96, 34, True, (46, 34)), ((146, 34), (50, 0)))
 
     def test_palette_regions_remain_separate_and_keep_black_outlines(self):
         source = Image.new('RGBA', (4, 1))

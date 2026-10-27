@@ -100,15 +100,24 @@ def read_dmi(filename):
     return image, width, height, {name: (block, dirs, frames, offset) for name, block, dirs, frames, offset in dmi_states(desc)}
 
 
-def frames_for(filename, name, center=False):
+def frame_layout(width, height, center=False, dimensions=None):
+    """Place BYOND's 32px mob origin at the center of the padded RSI frame."""
+    dimension_x, dimension_y = dimensions or (width, height)
+    # center_image uses the declared dimensions, which can differ from the DMI.
+    pixel_x = -abs(dimension_x - 32) / 2 if center else 0
+    pixel_y = -abs(dimension_y - 32) / 2 if center else 0
+    origin_x, origin_y = 16 - pixel_x, height - 16 + pixel_y
+    out_w = int(2 * max(origin_x, width - origin_x))
+    out_h = int(2 * max(origin_y, height - origin_y))
+    return (out_w, out_h), (int(out_w / 2 - origin_x), int(out_h / 2 - origin_y))
+
+
+def frames_for(filename, name, center=False, dimensions=None):
     image, width, height, states = read_dmi(str(filename))
     block, dirs, count, offset = states[name]
     if dirs not in (1, 4):
         raise ValueError(f'Unsupported directions: {dirs}')
-    # BYOND non-centered overlays have their lower-left at the mob's lower-left.
-    # Pad asymmetrically to preserve that origin in SS14's centered RSI frames.
-    out_w = width if center else max(width, 2 * width - 32)
-    out_h = height if center else max(height, 2 * height - 32)
+    size, position = frame_layout(width, height, center, dimensions)
     columns = image.width // width
     output = []
     for direction in range(dirs):
@@ -116,8 +125,8 @@ def frames_for(filename, name, center=False):
         for frame in range(count):
             tile = offset + frame * dirs + direction
             x, y = tile % columns * width, tile // columns * height
-            canvas = Image.new('RGBA', (out_w, out_h))
-            canvas.paste(image.crop((x, y, x + width, y + height)), (0, out_h - height))
+            canvas = Image.new('RGBA', size)
+            canvas.paste(image.crop((x, y, x + width, y + height)), position)
             frames.append(canvas)
         output.append(frames)
     delay = re.search(r'delay = ([\d.,]+)', block)
@@ -237,6 +246,7 @@ def candidates(source, path, data):
         return
     _, width, height, states = read_dmi(str(file))
     center = data.get('center') == 'TRUE'
+    dimensions = (int(data.get('dimension_x', '32')), int(data.get('dimension_y', '32')))
     base = {'sourceType': path, 'sourceFile': filename, 'definition': data['_source'], 'name': name,
             'bodyPart': CATEGORIES[category][0], 'category': CATEGORIES[category][1]}
     if base['category'] == 'Wings':
@@ -267,24 +277,24 @@ def candidates(source, path, data):
             for source_state, sex in names:
                 if source_state not in states:
                     continue
-                frames, delays = frames_for(file, source_state, center)
+                frames, delays = frames_for(file, source_state, center, dimensions)
                 if not nonempty(frames):
                     continue
                 layers = matrix_layers(frames, sections) if data.get('color_src') == 'MATRIXED' else [('base', frames)]
                 yield base | {'bodyPart': part, 'category': cat, 'sex': sex,
                               'layers': [(source_state + '_' + channel, images, delays, part) for channel, images in layers]}
         if state == 'colorbelly':
-            frames, delays = frames_for(file, 'm_body_markings_colorbelly_ADJ', center)
+            frames, delays = frames_for(file, 'm_body_markings_colorbelly_ADJ', center, dimensions)
             yield base | {'layers': [(state + '_' + channel, images, delays, 'Chest') for channel, images in matrix_layers(frames, 'MATRIX_GREEN')]}
         return
     if category in ('hair', 'facial_hair'):
         if state in states:
-            frames, delays = frames_for(file, state, center)
+            frames, delays = frames_for(file, state, center, dimensions)
             if nonempty(frames):
                 yield base | {'layers': [(state, frames, delays, base['bodyPart'])]}
         return
     if state in states:
-        frames, delays = frames_for(file, state, center)
+        frames, delays = frames_for(file, state, center, dimensions)
         if nonempty(frames):
             yield base | {'layers': [(state, frames, delays, 'before:Chest' if category == 'tails' else base['bodyPart'])]}
         return
@@ -303,11 +313,11 @@ def candidates(source, path, data):
                 for region in ('primary', 'secondary', 'tertiary'):
                     split_state = source_state + '_' + region
                     if not extra and split_state in states:
-                        frames, delays = frames_for(file, split_state, center)
+                        frames, delays = frames_for(file, split_state, center, dimensions)
                         if nonempty(frames):
                             layers.append((split_state, frames, delays, base['bodyPart']))
                 continue
-            frames, delays = frames_for(file, source_state, center)
+            frames, delays = frames_for(file, source_state, center, dimensions)
             if not nonempty(frames):
                 continue
             anchor = base['bodyPart']
@@ -322,6 +332,83 @@ def candidates(source, path, data):
             layers.extend((source_state + '_' + channel, images, delays, anchor) for channel, images in masks)
     if layers:
         yield base | {'layers': layers}
+
+
+def entry_id(entry):
+    identifier = 'BlueMoon' + ''.join(word.capitalize() for word in entry['sourceType'][len(PREFIX):].split('/') if word)
+    return identifier + entry['bodyPart'] + (entry.get('sex') or '')
+
+
+def refresh_existing(source, definitions_list, audit):
+    """Refresh frames in the shipped catalogue without changing IDs or deduplication."""
+    loader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
+    loader.add_multi_constructor('!', lambda loader, tag, node: loader.construct_mapping(node))
+    catalogue = ROOT / 'Resources/Prototypes/_DeepLagoon/Entities/Mobs/Customization/Markings/bluemoon.yml'
+    prototypes = {p['id']: p for p in yaml.load(catalogue.read_text(encoding='utf-8'), Loader=loader)}
+    revision = subprocess.check_output(['git', '-c', f'safe.directory={source.as_posix()}', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
+    generated_root = (ROOT / 'Resources/Textures' / DEST).resolve()
+    pending, matched = {}, set()
+    report = {'revision': revision, 'changed': [], 'prototypes': len(prototypes), 'statesChecked': 0}
+    for path, data in definitions_list:
+        prefix = 'BlueMoon' + ''.join(word.capitalize() for word in path[len(PREFIX):].split('/') if word)
+        if not any(identifier.startswith(prefix) for identifier in prototypes):
+            continue
+        for entry in candidates(source, path, data):
+            identifier = entry_id(entry)
+            if identifier not in prototypes:
+                continue
+            prototype = prototypes[identifier]
+            matched.add(identifier)
+            expected_states = {sprite['state'] for sprite in prototype['sprites']}
+            refreshed_states = set()
+            for index, (state_name, frames, delays, _) in enumerate(entry['layers']):
+                state = slug(state_name) + '_' + str(index)
+                refreshed_states.add(state)
+                sprite = next((s for s in prototype['sprites'] if s['state'] == state), None)
+                if sprite is None:
+                    raise ValueError(f'Source layers changed: {identifier}/{state}')
+                directory = (ROOT / 'Resources/Textures' / sprite['sprite']).resolve()
+                if directory.parent != generated_root:
+                    raise ValueError(f'Asset path escapes output directory: {directory}')
+                meta_file = directory / 'meta.json'
+                meta = json.loads(meta_file.read_text(encoding='utf-8'))
+                source_ref = f'/blob/{revision}/{entry["sourceFile"]}.'
+                if source_ref not in meta['copyright']:
+                    raise ValueError(f'Source revision/file changed: {identifier}')
+                width, height = frames[0][0].size
+                count, dirs = len(delays), len(frames)
+                sheet = Image.new('RGBA', (width * dirs, height * count))
+                for direction in range(dirs):
+                    for frame in range(count):
+                        tile = direction * count + frame
+                        sheet.paste(frames[direction][frame], (tile % dirs * width, tile // dirs * height))
+                file = directory / (state + '.png')
+                with Image.open(file) as old:
+                    changed = old.size != sheet.size or old.convert('RGBA').tobytes() != sheet.tobytes()
+                report['statesChecked'] += 1
+                if not changed:
+                    continue
+                pending[file] = sheet
+                if directory not in pending:
+                    meta['size'] = {'x': width, 'y': height}
+                    pending[directory] = (meta_file, meta)
+                report['changed'].append({'id': identifier, 'state': state, 'size': [width, height]})
+            if refreshed_states != expected_states:
+                raise ValueError(f'Source state list changed: {identifier}')
+    if matched != prototypes.keys():
+        raise ValueError('Source definitions missing for: ' + ', '.join(sorted(prototypes.keys() - matched)))
+    # Validate all sources and paths before the first write.
+    if not audit:
+        for file, value in pending.items():
+            if isinstance(value, tuple):
+                meta_file, meta = value
+                if json.loads(meta_file.read_text(encoding='utf-8')) != meta:
+                    meta_file.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+            else:
+                value.save(file)
+    print(json.dumps({'prototypes': len(prototypes), 'statesChecked': report['statesChecked'],
+                      'statesChanged': len(report['changed']), 'setsChanged': sum(isinstance(v, tuple) for v in pending.values())}))
+    return report
 
 
 def export(source, definitions_list, audit):
@@ -362,8 +449,7 @@ def export(source, definitions_list, audit):
             if key in known or shape in shapes or style in styles:
                 report['duplicates'].append({'type': path, 'part': entry['bodyPart'], 'existing': known.get(key) or shapes.get(shape) or styles[style]})
                 continue
-            identifier = 'BlueMoon' + ''.join(word.capitalize() for word in path[len(PREFIX):].split('/') if word)
-            identifier += entry['bodyPart'] + (entry.get('sex') or '')
+            identifier = entry_id(entry)
             for sex in ([entry['sex']] if entry.get('sex') else [None, 'Male', 'Female']):
                 known[(entry['bodyPart'], sex, signature)] = identifier
             if shape:
@@ -455,9 +541,15 @@ def main():
     parser.add_argument('source', type=Path)
     parser.add_argument('--audit', action='store_true')
     parser.add_argument('--inventory', action='store_true')
+    parser.add_argument('--refresh-existing', action='store_true', help='Refresh shipped sprite frames without changing the catalogue or IDs')
     parser.add_argument('--report', type=Path, required=True)
     args = parser.parse_args()
     definitions_list = definitions(args.source)
+    if args.refresh_existing:
+        report = refresh_existing(args.source, definitions_list, args.audit)
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+        return
     counts = Counter(path.split('/')[3] for path, data in definitions_list if len(path.split('/')) > 3)
     examples = defaultdict(list)
     for path, data in definitions_list:
