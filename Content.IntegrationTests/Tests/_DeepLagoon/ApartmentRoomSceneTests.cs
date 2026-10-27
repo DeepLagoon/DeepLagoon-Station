@@ -78,7 +78,10 @@ public sealed class ApartmentRoomSceneTests
             var preview = NativeUiData.Parse(json);
             Assert.That(preview.Object("scene").Array("objects").Count(), Is.EqualTo(scene.Objects.Count));
             Assert.That(preview.Array("catalog").All(item => item.Array("images").Any()), Is.True, "Every furniture entry needs an actual game sprite.");
-            Assert.That(preview.Object("scene").Array("objects").Where(item => item.Bool("wall")).All(item => !item.Array("images").Any()), Is.True);
+            var walls = preview.Object("scene").Array("objects").Where(item => item.Bool("wall")).ToArray();
+            Assert.That(walls, Is.Not.Empty);
+            Assert.That(walls.All(item => item.Array("images").Any()), Is.True);
+            Assert.That(walls.SelectMany(item => item.Array("images")).All(image => image.String("url").StartsWith("data:image/png;base64,")), Is.True);
             var fixtureDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", ".local", "codex", "apartment-interior");
             Directory.CreateDirectory(fixtureDirectory);
             File.WriteAllText(Path.Combine(fixtureDirectory, "apartment-room-preview.json"), json);

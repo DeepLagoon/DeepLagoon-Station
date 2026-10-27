@@ -26,6 +26,15 @@ class IntegrationRunnerTests(unittest.TestCase):
             for term in terms:
                 self.assertIn('&FullyQualifiedName!~' + term, remaining)
 
+    def test_manual_explicit_fixture_never_becomes_an_empty_run_all_batch(self):
+        automated = 'Content.IntegrationTests.Tests.NewFixture.NewTest'
+        manual = 'Content.IntegrationTests.Tests.Power.StationPowerTests.TestStationStartingPowerWindow("Fland")'
+        discovered = runner.discover_fixtures('\n'.join('    ' + name for name in [automated, manual]))
+        selections = discovered['remaining'].values()
+        self.assertTrue(any(any(prefix in automated for prefix in prefixes) for prefixes in selections))
+        self.assertFalse(any(any(prefix in manual for prefix in prefixes) for prefixes in selections))
+        self.assertIn('FullyQualifiedName!~' + runner.MANUAL_FIXTURE, runner.BASE_FILTER)
+
     def test_fixture_parser_ignores_parameter_dots_quotes_and_generic_types(self):
         examples = {
             'Content.IntegrationTests.Tests.Sample.Test(0.5,"a.b)]")': 'Content.IntegrationTests.Tests.Sample.',
@@ -72,6 +81,7 @@ class IntegrationRunnerTests(unittest.TestCase):
             self.assertEqual(len(batches), run.call_count)
             for call in run.call_args_list:
                 self.assertIn('NUnit.MapWarningTo=Failed', call.args[0])
+                self.assertIn('NUnit.ExplicitMode=None', call.args[0])
                 self.assertEqual('0', call.kwargs['env']['DOTNET_gcServer'])
                 self.assertEqual('0x200000000', call.kwargs['env']['DOTNET_GCHeapHardLimit'])
 

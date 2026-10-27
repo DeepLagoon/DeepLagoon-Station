@@ -74,6 +74,8 @@ public sealed class CivilianConsoleTests
     [Test]
     public async Task FallbackRetainsTypedControlsAndDoesNotChangePlayerPreference()
     {
+        PointDiskConsoleMenu classicPoints = null!;
+        DiskConsoleMenu classicTech = null!;
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         await pair.Client.WaitAssertion(() =>
         {
@@ -102,10 +104,22 @@ public sealed class CivilianConsoleTests
             points.Update(new PointDiskConsoleBoundUserInterfaceState(0, 1000, 5000, 10000, false, false, false));
             Assert.That(button.Disabled, Is.True);
             cfg.SetCVar(WebUiCVars.InterfaceStyle, 2);
-            using var classicPoints = new PointDiskConsoleMenu();
-            using var classicTech = new DiskConsoleMenu();
-            Assert.That(classicPoints.ConsoleHost, Is.Null);
-            Assert.That(classicTech.ConsoleHost, Is.Null);
+            classicPoints = new PointDiskConsoleMenu();
+            classicTech = new DiskConsoleMenu();
+            classicPoints.OpenCentered();
+            classicTech.OpenCentered();
+        });
+        await pair.Client.WaitRunTicks(2);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(classicPoints.ConsoleHost!.Panel.UsingNative, Is.True);
+            Assert.That(classicTech.ConsoleHost!.Panel.UsingNative, Is.True);
+            Assert.That(classicPoints.ConsoleHost.Visible, Is.False);
+            Assert.That(classicTech.ConsoleHost.Visible, Is.False);
+            Assert.That(classicPoints.ContentsContainer.GetChild(0).Visible, Is.True);
+            Assert.That(classicTech.ContentsContainer.GetChild(0).Visible, Is.True);
+            classicPoints.Dispose();
+            classicTech.Dispose();
         });
         await pair.CleanReturnAsync();
     }

@@ -5,7 +5,11 @@ import os
 from pathlib import Path
 import subprocess
 
+# StationPowerTests is an existing [Explicit] manual fixture. Never create an
+# all-explicit batch: adapter 5.2 can rebuild its empty selection as run-all.
+MANUAL_FIXTURE = "Tests.Power.StationPowerTests."
 BASE_FILTER = "FullyQualifiedName!~ShipyardTest"
+BASE_FILTER += "&FullyQualifiedName!~" + MANUAL_FIXTURE
 GROUPS = {
     "prototype-client": ("ClientPrototypeSaveLoadSaveTest", "TestAllClientPrototypesAreSerializable"),
     "prototype-server": ("ServerPrototypeSaveLoadSaveTest", "TestAllServerPrototypesAreSerializable"),
@@ -65,7 +69,8 @@ def group_for(full_name):
 
 def discover_fixtures(output):
     names = [line.strip() for line in output.splitlines()
-             if line.strip().startswith("Content.IntegrationTests.") and "ShipyardTest" not in line]
+             if line.strip().startswith("Content.IntegrationTests.") and "ShipyardTest" not in line
+             and MANUAL_FIXTURE not in line]
     if not names:
         raise RuntimeError("Integration test discovery returned no fully qualified test names")
     fixtures = {group: {} for group in FIXTURE_GROUPS}
@@ -134,7 +139,7 @@ def main():
         command = ["dotnet", "test", args.target, "--no-build", "--configuration", args.configuration,
                    "--filter", test_filter, "--logger", "trx;LogFileName=results.trx",
                    "--results-directory", str(output), "--", "NUnit.NumberOfTestWorkers=1",
-                   "NUnit.ConsoleOut=0", "NUnit.MapWarningTo=Failed", "NUnit.TestOutputXml=logs",
+                   "NUnit.ConsoleOut=0", "NUnit.MapWarningTo=Failed", "NUnit.ExplicitMode=None", "NUnit.TestOutputXml=logs",
                    f"NUnit.WorkDirectory={output}"]
         if subprocess.run(command, env=env, check=False).returncode:
             failed.append(label)

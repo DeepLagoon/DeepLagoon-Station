@@ -3,6 +3,7 @@ using Content.Client._Mono.FireControl.UI;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client._DeepLagoon.Shuttles;
 using System.Numerics;
+using System.Linq;
 using Content.Client.Shuttles.UI;
 using Content.Server._Mono.FireControl;
 using Content.Server.Shuttles.Systems;
@@ -92,8 +93,10 @@ public sealed class ShuttleCombatConsoleTests
                 Assert.That(gunner.Radar.FitViewport, Is.True);
                 Assert.That(gunner.ConsoleHost, Is.Not.Null);
                 var radarLayer = pilot.CombatRadar.Parent!;
-                Assert.That(radarLayer.ChildCount, Is.EqualTo(3),
+                Assert.That(radarLayer.ChildCount, Is.EqualTo(4));
+                Assert.That(radarLayer.Children.All(child => child is Content.Client.UserInterface.Controls.MapGridControl), Is.True,
                     "The rectangular pilot radar must have no circular glass overlay");
+                Assert.That(radarLayer.Children.OfType<ShuttleHullNavMapControl>().Count(), Is.EqualTo(1));
                 pilot.CombatRadar.SetSize = new Vector2(400, 300);
                 pilot.CombatRadar.Measure(new Vector2(400, 300));
                 pilot.CombatRadar.Arrange(new Robust.Shared.Maths.UIBox2(0, 0, 400, 300));
@@ -250,8 +253,10 @@ public sealed class ShuttleCombatConsoleTests
                        typeof(ShuttleConsoleWindow).GetField("_hullState", flags)!.GetValue(pilot)!.ToString()!))
             {
                 Assert.That(state.RootElement.GetProperty("present").GetBoolean(), Is.True);
-                Assert.That(Convert.FromBase64String(state.RootElement.GetProperty("cells").GetString()!),
-                    Is.EqualTo(new byte[] { 5, 11 }));
+                var hullMap = (Content.Client._DeepLagoon.Shuttles.ShuttleHullNavMapControl)
+                    typeof(ShuttleConsoleWindow).GetField("_hullMap", flags)!.GetValue(pilot)!;
+                Assert.That(hullMap.Hull!.Cells, Is.EqualTo(new byte[] { 5, 11 }),
+                    "The native map owns cell rendering; TGUI carries summary counts.");
                 Assert.That(state.RootElement.GetProperty("weapons").GetProperty("missing").GetInt32(), Is.EqualTo(1));
             }
             actions("mode", "{\"value\":0}");
