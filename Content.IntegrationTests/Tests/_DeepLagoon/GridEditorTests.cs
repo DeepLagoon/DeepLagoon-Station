@@ -59,7 +59,7 @@ public sealed class GridEditorTests
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var draft = ((IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
             var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
-            object[] args = { player, token, false, "", null };
+            object?[] args = { player, token, false, "", null };
             var export = typeof(ServerEditor).GetMethods(flags).Single(method => method.Name == "Export" && method.GetParameters().Length == 5);
             var failureLevel = pair.ServerLogHandler.FailureLevel;
             try
@@ -71,7 +71,7 @@ public sealed class GridEditorTests
             {
                 pair.ServerLogHandler.FailureLevel = failureLevel;
             }
-            var issue = (GridEditorExportIssue) args[4];
+            var issue = (GridEditorExportIssue) args[4]!;
             Assert.That(issue.Id, Is.EqualTo("e:" + entities.GetNetEntity(chair)));
             Assert.That(issue.Prototype, Is.EqualTo("ChairWood"));
             Assert.That(issue.Component, Is.EqualTo("GridEditorBrokenExport"));
