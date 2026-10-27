@@ -24893,4 +24893,13 @@ Entries:
     id: 2829
     time: '2026-10-27T12:04:57.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/13
-GeneratedThrough: '2026-10-27T12:04:57.000Z'
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Вспомогательные окна редактора персонажа и панель взаимодействий всегда используют TGUI
+          без кнопки переключения интерфейса.
+    id: 2830
+    time: '2026-10-27T12:53:28.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/14
+GeneratedThrough: '2026-10-27T12:53:28.000Z'
