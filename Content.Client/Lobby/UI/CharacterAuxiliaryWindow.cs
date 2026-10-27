@@ -11,7 +11,7 @@ namespace Content.Client.Lobby.UI;
 /// <summary>A content-owned floating browser window without a native title bar.</summary>
 public class CharacterAuxiliaryWindow : BaseWindow
 {
-    public readonly TguiPanel Panel = new(inheritChatAppearance: false);
+    public readonly TguiPanel Panel = new(inheritChatAppearance: false, forceTgui: true);
 
     public CharacterAuxiliaryWindow()
     {
