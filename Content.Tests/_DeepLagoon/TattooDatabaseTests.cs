@@ -30,8 +30,7 @@ public sealed class TattooDatabaseTests
         {
             var previous = context.Database.GetMigrations().TakeWhile(id => id != "20261012090000_DeepLagoonTattoos").Last();
             await context.GetService<IMigrator>().MigrateAsync(previous);
-            context.Preference.Add(new Preference { UserId = user.UserId, AdminOOCColor = "#FFFFFF" });
-            await context.SaveChangesAsync();
+            await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO preference (user_id, selected_character_slot, admin_ooc_color) VALUES ({user.UserId}, 0, '#FFFFFF')");
             await context.Database.MigrateAsync();
             Assert.That(context.Database.HasPendingModelChanges(), Is.False);
         }

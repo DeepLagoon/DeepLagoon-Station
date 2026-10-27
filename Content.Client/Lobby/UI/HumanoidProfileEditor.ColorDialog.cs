@@ -41,6 +41,7 @@ public sealed partial class HumanoidProfileEditor
             {
                 var window = new CharacterAuxiliaryWindow { SetSize = new Vector2(380, 430) };
                 _colorWindow = window;
+                window.Panel.SetNativeFallback(() => { CloseColorPicker(); RestoreNativeEditor(); });
                 window.Panel.OnAction += (nextAction, payload) =>
                 {
                     if (TguiActionData.TryParse(payload, out var nextArgs)

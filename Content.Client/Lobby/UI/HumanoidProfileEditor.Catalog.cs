@@ -33,6 +33,7 @@ public sealed partial class HumanoidProfileEditor
         {
             var window = new CharacterAuxiliaryWindow { SetSize = new Vector2(760, 600) };
             _catalogWindow = window;
+            window.Panel.SetNativeFallback(RestoreNativeEditor);
             window.Panel.OnAction += (action, payload) =>
             {
                 if (_catalogWindow != window || _catalogSlot != CharacterSlot || Profile == null) return;
