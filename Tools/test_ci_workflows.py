@@ -74,6 +74,17 @@ class WorkflowContracts(unittest.TestCase):
         self.assertIn('BASE_FILTER = "FullyQualifiedName!~ShipyardTest"', runner)
         self.assertIn("NUnit.MapWarningTo=Failed", runner)
 
+    def test_ci_shard_matrix_matches_the_runner_and_keeps_unique_reports(self):
+        job = workflow("build-test-debug.yml")["jobs"]["build"]
+        shards = job["strategy"]["matrix"]["shard"]
+        self.assertEqual([str(index) for index in range(len(shards))], shards)
+        integration = next(step for step in job["steps"] if step.get("name") == "Run Content.IntegrationTests")
+        self.assertIn("--shard-index ${{ matrix.shard }}", integration["run"])
+        self.assertIn(f"--shard-count {len(shards)}", integration["run"])
+        reports = next(step for step in job["steps"] if step.get("uses", "").startswith("actions/upload-artifact@"))
+        self.assertIn("${{ matrix.shard }}", reports["with"]["name"])
+        self.assertEqual("false", job["strategy"]["fail-fast"])
+
     def test_yaml_linter_runs_the_configuration_it_built(self):
         steps = workflow("yaml-linter.yml")["jobs"]["build"]["steps"]
         commands = [step.get("run", "") for step in steps]
