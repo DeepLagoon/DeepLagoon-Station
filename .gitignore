@@ -350,8 +350,10 @@ Resources/MapImages
 /Tools/wiki/inspect_chemical_labels.cjs
 /Tools/wiki/inspect_home_features.cjs
 
+# Local documentation.
+/Docs/
+
 # Console design experiments, rollout inventory and generated review material.
-/Docs/DeepLagoon/ConsoleConcepts/
 /TGUI/tools/civilian-console-inventory.cjs
 /TGUI/tools/civilian-console-variants.*
 /TGUI/tools/shuttle-console-variants.*

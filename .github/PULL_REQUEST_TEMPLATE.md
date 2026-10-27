@@ -1,12 +1,9 @@
 
 ## О чём этот ПР
-краткое описание с обзором основных функций и изменений
-<!-- What did you change? -->
-<!-- If this is a code change, summarize at high level how your new code works. This makes it easier to review. -->
+<!-- краткое описание с обзором основных функций и изменений -->
 
 ## Причина изменений
-ссылки на issues, дискорд каналы с запросами, багрепортами, или личное желание
-<!-- Discuss how this would affect game balance or explain why it was changed. Link any relevant discussions or issues. -->
+<!--ссылки на issues, дискорд каналы с запросами, багрепортами, или личное желание-->
 
 ## Демонстрация
 скриншоты/видео
@@ -17,13 +14,10 @@ Small fixes/refactors are exempt. Media may be used in SS14 progress reports wit
 - [ ] Я протестировал данный PR у себя локально.
 
 ## Как проверить
-Напишите здесь как проверить изменения вашего ПР, какие прототипы заспавнить, какие действия сделать
-<!-- Describe the way it can be tested -->
+<!-- Напишите здесь как проверить изменения вашего ПР, какие прототипы заспавнить, какие действия сделать -->
 
 **Changelog**
-<!-- Add a Changelog entry to make players aware of new features or changes that could affect gameplay.
-Make sure to read the guidelines and take this Changelog template out of the comment block in order for it to show up.
-Changelog must have a :cl: symbol, so the bot recognizes the changes and adds them to the game's changelog. -->
+<!-- Данный ченджлог отправляется в дискорд и в игру -->
 <!--
 :cl:
 - add: Added fun!
