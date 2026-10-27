@@ -19,7 +19,7 @@ namespace Content.Client._DeepLagoon.InteractionPanel;
 /// <summary>Compact TGUI with the live, shader-aware character sprite above its reserved thumbnail.</summary>
 public sealed class InteractionPanelWindow : BaseWindow
 {
-    private readonly TguiPanel _panel = new(inheritChatAppearance: false);
+    private readonly TguiPanel _panel = new(inheritChatAppearance: false, forceTgui: true);
     private readonly InteractionPanelPanelEvent _data;
     private readonly HashSet<string> _available;
     private readonly HashSet<string> _favorites;
