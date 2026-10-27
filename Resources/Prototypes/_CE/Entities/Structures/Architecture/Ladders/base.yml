@@ -103,6 +103,5 @@
   components:
   - type: Occluder
     enabled: true
-    boundingBox: "-0.5,-0.5,0.5,0.5"
   - type: Sprite
     state: internal_corner

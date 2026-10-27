@@ -6,10 +6,13 @@
     \ for surgery on the go."
   parent: MedkitCombat
   components:
+  - type: Storage
+    grid:
+    - 0,0,4,1
   - type: StorageFill
     contents:
     - id: EnergyCautery
     - id: EnergyScalpel
     - id: AdvancedRetractor
     - id: BoneGel
-    - id: SyringeCaseFilled
+    - id: SyringeCaseAltFilled

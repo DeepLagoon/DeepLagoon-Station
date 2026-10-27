@@ -14,5 +14,3 @@
     tags:
     - Book
     - HighRiskItem
-  - type: StealTarget
-    stealGroup: [BookIanDossier]

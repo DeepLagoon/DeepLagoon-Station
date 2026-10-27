@@ -25,14 +25,7 @@ jobs:
       - name: Checkout Master
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Submodule
-        run: |
-          git submodule update --init --recursive
-
-      - name: Update Engine Submodules
-        run: |
-          cd RobustToolbox/
-          git submodule update --init --recursive
+      - uses: ./.github/actions/prepare-engine
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -59,7 +52,7 @@ jobs:
         run: dotnet run --project Content.MapRenderer Dev
 
   ci-success:
-    name: Build & Test Debug
+    name: Build & Test Map Renderer
     needs:
       - build
     runs-on: ubuntu-latest

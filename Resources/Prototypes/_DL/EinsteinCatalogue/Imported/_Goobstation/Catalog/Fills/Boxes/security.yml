@@ -8,6 +8,5 @@
     contents:
     - id: MagazineBoxMagnum
       amount: 2
-    - id: MagazineBoxMagnumFlash
     - id: MagazineMagnumLeverRifleEmpty
       amount: 2

@@ -1,0 +1,11 @@
+name: Prepare signed WebView
+description: Verify and extract the official launcher-selected WebView compilation reference
+runs:
+  using: composite
+  steps:
+    - name: Verify official signed module
+      shell: bash
+      run: |
+        python3 -m pip install -r Tools/requirements-signed-webview.txt
+        python3 Tools/prepare_signed_webview.py --output "$RUNNER_TEMP/signed-webview"
+        echo "WebViewSignedReference=$RUNNER_TEMP/signed-webview/Robust.Client.WebView.dll" >> "$GITHUB_ENV"

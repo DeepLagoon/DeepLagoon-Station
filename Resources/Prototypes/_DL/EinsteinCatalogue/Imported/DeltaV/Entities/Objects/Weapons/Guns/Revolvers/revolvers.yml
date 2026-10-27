@@ -6,9 +6,6 @@
   description: A compact and concealable self defence snub revolver. Uses .45 magnum
     ammo. The serial number on the handguard marks this gun as belonging to an NT
     Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: k-38 masterpiece
   parent: WeaponRevolverK38Master
@@ -16,9 +13,6 @@
   description: A classic, if not outdated, law enforcement firearm. Uses .38 special
     ammo. The serial number on the handguard marks this gun as belonging to an NT
     Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: k-38 masterpiece
   parent: BaseWeaponRevolver
@@ -51,9 +45,6 @@
   description: An old and reliable revolver, modified to be more easily concealed.
     Uses .357 magnum ammo. The serial number on the handguard marks this gun as belonging
     to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: snubbed .357
   parent: BaseWeaponRevolver

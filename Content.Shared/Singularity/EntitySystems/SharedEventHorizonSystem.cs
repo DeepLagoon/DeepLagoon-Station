@@ -157,18 +157,21 @@ public abstract partial class SharedEventHorizonSystem : EntitySystem
         || !Resolve(uid, ref fixtures, logMissing: false))
             return;
 
+        // Negative radii disable consumption, but physical circles require a non-negative radius.
+        var radius = Math.Max(0f, eventHorizon.Radius);
+
         // Update both fixtures the event horizon is associated with:
         var consumer = _fixtures.GetFixtureOrNull(uid, consumerId, fixtures);
         if (consumer != null)
         {
-            _physics.SetRadius(uid, consumerId, consumer, consumer.Shape, eventHorizon.Radius, fixtures);
+            _physics.SetRadius(uid, consumerId, consumer, consumer.Shape, radius, fixtures);
             _physics.SetHard(uid, consumer, false, fixtures);
         }
 
         var collider = _fixtures.GetFixtureOrNull(uid, colliderId, fixtures);
         if (collider != null)
         {
-            _physics.SetRadius(uid, colliderId, collider, collider.Shape, eventHorizon.Radius, fixtures);
+            _physics.SetRadius(uid, colliderId, collider, collider.Shape, radius, fixtures);
             _physics.SetHard(uid, collider, true, fixtures);
         }
 
@@ -215,6 +218,12 @@ public abstract partial class SharedEventHorizonSystem : EntitySystem
     /// <returns>A bool indicating whether the collision prevention has been handled.</returns>
     protected virtual bool PreventCollide(EntityUid uid, EventHorizonComponent comp, ref PreventCollideEvent args)
     {
+        if (comp.Radius < 0f)
+        {
+            args.Cancelled = true;
+            return true;
+        }
+
         var otherUid = args.OtherEntity;
 
         // For prediction reasons always want the client to ignore these.

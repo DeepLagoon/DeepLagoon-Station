@@ -1,3 +1,4 @@
+#nullable enable
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -52,14 +53,14 @@ public sealed class AdminMapUploadTests
             var yaml = writer.ToString().Replace("FloorAsphalt", "RMCPlanetHybrisaAsphalt");
             entities.DeleteEntity(source);
 
-            object[] args = [new StringReader(yaml), null, null, null, null];
+            object?[] args = [new StringReader(yaml), null, null, null, null];
             var prepare = typeof(ServerUpload).GetMethod("TryPrepare", BindingFlags.NonPublic | BindingFlags.Instance)!;
             Assert.That(prepare.Invoke(entities.System<ServerUpload>(), args), Is.True);
-            var loaded = (Robust.Shared.EntitySerialization.LoadResult) args[2];
+            var loaded = (Robust.Shared.EntitySerialization.LoadResult) args[2]!;
             Assert.That(loaded.Grids.Count, Is.EqualTo(1));
             var imported = loaded.Grids.Single();
             Assert.That(maps.GetTileRef(imported.Owner, imported.Comp, Vector2i.Zero).Tile.TypeId, Is.EqualTo(asphalt));
-            entities.DeleteEntity((EntityUid) args[1]);
+            entities.DeleteEntity((EntityUid) args[1]!);
         });
         await pair.CleanReturnAsync();
     }
@@ -218,7 +219,7 @@ public sealed class AdminMapUploadTests
         dialogs.Setup(dialog => dialog.GetFileAndName(It.IsAny<FileDialogFilters>(), FileAccess.Read, It.IsAny<FileShare?>()))
             .Returns(picked.Task);
         var received = new System.Collections.Generic.List<int>();
-        string result = null;
+        string? result = null;
         try
         {
             await pair.Server.WaitPost(() => serverTimingField.SetValue(server, clock.Object));

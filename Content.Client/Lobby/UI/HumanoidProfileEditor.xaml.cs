@@ -1269,6 +1269,7 @@ namespace Content.Client.Lobby.UI
         public void SetProfile(HumanoidCharacterProfile? profile, int? slot)
         {
             CloseColorPicker();
+            CloseCatalog();
             if (slot != CharacterSlot || profile == null) CloseHeadshotLibrary();
             Profile = profile?.Clone();
             if (Profile != null)
@@ -1678,6 +1679,7 @@ namespace Content.Client.Lobby.UI
 
         protected override void ExitedTree()
         {
+            CloseCatalog();
             CloseColorPicker();
             base.ExitedTree();
 

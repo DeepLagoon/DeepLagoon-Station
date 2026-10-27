@@ -128,7 +128,10 @@ public sealed partial class AdminSystem : EntitySystem
 
     public void UpdatePlayerList(ICommonSession player)
     {
-        _playerList[player.UserId] = GetPlayerInfo(player.Data, player);
+        if (!_playerManager.TryGetPlayerData(player.UserId, out var data))
+            return;
+
+        _playerList[player.UserId] = GetPlayerInfo(data, player);
 
         var playerInfoChangedEvent = new PlayerInfoChangedEvent
         {

@@ -32,10 +32,9 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: Get Engine Tag
-      run: |
-        cd RobustToolbox
-        git fetch --depth=1
+    - uses: ./.github/actions/prepare-engine
+
+    - uses: ./.github/actions/prepare-signed-webview
 
     - name: Install dependencies
       run: dotnet restore

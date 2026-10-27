@@ -110,6 +110,7 @@
   components:
   - type: Contraband
     severity: Restricted
+    allowedDepartments: [Security]
 
 - type: entity
   parent: ClothingNeckBase

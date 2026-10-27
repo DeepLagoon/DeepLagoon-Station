@@ -15,5 +15,4 @@
       - TsfEngineerUplink
   - !type:ListingLimitedStockCondition
     stock: 1
-    shared: true
 

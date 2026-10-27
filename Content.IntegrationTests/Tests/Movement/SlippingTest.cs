@@ -29,6 +29,13 @@ public sealed class SlippingTest : MovementTest
     [Test]
     public async Task BananaSlipTest()
     {
+        // Keep this movement fixture independent of mood bonuses.
+        await Server.WaitPost(() =>
+        {
+            SEntMan.RemoveComponent<Content.Server.Mood.MoodComponent>(SPlayer);
+            SEntMan.System<Content.Shared.Movement.Systems.MovementSpeedModifierSystem>()
+                .RefreshMovementSpeedModifiers(SPlayer);
+        });
         var sys = SEntMan.System<SlipTestSystem>();
         await SpawnTarget("TrashBananaPeel");
 

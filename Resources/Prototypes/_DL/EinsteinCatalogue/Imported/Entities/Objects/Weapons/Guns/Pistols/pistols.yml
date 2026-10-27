@@ -8,9 +8,6 @@
     The serial number on the handguard marks this gun as belonging to an NT Security
     Officer.
   suffix: Security Loadouts
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: viper
   parent: WeaponPistolViper
@@ -44,9 +41,6 @@
     the lord's caliber. The serial number on the handguard marks this gun as belonging
     to an NT Security Officer.
   suffix: Security Loadouts
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: N1984
   parent: WeaponPistolN1984
@@ -79,9 +73,6 @@
     .45 ACP ammo. The serial number on the handguard marks this gun as belonging
     to an NT Security Officer.
   suffix: Security Loadouts
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: mk58
   parent: WeaponPistolMk58

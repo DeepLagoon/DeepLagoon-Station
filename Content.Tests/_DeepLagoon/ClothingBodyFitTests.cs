@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,9 +53,9 @@ public sealed class ClothingBodyFitTests
                 Overlay(coverage, cloth, 0, 0);
             }
             Image<Rgba32>? contourShape = direction == 0 ? breasts : direction == 1 ? butt : null;
-            using var flatMap = ClothingBodyFitMap.Build(body, [(butt, buttAnchor), (breasts, breastAnchor)], coverage, null, 16, true, hands);
+            using var flatMap = ClothingBodyFitMap.Build(body, [(butt, buttAnchor), (breasts, breastAnchor)], coverage, null, 16, true, hands) ?? throw new AssertionException("Expected a body fit map for this fixture");
             using var map = ClothingBodyFitMap.Build(body, [(butt, buttAnchor), (breasts, breastAnchor)], coverage, null, 16, true, hands,
-                contourShape == null ? null : [new(contourShape, BelowWaist: direction == 1)]);
+                contourShape == null ? null : [new(contourShape, BelowWaist: direction == 1)]) ?? throw new AssertionException("Expected a body fit map for this fixture");
             var shaded = 0;
             var bent = 0;
             for (var y = 0; y < 32; y++)
@@ -159,7 +160,7 @@ public sealed class ClothingBodyFitTests
         for (var x = 0; x < 16; x++)
             if (cloth[x, y].A > 0) cloth[x, y] = new Rgba32((byte) (x * 13), (byte) (y * 13), 72, 255);
         cloth[8, 8] = default;
-        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8);
+        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8) ?? throw new AssertionException("Expected a body fit map for this fixture");
         Assert.That(map, Is.Not.Null);
         using var result = Render(cloth, map);
         Assert.That(result[9, 15].A, Is.EqualTo(255), "Cloth must reach the expanded body's left edge.");
@@ -185,11 +186,11 @@ public sealed class ClothingBodyFitTests
         using var anchor = shape.Clone();
         using var cloth = body.Clone();
         cloth[7, 7] = default; // A designed opening inside the contoured region.
-        using var plain = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, true);
-        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, contours: [new(shape)]);
+        using var plain = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, true) ?? throw new AssertionException("Expected a body fit map for this fixture");
+        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, contours: [new(shape)]) ?? throw new AssertionException("Expected a body fit map for this fixture");
         Assert.That(map, Is.Not.Null, "A part need not protrude beyond the body to shape fabric.");
         Tint(shape, new Rgba32(255, 0, 255));
-        using var recolored = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, contours: [new(shape)]);
+        using var recolored = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, contours: [new(shape)]) ?? throw new AssertionException("Expected a body fit map for this fixture");
         using var before = Render(cloth, plain);
         using var after = Render(cloth, map);
         var changed = 0;
@@ -214,7 +215,7 @@ public sealed class ClothingBodyFitTests
         cloth[6, 5] = default; // Opening hidden by the stationary hand.
         cloth[9, 5] = default; // Deliberate cut-out over the torso.
         cloth[6, 8] = new Rgba32(45, 76, 123, 255);
-        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, hands: hands);
+        using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, null, 8, hands: hands) ?? throw new AssertionException("Expected a body fit map for this fixture");
         using var result = Render(cloth, map);
         Assert.That(result[6 + 8, 8 + 8], Is.EqualTo(cloth[6, 8]), "The hand opening must not expose skin below the hand.");
         Assert.That(result[9 + 8, 8 + 8].A, Is.Zero, "A deliberate garment cut-out must still follow the fabric.");
@@ -236,7 +237,7 @@ public sealed class ClothingBodyFitTests
     {
         using var body = Box(16, 16, 4, 3, 12, 13);
         using var cloth = Box(16, 16, 6, 3, 10, 13);
-        using var map = ClothingBodyFitMap.Build(body, [], cloth, null, 8, true);
+        using var map = ClothingBodyFitMap.Build(body, [], cloth, null, 8, true) ?? throw new AssertionException("Expected a body fit map for this fixture");
         using var result = Render(cloth, map);
         for (var y = 0; y < 16; y++)
         for (var x = 0; x < 16; x++)
@@ -249,7 +250,7 @@ public sealed class ClothingBodyFitTests
         using var body = Box(16, 16, 5, 3, 11, 13);
         using var cloth = Box(16, 16, 4, 3, 10, 13);
         using var displacement = new Image<Rgba32>(16, 16, new Rgba32(127, 128, 0, 255));
-        using var map = ClothingBodyFitMap.Build(body, [], cloth, displacement, 8, true);
+        using var map = ClothingBodyFitMap.Build(body, [], cloth, displacement, 8, true) ?? throw new AssertionException("Expected a body fit map for this fixture");
         Assert.That(map[14, 14].R, Is.EqualTo(5));
         Assert.That(map[14, 14].G, Is.EqualTo(6));
         Assert.That(map[8, 8].A, Is.Zero, "A negative displaced source coordinate must not wrap into the atlas.");
@@ -262,7 +263,7 @@ public sealed class ClothingBodyFitTests
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
         while (directory != null && !Directory.Exists(Path.Combine(directory.FullName, "Resources", "Textures"))) directory = directory.Parent;
         Assert.That(directory, Is.Not.Null);
-        var root = Path.Combine(directory.FullName, "Resources", "Textures");
+        var root = Path.Combine(directory!.FullName, "Resources", "Textures");
         using var preview = new Image<Rgba32>(64 * 8, 64 * 3);
         var parts = new[] { ("belly", "1", "10"), ("butt", "1", "8"), ("breasts", "a", "impossible") };
         for (var part = 0; part < parts.Length; part++)
@@ -277,9 +278,9 @@ public sealed class ClothingBodyFitTests
             using var anchor = Read($"_DeepLagoon/BodyCustomization/{name}.rsi/{name}_pair_{small}_0_FRONT.png", direction);
             using var cloth = Read("Clothing/Uniforms/Jumpsuit/engineering.rsi/equipped-INNERCLOTHING.png", direction);
             using var displacement = female ? Read("Mobs/Species/Human/displacement.rsi/jumpsuit-female.png", direction) : null;
-            using var identity = ClothingBodyFitMap.Build(body, [], cloth, displacement, 16, true);
+            using var identity = ClothingBodyFitMap.Build(body, [], cloth, displacement, 16, true) ?? throw new AssertionException("Expected a body fit map for this fixture");
             using var original = Render(cloth, identity);
-            using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, displacement, 16, true);
+            using var map = ClothingBodyFitMap.Build(body, [(shape, anchor)], cloth, displacement, 16, true) ?? throw new AssertionException("Expected a body fit map for this fixture");
             using var fitted = Render(cloth, map);
             for (var side = 0; side < 2; side++)
             {

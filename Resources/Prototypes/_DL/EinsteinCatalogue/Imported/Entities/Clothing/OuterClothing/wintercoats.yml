@@ -10,8 +10,6 @@
     sprite: _EE/Clothing/corpo_jacket_orion_express.rsi
   - type: Clothing
     sprite: _EE/Clothing/corpo_jacket_orion_express.rsi
-  - type: GuideHelp
-    guides: [ZengHuPharmaceuticals]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterIiCorporateJacket
@@ -23,8 +21,6 @@
     sprite: _EE/Clothing/corpo_jacket_idris_incorporated.rsi
   - type: Clothing
     sprite: _EE/Clothing/corpo_jacket_idris_incorporated.rsi
-  - type: GuideHelp
-    guides: [ZengHuPharmaceuticals]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterZhCorporateJacket
@@ -36,8 +32,6 @@
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_zeng_hu_pharma.rsi
   - type: Clothing
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_zeng_hu_pharma.rsi
-  - type: GuideHelp
-    guides: [ZengHuPharmaceuticals]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterIdCorporateJacket
@@ -60,8 +54,6 @@
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_hephestus_industries.rsi
   - type: Clothing
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_hephestus_industries.rsi
-  - type: GuideHelp
-    guides: [HephaestusIndustries]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterEeCorporateJacket
@@ -73,8 +65,6 @@
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_einstein_engines.rsi
   - type: Clothing
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_einstein_engines.rsi
-  - type: GuideHelp
-    guides: [EinsteinEngines]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterZiCorporateJacket
@@ -130,8 +120,6 @@
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_bishop_cybernetics.rsi
   - type: Clothing
     sprite: Clothing/OuterClothing/WinterCoats/corpo_jacket_bishop_cybernetics.rsi
-  - type: GuideHelp
-    guides: [ZengHuPharmaceuticals]
 - type: entity
   parent: ClothingOuterWinterCoat
   id: ClothingOuterHmCorporateJacket

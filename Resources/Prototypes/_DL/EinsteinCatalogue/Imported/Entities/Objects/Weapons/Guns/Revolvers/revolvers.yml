@@ -6,9 +6,6 @@
     Industries. While the design with expanded cylinder is quite ancient, the right
     gunslinger will know how to utilise it well. Uses 5.56x45mm ammo. The serial number
     on the handguard marks this gun as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: Python
   parent: WeaponRevolverPython
@@ -16,9 +13,6 @@
   description: An iconic large-framed revolver of ancient Sol' design. It is commonly
     manufactured by many companies all over the colonies. Uses .357 magnum ammo. The
     serial number on the handguard marks this gun as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: Deckard
   parent: WeaponRevolverDeckard
@@ -26,15 +20,9 @@
   description: A rare, custom-built revolver. Use when there is no time for Voight-Kampff
     test. Uses .45 magnum ammo. The serial number on the handguard marks this gun
     as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]
 - type: entity
   name: Inspector
   parent: WeaponRevolverInspector
   id: WeaponRevolverInspectorSecurity
   description: A detective's best friend. Uses .357 magnum ammo. The serial number
     on the handguard marks this gun as belonging to an NT Security Officer.
-  components:
-  - type: GuideHelp
-    guides: [SecurityWeapons]

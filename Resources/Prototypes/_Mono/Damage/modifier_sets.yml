@@ -33,9 +33,6 @@
     Blunt: 0.6
     Slash: 0.7
     Piercing: 0.7
-  components:
-  - type: PsionicInsulation
-
 - type: damageModifierSet # Mono
   id: FactionBorgChassis
   coefficients:

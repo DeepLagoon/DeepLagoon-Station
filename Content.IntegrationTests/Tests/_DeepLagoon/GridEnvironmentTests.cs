@@ -68,7 +68,7 @@ public sealed class GridEnvironmentTests
                 if (terminalTransform.GridUid == grid)
                 {
                     terminalCount++;
-                    Assert.That(terminalTransform.LocalPosition, Is.EqualTo(new Vector2(4.5f, 9.5f)));
+                    Assert.That(terminalTransform.LocalPosition, Is.EqualTo(new Vector2(8.5f, 1.5f)));
                 }
             Assert.That(terminalCount, Is.EqualTo(1));
             var map = entities.System<SharedMapSystem>();

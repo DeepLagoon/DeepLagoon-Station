@@ -10,17 +10,17 @@ orphans:
   - 1
 nullspace: []
 tilemap:
-  '0': Space
-  '1': FloorSteelHerringbone
-  '2': Plating
-  '3': DLPlatingDiagonal
-  '4': FloorGrass
-  '5': FloorWood
-  '6': FloorLino
-  '7': FloorRGlass
-  '8': PlatingDamaged
-  '9': FloorMetalDiamond
-  '10': FloorGreenCircuit
+  0: Space
+  1: FloorSteelHerringbone
+  2: Plating
+  3: DLPlatingDiagonal
+  4: FloorGrass
+  5: FloorWood
+  6: FloorLino
+  7: FloorRGlass
+  8: PlatingDamaged
+  9: FloorMetalDiamond
+  10: FloorGreenCircuit
 entities:
   - proto: ''
     entities:

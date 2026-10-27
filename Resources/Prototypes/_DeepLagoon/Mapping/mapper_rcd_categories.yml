@@ -1523,7 +1523,9 @@
     icon: /Textures/Tiles/dirt.png
   - mode: Tile
     prototype: FloorPlanetDirt
-    icon: /Textures/Tiles/Planet/dirt.rsi/dirt.png
+    icon:
+      sprite: Tiles/Planet/dirt.rsi
+      state: dirt
   - mode: Tile
     prototype: FloorPlanetGrass
     icon: /Textures/_CE/Tiles/Grass/grass.png

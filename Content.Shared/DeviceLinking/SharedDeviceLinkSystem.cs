@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Database;
 using Content.Shared.DeviceLinking.Events;
@@ -82,7 +83,7 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
     private void OnSourceRemoved(Entity<DeviceLinkSourceComponent> source, ref ComponentRemove args)
     {
         var query = GetEntityQuery<DeviceLinkSinkComponent>();
-        foreach (var sinkUid in source.Comp.LinkedPorts.Keys)
+        foreach (var sinkUid in source.Comp.LinkedPorts.Keys.ToArray())
         {
             if (query.TryGetComponent(sinkUid, out var sink))
                 RemoveSinkFromSourceInternal(source, sinkUid, source, sink);
@@ -96,7 +97,7 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
     /// </summary>
     private void OnSinkRemoved(Entity<DeviceLinkSinkComponent> sink, ref ComponentRemove args)
     {
-        foreach (var sourceUid in sink.Comp.LinkedSources)
+        foreach (var sourceUid in sink.Comp.LinkedSources.ToArray())
         {
             if (TryComp(sourceUid, out DeviceLinkSourceComponent? source))
                 RemoveSinkFromSourceInternal(sourceUid, sink, source, sink);
@@ -315,6 +316,8 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
         RemoveSinkFromSource(sourceUid, sinkUid, sourceComponent);
         foreach (var (source, sink) in links)
         {
+            if (TerminatingOrDeleted(sourceUid) || TerminatingOrDeleted(sinkUid) || sourceComponent.Deleted || sinkComponent.Deleted)
+                return;
             DebugTools.Assert(_prototypeManager.HasIndex<SourcePortPrototype>(source));
             DebugTools.Assert(_prototypeManager.HasIndex<SinkPortPrototype>(sink));
 
@@ -326,12 +329,10 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
 
             sourceComponent.Outputs.GetOrNew(source).Add(sinkUid);
             sourceComponent.LinkedPorts.GetOrNew(sinkUid).Add((source, sink));
+            sinkComponent.LinkedSources.Add(sourceUid);
 
             SendNewLinkEvent(userId, sourceUid, source, sinkUid, sink);
         }
-
-        if (links.Count > 0)
-            sinkComponent.LinkedSources.Add(sourceUid);
     }
 
     /// <summary>
@@ -389,20 +390,21 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
     {
         // This function gets called on component removal. Beware that TryComp & Resolve may return false.
 
-        if (sourceComponent.LinkedPorts.TryGetValue(sinkUid, out var ports))
-        {
-            foreach (var (sourcePort, sinkPort) in ports)
-            {
-                RaiseLocalEvent(sourceUid, new PortDisconnectedEvent(sourcePort));
-                RaiseLocalEvent(sinkUid, new PortDisconnectedEvent(sinkPort));
-            }
-        }
-
+        sourceComponent.LinkedPorts.TryGetValue(sinkUid, out var links);
+        var ports = links?.ToArray();
         sinkComponent.LinkedSources.Remove(sourceUid);
         sourceComponent.LinkedPorts.Remove(sinkUid);
         foreach (var outputList in sourceComponent.Outputs.Values)
         {
             outputList.Remove(sinkUid);
+        }
+
+        // Event handlers can remove either endpoint. Publish only after both sides agree.
+        if (ports == null) return;
+        foreach (var (sourcePort, sinkPort) in ports)
+        {
+            RaiseLocalEvent(sourceUid, new PortDisconnectedEvent(sourcePort));
+            RaiseLocalEvent(sinkUid, new PortDisconnectedEvent(sinkPort));
         }
     }
 

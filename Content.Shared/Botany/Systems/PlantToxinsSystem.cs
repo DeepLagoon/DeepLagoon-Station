@@ -13,6 +13,8 @@ public sealed partial class PlantToxinsSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        _trayQuery = GetEntityQuery<PlantTrayComponent>();
+        _holderQuery = GetEntityQuery<PlantHolderComponent>();
         SubscribeLocalEvent<PlantToxinsComponent, PlantCrossPollinateEvent>(OnCrossPollinate);
         SubscribeLocalEvent<PlantToxinsComponent, PlantGrowEvent>(OnPlantGrow);
     }

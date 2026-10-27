@@ -95,11 +95,14 @@ public sealed class RadarInterfaceLayoutTests
             };
             foreach (var (window, panel, views) in cases)
             {
+                panel.SwitchToNative();
                 var sizes = views.Select(view => view.SetSize).ToArray();
+                var fits = views.Select(view => view.FitViewport).ToArray();
                 var parents = new Dictionary<Control, Control>();
                 window.OpenCentered();
                 for (var cycle = 0; cycle < 3; cycle++)
                 {
+                    Assert.That(panel.SwitchToTgui(), Is.True);
                     // CEF viewport updates write size and attached layout offsets on each frame.
                     foreach (var view in views)
                     {
@@ -122,7 +125,7 @@ public sealed class RadarInterfaceLayoutTests
                         Assert.That(view.GetValue<float>(LayoutContainer.MarginTopProperty), Is.Zero);
                         Assert.That(view.GetValue<float>(LayoutContainer.MarginRightProperty), Is.Zero);
                         Assert.That(view.GetValue<float>(LayoutContainer.MarginBottomProperty), Is.Zero);
-                        Assert.That(view.FitViewport, Is.False);
+                        Assert.That(view.FitViewport, Is.EqualTo(fits[i]));
                         if (cycle == 0) parents.Add(view, view.Parent!);
                         else Assert.That(view.Parent, Is.SameAs(parents[view]));
                     }
