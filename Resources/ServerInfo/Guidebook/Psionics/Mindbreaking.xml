@@ -1,8 +1,8 @@
 <Document>
 ## Mind Breaking
 <Box>
-<GuideEntityEmbed Entity="PillMindbreakerToxin" />
-<GuideEntityEmbed Entity="ShellSoulbreaker" />
+<GuideReagentEmbed Reagent="MindbreakerToxin" />
+<GuideReagentEmbed Reagent="SoulbreakerToxin" />
 </Box>
 
 Mind breaking is the act of permanently destroying an individual's link to the noösphere. Such an action is considered to be equivalent to attempted murder in most civilized systems, due to the extremely deleterious effect such trauma can have on the psyche and brain matter of the victim. 

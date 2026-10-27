@@ -54,7 +54,7 @@ public sealed partial class ArtSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => { _round++; _poolTask = null; _pool = null; _available.Clear(); _uploads.Clear(); _previewUploads.Clear(); });
-        SubscribeLocalEvent<ArtCanvasComponent, ComponentInit>((uid, c, _) => { if (c.WorkId == Guid.Empty) c.WorkId = Guid.NewGuid(); });
+        SubscribeLocalEvent<ArtCanvasComponent, MapInitEvent>((uid, c, _) => { if (c.WorkId == Guid.Empty) c.WorkId = Guid.NewGuid(); });
         SubscribeLocalEvent<ArtCanvasComponent, InteractUsingEvent>(OnUseCanvas);
         SubscribeLocalEvent<ArtCanvasComponent, ArtEditorMessage>(OnMessage);
         SubscribeLocalEvent<ArtCanvasComponent, BoundUIClosedEvent>((uid, c, ev) => { if (c.Artist == ev.Actor) Release(uid, c); });

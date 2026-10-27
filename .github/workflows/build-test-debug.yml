@@ -56,17 +56,14 @@ jobs:
       run: dotnet test --no-build --configuration DebugOpt Content.Tests/Content.Tests.csproj -- NUnit.ConsoleOut=0 NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
 
     - name: Run Content.IntegrationTests
-      shell: pwsh
-      run: |
-        $env:DOTNET_gcServer=0
-        dotnet test --no-build --configuration DebugOpt Content.IntegrationTests/Content.IntegrationTests.csproj --filter "FullyQualifiedName!~ShipyardTest" -- NUnit.NumberOfTestWorkers=1 NUnit.ConsoleOut=0 NUnit.MapWarningTo=Failed NUnit.TestOutputXml="logs" NUnit.WorkDirectory="$(pwd)/test_results"
+      run: python Tools/run_integration_tests.py
 
     - name: Archive NUnit3 test results.
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: nunit3-results-${{ matrix.os }}
-        path: test_results/*
+        path: test_results/**
         retention-days: 7
         compression-level: 9
   ci-success:

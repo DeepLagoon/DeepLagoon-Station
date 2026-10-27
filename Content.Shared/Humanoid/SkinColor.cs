@@ -35,7 +35,7 @@ public static class SkinColor
     /// <returns>Validated tinted hue skin tone</returns>
     public static Color ValidTintedHuesSkinTone(Color color)
     {
-        return TintedHues(color);
+        return VerifyTintedHues(color) ? color : TintedHues(color);
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public static class SkinColor
         newColor.Y *= MaxTintedHuesSaturation;
         newColor.Z = MathHelper.Lerp(MinTintedHuesLightness, 1f, newColor.Z);
 
-        return Color.FromHsv(newColor);
+        return Color.FromHsl(newColor);
     }
 
     /// <summary>
@@ -156,7 +156,9 @@ public static class SkinColor
     public static bool VerifyTintedHues(Color color)
     {
         // tinted hues just ensures saturation is always .1, or 10% saturation at all times
-        return Color.ToHsl(color).Y <= MaxTintedHuesSaturation && Color.ToHsl(color).Z >= MinTintedHuesLightness;
+        var hsl = Color.ToHsl(color);
+        const float tolerance = 0.000001f;
+        return hsl.Y <= MaxTintedHuesSaturation + tolerance && hsl.Z >= MinTintedHuesLightness - tolerance;
     }
 
     /// <summary>

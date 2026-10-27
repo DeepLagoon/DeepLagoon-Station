@@ -67,10 +67,12 @@ class WorkflowContracts(unittest.TestCase):
         integrations = next(i for i, step in enumerate(steps) if step.get("name") == "Run Content.IntegrationTests")
         self.assertLess(shutdown, integrations)
         command = steps[integrations]["run"]
-        self.assertIn("$env:DOTNET_gcServer=0", command)
-        self.assertIn("NUnit.NumberOfTestWorkers=1", command)
-        self.assertIn('--filter "FullyQualifiedName!~ShipyardTest"', command)
-        self.assertIn("NUnit.MapWarningTo=Failed", command)
+        self.assertIn("Tools/run_integration_tests.py", command)
+        runner = (ROOT / "Tools/run_integration_tests.py").read_text()
+        self.assertIn('DOTNET_gcServer="0"', runner)
+        self.assertIn("NUnit.NumberOfTestWorkers=1", runner)
+        self.assertIn('BASE_FILTER = "FullyQualifiedName!~ShipyardTest"', runner)
+        self.assertIn("NUnit.MapWarningTo=Failed", runner)
 
     def test_yaml_linter_runs_the_configuration_it_built(self):
         steps = workflow("yaml-linter.yml")["jobs"]["build"]["steps"]

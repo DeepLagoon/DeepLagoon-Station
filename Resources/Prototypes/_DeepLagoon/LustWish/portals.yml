@@ -47,6 +47,7 @@
 - type: entity
   parent: BaseStructure
   id: DLLustWishPortalProjection
+  categories: [HideSpawnMenu]
   name: LustWish Portal
   description: A portal that people can partially fit through.
   components:
