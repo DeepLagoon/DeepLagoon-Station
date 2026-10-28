@@ -34,7 +34,7 @@ public static partial class BodyCustomizationCatalog
     public static readonly Dictionary<string, string> Names = new()
     {
         ["butt"] = "Ягодицы / бёдра", ["belly"] = "Живот", ["breasts"] = "Грудь",
-        ["vagina"] = "Вульва", ["anus"] = "Анус", ["testicles"] = "Яички", ["penis"] = "Пенис", ["womb"] = "Матка (внутренний орган)",
+        ["vagina"] = "Вагина", ["anus"] = "Анус", ["testicles"] = "Яички", ["penis"] = "Пенис", ["womb"] = "Матка (внутренний орган)",
     };
 
     public static BodyFeature Default(string part)
