@@ -10,10 +10,12 @@ directory remain read-only for the service account.
 
 The Bot still checks the configured guild, registrar/host roles and WL ticket
 context. LC remains restricted to its exact existing LC management role.
-The service trusts the authenticated Bot as the source of those Discord role
-decisions, as the old game API did. Its independent WL and coin Bearer keys
-cannot authorize each other's routes. Removing an administrator's WL still
-requires the trusted Bot's `host_authorized=true` assertion. Missing mappings,
+The service also requires a linked, active game HOST for LC/history, privileged
+economy operations, and host-authorized WL removal. A claimed `host_authorized`
+value alone is insufficient. Suspended/deadminned actors are rejected. Independent
+WL, coin and supporter Bearer keys cannot authorize each other's routes.
+`economy_supporter` requires `ACCOUNT_SUPPORTER_TOKEN`, matching the Bot's separate
+supporter key; a coin key cannot assert a paid tier. Missing mappings,
 pending account merges, changed mappings and invalid requests fail closed.
 
 ## Transaction and retry guarantees
@@ -39,6 +41,14 @@ record. A returned success always follows confirmation from the game database.
 Existing transactional webhook records remain pending for the existing delivery
 worker if the game process is stopped. Webhook delivery is not a prerequisite
 for a confirmed balance change.
+
+Durable safety reservations share the receipt database. LC add/remove defaults:
+6000 per operation, 12000 per rolling hour, 24000 per rolling day, globally.
+Configure `ACCOUNT_MAX_GRANT`, `ACCOUNT_HOURLY_GRANT_LIMIT`, `ACCOUNT_DAILY_GRANT_LIMIT`.
+Staff economy operations have a separate count budget of 30/hour and 100/day.
+Whitelist mutations have their own 30/hour and 100/day budget; no-op retries do not consume it.
+Retries of the original ID do not charge twice. Failed or uncertain operations
+retain reservations; reserve state is not proof of a committed payment.
 
 ## Installation and migration
 
@@ -109,10 +119,10 @@ a database lock can still prevent a write: bounded timeouts return unavailable,
 and the original operation ID makes a retry safe. Full host exhaustion also
 requires operating-system resource isolation; it cannot be solved by API routing.
 
-Rollback: preserve receipts; stop Bot, restore its previous version/credentials
-and routing, disable `external_accounts`, deploy/restart the matching game, then
-resume Bot. Stop the account service once old routing is restored. No account,
-wallet or whitelist data is copied or reverted. Never run two Bots concurrently.
+Rollback: preserve receipts and use compatible versions of all components.
+The hardened game always retires legacy WL/LC routes with HTTP 410; disabling
+`external_accounts` does not restore them. Keep AccountService running for those
+operations. Never reset receipts or run two Bots concurrently.
 
 ## Local validation
 

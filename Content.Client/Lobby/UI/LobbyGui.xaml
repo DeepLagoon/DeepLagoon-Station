@@ -37,7 +37,7 @@
                                 <Button Name="AHelpButton" Access="Public" Text="{Loc 'ui-lobby-ahelp-button'}" />
                                 <vote:VoteCallMenuButton Name="CallVoteButton" />
                                 <Button Name="EconomyButton" Access="Public" Text="LAGOON COIN" />
-                                <Button Name="ApartmentsButton" Access="Public" Text="КВАРТИРА И ОБУСТРОЙСТВО" />
+                                <Button Name="ApartmentsButton" Access="Public" Text="ОБУСТРОЙСТВО" />
                                 <Button Name="OptionsButton" Access="Public" Text="{Loc 'ui-lobby-options-button'}" />
                                 <Button Name="LeaveButton" Access="Public" Text="{Loc 'ui-lobby-leave-button'}" />
                             </lobbyUi:LobbyUtilityGrid>

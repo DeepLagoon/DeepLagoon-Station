@@ -35,7 +35,8 @@ public sealed partial class AccountServiceTests
         var postgres = Environment.GetEnvironmentVariable("ACCOUNT_TEST_POSTGRES");
         _settings = new ServiceSettings(postgres == null ? "sqlite" : "postgres",
             postgres ?? $"Data Source={Path.Combine(_directory, "game.db")};Pooling=False;Default Timeout=8",
-            Path.Combine(_directory, "links.db"), Path.Combine(_directory, "receipts.db"), new string('w', 64), new string('c', 64), 0);
+            Path.Combine(_directory, "links.db"), Path.Combine(_directory, "receipts.db"), new string('w', 64), new string('c', 64), 0)
+            { SupporterToken = new string('s', 64) };
         _user = Guid.NewGuid();
         _other = Guid.NewGuid();
         await using (var db = _settings.OpenDatabase())
@@ -60,6 +61,9 @@ public sealed partial class AccountServiceTests
             CREATE TABLE discord_account_aliases(official_uid TEXT,canonical_uid TEXT,discord_id TEXT);
             """);
         Links("INSERT INTO discord_links VALUES($id,$uid,'Player')", ("$id", Target), ("$uid", _user.ToString()));
+        var reviewer = Guid.NewGuid();
+        Links("INSERT INTO discord_links VALUES($id,$uid,'Host')", ("$id", Actor), ("$uid", reviewer.ToString()));
+        SetHost(reviewer);
         _app = await Program.CreateApplication(_settings);
         await _app.StartAsync();
         var addresses = _app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!;
@@ -84,10 +88,18 @@ public sealed partial class AccountServiceTests
         cmd.ExecuteNonQuery();
     }
 
+    private void SetHost(Guid uid)
+    {
+        using var db = _settings.OpenDatabase();
+        db.Admin.Add(new Admin { UserId = uid, Flags = [new AdminFlag { Flag = "HOST" }] });
+        db.SaveChanges();
+    }
+
     private async Task<(HttpStatusCode Status, JsonElement Body)> Call(string action, object body, string? token = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "/deeplagoon/discord/" + action);
-        request.Headers.Authorization = new("Bearer", token ?? (action.Contains("whitelist") ? _settings.WhitelistToken : _settings.CoinToken));
+        request.Headers.Authorization = new("Bearer", token ?? (action.Contains("whitelist") ? _settings.WhitelistToken :
+            action == "economy_supporter" ? _settings.SupporterToken : _settings.CoinToken));
         request.Content = JsonContent.Create(body);
         using var reply = await _http.SendAsync(request);
         var text = await reply.Content.ReadAsStringAsync();
@@ -110,7 +122,7 @@ public sealed partial class AccountServiceTests
         var denied = await Call("remove_whitelist", new { discord_id = Target, host_authorized = false });
         Assert.That(denied.Status, Is.EqualTo(HttpStatusCode.Forbidden));
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.True);
-        var removed = await Call("remove_whitelist", new { discord_id = Target, host_authorized = true });
+        var removed = await Call("remove_whitelist", new { discord_id = Target, actor_discord_id = Actor, host_authorized = true });
         Assert.That(removed.Status, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.False);
     }

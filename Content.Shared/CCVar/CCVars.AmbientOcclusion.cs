@@ -15,10 +15,10 @@ public sealed partial class CCVars
         CVarDef.Create("graphics.ambient_occlusion_intensity", 300, CVar.CLIENTONLY | CVar.ARCHIVE);
 
     public static readonly CVarDef<int> AmbientOcclusionDrawDistance =
-        CVarDef.Create("graphics.ambient_occlusion_draw_distance", 24, CVar.CLIENTONLY | CVar.ARCHIVE);
+        CVarDef.Create("graphics.ambient_occlusion_draw_distance", 9, CVar.CLIENTONLY | CVar.ARCHIVE);
 
     public static readonly CVarDef<int> AmbientOcclusionMaxCasters =
-        CVarDef.Create("graphics.ambient_occlusion_max_casters", 768, CVar.CLIENTONLY | CVar.ARCHIVE);
+        CVarDef.Create("graphics.ambient_occlusion_max_casters", 327, CVar.CLIENTONLY | CVar.ARCHIVE);
 
     public static readonly CVarDef<bool> AmbientOcclusionEntities =
         CVarDef.Create("graphics.ambient_occlusion_entities", true, CVar.CLIENTONLY | CVar.ARCHIVE);

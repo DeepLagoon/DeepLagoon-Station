@@ -50,7 +50,11 @@ public sealed partial class DiscordLinkSystem
             await context.RespondJsonAsync(new { error = "invalid_request" }, HttpStatusCode.BadRequest);
             return true;
         }
-        await _apiLock.WaitAsync();
+        if (!await _apiLock.WaitAsync(0))
+        {
+            await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
+            return true;
+        }
         try
         {
             var result = await OnMainThread(() => Moderate(request, new NetUserId(uid), new NetUserId(actorUid)));
@@ -71,10 +75,28 @@ public sealed partial class DiscordLinkSystem
     private async Task<ApiResult> Moderate(ModerationRequest request, NetUserId uid, NetUserId actor)
     {
         if (!_enabled) return ModerationError("unavailable");
-        if (_store?.MergePending(uid.UserId) == true) return ModerationError("merge_pending");
+        if (_store?.MergePending(uid.UserId) == true || _store?.MergePending(actor.UserId) == true)
+            return ModerationError("merge_pending");
+        var actingAdmin = await _database.GetAdminDataForAsync(actor);
+        var permission = request.Operation switch
+        {
+            "ban" or "job_ban" or "unban" or "job_unban" or "bans" or "jobs" => "BAN",
+            "notes" => "VIEWNOTES",
+            "note_add" or "note_edit" or "note_remove" => "EDITNOTES",
+            "staff_add" or "staff_remove" when request.Kind == "mapper" => "MAPPING",
+            "staff_status" when request.Kind == "mapper" => "MAPPING",
+            "staff_add" or "staff_remove" or "staff_status" or "admin_flags" or "staff_flags" => "PERMISSIONS",
+            "apartment_catalog" or "apartment_grant" => "HOST",
+            _ => "HOST",
+        };
+        if (!DiscordApiAuthority.Has(actingAdmin, permission))
+            return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation is "apartment_catalog" or "apartment_grant")
             return await DiscordApartments(request, uid, actor);
         var admin = await _database.GetAdminDataForAsync(uid);
+        if (request.Operation is not ("bans" or "notes" or "jobs" or "staff_status" or "admin_flags") &&
+            DiscordApiAuthority.Has(admin, "HOST") && !DiscordApiAuthority.Has(actingAdmin, "HOST"))
+            return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation is "admin_flags" or "staff_flags")
             return await ChangeDiscordAdminFlag(request, uid, actor, admin);
         if (request.Operation == "staff_status")
@@ -117,6 +139,11 @@ public sealed partial class DiscordLinkSystem
         if (request.Operation is "ban" or "job_ban" or "note_add" or "note_edit" &&
             (message.Length == 0 || message.Length > 2000)) return ModerationError("invalid_request");
         var expiry = request.Minutes > 0 ? DateTime.UtcNow.AddMinutes(request.Minutes) : (DateTime?) null;
+        if (request.Operation is "ban" or "job_ban" && _store?.ReserveApiCooldown("ban", 600) != true)
+            return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "ban_cooldown" });
+        if (request.Operation is "unban" or "job_unban" or "note_add" or "note_edit" or "note_remove" &&
+            _store?.ReserveApiCooldown("moderation-write", 5) != true)
+            return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
         switch (request.Operation)
         {
             case "ban":
@@ -171,6 +198,8 @@ public sealed partial class DiscordLinkSystem
     private async Task<ApiResult> ChangeDiscordStaff(ModerationRequest request, NetUserId uid, DbAdmin? admin, string actorName)
     {
         if (request.Kind is not ("trial" or "admin" or "mapper")) return ModerationError("invalid_request");
+        if (_store?.ReserveApiCooldown("staff-write", 60) != true)
+            return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
         var current = ManagedKind(admin);
         // Narrow commands must not overwrite an unrelated rank, suspension or individual flags.
         if (admin != null && (current == null || admin.Suspended || admin.Flags.Count > 0))
@@ -261,6 +290,8 @@ public sealed partial class DiscordLinkSystem
         var targetFlags = AdminFlagsHelper.NamesToFlags(admin.AdminRank?.Flags.Select(f => f.Flag) ?? Array.Empty<string>()) |
                           AdminFlagsHelper.NamesToFlags(admin.Flags.Where(f => !f.Negative).Select(f => f.Flag));
         if (((targetFlags | flag) & ~authority) != 0) return ModerationError("permissions_denied");
+        if (_store?.ReserveApiCooldown("staff-write", 60) != true)
+            return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
         admin.Flags.RemoveAll(f => f.Flag == flagName);
         if (request.Mode != "inherit")
             admin.Flags.Add(new AdminFlag { Flag = flagName, Negative = request.Mode == "deny" });

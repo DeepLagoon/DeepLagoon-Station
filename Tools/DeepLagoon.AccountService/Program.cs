@@ -34,15 +34,15 @@ public static class Program
         var operations = app.Services.GetRequiredService<AccountOperations>();
         var slots = new SemaphoreSlim(16, 16);
         var healthSlots = new SemaphoreSlim(1, 1);
-        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1 }));
+        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1, security_api_version = 2 }));
         async Task<IResult> Readiness(HttpContext context)
         {
             using var lease = new AccountRequestLease(healthSlots);
             if (!lease.Acquired) return Results.Json(new { ready = false }, statusCode: 503);
             using var cancel = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
             cancel.CancelAfter(TimeSpan.FromSeconds(3));
-            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1 }); }
-            catch { return Results.Json(new { ready = false, economy_api_version = 1 }, statusCode: 503); }
+            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1, security_api_version = 2 }); }
+            catch { return Results.Json(new { ready = false, economy_api_version = 1, security_api_version = 2 }, statusCode: 503); }
         }
         app.MapGet("/health", (Func<HttpContext, Task<IResult>>) Readiness);
         app.MapGet("/health/ready", (Func<HttpContext, Task<IResult>>) Readiness);
@@ -54,11 +54,12 @@ public static class Program
             {
                 "whitelist" or "remove_whitelist" => settings.WhitelistToken,
                 "lc_add" or "lc_remove" or "lc_history" => settings.CoinToken,
+                "economy_supporter" => settings.SupporterToken,
                 _ when action.StartsWith("economy_", StringComparison.Ordinal) => settings.CoinToken,
                 _ => null,
             };
             if (token == null) return Results.NotFound();
-            if (!CryptographicOperations.FixedTimeEquals(
+            if (token.Length < 32 || !CryptographicOperations.FixedTimeEquals(
                     Encoding.UTF8.GetBytes(context.Request.Headers.Authorization.ToString()),
                     Encoding.UTF8.GetBytes("Bearer " + token)))
                 return Results.Unauthorized();
@@ -99,6 +100,10 @@ public static class Program
 public sealed record ServiceSettings(string Engine, string Connection, string LinkDatabase,
     string ReceiptDatabase, string WhitelistToken, string CoinToken, int Port = 1213)
 {
+    public string SupporterToken { get; init; } = "";
+    public long MaxGrant { get; init; } = 6000;
+    public long HourlyGrantLimit { get; init; } = 12000;
+    public long DailyGrantLimit { get; init; } = 24000;
     public static ServiceSettings FromEnvironment()
     {
         static string Required(string name) => Environment.GetEnvironmentVariable(name) is { Length: > 0 } value
@@ -106,9 +111,17 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
         var settings = new ServiceSettings(Required("ACCOUNT_DB_ENGINE"), Required("ACCOUNT_DB_CONNECTION"),
             Required("ACCOUNT_LINK_DATABASE"), Required("ACCOUNT_RECEIPT_DATABASE"),
             Required("ACCOUNT_WHITELIST_TOKEN"), Required("ACCOUNT_COIN_TOKEN"),
-            int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LISTEN_PORT") ?? "1213"));
+            int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LISTEN_PORT") ?? "1213"))
+        {
+            SupporterToken = Required("ACCOUNT_SUPPORTER_TOKEN"),
+            MaxGrant = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_MAX_GRANT") ?? "6000"),
+            HourlyGrantLimit = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_HOURLY_GRANT_LIMIT") ?? "12000"),
+            DailyGrantLimit = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_DAILY_GRANT_LIMIT") ?? "24000"),
+        };
         if (settings.Engine is not ("postgres" or "sqlite") || settings.Port is < 1024 or > 65535 ||
             settings.WhitelistToken.Length < 32 || settings.CoinToken.Length < 32 || settings.WhitelistToken == settings.CoinToken ||
+            settings.SupporterToken.Length < 32 || settings.SupporterToken == settings.CoinToken || settings.SupporterToken == settings.WhitelistToken ||
+            settings.MaxGrant <= 0 || settings.MaxGrant > settings.HourlyGrantLimit || settings.HourlyGrantLimit > settings.DailyGrantLimit || settings.DailyGrantLimit > 9007199254740991 ||
             !Path.IsPathFullyQualified(settings.LinkDatabase) || !File.Exists(settings.LinkDatabase) ||
             !Path.IsPathFullyQualified(settings.ReceiptDatabase) || settings.LinkDatabase == settings.ReceiptDatabase)
             throw new InvalidOperationException("Invalid account service settings");
@@ -171,7 +184,7 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
         await db.LagoonCoinOperations.Take(1).ToListAsync(cancel);
         await db.LagoonEconomyRecords.Take(1).ToListAsync(cancel);
         await db.Whitelist.Take(1).ToListAsync(cancel);
-        await db.Admin.Select(a => a.UserId).Take(1).ToListAsync(cancel);
+        await db.Admin.Include(a => a.Flags).Include(a => a.AdminRank!).ThenInclude(r => r.Flags).Take(1).ToListAsync(cancel);
         var links = EnsureLinkLease();
         using var command = links.CreateCommand();
         command.CommandText = "SELECT discord_id,ss14_uid,username FROM discord_links LIMIT 1; SELECT official_uid,canonical_uid,discord_id FROM discord_account_merge_pending LIMIT 1; SELECT official_uid,canonical_uid,discord_id FROM discord_account_aliases LIMIT 1";
@@ -216,6 +229,10 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
             PRAGMA journal_mode=WAL;
             CREATE TABLE IF NOT EXISTS receipts(
                 request_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, user_id TEXT NOT NULL, actor_id TEXT);
+            CREATE TABLE IF NOT EXISTS api_safety_budget(
+                bucket TEXT NOT NULL, request_id TEXT NOT NULL, amount INTEGER NOT NULL, created_at INTEGER NOT NULL,
+                PRIMARY KEY(bucket,request_id));
+            CREATE INDEX IF NOT EXISTS api_safety_budget_created ON api_safety_budget(created_at);
             """;
         command.ExecuteNonQuery();
         return db;
@@ -259,6 +276,14 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
         var target = FindLink(request.DiscordId) ?? throw new AccountError("not_linked", 404);
         AssertStableLink(request.DiscordId, target.Uid);
         await using var db = settings.OpenDatabase();
+        IdentityLink? author = null;
+        if (!whitelist || action == "remove_whitelist" && request.HostAuthorized)
+        {
+            if (!DiscordId(request.ActorDiscordId)) throw new AccountError("actor_not_linked", 403);
+            author = FindLink(request.ActorDiscordId!) ?? throw new AccountError("actor_not_linked", 403);
+            AssertStableLink(request.ActorDiscordId!, author.Uid);
+            await RequireHost(db, author.Uid, cancel);
+        }
         if (whitelist)
         {
             await using var transaction = await db.Database.BeginTransactionAsync(cancel);
@@ -266,6 +291,8 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
                 await db.Admin.AnyAsync(a => a.UserId == target.Uid, cancel))
                 throw new AccountError("admin_protected", 403);
             var existing = await db.Whitelist.AnyAsync(w => w.UserId == target.Uid, cancel);
+            if (existing != (action == "whitelist"))
+                ReserveBudget("whitelist:" + Guid.NewGuid().ToString("N"), 1, staff: true, category: "whitelist");
             if (action == "whitelist")
                 await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO whitelist (user_id) VALUES ({target.Uid}) ON CONFLICT (user_id) DO NOTHING", cancel);
             else
@@ -282,12 +309,15 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
                 rows = rows.Take(20).Select(r => new { amount = r.Amount, reason = r.Reason, actor_uid = r.ActorId,
                     created_at = r.CreatedAt, operation_id = r.OperationId }) };
         }
-        var author = FindLink(request.ActorDiscordId!);
-        var actor = BindReceipt(request, action, target, author?.Uid);
+        var actor = BindReceipt(request, action, target, author!.Uid);
+        ReserveBudget(request.RequestId!, request.Amount);
         var result = await AccountCurrencyOperations.AwardLagoonCoins(db, target.Uid, $"discord:{request.RequestId}",
             action == "lc_remove" ? -request.Amount : request.Amount,
             $"Discord actor={request.ActorDiscordId}; {request.Reason!.Trim()}", actor,
-            cancel: cancel, beforeCommit: () => AssertStableLink(request.DiscordId, target.Uid));
+            cancel: cancel, beforeCommit: () => {
+                AssertStableLink(request.DiscordId, target.Uid);
+                AssertStableLink(request.ActorDiscordId!, author.Uid);
+            });
         return new { uid = target.Uid, balance = result.Balance, applied = result.Applied, request_id = request.RequestId };
     }
 }

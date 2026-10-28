@@ -73,7 +73,7 @@ public static partial class AccountEconomyOperations
     {
         code = code.Trim().ToUpperInvariant();
         if (!Regex.IsMatch(code, "^[A-F0-9]{20}$")) throw new ArgumentException("Неверный код приглашения.");
-        await using var tx = await db.Database.BeginTransactionAsync(cancel);
+        await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, cancel);
         await AccountCurrencyOperations.LockAccount(db, user, cancel);
         var (_, account, state) = await Load(db, user, now, cancel);
         var owner = await db.LagoonEconomyRecords.AsNoTracking().SingleOrDefaultAsync(p => p.Id == "refcode:" + code, cancel)
@@ -91,14 +91,14 @@ public static partial class AccountEconomyOperations
         // Only eligible newcomers can create an edge. Walk existing edges as a second guard against cycles.
         var next = owner.UserId;
         var visited = new HashSet<Guid> { user };
-        while (visited.Add(next))
+        while (true)
         {
+            if (!visited.Add(next)) throw new InvalidOperationException("Циклическое приглашение запрещено.");
             var parent = await db.LagoonEconomyRecords.AsNoTracking().SingleOrDefaultAsync(p => p.Id == Key(next), cancel);
             var referral = parent == null ? null : Read<LagoonEconomyState>(parent).Referrer;
             if (referral == null) break;
             next = referral.Value;
         }
-        if (next == user) throw new InvalidOperationException("Циклическое приглашение запрещено.");
         state.Referrer = owner.UserId; Save(account, state);
         await db.SaveChangesAsync(cancel); beforeCommit?.Invoke(); await tx.CommitAsync(cancel);
     }

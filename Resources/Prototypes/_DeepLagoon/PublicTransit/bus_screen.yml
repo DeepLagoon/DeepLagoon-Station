@@ -1,0 +1,15 @@
+- type: entity
+  id: DLBusScreen
+  parent: ArrivalsShuttleTimer
+  name: bus screen
+  description: Displays the time until the public bus arrives at this stop.
+  components:
+  - type: BusScreen
+  - type: DeviceNetwork
+    receiveFrequencyId: DLBusScreen
+
+# Keep arrivals and emergency shuttle broadcasts off bus screens.
+- type: deviceFrequency
+  id: DLBusScreen
+  name: device-frequency-prototype-name-dl-bus-screen
+  frequency: 2452

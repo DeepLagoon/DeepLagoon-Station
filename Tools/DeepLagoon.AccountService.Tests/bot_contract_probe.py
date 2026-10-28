@@ -19,7 +19,7 @@ TARGET, ACTOR = '1554164947804487771', '1554164947804487770'
 
 async def main():
     base, directory = sys.argv[1:]
-    identity = SimpleNamespace(account_base=base, token_for=lambda _: 'c' * 64)
+    identity = SimpleNamespace(account_base=base, token_for=lambda scope: ('s' if scope == 'supporter' else 'c') * 64)
     api = EconomyApi(identity)
     coins = LagoonCoinApi(identity)
     dispatch = AccountDispatcher(coins, api)

@@ -37,6 +37,7 @@ public sealed class DiscordLinkStore : IDisposable
         _db.Open();
         Execute("""
             PRAGMA journal_mode=WAL;
+            CREATE TABLE IF NOT EXISTS discord_api_cooldowns (bucket TEXT PRIMARY KEY, ready_at INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_staff_grants (ss14_uid TEXT PRIMARY KEY, kind TEXT NOT NULL, rank_id INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_spark (discord_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS discord_boosty (discord_id TEXT PRIMARY KEY, tier INTEGER NOT NULL, expires_at INTEGER NOT NULL);
@@ -71,6 +72,16 @@ public sealed class DiscordLinkStore : IDisposable
         foreach (var (name, value) in parameters)
             command.Parameters.AddWithValue(name, value);
         return command;
+    }
+
+    public bool ReserveApiCooldown(string bucket, int seconds)
+    {
+        using var command = Command("""
+            INSERT INTO discord_api_cooldowns VALUES($bucket,$ready)
+            ON CONFLICT(bucket) DO UPDATE SET ready_at=excluded.ready_at WHERE ready_at <= $now
+            RETURNING ready_at
+            """, ("$bucket", bucket), ("$ready", _now() + seconds), ("$now", _now()));
+        return command.ExecuteScalar() != null;
     }
 
     public (string Kind, int RankId)? StaffGrant(Guid uid)

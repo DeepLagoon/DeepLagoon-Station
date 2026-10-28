@@ -56,6 +56,7 @@ public sealed partial class PublicTransitSystem : EntitySystem
         SubscribeLocalEvent<TransitShuttleComponent, FTLCompletedEvent>(OnShuttleArrival);
         SubscribeLocalEvent<TransitShuttleComponent, FTLTagEvent>(OnShuttleTag);
         SubscribeLocalEvent<RoundStartedEvent>(OnRoundStart);
+        InitializeBusScreens();
 
         Enabled = _cfgManager.GetCVar(NFCCVars.PublicTransit);
         FlyTime = _cfgManager.GetCVar(NFCCVars.PublicTransitFlyTime);
@@ -163,6 +164,9 @@ public sealed partial class PublicTransitSystem : EntitySystem
 
     private void OnShuttleArrival(EntityUid uid, TransitShuttleComponent comp, ref FTLCompletedEvent args)
     {
+        comp.CurrentStation = comp.Destination;
+        comp.Destination = null;
+
         var consoleQuery = EntityQueryEnumerator<ShuttleConsoleComponent>();
 
         while (consoleQuery.MoveNext(out var consoleUid, out _))
@@ -246,6 +250,7 @@ public sealed partial class PublicTransitSystem : EntitySystem
             {
                 // Ensure the shuttle is undocked before initiating FTL travel
                 _dockSystem.UndockDocks(uid);
+                comp.Destination = comp.NextStation;
                 _shuttles.FTLToDock(uid, shuttle, comp.NextStation, hyperspaceTime: FlyTime, priorityTag: "DockTransit");
             }
 
@@ -254,6 +259,8 @@ public sealed partial class PublicTransitSystem : EntitySystem
 
             comp.NextTransfer = curTime + TimeSpan.FromSeconds(FlyTime + _cfgManager.GetCVar(NFCCVars.PublicTransitWaitTime));
         }
+
+        UpdateBusScreens();
     }
 
     /// <summary>
@@ -323,6 +330,7 @@ public sealed partial class PublicTransitSystem : EntitySystem
 
                 // Ensure the shuttle is undocked before initiating FTL travel
                 _dockSystem.UndockDocks(shuttle);
+                transitComp.Destination = destination;
                 _shuttles.FTLToDock(shuttle, shuttleComp, destination, hyperspaceTime: 5f);
                 transitComp.NextTransfer = _timing.CurTime + TimeSpan.FromSeconds(_cfgManager.GetCVar(NFCCVars.PublicTransitWaitTime));
 

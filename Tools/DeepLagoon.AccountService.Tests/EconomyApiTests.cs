@@ -12,7 +12,12 @@ namespace DeepLagoon.AccountService.Tests;
 
 public sealed partial class AccountServiceTests
 {
-    private void LinkReviewer() => Links("INSERT INTO discord_links VALUES($id,$uid,'Reviewer')", ("$id", Actor), ("$uid", _other.ToString()));
+    private void LinkReviewer()
+    {
+        Links("UPDATE discord_links SET ss14_uid=$uid WHERE discord_id=$id", ("$id", Actor), ("$uid", _other.ToString()));
+        SetHost(_other);
+        SetHost(_user);
+    }
 
     [Test]
     public async Task EconomyHttpTaskRequiresStaffAndIndependentReviewerAndPaysOnce()

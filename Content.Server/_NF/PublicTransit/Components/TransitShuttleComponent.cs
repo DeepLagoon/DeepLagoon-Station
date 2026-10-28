@@ -21,4 +21,12 @@ public sealed partial class TransitShuttleComponent : Component
 
     [DataField(customTypeSerializer:typeof(TimeOffsetSerializer))]
     public TimeSpan NextTransfer;
+
+    /// <summary>The stop reached by the last completed trip.</summary>
+    [ViewVariables]
+    public EntityUid? CurrentStation;
+
+    /// <summary>The stop being approached, before NextStation advances to the following stop.</summary>
+    [ViewVariables]
+    public EntityUid? Destination;
 }

@@ -255,7 +255,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         _euis.OpenEui(prompt, args.Session);
     }
 
-    // The OAuth backend has an enrollment-only key; the bot retains administrative API access.
+    // Recovery uses Control's independent admin secret, never a bot capability.
     private async Task<bool> HandleApi(IStatusHandlerContext context)
     {
         var path = context.Url.AbsolutePath;
@@ -269,10 +269,14 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
             return true;
         }
         var enrollment = path.EndsWith("/enroll_launcher", StringComparison.Ordinal);
+        var recovery = path.EndsWith("/restore_discord", StringComparison.Ordinal) || path.EndsWith("/reassign_discord", StringComparison.Ordinal);
+        var recoveryToken = DiscordApiTokens.Recovery(_config.GetCVar(CCVars.AdminApiToken), _token,
+            new[] { _config.GetCVar(CCVars.DiscordIdentityToken), _config.GetCVar(CCVars.DiscordModerationToken),
+                _config.GetCVar(CCVars.DiscordCoinToken), _config.GetCVar(CCVars.DiscordSupporterToken) });
         var scope = path.EndsWith("/supporter", StringComparison.Ordinal) || path.EndsWith("/boost", StringComparison.Ordinal)
             ? "supporter" : path.EndsWith("/moderation", StringComparison.Ordinal) ? "moderation"
             : path.Contains("/lc_", StringComparison.Ordinal) ? "coin" : "identity";
-        var configured = enrollment ? "" : scope switch
+        var configured = recovery ? recoveryToken : enrollment ? "" : scope switch
         {
             "supporter" => _config.GetCVar(CCVars.DiscordSupporterToken),
             "moderation" => _config.GetCVar(CCVars.DiscordModerationToken),
@@ -281,22 +285,26 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         };
         // Independent keys take precedence. Derived keys support coordinated
         // migration without transmitting the root key to any API endpoint.
-        var expectedToken = configured.Length > 0 ? configured : _token.Length >= 32
+        var expectedToken = configured.Length > 0 ? configured : !recovery && _token.Length >= 32
             ? Convert.ToHexString(HMACSHA256.HashData(Encoding.UTF8.GetBytes(_token), Encoding.UTF8.GetBytes(
                 enrollment ? "lagoon-launcher-enrollment-v1" : "lagoon-api-" + scope + "-v1"))).ToLowerInvariant()
             : "";
-        var authorized = _enabled && expectedToken.Length >= 32 &&
+        var controlAuthorized = recoveryToken.Length >= 32 &&
+            context.RequestHeaders.TryGetValue("Authorization", out var controlHeader) &&
+            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(controlHeader.ToString()),
+                Encoding.UTF8.GetBytes("Bearer " + recoveryToken));
+        var authorized = _enabled &&
             IPAddress.IsLoopback(context.RemoteEndPoint.Address) &&
-            context.RequestHeaders.TryGetValue("Authorization", out var auth) &&
-            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(auth.ToString()), Encoding.UTF8.GetBytes("Bearer " + expectedToken));
+            (controlAuthorized && path.EndsWith("/unlink_discord", StringComparison.Ordinal) ||
+             expectedToken.Length >= 32 && context.RequestHeaders.TryGetValue("Authorization", out var auth) &&
+             CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(auth.ToString()), Encoding.UTF8.GetBytes("Bearer " + expectedToken)));
         if (!authorized)
         {
             await context.RespondErrorAsync(HttpStatusCode.Unauthorized);
             return true;
         }
-        if (_config.GetCVar(CCVars.DiscordExternalAccounts) &&
-            (path.EndsWith("/whitelist", StringComparison.Ordinal) || path.EndsWith("/remove_whitelist", StringComparison.Ordinal) ||
-             path.Contains("/lc_", StringComparison.Ordinal)))
+        if (path.EndsWith("/whitelist", StringComparison.Ordinal) || path.EndsWith("/remove_whitelist", StringComparison.Ordinal) ||
+             path.Contains("/lc_", StringComparison.Ordinal))
         {
             await context.RespondJsonAsync(new { error = "account_service_required" }, HttpStatusCode.Gone);
             return true;
@@ -341,7 +349,11 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
                 return true;
             }
         }
-        await _apiLock.WaitAsync();
+        if (!await _apiLock.WaitAsync(0))
+        {
+            await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
+            return true;
+        }
         try
         {
             var result = await OnMainThread(async () =>
@@ -429,6 +441,15 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
                     }
                     if (path.EndsWith("/unlink_discord", StringComparison.Ordinal))
                     {
+                        var targetAdmin = await _database.GetAdminDataForAsync(new NetUserId(link.Uid));
+                        if (!controlAuthorized && (targetAdmin != null || request.HostAuthorized))
+                        {
+                            var acting = request.ActorDiscordId == null ? null : _store.FindDiscord(request.ActorDiscordId);
+                            if (acting == null || !DiscordApiAuthority.Has(await _database.GetAdminDataForAsync(new NetUserId(acting.Uid)), "HOST"))
+                                return new ApiResult(HttpStatusCode.Forbidden, new { error = "admin_protected" });
+                        }
+                        if (!controlAuthorized && !_store.ReserveApiCooldown("identity-unlink", 60))
+                            return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
                         if (request.ExpectedUid != null || request.ExpectedLinkedAt != null)
                         {
                             if (!Guid.TryParse(request.ExpectedUid, out var expectedUid) || request.ExpectedLinkedAt == null)
@@ -570,6 +591,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         [property: System.Text.Json.Serialization.JsonPropertyName("boost_active")] bool? BoostActive = null,
         [property: System.Text.Json.Serialization.JsonPropertyName("boosty_tier")] int? BoostyTier = null,
         [property: System.Text.Json.Serialization.JsonPropertyName("role_colors")] int[]? RoleColors = null,
-        [property: System.Text.Json.Serialization.JsonPropertyName("spark")] bool Spark = false);
+        [property: System.Text.Json.Serialization.JsonPropertyName("spark")] bool Spark = false,
+        [property: System.Text.Json.Serialization.JsonPropertyName("actor_discord_id")] string? ActorDiscordId = null);
     private sealed record ApiResult(HttpStatusCode Status, object Body);
 }

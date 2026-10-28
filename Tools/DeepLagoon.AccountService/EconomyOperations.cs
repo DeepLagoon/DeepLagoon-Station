@@ -44,11 +44,15 @@ public sealed partial class AccountOperations
         AssertStableLink(request.DiscordId, target.Uid);
         AssertStableLink(request.ActorDiscordId, author.Uid);
         void Stable() { AssertStableLink(request.DiscordId, target.Uid); AssertStableLink(request.ActorDiscordId, author.Uid); }
+        await using var db = settings.OpenDatabase();
+        if (staff || request.HostAuthorized)
+            await RequireHost(db, author.Uid, cancel);
         // The durable API receipt binds every Discord interaction to its original identities and body.
         if (action is not ("economy_state" or "economy_supporters" or "economy_supporter" or "economy_status"))
             BindReceipt(new AccountRequest(request.DiscordId, request.ActorDiscordId, request.RequestId,
                 request.Amount, JsonSerializer.Serialize(request), request.HostAuthorized), action, target, author.Uid);
-        await using var db = settings.OpenDatabase();
+        // Reservations survive uncertain results and cannot be renewed by a retry.
+        if (staff) ReserveBudget(request.RequestId, 1, staff: true);
         var now = DateTime.UtcNow;
         LagoonCoinResult? result = null;
         try
