@@ -62,7 +62,7 @@ public sealed class ApartmentCommerceTests
             Assert.That(state.GetProperty("balance").GetInt64(), Is.EqualTo(500));
             token = state.GetProperty("token").GetGuid();
             var products = state.GetProperty("products").EnumerateArray().ToArray();
-            Assert.That(products.Length, Is.EqualTo(106));
+            Assert.That(products.Length, Is.EqualTo(107));
             Assert.That(products.Single(item => item.GetProperty("id").GetString() == "DLAptSofa").GetProperty("variants").GetArrayLength(), Is.EqualTo(4));
             Buy("DLAptDecor006", 2, 35);
         });

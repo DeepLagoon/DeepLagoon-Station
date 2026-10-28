@@ -34,3 +34,14 @@ ent-DLApartmentElevatorPanel = пульт квартирного лифта
 
 dl-apartment-basic = Базовые апартаменты
 dl-apartment-spawn-gear-deferred = Ваше снаряжение будет вам выдано после покидания вашего жилища
+
+ent-DLApartmentAtmosphereController = регулятор атмосферы квартиры
+    .desc = Поддерживает давление и заданное соотношение кислорода и азота, удаляя все остальные газы. Работает только в квартирах.
+dl-apartment-atmosphere-title = Регулятор атмосферы квартиры
+dl-apartment-atmosphere-active = Регулирование всей квартиры активно
+dl-apartment-atmosphere-inactive = Требуется закрепление внутри квартиры
+dl-apartment-atmosphere-target = Давление: 101,325 кПа • Температура: 20 °C
+dl-apartment-atmosphere-oxygen = Кислород, % (0–100)
+dl-apartment-atmosphere-nitrogen = Азот: { $percent } %
+dl-apartment-atmosphere-apply = Применить состав воздуха
+dl-apartment-atmosphere-save-failed = Не удалось сохранить. Откройте настройки заново.

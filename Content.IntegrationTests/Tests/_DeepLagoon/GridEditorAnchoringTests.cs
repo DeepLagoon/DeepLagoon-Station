@@ -45,63 +45,65 @@ public sealed class GridEditorAnchoringTests
             pair.Server.PlayerMan.SetAttachedEntity(player, observer);
             prepare = () =>
             {
-            var prototypes = new[] { "WallSolid", "WallShuttle", "WallShuttleDiagonal" };
-            foreach (var (prototype, y) in prototypes.Select((prototype, y) => (prototype, y)))
-            {
-                var uid = entities.SpawnEntity(prototype, new EntityCoordinates(grid, new Vector2(.5f, y + .5f)));
-                Assert.That(transforms.AnchorEntity(uid), Is.True);
-                entities.Dirty(uid, entities.GetComponent<TransformComponent>(uid));
-                walls.Add(entities.GetNetEntity(uid));
-            }
-            var editor = entities.System<Editor>();
-            Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
-            var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
-            var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
-            var items = (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
-            var selection = items.Where(item => item.Kind == "entity").ToArray();
-            Assert.That(selection.All(item => item.Anchored), Is.True);
-            var patch = selection.Select(item => new GridEditorItem { Id = item.Id, Kind = item.Kind,
-                Prototype = item.Prototype, X = item.X + 2, Y = item.Y, Rotation = 90, Anchored = item.Anchored }).ToList();
-            patch.AddRange(selection.Select(item => new GridEditorItem { Id = "new_copy_" + item.Id, Kind = item.Kind,
-                Prototype = item.Prototype, X = item.X + 4, Y = item.Y, Rotation = 180, Anchored = item.Anchored }));
-            patch.AddRange(Enumerable.Range(0, 3).Select(y => new GridEditorItem { Id = $"t:0:{y}", Kind = "remove" }));
-            apply = () =>
-            {
-            typeof(Editor).GetMethod("Apply", flags)!.Invoke(editor, new object[] {
-                new GridEditorApplyEvent(token, patch, patch: true), new EntitySessionEventArgs(player) });
-            var known = (Dictionary<string, EntityUid>) draft.GetType().GetField("KnownEntities")!.GetValue(draft)!;
-            foreach (var item in selection) walls.Add(entities.GetNetEntity(known["new_copy_" + item.Id]));
-            foreach (var wall in walls)
-            {
-                var uid = entities.GetEntity(wall);
-                var transform = entities.GetComponent<TransformComponent>(uid);
-                Assert.That(transform.Anchored, Is.True);
-                Assert.That(maps.IsAnchored(grid, maps.TileIndicesFor(grid, transform.Coordinates), uid), Is.True);
-            }
-            };
+                var prototypes = new[] { "WallSolid", "WallShuttle", "WallShuttleDiagonal" };
+                foreach (var (prototype, y) in prototypes.Select((prototype, y) => (prototype, y)))
+                {
+                    var uid = entities.SpawnEntity(prototype, new EntityCoordinates(grid, new Vector2(.5f, y + .5f)));
+                    Assert.That(transforms.AnchorEntity(uid), Is.True);
+                    entities.Dirty(uid, entities.GetComponent<TransformComponent>(uid));
+                    walls.Add(entities.GetNetEntity(uid));
+                }
+                var editor = entities.System<Editor>();
+                Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
+                var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+                var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
+                var items = (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
+                var selection = items.Where(item => item.Kind == "entity").ToArray();
+                Assert.That(selection.All(item => item.Anchored), Is.True);
+                var patch = selection.Select(item => new GridEditorItem { Id = item.Id, Kind = item.Kind,
+                    Prototype = item.Prototype, X = item.X + 2, Y = item.Y, Rotation = 90, Anchored = item.Anchored }).ToList();
+                patch.AddRange(selection.Select(item => new GridEditorItem { Id = "new_copy_" + item.Id, Kind = item.Kind,
+                    Prototype = item.Prototype, X = item.X + 4, Y = item.Y, Rotation = 180, Anchored = item.Anchored }));
+                patch.AddRange(Enumerable.Range(0, 3).Select(y => new GridEditorItem { Id = $"t:0:{y}", Kind = "remove" }));
+                apply = () =>
+                {
+                    typeof(Editor).GetMethod("Apply", flags)!.Invoke(editor, new object[] {
+                        new GridEditorApplyEvent(token, patch, patch: true), new EntitySessionEventArgs(player) });
+                    var known = (Dictionary<string, EntityUid>) draft.GetType().GetField("KnownEntities")!.GetValue(draft)!;
+                    foreach (var item in selection) walls.Add(entities.GetNetEntity(known["new_copy_" + item.Id]));
+                    foreach (var wall in walls)
+                    {
+                        var uid = entities.GetEntity(wall);
+                        var transform = entities.GetComponent<TransformComponent>(uid);
+                        Assert.That(transform.Anchored, Is.True);
+                        Assert.That(maps.IsAnchored(grid, maps.TileIndicesFor(grid, transform.Coordinates), uid), Is.True);
+                    }
+                };
             };
         });
         await pair.RunTicksSync(30);
         await pair.Server.WaitAssertion(prepare);
         await pair.RunTicksSync(30);
-        TestContext.Progress.WriteLine("Initial walls replicated");
         await pair.Client.WaitAssertion(() =>
         {
             foreach (var wall in walls)
                 Assert.That(pair.Client.EntMan.GetComponent<TransformComponent>(pair.Client.EntMan.GetEntity(wall)).Anchored, Is.True);
         });
         await pair.Server.WaitAssertion(apply);
-        TestContext.Progress.WriteLine("Wall selection applied");
         await pair.RunTicksSync(30);
         await pair.Client.WaitAssertion(() =>
         {
             var entities = pair.Client.EntMan;
             foreach (var wall in walls)
             {
-                var transform = entities.GetComponent<TransformComponent>(entities.GetEntity(wall));
+                var uid = entities.GetEntity(wall);
+                var transform = entities.GetComponent<TransformComponent>(uid);
                 Assert.That(transform.Anchored, Is.True, wall.ToString());
                 Assert.That(transform.ParentUid, Is.EqualTo(transform.GridUid));
                 Assert.That(transform.LocalPosition.X, Is.EqualTo(walls.IndexOf(wall) < 3 ? 2.5f : 4.5f));
+                var maps = entities.System<SharedMapSystem>();
+                var grid = new Entity<MapGridComponent>(transform.ParentUid, entities.GetComponent<MapGridComponent>(transform.ParentUid));
+                Assert.That(maps.IsAnchored(grid, maps.TileIndicesFor(grid, transform.Coordinates), uid), Is.True);
             }
         });
         await pair.Server.WaitAssertion(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));

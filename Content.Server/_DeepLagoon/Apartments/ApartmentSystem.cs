@@ -289,6 +289,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         }
         else grid = _maps.CreateGridEntity(Comp<MapComponent>(_activeMap).MapId);
         EnsureComp<ApartmentGridComponent>(grid);
+        EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = Math.Clamp(delta.OxygenPercent, 0, 100);
         EnsureComp<ApartmentProtectedGridComponent>(grid);
         // Grid initialization installs a black implicit roof. Apartments use constant
         // indoor illumination instead of simulated lamps or daylight shadows.
@@ -560,6 +561,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         }
         var prepared = new Dictionary<string, EntityUid>();
         var delta = ApartmentLayout.Diff(instance.Template, layout, revision + 1, MapBaseline(instance));
+        delta.OxygenPercent = instance.Delta.OxygenPercent;
         var committed = false;
         try
         {

@@ -7,7 +7,7 @@
     - MonoGreenshift
   name: mono-standard-title
   description: mono-standard-description
-  showInVote: true
+  showInVote: false # DeepLagoon: Helios and Stellar Blessing bases/jobs are disabled.
   rules:
   - NFAdventure
   - BasicStationEventScheduler
@@ -113,7 +113,7 @@
   weight: 0.5
   name: mono-chimera-tsf-title
   description: mono-chimera-tsf-description
-  showInVote: true
+  showInVote: false # DeepLagoon: Stellar Blessing base/jobs are disabled.
   minPlayers: 30
   rules:
   - NFAdventure
@@ -135,7 +135,7 @@
   weight: 0.5
   name: mono-chimera-pdv-title
   description: mono-chimera-pdv-description
-  showInVote: true
+  showInVote: false # DeepLagoon: Helios base/jobs and the HeliosBiodome target are disabled.
   minPlayers: 30
   rules:
   - NFAdventure
@@ -178,7 +178,7 @@
   id: MonoAllAtOnce
   name: mono-allatonce-title
   description: mono-allatonce-description
-  showInVote: true # we ball
+  showInVote: false # DeepLagoon: Helios and Stellar Blessing bases/jobs are disabled.
   weight: 0.25 # requires 80% votes
   minPlayers: 30
   rules:
@@ -201,7 +201,7 @@
   id: MonoRogueTSFHyperwar
   name: mono-roguetsf-hyperwar-title
   description: mono-roguetsf-hyperwar-description
-  showInVote: true # we ball
+  showInVote: false # DeepLagoon: Helios Hyperwar base/jobs are disabled.
   weight: 0.15 # Giant majority needed
   autobalancerEnabled: true
   supportedMaps: HyperwarMapPool

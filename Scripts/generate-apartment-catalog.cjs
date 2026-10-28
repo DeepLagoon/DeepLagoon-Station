@@ -16,7 +16,7 @@ const cache=new Map();
 function components(id,stack=[]){if(cache.has(id))return clone(cache.get(id));assert(!stack.includes(id),'Inheritance cycle '+id);const e=entities.get(id);assert(e,'Missing entity '+id);const c=new Map();for(const parent of [].concat(e.parent||[]))for(const part of components(parent,[...stack,id]))c.set(part.type,part);for(const part of e.components||[])c.set(part.type,merge(c.get(part.type),part));const result=[...c.values()];cache.set(id,result);return clone(result);}
 const permitted=new Set(['Sprite','Appearance','GenericVisualizer','Icon','IconSmooth','SpriteFade','PointLight','Strap','Instrument','ActivatableUI','UserInterface','ApcPowerReceiver','ExtensionCableReceiver','Jukebox','BlockGameArcade','SpaceVillainArcade','WallMount','Animateable']);
 const free=['DLAptSofa','DLAptChair','DLAptTable','DLAptBed','DLAptPlant'];
-const generated=[],loc=[],ids=[...free],manifest=[];
+const generated=[],loc=[],ids=[...free,'DLAptAtmosphere'],manifest=[];
 for(let i=0;i<source.catalog.length;i++){
  const item=source.catalog[i];
  if(i<5){manifest.push({...item,furniture:free[i],available:true});continue;}

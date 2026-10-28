@@ -15,6 +15,8 @@ public sealed partial class AtmosphereSystem
         var air = new GasMixture(GetVolumeForTiles(grid)) { Temperature = Atmospherics.T20C };
         air.SetMoles(Gas.Oxygen, Atmospherics.OxygenMolesStandard * air.Volume / Atmospherics.CellVolume);
         air.SetMoles(Gas.Nitrogen, Atmospherics.NitrogenMolesStandard * air.Volume / Atmospherics.CellVolume);
+        var configure = new SafeGridAtmosphereEvent(air);
+        RaiseLocalEvent(uid, ref configure);
         air.MarkImmutable();
         var positions = new HashSet<Vector2i>();
         foreach (var floor in _mapSystem.GetAllTiles(uid, grid))
@@ -30,3 +32,7 @@ public sealed partial class AtmosphereSystem
         atmosphere.InvalidatedCoords.Clear();
     }
 }
+
+/// <summary>Allows grid-specific controllers to configure safe air before it becomes immutable.</summary>
+[ByRefEvent]
+public readonly record struct SafeGridAtmosphereEvent(GasMixture Air);

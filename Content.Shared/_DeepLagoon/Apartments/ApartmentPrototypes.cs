@@ -74,6 +74,7 @@ public sealed partial class ApartmentPlacement
 /// <summary>A compact final-state patch, never an unbounded action log or an ECS snapshot.</summary>
 public sealed class ApartmentDelta
 {
+    public int OxygenPercent { get; set; } = ApartmentAtmosphereComponent.DefaultOxygenPercent;
     public int SchemaVersion { get; set; } = 1;
     public string Template { get; set; } = "";
     public int TemplateVersion { get; set; }

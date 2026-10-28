@@ -18,12 +18,15 @@ using Content.Shared.Voting;
 using Robust.Shared.Configuration;
 using Robust.Shared.Enums;
 using Robust.Shared.Player;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 
 namespace Content.Server.Voting.Managers
 {
     public sealed partial class VoteManager
     {
+        private static readonly ProtoId<GamePresetPrototype> DefaultPreset = "MonoStandard";
+
         [Dependency] private IPlayerLocator _locator = default!;
         [Dependency] private ILogManager _logManager = default!;
         [Dependency] private IBanManager _bans = default!;
@@ -219,6 +222,12 @@ namespace Content.Server.Voting.Managers
         {
             var presets = GetGamePresets();
 
+            if (presets.Count == 0)
+            {
+                ApplyDefaultPreset();
+                return;
+            }
+
             var alone = _playerManager.PlayerCount == 1 && initiator != null;
             var options = new VoteOptions
             {
@@ -244,6 +253,12 @@ namespace Content.Server.Voting.Managers
 
             vote.OnFinished += (_, args) =>
             {
+                if (!args.Votes.Any(count => count > 0))
+                {
+                    ApplyDefaultPreset();
+                    return;
+                }
+
                 string picked;
                 if (args.Winner == null)
                 {
@@ -261,6 +276,17 @@ namespace Content.Server.Voting.Managers
                 var ticker = _entityManager.EntitySysManager.GetEntitySystem<GameTicker>();
                 ticker.SetGamePreset(picked);
             };
+        }
+
+        private void ApplyDefaultPreset()
+        {
+            // The default remains usable even when hidden from player votes.
+            var preset = _prototypeManager.Index(DefaultPreset);
+            var ticker = _entityManager.EntitySysManager.GetEntitySystem<GameTicker>();
+            ticker.SetGamePreset(preset.ID);
+            _chatManager.DispatchServerAnnouncement(
+                Loc.GetString("ui-vote-gamemode-win", ("winner", Loc.GetString(preset.ModeTitle))));
+            _adminLogger.Add(LogType.Vote, LogImpact.Medium, $"Preset vote defaulted to {preset.ID}: no votes or eligible presets.");
         }
 
         private void CreateMapVote(ICommonSession? initiator)

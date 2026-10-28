@@ -31,3 +31,14 @@ dl-apartment-trip-cancelled = Transfer cancelled. You remain here with your equi
 
 dl-apartment-basic = Basic apartments
 dl-apartment-spawn-gear-deferred = Your equipment will be issued to you after you leave your home
+
+ent-DLApartmentAtmosphereController = apartment atmosphere controller
+    .desc = Maintains pressure and the chosen oxygen-nitrogen ratio, removing all other gases. Works only in apartments.
+dl-apartment-atmosphere-title = Apartment atmosphere controller
+dl-apartment-atmosphere-active = Regulating the entire apartment
+dl-apartment-atmosphere-inactive = Must be anchored inside an apartment
+dl-apartment-atmosphere-target = Pressure: 101.325 kPa • Temperature: 20 °C
+dl-apartment-atmosphere-oxygen = Oxygen, % (0–100)
+dl-apartment-atmosphere-nitrogen = Nitrogen: { $percent } %
+dl-apartment-atmosphere-apply = Apply air composition
+dl-apartment-atmosphere-save-failed = Could not save. Reopen the settings.
