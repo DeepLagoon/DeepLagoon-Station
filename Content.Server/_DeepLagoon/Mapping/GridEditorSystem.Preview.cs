@@ -12,16 +12,20 @@ public sealed partial class GridEditorSystem
 {
     private int _previewRevision;
 
-    private void CloseEditor(ICommonSession player)
+    private void CloseEditor(ICommonSession player, Guid? token = null)
     {
-        if (!_drafts.Remove(player, out var draft)) return;
-        PublishPreviews(draft.Grid);
+        foreach (var (key, draft) in _drafts.Where(pair => pair.Key.Player == player && (token == null || pair.Key.Token == token)).ToArray())
+        {
+            _drafts.Remove(key);
+            RaiseNetworkEvent(new GridEditorClosedEvent(draft.Token), player);
+            PublishPreviews(draft.Grid);
+        }
     }
 
     private void Preview(GridEditorDraftUpdateEvent ev, EntitySessionEventArgs args)
     {
         if (!_admins.HasAdminFlag(args.SenderSession, AdminFlags.Mapping) ||
-            !_drafts.TryGetValue(args.SenderSession, out var draft) || draft.Token != ev.Token ||
+            !_drafts.TryGetValue((args.SenderSession, ev.Token), out var draft) || draft.Token != ev.Token ||
             draft.PreviewGeneration != ev.Generation || !Exists(draft.Grid)) return;
         var expansion = ev.Expansion ?? new GridEditorExpansion();
         if ((long) draft.Width + expansion.Left + expansion.Right < 1 ||
@@ -62,7 +66,7 @@ public sealed partial class GridEditorSystem
     // an already-applied temporary ID. A generation change rejects in-flight previews.
     private void SupersedePreviews(EntityUid grid, ICommonSession author, HashSet<string> ids)
     {
-        foreach (var (player, draft) in _drafts)
+        foreach (var ((player, _), draft) in _drafts)
         {
             if (player == author || draft.Grid != grid) continue;
             var superseded = draft.Preview.Values.Where(item => ids.Contains(item.Id)).ToList();
@@ -78,15 +82,15 @@ public sealed partial class GridEditorSystem
     // Unsaved changes are shared editing input, while the world changes only on Apply.
     private void PublishPreviews(EntityUid grid)
     {
-        var viewers = _drafts.Where(pair => pair.Value.Grid == grid && _admins.HasAdminFlag(pair.Key, AdminFlags.Mapping))
+        var viewers = _drafts.Where(pair => pair.Value.Grid == grid && _admins.HasAdminFlag(pair.Key.Player, AdminFlags.Mapping))
             .OrderBy(pair => pair.Value.PreviewRevision).ToArray();
-        foreach (var (player, draft) in viewers)
+        foreach (var ((player, _), draft) in viewers)
         {
             var peers = new List<GridEditorPeerDraft>();
             foreach (var (_, peer) in viewers)
             foreach (var item in peer.Preview.Values.Where(item => item.Kind != "remove"))
                 draft.KnownItems[item.Id] = item;
-            foreach (var (other, peer) in viewers)
+            foreach (var ((other, _), peer) in viewers)
             {
                 if (other == player) continue;
                 var removed = new List<GridEditorItem>();

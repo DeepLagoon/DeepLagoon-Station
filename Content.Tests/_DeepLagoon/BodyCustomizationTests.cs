@@ -20,6 +20,50 @@ namespace Content.Tests._DeepLagoon;
 [TestFixture]
 public sealed class BodyCustomizationTests
 {
+    [TestCase("butt", "0", null)]
+    [TestCase("butt", "1", null)]
+    [TestCase("butt", "2", "1")]
+    [TestCase("butt", "4", "3")]
+    [TestCase("butt", "8", "3")]
+    [TestCase("belly", "1", null)]
+    [TestCase("belly", "2", "1")]
+    [TestCase("belly", "10", "2")]
+    [TestCase("breasts", "a", null)]
+    [TestCase("breasts", "b", "a")]
+    [TestCase("breasts", "j", "i")]
+    [TestCase("breasts", "impossible", "i")]
+    [TestCase("penis", "1", null)]
+    [TestCase("penis", "2", "1")]
+    [TestCase("penis", "5", "2")]
+    public void ClothingCapsThenCompressesWithoutChangingBareSize(string part, string size, string expected)
+    {
+        var feature = BodyCustomizationCatalog.Default(part);
+        feature.Enabled = true;
+        feature.Size = size;
+        Assert.That(BodyCustomizationCatalog.ForClothing(feature)?.Size, Is.EqualTo(expected));
+        Assert.That(feature.Size, Is.EqualTo(size));
+        feature.ShowThroughClothing = false;
+        Assert.That(BodyCustomizationCatalog.ForClothing(feature), Is.Null);
+        feature.ShowThroughClothing = true;
+        feature.Visibility = 2;
+        Assert.That(BodyCustomizationCatalog.ForClothing(feature), Is.Null);
+    }
+
+    [Test]
+    public void ClothingPreferenceIsIndependentAndOldProfilesKeepTheirDefault()
+    {
+        var original = BodyCustomizationCatalog.Default("breasts");
+        var changed = original.Clone();
+        changed.ShowThroughClothing = false;
+        Assert.That(changed.ContentEquals(original), Is.False);
+        Assert.That(BodyCustomizationCatalog.SanitizeForEditor([changed]).Single().ShowThroughClothing, Is.False);
+        var legacy = System.Text.Json.JsonSerializer.Deserialize<BodyFeature>("{\"Part\":\"breasts\",\"Shape\":\"pair\",\"Size\":\"b\"}")!;
+        Assert.That(legacy.ShowThroughClothing, Is.True);
+        Assert.That(BodyCustomizationCatalog.SpriteState(legacy, "FRONT", true), Is.EqualTo("breasts_pair_b_0_FRONT"));
+        legacy.Part = "penis"; legacy.Shape = "human"; legacy.Size = "2";
+        Assert.That(BodyCustomizationCatalog.SpriteState(legacy, "FRONT", true), Is.EqualTo("penis_human_2_1_FRONT"));
+    }
+
     [Test]
     public void LobbyLimitsDoNotRestrictRuntimeSizesOrMutateSavedInput()
     {
@@ -97,7 +141,11 @@ public sealed class BodyCustomizationTests
         }
         var database = new ServerDbSqlite(() => options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
         var features = BodyCustomizationCatalog.Order.Select(BodyCustomizationCatalog.Default).ToList();
-        foreach (var feature in features) feature.Enabled = true;
+        foreach (var feature in features)
+        {
+            feature.Enabled = true;
+            feature.ShowThroughClothing = Array.IndexOf(BodyCustomizationCatalog.Order, feature.Part) % 2 == 0;
+        }
         var breast = features.Single(f => f.Part == "breasts");
         breast.SecondaryEnabled = true; breast.SecondaryColor = "#4466FF";
         var profile = new HumanoidCharacterProfile().WithCharacterAppearance(new HumanoidCharacterAppearance { BodyFeatures = features, PlantigradeLegs = plantigradeLegs });

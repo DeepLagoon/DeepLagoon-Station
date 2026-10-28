@@ -15,7 +15,7 @@ public sealed partial class GridEditorSystem
     private void SynchronizeGrid(EntityUid uid, ICommonSession? appliedBy = null)
     {
         if (!TryComp<MapGridComponent>(uid, out var grid)) return;
-        var viewers = _drafts.Where(pair => pair.Value.Grid == uid && _admins.HasAdminFlag(pair.Key, AdminFlags.Mapping)).ToArray();
+        var viewers = _drafts.Where(pair => pair.Value.Grid == uid && _admins.HasAdminFlag(pair.Key.Player, AdminFlags.Mapping)).ToArray();
         if (viewers.Length == 0) return;
         var source = viewers[0].Value;
         var items = Capture(source, (_, _) => true);
@@ -41,7 +41,7 @@ public sealed partial class GridEditorSystem
             minX = Math.Min(minX, draft.X); minY = Math.Min(minY, draft.Y);
             maxX = Math.Max(maxX, draft.X + draft.Width); maxY = Math.Max(maxY, draft.Y + draft.Height);
         }
-        foreach (var (player, draft) in viewers)
+        foreach (var ((player, _), draft) in viewers)
         {
             var previous = draft.Items.ToDictionary(item => item.Id);
             var changed = items.Where(item => !previous.TryGetValue(item.Id, out var old) || !item.Same(old)).ToList();

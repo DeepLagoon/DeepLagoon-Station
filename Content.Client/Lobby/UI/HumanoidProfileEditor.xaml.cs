@@ -851,6 +851,7 @@ namespace Content.Client.Lobby.UI
 
                         SetDirty();
 
+                        if (trait.ID == "GeneticModification") RefreshAppearanceAccess();
                         UpdateTraitIncompatibilityVisibility(allSelectors);
 
                         // Instead of refreshing the entire UI, just update the point counter if needed
@@ -1275,6 +1276,7 @@ namespace Content.Client.Lobby.UI
             if (Profile != null)
                 Profile.Appearance.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.SanitizeForEditor(Profile.Appearance.BodyFeatures);
             CharacterSlot = slot;
+            ResetAppearanceHistory();
             IsDirty = false;
             JobOverride = null;
 
@@ -1590,6 +1592,7 @@ namespace Content.Client.Lobby.UI
             if (Profile is null)
                 return;
 
+            _appearanceRedo = null;
             Profile = Profile.WithCharacterAppearance(Profile.Appearance.WithMarkings(markings.GetForwardEnumerator().ToList()));
             ReloadProfilePreview();
         }
@@ -1736,6 +1739,7 @@ namespace Content.Client.Lobby.UI
         {
             Profile = Profile?.WithSpecies(newSpecies);
             OnSkinColorOnValueChanged(); // Species may have special color prefs, make sure to update it.
+            Markings.IgnoreSpecies = Profile?.UnrestrictedMarkings == true;
             Markings.SetSpecies(newSpecies); // Repopulate the markings tab as well.
             EnforceSpeciesTraitRestrictions();
             // In case there's job restrictions for the species
@@ -1997,6 +2001,7 @@ namespace Content.Client.Lobby.UI
                 return;
             }
 
+            Markings.IgnoreSpecies = Profile.UnrestrictedMarkings;
             Markings.SetData(Profile.Appearance.Markings, Profile.Species,
                 Profile.Sex, Profile.Appearance.SkinColor, Profile.Appearance.EyeColor
             );
@@ -2060,6 +2065,7 @@ namespace Content.Client.Lobby.UI
                 _ => new() { new(Profile.Appearance.FacialHairStyleId, new List<Color>() { Profile.Appearance.FacialHairColor }) },
             };
 
+            HairStylePicker.IgnoreSpecies = FacialHairPicker.IgnoreSpecies = Profile.UnrestrictedMarkings;
             HairStylePicker.UpdateData(
                 hairMarking,
                 Profile.Species,
@@ -2083,7 +2089,7 @@ namespace Content.Client.Lobby.UI
                 _markingManager.Markings.TryGetValue(Profile.Appearance.HairStyleId, out var hairProto)
             )
             {
-                if (_markingManager.CanBeApplied(Profile.Species, Profile.Sex, hairProto, _prototypeManager))
+                if (_markingManager.CanBeApplied(Profile.Species, Profile.Sex, hairProto, _prototypeManager, Profile.UnrestrictedMarkings))
                 {
                     if (_markingManager.MustMatchSkin(Profile.Species, HumanoidVisualLayers.Hair, out var _, _prototypeManager))
                     {
@@ -2117,7 +2123,7 @@ namespace Content.Client.Lobby.UI
             if (Profile.Appearance.FacialHairStyleId != HairStyles.DefaultFacialHairStyle &&
                 _markingManager.Markings.TryGetValue(Profile.Appearance.FacialHairStyleId, out var facialHairProto))
             {
-                if (_markingManager.CanBeApplied(Profile.Species, Profile.Sex, facialHairProto, _prototypeManager))
+                if (_markingManager.CanBeApplied(Profile.Species, Profile.Sex, facialHairProto, _prototypeManager, Profile.UnrestrictedMarkings))
                 {
                     if (_markingManager.MustMatchSkin(Profile.Species, HumanoidVisualLayers.FacialHair, out var _, _prototypeManager))
                     {

@@ -21,7 +21,6 @@ public sealed partial class GridEditorSystem
     private readonly Dictionary<int, (string Kind, string Prototype)> _hotbar = new();
     private readonly Dictionary<string, (string Name, List<GridEditorItem> Items)> _templates = new();
     private bool _libraryLoaded;
-    private string _uploadPurpose = "apply", _uploadName = "";
 
     private static string Field(MappingDataNode node, string key, string fallback = "") =>
         node.TryGet<ValueDataNode>(key, out var value) ? value.Value : fallback;
@@ -107,6 +106,11 @@ public sealed partial class GridEditorSystem
 
     private void PublishLibrary()
     {
+        foreach (var token in _tabs.Keys.ToArray()) InTab(token, PublishTabLibrary);
+    }
+
+    private void PublishTabLibrary()
+    {
         var available = _templates.Select(t => new TguiData().String("id", t.Key).String("name", t.Value.Name)
             .Array("items", t.Value.Items.Select(ItemData))).ToList();
         var visuals = _templates.Values.SelectMany(t => t.Items).Select(i => (i.Kind, i.Prototype))
@@ -115,7 +119,7 @@ public sealed partial class GridEditorSystem
                 try { return Visual(i.Kind, i.Prototype); }
                 catch (Exception) { return new TguiData().String("kind", i.Kind).String("id", i.Prototype).Bool("missing", true); }
             });
-        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+        SendTabUpdate(new TguiData().Object("data", new TguiData()
             .Array("hotbar", HotbarData())
             .Array("favorites", _favorites.Values.Select(f => new TguiData().String("kind", f.Kind).String("id", f.Prototype)))
             .Array("templates", available).Array("libraryVisuals", visuals)).ToString());
@@ -142,9 +146,7 @@ public sealed partial class GridEditorSystem
             if (kind is not ("entity" or "tile" or "decal") || id.Length is < 1 or > 200) return true;
             var key = kind + ":" + id;
             if (!_favorites.Remove(key)) { if (_favorites.Count >= 512) throw new InvalidDataException("Не более 512 избранных элементов."); _favorites[key] = (kind, id); }
-            PersistLibrary();
-            _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
-                .Array("favorites", _favorites.Values.Select(f => new TguiData().String("kind", f.Kind).String("id", f.Prototype)))).ToString());
+            PersistLibrary(); PublishLibrary();
             return true;
         }
         if (action == "deleteTemplate")
@@ -161,6 +163,6 @@ public sealed partial class GridEditorSystem
         PersistLibrary(); PublishLibrary(); Status("Шаблон сохранён в библиотеке на этом компьютере.", true);
     }
 
-    private void Status(string message, bool success) => _window?.Panel.Web.Send("update", new TguiData().Object("data",
+    private void Status(string message, bool success) => SendTabUpdate(new TguiData().Object("data",
         new TguiData().String("status", message).Bool("success", success).Number("resultVersion", ++_resultVersion)).ToString());
 }

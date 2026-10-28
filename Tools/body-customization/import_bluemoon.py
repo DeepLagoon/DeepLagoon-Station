@@ -1,18 +1,16 @@
-"""Import neutral on-mob DMI states. Requires Pillow; run from the Station root.
+"""Import tintable on-mob DMI states. Requires Pillow; run from the Station root.
 
 python Tools/body-customization/import_bluemoon.py C:/old_disk/repos/MOLOT-BlueMoon-Station
 """
 import json
 import re
-import sys
 import subprocess
+import argparse
 from pathlib import Path
 from PIL import Image
 from dmi_states import states as dmi_states
 
 root = Path(__file__).resolve().parents[2]
-source = Path(sys.argv[1])
-revision = subprocess.check_output(['git', '-c', f'safe.directory={source.as_posix()}', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
 files = {
     'penis': 'icons/obj/genitals/penis_onmob.dmi',
     'testicles': 'icons/obj/genitals/testicles_onmob.dmi',
@@ -22,29 +20,49 @@ files = {
     'belly': 'modular_splurt/icons/obj/genitals/belly_onmob.dmi',
     'anus': 'modular_splurt/icons/obj/genitals/anus_onmob.dmi',
 }
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('source', type=Path)
+parser.add_argument('--parts', nargs='+', choices=files, help='Reimport only these parts; preserve the other RSI assets.')
+args = parser.parse_args()
+source = args.source
+selected = set(args.parts or files)
+revision = subprocess.check_output(['git', '-c', f'safe.directory={source.as_posix()}', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
 catalog = {}
 secondary_sizes = []
 breasts_revision = 'e0681c819a195c390ded3109b2109ea09b2486c1'
 for part, filename in files.items():
+    directory = root / f'Resources/Textures/_DeepLagoon/BodyCustomization/{part}.rsi'
+    if part not in selected:
+        options = {}
+        for entry in json.loads((directory / 'meta.json').read_text(encoding='utf-8'))['states']:
+            name = entry['name']
+            parsed = re.fullmatch(part + r'_(.+)_([^_]+)_0_(FRONT|BEHIND)', name)
+            if parsed:
+                shape, size, layer = parsed.groups()
+                options.setdefault(shape, {}).setdefault(size, []).append(layer)
+            if part == 'breasts' and (secondary := re.fullmatch(r'nipples_pair_([^_]+)_0_FRONT', name)):
+                secondary_sizes.append(secondary[1])
+        catalog[part] = options
+        continue
     input_path = root / 'Tools/body-customization/sources/pr4108-breasts.dmi' if part == 'breasts' else source / filename
     image = Image.open(input_path).convert('RGBA')
     description = Image.open(input_path).info['Description']
     width = int(re.search(r'width = (\d+)', description)[1])
     height = int(re.search(r'height = (\d+)', description)[1])
     columns = image.width // width
-    directory = root / f'Resources/Textures/_DeepLagoon/BodyCustomization/{part}.rsi'
     directory.mkdir(parents=True, exist_ok=True)
     for old in directory.glob('*.png'):
         old.unlink()
     states, options = [], {}
     # Unnamed states still occupy tiles. Skipping them shifts every subsequent direction.
     for name, block, dirs, frames, offset in dmi_states(description):
-        # Only the neutral, tintable states; skin-tone duplicates and arousal are omitted.
+        # Retain both penis states; all other parts use their neutral, tintable states.
         secondary = part == 'breasts' and name.startswith('nipples_')
         prefix = 'nipples' if secondary else part
-        parsed = re.fullmatch(prefix + r'_(.+)_([^_]+)_0_(FRONT|BEHIND)', name) if '_s_0_' not in name else None
+        modes = '[01]' if part == 'penis' else '0'
+        parsed = re.fullmatch(prefix + r'_(.+)_([^_]+)_(' + modes + r')_(FRONT|BEHIND)', name) if '_s_' not in name else None
         if parsed and not parsed[1].endswith('_s') and dirs in (1, 4):
-            shape, size, layer = parsed.groups()
+            shape, size, aroused, layer = parsed.groups()
             target = Image.new('RGBA', (width * dirs, height * frames))
             for frame in range(frames):
                 for direction in range(dirs):
@@ -62,8 +80,14 @@ for part, filename in files.items():
             states.append({'name': name, 'directions': dirs, 'delays': [delays] * dirs})
             if secondary:
                 if shape == 'pair': secondary_sizes.append(size)
-            else:
+            elif aroused == '0':
                 options.setdefault(shape, {}).setdefault(size, []).append(layer)
+    if part == 'penis':
+        names = {state['name'] for state in states}
+        for shape, sizes in options.items():
+            for size, sides in sizes.items():
+                for side in sides:
+                    assert f'penis_{shape}_{size}_1_{side}' in names, (shape, size, side)
     assert states, filename
     source_revision = breasts_revision if part == 'breasts' else revision
     source_repo = 'BlueMoon-Station' if part == 'breasts' else 'MOLOT-BlueMoon-Station'

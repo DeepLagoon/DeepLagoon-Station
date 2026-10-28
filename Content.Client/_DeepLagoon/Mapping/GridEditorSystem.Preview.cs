@@ -8,27 +8,22 @@ namespace Content.Client._DeepLagoon.Mapping;
 
 public sealed partial class GridEditorSystem
 {
-    private int _previewGeneration, _previewCount, _previewChunks, _previewNext, _previewUploadGeneration;
-    private string? _previewId;
-    private GridEditorExpansion? _previewExpansion;
-    private readonly List<GridEditorItem> _preview = new();
-    private List<GridEditorPeerDraft> _peerDrafts = new();
 
     private void PeerDrafts(GridEditorDraftsEvent ev)
     {
-        if (_state == null || _state.Token != ev.Token) return;
-        _peerDrafts = ev.Peers;
+        if (_tab.State == null || _tab.State.Token != ev.Token) return;
+        _tab.PeerDrafts = ev.Peers;
         PublishPeerDrafts();
     }
 
     private void PublishPeerDrafts()
     {
-        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
-            .Array("peerDrafts", _peerDrafts.Select(peer => new TguiData().String("player", peer.Player).String("name", peer.Name)
+        SendTabUpdate(new TguiData().Object("data", new TguiData()
+            .Array("peerDrafts", _tab.PeerDrafts.Select(peer => new TguiData().String("player", peer.Player).String("name", peer.Name)
                 .Object("expansion", new TguiData().Number("left", peer.Expansion.Left).Number("right", peer.Expansion.Right)
                     .Number("bottom", peer.Expansion.Bottom).Number("top", peer.Expansion.Top))
                 .Array("items", peer.Items.Select(ItemData)).Array("removedItems", peer.RemovedItems.Select(ItemData))))
-            .Array("peerVisuals", _peerDrafts.SelectMany(peer => peer.Items.Concat(peer.RemovedItems))
+            .Array("peerVisuals", _tab.PeerDrafts.SelectMany(peer => peer.Items.Concat(peer.RemovedItems))
                 .Select(item => (item.Kind, item.Prototype)).Distinct().Select(item => Visual(item.Kind, item.Prototype))))
             .ToString());
     }
@@ -40,30 +35,30 @@ public sealed partial class GridEditorSystem
             var id = Field(root, "id");
             if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "count"), out var count) || count < 0 ||
                 !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != Math.Max(1, (count + 15L) / 16) ||
-                !int.TryParse(Field(root, "generation"), out _previewUploadGeneration)) return true;
-            _previewExpansion = null;
+                !int.TryParse(Field(root, "generation"), out _tab.PreviewUploadGeneration)) return true;
+            _tab.PreviewExpansion = null;
             if (root.TryGet<MappingDataNode>("expansion", out var expansion))
             {
                 if (!int.TryParse(Field(expansion, "left"), out var left) || !int.TryParse(Field(expansion, "right"), out var right) ||
                     !int.TryParse(Field(expansion, "bottom"), out var bottom) || !int.TryParse(Field(expansion, "top"), out var top)) return true;
-                _previewExpansion = new GridEditorExpansion { Left = left, Right = right, Bottom = bottom, Top = top };
+                _tab.PreviewExpansion = new GridEditorExpansion { Left = left, Right = right, Bottom = bottom, Top = top };
             }
-            _previewId = id; _previewCount = count; _previewChunks = chunks; _previewNext = 0; _preview.Clear();
+            _tab.PreviewId = id; _tab.PreviewCount = count; _tab.PreviewChunks = chunks; _tab.PreviewNext = 0; _tab.Preview.Clear();
             AckPreview(); return true;
         }
         if (action != "previewChunk") return false;
-        if (_state == null || _previewId == null || Field(root, "id") != _previewId ||
-            !int.TryParse(Field(root, "index"), out var index) || index != _previewNext ||
+        if (_tab.State == null || _tab.PreviewId == null || Field(root, "id") != _tab.PreviewId ||
+            !int.TryParse(Field(root, "index"), out var index) || index != _tab.PreviewNext ||
             !root.TryGet<SequenceDataNode>("items", out var sequence) || sequence.Count > 16) return true;
-        _preview.AddRange(ReadItems(sequence)); _previewNext++;
-        if (_preview.Count > _previewCount) { _previewId = null; _preview.Clear(); return true; }
-        if (_previewNext < _previewChunks) { AckPreview(); return true; }
-        if (_preview.Count != _previewCount) { _previewId = null; _preview.Clear(); return true; }
-        RaiseNetworkEvent(new GridEditorDraftUpdateEvent(_state.Token, _previewUploadGeneration, new List<GridEditorItem>(_preview), _previewExpansion));
-        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().String("previewFinished", _previewId)).ToString());
-        _previewId = null; _preview.Clear(); return true;
+        _tab.Preview.AddRange(ReadItems(sequence)); _tab.PreviewNext++;
+        if (_tab.Preview.Count > _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
+        if (_tab.PreviewNext < _tab.PreviewChunks) { AckPreview(); return true; }
+        if (_tab.Preview.Count != _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
+        RaiseNetworkEvent(new GridEditorDraftUpdateEvent(_tab.State.Token, _tab.PreviewUploadGeneration, new List<GridEditorItem>(_tab.Preview), _tab.PreviewExpansion));
+        SendTabUpdate(new TguiData().Object("data", new TguiData().String("previewFinished", _tab.PreviewId)).ToString());
+        _tab.PreviewId = null; _tab.Preview.Clear(); return true;
     }
 
-    private void AckPreview() => _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
-        .String("previewId", _previewId).Number("previewNext", _previewNext)).ToString());
+    private void AckPreview() => SendTabUpdate(new TguiData().Object("data", new TguiData()
+        .String("previewId", _tab.PreviewId).Number("previewNext", _tab.PreviewNext)).ToString());
 }

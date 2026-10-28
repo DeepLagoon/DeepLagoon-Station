@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Server._DeepLagoon.BodyCustomization;
 using Content.Server.Chat.Managers;
 using Content.Shared.Chat;
 using Content.Shared.Humanoid;
@@ -23,6 +24,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private IChatManager _chat = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private BodyCustomizationSystem _bodyCustomization = default!;
     private TimeSpan _nextRefresh;
     private TimeSpan _lastRefresh;
     private InteractionPanelArousalPrototype Settings => _prototypes.Index<InteractionPanelArousalPrototype>(new ProtoId<InteractionPanelArousalPrototype>("InteractionPanelArousal"));
@@ -31,6 +33,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
     {
         var arousal = EnsureComp<InteractionPanelArousalComponent>(uid);
         RefreshMaximum(uid, arousal);
+        _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
     }
 
     public float Maximum(EntityUid uid)
@@ -64,12 +67,14 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
                 var previous = arousal.Current;
                 InteractionPanelArousalRules.Add(ref arousal.Current, -Math.Max(0, Settings.DecayPerSecond) * elapsed, arousal.Maximum);
                 if (arousal.Current != previous) Dirty(uid, arousal);
+                _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
                 continue;
             }
             arousal.Current = 0;
             arousal.RecoveryUntil = _timing.CurTime + Settings.RecoveryDuration;
             Dirty(uid, arousal);
             Discharge(uid, uid);
+            _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
         }
     }
 
@@ -86,6 +91,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
             arousal.RecoveryUntil = _timing.CurTime + Settings.RecoveryDuration;
             Discharge(source, target);
         }
+        _bodyCustomization.UpdateGenitalArousal(target, arousal.Current, arousal.Maximum);
     }
 
     public void PlayActionSound(EntityUid target, InteractionPanelActionDefinition action)

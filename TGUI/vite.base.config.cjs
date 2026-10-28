@@ -28,6 +28,10 @@ const createJsxInJsPlugin = () => ({
   enforce: 'pre',
   async transform(code, id) {
     const normalizedId = id.replace(/\\/g, '/');
+    if (/\/packages\/.*\.[jt]sx?$/.test(normalizedId)
+      && /<select\b|createElement\(['"]select['"]/.test(code)) {
+      this.error('Native <select> popups corrupt the signed CEF view. Use EmbeddedSelect or Dropdown.');
+    }
     if (!/\/packages\/.*\.js$/.test(normalizedId)) {
       return null;
     }

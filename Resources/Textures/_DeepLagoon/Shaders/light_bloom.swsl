@@ -1,0 +1,16 @@
+light_mode unshaded;
+blend_mode add;
+
+uniform sampler2D light_mask;
+uniform highp float mask_scale;
+uniform highp vec2 mask_rotation;
+
+void fragment() {
+    highp vec2 delta = UV * 2.0 - 1.0;
+    highp float radius = length(delta);
+    highp float halo = exp(-5.0 * radius * radius) * (1.0 - smoothstep(0.65, 1.0, radius));
+    highp vec2 rotated = vec2(dot(delta, mask_rotation), dot(delta, vec2(-mask_rotation.y, mask_rotation.x)));
+    highp float mask = texture2D(light_mask, vec2(rotated.x, -rotated.y) * mask_scale * 0.5 + 0.5).r;
+    COLOR = vec4(MODULATE.rgb * halo * mask * MODULATE.a, 1.0);
+    MODULATE = vec4(1.0);
+}

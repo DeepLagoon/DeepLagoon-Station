@@ -8,6 +8,19 @@ public sealed partial class HumanoidProfileEditor
 {
     private bool _combineMarkings;
 
+    private void DisableMarkingCombination()
+    {
+        if (Profile == null) return;
+        var occupied = new HashSet<(HumanoidVisualLayers, MarkingCategories)>();
+        var selected = Profile.Appearance.Markings.OrderByDescending(marking => marking.DrawOrder)
+            .Where(marking => !_markingManager.TryGetMarking(marking, out var prototype)
+                || occupied.Add((prototype.BodyPart, prototype.BodyPart is HumanoidVisualLayers.Tail or HumanoidVisualLayers.Snout
+                    ? MarkingCategories.Special : prototype.MarkingCategory))).ToList();
+        var set = new MarkingSet(selected, _prototypeManager.Index(Profile.Species).MarkingPoints,
+            _markingManager, _prototypeManager, Profile.UnrestrictedMarkings);
+        OnMarkingChange(set);
+    }
+
     private bool TrySelectTguiMarking(List<Marking> list, MarkingPrototype selected, string points)
     {
         if (Profile == null)
@@ -17,22 +30,23 @@ public sealed partial class HumanoidProfileEditor
         foreach (var id in selected.EditorLinkedMarkings)
         {
             if (!_markingManager.Markings.TryGetValue(id, out var linked)
-                || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, linked, _prototypeManager))
+                || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, linked, _prototypeManager, Profile.UnrestrictedMarkings))
                 return false;
             bundle.Add(linked);
         }
 
         RestoreTguiBodyMarkings(list, points);
 
-        if (selected.EditorExclusive && !_combineMarkings)
+        if (!_combineMarkings)
             list.RemoveAll(marking => _markingManager.TryGetMarking(marking, out var existing)
-                && bundle.Any(part => part.MarkingCategory == existing.MarkingCategory && part.BodyPart == existing.BodyPart));
+                && bundle.Any(part => part.BodyPart == existing.BodyPart &&
+                    (part.MarkingCategory == existing.MarkingCategory || part.BodyPart is HumanoidVisualLayers.Tail or HumanoidVisualLayers.Snout)));
         else if (list.Any(marking => marking.MarkingId == selected.ID))
             return false;
 
         var order = NormalizeTguiMarkingOrder(list) + 1;
 
-        var set = new MarkingSet(list, points, _markingManager, _prototypeManager);
+        var set = new MarkingSet(list, points, _markingManager, _prototypeManager, Profile.UnrestrictedMarkings);
         foreach (var part in bundle)
         {
             if (list.Any(marking => marking.MarkingId == part.ID))

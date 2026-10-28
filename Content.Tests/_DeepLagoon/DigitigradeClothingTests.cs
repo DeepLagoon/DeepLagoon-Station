@@ -182,7 +182,7 @@ public sealed class DigitigradeClothingTests
                 using var torso = Read($"{folder}/Mobs/Species/{species}/parts.rsi/torso_{(female ? "f" : "m")}.png", direction);
                 using var shape = Read("_DeepLagoon/BodyCustomization/butt.rsi/butt_pair_4_0_FRONT.png", direction);
                 using var anchor = Read("_DeepLagoon/BodyCustomization/butt.rsi/butt_pair_1_0_FRONT.png", direction);
-                using var combined = ClothingBodyFitMap.Build(torso, [(shape, anchor)], cloth, displacement, 16, true);
+                using var combined = ClothingBodyFitMap.Build(torso, [new(shape, anchor, StretchVertically: false)], cloth, displacement, 16, true);
                 using var combinedCloth = Render(cloth, combined);
                 Assert.That(Opaque(combinedCloth), Is.GreaterThan(0));
             }

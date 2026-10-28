@@ -96,7 +96,7 @@ trait-category-disabilities = Ограничения
 
 trait-category-speech = Черты речи
 
-trait-category-quirks = Причуды
+trait-category-quirks = Особенности
 
 humanoid-profile-editor-clear-all-traits-button = Сбросить все черты
 

@@ -24,6 +24,9 @@ public sealed partial class GraphicsTab : Control
         Control.AddOptionCheckBox(CVars.DisplayVSync, VSyncCheckBox);
         Control.AddOptionCheckBox(CCVars.LobbyAnimatedBackground, LobbyAnimatedBackgroundCheckBox);
         Control.AddOptionCheckBox(CCVars.AmbientOcclusion, AmbientOcclusionCheckBox);
+        Control.AddOptionCheckBox(CCVars.LightBloomEnabled, LightBloomCheckBox);
+        Control.AddOptionSlider(CCVars.LightBloomIntensity, LightBloomIntensitySlider,
+            0, 100, (_, value) => $"{value}%");
         Control.AddOption(new OptionFullscreen(Control, _cfg, FullscreenCheckBox));
         Control.AddOption(new OptionLightingQuality(Control, _cfg, DropDownLightingQuality));
         Control.AddOptionCheckBox(CCVars.AmbientOcclusionEnabled, ContactOcclusionCheckBox);

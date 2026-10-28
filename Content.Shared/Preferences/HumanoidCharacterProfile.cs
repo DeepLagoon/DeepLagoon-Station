@@ -136,6 +136,8 @@ namespace Content.Shared.Preferences
         /// </summary>
         public IReadOnlySet<ProtoId<TraitPrototype>> TraitPreferences => _traitPreferences;
 
+        public bool UnrestrictedMarkings => Species.Id == "Synth" || TraitPreferences.Contains("GeneticModification");
+
         /// <summary>
         /// If we're unable to get one of our preferred jobs do we spawn as a fallback job or do we stay in lobby.
         /// </summary>
@@ -675,7 +677,7 @@ namespace Content.Shared.Preferences
             }
             // End Frontier
 
-            var appearance = HumanoidCharacterAppearance.EnsureValid(Appearance, Species, Sex);
+            var appearance = HumanoidCharacterAppearance.EnsureValid(Appearance, Species, Sex, UnrestrictedMarkings);
 
             var prefsUnavailableMode = PreferenceUnavailable switch
             {

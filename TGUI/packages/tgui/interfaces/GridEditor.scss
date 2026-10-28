@@ -1,6 +1,7 @@
 // Geometry restoration can apply a saved TGUI zoom before React mounts.
 // Keep the viewport editor at CSS pixel scale, including that initial render.
 body:has(.GridEditor) { zoom: 1 !important; }
+.GridEditor[hidden] { display: none !important; }
 
 .GridEditor {
   position: fixed; inset: 0; height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; color: #deebf3; background: #101923; font-size: 13px;
@@ -28,6 +29,18 @@ body:has(.GridEditor) { zoom: 1 !important; }
     &:hover, &:focus-visible { background: #5aadc6; outline: none; }
   }
   nav { display: flex; flex-wrap: wrap; gap: 3px; }
+  &__tabs { flex: 0 0 auto; flex-wrap: nowrap !important; gap: 4px; overflow-x: auto; padding: 7px 7px 0; background: #0b131d;
+    button { display: flex; gap: 8px; align-items: center; min-width: 120px; max-width: 240px; flex-shrink: 0;
+      padding: 9px 12px; border-radius: 9px 9px 0 0; border-bottom: none; background: #192633;
+      span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      &.active { background: #1e2d3b; border-color: #70cae4; }
+    }
+  }
+  &__tab { display: flex; flex-shrink: 0; border-radius: 9px 9px 0 0; background: #192633; border: 1px solid #456070; border-bottom: 0;
+    > button { border: 0; background: transparent; }
+    > button:last-child { min-width: 28px; padding: 5px; border-radius: 0 9px 0 0; }
+    &.active { background: #1e2d3b; border-color: #70cae4; }
+  }
   &__entries { flex: 1; overflow-y: auto; min-height: 0;
     button { display: flex; width: 100%; gap: 7px; align-items: center; margin-bottom: 3px; text-align: left; }
     button > span:last-child { min-width: 0; overflow-wrap: anywhere; }

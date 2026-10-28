@@ -61,3 +61,14 @@ The client supplies one cached face image from the preview dummy's actual head,
 eyes and selected head markings. Hair/beard catalogues keep using lazy sprite
 IDs; face pixels do not receive the selected hair tint. Each carousel has its
 own local fuzzy search and resets scrolling when the search changes.
+
+`species_rules.py` generates `species_rules.yml` from the user-approved family
+assignments. Existing native species assignments are retained, ordinary scars,
+tattoos and geometric markings belong to the shared Common catalogue category,
+and unmatched BlueMoon anatomy requires the free `GeneticModification` trait.
+Synth always has access to every species' marking set. The trait bypasses only
+species restrictions; sex-specific art and existing positive selection limits
+remain validated. Categories with zero species points become available with the
+trait or for Synth. Removing the trait removes incompatible draft selections.
+Run `python Tools/bluemoon-customization/species_rules.py` after editing families
+or adding new markings; a full asset import also regenerates the rules.

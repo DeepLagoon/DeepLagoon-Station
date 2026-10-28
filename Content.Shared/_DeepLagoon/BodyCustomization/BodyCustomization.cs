@@ -19,12 +19,14 @@ public sealed partial class BodyFeature
     [DataField] public string SecondaryColor { get; set; } = "#FFFFFF";
     // 0 = hidden, 1 = below clothing, 2 = above clothing.
     [DataField] public int Visibility { get; set; } = 1;
+    [DataField] public bool ShowThroughClothing { get; set; } = true;
 
     public BodyFeature Clone() => (BodyFeature) MemberwiseClone();
     public bool ContentEquals(BodyFeature other) => Part == other.Part && Enabled == other.Enabled
         && Shape == other.Shape && Size == other.Size && Scale.Equals(other.Scale)
         && MatchSkin == other.MatchSkin && Color == other.Color && Visibility == other.Visibility
-        && SecondaryEnabled == other.SecondaryEnabled && SecondaryColor == other.SecondaryColor;
+        && SecondaryEnabled == other.SecondaryEnabled && SecondaryColor == other.SecondaryColor
+        && ShowThroughClothing == other.ShowThroughClothing;
 }
 
 public static partial class BodyCustomizationCatalog
@@ -75,6 +77,22 @@ public static partial class BodyCustomizationCatalog
     }
 
     public static bool CanResize(string part) => part is "butt" or "belly" or "breasts" or "anus" or "penis";
+
+    /// <summary>Clothing uses an editor-capped silhouette, compressed by one size; bare anatomy is unchanged.</summary>
+    public static BodyFeature? ForClothing(BodyFeature feature)
+    {
+        if (!feature.Enabled || feature.Visibility != 1 || !feature.ShowThroughClothing || feature.Part == "womb") return null;
+        var sizes = EditorSizes(feature.Part, feature.Shape);
+        var index = Array.IndexOf(sizes, feature.Size);
+        if (index < 0) index = sizes.Length - 1;
+        if (index == 0 || sizes[index - 1] == "0") return null;
+        var clothed = feature.Clone();
+        clothed.Size = sizes[index - 1];
+        return clothed;
+    }
+
+    public static string SpriteState(BodyFeature feature, string side, bool aroused = false) =>
+        $"{feature.Part}_{feature.Shape}_{feature.Size}_{(feature.Part == "penis" && aroused ? 1 : 0)}_{side}";
 
     public static bool Resize(List<BodyFeature> features, string part, int direction)
     {

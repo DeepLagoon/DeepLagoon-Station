@@ -3,6 +3,7 @@
   parent: BaseStructure
   abstract: true
   components:
+  - type: NoLightBloom
   - type: Physics
     bodyType: Static
   - type: Fixtures

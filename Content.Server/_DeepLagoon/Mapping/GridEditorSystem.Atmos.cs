@@ -11,10 +11,10 @@ public sealed partial class GridEditorSystem
     private void Atmos(GridEditorAtmosRequest ev, EntitySessionEventArgs args)
     {
         var player = args.SenderSession;
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, ev.Token), out var draft) ||
             draft.Token != ev.Token || !Exists(draft.Grid))
         {
-            RaiseNetworkEvent(new GridEditorResultEvent("Нет действующей сессии Mapping.", false), player); return;
+            RaiseNetworkEvent(new GridEditorResultEvent("Нет действующей сессии Mapping.", false, ev.Token), player); return;
         }
         var result = EntityManager.System<AtmosphereSystem>().InspectGridEditorAtmos(draft.Grid, draft.Token, ev.Fill);
         if (ev.Fill)

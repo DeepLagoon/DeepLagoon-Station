@@ -1,3 +1,4 @@
+import { EmbeddedSelect } from '../components/EmbeddedSelect';
 import { useEffect, useMemo, useState } from 'react';
 import { useBackend } from '../backend';
 import { Icon } from '../components';
@@ -121,9 +122,9 @@ export const Jukebox = () => {
           <button key={value} type="button" aria-pressed={tab === value} onClick={() => changeTab(value)}>{t(value)}{value === 'queue' ? ` · ${queue.length}` : ''}</button>)}</nav>
         {tab !== 'queue' && <input className="Jukebox__search" type="search" aria-label={t('search')} placeholder={t('search')} value={query} onFocus={() => act('focus')} onChange={e => { setQuery(e.target.value); setPage(0); }} />}
         {(tab === 'catalog' || tab === 'playlists') && <div className="Jukebox__playlist-tools">
-          <select value={playlist} aria-label={t('playlists')} onChange={e => { setPlaylist(e.target.value); setPage(0); }} disabled={busy || !playlists.length}>
+          <EmbeddedSelect value={playlist} aria-label={t('playlists')} onChange={e => { setPlaylist(e.target.value); setPage(0); }} disabled={busy || !playlists.length}>
             {!playlists.length && <option value="">{t('playlists')}</option>}{playlists.map(p => <option key={p.name}>{p.name}</option>)}
-          </select>
+          </EmbeddedSelect>
           {iconButton(t('new'), 'plus', () => openDialog('create'), busy || playlists.length >= 40)}
           {tab === 'playlists' && <>{iconButton(t('rename'), 'pen', () => openDialog('rename'), busy || !playlist)}
             {iconButton(t('delete'), 'trash', () => openDialog('delete'), busy || !playlist)}

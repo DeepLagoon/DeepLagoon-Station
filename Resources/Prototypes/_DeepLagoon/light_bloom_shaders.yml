@@ -1,0 +1,9 @@
+- type: shader
+  id: LightBloom
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/light_bloom.swsl
+
+- type: shader
+  id: LightSourceHidden
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/light_source_hidden.swsl

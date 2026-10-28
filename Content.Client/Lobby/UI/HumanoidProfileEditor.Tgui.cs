@@ -66,6 +66,7 @@ public sealed partial class HumanoidProfileEditor
             if (Disposed || (_profileWeb == null && _nativeTattoos == null) || Profile != original || CharacterSlot != slot
                 || _requirements.TattoosBanned || !_cfgManager.GetCVar(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled)) return;
             var appearance = Profile.Appearance.Clone(); next[next.FindIndex(t => t.Id == basis.Id)] = result;
+            _appearanceRedo = null;
             appearance.Tattoos = next; Profile = Profile.WithCharacterAppearance(appearance);
             _tattooStatus = ""; ReloadProfilePreview(); SetDirty();
         }
@@ -91,6 +92,7 @@ public sealed partial class HumanoidProfileEditor
                 { _tattooStatus = "Настройки или рисунок изменились. Повторите загрузку PNG."; return; }
                 var appearance = Profile.Appearance.Clone();
                 appearance.Tattoos[appearance.Tattoos.FindIndex(t => t.Id == template.Id)] = result.Tattoo;
+                _appearanceRedo = null;
                 Profile = Profile.WithCharacterAppearance(appearance); ReloadProfilePreview(); SetDirty();
             }
         }
@@ -276,7 +278,7 @@ public sealed partial class HumanoidProfileEditor
         _publishedSupporterBonus = _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetLoadoutPointBonus(_playerManager.LocalSession);
         if (_tguiMode != "native")
         {
-            var catalogKey = $"{_tguiMode}|{Profile?.Species.Id}|{Profile?.Sex}|{TabContainer.ChildCount}|{_publishedSupporterBonus}|{IoCManager.Resolve<ILocalizationManager>().DefaultCulture?.Name}";
+            var catalogKey = $"{_tguiMode}|{Profile?.Species.Id}|{Profile?.Sex}|{Profile?.UnrestrictedMarkings}|{TabContainer.ChildCount}|{_publishedSupporterBonus}|{IoCManager.Resolve<ILocalizationManager>().DefaultCulture?.Name}";
             if (catalogKey != _catalogKey)
             {
                 _catalogKey = catalogKey;
@@ -298,6 +300,10 @@ public sealed partial class HumanoidProfileEditor
         data.Bool("extendedHeadshot", _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetSupporterTier(_playerManager.LocalSession) >= 2);
         if (SetupState != null) data.Object("setup", SetupState());
         if (Profile is not { } p) return data;
+        data.Bool("canUndoAppearance", !_tattooFileBusy && _appearanceBaseline != null
+                && (!SameAppearanceSelection(p.Appearance, _appearanceBaseline) || _combineMarkings != _appearanceBaselineCombine))
+            .Bool("canRedoAppearance", !_tattooFileBusy && _appearanceRedo != null
+                && (!SameAppearanceSelection(p.Appearance, _appearanceRedo) || _combineMarkings != _appearanceRedoCombine));
         if (mode == "appearance") data.Array("bodyFeatures", BodyCustomizationData());
         data.Bool("canUsePlantigradeLegs", _prototypeManager.Index(p.Species).PlantigradeSprites != null)
             .Bool("plantigradeLegs", p.Appearance.PlantigradeLegs);
@@ -336,10 +342,11 @@ public sealed partial class HumanoidProfileEditor
                     .Array("colors", marking.MarkingColors.Select(color => Choice("", color.ToHexNoAlpha())));
                 }));
             if (includeCatalogs) data.Array("markingOptions", _markingManager.Markings.Values.Where(m => m.MarkingCategory is not (MarkingCategories.Hair or MarkingCategories.FacialHair)
-                && !m.EditorHidden && _markingManager.CanBeApplied(p.Species, p.Sex, m, _prototypeManager))
-                .Select(m => Choice(m.ID, Loc.GetString($"marking-{m.ID}")).String("category", Loc.GetString(m.EditorLinkedMarkings.Count > 0
+                && !m.EditorHidden && _markingManager.CanBeApplied(p.Species, p.Sex, m, _prototypeManager, p.UnrestrictedMarkings))
+                .Select(m => Choice(m.ID, Loc.GetString($"marking-{m.ID}")).String("category", Loc.GetString(_markingManager.IsCommon(m) ? "markings-category-common" : m.EditorLinkedMarkings.Count > 0
                     ? $"markings-bodypart-{m.BodyPart}" : $"markings-category-{m.MarkingCategory}"))
                     .String("part", m.BodyPart.ToString()).String("categoryId", m.MarkingCategory.ToString())
+                    .Array("races", MarkingRaceChoices(m))
                     .String("iconId", "marking/" + m.ID)));
         }
         var species = _prototypeManager.Index(p.Species);
@@ -451,8 +458,8 @@ public sealed partial class HumanoidProfileEditor
         if (Profile == null) yield break;
         yield return Choice(beard ? HairStyles.DefaultFacialHairStyle : HairStyles.DefaultHairStyle, beard ? "Без бороды" : "Без волос");
         var category = beard ? MarkingCategories.FacialHair : MarkingCategories.Hair;
-        foreach (var marking in _markingManager.MarkingsByCategoryAndSpecies(category, Profile.Species).Values
-                     .Where(m => _markingManager.CanBeApplied(Profile.Species, Profile.Sex, m, _prototypeManager))
+        foreach (var marking in _markingManager.MarkingsByCategoryAndSpecies(category, Profile.Species, Profile.UnrestrictedMarkings).Values
+                     .Where(m => _markingManager.CanBeApplied(Profile.Species, Profile.Sex, m, _prototypeManager, Profile.UnrestrictedMarkings))
                      .OrderBy(m => Loc.GetString($"marking-{m.ID}")))
             if (marking.ID != (beard ? HairStyles.DefaultFacialHairStyle : HairStyles.DefaultHairStyle))
                 yield return Choice(marking.ID, Loc.GetString($"marking-{marking.ID}")).String("iconId", "marking/" + marking.ID);
@@ -553,6 +560,7 @@ public sealed partial class HumanoidProfileEditor
             {
                 var appearance = Profile.Appearance.Clone();
                 appearance.Tattoos = tattoos;
+                _appearanceRedo = null;
                 Profile = Profile.WithCharacterAppearance(appearance);
                 ReloadProfilePreview();
                 SetDirty();
@@ -568,6 +576,10 @@ public sealed partial class HumanoidProfileEditor
         }
         switch (action)
         {
+            case "appearance-undo":
+            case "appearance-redo":
+                if (!RestoreAppearanceSelection(action == "appearance-redo")) return false;
+                break;
             case "plantigrade-legs":
                 if (!bool.TryParse(value, out var straightLegs) || !SetPlantigradeLegs(straightLegs)) return false;
                 break;
@@ -645,7 +657,11 @@ public sealed partial class HumanoidProfileEditor
             case "export": ExportProfile(); break;
             case "export-image": ExportImage(); break;
             case "open-images": _resManager.UserData.OpenOsWindow(Content.Client.Sprite.ContentSpriteSystem.Exports); break;
-            case "marking-combine": _combineMarkings = !_combineMarkings; break;
+            case "marking-combine":
+                _appearanceRedo = null;
+                _combineMarkings = !_combineMarkings;
+                if (!_combineMarkings) DisableMarkingCombination();
+                break;
             case "clothes": if (_tguiMode == "markings") return false; ShowClothes.SetClickPressed(!ShowClothes.Pressed); ReloadPreview(); break;
             case "rotate":
                 if (!args.TryInt("value", out var turn) || turn is not (-1 or 1)) return false;
@@ -683,7 +699,7 @@ public sealed partial class HumanoidProfileEditor
                 var category = beard ? MarkingCategories.FacialHair : MarkingCategories.Hair;
                 var empty = beard ? HairStyles.DefaultFacialHairStyle : HairStyles.DefaultHairStyle;
                 if (value != empty && (!_markingManager.Markings.TryGetValue(value, out var marking) || marking.MarkingCategory != category ||
-                    !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, marking, _prototypeManager))) return false;
+                    !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, marking, _prototypeManager, Profile.UnrestrictedMarkings))) return false;
                 Profile = Profile.WithCharacterAppearance(beard ? Profile.Appearance.WithFacialHairStyleName(value) : Profile.Appearance.WithHairStyleName(value));
                 ReloadProfilePreview(); break;
             case "hair-color":
@@ -736,8 +752,8 @@ public sealed partial class HumanoidProfileEditor
                 if (args.String("id") is not { } traitId || !_prototypeManager.TryIndex<TraitPrototype>(traitId, out var trait)) return false;
                 if (Profile.TraitPreferences.Contains(trait.ID)) Profile = Profile.WithoutTraitPreference(trait.ID, _prototypeManager);
                 else { if (!CanSelectTguiTrait(trait)) return false; Profile = Profile.WithTraitPreference(trait.ID, _prototypeManager); }
-                RefreshTraits(); SetDirty(); break;
-            case "clear-traits": Profile = Profile.WithoutAllTraitPreferences(); RefreshTraits(); SetDirty(); break;
+                RefreshTraits(); RefreshAppearanceAccess(); SetDirty(); break;
+            case "clear-traits": Profile = Profile.WithoutAllTraitPreferences(); RefreshTraits(); RefreshAppearanceAccess(); SetDirty(); break;
             case "company":
                 if (!_prototypeManager.TryIndex<CompanyPrototype>(value, out var company) || company.Disabled || !_companyManager.IsAllowed(company.ID)) return false;
                 Profile = Profile.WithCompany(value); UpdateCompanyControls(); SetDirty(); break;
@@ -762,7 +778,7 @@ public sealed partial class HumanoidProfileEditor
         {
             CloseColorPicker();
             if (!_markingManager.Markings.TryGetValue(value, out var prototype) || prototype.MarkingCategory is MarkingCategories.Hair or MarkingCategories.FacialHair ||
-                prototype.EditorHidden || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager)) return false;
+                prototype.EditorHidden || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager, Profile.UnrestrictedMarkings)) return false;
             if (action == "marking-toggle" && list.FirstOrDefault(marking => marking.MarkingId == value) is { } current)
             {
                 list.Remove(current);
@@ -795,8 +811,8 @@ public sealed partial class HumanoidProfileEditor
             }
         }
         RestoreTguiBodyMarkings(list, points);
-        var updated = new MarkingSet(list, points, _markingManager, _prototypeManager);
-        updated.EnsureSpecies(Profile.Species, Profile.Appearance.SkinColor, _markingManager, _prototypeManager);
+        var updated = new MarkingSet(list, points, _markingManager, _prototypeManager, Profile.UnrestrictedMarkings);
+        updated.EnsureSpecies(Profile.Species, Profile.Appearance.SkinColor, _markingManager, _prototypeManager, Profile.UnrestrictedMarkings);
         updated.EnsureSexes(Profile.Sex, _markingManager);
         OnMarkingChange(updated);
         return true;

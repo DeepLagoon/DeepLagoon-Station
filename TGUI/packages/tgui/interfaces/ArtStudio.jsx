@@ -1,3 +1,4 @@
+import { EmbeddedSelect } from '../components/EmbeddedSelect';
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
@@ -148,7 +149,7 @@ export const ArtStudio = () => {
       setView({ zoom: next, x: dx - (dx - view.x) * ratio, y: dy - (dy - view.y) * ratio });
     }}><canvas ref={canvas} width={SIZE} height={SIZE} tabIndex={0} aria-label={t('editor')} style={{ transform: `translate(${view.x}px,${view.y}px) scale(${view.zoom})` }} onPointerDown={down} onPointerMove={move} onPointerUp={end} onPointerCancel={end} /></div>
       <div className="ArtStudio__meta"><span>{SIZE} × {SIZE}</span><span>{Math.round(view.zoom * 100)}%</span><span>{state?.target === 'mask' ? t('mask') + ': ' : ''}{layer?.name}</span></div></div>
-      <aside className="ArtStudio__panels"><section><label>{t('shape')}<select aria-label={t('shape')} value={shape} disabled={busy} onChange={e => setShape(e.target.value)}>{['round','soft','flat','square','chalk','spray'].map(s => <option key={s} value={s}>{s === 'square' ? '■' : t(s)}</option>)}</select></label>
+      <aside className="ArtStudio__panels"><section><label>{t('shape')}<EmbeddedSelect aria-label={t('shape')} value={shape} disabled={busy} onChange={e => setShape(e.target.value)}>{['round','soft','flat','square','chalk','spray'].map(s => <option key={s} value={s}>{s === 'square' ? '■' : t(s)}</option>)}</EmbeddedSelect></label>
       <label>{t('size')} <output>{size} px</output><input type="range" aria-label={t('size')} min="1" max="160" value={size} onChange={e => setSize(Number(e.target.value))} /></label>
       <label>{t('opacity')} <output>{Math.round(flow * 100)}%</output><input type="range" aria-label={t('opacity')} min="1" max="100" value={Math.round(flow * 100)} onChange={e => setFlow(Number(e.target.value) / 100)} /></label></section>
       <section><div className="ArtStudio__section-title">{t('layers')}</div><div className="ArtStudio__layers">{[...(state?.layers || [])].reverse().map(l => <div key={l.id} className={l.id === state.active ? 'active' : ''}>

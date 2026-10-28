@@ -62,7 +62,7 @@ public sealed partial class MarkingSet
     /// </summary>
     /// <param name="markings">The lists of markings to use.</param>
     /// <param name="pointsPrototype">The ID of the points dictionary prototype.</param>
-    public MarkingSet(List<Marking> markings, string pointsPrototype, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null)
+    public MarkingSet(List<Marking> markings, string pointsPrototype, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null, bool unrestricted = false)
     {
         IoCManager.Resolve(ref markingManager, ref prototypeManager);
 
@@ -72,6 +72,8 @@ public sealed partial class MarkingSet
         }
 
         Points = MarkingPoints.CloneMarkingPointDictionary(points.Points);
+        if (unrestricted)
+            foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray()) Points.Remove(category);
 
         foreach (var marking in markings)
         {
@@ -109,7 +111,7 @@ public sealed partial class MarkingSet
     ///     Construct a MarkingSet only with a points dictionary.
     /// </summary>
     /// <param name="pointsPrototype">The ID of the points dictionary prototype.</param>
-    public MarkingSet(string pointsPrototype, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null)
+    public MarkingSet(string pointsPrototype, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null, bool unrestricted = false)
     {
         IoCManager.Resolve(ref markingManager, ref prototypeManager);
 
@@ -119,6 +121,8 @@ public sealed partial class MarkingSet
         }
 
         Points = MarkingPoints.CloneMarkingPointDictionary(points.Points);
+        if (unrestricted)
+            foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray()) Points.Remove(category);
     }
 
     /// <summary>
@@ -145,14 +149,12 @@ public sealed partial class MarkingSet
     /// <param name="skinColor">The skin color for recoloring (i.e. slimes). Use null if you want only filter markings</param>
     /// <param name="markingManager">Marking manager.</param>
     /// <param name="prototypeManager">Prototype manager.</param>
-    public void EnsureSpecies(string species, Color? skinColor, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null)
+    public void EnsureSpecies(string species, Color? skinColor, MarkingManager? markingManager = null, IPrototypeManager? prototypeManager = null, bool ignoreSpecies = false)
     {
         IoCManager.Resolve(ref markingManager);
         IoCManager.Resolve(ref prototypeManager);
 
         var toRemove = new List<(MarkingCategories category, string id)>();
-        var speciesProto = prototypeManager.Index<SpeciesPrototype>(species);
-        var onlyWhitelisted = prototypeManager.Index<MarkingPointsPrototype>(speciesProto.MarkingPoints).OnlyWhitelisted;
 
         foreach (var (category, list) in Markings)
         {
@@ -164,13 +166,7 @@ public sealed partial class MarkingSet
                     continue;
                 }
 
-                if (onlyWhitelisted && prototype.SpeciesRestrictions == null)
-                {
-                    toRemove.Add((category, marking.MarkingId));
-                }
-
-                if (prototype.SpeciesRestrictions != null
-                    && !prototype.SpeciesRestrictions.Contains(species))
+                if (!markingManager.IsSpeciesAllowed(species, prototype, ignoreSpecies))
                 {
                     toRemove.Add((category, marking.MarkingId));
                 }

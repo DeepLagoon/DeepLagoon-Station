@@ -116,6 +116,18 @@ public sealed partial class BodyCustomizationSystem : EntitySystem
         return true;
     }
 
+    public bool SetGenitalArousal(EntityUid uid, bool? aroused = null)
+    {
+        if (!TryComp<HumanoidAppearanceComponent>(uid, out var humanoid) ||
+            !humanoid.BodyFeatures.Any(f => f.Part == "penis" && f.Enabled)) return false;
+        var next = aroused ?? !humanoid.GenitalAroused;
+        if (humanoid.GenitalAroused == next) return true;
+        humanoid.GenitalAroused = next;
+        EnsureComp<GenitalArousalCooldownComponent>(uid).NextAutomaticChange = _timing.CurTime + GenitalArousalCooldown;
+        Changed(uid, humanoid);
+        return true;
+    }
+
     private void Changed(EntityUid uid, HumanoidAppearanceComponent humanoid)
     {
         Dirty(uid, humanoid);

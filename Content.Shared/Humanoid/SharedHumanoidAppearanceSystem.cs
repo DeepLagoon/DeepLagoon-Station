@@ -170,6 +170,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         targetHumanoid.MarkingSet = new(sourceHumanoid.MarkingSet);
         targetHumanoid.Tattoos = Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(sourceHumanoid.Tattoos);
         targetHumanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(sourceHumanoid.BodyFeatures);
+        targetHumanoid.GenitalAroused = sourceHumanoid.GenitalAroused;
         targetHumanoid.PlantigradeLegs = sourceHumanoid.PlantigradeLegs;
 
         targetHumanoid.Gender = sourceHumanoid.Gender;
@@ -278,9 +279,9 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         }
 
         humanoid.Species = species;
-        humanoid.MarkingSet.EnsureSpecies(species, humanoid.SkinColor, _markingManager);
+        humanoid.MarkingSet.EnsureSpecies(species, humanoid.SkinColor, _markingManager, ignoreSpecies: humanoid.UnrestrictedMarkings);
         var oldMarkings = humanoid.MarkingSet.GetForwardEnumerator().ToList();
-        humanoid.MarkingSet = new(oldMarkings, prototype.MarkingPoints, _markingManager, _proto);
+        humanoid.MarkingSet = new(oldMarkings, prototype.MarkingPoints, _markingManager, _proto, humanoid.UnrestrictedMarkings);
 
         if (sync)
             Dirty(uid, humanoid);
@@ -400,6 +401,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
             return;
         }
 
+        humanoid.GeneticallyModified = profile.TraitPreferences.Contains("GeneticModification");
         SetSpecies(uid, profile.Species, false, humanoid);
         SetSex(uid, profile.Sex, false, humanoid);
         humanoid.EyeColor = profile.Appearance.EyeColor;
@@ -415,7 +417,8 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         var markingFColored = new Dictionary<Marking, MarkingPrototype>();
         foreach (var marking in profile.Appearance.Markings)
         {
-            if (_markingManager.TryGetMarking(marking, out var prototype))
+            if (_markingManager.TryGetMarking(marking, out var prototype)
+                && _markingManager.CanBeApplied(profile.Species, profile.Sex, prototype, _proto, profile.UnrestrictedMarkings))
             {
                 if (!prototype.ForcedColoring)
                 {
@@ -437,18 +440,18 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
             ? profile.Appearance.SkinColor.WithAlpha(facialHairAlpha) : profile.Appearance.FacialHairColor;
 
         if (_markingManager.Markings.TryGetValue(profile.Appearance.HairStyleId, out var hairPrototype) &&
-            _markingManager.CanBeApplied(profile.Species, profile.Sex, hairPrototype, _proto))
+            _markingManager.CanBeApplied(profile.Species, profile.Sex, hairPrototype, _proto, profile.UnrestrictedMarkings))
         {
             AddMarking(uid, profile.Appearance.HairStyleId, hairColor, false);
         }
 
         if (_markingManager.Markings.TryGetValue(profile.Appearance.FacialHairStyleId, out var facialHairPrototype) &&
-            _markingManager.CanBeApplied(profile.Species, profile.Sex, facialHairPrototype, _proto))
+            _markingManager.CanBeApplied(profile.Species, profile.Sex, facialHairPrototype, _proto, profile.UnrestrictedMarkings))
         {
             AddMarking(uid, profile.Appearance.FacialHairStyleId, facialHairColor, false);
         }
 
-        humanoid.MarkingSet.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _proto);
+        humanoid.MarkingSet.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _proto, profile.UnrestrictedMarkings);
 
         // Finally adding marking with forced colors
         foreach (var (marking, prototype) in markingFColored)

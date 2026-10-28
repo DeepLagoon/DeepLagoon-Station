@@ -73,6 +73,11 @@ public sealed class BodyCustomizationEditorTests
             Assert.That(Change("womb", "enabled", "true"), Is.False);
             Assert.That(original, Is.Empty, "The saved appearance must remain independent of the draft");
             Assert.That(Change("breasts", "size", "g"), Is.True);
+            Assert.That(Change("breasts", "showThroughClothing", "false"), Is.True);
+            Assert.That(editor.Profile.Appearance.BodyFeatures.Single(p => p.Part == "breasts").ShowThroughClothing, Is.False);
+            Assert.That(Change("breasts", "showThroughClothing", "invalid"), Is.False);
+            Assert.That(Change("testicles", "showThroughClothing", "false"), Is.True);
+            Assert.That(Change("anus", "showThroughClothing", "false"), Is.True);
             Assert.That(Change("breasts", "secondaryEnabled", "true"), Is.True);
             Assert.That(Change("breasts", "secondaryColor", "#FF3300"), Is.True);
             Assert.That(Change("belly", "size", "4"), Is.False);
@@ -97,6 +102,7 @@ public sealed class BodyCustomizationEditorTests
             Assert.That(parts.Any(p => p.GetProperty("part").GetString() == "womb"), Is.False);
             Assert.That(parts.Single(p => p.GetProperty("part").GetString() == "vagina").GetProperty("womb").GetBoolean(), Is.True);
             Assert.That(parts.Any(p => p.TryGetProperty("scale", out _)), Is.False);
+            Assert.That(parts.Single(p => p.GetProperty("part").GetString() == "breasts").GetProperty("showThroughClothing").GetBoolean(), Is.False);
             Assert.That(editor.Profile.Appearance.BodyFeatures.Single(p => p.Part == "womb").Enabled, Is.True);
             var entities = pair.Client.ResolveDependency<IEntityManager>();
             var sprite = entities.GetComponent<SpriteComponent>(editor.PreviewDummy);

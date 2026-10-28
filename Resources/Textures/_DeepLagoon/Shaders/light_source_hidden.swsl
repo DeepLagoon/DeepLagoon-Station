@@ -1,0 +1,5 @@
+light_mode unshaded;
+
+void fragment() {
+    COLOR = vec4(0.0);
+}

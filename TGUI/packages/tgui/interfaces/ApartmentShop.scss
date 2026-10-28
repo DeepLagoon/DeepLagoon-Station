@@ -8,4 +8,4 @@
 .ApartmentShop__tabs button[aria-pressed="true"] { border-color: #82ee99; }
 .ApartmentShop__filters { display: flex; gap: 12px; flex-wrap: wrap; }
 .ApartmentShop__filters label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.ApartmentShop__filters input, .ApartmentShop__filters select { color: inherit; background: #233b49; border: 1px solid #496371; padding: 8px; max-width: 100%; }
+.ApartmentShop__filters input, .ApartmentShop__filters .EmbeddedSelect { color: inherit; background: #233b49; border: 1px solid #496371; padding: 8px; max-width: 100%; }

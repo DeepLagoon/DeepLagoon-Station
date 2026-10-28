@@ -109,7 +109,7 @@ export function deleteRoutePoint(graph,id) {
 }
 export function buildRoute(items, graph, profile, source, nextId, capped = false) {
   const cells=routeCells(graph), originals=new Set(source.map(item=>item.id));
-  if(!cells.length)throw Error('Добавьте хотя бы две точки трассы.');
+  if(!cells.length&&!source.length)throw Error('Добавьте хотя бы две точки трассы.');
   const floors=new Set(items.filter(item=>item.kind==='tile').map(item=>key(item)));
   const existing=new Map();
   for(const item of items) if(routeProfile(item)?.id===profile.id) {
@@ -135,7 +135,7 @@ export function buildRoute(items, graph, profile, source, nextId, capped = false
     if(original&&profile.disposal&&pipePorts(original,profile)===mask)shape={prototype:original.prototype,rotation:original.rotation};
     const same=[...(original?[original]:[]),...others].find(item=>Math.floor(item.x)===cell.x&&Math.floor(item.y)===cell.y&&item.prototype===shape.prototype);
     for(const other of others) { const index=result.findIndex(item=>item.id===other.id);if(index>=0)result.splice(index,1); }
-    const item={...(same||{}),id:same?.id||nextId(),kind:'entity',...shape,x:cell.x+.5,y:cell.y+.5,anchored:true,color:same?.color||'#FFFFFFFF',z:0,cleanable:false,variant:0,flags:0,mirror:0};
+    const item={...(same||{}),id:same?.id||nextId(),kind:'entity',...shape,x:cell.x+.5,y:cell.y+.5,anchored:true,color:same?.color||original?.color||source[0]?.color||'#FFFFFFFF',z:0,cleanable:false,variant:0,flags:0,mirror:0};
     result.push(item);generated.push(item.id);
   }
   return {items:result,ids:generated};

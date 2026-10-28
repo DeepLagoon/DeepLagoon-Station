@@ -13,13 +13,13 @@ body:has(.Jukebox) { zoom: 1 !important; }
     linear-gradient(90deg, #2a1a13, #65402c 9%, #70482f 48%, #593625 90%, #2c1b14);
   box-shadow: inset 0 0 0 2px #b08f5755, inset 0 0 18px #140d0999;
   *, *::before, *::after { box-sizing: border-box; }
-  button, input, select, textarea { font: inherit; color: inherit; }
+  button, input, .EmbeddedSelect, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 28px; padding: 4px 7px; border: 1px solid #57594f; border-radius: 3px; background: linear-gradient(#363a35, #242924); box-shadow: inset 0 1px #ffffff12; }
   button:hover:not(:disabled) { background: #464b40; border-color: #bba16b; }
   button:disabled { opacity: .4; cursor: default; }
   button[aria-pressed=true] { color: #ffda8a; border-color: #a18b54; background: #4d432b; }
-  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #91d3cc; outline-offset: -2px; }
-  input, select, textarea { min-width: 0; background: #101713; border: 1px solid #515a4e; border-radius: 2px; padding: 5px 7px; }
+  button:focus-visible, input:focus-visible, .EmbeddedSelect:focus-visible, textarea:focus-visible { outline: 2px solid #91d3cc; outline-offset: -2px; }
+  input, .EmbeddedSelect, textarea { min-width: 0; background: #101713; border: 1px solid #515a4e; border-radius: 2px; padding: 5px 7px; }
   input[type=range] { padding: 0; accent-color: #e8bb74; height: 14px; width: 100%; margin: 3px 0; }
   &__crown { position: relative; flex: 0 0 99px; overflow: hidden; border: 6px solid #a5a28f; border-bottom: 0; border-radius: 108px 108px 0 0; background: radial-gradient(ellipse at 50% 100%, #29241d 0 49%, #111a19 50% 63%, #89754c 64% 66%, #161b18 67%); box-shadow: inset 0 0 0 3px #3b342a, inset 0 0 0 7px var(--j-amber); }
   &__crown::before { content: ''; position: absolute; inset: 16px 18px -18px; border: 4px solid var(--j-teal); border-radius: 105px 105px 0 0; box-shadow: 0 0 7px #83c6bf33; }
@@ -48,7 +48,7 @@ body:has(.Jukebox) { zoom: 1 !important; }
   &__tabs button { flex: 1; padding: 4px 2px; font-size: 11px; min-width: 0; }
   &__search { flex-shrink: 0; width: 100%; margin-top: 6px; height: 28px; }
   &__playlist-tools { display: flex; align-items: center; gap: 4px; margin-top: 5px; flex-shrink: 0; }
-  &__playlist-tools select { flex: 1; width: 0; height: 27px; }
+  &__playlist-tools .EmbeddedSelect { flex: 1; width: 0; height: 27px; }
   &__list { flex: 1; min-height: 0; overflow-y: auto; margin-top: 4px; scrollbar-width: thin; }
   &__row { display: flex; align-items: center; gap: 5px; min-height: 41px; padding: 4px 0; border-bottom: 1px solid #ffffff0b; }
   &__number { width: 16px; flex-shrink: 0; color: #b3ad97; font: 10px Consolas, monospace; }

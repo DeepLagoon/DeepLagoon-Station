@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Collections;
+using System.Reflection;
 using Content.Client._DeepLagoon.BodyCustomization;
 using Content.Client.Humanoid;
 using Content.Shared._DeepLagoon.BodyCustomization;
@@ -16,6 +18,245 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ClothingBodyFitIntegrationTests
 {
+    [TestCase("Human")]
+    [TestCase("Synth")]
+    public async Task EveryBodyFeatureKeepsItsBareSpriteHiddenUnderClothing(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitMercenary", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var inventory = entities.System<InventorySystem>();
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                foreach (var part in BodyCustomizationCatalog.Order.Where(part => part != "womb"))
+                foreach (var shape in BodyCustomizationCatalog.Parts[part].Keys.Where(shape => part != "anus" || shape == "donut"))
+                {
+                    var editorSizes = BodyCustomizationCatalog.EditorSizes(part, shape);
+                    var sizes = editorSizes.Where(size => size != "0").Take(2).Concat(editorSizes.TakeLast(1))
+                        .Concat(BodyCustomizationCatalog.Sizes(part, shape).TakeLast(1)).Distinct();
+                    foreach (var size in sizes)
+                    {
+                        var profile = HumanoidCharacterProfile.DefaultWithSpecies(species);
+                        var feature = BodyCustomizationCatalog.Default(part);
+                        feature.Enabled = true; feature.Shape = shape; feature.Size = size;
+                        feature.MatchSkin = false; feature.Color = "#FF0000";
+                        feature.SecondaryEnabled = part == "breasts"; feature.SecondaryColor = "#FF0000";
+                        profile.Appearance.BodyFeatures.Add(feature);
+                        appearance.LoadProfile(uid, profile);
+                        var sides = BodyCustomizationCatalog.Parts[part][shape][size].ToList();
+                        if (part == "breasts" && shape == "pair" && BodyCustomizationCatalog.BreastSecondarySizes.Contains(size)) sides.Add("SECONDARY");
+                        void Check(bool visible)
+                        {
+                            foreach (var side in sides)
+                            {
+                                var layer = sprite[sprite.LayerMapGet($"dl-body/{part}/{side}")];
+                                Assert.That(layer.Visible, Is.EqualTo(visible), $"{species}/{part}/{shape}/{size}/{side}");
+                                Assert.That(layer.Color, Is.EqualTo(Robust.Shared.Maths.Color.Red));
+                            }
+                        }
+                        Check(true);
+                        Assert.That(inventory.TryEquip(uid, uniform, "jumpsuit", force: true), Is.True);
+                        Check(false);
+                        Assert.That(entities.GetComponent<HumanoidAppearanceComponent>(uid).BodyFeatures.Single().Size, Is.EqualTo(size));
+                        Assert.That(inventory.TryUnequip(uid, "jumpsuit", force: true, reparent: false), Is.True);
+                        Check(true);
+                    }
+                }
+            }
+            finally { entities.DeleteEntity(uid); entities.DeleteEntity(uniform); }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SynthShellsProvideBodyAndHandMasksForClothingFit()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var prototypes = pair.Client.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>();
+            var uid = entities.SpawnEntity("MobSynthDummy", MapCoordinates.Nullspace);
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitMercenary", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var inventory = entities.System<InventorySystem>();
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                Assert.That(inventory.TryEquip(uid, uniform, "jumpsuit", force: true), Is.True);
+                foreach (var shell in new[] { "Human", "Mechanical", "Feroxi" })
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
+                    foreach (var part in new[] { "Chest", "LLeg", "RLeg", "LHand", "RHand" })
+                        profile.Appearance.Markings.Add(prototypes.Index<MarkingPrototype>($"Synth{shell}{part}").AsMarking());
+                    foreach (var (part, size) in new[] { ("breasts", "j"), ("butt", "4") })
+                    {
+                        var feature = BodyCustomizationCatalog.Default(part);
+                        feature.Enabled = true; feature.Size = size;
+                        profile.Appearance.BodyFeatures.Add(feature);
+                    }
+                    appearance.LoadProfile(uid, profile);
+                    var chest = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(HumanoidVisualLayers.Chest)];
+                    Assert.That(chest.ActualState, Is.Null, "Synth shells must remain markings rather than restoring a hidden human base body.");
+                    Assert.That(sprite.LayerMapTryGet("jumpsuit-0-body-fit-source", out _), Is.True, $"Missing clothing fit for {shell} shell.");
+                    Assert.That(((SpriteComponent.Layer) sprite[sprite.LayerMapGet("jumpsuit-0")]).ShaderPrototype,
+                        Is.EqualTo("DeepLagoonClothingBodyFit"));
+                    if (shell == "Feroxi")
+                    {
+                        Assert.That(sprite.LayerMapTryGet("jumpsuit-0-displacement", out var displacement), Is.True);
+                        Assert.That(sprite[displacement].Visible, Is.False, "The species displacement must be composed into the fit map.");
+                    }
+                }
+            }
+            finally { entities.DeleteEntity(uid); entities.DeleteEntity(uniform); }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase("Human")]
+    [TestCase("Synth")]
+    public async Task DisabledClothingFitHidesEveryOrganLayerUntilTorsoClothesAreRemoved(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitMercenary", MapCoordinates.Nullspace);
+            var coat = entities.SpawnEntity("ClothingOuterCoatLab", MapCoordinates.Nullspace);
+            var armor = entities.SpawnEntity("ClothingOuterHardsuitEngineering", MapCoordinates.Nullspace);
+            var gloves = entities.SpawnEntity("ClothingHandsGlovesCombat", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var inventory = entities.System<InventorySystem>();
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                void Check(bool visible)
+                {
+                    foreach (var side in new[] { "FRONT", "BEHIND", "SECONDARY" })
+                        Assert.That(sprite[sprite.LayerMapGet($"dl-body/breasts/{side}")].Visible, Is.EqualTo(visible), $"{species}/{side}");
+                    Assert.That(sprite[sprite.LayerMapGet("dl-body/butt/FRONT")].Visible, Is.True, "Other parts retain their own visibility preference.");
+                }
+                foreach (var visibility in new[] { 1, 2 })
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies(species);
+                    var feature = BodyCustomizationCatalog.Default("breasts");
+                    feature.Enabled = true; feature.Size = "j"; feature.SecondaryEnabled = true;
+                    feature.ShowThroughClothing = false; feature.Visibility = visibility;
+                    profile.Appearance.BodyFeatures.Add(feature);
+                    var other = BodyCustomizationCatalog.Default("butt");
+                    other.Enabled = true; other.Size = "4"; other.Visibility = 2;
+                    profile.Appearance.BodyFeatures.Add(other);
+                    appearance.LoadProfile(uid, profile);
+                    Check(true);
+                    Assert.That(inventory.TryEquip(uid, gloves, "gloves", force: true), Is.True);
+                    Check(true);
+                    Assert.That(inventory.TryEquip(uid, uniform, "jumpsuit", force: true), Is.True);
+                    Check(false);
+                    Assert.That(inventory.TryEquip(uid, coat, "outerClothing", force: true), Is.True);
+                    Check(false);
+                    Assert.That(inventory.TryUnequip(uid, "jumpsuit", force: true, reparent: false), Is.True);
+                    Check(false);
+                    Assert.That(inventory.TryUnequip(uid, "outerClothing", force: true, reparent: false), Is.True);
+                    Check(true);
+                    Assert.That(inventory.TryEquip(uid, armor, "outerClothing", force: true), Is.True);
+                    Check(false);
+                    Assert.That(inventory.TryUnequip(uid, "outerClothing", force: true, reparent: false), Is.True);
+                    Check(true);
+                    Assert.That(inventory.TryUnequip(uid, "gloves", force: true, reparent: false), Is.True);
+                }
+            }
+            finally
+            {
+                entities.DeleteEntity(uid); entities.DeleteEntity(uniform); entities.DeleteEntity(coat);
+                entities.DeleteEntity(armor); entities.DeleteEntity(gloves);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase("Human")]
+    [TestCase("Synth")]
+    public async Task ClothingCapsAndCheckboxUseSeparateSilhouettesWithoutChangingBareAnatomy(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitMercenary", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var inventory = entities.System<InventorySystem>();
+                var fit = entities.System<ClothingBodyFitSystem>();
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                Assert.That(inventory.TryEquip(uid, uniform, "jumpsuit", force: true), Is.True);
+                object FittedMap()
+                {
+                    var fits = (IDictionary) typeof(ClothingBodyFitSystem).GetField("_fits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fit)!;
+                    var slot = ((IEnumerable) fits[uid]!).Cast<object>().Single(f => (string) f.GetType().GetProperty("Key")!.GetValue(f)! == "jumpsuit-0");
+                    return slot.GetType().GetProperty("Map")!.GetValue(slot)!;
+                }
+                foreach (var (part, cap, oversized) in new[] { ("butt", "4", "8"), ("breasts", "j", "impossible") })
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies(species);
+                    var feature = BodyCustomizationCatalog.Default(part);
+                    feature.Enabled = true; feature.Size = cap;
+                    feature.MatchSkin = false; feature.Color = "#FF0000";
+                    profile.Appearance.BodyFeatures.Add(feature);
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(sprite.LayerMapTryGet("jumpsuit-0-body-fit-source", out _), Is.True);
+                    var cappedMap = FittedMap();
+                    feature.Size = oversized;
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(FittedMap(), Is.SameAs(cappedMap), "Runtime growth must not increase the editor-capped clothing silhouette.");
+                    var bodyLayer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")];
+                    Assert.That(bodyLayer.ActualState!.StateId.ToString(), Is.EqualTo(BodyCustomizationCatalog.SpriteState(feature, "FRONT")));
+                    Assert.That(bodyLayer.Visible, Is.False, "The full-size red skin must not protrude past the compressed clothing silhouette in any direction.");
+                    feature.ShowThroughClothing = false;
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(sprite.LayerMapTryGet("jumpsuit-0-body-fit-source", out _), Is.False);
+                    Assert.That(entities.GetComponent<HumanoidAppearanceComponent>(uid).BodyFeatures.Single().Size, Is.EqualTo(oversized));
+                    feature.ShowThroughClothing = true;
+                    feature.Size = part == "breasts" ? "a" : "1";
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(sprite.LayerMapTryGet("jumpsuit-0-body-fit-source", out _), Is.False, "The smallest part must not deform clothing.");
+                    Assert.That(sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")].Visible, Is.False, "Size 1/A must also hide its raw skin while clothed.");
+                    feature.Size = part == "breasts" ? "b" : "2";
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")].Visible, Is.False);
+                    Assert.That(inventory.TryUnequip(uid, "jumpsuit", force: true, reparent: false), Is.True);
+                    Assert.That(sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")].Visible, Is.True, "Removing clothing must restore the original colored anatomy.");
+                    Assert.That(inventory.TryEquip(uid, uniform, "jumpsuit", force: true), Is.True);
+                    Assert.That(sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")].Visible, Is.False);
+                    feature.Visibility = 2;
+                    appearance.LoadProfile(uid, profile);
+                    Assert.That(sprite[sprite.LayerMapGet($"dl-body/{part}/FRONT")].Visible, Is.True, "Explicitly exposed anatomy retains its separate above-clothing mode.");
+                }
+                var alternateProfile = HumanoidCharacterProfile.DefaultWithSpecies(species);
+                var alternate = BodyCustomizationCatalog.Default("testicles");
+                alternate.Enabled = true; alternate.Size = "4";
+                alternateProfile.Appearance.BodyFeatures.Add(alternate);
+                appearance.LoadProfile(uid, alternateProfile);
+                var maps = (IDictionary) typeof(ClothingBodyFitSystem).GetField("_maps", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fit)!;
+                Assert.That(maps.Keys.Cast<string>().Any(key => key.Contains("testicles_single_3_0_BEHIND")), Is.True,
+                    "A compressed shape must retain its own rear layer even if the bare size has no rear layer.");
+            }
+            finally
+            {
+                entities.DeleteEntity(uid);
+                entities.DeleteEntity(uniform);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("Vulpkanin")]
     [TestCase("Feroxi")]
     [TestCase("Tajaran")]

@@ -5,28 +5,10 @@
     "y": 32
   },
   "license": "CC-BY-SA-3.0",
-  "copyright": "tgstation / Citadel / SPLURT / BlueMoon contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/12a81b8c253116c4b7d835327a1abeeb95601dee/icons/obj/genitals/penis_onmob.dmi.",
+  "copyright": "tgstation / Citadel / SPLURT / BlueMoon contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/e9ece923dd956fb78ae6cb83e1eaaf259b61a432/icons/obj/genitals/penis_onmob.dmi.",
   "states": [
     {
       "name": "penis_human_1_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_human_1_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -62,43 +44,7 @@
       ]
     },
     {
-      "name": "penis_human_2_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_human_3_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_human_3_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -134,24 +80,6 @@
       ]
     },
     {
-      "name": "penis_human_4_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_human_5_0_FRONT",
       "directions": 4,
       "delays": [
@@ -170,7 +98,43 @@
       ]
     },
     {
-      "name": "penis_human_5_0_BEHIND",
+      "name": "penis_human_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_human_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_human_3_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -206,43 +170,7 @@
       ]
     },
     {
-      "name": "penis_knotted_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_knotted_2_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_knotted_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -278,43 +206,7 @@
       ]
     },
     {
-      "name": "penis_knotted_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_knotted_4_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_knotted_4_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -350,7 +242,7 @@
       ]
     },
     {
-      "name": "penis_barbknot_1_0_FRONT",
+      "name": "penis_knotted_1_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -368,7 +260,79 @@
       ]
     },
     {
-      "name": "penis_barbknot_1_0_BEHIND",
+      "name": "penis_knotted_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_knotted_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_knotted_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_knotted_5_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbknot_1_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -404,43 +368,7 @@
       ]
     },
     {
-      "name": "penis_barbknot_2_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_barbknot_3_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_barbknot_3_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -476,7 +404,7 @@
       ]
     },
     {
-      "name": "penis_barbknot_4_0_BEHIND",
+      "name": "penis_barbknot_5_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -494,7 +422,79 @@
       ]
     },
     {
-      "name": "penis_barbknot_5_0_FRONT",
+      "name": "penis_barbknot_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbknot_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbknot_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbknot_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbknot_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -530,43 +530,7 @@
       ]
     },
     {
-      "name": "penis_flared_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_flared_2_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_flared_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -602,24 +566,6 @@
       ]
     },
     {
-      "name": "penis_flared_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_flared_4_0_FRONT",
       "directions": 4,
       "delays": [
@@ -638,7 +584,7 @@
       ]
     },
     {
-      "name": "penis_flared_4_0_BEHIND",
+      "name": "penis_flared_5_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -656,7 +602,79 @@
       ]
     },
     {
-      "name": "penis_flared_5_0_FRONT",
+      "name": "penis_flared_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_flared_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_flared_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_flared_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_flared_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -730,67 +748,7 @@
       ]
     },
     {
-      "name": "penis_tentacle_2_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_tentacle_3_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ],
-        [
-          0.5,
-          0.5,
-          0.5,
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_tentacle_3_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -850,13 +808,98 @@
       ]
     },
     {
-      "name": "penis_tentacle_4_0_BEHIND",
+      "name": "penis_tentacle_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.5,
+          0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "penis_tentacle_2_1_FRONT",
       "directions": 4,
       "delays": [
         [
           0.5,
           0.5,
           0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tentacle_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ],
+        [
+          0.5,
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tentacle_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.5,
+          0.5,
           0.5,
           0.5
         ],
@@ -864,18 +907,15 @@
           0.5,
           0.5,
           0.5,
-          0.5,
           0.5
         ],
         [
           0.5,
           0.5,
           0.5,
-          0.5,
           0.5
         ],
         [
-          0.5,
           0.5,
           0.5,
           0.5,
@@ -885,42 +925,6 @@
     },
     {
       "name": "penis_hemi_1_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_hemi_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_hemi_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -974,43 +978,7 @@
       ]
     },
     {
-      "name": "penis_hemi_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_hemi_4_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_hemi_4_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1046,7 +1014,79 @@
       ]
     },
     {
-      "name": "penis_hemi_5_0_BEHIND",
+      "name": "penis_hemi_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemi_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemi_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemi_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemi_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1082,43 +1122,7 @@
       ]
     },
     {
-      "name": "penis_hemiknot_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_hemiknot_2_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_hemiknot_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1154,43 +1158,7 @@
       ]
     },
     {
-      "name": "penis_hemiknot_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_hemiknot_4_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_hemiknot_4_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1226,7 +1194,7 @@
       ]
     },
     {
-      "name": "penis_tapered_1_0_FRONT",
+      "name": "penis_hemiknot_1_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1244,7 +1212,79 @@
       ]
     },
     {
-      "name": "penis_tapered_1_0_BEHIND",
+      "name": "penis_hemiknot_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemiknot_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemiknot_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_hemiknot_5_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_1_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1280,43 +1320,7 @@
       ]
     },
     {
-      "name": "penis_tapered_2_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_tapered_3_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_tapered_3_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1352,43 +1356,97 @@
       ]
     },
     {
-      "name": "penis_tapered_4_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_tapered_5_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_tapered_5_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_tapered_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1424,43 +1482,7 @@
       ]
     },
     {
-      "name": "penis_thick_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_thick_2_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_thick_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1496,24 +1518,6 @@
       ]
     },
     {
-      "name": "penis_thick_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_thick_4_0_FRONT",
       "directions": 4,
       "delays": [
@@ -1532,7 +1536,7 @@
       ]
     },
     {
-      "name": "penis_thick_4_0_BEHIND",
+      "name": "penis_thick_5_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1550,7 +1554,115 @@
       ]
     },
     {
-      "name": "penis_thick_5_0_FRONT",
+      "name": "penis_thick_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_thick_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_thick_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_thick_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_thick_5_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_human_5_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_human_4_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1598,13 +1710,18 @@
       ]
     },
     {
-      "name": "penis_tentacle_5_0_BEHIND",
+      "name": "penis_tentacle_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
           0.5,
           0.5,
           0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
           0.5,
           0.5
         ],
@@ -1612,18 +1729,9 @@
           0.5,
           0.5,
           0.5,
-          0.5,
           0.5
         ],
         [
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5
-        ],
-        [
-          0.5,
           0.5,
           0.5,
           0.5,
@@ -1633,24 +1741,6 @@
     },
     {
       "name": "penis_barbtapered_1_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_barbtapered_1_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1686,43 +1776,7 @@
       ]
     },
     {
-      "name": "penis_barbtapered_2_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_barbtapered_3_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_barbtapered_3_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1758,24 +1812,6 @@
       ]
     },
     {
-      "name": "penis_barbtapered_4_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_barbtapered_5_0_FRONT",
       "directions": 4,
       "delays": [
@@ -1794,7 +1830,79 @@
       ]
     },
     {
-      "name": "penis_barbtapered_5_0_BEHIND",
+      "name": "penis_barbtapered_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbtapered_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbtapered_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbtapered_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_barbtapered_5_1_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1830,43 +1938,7 @@
       ]
     },
     {
-      "name": "penis_bhemiknot_1_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_bhemiknot_2_0_FRONT",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "penis_bhemiknot_2_0_BEHIND",
       "directions": 4,
       "delays": [
         [
@@ -1902,24 +1974,6 @@
       ]
     },
     {
-      "name": "penis_bhemiknot_3_0_BEHIND",
-      "directions": 4,
-      "delays": [
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ],
-        [
-          0.1
-        ]
-      ]
-    },
-    {
       "name": "penis_bhemiknot_4_0_FRONT",
       "directions": 4,
       "delays": [
@@ -1938,7 +1992,7 @@
       ]
     },
     {
-      "name": "penis_bhemiknot_4_0_BEHIND",
+      "name": "penis_bhemiknot_5_0_FRONT",
       "directions": 4,
       "delays": [
         [
@@ -1956,7 +2010,79 @@
       ]
     },
     {
-      "name": "penis_bhemiknot_5_0_FRONT",
+      "name": "penis_bhemiknot_1_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_bhemiknot_2_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_bhemiknot_3_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_bhemiknot_4_1_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "penis_bhemiknot_5_1_FRONT",
       "directions": 4,
       "delays": [
         [

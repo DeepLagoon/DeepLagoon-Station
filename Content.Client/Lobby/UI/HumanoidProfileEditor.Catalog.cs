@@ -1,5 +1,8 @@
 using System.Numerics;
+using System.Linq;
 using Content.Client._DeepLagoon.WebUI;
+using Content.Shared.Humanoid.Markings;
+using Content.Shared.Humanoid.Prototypes;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 
@@ -11,6 +14,24 @@ public sealed partial class HumanoidProfileEditor
     private string _catalogKind = "";
     private int? _catalogSlot;
     private string? _selectionCatalogKey;
+
+    private IEnumerable<TguiData> MarkingRaceChoices(MarkingPrototype marking)
+    {
+        var species = _markingManager.GetSpeciesCategories(marking);
+        if (species == null)
+        {
+            yield return Choice("common", Loc.GetString("markings-category-common"));
+            yield break;
+        }
+        if (species.Count == 0)
+        {
+            yield return Choice("genetic", Loc.GetString("trait-genetic-modification-name"));
+            yield break;
+        }
+        foreach (var id in species.Order())
+            yield return Choice(id, _prototypeManager.TryIndex<SpeciesPrototype>(id, out var prototype)
+                ? Loc.GetString(prototype.Name) : id);
+    }
 
     private void CloseCatalog()
     {
@@ -71,7 +92,7 @@ public sealed partial class HumanoidProfileEditor
     {
         if (_catalogWindow == null) return;
         if (Profile == null || _catalogSlot != CharacterSlot) { CloseCatalog(); return; }
-        var key = $"{_catalogKind}|{Profile.Species.Id}|{Profile.Sex}|{IoCManager.Resolve<ILocalizationManager>().DefaultCulture?.Name}";
+        var key = $"{_catalogKind}|{Profile.Species.Id}|{Profile.Sex}|{Profile.UnrestrictedMarkings}|{IoCManager.Resolve<ILocalizationManager>().DefaultCulture?.Name}";
         if (key != _selectionCatalogKey)
         {
             _selectionCatalogKey = key;

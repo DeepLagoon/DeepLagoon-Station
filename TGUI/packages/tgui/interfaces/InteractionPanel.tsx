@@ -1,3 +1,4 @@
+import { EmbeddedSelect } from '../components/EmbeddedSelect';
 import { useEffect, useState } from 'react';
 import { useBackend } from '../backend';
 import { Icon } from '../components';
@@ -159,12 +160,12 @@ export const InteractionPanel = () => {
         {!(data.bodyFeatures || []).length && <p className="InteractionPanel__empty">{t('body-empty')}</p>}
         {(data.bodyFeatures || []).map(feature => <label key={feature.part}>
           <span>{feature.name}</span>
-          <select aria-label={feature.name} value={feature.visibility}
+          <EmbeddedSelect aria-label={feature.name} value={feature.visibility}
             onChange={event => act('body-visibility', { id: feature.part, value: Number(event.target.value) })}>
             <option value={0}>{t('body-hidden')}</option>
             <option value={1}>{t('body-under')}</option>
             <option value={2}>{t('body-over')}</option>
-          </select>
+          </EmbeddedSelect>
         </label>)}
       </main>}
       {tab === 'gear' && <main className="InteractionPanel__gear">
@@ -233,21 +234,21 @@ const CustomEditor = ({ data, act, t, focus }: { data: Data; act: (action: strin
           <div className="InteractionPanel__preview" style={{ color: /^#[0-9a-f]{6}$/i.test(draft.color) ? draft.color : undefined }}>
             <small>{t('compact-preview')}</small>{preview}
           </div>
-          <label>{t('editor-preference')}<select value={draft.category} onChange={e => patch({ category: Number(e.target.value) })}>
-            {data.categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-          <label>{t('editor-region')}<select value={draft.body} onChange={e => patch({ body: e.target.value })}>
-            {data.regions?.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
+          <label>{t('editor-preference')}<EmbeddedSelect value={draft.category} onChange={e => patch({ category: Number(e.target.value) })}>
+            {data.categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</EmbeddedSelect></label>
+          <label>{t('editor-region')}<EmbeddedSelect value={draft.body} onChange={e => patch({ body: e.target.value })}>
+            {data.regions?.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</EmbeddedSelect></label>
           <div className="InteractionPanel__flags">{['editor-self', 'editor-other', 'editor-humanoid', 'editor-animal'].map((key, i) => <label key={key}>
             <input type="checkbox" checked={!!(draft.flags & (1 << i))}
               onChange={e => patch({ flags: e.target.checked ? draft.flags | (1 << i) : draft.flags & ~(1 << i) })} />{t(key)}</label>)}</div>
           <label>{t('editor-color')}<input value={draft.color} maxLength={7} onFocus={focus} onChange={e => patch({ color: e.target.value })} /></label>
-          <label>{t('editor-sound')}<select aria-label={t('editor-sound')} value={soundCategory} onChange={e => setSoundCategory(e.target.value)}>
-            <option value="">{t('sounds-all')}</option>{soundGroups.map(group => <option key={group}>{group}</option>)}</select>
-            <select value={draft.sound} onChange={e => patch({ sound: e.target.value })}>
+          <label>{t('editor-sound')}<EmbeddedSelect aria-label={t('editor-sound')} value={soundCategory} onChange={e => setSoundCategory(e.target.value)}>
+            <option value="">{t('sounds-all')}</option>{soundGroups.map(group => <option key={group}>{group}</option>)}</EmbeddedSelect>
+            <EmbeddedSelect value={draft.sound} onChange={e => patch({ sound: e.target.value })}>
               <option value="">{t('sound-none')}</option>
               {data.sounds?.filter(s => !soundCategory || s.category === soundCategory || s.id === draft.sound)
                 .map(s => <option key={s.id} value={s.id}>{s.category} · {s.name}</option>)}
-            </select></label>
+            </EmbeddedSelect></label>
         </fieldset>
         {error && <p className="InteractionPanel__error" role="alert">{t(error)}</p>}
         <button className="InteractionPanel__save" type="submit" disabled={busy || !!error}><Icon aria-hidden="true" name="check" /> {t('editor-save')}</button>

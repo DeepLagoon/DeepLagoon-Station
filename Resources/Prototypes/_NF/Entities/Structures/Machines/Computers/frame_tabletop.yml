@@ -4,6 +4,7 @@
   suffix: Tabletop
   abstract: true
   components:
+    - type: NoLightBloom
     - type: Physics
     - type: Fixtures
       fixtures:

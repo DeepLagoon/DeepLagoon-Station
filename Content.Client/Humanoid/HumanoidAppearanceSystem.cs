@@ -151,13 +151,15 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         var customBaseLayers = new Dictionary<HumanoidVisualLayers, CustomBaseLayerInfo>();
 
         var speciesPrototype = _prototypeManager.Index<SpeciesPrototype>(profile.Species);
-        var markings = new MarkingSet(speciesPrototype.MarkingPoints, _markingManager, _prototypeManager);
+        humanoid.GeneticallyModified = profile.TraitPreferences.Contains("GeneticModification");
+        var markings = new MarkingSet(speciesPrototype.MarkingPoints, _markingManager, _prototypeManager, profile.UnrestrictedMarkings);
 
         // Add markings that doesn't need coloring. We store them until we add all other markings that doesn't need it.
         var markingFColored = new Dictionary<Marking, MarkingPrototype>();
         foreach (var marking in profile.Appearance.Markings)
         {
-            if (_markingManager.TryGetMarking(marking, out var prototype))
+            if (_markingManager.TryGetMarking(marking, out var prototype)
+                && _markingManager.CanBeApplied(profile.Species, profile.Sex, prototype, _prototypeManager, profile.UnrestrictedMarkings))
             {
                 if (!prototype.ForcedColoring)
                 {
@@ -187,11 +189,11 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         var facialHair = new Marking(profile.Appearance.FacialHairStyleId,
             new[] { facialHairColor });
 
-        if (_markingManager.CanBeApplied(profile.Species, profile.Sex, hair, _prototypeManager))
+        if (_markingManager.CanBeApplied(profile.Species, profile.Sex, hair, _prototypeManager, profile.UnrestrictedMarkings))
         {
             markings.AddBack(MarkingCategories.Hair, hair);
         }
-        if (_markingManager.CanBeApplied(profile.Species, profile.Sex, facialHair, _prototypeManager))
+        if (_markingManager.CanBeApplied(profile.Species, profile.Sex, facialHair, _prototypeManager, profile.UnrestrictedMarkings))
         {
             markings.AddBack(MarkingCategories.FacialHair, facialHair);
         }
@@ -208,7 +210,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
             markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder });
         }
 
-        markings.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _prototypeManager);
+        markings.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _prototypeManager, profile.UnrestrictedMarkings);
         markings.EnsureSexes(profile.Sex, _markingManager);
         markings.EnsureDefault(
             profile.Appearance.SkinColor,
@@ -312,13 +314,15 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         HumanoidAppearanceComponent humanoid,
         SpriteComponent sprite)
     {
-        if (!sprite.LayerMapTryGet(markingPrototype.GetLayerAnchor(_prototypeManager.Index(humanoid.Species)), out int targetLayer))
+        var markingAnchor = markingPrototype.GetLayerAnchor(_prototypeManager.Index(humanoid.Species));
+        if (!sprite.LayerMapTryGet(markingAnchor, out int targetLayer))
         {
-            return;
+            if (!humanoid.UnrestrictedMarkings) return;
+            targetLayer = sprite.LayerMapReserveBlank(markingAnchor);
         }
 
         visible &= !IsHidden(humanoid, markingPrototype.BodyPart);
-        visible &= humanoid.BaseLayers.TryGetValue(markingPrototype.BodyPart, out var setting)
+        visible &= humanoid.UnrestrictedMarkings || humanoid.BaseLayers.TryGetValue(markingPrototype.BodyPart, out var setting)
            && setting.AllowsMarkings;
 
         for (var j = 0; j < markingPrototype.Sprites.Count; j++)
@@ -361,7 +365,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 			// impstation edit end
             sprite.LayerSetVisible(layerId, visible);
 
-            if (!visible || setting == null) // this is kinda implied
+            if (!visible)
             {
                 continue;
             }

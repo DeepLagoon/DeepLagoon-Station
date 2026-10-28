@@ -13,10 +13,12 @@ namespace Content.Client._DeepLagoon.BodyCustomization;
 /// </summary>
 public static class ClothingBodyFitMap
 {
+    public readonly record struct Anatomy(Image<Rgba32> Shape, Image<Rgba32> Anchor, bool StretchVertically = true);
+
     public readonly record struct Contour(Image<Rgba32> Shape, bool BelowWaist = false);
 
     public static Image<Rgba32>? Build(Image<Rgba32> body,
-        IReadOnlyList<(Image<Rgba32> Shape, Image<Rgba32> Anchor)> anatomy,
+        IReadOnlyList<Anatomy> anatomy,
         Image<Rgba32> garment, Image<Rgba32>? displacement, int padding, bool force = false,
         Image<Rgba32>? hands = null, IReadOnlyList<Contour>? contours = null)
     {
@@ -43,10 +45,11 @@ public static class ClothingBodyFitMap
         var handPixels = hands != null ? hands.GetPixelSpan() : default;
         using var target = body.Clone();
         var targetPixels = target.GetPixelSpan();
+        var rowPreserving = new bool[width * height];
         var contour = new Vector3[width * height];
         var hasContour = false;
         var patches = new List<(Vector2[] Rows, int Top, int Bottom, int AnchorTop, int AnchorBottom)>();
-        foreach (var (shape, anchor) in anatomy)
+        foreach (var (shape, anchor, stretchVertically) in anatomy)
         {
             var anchorPixels = anchor.GetPixelSpan();
             var shapePixels = shape.GetPixelSpan();
@@ -100,12 +103,16 @@ public static class ClothingBodyFitMap
                 var anchorTop = FirstRow(anchorRows);
                 // Cloth over a hanging part must come from its attachment, not from the bare crotch or
                 // trouser leg further down the image. The inverse patch stretches the same fabric vertically.
-                if (shapeBottom - shapeTop > anchorBottom - anchorTop + 2)
+                if (stretchVertically && shapeBottom - shapeTop > anchorBottom - anchorTop + 2)
                     patches.Add((shapeRows, shapeTop, shapeBottom, anchorTop, anchorBottom));
             }
             for (var y = 0; y < height; y++)
             for (var x = 0; x < width; x++)
-                if (shapePixels[y * width + x].A >= 128) targetPixels[y * width + x] = new Rgba32(255, 255, 255, 255);
+            {
+                if (shapePixels[y * width + x].A < 128) continue;
+                targetPixels[y * width + x] = new Rgba32(255, 255, 255, 255);
+                rowPreserving[y * width + x] |= !stretchVertically;
+            }
         }
 
         var expanded = Bounds(target);
@@ -149,6 +156,8 @@ public static class ClothingBodyFitMap
             var sy = SourceY(py);
             var px = x - padding + .5f;
             var ty = Math.Clamp(y - padding, 0, height - 1);
+            var preserveRow = x >= padding && x < width + padding && y >= padding && y < height + padding &&
+                              rowPreserving[ty * width + x - padding];
             foreach (var patch in patches)
             {
                 if (py < patch.Top || py >= patch.Bottom + 1) continue;
@@ -186,7 +195,9 @@ public static class ClothingBodyFitMap
                     var destinationPivot = Math.Max(pivot, original[ty].X);
                     // Stretch only the contiguous fabric on this side. Keep hand holes and open
                     // jacket fronts anchored instead of carrying them into the expanded silhouette.
-                    if (growLeft > 0 && start < pivot && px < destinationPivot && l < start)
+                    // Some trousers are narrower than the skin row (notably digitigrade legs).
+                    // Rear volume must reach the fabric edge even when it stays inside that skin row.
+                    if ((growLeft > 0 || preserveRow) && start < pivot && px < destinationPivot && l < start)
                         px = start + (px - l) * (pivot - start) / (destinationPivot - l);
                 }
                 else
@@ -197,7 +208,7 @@ public static class ClothingBodyFitMap
                     while (start + 1 > center && coverage[row * width + start] >= 128) start--;
                     var pivot = Math.Max(center, start + 1);
                     var destinationPivot = Math.Min(pivot, original[ty].Y + 1);
-                    if (growRight > 0 && end + 1 > pivot && px >= destinationPivot && r > end + 1)
+                    if ((growRight > 0 || preserveRow) && end + 1 > pivot && px >= destinationPivot && r > end + 1)
                         px = pivot + (px - destinationPivot) * (end + 1 - pivot) / (r - destinationPivot);
                 }
             }

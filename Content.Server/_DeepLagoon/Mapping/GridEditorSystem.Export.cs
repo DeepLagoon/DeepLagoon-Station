@@ -26,7 +26,7 @@ public sealed partial class GridEditorSystem
     [Dependency] private IDependencyCollection _exportDependencies = default!;
     private Draft ExportSession(ICommonSession player, Guid token)
     {
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, token), out var draft) ||
             draft.Token != token || !Exists(draft.Grid))
             throw new InvalidDataException("Нет действующей сессии Mapping.");
         return draft;
@@ -162,6 +162,13 @@ public sealed partial class GridEditorSystem
             var transform = ExportComponent(target, "Transform");
             foreach (var field in new[] { "pos", "rot", "anchored" }) transform[field] = sourceTransform[field].Copy();
             transform["parent"] = ExportNumber(gridId);
+            if (_prototypes.Index<EntityPrototype>(prototype).Components.ContainsKey("AtmosPipeColor"))
+            {
+                var plannedColor = ExportComponent(node, "AtmosPipeColor");
+                var color = ExportValue(plannedColor, "color");
+                if (!Color.TryFromHex(color, out _)) throw new InvalidDataException("Invalid pipe color.");
+                ExportComponent(target, "AtmosPipeColor")["color"] = new ValueDataNode(color);
+            }
         }
         OverlayDraftTiles(data, grid, plan, plannedGrid);
         ExportComponent(grid, "DecalGrid")["chunkCollection"] = ExportComponent(plannedGrid, "DecalGrid")["chunkCollection"].Copy();

@@ -530,6 +530,8 @@ def export(source, definitions_list, audit):
             for file in files:
                 file.unlink()
             directory.rmdir()
+        from species_rules import generate
+        generate()
     report['revision'] = revision
     print(json.dumps({'added': dict(Counter(p['category'] for p in report['added'])), 'duplicates': len(report['duplicates']),
                       'unmapped': len(report['unmapped']), 'unreadable': len(report['existingUnreadable'])}, ensure_ascii=False), flush=True)

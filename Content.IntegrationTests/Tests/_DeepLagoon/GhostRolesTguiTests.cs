@@ -176,4 +176,55 @@ public sealed class GhostRolesTguiTests
         });
         await pair.CleanReturnAsync();
     }
+    private delegate void SetTransformCallback(in Matrix3x2 transform);
+
+    [Test]
+    public async Task ThumbnailRestoresScreenTransformBeforeCompositing()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var view = new InteractionPanelSpriteView();
+            view.Measure(new Vector2(64));
+            view.Arrange(UIBox2.FromDimensions(Vector2.Zero, new Vector2(64)));
+            var texture = new Moq.Mock<Robust.Client.Graphics.Texture>(view.PixelSize).Object;
+            var target = new Moq.Mock<Robust.Client.Graphics.IRenderTexture>();
+            target.SetupGet(t => t.Size).Returns(view.PixelSize);
+            target.SetupGet(t => t.Texture).Returns(texture);
+            typeof(InteractionPanelSpriteView).GetField("_target", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, target.Object);
+            var screen = new Moq.Mock<Robust.Client.Graphics.DrawingHandleScreen>(texture);
+            var render = new Moq.Mock<Robust.Client.Graphics.IRenderHandle>();
+            render.SetupGet(h => h.DrawingHandleScreen).Returns(screen.Object);
+            var matrix = Matrix3x2.Identity;
+            var cached = Matrix3x2.Identity;
+            screen.Setup(h => h.GetTransform()).Returns(() => matrix);
+            screen.Setup(h => h.SetTransform(in Moq.It.Ref<Matrix3x2>.IsAny))
+                .Callback(new SetTransformCallback((in Matrix3x2 value) => { matrix = cached = value; }));
+            render.Setup(h => h.RenderInRenderTarget(target.Object, Moq.It.IsAny<Action>(), Color.Transparent))
+                .Callback<Robust.Client.Graphics.IRenderTarget, Action, Color?>((_, draw, _) =>
+                {
+                    var previous = matrix;
+                    draw();
+                    // The engine restores the matrix field without refreshing its fast-path cache.
+                    matrix = previous;
+                });
+            var composites = new List<Matrix3x2>();
+            screen.Setup(h => h.DrawTexture(texture, Vector2.Zero, null))
+                .Callback(() => composites.Add(cached));
+            var drawMethod = typeof(InteractionPanelSpriteView).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic,
+                null, [typeof(Robust.Client.Graphics.IRenderHandle)], null)!;
+            foreach (var origin in new[] { new Vector2(12, 46), new Vector2(400, 300), new Vector2(800, 600) })
+            {
+                matrix = cached = Matrix3x2.CreateTranslation(origin);
+                drawMethod.Invoke(view, [render.Object]);
+                Assert.That(composites.Last().Translation, Is.EqualTo(origin),
+                    "Compositing must use the thumbnail's screen origin after offscreen rendering, including after window movement");
+            }
+            Assert.That(composites.Count, Is.EqualTo(3));
+#pragma warning disable CS0618
+            view.Dispose();
+#pragma warning restore CS0618
+        });
+        await pair.CleanReturnAsync();
+    }
 }

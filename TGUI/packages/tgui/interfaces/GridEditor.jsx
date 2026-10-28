@@ -28,6 +28,38 @@ const Sprite = ({ images = [], color, cellSize = 32, native = false }) => <>{ima
 
 export const GridEditor = () => {
   const { data, act: sendAct } = useBackend();
+  const [activeToken, setActiveToken] = useState(data.activeEditorTab || data.token);
+  const [shared, setShared] = useState({ brush: null, templateBrush: null, tool: 'select', category: 'tile',
+    rotation: 0, color: '#ffffffff', z: 0, cleanable: false, clipboard: [] });
+  const clipboardRef = useRef([]), visualCache = useRef(new Map());
+  const [dirty, setDirty] = useState({});
+  const [closeRequests, setCloseRequests] = useState({});
+  const tabs = data.editorTabs || (data.token ? { [data.token]: data } : {});
+  const entries = Object.entries(tabs);
+  const active = tabs[activeToken] ? activeToken : entries[0]?.[0];
+  useEffect(() => { if (data.activeEditorTab) setActiveToken(data.activeEditorTab); }, [data.activeEditorTab]);
+  const sharedVisuals = useMemo(() => Object.values(tabs).flatMap(tab =>
+    ['visuals', 'patchVisuals', 'peerVisuals', 'libraryVisuals', 'routeVisuals', 'catalog'].flatMap(key => tab[key] || [])), [data]);
+  useInterfaceStyleGuard(entries.some(([token]) => dirty[token]));
+  const activate = token => { setActiveToken(token); sendAct('activateTab', { tabToken: token }); };
+  const tabBar = <nav className="GridEditor__tabs" role="tablist" aria-label="Открытые гриды">
+    {entries.map(([token, tab]) => <div key={token} className={`GridEditor__tab ${token === active ? 'active' : ''}`}><button role="tab" aria-selected={token === active}
+      className={token === active ? 'active' : ''} title={tab.sourcePath || `Grid #${tab.grid}`} onClick={() => activate(token)}>
+      <span>{tab.gridName || `Grid #${tab.grid}`}</span>{dirty[token] && <span aria-label="Есть изменения">●</span>}
+    </button><button aria-label={`Закрыть вкладку ${tab.gridName || tab.grid}`} onClick={() => {
+      activate(token); setCloseRequests(previous => ({ ...previous, [token]: (previous[token] || 0) + 1 }));
+    }}>×</button></div>)}
+  </nav>;
+  return entries.map(([token, tab]) => <GridEditorWorkspace key={token} data={{ ...tab, sharedVisuals }} active={token === active}
+    sendAct={(action, payload) => sendAct(action, { ...payload, tabToken: token })}
+    shared={shared} setShared={setShared} clipboardRef={clipboardRef} visualCache={visualCache} tabBar={tabBar}
+    closeRequest={closeRequests[token]}
+    onDirty={value => setDirty(previous => previous[token] === value ? previous : { ...previous, [token]: value })} />);
+};
+
+const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboardRef, visualCache, tabBar, onDirty, closeRequest }) => {
+  const sharedField = key => [shared[key], value => setShared(previous => ({ ...previous,
+    [key]: typeof value === 'function' ? value(previous[key]) : value }))];
   const failureTitle = useRef('Действие не выполнено');
   const act = (action, payload) => {
     if (action === 'applyStart') failureTitle.current = payload?.purpose === 'template' ? 'Не удалось сохранить шаблон' : 'Не удалось применить изменения';
@@ -52,8 +84,8 @@ export const GridEditor = () => {
   const [undo, setUndo] = useState([]), [redo, setRedo] = useState([]);
   const [selected, setSelected] = useState([]);
   const [movePreview, setMovePreview] = useState(null);
-  const [brush, setBrush] = useState(null), [tool, setTool] = useState('select');
-  const [category, setCategory] = useState('tile'), [query, setQuery] = useState('');
+  const [brush, setBrush] = sharedField('brush'), [tool, setTool] = sharedField('tool');
+  const [category, setCategory] = sharedField('category'), [query, setQuery] = useState('');
   const [catalogOpen, setCatalogOpen] = useState(false), [activePanel, setActivePanel] = useState(null);
   const hotbar = useRef(null);
   const [hotbarSlots, setHotbarSlots] = useState(1), [hotbarDrop, setHotbarDrop] = useState(null);
@@ -86,8 +118,8 @@ export const GridEditor = () => {
   const [zoom, setZoom] = useState(1), [gridLines, setGridLines] = useState(true);
   const requestedZoom = useRef(1), zoomCenter = useRef(null), settledCamera = useRef(null);
   const [layers, setLayers] = useState({ tile: true, entity: true, decal: true });
-  const [rotation, setRotation] = useState(0), [color, setColor] = useState('#ffffffff');
-  const [z, setZ] = useState(0), [cleanable, setCleanable] = useState(false);
+  const [rotation, setRotation] = sharedField('rotation'), [color, setColor] = sharedField('color');
+  const [z, setZ] = sharedField('z'), [cleanable, setCleanable] = sharedField('cleanable');
   const decalMode = category === 'decal';
   const editLayers = useMemo(() => decalMode ? { decal: layers.decal, decalZ: z } : layers, [decalMode, layers, z]);
   const editable = item => editableItem(item, editLayers);
@@ -121,9 +153,8 @@ export const GridEditor = () => {
     const timer = setTimeout(() => setShowProgress(true), 2000);
     return () => clearTimeout(timer);
   }, [sceneBusy, data.token, sceneAttempt]);
-  const [clipboard, setClipboard] = useState([]);
-  const clipboardRef=useRef([]);
-  const [templateBrush, setTemplateBrush] = useState(null), [templateName, setTemplateName] = useState('');
+  const [clipboard, setClipboard] = sharedField('clipboard');
+  const [templateBrush, setTemplateBrush] = sharedField('templateBrush'), [templateName, setTemplateName] = useState('');
   const viewport = useRef(null), canvas = useRef(null), gesture = useRef(null), current = useRef(draft);
   const root = useRef(null), dividerDrag = useRef(null);
   const [panelWidths, setPanelWidths] = useState({ left: 300, right: 300 });
@@ -163,7 +194,7 @@ export const GridEditor = () => {
   }, []);
   const [view, setView] = useState({ left: 0, top: 0, width: 1, height: 1 });
   const measureView = () => {
-    const node = viewport.current; if (!node) return;
+    const node = viewport.current; if (!node?.clientWidth || !node.clientHeight) return;
     const bounds = node.getBoundingClientRect(), plan = canvas.current.getBoundingClientRect();
     const left = bounds.left - plan.left, top = bounds.top - plan.top;
     setView(previous => previous.left === left && previous.top === top && previous.width === node.clientWidth && previous.height === node.clientHeight ? previous :
@@ -173,7 +204,7 @@ export const GridEditor = () => {
     const observer = new ResizeObserver(measureView); observer.observe(viewport.current); measureView();
     return () => observer.disconnect();
   }, []);
-  const counter = useRef(0), visualCache = useRef(new Map());
+  const counter = useRef(0);
   const upload = useRef(null);
   const draftFile = useRef(null);
   const [exporting, setExporting] = useState(false);
@@ -266,10 +297,10 @@ export const GridEditor = () => {
   const allDisplayed = before ? baseline : draft;
   const displayed = allDisplayed; // Network visibility is applied to the scene below.
   const visuals = useMemo(() => {
-    for (const entry of [...(data.visuals || []), ...(data.patchVisuals || []), ...(data.peerVisuals || []), ...(data.libraryVisuals || []), ...(data.routeVisuals || []), ...(data.catalog || [])])
+    for (const entry of data.sharedVisuals || [])
       visualCache.current.set(`${entry.kind}:${entry.id}`, { ...visualCache.current.get(`${entry.kind}:${entry.id}`), ...entry });
     return new Map(visualCache.current);
-  }, [data.visuals, data.patchVisuals, data.peerVisuals, data.libraryVisuals, data.routeVisuals, data.catalog]);
+  }, [data.sharedVisuals]);
   const visual = (item) => visuals.get(`${item.kind}:${item.prototype}`);
   const spatialIndex = useMemo(() => indexItems(displayed,visual), [displayed,visuals]);
   useEffect(() => {
@@ -325,7 +356,8 @@ export const GridEditor = () => {
     update(merged, true);
     if (gesture.current?.original) gesture.current.original = copyItems(merged);
   }, [data.peerDrafts, baseline]);
-  useInterfaceStyleGuard(changes > 0 || route.editing || pending || exporting || data.downloading);
+  useEffect(() => { onDirty(changes > 0 || route.editing || pending || exporting || !!data.downloading); },
+    [changes, route.editing, pending, exporting, data.downloading]);
   const sceneItems = useMemo(()=>route.visible ? displayed : displayed.filter(item=>!routeProfile(item)),[displayed,route.visible]);
   const sceneIndex = useMemo(()=>indexItems(sceneItems),[sceneItems]);
   const startGridResize = (sides, event) => {
@@ -696,6 +728,7 @@ export const GridEditor = () => {
     setContextMenu(null);
   };
   useEffect(() => {
+    if (!active) { stopKeyboardPan(); return; }
     const key = (event) => {
       if (event.ctrlKey && event.code === 'KeyS') { event.preventDefault(); downloadDraft(); return; }
       if (event.target?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator],[role=combobox]')) return;
@@ -753,7 +786,7 @@ export const GridEditor = () => {
     const nativeKey = event => { const input = { ...event.detail, nativeBridge: true, target: document.activeElement, preventDefault() {} }; if (input.down) key(input); else release(input); };
     document.addEventListener('keydown', key, true); document.addEventListener('keyup', release, true); window.addEventListener('blur', blur); window.addEventListener('grid-editor-key', nativeKey);
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
-  }, [draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
+  }, [active, draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
     exporting, data.downloading, data.gridName, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, decalMode, z, editLayers, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
   const restoreZoomCenter = () => {
     const center = zoomCenter.current; if (!center) return;
@@ -788,7 +821,12 @@ export const GridEditor = () => {
   }, [zoom, view.width, view.height]);
   const fit = () => setScale(Math.min((viewport.current.clientWidth - 32) / (area.width * 32), (viewport.current.clientHeight - 32) / (area.height * 32)),
     { x: area.width / 2, y: area.height / 2 });
-  useEffect(() => { const frame = requestAnimationFrame(fit); return () => cancelAnimationFrame(frame); }, [data.grid, data.x, data.y, data.width, data.height]);
+  const fitted = useRef(false);
+  useEffect(() => {
+    if (!active) return;
+    const frame = requestAnimationFrame(() => { if (!fitted.current) { fit(); fitted.current = true; } else measureView(); });
+    return () => cancelAnimationFrame(frame);
+  }, [active, data.grid, data.x, data.y, data.width, data.height]);
   const wheel = (event) => {
     event.preventDefault();
     if (gesture.current) return;
@@ -840,8 +878,9 @@ export const GridEditor = () => {
   };
   const templatePreview = templateBrush && hover && activeTool === 'brush' ? projectTemplate(templateBrush.items, hover, rotation / 90) : [];
   const close = () => changes || route.editing ? setConfirmClose(true) : act('close');
+  useEffect(() => { if (closeRequest && !pending && !exporting && !data.downloading) close(); }, [closeRequest]);
   useEffect(() => { if (data.closeRequested) close(); }, [data.closeRequested]);
-  return <div ref={root} className="GridEditor" style={{ '--catalog-width': `${panelWidths.left}px`, '--properties-width': `${panelWidths.right}px` }} onPointerDownCapture={() => act('focus')}
+  return <div ref={root} hidden={!active} className="GridEditor" style={{ '--catalog-width': `${panelWidths.left}px`, '--properties-width': `${panelWidths.right}px` }} onPointerDownCapture={() => act('focus')}
     onPointerMoveCapture={moveBrushDrag} onPointerUpCapture={event => endBrushDrag(event)} onPointerCancelCapture={event => endBrushDrag(event, true)}
     onClickCapture={event => { if (suppressCatalogClick.current) { event.preventDefault(); event.stopPropagation(); suppressCatalogClick.current = false; } }}
     onPasteCapture={event => {
@@ -853,6 +892,7 @@ export const GridEditor = () => {
     onDrop={event => { if (event.dataTransfer.files.length) { event.preventDefault(); reference.importFile(event.dataTransfer.files[0]); } }}
     onFocusCapture={e => act('editing', { active: !!e.target.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}
     onBlurCapture={e => act('editing', { active: !!e.relatedTarget?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}>
+    {tabBar}
     <header><div className="GridEditor__identity"><strong><span className="GridEditor__gridName" title={data.gridName || 'Редактор grid'}>{data.gridName || 'Редактор grid'}</span><small>Фокус · #{data.grid} · {area.width}×{area.height}</small></strong>
       {data.sourcePath && <code className="GridEditor__sourcePath" title={data.sourcePath}>{data.sourcePath}</code>}</div>
       <span className="GridEditor__draftStatus" role="status">{pending ? 'Применение к grid…' : before ? 'Исходный grid' : `${changes} изменений в черновике`}</span><button aria-label="Закрыть" onClick={close} disabled={pending}>×</button></header>

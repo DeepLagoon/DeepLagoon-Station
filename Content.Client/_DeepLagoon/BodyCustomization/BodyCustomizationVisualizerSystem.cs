@@ -2,6 +2,8 @@ using System.Linq;
 using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
+using Content.Shared.Clothing.Components;
+using Content.Shared.Inventory;
 using Robust.Client.GameObjects;
 using Robust.Shared.Utility;
 using Robust.Shared.Prototypes;
@@ -13,6 +15,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
 {
     [Dependency] private SpriteSystem _sprites = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private InventorySystem _inventory = default!;
     private readonly Dictionary<EntityUid, List<string>> _layers = new();
     private readonly Dictionary<EntityUid, object[]> _raisedHands = new();
 
@@ -44,7 +47,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                         && humanoid.BodyFeatures.FirstOrDefault(f => f.Part == k.Split('/')[1])?.Visibility == feature.Visibility))
                         if (sprite.LayerMapTryGet(previous, out var index)) insertion = Math.Max(insertion, index + 1);
                 }
-                var state = $"{feature.Part}_{feature.Shape}_{feature.Size}_0_{side}";
+                var state = BodyCustomizationCatalog.SpriteState(feature, side, humanoid.GenitalAroused);
                 var specifier = new SpriteSpecifier.Rsi(new ResPath($"_DeepLagoon/BodyCustomization/{feature.Part}.rsi"), state);
                 var layerIndex = _sprites.AddLayer((uid, sprite), specifier, insertion);
                 var key = $"dl-body/{feature.Part}/{side}";
@@ -91,15 +94,28 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
     public void UpdateVisibility(EntityUid uid, HumanoidAppearanceComponent humanoid, SpriteComponent sprite)
     {
         if (!_layers.TryGetValue(uid, out var layers)) return;
+        var clothed = HasTorsoClothing(uid);
         foreach (var key in layers)
         {
             var part = key.Split('/')[1];
             var feature = humanoid.BodyFeatures.FirstOrDefault(f => f.Part == part);
+            // The raw layer keeps the naked size. Under clothing, only the garment draws the
+            // capped, compressed silhouette; otherwise the larger skin sprite protrudes past it.
             var visible = feature is { Enabled: true } && feature.Visibility != 0
                 && !humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Chest)
+                && (!clothed || feature.Visibility == 2 && feature.ShowThroughClothing)
                 && (feature.Visibility == 2 || !humanoid.HiddenLayers.ContainsKey(HumanoidVisualLayers.Chest));
             if (sprite.LayerMapTryGet(key, out var index)) sprite.LayerSetVisible(index, visible);
         }
+    }
+
+    private bool HasTorsoClothing(EntityUid uid)
+    {
+        if (!TryComp<InventoryComponent>(uid, out var inventory)) return false;
+        var slots = _inventory.GetSlotEnumerator((uid, inventory));
+        while (slots.NextItem(out var item, out var slot))
+            if (slot.Name is "jumpsuit" or "outerClothing" && HasComp<ClothingComponent>(item)) return true;
+        return false;
     }
 
     /// <summary>Ink must draw after every anatomy overlay, including parts drawn above clothing.</summary>

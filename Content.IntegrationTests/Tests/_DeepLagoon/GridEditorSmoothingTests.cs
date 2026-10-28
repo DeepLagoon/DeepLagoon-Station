@@ -42,7 +42,7 @@ public sealed class GridEditorSmoothingTests
             pair.Server.PlayerMan.SetAttachedEntity(player, body);
             var editor = entities.System<Editor>();
             Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
-            var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+            var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!).Values.Cast<object>().Single();
             token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
             typeof(Editor).GetMethod("Apply", flags)!.Invoke(editor, new object[] {
                 new GridEditorApplyEvent(token, new() {

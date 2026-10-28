@@ -49,7 +49,8 @@ export function exportGridDraft(items, bounds, expansion, environment = {}) {
   for (const item of items.filter(i => i.kind === 'entity')) {
     if (!groups.has(item.prototype)) groups.set(item.prototype, []);
     groups.get(item.prototype).push({ uid: ++uid, components: [{ type: 'Transform', parent: 1,
-      pos: `${item.x},${item.y}`, rot: item.rotation || 0, anchored: !!item.anchored }] });
+      pos: `${item.x},${item.y}`, rot: item.rotation || 0, anchored: !!item.anchored },
+      ...(item.prototype.startsWith('GasPipe') ? [{ type: 'AtmosPipeColor', color: item.color || '#FFFFFFFF' }] : [])] });
     gridEditorIds[uid] = item.id;
   }
   return dump({

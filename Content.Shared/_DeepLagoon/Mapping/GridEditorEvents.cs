@@ -53,14 +53,24 @@ public sealed class GridEditorApplyEvent(Guid token, List<GridEditorItem> items,
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorResultEvent(string message, bool success) : EntityEventArgs
+public sealed class GridEditorResultEvent(string message, bool success, Guid token = default) : EntityEventArgs
 {
+    public readonly Guid Token = token;
     public readonly string Message = message;
     public readonly bool Success = success;
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorCloseEvent : EntityEventArgs;
+public sealed class GridEditorCloseEvent(Guid? token = null) : EntityEventArgs
+{
+    public readonly Guid? Token = token;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorClosedEvent(Guid token) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+}
 
 [Serializable, NetSerializable]
 public sealed class GridEditorRepairConnectionsRequest(Guid token) : EntityEventArgs

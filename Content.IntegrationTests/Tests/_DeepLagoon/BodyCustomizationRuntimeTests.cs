@@ -14,12 +14,80 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Localization;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Console;
+using Robust.Client.GameObjects;
+using Moq;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
 public sealed class BodyCustomizationRuntimeTests
 {
+    [Test]
+    public async Task ArousalCommandOnlyChangesOwnBodyAndReplicatesBothSpriteStates()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var map = await pair.CreateTestMap();
+        EntityUid user = default;
+        EntityUid other = default;
+        NetEntity networked = default;
+        await pair.Server.WaitPost(() =>
+        {
+            var entities = pair.Server.EntMan;
+            user = entities.SpawnEntity("MobHuman", map.GridCoords);
+            other = entities.SpawnEntity("MobHuman", map.GridCoords);
+            foreach (var uid in new[] { user, other })
+            {
+                var feature = BodyCustomizationCatalog.Default("penis");
+                feature.Enabled = true; feature.Size = "2";
+                entities.GetComponent<HumanoidAppearanceComponent>(uid).BodyFeatures = [feature];
+            }
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), user);
+            networked = entities.GetNetEntity(user);
+        });
+        await pair.RunTicksSync(30);
+        foreach (var (arguments, expected) in new[] { ($"1 {networked}", false), ("bad", false), ("1", true), ("1", true), ("0", false), ("", true) })
+        {
+            await pair.Server.WaitAssertion(() =>
+            {
+                var console = pair.Server.ResolveDependency<IConsoleHost>();
+                if (arguments == "bad" || arguments.Contains(' '))
+                {
+                    var shell = new Mock<IConsoleShell>();
+                    shell.SetupGet(s => s.Player).Returns(pair.Server.PlayerMan.Sessions.Single());
+                    new SetGenderArousalCommand().Execute(shell.Object, arguments, arguments.Split(' '));
+                    shell.Verify(s => s.WriteError(It.IsAny<string>()), Times.Once);
+                }
+                else console.ExecuteCommand(pair.Server.PlayerMan.Sessions.Single(), "set_gender_arousal " + arguments);
+                Assert.That(pair.Server.EntMan.GetComponent<HumanoidAppearanceComponent>(user).GenitalAroused, Is.EqualTo(expected));
+                Assert.That(pair.Server.EntMan.GetComponent<HumanoidAppearanceComponent>(other).GenitalAroused, Is.False);
+            });
+            await pair.RunTicksSync(20);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var entities = pair.Client.EntMan;
+                var uid = entities.GetEntity(networked);
+                var humanoid = entities.GetComponent<HumanoidAppearanceComponent>(uid);
+                Assert.That(humanoid.GenitalAroused, Is.EqualTo(expected));
+                Assert.That(humanoid.BodyFeatures.Single().Size, Is.EqualTo("2"));
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                var layer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet("dl-body/penis/FRONT")];
+                Assert.That(layer.ActualState!.StateId.ToString(), Is.EqualTo($"penis_human_2_{(expected ? 1 : 0)}_FRONT"));
+            });
+        }
+        await pair.Server.WaitAssertion(() =>
+        {
+            var shell = new Mock<IConsoleShell>();
+            new SetGenderArousalCommand().Execute(shell.Object, "0", ["0"]);
+            shell.Verify(s => s.WriteError(It.IsAny<string>()), Times.Once);
+            Assert.That(pair.Server.EntMan.GetComponent<HumanoidAppearanceComponent>(user).GenitalAroused, Is.True);
+            pair.Server.EntMan.GetComponent<HumanoidAppearanceComponent>(user).BodyFeatures.Clear();
+            Assert.That(pair.Server.EntMan.System<BodyCustomizationSystem>().SetGenitalArousal(user, false), Is.False);
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static readonly string[] Reagents = ["DLButtGrowth", "DLButtReduction", "DLBellyGrowth", "DLBellyReduction",
         "DLBreastsGrowth", "DLBreastsReduction", "DLPenisGrowth", "DLPenisReduction"];
 

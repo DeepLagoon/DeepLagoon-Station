@@ -55,7 +55,7 @@ public sealed class GridEditorAnchoringTests
                 }
                 var editor = entities.System<Editor>();
                 Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
-                var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+                var draft = ((IDictionary) typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!).Values.Cast<object>().Single();
                 var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
                 var items = (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
                 var selection = items.Where(item => item.Kind == "entity").ToArray();
@@ -147,7 +147,7 @@ public sealed class GridEditorAnchoringTests
             var editor = entities.System<Editor>();
             Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
             var drafts = (IDictionary)typeof(Editor).GetField("_drafts", flags)!.GetValue(editor)!;
-            var draft = drafts[player]!;
+            var draft = drafts.Values.Cast<object>().Single();
             token = (Guid)draft.GetType().GetField("Token")!.GetValue(draft)!;
             panelId = ((List<GridEditorItem>)draft.GetType().GetField("Items")!.GetValue(draft)!).Single(i => i.Id == "e:" + panel).Id;
         });

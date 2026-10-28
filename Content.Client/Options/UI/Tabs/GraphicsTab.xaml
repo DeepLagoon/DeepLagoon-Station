@@ -12,6 +12,8 @@
                 <!-- Quality -->
                 <Label Text="{Loc 'ui-options-quality-label'}" StyleClasses="LabelKeyText"/>
                 <ui:OptionDropDown Name="DropDownLightingQuality" Title="{Loc 'ui-options-lighting-label'}" />
+                <CheckBox Name="LightBloomCheckBox" Text="{Loc 'ui-options-light-bloom'}" />
+                <ui:OptionSlider Name="LightBloomIntensitySlider" Title="{Loc 'ui-options-light-bloom-intensity'}" />
                 <CheckBox Name="ContactOcclusionCheckBox" Text="{Loc 'deeplagoon-options-ambient-occlusion'}" />
                 <CheckBox Name="AmbientOcclusionEntitiesCheckBox" Text="{Loc 'ui-options-ambient-occlusion-entities'}" />
                 <ui:OptionSlider Name="AmbientOcclusionIntensitySlider" Title="{Loc 'ui-options-ambient-occlusion-intensity'}" />

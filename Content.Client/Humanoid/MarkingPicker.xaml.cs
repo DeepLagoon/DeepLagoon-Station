@@ -83,7 +83,7 @@ public sealed partial class MarkingPicker : Control
     {
         var pointsProto = _prototypeManager
             .Index<SpeciesPrototype>(species).MarkingPoints;
-        _currentMarkings = new(newMarkings, pointsProto, _markingManager);
+        _currentMarkings = new(newMarkings, pointsProto, _markingManager, unrestricted: IgnoreSpecies);
 
         if (!IgnoreSpecies)
         {
@@ -242,7 +242,7 @@ public sealed partial class MarkingPicker : Control
 
         if (!IgnoreSpecies)
         {
-            _currentMarkings.EnsureSpecies(_currentSpecies, null, _markingManager);
+            _currentMarkings.EnsureSpecies(_currentSpecies, null, _markingManager, ignoreSpecies: IgnoreSpecies);
         }
 
         // walk backwards through the list for visual purposes
@@ -345,8 +345,8 @@ public sealed partial class MarkingPicker : Control
 
         var speciesPrototype = _prototypeManager.Index<SpeciesPrototype>(species);
 
-        _currentMarkings = new(markingList, speciesPrototype.MarkingPoints, _markingManager, _prototypeManager);
-        _currentMarkings.EnsureSpecies(species, null, _markingManager);
+        _currentMarkings = new(markingList, speciesPrototype.MarkingPoints, _markingManager, _prototypeManager, IgnoreSpecies);
+        _currentMarkings.EnsureSpecies(species, null, _markingManager, ignoreSpecies: IgnoreSpecies);
         _currentMarkings.EnsureSexes(_currentSex, _markingManager);
 
         Populate(CMarkingSearch.Text);
@@ -360,8 +360,8 @@ public sealed partial class MarkingPicker : Control
 
         var speciesPrototype = _prototypeManager.Index<SpeciesPrototype>(_currentSpecies);
 
-        _currentMarkings = new(markingList, speciesPrototype.MarkingPoints, _markingManager, _prototypeManager);
-        _currentMarkings.EnsureSpecies(_currentSpecies, null, _markingManager);
+        _currentMarkings = new(markingList, speciesPrototype.MarkingPoints, _markingManager, _prototypeManager, IgnoreSpecies);
+        _currentMarkings.EnsureSpecies(_currentSpecies, null, _markingManager, ignoreSpecies: IgnoreSpecies);
         _currentMarkings.EnsureSexes(_currentSex, _markingManager);
 
         Populate(CMarkingSearch.Text);

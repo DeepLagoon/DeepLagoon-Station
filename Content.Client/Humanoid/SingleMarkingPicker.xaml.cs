@@ -98,6 +98,7 @@ public sealed partial class SingleMarkingPicker : BoxContainer
             }
         }
     }
+    public bool IgnoreSpecies { get; set; }
     private IReadOnlyDictionary<string, MarkingPrototype>? _markingPrototypeCache;
 
     private string? _species;
@@ -155,7 +156,7 @@ public sealed partial class SingleMarkingPicker : BoxContainer
         _species = species;
         _totalPoints = totalPoints;
 
-        _markingPrototypeCache = _markingManager.MarkingsByCategoryAndSpecies(Category, _species);
+        _markingPrototypeCache = _markingManager.MarkingsByCategoryAndSpecies(Category, _species, IgnoreSpecies);
 
         Visible = _markingPrototypeCache.Count != 0;
         if (_markingPrototypeCache.Count == 0)
@@ -175,7 +176,7 @@ public sealed partial class SingleMarkingPicker : BoxContainer
             throw new ArgumentException("Tried to populate marking list without a set species!");
         }
 
-        _markingPrototypeCache ??= _markingManager.MarkingsByCategoryAndSpecies(Category, _species);
+        _markingPrototypeCache ??= _markingManager.MarkingsByCategoryAndSpecies(Category, _species, IgnoreSpecies);
 
         MarkingSelectorContainer.Visible = _markings != null && _markings.Count != 0;
         if (_markings == null || _markings.Count == 0)

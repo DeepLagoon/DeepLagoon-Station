@@ -53,7 +53,7 @@ const state = { document: JSON.stringify({ version:1, title:'Тихая лагу
     await page.keyboard.press('Control+Shift+z'); await page.waitForFunction(expected=>document.querySelector('.ArtStudio canvas').toDataURL()===expected,painted);
     await page.getByRole('button',{name:labels['add-layer'],exact:true}).click();
     await page.getByRole('button',{name:labels['add-mask'],exact:true}).click();
-    await page.getByLabel(labels.shape,{exact:true}).selectOption('soft'); await stroke(0,-20);
+    await page.getByRole('combobox',{name:labels.shape,exact:true}).click(); await page.getByRole('option',{name:labels.soft,exact:true}).click(); await stroke(0,-20);
     await page.getByRole('button',{name:labels.save,exact:true}).click();
     await page.waitForFunction(()=>{const a=window.__sent.filter(m=>m.type==='act/save');return a.length&&a.at(-1).payload.index+1===a.at(-1).payload.count;});
     const chunks=await page.evaluate(()=>window.__sent.filter(m=>m.type==='act/save').map(m=>m.payload));

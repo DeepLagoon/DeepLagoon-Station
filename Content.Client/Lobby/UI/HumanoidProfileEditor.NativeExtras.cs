@@ -38,7 +38,7 @@ public sealed partial class HumanoidProfileEditor
             NativeInterfacePanel.Text(column, part.String("name"));
             void Send(string field, string value) => UserInterfaceManager.DeferAction(() =>
                 HandleTguiProfileAction("body-feature", new TguiData().String("part", part.String("part")).String("field", field).String("value", value).ToString()));
-            foreach (var (field, title) in new[] { ("enabled", "Включено"), ("matchSkin", "Цвет кожи"), ("secondaryEnabled", "Второй цвет") })
+            foreach (var (field, title) in new[] { ("enabled", "Включено"), ("showThroughClothing", "Деформировать одежду"), ("matchSkin", "Цвет кожи"), ("secondaryEnabled", "Второй цвет") })
             {
                 if (field == "secondaryEnabled" && !part.Bool("secondaryAvailable")) continue;
                 var check = new CheckBox { Text = title, Pressed = part.Bool(field) }; column.AddChild(check);

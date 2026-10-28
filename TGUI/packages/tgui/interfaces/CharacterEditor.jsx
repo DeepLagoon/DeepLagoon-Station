@@ -12,7 +12,7 @@ import { CharacterHeadshots } from './CharacterHeadshots';
 import { EquipmentBrowser } from './EquipmentBrowser';
 import { filter as fuzzyFilter } from './fuzzySearch'; // DeepLagoon: fuzzy search
 import { CharacterEditorSettings, editorAppearance } from './CharacterEditorSettings';
-import { CharacterAppearance } from './CharacterAppearance';
+import { CharacterAppearance, PreviewBackgroundButton } from './CharacterAppearance';
 import { configureNativeChatBackground, clearNativeChatBackground } from '../../tgui-panel/chat/nativeBackground';
 
 const Field = ({ label, children }) => <label className="CharacterEditor__field"><span>{label}</span>{children}</label>;
@@ -84,6 +84,7 @@ const HairCarousel = ({ options, selected, color, onSelect, face, beard, act }) 
 const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
   const set = field => value => act('body-feature', { part: feature.part, field, value });
   const testicles = features.find(part => part.part === 'testicles');
+  const anus = features.find(part => part.part === 'anus');
   return <details>
     <summary>{feature.name}{feature.enabled ? ' ✓' : ''}</summary>
     <Button selected={feature.enabled} onClick={() => set('enabled')(String(!feature.enabled))}>
@@ -93,6 +94,10 @@ const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
       <Select label="Форма" value={feature.shape} options={feature.shapes} onChange={set('shape')} />
       <Select label="Размер" value={feature.size} options={feature.sizes} onChange={set('size')} disabled={feature.sizes.length < 2} />
       <Select label="Отображение" value={feature.visibility} options={[{id: '0', name: 'Скрыто'}, {id: '1', name: 'Под одеждой'}, {id: '2', name: 'Поверх одежды'}]} onChange={value => set('visibility')(Number(value))} />
+      <label className="CharacterEditor__clothingFit">
+        <input type="checkbox" checked={feature.showThroughClothing !== false}
+          onChange={event => set('showThroughClothing')(String(event.target.checked))} /> Деформировать одежду
+      </label>
       <Button selected={feature.matchSkin} onClick={() => set('matchSkin')(String(!feature.matchSkin))}>Цвет кожи</Button>
       <ColorEditor label="Цвет части" value={feature.matchSkin ? skinColor : feature.color} disabled={feature.matchSkin} onChange={set('color')} />
       {feature.part === 'breasts' && <>
@@ -107,6 +112,10 @@ const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
     {feature.part === 'butt' && <Button selected={feature.anus} onClick={() => set('anus')(String(!feature.anus))}>
       Анус: {feature.anus ? 'есть' : 'нет'}
     </Button>}
+    {feature.part === 'butt' && feature.anus && anus && <label className="CharacterEditor__clothingFit">
+      <input type="checkbox" checked={anus.showThroughClothing !== false}
+        onChange={event => act('body-feature', { part: 'anus', field: 'showThroughClothing', value: String(event.target.checked) })} /> Анус: Деформировать одежду
+    </label>}
     {feature.part === 'penis' && testicles && <BodyFeatureEditor feature={testicles} features={features} skinColor={skinColor} act={act} />}
   </details>;
 };
@@ -163,6 +172,8 @@ export const CharacterEditor = () => {
   const [charactersOpen,setCharactersOpen]=useState(false),[statsOpen,setStatsOpen]=useState(false),[deleteSlot,setDeleteSlot]=useState(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [tattooPanelOpen, setTattooPanelOpen] = useState(false);
+  const [lightPreview, setLightPreview] = useState(false);
+  const togglePreviewBackground = () => setLightPreview(light => !light);
   const [colorTransfer, setColorTransfer] = useState({ phase: 'off', color: null });
   useEffect(() => {
     const cancel = event => {
@@ -193,7 +204,6 @@ export const CharacterEditor = () => {
     Выберите персонажа.</div>;
   // DeepLagoon: fuzzy search; one list per search, so the typo rule counts all jobs (or all markings) together
   const matchedJobs = new Set(fuzzyFilter(departments.flatMap(department => department.jobs), search, job => job.name));
-  const matchedMarkings = new Set(fuzzyFilter(data.markingOptions || [], search, option => option.name));
   const theme = playerTheme(appearance);
   return <EditorColorDialogProvider data={data} act={act}><ColorTransferContext.Provider value={transfer}><div ref={backgroundRoot} className={'CharacterEditor Chat ' + theme.className + ' CharacterEditor--' + data.mode +
     (appearance.smoothScroll ? ' CharacterEditor--smooth' : '') + (appearance.hoverEffect ? ' CharacterEditor--hover' : '')}
@@ -213,10 +223,10 @@ export const CharacterEditor = () => {
       </div>
     </header>
     {data.mode !== 'markings' && <aside className="CharacterEditor__preview" onWheel={event=>{if(event.target.closest('input[type=range]'))return;const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left+64||event.clientX>bounds.right-64)return;event.preventDefault();act('rotate',{value:event.deltaY>0?1:-1});}}><div className="CharacterEditor__previewSpace" />
-      <div className="CharacterEditor__floor" style={{ backgroundImage: data.previewFloor ? `url("${data.previewFloor}")` : undefined }} />
+      <div className="CharacterEditor__floor" style={{ backgroundColor: lightPreview ? '#dce4ec' : '#262e3b', backgroundBlendMode: 'soft-light', backgroundImage: data.previewFloor ? `url("${data.previewFloor}")` : undefined }} />
       <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--height"><SizeSlider label="Рост" value={data.height} onChange={change('height')} vertical /></div>
       <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--width"><SizeSlider label="Ширина" value={data.width} onChange={change('width')} /></div>
-      <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button></div>
+      <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button><PreviewBackgroundButton light={lightPreview} onToggle={togglePreviewBackground} /></div>
       <div className="CharacterEditor__slots">{(data.previewSlots||[]).map((slot,index)=><button type="button" key={slot.id} title={slot.name} style={{gridColumn:index%2?3:1,gridRow:Math.floor(index/2)+1}} aria-label={slot.name} aria-pressed={slot.selected} onClick={()=>act('preview-slot',{value:slot.id})} onContextMenu={event=>{event.preventDefault();act('preview-slot-remove',{value:slot.id});}}><div className="CharacterEditor__sprite">{(slot.images.length?slot.images:[{url:slot.background,color:"#ffffff"}]).map((image,i)=><TintedSprite key={i} image={image.url} color={image.color} />)}</div></button>)}</div>
     </aside>}
     <main className="CharacterEditor__content">
@@ -320,8 +330,7 @@ export const CharacterEditor = () => {
       {[['flavor','Описание персонажа',data.flavorText],['ooc','OOC заметки',data.oocNotes]].map(([key,label,value])=><Section key={key} title={label}><CharacterTextEditor label={label} value={value||''} maxLength={data.maxFlavorLength} onChange={change(key)} /><details><summary>Предпросмотр форматирования</summary><div className="CharacterText"><CharacterText text={value}/></div></details></Section>)}
     </>}
     {data.mode === 'markings' && <>
-      <DraftInput label="Поиск особенностей" value={search} onCommit={setSearch} />
-      <CharacterAppearance data={data} act={act} matched={matchedMarkings} previewRef={previewTarget}
+      <CharacterAppearance data={data} act={act} previewRef={previewTarget} lightPreview={lightPreview} togglePreviewBackground={togglePreviewBackground}
         tattooPanelOpen={tattooPanelOpen} setTattooPanelOpen={setTattooPanelOpen} />
     </>}
     {data.mode === 'company' && <Section title="Компания"><div className="CharacterEditor__companies">{(data.companyOptions||[]).map(company=><article key={company.id}>

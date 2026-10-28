@@ -13,10 +13,10 @@ public sealed partial class GridEditorSystem
     private void RepairConnections(GridEditorRepairConnectionsRequest args, EntitySessionEventArgs sessionArgs)
     {
         var player = sessionArgs.SenderSession;
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, args.Token), out var draft) ||
             draft.Token != args.Token || !HasComp<MapGridComponent>(draft.Grid)) return;
         RaiseNetworkEvent(new GridEditorRepairConnectionsEvent(GetNetEntity(draft.Grid)));
-        RaiseNetworkEvent(new GridEditorResultEvent("Пересчёт визуальных соединений grid запрошен у всех клиентов.", true), player);
+        RaiseNetworkEvent(new GridEditorResultEvent("Пересчёт визуальных соединений grid запрошен у всех клиентов.", true, args.Token), player);
         _logs.Add(LogType.AdminMessage, LogImpact.Low,
             $"{player.Name} requested visual connection repair on {ToPrettyString(draft.Grid)} using grid editor");
     }
@@ -24,7 +24,7 @@ public sealed partial class GridEditorSystem
     private void RenameGrid(GridEditorNameRequest args, EntitySessionEventArgs sessionArgs)
     {
         var player = sessionArgs.SenderSession;
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, args.Token), out var draft) ||
             draft.Token != args.Token || !HasComp<MapGridComponent>(draft.Grid)) return;
         var name = args.Name?.Trim() ?? "";
         if (name.Length is < 1 or > GridEditorNameRequest.MaxLength || name.Any(char.IsControl))
@@ -40,7 +40,7 @@ public sealed partial class GridEditorSystem
             _logs.Add(LogType.AdminMessage, LogImpact.Low,
                 $"{player.Name} renamed grid {ToPrettyString(draft.Grid)} from '{previous}' to '{name}' using grid editor");
         }
-        foreach (var (viewer, other) in _drafts)
+        foreach (var ((viewer, _), other) in _drafts)
             if (other.Grid == draft.Grid) PublishEnvironment(viewer, other);
         RaiseNetworkEvent(new GridEditorNameResult(draft.Token), player);
     }
@@ -48,7 +48,7 @@ public sealed partial class GridEditorSystem
     private void Environment(GridEditorEnvironmentRequest args, EntitySessionEventArgs sessionArgs)
     {
         var player = sessionArgs.SenderSession;
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, args.Token), out var draft) ||
             draft.Token != args.Token || !HasComp<MapGridComponent>(draft.Grid) || args.Setting is not ("power" or "gravity")) return;
         var environment = EnsureComp<GridEnvironmentComponent>(draft.Grid);
         if (args.Setting == "power") environment.AlwaysPowered = args.Enabled;
@@ -56,7 +56,7 @@ public sealed partial class GridEditorSystem
         EntityManager.System<GridEnvironmentSystem>().RefreshGrid(draft.Grid, environment);
         _logs.Add(LogType.AdminMessage, LogImpact.High,
             $"{player.Name} set grid environment {args.Setting}={args.Enabled} on {ToPrettyString(draft.Grid)} using grid editor");
-        foreach (var (viewer, other) in _drafts)
+        foreach (var ((viewer, _), other) in _drafts)
             if (other.Grid == draft.Grid) PublishEnvironment(viewer, other);
     }
 

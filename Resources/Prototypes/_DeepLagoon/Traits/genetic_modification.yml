@@ -1,0 +1,7 @@
+- type: trait
+  id: GeneticModification
+  name: trait-genetic-modification-name
+  description: trait-genetic-modification-desc
+  category: Quirks
+  cost: 0
+  components: []

@@ -1,6 +1,6 @@
 @use './StationTabs' as station;
 .CharacterEditor {
-  &__legShape { display: flex; align-items: center; gap: 8px; margin: 12px 0;
+  &__legShape, &__clothingFit { display: flex; align-items: center; gap: 8px; margin: 12px 0;
     input[type=checkbox] { width: 18px; height: 18px; margin: 0; padding: 0; accent-color: var(--editor-accent); }
   }
   &__headshot {display:block;}
@@ -185,13 +185,12 @@
 .CharacterEditor--markings {
   .CharacterEditor__content { padding-inline: 0; }
   .CharacterEditor__anatomy { min-width: 0; }
-  .CharacterEditor__anatomySides { display: grid; grid-template-columns: minmax(0, 1fr) clamp(112px, 24vw, 232px) minmax(0, 1fr); gap: 12px; align-items: start; }
-  .CharacterEditor__anatomyLeft, .CharacterEditor__anatomyRight { min-width: 0; max-height: 390px; overflow-y: auto; overflow-x: hidden; }
-  .CharacterEditor__anatomySides h3 { text-align: center; margin: 6px 0 10px; }
-  .CharacterEditor__anatomyPreview { min-width: 0; position: sticky; top: 0; }
-  .CharacterEditor__anatomySpace { height: clamp(210px, 34vw, 320px); position: relative; }
+  .CharacterEditor__anatomySides { display: grid; grid-template-columns: minmax(0, 1fr) clamp(112px, 24vw, 232px); gap: 12px; align-items: start; }
+  .CharacterEditor__anatomySelection { min-width: 0; }
+  .CharacterEditor__anatomyPreview { min-width: 0; position: sticky; top: 0; text-align: center; }
+  .CharacterEditor__anatomySpace { height: clamp(210px, 34vw, 320px); position: relative; border-radius: 5px; }
   .CharacterEditor__anatomyFloor { position: absolute; width: 128px; max-width: 100%; height: 64px; left: 50%; bottom: 8px; transform: translateX(-50%); background-size: 64px; image-rendering: pixelated; opacity: .35; }
-  .CharacterEditor__anatomyRotation { display: flex; justify-content: center; gap: 8px; }
+  .CharacterEditor__anatomyRotation { display: flex; justify-content: center; gap: 8px; margin: 8px 0; }
   .CharacterEditor__anatomyLower { margin-top: 18px; min-width: 0; }
   .CharacterEditor__tiles { grid-template-columns: repeat(auto-fill, minmax(min(100%, 100px), 1fr)); }
   .CharacterEditor__tiles button { overflow-wrap: anywhere; min-width: 0; }
@@ -231,8 +230,12 @@
 .HairCarousel__searchRow { display:flex; align-items:center; gap:6px; min-width:0; }
 .HairCarousel__searchRow > input { flex:1; min-width:0; }
 .HairCarousel__searchRow > .Button { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; height:var(--editor-control-height); margin:0; padding:5px 10px; }
-.CharacterEditor__catalogToolbar { flex-shrink:0; padding:10px; }
-.CharacterEditor__catalogToolbar input { width:100%; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
+.CharacterEditor__catalogToolbar { display:flex; align-items:center; gap:8px; flex-shrink:0; padding:10px; }
+.CharacterEditor__catalogToolbar input { flex:1; min-width:0; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
+.CharacterEditor__catalogToolbar > .Button { flex-shrink:0; margin:0; }
+.CharacterEditor__catalogFilter { padding:0 10px 10px; flex-shrink:0; }
+.CharacterEditor__catalogFilter label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.CharacterEditor__catalogFilter .EmbeddedSelect { flex:1; min-width:150px; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
 .CharacterEditor__catalogContent { min-height:0; overflow:auto; padding:0 10px 12px; }
 .CharacterEditor__catalogGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); gap:8px; }
 .CharacterEditor__catalogGrid > button,.CharacterEditor__catalogContent .CharacterEditor__tiles > button { min-width:0; border:1px solid #68788a; border-radius:4px; background:var(--player-surface,#252b35); color:inherit; padding:5px; min-height:112px; font:inherit; overflow-wrap:anywhere; }
@@ -260,3 +263,15 @@
 .CharacterEditor--catalog { display:block; .CharacterEditor__catalogBody { height:100%; display:flex; flex-direction:column; min-height:0; } .CharacterEditor__catalogContent { flex:1; } }
 
 .CharacterEditor--catalog .CharacterEditor__sprite { width:80px; height:80px; }
+.CharacterEditor .CharacterEditor__combineMarkings { display:inline-flex; width:auto; max-width:100%; align-items:center; justify-content:flex-start; gap:8px; padding:8px 12px; margin:0 0 10px; border:1px solid #6883a0; border-radius:5px; background:color-mix(in srgb,var(--editor-accent,#a7d2ff) 20%,var(--player-surface,#252b35)); cursor:pointer; }
+.CharacterEditor .CharacterEditor__combineMarkings > input[type=checkbox] { width:16px; height:16px; min-width:16px; flex:0 0 16px; margin:0; }
+.CharacterEditor .CharacterEditor__combineMarkings > span { flex:0 1 auto; }
+.CharacterEditor__appearanceActions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; }
+.CharacterEditor .CharacterEditor__appearanceActions > .Button { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; min-height:36px; padding:8px 14px; margin:0; font-size:inherit; }
+.CharacterEditor .CharacterEditor__appearanceActions > .Button:first-child { min-width:150px; }
+.CharacterEditor .CharacterEditor__appearanceActions > .CharacterEditor__combineMarkings { box-sizing:border-box; min-height:36px; margin:0; }
+.CharacterEditor__preview > .CharacterEditor__rotation { flex-wrap:wrap; }
+.CharacterEditor__anatomyPreview > .Button { box-sizing:border-box; max-width:100%; white-space:normal; }
+.CharacterEditor__catalogCategories { display:flex; flex-flow:row wrap; gap:6px; padding:0 10px 10px; flex-shrink:0; }
+.CharacterEditor__catalogCategories > button { width:auto; border:1px solid #6883a0; border-radius:4px; background:#344c66; color:inherit; padding:6px 10px; font:inherit; cursor:pointer; }
+.CharacterEditor__catalogCategories > button[aria-pressed=true] { background:#405b77; border-color:var(--editor-accent,#a7d2ff); }

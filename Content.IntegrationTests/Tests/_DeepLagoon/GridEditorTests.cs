@@ -36,6 +36,92 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class GridEditorTests
 {
+    private static object DraftFor(ServerEditor editor, ICommonSession player, EntityUid? grid = null)
+    {
+        var drafts = (IDictionary) typeof(ServerEditor).GetField("_drafts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!;
+        return drafts.Keys.Cast<(ICommonSession Player, Guid Token)>().Where(key => key.Player == player)
+            .Select(key => drafts[key]!).Single(draft => grid == null || (EntityUid) draft.GetType().GetField("Grid")!.GetValue(draft)! == grid);
+    }
+
+    private sealed class TabField(string name)
+    {
+        private object Tab(object editor) => typeof(ClientEditor).GetField("_tab", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!;
+        public object? GetValue(object editor) { var tab = Tab(editor); return tab.GetType().GetField(name)!.GetValue(tab); }
+        public void SetValue(object editor, object? value) { var tab = Tab(editor); tab.GetType().GetField(name)!.SetValue(tab, value); }
+    }
+
+    [Test]
+    public async Task GridTabsKeepIndependentDraftsAndPipeColors()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var grids = new EntityUid[2];
+        var pipes = new EntityUid[2];
+        var tokens = new Guid[2];
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId, runMapInit: true);
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            var editor = entities.System<ServerEditor>();
+            for (var i = 0; i < grids.Length; i++)
+            {
+                var grid = maps.CreateGridEntity(mapId); grids[i] = grid.Owner;
+                maps.SetTile(grid, grid.Comp, Vector2i.Zero, new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
+                pipes[i] = entities.SpawnEntity("GasPipeStraight", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+                editor.Open(player, grid);
+                var draft = DraftFor(editor, player, grid);
+                tokens[i] = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
+            }
+            editor.Open(player, grids[0]);
+            Assert.That((Guid) DraftFor(editor, player, grids[0]).GetType().GetField("Token")!.GetValue(DraftFor(editor, player, grids[0]))!, Is.EqualTo(tokens[0]));
+        });
+        await pair.RunTicksSync(25);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            var tabs = (IDictionary) typeof(ClientEditor).GetField("_tabs", flags)!.GetValue(editor)!;
+            Assert.That(tabs.Count, Is.EqualTo(2));
+            Assert.That(editor.State!.Token, Is.EqualTo(tokens[0]));
+            // Upload two independent chunks while the other grid is active.
+            void Send(int tab, string action, object payload) => typeof(ClientEditor).GetMethod("TabAction", flags)!.Invoke(editor,
+                new object[] { action, JsonSerializer.Serialize(payload) });
+            for (var i = 0; i < 2; i++) Send(i, "applyStart", new { tabToken = tokens[i], id = "color" + i, count = 1, chunks = 1 });
+            for (var i = 1; i >= 0; i--)
+                Send(i, "applyChunk", new { tabToken = tokens[i], id = "color" + i, index = 0, items = new[] { new
+                {
+                    id = tabs[tokens[i]]!.GetType().GetField("State")!.GetValue(tabs[tokens[i]]) is GridEditorStateEvent state
+                        ? state.Items.Single(item => item.Prototype == "GasPipeStraight").Id : "",
+                    kind = "entity", prototype = "GasPipeStraight", x = .5, y = .5, rotation = 0, anchored = true,
+                    color = i == 0 ? "#FF0000FF" : "#0000FFFF"
+                } } });
+        });
+        await pair.RunTicksSync(40);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.GetComponent<Content.Server.Atmos.Piping.Components.AtmosPipeColorComponent>(pipes[0]).Color, Is.EqualTo(Color.Red));
+            Assert.That(entities.GetComponent<Content.Server.Atmos.Piping.Components.AtmosPipeColorComponent>(pipes[1]).Color, Is.EqualTo(Color.Blue));
+            var editor = entities.System<ServerEditor>();
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            var yaml = editor.Export(player, tokens[0], false, out var error);
+            Assert.That(yaml, Is.Not.Null, error);
+            Assert.That(yaml, Does.Contain("AtmosPipeColor"));
+            typeof(ServerEditor).GetMethod("CloseEditor", flags)!.Invoke(editor, new object?[] { player, tokens[0] });
+            Assert.That(DraftFor(editor, player, grids[1]), Is.Not.Null);
+        });
+        await pair.RunTicksSync(15);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            Assert.That(((IDictionary) typeof(ClientEditor).GetField("_tabs", flags)!.GetValue(editor)!).Count, Is.EqualTo(1));
+            Assert.That(editor.State!.Token, Is.EqualTo(tokens[1]));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task ExportFailureReportsComponentEntityAndGridLocalCoordinates()
     {
@@ -57,7 +143,7 @@ public sealed class GridEditorTests
             var editor = entities.System<ServerEditor>();
             editor.Open(player, grid);
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var draft = ((IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+            var draft = DraftFor(editor, player);
             var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
             object?[] args = { player, token, false, "", null };
             var export = typeof(ServerEditor).GetMethods(flags).Single(method => method.Name == "Export" && method.GetParameters().Length == 5);
@@ -223,7 +309,7 @@ public sealed class GridEditorTests
             var editor = entities.System<ServerEditor>();
             Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var draft = ((IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!)[player]!;
+            var draft = DraftFor(editor, player);
             var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
             var items = (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
             var id = items.Single(item => item.Kind == "entity" && item.X == .5f).Id;
@@ -336,7 +422,7 @@ public sealed class GridEditorTests
             Assert.That(bool.Parse(savedLock.Get<ValueDataNode>("unlockOnClick").Value), Is.False);
             Assert.That(downloaded, Does.Not.Contain("gridEditorIds"));
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            Assert.That(typeof(ClientEditor).GetField("_downloadBusy", flags)!.GetValue(pair.Client.EntMan.System<ClientEditor>()), Is.False);
+            Assert.That(new TabField("DownloadBusy").GetValue(pair.Client.EntMan.System<ClientEditor>()), Is.False);
         });
         await pair.CleanReturnAsync();
     }
@@ -387,10 +473,10 @@ public sealed class GridEditorTests
                 .Returns(Task.FromResult<(System.IO.Stream, bool)?>((saved, false)));
             typeof(ClientEditor).GetField("_dialogs", flags)!.SetValue(editor, dialogs.Object);
             var request = Guid.NewGuid();
-            typeof(ClientEditor).GetField("_downloadRequest", flags)!.SetValue(editor, request);
-            typeof(ClientEditor).GetField("_download", flags)!.SetValue(editor, new System.IO.MemoryStream());
-            typeof(ClientEditor).GetField("_downloadIndex", flags)!.SetValue(editor, 0);
-            typeof(ClientEditor).GetField("_downloadCount", flags)!.SetValue(editor, 0);
+            new TabField("DownloadRequest").SetValue(editor, request);
+            new TabField("Download").SetValue(editor, new System.IO.MemoryStream());
+            new TabField("DownloadIndex").SetValue(editor, 0);
+            new TabField("DownloadCount").SetValue(editor, 0);
             var bytes = Enumerable.Range(0, 65543).Select(index => (byte) (index % 251)).ToArray();
             var receive = typeof(ClientEditor).GetMethod("ReceiveFile", flags)!;
             var last = new GridEditorFileEvent(request, 1, 2, bytes.Skip(65536).ToArray());
@@ -428,7 +514,7 @@ public sealed class GridEditorTests
         await pair.Client.WaitAssertion(() =>
         {
             var editor = pair.Client.EntMan.System<ClientEditor>(); token = editor.State!.Token;
-            Assert.That(((GridEditorEnvironmentState) typeof(ClientEditor).GetField("_environmentState", flags)!.GetValue(editor)!).GridName, Is.EqualTo(original));
+            Assert.That(((GridEditorEnvironmentState) new TabField("EnvironmentState").GetValue(editor)!).GridName, Is.EqualTo(original));
         });
         await pair.Server.WaitAssertion(() =>
         {
@@ -445,7 +531,7 @@ public sealed class GridEditorTests
         await pair.Client.WaitAssertion(() => typeof(ClientEditor).GetMethod("Action", flags)!.Invoke(pair.Client.EntMan.System<ClientEditor>(),
             new object[] { "setGridName", JsonSerializer.Serialize(new { name = "  " + renamed + "  " }) }));
         await pair.RunTicksSync(30);
-        await pair.Client.WaitAssertion(() => Assert.That(((GridEditorEnvironmentState) typeof(ClientEditor).GetField("_environmentState", flags)!
+        await pair.Client.WaitAssertion(() => Assert.That(((GridEditorEnvironmentState) new TabField("EnvironmentState")
             .GetValue(pair.Client.EntMan.System<ClientEditor>())!).GridName, Is.EqualTo(renamed)));
         await pair.Server.WaitAssertion(() =>
         {
@@ -485,7 +571,7 @@ public sealed class GridEditorTests
             Assert.That(editor.Open(player, grid), Does.Contain("открыт"));
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var drafts = (IDictionary) typeof(ServerEditor).GetField("_drafts", flags)!.GetValue(editor)!;
-            var draft = drafts[player]!;
+            var draft = DraftFor(editor, player);
             var token = (Guid) draft.GetType().GetField("Token")!.GetValue(draft)!;
             List<GridEditorItem> Items() => (List<GridEditorItem>) draft.GetType().GetField("Items")!.GetValue(draft)!;
             var chairId = Items().Single(item => item.Kind == "entity").Id;
@@ -616,7 +702,7 @@ public sealed class GridEditorTests
         EntityUid grid = default, chair = default;
         ICommonSession first = null!;
         ServerEditor server = null!;
-        object Draft(ICommonSession player) => ((IDictionary) typeof(ServerEditor).GetField("_drafts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(server)!)[player]!;
+        object Draft(ICommonSession player) => DraftFor(server, player);
         Guid Token(ICommonSession player) => (Guid) Draft(player).GetType().GetField("Token")!.GetValue(Draft(player))!;
         List<GridEditorItem> Items(ICommonSession player) => (List<GridEditorItem>) Draft(player).GetType().GetField("Items")!.GetValue(Draft(player))!;
         Dictionary<string, GridEditorItem> PreviewItems(ICommonSession player) => (Dictionary<string, GridEditorItem>) Draft(player).GetType().GetField("Preview")!.GetValue(Draft(player))!;
@@ -666,7 +752,7 @@ public sealed class GridEditorTests
             await pair.RunTicksSync(15);
             await pair.Client.WaitAssertion(() =>
             {
-                var peers = (List<GridEditorPeerDraft>) typeof(ClientEditor).GetField("_peerDrafts", flags)!.GetValue(pair.Client.EntMan.System<ClientEditor>())!;
+                var peers = (List<GridEditorPeerDraft>) new TabField("PeerDrafts").GetValue(pair.Client.EntMan.System<ClientEditor>())!;
                 Assert.That(peers.Single(peer => peer.Name == dummy.Name).Items.Single().X, Is.EqualTo(.5f));
                 Assert.That(peers.Single(peer => peer.Name == dummy.Name).Expansion.Left, Is.EqualTo(6));
                 SendClient("preview", new GridEditorItem { Id = "t:2:0", Kind = "tile", Prototype = "FloorSteel", X = 2, Y = 0 });

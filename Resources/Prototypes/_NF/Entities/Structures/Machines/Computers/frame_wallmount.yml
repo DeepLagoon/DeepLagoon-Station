@@ -4,6 +4,7 @@
   suffix: Wallmount
   abstract: true
   components:
+    - type: NoLightBloom
     - type: Anchorable
     - type: InteractionOutline
     - type: Construction

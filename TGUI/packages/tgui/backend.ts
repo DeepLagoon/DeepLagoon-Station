@@ -23,6 +23,7 @@ import {
 import { focusMap } from './focus';
 import { createLogger } from './logging';
 import { resumeRenderer, suspendRenderer } from './renderer';
+import { gridEditorUpdate } from './interfaces/gridEditorTabs.mjs';
 
 const logger = createLogger('backend');
 
@@ -63,6 +64,7 @@ export const backendReducer = (state = initialState, action) => {
   const { type, payload } = action;
 
   if (type === 'backend/update') {
+    const incomingData = gridEditorUpdate(state.data, payload);
     // Merge config
     const config = {
       ...state.config,
@@ -76,14 +78,14 @@ export const backendReducer = (state = initialState, action) => {
     };
     const partialData = {
       ...(newInterface || payload.resetPartialData ? {} : state.partialData),
-      ...(!payload.replaceData ? payload.data : {}),
+      ...(!payload.replaceData ? incomingData : {}),
     };
     for (const key of payload.removedData || []) delete partialData[key];
     const data = {
       ...(payload.replaceData || newInterface ? {} : state.data),
       ...(payload.replaceData ? staticData : payload.static_data),
       ...(payload.replaceData ? partialData : {}),
-      ...payload.data,
+      ...incomingData,
     };
     for (const key of payload.removedData || []) delete data[key];
     // Merge shared states

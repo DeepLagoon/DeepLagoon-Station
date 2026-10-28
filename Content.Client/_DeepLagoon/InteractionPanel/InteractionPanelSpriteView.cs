@@ -27,13 +27,25 @@ public sealed class InteractionPanelSpriteView : SpriteView
         // Слои displacement содержат карту формы одежды, а не отдельную картинку.
         // Сохраняем их, но используем отдельные UI-шейдеры: параметры направления,
         // освещение и stencil мира не должны влиять на увеличенное превью.
-        handle.RenderInRenderTarget(_target, () =>
+        var screen = handle.DrawingHandleScreen;
+        var transform = screen.GetTransform();
+        try
         {
-            handle.SetScissor(null);
-            handle.DrawingHandleScreen.SetTransform(Matrix3x2.Identity);
-            DrawClothing(handle);
-        }, Color.Transparent);
-        handle.DrawingHandleScreen.DrawTexture(_target.Texture, Vector2.Zero);
+            handle.RenderInRenderTarget(_target, () =>
+            {
+                handle.SetScissor(null);
+                screen.SetTransform(Matrix3x2.Identity);
+                DrawClothing(handle);
+            }, Color.Transparent);
+        }
+        finally
+        {
+            // RenderInRenderTarget restores the matrix but not Clyde's cached
+            // translation/type. Reapply through the public API before compositing
+            // or the thumbnail is drawn at screen (0,0), outside its UI clip.
+            screen.SetTransform(transform);
+        }
+        screen.DrawTexture(_target.Texture, Vector2.Zero);
     }
 
     private void DrawClothing(IRenderHandle handle)

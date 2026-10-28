@@ -14,6 +14,7 @@ public sealed partial class HumanoidProfileEditor
             var feature = features.FirstOrDefault(f => f.Part == part) ?? BodyCustomizationCatalog.Default(part);
             return new TguiData().String("part", part).String("name", BodyCustomizationCatalog.Names[part])
                 .Bool("enabled", feature.Enabled)
+                .Bool("showThroughClothing", feature.ShowThroughClothing)
                 .Bool("womb", features.Any(f => f.Part == "womb" && f.Enabled))
                 .Bool("anus", features.Any(f => f.Part == "anus" && f.Enabled))
                 .String("shape", feature.Shape).String("size", feature.Size)
@@ -50,6 +51,9 @@ public sealed partial class HumanoidProfileEditor
             case "enabled":
                 if (!bool.TryParse(value, out var enabled)) return false;
                 feature.Enabled = enabled; break;
+            case "showThroughClothing":
+                if (!bool.TryParse(value, out var showThroughClothing)) return false;
+                feature.ShowThroughClothing = showThroughClothing; break;
             case "womb":
                 if (part != "vagina" || !bool.TryParse(value, out var hasWomb)) return false;
                 var womb = features.FirstOrDefault(f => f.Part == "womb");

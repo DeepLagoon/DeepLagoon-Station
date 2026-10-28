@@ -11,6 +11,24 @@ const graph=(nodes,edges)=>({nodes:nodes.map(([x,y],i)=>({id:String(i),x,y})),ed
 let serial=0;const nextId=()=>`new_${serial++}`;
 const floors=[];for(let x=-5;x<8;x++)for(let y=-5;y<8;y++)floors.push(floor(x,y));
 
+test('deleting the final route cell removes its source without affecting other networks', () => {
+  const source = cable(0, 0), other = { ...cable(0, 0, 'other'), prototype: 'CableMV' };
+  const items = [...floors, source, other];
+  const selected = readRoute(items, { x: 0, y: 0 }, hv);
+  const deleted = deleteRoutePoint(selected, selected.nodes[0].id);
+  const result = buildRoute(items, deleted, hv, selected.source, nextId);
+  assert.ok(!result.items.some(i => i.id === source.id));
+  assert.ok(result.items.includes(other));
+  assert.equal(result.items.filter(i => i.kind === 'tile').length, floors.length);
+});
+
+test('reshaping a painted pipe retains color when its prototype changes', () => {
+  const source = { id: 'pipe', kind: 'entity', prototype: 'GasPipeStraight', x: .5, y: .5, rotation: 0, color: '#d42831ff' };
+  const selected = { ...graph([[0, 0], [1, 0]], [[0, 1]]), source: [source] };
+  const result = buildRoute([...floors, source], selected, gas, selected.source, nextId);
+  assert.ok(result.items.filter(i => i.kind === 'entity').every(i => i.color === source.color));
+});
+
 test('orthogonal route bends, branches and crossings have cardinal ports without duplicates',()=>{
   const cells=routeCells(graph([[0,0],[3,2],[1,0],[1,3]],[[0,1],[2,3]]));
   const byCell=new Map(cells.map(c=>[`${c.x}:${c.y}`,c]));

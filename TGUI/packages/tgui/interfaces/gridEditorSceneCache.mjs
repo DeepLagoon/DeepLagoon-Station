@@ -60,7 +60,7 @@ export class GridSceneCache {
     for (const bucket of index.values()) for (const item of bucket) {
       if (stopped()) return;
       if (layers[item.kind]) {
-        if (item.kind === 'decal') for (const image of visuals.get(visualKey(item))?.images || []) usedTints.add(`${image.url}:${item.color}`);
+        if (item.kind === 'decal' || visuals.get(visualKey(item))?.pipeColor) for (const image of visuals.get(visualKey(item))?.images || []) usedTints.add(`${image.url}:${item.color}`);
         const key = visualKey(item);
         if (!definitions.has(key)) {
           const visual = visuals.get(key);
@@ -147,7 +147,7 @@ export class GridSceneCache {
       }
       for (const layer of spriteLayers(item, visual)) {
         let image = sources.get(layer.image.url); if (!image) continue;
-        if (item.kind === 'decal') {
+        if (item.kind === 'decal' || visual?.pipeColor) {
           const key = `${layer.image.url}:${item.color}`;
           if (!this.tints.has(key)) this.tints.set(key, tintSprite(image, item.color));
           image = this.tints.get(key);

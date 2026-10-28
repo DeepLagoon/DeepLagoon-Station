@@ -5,6 +5,8 @@ using System.Numerics;
 using Content.Server.Administration.Managers;
 using Content.Server.Decals;
 using Content.Server.Atmos.Components;
+using Content.Server.Atmos.Piping.Components;
+using Content.Server.Atmos.Piping.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
 using Content.Shared._DeepLagoon.Apartments;
@@ -41,7 +43,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private TagSystem _tags = default!;
     [Dependency] private CableSystem _cables = default!;
-    private readonly Dictionary<ICommonSession, Draft> _drafts = new();
+    private readonly Dictionary<(ICommonSession Player, Guid Token), Draft> _drafts = new();
     private sealed class Draft(EntityUid grid, int x, int y, int width, int height)
     {
         public readonly EntityUid Grid = grid;
@@ -71,13 +73,13 @@ public sealed partial class GridEditorSystem : EntitySystem
         SubscribeNetworkEvent<GridEditorEnvironmentRequest>(Environment);
         SubscribeNetworkEvent<GridEditorNameRequest>(RenameGrid);
         SubscribeNetworkEvent<GridEditorRepairConnectionsRequest>(RepairConnections);
-        SubscribeNetworkEvent<GridEditorCloseEvent>((_, args) => CloseEditor(args.SenderSession));
+        SubscribeNetworkEvent<GridEditorCloseEvent>((ev, args) => CloseEditor(args.SenderSession, ev.Token));
         SubscribeNetworkEvent<GridEditorDraftUpdateEvent>(Preview);
         SubscribeNetworkEvent<GridEditorRegionEvent>((ev, args) =>
         {
-            if (!_drafts.TryGetValue(args.SenderSession, out var draft) || draft.Token != ev.Token) return;
+            if (!_drafts.TryGetValue((args.SenderSession, ev.Token), out var draft) || draft.Token != ev.Token) return;
             var message = Open(args.SenderSession, draft.Grid, ev.X, ev.Y);
-            if (!message.Contains("открыт")) RaiseNetworkEvent(new GridEditorResultEvent(message, false), args.SenderSession);
+            if (!message.Contains("открыт")) RaiseNetworkEvent(new GridEditorResultEvent(message, false, ev.Token), args.SenderSession);
         });
         SubscribeNetworkEvent<GridEditorDownloadEvent>(Download);
         SubscribeNetworkEvent<GridEditorDraftFileStart>(StartDraftFile);
@@ -87,9 +89,9 @@ public sealed partial class GridEditorSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        foreach (var (session, draft) in _drafts.ToArray())
+        foreach (var ((session, token), draft) in _drafts.ToArray())
             if (session.Status != SessionStatus.InGame || !Exists(draft.Grid) || !_admins.HasAdminFlag(session, AdminFlags.Mapping))
-                CloseEditor(session);
+                CloseEditor(session, token);
         _syncElapsed += frameTime;
         if (_syncElapsed < .5f || _drafts.Count == 0) return;
         _syncElapsed = 0;
@@ -100,6 +102,14 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         if (!_admins.HasAdminFlag(player, AdminFlags.Mapping)) return "Нужны права Mapping.";
         if (!TryComp<MapGridComponent>(grid, out var component)) return "Grid не найден.";
+        var existing = _drafts.FirstOrDefault(pair => pair.Key.Player == player && pair.Value.Grid == grid).Value;
+        if (existing != null)
+        {
+            PublishState(player, existing);
+            PublishPreviews(grid);
+            PublishEnvironment(player, existing);
+            return "Редактор grid открыт.";
+        }
         var bounds = component.LocalAABB;
         var x = (int) MathF.Floor(bounds.Left) - 4;
         var y = (int) MathF.Floor(bounds.Bottom) - 4;
@@ -127,22 +137,25 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (regionX is { } rx && regionY is { } ry) Include(rx, ry);
         var width = right - x;
         var height = top - y;
-        // The browser owns the unsaved edits and may stay open for hours. Keep
-        // its bounded, one-per-player baseline until close, disconnect or grid deletion.
-        CloseEditor(player);
+        // Each open grid keeps its baseline and collaborative draft until its tab closes.
         var draft = new Draft(grid, x, y, width, height);
         draft.GridX = (int) MathF.Floor(bounds.Left / component.TileSize);
         draft.GridY = (int) MathF.Floor(bounds.Bottom / component.TileSize);
         draft.GridWidth = (int) MathF.Ceiling(bounds.Right / component.TileSize) - draft.GridX;
         draft.GridHeight = (int) MathF.Ceiling(bounds.Top / component.TileSize) - draft.GridY;
         draft.Items = Capture(draft);
-        _drafts[player] = draft;
-        var initialized = Transform(grid).MapUid is { } map && TryComp<MapComponent>(map, out var mapComp) && mapComp.MapInitialized;
-        RaiseNetworkEvent(new GridEditorStateEvent(GetNetEntity(grid), draft.Token, x, y, width, height, draft.Items, initialized,
-            draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight, SourcePath(grid)), player);
+        _drafts[(player, draft.Token)] = draft;
+        PublishState(player, draft);
         PublishPreviews(grid);
         PublishEnvironment(player, draft);
         return $"Редактор grid открыт: ({x}, {y}), {width}×{height}.";
+    }
+
+    private void PublishState(ICommonSession player, Draft draft)
+    {
+        var initialized = Transform(draft.Grid).MapUid is { } map && TryComp<MapComponent>(map, out var mapComp) && mapComp.MapInitialized;
+        RaiseNetworkEvent(new GridEditorStateEvent(GetNetEntity(draft.Grid), draft.Token, draft.X, draft.Y, draft.Width, draft.Height, draft.Items, initialized,
+            draft.GridX, draft.GridY, draft.GridWidth, draft.GridHeight, SourcePath(draft.Grid)), player);
     }
 
     public string SourcePath(EntityUid grid)
@@ -159,7 +172,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         error = "";
         issue = null;
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, token), out var draft) ||
             draft.Token != token || !Exists(draft.Grid))
         { error = "Нет действующей сессии Mapping."; return null; }
         var map = Transform(draft.Grid).MapUid;
@@ -226,7 +239,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             draft.KnownEntities[id] = uid;
             items.Add(new GridEditorItem { Id = id, Kind = "entity", Prototype = meta.EntityPrototype.ID,
                 X = transform.LocalPosition.X, Y = transform.LocalPosition.Y, Rotation = (float) transform.LocalRotation.Degrees,
-                Anchored = transform.Anchored });
+                Anchored = transform.Anchored, Color = TryComp<AtmosPipeColorComponent>(uid, out var pipeColor) ? pipeColor.Color.ToHex() : Color.White.ToHex() });
         }
         if (TryComp<DecalGridComponent>(draft.Grid, out var decals))
             foreach (var chunk in decals.ChunkCollection.ChunkCollection.Values)
@@ -242,8 +255,8 @@ public sealed partial class GridEditorSystem : EntitySystem
     private void Apply(GridEditorApplyEvent ev, EntitySessionEventArgs args)
     {
         var player = args.SenderSession;
-        void Result(string message, bool success = false) => RaiseNetworkEvent(new GridEditorResultEvent(message, success), player);
-        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue(player, out var draft) ||
+        void Result(string message, bool success = false) => RaiseNetworkEvent(new GridEditorResultEvent(message, success, ev.Token), player);
+        if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, ev.Token), out var draft) ||
             ev.Token != draft.Token || !Exists(draft.Grid))
         { Result("Сессия редактора недействительна или права Mapping отозваны. Черновик остаётся в окне редактора."); return; }
         SynchronizeGrid(draft.Grid);
@@ -397,6 +410,8 @@ public sealed partial class GridEditorSystem : EntitySystem
                 var uid = draft.KnownEntities.TryGetValue(item.Id, out var existingEntity) && Exists(existingEntity)
                     ? existingEntity : Spawn(item.Prototype, coords);
                 foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
+                if (TryComp<AtmosPipeColorComponent>(uid, out var pipeColor))
+                    EntityManager.System<AtmosPipeColorSystem>().SetColor(uid, pipeColor, Color.FromHex(item.Color));
                 var transform = Comp<TransformComponent>(uid);
                 _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
                 if (item.Anchored)

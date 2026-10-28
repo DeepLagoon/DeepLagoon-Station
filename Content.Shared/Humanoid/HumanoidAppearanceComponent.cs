@@ -18,10 +18,19 @@ public sealed partial class HumanoidAppearanceComponent : Component
     public MarkingSet MarkingSet = new();
 
     [DataField, AutoNetworkedField]
+    public bool GeneticallyModified;
+
+    public bool UnrestrictedMarkings => GeneticallyModified || Species.Id == "Synth";
+
+    [DataField, AutoNetworkedField]
     public List<Content.Shared._DeepLagoon.Tattoos.Tattoo> Tattoos = new();
 
     [DataField, AutoNetworkedField]
     public List<Content.Shared._DeepLagoon.BodyCustomization.BodyFeature> BodyFeatures = new();
+
+    // Runtime appearance state; it is not part of the saved character profile.
+    [DataField, AutoNetworkedField]
+    public bool GenitalAroused;
 
     [DataField, AutoNetworkedField]
     public bool PlantigradeLegs;

@@ -222,7 +222,7 @@ public sealed partial class HumanoidCharacterAppearance : ICharacterAppearance, 
         return new(color.RByte, color.GByte, color.BByte);
     }
 
-    public static HumanoidCharacterAppearance EnsureValid(HumanoidCharacterAppearance appearance, string species, Sex sex)
+    public static HumanoidCharacterAppearance EnsureValid(HumanoidCharacterAppearance appearance, string species, Sex sex, bool unrestricted = false)
     {
         var hairStyleId = appearance.HairStyleId;
         var facialHairStyleId = appearance.FacialHairStyleId;
@@ -234,12 +234,14 @@ public sealed partial class HumanoidCharacterAppearance : ICharacterAppearance, 
         var proto = IoCManager.Resolve<IPrototypeManager>();
         var markingManager = IoCManager.Resolve<MarkingManager>();
 
-        if (!markingManager.MarkingsByCategory(MarkingCategories.Hair).ContainsKey(hairStyleId))
+        if (!markingManager.MarkingsByCategory(MarkingCategories.Hair).TryGetValue(hairStyleId, out var hair)
+            || !markingManager.CanBeApplied(species, sex, hair, proto, unrestricted))
         {
             hairStyleId = HairStyles.DefaultHairStyle;
         }
 
-        if (!markingManager.MarkingsByCategory(MarkingCategories.FacialHair).ContainsKey(facialHairStyleId))
+        if (!markingManager.MarkingsByCategory(MarkingCategories.FacialHair).TryGetValue(facialHairStyleId, out var beard)
+            || !markingManager.CanBeApplied(species, sex, beard, proto, unrestricted))
         {
             facialHairStyleId = HairStyles.DefaultFacialHairStyle;
         }
@@ -248,7 +250,7 @@ public sealed partial class HumanoidCharacterAppearance : ICharacterAppearance, 
         var skinColor = appearance.SkinColor;
         if (proto.TryIndex(species, out SpeciesPrototype? speciesProto))
         {
-            markingSet = new MarkingSet(appearance.Markings, speciesProto.MarkingPoints, markingManager, proto);
+            markingSet = new MarkingSet(appearance.Markings, speciesProto.MarkingPoints, markingManager, proto, unrestricted);
             markingSet.EnsureValid(markingManager);
 
             if (!Humanoid.SkinColor.VerifySkinColor(speciesProto.SkinColoration, skinColor))
@@ -256,7 +258,7 @@ public sealed partial class HumanoidCharacterAppearance : ICharacterAppearance, 
                 skinColor = Humanoid.SkinColor.ValidSkinTone(speciesProto.SkinColoration, skinColor);
             }
 
-            markingSet.EnsureSpecies(species, skinColor, markingManager);
+            markingSet.EnsureSpecies(species, skinColor, markingManager, ignoreSpecies: unrestricted);
             markingSet.EnsureSexes(sex, markingManager);
         }
 

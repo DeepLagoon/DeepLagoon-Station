@@ -1,3 +1,4 @@
+import { EmbeddedSelect } from '../components/EmbeddedSelect';
 import { useEffect, useRef, useState } from 'react';
 
 const variantsFor = (product, catalog) => (product.variants || [{ id: product.id }])
@@ -71,7 +72,7 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
   return <>
     <aside className="ApartmentEditor__catalog">
       <div className="ApartmentEditor__catalogHead"><h3>Каталог обустройства</h3><input aria-label="Поиск предметов" type="search" value={query} placeholder="Найти предмет…" onFocus={() => act('focus')} onChange={event => setQuery(event.target.value)} />
-        <select aria-label="Категория предметов" value={category} onFocus={() => act('focus')} onChange={event => setCategory(event.target.value)}><option value="all">Все категории</option>{[...new Set(products.map(item => item.category))].map(value => <option key={value}>{value}</option>)}</select>
+        <EmbeddedSelect aria-label="Категория предметов" value={category} onFocus={() => act('focus')} onChange={event => setCategory(event.target.value)}><option value="all">Все категории</option>{[...new Set(products.map(item => item.category))].map(value => <option key={value}>{value}</option>)}</EmbeddedSelect>
         <div className="ApartmentEditor__filters">{[['all', 'Все'], ['owned', 'Открытые'], ['locked', 'За LC']].map(([id, label]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}<button aria-pressed={filter === 'original'} onClick={() => setFilter('original')}>Исходный интерьер</button></div>
         {!ready && <p role="status">{data.commerceMessage || 'Загрузка баланса и цен…'}{data.commerceMessage && <button onClick={() => act('refreshCommerce')}>Повторить загрузку</button>}</p>}
       </div>

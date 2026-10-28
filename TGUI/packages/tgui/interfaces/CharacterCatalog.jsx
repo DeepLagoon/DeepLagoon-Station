@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useBackend } from '../backend';
 import { Button } from '../components';
+import { EmbeddedSelect } from '../components/EmbeddedSelect';
 import { LazySprite } from '../components/LazySprite';
 import { playerTheme } from '../components/PlayerTheme';
 import { editorAppearance } from './CharacterEditorSettings';
@@ -11,13 +12,23 @@ import './CharacterEditor.scss';
 export const CharacterCatalog = () => {
   const { data, act } = useBackend();
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [race, setRace] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
   const markings = data.kind === 'markings', beard = data.kind === 'beard';
-  const title = markings ? 'Торс, голова и особые детали — все особенности' : beard ? 'Все бороды и усы' : 'Все причёски';
-  const options = markings ? (data.markingOptions || []).filter(option => !/^[LR](Arm|Hand|Leg|Foot)/.test(option.part || '')) : data[beard ? 'beardOptions' : 'hairOptions'] || [];
-  const filtered = useMemo(() => fuzzyFilter(options, query, option => option.name + ' ' + option.id), [options, query]);
+  const title = markings ? 'Каталог особенностей' : beard ? 'Все бороды и усы' : 'Все причёски';
+  const options = markings ? (data.markingOptions || []) : data[beard ? 'beardOptions' : 'hairOptions'] || [];
+  const categories = [...new Set(options.map(option => option.category))].filter(Boolean);
+  const activeCategory = categories.includes(category) ? category : '';
+  const races = useMemo(() => [...new Map(options.flatMap(option => option.races || []).map(item => [item.id, item])).values()]
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru')), [options]);
+  const activeRace = races.some(item => item.id === race) ? race : '';
+  const filtered = useMemo(() => fuzzyFilter(options.filter(option => !markings ||
+    ((!activeCategory || option.category === activeCategory) && (!activeRace || option.races?.some(item => item.id === activeRace)))), query,
+    option => option.name + ' ' + option.id), [options, query, markings, activeCategory, activeRace]);
   const key = beard ? 'beard' : 'hair';
   const color = data[key + 'Locked'] ? data.skinColor : data[key + 'Color'];
-  useEffect(() => { setQuery(''); }, [data.kind]);
+  useEffect(() => { setQuery(''); setCategory(''); setRace(''); setFilterOpen(false); }, [data.kind]);
   useEffect(() => {
     const key = event => { if (event.key === 'Escape') act('catalog-close'); };
     window.addEventListener('keydown', key);
@@ -28,7 +39,19 @@ export const CharacterCatalog = () => {
     <header className="CharacterEditor__header"><div className="CharacterEditor__windowTitle">{title}</div>
       <div className="CharacterEditor__headerActions"><Button role="button" icon="times" aria-label={'Закрыть: ' + title} onClick={() => act('catalog-close')}>Закрыть</Button></div>
     </header>
-    <main className="CharacterEditor__catalogBody"><div className="CharacterEditor__catalogToolbar"><input type="search" aria-label={'Поиск: ' + title} placeholder="Поиск…" value={query} onChange={event => setQuery(event.target.value)} /></div>
+    <main className="CharacterEditor__catalogBody"><div className="CharacterEditor__catalogToolbar"><input type="search" aria-label={'Поиск: ' + title} placeholder="Поиск…" value={query} onChange={event => setQuery(event.target.value)} />
+      {markings && <Button role="button" icon="filter" aria-label="Фильтр" aria-expanded={filterOpen}
+        aria-controls="marking-race-filter" selected={!!activeRace} onClick={() => setFilterOpen(!filterOpen)}>Фильтр</Button>}
+    </div>
+      {markings && filterOpen && <div className="CharacterEditor__catalogFilter" id="marking-race-filter">
+        <label><span>Расовая категория</span><EmbeddedSelect aria-label="Расовая категория" value={activeRace} onChange={event => setRace(event.target.value)}>
+          <option value="">Все расы</option>{races.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </EmbeddedSelect></label>
+      </div>}
+      {markings && <nav className="CharacterEditor__catalogCategories" aria-label="Категории особенностей">
+        <button type="button" aria-pressed={!activeCategory} onClick={() => setCategory('')}>Все</button>
+        {categories.map(item => <button type="button" key={item} aria-pressed={activeCategory === item} onClick={() => setCategory(item)}>{item}</button>)}
+      </nav>}
       <div className="CharacterEditor__catalogContent">
         {markings ? [...new Set(filtered.map(option => option.category))].map(category => <section className="CharacterEditor__catalogGroup" key={category}>
           <h3>{category}</h3><MarkingChoices options={filtered.filter(option => option.category === category)} selected={data.markings || []} act={act} />

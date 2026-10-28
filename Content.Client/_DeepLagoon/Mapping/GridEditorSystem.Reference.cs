@@ -6,13 +6,14 @@ namespace Content.Client._DeepLagoon.Mapping;
 
 public sealed partial class GridEditorSystem
 {
-    private bool _referenceImporting;
     private int _referenceVersion;
     private async void ImportReference()
     {
-        if (_referenceImporting || _window == null) return;
-        _referenceImporting = true;
+        if (_tab.ReferenceImporting || _window == null) return;
+        _tab.ReferenceImporting = true;
         var window = _window;
+        var tab = _tab;
+        var token = tab.State!.Token;
         try
         {
             await using var file = await _dialogs.OpenFile(new FileDialogFilters(new FileDialogFilters.Group("png", "jpg", "jpeg", "webp")), FileAccess.Read);
@@ -29,12 +30,12 @@ public sealed partial class GridEditorSystem
             var mime = ReferenceImageMime(bytes);
             if (mime == null) throw new InvalidDataException("Выберите PNG, JPEG или WebP.");
             if (_window != window) return;
-            window.Panel.Web.Send("update", new TguiData().Object("data", new TguiData()
+            InTab(token, () => SendTabUpdate(new TguiData().Object("data", new TguiData()
                 .String("referenceImage", $"data:{mime};base64,{Convert.ToBase64String(bytes)}")
-                .Number("referenceVersion", ++_referenceVersion)).ToString());
+                .Number("referenceVersion", ++_referenceVersion)).ToString()));
         }
-        catch (Exception exception) { if (_window == window) Status($"Не удалось открыть скриншот: {exception.Message}", false); }
-        finally { _referenceImporting = false; }
+        catch (Exception exception) { if (_window == window) InTab(token, () => Status($"Не удалось открыть скриншот: {exception.Message}", false)); }
+        finally { tab.ReferenceImporting = false; }
     }
 
     private static string? ReferenceImageMime(byte[] bytes)

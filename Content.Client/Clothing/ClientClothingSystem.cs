@@ -207,6 +207,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
     private void OnDidUnequip(EntityUid uid, SpriteComponent component, DidUnequipEvent args)
     {
         _bodyFit.ClearSlot(uid, args.Slot);
+        UpdateBodyVisibility(uid, component);
         if (!TryComp(uid, out InventorySlotsComponent? inventorySlots))
             return;
 
@@ -277,6 +278,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
 
         if (ev.Layers.Count == 0)
         {
+            UpdateBodyVisibility(equipee, sprite);
             RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
             return;
         }
@@ -365,6 +367,13 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         _bodyFit.Apply(equipee, equipment, slot, sprite, clothingComponent, revealedLayers);
+        UpdateBodyVisibility(equipee, sprite);
         RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
+    }
+
+    private void UpdateBodyVisibility(EntityUid uid, SpriteComponent sprite)
+    {
+        if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+            EntityManager.System<BodyCustomizationVisualizerSystem>().UpdateVisibility(uid, humanoid, sprite);
     }
 }

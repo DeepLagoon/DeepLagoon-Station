@@ -50,7 +50,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         SpriteComponent.Layer? Displacement, bool DisplacementVisible, string Helper,
         HashSet<string> Revealed, ShaderInstance Shader, Map Map);
 
-    private sealed record Part(string Kind, List<SpriteComponent.Layer> Layers, List<RSI.State> Anchors);
+    private sealed record Part(string Kind, List<SpriteComponent.Layer> Layers, List<RSI.State> Shapes, List<RSI.State> Anchors);
 
     public override void Initialize()
     {
@@ -85,35 +85,42 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
             !IsSoft(item, slot, clothing)) return;
 
         var parts = new List<Part>();
-        foreach (var feature in BodyCustomizationCatalog.Sanitize(humanoid.BodyFeatures))
+        foreach (var original in BodyCustomizationCatalog.Sanitize(humanoid.BodyFeatures))
         {
-            if (!feature.Enabled || feature.Visibility != 1 || feature.Part == "womb") continue;
+            var feature = BodyCustomizationCatalog.ForClothing(original);
+            if (feature == null) continue;
             var sizes = BodyCustomizationCatalog.Parts[feature.Part][feature.Shape];
             var layers = new List<SpriteComponent.Layer>();
+            var shapes = new List<RSI.State>();
             var anchors = new List<RSI.State>();
+            var fallback = sizes[original.Size]
+                .Select(side => sprite.LayerMapTryGet($"dl-body/{feature.Part}/{side}", out var index)
+                    ? sprite[index] as SpriteComponent.Layer : null)
+                .FirstOrDefault(layer => layer?.ActualState != null);
+            if (fallback == null) continue;
             foreach (var side in sizes[feature.Size])
             {
-                if (!sprite.LayerMapTryGet($"dl-body/{feature.Part}/{side}", out var index) ||
-                    sprite[index] is not SpriteComponent.Layer { ActualState: { } state } layer) continue;
+                // A smaller sprite can have a rear layer even when the full-size sprite has none.
+                var layer = sprite.LayerMapTryGet($"dl-body/{feature.Part}/{side}", out var index)
+                    && sprite[index] is SpriteComponent.Layer { ActualState: not null } actual ? actual : fallback;
+                var state = layer.ActualState!;
                 // The smallest supported shape describes where the part attaches to the original body.
                 var smallest = sizes.First(s => s.Key != "0" && s.Value.Contains(side)).Key;
-                if (!state.RSI.TryGetState($"{feature.Part}_{feature.Shape}_{smallest}_0_{side}", out var anchor))
+                var attachment = feature.Clone();
+                attachment.Size = smallest;
+                if (!state.RSI.TryGetState(BodyCustomizationCatalog.SpriteState(feature, side, humanoid.GenitalAroused), out var shape) ||
+                    !state.RSI.TryGetState(BodyCustomizationCatalog.SpriteState(attachment, side, humanoid.GenitalAroused), out var anchor))
                     continue;
                 layers.Add(layer);
+                shapes.Add(shape);
                 anchors.Add(anchor);
             }
-            if (layers.Count > 0) parts.Add(new Part(feature.Part, layers, anchors));
+            if (layers.Count > 0) parts.Add(new Part(feature.Part, layers, shapes, anchors));
         }
         if (parts.Count == 0) return;
-        var body = new List<SpriteComponent.Layer>();
-        foreach (var part in new[] { HumanoidVisualLayers.Chest, HumanoidVisualLayers.LLeg, HumanoidVisualLayers.RLeg })
-            if (!humanoid.PermanentlyHidden.Contains(part) && sprite.LayerMapTryGet(part, out var index) &&
-                sprite[index] is SpriteComponent.Layer { ActualState: not null } layer) body.Add(layer);
+        var body = BodyLayers(humanoid, sprite, HumanoidVisualLayers.Chest, HumanoidVisualLayers.LLeg, HumanoidVisualLayers.RLeg);
         if (body.Count == 0) return;
-        var hands = new List<SpriteComponent.Layer>();
-        foreach (var part in new[] { HumanoidVisualLayers.LHand, HumanoidVisualLayers.RHand })
-            if (!humanoid.PermanentlyHidden.Contains(part) && sprite.LayerMapTryGet(part, out var index) &&
-                sprite[index] is SpriteComponent.Layer { ActualState: not null } layer) hands.Add(layer);
+        var hands = BodyLayers(humanoid, sprite, HumanoidVisualLayers.LHand, HumanoidVisualLayers.RHand);
 
         var equipment = new List<(string Key, SpriteComponent.Layer Layer, SpriteComponent.Layer? Displacement)>();
         foreach (var key in keys.ToArray())
@@ -153,6 +160,24 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         TrimCache();
     }
 
+    private List<SpriteComponent.Layer> BodyLayers(HumanoidAppearanceComponent humanoid, SpriteComponent sprite,
+        params HumanoidVisualLayers[] parts)
+    {
+        var result = new List<SpriteComponent.Layer>();
+        foreach (var part in parts)
+        {
+            if (humanoid.PermanentlyHidden.Contains(part)) continue;
+            if (sprite.LayerMapTryGet(part, out var index) &&
+                sprite[index] is SpriteComponent.Layer { ActualState: not null } native)
+            { result.Add(native); continue; }
+            // Species such as Synth build their body from markings. Their selected shells still
+            // define the fit mask when the corresponding sprite layers are hidden by clothing.
+            foreach (var marking in TattooBodyPreview.MarkingLayers(humanoid, sprite, _prototypes, part, visibleOnly: true))
+                if (sprite[marking] is SpriteComponent.Layer { ActualState: not null } layer) result.Add(layer);
+        }
+        return result.Distinct().ToList();
+    }
+
     private bool IsSoft(EntityUid item, string slot, ClothingComponent clothing)
     {
         if (slot is not ("jumpsuit" or "outerClothing" or "neck" or "neck2" or "neck3")) return false;
@@ -184,7 +209,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         foreach (var part in parts)
         {
             signature.Append("|part|");
-            foreach (var p in part.Layers) AppendKey(signature, p);
+            for (var i = 0; i < part.Layers.Count; i++) AppendKey(signature, part.Layers[i], part.Shapes[i]);
         }
         var mapKey = signature.ToString();
         if (!_maps.TryGetValue(mapKey, out var map))
@@ -239,9 +264,10 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         sprite.LayerSetScale(index, fit.Scale * map.Scale);
     }
 
-    private static void AppendKey(StringBuilder key, SpriteComponent.Layer layer)
+    private static void AppendKey(StringBuilder key, SpriteComponent.Layer layer, RSI.State? shape = null)
     {
-        key.Append('|').Append(layer.ActualState?.RSI.Path).Append(':').Append(layer.ActualState?.StateId)
+        var state = shape ?? layer.ActualState;
+        key.Append('|').Append(state?.RSI.Path).Append(':').Append(state?.StateId)
             .Append(':').Append(layer.Scale).Append(':').Append(layer.Offset).Append(':').Append(layer.Rotation)
             .Append(':').Append(layer.DirOffset);
     }
@@ -277,7 +303,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     for (var frame = 0; frame < rsi.DelayCount; frame++)
                         Composite(coverage, layer, rsi, worldDirection, garmentMatrix, frame);
                 }
-                var shapes = new List<(Image<Rgba32> Shape, Image<Rgba32> Anchor)>();
+                var shapes = new List<ClothingBodyFitMap.Anatomy>();
                 var contours = new List<ClothingBodyFitMap.Contour>();
                 try
                 {
@@ -285,13 +311,15 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     {
                         var shape = new Image<Rgba32>(width, height);
                         var anchor = new Image<Rgba32>(width, height);
-                        shapes.Add((shape, anchor));
+                        // Rear volume widens the existing trousers. Its small side attachment can
+                        // lie under a long shirt, which must not be pulled down over the trouser legs.
+                        shapes.Add(new(shape, anchor, StretchVertically: part.Kind != "butt"));
                         if (part.Kind == "breasts" && worldDirection == (int) RsiDirection.South ||
                             part.Kind == "butt" && worldDirection == (int) RsiDirection.North)
                             contours.Add(new ClothingBodyFitMap.Contour(shape, BelowWaist: part.Kind == "butt"));
                         for (var i = 0; i < part.Layers.Count; i++)
                         {
-                            Composite(shape, part.Layers[i], part.Layers[i].ActualState!, worldDirection, garmentMatrix);
+                            Composite(shape, part.Layers[i], part.Shapes[i], worldDirection, garmentMatrix);
                             Composite(anchor, part.Layers[i], part.Anchors[i], worldDirection, garmentMatrix);
                         }
                     }
@@ -310,7 +338,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                 }
                 finally
                 {
-                    foreach (var (shape, anchor) in shapes) { shape.Dispose(); anchor.Dispose(); }
+                    foreach (var anatomy in shapes) { anatomy.Shape.Dispose(); anatomy.Anchor.Dispose(); }
                 }
             }
             if (!changed) return new Map(null, Vector2.One);

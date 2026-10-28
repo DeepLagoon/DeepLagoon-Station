@@ -8,6 +8,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
   const [graph,setGraph]=useState(empty), [profileId,setProfileId]=useState('hv');
   const [visible,setVisible]=useState(true), [capped,setCapped]=useState(false), [vertical,setVertical]=useState(false);
   const [history,setHistory]=useState([]), [future,setFuture]=useState([]);
+  const [networkColor,setNetworkColor]=useState('#ffffff');
   const drag=useRef(null), serial=useRef(0);
   const profile=routeProfiles.find(p=>p.id===profileId);
   useEffect(()=>{setGraph(empty());setHistory([]);setFuture([]);},[token]);
@@ -16,21 +17,21 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
   const reset=()=>{setGraph(empty());setHistory([]);setFuture([]);drag.current=null;};
   const edit=cell=>{
     if(locked)return;
-    if(!graph.nodes.length) {
+    if(!graph.nodes.length&&!graph.source.length) {
       const candidate=items.find(item=>Math.floor(item.x)===cell.x&&Math.floor(item.y)===cell.y&&routeProfile(item)?.id===profile.id)||items.find(item=>Math.floor(item.x)===cell.x&&Math.floor(item.y)===cell.y&&routeProfile(item));
       const picked=candidate?routeProfile(candidate):profile;
       const existing=readRoute(items,cell,picked);
       if(existing)setProfileId(picked.id);
-      if(existing){save();setGraph({...existing,active:existing.nodes[0]?.id});return;}
+      if(existing){save();setNetworkColor(existing.source[0]?.color?.slice(0,7)||'#ffffff');setGraph({...existing,originalCells:routeCells(existing),active:existing.nodes[0]?.id});return;}
     }
     save();const id=`r${serial.current++}`;
     setGraph(g=>({...g,nodes:[...g.nodes,{...cell,id}],edges:g.active?[...g.edges,{id:`e${serial.current++}`,a:g.active,b:id,vertical}]:g.edges,active:id}));
   };
   const startDrag=(event,point)=>{
-    if(locked||event.button!==0)return;
+    if(locked||![0,2].includes(event.button))return;
     event.stopPropagation();event.preventDefault();canvas.current.focus();
     const inserted=insertRoutePoint(graph,point,`r${serial.current++}`),id=inserted.id;
-    if(event.shiftKey){removePoint(id,inserted.graph);return;}
+    if(event.button===2||event.shiftKey){removePoint(id,inserted.graph);return;}
     save();drag.current={id,before:graph,base:inserted.graph};setGraph({...inserted.graph,active:id});event.currentTarget.setPointerCapture(event.pointerId);
   };
   const moveDrag=event=>{
@@ -64,18 +65,34 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     try{const result=buildRoute(items,graph,profile,graph.source,nextId,capped);commit(result);reset();}
     catch(error){fail(error.message);}
   };
+  const paintNetwork=()=>{
+    if(locked||profile.kind!=='gas'||!graph.source.length)return;
+    const color=networkColor+'ff';
+    const fingerprint=cells=>JSON.stringify(cells.map(({x,y,mask})=>[x,y,mask]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]));
+    try {
+      const result=fingerprint(routeCells(graph))===fingerprint(graph.originalCells||[])
+        ? {items,ids:graph.source.map(item=>item.id)} : buildRoute(items,graph,profile,graph.source,nextId,capped);
+      const ids=new Set(result.ids);
+      commit({items:result.items.map(item=>ids.has(item.id)?{...item,color}:item)});
+      reset();
+    } catch(error) { fail(error.message); }
+  };
   const cells=useMemo(()=>routeCells(graph),[graph]);
   const controls=<>
     <label><input type="checkbox" checked={visible} onChange={e=>setVisible(e.target.checked)}/>Показать сети поверх пола</label>
-    <GridEditorSelect aria-label="Режим трассы" value={profile.kind} disabled={locked||!!graph.nodes.length}
+    <GridEditorSelect aria-label="Режим трассы" value={profile.kind} disabled={locked||!!graph.nodes.length||!!graph.source.length}
       options={[{ value: 'wire', label: 'Провода' }, { value: 'gas', label: 'Газовые трубы' }, { value: 'disposal', label: 'Мусоросброс' }]}
       onChange={kind=>setProfileId(routeProfiles.find(p=>p.kind===kind).id)} />
-    <GridEditorSelect title={profile.name} aria-label="Тип сети" value={profileId} disabled={locked||!!graph.nodes.length}
+    <GridEditorSelect title={profile.name} aria-label="Тип сети" value={profileId} disabled={locked||!!graph.nodes.length||!!graph.source.length}
       options={routeProfiles.filter(p=>p.kind===profile.kind).map(p=>({ value: p.id, label: p.name }))}
       onChange={setProfileId} />
     <label><input type="checkbox" checked={vertical} onChange={e=>setVertical(e.target.checked)}/>Новые участки сначала по вертикали</label>
     {profile.kind==='gas'&&<label><input type="checkbox" checked={capped} onChange={e=>setCapped(e.target.checked)}/>Закрытые концы труб</label>}
-    {!!graph.nodes.length&&<>
+    {(!!graph.nodes.length||!!graph.source.length)&&<>
+      {profile.kind==='gas'&&!!graph.source.length&&<>
+        <label>Цвет pipenet <input type="color" aria-label="Цвет pipenet" value={networkColor} disabled={locked} onChange={e=>setNetworkColor(e.target.value)}/></label>
+        <button disabled={locked} onClick={paintNetwork}>Покрасить pipenet в черновике</button>
+      </>}
       <span>Точек: {cells.length} · клеток: {cells.length}</span>
       <button disabled={locked} onClick={finish}>Трассу в черновик · Enter</button>
       <button disabled={locked} onClick={()=>removePoint()}>Удалить точку</button>
@@ -83,7 +100,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     </>}
   </>;
   return {graph,profile,cells,visible,controls,edit,startDrag,moveDrag,endDrag,split,finish,reset,removePoint,undo,
-    capped,previewItems:makeId=>buildRoute(items,graph,profile,graph.source,makeId,capped),canUndo:!!history.length,canRedo:!!future.length,editing:!!graph.nodes.length,dragging:()=>!!drag.current};
+    capped,previewItems:makeId=>buildRoute(items,graph,profile,graph.source,makeId,capped),canUndo:!!history.length,canRedo:!!future.length,editing:!!graph.nodes.length||!!graph.source.length,dragging:()=>!!drag.current};
 }
 
 export const GridEditorNetworks=memo(({items,area,view,cellSize})=>{
@@ -104,9 +121,10 @@ export const GridEditorNetworks=memo(({items,area,view,cellSize})=>{
       const x=(item.x-area.x)*cellSize-view.left,y=(area.y+area.height-item.y)*cellSize-view.top;
       if(x< -cellSize||y< -cellSize||x>view.width+cellSize||y>view.height+cellSize)continue;
       const offset=(profile.id==='mv'?-1:profile.id==='lv'?1:0)*Math.min(4,cellSize/8);
-      ctx.strokeStyle=profile.color;ctx.lineWidth=Math.max(1,Math.min(4,cellSize/7));ctx.beginPath();
+      const color=profile.kind==='gas'&&item.color&&!/^#ffffff(ff)?$/i.test(item.color)?item.color:profile.color;
+      ctx.strokeStyle=color;ctx.lineWidth=Math.max(1,Math.min(4,cellSize/7));ctx.beginPath();
       for(const [dx,dy,bit] of [[0,-1,1],[0,1,2],[-1,0,4],[1,0,8]])if(mask&bit){ctx.moveTo(x+offset,y+offset);ctx.lineTo(x+offset+dx*cellSize/2,y+offset+dy*cellSize/2);}
-      ctx.stroke();ctx.fillStyle=profile.color;ctx.fillRect(x+offset-2,y+offset-2,4,4);
+      ctx.stroke();ctx.fillStyle=color;ctx.fillRect(x+offset-2,y+offset-2,4,4);
       if(profile.disposal&&item.prototype.includes('Junction')){
         const direction=rotateAngle(item.rotation||0);ctx.save();ctx.translate(x,y);ctx.rotate(direction);
         ctx.fillStyle='#fff4c6';ctx.beginPath();ctx.moveTo(0,5);ctx.lineTo(-3,-2);ctx.lineTo(3,-2);ctx.closePath();ctx.fill();ctx.restore();
@@ -135,7 +153,7 @@ export function GridEditorRouteHandles({route,area,view,cellSize,locked}) {
     const cell={x:Math.floor(area.x+(view.left+event.clientX-rect.left)/cellSize),y:Math.floor(area.y+area.height-(view.top+event.clientY-rect.top)/cellSize)};
     if(cells.has(`${cell.x}:${cell.y}`))route.startDrag(event,cell);
   };
-  return <div className="GridEditor__routeHandles" style={{left:view.left,top:view.top,width:view.width,height:view.height}}>
+  return <div className="GridEditor__routeHandles" onContextMenu={event=>{event.preventDefault();event.stopPropagation();}} style={{left:view.left,top:view.top,width:view.width,height:view.height}}>
     <canvas ref={canvas} width={view.width} height={view.height} className="GridEditor__routeCanvas" onPointerDown={hit}
       onPointerMove={route.moveDrag} onPointerUp={e=>route.endDrag(e)} onPointerCancel={e=>route.endDrag(e,true)}/>
     {cellSize>=10&&route.cells.map((cell,i)=>{

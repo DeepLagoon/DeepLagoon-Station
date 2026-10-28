@@ -7,6 +7,12 @@ const bounds = { x: -1, y: -1, width: 3, height: 3 };
 const noExpansion = { left: 0, right: 0, bottom: 0, top: 0, tile: 'Plating' };
 const floor = (x, y, prototype = 'Plating') => ({ kind: 'tile', prototype, x, y });
 const document = (items, expansion = noExpansion) => load(exportGridDraft(items, bounds, expansion));
+
+test('draft exports pipe paint as the native AtmosPipeColor component', () => {
+  const doc = document([{ id: 'pipe', kind: 'entity', prototype: 'GasPipeStraight', x: .5, y: .5, color: '#d42831ff' }]);
+  const pipe = doc.entities.find(group => group.proto === 'GasPipeStraight').entities[0];
+  assert.deepEqual(pipe.components.find(component => component.type === 'AtmosPipeColor'), { type: 'AtmosPipeColor', color: '#d42831ff' });
+});
 const gridComponents = doc => doc.entities.find(group => group.proto === '').entities[0].components;
 function tiles(doc) {
   const result = new Map();
