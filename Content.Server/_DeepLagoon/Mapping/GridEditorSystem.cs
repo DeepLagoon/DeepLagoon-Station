@@ -418,6 +418,9 @@ public sealed partial class GridEditorSystem : EntitySystem
                     _transform.Unanchor(uid, transform);
                     throw new InvalidOperationException($"Edited entity {ToPrettyString(uid)} has an incompatible anchored parent.");
                 }
+                // Removing source tiles can detach the old client transform before this move arrives.
+                // Replicate the parent and anchor together, including an unchanged grid parent.
+                Dirty(uid, transform);
             }
             if (changed.Any(i => i.Kind == "decal")) EnsureComp<DecalGridComponent>(draft.Grid);
             foreach (var item in changed.Where(i => i.Kind == "decal"))
