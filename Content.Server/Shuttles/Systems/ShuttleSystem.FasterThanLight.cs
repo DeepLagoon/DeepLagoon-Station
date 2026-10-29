@@ -420,7 +420,9 @@ public sealed partial class ShuttleSystem
             hyperspace.TargetCoordinates = new EntityCoordinates(dock.DockedWith.Value, Vector2.Zero);
             hyperspace.TargetAngle = _transform.GetWorldRotation(dock.DockedWith.Value) + Math.PI;
         }
-        else if (TryFTLDock(shuttleUid, component, target, out var config))
+        // Only plan the destination here. TryFTLDock moves and docks immediately,
+        // which would make the destination grid part of our departing FTL group.
+        else if (_dockSystem.GetDockingConfig(shuttleUid, target, priorityTag) is { } config)
         {
             hyperspace.TargetCoordinates = config.Coordinates;
             hyperspace.TargetAngle = config.Angle;

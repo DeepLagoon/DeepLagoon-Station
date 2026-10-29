@@ -4,6 +4,7 @@ using System.Reflection;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.Shuttles.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
@@ -48,7 +49,7 @@ public sealed class FtlDockTravelTests
             maps.SetTiles(station.Owner, station.Comp, tiles);
             var shuttleComp = entities.EnsureComponent<ShuttleComponent>(shuttle.Owner);
             entities.EnsureComponent<ShuttleComponent>(station.Owner);
-            entities.EnsureComponent<FTLLockComponent>(station.Owner).Enabled = true;
+            Assert.That(entities.EnsureComponent<FTLLockComponent>(station.Owner).Enabled, Is.True);
             entities.EnsureComponent<FTLDestinationComponent>(entities.GetComponent<TransformComponent>(station.Owner).MapUid!.Value);
             var shuttlePort = entities.SpawnEntity("AirlockShuttle", new EntityCoordinates(shuttle.Owner, new Vector2(0.5f)));
             var stationPort = freeDock
