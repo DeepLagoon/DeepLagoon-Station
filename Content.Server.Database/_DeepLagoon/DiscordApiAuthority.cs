@@ -15,6 +15,7 @@ public static class DiscordApiAuthority
         var head = kind == "mapper" ? discordRole == "1555959349615263804" : discordRole == "1554887617831764060";
         if (!host && !head) return false;
         if (operation != "staff_add" || host) return true;
+        if (kind is "admin" or "mapper") return applicationId == null;
         return applicationId is { Length: >= 15 and <= 20 } && applicationId.All(char.IsAsciiDigit) &&
                ulong.TryParse(applicationId, out var id) && id > 0;
     }

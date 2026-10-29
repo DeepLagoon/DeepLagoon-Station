@@ -91,7 +91,8 @@ public sealed partial class DiscordLinkSystem
         };
         var staffAuthority = DiscordApiAuthority.CanManageStaff(actingAdmin, request.Operation,
             request.Kind, request.ActorStaffRole, request.StaffApplicationId);
-        if (!DiscordApiAuthority.Has(actingAdmin, permission) && !staffAuthority)
+        var staffClaim = request.ActorStaffRole != null && request.Operation is ("staff_add" or "staff_remove" or "staff_status");
+        if (staffClaim ? !staffAuthority : !DiscordApiAuthority.Has(actingAdmin, permission))
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation is "apartment_catalog" or "apartment_grant")
             return await DiscordApartments(request, uid, actor);

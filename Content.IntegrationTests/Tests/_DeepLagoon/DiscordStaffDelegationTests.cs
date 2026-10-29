@@ -44,10 +44,11 @@ public sealed class DiscordStaffDelegationTests
                     Flags = new[] { "ADMIN", "BAN", "VIEWNOTES" }.Select(f => new AdminRankFlag { Flag = f }).ToList() });
                 return true;
             });
-            async Task<JsonElement> Call(string operation, string? authority, string? selectedKind = null)
+            async Task<JsonElement> Call(string operation, string? authority, string? selectedKind = null, bool wrongContext = false)
             {
                 var data = new { Operation = operation, Uid = uid.ToString(), ActorUid = actor.ToString(),
-                    Kind = selectedKind ?? kind, ActorStaffRole = authority, StaffApplicationId = "1565299000000000000" };
+                    Kind = selectedKind ?? kind, ActorStaffRole = authority,
+                    StaffApplicationId = (kind == "trial") != wrongContext ? "1565299000000000000" : null };
                 var request = JsonSerializer.Deserialize(JsonSerializer.Serialize(data), requestType)!;
                 Task task = null!;
                 await server.WaitPost(() => task = (Task) moderate.Invoke(system, new[] { request, (object) uid, actor })!);
@@ -66,7 +67,12 @@ public sealed class DiscordStaffDelegationTests
             Assert.That(await database.GetAdminDataForAsync(actor), Is.Null);
             Assert.That(store.StaffGrant(uid.UserId)!.Value.Kind, Is.EqualTo(kind));
 
-            await database.AddAdminAsync(new DbAdmin { UserId = actor.UserId, Suspended = true, Flags = new() });
+            var admin = new DbAdmin { UserId = actor.UserId, Flags = new() { new AdminFlag { Flag = "PERMISSIONS" } } };
+            await database.AddAdminAsync(admin);
+            Assert.That((await Call("staff_add", role, wrongContext: true)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            admin = (await database.GetAdminDataForAsync(actor))!;
+            admin.Suspended = true;
+            await database.UpdateAdminAsync(admin);
             Assert.That((await Call("staff_status", role)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
         }
         finally
