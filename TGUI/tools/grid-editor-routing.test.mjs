@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { routeProfiles, routeCells, routeShape, pipePorts, readRoute, buildRoute, rotatePorts, moveRoutePoint, deleteRoutePoint } from '../packages/tgui/interfaces/gridEditorRouting.mjs';
+import { routeProfiles, routeCells, routeShape, pipePorts, readRoute, buildRoute, rotatePorts, moveRoutePoint, deleteRoutePoint, routeProfile, installRouteDevice } from '../packages/tgui/interfaces/gridEditorRouting.mjs';
 import { spriteBounds } from '../packages/tgui/interfaces/gridEditorSprites.mjs';
 import { itemChunks } from '../packages/tgui/interfaces/gridEditorSceneCache.mjs';
 import { indexItems, nearbyItems, itemsAtPoint } from '../packages/tgui/interfaces/gridEditorModel.mjs';
@@ -10,6 +10,57 @@ const cable=(x,y,id=`c:${x}:${y}`)=>({id,kind:'entity',prototype:'CableHV',x:x+.
 const graph=(nodes,edges)=>({nodes:nodes.map(([x,y],i)=>({id:String(i),x,y})),edges:edges.map(([a,b,vertical=false],i)=>({id:`e${i}`,a:String(a),b:String(b),vertical}))});
 let serial=0;const nextId=()=>`new_${serial++}`;
 const floors=[];for(let x=-5;x<8;x++)for(let y=-5;y<8;y++)floors.push(floor(x,y));
+
+test('middle-click gas device follows the edited layer and a real inward-facing port in all rotations', () => {
+  for (let layer = 0; layer < 3; layer++) for (let turn = 0; turn < 4; turn++) {
+    const profile = routeProfiles.find(p => p.id === `gas${layer}`);
+    const vectors = [[0,-1],[1,0],[0,1],[-1,0]], [dx,dy] = vectors[turn];
+    const endpoint = {id:'endpoint',kind:'entity',prototype:`GasPipeHalf${profile.suffix}`,x:.5,y:.5,rotation:turn*90,pipeLayer:layer};
+    const neighbor = {...endpoint,id:'neighbor',x:dx+.5,y:dy+.5,rotation:(turn*90+180)%360};
+    const parallel = {...endpoint,id:'parallel',prototype:'GasPipeStraight',pipeLayer:(layer+1)%3};
+    const result = installRouteDevice([...floors, endpoint, neighbor, parallel],{x:0,y:0},routeProfile(endpoint),{id:'GasVentScrubberVox',kind:'gas',ports:2},nextId);
+    const device = result.items.find(item => item.prototype === 'GasVentScrubberVox');
+    assert.equal(device.pipeLayer,layer);assert.equal(device.rotation,turn*90);
+    assert.ok(result.items.includes(neighbor) && result.items.includes(parallel));assert.ok(!result.items.includes(endpoint));
+  }
+});
+
+test('incompatible unary insertion leaves junctions untouched and reversed neighboring ports do not connect', () => {
+  const pipe=(id,y)=>({id,kind:'entity',prototype:'GasPipeStraight',x:.5,y:y+.5,rotation:0});
+  const items=[...floors,pipe('center',0),pipe('north',1),pipe('south',-1)];
+  const before=JSON.stringify(items);
+  assert.throws(()=>installRouteDevice(items,{x:0,y:0},gas,{id:'GasVentPump',kind:'gas',ports:2},nextId),/Порты устройства/);
+  assert.equal(JSON.stringify(items),before);
+  const reversed=[...floors,{...pipe('center',0),prototype:'GasPipeHalf'},{...pipe('south',-1),prototype:'GasPipeHalf'}];
+  assert.throws(()=>installRouteDevice(reversed,{x:0,y:0},gas,{id:'GasVentPump',kind:'gas',ports:2},nextId),/Порты устройства/);
+});
+
+test('device compatibility includes live machinery ports without crossing layers or counting reversed and loose devices', () => {
+  const center={id:'center',kind:'entity',prototype:'GasPipeStraight',x:.5,y:.5,rotation:0,pipeLayer:0};
+  const south={...center,id:'south',y:-.5};
+  const pump={id:'pump',kind:'entity',prototype:'CustomPressurePump',x:.5,y:1.5,rotation:0,anchored:true,gasPorts:3};
+  const device={id:'GasVentPump',kind:'gas',ports:2};
+  const items=[...floors,center,south,pump], before=JSON.stringify(items);
+  assert.throws(()=>installRouteDevice(items,{x:0,y:0},gas,device,nextId),/Порты устройства/);
+  assert.equal(JSON.stringify(items),before);
+  for(const other of [{...pump,gasPorts:3<<4},{...pump,rotation:90},{...pump,anchored:false}])
+    assert.doesNotThrow(()=>installRouteDevice([...floors,center,south,other],{x:0,y:0},gas,device,nextId));
+  const end={...center,prototype:'GasPipeHalf',rotation:180};
+  const result=installRouteDevice([...floors,end,pump],{x:0,y:0},gas,device,nextId);
+  const installed=result.items.find(item=>item.prototype==='GasVentPump');
+  assert.equal(installed.rotation,180);assert.equal(installed.gasPorts,2);
+});
+
+test('disposal middle-click replaces an endpoint with a matching trunk and the selected mail variant', () => {
+  const disposal = routeProfiles.find(p=>p.disposal);
+  const items=[...floors,{id:'end',kind:'entity',prototype:'DisposalPipe',x:.5,y:.5,rotation:0},
+    {id:'neighbor',kind:'entity',prototype:'DisposalPipe',x:.5,y:-.5,rotation:0}];
+  const result=installRouteDevice(items,{x:0,y:0},disposal,{id:'MailingUnit',kind:'disposal'},nextId);
+  const trunk=result.items.find(item=>item.prototype==='DisposalTrunk'),unit=result.items.find(item=>item.prototype==='MailingUnit');
+  assert.equal(trunk.rotation,0);assert.equal(pipePorts(trunk,disposal),2);
+  assert.equal(unit.x,trunk.x);assert.equal(unit.y,trunk.y);assert.ok(unit.anchored&&trunk.anchored);
+  assert.ok(!result.items.some(item=>item.id==='end'));assert.ok(result.items.some(item=>item.id==='neighbor'));
+});
 
 test('deleting the final route cell removes its source without affecting other networks', () => {
   const source = cable(0, 0), other = { ...cable(0, 0, 'other'), prototype: 'CableMV' };

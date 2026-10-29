@@ -19,7 +19,25 @@ namespace Content.Server.Atmos.Piping.EntitySystems
         // Set of atmos devices that are off-grid but have JoinSystem set.
         private readonly HashSet<Entity<AtmosDeviceComponent>> _joinedDevices = new();
 
-        private static AtmosDeviceDisabledEvent _disabledEv = new();
+        private int _preserveSettings;
+
+        /// <summary>Keep configured operation flags during synchronous editor relocation.</summary>
+        public IDisposable PreserveSettings()
+        {
+            _preserveSettings++;
+            return new SettingsScope(this);
+        }
+
+        private sealed class SettingsScope(AtmosDeviceSystem system) : IDisposable
+        {
+            private AtmosDeviceSystem? _system = system;
+            public void Dispose()
+            {
+                if (_system == null) return;
+                _system._preserveSettings--;
+                _system = null;
+            }
+        }
         private static AtmosDeviceEnabledEvent _enabledEv = new();
 
         public override void Initialize()
@@ -62,7 +80,7 @@ namespace Content.Server.Atmos.Piping.EntitySystems
             RaiseLocalEvent(ent, ref _enabledEv);
         }
 
-        public void LeaveAtmosphere(Entity<AtmosDeviceComponent> ent)
+        public void LeaveAtmosphere(Entity<AtmosDeviceComponent> ent, bool preserveSettings = false)
         {
             var component = ent.Comp;
             // Try to remove the component from an atmosphere, and if not
@@ -80,12 +98,16 @@ namespace Content.Server.Atmos.Piping.EntitySystems
             }
 
             component.LastProcess = TimeSpan.Zero;
-            RaiseLocalEvent(ent, ref _disabledEv);
+            // Native loading announces parents during transform startup.
+            // This bookkeeping must not overwrite serialized machinery settings.
+            var ev = new AtmosDeviceDisabledEvent(preserveSettings || _preserveSettings > 0 ||
+                Transform(ent).LifeStage < ComponentLifeStage.Running);
+            RaiseLocalEvent(ent, ref ev);
         }
 
-        public void RejoinAtmosphere(Entity<AtmosDeviceComponent> component)
+        public void RejoinAtmosphere(Entity<AtmosDeviceComponent> component, bool preserveSettings = false)
         {
-            LeaveAtmosphere(component);
+            LeaveAtmosphere(component, preserveSettings);
             JoinAtmosphere(component);
         }
 
@@ -136,7 +158,7 @@ namespace Content.Server.Atmos.Piping.EntitySystems
                 var deviceGrid = Transform(device).GridUid;
                 if (HasComp<GridAtmosphereComponent>(deviceGrid))
                 {
-                    RejoinAtmosphere(device);
+                    RejoinAtmosphere(device, preserveSettings: true);
                 }
                 RaiseLocalEvent(device, ref ev);
                 device.Comp.LastProcess = time;

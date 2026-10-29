@@ -8,6 +8,14 @@ const noExpansion = { left: 0, right: 0, bottom: 0, top: 0, tile: 'Plating' };
 const floor = (x, y, prototype = 'Plating') => ({ kind: 'tile', prototype, x, y });
 const document = (items, expansion = noExpansion) => load(exportGridDraft(items, bounds, expansion));
 
+test('draft plan transports frozen native component state and actual machine pipe layer', () => {
+  const item={id:'new_pump',kind:'entity',prototype:'GasPressurePump',x:.5,y:.5,entityData:'components: custom\n',entityGroup:'paste-group',pipeLayer:2};
+  const doc=document([item]);
+  const uid=doc.entities.find(group=>group.proto===item.prototype).entities[0].uid;
+  assert.equal(doc.gridEditorIds[uid],item.id);
+  assert.deepEqual(doc.gridEditorState[uid],{entityData:item.entityData,entityGroup:item.entityGroup,pipeLayer:2});
+});
+
 test('draft exports pipe paint as the native AtmosPipeColor component', () => {
   const doc = document([{ id: 'pipe', kind: 'entity', prototype: 'GasPipeStraight', x: .5, y: .5, color: '#d42831ff' }]);
   const pipe = doc.entities.find(group => group.proto === 'GasPipeStraight').entities[0];

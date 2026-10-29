@@ -89,13 +89,16 @@ public sealed partial class DiscordLinkSystem
             "apartment_catalog" or "apartment_grant" => "HOST",
             _ => "HOST",
         };
-        if (!DiscordApiAuthority.Has(actingAdmin, permission))
+        var staffAuthority = DiscordApiAuthority.CanManageStaff(actingAdmin, request.Operation,
+            request.Kind, request.ActorStaffRole, request.StaffApplicationId);
+        if (!DiscordApiAuthority.Has(actingAdmin, permission) && !staffAuthority)
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation is "apartment_catalog" or "apartment_grant")
             return await DiscordApartments(request, uid, actor);
         var admin = await _database.GetAdminDataForAsync(uid);
         if (request.Operation is not ("bans" or "notes" or "jobs" or "staff_status" or "admin_flags") &&
-            DiscordApiAuthority.Has(admin, "HOST") && !DiscordApiAuthority.Has(actingAdmin, "HOST"))
+            DiscordApiAuthority.Has(admin, "HOST") && !DiscordApiAuthority.Has(actingAdmin, "HOST") &&
+            !(staffAuthority && request.ActorStaffRole == "1554164947804487770"))
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation is "admin_flags" or "staff_flags")
             return await ChangeDiscordAdminFlag(request, uid, actor, admin);
@@ -305,5 +308,6 @@ public sealed partial class DiscordLinkSystem
     private sealed record ModerationRequest(string Operation, string Uid, string ActorUid,
         string? Message = null, uint Minutes = 0, string Severity = "Medium", string? Job = null,
         int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null,
-        string? Flag = null, string? Mode = null, string? Template = null);
+        string? Flag = null, string? Mode = null, string? Template = null,
+        string? ActorStaffRole = null, string? StaffApplicationId = null);
 }

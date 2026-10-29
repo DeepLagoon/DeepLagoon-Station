@@ -119,9 +119,32 @@ public sealed class DiscordBoostLoadoutTests
                 var supporters = systems.GetEntitySystem<SharedDiscordBoostSystem>();
                 var prototypes = server.ResolveDependency<IPrototypeManager>();
                 var colors = new[] { 0x112233, 0x223344, 0x334455, 0x445566 };
+                void CheckMarkingGlow(bool allowed)
+                {
+                    Assert.That(supporters.CanUseMarkingGlow(session), Is.EqualTo(allowed));
+                    var entities = server.EntMan;
+                    var marking = prototypes.Index<Content.Shared.Humanoid.Markings.MarkingPrototype>("SynthAccessoryHornsLights").AsMarking();
+                    marking.Unshaded = true;
+                    marking.DrawOrder = 4;
+                    var source = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
+                    source = source.WithCharacterAppearance(source.Appearance.WithMarkings(new() { marking }));
+                    var validated = (HumanoidCharacterProfile)source.Validated(session, Robust.Shared.IoC.IoCManager.Instance!);
+                    var saved = validated.Appearance.Markings.Single(m => m.MarkingId == marking.MarkingId);
+                    Assert.That(saved.Unshaded, Is.EqualTo(allowed), "Saving/importing a profile checks the current subscription");
+                    Assert.That(marking.Unshaded, Is.True, "Validation does not mutate another profile's marking");
+                    Assert.That(saved.DrawOrder, Is.EqualTo(marking.DrawOrder));
+                    var dummy = entities.SpawnEntity("MobHumanDummy", Robust.Shared.Map.MapCoordinates.Nullspace);
+                    entities.System<Content.Shared.Humanoid.SharedHumanoidAppearanceSystem>().LoadProfile(dummy, source);
+                    entities.EventBus.RaiseEvent(EventSource.Local, new Content.Shared.GameTicking.PlayerSpawnCompleteEvent(
+                        dummy, session, null, false, true, 1, EntityUid.Invalid, source));
+                    Assert.That(entities.GetComponent<Content.Shared.Humanoid.HumanoidAppearanceComponent>(dummy).MarkingSet.Markings.Values
+                        .SelectMany(list => list).Single(m => m.MarkingId == marking.MarkingId).Unshaded, Is.EqualTo(allowed), "Previously saved glow is rechecked on spawn");
+                    entities.DeleteEntity(dummy);
+                }
                 foreach (var tier in new[] { 3, 2, 1, 0 })
                 {
                     store.SetSupporter(discord, false, tier, colors);
+                    CheckMarkingGlow(tier > 0);
                     Assert.That(loadouts.GetPoints(session), Is.EqualTo(loadouts.Points + (tier > 0 ? 3 * (tier + 1) : 0)));
                     var headshots = systems.GetEntitySystem<Content.Server._DeepLagoon.CharacterInfo.HeadshotSystem>();
                     var extended = (bool)headshots.GetType().GetMethod("Extended", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(headshots, new object[] { session })!;
@@ -135,7 +158,11 @@ public sealed class DiscordBoostLoadoutTests
                         Assert.That(loadouts.CanUse(item, profile, "Passenger", session, out _), Is.EqualTo(tier >= required));
                     }
                 }
+                store.SetSupporter(discord, false, 0, colors, spark: true);
+                Assert.That(supporters.GetProductTier(session), Is.EqualTo(1));
+                CheckMarkingGlow(false);
                 store.SetSupporter(discord, true, 0, colors);
+                CheckMarkingGlow(true);
                 Assert.That(supporters.GetBoostyTier(session), Is.Zero);
                 Assert.That(supporters.GetProductTier(session), Is.EqualTo(2));
                 Assert.That(supporters.GetSupporterTier(session), Is.EqualTo(1));
@@ -171,6 +198,7 @@ public sealed class DiscordBoostLoadoutTests
             Assert.That(supporters.GetSupporterTier(local), Is.EqualTo(1));
             Assert.That(supporters.GetLoadoutPointBonus(local), Is.EqualTo(6));
             Assert.That(supporters.HasOocColorAccess(local), Is.True);
+            Assert.That(supporters.CanUseMarkingGlow(local), Is.True);
         });
         // Exercise delivery of tier and palette data over the real test connection.
         var network = server.ResolveDependency<IEntityManager>().EntityNetManager!;
@@ -212,6 +240,33 @@ public sealed class DiscordBoostLoadoutTests
             list.Dispose();
             editor.Dispose();
         });
+        foreach (var productTier in new[] { 1, 0, 2, 3, 4 })
+        {
+            await server.WaitPost(() =>
+            {
+                var realSession = server.ResolveDependency<Robust.Server.Player.IPlayerManager>().Sessions.Single();
+                network.SendSystemNetworkMessage(new DiscordBoostStatusEvent(0, spark: productTier == 1,
+                    purchasedTier: productTier, purchasedSeconds: 900), realSession.Channel);
+            });
+            await pair.RunTicksSync(5);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+                var lobby = ui.GetUIController<Content.Client.Lobby.LobbyUIController>();
+                lobby.OpenCharacterEditor();
+                var editor = (Content.Client.Lobby.UI.HumanoidProfileEditor)typeof(Content.Client.Lobby.LobbyUIController)
+                    .GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+                editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Synth"), editor.CharacterSlot);
+                Assert.That(editor.HandleTguiProfileAction("marking-add", "{\"value\":\"SynthAccessoryHornsLights\"}"), Is.True);
+                var index = editor.Profile!.Appearance.Markings.FindIndex(m => m.MarkingId == "SynthAccessoryHornsLights");
+                using var state = System.Text.Json.JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
+                Assert.That(state.RootElement.GetProperty("markings").EnumerateArray().Single(m => m.GetProperty("id").GetString() == "SynthAccessoryHornsLights")
+                    .GetProperty("glowLocked").GetBoolean(), Is.EqualTo(productTier < 2));
+                Assert.That(editor.HandleTguiProfileAction("marking-glow", System.Text.Json.JsonSerializer.Serialize(new { index })), Is.EqualTo(productTier >= 2));
+                Assert.That(editor.Profile.Appearance.Markings[index].Unshaded, Is.EqualTo(productTier >= 2));
+                ui.WindowRoot.Children.OfType<Content.Client.Lobby.UI.CharacterEditorWindow>().Single().Close();
+            });
+        }
         await pair.CleanReturnAsync();
     }
     private static IEnumerable<Control> Descendants(Control root)

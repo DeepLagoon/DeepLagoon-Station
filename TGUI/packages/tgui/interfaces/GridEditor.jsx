@@ -1,5 +1,10 @@
 import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { GridEditorVisuals } from './gridEditorVisuals.mjs';
+import { GridEditorScenePool } from './gridEditorScenePool.mjs';
+import { updateItemIndex } from './gridEditorModel.mjs';
+import { gridEditorTabEntries } from './gridEditorTabs.mjs';
+import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 import { useBackend } from '../backend';
 import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
@@ -27,37 +32,53 @@ const Sprite = ({ images = [], color, cellSize = 32, native = false }) => <>{ima
   } : undefined} />)}</>;
 
 export const GridEditor = () => {
-  const { data, act: sendAct } = useBackend();
+  const { data, act: backendAct } = useBackend();
+  const sendRef = useRef(backendAct); sendRef.current = backendAct;
+  const sendAct = useCallback((action, payload) => sendRef.current(action, payload), []);
   const [activeToken, setActiveToken] = useState(data.activeEditorTab || data.token);
   const [shared, setShared] = useState({ brush: null, templateBrush: null, tool: 'select', category: 'tile',
-    rotation: 0, color: '#ffffffff', z: 0, cleanable: false, clipboard: [] });
-  const clipboardRef = useRef([]), visualCache = useRef(new Map());
+    rotation: 0, color: '#ffffffff', z: 0, cleanable: false, clipboard: [], copying: false });
+  const clipboardRef = useRef([]), alphaMasks = useRef(new Map()), visualRegistry = useRef(new GridEditorVisuals());
+  const scenePool = useRef(null);
+  if (!scenePool.current) scenePool.current = new GridEditorScenePool();
+  useEffect(() => () => scenePool.current.dispose(), []);
   const [dirty, setDirty] = useState({});
   const [closeRequests, setCloseRequests] = useState({});
   const tabs = data.editorTabs || (data.token ? { [data.token]: data } : {});
-  const entries = Object.entries(tabs);
+  useEffect(() => {
+    if (shared.copying && !tabs[shared.copying.token]) setShared(previous => ({...previous, copying:false}));
+  }, [tabs, shared.copying]);
+  const entries = gridEditorTabEntries(tabs, data.editorTabOrder);
   const active = tabs[activeToken] ? activeToken : entries[0]?.[0];
   useEffect(() => { if (data.activeEditorTab) setActiveToken(data.activeEditorTab); }, [data.activeEditorTab]);
-  const sharedVisuals = useMemo(() => Object.values(tabs).flatMap(tab =>
-    ['visuals', 'patchVisuals', 'peerVisuals', 'libraryVisuals', 'routeVisuals', 'catalog'].flatMap(key => tab[key] || [])), [data]);
+  const visuals = visualRegistry.current.update(tabs);
+  useLayoutEffect(() => scenePool.current.setActive(active), [active]);
+  const markDirty = useCallback((token, value) => setDirty(previous => previous[token] === value ? previous : { ...previous, [token]: value }), []);
   useInterfaceStyleGuard(entries.some(([token]) => dirty[token]));
   const activate = token => { setActiveToken(token); sendAct('activateTab', { tabToken: token }); };
-  const tabBar = <nav className="GridEditor__tabs" role="tablist" aria-label="Открытые гриды">
+  const tabBar = useMemo(() => <nav className="GridEditor__tabs" role="tablist" aria-label="Открытые гриды">
     {entries.map(([token, tab]) => <div key={token} className={`GridEditor__tab ${token === active ? 'active' : ''}`}><button role="tab" aria-selected={token === active}
       className={token === active ? 'active' : ''} title={tab.sourcePath || `Grid #${tab.grid}`} onClick={() => activate(token)}>
       <span>{tab.gridName || `Grid #${tab.grid}`}</span>{dirty[token] && <span aria-label="Есть изменения">●</span>}
     </button><button aria-label={`Закрыть вкладку ${tab.gridName || tab.grid}`} onClick={() => {
       activate(token); setCloseRequests(previous => ({ ...previous, [token]: (previous[token] || 0) + 1 }));
     }}>×</button></div>)}
-  </nav>;
-  return entries.map(([token, tab]) => <GridEditorWorkspace key={token} data={{ ...tab, sharedVisuals }} active={token === active}
-    sendAct={(action, payload) => sendAct(action, { ...payload, tabToken: token })}
-    shared={shared} setShared={setShared} clipboardRef={clipboardRef} visualCache={visualCache} tabBar={tabBar}
-    closeRequest={closeRequests[token]}
-    onDirty={value => setDirty(previous => previous[token] === value ? previous : { ...previous, [token]: value })} />);
+  </nav>, [tabs, data.editorTabOrder, active, dirty, sendAct]);
+  if (!entries.length) return <div className="GridEditor"><header role="status">Загрузка карт…</header></div>;
+  return entries.map(([token, tab]) => <GridEditorTab key={token} data={tab} active={token === active}
+    sendAct={sendAct} shared={shared} setShared={setShared} clipboardRef={clipboardRef} visuals={visuals}
+    alphaMasks={alphaMasks} scenePool={scenePool.current} tabBar={token === active ? tabBar : null}
+    closeRequest={closeRequests[token]} markDirty={markDirty} />);
 };
 
-const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboardRef, visualCache, tabBar, onDirty, closeRequest }) => {
+const GridEditorTab = memo(({ sendAct, markDirty, ...props }) => {
+  const token = props.data.token;
+  const act = useCallback((action, payload) => sendAct(action, { ...payload, tabToken: token }), [sendAct, token]);
+  const onDirty = useCallback(value => markDirty(token, value), [markDirty, token]);
+  return <GridEditorWorkspace {...props} sendAct={act} onDirty={onDirty} />;
+});
+
+const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboardRef, visuals, alphaMasks, scenePool, tabBar, onDirty, closeRequest }) => {
   const sharedField = key => [shared[key], value => setShared(previous => ({ ...previous,
     [key]: typeof value === 'function' ? value(previous[key]) : value }))];
   const failureTitle = useRef('Действие не выполнено');
@@ -154,6 +175,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     return () => clearTimeout(timer);
   }, [sceneBusy, data.token, sceneAttempt]);
   const [clipboard, setClipboard] = sharedField('clipboard');
+  const [copying, setCopying] = sharedField('copying');
   const [templateBrush, setTemplateBrush] = sharedField('templateBrush'), [templateName, setTemplateName] = useState('');
   const viewport = useRef(null), canvas = useRef(null), gesture = useRef(null), current = useRef(draft);
   const root = useRef(null), dividerDrag = useRef(null);
@@ -233,7 +255,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   useEffect(() => { stopKeyboardPan(); }, [data.token, failure, contextMenu, confirmClose]);
   useEffect(() => () => stopKeyboardPan(), []);
   const lastPointer = useRef(null), editingLocked = useRef(false);
-  const shiftHeld = useRef(false), alphaMasks = useRef(new Map()), [pointer, setPointer] = useState(null);
+  const shiftHeld = useRef(false), [pointer, setPointer] = useState(null);
   const [shift, setShift] = useState(false), [panning, setPanning] = useState(false);
   const [catalogRows, setCatalogRows] = useState([]), [catalogScroll, setCatalogScroll] = useState(0);
   const catalogView = useRef(null), requestedPages = useRef(new Set()), catalogRequest = useRef(null);
@@ -296,15 +318,15 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const reference = useGridEditorReference({ data, act, area, viewport, canvas, cellSize, blocked: selectHeld || deleteHeld || panning || before || pending, onFailure: message => setFailure({ title: 'Не удалось вставить скриншот', message }) });
   const allDisplayed = before ? baseline : draft;
   const displayed = allDisplayed; // Network visibility is applied to the scene below.
-  const visuals = useMemo(() => {
-    for (const entry of data.sharedVisuals || [])
-      visualCache.current.set(`${entry.kind}:${entry.id}`, { ...visualCache.current.get(`${entry.kind}:${entry.id}`), ...entry });
-    return new Map(visualCache.current);
-  }, [data.sharedVisuals]);
   const visual = (item) => visuals.get(`${item.kind}:${item.prototype}`);
-  const spatialIndex = useMemo(() => indexItems(displayed,visual), [displayed,visuals]);
+  const spatial = useRef(null);
+  if (active && (spatial.current?.items !== displayed || spatial.current?.visuals !== visuals))
+    spatial.current = { items: displayed, visuals, index: spatial.current?.visuals === visuals
+      ? updateItemIndex(spatial.current.index, displayed, visual) : indexItems(displayed,visual) };
+  const spatialIndex = spatial.current?.index;
   useEffect(() => {
-    for (const entry of visualCache.current.values()) for (const { url } of entry.images || []) {
+    if (!active) return;
+    for (const entry of visuals.values()) for (const { url } of entry.images || []) {
       if (!url || alphaMasks.current.has(url)) continue;
       alphaMasks.current.set(url, null);
       const image = new Image();
@@ -316,7 +338,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       };
       image.src = url;
     }
-  }, [data.visuals, data.patchVisuals, data.peerVisuals, data.catalog, data.libraryVisuals]);
+  }, [active, visuals]);
   const opaque = (images, u, v) => !images.length || images.some(({ url, native }) => {
     const mask = alphaMasks.current.get(url); if (!mask) return true;
     if(native)return mask.bytes[(Math.floor(v*mask.height)*mask.width+Math.floor(u*mask.width))*4+3]>16;
@@ -338,7 +360,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   };
   const remember = (previous = current.current, edits = editsRef.current) => { setUndo((history) => [...history.slice(-49), { edits: copyItems(edits), expansion: { ...expansion }, scope: decalMode ? z : null }]); setRedo([]); };
   const change = (next, duplicate = true) => { if (JSON.stringify(next) === JSON.stringify(current.current)) return; remember(); update(next, false, duplicate); };
-  const route = useGridEditorRoutes({token:data.token, act, items:draft, area, nextId, locked, toCell:event=>at(event),canvas,
+  const route = useGridEditorRoutes({token:data.token, act, items:draft, area, nextId, locked, toCell:event=>at(event),canvas, devices:data.routeDevices || [],
     commit:result=>{change(result.items,false);setSelected([]);},fail:message=>setFailure({title:'Не удалось проложить трассу',message})});
   const sharedEdits=useMemo(()=>{
     if(!route.editing)return localEdits;
@@ -359,7 +381,12 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   useEffect(() => { onDirty(changes > 0 || route.editing || pending || exporting || !!data.downloading); },
     [changes, route.editing, pending, exporting, data.downloading]);
   const sceneItems = useMemo(()=>route.visible ? displayed : displayed.filter(item=>!routeProfile(item)),[displayed,route.visible]);
-  const sceneIndex = useMemo(()=>indexItems(sceneItems),[sceneItems]);
+  const scene = useRef(null);
+  if (active && scene.current?.items !== sceneItems)
+    scene.current = { items: sceneItems, index: sceneItems.length === displayed.length ? spatialIndex : indexItems(sceneItems) };
+  else if (active && sceneItems.length === displayed.length && scene.current?.index !== spatialIndex)
+    scene.current = { items: sceneItems, index: spatialIndex };
+  const sceneIndex = scene.current?.index;
   const startGridResize = (sides, event) => {
     if (locked || decalMode || event.button !== 0) return;
 
@@ -385,7 +412,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     setUndo([]); setRedo([]); setSelected([]);
     setExpansion({ left: 0, right: 0, bottom: 0, top: 0 });
     setBaseline(data.items || []); replaceEdits([]); patchCursor.current = 0; serverArea.current = baseArea;
-    mirrorPairs.current.clear(); update(copyItems(data.items || []), true); setPending(false); setBefore(false);
+    mirrorPairs.current.clear(); update(data.items || [], true); setPending(false); setBefore(false);
     gesture.current = null; setMovePreview(null); setPreviewCells([]); setRubberband(null); setContextMenu(null); setFailure(null); upload.current = null;
   }, [data.token]);
   useEffect(() => {
@@ -404,7 +431,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       for (const item of batch.items) next.set(item.id, item);
       const bounds = { x: batch.x, y: batch.y, width: batch.width, height: batch.height };
       if (batch.applied) {
-        edits = []; nextExpansion = { left: 0, right: 0, bottom: 0, top: 0 };
+        edits = batch.failedItems || []; nextExpansion = { left: 0, right: 0, bottom: 0, top: 0 };
         history = []; future = []; applied = true;
       } else {
         nextExpansion = rebaseExpansion(previousArea, bounds, nextExpansion);
@@ -448,15 +475,17 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   useEffect(() => {
     const transfer = upload.current;
     if (transfer && data.uploadId === transfer.id && data.uploadNext < transfer.chunks.length)
-      act('applyChunk', { id: transfer.id, index: data.uploadNext, items: transfer.chunks[data.uploadNext] });
+      act('applyChunk', { id: transfer.id, index: data.uploadNext, [transfer.encoding ? 'text' : 'items']: transfer.chunks[data.uploadNext] });
   }, [data.uploadId, data.uploadNext]);
   const startTransfer = (items, purpose = 'apply', name = '') => {
     const id = `${Date.now()}_${counter.current++}`;
-    const chunks = [];
-    for (let i = 0; i < items.length; i += 16) chunks.push(items.slice(i, i + 16));
-    if (!chunks.length) chunks.push([]);
-    upload.current = { id, chunks }; setPending(true);
-    act('applyStart', { id, count: items.length, chunks: chunks.length, purpose, name, ...(purpose === 'apply' ? { expansion: { left: baseArea.x - area.x, right: area.x + area.width - baseArea.x - baseArea.width, bottom: baseArea.y - area.y, top: area.y + area.height - baseArea.y - baseArea.height } } : {}) });
+    let transfer;
+    try { transfer = gridEditorTransfer(items); }
+    catch (error) { setPending(false); setCopying(false); setFailure({title:'Не удалось передать сцену', message:error.message}); return; }
+    const {encoding, chunks} = transfer;
+    upload.current = { id, chunks, encoding }; setPending(true);
+    act('applyStart', { id, count: items.length, chunks: chunks.length, encoding, purpose, name, ...(purpose === 'apply' ? { expansion: { left: baseArea.x - area.x, right: area.x + area.width - baseArea.x - baseArea.width, bottom: baseArea.y - area.y, top: area.y + area.height - baseArea.y - baseArea.height } } : {}) });
+    return id;
   };
   const apply = () => {
     const baselineIds = new Set(baseline.map(i => i.id));
@@ -491,7 +520,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     return { x: area.x + Math.floor((event.clientX - rect.left) / cellSize),
       y: area.y + area.height - 1 - Math.floor((event.clientY - rect.top) / cellSize) };
   };
-  const options = { rotation, color, z, cleanable, replace: true, isWall: (id) => visualCache.current.get(`entity:${id}`)?.category === 'wall' };
+  const options = { rotation, color, z, cleanable, replace: true, isWall: (id) => visuals.get(`entity:${id}`)?.category === 'wall' };
   const paint = (cells) => { if (!brush || decalMode && brush.kind !== 'decal') return; update(stamp(current.current, cells.filter((cell) => inside(cell, area)), brush, options, nextId)); };
   const down = (event) => {
     const mode = selectHold.current ? 'select' : tool;
@@ -522,6 +551,9 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       return;
     }
     setContextMenu(null);
+    if (event.button === 1 && mode === 'route' && !space.current && !decalMode) {
+      event.preventDefault(); const cell = at(event); if (inside(cell, area)) route.install(cell); return;
+    }
     if (event.button === 1 || event.button === 0 && (space.current || mode === 'pan') && !deleteHold.current) {
       event.preventDefault(); act('focus'); canvas.current.focus(); setPanning(true);
       gesture.current = { pan: true, px: event.clientX, py: event.clientY, left: viewport.current.scrollLeft, top: viewport.current.scrollTop };
@@ -689,16 +721,28 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (selected.length && activeTool === 'select') change(current.current.map((i) => selected.includes(i.id) && i.kind !== 'tile' ? { ...i, rotation: (i.rotation + 90) % 360 } : i));
     else setRotation((r) => (r + 90) % 360);
   };
-  const copySelection = items => { if (!items.length) return; clipboardRef.current=copyItems(items);setClipboard(clipboardRef.current); act('copySelection'); };
+  useEffect(() => {
+    if (!data.copyVersion || copying?.id !== data.copyVersion) return;
+    clipboardRef.current = copyItems(data.copyItems || []); setClipboard(clipboardRef.current); setCopying(false);
+  }, [data.copyVersion]);
+  const copySelection = items => {
+    if (!items.length) return;
+    if (data.copySupported && items.some(item => item.kind === 'entity' && item.id.startsWith('e:'))) {
+      const id = startTransfer(items, 'copy'); if (id) setCopying({token:data.token, id});
+    } else { clipboardRef.current=copyItems(items);setClipboard(clipboardRef.current); }
+    act('copySelection');
+  };
   const paste = () => {
+    if (copying) return;
     const copied=decalMode ? decalTemplate(clipboardRef.current, z) : clipboardRef.current;
     if (!copied.length) return;
     const origin = { x: Math.min(...copied.map((i) => Math.floor(i.x))), y: Math.min(...copied.map((i) => Math.floor(i.y))) };
     const location=lastPointer.current;
     const target=location&&inside(location,area)?{x:Math.floor(location.x),y:Math.floor(location.y)}:hover||{x:origin.x+1,y:origin.y+1};
     const added = projectTemplate(copied, target);
-    if (added.some((i) => !inside(i, area))) return;
-    change(insertTemplate(current.current, copied, target, 0, nextId)); setSelected([]);
+    const outside = added.filter(item => !inside(item, area));
+    if (outside.length) setFailure({title:'Часть объектов не вставлена', message:outside.map(item => `${item.prototype}: вне области редактирования (${item.x}, ${item.y}).`).join('\n')});
+    change(insertTemplate(current.current, copied, target, 0, nextId, item => inside(item, area))); setSelected([]);
   };
   const menuItems = contextMenu ? contextMenu.ids.map(id => current.current.find(item => item.id === id)).filter(Boolean) : [];
   const menuItem = contextMenu ? menuItems.find(item => item.id === contextMenu.item) : null;
@@ -947,9 +991,9 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
               <button key={sides.join('-')} aria-label={`Растянуть grid: ${sides.join(' ')}`} disabled={locked}
                 className={`GridEditor__resizeGrid ${sides.join(' ')}`} onPointerDown={event => startGridResize(sides, event)}
                 onPointerMove={moveGridResize} onPointerUp={event => endGridResize(event)} onPointerCancel={event => endGridResize(event, true)} />)}
-            <GridEditorScene key={`${data.token}:${sceneAttempt}`} index={sceneIndex} area={area} layers={layers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
-            {!before && !!peerDrafts.peers.length && <GridEditorPeers items={[]} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
-            {atmosMode && data.atmosToken === data.token && !before && <GridEditorAtmos cells={atmosCells} area={area} view={view} cellSize={cellSize} />}
+            <GridEditorScene key={`${data.token}:${sceneAttempt}`} token={data.token} pool={scenePool} active={active} index={sceneIndex} area={area} layers={layers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
+            {active && !before && !!peerDrafts.peers.length && <GridEditorPeers items={[]} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
+            {active && atmosMode && data.atmosToken === data.token && !before && <GridEditorAtmos cells={atmosCells} area={area} view={view} cellSize={cellSize} />}
             {mirror.enabled && <div className={`GridEditor__mirrorLine ${mirror.axis}`} style={mirror.axis === 'x' ? { left: (mirror.center - area.x) * cellSize, height: area.height * cellSize } : { top: (area.y + area.height - mirror.center) * cellSize, width: area.width * cellSize }} />}
             {reference.overlay}
             {rubberband && <div className={`GridEditor__rubberband ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`} style={{
@@ -957,8 +1001,8 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
               width: rubberband.width * cellSize, height: rubberband.height * cellSize }} />}
             {!decalMode && route.visible && layers.entity && <GridEditorNetworks items={allDisplayed} area={area} view={view} cellSize={cellSize}/>}
             {!decalMode && !before && tool==='route' && <GridEditorRouteHandles route={route} area={area} view={view} cellSize={cellSize} locked={locked}/>}
-            <GridEditorSelection items={highlightedItems} visuals={visuals} area={area} layers={layers} view={view} cellSize={cellSize} offset={movePreview} />
-            {!before && <GridEditorIssues issues={issues} area={area} view={view} cellSize={cellSize} />}
+            <GridEditorSelection active={active} items={highlightedItems} visuals={visuals} area={area} layers={layers} view={view} cellSize={cellSize} offset={movePreview} />
+            {active && !before && <GridEditorIssues issues={issues} area={area} view={view} cellSize={cellSize} />}
             {((deleteHeld || gesture.current?.erasing || ['brush','line'].includes(activeTool)) ? (previewCells.length ? previewCells : hover ? [hover] : []) : []).map((cell) => <div key={`${cell.x}:${cell.y}`} className={`GridEditor__cursor ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`}
               style={{ left: (cell.x - area.x) * cellSize, top: (area.y + area.height - 1 - cell.y) * cellSize, width: cellSize, height: cellSize }}>
               {brush && ['brush', 'line'].includes(activeTool) && <span style={{ transform: `rotate(${brush?.noRotation ? 0 : -rotation}deg)` }}><Sprite images={brush.images} native cellSize={cellSize} color={brush.kind === 'decal' ? color : undefined} /></span>}</div>)}
@@ -1077,7 +1121,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         <button disabled={locked || !selected.length} onClick={() => reflect()}>Отразить · M</button>
         <button disabled={locked || !selected.length} onClick={remove}>Удалить · D / Delete</button>
         <button disabled={locked || !selected.length} onClick={() => copySelection(draft.filter((i) => selected.includes(i.id)))}>Копировать · Ctrl+C</button>
-        <button disabled={locked || !clipboard.length} onClick={paste}>Вставить · Ctrl+V</button>
+        <button disabled={locked || copying || !clipboard.length} onClick={paste}>{copying ? 'Копирование компонентов…' : 'Вставить · Ctrl+V'}</button>
         </section>
         <section className="GridEditor__panelSection" data-panel="templates" hidden={activePanel !== 'templates'}>
         <strong>Свой шаблон</strong><input aria-label="Имя шаблона" value={templateName} maxLength={64} onFocus={() => act('focus')} onChange={(e) => setTemplateName(e.target.value)} />

@@ -101,6 +101,7 @@ public abstract partial class SharedGasPressurePumpSystem : EntitySystem
 
     private void OnPumpLeaveAtmosphere(EntityUid uid, GasPressurePumpComponent pump, ref AtmosDeviceDisabledEvent args)
     {
+        if (args.PreserveSettings) return;
         pump.Enabled = false;
         Dirty(uid, pump);
         UpdateAppearance(uid, pump);

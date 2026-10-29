@@ -10,6 +10,7 @@ using Robust.Shared.Network;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Utility;
 using System.Text;
+using Robust.Shared.Timing;
 
 namespace Content.Client._DeepLagoon.CharacterInfo;
 public sealed partial class HeadshotSystem : EntitySystem
@@ -19,6 +20,10 @@ public sealed partial class HeadshotSystem : EntitySystem
     [Dependency] private Robust.Client.Player.IPlayerManager _players = default!;
     [Dependency] private IClientNetManager _net = default!;
     [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    private sealed class OutgoingUpload(Guid request, byte[] bytes, GameTick tick)
+    { public readonly Guid Request = request; public readonly byte[] Bytes = bytes; public int Offset; public GameTick Tick = tick; }
+    private OutgoingUpload? _upload;
     private sealed class Pending(Action<byte[],string,string,string> callback)
     { public Action<byte[],string,string,string> Callback = callback; public MemoryStream Bytes = new(); public int Length = -1; }
     private readonly Dictionary<Guid, Pending> _pending = new();
@@ -33,6 +38,7 @@ public sealed partial class HeadshotSystem : EntitySystem
     public bool Extended => EntityManager.System<SharedDiscordBoostSystem>().GetSupporterTier(_players.LocalSession) >= 2;
     public override void Initialize()
     {
+        UpdatesOutsidePrediction = true;
         SubscribeNetworkEvent<HeadshotDataEvent>(Receive);
         SubscribeNetworkEvent<HeadshotGalleryDataEvent>((ev, _) => { if (_galleryRequests.Remove(ev.Request, out var callback)) callback(ev); });
         SubscribeNetworkEvent<CharacterInfoOpenEvent>((ev,_)=>
@@ -41,6 +47,20 @@ public sealed partial class HeadshotSystem : EntitySystem
             if (Exists(entity) && TryComp<DetailExaminableComponent>(entity,out var details))
                 CharacterCardWindow.Open(entity, MetaData(entity).EntityName, details.Content, details.OocNotes, details.Erp, details.NonCon, details.Vore, -1);
         });
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        if (_upload is not { } upload || _timing.CurTick <= upload.Tick) return;
+        if (_net.ServerChannel?.IsConnected != true) { _upload = null; return; }
+        // Server MsgEntity queues do not preserve the order of messages sharing a tick.
+        // Keep Begin and every chunk on distinct ticks without changing the wire protocol.
+        upload.Tick = _timing.CurTick;
+        var end = Math.Min(upload.Bytes.Length, upload.Offset + HeadshotLimits.ChunkBytes);
+        RaiseNetworkEvent(new HeadshotUploadEvent(upload.Request, upload.Offset, upload.Bytes[upload.Offset..end]));
+        upload.Offset = end;
+        if (end == upload.Bytes.Length) _upload = null;
     }
     private Guid PendingRequest(Action<byte[],string,string,string> callback)
     { var id=Guid.NewGuid(); _pending[id]=new Pending(callback);
@@ -161,6 +181,7 @@ public sealed partial class HeadshotSystem : EntitySystem
             while ((size=await file.ReadAsync(chunk))>0)
             { if (buffer.Length+size>(extended ? HeadshotLimits.SponsorMaxBytes : HeadshotLimits.MaxBytes)) { callback([],"","",$"Максимальный размер изображения — {(extended ? 5 : 1)} МБ."); return; } buffer.Write(chunk,0,size); }
             var bytes=buffer.ToArray(); if (bytes.Length==0) { callback([],"","","Пустой файл."); return; }
+            if (_upload != null) { callback([], "", "", "Дождитесь завершения текущей загрузки."); return; }
             var request=PendingRequest((data,mime,id,error)=>
             {
                 if (error.Length==0 && _preferences.Preferences?.Characters.TryGetValue(slot,out var p)==true && p is HumanoidCharacterProfile profile) profile.HeadshotId=id;
@@ -168,8 +189,7 @@ public sealed partial class HeadshotSystem : EntitySystem
                 callback(data,mime,id,error);
             });
             RaiseNetworkEvent(new HeadshotBeginEvent(request,slot,bytes.Length,append,imageId));
-            for (var offset=0;offset<bytes.Length;offset+=HeadshotLimits.ChunkBytes)
-                RaiseNetworkEvent(new HeadshotUploadEvent(request,offset,bytes[offset..Math.Min(bytes.Length,offset+HeadshotLimits.ChunkBytes)]));
+            _upload = new OutgoingUpload(request, bytes, _timing.CurTick);
         }
         catch (Exception) { callback([],"","","Не удалось открыть изображение."); }
     }

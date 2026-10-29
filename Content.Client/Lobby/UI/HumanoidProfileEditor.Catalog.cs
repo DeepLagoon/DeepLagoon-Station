@@ -64,7 +64,7 @@ public sealed partial class HumanoidProfileEditor
                     return;
                 }
                 if (action == "catalog-close" || (_catalogKind, action) is
-                    ("hair", "hair-style") or ("beard", "beard-style") or ("markings", "marking-toggle"))
+                    ("hair", "hair-style") or ("beard", "beard-style") or ("markings", "marking-toggle") or ("markings", "marking-combine"))
                     HandleTguiProfileAction(action, payload);
             };
             window.Panel.OnClose += CloseCatalog;

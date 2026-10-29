@@ -11,8 +11,8 @@ public sealed partial class HotbarGui : UIWidget
     public HotbarGui()
     {
         RobustXamlLoader.Load(this);
-        StatusPanelRight.SetSide(HandUILocation.Right);
-        StatusPanelLeft.SetSide(HandUILocation.Left);
+        StatusPanelRight.SetSide(HandUILocation.Left);
+        StatusPanelLeft.SetSide(HandUILocation.Right);
         var hotbarController = UserInterfaceManager.GetUIController<HotbarUIController>();
 
         hotbarController.Setup(HandContainer);

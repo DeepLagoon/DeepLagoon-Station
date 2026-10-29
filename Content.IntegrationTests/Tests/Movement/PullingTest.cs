@@ -10,6 +10,18 @@ public sealed class PullingTest : MovementTest
 {
     protected override int Tiles => 4;
 
+    [TestCase("AirCanister")]
+    [TestCase("CrateGenericSteel")]
+    [TestCase("ToolboxMechanical")]
+    public async Task ControlClickPullsObjects(string prototype)
+    {
+        await SpawnTarget(prototype);
+        await PressKey(ContentKeyFunctions.TryPullObject);
+        await RunTicks(5);
+        Assert.That(Comp<PullerComponent>(Player).Pulling, Is.EqualTo(STarget));
+        Assert.That(Comp<PullableComponent>(Target).Puller, Is.EqualTo(SPlayer));
+    }
+
     [Test]
     public async Task PullTest()
     {

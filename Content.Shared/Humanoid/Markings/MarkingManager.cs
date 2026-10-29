@@ -18,6 +18,47 @@ namespace Content.Shared.Humanoid.Markings
 
         public bool IsCommon(MarkingPrototype marking) => _commonMarkings.Contains(marking.ID);
 
+        public static HumanoidVisualLayers? OppositePart(HumanoidVisualLayers part) => part switch
+        {
+            HumanoidVisualLayers.LArm => HumanoidVisualLayers.RArm,
+            HumanoidVisualLayers.RArm => HumanoidVisualLayers.LArm,
+            HumanoidVisualLayers.LHand => HumanoidVisualLayers.RHand,
+            HumanoidVisualLayers.RHand => HumanoidVisualLayers.LHand,
+            HumanoidVisualLayers.LLeg => HumanoidVisualLayers.RLeg,
+            HumanoidVisualLayers.RLeg => HumanoidVisualLayers.LLeg,
+            HumanoidVisualLayers.LFoot => HumanoidVisualLayers.RFoot,
+            HumanoidVisualLayers.RFoot => HumanoidVisualLayers.LFoot,
+            _ => null,
+        };
+
+        public static bool IsRightPart(HumanoidVisualLayers part) => part is HumanoidVisualLayers.RArm
+            or HumanoidVisualLayers.RHand or HumanoidVisualLayers.RLeg or HumanoidVisualLayers.RFoot;
+
+        /// <summary>Pairs existing directional prototypes without changing saved marking IDs.</summary>
+        public MarkingPrototype? EditorMirror(MarkingPrototype marking)
+        {
+            if (OppositePart(marking.BodyPart) is not { } opposite) return null;
+            var right = IsRightPart(marking.BodyPart);
+            var from = right ? "R" : "L";
+            var to = right ? "L" : "R";
+            var candidates = new List<string>
+            {
+                marking.ID.Replace(right ? "Right" : "Left", right ? "Left" : "Right", StringComparison.Ordinal),
+                marking.ID.Replace(right ? "right" : "left", right ? "left" : "right", StringComparison.Ordinal),
+                marking.ID.Replace(marking.BodyPart.ToString(), opposite.ToString(), StringComparison.Ordinal),
+            };
+            foreach (var limb in new[] { "Arm", "Hand", "Leg", "Foot", "Shoulder" })
+                candidates.Add(marking.ID.Replace(from + limb, to + limb, StringComparison.Ordinal));
+            if (marking.ID.EndsWith(from, StringComparison.Ordinal)) candidates.Add(marking.ID[..^1] + to);
+            if (marking.ID.StartsWith(from, StringComparison.Ordinal)) candidates.Add(to + marking.ID[1..]);
+            foreach (var id in candidates)
+                if (Markings.TryGetValue(id, out var mirror) && mirror.BodyPart == opposite
+                    && mirror.MarkingCategory == marking.MarkingCategory && mirror.EditorExclusive == marking.EditorExclusive
+                    && mirror.SexRestriction == marking.SexRestriction)
+                    return mirror;
+            return null;
+        }
+
         public IReadOnlyCollection<string>? GetSpeciesCategories(MarkingPrototype marking)
         {
             if (IsCommon(marking)) return null;

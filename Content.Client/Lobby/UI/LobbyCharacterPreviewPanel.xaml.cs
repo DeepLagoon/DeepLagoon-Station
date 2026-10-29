@@ -39,6 +39,18 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
             Element<RichTextLabel>().Prop("font", LobbyConsoleTheme.GetFont()).Prop("font-outline-thickness", 0f),
         });
         Header.FontOverride = LobbyConsoleTheme.GetFont(15);
+        var subscriptionStyle = new StyleBoxFlat
+        {
+            BackgroundColor = LobbyConsoleTheme.Green.WithAlpha(0.10f),
+            BorderColor = LobbyConsoleTheme.Green.WithAlpha(0.25f),
+            BorderThickness = new Thickness(1),
+        };
+        subscriptionStyle.SetContentMarginOverride(StyleBox.Margin.Horizontal, 12);
+        subscriptionStyle.SetContentMarginOverride(StyleBox.Margin.Vertical, 6);
+        SubscriptionBadge.PanelOverride = subscriptionStyle;
+        SubscriptionCaption.FontOverride = LobbyConsoleTheme.GetFont(11);
+        SubscriptionCaption.FontColorOverride = LobbyConsoleTheme.Green.WithAlpha(0.75f);
+        SubscriptionLevel.FontOverride = LobbyConsoleTheme.GetFont(15);
         CharacterSetup.Disabled = true;
     }
 
@@ -83,7 +95,7 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
             return;
 
         _subscriptionTier = tier;
-        SubscriptionLevel.Text = tier == 0 ? "Без подписки" : "Подписка: " + LagoonEconomyRules.Name(tier);
+        SubscriptionLevel.Text = LagoonEconomyRules.Name(tier);
     }
 
     public void SetLagoonCoinBalance(long value) => LagoonCoins.Value = value < 0 ? null : value;

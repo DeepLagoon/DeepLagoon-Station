@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Shared._DeepLagoon.Mapping;
 using Robust.Shared.ContentPack;
@@ -17,6 +18,7 @@ public sealed partial class GridEditorSystem
 {
     [Dependency] private IResourceManager _resources = default!;
     private const string LibraryFile = "/grid-editor/library.json";
+    private const int LibraryMaxChars = 32 * 1024 * 1024;
     private readonly Dictionary<string, (string Kind, string Prototype)> _favorites = new();
     private readonly Dictionary<int, (string Kind, string Prototype)> _hotbar = new();
     private readonly Dictionary<string, (string Name, List<GridEditorItem> Items)> _templates = new();
@@ -35,9 +37,20 @@ public sealed partial class GridEditorSystem
             items.Add(new GridEditorItem { Id = Field(node, "id"), Kind = Field(node, "kind"), Prototype = Field(node, "prototype"),
                 X = Number("x"), Y = Number("y"), Rotation = Number("rotation"), Z = (int) Number("z"), Color = Field(node, "color", "#FFFFFFFF"),
                 Cleanable = Field(node, "cleanable") == "true", Anchored = Field(node, "anchored") == "true",
-                Variant = CheckedByte(Number("variant")), Flags = CheckedByte(Number("flags")), Mirror = CheckedByte(Number("mirror")) });
+                Variant = CheckedByte(Number("variant")), Flags = CheckedByte(Number("flags")), Mirror = CheckedByte(Number("mirror")),
+                PipeLayer = int.Parse(Field(node, "pipeLayer", "-1"), CultureInfo.InvariantCulture),
+                GasPorts = int.Parse(Field(node, "gasPorts", "0"), CultureInfo.InvariantCulture),
+                EntityData = Field(node, "entityData"), EntityGroup = Field(node, "entityGroup") });
         }
         return items;
+    }
+
+    private static SequenceDataNode ReadItemText(StringBuilder text)
+    {
+        using var reader = new StringReader(text.ToString());
+        var documents = DataNodeParser.ParseYamlStream(reader).ToArray();
+        if (documents.Length != 1 || documents[0].Root is not SequenceDataNode sequence) throw new InvalidDataException("Некорректная передача объектов.");
+        return sequence;
     }
 
     private void LoadLibrary()
@@ -51,7 +64,7 @@ public sealed partial class GridEditorSystem
             if (!_resources.UserData.Exists(path)) return;
             using var reader = _resources.UserData.OpenText(path);
             var text = reader.ReadToEnd();
-            if (text.Length > 4_000_000) throw new InvalidDataException("Library too large");
+            if (text.Length > LibraryMaxChars) throw new InvalidDataException("Library too large");
             var yaml = new YamlStream(); yaml.Load(new StringReader(text));
             if (yaml.Documents.Count != 1 || yaml.Documents[0].RootNode.ToDataNode() is not MappingDataNode root || Field(root, "version") != "1")
                 throw new InvalidDataException("Unsupported library");
@@ -93,7 +106,7 @@ public sealed partial class GridEditorSystem
     private void PersistLibrary()
     {
         var content = LibraryData().ToString();
-        if (content.Length > 4_000_000) throw new InvalidDataException("Библиотека превышает 4 МБ.");
+        if (content.Length > LibraryMaxChars) throw new InvalidDataException("Библиотека превышает 32 МиБ.");
         var data = _resources.UserData;
         var path = new ResPath(LibraryFile); var temporary = new ResPath(LibraryFile + ".tmp"); var backup = new ResPath(LibraryFile + ".bak");
         data.CreateDir(new ResPath("/grid-editor"));
@@ -159,8 +172,11 @@ public sealed partial class GridEditorSystem
     private void SaveTemplate(string name, List<GridEditorItem> items)
     {
         if (_templates.Count >= 64) throw new InvalidDataException("Не более 64 шаблонов.");
-        _templates[Guid.NewGuid().ToString()] = (name, items);
-        PersistLibrary(); PublishLibrary(); Status("Шаблон сохранён в библиотеке на этом компьютере.", true);
+        var id = Guid.NewGuid().ToString();
+        _templates[id] = (name, items);
+        try { PersistLibrary(); }
+        catch { _templates.Remove(id); throw; }
+        PublishLibrary(); Status("Шаблон сохранён в библиотеке на этом компьютере.", true);
     }
 
     private void Status(string message, bool success) => SendTabUpdate(new TguiData().Object("data",

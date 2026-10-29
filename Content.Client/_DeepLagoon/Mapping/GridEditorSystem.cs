@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Linq;
 using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
@@ -41,6 +42,17 @@ public sealed partial class GridEditorSystem : EntitySystem
         base.Initialize();
         _input.FirstChanceOnKeyEvent += EditorKey;
         SubscribeNetworkEvent<GridEditorStateEvent>(Open);
+        SubscribeNetworkEvent<GridEditorCopyResult>(ev => InTab(ev.Token, () =>
+        {
+            if (ev.Name.Length > 0)
+            {
+                try { SaveTemplate(ev.Name, ev.Items); }
+                catch (Exception e) { Status($"Не удалось сохранить шаблон: {e.Message}", false); return; }
+            }
+            else SendTabUpdate(new TguiData().Object("data", new TguiData().String("copyVersion", ev.Request)
+                .Array("copyItems", ev.Items.Select(ItemData))).ToString());
+            Status(ev.Errors.Length > 0 ? ev.Errors : "Копирование завершено.", ev.Errors.Length == 0);
+        }));
         SubscribeNetworkEvent<GridEditorPatchEvent>(ev => InTab(ev.Token, () => Patch(ev)));
         SubscribeNetworkEvent<GridEditorNameResult>(ev => InTab(ev.Token, () => NameResult(ev)));
         SubscribeNetworkEvent<GridEditorRepairConnectionsEvent>(RepairConnections);
@@ -89,7 +101,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     private void Open(GridEditorStateEvent ev)
     {
         if (_tabs.ContainsKey(ev.Token)) { ActivateTab(ev.Token); return; }
-        _tab = new EditorTab { State = ev };
+        _tab = new EditorTab { State = ev, OpenOrder = ++_nextTabOrder };
         _tabs.Add(ev.Token, _tab);
         if (_window == null)
         {
@@ -101,13 +113,9 @@ public sealed partial class GridEditorSystem : EntitySystem
             _window.Panel.OnClose += Close;
             _window.Panel.Web.Ready += () =>
             {
-                foreach (var token in _tabs.Keys.ToArray()) InTab(token, () =>
-                {
-                    PublishCurrentState(); PublishPendingPatches(); PublishPeerDrafts();
-                    if (_tab.EnvironmentState is { } environment) EnvironmentState(environment);
-                    Search(_tab.SearchQuery, _tab.SearchCategory, _tab.SearchPage);
-                });
-                PublishLibrary();
+                _snapshotQueue.Clear();
+                foreach (var token in _tabs.Keys.OrderBy(token => token != _activeTab).ToArray())
+                    InTab(token, PublishCurrentState);
                 ActivateTab(_activeTab);
             };
             _window.Panel.SetState("GridEditor", "{}", "Редактор grid");
@@ -115,16 +123,15 @@ public sealed partial class GridEditorSystem : EntitySystem
             _window.Panel.Web.FocusInput();
         }
         PublishCurrentState();
-        LoadLibrary(); PublishLibrary();
-        Search(_tab.SearchQuery, _tab.SearchCategory, _tab.SearchPage);
+        LoadLibrary();
         ActivateTab(ev.Token);
     }
 
     private void PublishCurrentState()
     {
-        if (_window == null || _tab.State is not { } ev) return;
+        if (_window?.Panel.Web.IsReady != true || _tab.State is not { } ev) return;
         var visuals = ev.Items.Select(i => (i.Kind, i.Prototype)).Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
-        SendTabUpdate(new TguiData().Object("data", new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
+        var header = new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
             .String("gridName", _tab.EnvironmentState?.GridName ?? "").Number("gridNameMaxLength", GridEditorNameRequest.MaxLength)
             .String("gridNameError", "").Number("gridNameResultVersion", _nameResultVersion)
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
@@ -132,7 +139,10 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Bool("alwaysPowered", _tab.EnvironmentState?.AlwaysPowered ?? false).Bool("forceGravity", _tab.EnvironmentState?.ForceGravity ?? false)
             .Bool("safeAtmosphere", _tab.EnvironmentState?.SafeAtmosphere ?? false).Bool("apartmentProtected", _tab.EnvironmentState?.ApartmentProtected ?? false)
             .Array("exportIssues", Array.Empty<TguiData>())
-            .Number("previewGeneration", _tab.PreviewGeneration).Bool("initialized", ev.Initialized).Array("items", ev.Items.Select(ItemData)).Array("visuals", visuals)).ToString());
+            .Number("previewGeneration", _tab.PreviewGeneration).Bool("initialized", ev.Initialized).Bool("copySupported", true)
+            .Array("routeDevices", RouteDevices()).Array("visuals", visuals);
+        _tab.Snapshot = new SnapshotTransfer(header, ev.Items);
+        _snapshotQueue.Enqueue(ev.Token);
     }
 
     private void EnvironmentState(GridEditorEnvironmentState state)
@@ -180,7 +190,7 @@ public sealed partial class GridEditorSystem : EntitySystem
 
     private void PublishPendingPatches()
     {
-        if (_tab.PendingPatches.Count == 0) return;
+        if (_tab.Snapshot != null || _tab.PendingPatches.Count == 0) return;
         var ev = _tab.PendingPatches[^1].Patch;
         SendTabUpdate(new TguiData().Object("data", new TguiData()
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
@@ -190,6 +200,7 @@ public sealed partial class GridEditorSystem : EntitySystem
                 .Bool("applied", entry.Patch.Applied).Number("x", entry.Patch.X).Number("y", entry.Patch.Y)
                 .Number("width", entry.Patch.Width).Number("height", entry.Patch.Height)
                 .Array("superseded", entry.Patch.Superseded.Select(ItemData))
+                .Array("failedItems", entry.Patch.FailedItems.Select(ItemData))
                 .Array("items", entry.Patch.Items.Select(ItemData))
                 .Array("removed", entry.Patch.Removed.Select(id => new TguiData().String("id", id)))))
             .Array("patchItems", ev.Items.Select(ItemData))
@@ -203,7 +214,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         var data = new TguiData().String("id", id).String("kind", kind);
         if (kind == "entity")
         {
-            var proto = _prototypes.Index<EntityPrototype>(id);
+            if (!_prototypes.TryIndex<EntityPrototype>(id, out var proto)) return data.String("name", id).Array("images", Array.Empty<TguiData>());
             return data.Array("images", _images.MapItem(id)).Bool("noRotation", proto.TryGetComponent<SpriteComponent>(out var mappedSprite) && mappedSprite.NoRotation).String("name", proto.Name)
                 .Bool("pipeColor", proto.Components.ContainsKey("AtmosPipeColor"))
                 .Number("drawDepth", proto.TryGetComponent<SpriteComponent>(out var sprite) ? sprite.DrawDepth : 0)
@@ -219,10 +230,16 @@ public sealed partial class GridEditorSystem : EntitySystem
                 _images.TileFrame(texture.TexturePath) : _images.Frame(spec)).String("color", "#ffffff").Number("width", size.X).Number("height", size.Y) });
     }
 
-    private static TguiData ItemData(GridEditorItem i) => new TguiData().String("id", i.Id).String("kind", i.Kind)
+    private static TguiData ItemData(GridEditorItem i)
+    {
+        var data = new TguiData().String("id", i.Id).String("kind", i.Kind)
         .String("prototype", i.Prototype).Number("x", i.X).Number("y", i.Y).Number("rotation", i.Rotation)
         .String("color", i.Color).Number("z", i.Z).Bool("cleanable", i.Cleanable).Bool("anchored", i.Anchored)
-        .Number("variant", i.Variant).Number("flags", i.Flags).Number("mirror", i.Mirror);
+        .Number("variant", i.Variant).Number("flags", i.Flags).Number("mirror", i.Mirror)
+        .Number("pipeLayer", i.PipeLayer).String("entityData", i.EntityData).String("entityGroup", i.EntityGroup);
+        if (i.GasPorts != 0) data.Number("gasPorts", i.GasPorts);
+        return data;
+    }
 
     private void Search(string query, string category, int page)
     {
@@ -298,7 +315,7 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (action == "download") { BeginDownload(Field(root, "scope") == "map"); return; }
             if (action == "routeVisuals")
             {
-                if (!root.TryGet<SequenceDataNode>("prototypes", out var entries) || entries.Count > 8) return;
+                if (!root.TryGet<SequenceDataNode>("prototypes", out var entries) || entries.Count > 32) return;
                 var ids = entries.OfType<ValueDataNode>().Select(value => value.Value).Where(id =>
                     _prototypes.TryIndex<EntityPrototype>(id, out var proto) && !proto.Abstract).Distinct();
                 SendTabUpdate(new TguiData().Object("data", new TguiData()
@@ -317,8 +334,9 @@ public sealed partial class GridEditorSystem : EntitySystem
             if (action == "applyStart")
             {
                 var id = Field(root, "id");
+                var encoded = Field(root, "encoding") == "json";
                 if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "count"), out var count) || count < 0 ||
-                    !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != Math.Max(1, (count + 15L) / 16)) return;
+                    !int.TryParse(Field(root, "chunks"), out var chunks) || (encoded ? chunks is < 1 or > 32768 : chunks != Math.Max(1, (count + 15L) / 16))) return;
                 _tab.UploadPurpose = Field(root, "purpose", "apply"); _tab.UploadName = Field(root, "name");
                 _tab.UploadExpansion = null;
                 if (_tab.UploadPurpose == "apply" && root.TryGet<MappingDataNode>("expansion", out var expansion))
@@ -327,43 +345,44 @@ public sealed partial class GridEditorSystem : EntitySystem
                     _tab.UploadExpansion = new GridEditorExpansion { Left = Side("left"), Right = Side("right"),
                         Bottom = Side("bottom"), Top = Side("top") };
                 }
-                if (_tab.UploadPurpose is not ("apply" or "template") || _tab.UploadPurpose == "template" &&
+                if (_tab.UploadPurpose is not ("apply" or "template" or "copy") || _tab.UploadPurpose == "template" &&
                     (count is < 1 or > 512 || _tab.UploadName.Length is < 1 or > 64)) return;
                 _tab.UploadId = id; _tab.UploadCount = count; _tab.UploadChunks = chunks; _tab.UploadNext = 0; _tab.Upload.Clear();
+                _tab.UploadText = encoded ? new StringBuilder() : null;
                 AckUpload();
                 return;
             }
             if (action != "applyChunk" || _tab.UploadId == null || Field(root, "id") != _tab.UploadId ||
-                !int.TryParse(Field(root, "index"), out var index) || index != _tab.UploadNext ||
-                !root.TryGet<SequenceDataNode>("items", out var sequence) || sequence.Count > 16) return;
-            var items = new List<GridEditorItem>();
-            foreach (var child in sequence)
+                !int.TryParse(Field(root, "index"), out var index) || index != _tab.UploadNext) return;
+            if (_tab.UploadText is { } text)
             {
-                if (child is not MappingDataNode node) return;
-                float Number(string key) => float.Parse(Field(node, key, "0"), CultureInfo.InvariantCulture);
-                items.Add(new GridEditorItem { Id = Field(node, "id"), Kind = Field(node, "kind"), Prototype = Field(node, "prototype"),
-                    X = Number("x"), Y = Number("y"), Rotation = Number("rotation"), Z = (int) Number("z"),
-                    Color = Field(node, "color", "#FFFFFFFF"), Cleanable = Field(node, "cleanable") == "true",
-                    Anchored = Field(node, "anchored") == "true", Variant = CheckedByte(Number("variant")),
-                    Flags = CheckedByte(Number("flags")), Mirror = CheckedByte(Number("mirror")) });
+                var part = Field(root, "text");
+                if (part.Length is < 1 or > 1024 || text.Length + part.Length > 32 * 1024 * 1024) throw new InvalidDataException("Некорректная часть сцены.");
+                text.Append(part);
+                if (_tab.UploadNext + 1 == _tab.UploadChunks) _tab.Upload.AddRange(ReadItems(ReadItemText(text)));
             }
-            _tab.Upload.AddRange(items);
+            else
+            {
+                if (!root.TryGet<SequenceDataNode>("items", out var sequence) || sequence.Count > 16) return;
+                _tab.Upload.AddRange(ReadItems(sequence));
+            }
             _tab.UploadNext++;
             if (_tab.Upload.Count > _tab.UploadCount) throw new InvalidDataException("Upload overflow");
             if (_tab.UploadNext < _tab.UploadChunks) { AckUpload(); return; }
             if (_tab.Upload.Count != _tab.UploadCount) throw new InvalidDataException("Incomplete upload");
-            if (_tab.UploadPurpose == "template") SaveTemplate(_tab.UploadName, new List<GridEditorItem>(_tab.Upload));
+            if (_tab.UploadPurpose is "template" or "copy") RaiseNetworkEvent(new GridEditorCopyRequest(_tab.State.Token,
+                _tab.UploadId, new List<GridEditorItem>(_tab.Upload), _tab.UploadPurpose == "template" ? _tab.UploadName : ""));
             else
             {
                 RaiseNetworkEvent(new GridEditorApplyEvent(_tab.State.Token, new List<GridEditorItem>(_tab.Upload), _tab.UploadExpansion, patch: true));
             }
-            _tab.UploadId = null; _tab.Upload.Clear();
+            _tab.UploadId = null; _tab.Upload.Clear(); _tab.UploadText = null;
         }
         catch (Exception e)
         {
             SendTabUpdate(new TguiData().Object("data", new TguiData().String("status", $"Действие не выполнено: {e.Message}")
                 .Bool("success", false).Number("resultVersion", ++_resultVersion)).ToString());
-            _tab.UploadId = null; _tab.Upload.Clear();
+            _tab.UploadId = null; _tab.Upload.Clear(); _tab.UploadText = null;
         }
     }
 
@@ -382,6 +401,7 @@ public sealed partial class GridEditorSystem : EntitySystem
 
     private void Close(bool shuttingDown)
     {
+        _snapshotQueue.Clear();
         var window = _window;
         foreach (var token in _tabs.Keys.ToArray()) InTab(token, CancelDownload);
         _tabs.Clear();

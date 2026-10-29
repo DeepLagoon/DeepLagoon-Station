@@ -8,8 +8,8 @@ public sealed partial class HumanoidProfileEditor
 {
     private HumanoidCharacterAppearance? _appearanceBaseline;
     private HumanoidCharacterAppearance? _appearanceRedo;
-    private bool _appearanceBaselineCombine;
-    private bool _appearanceRedoCombine;
+    private HashSet<string> _appearanceBaselineCombine = new();
+    private HashSet<string> _appearanceRedoCombine = new();
 
     private static HumanoidCharacterAppearance CopyAppearanceSelection(HumanoidCharacterAppearance appearance)
     {
@@ -25,7 +25,7 @@ public sealed partial class HumanoidProfileEditor
     private void ResetAppearanceHistory()
     {
         _appearanceBaseline = Profile == null ? null : CopyAppearanceSelection(Profile.Appearance);
-        _appearanceBaselineCombine = _combineMarkings;
+        _appearanceBaselineCombine = new(_combineMarkings);
         _appearanceRedo = null;
     }
 
@@ -34,7 +34,7 @@ public sealed partial class HumanoidProfileEditor
         var target = redo ? _appearanceRedo : _appearanceBaseline;
         var combine = redo ? _appearanceRedoCombine : _appearanceBaselineCombine;
         if (Profile == null || target == null || _tattooFileBusy
-            || SameAppearanceSelection(Profile.Appearance, target) && combine == _combineMarkings) return false;
+            || SameAppearanceSelection(Profile.Appearance, target) && combine.SetEquals(_combineMarkings)) return false;
         CloseColorPicker();
         var previous = CopyAppearanceSelection(Profile.Appearance);
         var appearance = Profile.Appearance.Clone();
@@ -43,8 +43,8 @@ public sealed partial class HumanoidProfileEditor
         appearance.Markings = validated.Markings.Select(marking => new Marking(marking)).ToList();
         if (!_requirements.TattoosBanned) appearance.Tattoos = target.Tattoos.Select(tattoo => tattoo.Clone()).ToList();
         Profile = Profile.WithCharacterAppearance(appearance);
-        _appearanceRedoCombine = _combineMarkings;
-        _combineMarkings = combine;
+        _appearanceRedoCombine = new(_combineMarkings);
+        _combineMarkings = new(combine);
         _appearanceRedo = redo ? null : previous;
         UpdateMarkings();
         ReloadProfilePreview();

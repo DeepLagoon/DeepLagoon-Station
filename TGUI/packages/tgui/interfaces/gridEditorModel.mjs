@@ -60,6 +60,13 @@ export function stamp(items, cells, brush, options, nextId) {
   return result;
 }
 
+function sameConstructionStack(item, winner, before) {
+  if (item.entityGroup && item.entityGroup === winner.entityGroup) return true;
+  const old = before.get(item.id), other = before.get(winner.id);
+  return old && other && old.prototype === item.prototype && other.prototype === winner.prototype &&
+    Math.floor(old.x) === Math.floor(other.x) && Math.floor(old.y) === Math.floor(other.y);
+}
+
 // Only cells receiving a construction are normalized; untouched legacy map stacks stay intact.
 export function replaceConflicts(previous, next, isExclusive) {
   const before = new Map(previous.map(item => [item.id, item]));
@@ -68,10 +75,11 @@ export function replaceConflicts(previous, next, isExclusive) {
     if (item.kind !== 'entity' || !isExclusive(item.prototype)) continue;
     const old = before.get(item.id);
     if (!old || old.prototype !== item.prototype || old.x !== item.x || old.y !== item.y)
-      winners.set(`${Math.floor(item.x)}:${Math.floor(item.y)}`, item.id);
+      winners.set(`${Math.floor(item.x)}:${Math.floor(item.y)}`, item);
   }
   return next.filter(item => item.kind !== 'entity' || !isExclusive(item.prototype) ||
-    !winners.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`) || winners.get(`${Math.floor(item.x)}:${Math.floor(item.y)}`) === item.id);
+    !winners.has(`${Math.floor(item.x)}:${Math.floor(item.y)}`) || winners.get(`${Math.floor(item.x)}:${Math.floor(item.y)}`).id === item.id ||
+    sameConstructionStack(item, winners.get(`${Math.floor(item.x)}:${Math.floor(item.y)}`), before));
 }
 
 export function draftIssues(items, area, editedIds = null) {
@@ -183,14 +191,23 @@ export function projectTemplate(items, target, turns = 0) {
   return result.map((i) => ({ ...i, x: i.x + target.x, y: i.y + target.y }));
 }
 
-export function insertTemplate(draft, items, target, turns, nextId) {
+export function insertTemplate(draft, items, target, turns, nextId, accept = () => true) {
   let result = copyItems(draft);
+  const groups = new Map();
   for (const item of projectTemplate(items, target, turns)) {
+    if (!accept(item)) continue;
     if (item.kind === 'tile') {
       item.id = tileId(item.x, item.y); result = result.filter((i) => i.id !== item.id);
     } else {
-      if (result.some((i) => i.kind === item.kind && i.prototype === item.prototype && i.x === item.x && i.y === item.y && i.rotation === item.rotation && (item.kind !== 'decal' || i.z === item.z && i.color === item.color && i.cleanable === item.cleanable))) continue;
+      if (result.some((i) => i.kind === item.kind && i.prototype === item.prototype && i.x === item.x && i.y === item.y && i.rotation === item.rotation &&
+        (i.pipeLayer ?? -1) === (item.pipeLayer ?? -1) && (i.entityData || '') === (item.entityData || '') &&
+        (item.kind !== 'decal' || i.z === item.z && i.color === item.color && i.cleanable === item.cleanable))) continue;
       item.id = nextId();
+      if (item.entityData) {
+        const source = item.entityGroup || item.id;
+        if (!groups.has(source)) groups.set(source, nextId());
+        item.entityGroup = groups.get(source);
+      }
     }
     result.push(item);
   }
@@ -200,6 +217,8 @@ export function insertTemplate(draft, items, target, turns, nextId) {
 export function indexItems(items, visual = null) {
   const buckets = new Map();
   buckets.radius = 2;
+  buckets.items = items;
+  buckets.version = {};
   buckets.order = new Map(items.map((item, index) => [item.id, index]));
   for (const item of items) {
     if(visual){const bounds=spriteBounds(item,visual(item));buckets.radius=Math.max(buckets.radius,Math.ceil(Math.max(Math.abs(bounds.left-item.x),Math.abs(bounds.right-item.x),Math.abs(bounds.top-item.y),Math.abs(bounds.bottom-item.y)))+1);}
@@ -208,6 +227,35 @@ export function indexItems(items, visual = null) {
     buckets.get(key).push(item);
   }
   return buckets;
+}
+
+// Most authoritative patches replace a few existing items without changing order.
+export function updateItemIndex(previous, items, visual = null) {
+  if (!previous?.items || previous.order.size !== items.length || previous.items.length !== items.length ||
+      previous.items.some((item, index) => item.id !== items[index].id)) return indexItems(items, visual);
+  const changed = items.filter((item, index) => item !== previous.items[index]);
+  if (!changed.length) return previous;
+  const next = new Map(previous);
+  next.previous = previous.version;
+  next.version = {};
+  next.changed = changed.map(item => ({ item, old: previous.items[previous.order.get(item.id)] }));
+  next.items = items; next.order = previous.order; next.radius = previous.radius;
+  for (const item of changed) {
+    const old = previous.items[previous.order.get(item.id)];
+    const before = `${Math.floor(old.x)}:${Math.floor(old.y)}`, after = `${Math.floor(item.x)}:${Math.floor(item.y)}`;
+    if (before === after) next.set(after, next.get(after).map(value => value.id === item.id ? item : value));
+    else {
+      const remaining = next.get(before).filter(value => value.id !== item.id);
+      if (remaining.length) next.set(before, remaining); else next.delete(before);
+      next.set(after, [...(next.get(after) || []), item].sort((a, b) => next.order.get(a.id) - next.order.get(b.id)));
+    }
+    if (visual) {
+      const bounds = spriteBounds(item, visual(item));
+      next.radius = Math.max(next.radius, Math.ceil(Math.max(Math.abs(bounds.left-item.x), Math.abs(bounds.right-item.x),
+        Math.abs(bounds.top-item.y), Math.abs(bounds.bottom-item.y))) + 1);
+    }
+  }
+  return next;
 }
 
 export function nearbyItems(index, point) {
@@ -382,10 +430,13 @@ export function trackLocalEdits(previous, next, edits = []) {
 }
 
 export function overlayLocalEdits(baseline, edits, isExclusive = () => false) {
+  if (!edits.length) return baseline;
+  const before = new Map(baseline.map(item => [item.id, item]));
   const winners = new Map(edits.filter(item => item.kind === 'entity' && isExclusive(item.prototype))
-    .map(item => [tileId(Math.floor(item.x), Math.floor(item.y)), item.id]));
+    .map(item => [tileId(Math.floor(item.x), Math.floor(item.y)), item]));
   const result = new Map(baseline.filter(item => item.kind !== 'entity' || !isExclusive(item.prototype) ||
-    !winners.has(tileId(Math.floor(item.x), Math.floor(item.y))) || winners.get(tileId(Math.floor(item.x), Math.floor(item.y))) === item.id)
+    !winners.has(tileId(Math.floor(item.x), Math.floor(item.y))) || winners.get(tileId(Math.floor(item.x), Math.floor(item.y))).id === item.id ||
+    sameConstructionStack(item, winners.get(tileId(Math.floor(item.x), Math.floor(item.y))), before))
     .map(item => [item.id, item]));
   for (const item of edits) {
     if (item.kind === 'remove') result.delete(item.id); else result.set(item.id, item);

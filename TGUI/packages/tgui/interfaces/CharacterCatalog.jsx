@@ -20,15 +20,18 @@ export const CharacterCatalog = () => {
   const options = markings ? (data.markingOptions || []) : data[beard ? 'beardOptions' : 'hairOptions'] || [];
   const categories = [...new Set(options.map(option => option.category))].filter(Boolean);
   const activeCategory = categories.includes(category) ? category : '';
+  const combinationCategory = options.find(option => option.category === activeCategory)?.combinationCategory;
   const races = useMemo(() => [...new Map(options.flatMap(option => option.races || []).map(item => [item.id, item])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, 'ru')), [options]);
-  const activeRace = races.some(item => item.id === race) ? race : '';
+  const raceRestricted = markings && !!data.markingSpeciesRestricted;
+  const activeRace = !raceRestricted && races.some(item => item.id === race) ? race : '';
   const filtered = useMemo(() => fuzzyFilter(options.filter(option => !markings ||
     ((!activeCategory || option.category === activeCategory) && (!activeRace || option.races?.some(item => item.id === activeRace)))), query,
     option => option.name + ' ' + option.id), [options, query, markings, activeCategory, activeRace]);
   const key = beard ? 'beard' : 'hair';
   const color = data[key + 'Locked'] ? data.skinColor : data[key + 'Color'];
   useEffect(() => { setQuery(''); setCategory(''); setRace(''); setFilterOpen(false); }, [data.kind]);
+  useEffect(() => { if (raceRestricted) { setRace(''); setFilterOpen(false); } }, [raceRestricted]);
   useEffect(() => {
     const key = event => { if (event.key === 'Escape') act('catalog-close'); };
     window.addEventListener('keydown', key);
@@ -39,11 +42,16 @@ export const CharacterCatalog = () => {
     <header className="CharacterEditor__header"><div className="CharacterEditor__windowTitle">{title}</div>
       <div className="CharacterEditor__headerActions"><Button role="button" icon="times" aria-label={'Закрыть: ' + title} onClick={() => act('catalog-close')}>Закрыть</Button></div>
     </header>
-    <main className="CharacterEditor__catalogBody"><div className="CharacterEditor__catalogToolbar"><input type="search" aria-label={'Поиск: ' + title} placeholder="Поиск…" value={query} onChange={event => setQuery(event.target.value)} />
-      {markings && <Button role="button" icon="filter" aria-label="Фильтр" aria-expanded={filterOpen}
+    <main className="CharacterEditor__catalogBody">
+      {raceRestricted && <p className="CharacterEditor__raceRestriction" role="note">{`Сейчас раса вашего персонажа это "${data.speciesName || data.species}", чтобы выбрать элементы других рас, вам нужно взять черту "Генная модификация"`}</p>}
+      <div className="CharacterEditor__catalogToolbar"><input type="search" aria-label={'Поиск: ' + title} placeholder="Поиск…" value={query} onChange={event => setQuery(event.target.value)} />
+      {markings && <Button role="button" icon="filter" aria-label="Фильтр" disabled={raceRestricted} aria-disabled={raceRestricted} aria-expanded={!raceRestricted && filterOpen}
         aria-controls="marking-race-filter" selected={!!activeRace} onClick={() => setFilterOpen(!filterOpen)}>Фильтр</Button>}
+      {markings && <label className="CharacterEditor__combineMarkings"><input type="checkbox" disabled={!combinationCategory}
+        checked={!!combinationCategory && (data.combinedMarkingCategories || []).some(item => item.id === combinationCategory)}
+        onChange={() => act('marking-combine', { value: combinationCategory })} /><span>Комбинировать выборы этой категории</span></label>}
     </div>
-      {markings && filterOpen && <div className="CharacterEditor__catalogFilter" id="marking-race-filter">
+      {markings && !raceRestricted && filterOpen && <div className="CharacterEditor__catalogFilter" id="marking-race-filter">
         <label><span>Расовая категория</span><EmbeddedSelect aria-label="Расовая категория" value={activeRace} onChange={event => setRace(event.target.value)}>
           <option value="">Все расы</option>{races.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
         </EmbeddedSelect></label>

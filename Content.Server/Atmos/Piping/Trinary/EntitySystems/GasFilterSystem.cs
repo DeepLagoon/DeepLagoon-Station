@@ -102,6 +102,7 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
 
         private void OnFilterLeaveAtmosphere(EntityUid uid, GasFilterComponent filter, ref AtmosDeviceDisabledEvent args)
         {
+            if (args.PreserveSettings) return;
             filter.Enabled = false;
 
             UpdateAppearance(uid, filter);

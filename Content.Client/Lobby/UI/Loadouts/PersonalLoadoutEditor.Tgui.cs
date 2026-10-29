@@ -95,7 +95,7 @@ public sealed partial class PersonalLoadoutEditor
             .Array("categories", _prototypes.EnumeratePrototypes<PersonalLoadoutCategoryPrototype>().Select(category =>
                 new TguiData().String("id", category.ID).String("name", Loc.TryGetString("loadout-category-" + category.ID, out var name) ? name : category.ID)
                     .Array("children", category.SubCategories.Select(id => new TguiData().String("id", id.Id))).Bool("root", category.Root)))
-            .Array("items", _prototypes.EnumeratePrototypes<LoadoutPrototype>().Where(item => item.PersonalItems.Count > 0 && (_slotFilter == null || FitsSlot(item, _slotFilter)))
+            .Array("items", system.Catalogue(_profile, _job, _session).Where(item => _slotFilter == null || FitsSlot(item, _slotFilter))
                 .Select(item =>
                 {
                     var allowed = system.CanUse(item, _profile, _job, _session, out var reason);
@@ -105,7 +105,7 @@ public sealed partial class PersonalLoadoutEditor
                     var donorText = donor == DonorCategory.Boosty ? Loc.GetString("dl-loadout-donor-boosty", ("tier", item.PersonalDonorTier))
                         : donor == DonorCategory.DiscordBoost ? Loc.GetString("dl-loadout-donor-discord") : "";
                     return new TguiData().String("id", item.ID).String("name", _prototypes.Index(item.PersonalItems[0]).Name)
-                        .String("category", item.PersonalCategory).Bool("selected", choice != null).Bool("allowed", allowed)
+                        .String("category", item.PersonalCategory).Bool("selected", choice != null && (_slotFilter == null || system.PersonalSlot(_profile, item, choice.Customization?.Slot) == _slotFilter.Name)).Bool("allowed", allowed)
                         .Bool("canSelect", choice != null || allowed && CanAffordPersonal(item, role))
                         .String("reason", reason).String("donor", donorText).Number("cost", item.PersonalCost)
                         .Bool("canPaint", true).Bool("canRename", true).Bool("canDescribe", true)
@@ -163,6 +163,7 @@ public sealed partial class PersonalLoadoutEditor
                 Color = color, Name = action == "rename" ? args.String("name") : custom.Name,
                 Description = action == "rename" ? args.String("description") : custom.Description,
                 Heirloom = action == "heirloom" ? !custom.Heirloom : custom.Heirloom,
+                Slot = custom.Slot,
             })!;
             target.Customizations[id] = updatedCustom;
             foreach (var group in target.SelectedLoadouts.Values)
@@ -196,9 +197,10 @@ public sealed partial class PersonalLoadoutEditor
         var system = _entities.System<PersonalLoadoutSystem>();
         if (action == "select")
         {
-            if (selected == null && (!system.CanUse(prototype, _profile, _job, _session, out _) ||
+            var chosen = selected != null && (_slotFilter == null || system.PersonalSlot(_profile, prototype, selected.Customization?.Slot) == _slotFilter.Name);
+            if (!chosen && (!system.CanUse(prototype, _profile, _job, _session, out _) ||
                 !CanAffordPersonal(prototype, updated))) return false;
-            Select(prototype, selected == null); return true;
+            Select(prototype, !chosen); return true;
         }
         return false;
     }

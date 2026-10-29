@@ -133,6 +133,7 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
 
         private void OnMixerLeaveAtmosphere(EntityUid uid, GasMixerComponent mixer, ref AtmosDeviceDisabledEvent args)
         {
+            if (args.PreserveSettings) return;
             mixer.Enabled = false;
 
             DirtyUI(uid, mixer);

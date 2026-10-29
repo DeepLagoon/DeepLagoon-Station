@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { GridEditorScene } from './GridEditorScene';
 import { indexItems, peerPreview, previewPatch } from './gridEditorModel.mjs';
+import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 
 const ignoreProgress = () => {};
 const previewLayers = { tile: true, entity: true, decal: true };
@@ -19,18 +20,18 @@ export function useGridEditorPeers({ data, act, edits, visuals, expansion }) {
     if (!changes.length && JSON.stringify(sentExpansion.current) === JSON.stringify(expansion)) return;
     if (!changes.length && !sentExpansion.current && !Object.values(expansion).some(Boolean)) return;
     const timer = setTimeout(() => {
-      const id = `p_${Date.now()}_${serial.current++}`, chunks = [];
-      for (let i = 0; i < changes.length; i += 16) chunks.push(changes.slice(i, i + 16));
-      if (!chunks.length) chunks.push([]);
-      transfer.current = { id, chunks, target: edits, expansion };
-      actRef.current('previewStart', { id, count: changes.length, chunks: chunks.length, generation, expansion });
+      let encoded;
+      try { encoded = gridEditorTransfer(changes); } catch { return; }
+      const id = `p_${Date.now()}_${serial.current++}`, {encoding, chunks} = encoded;
+      transfer.current = { id, chunks, encoding, target: edits, expansion };
+      actRef.current('previewStart', { id, count: changes.length, chunks: chunks.length, encoding, generation, expansion });
     }, 100);
     return () => clearTimeout(timer);
   }, [edits, data.token, generation, revision, expansion]);
   useEffect(() => {
     const pending = transfer.current;
     if (pending && data.previewId === pending.id && data.previewNext < pending.chunks.length)
-      actRef.current('previewChunk', { id: pending.id, index: data.previewNext, items: pending.chunks[data.previewNext] });
+      actRef.current('previewChunk', { id: pending.id, index: data.previewNext, [pending.encoding ? 'text' : 'items']: pending.chunks[data.previewNext] });
   }, [data.previewId, data.previewNext]);
   useEffect(() => {
     const pending = transfer.current;

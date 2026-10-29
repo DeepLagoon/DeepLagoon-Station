@@ -1240,6 +1240,7 @@ namespace Content.Client.Lobby.UI
                 return;
 
             PreviewDummy = _controller.LoadProfileEntity(Profile, JobOverride, ShowClothes.Pressed);
+            ApplyPreviewArousal();
             _previewEquipmentProfile = Profile.Clone();
             foreach (var loadout in Profile.Loadouts.Values)
                 _previewEquipmentProfile.SetLoadout(loadout.Clone());
@@ -1271,6 +1272,11 @@ namespace Content.Client.Lobby.UI
         {
             CloseColorPicker();
             CloseCatalog();
+            if (slot != CharacterSlot)
+            {
+                _combineMarkings.Clear();
+                _previewGenitalAroused = false;
+            }
             if (slot != CharacterSlot || profile == null) CloseHeadshotLibrary();
             Profile = profile?.Clone();
             if (Profile != null)
@@ -1412,6 +1418,7 @@ namespace Content.Client.Lobby.UI
                 return;
 
             _entManager.System<HumanoidAppearanceSystem>().LoadProfile(PreviewDummy, Profile);
+            ApplyPreviewArousal();
             // Loading defaults does not reset an existing scale component, so restore it explicitly.
             if (_entManager.HasComponent<Content.Shared.Sprite.ScaleVisualsComponent>(PreviewDummy))
                 _entManager.System<Robust.Client.GameObjects.AppearanceSystem>().SetData(PreviewDummy,

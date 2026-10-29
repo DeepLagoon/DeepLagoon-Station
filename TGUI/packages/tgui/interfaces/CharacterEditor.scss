@@ -87,7 +87,10 @@
   button {padding:2px;background:#202632;border:2px solid #394357;box-shadow:inset 0 0 0 2px #10151b;}
   .CharacterEditor__sprite {width:100%;height:100%;margin:0;}
 }
-.CharacterEditor__rotation {position:absolute;top:380px;left:72px;right:72px;z-index:2;}
+.CharacterEditor__previewControls {position:absolute;top:408px;left:72px;right:72px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;}
+.CharacterEditor__previewControls > .CharacterEditor__rotation {width:100%;min-width:0;flex-wrap:wrap;}
+.CharacterEditor .CharacterEditor__previewArousal {display:block;box-sizing:border-box;width:fit-content;max-width:100%;min-width:0;margin:0 auto;padding:5px 8px;font-size:12px;line-height:1.3;white-space:normal;}
+.CharacterEditor__anatomyPreview > .CharacterEditor__previewArousal {margin-top:8px;}
 .CharacterEditor__identity {align-items:center; .Button {display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:28px;height:auto;line-height:1.3;padding:6px 10px;}}
 .HairCarousel {display:grid;grid-template-columns:24px minmax(0,1fr) 24px;align-items:center;gap:6px;padding:8px 0;box-sizing:border-box;width:100%;max-width:520px;min-width:0;>button {min-width:0;padding:3px 0;cursor:pointer;}}
 .HairCarousel__track {display:flex;gap:6px;overflow:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;min-width:0;width:100%;>button {box-sizing:border-box;flex:0 0 calc((100% - 18px)/4);min-width:0;scroll-snap-align:start;background:var(--player-surface);color:inherit;border:1px solid #68788a;cursor:pointer;white-space:normal;overflow-wrap:anywhere;padding:3px;} >button[aria-pressed=true] {border:2px solid #83bbfa;}.CharacterEditor__sprite {max-width:100%;background:#89919d;}}
@@ -231,7 +234,7 @@
 .HairCarousel__searchRow > input { flex:1; min-width:0; }
 .HairCarousel__searchRow > .Button { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; height:var(--editor-control-height); margin:0; padding:5px 10px; }
 .CharacterEditor__catalogToolbar { display:flex; align-items:center; gap:8px; flex-shrink:0; padding:10px; }
-.CharacterEditor__catalogToolbar input { flex:1; min-width:0; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
+.CharacterEditor__catalogToolbar input[type=search] { flex:1; min-width:0; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
 .CharacterEditor__catalogToolbar > .Button { flex-shrink:0; margin:0; }
 .CharacterEditor__catalogFilter { padding:0 10px 10px; flex-shrink:0; }
 .CharacterEditor__catalogFilter label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
@@ -245,6 +248,12 @@
 .CharacterEditor .CharacterEditor__markingRow--selected .Button { background-color:color-mix(in srgb,var(--editor-accent,#a7d2ff) 28%,var(--player-surface,#252b35)); }
 .CharacterEditor .CharacterEditor__tiles > button[aria-pressed=true] { background-color:color-mix(in srgb,var(--editor-accent,#a7d2ff) 24%,var(--player-surface,#252b35)); }
 .CharacterEditor__selectedMarkings { min-width:0; }
+.CharacterEditor__selectedCategory { min-width:0; margin-top:10px; }
+.CharacterEditor__selectedCategory > h3 { margin:0; font-size:inherit; }
+.CharacterEditor__selectedCategory > h3 > button { display:flex; align-items:center; gap:8px; width:100%; padding:7px 8px; border:0; border-bottom:1px solid var(--editor-accent,#a7d2ff); background:var(--player-surface,#252b35); color:inherit; font:inherit; text-align:left; cursor:pointer; }
+.CharacterEditor__selectedCategory > h3 > button strong { flex:1; min-width:0; overflow-wrap:anywhere; }
+.CharacterEditor__selectedCategory > h3 > button:focus-visible { outline:2px solid var(--editor-accent,#a7d2ff); outline-offset:-2px; }
+.CharacterEditor__raceRestriction { flex-shrink:0; margin:0; padding:10px 10px 0; color:#ff6b6b; overflow-wrap:anywhere; }
 .CharacterEditor__categoryBrowser { display:grid; grid-template-columns:minmax(0,1fr) minmax(120px,175px); gap:12px; align-items:start; }
 .CharacterEditor__categoryContent { min-width:0; }
 .CharacterEditor__categoryContent > h3 { font-size:1em; margin:0 0 6px; }
@@ -259,7 +268,6 @@
 .CharacterEditor__preview > .CharacterEditor__sizeRail--width { top:376px; left:72px; right:104px; height:24px; }
 .CharacterEditor .CharacterEditor__sizeRail > input.CharacterEditor__sizeSlider[type=range] { box-sizing:border-box; display:block; padding:0; margin:0; min-height:0; width:100%; height:24px; }
 .CharacterEditor .CharacterEditor__sizeRail--height > input.CharacterEditor__sizeSlider[type=range] { writing-mode:vertical-lr; direction:rtl; width:24px; height:100%; min-width:0; }
-.CharacterEditor__preview > .CharacterEditor__rotation { top:408px; }
 .CharacterEditor--catalog { display:block; .CharacterEditor__catalogBody { height:100%; display:flex; flex-direction:column; min-height:0; } .CharacterEditor__catalogContent { flex:1; } }
 
 .CharacterEditor--catalog .CharacterEditor__sprite { width:80px; height:80px; }
@@ -270,8 +278,19 @@
 .CharacterEditor .CharacterEditor__appearanceActions > .Button { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; min-height:36px; padding:8px 14px; margin:0; font-size:inherit; }
 .CharacterEditor .CharacterEditor__appearanceActions > .Button:first-child { min-width:150px; }
 .CharacterEditor .CharacterEditor__appearanceActions > .CharacterEditor__combineMarkings { box-sizing:border-box; min-height:36px; margin:0; }
-.CharacterEditor__preview > .CharacterEditor__rotation { flex-wrap:wrap; }
 .CharacterEditor__anatomyPreview > .Button { box-sizing:border-box; max-width:100%; white-space:normal; }
 .CharacterEditor__catalogCategories { display:flex; flex-flow:row wrap; gap:6px; padding:0 10px 10px; flex-shrink:0; }
 .CharacterEditor__catalogCategories > button { width:auto; border:1px solid #6883a0; border-radius:4px; background:#344c66; color:inherit; padding:6px 10px; font:inherit; cursor:pointer; }
 .CharacterEditor__catalogCategories > button[aria-pressed=true] { background:#405b77; border-color:var(--editor-accent,#a7d2ff); }
+
+.CharacterEditor__bodyColor { grid-column:1 / -1; min-width:0; padding:7px; border:1px solid #68788a; border-radius:4px; background:var(--player-surface,#252b35); }
+.CharacterEditor__bodyColorControls { display:flex; align-items:center; flex-wrap:wrap; gap:8px; min-width:0; }
+.CharacterEditor__bodyColorControls > .Button { flex:0 0 auto; margin:0; }
+.CharacterEditor__bodyColor > small { display:block; margin-top:4px; color:#b9c2d0; overflow-wrap:anywhere; }
+.CharacterEditor__catalogToolbar > .CharacterEditor__combineMarkings { flex:0 1 270px; min-width:130px; margin:0; padding:6px; font-size:12px; }
+.CharacterEditor__markingSide { display:flex; align-items:center; gap:6px; }
+.CharacterEditor__markingSide select { min-width:80px; }
+.CharacterEditor__markingGlow { display:flex; align-items:center; gap:5px; }
+html:has(.CharacterEditor) > .Tooltip { z-index:1000; font-size:16px; line-height:1.45; max-width:min(650px,calc(100vw - 24px)); }
+
+.CharacterEditor__markingGlow > input[type=checkbox] { width:16px; height:16px; flex:0 0 16px; margin:0; }

@@ -6,7 +6,7 @@ export const routeProfiles = [
   ...['', 'Alt1', 'Alt2'].map((suffix, i) => ({ kind:'gas', id: `gas${i}`, name: `Газовые трубы · слой ${i + 1}`, suffix, color: ['#67d4ff','#c59aff','#fa9bd0'][i] })),
   {kind:'disposal',id:'disposal',name:'Трубы мусоросброса',disposal:true,color:'#e1b58b'},
 ];
-const disposalShapes=[['DisposalPipe',3],['DisposalBend',6],['DisposalJunction',7],['DisposalJunctionFlipped',11],['DisposalYJunction',14]];
+const disposalShapes=[['DisposalPipe',3],['DisposalBend',6],['DisposalJunction',7],['DisposalJunctionFlipped',11],['DisposalYJunction',14],['DisposalTrunk',2]];
 const shapes = [['Half', 2], ['Straight', 3], ['Bend', 6], ['TJunction', 14], ['Fourway', 15]];
 export const routePrototypes = profile => profile.cable ? [profile.cable,profile.cable+'Uncuttable'] : profile.disposal ? disposalShapes.map(([id])=>id) : shapes.map(([shape]) => `GasPipe${shape}${profile.suffix}`);
 const key = p => `${p.x}:${p.y}`;
@@ -16,13 +16,14 @@ export const rotatePorts = (mask, turns) => {
   return mask;
 };
 export function routeProfile(item) {
-  return item.kind === 'entity' ? routeProfiles.find(profile => routePrototypes(profile).includes(item.prototype)) : undefined;
+  const profile = item.kind === 'entity' ? routeProfiles.find(profile => routePrototypes(profile).includes(item.prototype)) : undefined;
+  return profile?.kind === 'gas' && item.pipeLayer >= 0 ? routeProfiles.find(p => p.id === `gas${item.pipeLayer}`) : profile;
 }
 export function pipePorts(item, profile = routeProfile(item)) {
   if (!profile) return 0;
   if (profile.cable) return 15;
   if(profile.disposal){const shape=disposalShapes.find(([id])=>item.prototype===id);return shape?rotatePorts(shape[1],Math.round((item.rotation||0)/90)):0;}
-  const shape = shapes.find(([shape]) => item.prototype === `GasPipe${shape}${profile.suffix}`);
+  const shape = shapes.find(([shape]) => ['', 'Alt1', 'Alt2'].some(suffix => item.prototype === `GasPipe${shape}${suffix}`));
   return shape ? rotatePorts(shape[1], Math.round((item.rotation || 0) / 90)) : 0;
 }
 export function routeShape(mask, profile, capped = false, exit = 0) {
@@ -139,4 +140,35 @@ export function buildRoute(items, graph, profile, source, nextId, capped = false
     result.push(item);generated.push(item.id);
   }
   return {items:result,ids:generated};
+}
+
+// Devices replace the selected route cell. A unary port cannot preserve a junction.
+export function installRouteDevice(items, cell, profile, device, nextId) {
+  if (!device || device.kind !== profile.kind) throw Error('Выберите устройство для установки на СКМ во вкладке «Сети».');
+  if (!items.some(item => item.kind === 'tile' && item.x === cell.x && item.y === cell.y)) throw Error(`${device.id}: под устройством должен быть пол.`);
+  const atCell = item => Math.floor(item.x) === cell.x && Math.floor(item.y) === cell.y;
+  const originals = items.filter(item => atCell(item) && routeProfile(item)?.id === profile.id);
+  if (!originals.length) throw Error(`${device.id}: выберите узел редактируемой трассы.`);
+  let mask = 0;
+  const originalPorts = originals.reduce((ports, item) => ports | pipePorts(item, profile), 0);
+  const neighborPorts = item => {
+    if (item.kind !== 'entity' || item.anchored === false) return 0;
+    if (routeProfile(item)?.id === profile.id) return pipePorts(item, profile);
+    if (profile.kind !== 'gas') return 0;
+    const layer = Number(profile.id.slice(3));
+    return rotatePorts(((item.gasPorts || 0) >>> (4 * layer)) & 15, Math.round((item.rotation || 0) / 90));
+  };
+  for (const [dx, dy, bit, opposite] of directions)
+    if ((originalPorts & bit) && items.some(item => Math.floor(item.x) === cell.x + dx && Math.floor(item.y) === cell.y + dy &&
+      (neighborPorts(item) & opposite))) mask |= bit;
+  const ports = profile.disposal ? 2 : device.ports || 2;
+  const turns = [0,1,2,3].find(turn => mask && (rotatePorts(ports, turn) & mask) === mask);
+  if (turns === undefined) throw Error(`${device.id}: Порты устройства не подходят к этому узлу. Выберите конец трассы или совместимое устройство: существующие ветви не изменены.`);
+  const removed = new Set(originals.map(item => item.id));
+  const base = { kind: 'entity', x: cell.x + .5, y: cell.y + .5, rotation: turns * 90, anchored: true,
+    color: originals[0].color || '#FFFFFFFF', z: 0, cleanable: false, variant: 0, flags: 0, mirror: 0 };
+  const added = profile.disposal
+    ? [{ ...base, id: nextId(), prototype: 'DisposalTrunk' }, { ...base, id: nextId(), prototype: device.id }]
+    : [{ ...base, id: nextId(), prototype: device.id, pipeLayer: Number(profile.id.slice(3)), gasPorts: ports << (4 * Number(profile.id.slice(3))) }];
+  return { items: [...items.filter(item => !removed.has(item.id)), ...added], ids: added.map(item => item.id) };
 }

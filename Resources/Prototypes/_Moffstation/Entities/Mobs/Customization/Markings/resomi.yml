@@ -408,7 +408,7 @@
 
 - type: marking
   id: ResomiLFootFade
-  bodyPart: RFoot
+  bodyPart: LFoot
   markingCategory: Legs
   speciesRestriction: [Resomi]
   sprites:

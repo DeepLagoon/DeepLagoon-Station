@@ -2059,7 +2059,7 @@
   id: DLEinsteinLoadoutNeck
   name: dl-loadout-group-LoadoutNeck
   minLimit: 0
-  maxLimit: 1
+  maxLimit: 3
   loadouts:
   - DLEELoadoutItemsPrideAromanticPin
   - DLEELoadoutItemsPrideAsexualPin

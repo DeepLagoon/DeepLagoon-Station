@@ -39,9 +39,54 @@ export class GridSceneCache {
   wanted = new Set();
   decoding = 0;
   disposed = false;
+  active = true;
+  surfaceEpoch = 0;
+  onSurfaceChange = null;
+  prepared = null;
+  detailWanted = new Set();
   stats = { rasterized: 0, composites: 0, blits: 0 };
 
   constructor(invalidate) { this.invalidate = invalidate; }
+
+  get surfaceBytes() {
+    let bytes = 0;
+    for (const chunk of this.chunks.values()) for (const level of chunk.levels.values()) bytes += level.width * level.height * 4;
+    for (const image of this.details.values()) bytes += image.width * image.height * 4;
+    return bytes;
+  }
+
+  setActive(active) {
+    this.active = active;
+    if (!active) { this.wanted.clear(); this.detailWanted.clear(); }
+  }
+
+  evictDetail() {
+    const key = this.details.keys().next().value;
+    if (key === undefined) return false;
+    this.details.get(key).close(); this.details.delete(key);
+    return true;
+  }
+
+  releaseSurfaces() {
+    this.surfaceEpoch++;
+    for (const chunk of this.chunks.values()) release(chunk);
+    while (this.evictDetail()) { /* PNGs and item revisions survive. */ }
+    this.clearTints();
+    this.wanted.clear(); this.detailWanted.clear(); this.images.clear();
+  }
+
+  clearTints() {
+    for (const image of this.tints.values()) image.width = image.height = 0;
+    this.tints.clear();
+  }
+
+  restoreLevels(chunk, image) {
+    for (let size = chunk.overview; size >= 1; size /= 2) {
+      const level = surface(CHUNK_CELLS * size), context = level.getContext('2d');
+      context.imageSmoothingEnabled = false;
+      context.drawImage(image, 0, 0, level.width, level.height); chunk.levels.set(size, level);
+    }
+  }
 
   load(url) {
     if (!this.images.has(url)) this.images.set(url, new Promise(resolve => {
@@ -52,15 +97,22 @@ export class GridSceneCache {
   }
 
   async prepare(index, layers, visuals, progress, cancelled) {
-    const stopped = () => this.disposed || cancelled();
-    const groups = new Map(), definitions = new Map(), usedTints = new Set();
+    const stopped = () => this.disposed || !this.active || cancelled();
+    if (this.prepared?.index === index && this.prepared.layers === layers && this.prepared.visuals === visuals) {
+      progress(null); this.invalidate(); return;
+    }
+    if (index.previous && this.prepared && this.prepared.index.version === index.previous && this.prepared.layers === layers && this.prepared.visuals === visuals &&
+        await this.prepareChanged(index, layers, visuals, progress, stopped)) {
+      if (!stopped()) { this.clearTints(); this.prepared = { index, layers, visuals }; progress(null); this.invalidate(); }
+      return;
+    }
+    const groups = new Map(), definitions = new Map();
     let processed = 0, deadline = performance.now() + 6;
     progress({ label: 'Подготовка элементов', done: 0, total: index.order.size });
     await yieldFrame();
     for (const bucket of index.values()) for (const item of bucket) {
       if (stopped()) return;
       if (layers[item.kind]) {
-        if (item.kind === 'decal' || visuals.get(visualKey(item))?.pipeColor) for (const image of visuals.get(visualKey(item))?.images || []) usedTints.add(`${image.url}:${item.color}`);
         const key = visualKey(item);
         if (!definitions.has(key)) {
           const visual = visuals.get(key);
@@ -119,6 +171,7 @@ export class GridSceneCache {
         if (previous) release(previous);
         this.details.get(key)?.close(); this.details.delete(key);
         this.chunks.set(key, { ...chunk, signature });
+        this.onSurfaceChange?.();
       }
       completed++;
       if (performance.now() > deadline || completed === groups.size) {
@@ -130,8 +183,48 @@ export class GridSceneCache {
     for (const [key, chunk] of this.chunks) if (!groups.has(key)) {
       release(chunk); this.chunks.delete(key); this.details.get(key)?.close(); this.details.delete(key);
     }
-    for (const key of this.tints.keys()) if (!usedTints.has(key)) this.tints.delete(key);
+    for (const key of this.images.keys()) if (!urls.has(key)) this.images.delete(key);
+    this.clearTints();
+    this.prepared = { index, layers, visuals };
     progress(null); this.invalidate();
+  }
+
+  async prepareChanged(index, layers, visuals, progress, stopped) {
+    const dirty = new Map();
+    for (const { old, item } of index.changed) {
+      if (!layers[item.kind] && !layers[old.kind]) continue;
+      if (!this.definitions.has(visualKey(item))) return false;
+      for (const value of [old, item]) for (const [x, y] of itemChunks(value, visuals.get(visualKey(value))))
+        dirty.set(`${x}:${y}`, { x, y, items: [] });
+    }
+    const overview = this.chunks.values().next().value?.overview;
+    if (!overview || (this.chunks.size + dirty.size) * (CHUNK_CELLS * overview) ** 2 * 4 * 4 / 3 > 32 * 1024 * 1024) return false;
+    let done = 0;
+    for (const [key, group] of dirty) {
+      if (stopped()) return true;
+      const radius = index.radius || 2;
+      for (let x = group.x * CHUNK_CELLS - radius; x < (group.x + 1) * CHUNK_CELLS + radius; x++)
+        for (let y = group.y * CHUNK_CELLS - radius; y < (group.y + 1) * CHUNK_CELLS + radius; y++)
+          for (const item of index.get(`${x}:${y}`) || [])
+            if (layers[item.kind] && itemChunks(item, visuals.get(visualKey(item))).some(([cx, cy]) => cx === group.x && cy === group.y)) group.items.push(item);
+      group.items.sort((a, b) => drawOrder(a, visuals.get(visualKey(a))) - drawOrder(b, visuals.get(visualKey(b))) || index.order.get(a.id) - index.order.get(b.id));
+      const previous = this.chunks.get(key);
+      if (previous && sameItems(previous.items, group.items)) continue;
+      const sources = new Map();
+      for (const item of group.items) for (const { url } of visuals.get(visualKey(item))?.images || [])
+        if (url && !sources.has(url)) sources.set(url, await this.load(url));
+      if (stopped()) return true;
+      const chunk = group.items.length ? await this.bake(group, visuals, sources, overview, stopped) : null;
+      if (stopped()) { if (chunk) release(chunk); return true; }
+      if (previous) release(previous);
+      this.details.get(key)?.close(); this.details.delete(key);
+      if (chunk) this.chunks.set(key, { ...chunk, signature: [...new Set(group.items.map(visualKey))].map(key => this.definitions.get(key).revision).join('|') });
+      else this.chunks.delete(key);
+      this.onSurfaceChange?.();
+      progress({ label: 'Обновление чанков', done: ++done, total: dirty.size });
+      await yieldFrame();
+    }
+    return true;
   }
 
   async bake(group, visuals, sources, overview, stopped) {
@@ -175,11 +268,12 @@ export class GridSceneCache {
   }
 
   paint(canvas, area, view, cellSize) {
-    if (this.disposed) return;
+    if (this.disposed || !this.active) return;
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height); context.imageSmoothingEnabled = false;
     this.stats.composites++;
     this.wanted.clear();
+    this.detailWanted.clear();
     const left = area.x + view.left / cellSize, top = area.y + area.height - view.top / cellSize;
     const right = left + view.width / cellSize, bottom = top - view.height / cellSize;
     const draw = (key, chunk) => {
@@ -190,16 +284,17 @@ export class GridSceneCache {
       let image = chunk.levels.get(size);
       if (cellSize > chunk.overview) {
         // Do not churn the LRU when a very large viewport contains >64 chunks.
-        if (this.wanted.size < DETAIL_LIMIT) this.wanted.add(key);
+        if (this.detailWanted.size < DETAIL_LIMIT) { this.wanted.add(key); this.detailWanted.add(key); }
         if (this.details.has(key)) {
           image = this.details.get(key); this.details.delete(key); this.details.set(key, image);
         }
       }
+      if (!image) this.wanted.add(key);
       const x = (chunk.x * CHUNK_CELLS - area.x) * cellSize - view.left;
       const y = (area.y + area.height - (chunk.y + 1) * CHUNK_CELLS) * cellSize - view.top;
       // Shared rounded edges prevent hairline seams at fractional zoom levels.
       const x1 = Math.round(x), y1 = Math.round(y), x2 = Math.round(x + CHUNK_CELLS * cellSize), y2 = Math.round(y + CHUNK_CELLS * cellSize);
-      if (x2 > x1 && y2 > y1) { context.drawImage(image, x1, y1, x2 - x1, y2 - y1); this.stats.blits++; }
+      if (image && x2 > x1 && y2 > y1) { context.drawImage(image, x1, y1, x2 - x1, y2 - y1); this.stats.blits++; }
     };
     const x0 = Math.floor(left / CHUNK_CELLS), x1 = Math.floor(right / CHUNK_CELLS);
     const y0 = Math.floor(bottom / CHUNK_CELLS), y1 = Math.floor(top / CHUNK_CELLS);
@@ -212,20 +307,23 @@ export class GridSceneCache {
   }
 
   decodeVisible() {
-    if (this.disposed) return;
+    if (this.disposed || !this.active) return;
     for (const key of this.wanted) {
       if (this.decoding >= 4) break;
       const chunk = this.chunks.get(key);
-      if (!chunk || chunk.decoding || chunk.failed || this.details.has(key)) continue;
+      if (!chunk || chunk.decoding || chunk.failed || chunk.levels.size && (!this.detailWanted.has(key) || this.details.has(key))) continue;
       chunk.decoding = true; this.decoding++;
+      const epoch = this.surfaceEpoch;
       createImageBitmap(chunk.blob).then(image => {
-        if (this.disposed || this.chunks.get(key) !== chunk || !this.wanted.has(key)) { image.close(); return; }
-        this.details.set(key, image);
+        if (this.disposed || !this.active || epoch !== this.surfaceEpoch || this.chunks.get(key) !== chunk || !this.wanted.has(key)) { image.close(); return; }
+        if (!chunk.levels.size) this.restoreLevels(chunk, image);
+        if (this.detailWanted.has(key)) this.details.set(key, image);
+        else image.close();
         while (this.details.size > DETAIL_LIMIT) {
           const oldest = this.details.keys().next().value;
           this.details.get(oldest).close(); this.details.delete(oldest);
         }
-        this.invalidate();
+        this.onSurfaceChange?.(); this.invalidate();
       }).catch(() => { chunk.failed = true; }).finally(() => {
         chunk.decoding = false; this.decoding--; this.decodeVisible();
       });
@@ -234,8 +332,8 @@ export class GridSceneCache {
 
   dispose() {
     this.disposed = true;
-    for (const chunk of this.chunks.values()) release(chunk);
-    for (const image of this.details.values()) image.close();
+    this.releaseSurfaces();
+    this.prepared = null;
     this.chunks.clear(); this.details.clear(); this.wanted.clear(); this.images.clear(); this.tints.clear(); this.definitions.clear();
   }
 }

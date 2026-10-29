@@ -12,13 +12,15 @@ public sealed partial class GridEditorSystem
 
     // Capture once per active grid. Each viewer receives only its own baseline delta;
     // catalog queries, favorites and all other client preferences are never broadcast.
-    private void SynchronizeGrid(EntityUid uid, ICommonSession? appliedBy = null)
+    private void SynchronizeGrid(EntityUid uid, ICommonSession? appliedBy = null, List<GridEditorItem>? failed = null)
     {
         if (!TryComp<MapGridComponent>(uid, out var grid)) return;
         var viewers = _drafts.Where(pair => pair.Value.Grid == uid && _admins.HasAdminFlag(pair.Key.Player, AdminFlags.Mapping)).ToArray();
         if (viewers.Length == 0) return;
         var source = viewers[0].Value;
         var items = Capture(source, (_, _) => true);
+        _gridRevisions[uid] = ReadRevision(uid, grid);
+        _changedTiles.Remove(uid);
         var entities = new Dictionary<string, EntityUid>(source.Entities);
         var after = items.ToDictionary(item => item.Id);
         var bounds = grid.LocalAABB;
@@ -60,7 +62,7 @@ public sealed partial class GridEditorSystem
             var applied = player == appliedBy;
             if (changed.Count == 0 && removed.Count == 0 && !resized && !applied) continue;
             RaiseNetworkEvent(new GridEditorPatchEvent(draft.Token, changed, removed, left, bottom, right - left, top - bottom,
-                gridX, gridY, gridRight - gridX, gridTop - gridY, applied, draft.PreviewGeneration), player);
+                gridX, gridY, gridRight - gridX, gridTop - gridY, applied, draft.PreviewGeneration, failedItems: applied ? failed : null), player);
         }
     }
 }

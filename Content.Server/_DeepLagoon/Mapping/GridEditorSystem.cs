@@ -9,6 +9,8 @@ using Content.Server.Atmos.Piping.Components;
 using Content.Server.Atmos.Piping.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
+using Content.Server.NodeContainer.Nodes;
+using Content.Shared.NodeContainer;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Administration;
@@ -68,7 +70,9 @@ public sealed partial class GridEditorSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        SubscribeLocalEvent<TileChangedEvent>(TilesChanged);
         SubscribeNetworkEvent<GridEditorApplyEvent>(Apply);
+        SubscribeNetworkEvent<GridEditorCopyRequest>(CopySelection);
         SubscribeNetworkEvent<GridEditorAtmosRequest>(Atmos);
         SubscribeNetworkEvent<GridEditorEnvironmentRequest>(Environment);
         SubscribeNetworkEvent<GridEditorNameRequest>(RenameGrid);
@@ -92,10 +96,12 @@ public sealed partial class GridEditorSystem : EntitySystem
         foreach (var ((session, token), draft) in _drafts.ToArray())
             if (session.Status != SessionStatus.InGame || !Exists(draft.Grid) || !_admins.HasAdminFlag(session, AdminFlags.Mapping))
                 CloseEditor(session, token);
+        PruneRevisions();
         _syncElapsed += frameTime;
         if (_syncElapsed < .5f || _drafts.Count == 0) return;
         _syncElapsed = 0;
-        foreach (var grid in _drafts.Values.Select(draft => draft.Grid).Distinct().ToArray()) SynchronizeGrid(grid);
+        foreach (var grid in _drafts.Values.Select(draft => draft.Grid).Distinct().ToArray())
+            if (NeedsSynchronization(grid)) SynchronizeGrid(grid);
     }
 
     public string Open(ICommonSession player, EntityUid grid, int? regionX = null, int? regionY = null, int? regionWidth = null, int? regionHeight = null)
@@ -144,6 +150,8 @@ public sealed partial class GridEditorSystem : EntitySystem
         draft.GridWidth = (int) MathF.Ceiling(bounds.Right / component.TileSize) - draft.GridX;
         draft.GridHeight = (int) MathF.Ceiling(bounds.Top / component.TileSize) - draft.GridY;
         draft.Items = Capture(draft);
+        _gridRevisions[grid] = ReadRevision(grid, component);
+        _changedTiles.Remove(grid);
         _drafts[(player, draft.Token)] = draft;
         PublishState(player, draft);
         PublishPreviews(grid);
@@ -215,19 +223,25 @@ public sealed partial class GridEditorSystem : EntitySystem
         }
     }
 
+    private int CaptureGasPorts(EntityUid uid)
+    {
+        var ports = 0;
+        if (!Transform(uid).Anchored || !TryComp<NodeContainerComponent>(uid, out var container)) return ports;
+        foreach (var node in container.Nodes.Values.OfType<PipeNode>())
+        {
+            var layer = (int) node.CurrentPipeLayer;
+            if (layer is >= 0 and < 3) ports |= ((int) node.OriginalPipeDirection & 15) << (4 * layer);
+        }
+        return ports;
+    }
+
     private List<GridEditorItem> Capture(Draft draft, Func<float, float, bool>? contains = null)
     {
         contains ??= draft.Contains;
         var items = new List<GridEditorItem>();
         draft.Entities.Clear();
         var grid = Comp<MapGridComponent>(draft.Grid);
-        foreach (var tile in _map.GetAllTiles(draft.Grid, grid))
-        {
-            var p = tile.GridIndices;
-            if (!contains(p.X, p.Y)) continue;
-            items.Add(new GridEditorItem { Id = $"t:{p.X}:{p.Y}", Kind = "tile", Prototype = _tiles[tile.Tile.TypeId].ID,
-                X = p.X, Y = p.Y, Variant = tile.Tile.Variant, Flags = tile.Tile.Flags, Mirror = tile.Tile.RotationMirroring });
-        }
+        items.AddRange(CaptureTiles(draft.Grid, grid).Where(item => contains(item.X, item.Y)));
         var children = Transform(draft.Grid).ChildEnumerator;
         while (children.MoveNext(out var uid))
         {
@@ -239,7 +253,9 @@ public sealed partial class GridEditorSystem : EntitySystem
             draft.KnownEntities[id] = uid;
             items.Add(new GridEditorItem { Id = id, Kind = "entity", Prototype = meta.EntityPrototype.ID,
                 X = transform.LocalPosition.X, Y = transform.LocalPosition.Y, Rotation = (float) transform.LocalRotation.Degrees,
-                Anchored = transform.Anchored, Color = TryComp<AtmosPipeColorComponent>(uid, out var pipeColor) ? pipeColor.Color.ToHex() : Color.White.ToHex() });
+                Anchored = transform.Anchored, Color = TryComp<AtmosPipeColorComponent>(uid, out var pipeColor) ? pipeColor.Color.ToHex() : Color.White.ToHex(),
+                PipeLayer = TryComp<Content.Shared.Atmos.Components.AtmosPipeLayersComponent>(uid, out var layers) ? (int) layers.CurrentPipeLayer : -1,
+                GasPorts = CaptureGasPorts(uid) });
         }
         if (TryComp<DecalGridComponent>(draft.Grid, out var decals))
             foreach (var chunk in decals.ChunkCollection.ChunkCollection.Values)
@@ -255,6 +271,14 @@ public sealed partial class GridEditorSystem : EntitySystem
     private void Apply(GridEditorApplyEvent ev, EntitySessionEventArgs args)
     {
         var player = args.SenderSession;
+        var errors = new List<string>();
+        var failed = new Dictionary<string, GridEditorItem>();
+        void Failed(GridEditorItem item, Exception e)
+        {
+            failed[item.Id] = item;
+            errors.Add($"{item.Prototype} ({item.X:0.##}, {item.Y:0.##}): {e.GetBaseException().Message}");
+            Log.Warning($"Grid editor could not place {item.Prototype} at ({item.X}, {item.Y}): {e.GetBaseException().Message}");
+        }
         void Result(string message, bool success = false) => RaiseNetworkEvent(new GridEditorResultEvent(message, success, ev.Token), player);
         if (!_admins.HasAdminFlag(player, AdminFlags.Mapping) || !_drafts.TryGetValue((player, ev.Token), out var draft) ||
             ev.Token != draft.Token || !Exists(draft.Grid))
@@ -296,12 +320,22 @@ public sealed partial class GridEditorSystem : EntitySystem
                 continue;
             }
             if (item.Id.Length > 80 || item.Prototype.Length > 200 || !float.IsFinite(item.X) || !float.IsFinite(item.Y) ||
-                !float.IsFinite(item.Rotation) || Math.Abs(item.Rotation) > 3600 || !Contains(item.X, item.Y) ||
-                !final.TryAdd(item.Id, item)) { Result("Некорректные координаты или повторяющийся ID."); return; }
+                !float.IsFinite(item.Rotation) || Math.Abs(item.Rotation) > 3600 || !Contains(item.X, item.Y))
+            {
+                if (original.TryGetValue(item.Id, out var previous)) final[item.Id] = previous;
+                Failed(item, new InvalidOperationException("Недопустимые параметры или координаты вне редактируемой области."));
+                continue;
+            }
+            if (!final.TryAdd(item.Id, item)) { Result("Повторяющийся ID элемента."); return; }
             var existing = original.TryGetValue(item.Id, out var old) || draft.KnownItems.TryGetValue(item.Id, out old);
             if (existing && (old!.Kind != item.Kind || old.Prototype != item.Prototype && item.Kind != "tile") ||
                 !existing && !item.Id.StartsWith("new_", StringComparison.Ordinal) && item.Kind != "tile")
-            { Result("Некорректная ссылка на элемент."); return; }
+            {
+                final.Remove(item.Id);
+                if (original.TryGetValue(item.Id, out var previous)) final[item.Id] = previous;
+                Failed(item, new InvalidOperationException("Некорректная ссылка на элемент."));
+                continue;
+            }
             var valid = item.Kind switch
             {
                 "tile" => item.X == MathF.Floor(item.X) && item.Y == MathF.Floor(item.Y) &&
@@ -314,16 +348,27 @@ public sealed partial class GridEditorSystem : EntitySystem
                     item.Color.Length <= 9 && Color.TryFromHex(item.Color, out _),
                 _ => false
             };
-            if (!valid) { Result("Неизвестный прототип или недопустимые параметры."); return; }
+            if (!valid || item.PipeLayer is < -1 or > 2 || item.GasPorts is < 0 or > 4095 || item.EntityData.Length > 2 * 1024 * 1024 || item.EntityGroup.Length > 80)
+            {
+                final.Remove(item.Id);
+                if (original.TryGetValue(item.Id, out var previous)) final[item.Id] = previous;
+                Failed(item, new InvalidOperationException("Неизвестный прототип или недопустимые параметры."));
+            }
         }
         // Incoming constructions replace incompatible occupancy, never small carried items or decals.
+        bool SameStack(GridEditorItem item, GridEditorItem winner) =>
+            item.EntityGroup.Length > 0 && item.EntityGroup == winner.EntityGroup ||
+            original.TryGetValue(item.Id, out var old) && original.TryGetValue(winner.Id, out var other) &&
+            old.Prototype == item.Prototype && other.Prototype == winner.Prototype &&
+            MathF.Floor(old.X) == MathF.Floor(other.X) && MathF.Floor(old.Y) == MathF.Floor(other.Y);
         var incoming = final.Values.Where(item => item.Kind == "entity" && GridEditorPlacement.IsExclusive(_prototypes.Index<EntityPrototype>(item.Prototype), _tags) &&
             (!original.TryGetValue(item.Id, out var old) || !item.Same(old)))
             .GroupBy(item => new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y)))
-            .ToDictionary(group => group.Key, group => group.Last().Id);
+            .ToDictionary(group => group.Key, group => group.Last());
         foreach (var item in final.Values.ToArray())
             if (item.Kind == "entity" && GridEditorPlacement.IsExclusive(_prototypes.Index<EntityPrototype>(item.Prototype), _tags) &&
-                incoming.TryGetValue(new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y)), out var winner) && winner != item.Id)
+                incoming.TryGetValue(new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y)), out var winner) && winner.Id != item.Id &&
+                !SameStack(item, winner))
                 final.Remove(item.Id);
         var walls = final.Values.Where(item => item.Kind == "entity" && GridEditorPlacement.IsWall(_prototypes.Index<EntityPrototype>(item.Prototype), _tags)).ToArray();
         var occupied = final.Values.Where(item => item.Kind == "tile").Select(item => new Vector2i((int) item.X, (int) item.Y))
@@ -366,7 +411,9 @@ public sealed partial class GridEditorSystem : EntitySystem
             var floorId = $"t:{(int) MathF.Floor(item.X)}:{(int) MathF.Floor(item.Y)}";
             if (!explicitlyRemoved.Contains(floorId) && draft.KnownItems.TryGetValue(floorId, out var support) && support.Kind == "tile")
             { final[floorId] = support; continue; }
-            Result($"Под элементом {item.Prototype} ({(int) MathF.Floor(item.X)}, {(int) MathF.Floor(item.Y)}) должен быть пол."); return;
+            final.Remove(item.Id);
+            if (original.TryGetValue(item.Id, out var previous)) final[item.Id] = previous;
+            Failed(item, new InvalidOperationException("Под объектом должен быть пол."));
         }
         var removed = original.Values.Where(i => !final.ContainsKey(i.Id)).ToList();
         var changed = final.Values.Where(i => !original.TryGetValue(i.Id, out var old) || !i.Same(old)).ToList();
@@ -377,6 +424,7 @@ public sealed partial class GridEditorSystem : EntitySystem
         var tileChanges = removed.Where(i => i.Kind == "tile").Select(i => (new Vector2i((int) i.X, (int) i.Y), Tile.Empty)).ToList();
         tileChanges.AddRange(changed.Where(i => i.Kind == "tile").Select(i =>
             (new Vector2i((int) i.X, (int) i.Y), new Tile(_tiles[i.Prototype].TileId, i.Flags, i.Variant, i.Mirror))));
+        using var atmosSettings = EntityManager.System<AtmosDeviceSystem>().PreserveSettings();
         try
         {
             if (tileChanges.Count > 0)
@@ -392,60 +440,90 @@ public sealed partial class GridEditorSystem : EntitySystem
             }
             foreach (var item in removed)
             {
-                if (item.Kind == "entity" && draft.Entities.TryGetValue(item.Id, out var entity)) Del(entity);
-                if (item.Kind == "decal") _decals.RemoveDecal(draft.Grid, draft.KnownDecals.GetValueOrDefault(item.Id, uint.Parse(item.Id[2..])));
+                try
+                {
+                    if (item.Kind == "entity" && draft.Entities.TryGetValue(item.Id, out var entity)) Del(entity);
+                    if (item.Kind == "decal") _decals.RemoveDecal(draft.Grid, draft.KnownDecals.GetValueOrDefault(item.Id, uint.Parse(item.Id[2..])));
+                }
+                catch (Exception e) { Failed(new GridEditorItem { Id = item.Id, Kind = "remove", Prototype = item.Prototype, X = item.X, Y = item.Y }, e); }
             }
             // Release moved pipe cells as a batch so overlap checks see the final layout, not the old route.
             foreach (var item in changed.Where(item => item.Kind == "entity" && item.Anchored))
-                if (draft.KnownEntities.TryGetValue(item.Id, out var pipe) && Exists(pipe) && HasComp<PipeRestrictOverlapComponent>(pipe) &&
-                    TryComp<TransformComponent>(pipe, out var pipeTransform) && pipeTransform.Anchored &&
-                    (pipeTransform.ParentUid != draft.Grid || pipeTransform.LocalPosition != new Vector2(item.X, item.Y) ||
-                        pipeTransform.LocalRotation != Angle.FromDegrees(item.Rotation)))
-                    _transform.Unanchor(pipe, pipeTransform);
+            {
+                try
+                {
+                    if (draft.KnownEntities.TryGetValue(item.Id, out var pipe) && Exists(pipe) && HasComp<PipeRestrictOverlapComponent>(pipe) &&
+                        TryComp<TransformComponent>(pipe, out var pipeTransform) && pipeTransform.Anchored &&
+                        (pipeTransform.ParentUid != draft.Grid || pipeTransform.LocalPosition != new Vector2(item.X, item.Y) ||
+                            pipeTransform.LocalRotation != Angle.FromDegrees(item.Rotation)))
+                        _transform.Unanchor(pipe, pipeTransform);
+                }
+                catch (Exception e) { Failed(item, e); }
+            }
+            var restored = RestoreEntityData(draft.Grid, changed.Where(item => item.Kind == "entity" &&
+                !failed.ContainsKey(item.Id) && (!draft.KnownEntities.TryGetValue(item.Id, out var known) || !Exists(known))), Failed);
             foreach (var item in changed.Where(i => i.Kind == "entity"))
             {
-                var coords = new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y));
-                // A live edit may have deleted or detached this entity since the
-                // draft was authored. Recreate it rather than dropping mapper intent.
-                var uid = draft.KnownEntities.TryGetValue(item.Id, out var existingEntity) && Exists(existingEntity)
-                    ? existingEntity : Spawn(item.Prototype, coords);
-                foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
-                if (TryComp<AtmosPipeColorComponent>(uid, out var pipeColor))
-                    EntityManager.System<AtmosPipeColorSystem>().SetColor(uid, pipeColor, Color.FromHex(item.Color));
-                var transform = Comp<TransformComponent>(uid);
-                _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
-                if (item.Anchored)
+                if (failed.ContainsKey(item.Id)) continue;
+                EntityUid? placed = null;
+                var wasExisting = draft.KnownEntities.TryGetValue(item.Id, out var existingEntity) && Exists(existingEntity);
+                try
                 {
-                    var cell = new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y));
-                    var anchored = TryComp<CableComponent>(uid, out var cable)
-                        ? _cables.ReanchorCable((uid, cable, transform), (draft.Grid, gridComp), cell)
-                        : _transform.AnchorEntity((uid, transform, MetaData(uid)), (draft.Grid, gridComp), cell);
-                    if (!anchored || !transform.Anchored)
-                        throw new InvalidOperationException($"Cannot anchor {ToPrettyString(uid)} on edited grid {draft.Grid} at {cell}.");
+                    var coords = new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y));
+                    // A live edit may have deleted or detached this entity since the
+                    // draft was authored. Recreate it rather than dropping mapper intent.
+                    var uid = wasExisting ? existingEntity : restored.TryGetValue(item.Id, out var native) ? native : Spawn(item.Prototype, coords);
+                    placed = uid;
+                    if (item.PipeLayer >= 0 && TryComp<Content.Shared.Atmos.Components.AtmosPipeLayersComponent>(uid, out var pipeLayers))
+                        EntityManager.System<Content.Server.Atmos.EntitySystems.AtmosPipeLayersSystem>().SetPipeLayer((uid, pipeLayers), (Content.Shared.Atmos.Components.AtmosPipeLayer) item.PipeLayer);
+                    if (TryComp<AtmosPipeColorComponent>(uid, out var pipeColor))
+                        EntityManager.System<AtmosPipeColorSystem>().SetColor(uid, pipeColor, Color.FromHex(item.Color));
+                    var transform = Comp<TransformComponent>(uid);
+                    _transform.SetLocalRotation(uid, Angle.FromDegrees(item.Rotation));
+                    if (item.Anchored)
+                    {
+                        var cell = new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y));
+                        var anchored = TryComp<CableComponent>(uid, out var cable)
+                            ? _cables.ReanchorCable((uid, cable, transform), (draft.Grid, gridComp), cell)
+                            : _transform.AnchorEntity((uid, transform, MetaData(uid)), (draft.Grid, gridComp), cell);
+                        if (!anchored || !transform.Anchored)
+                            throw new InvalidOperationException($"Cannot anchor {ToPrettyString(uid)} on edited grid {draft.Grid} at {cell}.");
+                    }
+                    else
+                    {
+                        if (transform.Anchored) _transform.Unanchor(uid, transform);
+                        _transform.SetCoordinates(uid, coords);
+                    }
+                    if (transform.Anchored && (transform.ParentUid != draft.Grid || transform.GridUid != draft.Grid))
+                    {
+                        _transform.Unanchor(uid, transform);
+                        throw new InvalidOperationException($"Edited entity {ToPrettyString(uid)} has an incompatible anchored parent.");
+                    }
+                    // Removing source tiles can detach the old client transform before this move arrives.
+                    // Replicate the parent and anchor together, including an unchanged grid parent.
+                    Dirty(uid, transform);
+                    foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownEntities[item.Id] = uid;
                 }
-                else
+                catch (Exception e)
                 {
-                    if (transform.Anchored) _transform.Unanchor(uid, transform);
-                    _transform.SetCoordinates(uid, coords);
+                    Failed(item, e);
+                    if (!wasExisting && placed is { } uid && Exists(uid))
+                        try { Del(uid); } catch (Exception cleanup) { Log.Warning($"Grid editor cleanup failed for {uid}: {cleanup.Message}"); }
                 }
-                if (transform.Anchored && (transform.ParentUid != draft.Grid || transform.GridUid != draft.Grid))
-                {
-                    _transform.Unanchor(uid, transform);
-                    throw new InvalidOperationException($"Edited entity {ToPrettyString(uid)} has an incompatible anchored parent.");
-                }
-                // Removing source tiles can detach the old client transform before this move arrives.
-                // Replicate the parent and anchor together, including an unchanged grid parent.
-                Dirty(uid, transform);
             }
             if (changed.Any(i => i.Kind == "decal")) EnsureComp<DecalGridComponent>(draft.Grid);
             foreach (var item in changed.Where(i => i.Kind == "decal"))
             {
-                if (draft.KnownDecals.TryGetValue(item.Id, out var knownDecal)) _decals.RemoveDecal(draft.Grid, knownDecal);
-                else if (item.Id.StartsWith("d:", StringComparison.Ordinal)) _decals.RemoveDecal(draft.Grid, uint.Parse(item.Id[2..]));
-                if (!_decals.TryAddDecal(item.Prototype, new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y)), out var decalId,
-                        Color.FromHex(item.Color), Angle.FromDegrees(item.Rotation), item.Z, item.Cleanable))
-                    throw new InvalidOperationException("Decal placement failed");
-                foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownDecals[item.Id] = decalId;
+                try
+                {
+                    if (draft.KnownDecals.TryGetValue(item.Id, out var knownDecal)) _decals.RemoveDecal(draft.Grid, knownDecal);
+                    else if (item.Id.StartsWith("d:", StringComparison.Ordinal)) _decals.RemoveDecal(draft.Grid, uint.Parse(item.Id[2..]));
+                    if (!_decals.TryAddDecal(item.Prototype, new EntityCoordinates(draft.Grid, new Vector2(item.X, item.Y)), out var decalId,
+                            Color.FromHex(item.Color), Angle.FromDegrees(item.Rotation), item.Z, item.Cleanable))
+                        throw new InvalidOperationException("Decal placement failed");
+                    foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid)) viewer.KnownDecals[item.Id] = decalId;
+                }
+                catch (Exception e) { Failed(item, e); }
             }
             var emptyTiles = tileChanges.Where(change => change.Item2.IsEmpty).ToList();
             if (emptyTiles.Count > 0)
@@ -458,8 +536,9 @@ public sealed partial class GridEditorSystem : EntitySystem
             SupersedePreviews(draft.Grid, player, ev.Items.Select(item => item.Id).ToHashSet());
             _logs.Add(LogType.AdminMessage, LogImpact.High,
                 $"{player.Name} applied grid editor draft to {ToPrettyString(draft.Grid)}: {changed.Count} changed, {removed.Count} removed");
-            PublishPatch(player, draft, left, bottom, right, top);
-            Result("Изменения применены к grid. Сохраните карту штатной командой savemap / savegrid.", true);
+            PublishPatch(player, draft, left, bottom, right, top, failed.Values.ToList());
+            Result(errors.Count > 0 ? "Остальные объекты установлены. Не удалось установить:\n" + string.Join("\n", errors) :
+                "Изменения применены к grid. Сохраните карту штатной командой savemap / savegrid.", errors.Count == 0);
         }
         catch (Exception e)
         {
@@ -472,14 +551,15 @@ public sealed partial class GridEditorSystem : EntitySystem
         }
     }
 
-    private void PublishPatch(ICommonSession player, Draft draft, int left, int bottom, long right, long top)
+    private void PublishPatch(ICommonSession player, Draft draft, int left, int bottom, long right, long top, List<GridEditorItem>? failed = null)
     {
         foreach (var viewer in _drafts.Values.Where(viewer => viewer.Grid == draft.Grid))
         {
             viewer.X = left; viewer.Y = bottom; viewer.Width = (int) (right - left); viewer.Height = (int) (top - bottom);
         }
         draft.Preview.Clear(); draft.PreviewExpansion = new(); draft.PreviewGeneration++;
-        SynchronizeGrid(draft.Grid, player);
+        foreach (var item in failed ?? []) draft.Preview[item.Id] = item;
+        SynchronizeGrid(draft.Grid, player, failed);
         PublishPreviews(draft.Grid);
     }
 }

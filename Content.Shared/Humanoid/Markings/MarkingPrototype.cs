@@ -24,6 +24,14 @@ namespace Content.Shared.Humanoid.Markings
         [DataField]
         public bool EditorExclusive { get; private set; }
 
+        public bool IsBodyReplacement => EditorExclusive && MarkingCategory is
+            MarkingCategories.Head or MarkingCategories.Chest or MarkingCategories.Arms or MarkingCategories.Legs && BodyPart is
+            HumanoidVisualLayers.Head or HumanoidVisualLayers.Chest or
+            HumanoidVisualLayers.LArm or HumanoidVisualLayers.RArm or HumanoidVisualLayers.LHand or HumanoidVisualLayers.RHand or
+            HumanoidVisualLayers.LLeg or HumanoidVisualLayers.RLeg or HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot;
+
+        public bool CanGlow => !IsBodyReplacement;
+
         [DataField]
         public bool? Digitigrade { get; private set; }
 

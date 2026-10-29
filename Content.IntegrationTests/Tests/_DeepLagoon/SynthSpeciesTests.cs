@@ -36,13 +36,14 @@ public sealed class SynthSpeciesTests
                 .GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
             editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Synth"), editor.CharacterSlot);
             bool Choose(string id) => editor.HandleTguiProfileAction("marking-add", JsonSerializer.Serialize(new { value = id }));
-            Assert.That(editor.HandleTguiProfileAction("marking-combine", "{}"), Is.True);
+            foreach (var category in new[] { "Chest", "Arms", "Legs", "Special" })
+                Assert.That(editor.HandleTguiProfileAction("marking-combine", JsonSerializer.Serialize(new { value = category })), Is.True);
             foreach (var id in new[] { "SynthMechanicalChest", "SynthPlatedBelly", "SynthSoftNeck", "SynthVulpkaninLArm", "SynthFeroxiLArm" })
                 Assert.That(Choose(id), Is.True, id);
             var marks = editor.Profile!.Appearance.Markings;
-            Assert.That(marks.Select(marking => marking.MarkingId), Does.Contain("SynthHumanChest")
+            Assert.That(marks.Select(marking => marking.MarkingId), Does.Not.Contain("SynthHumanChest")
                 .And.Contain("SynthMechanicalChest").And.Contain("SynthPlatedBelly").And.Contain("SynthSoftNeck")
-                .And.Contain("SynthVulpkaninLHand").And.Contain("SynthFeroxiLHand"));
+                .And.Contain("SynthVulpkaninRArm").And.Contain("SynthFeroxiRArm"));
             Assert.That(Choose("SynthSoftNeck"), Is.False, "Combining must not duplicate a selected sprite");
             var sprite = pair.Client.EntMan.GetComponent<SpriteComponent>(editor.PreviewDummy);
             Assert.That(sprite.LayerMapGet("SynthSoftNeck-soft_neck"), Is.GreaterThan(sprite.LayerMapGet("SynthHumanHead-head_m")));
@@ -54,7 +55,7 @@ public sealed class SynthSpeciesTests
             var arm = editor.Profile!.Appearance.Markings.FindIndex(marking => marking.MarkingId == "SynthFeroxiLArm");
             Assert.That(editor.HandleTguiProfileAction("marking-move", JsonSerializer.Serialize(new { index = arm, value = 1 })), Is.True);
             Assert.That(sprite.LayerMapGet("SynthFeroxiLArm-l_arm"), Is.LessThan(sprite.LayerMapGet("SynthVulpkaninLArm-l_arm")));
-            Assert.That(editor.Profile!.Appearance.Markings.Single(marking => marking.MarkingId == "SynthFeroxiLHand").DrawOrder,
+            Assert.That(editor.Profile!.Appearance.Markings.Single(marking => marking.MarkingId == "SynthFeroxiRArm").DrawOrder,
                 Is.EqualTo(editor.Profile.Appearance.Markings.Single(marking => marking.MarkingId == "SynthFeroxiLArm").DrawOrder));
             Assert.That(Choose("SynthMechanicalLLeg"), Is.True);
             var leg = editor.Profile!.Appearance.Markings.FindIndex(marking => marking.MarkingId == "SynthMechanicalLLeg");
@@ -69,7 +70,7 @@ public sealed class SynthSpeciesTests
             Assert.That(valid.Markings, Is.EqualTo(appearance.Markings));
             editor.SetProfile(editor.Profile.WithCharacterAppearance(valid), editor.CharacterSlot);
             Assert.That(sprite.LayerMapGet("SynthPlatedBelly-plated_belly"), Is.LessThan(sprite.LayerMapGet("SynthMechanicalChest-torso_m")));
-            Assert.That(editor.HandleTguiProfileAction("marking-combine", "{}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("marking-combine", "{\"value\":\"Chest\"}"), Is.True);
             Assert.That(Choose("SynthFeroxiChest"), Is.True);
             Assert.That(editor.Profile!.Appearance.Markings.Where(marking => marking.MarkingId.EndsWith("Chest")).Select(marking => marking.MarkingId),
                 Is.EqualTo(new[] { "SynthFeroxiChest" }));
@@ -119,7 +120,7 @@ public sealed class SynthSpeciesTests
     }
 
     [Test]
-    public async Task EditorReplacesShellsAndKeepsHandsAndFeetWithTheirLimbs()
+    public async Task EditorReplacesPairedLimbsAndKeepsHandsAndFeetIndependent()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         await pair.Client.WaitAssertion(() =>
@@ -131,49 +132,37 @@ public sealed class SynthSpeciesTests
                 .GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
             var saved = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
             editor.SetProfile(saved, editor.CharacterSlot);
-            bool Choose(string id) => editor.HandleTguiProfileAction("marking-add", JsonSerializer.Serialize(new { value = id }));
+            bool Action(string action, object args) => editor.HandleTguiProfileAction(action, JsonSerializer.Serialize(args));
+            bool Choose(string id) => Action("marking-add", new { value = id });
             string[] Selected() => editor.Profile!.Appearance.Markings.Select(m => m.MarkingId).ToArray();
-            Assert.That(Choose("SynthHumanChest"), Is.True);
-            Assert.That(Choose("SynthMechanicalChest"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthMechanicalChest").And.Not.Contain("SynthHumanChest"));
-            var torsoSprite = pair.Client.EntMan.GetComponent<SpriteComponent>(editor.PreviewDummy);
-            Assert.That(torsoSprite.LayerMapTryGet("SynthHumanChest-torso_m", out _), Is.False);
-            Assert.That(torsoSprite.LayerMapTryGet("SynthMechanicalChest-torso_m", out _), Is.True);
-            Assert.That(((SpriteComponent.Layer) torsoSprite[torsoSprite.LayerMapGet(HumanoidVisualLayers.Chest)]).ActualState,
-                Is.Null, "A shell marking must not retain the dummy's original human torso underneath");
+            int Index(string id) => editor.Profile!.Appearance.Markings.FindIndex(m => m.MarkingId == id);
             Assert.That(Choose("SynthMechanicalLArm"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthMechanicalLHand"));
-            Assert.That(Selected(), Does.Contain("SynthHumanRArm").And.Contain("SynthHumanRHand"));
+            Assert.That(Selected(), Does.Contain("SynthMechanicalLArm").And.Contain("SynthMechanicalRArm"));
+            Assert.That(Selected(), Does.Contain("SynthHumanLHand").And.Contain("SynthHumanRHand"));
+            Assert.That(Selected(), Does.Not.Contain("SynthHumanLArm").And.Not.Contain("SynthHumanRArm"));
+            Assert.That(Action("marking-side", new { index = Index("SynthMechanicalLArm"), value = "left" }), Is.True);
+            Assert.That(Selected(), Does.Contain("SynthMechanicalLArm").And.Contain("SynthHumanRArm").And.Not.Contain("SynthMechanicalRArm"));
+            Assert.That(Action("marking-combine", new { value = "Arms" }), Is.True);
             Assert.That(Choose("SynthVulpkaninLArm"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthVulpkaninLArm").And.Contain("SynthVulpkaninLHand"));
-            Assert.That(Selected(), Does.Not.Contain("SynthMechanicalLArm").And.Not.Contain("SynthMechanicalLHand"));
-            Assert.That(Choose("SynthFeroxiRArm"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthVulpkaninLArm").And.Contain("SynthFeroxiRHand"));
-            var armIndex = editor.Profile!.Appearance.Markings.FindIndex(m => m.MarkingId == "SynthVulpkaninLArm");
-            Assert.That(editor.HandleTguiProfileAction("marking-color", JsonSerializer.Serialize(new
-                { index = armIndex, layer = 0, value = "#123456" })), Is.True);
-            Assert.That(editor.Profile.Appearance.Markings.Single(m => m.MarkingId == "SynthVulpkaninLHand").MarkingColors[0],
-                Is.EqualTo(Color.FromHex("#123456")));
-            Assert.That(Choose("SynthMechanicalLLegDigitigrade"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthMechanicalLFootDigitigrade"));
-            Assert.That(Choose("SynthHumanLLeg"), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthHumanLFoot").And.Not.Contain("SynthMechanicalLFootDigitigrade"));
-            Assert.That(Choose("SynthMechanicalLHand"), Is.False);
-            Assert.That(Choose("SynthMechanicalHead"), Is.True);
-            Assert.That(Choose("SynthVulpkaninHead"), Is.True);
-            Assert.That(Selected(), Does.Not.Contain("SynthMechanicalHead"));
-            Assert.That(Choose("SynthVulpkaninHead"), Is.True);
-            Assert.That(Selected().Count(id => id == "SynthVulpkaninHead"), Is.EqualTo(1));
+            Assert.That(Selected(), Does.Contain("SynthMechanicalLArm").And.Contain("SynthVulpkaninLArm").And.Contain("SynthVulpkaninRArm"));
+            Assert.That(Action("marking-side", new { index = Index("SynthMechanicalLArm"), value = "both" }), Is.True);
+            Assert.That(Selected(), Does.Contain("SynthMechanicalRArm").And.Contain("SynthVulpkaninRArm"));
+            Assert.That(Action("marking-combine", new { value = "Arms" }), Is.True);
+            Assert.That(editor.Profile!.Appearance.Markings.Count(m => m.MarkingId.EndsWith("LArm")), Is.EqualTo(1));
+            Assert.That(editor.Profile.Appearance.Markings.Count(m => m.MarkingId.EndsWith("RArm")), Is.EqualTo(1));
+            Assert.That(Choose("SynthMechanicalLHand"), Is.True);
+            Assert.That(Choose("SynthMechanicalLFootDigitigrade"), Is.True);
+            Assert.That(Selected(), Does.Contain("SynthMechanicalRHand").And.Contain("SynthMechanicalRFootDigitigrade"));
+            Assert.That(Selected(), Does.Contain("SynthHumanLLeg").And.Contain("SynthHumanRLeg"));
             using var data = JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
-            var options = data.RootElement.GetProperty("markingOptions").EnumerateArray()
-                .Select(option => option.GetProperty("id").GetString()).ToArray();
-            Assert.That(options, Does.Contain("SynthMechanicalLArm").And.Not.Contain("SynthMechanicalLHand"));
-            Assert.That(options, Does.Not.Contain("SynthMechanicalLFootDigitigrade"));
-            armIndex = editor.Profile!.Appearance.Markings.FindIndex(m => m.MarkingId == "SynthVulpkaninLArm");
-            Assert.That(editor.HandleTguiProfileAction("marking-remove", JsonSerializer.Serialize(new { index = armIndex })), Is.True);
-            Assert.That(Selected(), Does.Contain("SynthHumanLArm").And.Contain("SynthHumanLHand"));
-            Assert.That(Selected(), Does.Contain("SynthFeroxiRArm").And.Contain("SynthFeroxiRHand"));
-            Assert.That(saved.Appearance.Markings, Is.Empty, "Edits must only change the draft");
+            var options = data.RootElement.GetProperty("markingOptions").EnumerateArray().ToArray();
+            Assert.That(options.Any(option => option.GetProperty("id").GetString() == "SynthMechanicalRHand"), Is.False);
+            Assert.That(options.Single(option => option.GetProperty("id").GetString() == "SynthMechanicalLHand").GetProperty("category").GetString(), Is.EqualTo("Кисти"));
+            Assert.That(options.Single(option => option.GetProperty("id").GetString() == "SynthMechanicalLFootDigitigrade").GetProperty("category").GetString(), Is.EqualTo("Стопы"));
+            Assert.That(Action("marking-remove", new { index = Index("SynthMechanicalLHand") }), Is.True);
+            Assert.That(Selected(), Does.Contain("SynthHumanLHand").And.Contain("SynthHumanRHand"));
+            Assert.That(Selected(), Does.Not.Contain("SynthMechanicalLHand").And.Not.Contain("SynthMechanicalRHand"));
+            Assert.That(saved.Appearance.Markings, Is.Empty);
             ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().Close();
         });
         await pair.CleanReturnAsync();

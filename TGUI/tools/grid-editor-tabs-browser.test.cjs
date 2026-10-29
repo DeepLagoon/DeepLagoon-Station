@@ -95,7 +95,8 @@ createRoot(document.getElementById('root')).render(<App/>);
     await page.keyboard.press('s'); await page.keyboard.up('s'); await click(1.5, 1.5); await page.keyboard.press('Control+c');
     await page.waitForFunction(() => window.fixtureActions?.some(a => a.action === 'copySelection'));
     await page.evaluate(() => window.fixtureOpen('B'));
-    await page.waitForFunction(() => document.querySelector('.GridEditor:not([hidden]) [role=tab][aria-selected=true]')?.textContent === 'Grid B');
+    await page.waitForFunction(() => document.querySelector('.GridEditor:not([hidden]) [role=tab][aria-selected=true]')?.textContent === 'Grid B')
+      .catch(async error => { console.error(JSON.stringify({ errors, tabs: await page.locator('[role=tab]').allTextContents(), editors: await page.locator('.GridEditor').count() })); throw error; });
     await ready();
     assert.equal(await page.getByRole('tab').count(), 2);
     assert.match(await editor.locator('.GridEditor__currentBrush').innerText(), /ChairWood/);

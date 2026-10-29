@@ -41,7 +41,8 @@ public sealed partial class PersonalLoadoutCustomization : IEquatable<PersonalLo
     [DataField] public string? Description { get; set; }
     [DataField] public string? Color { get; set; }
     [DataField] public bool Heirloom { get; set; }
-    public bool Equals(PersonalLoadoutCustomization? other) => other != null && Name == other.Name && Description == other.Description && Color == other.Color && Heirloom == other.Heirloom;
+    [DataField] public string? Slot { get; set; }
+    public bool Equals(PersonalLoadoutCustomization? other) => other != null && Name == other.Name && Description == other.Description && Color == other.Color && Heirloom == other.Heirloom && Slot == other.Slot;
     public override bool Equals(object? obj) => obj is PersonalLoadoutCustomization other && Equals(other);
-    public override int GetHashCode() => HashCode.Combine(Name, Description, Color, Heirloom);
+    public override int GetHashCode() => HashCode.Combine(Name, Description, Color, Heirloom, Slot);
 }

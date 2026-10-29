@@ -54,19 +54,19 @@ public sealed partial class PersonalLoadoutSystem
         return slots.Length > 0 && slots.All(unequipped.Contains);
     }
 
-    public HumanoidCharacterProfile RestoreEquipmentSlots(HumanoidCharacterProfile profile, string job, LoadoutPrototype item)
+    public HumanoidCharacterProfile RestoreEquipmentSlots(HumanoidCharacterProfile profile, string job, LoadoutPrototype item, string? targetSlot = null)
     {
         if (!profile.Loadouts.TryGetValue(EquipmentRole(job), out var stored) || stored.UnequippedSlots.Count == 0)
             return profile;
         var role = stored.Clone();
-        role.UnequippedSlots.ExceptWith(EditableSlots(profile).Where(slot => UsesSlot(item, slot)).Select(slot => slot.Name));
+        role.UnequippedSlots.ExceptWith(EditableSlots(profile).Where(slot => (targetSlot == null || slot.Name == targetSlot) && UsesSlot(item, slot)).Select(slot => slot.Name));
         return profile.WithLoadout(role);
     }
 
     /// <summary>Compare actual equipment slots, not catalogue category labels.</summary>
-    public bool Conflicts(HumanoidCharacterProfile profile, LoadoutPrototype personal, LoadoutPrototype jobItem)
+    public bool Conflicts(HumanoidCharacterProfile profile, LoadoutPrototype personal, LoadoutPrototype jobItem, string? targetSlot = null)
     {
-        if (!personal.PersonalExclusive || personal.PersonalItems.Count == 0)
+        if ((!personal.PersonalExclusive && targetSlot == null) || personal.PersonalItems.Count == 0)
             return false;
         var species = _prototypes.Index(profile.Species);
         if (!_prototypes.Index(species.Prototype).TryGetComponent<InventoryComponent>(out var inventory) ||
@@ -75,7 +75,7 @@ public sealed partial class PersonalLoadoutSystem
         var equipment = jobItem.Equipment.Keys.AsEnumerable();
         if (_prototypes.TryIndex(jobItem.StartingGear, out var gear))
             equipment = equipment.Concat(gear.Equipment.Keys);
-        var slots = template.Slots.Where(slot => equipment.Contains(slot.Name) &&
+        var slots = template.Slots.Where(slot => (targetSlot == null || slot.Name == targetSlot) && equipment.Contains(slot.Name) &&
             (slot.SlotFlags & (SlotFlags.POCKET | SlotFlags.SUITSTORAGE | SlotFlags.PREVENTEQUIP)) == 0);
         return slots.Any(slot => personal.PersonalItems.Any(id =>
             _prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) &&
@@ -89,16 +89,48 @@ public sealed partial class PersonalLoadoutSystem
         var personal = stored.Clone();
         var removed = 0;
         foreach (var group in personal.SelectedLoadouts.Values)
-            removed += group.RemoveAll(item => _prototypes.TryIndex(item.Prototype, out var proto) && Conflicts(profile, proto, jobItem));
+            removed += group.RemoveAll(item => _prototypes.TryIndex(item.Prototype, out var proto) && Conflicts(profile, proto, jobItem, item.Customization?.Slot));
         return removed == 0 ? profile : profile.WithLoadout(personal);
     }
 
-    public RoleLoadout RemoveJobConflicts(HumanoidCharacterProfile profile, RoleLoadout stored, LoadoutPrototype personal)
+    public RoleLoadout RemoveJobConflicts(HumanoidCharacterProfile profile, RoleLoadout stored, LoadoutPrototype personal, string? targetSlot = null)
     {
         var role = stored.Clone();
         foreach (var group in role.SelectedLoadouts.Values)
-            group.RemoveAll(item => _prototypes.TryIndex(item.Prototype, out var proto) && Conflicts(profile, personal, proto));
+            group.RemoveAll(item => _prototypes.TryIndex(item.Prototype, out var proto) && Conflicts(profile, personal, proto, targetSlot));
         return role;
+    }
+
+    public string? PersonalSlot(HumanoidCharacterProfile profile, LoadoutPrototype item, string? requested = null)
+    {
+        var slots = EditableSlots(profile).Where(slot => UsesSlot(item, slot)).ToArray();
+        if (requested != null) return slots.FirstOrDefault(slot => slot.Name == requested)?.Name;
+        var preferred = item.PersonalCategory switch
+        {
+            "Hands" => "gloves", "Shoes" => "shoes", "Head" => "head", "Eyes" => "eyes",
+            "Mask" => "mask", "Neck" => "neck", "Uniform" => "jumpsuit", "Outer" => "outerClothing",
+            "Backpacks" => "back", "Belt" => "belt", _ => null,
+        };
+        return slots.FirstOrDefault(slot => slot.Name == preferred)?.Name ?? slots.FirstOrDefault()?.Name;
+    }
+
+    public IEnumerable<LoadoutPrototype> Catalogue(HumanoidCharacterProfile profile, string job, ICommonSession? session)
+    {
+        var selected = GetSelections(profile).Select(choice => choice.Prototype.Id).ToHashSet();
+        return _prototypes.EnumeratePrototypes<LoadoutPrototype>().Where(item => item.PersonalItems.Count > 0)
+            .GroupBy(item => (Items: string.Join("\n", item.PersonalItems), Slot: PersonalSlot(profile, item),
+                item.PersonalCost, item.PersonalExclusive, item.PersonalDonor, item.PersonalDonorTier, item.PersonalHeirloom))
+            .Select(group => group.OrderByDescending(item => CanUse(item, profile, job, session, out _))
+                .ThenByDescending(item => selected.Contains(item.ID))
+                .ThenBy(item => item.PersonalRequirements.Count).ThenBy(item => item.ID, StringComparer.Ordinal).First());
+    }
+
+    public void RemovePersonalSlotConflicts(RoleLoadout role, HumanoidCharacterProfile profile, LoadoutPrototype item, string? requested)
+    {
+        if ((!item.PersonalExclusive && requested == null) || PersonalSlot(profile, item, requested) is not { } slot) return;
+        foreach (var choices in role.SelectedLoadouts.Values)
+            choices.RemoveAll(choice => _prototypes.TryIndex(choice.Prototype, out var other) &&
+                PersonalSlot(profile, other, choice.Customization?.Slot) == slot);
     }
 
     /// <summary>Prevent mandatory job defaults from restoring replaced clothing on validation/spawn.</summary>
@@ -112,6 +144,6 @@ public sealed partial class PersonalLoadoutSystem
         var valid = personal.Clone();
         valid.EnsureValid(profile, session, IoCManager.Instance!);
         return valid.SelectedLoadouts.Values.SelectMany(group => group).Any(selection =>
-            _prototypes.TryIndex(selection.Prototype, out var proto) && CanUse(proto, profile, job.ID, session, out _) && Conflicts(profile, proto, item));
+            _prototypes.TryIndex(selection.Prototype, out var proto) && CanUse(proto, profile, job.ID, session, out _) && Conflicts(profile, proto, item, selection.Customization?.Slot));
     }
 }

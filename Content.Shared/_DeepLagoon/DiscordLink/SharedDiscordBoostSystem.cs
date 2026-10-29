@@ -17,6 +17,9 @@ public abstract partial class SharedDiscordBoostSystem : EntitySystem
     public int GetSupporterTier(ICommonSession? session)
         => HasHostAccess(session) ? 3 : Content.Shared.Database.LagoonEconomyRules.GameTier(GetProductTier(session));
 
+    // Spark is product tier 1, which maps to game feature tier 0.
+    public bool CanUseMarkingGlow(ICommonSession? session) => GetSupporterTier(session) > 0;
+
     public abstract bool HasActiveBoost(ICommonSession? session);
     public abstract int GetBoostyTier(ICommonSession? session);
     public abstract int[] RoleColors { get; }

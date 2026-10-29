@@ -8,6 +8,7 @@ using Content.Shared.Administration;
 using Robust.Shared.EntitySerialization;
 using Robust.Shared.IoC;
 using Robust.Shared.Map.Events;
+using Robust.Shared.Map;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
@@ -107,6 +108,20 @@ public sealed partial class GridEditorSystem
             .SelectMany(group => group.Get<SequenceDataNode>("entities").Cast<MappingDataNode>()
                 .Select(node => (Prototype: ExportValue(group, "proto"), Node: node))).ToArray();
         var plannedGrid = planned.Single(entry => ExportValue(entry.Node, "uid") == "1").Node;
+        var states = plan.TryGet<MappingDataNode>("gridEditorState", out var stateData) ? stateData : new MappingDataNode();
+        var copies = new List<GridEditorItem>();
+        foreach (var (prototype, node) in planned.Where(entry => ExportValue(entry.Node, "uid") != "1"))
+        {
+            var yamlId = ExportValue(node, "uid");
+            if (ExportValue(ids, yamlId).StartsWith("e:", StringComparison.Ordinal) || !states.TryGet<MappingDataNode>(yamlId, out var state) || FieldValue(state, "entityData").Length == 0) continue;
+            var transform = ExportComponent(node, "Transform");
+            var position = ExportValue(transform, "pos").Split(',');
+            copies.Add(new GridEditorItem { Id = ExportValue(ids, yamlId), Kind = "entity", Prototype = prototype,
+                X = float.Parse(position[0], CultureInfo.InvariantCulture), Y = float.Parse(position[1], CultureInfo.InvariantCulture),
+                Rotation = float.Parse(ExportValue(transform, "rot"), CultureInfo.InvariantCulture), Anchored = ExportValue(transform, "anchored") == "true",
+                EntityData = FieldValue(state, "entityData"), EntityGroup = FieldValue(state, "entityGroup"),
+                PipeLayer = int.Parse(FieldValue(state, "pipeLayer", "-1"), CultureInfo.InvariantCulture) });
+        }
         var existing = new Dictionary<string, EntityUid>();
         foreach (var (_, idNode) in ids)
         {
@@ -126,58 +141,92 @@ public sealed partial class GridEditorSystem
         foreach (var (id, uid) in draft.KnownEntities)
             if (!existing.ContainsKey(id) && Exists(uid) && Transform(uid).ParentUid == draft.Grid) Exclude(uid);
 
-        HashSet<EntityUid> roots = [draft.Grid];
-        RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(draft.Grid).MapID], FileCategory.Grid));
-        var serializer = new EntitySerializer(_exportDependencies, new SerializationOptions { Category = FileCategory.Grid, ExpectPreInit = false });
-        serializer.ErroringEntities.UnionWith(excluded);
-        serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= !excluded.Contains(entity.Owner);
-        SerializeForExport(serializer, roots, draft.Grid);
-        var data = serializer.Write();
-        var gridId = serializer.YamlUidMap[draft.Grid];
-        var grid = serializer.EntityData[gridId].Node;
-        var groups = data.Get<SequenceDataNode>("entities");
-        var nextId = serializer.YamlIds.Max() + 1;
-        var count = serializer.EntityData.Count;
-        foreach (var (prototype, node) in planned.Where(entry => ExportValue(entry.Node, "uid") != "1"))
+        EntityUid? temporaryMap = null;
+        try
         {
-            var id = ExportValue(ids, ExportValue(node, "uid"));
-            MappingDataNode target;
-            if (id.StartsWith("e:"))
+            var copied = new Dictionary<string, EntityUid>();
+            EntityUid? temporaryGrid = null;
+            if (copies.Count > 0)
             {
-                var uid = existing[id];
-                if (!serializer.YamlUidMap.TryGetValue(uid, out var yamlId) || !serializer.EntityData.TryGetValue(yamlId, out var native))
-                    throw new InvalidDataException($"Объект {id} недоступен для экспорта.");
-                if (MetaData(uid).EntityPrototype?.ID != prototype) throw new InvalidDataException("Прототип существующего объекта изменён.");
-                target = native.Node;
+                temporaryMap = _map.CreateMap(out var mapId);
+                var gridEntity = _map.CreateGridEntity(mapId); temporaryGrid = gridEntity;
+                var floor = new Tile(_tiles["Plating"].TileId);
+                _map.SetTiles(gridEntity, gridEntity.Comp, copies.Select(item => (new Vector2i((int) MathF.Floor(item.X), (int) MathF.Floor(item.Y)), floor)).Distinct().ToList());
+                var errors = new List<string>();
+                copied = RestoreEntityData(gridEntity, copies, (item, error) => errors.Add($"{item.Prototype}: {error.GetBaseException().Message}"));
+                if (errors.Count > 0) throw new InvalidDataException(string.Join("\n", errors));
             }
-            else
+            HashSet<EntityUid> roots = [draft.Grid];
+            RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(draft.Grid).MapID], FileCategory.Grid));
+            var serializer = new EntitySerializer(_exportDependencies, new SerializationOptions { Category = FileCategory.Grid, ExpectPreInit = false });
+            serializer.ErroringEntities.UnionWith(excluded);
+            serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= !excluded.Contains(entity.Owner);
+            SerializeForExport(serializer, roots, draft.Grid);
+            var gridId = serializer.YamlUidMap[draft.Grid];
+            if (temporaryGrid is { } copyGrid)
             {
-                if (!_prototypes.HasIndex<EntityPrototype>(prototype)) throw new InvalidDataException("Неизвестный прототип объекта.");
-                target = new MappingDataNode { { "uid", ExportNumber(nextId++) } };
-                var group = groups.Cast<MappingDataNode>().FirstOrDefault(entry => ExportValue(entry, "proto") == prototype);
-                if (group == null) { group = new MappingDataNode { { "proto", prototype }, { "entities", new SequenceDataNode() } }; groups.Add(group); }
-                group.Get<SequenceDataNode>("entities").Add(target); count++;
+                serializer.YamlUidMap[copyGrid] = gridId;
+                foreach (var uid in copied.Values)
+                {
+                    serializer.SerializeEntityRecursive(uid);
+                    serializer.Orphans.Remove(serializer.YamlUidMap[uid]);
+                }
+                serializer.YamlUidMap.Remove(copyGrid);
             }
-            var sourceTransform = ExportComponent(node, "Transform");
-            var transform = ExportComponent(target, "Transform");
-            foreach (var field in new[] { "pos", "rot", "anchored" }) transform[field] = sourceTransform[field].Copy();
-            transform["parent"] = ExportNumber(gridId);
-            if (_prototypes.Index<EntityPrototype>(prototype).Components.ContainsKey("AtmosPipeColor"))
+            var data = serializer.Write();
+            var grid = serializer.EntityData[gridId].Node;
+            var groups = data.Get<SequenceDataNode>("entities");
+            var nextId = serializer.YamlIds.Max() + 1;
+            var count = serializer.EntityData.Count;
+            foreach (var (prototype, node) in planned.Where(entry => ExportValue(entry.Node, "uid") != "1"))
             {
-                var plannedColor = ExportComponent(node, "AtmosPipeColor");
-                var color = ExportValue(plannedColor, "color");
-                if (!Color.TryFromHex(color, out _)) throw new InvalidDataException("Invalid pipe color.");
-                ExportComponent(target, "AtmosPipeColor")["color"] = new ValueDataNode(color);
+                var id = ExportValue(ids, ExportValue(node, "uid"));
+                MappingDataNode target;
+                if (id.StartsWith("e:"))
+                {
+                    var uid = existing[id];
+                    if (!serializer.YamlUidMap.TryGetValue(uid, out var yamlId) || !serializer.EntityData.TryGetValue(yamlId, out var native))
+                        throw new InvalidDataException($"Объект {id} недоступен для экспорта.");
+                    if (MetaData(uid).EntityPrototype?.ID != prototype) throw new InvalidDataException("Прототип существующего объекта изменён.");
+                    target = native.Node;
+                }
+                else if (copied.TryGetValue(id, out var copiedUid))
+                    target = serializer.EntityData[serializer.YamlUidMap[copiedUid]].Node;
+                else
+                {
+                    if (!_prototypes.HasIndex<EntityPrototype>(prototype)) throw new InvalidDataException("Неизвестный прототип объекта.");
+                    target = new MappingDataNode { { "uid", ExportNumber(nextId++) } };
+                    var group = groups.Cast<MappingDataNode>().FirstOrDefault(entry => ExportValue(entry, "proto") == prototype);
+                    if (group == null) { group = new MappingDataNode { { "proto", prototype }, { "entities", new SequenceDataNode() } }; groups.Add(group); }
+                    group.Get<SequenceDataNode>("entities").Add(target); count++;
+                }
+                var sourceTransform = ExportComponent(node, "Transform");
+                var transform = ExportComponent(target, "Transform");
+                foreach (var field in new[] { "pos", "rot", "anchored" }) transform[field] = sourceTransform[field].Copy();
+                transform["parent"] = ExportNumber(gridId);
+                if (states.TryGet<MappingDataNode>(ExportValue(node, "uid"), out var state) &&
+                    int.TryParse(FieldValue(state, "pipeLayer", "-1"), out var layer) && layer >= 0)
+                    ExportComponent(target, "AtmosPipeLayers")["pipeLayer"] = new ValueDataNode(((Content.Shared.Atmos.Components.AtmosPipeLayer) layer).ToString());
+                if (_prototypes.Index<EntityPrototype>(prototype).Components.ContainsKey("AtmosPipeColor"))
+                {
+                    var plannedColor = ExportComponent(node, "AtmosPipeColor");
+                    var color = FieldValue(plannedColor, "color", FieldValue(ExportComponent(target, "AtmosPipeColor"), "color", "#FFFFFFFF"));
+                    if (!Color.TryFromHex(color, out _)) throw new InvalidDataException("Invalid pipe color.");
+                    ExportComponent(target, "AtmosPipeColor")["color"] = new ValueDataNode(color);
+                }
             }
+            OverlayDraftTiles(data, grid, plan, plannedGrid);
+            ExportComponent(grid, "DecalGrid")["chunkCollection"] = ExportComponent(plannedGrid, "DecalGrid")["chunkCollection"].Copy();
+            data.Get<MappingDataNode>("meta")["entityCount"] = ExportNumber(count);
+            RaiseLocalEvent(new AfterSerializationEvent(roots, data, FileCategory.Grid));
+            using var writer = new StringWriter();
+            new YamlStream { new YamlDocument(data.ToYaml()) }.Save(new YamlMappingFix(new Emitter(writer)), false);
+            return writer.ToString();
         }
-        OverlayDraftTiles(data, grid, plan, plannedGrid);
-        ExportComponent(grid, "DecalGrid")["chunkCollection"] = ExportComponent(plannedGrid, "DecalGrid")["chunkCollection"].Copy();
-        data.Get<MappingDataNode>("meta")["entityCount"] = ExportNumber(count);
-        RaiseLocalEvent(new AfterSerializationEvent(roots, data, FileCategory.Grid));
-        using var writer = new StringWriter();
-        new YamlStream { new YamlDocument(data.ToYaml()) }.Save(new YamlMappingFix(new Emitter(writer)), false);
-        return writer.ToString();
+        finally { if (temporaryMap is { } temporary && Exists(temporary)) Del(temporary); }
     }
+
+    private static string FieldValue(MappingDataNode node, string key, string fallback = "") => node.TryGet<ValueDataNode>(key, out var value) ? value.Value : fallback;
 
     private void OverlayDraftTiles(MappingDataNode data, MappingDataNode grid, MappingDataNode plan, MappingDataNode plannedGrid)
     {

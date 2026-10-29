@@ -48,8 +48,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: l_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthHumanLHand
 - type: marking
   id: SynthHumanRArm
   bodyPart: RArm
@@ -60,8 +58,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: r_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthHumanRHand
 - type: marking
   id: SynthHumanLHand
   bodyPart: LHand
@@ -72,7 +68,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: l_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthHumanRHand
   bodyPart: RHand
@@ -83,7 +78,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: r_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthHumanLLeg
   bodyPart: LLeg
@@ -95,8 +89,6 @@
     state: l_leg
   digitigrade: false
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthHumanLFoot
 - type: marking
   id: SynthHumanRLeg
   bodyPart: RLeg
@@ -108,8 +100,6 @@
     state: r_leg
   digitigrade: false
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthHumanRFoot
 - type: marking
   id: SynthHumanLFoot
   bodyPart: LFoot
@@ -120,7 +110,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: l_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthHumanRFoot
   bodyPart: RFoot
@@ -131,7 +120,6 @@
   - sprite: Mobs/Species/Human/parts.rsi
     state: r_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthVulpkaninHead
   bodyPart: Head
@@ -182,8 +170,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: l_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthVulpkaninLHand
 - type: marking
   id: SynthVulpkaninRArm
   bodyPart: RArm
@@ -194,8 +180,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: r_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthVulpkaninRHand
 - type: marking
   id: SynthVulpkaninLHand
   bodyPart: LHand
@@ -206,7 +190,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: l_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthVulpkaninRHand
   bodyPart: RHand
@@ -217,7 +200,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: r_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthVulpkaninLLeg
   bodyPart: LLeg
@@ -229,8 +211,6 @@
     state: l_leg
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthVulpkaninLFoot
 - type: marking
   id: SynthVulpkaninRLeg
   bodyPart: RLeg
@@ -242,8 +222,6 @@
     state: r_leg
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthVulpkaninRFoot
 - type: marking
   id: SynthVulpkaninLFoot
   bodyPart: LFoot
@@ -254,7 +232,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: l_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthVulpkaninRFoot
   bodyPart: RFoot
@@ -265,7 +242,6 @@
   - sprite: _DV/Mobs/Species/Vulpkanin/parts.rsi
     state: r_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthFeroxiHead
   bodyPart: Head
@@ -316,8 +292,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: l_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthFeroxiLHand
 - type: marking
   id: SynthFeroxiRArm
   bodyPart: RArm
@@ -328,8 +302,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: r_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthFeroxiRHand
 - type: marking
   id: SynthFeroxiLHand
   bodyPart: LHand
@@ -340,7 +312,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: l_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthFeroxiRHand
   bodyPart: RHand
@@ -351,7 +322,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: r_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthFeroxiLLeg
   bodyPart: LLeg
@@ -363,8 +333,6 @@
     state: l_leg
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthFeroxiLFoot
 - type: marking
   id: SynthFeroxiRLeg
   bodyPart: RLeg
@@ -376,8 +344,6 @@
     state: r_leg
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthFeroxiRFoot
 - type: marking
   id: SynthFeroxiLFoot
   bodyPart: LFoot
@@ -388,7 +354,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: l_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthFeroxiRFoot
   bodyPart: RFoot
@@ -399,7 +364,6 @@
   - sprite: _DV/Mobs/Species/Feroxi/parts.rsi
     state: r_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalHead
   bodyPart: Head
@@ -450,8 +414,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalLHand
 - type: marking
   id: SynthMechanicalRArm
   bodyPart: RArm
@@ -462,8 +424,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_arm
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalRHand
 - type: marking
   id: SynthMechanicalLHand
   bodyPart: LHand
@@ -474,7 +434,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalRHand
   bodyPart: RHand
@@ -485,7 +444,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_hand
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalLLeg
   bodyPart: LLeg
@@ -497,8 +455,6 @@
     state: l_leg
   digitigrade: false
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalLFoot
 - type: marking
   id: SynthMechanicalRLeg
   bodyPart: RLeg
@@ -510,8 +466,6 @@
     state: r_leg
   digitigrade: false
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalRFoot
 - type: marking
   id: SynthMechanicalLFoot
   bodyPart: LFoot
@@ -522,7 +476,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalRFoot
   bodyPart: RFoot
@@ -533,7 +486,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_foot
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalLLegDigitigrade
   bodyPart: LLeg
@@ -545,8 +497,6 @@
     state: l_leg_digi
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalLFootDigitigrade
 - type: marking
   id: SynthMechanicalRLegDigitigrade
   bodyPart: RLeg
@@ -558,8 +508,6 @@
     state: r_leg_digi
   digitigrade: true
   editorExclusive: true
-  editorLinkedMarkings:
-  - SynthMechanicalRFootDigitigrade
 - type: marking
   id: SynthMechanicalLFootDigitigrade
   bodyPart: LFoot
@@ -570,7 +518,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: l_foot_digi
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthMechanicalRFootDigitigrade
   bodyPart: RFoot
@@ -581,7 +528,6 @@
   - sprite: _DeepLagoon/Mobs/Species/Synth/parts.rsi
     state: r_foot_digi
   editorExclusive: true
-  editorHidden: true
 - type: marking
   id: SynthFeroxiEars
   bodyPart: HeadTop

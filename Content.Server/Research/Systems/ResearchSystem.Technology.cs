@@ -163,9 +163,9 @@ public sealed partial class ResearchSystem
             return;
         component.MainDiscipline = null;
         component.CurrentTechnologyCards = new List<string>();
-        component.SupportedDisciplines.Clear();
-        component.UnlockedTechnologies.Clear();
-        component.UnlockedRecipes.Clear();
+        component.SupportedDisciplines = new();
+        component.UnlockedTechnologies = new();
+        component.UnlockedRecipes = new();
         Dirty(uid, component);
     }
 }

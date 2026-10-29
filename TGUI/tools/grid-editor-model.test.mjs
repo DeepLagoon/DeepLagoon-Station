@@ -1,10 +1,48 @@
 import test from 'node:test';
+import { gridEditorTransfer } from '../packages/tgui/interfaces/gridEditorTransfer.mjs';
 import assert from 'node:assert/strict';
 import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, overlayLocalEdits, rebaseExpansion, resizeExpansion, previewPatch, peerPreview, stamp, copyItems, validateDraft, changeCount, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, itemsInRect, expansionCount, expansionRects, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, replaceConflicts, mirrorChanges, reflectedItem, reflectSelection } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const options = { rotation: 90, color: '#ffffff', z: 0, cleanable: false, replace: true, isWall: (id) => id === 'Wall' };
 let id = 0;
 const nextId = () => `new_${id++}`;
 const area = { x: -4, y: -4, width: 16, height: 16 };
+
+test('copying a native scene preserves authored overlapping structures while replacing older occupancy', () => {
+  const old={id:'old',kind:'entity',prototype:'WallSolid',x:.5,y:.5};
+  const scene=[{...old,id:'copy-wall',entityGroup:'paste',entityData:'wall'},{...old,id:'copy-locker',prototype:'LockerWallMedicalFilled',entityGroup:'paste',entityData:'locker'}];
+  assert.deepEqual(replaceConflicts([old],[old,...scene],()=>true),scene);
+  assert.deepEqual(overlayLocalEdits([old],scene,()=>true),scene);
+});
+
+test('moving a live wall and its mounted locker preserves both without allowing unrelated destination occupancy', () => {
+  const wall={id:'e:wall',kind:'entity',prototype:'WallSolid',x:.5,y:.5};
+  const locker={...wall,id:'e:locker',prototype:'LockerWallMedicalFilled'};
+  const other={...wall,id:'e:other',x:3.5};
+  const moved=[wall,locker].map(item=>({...item,x:3.5}));
+  assert.deepEqual(replaceConflicts([wall,locker,other],[...moved,other],()=>true),moved);
+  assert.deepEqual(overlayLocalEdits([wall,locker,other],moved,()=>true),moved);
+});
+
+test('large native snapshots fit CEF actions and reassemble exactly with quotes, Unicode and newlines', () => {
+  const items=[{id:'new_large',kind:'entity',entityData:'"\\\nСостояние😀'.repeat(12000),entityGroup:'scene',pipeLayer:2}];
+  const transfer=gridEditorTransfer(items);
+  assert.equal(transfer.encoding,'json');assert.ok(transfer.chunks.length>16);
+  for (const [index,text] of transfer.chunks.entries()) {
+    assert.ok(JSON.stringify({id:'transfer',index,text,tabToken:'tab'}).length<8192);
+    assert.ok(text.charCodeAt(text.length-1)<0xD800 || text.charCodeAt(text.length-1)>0xDBFF);
+  }
+  assert.deepEqual(JSON.parse(transfer.chunks.join('')),items);
+});
+
+test('native scene data and references survive rotated templates, repeated paste groups and partial bounds', () => {
+  const items=[{id:'e:a',kind:'entity',prototype:'GasVentPump',x:.5,y:.5,rotation:0,entityData:'native-a',entityGroup:'capture',pipeLayer:2},
+    {id:'e:b',kind:'entity',prototype:'GasVentPump',x:2.5,y:.5,rotation:90,entityData:'native-b',entityGroup:'capture',pipeLayer:2}];
+  const first=insertTemplate([],items,{x:0,y:0},1,nextId),second=insertTemplate([],items,{x:4,y:0},0,nextId);
+  assert.deepEqual(first.map(item=>item.entityData),['native-a','native-b']);assert.ok(first.every(item=>item.pipeLayer===2));
+  assert.equal(first[0].entityGroup,first[1].entityGroup);assert.notEqual(first[0].entityGroup,second[0].entityGroup);
+  const partial=insertTemplate([],items,{x:0,y:0},0,nextId,item=>item.x<2);
+  assert.equal(partial.length,1);assert.equal(partial[0].x,.5);assert.equal(partial[0].entityData,'native-a');
+});
 
 test('diagnostics identify every unsupported object and retain legacy edit scoping', async () => {
   const { draftIssues } = await import('../packages/tgui/interfaces/gridEditorModel.mjs');

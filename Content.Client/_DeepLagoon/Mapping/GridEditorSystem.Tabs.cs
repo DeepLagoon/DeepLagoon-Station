@@ -13,7 +13,9 @@ public sealed partial class GridEditorSystem
 {
     private sealed class EditorTab
     {
+        public long OpenOrder;
         public GridEditorStateEvent? State;
+        public SnapshotTransfer? Snapshot;
         public string SearchQuery = "";
         public string SearchCategory = "tile";
         public int SearchPage;
@@ -22,6 +24,7 @@ public sealed partial class GridEditorSystem
         public int UploadChunks;
         public int UploadNext;
         public List<GridEditorItem> Upload = new();
+        public StringBuilder? UploadText;
         public GridEditorExpansion? UploadExpansion;
         public GridEditorEnvironmentState? EnvironmentState;
         public int PatchVersion;
@@ -34,6 +37,7 @@ public sealed partial class GridEditorSystem
         public string? PreviewId;
         public GridEditorExpansion? PreviewExpansion;
         public List<GridEditorItem> Preview = new();
+        public StringBuilder? PreviewText;
         public List<GridEditorPeerDraft> PeerDrafts = new();
         public Stream? Download;
         public Guid DownloadRequest;
@@ -56,6 +60,58 @@ public sealed partial class GridEditorSystem
     private readonly Dictionary<Guid, EditorTab> _tabs = new();
     private EditorTab _tab = new();
     private Guid _activeTab;
+    private long _nextTabOrder;
+    private readonly Queue<Guid> _snapshotQueue = new();
+    private const int SnapshotChunkItems = 1024;
+    private sealed class SnapshotTransfer(TguiData header, List<GridEditorItem> items)
+    {
+        public readonly string Id = Guid.NewGuid().ToString();
+        public readonly TguiData Header = header;
+        public readonly List<GridEditorItem> Items = items;
+        public int Offset;
+        public int Chunks;
+        public bool Started;
+    }
+
+    public override void FrameUpdate(float frameTime)
+    {
+        base.FrameUpdate(frameTime);
+        if (_window is not { VisibleInTree: true } || !_window.Panel.Web.IsReady) return;
+        while (_snapshotQueue.TryPeek(out var token))
+        {
+            if (!_tabs.TryGetValue(token, out var tab) || tab.Snapshot == null) { _snapshotQueue.Dequeue(); continue; }
+            InTab(token, PublishSnapshotChunk);
+            if (tab.Snapshot == null) _snapshotQueue.Dequeue();
+            break;
+        }
+    }
+
+    private void PublishSnapshotChunk()
+    {
+        if (_tab.Snapshot is not { } transfer) return;
+        var message = new TguiData().String("id", transfer.Id);
+        if (!transfer.Started)
+        {
+            transfer.Started = true;
+            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "start")).Object("data", transfer.Header).ToString());
+        }
+        else if (transfer.Offset < transfer.Items.Count)
+        {
+            var chunk = transfer.Items.Skip(transfer.Offset).Take(SnapshotChunkItems);
+            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "chunk").Number("index", transfer.Chunks++))
+                .Object("data", new TguiData().Array("items", builder => GridEditorJson.AppendItems(builder, chunk))).ToString());
+            transfer.Offset += Math.Min(SnapshotChunkItems, transfer.Items.Count - transfer.Offset);
+        }
+        else
+        {
+            _tab.Snapshot = null;
+            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "complete").Number("chunks", transfer.Chunks)).ToString());
+            PublishPendingPatches(); PublishPeerDrafts();
+            if (_tab.EnvironmentState is { } environment) EnvironmentState(environment);
+            Search(_tab.SearchQuery, _tab.SearchCategory, _tab.SearchPage);
+            PublishLibrary();
+        }
+    }
 
     private void InTab(Guid token, Action action)
     {
@@ -78,7 +134,17 @@ public sealed partial class GridEditorSystem
         _activeTab = token;
         _tab = _tabs[token];
         _editingText = false;
-        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().String("activeEditorTab", token.ToString())).ToString());
+        _window?.Panel.Web.Send("update", new TguiData().Object("data", new TguiData().String("activeEditorTab", token.ToString())
+            .Array("editorTabOrder", builder =>
+            {
+                var separator = false;
+                foreach (var id in _tabs.OrderBy(pair => pair.Value.OpenOrder).Select(pair => pair.Key))
+                {
+                    if (separator) builder.Append(',');
+                    separator = true;
+                    GameWebView.AppendQuoted(builder, id.ToString());
+                }
+            })).ToString());
     }
 
     private void TabAction(string action, string payload)
@@ -103,6 +169,6 @@ public sealed partial class GridEditorSystem
         if (notifyServer) RaiseNetworkEvent(new GridEditorCloseEvent(token));
         _window?.Panel.Web.Send("update", new TguiData().String("gridEditorClosed", token.ToString()).ToString());
         if (_tabs.Count == 0) { Close(); return; }
-        if (_activeTab == token) ActivateTab(_tabs.Keys.Last());
+        if (_activeTab == token) ActivateTab(_tabs.MaxBy(pair => pair.Value.OpenOrder).Key);
     }
 }

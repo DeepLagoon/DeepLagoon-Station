@@ -33,8 +33,9 @@ public sealed partial class GridEditorSystem
         if (action == "previewStart")
         {
             var id = Field(root, "id");
+            var encoded = Field(root, "encoding") == "json";
             if (id.Length is < 1 or > 64 || !int.TryParse(Field(root, "count"), out var count) || count < 0 ||
-                !int.TryParse(Field(root, "chunks"), out var chunks) || chunks != Math.Max(1, (count + 15L) / 16) ||
+                !int.TryParse(Field(root, "chunks"), out var chunks) || (encoded ? chunks is < 1 or > 32768 : chunks != Math.Max(1, (count + 15L) / 16)) ||
                 !int.TryParse(Field(root, "generation"), out _tab.PreviewUploadGeneration)) return true;
             _tab.PreviewExpansion = null;
             if (root.TryGet<MappingDataNode>("expansion", out var expansion))
@@ -44,19 +45,31 @@ public sealed partial class GridEditorSystem
                 _tab.PreviewExpansion = new GridEditorExpansion { Left = left, Right = right, Bottom = bottom, Top = top };
             }
             _tab.PreviewId = id; _tab.PreviewCount = count; _tab.PreviewChunks = chunks; _tab.PreviewNext = 0; _tab.Preview.Clear();
+            _tab.PreviewText = encoded ? new System.Text.StringBuilder() : null;
             AckPreview(); return true;
         }
         if (action != "previewChunk") return false;
         if (_tab.State == null || _tab.PreviewId == null || Field(root, "id") != _tab.PreviewId ||
-            !int.TryParse(Field(root, "index"), out var index) || index != _tab.PreviewNext ||
-            !root.TryGet<SequenceDataNode>("items", out var sequence) || sequence.Count > 16) return true;
-        _tab.Preview.AddRange(ReadItems(sequence)); _tab.PreviewNext++;
+            !int.TryParse(Field(root, "index"), out var index) || index != _tab.PreviewNext) return true;
+        if (_tab.PreviewText is { } text)
+        {
+            var part = Field(root, "text");
+            if (part.Length is < 1 or > 1024 || text.Length + part.Length > 32 * 1024 * 1024) { _tab.PreviewId = null; _tab.PreviewText = null; return true; }
+            text.Append(part);
+            if (_tab.PreviewNext + 1 == _tab.PreviewChunks) _tab.Preview.AddRange(ReadItems(ReadItemText(text)));
+        }
+        else
+        {
+            if (!root.TryGet<SequenceDataNode>("items", out var sequence) || sequence.Count > 16) return true;
+            _tab.Preview.AddRange(ReadItems(sequence));
+        }
+        _tab.PreviewNext++;
         if (_tab.Preview.Count > _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
         if (_tab.PreviewNext < _tab.PreviewChunks) { AckPreview(); return true; }
         if (_tab.Preview.Count != _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
         RaiseNetworkEvent(new GridEditorDraftUpdateEvent(_tab.State.Token, _tab.PreviewUploadGeneration, new List<GridEditorItem>(_tab.Preview), _tab.PreviewExpansion));
         SendTabUpdate(new TguiData().Object("data", new TguiData().String("previewFinished", _tab.PreviewId)).ToString());
-        _tab.PreviewId = null; _tab.Preview.Clear(); return true;
+        _tab.PreviewId = null; _tab.Preview.Clear(); _tab.PreviewText = null; return true;
     }
 
     private void AckPreview() => SendTabUpdate(new TguiData().Object("data", new TguiData()

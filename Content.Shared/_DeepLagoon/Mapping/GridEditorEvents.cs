@@ -19,9 +19,31 @@ public sealed class GridEditorItem
     public byte Variant;
     public byte Flags;
     public byte Mirror;
+    public int PipeLayer = -1;
+    /// <summary>Unrotated gas ports: four direction bits for each of the three pipe layers.</summary>
+    public int GasPorts;
+    public string EntityData = "";
+    public string EntityGroup = "";
     public bool Same(GridEditorItem other) => Id == other.Id && Kind == other.Kind && Prototype == other.Prototype &&
         X == other.X && Y == other.Y && Rotation == other.Rotation && Color == other.Color && Z == other.Z &&
-        Cleanable == other.Cleanable && Anchored == other.Anchored && Variant == other.Variant && Flags == other.Flags && Mirror == other.Mirror;
+        Cleanable == other.Cleanable && Anchored == other.Anchored && Variant == other.Variant && Flags == other.Flags && Mirror == other.Mirror &&
+        PipeLayer == other.PipeLayer && GasPorts == other.GasPorts && EntityData == other.EntityData && EntityGroup == other.EntityGroup;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorCopyRequest(Guid token, string request, List<GridEditorItem> items, string name = "") : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Request = request, Name = name;
+    public readonly List<GridEditorItem> Items = items;
+}
+
+[Serializable, NetSerializable]
+public sealed class GridEditorCopyResult(Guid token, string request, List<GridEditorItem> items, string name, string errors) : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Request = request, Name = name, Errors = errors;
+    public readonly List<GridEditorItem> Items = items;
 }
 
 [Serializable, NetSerializable]
@@ -134,13 +156,14 @@ public sealed class GridEditorExportIssue
 /// <summary>Only authoritative items changed by an apply, including assigned entity/decal IDs.</summary>
 [Serializable, NetSerializable]
 public sealed class GridEditorPatchEvent(Guid token, List<GridEditorItem> items, List<string> removed,
-    int x, int y, int width, int height, int gridX, int gridY, int gridWidth, int gridHeight, bool applied = false, int previewGeneration = 0, List<GridEditorItem>? superseded = null) : EntityEventArgs
+    int x, int y, int width, int height, int gridX, int gridY, int gridWidth, int gridHeight, bool applied = false, int previewGeneration = 0, List<GridEditorItem>? superseded = null, List<GridEditorItem>? failedItems = null) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly List<GridEditorItem> Items = items;
     public readonly List<string> Removed = removed;
     public readonly bool Applied = applied;
     public readonly List<GridEditorItem> Superseded = superseded ?? new();
+    public readonly List<GridEditorItem> FailedItems = failedItems ?? new();
     public readonly int PreviewGeneration = previewGeneration;
     public readonly int X = x, Y = y, Width = width, Height = height;
     public readonly int GridX = gridX, GridY = gridY, GridWidth = gridWidth, GridHeight = gridHeight;

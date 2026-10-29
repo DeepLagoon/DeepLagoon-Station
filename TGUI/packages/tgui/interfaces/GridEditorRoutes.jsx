@@ -1,18 +1,21 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { GridEditorSelect } from './GridEditorSelect';
-import { buildRoute, deleteRoutePoint, insertRoutePoint, moveRoutePoint, pipePorts, readRoute, routeCells, routeProfile, routeProfiles, routePrototypes } from './gridEditorRouting.mjs';
+import { buildRoute, deleteRoutePoint, insertRoutePoint, installRouteDevice, moveRoutePoint, pipePorts, readRoute, routeCells, routeProfile, routeProfiles, routePrototypes } from './gridEditorRouting.mjs';
 
 const rotateAngle=rotation=>-rotation*Math.PI/180;
 const empty = () => ({nodes:[],edges:[],source:[],active:null});
-export function useGridEditorRoutes({token, act, items, area, nextId, commit, fail, locked, toCell, canvas}) {
+export function useGridEditorRoutes({token, act, items, area, nextId, commit, fail, locked, toCell, canvas, devices = []}) {
   const [graph,setGraph]=useState(empty), [profileId,setProfileId]=useState('hv');
   const [visible,setVisible]=useState(true), [capped,setCapped]=useState(false), [vertical,setVertical]=useState(false);
   const [history,setHistory]=useState([]), [future,setFuture]=useState([]);
   const [networkColor,setNetworkColor]=useState('#ffffff');
+  const [selectedDevices, setSelectedDevices] = useState({ gas: 'GasVentPump', disposal: 'DisposalUnit' });
   const drag=useRef(null), serial=useRef(0);
   const profile=routeProfiles.find(p=>p.id===profileId);
+  const availableDevices = devices.filter(device => device.kind === profile.kind);
+  const selectedDevice = availableDevices.find(device => device.id === selectedDevices[profile.kind]) || availableDevices[0];
   useEffect(()=>{setGraph(empty());setHistory([]);setFuture([]);},[token]);
-  useEffect(()=>{act('routeVisuals',{prototypes:routePrototypes(profile)});},[profileId,token]);
+  useEffect(()=>{act('routeVisuals',{prototypes:[...routePrototypes(profile), ...(selectedDevice ? [selectedDevice.id] : []), ...(profile.disposal ? ['DisposalTrunk'] : [])]});},[profileId,token,selectedDevice?.id]);
   const save=()=>{setHistory(h=>[...h.slice(-49),graph]);setFuture([]);};
   const reset=()=>{setGraph(empty());setHistory([]);setFuture([]);drag.current=null;};
   const edit=cell=>{
@@ -28,6 +31,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     setGraph(g=>({...g,nodes:[...g.nodes,{...cell,id}],edges:g.active?[...g.edges,{id:`e${serial.current++}`,a:g.active,b:id,vertical}]:g.edges,active:id}));
   };
   const startDrag=(event,point)=>{
+    if (event.button === 1) { event.stopPropagation(); event.preventDefault(); install(point); return; }
     if(locked||![0,2].includes(event.button))return;
     event.stopPropagation();event.preventDefault();canvas.current.focus();
     const inserted=insertRoutePoint(graph,point,`r${serial.current++}`),id=inserted.id;
@@ -65,6 +69,21 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     try{const result=buildRoute(items,graph,profile,graph.source,nextId,capped);commit(result);reset();}
     catch(error){fail(error.message);}
   };
+  const install = cell => {
+    if (locked) return;
+    try {
+      let source = items, picked = profile;
+      if (graph.nodes.length || graph.source.length) source = buildRoute(items, graph, profile, graph.source, nextId, capped).items;
+      else {
+        const candidates = items.filter(item => Math.floor(item.x) === cell.x && Math.floor(item.y) === cell.y && routeProfile(item));
+        picked = routeProfile(candidates.find(item => routeProfile(item).id === profile.id) || candidates[0]) || profile;
+      }
+      const available = devices.filter(device => device.kind === picked.kind);
+      const device = available.find(device => device.id === selectedDevices[picked.kind]) || available[0];
+      const result = installRouteDevice(source, cell, picked, device, nextId);
+      commit(result); reset(); setProfileId(picked.id);
+    } catch (error) { fail(error.message); }
+  };
   const paintNetwork=()=>{
     if(locked||profile.kind!=='gas'||!graph.source.length)return;
     const color=networkColor+'ff';
@@ -88,6 +107,11 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
       onChange={setProfileId} />
     <label><input type="checkbox" checked={vertical} onChange={e=>setVertical(e.target.checked)}/>Новые участки сначала по вертикали</label>
     {profile.kind==='gas'&&<label><input type="checkbox" checked={capped} onChange={e=>setCapped(e.target.checked)}/>Закрытые концы труб</label>}
+    {profile.kind !== 'wire' && <>
+      <label>Устройство на СКМ<GridEditorSelect aria-label="Устройство на СКМ" value={selectedDevice?.id || ''} disabled={locked || !availableDevices.length}
+        options={availableDevices.map(device => ({value: device.id, label: device.name}))}
+        onChange={id => setSelectedDevices(previous => ({...previous, [profile.kind]: id}))} /></label>
+    </>}
     {(!!graph.nodes.length||!!graph.source.length)&&<>
       {profile.kind==='gas'&&!!graph.source.length&&<>
         <label>Цвет pipenet <input type="color" aria-label="Цвет pipenet" value={networkColor} disabled={locked} onChange={e=>setNetworkColor(e.target.value)}/></label>
@@ -99,7 +123,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
       <button onClick={reset}>Отменить трассу · Esc</button>
     </>}
   </>;
-  return {graph,profile,cells,visible,controls,edit,startDrag,moveDrag,endDrag,split,finish,reset,removePoint,undo,
+  return {graph,profile,cells,visible,controls,edit,install,startDrag,moveDrag,endDrag,split,finish,reset,removePoint,undo,
     capped,previewItems:makeId=>buildRoute(items,graph,profile,graph.source,makeId,capped),canUndo:!!history.length,canRedo:!!future.length,editing:!!graph.nodes.length||!!graph.source.length,dragging:()=>!!drag.current};
 }
 

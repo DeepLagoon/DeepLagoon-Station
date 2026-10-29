@@ -56,13 +56,15 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
             remaining -= cost;
             foreach (var itemPrototype in prototype.PersonalItems)
             {
+                var data = _loadouts.Sanitize(prototype, selected.Customization);
+                var targetSlot = data?.Slot ?? _loadouts.PersonalSlot(profile, prototype);
+                var targetSlots = slots.Where(slot => targetSlot == null || slot.Name == targetSlot).ToArray();
                 // A mandatory personal choice may be restored by validation.
                 // Do not spawn it into another slot or drop it as a failed item.
                 if (_prototypes.Index(itemPrototype).TryGetComponent<ClothingComponent>(out var clothing) &&
-                    slots.Any(slot => unequipped.Contains(slot.Name) && (clothing.Slots & slot.SlotFlags) != 0))
+                    targetSlots.Any(slot => unequipped.Contains(slot.Name) && (clothing.Slots & slot.SlotFlags) != 0))
                     continue;
                 var item = Spawn(itemPrototype, Transform(character).Coordinates);
-                var data = _loadouts.Sanitize(prototype, selected.Customization);
                 if (data?.Name != null)
                     _metadata.SetEntityName(item, data.Name);
                 if (data?.Description != null)
@@ -82,7 +84,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                 var equipped = false;
                 if (HasComp<ClothingComponent>(item))
                 {
-                    foreach (var slot in slots)
+                    foreach (var slot in targetSlots)
                     {
                         if (unequipped.Contains(slot.Name)) continue;
                         // Never substitute clothes into pockets or suit storage.
@@ -92,7 +94,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                             continue;
                         if (_inventory.TryGetSlotEntity(character, slot.Name, out var previous))
                         {
-                            if (!prototype.PersonalExclusive)
+                            if (!prototype.PersonalExclusive && data?.Slot == null)
                                 continue;
                             if (!_inventory.TryUnequip(character, slot.Name, silent: true, force: true))
                                 continue;

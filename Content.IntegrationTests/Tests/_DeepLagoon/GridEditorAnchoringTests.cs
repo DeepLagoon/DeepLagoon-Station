@@ -155,6 +155,8 @@ public sealed class GridEditorAnchoringTests
         await pair.Client.WaitAssertion(() =>
         {
             var editor = pair.Client.EntMan.System<Content.Client._DeepLagoon.Mapping.GridEditorSystem>();
+            // Headless clients do not fire WebView Ready; build the lazy catalogue through its normal search entry point.
+            editor.GetType().GetMethod("Search", flags)!.Invoke(editor, new object[] { "", "all", 0 });
             var catalog = (IEnumerable)editor.GetType().GetField("_catalog", flags)!.GetValue(editor)!;
             var entry = catalog.Cast<object>().Single(item => (string)item.GetType().GetProperty("Id")!.GetValue(item)! == "DLApartmentElevatorPanel");
             Assert.That(entry.GetType().GetProperty("Anchored")!.GetValue(entry), Is.True);

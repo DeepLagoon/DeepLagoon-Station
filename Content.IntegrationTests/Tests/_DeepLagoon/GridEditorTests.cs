@@ -1185,12 +1185,20 @@ public sealed class GridEditorTests
             savedToken = editor.State!.Token;
             action.Invoke(editor, new object[] { "favorite", "{\"kind\":\"entity\",\"id\":\"WallSolid\"}" });
             Send(editor, editor.State.Items, "template", "Тестовая каюта");
+        });
+        // Templates now freeze component state on the server before writing the local library.
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
             var file = pair.Client.ResolveDependency<IResourceManager>().UserData;
             Assert.That(file.Exists(new ResPath("/grid-editor/library.json")), Is.True);
             using var reader = file.OpenText(new ResPath("/grid-editor/library.json"));
             var json = JsonDocument.Parse(reader.ReadToEnd());
             Assert.That(json.RootElement.GetProperty("favorites").EnumerateArray().Any(f => f.GetProperty("id").GetString() == "WallSolid"), Is.True);
             Assert.That(json.RootElement.GetProperty("templates").EnumerateArray().Any(t => t.GetProperty("name").GetString() == "Тестовая каюта"), Is.True);
+            Assert.That(json.RootElement.GetProperty("templates").EnumerateArray().Single(t => t.GetProperty("name").GetString() == "Тестовая каюта")
+                .GetProperty("items").EnumerateArray().Single(item => item.GetProperty("prototype").GetString() == "ChairWood").GetProperty("entityData").GetString(), Does.Contain("Preserved mapper name"));
             // Read the saved file again through the same startup path used after restarting the client.
             typeof(ClientEditor).GetField("_libraryLoaded", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(editor, false);
             typeof(ClientEditor).GetMethod("LoadLibrary", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(editor, null);

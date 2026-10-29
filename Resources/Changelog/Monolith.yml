@@ -24902,4 +24902,19 @@ Entries:
     id: 2830
     time: '2026-10-27T12:53:28.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/14
+  - author: iamasay
+    changes:
+      - type: Add
+        message: Добавлена награда 10 LC автору подтверждённого баг-репорта.
+      - type: Add
+        message: Поддержаны категории баг-репортов — код, спрайты, перевод, маппинг и вики.
+      - type: Add
+        message: Добавлена защита от повторных выплат за одну публикацию.
+      - type: Add
+        message: Добавлены проверки привязки аккаунтов и ограничения самоподтверждения баг-репортов.
+      - type: Add
+        message: Добавлены тесты и документация API наград за баг-репорты.
+    id: 2831
+    time: '2026-10-29T08:31:14.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/commit/f23dd3fdb4343e7dfab1760836fb14347daf1518
 GeneratedThrough: '2026-10-27T12:53:28.000Z'

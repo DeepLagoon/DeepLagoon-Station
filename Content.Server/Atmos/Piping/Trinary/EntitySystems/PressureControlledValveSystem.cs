@@ -78,6 +78,7 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
 
         private void OnFilterLeaveAtmosphere(EntityUid uid, PressureControlledValveComponent comp, ref AtmosDeviceDisabledEvent args)
         {
+            if (args.PreserveSettings) return;
             comp.Enabled = false;
             UpdateAppearance(uid, comp);
             _ambientSoundSystem.SetAmbience(uid, false);

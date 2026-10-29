@@ -4,6 +4,7 @@ import { Button, Dropdown, Section } from '../components';
 import { PlayerColorPicker } from '../components/PlayerColorPicker';
 import { TintedSprite } from '../components/PlayerTheme';
 import './EquipmentBrowser.scss';
+import { filter as fuzzyFilter } from './fuzzySearch';
 const Sprite = ({item,color='#ffffff'}) => <div className="EquipmentBrowser__sprite">{item.iconId ? <LazySprite id={item.iconId} color={color} /> : (item.images||[]).map((image,i)=><TintedSprite key={i} image={image.url} color={color} baseColor={image.color} />)}</div>;
 const Customization = ({item,mode,act,close}) => {
   const [color,setColor]=useState(item.color?.slice(0,7)||'#ffffff');
@@ -21,6 +22,7 @@ const Customization = ({item,mode,act,close}) => {
 };
 export const EquipmentBrowser = memo(({data={},act}) => {
   const [visibleCount,setVisibleCount]=useState(24);
+  const [query,setQuery]=useState('');
   const sentinel=useRef(null);
 
   const [category,setCategory]=useState(''),[unavailable,setUnavailable]=useState(false),[modal,setModal]=useState(null);
@@ -30,9 +32,10 @@ export const EquipmentBrowser = memo(({data={},act}) => {
   const catalog=useMemo(()=>[...(data.jobItems||[]).map(item=>({...item,jobItem:true})),...(data.items||[])].filter(item=>unavailable||item.allowed||item.selected||item.donor),[data,unavailable]);
   const hasItems=id=>{const ids=descendants(id);return catalog.some(item=>ids.has(item.category));};
   const parent=categories.find(c=>c.root&&descendants(c.id).has(category));
-  useEffect(()=>setVisibleCount(24),[category,unavailable,data.slot,data.job]);
+  useEffect(()=>setVisibleCount(24),[category,unavailable,data.slot,data.job,query]);
   useEffect(()=>{if(category&&!hasItems(category))setCategory('');},[data,unavailable,category]);
-  const filtered=useMemo(()=>catalog.filter(item=>!accepted||accepted.has(item.category)),[catalog,category,data]);
+  const filtered=useMemo(()=>fuzzyFilter(catalog.filter(item=>!accepted||accepted.has(item.category)),query,
+    item => [item.name,item.customName,item.id].filter(Boolean).join(' ')),[catalog,category,data,query]);
   useEffect(()=>{const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))setVisibleCount(n=>n+24);});if(sentinel.current)observer.observe(sentinel.current);return()=>observer.disconnect();},[visibleCount,filtered.length]);
   const item=catalog.find(item=>item.id===modal?.id && !!item.jobItem===!!modal?.jobItem && item.group===modal?.group);
   return <div className="EquipmentBrowser">
@@ -47,6 +50,11 @@ export const EquipmentBrowser = memo(({data={},act}) => {
     </Section>
     <nav aria-label="Категории снаряжения"><Button selected={!category} onClick={()=>setCategory('')}>Все категории</Button>{categories.filter(c=>c.root&&hasItems(c.id)).map(c=><Button key={c.id} selected={parent?.id===c.id} onClick={()=>setCategory(c.id)}>{c.name}</Button>)}</nav>
     {parent&&<nav aria-label="Подкатегории снаряжения">{(parent.children||[]).filter(child=>hasItems(child.id)).map(child=><Button key={child.id} selected={category===child.id} onClick={()=>setCategory(child.id)}>{categories.find(c=>c.id===child.id)?.name||child.id}</Button>)}</nav>}
+    <div className="EquipmentBrowser__search">
+      <label><span>Поиск снаряжения</span><input type="search" placeholder="Название или ID предмета…" value={query} onChange={event=>setQuery(event.target.value)} /></label>
+      <Button role="button" aria-label="Очистить поиск" disabled={!query} aria-disabled={!query} icon="times" onClick={()=>setQuery('')}>Очистить поиск</Button>
+    </div>
+    {!filtered.length&&<p role="status">Ничего не найдено</p>}
     <div className="EquipmentBrowser__grid">{filtered.slice(0,visibleCount).map(item=><article key={(item.group||'personal')+item.id} title={[item.reason,item.groupName,item.donor].filter(Boolean).join(' · ')}>
       <button type="button" disabled={!item.canSelect} aria-pressed={item.selected} onClick={()=>act(item.jobItem?'job-select':'select',{id:item.id,group:item.group})}><Sprite item={item} color={item.color?.slice(0,7)||'#ffffff'} /><strong>{item.customName||item.name}</strong><small>{item.cost} {item.jobItem?'$':'очков'}</small>{item.donor&&<small>{item.donor}</small>}{!item.allowed&&<small>🔒 {item.reason}</small>}{item.jobItem&&<small>{item.groupName} · {item.min}–{item.max}</small>}</button>
       {<div className="EquipmentBrowser__tools">

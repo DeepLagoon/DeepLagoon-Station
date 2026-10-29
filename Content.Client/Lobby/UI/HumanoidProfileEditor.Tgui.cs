@@ -294,16 +294,17 @@ public sealed partial class HumanoidProfileEditor
         var data = new TguiData().String("mode", mode).Bool("available", Profile != null)
             .Bool("maximized", EditorWindow?.Maximized == true).Bool("dirty", IsDirty).Bool("showClothes", ShowClothes.Pressed).Bool("libraryOpen", _libraryWindow != null);
         data.Bool("colorPickerOpen", _colorWindow != null).Object("colorPickerResult", _colorPickerResult)
-            .Bool("combineMarkings", _combineMarkings);
+            .Array("combinedMarkingCategories", _combineMarkings.Select(key => new TguiData().String("id", key)))
+            .Bool("previewAroused", _previewGenitalAroused).Bool("canPreviewAroused", CanPreviewArousal);
         data.Object("appearance", _editorAppearance.Data());
         data.String("previewFloor", _tguiImages.Frame(new SpriteSpecifier.Texture(new ResPath("Tiles/steel.png"))));
         data.Bool("extendedHeadshot", _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetSupporterTier(_playerManager.LocalSession) >= 2);
         if (SetupState != null) data.Object("setup", SetupState());
         if (Profile is not { } p) return data;
         data.Bool("canUndoAppearance", !_tattooFileBusy && _appearanceBaseline != null
-                && (!SameAppearanceSelection(p.Appearance, _appearanceBaseline) || _combineMarkings != _appearanceBaselineCombine))
+                && (!SameAppearanceSelection(p.Appearance, _appearanceBaseline) || !_combineMarkings.SetEquals(_appearanceBaselineCombine)))
             .Bool("canRedoAppearance", !_tattooFileBusy && _appearanceRedo != null
-                && (!SameAppearanceSelection(p.Appearance, _appearanceRedo) || _combineMarkings != _appearanceRedoCombine));
+                && (!SameAppearanceSelection(p.Appearance, _appearanceRedo) || !_combineMarkings.SetEquals(_appearanceRedoCombine)));
         if (mode == "appearance") data.Array("bodyFeatures", BodyCustomizationData());
         data.Bool("canUsePlantigradeLegs", _prototypeManager.Index(p.Species).PlantigradeSprites != null)
             .Bool("plantigradeLegs", p.Appearance.PlantigradeLegs);
@@ -328,30 +329,14 @@ public sealed partial class HumanoidProfileEditor
         if (mode == "markings")
         {
             data.Object("tattooEditor", _tattooEditor.Build(PreviewDummy, p.Appearance.Tattoos, _tattooStatus).Bool("fileBusy", _tattooFileBusy));
-            data.Array("markings", p.Appearance.Markings.Select((marking, index) => (marking, index))
-                .Where(entry => !_markingManager.TryGetMarking(entry.marking, out var definition) || !definition.EditorHidden)
-                .OrderByDescending(entry => entry.marking.DrawOrder)
-                .Select(entry =>
-                {
-                    var (marking, index) = entry;
-                    _markingManager.TryGetMarking(marking, out var definition);
-                    return new TguiData().Number("index", index).String("id", marking.MarkingId).String("name", Loc.GetString($"marking-{marking.MarkingId}"))
-                    .String("part", definition?.BodyPart.ToString() ?? "Special")
-                    .String("categoryId", definition?.MarkingCategory.ToString() ?? "Special")
-                    .Bool("locked", !_markingManager.TryGetMarking(marking, out var proto) || proto.ForcedColoring || _markingManager.MustMatchSkin(p.Species, proto.BodyPart, out _, _prototypeManager))
-                    .Array("colors", marking.MarkingColors.Select(color => Choice("", color.ToHexNoAlpha())));
-                }));
-            if (includeCatalogs) data.Array("markingOptions", _markingManager.Markings.Values.Where(m => m.MarkingCategory is not (MarkingCategories.Hair or MarkingCategories.FacialHair)
-                && !m.EditorHidden && _markingManager.CanBeApplied(p.Species, p.Sex, m, _prototypeManager, p.UnrestrictedMarkings))
-                .Select(m => Choice(m.ID, Loc.GetString($"marking-{m.ID}")).String("category", Loc.GetString(_markingManager.IsCommon(m) ? "markings-category-common" : m.EditorLinkedMarkings.Count > 0
-                    ? $"markings-bodypart-{m.BodyPart}" : $"markings-category-{m.MarkingCategory}"))
-                    .String("part", m.BodyPart.ToString()).String("categoryId", m.MarkingCategory.ToString())
-                    .Array("races", MarkingRaceChoices(m))
-                    .String("iconId", "marking/" + m.ID)));
+            data.Array("markings", MarkingSelectionData());
+            if (includeCatalogs) data.Array("markingOptions", MarkingOptionData());
         }
         var species = _prototypeManager.Index(p.Species);
         if (mode == "appearance") data.String("hairPreviewImage", HairPreviewImage());
         data.String("name", p.Name).Number("age", p.Age).String("species", p.Species.Id)
+            .String("speciesName", Loc.GetString(species.Name))
+            .Bool("markingSpeciesRestricted", !p.UnrestrictedMarkings && p.Species.Id != "Synth")
             .Number("sex", (int)p.Sex).Number("gender", (int)p.Gender)
             .Number("spawn", (int)p.SpawnPriority).Number("height", p.Appearance.Height).Number("width", p.Appearance.Width)
             .String("hairStyle", p.Appearance.HairStyleId).String("beardStyle", p.Appearance.FacialHairStyleId)
@@ -516,6 +501,11 @@ public sealed partial class HumanoidProfileEditor
         { _tattooStatus = Content.Shared._DeepLagoon.Tattoos.TattooAccess.BanMessage; PublishTguiProfile(); return false; }
         if (action == "catalog-open") return OpenCatalog(args!.String("kind") ?? "");
         if (action == "catalog-close") { CloseCatalog(); return true; }
+        if (action == "preview-occluded")
+        {
+            _tguiHost?.SetPreviewOccluded(args!.String("value") == "true");
+            return true;
+        }
         if (action.StartsWith("color-picker-", StringComparison.Ordinal)) return HandleColorPicker(action, args!);
         if (action == "preview-bounds")
         {
@@ -641,6 +631,8 @@ public sealed partial class HumanoidProfileEditor
             case "marking-remove":
             case "marking-color":
             case "marking-move":
+            case "marking-side":
+            case "marking-glow":
                 if (!HandleTguiMarking(action, args, value)) return false;
                 break;
 #if DEBUG
@@ -658,9 +650,18 @@ public sealed partial class HumanoidProfileEditor
             case "export-image": ExportImage(); break;
             case "open-images": _resManager.UserData.OpenOsWindow(Content.Client.Sprite.ContentSpriteSystem.Exports); break;
             case "marking-combine":
+                if (!_markingManager.Markings.Values.Any(option => MarkingCategoryKey(option) == value)) return false;
                 _appearanceRedo = null;
-                _combineMarkings = !_combineMarkings;
-                if (!_combineMarkings) DisableMarkingCombination();
+                if (!_combineMarkings.Add(value))
+                {
+                    _combineMarkings.Remove(value);
+                    DisableMarkingCombination(value);
+                }
+                break;
+            case "preview-arousal":
+                if (!CanPreviewArousal) return false;
+                _previewGenitalAroused = !_previewGenitalAroused;
+                ApplyPreviewArousal();
                 break;
             case "clothes": if (_tguiMode == "markings") return false; ShowClothes.SetClickPressed(!ShowClothes.Pressed); ReloadPreview(); break;
             case "rotate":
@@ -779,10 +780,9 @@ public sealed partial class HumanoidProfileEditor
             CloseColorPicker();
             if (!_markingManager.Markings.TryGetValue(value, out var prototype) || prototype.MarkingCategory is MarkingCategories.Hair or MarkingCategories.FacialHair ||
                 prototype.EditorHidden || !_markingManager.CanBeApplied(Profile.Species, Profile.Sex, prototype, _prototypeManager, Profile.UnrestrictedMarkings)) return false;
-            if (action == "marking-toggle" && list.FirstOrDefault(marking => marking.MarkingId == value) is { } current)
+            if (action == "marking-toggle" && SelectedPair(list, prototype).FirstOrDefault() is { } current)
             {
-                list.Remove(current);
-                list.RemoveAll(linked => prototype.EditorLinkedMarkings.Contains(linked.MarkingId));
+                list.RemoveAll(member => PairParts(prototype).Any(part => part.ID == member.MarkingId));
             }
             else if (!TrySelectTguiMarking(list, prototype, points)) return false;
         }
@@ -792,9 +792,21 @@ public sealed partial class HumanoidProfileEditor
             var marking = list[index];
             if (action == "marking-remove")
             {
-                list.RemoveAt(index);
-                if (_markingManager.TryGetMarking(marking, out var removed))
-                    list.RemoveAll(linked => removed.EditorLinkedMarkings.Contains(linked.MarkingId));
+                if (!_markingManager.TryGetMarking(marking, out var removed)) return false;
+                list.RemoveAll(member => PairParts(removed).Any(part => part.ID == member.MarkingId));
+            }
+            else if (action == "marking-side")
+            {
+                if (value is not ("left" or "right" or "both") || !_markingManager.TryGetMarking(marking, out var definition)
+                    || _markingManager.EditorMirror(definition) == null) return false;
+                list.RemoveAll(member => PairParts(definition).Any(part => part.ID == member.MarkingId));
+                if (!TrySelectTguiMarking(list, CanonicalMarking(definition), points, value, marking)) return false;
+            }
+            else if (action == "marking-glow")
+            {
+                if (!CanUseMarkingGlow || !_markingManager.TryGetMarking(marking, out var definition) || !definition.CanGlow) return false;
+                var glow = !marking.Unshaded;
+                foreach (var member in SelectedPair(list, definition)) member.Unshaded = glow;
             }
             else if (action == "marking-move")
             {
@@ -806,8 +818,8 @@ public sealed partial class HumanoidProfileEditor
                 if (!_markingManager.TryGetMarking(marking, out var prototype) || prototype.ForcedColoring || _markingManager.MustMatchSkin(Profile.Species, prototype.BodyPart, out _, _prototypeManager) ||
                     !args.TryInt("layer", out var layer) || layer < 0 || layer >= marking.MarkingColors.Count || !Color.TryFromHex(value, out var color)) return false;
                 marking.SetColor(layer, color);
-                foreach (var linked in list.Where(linked => prototype.EditorLinkedMarkings.Contains(linked.MarkingId)))
-                    linked.SetColor(color);
+                foreach (var member in SelectedPair(list, prototype))
+                    if (layer < member.MarkingColors.Count) member.SetColor(layer, color);
             }
         }
         RestoreTguiBodyMarkings(list, points);

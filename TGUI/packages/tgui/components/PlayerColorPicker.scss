@@ -8,3 +8,5 @@
   &--transfer > button:not(:disabled) {cursor:crosshair;outline:2px dashed var(--editor-accent,#83bbfa);outline-offset:2px;}
   &__popover {padding:12px;border:1px solid #788799;background:var(--player-surface,#25252d);margin:8px 0;max-width:300px;}
 }
+
+.ColorSquare > button.ColorSquare__locked { opacity:1; color:#f3f3f3; border-color:#888e96; padding:0; cursor:default; }

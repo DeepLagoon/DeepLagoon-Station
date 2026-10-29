@@ -117,6 +117,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 
         var proto = _prototypeManager.Index<HumanoidSpeciesSpriteLayer>(protoId);
         component.BaseLayers[key] = proto;
+        layer.Visible &= !HasBodyReplacement(component, key);
 
         if (proto.MatchSkin && !overrideSkin) // Shitmed Change
             layer.Color = component.SkinColor.WithAlpha(proto.LayerAlpha);
@@ -207,7 +208,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 profile.Appearance.EyeColor,
                 markings
             );
-            markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder });
+            markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder, Unshaded = marking.Unshaded && prototype.CanGlow });
         }
 
         markings.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _prototypeManager, profile.UnrestrictedMarkings);
@@ -257,7 +258,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                          && sprite.LayerMapTryGet(prototype.BodyPart, out var layer) ? layer : -1))
         {
             if (_markingManager.TryGetMarking(marking, out var markingPrototype))
-                ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, humanoid, sprite);
+                ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, humanoid, sprite, marking.Unshaded);
         }
 
         humanoid.ClientOldMarkings = new MarkingSet(humanoid.MarkingSet);
@@ -312,7 +313,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         IReadOnlyList<Color>? colors,
         bool visible,
         HumanoidAppearanceComponent humanoid,
-        SpriteComponent sprite)
+        SpriteComponent sprite, bool unshaded = false)
     {
         var markingAnchor = markingPrototype.GetLayerAnchor(_prototypeManager.Index(humanoid.Species));
         if (!sprite.LayerMapTryGet(markingAnchor, out int targetLayer))
@@ -356,13 +357,9 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 sprite.LayerMapSet(layerId, layer);
                 sprite.LayerSetSprite(layerId, selectedSprite);
             }
-		    // impstation edit begin - check if there's a shader defined in the markingPrototype's shader datafield, and if there is...
-			if (markingPrototype.Shader != null)
-			{
-			// use spriteComponent's layersetshader function to set the layer's shader to that which is specified.
-				sprite.LayerSetShader(layerId, markingPrototype.Shader);
-			}
-			// impstation edit end
+            if (unshaded && markingPrototype.CanGlow)
+                sprite.LayerSetShader(layerId, "unshaded");
+            else if (markingPrototype.Shader is { } shader) sprite.LayerSetShader(layerId, shader);
             sprite.LayerSetVisible(layerId, visible);
 
             if (!visible)
@@ -428,10 +425,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         }
 
         var spriteLayer = sprite[index];
-        if (spriteLayer.Visible == visible)
-            return;
-
-        spriteLayer.Visible = visible;
+        spriteLayer.Visible = visible && !HasBodyReplacement(ent.Comp, layer);
         EntityManager.System<Content.Client._DeepLagoon.Tattoos.TattooVisualizerSystem>().UpdateVisibility(ent.Owner, ent.Comp, sprite);
         EntityManager.System<Content.Client._DeepLagoon.BodyCustomization.BodyCustomizationVisualizerSystem>().UpdateVisibility(ent.Owner, ent.Comp, sprite);
 
@@ -443,8 +437,13 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
             foreach (var marking in markingList)
             {
                 if (_markingManager.TryGetMarking(marking, out var markingPrototype) && markingPrototype.BodyPart == layer)
-                    ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, ent, sprite);
+                    ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, ent, sprite, marking.Unshaded);
             }
         }
     }
+
+    private bool HasBodyReplacement(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer) =>
+        humanoid.MarkingSet.Markings.Values.SelectMany(markings => markings).Any(marking => marking.Visible
+            && _markingManager.TryGetMarking(marking, out var prototype) && prototype.IsBodyReplacement && prototype.BodyPart == layer
+            && (humanoid.UnrestrictedMarkings || humanoid.BaseLayers.TryGetValue(layer, out var setting) && setting.AllowsMarkings));
 }

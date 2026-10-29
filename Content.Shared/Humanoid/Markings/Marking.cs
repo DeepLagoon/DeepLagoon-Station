@@ -45,6 +45,7 @@ namespace Content.Shared.Humanoid.Markings
             Visible = other.Visible;
             Forced = other.Forced;
             DrawOrder = other.DrawOrder;
+            Unshaded = other.Unshaded;
         }
 
         /// <summary>
@@ -68,6 +69,9 @@ namespace Content.Shared.Humanoid.Markings
         /// <summary>Higher values render above lower values, including across marking categories.</summary>
         [DataField]
         public int DrawOrder;
+
+        [DataField]
+        public bool Unshaded;
 
         /// <summary>
         ///     If this marking should be forcefully applied, regardless of points.
@@ -114,6 +118,7 @@ namespace Content.Shared.Humanoid.Markings
                 && _markingColors.SequenceEqual(other._markingColors)
                 && Visible.Equals(other.Visible)
                 && DrawOrder == other.DrawOrder
+                && Unshaded == other.Unshaded
                 && Forced.Equals(other.Forced);
         }
 
@@ -137,6 +142,7 @@ namespace Content.Shared.Humanoid.Markings
                 colorStringList.Add(color.ToHex());
 
             var value = $"{sanitizedName}@{String.Join(',', colorStringList)}";
+            if (Unshaded) return $"{value}@{DrawOrder.ToString(System.Globalization.CultureInfo.InvariantCulture)}@1";
             return DrawOrder == 0 ? value : $"{value}@{DrawOrder.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
         }
 
@@ -144,15 +150,16 @@ namespace Content.Shared.Humanoid.Markings
         {
             if (input.Length == 0) return null;
             var split = input.Split('@');
-            if (split.Length is not (2 or 3)) return null;
+            if (split.Length is not (2 or 3 or 4)) return null;
             var order = 0;
-            if (split.Length == 3 && !int.TryParse(split[2], System.Globalization.NumberStyles.Integer,
+            if (split.Length >= 3 && !int.TryParse(split[2], System.Globalization.NumberStyles.Integer,
                     System.Globalization.CultureInfo.InvariantCulture, out order)) return null;
             List<Color> colorList = new();
             foreach (string color in split[1].Split(','))
                 colorList.Add(Color.FromHex(color));
 
-            return new Marking(split[0], colorList) { DrawOrder = order };
+            if (split.Length == 4 && split[3] is not ("0" or "1")) return null;
+            return new Marking(split[0], colorList) { DrawOrder = order, Unshaded = split.Length == 4 && split[3] == "1" };
         }
     }
 }

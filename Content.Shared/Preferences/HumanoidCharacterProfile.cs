@@ -678,6 +678,13 @@ namespace Content.Shared.Preferences
             // End Frontier
 
             var appearance = HumanoidCharacterAppearance.EnsureValid(Appearance, Species, Sex, UnrestrictedMarkings);
+            var markingGlowAllowed = collection.Resolve<IEntityManager>()
+                .System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().CanUseMarkingGlow(session);
+            appearance.Markings = appearance.Markings.Select(marking => new Content.Shared.Humanoid.Markings.Marking(marking)
+            {
+                Unshaded = marking.Unshaded && markingGlowAllowed
+                    && prototypeManager.Index<Content.Shared.Humanoid.Markings.MarkingPrototype>(marking.MarkingId).CanGlow,
+            }).ToList();
 
             var prefsUnavailableMode = PreferenceUnavailable switch
             {

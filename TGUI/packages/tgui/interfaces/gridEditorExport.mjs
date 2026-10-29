@@ -45,16 +45,21 @@ export function exportGridDraft(items, bounds, expansion, environment = {}) {
   if (environment.apartmentProtected) components.push({ type: 'ApartmentProtectedGrid' });
   const groups = new Map([['', [{ uid: 1, components }]]]);
   const gridEditorIds = {};
+  const gridEditorState = {};
   let uid = 1;
   for (const item of items.filter(i => i.kind === 'entity')) {
     if (!groups.has(item.prototype)) groups.set(item.prototype, []);
     groups.get(item.prototype).push({ uid: ++uid, components: [{ type: 'Transform', parent: 1,
       pos: `${item.x},${item.y}`, rot: item.rotation || 0, anchored: !!item.anchored },
-      ...(item.prototype.startsWith('GasPipe') ? [{ type: 'AtmosPipeColor', color: item.color || '#FFFFFFFF' }] : [])] });
+      { type: 'AtmosPipeColor', color: item.color || '#FFFFFFFF' }] });
     gridEditorIds[uid] = item.id;
+    if (item.entityData || item.pipeLayer >= 0) gridEditorState[uid] = {
+      entityData: item.entityData || '', entityGroup: item.entityGroup || '', pipeLayer: item.pipeLayer ?? -1,
+    };
   }
   return dump({
     gridEditorIds,
+    gridEditorState,
     meta: { format: 7, category: 'Grid', entityCount: uid },
     maps: [], grids: [1], orphans: [1], nullspace: [],
     tilemap: Object.fromEntries([...tileIds].map(([name, id]) => [id, name])),

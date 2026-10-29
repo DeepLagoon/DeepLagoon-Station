@@ -14,7 +14,15 @@ public sealed class TguiEditorHost : Container
     private readonly Control _sprite;
     private Vector2? _previewPosition;
     private Vector2 _previewSize;
+    private bool _previewOccluded;
     public bool MarkingsLayout { get; set; }
+
+    public void SetPreviewOccluded(bool occluded)
+    {
+        if (_previewOccluded == occluded) return;
+        _previewOccluded = occluded;
+        InvalidateArrange();
+    }
 
     public void SetPreviewBounds(Vector2 position, Vector2 size)
     {
@@ -52,7 +60,7 @@ public sealed class TguiEditorHost : Container
         // form, keeping the native sprite from covering browser controls.
         if (MarkingsLayout)
         {
-            _sprite.Visible = _previewPosition is { } origin && origin.Y >= 52 && origin.Y + _previewSize.Y <= finalSize.Y + 1;
+            _sprite.Visible = !_previewOccluded && _previewPosition is { } origin && origin.Y >= 52 && origin.Y + _previewSize.Y <= finalSize.Y + 1;
             if (_sprite.Visible && _previewPosition is { } position)
             {
                 var size = Vector2.Min(_previewSize, finalSize);
@@ -68,7 +76,7 @@ public sealed class TguiEditorHost : Container
         _sprite.SetSize = new Vector2(232, 320);
         _sprite.Margin = new Thickness(4);
         if (_sprite is SpriteView normalView) normalView.Scale = new Vector2(7);
-        _sprite.Visible = finalSize.X >= 700 && finalSize.Y >= 520;
+        _sprite.Visible = !_previewOccluded && finalSize.X >= 700 && finalSize.Y >= 520;
         if (_sprite.Visible)
             _sprite.Arrange(UIBox2.FromDimensions(new Vector2(78, 62 + 48), new Vector2(232, 320)));
         return finalSize;

@@ -12,7 +12,7 @@ import { CharacterHeadshots } from './CharacterHeadshots';
 import { EquipmentBrowser } from './EquipmentBrowser';
 import { filter as fuzzyFilter } from './fuzzySearch'; // DeepLagoon: fuzzy search
 import { CharacterEditorSettings, editorAppearance } from './CharacterEditorSettings';
-import { CharacterAppearance, PreviewBackgroundButton } from './CharacterAppearance';
+import { CharacterAppearance, PreviewBackgroundButton, PreviewArousalButton } from './CharacterAppearance';
 import { configureNativeChatBackground, clearNativeChatBackground } from '../../tgui-panel/chat/nativeBackground';
 
 const Field = ({ label, children }) => <label className="CharacterEditor__field"><span>{label}</span>{children}</label>;
@@ -98,8 +98,15 @@ const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
         <input type="checkbox" checked={feature.showThroughClothing !== false}
           onChange={event => set('showThroughClothing')(String(event.target.checked))} /> Деформировать одежду
       </label>
-      <Button selected={feature.matchSkin} onClick={() => set('matchSkin')(String(!feature.matchSkin))}>Цвет кожи</Button>
-      <ColorEditor label="Цвет части" value={feature.matchSkin ? skinColor : feature.color} disabled={feature.matchSkin} onChange={set('color')} />
+      <div className="CharacterEditor__bodyColor" role="group" aria-label={'Цвет: ' + feature.name}>
+        <div className="CharacterEditor__bodyColorControls">
+          <Button role="button" aria-pressed={feature.matchSkin} selected={feature.matchSkin}
+            onClick={() => set('matchSkin')(String(!feature.matchSkin))}>Цвет кожи</Button>
+          <ColorEditor label="Цвет части" value={feature.matchSkin ? skinColor : feature.color} disabled={feature.matchSkin}
+            lockReason="Сначала отключите «Цвет кожи», чтобы выбрать свой цвет." onChange={set('color')} />
+        </div>
+        {feature.matchSkin && <small>Сначала отключите «Цвет кожи», чтобы выбрать свой цвет.</small>}
+      </div>
       {feature.part === 'breasts' && <>
         <Button selected={feature.secondaryEnabled} disabled={!feature.secondaryAvailable} onClick={() => set('secondaryEnabled')(String(!feature.secondaryEnabled))}>Цветные соски</Button>
         {feature.secondaryEnabled && <ColorEditor label="Цвет сосков" value={feature.secondaryColor} disabled={!feature.secondaryAvailable} onChange={set('secondaryColor')} />}
@@ -128,6 +135,27 @@ export const CharacterEditor = () => {
     .filter(trait => trait.visible !== false), [data.traits, data.traitState]);
   const backgroundRoot = useRef(null);
   const previewTarget = useRef(null);
+  useEffect(() => {
+    let previous = false, frame;
+    const check = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const tooltip = document.querySelector('html > .Tooltip');
+        const preview = previewTarget.current || document.querySelector('.CharacterEditor__floor');
+        const a = tooltip?.getBoundingClientRect(), b = preview?.getBoundingClientRect();
+        const hidden = !!(a && b && Number(getComputedStyle(tooltip).opacity) > 0 && a.width && a.height
+          && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+        if (hidden !== previous) { previous = hidden; act('preview-occluded', { value: String(hidden) }); }
+      });
+    };
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'data-popper-placement'] });
+    window.addEventListener('resize', check);
+    document.addEventListener('scroll', check, true);
+    document.addEventListener('transitionend', check, true);
+    check();
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); window.removeEventListener('resize', check); document.removeEventListener('scroll', check, true); document.removeEventListener('transitionend', check, true); if (previous) act('preview-occluded', { value: 'false' }); };
+  }, [act, data.mode]);
   useEffect(() => {
     if (data.mode !== 'markings' || !previewTarget.current) return;
     let frame;
@@ -226,7 +254,10 @@ export const CharacterEditor = () => {
       <div className="CharacterEditor__floor" style={{ backgroundColor: lightPreview ? '#dce4ec' : '#262e3b', backgroundBlendMode: 'soft-light', backgroundImage: data.previewFloor ? `url("${data.previewFloor}")` : undefined }} />
       <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--height"><SizeSlider label="Рост" value={data.height} onChange={change('height')} vertical /></div>
       <div className="CharacterEditor__sizeRail CharacterEditor__sizeRail--width"><SizeSlider label="Ширина" value={data.width} onChange={change('width')} /></div>
-      <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button><PreviewBackgroundButton light={lightPreview} onToggle={togglePreviewBackground} /></div>
+      <div className="CharacterEditor__previewControls">
+        <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button><PreviewBackgroundButton light={lightPreview} onToggle={togglePreviewBackground} /></div>
+        <PreviewArousalButton data={data} act={act} />
+      </div>
       <div className="CharacterEditor__slots">{(data.previewSlots||[]).map((slot,index)=><button type="button" key={slot.id} title={slot.name} style={{gridColumn:index%2?3:1,gridRow:Math.floor(index/2)+1}} aria-label={slot.name} aria-pressed={slot.selected} onClick={()=>act('preview-slot',{value:slot.id})} onContextMenu={event=>{event.preventDefault();act('preview-slot-remove',{value:slot.id});}}><div className="CharacterEditor__sprite">{(slot.images.length?slot.images:[{url:slot.background,color:"#ffffff"}]).map((image,i)=><TintedSprite key={i} image={image.url} color={image.color} />)}</div></button>)}</div>
     </aside>}
     <main className="CharacterEditor__content">
@@ -327,7 +358,7 @@ export const CharacterEditor = () => {
     {equipmentCache.current && <div style={{display:data.mode==='equipment'?'block':'none'}}><EquipmentBrowser data={equipmentCache.current} act={(action,payload)=>act('equipment/'+action,payload)} /></div>}
     {data.mode === 'flavor' && <>
       <CharacterHeadshots key={data.setup?.selected} data={data} act={act} />
-      {[['flavor','Описание персонажа',data.flavorText],['ooc','OOC заметки',data.oocNotes]].map(([key,label,value])=><Section key={key} title={label}><CharacterTextEditor label={label} value={value||''} maxLength={data.maxFlavorLength} onChange={change(key)} /><details><summary>Предпросмотр форматирования</summary><div className="CharacterText"><CharacterText text={value}/></div></details></Section>)}
+      {[['flavor','Описание персонажа',data.flavorText],['ooc','OOC заметки',data.oocNotes]].map(([key,label,value])=><Section key={key} title={label}><CharacterTextEditor key={data.setup?.selected} label={label} value={value||''} maxLength={data.maxFlavorLength} onChange={change(key)} /><details><summary>Предпросмотр форматирования</summary><div className="CharacterText"><CharacterText text={value}/></div></details></Section>)}
     </>}
     {data.mode === 'markings' && <>
       <CharacterAppearance data={data} act={act} previewRef={previewTarget} lightPreview={lightPreview} togglePreviewBackground={togglePreviewBackground}

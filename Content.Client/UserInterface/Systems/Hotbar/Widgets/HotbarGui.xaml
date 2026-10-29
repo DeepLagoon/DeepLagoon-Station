@@ -48,7 +48,7 @@
                 Columns="6"
                 HorizontalExpand="False"/>
             <inventory:ItemStatusPanel
-                Name="StatusPanelRight"
+                Name="StatusPanelLeft"
                 HorizontalAlignment="Center" Margin="0 0 -2 2"
                 SetWidth="125"
                 SetHeight="60"/>
@@ -59,7 +59,7 @@
                 HorizontalExpand="False"
                 ColumnLimit="6"/>
             <inventory:ItemStatusPanel
-                Name="StatusPanelLeft"
+                Name="StatusPanelRight"
                 HorizontalAlignment="Center" Margin="-2 0 0 2"
                 SetWidth="125"
                 SetHeight="60"/>

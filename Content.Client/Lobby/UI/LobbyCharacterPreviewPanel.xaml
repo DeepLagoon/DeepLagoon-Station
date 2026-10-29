@@ -21,7 +21,12 @@
                 <Button Name="CharacterSetup" Text="{Loc 'lobby-character-preview-panel-character-setup-button'}"
                         HorizontalAlignment="Center"
                         Margin="0 5 0 0"/>
-                <Label Name="SubscriptionLevel" Text="Без подписки" HorizontalAlignment="Center" />
+                <PanelContainer Name="SubscriptionBadge" MinHeight="48" HorizontalExpand="True" Margin="0 8 0 4">
+                    <BoxContainer Orientation="Vertical" SeparationOverride="3" VerticalAlignment="Center">
+                        <Label Name="SubscriptionCaption" Text="Уровень подписки" Align="Center" HorizontalExpand="True" />
+                        <Label Name="SubscriptionLevel" Text="Без подписки" Align="Center" HorizontalExpand="True" />
+                    </BoxContainer>
+                </PanelContainer>
                 <BoxContainer HorizontalAlignment="Center" SeparationOverride="6">
                     <Label Text="Lagoon Coin:" />
                     <lobby:LobbySegmentCounter Name="LagoonCoins" />

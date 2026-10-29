@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace Content.Client._DeepLagoon.WebUI;
 
@@ -14,6 +15,12 @@ public sealed class TguiData
     public TguiData Bool(string key, bool value) => Raw(key, value ? "true" : "false");
     public TguiData Object(string key, TguiData value) => Raw(key, value.ToString());
     public TguiData Array(string key, IEnumerable<TguiData> values) => Raw(key, "[" + string.Join(',', values) + "]");
+    public TguiData Array(string key, Action<StringBuilder> append)
+    {
+        var builder = new StringBuilder("[");
+        append(builder);
+        return Raw(key, builder.Append(']').ToString());
+    }
     private TguiData Raw(string key, string value)
     {
         _fields[key] = GameWebView.Quote(key) + ":" + value;

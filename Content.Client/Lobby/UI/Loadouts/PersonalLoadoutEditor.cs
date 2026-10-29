@@ -152,7 +152,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         _points.Text = Loc.GetString("dl-loadout-points", ("points", Math.Max(0, system.GetPoints(_session) - spent)), ("max", system.GetPoints(_session)));
         _bar.MaxValue = Math.Max(1, system.GetPoints(_session));
         _bar.Value = Math.Max(0, system.GetPoints(_session) - spent);
-        var all = _prototypes.EnumeratePrototypes<LoadoutPrototype>().Where(x => x.PersonalItems.Count > 0).ToList();
+        var all = system.Catalogue(_profile, _job, _session).ToList();
         var filtered = all.Where(x => _slotFilter == null || FitsSlot(x, _slotFilter)).Where(x => _showUnavailable.Pressed || DonorCategoryOf(x) != DonorCategory.None || selected.ContainsKey(x.ID) || system.CanUse(x, _profile, _job, _session, out _))
             .ToList();
         filtered = FuzzySearch.Filter(filtered, _search.Text, x => _prototypes.Index(x.PersonalItems[0]).Name, x => x.ID); // DeepLagoon: fuzzy search
@@ -224,7 +224,8 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         foreach (var prototype in loadouts.OrderBy(x => _prototypes.Index(x.PersonalItems[0]).Name))
         {
             var usable = system.CanUse(prototype, _profile!, _job, _session, out var reason);
-            var pressed = selected.TryGetValue(prototype.ID, out var selection);
+            var pressed = selected.TryGetValue(prototype.ID, out var selection) && (_slotFilter == null ||
+                system.PersonalSlot(_profile!, prototype, selection.Customization?.Slot) == _slotFilter.Name);
             var savedColor = selection?.Customization?.Color is { } savedHex && Color.TryFromHex(savedHex, out var parsedColor) ? parsedColor : Color.White;
             var title = _prototypes.Index(prototype.PersonalItems[0]).Name;
             var donor = DonorCategoryOf(prototype);
@@ -329,7 +330,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
             foreach (var group in updated.SelectedLoadouts.Values)
                 for (var i = 0; i < group.Count; i++)
                     if (group[i].Prototype.Id == prototype.ID)
-                        group[i] = new Loadout { Prototype = prototype.ID, Customization = system.Sanitize(prototype, new PersonalLoadoutCustomization { Name = name.Text, Description = description.Text, Color = paint.Pressed ? color.Color.ToHex() : null, Heirloom = heirloom.Pressed }) };
+                        group[i] = new Loadout { Prototype = prototype.ID, Customization = system.Sanitize(prototype, new PersonalLoadoutCustomization { Name = name.Text, Description = description.Text, Color = paint.Pressed ? color.Color.ToHex() : null, Heirloom = heirloom.Pressed, Slot = selection.Customization?.Slot }) };
             SelectionChanged?.Invoke(updated);
         };
         return panel;
@@ -442,16 +443,29 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
     private void Select(LoadoutPrototype prototype, bool pressed)
     {
         var role = GetRole();
+        var system = _entities.System<PersonalLoadoutSystem>();
         var group = _prototypes.Index<RoleLoadoutPrototype>(PersonalLoadoutSystem.Role).Groups.FirstOrDefault(g => _prototypes.Index(g).Loadouts.Any(l => l.Id == prototype.ID));
         if (pressed)
+        {
+            var old = role.Customizations.GetValueOrDefault(prototype.ID) ?? new PersonalLoadoutCustomization();
+            var custom = system.Sanitize(prototype, new PersonalLoadoutCustomization
+            {
+                Name = old.Name, Description = old.Description, Color = old.Color, Heirloom = old.Heirloom,
+                Slot = system.PersonalSlot(_profile!, prototype, _slotFilter?.Name),
+            })!;
+            role.Customizations[prototype.ID] = custom;
+            system.RemovePersonalSlotConflicts(role, _profile!, prototype, custom.Slot);
+            foreach (var choices in role.SelectedLoadouts.Values)
+                choices.RemoveAll(choice => choice.Prototype.Id == prototype.ID);
             role.AddLoadout(group, prototype.ID, _prototypes);
+        }
         else
             role.RemoveLoadout(group, prototype.ID, _prototypes);
         var profile = _profile!.WithLoadout(role);
         if (pressed && _jobRole != null)
-            profile = profile.WithLoadout(_entities.System<PersonalLoadoutSystem>().RemoveJobConflicts(profile, _jobRole, prototype));
+            profile = profile.WithLoadout(system.RemoveJobConflicts(profile, _jobRole, prototype, system.PersonalSlot(profile, prototype, _slotFilter?.Name)));
         if (pressed)
-            profile = _entities.System<PersonalLoadoutSystem>().RestoreEquipmentSlots(profile, _job, prototype);
+            profile = system.RestoreEquipmentSlots(profile, _job, prototype, system.PersonalSlot(profile, prototype, _slotFilter?.Name));
         ProfileChanged?.Invoke(profile);
     }
 
@@ -461,7 +475,8 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         var groups = _prototypes.Index<RoleLoadoutPrototype>(PersonalLoadoutSystem.Role).Groups
             .Where(g => _prototypes.Index(g).Loadouts.Any(item => item.Id == prototype.ID)).Take(1).ToArray();
         if (groups.Length == 0) return false;
-        candidate.AddLoadout(groups[0], prototype.ID, _prototypes);
+        if (!candidate.SelectedLoadouts.Values.SelectMany(items => items).Any(item => item.Prototype.Id == prototype.ID))
+            candidate.AddLoadout(groups[0], prototype.ID, _prototypes);
         return candidate.SelectedLoadouts.Values.SelectMany(items => items)
             .Sum(item => _prototypes.Index(item.Prototype).PersonalCost) <= _entities.System<PersonalLoadoutSystem>().GetPoints(_session);
     }

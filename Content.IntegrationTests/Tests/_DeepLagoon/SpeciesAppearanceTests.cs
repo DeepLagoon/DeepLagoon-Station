@@ -59,6 +59,10 @@ public sealed class SpeciesAppearanceTests
             bool HasBear()
             {
                 using var data = JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
+                Assert.That(data.RootElement.GetProperty("markingSpeciesRestricted").GetBoolean(),
+                    Is.EqualTo(!editor.Profile!.UnrestrictedMarkings && editor.Profile.Species.Id != "Synth"));
+                Assert.That(data.RootElement.GetProperty("speciesName").GetString(),
+                    Is.EqualTo(Robust.Shared.Localization.Loc.GetString(prototypes.Index(editor.Profile.Species).Name)));
                 return data.RootElement.GetProperty("markingOptions").EnumerateArray().Any(p => p.GetProperty("id").GetString() == bear.ID);
             }
             Assert.That(HasBear(), Is.False);
@@ -92,13 +96,16 @@ public sealed class SpeciesAppearanceTests
                 foreach (var marking in choices)
                     Assert.That(editor.HandleTguiProfileAction("marking-add", JsonSerializer.Serialize(new { value = marking.ID })), Is.True);
                 Assert.That(editor.Profile!.Appearance.Markings.Count(p => manager.Markings[p.MarkingId].BodyPart == choices[0].BodyPart), Is.EqualTo(1), category.ToString());
-                Assert.That(editor.HandleTguiProfileAction("marking-combine", "{}"), Is.True);
+                Assert.That(editor.HandleTguiProfileAction("marking-combine", JsonSerializer.Serialize(new { value = manager.IsCommon(choices[0]) ? "common" : choices[0].MarkingCategory.ToString() })), Is.True);
                 Assert.That(editor.HandleTguiProfileAction("marking-add", JsonSerializer.Serialize(new { value = choices[0].ID })), Is.True);
                 Assert.That(editor.Profile!.Appearance.Markings.Count(p => manager.Markings[p.MarkingId].BodyPart == choices[0].BodyPart), Is.EqualTo(2), category.ToString());
-                Assert.That(editor.HandleTguiProfileAction("marking-combine", "{}"), Is.True);
+                Assert.That(editor.HandleTguiProfileAction("marking-combine", JsonSerializer.Serialize(new { value = manager.IsCommon(choices[0]) ? "common" : choices[0].MarkingCategory.ToString() })), Is.True);
                 Assert.That(editor.Profile!.Appearance.Markings.Count(p => manager.Markings[p.MarkingId].BodyPart == choices[0].BodyPart), Is.EqualTo(1), category.ToString());
             }
             using var commonData = JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
+            foreach (var marking in commonData.RootElement.GetProperty("markings").EnumerateArray())
+                Assert.That(marking.GetProperty("category").GetString(), Is.EqualTo(Robust.Shared.Localization.Loc.GetString(
+                    "markings-category-" + marking.GetProperty("categoryId").GetString())));
             Assert.That(commonData.RootElement.GetProperty("markingOptions").EnumerateArray().Any(p => p.GetProperty("category").GetString() is "Общие" or "Common"), Is.True);
         });
         await pair.CleanReturnAsync();
@@ -120,7 +127,7 @@ public sealed class SpeciesAppearanceTests
             bool Flag(string name)
             {
                 using var state = JsonDocument.Parse(editor.CreateTguiProfileState("markings", false).ToString());
-                return state.RootElement.GetProperty(name).GetBoolean();
+                return name == "combineMarkings" ? state.RootElement.GetProperty("combinedMarkingCategories").EnumerateArray().Any(category => category.GetProperty("id").GetString() == "Tail") : state.RootElement.GetProperty(name).GetBoolean();
             }
             Assert.That(Flag("canUndoAppearance"), Is.False);
             Assert.That(Action("marking-add", new { value = "BlueMoonEarsHumanBearHeadSide" }), Is.True);
@@ -144,7 +151,7 @@ public sealed class SpeciesAppearanceTests
             Assert.That(Action("marking-add", new { value = "BlueMoonTailsHumanFoxTail" }), Is.True);
             Assert.That(Flag("canRedoAppearance"), Is.False);
             Assert.That(Action("appearance-redo"), Is.False);
-            Assert.That(Action("marking-combine"), Is.True);
+            Assert.That(Action("marking-combine", new { value = "Tail" }), Is.True);
             Assert.That(Action("marking-add", new { value = "BlueMoonTailsHumanCatTail" }), Is.True);
             Assert.That(editor.Profile.Appearance.Markings.Count(m => prototypes.Index<MarkingPrototype>(m.MarkingId).BodyPart == HumanoidVisualLayers.Tail), Is.EqualTo(2));
             Assert.That(Action("appearance-undo"), Is.True);

@@ -135,6 +135,7 @@ namespace Content.Server.Atmos.Piping.Binary.EntitySystems
 
         private void OnVolumePumpLeaveAtmosphere(EntityUid uid, GasVolumePumpComponent pump, ref AtmosDeviceDisabledEvent args)
         {
+            if (args.PreserveSettings) return;
             pump.Enabled = false;
             UpdateAppearance(uid, pump);
 

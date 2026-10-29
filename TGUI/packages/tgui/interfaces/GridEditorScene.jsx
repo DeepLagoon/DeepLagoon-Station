@@ -4,27 +4,31 @@ import { GridSceneCache } from './gridEditorSceneCache.mjs';
 
 // Only the viewport is uploaded to CEF. Pan/zoom composite prepared chunks;
 // source sprites are rasterized only on load or when their chunk changes.
-export const GridEditorScene = memo(({ index, area, layers, visuals, view, cellSize, onProgress }) => {
+export const GridEditorScene = memo(({ token, pool, active = true, index, area, layers, visuals, view, cellSize, onProgress }) => {
   const canvas = useRef(null), cache = useRef(null), frame = useRef(null);
   const ready = useRef(false);
-  const camera = useRef(null); camera.current = { area, view, cellSize };
+  const camera = useRef(null); camera.current = { area, view, cellSize, active };
   const schedule = () => {
     if (frame.current !== null) return;
     frame.current = requestAnimationFrame(() => {
       frame.current = null;
-      const { area, view, cellSize } = camera.current;
-      if (canvas.current) cache.current?.paint(canvas.current, area, view, cellSize);
+      const { area, view, cellSize, active } = camera.current;
+      if (active && canvas.current) cache.current?.paint(canvas.current, area, view, cellSize);
     });
   };
   useEffect(() => {
     cache.current = new GridSceneCache(schedule);
+    pool?.add(token, cache.current);
     return () => {
+      pool?.remove(cache.current);
       cache.current.dispose(); cache.current = null;
       if (frame.current !== null) cancelAnimationFrame(frame.current);
       frame.current = null;
     };
   }, []);
   useEffect(() => {
+    cache.current.setActive(active);
+    if (!active) return;
     let cancelled = false;
     cache.current.prepare(index, layers, visuals, value => {
       if (!value) ready.current = true;
@@ -32,9 +36,9 @@ export const GridEditorScene = memo(({ index, area, layers, visuals, view, cellS
     }, () => cancelled)
       .catch(error => { if (!cancelled) onProgress({ error: error.message, blocking: true }); });
     return () => { cancelled = true; };
-  }, [index, layers, visuals, onProgress]);
-  useEffect(schedule, [area, view, cellSize]);
-  return <canvas ref={canvas} className="GridEditor__scene" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
+  }, [active, index, layers, visuals, onProgress]);
+  useEffect(() => { if (active) schedule(); }, [active, area, view, cellSize]);
+  return <canvas ref={canvas} className="GridEditor__scene" width={active ? Math.max(1, view.width) : 1} height={active ? Math.max(1, view.height) : 1}
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });
 
@@ -50,9 +54,10 @@ const highlightImage=url=>{
   }));
   return highlightImages.get(url);
 };
-export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, offset, visuals }) => {
+export const GridEditorSelection = memo(({ active = true, items, area, layers, view, cellSize, offset, visuals }) => {
   const canvas = useRef(null);
   useEffect(() => {
+    if (!active) return;
     let cancelled=false;
     const draw=async()=>{
       const visible=items.filter(item=>{
@@ -65,7 +70,7 @@ export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, 
       });
       const urls=new Set(visible.flatMap(item=>(visuals?.get(`${item.kind}:${item.prototype}`)?.images||[]).map(image=>image.url)).filter(Boolean));
       const images=new Map(await Promise.all([...urls].map(async url=>[url,await highlightImage(url)])));
-      if(cancelled)return;
+      if(cancelled || !canvas.current)return;
       const context=canvas.current.getContext('2d');context.clearRect(0,0,view.width,view.height);
       context.imageSmoothingEnabled=false;context.globalAlpha=.6;context.shadowColor='#53ff82';context.shadowBlur=2;
       for(const item of visible){
@@ -84,7 +89,7 @@ export const GridEditorSelection = memo(({ items, area, layers, view, cellSize, 
       }
     };
     draw();return()=>{cancelled=true;};
-  }, [items, area, layers, view, cellSize, offset, visuals]);
-  return <canvas ref={canvas} className="GridEditor__scene GridEditor__selection" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
+  }, [active, items, area, layers, view, cellSize, offset, visuals]);
+  return <canvas ref={canvas} className="GridEditor__scene GridEditor__selection" width={active ? Math.max(1, view.width) : 1} height={active ? Math.max(1, view.height) : 1}
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });
