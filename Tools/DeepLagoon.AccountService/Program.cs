@@ -53,7 +53,7 @@ public static class Program
             var token = action switch
             {
                 "whitelist" or "remove_whitelist" => settings.WhitelistToken,
-                "lc_add" or "lc_remove" or "lc_history" => settings.CoinToken,
+                "lc_add" or "lc_remove" or "lc_history" or "bug_report_reward" => settings.CoinToken,
                 "economy_supporter" => settings.SupporterToken,
                 _ when action.StartsWith("economy_", StringComparison.Ordinal) => settings.CoinToken,
                 _ => null,
@@ -139,7 +139,8 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
 }
 
 public sealed record AccountRequest(string DiscordId, string? ActorDiscordId = null, string? RequestId = null,
-    long Amount = 0, string? Reason = null, bool HostAuthorized = false, int Page = 1);
+    long Amount = 0, string? Reason = null, bool HostAuthorized = false, int Page = 1,
+    string? WorkChannel = null, string? Category = null);
 
 public sealed class AccountError(string code, int status = 409) : Exception(code)
 {
@@ -265,6 +266,7 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
 
     public async Task<object> Execute(string action, AccountRequest request, CancellationToken cancel = default)
     {
+        if (action == "bug_report_reward") return await RewardBugReport(request, cancel);
         var whitelist = action is "whitelist" or "remove_whitelist";
         var history = action == "lc_history";
         if (!whitelist && !history && action is not ("lc_add" or "lc_remove")) throw new AccountError("not_found", 404);

@@ -18,6 +18,16 @@ WL, coin and supporter Bearer keys cannot authorize each other's routes.
 supporter key; a coin key cannot assert a paid tier. Missing mappings,
 pending account merges, changed mappings and invalid requests fail closed.
 
+`bug_report_reward` is a narrowly scoped exception to general HOST-only LC grants.
+It accepts the coin key, a reporter, a linked confirmer, a publication ID and one
+of `bug:code`, `bug:translation`, `bug:sprite`, `bug:map`, `bug:wiki`, with exactly
+10 LC. The authenticated Bot attests a durable confirmation by the assigned,
+category-matched developer and rechecks their current Discord roles before dispatch.
+Self-confirmation additionally requires a real active game HOST. This route does
+not authorize manual `lc_add` or payment for merely creating/taking a report.
+Install this service version before the matching Bot update. No game DB migration,
+new grants or game restart is required for the route.
+
 ## Transaction and retry guarantees
 
 LC uses `AccountCurrencyOperations.AwardLagoonCoins` from the same database
@@ -41,6 +51,12 @@ record. A returned success always follows confirmation from the game database.
 Existing transactional webhook records remain pending for the existing delivery
 worker if the game process is stopped. Webhook delivery is not a prerequisite
 for a confirmed balance change.
+
+The fixed reporter bounty binds its receipt to the publication ID and uses
+`discord-bug-report:<publication_id>` in the native LC ledger. Changing Discord
+interaction IDs cannot award it twice. Reporter, confirmer, category and original
+account mappings stay bound; conflicting retries fail closed. Repair payment
+and any approved bonus keep their own separate interaction IDs and ledger entries.
 
 Durable safety reservations share the receipt database. LC add/remove defaults:
 6000 per operation, 12000 per rolling hour, 24000 per rolling day, globally.
