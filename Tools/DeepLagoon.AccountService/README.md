@@ -28,6 +28,26 @@ not authorize manual `lc_add` or payment for merely creating/taking a report.
 Install this service version before the matching Bot update. No game DB migration,
 new grants or game restart is required for the route.
 
+The health endpoints advertise `bug_report_reward_api_version: 1`. Check it on
+the account URL configured in Bot, including any non-default port, after deployment.
+Updating the game or Bot alone does not replace `/opt/deeplagoon-accounts`.
+
+Legacy confirmations may have stored `category: null`. Only their original
+`host_authorized: true` request from a linked, active game HOST can use that
+compatibility path; missing categories never grant ordinary developers HOST
+authority. The receipt canonicalizes the category to `bug:code`. The original
+interaction acknowledgement and publication-scoped ledger key stay unchanged,
+so replaying either the legacy or canonical request cannot credit twice.
+Unknown non-null categories are still rejected.
+
+For an existing installation, publish this project in Release as below, replace
+the complete service application directory while `deeplagoon-accounts.service`
+is stopped, then start it and check health. Preserve its protected environment,
+identity links, receipt database and PostgreSQL grants. Update Bot afterwards.
+Previously rejected reporter operations require an explicit host command
+`/lc_operation operation_id:ORIGINAL_ID retry:true`; do not recreate confirmations,
+edit queued payloads, clear receipts, or issue compensating manual LC grants.
+
 ## Transaction and retry guarantees
 
 LC uses `AccountCurrencyOperations.AwardLagoonCoins` from the same database

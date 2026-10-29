@@ -34,15 +34,15 @@ public static class Program
         var operations = app.Services.GetRequiredService<AccountOperations>();
         var slots = new SemaphoreSlim(16, 16);
         var healthSlots = new SemaphoreSlim(1, 1);
-        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1, security_api_version = 2 }));
+        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }));
         async Task<IResult> Readiness(HttpContext context)
         {
             using var lease = new AccountRequestLease(healthSlots);
-            if (!lease.Acquired) return Results.Json(new { ready = false }, statusCode: 503);
+            if (!lease.Acquired) return Results.Json(new { ready = false, bug_report_reward_api_version = 1 }, statusCode: 503);
             using var cancel = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
             cancel.CancelAfter(TimeSpan.FromSeconds(3));
-            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1, security_api_version = 2 }); }
-            catch { return Results.Json(new { ready = false, economy_api_version = 1, security_api_version = 2 }, statusCode: 503); }
+            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }); }
+            catch { return Results.Json(new { ready = false, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }, statusCode: 503); }
         }
         app.MapGet("/health", (Func<HttpContext, Task<IResult>>) Readiness);
         app.MapGet("/health/ready", (Func<HttpContext, Task<IResult>>) Readiness);
