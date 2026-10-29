@@ -18,6 +18,52 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class RadarInterfaceLayoutTests
 {
     [Test]
+    public async Task ClassicShuttleTabsKeepRadarsInsideTheirContentRow()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var cfg = pair.Client.ResolveDependency<IConfigurationManager>();
+            cfg.SetCVar(WebUiCVars.InterfaceStyle, 1);
+            cfg.SetCVar(WebUiCVars.WindowStyles, "");
+            using var pilot = new ShuttleConsoleWindow();
+            pilot.Tgui.SwitchToNative();
+            pilot.OpenCentered();
+            for (var cycle = 0; cycle < 2; cycle++)
+            {
+                foreach (var size in new[] { new Vector2(1100, 700), new Vector2(1200, 800), new Vector2(1400, 900) })
+                {
+                    foreach (var mode in new[] { ShuttleConsoleWindow.ShuttleConsoleMode.Nav,
+                                 ShuttleConsoleWindow.ShuttleConsoleMode.Map, ShuttleConsoleWindow.ShuttleConsoleMode.Dock })
+                    {
+                        pilot.SwitchMode(mode);
+                        foreach (var control in Descendants(pilot).Reverse()) control.InvalidateMeasure();
+                        pilot.InvalidateMeasure();
+                        pilot.Measure(size);
+                        pilot.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
+
+                        var radar = Descendants(pilot).OfType<BaseShuttleControl>().Single(view => view.VisibleInTree);
+                        var row = radar.Parent!;
+                        var modeButtons = pilot.FindControl<BoxContainer>("ModeButtons");
+                        var context = $"{mode}, {size}, cycle {cycle}";
+                        Assert.That(radar.Size.X, Is.GreaterThan(100), context);
+                        Assert.That(radar.Size.Y, Is.GreaterThan(100), context);
+                        Assert.That(radar.Position.Y, Is.GreaterThanOrEqualTo(0), context);
+                        Assert.That(radar.Position.Y + radar.Size.Y, Is.LessThanOrEqualTo(row.Size.Y), context);
+                        Assert.That(radar.GlobalPosition.Y,
+                            Is.GreaterThanOrEqualTo(modeButtons.GlobalPosition.Y + modeButtons.Size.Y), context);
+                        foreach (var sibling in row.Children.Where(child => child != radar && child.Visible))
+                            Assert.That(radar.Position.X + radar.Size.X, Is.LessThanOrEqualTo(sibling.Position.X), context);
+                    }
+                }
+                Assert.That(pilot.Tgui.SwitchToTgui(), Is.True);
+                pilot.Tgui.SwitchToNative();
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task RepeatedRadarSwitchesKeepThePresentationAndCloseButtonVisible()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

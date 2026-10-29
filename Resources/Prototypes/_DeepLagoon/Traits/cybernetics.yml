@@ -1,0 +1,33 @@
+# Adapted from Einstein Engines; legacy DeepLagoon trait IDs are retained.
+- type: entity
+  parent: LeftLegCyberneticBase
+  id: LeftLegCybernetic
+  name: cybernetic left leg
+- type: entity
+  parent: RightLegCyberneticBase
+  id: RightLegCybernetic
+  name: cybernetic right leg
+- type: entity
+  parent: LeftArmCyberneticBase
+  id: CrowbarLeftArm
+  name: crowbar left arm
+  components:
+  - type: BodyPart
+    onAdd:
+    - type: Prying
+      speedModifier: 1.5
+      pryPowered: false
+    - type: UseDelay
+      delay: 1
+- type: entity
+  parent: RightArmCyberneticBase
+  id: CrowbarRightArm
+  name: crowbar right arm
+  components:
+  - type: BodyPart
+    onAdd:
+    - type: Prying
+      speedModifier: 1.5
+      pryPowered: false
+    - type: UseDelay
+      delay: 1

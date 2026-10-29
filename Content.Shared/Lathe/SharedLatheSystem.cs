@@ -90,7 +90,8 @@ public abstract partial class SharedLatheSystem : EntitySystem
             foreach (var (material, needed) in recipe.Materials)
             {
                 var adjustedAmount = AdjustMaterial(needed, recipe.MaterialDiscountScale, ent.Comp.FinalMaterialUseMultiplier);
-                currentMaterial[material] -= adjustedAmount * (batch.ItemsRequested - batch.ItemsPrinted);
+                currentMaterial.TryGetValue(material, out var stored);
+                currentMaterial[material] = stored - adjustedAmount * (batch.ItemsRequested - batch.ItemsPrinted);
             }
         }
         return currentMaterial;

@@ -5,6 +5,7 @@
   id: HarpyWingDefaultHuescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -22,6 +23,7 @@
   id: HarpyWingDefaultWhitescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -39,6 +41,7 @@
   id: HarpyWingClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -56,6 +59,7 @@
   id: HarpyWingFoldedHuescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -73,6 +77,7 @@
   id: HarpyWingFoldedWhitescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -90,6 +95,7 @@
   id: HarpyWingOwlHuescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -107,6 +113,7 @@
   id: HarpyWingOwlWhitescale
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -124,6 +131,7 @@
   id: HarpyEarsLarge
   bodyPart: Head
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Harpy]
   coloring:
     default:
@@ -241,6 +249,7 @@
   id: HarpyWing2ToneClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -252,6 +261,7 @@
   id: HarpyWing3ToneClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -265,6 +275,7 @@
   id: HarpyWingSpeckledClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -276,6 +287,7 @@
   id: HarpyWingUndertoneClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -287,6 +299,7 @@
   id: HarpyWingTipsClassic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -298,6 +311,7 @@
   id: HarpyWingBat
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi
@@ -309,6 +323,7 @@
   id: HarpyWingBionic
   bodyPart: RArmExtension # Frontier: RArm<RArmExtension
   markingCategory: Arms
+  editorType: Wings
   speciesRestriction: [Harpy]
   sprites:
     - sprite: _EE/Mobs/Customization/Harpy/harpy_wings.rsi

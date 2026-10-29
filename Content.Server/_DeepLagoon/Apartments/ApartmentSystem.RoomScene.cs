@@ -19,7 +19,10 @@ public sealed partial class ApartmentSystem
 {
     [Dependency] private TagSystem _tags = default!;
 
-    private static IEnumerable<ApartmentPlacement> MapBaseline(Instance instance) => instance.MapFurniture.Values.Select(item => item.Baseline);
+    private IEnumerable<ApartmentMapFurniture> EditableMapFurniture(Instance instance) => instance.MapFurniture.Values.Where(item =>
+        instance.Furniture.TryGetValue(item.Baseline.Id, out var entity) && Exists(entity) && Transform(entity).ParentUid == instance.Grid);
+
+    private IEnumerable<ApartmentPlacement> MapBaseline(Instance instance) => EditableMapFurniture(instance).Select(item => item.Baseline);
 
     private ApartmentFurniturePrototype? Catalog(Instance instance, string id) =>
         instance.MapFurniture.TryGetValue(id, out var mapped) ? mapped.Definition() : Catalog(id);
@@ -51,6 +54,8 @@ public sealed partial class ApartmentSystem
                 CanRotate = !transform.NoLocalRotation
             });
             instance.Furniture.Add(id, uid);
+            var identity = EnsureComp<ApartmentFurnitureIdentityComponent>(uid);
+            identity.Id = identity.Furniture = id;
         }
     }
 
@@ -66,12 +71,17 @@ public sealed partial class ApartmentSystem
     private List<ApartmentPlacement> CurrentLayout(Instance instance)
     {
         var layout = new List<ApartmentPlacement>();
-        foreach (var placement in ApartmentLayout.Resolve(instance.Template, instance.Delta, MapBaseline(instance)))
+        var definitions = instance.Template.Furniture.Concat(instance.MapFurniture.Values.Select(item => item.Baseline))
+            .Concat(instance.Delta.Added).Concat(instance.Delta.Changed).GroupBy(item => item.Id).ToDictionary(group => group.Key, group => group.Last());
+        foreach (var (id, entity) in instance.Furniture)
         {
-            if (!instance.Furniture.TryGetValue(placement.Id, out var entity) || !Exists(entity)) continue;
+            if (!Exists(entity)) continue;
             var transform = Transform(entity);
             if (transform.ParentUid != instance.Grid) continue;
-            var current = placement.Copy();
+            var furniture = TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) && identity.Furniture.Length > 0
+                ? identity.Furniture : definitions.GetValueOrDefault(id)?.Furniture;
+            if (furniture == null) continue;
+            var current = new ApartmentPlacement { Id = id, Furniture = furniture };
             current.X = (int) MathF.Floor(transform.LocalPosition.X);
             current.Y = (int) MathF.Floor(transform.LocalPosition.Y);
             current.Rotation = ((int) MathF.Round((float) transform.LocalRotation.Degrees / 90) % 4 + 4) % 4;

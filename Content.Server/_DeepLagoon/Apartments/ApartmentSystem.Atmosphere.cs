@@ -14,7 +14,10 @@ public sealed partial class ApartmentSystem
         if (instance == null)
             return !_retiring.Any(value => value.Grid == grid);
         if (instance.Delta.OxygenPercent == oxygenPercent)
+        {
+            EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = oxygenPercent;
             return true;
+        }
         var previous = instance.Delta;
         var delta = new ApartmentDelta
         {
@@ -33,6 +36,8 @@ public sealed partial class ApartmentSystem
             return false;
         }
         instance.Delta = delta;
+        EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = oxygenPercent;
+        SaveApartment(instance);
         return true;
     }
 }

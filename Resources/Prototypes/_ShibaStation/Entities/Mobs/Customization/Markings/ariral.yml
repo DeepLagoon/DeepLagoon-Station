@@ -2,6 +2,7 @@
   id: AriralEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   followSkinColor: true
   speciesRestriction: [Ariral]
   sprites:

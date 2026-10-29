@@ -1,0 +1,35 @@
+- type: sectorProfile
+  id: DeepLagoonFrontier
+  name: sector-profile-frontier
+  regionCount: 36
+  kinds: [Dust, Dust, Asteroids, Debris, Plasma, Radiation]
+
+- type: sectorProfile
+  id: DeepLagoonAsteroidCloud
+  name: sector-profile-asteroids
+  regionCount: 56
+  kinds: [Asteroids, Asteroids, Asteroids, Dust, Debris]
+  planetTemplates: [PlanetTypeBarren, PlanetTypeDesert, PlanetTypeIce]
+
+- type: sectorProfile
+  id: DeepLagoonWreckage
+  name: sector-profile-wreckage
+  regionCount: 48
+  kinds: [Debris, Debris, Debris, Dust, Radiation]
+  planetTemplates: [PlanetTypeBarren, PlanetTypeDesert, PlanetTypeGasGiant]
+
+- type: sectorProfile
+  id: DeepLagoonRadiationSea
+  name: sector-profile-radiation
+  regionCount: 44
+  kinds: [Radiation, Radiation, Radiation, Plasma, Dust]
+  stars: [TypeMStar, TypeKStar]
+  planetTemplates: [PlanetTypeGasGiant, PlanetTypeIceGiant, PlanetTypeBarren]
+
+- type: sectorProfile
+  id: DeepLagoonQuietReach
+  name: sector-profile-quiet
+  regionCount: 12
+  kinds: [Dust, Dust, Debris]
+  minPlanets: 3
+  maxPlanets: 8

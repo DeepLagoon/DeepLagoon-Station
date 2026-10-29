@@ -1,13 +1,12 @@
 using System.Linq;
+using System.Numerics;
 using Content.Server._Mono.FireControl;
 using Content.Server.Atmos.Components;
-using Content.Server.Chat.Systems;
 using Content.Server.Destructible;
 using Content.Server.Power.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Events;
-using Content.Shared.Chat;
 using Content.Shared.Shuttles.BUIStates;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Power;
@@ -22,17 +21,17 @@ public sealed partial class ShuttleConsoleSystem
     private readonly Dictionary<EntityUid, ShuttleHullBaseline> _hullBaselines = new();
     private readonly Dictionary<EntityUid, Dictionary<EntityUid, (Vector2i Tile, byte Kind, string Name)>> _hullEntityNames = new();
     private readonly Dictionary<EntityUid, ShuttleHullState> _hullStates = new();
-    private readonly Dictionary<EntityUid, ShuttleHullLossAlert> _hullAlerts = new();
+    private readonly Dictionary<EntityUid, HashSet<EntityUid>> _hullViewers = new();
+    private readonly Dictionary<EntityUid, HashSet<Vector2>> _destroyedWeapons = new();
     private readonly HashSet<EntityUid> _dirtyHullGrids = new();
     private readonly HashSet<EntityUid> _pendingHullBroadcasts = new();
-    [Dependency] private ChatSystem _hullChat = default!;
     [Dependency] private ThrusterSystem _hullThrusters = default!;
     [Dependency] private Content.Server.Pinpointer.NavMapSystem _hullNavMap = default!;
     private TimeSpan _nextHullUpdate;
 
     private void InitializeHullUi()
     {
-        // Start recording when the ship exists, even if nobody has opened its console yet.
+        // Keep the design history through events; build telemetry only while its tab is viewed.
         SubscribeLocalEvent<ShuttleComponent, MapInitEvent>(OnHullMapInit);
         SubscribeLocalEvent<ShuttleComponent, EntityTerminatingEvent>(OnHullShutdown);
         SubscribeLocalEvent<TransformComponent, MapInitEvent>(OnHullEntityMapInit);
@@ -57,19 +56,27 @@ public sealed partial class ShuttleConsoleSystem
             return;
         _hullBaselines.Remove(grid);
         _hullEntityNames.Remove(grid);
-        _hullAlerts.Remove(grid);
+        _destroyedWeapons.Remove(grid);
         _hullStates.Remove(grid);
         _dirtyHullGrids.Add(grid);
         GetHullState(grid);
         RefreshShuttleConsoles(grid);
+        EntityManager.System<FireControlSystem>().QueueGridConsoleUiUpdates(grid);
     }
 
     private void OnHullMapInit(EntityUid uid, ShuttleComponent component, MapInitEvent args)
     {
-        if (CaptureHull(uid) is { } state)
+        if (!TryComp<MapGridComponent>(uid, out var mapGrid))
+            return;
+        var baseline = GetHullBaseline(uid);
+        foreach (var tile in _mapSystem.GetAllTiles(uid, mapGrid))
         {
-            _hullStates[uid] = state;
+            if (!tile.Tile.IsEmpty)
+                baseline.Record(tile.GridIndices, ShuttleHullBaseline.Floor);
         }
+        var children = Transform(uid).ChildEnumerator;
+        while (children.MoveNext(out var child))
+            RecordHullEntity(child);
     }
 
     private void OnHullShutdown(EntityUid uid, ShuttleComponent component, ref EntityTerminatingEvent args)
@@ -77,7 +84,7 @@ public sealed partial class ShuttleConsoleSystem
         _hullBaselines.Remove(uid);
         _hullEntityNames.Remove(uid);
         _hullStates.Remove(uid);
-        _hullAlerts.Remove(uid);
+        _destroyedWeapons.Remove(uid);
         _dirtyHullGrids.Remove(uid);
         _pendingHullBroadcasts.Remove(uid);
     }
@@ -93,6 +100,13 @@ public sealed partial class ShuttleConsoleSystem
             if (component.Anchored && TryComp<MapGridComponent>(grid, out var mapGrid))
                 RecordHullName(grid, uid, _mapSystem.GetTileRef(grid, mapGrid, component.Coordinates).GridIndices, HullEntityKind(uid));
             _dirtyHullGrids.Add(grid);
+            if (component.Anchored && HasComp<FireControllableComponent>(uid) && !TerminatingOrDeleted(grid))
+            {
+                if (!_destroyedWeapons.TryGetValue(grid, out var weapons))
+                    _destroyedWeapons.Add(grid, weapons = new());
+                weapons.Add(component.LocalPosition);
+                EntityManager.System<FireControlSystem>().QueueGridConsoleUiUpdates(grid);
+            }
         }
     }
 
@@ -164,8 +178,6 @@ public sealed partial class ShuttleConsoleSystem
             return null;
         _dirtyHullGrids.Remove(uid);
         _hullStates[uid] = state;
-        // A normal console refresh may populate the cache before the broadcast interval. Other
-        // open consoles still need this update even when the next scan matches the new cache.
         if (cached == null || !HullStatesEqual(cached, state))
             _pendingHullBroadcasts.Add(uid);
         return state;
@@ -246,7 +258,6 @@ public sealed partial class ShuttleConsoleSystem
         state.WorkingGyroscopes = workingGyroscopes;
         state.StoredEnergy = storedEnergy;
         state.EnergyCapacity = energyCapacity;
-        ObserveHullLosses(grid, state, baseline.NewLosses);
         return state;
     }
 
@@ -266,59 +277,69 @@ public sealed partial class ShuttleConsoleSystem
 
     private void ProcessHullUiUpdates()
     {
-        if (_shieldTiming.CurTime < _nextHullUpdate)
+        if (_hullViewers.Count == 0 || _shieldTiming.CurTime < _nextHullUpdate)
             return;
         _nextHullUpdate = _shieldTiming.CurTime + TimeSpan.FromSeconds(2);
+        var scanned = new HashSet<EntityUid>();
         var changed = new HashSet<EntityUid>(_pendingHullBroadcasts);
         _pendingHullBroadcasts.Clear();
-        var grids = EntityQueryEnumerator<ShuttleComponent, MapGridComponent>();
-        while (grids.MoveNext(out var uid, out _, out _))
+        foreach (var (console, viewers) in _hullViewers.ToArray())
         {
-            if (CaptureHull(uid) is not { } state)
-                continue;
-            _dirtyHullGrids.Remove(uid);
-            if (!_hullStates.TryGetValue(uid, out var old) || !HullStatesEqual(old, state))
+            viewers.RemoveWhere(actor => !_ui.IsUiOpen(console, ShuttleConsoleUiKey.Key, actor));
+            if (viewers.Count == 0 || TerminatingOrDeleted(console))
             {
+                _hullViewers.Remove(console);
+                continue;
+            }
+            var grid = GetHullGrid(console);
+            if (grid is { } uid && scanned.Add(uid) && CaptureHull(uid) is { } state)
+            {
+                _dirtyHullGrids.Remove(uid);
+                if (!_hullStates.TryGetValue(uid, out var old) || !HullStatesEqual(old, state))
+                    changed.Add(uid);
                 _hullStates[uid] = state;
-                changed.Add(uid);
             }
-        }
-
-        var announced = new HashSet<EntityUid>();
-        var consoles = EntityQueryEnumerator<ShuttleConsoleComponent>();
-        while (consoles.MoveNext(out var uid, out _))
-        {
-            var ev = new ConsoleShuttleEvent { Console = uid };
-            RaiseLocalEvent(uid, ref ev);
-            if (ev.Console is not { } console || Transform(console).GridUid is not { } grid)
+            if (grid is { } updated && !changed.Contains(updated))
                 continue;
-            if (changed.Contains(grid) && _ui.IsUiOpen(uid, ShuttleConsoleUiKey.Key))
-                _ui.ServerSendUiMessage(uid, ShuttleConsoleUiKey.Key, new ShuttleHullStateMessage(_hullStates[grid]));
-            if (_hullAlerts.TryGetValue(grid, out var alert) && alert.Ready(_shieldTiming.CurTime)
-                && Transform(uid).Anchored && this.IsPowered(uid, EntityManager))
-            {
-                AnnounceHullLosses(uid, alert);
-                announced.Add(grid);
-            }
+            foreach (var actor in viewers)
+                _ui.ServerSendUiMessage(console, ShuttleConsoleUiKey.Key,
+                    new ShuttleHullStateMessage(grid is { } current ? _hullStates.GetValueOrDefault(current) : null), actor);
         }
-
-        foreach (var grid in announced)
-            _hullAlerts[grid].Acknowledge(_shieldTiming.CurTime);
     }
 
-    private void ObserveHullLosses(EntityUid grid, ShuttleHullState state, ShuttleHullState losses)
+    public Vector2[] GetDestroyedWeapons(EntityUid? grid) =>
+        grid is { } uid && _destroyedWeapons.TryGetValue(uid, out var weapons) ? weapons.ToArray() : Array.Empty<Vector2>();
+
+    private EntityUid? GetHullGrid(EntityUid console)
     {
-        if (!_hullAlerts.TryGetValue(grid, out var alert))
-            _hullAlerts.Add(grid, alert = new ShuttleHullLossAlert());
-        alert.ObserveNewLosses(state, losses);
+        var ev = new ConsoleShuttleEvent { Console = console };
+        RaiseLocalEvent(console, ref ev);
+        return ev.Console is { } target && Transform(target).Anchored && this.IsPowered(target, EntityManager)
+            && Transform(target).GridUid is { } grid && HasComp<ShuttleComponent>(grid) ? grid : null;
     }
 
-    private void AnnounceHullLosses(EntityUid console, ShuttleHullLossAlert alert)
+    private void OnHullView(Entity<ShuttleConsoleComponent> ent, ref ShuttleHullViewMessage args)
     {
-        var message = Loc.GetString("shuttle-hull-alert-damage", ("percent", Math.Max(1, alert.DamagePercent)));
-        if (alert.Total == 1 && alert.SingleMissingName is { } name)
-            message += " " + Loc.GetString("shuttle-hull-alert-single", ("name", name));
+        if (!args.Active)
+        {
+            RemoveHullViewer(ent, args.Actor);
+            return;
+        }
+        if (!_ui.IsUiOpen(ent.Owner, ShuttleConsoleUiKey.Key, args.Actor))
+            return;
+        if (!_hullViewers.TryGetValue(ent, out var viewers))
+            _hullViewers.Add(ent, viewers = new());
+        if (!viewers.Add(args.Actor))
+            return;
+        var grid = GetHullGrid(ent);
+        if (grid is { } uid)
+            _dirtyHullGrids.Add(uid);
+        _ui.ServerSendUiMessage(ent.Owner, ShuttleConsoleUiKey.Key, new ShuttleHullStateMessage(GetHullState(grid)), args.Actor);
+    }
 
-        _hullChat.TrySendInGameICMessage(console, message, InGameICChatType.Speak, hideChat: false);
+    private void RemoveHullViewer(EntityUid console, EntityUid actor)
+    {
+        if (_hullViewers.TryGetValue(console, out var viewers) && viewers.Remove(actor) && viewers.Count == 0)
+            _hullViewers.Remove(console);
     }
 }

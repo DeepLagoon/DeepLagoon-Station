@@ -30,6 +30,14 @@ public sealed partial class InteractionPanelPrototype : IPrototype
     [DataField] public string[]? Messages;
     [DataField] public string[]? SelfMessages;
     [DataField] public float ArousalGain;
+    [DataField] public float? UserArousalGain;
+    [DataField] public float? TargetArousalGain;
+    [DataField] public string? UserBodyPart;
+    [DataField] public string? TargetBodyPart;
+    [DataField] public string? UserFluidDestination;
+    [DataField] public string? TargetFluidDestination;
+    [DataField] public bool RequiresRecovered;
+    [DataField] public float? RawArousalLimit;
     // Keep existing custom catalogs compatible.
     [DataField("manaGain")] public float LegacyManaGain;
     [DataField] public string? Effect;
@@ -38,5 +46,7 @@ public sealed partial class InteractionPanelPrototype : IPrototype
 
     public InteractionPanelActionDefinition Definition() => new(ID, Body, Category,
         Flags.Aggregate(InteractionPanelActionFlags.None, (all, flag) => all | flag),
-        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ArousalGain: ArousalGain != 0 ? ArousalGain : LegacyManaGain, Sounds: Sounds, Messages: Messages, SelfMessages: SelfMessages);
+        Sound, Effect, Animation, ChatColor.ToHex(), UserSexes: UserSexes, TargetSexes: TargetSexes, ArousalGain: ArousalGain != 0 ? ArousalGain : LegacyManaGain, Sounds: Sounds, Messages: Messages, SelfMessages: SelfMessages,
+        UserArousalGain: UserArousalGain, TargetArousalGain: TargetArousalGain, UserBodyPart: UserBodyPart, TargetBodyPart: TargetBodyPart,
+        UserFluidDestination: UserFluidDestination, TargetFluidDestination: TargetFluidDestination, RequiresRecovered: RequiresRecovered, RawArousalLimit: RawArousalLimit);
 }

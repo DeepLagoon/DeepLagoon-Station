@@ -20,9 +20,9 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ArtIntegrationTests
 {
     [Test]
-    public async Task CanvasRequiresHeldToolReplicatesPreviewAndArchivesOnlyWhenFramed()
+    public async Task CanvasRequiresHeldToolReplicatesPreviewAndArchivesOnSave()
     {
-        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, NoLoadTestPrototypes = true });
         var map = await pair.CreateTestMap();
         var entities = pair.Server.EntMan;
         var db = pair.Server.ResolveDependency<IServerDbManager>();
@@ -72,11 +72,14 @@ public sealed class ArtIntegrationTests
         for (var i = 0; i < 150 && !complete; i++)
         {
             await pair.RunTicksSync(5);
-            await pair.Server.WaitPost(() => complete = entities.GetComponent<ArtCanvasComponent>(canvas).Revision == leaseRevision + 1);
+            await pair.Server.WaitPost(() => complete = entities.System<UserInterfaceSystem>().TryGetUiState<ArtEditorState>(canvas, ArtUiKey.Key, out var savedState) && savedState.Result > 0);
             if (!complete) await Task.Delay(20);
         }
         Assert.That(complete, Is.True, "Validated save did not finish");
-        Assert.That(await db.GetArtworkPoolAsync(), Is.Empty, "Saving the canvas must not archive it");
+        Assert.That(await db.GetArtworkPoolAsync(), Has.Count.EqualTo(1), "Saving must archive the painting before it is framed");
+        var savedWork = await db.GetArtworkAsync((await db.GetArtworkPoolAsync()).Single());
+        Assert.That(savedWork.Document, Is.EqualTo(baked.Json));
+        Assert.That(savedWork.Title, Is.EqualTo("Тест"));
         await pair.Server.WaitAssertion(() =>
         {
             var data = entities.GetComponent<ArtCanvasComponent>(canvas);

@@ -4,7 +4,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_xeno_front_base_1: Chest
+    m_tail_xeno_front_base_1: Tail
   spriteLayersBefore:
     m_tail_xeno_behind_base_0: Chest
   sprites:
@@ -3010,6 +3010,7 @@
   id: BlueMoonEarsHumanAxolotlHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_axolotl_headside.rsi
     state: m_ears_axolotl_adj_primary_0
@@ -3019,6 +3020,7 @@
   id: BlueMoonEarsHumanBearHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bear_headside.rsi
     state: m_ears_bear_adj_primary_0
@@ -3028,6 +3030,7 @@
   id: BlueMoonEarsHumanBigwolfHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bigwolf_headside.rsi
     state: m_ears_bigwolf_adj_primary_0
@@ -3039,6 +3042,7 @@
   id: BlueMoonEarsHumanBigwolfinnerHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bigwolfinner_headside.rsi
     state: m_ears_bigwolfinner_adj_primary_0
@@ -3050,6 +3054,7 @@
   id: BlueMoonEarsHumanBigwolfdarkHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bigwolfdark_headside.rsi
     state: m_ears_bigwolfdark_adj_primary_0
@@ -3061,6 +3066,7 @@
   id: BlueMoonEarsHumanBigwolfinnerdarkHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bigwolfinnerdark_headside.rsi
     state: m_ears_bigwolfinnerdark_adj_primary_0
@@ -3072,6 +3078,7 @@
   id: BlueMoonEarsBunnyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_bunny_headside.rsi
     state: m_ears_bunny_adj_primary_0
@@ -3083,6 +3090,7 @@
   id: BlueMoonEarsBunnyaltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_bunnyalt_headside.rsi
     state: m_ears_bunnyalt_adj_primary_0
@@ -3094,6 +3102,7 @@
   id: BlueMoonEarsCatHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_cat_behind_base_0: Head
   sprites:
@@ -3107,6 +3116,7 @@
   id: BlueMoonEarsHumanCowHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_cow_headside.rsi
     state: m_ears_cow_adj_primary_0
@@ -3116,6 +3126,7 @@
   id: BlueMoonEarsHumanCurledHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_curled_headside.rsi
     state: m_ears_horn1_front_base_0
@@ -3123,6 +3134,7 @@
   id: BlueMoonEarsLabHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_lab_headside.rsi
     state: m_ears_lab_adj_primary_0
@@ -3132,6 +3144,7 @@
   id: BlueMoonEarsLablightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_lablight_headside.rsi
     state: m_ears_lablight_adj_primary_0
@@ -3141,6 +3154,7 @@
   id: BlueMoonEarsHumanEeveeHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_eevee_headside.rsi
     state: m_ears_eevee_adj_primary_0
@@ -3150,6 +3164,7 @@
   id: BlueMoonEarsHumanElephantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_elephant_headside.rsi
     state: m_ears_elephant_adj_primary_0
@@ -3159,6 +3174,7 @@
   id: BlueMoonEarsHumanElfHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_elf_headside.rsi
     state: m_ears_elf_adj_base_0
@@ -3168,6 +3184,7 @@
   id: BlueMoonEarsFennecHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_fennec_headside.rsi
     state: m_ears_fennec_adj_primary_0
@@ -3181,6 +3198,7 @@
   id: BlueMoonEarsFishHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_fish_headside.rsi
     state: m_ears_fish_adj_primary_0
@@ -3190,6 +3208,7 @@
   id: BlueMoonEarsFoxHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_fox_headside.rsi
     state: m_ears_fox_adj_primary_0
@@ -3203,6 +3222,7 @@
   id: BlueMoonEarsHumanJellyfishHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_jellyfish_headside.rsi
     state: m_ears_jellyfish_adj_base_0
@@ -3212,6 +3232,7 @@
   id: BlueMoonEarsMuridHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_murid_headside.rsi
     state: m_ears_murid_adj_primary_0
@@ -3225,6 +3246,7 @@
   id: BlueMoonEarsHumanOtieHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_otie_headside.rsi
     state: m_ears_otie_adj_primary_0
@@ -3238,6 +3260,7 @@
   id: BlueMoonEarsHumanRabbitHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_rabbit_headside.rsi
     state: m_ears_rabbit_adj_primary_0
@@ -3251,6 +3274,7 @@
   id: BlueMoonEarsHumanRabbitaltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_rabbitalt_headside.rsi
     state: m_ears_rabbitalt_adj_primary_0
@@ -3268,6 +3292,7 @@
   id: BlueMoonEarsHumanPedeHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_pede_headside.rsi
     state: m_ears_pede_adj_primary_0
@@ -3281,6 +3306,7 @@
   id: BlueMoonEarsHumanSergalHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_sergal_headside.rsi
     state: m_ears_sergal_adj_primary_0
@@ -3292,6 +3318,7 @@
   id: BlueMoonEarsHumanSkunkHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_skunk_headside.rsi
     state: m_ears_skunk_adj_primary_0
@@ -3305,6 +3332,7 @@
   id: BlueMoonEarsSquirrelHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_squirrel_headside.rsi
     state: m_ears_squirrel_adj_primary_0
@@ -3318,6 +3346,7 @@
   id: BlueMoonEarsWolfHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_wolf_headside.rsi
     state: m_ears_wolf_adj_primary_0
@@ -3329,6 +3358,7 @@
   id: BlueMoonEarsMam_earsBatHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_bat_behind_primary_0: Head
     m_ears_bat_behind_secondary_1: Head
@@ -3341,6 +3371,7 @@
   id: BlueMoonEarsMam_earsCatbigHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_catbig_headside.rsi
     state: m_ears_catbig_adj_primary_0
@@ -3352,6 +3383,7 @@
   id: BlueMoonEarsMam_earsDeerHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_deer_headside.rsi
     state: m_ears_deer_adj_primary_0
@@ -3365,6 +3397,7 @@
   id: BlueMoonEarsMam_earsProtogenHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_protogen_headside.rsi
     state: m_ears_protogen_adj_primary_0
@@ -3378,6 +3411,7 @@
   id: BlueMoonEarsMam_earsKangarooHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_kangaroo_headside.rsi
     state: m_ears_kangaroo_adj_primary_0
@@ -3391,6 +3425,7 @@
   id: BlueMoonEarsMam_earsLunasuneHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_lunasune_headside.rsi
     state: m_ears_lunasune_adj_primary_0
@@ -3400,6 +3435,7 @@
   id: BlueMoonEarsMam_earsSabresuneHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_sabresune_headside.rsi
     state: m_ears_sabresune_adj_primary_0
@@ -3417,6 +3453,7 @@
   id: BlueMoonEarsMam_earsSergal_altHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_sergal_alt_headside.rsi
     state: m_ears_sergal_alt_adj_primary_0
@@ -3426,6 +3463,7 @@
   id: BlueMoonEarsMam_earsSergal_alt_twoHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_sergal_alt_two_headside.rsi
     state: m_ears_sergal_alt2_adj_secondary_0
@@ -3435,6 +3473,7 @@
   id: BlueMoonEarsHumanBnnuyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bnnuy_headside.rsi
     state: m_ears_bnnuy_adj_primary_0
@@ -3448,6 +3487,7 @@
   id: BlueMoonEarsHumanBnnuy2HeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bnnuy2_headside.rsi
     state: m_ears_bnnuy2_adj_primary_0
@@ -3461,6 +3501,7 @@
   id: BlueMoonEarsHumanBunnytallHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bunnytall_headside.rsi
     state: m_ears_bunnytall_adj_primary_0
@@ -3472,6 +3513,7 @@
   id: BlueMoonEarsHumanSandfoxHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_sandfox_headside.rsi
     state: m_ears_sandfox_adj_primary_0
@@ -3483,6 +3525,7 @@
   id: BlueMoonEarsHumanShadekinroundHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_shadekinround_headside.rsi
     state: m_ears_shadekinround_adj_primary_0
@@ -3494,6 +3537,7 @@
   id: BlueMoonEarsHumanJackalopeHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_jackalope_headside.rsi
     state: m_ears_jackalope_adj_primary_0
@@ -4959,7 +5003,7 @@
   speciesRestriction:
   - Synth
   spriteLayers:
-    m_tail_synthliz_front_base_1: Chest
+    m_tail_synthliz_front_base_1: Tail
   spriteLayersBefore:
     m_tail_synthliz_behind_base_0: Chest
   sprites:
@@ -5059,7 +5103,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_axolotl_front_primary_1: Chest
+    m_tail_axolotl_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_axolotl_behind_primary_0: Chest
   sprites:
@@ -5072,7 +5116,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_dtiger_front_base_1: Chest
+    m_tail_dtiger_front_base_1: Tail
   spriteLayersBefore:
     m_tail_dtiger_behind_base_0: Chest
   sprites:
@@ -5085,7 +5129,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_guilmon_front_primary_1: Chest
+    m_tail_guilmon_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_guilmon_behind_primary_0: Chest
   sprites:
@@ -5098,7 +5142,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_ltiger_front_base_1: Chest
+    m_tail_ltiger_front_base_1: Tail
   spriteLayersBefore:
     m_tail_ltiger_behind_base_0: Chest
   sprites:
@@ -5111,7 +5155,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_smooth_front_base_1: Chest
+    m_tail_smooth_front_base_1: Tail
   spriteLayersBefore:
     m_tail_smooth_behind_base_0: Chest
   sprites:
@@ -5124,7 +5168,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_spikes_front_base_1: Chest
+    m_tail_spikes_front_base_1: Tail
   spriteLayersBefore:
     m_tail_spikes_behind_base_0: Chest
   sprites:
@@ -5137,8 +5181,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bee_front_primary_2: Chest
-    m_tail_bee_front_secondary_3: Chest
+    m_tail_bee_front_primary_2: Tail
+    m_tail_bee_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_bee_behind_primary_0: Chest
     m_tail_bee_behind_secondary_1: Chest
@@ -5156,7 +5200,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_cat_front_base_1: Chest
+    m_tail_cat_front_base_1: Tail
   spriteLayersBefore:
     m_tail_cat_behind_base_0: Chest
   sprites:
@@ -5169,8 +5213,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_altcat_front_primary_2: Chest
-    m_tail_altcat_front_tertiary_3: Chest
+    m_tail_altcat_front_primary_2: Tail
+    m_tail_altcat_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_altcat_behind_primary_0: Chest
     m_tail_altcat_behind_tertiary_1: Chest
@@ -5188,7 +5232,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_catbig_front_primary_1: Chest
+    m_tail_catbig_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_catbig_behind_primary_0: Chest
   sprites:
@@ -5201,7 +5245,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_twocat_front_primary_1: Chest
+    m_tail_twocat_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_twocat_behind_primary_0: Chest
   sprites:
@@ -5214,8 +5258,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_twocatalt_front_primary_2: Chest
-    m_tail_twocatalt_front_tertiary_3: Chest
+    m_tail_twocatalt_front_primary_2: Tail
+    m_tail_twocatalt_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_twocatalt_behind_primary_0: Chest
     m_tail_twocatalt_behind_tertiary_1: Chest
@@ -5233,7 +5277,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_carp_front_primary_1: Chest
+    m_tail_carp_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_carp_behind_primary_0: Chest
   sprites:
@@ -5246,8 +5290,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_datacarp_front_primary_2: Chest
-    m_tail_datacarp_front_tertiary_3: Chest
+    m_tail_datacarp_front_primary_2: Tail
+    m_tail_datacarp_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_datacarp_behind_primary_0: Chest
     m_tail_datacarp_behind_tertiary_1: Chest
@@ -5265,7 +5309,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_crow_front_primary_1: Chest
+    m_tail_crow_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_crow_behind_primary_0: Chest
   sprites:
@@ -5278,7 +5322,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_cow_front_primary_1: Chest
+    m_tail_cow_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_cow_behind_primary_0: Chest
   sprites:
@@ -5291,8 +5335,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_eevee_front_primary_2: Chest
-    m_tail_eevee_front_secondary_3: Chest
+    m_tail_eevee_front_primary_2: Tail
+    m_tail_eevee_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_eevee_behind_primary_0: Chest
     m_tail_eevee_behind_secondary_1: Chest
@@ -5310,8 +5354,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fennec_front_primary_2: Chest
-    m_tail_fennec_front_secondary_3: Chest
+    m_tail_fennec_front_primary_2: Tail
+    m_tail_fennec_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_fennec_behind_primary_0: Chest
     m_tail_fennec_behind_secondary_1: Chest
@@ -5329,7 +5373,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fish_front_primary_1: Chest
+    m_tail_fish_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_fish_behind_primary_0: Chest
   sprites:
@@ -5342,8 +5386,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fox_front_primary_2: Chest
-    m_tail_fox_front_secondary_3: Chest
+    m_tail_fox_front_primary_2: Tail
+    m_tail_fox_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_fox_behind_primary_0: Chest
     m_tail_fox_behind_secondary_1: Chest
@@ -5361,7 +5405,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_horse_front_base_1: Chest
+    m_tail_horse_front_base_1: Tail
   spriteLayersBefore:
     m_tail_horse_behind_base_0: Chest
   sprites:
@@ -5374,8 +5418,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_husky_front_primary_2: Chest
-    m_tail_husky_front_secondary_3: Chest
+    m_tail_husky_front_primary_2: Tail
+    m_tail_husky_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_husky_behind_primary_0: Chest
     m_tail_husky_behind_secondary_1: Chest
@@ -5393,7 +5437,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_insect_front_primary_1: Chest
+    m_tail_insect_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_insect_behind_primary_0: Chest
   sprites:
@@ -5406,8 +5450,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kitsune_front_primary_2: Chest
-    m_tail_kitsune_front_secondary_3: Chest
+    m_tail_kitsune_front_primary_2: Tail
+    m_tail_kitsune_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_kitsune_behind_primary_0: Chest
     m_tail_kitsune_behind_secondary_1: Chest
@@ -5425,7 +5469,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_murid_front_base_1: Chest
+    m_tail_murid_front_base_1: Tail
   spriteLayersBefore:
     m_tail_murid_behind_base_0: Chest
   sprites:
@@ -5438,7 +5482,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_orca_front_primary_1: Chest
+    m_tail_orca_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_orca_behind_primary_0: Chest
   sprites:
@@ -5451,7 +5495,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_otie_front_primary_1: Chest
+    m_tail_otie_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_otie_behind_primary_0: Chest
   sprites:
@@ -5464,7 +5508,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_rabbit_front_primary_1: Chest
+    m_tail_rabbit_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_rabbit_behind_primary_0: Chest
   sprites:
@@ -5477,8 +5521,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_wah_front_primary_2: Chest
-    m_tail_wah_front_secondary_3: Chest
+    m_tail_wah_front_primary_2: Tail
+    m_tail_wah_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_wah_behind_primary_0: Chest
     m_tail_wah_behind_secondary_1: Chest
@@ -5496,7 +5540,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_front_primary_1: Chest
+    m_tail_pede_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_pede_behind_primary_0: Chest
   sprites:
@@ -5509,8 +5553,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_sabresune_front_primary_2: Chest
-    m_tail_sabresune_front_secondary_3: Chest
+    m_tail_sabresune_front_primary_2: Tail
+    m_tail_sabresune_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_sabresune_behind_primary_0: Chest
     m_tail_sabresune_behind_secondary_1: Chest
@@ -5528,8 +5572,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_sergal_front_primary_2: Chest
-    m_tail_sergal_front_secondary_3: Chest
+    m_tail_sergal_front_primary_2: Tail
+    m_tail_sergal_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_sergal_behind_primary_0: Chest
     m_tail_sergal_behind_secondary_1: Chest
@@ -5547,7 +5591,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shark_front_primary_1: Chest
+    m_tail_shark_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_shark_behind_primary_0: Chest
   sprites:
@@ -5560,9 +5604,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_skunk_front_primary_3: Chest
-    m_tail_skunk_front_secondary_4: Chest
-    m_tail_skunk_front_tertiary_5: Chest
+    m_tail_skunk_front_primary_3: Tail
+    m_tail_skunk_front_secondary_4: Tail
+    m_tail_skunk_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_skunk_behind_primary_0: Chest
     m_tail_skunk_behind_secondary_1: Chest
@@ -5585,7 +5629,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_straighttail_front_primary_1: Chest
+    m_tail_straighttail_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_straighttail_behind_primary_0: Chest
   sprites:
@@ -5598,7 +5642,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_squirrel_front_primary_1: Chest
+    m_tail_squirrel_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_squirrel_behind_primary_0: Chest
   sprites:
@@ -5611,8 +5655,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_9sune_front_primary_2: Chest
-    m_tail_9sune_front_secondary_3: Chest
+    m_tail_9sune_front_primary_2: Tail
+    m_tail_9sune_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_9sune_behind_primary_0: Chest
     m_tail_9sune_behind_secondary_1: Chest
@@ -5630,8 +5674,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_3sune_front_primary_2: Chest
-    m_tail_3sune_front_secondary_3: Chest
+    m_tail_3sune_front_primary_2: Tail
+    m_tail_3sune_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_3sune_behind_primary_0: Chest
     m_tail_3sune_behind_secondary_1: Chest
@@ -5649,8 +5693,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_7sune_front_primary_2: Chest
-    m_tail_7sune_front_secondary_3: Chest
+    m_tail_7sune_front_primary_2: Tail
+    m_tail_7sune_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_7sune_behind_primary_0: Chest
     m_tail_7sune_behind_secondary_1: Chest
@@ -5668,7 +5712,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_tentacle_front_primary_1: Chest
+    m_tail_tentacle_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_tentacle_behind_primary_0: Chest
   sprites:
@@ -5681,9 +5725,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_tiger_front_primary_3: Chest
-    m_tail_tiger_front_secondary_4: Chest
-    m_tail_tiger_front_tertiary_5: Chest
+    m_tail_tiger_front_primary_3: Tail
+    m_tail_tiger_front_secondary_4: Tail
+    m_tail_tiger_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_tiger_behind_primary_0: Chest
     m_tail_tiger_behind_secondary_1: Chest
@@ -5706,7 +5750,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_wolf_front_primary_1: Chest
+    m_tail_wolf_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_wolf_behind_primary_0: Chest
   sprites:
@@ -5719,8 +5763,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_batl_front_primary_2: Chest
-    m_tail_batl_front_secondary_3: Chest
+    m_tail_batl_front_primary_2: Tail
+    m_tail_batl_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_batl_behind_primary_0: Chest
     m_tail_batl_behind_secondary_1: Chest
@@ -5738,8 +5782,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bats_front_primary_2: Chest
-    m_tail_bats_front_secondary_3: Chest
+    m_tail_bats_front_primary_2: Tail
+    m_tail_bats_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_bats_behind_primary_0: Chest
     m_tail_bats_behind_secondary_1: Chest
@@ -5757,7 +5801,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_datacarp_front_primary_1: Chest
+    m_tail_datacarp_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_datacarp_behind_primary_0: Chest
   sprites:
@@ -5770,8 +5814,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_foxann_front_primary_2: Chest
-    m_tail_foxann_front_secondary_3: Chest
+    m_tail_foxann_front_primary_2: Tail
+    m_tail_foxann_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_foxann_behind_primary_0: Chest
     m_tail_foxann_behind_secondary_1: Chest
@@ -5789,7 +5833,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_hawk_front_primary_1: Chest
+    m_tail_hawk_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_hawk_behind_primary_0: Chest
   sprites:
@@ -5802,7 +5846,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_insect_front_primary_1: Chest
+    m_tail_insect_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_insect_behind_primary_0: Chest
   sprites:
@@ -5815,7 +5859,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kangaroo_front_primary_1: Chest
+    m_tail_kangaroo_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_kangaroo_behind_primary_0: Chest
   sprites:
@@ -5828,7 +5872,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_lab_front_primary_1: Chest
+    m_tail_lab_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_lab_behind_primary_0: Chest
   sprites:
@@ -5841,7 +5885,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_lunasune_front_primary_1: Chest
+    m_tail_lunasune_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_lunasune_behind_primary_0: Chest
   sprites:
@@ -5854,8 +5898,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_sergal_front_primary_2: Chest
-    m_tail_sergal_front_secondary_3: Chest
+    m_tail_sergal_front_primary_2: Tail
+    m_tail_sergal_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_sergal_behind_primary_0: Chest
     m_tail_sergal_behind_secondary_1: Chest
@@ -5873,7 +5917,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_sergal_alt_front_primary_1: Chest
+    m_tail_sergal_alt_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_sergal_alt_behind_primary_0: Chest
   sprites:
@@ -5886,8 +5930,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_sergal_alt_2_front_primary_2: Chest
-    m_tail_sergal_alt_2_front_secondary_3: Chest
+    m_tail_sergal_alt_2_front_primary_2: Tail
+    m_tail_sergal_alt_2_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_sergal_alt_2_behind_primary_0: Chest
     m_tail_sergal_alt_2_behind_secondary_1: Chest
@@ -5905,8 +5949,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shepherd_front_secondary_2: Chest
-    m_tail_shepherd_front_tertiary_3: Chest
+    m_tail_shepherd_front_secondary_2: Tail
+    m_tail_shepherd_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_shepherd_behind_secondary_0: Chest
     m_tail_shepherd_behind_tertiary_1: Chest
@@ -5924,7 +5968,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_7sune_front_base_1: Chest
+    m_tail_7sune_front_base_1: Tail
   spriteLayersBefore:
     m_tail_7sune_behind_base_0: Chest
   sprites:
@@ -8945,7 +8989,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_scolo_front_primary_1: Chest
+    m_tail_scolo_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_scolo_behind_primary_0: Chest
   sprites:
@@ -8957,6 +9001,7 @@
   id: BlueMoonEarsMam_earsPede_whipHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_whip_behind_primary_0: Head
   sprites:
@@ -8968,6 +9013,7 @@
   id: BlueMoonEarsMam_earsPede_shortHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_short_behind_primary_0: Head
   sprites:
@@ -8979,6 +9025,7 @@
   id: BlueMoonEarsMam_earsPede_beadedHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_beaded_behind_primary_0: Head
     m_ears_pede_beaded_behind_secondary_1: Head
@@ -8995,6 +9042,7 @@
   id: BlueMoonEarsMam_earsPede_sweptHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_swept_behind_primary_0: Head
   sprites:
@@ -9006,6 +9054,7 @@
   id: BlueMoonEarsMam_earsPede_curledHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_curled_behind_primary_0: Head
     m_ears_pede_curled_behind_secondary_1: Head
@@ -9022,6 +9071,7 @@
   id: BlueMoonEarsMam_earsPede_houseHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_house_behind_primary_0: Head
     m_ears_pede_house_behind_secondary_1: Head
@@ -9038,6 +9088,7 @@
   id: BlueMoonEarsMam_earsPede_glowtipHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_glowtip_behind_primary_0: Head
     m_ears_pede_glowtip_behind_secondary_1: Head
@@ -9054,6 +9105,7 @@
   id: BlueMoonEarsMam_earsPede_featheredHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_feathered_behind_primary_0: Head
     m_ears_pede_feathered_behind_secondary_1: Head
@@ -9070,6 +9122,7 @@
   id: BlueMoonEarsMam_earsPede_hornedHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_horned_behind_primary_0: Head
     m_ears_pede_horned_behind_secondary_1: Head
@@ -9086,6 +9139,7 @@
   id: BlueMoonEarsMam_earsPede_droopyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_droopy_behind_primary_0: Head
     m_ears_pede_droopy_behind_secondary_1: Head
@@ -9102,6 +9156,7 @@
   id: BlueMoonEarsMam_earsPede_spiralHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_spiral_behind_primary_0: Head
   sprites:
@@ -9113,6 +9168,7 @@
   id: BlueMoonEarsMam_earsPede_forkedHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_forked_behind_primary_0: Head
     m_ears_pede_forked_behind_secondary_1: Head
@@ -9129,6 +9185,7 @@
   id: BlueMoonEarsMam_earsPede_nubsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_nubs_behind_primary_0: Head
     m_ears_pede_nubs_behind_secondary_1: Head
@@ -9145,6 +9202,7 @@
   id: BlueMoonEarsMam_earsPede_clubbedHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   spriteLayersBefore:
     m_ears_pede_clubbed_behind_primary_0: Head
     m_ears_pede_clubbed_behind_secondary_1: Head
@@ -9379,8 +9437,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_ultimate_front_primary_2: Chest
-    m_tail_pede_ultimate_front_secondary_3: Chest
+    m_tail_pede_ultimate_front_primary_2: Tail
+    m_tail_pede_ultimate_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_ultimate_behind_primary_0: Chest
     m_tail_pede_ultimate_behind_secondary_1: Chest
@@ -9398,8 +9456,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_long_front_primary_2: Chest
-    m_tail_pede_long_front_secondary_3: Chest
+    m_tail_pede_long_front_primary_2: Tail
+    m_tail_pede_long_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_long_behind_primary_0: Chest
     m_tail_pede_long_behind_secondary_1: Chest
@@ -9417,8 +9475,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_curl_front_primary_2: Chest
-    m_tail_pede_curl_front_secondary_3: Chest
+    m_tail_pede_curl_front_primary_2: Tail
+    m_tail_pede_curl_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_curl_behind_primary_0: Chest
     m_tail_pede_curl_behind_secondary_1: Chest
@@ -9436,8 +9494,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_pincer_front_primary_2: Chest
-    m_tail_pede_pincer_front_secondary_3: Chest
+    m_tail_pede_pincer_front_primary_2: Tail
+    m_tail_pede_pincer_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_pincer_behind_primary_0: Chest
     m_tail_pede_pincer_behind_secondary_1: Chest
@@ -9455,8 +9513,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_raised_front_primary_2: Chest
-    m_tail_pede_raised_front_secondary_3: Chest
+    m_tail_pede_raised_front_primary_2: Tail
+    m_tail_pede_raised_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_raised_behind_primary_0: Chest
     m_tail_pede_raised_behind_secondary_1: Chest
@@ -9474,8 +9532,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_spiked_front_primary_2: Chest
-    m_tail_pede_spiked_front_secondary_3: Chest
+    m_tail_pede_spiked_front_primary_2: Tail
+    m_tail_pede_spiked_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_spiked_behind_primary_0: Chest
     m_tail_pede_spiked_behind_secondary_1: Chest
@@ -9493,8 +9551,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_fan_front_primary_2: Chest
-    m_tail_pede_fan_front_secondary_3: Chest
+    m_tail_pede_fan_front_primary_2: Tail
+    m_tail_pede_fan_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_fan_behind_primary_0: Chest
     m_tail_pede_fan_behind_secondary_1: Chest
@@ -9512,8 +9570,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_coil_front_primary_2: Chest
-    m_tail_pede_coil_front_secondary_3: Chest
+    m_tail_pede_coil_front_primary_2: Tail
+    m_tail_pede_coil_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_coil_behind_primary_0: Chest
     m_tail_pede_coil_behind_secondary_1: Chest
@@ -9531,8 +9589,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_pede_milli_front_primary_2: Chest
-    m_tail_pede_milli_front_secondary_3: Chest
+    m_tail_pede_milli_front_primary_2: Tail
+    m_tail_pede_milli_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_pede_milli_behind_primary_0: Chest
     m_tail_pede_milli_behind_secondary_1: Chest
@@ -12354,7 +12412,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fish_alt_front_primary_1: Chest
+    m_tail_fish_alt_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_fish_alt_behind_primary_0: Chest
   sprites:
@@ -12367,8 +12425,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fox_alt_front_primary_2: Chest
-    m_tail_fox_alt_front_secondary_3: Chest
+    m_tail_fox_alt_front_primary_2: Tail
+    m_tail_fox_alt_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_fox_alt_behind_primary_0: Chest
     m_tail_fox_alt_behind_secondary_1: Chest
@@ -12386,8 +12444,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fox2_front_primary_2: Chest
-    m_tail_fox2_front_secondary_3: Chest
+    m_tail_fox2_front_primary_2: Tail
+    m_tail_fox2_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_fox2_behind_primary_0: Chest
     m_tail_fox2_behind_secondary_1: Chest
@@ -12405,7 +12463,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fox3_front_primary_1: Chest
+    m_tail_fox3_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_fox3_behind_primary_0: Chest
   sprites:
@@ -12418,8 +12476,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_foxsofttip_front_primary_2: Chest
-    m_tail_foxsofttip_front_tertiary_3: Chest
+    m_tail_foxsofttip_front_primary_2: Tail
+    m_tail_foxsofttip_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_foxsofttip_behind_primary_0: Chest
     m_tail_foxsofttip_behind_tertiary_1: Chest
@@ -12437,8 +12495,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shark_tipped_front_primary_2: Chest
-    m_tail_shark_tipped_front_secondary_3: Chest
+    m_tail_shark_tipped_front_primary_2: Tail
+    m_tail_shark_tipped_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_shark_tipped_behind_primary_0: Chest
     m_tail_shark_tipped_behind_secondary_1: Chest
@@ -12456,8 +12514,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_scorptail_front_primary_2: Chest
-    m_tail_scorptail_front_secondary_3: Chest
+    m_tail_scorptail_front_primary_2: Tail
+    m_tail_scorptail_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_scorptail_behind_primary_0: Chest
     m_tail_scorptail_behind_secondary_1: Chest
@@ -12475,8 +12533,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_plugtail_front_primary_2: Chest
-    m_tail_plugtail_front_secondary_3: Chest
+    m_tail_plugtail_front_primary_2: Tail
+    m_tail_plugtail_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_plugtail_behind_primary_0: Chest
     m_tail_plugtail_behind_secondary_1: Chest
@@ -12494,8 +12552,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_acrador_1_front_primary_2: Chest
-    m_tail_acrador_1_front_secondary_3: Chest
+    m_tail_acrador_1_front_primary_2: Tail
+    m_tail_acrador_1_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_acrador_1_behind_primary_0: Chest
     m_tail_acrador_1_behind_secondary_1: Chest
@@ -12513,8 +12571,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_acrador_2_front_primary_2: Chest
-    m_tail_acrador_2_front_secondary_3: Chest
+    m_tail_acrador_2_front_primary_2: Tail
+    m_tail_acrador_2_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_acrador_2_behind_primary_0: Chest
     m_tail_acrador_2_behind_secondary_1: Chest
@@ -12532,8 +12590,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_acrador_3_front_primary_2: Chest
-    m_tail_acrador_3_front_secondary_3: Chest
+    m_tail_acrador_3_front_primary_2: Tail
+    m_tail_acrador_3_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_acrador_3_behind_primary_0: Chest
     m_tail_acrador_3_behind_secondary_1: Chest
@@ -12551,8 +12609,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_acrador_4_front_primary_2: Chest
-    m_tail_acrador_4_front_secondary_3: Chest
+    m_tail_acrador_4_front_primary_2: Tail
+    m_tail_acrador_4_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_acrador_4_behind_primary_0: Chest
     m_tail_acrador_4_behind_secondary_1: Chest
@@ -12570,8 +12628,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_acrador_5_front_primary_2: Chest
-    m_tail_acrador_5_front_secondary_3: Chest
+    m_tail_acrador_5_front_primary_2: Tail
+    m_tail_acrador_5_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_acrador_5_behind_primary_0: Chest
     m_tail_acrador_5_behind_secondary_1: Chest
@@ -12589,9 +12647,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_large_shark_front_primary_3: Chest
-    m_tail_large_shark_front_secondary_4: Chest
-    m_tail_large_shark_front_tertiary_5: Chest
+    m_tail_large_shark_front_primary_3: Tail
+    m_tail_large_shark_front_secondary_4: Tail
+    m_tail_large_shark_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_large_shark_behind_primary_0: Chest
     m_tail_large_shark_behind_secondary_1: Chest
@@ -12614,9 +12672,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_large_shark_finless_front_primary_3: Chest
-    m_tail_large_shark_finless_front_secondary_4: Chest
-    m_tail_large_shark_finless_front_tertiary_5: Chest
+    m_tail_large_shark_finless_front_primary_3: Tail
+    m_tail_large_shark_finless_front_secondary_4: Tail
+    m_tail_large_shark_finless_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_large_shark_finless_behind_primary_0: Chest
     m_tail_large_shark_finless_behind_secondary_1: Chest
@@ -12639,9 +12697,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_large_shark_s_front_primary_3: Chest
-    m_tail_large_shark_s_front_secondary_4: Chest
-    m_tail_large_shark_s_front_tertiary_5: Chest
+    m_tail_large_shark_s_front_primary_3: Tail
+    m_tail_large_shark_s_front_secondary_4: Tail
+    m_tail_large_shark_s_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_large_shark_s_behind_primary_0: Chest
     m_tail_large_shark_s_behind_secondary_1: Chest
@@ -12664,9 +12722,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_large_shark_finless_s_front_primary_3: Chest
-    m_tail_large_shark_finless_s_front_secondary_4: Chest
-    m_tail_large_shark_finless_s_front_tertiary_5: Chest
+    m_tail_large_shark_finless_s_front_primary_3: Tail
+    m_tail_large_shark_finless_s_front_secondary_4: Tail
+    m_tail_large_shark_finless_s_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_large_shark_finless_s_behind_primary_0: Chest
     m_tail_large_shark_finless_s_behind_secondary_1: Chest
@@ -12689,7 +12747,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bigandfluffy_front_primary_1: Chest
+    m_tail_bigandfluffy_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_bigandfluffy_behind_primary_0: Chest
   sprites:
@@ -12702,9 +12760,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_nightstalker_alt_front_primary_3: Chest
-    m_tail_nightstalker_alt_front_secondary_4: Chest
-    m_tail_nightstalker_alt_front_tertiary_5: Chest
+    m_tail_nightstalker_alt_front_primary_3: Tail
+    m_tail_nightstalker_alt_front_secondary_4: Tail
+    m_tail_nightstalker_alt_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_nightstalker_alt_behind_primary_0: Chest
     m_tail_nightstalker_alt_behind_secondary_1: Chest
@@ -12727,8 +12785,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kathari_front_primary_2: Chest
-    m_tail_kathari_front_secondary_3: Chest
+    m_tail_kathari_front_primary_2: Tail
+    m_tail_kathari_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_kathari_behind_primary_0: Chest
     m_tail_kathari_behind_secondary_1: Chest
@@ -12746,9 +12804,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kathari_s_front_primary_3: Chest
-    m_tail_kathari_s_front_secondary_4: Chest
-    m_tail_kathari_s_front_tertiary_5: Chest
+    m_tail_kathari_s_front_primary_3: Tail
+    m_tail_kathari_s_front_secondary_4: Tail
+    m_tail_kathari_s_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_kathari_s_behind_primary_0: Chest
     m_tail_kathari_s_behind_secondary_1: Chest
@@ -12771,8 +12829,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kathari_alt_front_primary_2: Chest
-    m_tail_kathari_alt_front_secondary_3: Chest
+    m_tail_kathari_alt_front_primary_2: Tail
+    m_tail_kathari_alt_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_kathari_alt_behind_primary_0: Chest
     m_tail_kathari_alt_behind_secondary_1: Chest
@@ -12790,9 +12848,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kathari_alt_s_front_primary_3: Chest
-    m_tail_kathari_alt_s_front_secondary_4: Chest
-    m_tail_kathari_alt_s_front_tertiary_5: Chest
+    m_tail_kathari_alt_s_front_primary_3: Tail
+    m_tail_kathari_alt_s_front_secondary_4: Tail
+    m_tail_kathari_alt_s_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_kathari_alt_s_behind_primary_0: Chest
     m_tail_kathari_alt_s_behind_secondary_1: Chest
@@ -12815,8 +12873,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_australianshepherd_front_primary_2: Chest
-    m_tail_australianshepherd_front_secondary_3: Chest
+    m_tail_australianshepherd_front_primary_2: Tail
+    m_tail_australianshepherd_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_australianshepherd_behind_primary_0: Chest
     m_tail_australianshepherd_behind_secondary_1: Chest
@@ -12834,7 +12892,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_largecatplain_front_primary_1: Chest
+    m_tail_largecatplain_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_largecatplain_behind_primary_0: Chest
   sprites:
@@ -12847,8 +12905,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_largecattip_front_primary_2: Chest
-    m_tail_largecattip_front_secondary_3: Chest
+    m_tail_largecattip_front_primary_2: Tail
+    m_tail_largecattip_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_largecattip_behind_primary_0: Chest
     m_tail_largecattip_behind_secondary_1: Chest
@@ -12866,8 +12924,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_largecatstriped_front_primary_2: Chest
-    m_tail_largecatstriped_front_secondary_3: Chest
+    m_tail_largecatstriped_front_primary_2: Tail
+    m_tail_largecatstriped_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_largecatstriped_behind_primary_0: Chest
     m_tail_largecatstriped_behind_secondary_1: Chest
@@ -12885,8 +12943,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_largecatcircle_front_primary_2: Chest
-    m_tail_largecatcircle_front_secondary_3: Chest
+    m_tail_largecatcircle_front_primary_2: Tail
+    m_tail_largecatcircle_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_largecatcircle_behind_primary_0: Chest
     m_tail_largecatcircle_behind_secondary_1: Chest
@@ -12904,8 +12962,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_largecatcovered_front_primary_2: Chest
-    m_tail_largecatcovered_front_secondary_3: Chest
+    m_tail_largecatcovered_front_primary_2: Tail
+    m_tail_largecatcovered_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_largecatcovered_behind_primary_0: Chest
     m_tail_largecatcovered_behind_secondary_1: Chest
@@ -12923,8 +12981,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shade_front_primary_2: Chest
-    m_tail_shade_front_secondary_3: Chest
+    m_tail_shade_front_primary_2: Tail
+    m_tail_shade_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_shade_behind_primary_0: Chest
     m_tail_shade_behind_secondary_1: Chest
@@ -12942,7 +13000,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shade_long_front_primary_1: Chest
+    m_tail_shade_long_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_shade_long_behind_primary_0: Chest
   sprites:
@@ -12955,8 +13013,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shade_striped_front_primary_2: Chest
-    m_tail_shade_striped_front_secondary_3: Chest
+    m_tail_shade_striped_front_primary_2: Tail
+    m_tail_shade_striped_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_shade_striped_behind_primary_0: Chest
     m_tail_shade_striped_behind_secondary_1: Chest
@@ -12974,9 +13032,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_radfox_front_primary_3: Chest
-    m_tail_radfox_front_secondary_4: Chest
-    m_tail_radfox_front_tertiary_5: Chest
+    m_tail_radfox_front_primary_3: Tail
+    m_tail_radfox_front_secondary_4: Tail
+    m_tail_radfox_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_radfox_behind_primary_0: Chest
     m_tail_radfox_behind_secondary_1: Chest
@@ -13912,6 +13970,7 @@
   id: BlueMoonEarsMam_earsAcradorHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_headside.rsi
     state: m_ears_acrador_long_adj_primary_0
@@ -13927,6 +13986,7 @@
   id: BlueMoonEarsMam_earsAcradorAltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_alt_headside.rsi
     state: m_ears_acrador_long_alt_adj_primary_0
@@ -13942,6 +14002,7 @@
   id: BlueMoonEarsMam_earsAcradorSideHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_side_headside.rsi
     state: m_ears_acrador_long_side_adj_primary_0
@@ -13957,6 +14018,7 @@
   id: BlueMoonEarsMam_earsAcradorSideAltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_side_alt_headside.rsi
     state: m_ears_acrador_long_side_alt_adj_primary_0
@@ -13974,6 +14036,7 @@
   id: BlueMoonEarsMam_earsAcradorShortHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_short_headside.rsi
     state: m_ears_acrador_short_adj_primary_0
@@ -13987,6 +14050,7 @@
   id: BlueMoonEarsMam_earsAcradorShortSideHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_short_side_headside.rsi
     state: m_ears_acrador_short_side_adj_primary_0
@@ -14002,6 +14066,7 @@
   id: BlueMoonEarsMam_earsAcradorShortSide_altHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_short_side_alt_headside.rsi
     state: m_ears_acrador_short_side_alt_adj_primary_0
@@ -14019,6 +14084,7 @@
   id: BlueMoonEarsMam_earsAcradorShortSide_alt_2HeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_acrador_short_side_alt_2_headside.rsi
     state: m_ears_acrador_short_side_alt_2_adj_primary_0
@@ -14034,6 +14100,7 @@
   id: BlueMoonEarsMam_earsBm_earsMouseHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_mouse_headside.rsi
     state: m_ears_mouse_adj_primary_0
@@ -14043,6 +14110,7 @@
   id: BlueMoonEarsMam_earsBm_earsKasariHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_kasari_headside.rsi
     state: m_ears_kasari_adj_secondary_0
@@ -14058,6 +14126,7 @@
   id: BlueMoonEarsMam_earsBm_earsKasariBigHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_kasari_big_headside.rsi
     state: m_ears_kasaribig_adj_secondary_0
@@ -14073,6 +14142,7 @@
   id: BlueMoonEarsMam_earsBm_earsKasariAltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_kasari_alt_headside.rsi
     state: m_ears_kasarialt_adj_secondary_0
@@ -14088,6 +14158,7 @@
   id: BlueMoonEarsMam_earsBm_earsVevisianHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_vevisian_headside.rsi
     state: m_ears_vevisian_adj_tertiary_0
@@ -14099,6 +14170,7 @@
   id: BlueMoonEarsMam_earsBm_earsVevisianShortHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_vevisian_short_headside.rsi
     state: m_ears_vevisianshort_adj_tertiary_0
@@ -14110,6 +14182,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinBandsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_bands_headside.rsi
     state: m_ears_shadekinbands_adj_primary_0
@@ -14127,6 +14200,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinBand_leftHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_band_left_headside.rsi
     state: m_ears_shadekinbandleft_adj_primary_0
@@ -14140,6 +14214,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinBand_rightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_band_right_headside.rsi
     state: m_ears_shadekinbandright_adj_primary_0
@@ -14153,6 +14228,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinGradientHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_gradient_headside.rsi
     state: m_ears_shadekingradient_adj_primary_0
@@ -14166,6 +14242,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinRingsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_rings_headside.rsi
     state: m_ears_shadekinrings_adj_primary_0
@@ -14179,6 +14256,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinRings_leftHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_rings_left_headside.rsi
     state: m_ears_shadekinringsleft_adj_primary_0
@@ -14192,6 +14270,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinRings_rightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_rings_right_headside.rsi
     state: m_ears_shadekinringsright_adj_primary_0
@@ -14205,6 +14284,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinSmoothHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_smooth_headside.rsi
     state: m_ears_shadekinsmooth_adj_primary_0
@@ -14218,6 +14298,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinFluffyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_fluffy_headside.rsi
     state: m_ears_shadekinfluffy_adj_base_0
@@ -14227,6 +14308,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinFluffy_gradientHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_fluffy_gradient_headside.rsi
     state: m_ears_shadekinfluffygradient_adj_primary_0
@@ -14240,6 +14322,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinFluffy_ringsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_fluffy_rings_headside.rsi
     state: m_ears_shadekinfluffyrings_adj_primary_0
@@ -14253,6 +14336,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinFluffy_rings_leftHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_fluffy_rings_left_headside.rsi
     state: m_ears_shadekinfluffyringsleft_adj_primary_0
@@ -14266,6 +14350,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinFluffy_rings_rightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_fluffy_rings_right_headside.rsi
     state: m_ears_shadekinfluffyringsright_adj_primary_0
@@ -14279,6 +14364,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinSaggyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_saggy_headside.rsi
     state: m_ears_shadekinsaggy_adj_base_0
@@ -14288,6 +14374,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinSaggy_gradientHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_saggy_gradient_headside.rsi
     state: m_ears_shadekinsaggygradient_adj_primary_0
@@ -14299,6 +14386,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinShortHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_short_headside.rsi
     state: m_ears_shadekinshort_adj_base_0
@@ -14308,6 +14396,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinShort_ringsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_short_rings_headside.rsi
     state: m_ears_shadekinshortrings_adj_primary_0
@@ -14321,6 +14410,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinShort_rings_leftHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_short_rings_left_headside.rsi
     state: m_ears_shadekinshortringsleft_adj_primary_0
@@ -14334,6 +14424,7 @@
   id: BlueMoonEarsMam_earsBm_shadekinShort_rings_rightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_shadekin_short_rings_right_headside.rsi
     state: m_ears_shadekinshortringsright_adj_primary_0
@@ -14347,6 +14438,7 @@
   id: BlueMoonEarsMam_earsBm_earsVevisian_lynxHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bm_ears_vevisian_lynx_headside.rsi
     state: m_ears_lynxlarge_adj_secondary_0
@@ -16560,7 +16652,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_teshari_front_primary_1: Chest
+    m_tail_teshari_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_teshari_behind_primary_0: Chest
   sprites:
@@ -16573,7 +16665,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_teshari2_front_primary_1: Chest
+    m_tail_teshari2_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_teshari2_behind_primary_0: Chest
   sprites:
@@ -16586,8 +16678,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_leopard_front_primary_2: Chest
-    m_tail_leopard_front_tertiary_3: Chest
+    m_tail_leopard_front_primary_2: Tail
+    m_tail_leopard_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_leopard_behind_primary_0: Chest
     m_tail_leopard_behind_tertiary_1: Chest
@@ -16605,8 +16697,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_otiea_front_primary_2: Chest
-    m_tail_otiea_front_secondary_3: Chest
+    m_tail_otiea_front_primary_2: Tail
+    m_tail_otiea_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_otiea_behind_primary_0: Chest
     m_tail_otiea_behind_secondary_1: Chest
@@ -16749,6 +16841,7 @@
   id: BlueMoonEarsMam_earsVulpHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_vulp_headside.rsi
     state: m_ears_vulp_adj_primary_0
@@ -16762,6 +16855,7 @@
   id: BlueMoonEarsMam_earsMouse_twoHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_mouse_two_headside.rsi
     state: m_ears_mouse_two_adj_tertiary_0
@@ -16771,6 +16865,7 @@
   id: BlueMoonEarsHumanElfElf_wideHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_elf_elf_wide_headside.rsi
     state: m_ears_elfwide_adj_base_0
@@ -16780,6 +16875,7 @@
   id: BlueMoonEarsHumanElfElf_wideElf_broadHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_elf_elf_wide_elf_broad_headside.rsi
     state: m_ears_elfbroad_adj_base_0
@@ -16789,6 +16885,7 @@
   id: BlueMoonEarsHumanElfElf_wideElf_longerHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_elf_elf_wide_elf_longer_headside.rsi
     state: m_ears_elflonger_adj_base_0
@@ -16808,7 +16905,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_xeno_front_primary_1: Chest
+    m_tail_xeno_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_xeno_behind_primary_0: Chest
   sprites:
@@ -16843,8 +16940,8 @@
   id: BlueMoonTailsMam_tailsVoxTail
   bodyPart: Tail
   markingCategory: Tail
-  spriteLayersBefore:
-    vox_tail_0: Chest
+  spriteLayers:
+    vox_tail_0: Tail
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/tails_mam_tails_vox_tail.rsi
     state: vox_tail_0
@@ -17119,6 +17216,7 @@
   id: BlueMoonEarsMam_earsMouse_coolHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_mouse_cool_headside.rsi
     state: m_ears_mouse3_adj_primary_0
@@ -17428,6 +17526,7 @@
   id: BlueMoonEarsMam_earsCobrahoodHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_cobrahood_headside.rsi
     state: m_ears_cobrahood_adj_primary_0
@@ -17437,6 +17536,7 @@
   id: BlueMoonEarsMam_earsCobrahoodearsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_cobrahoodears_headside.rsi
     state: m_ears_cobraears_adj_primary_0
@@ -17446,6 +17546,7 @@
   id: BlueMoonEarsMam_earsZorgoiaHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_zorgoia_headside.rsi
     state: m_ears_zorgoia_adj_primary_0
@@ -17484,9 +17585,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_zorgoia_front_primary_3: Chest
-    m_tail_zorgoia_front_secondary_4: Chest
-    m_tail_zorgoia_front_tertiary_5: Chest
+    m_tail_zorgoia_front_primary_3: Tail
+    m_tail_zorgoia_front_secondary_4: Tail
+    m_tail_zorgoia_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_zorgoia_behind_primary_0: Chest
     m_tail_zorgoia_behind_secondary_1: Chest
@@ -17509,8 +17610,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_downwardfennec_front_primary_2: Chest
-    m_tail_downwardfennec_front_secondary_3: Chest
+    m_tail_downwardfennec_front_primary_2: Tail
+    m_tail_downwardfennec_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_downwardfennec_behind_primary_0: Chest
     m_tail_downwardfennec_behind_secondary_1: Chest
@@ -17528,7 +17629,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_blade_front_base_1: Chest
+    m_tail_blade_front_base_1: Tail
   spriteLayersBefore:
     m_tail_blade_behind_base_0: Chest
   sprites:
@@ -18513,6 +18614,7 @@
   id: BlueMoonEarsHumanGretHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_gret_headside.rsi
     state: m_ears_gret_adj_base_0
@@ -18522,6 +18624,7 @@
   id: BlueMoonEarsMam_earsGoathornsHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_goathorns_headside.rsi
     state: m_ears_goathorns_adj_primary_0
@@ -18539,6 +18642,7 @@
   id: BlueMoonEarsMam_earsUndergoatHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_undergoat_headside.rsi
     state: m_ears_goat_front_primary_0
@@ -18548,6 +18652,7 @@
   id: BlueMoonEarsMam_earsAvaliHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_avali_headside.rsi
     state: m_ears_avali_adj_primary_0
@@ -18561,6 +18666,7 @@
   id: BlueMoonEarsMam_earsAvaliRealHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_avali_real_headside.rsi
     state: m_ears_avalireal_adj_primary_0
@@ -18574,6 +18680,7 @@
   id: BlueMoonEarsMam_earsFaceantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_faceant_headside.rsi
     state: m_ears_faceant_adj_primary_0
@@ -18581,6 +18688,7 @@
   id: BlueMoonEarsMam_earsFaceant2HeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_faceant2_headside.rsi
     state: m_ears_faceant2_adj_primary_0
@@ -18588,6 +18696,7 @@
   id: BlueMoonEarsMam_earsMothHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_moth_headside.rsi
     state: m_ears_moth_adj_secondary_0
@@ -18595,6 +18704,7 @@
   id: BlueMoonEarsMam_earsPlumeantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_plumeant_headside.rsi
     state: m_ears_plumeant_adj_primary_0
@@ -18602,6 +18712,7 @@
   id: BlueMoonEarsMam_earsRoundantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_roundant_headside.rsi
     state: m_ears_roundant_adj_primary_0
@@ -18609,6 +18720,7 @@
   id: BlueMoonEarsMam_earsThinantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_thinant_headside.rsi
     state: m_ears_thinant_adj_primary_0
@@ -18616,6 +18728,7 @@
   id: BlueMoonEarsMam_earsChemlightHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_chemlight_headside.rsi
     state: m_ears_chemlight_adj_primary_0
@@ -18625,6 +18738,7 @@
   id: BlueMoonEarsMam_earsEasterndragonHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_easterndragon_headside.rsi
     state: m_ears_easternd_adj_primary_0
@@ -18638,6 +18752,7 @@
   id: BlueMoonEarsMam_earsShadekinHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_shadekin_headside.rsi
     state: m_ears_shadekin_adj_base_0
@@ -18647,6 +18762,7 @@
   id: BlueMoonEarsMam_earsCat_normalHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_cat_normal_headside.rsi
     state: m_ears_catnormal_adj_primary_0
@@ -18660,6 +18776,7 @@
   id: BlueMoonEarsMam_earsNoodledragonHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_noodledragon_headside.rsi
     state: m_ears_noodledragon_adj_primary_0
@@ -18673,6 +18790,7 @@
   id: BlueMoonEarsMam_earsBunnyAltHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bunny_alt_headside.rsi
     state: m_ears_bunny_adj_base_0
@@ -18682,6 +18800,7 @@
   id: BlueMoonEarsMam_earsBunnyAltTwoHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_bunny_alt_two_headside.rsi
     state: m_ears_bunny2_front_base_0
@@ -18689,6 +18808,7 @@
   id: BlueMoonEarsMam_earsMouseHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_mouse_headside.rsi
     state: m_ears_mouse_front_base_0
@@ -18696,6 +18816,7 @@
   id: BlueMoonEarsMam_earsPointyHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_pointy_headside.rsi
     state: m_ears_pointy_front_base_0
@@ -18703,6 +18824,7 @@
   id: BlueMoonEarsMam_earsFoldedHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_folded_headside.rsi
     state: m_ears_foldedback_front_base_0
@@ -18710,6 +18832,7 @@
   id: BlueMoonEarsMam_earsJackalHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_jackal_headside.rsi
     state: m_ears_jackal_front_primary_0
@@ -18719,6 +18842,7 @@
   id: BlueMoonEarsMam_earsRenamonHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_renamon_headside.rsi
     state: m_ears_renamon_adj_primary_0
@@ -18730,6 +18854,7 @@
   id: BlueMoonEarsHumanBunnylargeHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_human_bunnylarge_headside.rsi
     state: m_ears_hare_adj_primary_0
@@ -19221,6 +19346,7 @@
   id: BlueMoonEarsMam_earsTeshariHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_teshari_headside.rsi
     state: m_ears_teshari_adj_base_0
@@ -19230,6 +19356,7 @@
   id: BlueMoonEarsMam_earsTesharihighHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_tesharihigh_headside.rsi
     state: m_ears_tesharihigh_adj_base_0
@@ -19239,6 +19366,7 @@
   id: BlueMoonEarsMam_earsTesharilowHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_tesharilow_headside.rsi
     state: m_ears_tesharilow_adj_base_0
@@ -19249,7 +19377,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_tesharifeatherscolorable_front_primary_1: Chest
+    m_tail_tesharifeatherscolorable_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_tesharifeatherscolorable_behind_primary_0: Chest
   sprites:
@@ -20299,7 +20427,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_deer_front_primary_1: Chest
+    m_tail_deer_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_deer_behind_primary_0: Chest
   sprites:
@@ -20312,7 +20440,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_spade_front_primary_1: Chest
+    m_tail_spade_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_spade_behind_primary_0: Chest
   sprites:
@@ -20325,7 +20453,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_tailmaw_front_primary_1: Chest
+    m_tail_tailmaw_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_tailmaw_behind_primary_0: Chest
   sprites:
@@ -20338,8 +20466,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_handytail_front_primary_2: Chest
-    m_tail_handytail_front_secondary_3: Chest
+    m_tail_handytail_front_primary_2: Tail
+    m_tail_handytail_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_handytail_behind_primary_0: Chest
     m_tail_handytail_behind_secondary_1: Chest
@@ -20357,7 +20485,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_snaketail_front_primary_1: Chest
+    m_tail_snaketail_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_snaketail_behind_primary_0: Chest
   sprites:
@@ -20370,8 +20498,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_chemlight_front_primary_3: Chest
-    m_tail_chemlight_front_tertiary_4: Chest
+    m_tail_chemlight_front_primary_3: Tail
+    m_tail_chemlight_front_tertiary_4: Tail
   spriteLayersBefore:
     m_tail_chemlight_behind_primary_0: Chest
     m_tail_chemlight_behind_secondary_1: Chest
@@ -20392,9 +20520,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_gecko_front_primary_3: Chest
-    m_tail_gecko_front_secondary_4: Chest
-    m_tail_gecko_front_tertiary_5: Chest
+    m_tail_gecko_front_primary_3: Tail
+    m_tail_gecko_front_secondary_4: Tail
+    m_tail_gecko_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_gecko_behind_primary_0: Chest
     m_tail_gecko_behind_secondary_1: Chest
@@ -20417,7 +20545,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shorthawk_front_primary_1: Chest
+    m_tail_shorthawk_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_shorthawk_behind_primary_0: Chest
   sprites:
@@ -20430,7 +20558,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_longpigeon_front_primary_1: Chest
+    m_tail_longpigeon_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_longpigeon_behind_primary_0: Chest
   sprites:
@@ -20443,7 +20571,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shortpigeon_front_primary_1: Chest
+    m_tail_shortpigeon_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_shortpigeon_behind_primary_0: Chest
   sprites:
@@ -20456,7 +20584,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_swallow_front_primary_1: Chest
+    m_tail_swallow_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_swallow_behind_primary_0: Chest
   sprites:
@@ -20469,8 +20597,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_swallowstriped_front_secondary_2: Chest
-    m_tail_swallowstriped_front_tertiary_3: Chest
+    m_tail_swallowstriped_front_secondary_2: Tail
+    m_tail_swallowstriped_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_swallowstriped_behind_secondary_0: Chest
     m_tail_swallowstriped_behind_tertiary_1: Chest
@@ -20488,9 +20616,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bee_front_primary_3: Chest
-    m_tail_bee_front_secondary_4: Chest
-    m_tail_bee_front_tertiary_5: Chest
+    m_tail_bee_front_primary_3: Tail
+    m_tail_bee_front_secondary_4: Tail
+    m_tail_bee_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_bee_behind_primary_0: Chest
     m_tail_bee_behind_secondary_1: Chest
@@ -20513,9 +20641,9 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bee2_front_primary_3: Chest
-    m_tail_bee2_front_secondary_4: Chest
-    m_tail_bee2_front_tertiary_5: Chest
+    m_tail_bee2_front_primary_3: Tail
+    m_tail_bee2_front_secondary_4: Tail
+    m_tail_bee2_front_tertiary_5: Tail
   spriteLayersBefore:
     m_tail_bee2_behind_primary_0: Chest
     m_tail_bee2_behind_secondary_1: Chest
@@ -20538,8 +20666,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_bug2tone_front_primary_2: Chest
-    m_tail_bug2tone_front_tertiary_3: Chest
+    m_tail_bug2tone_front_primary_2: Tail
+    m_tail_bug2tone_front_tertiary_3: Tail
   spriteLayersBefore:
     m_tail_bug2tone_behind_primary_0: Chest
     m_tail_bug2tone_behind_tertiary_1: Chest
@@ -20557,8 +20685,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_easternd_front_primary_2: Chest
-    m_tail_easternd_front_secondary_3: Chest
+    m_tail_easternd_front_primary_2: Tail
+    m_tail_easternd_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_easternd_behind_primary_0: Chest
     m_tail_easternd_behind_secondary_1: Chest
@@ -20576,7 +20704,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shadekin_front_base_1: Chest
+    m_tail_shadekin_front_base_1: Tail
   spriteLayersBefore:
     m_tail_shadekin_behind_base_0: Chest
   sprites:
@@ -20589,7 +20717,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_shadekinshort_front_base_1: Chest
+    m_tail_shadekinshort_front_base_1: Tail
   spriteLayersBefore:
     m_tail_shadekinshort_behind_base_0: Chest
   sprites:
@@ -20602,7 +20730,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_fluffy_front_base_1: Chest
+    m_tail_fluffy_front_base_1: Tail
   spriteLayersBefore:
     m_tail_fluffy_behind_base_0: Chest
   sprites:
@@ -20615,8 +20743,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_nightstalker_front_primary_2: Chest
-    m_tail_nightstalker_front_secondary_3: Chest
+    m_tail_nightstalker_front_primary_2: Tail
+    m_tail_nightstalker_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_nightstalker_behind_primary_0: Chest
     m_tail_nightstalker_behind_secondary_1: Chest
@@ -20634,8 +20762,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_snakelarge_front_primary_2: Chest
-    m_tail_snakelarge_front_secondary_3: Chest
+    m_tail_snakelarge_front_primary_2: Tail
+    m_tail_snakelarge_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_snakelarge_behind_primary_0: Chest
     m_tail_snakelarge_behind_secondary_1: Chest
@@ -20653,8 +20781,8 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_westerndragon_front_primary_2: Chest
-    m_tail_westerndragon_front_secondary_3: Chest
+    m_tail_westerndragon_front_primary_2: Tail
+    m_tail_westerndragon_front_secondary_3: Tail
   spriteLayersBefore:
     m_tail_westerndragon_behind_primary_0: Chest
     m_tail_westerndragon_behind_secondary_1: Chest
@@ -20672,7 +20800,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_succubus_front_base_1: Chest
+    m_tail_succubus_front_base_1: Tail
   spriteLayersBefore:
     m_tail_succubus_behind_base_0: Chest
   sprites:
@@ -20685,7 +20813,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_succubus_front_primary_1: Chest
+    m_tail_succubus_front_primary_1: Tail
   spriteLayersBefore:
     m_tail_succubus_behind_primary_0: Chest
   sprites:
@@ -20698,7 +20826,7 @@
   bodyPart: Tail
   markingCategory: Tail
   spriteLayers:
-    m_tail_kangaroo_front_base_1: Chest
+    m_tail_kangaroo_front_base_1: Tail
   spriteLayersBefore:
     m_tail_kangaroo_behind_base_0: Chest
   sprites:

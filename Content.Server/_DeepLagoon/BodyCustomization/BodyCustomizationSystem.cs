@@ -134,4 +134,17 @@ public sealed partial class BodyCustomizationSystem : EntitySystem
         var ev = new BodyCustomizationChangedEvent();
         RaiseLocalEvent(uid, ref ev);
     }
+
+    public bool AllowsPhysiologyChanges(EntityUid uid) => SyncPreference(uid);
+
+    public bool SetPhysiologyFeature(EntityUid uid, string part, BodyFeature? feature)
+    {
+        if (!TryComp<HumanoidAppearanceComponent>(uid, out var humanoid)) return false;
+        var features = BodyCustomizationCatalog.Sanitize(humanoid.BodyFeatures);
+        features.RemoveAll(f => f.Part == part);
+        if (feature != null && feature.Part == part) features.Add(feature.Clone());
+        humanoid.BodyFeatures = BodyCustomizationCatalog.Sanitize(features);
+        Changed(uid, humanoid);
+        return true;
+    }
 }

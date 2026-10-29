@@ -1,3 +1,4 @@
+using Content.Shared.Mind.Components;
 using Content.Shared.NPC.Components;
 using Content.Shared.NPC.Prototypes;
 using Robust.Shared.Prototypes;
@@ -180,7 +181,7 @@ public sealed partial class NpcFactionSystem : EntitySystem
         if (!Resolve(ent, ref ent.Comp1, false))
             return Array.Empty<EntityUid>();
 
-        var hostiles = GetNearbyFactions(ent, range, ent.Comp1.HostileFactions)
+        var hostiles = GetNearbyFactions(ent, range, ent.Comp1.HostileFactions, includeForcedHostiles: true)
             // ignore mobs that have both hostile faction and the same faction,
             // otherwise having multiple factions is strictly negative
             .Where(target => !IsEntityFriendly((ent, ent.Comp1), target));
@@ -199,10 +200,12 @@ public sealed partial class NpcFactionSystem : EntitySystem
         if (!Resolve(ent, ref ent.Comp, false))
             return Array.Empty<EntityUid>();
 
-        return GetNearbyFactions(ent, range, ent.Comp.FriendlyFactions);
+        return GetNearbyFactions(ent, range, ent.Comp.FriendlyFactions)
+            .Where(target => !IsForcedHostile(ent, target));
     }
 
-    private IEnumerable<EntityUid> GetNearbyFactions(EntityUid entity, float range, HashSet<ProtoId<NpcFactionPrototype>> factions)
+    private IEnumerable<EntityUid> GetNearbyFactions(EntityUid entity, float range, HashSet<ProtoId<NpcFactionPrototype>> factions,
+        bool includeForcedHostiles = false)
     {
         var xform = Transform(entity);
         foreach (var ent in _lookup.GetEntitiesInRange<NpcFactionMemberComponent>(_xform.GetMapCoordinates((entity, xform)), range))
@@ -210,7 +213,7 @@ public sealed partial class NpcFactionSystem : EntitySystem
             if (ent.Owner == entity)
                 continue;
 
-            if (!factions.Overlaps(ent.Comp.Factions))
+            if (!factions.Overlaps(ent.Comp.Factions) && !(includeForcedHostiles && IsForcedHostile(entity, ent.Owner)))
                 continue;
 
             yield return ent.Owner;
@@ -218,14 +221,25 @@ public sealed partial class NpcFactionSystem : EntitySystem
     }
 
     /// <remarks>
-    /// 1-way and purely faction based, ignores faction exception.
+    /// 1-way; forced hostility takes priority over factions. Ignores personal faction exceptions.
     /// </remarks>
     public bool IsEntityFriendly(Entity<NpcFactionMemberComponent?> ent, Entity<NpcFactionMemberComponent?> other)
     {
+        if (IsForcedHostile(ent, other))
+            return false;
+
         if (!Resolve(ent, ref ent.Comp, false) || !Resolve(other, ref other.Comp, false))
             return false;
 
         return ent.Comp.Factions.Overlaps(other.Comp.Factions) || ent.Comp.FriendlyFactions.Overlaps(other.Comp.Factions);
+    }
+
+    private bool IsForcedHostile(EntityUid entity, EntityUid target)
+    {
+        return entity != target &&
+               TryComp<NpcForcedHostilityComponent>(entity, out var hostility) &&
+               (!TryComp<NpcForcedHostilityComponent>(target, out var other) || hostility.Group != other.Group ||
+                TryComp<MindContainerComponent>(target, out var mind) && mind.HasMind);
     }
 
     public bool IsFactionFriendly(string target, string with)

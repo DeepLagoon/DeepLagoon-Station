@@ -32,6 +32,29 @@
         conditions:
         - !type:OrganType
           type: Demon
+      - !type:SatiateHunger
+        factor: 0.5
+        conditions:
+        - !type:OrganType
+          type: Vampiric
+      - !type:AdjustReagent
+        reagent: Water
+        amount: 0.3
+        conditions:
+        - !type:OrganType
+          type: Vampiric
+      - !type:AdjustReagent
+        reagent: Protein
+        amount: 0.25
+        conditions:
+        - !type:OrganType
+          type: Vampiric
+      - !type:AdjustReagent
+        reagent: Omnizine
+        amount: 0.3
+        conditions:
+        - !type:OrganType
+          type: Vampiric
     Food:
       effects:
         - !type:AdjustReagent

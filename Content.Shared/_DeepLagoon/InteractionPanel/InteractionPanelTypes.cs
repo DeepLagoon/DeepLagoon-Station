@@ -4,6 +4,7 @@ using System.Linq;
 using Robust.Shared.Serialization;
 using Robust.Shared.Random;
 using Content.Shared._DeepLagoon.BodyCustomization;
+using Content.Shared.DoAfter;
 
 namespace Content.Shared._DeepLagoon.InteractionPanel;
 
@@ -25,7 +26,9 @@ public enum InteractionPanelActionFlags : byte
 
 public sealed record InteractionPanelActionDefinition(string Id, string Body, InteractionPanelCategory Category,
     InteractionPanelActionFlags Flags = InteractionPanelActionFlags.INTERACTION_OTHER | InteractionPanelActionFlags.INTERACTION_HUMANOID,
-    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ArousalGain = 0, string[]? Sounds = null, string[]? Messages = null, string[]? SelfMessages = null)
+    string? Sound = null, string? Effect = null, InteractionPanelAnimationSettings? Animation = null, string ChatColor = "#C6E8DA", string? Title = null, string? Template = null, Sex[]? UserSexes = null, Sex[]? TargetSexes = null, float ArousalGain = 0, string[]? Sounds = null, string[]? Messages = null, string[]? SelfMessages = null,
+    float? UserArousalGain = null, float? TargetArousalGain = null, string? UserBodyPart = null, string? TargetBodyPart = null,
+    string? UserFluidDestination = null, string? TargetFluidDestination = null, bool RequiresRecovered = false, float? RawArousalLimit = null)
 {
     public bool HasMessageVariants(bool self) => (self ? SelfMessages : Messages) is { Length: > 0 };
 
@@ -145,6 +148,22 @@ public sealed class InteractionPanelBodyVisibilityEvent(string part, int visibil
 {
     public string Part = part;
     public int Visibility = visibility;
+}
+
+[Serializable, NetSerializable]
+public sealed class InteractionPanelClimaxRequestEvent(NetEntity target, string part, string destination, bool container = false, bool clearPregnancy = false) : EntityEventArgs
+{
+    public NetEntity Target = target;
+    public string Part = part;
+    public string Destination = destination;
+    public bool Container = container;
+    public bool ClearPregnancy = clearPregnancy;
+}
+
+[Serializable, NetSerializable]
+public sealed partial class BlueMoonClimaxDoAfterEvent : SimpleDoAfterEvent
+{
+    public InteractionPanelClimaxRequestEvent Request = default!;
 }
 
 [Serializable, NetSerializable]

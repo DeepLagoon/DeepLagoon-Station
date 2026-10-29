@@ -113,11 +113,6 @@ reagent-name-mutagenic-fertilizer = mutagenic fertilizer
 reagent-desc-mutagenic-fertilizer = A fertilizer that encourages useful changes in plants.
 reagent-effect-status-effect-Anticoagulant = anticoagulation
 
-reagent-name-heparin = heparin
-reagent-desc-heparin = An anticoagulant that prevents natural blood clotting. Large doses can cause bleeding.
-reagent-name-mutagenic-fertilizer = mutagenic fertilizer
-reagent-desc-mutagenic-fertilizer = A fertilizer that encourages useful changes in plants.
-reagent-effect-status-effect-Anticoagulant = anticoagulation
 
 seeds-bloonion-name = bloonion
 seeds-lemoon-name = lemoon

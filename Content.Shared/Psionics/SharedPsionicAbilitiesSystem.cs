@@ -1,5 +1,6 @@
 using Content.Shared.Administration.Logs;
 using Content.Shared.Contests;
+using Content.Shared.DoAfter;
 using Content.Shared.Popups;
 using Content.Shared.Psionics.Glimmer;
 using Robust.Shared.Random;
@@ -10,6 +11,7 @@ namespace Content.Shared.Abilities.Psionics
     public sealed partial class SharedPsionicAbilitiesSystem : EntitySystem
     {
         [Dependency] private EntityLookupSystem _lookup = default!;
+        [Dependency] private SharedDoAfterSystem _doAfterSystem = default!;
         [Dependency] private SharedPopupSystem _popups = default!;
         [Dependency] private ISharedAdminLogManager _adminLogger = default!;
         [Dependency] private GlimmerSystem _glimmerSystem = default!;
@@ -37,7 +39,7 @@ namespace Content.Shared.Abilities.Psionics
             if (tev.Cancelled)
                 return false;
 
-            if (component.DoAfter is not null)
+            if (_doAfterSystem.IsRunning(component.DoAfter))
             {
                 _popups.PopupEntity(Loc.GetString(component.AlreadyCasting), uid, uid, PopupType.LargeCaution);
                 return false;
@@ -61,7 +63,7 @@ namespace Content.Shared.Abilities.Psionics
             if (tev.Cancelled)
                 return false;
 
-            if (component.DoAfter is not null)
+            if (_doAfterSystem.IsRunning(component.DoAfter))
             {
                 _popups.PopupEntity(Loc.GetString(component.AlreadyCasting), uid, uid, PopupType.LargeCaution);
                 return false;

@@ -1,0 +1,2136 @@
+# Adapted from Einstein Engines; native mechanics and legacy IDs are retained.
+- type: trait
+  id: Swashbuckler
+  category: Physical
+  points: 0
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: OniDamageModifier
+      modifiers:
+        coefficients:
+          Blunt: 1.25
+          Slash: 1.35
+          Piercing: 1.25
+  requirements:
+  - kind: Species
+    values:
+    - Oni
+  - kind: Trait
+    inverted: true
+    values:
+    - Spearmaster
+    - WeaponsGeneralist
+    - Mystic
+  name: trait-name-Swashbuckler
+  description: trait-description-Swashbuckler
+- type: trait
+  id: Spearmaster
+  category: Physical
+  points: 0
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: OniDamageModifier
+      modifiers:
+        coefficients:
+          Blunt: 1.25
+          Slash: 1.25
+          Piercing: 1.35
+  requirements:
+  - kind: Species
+    values:
+    - Oni
+  - kind: Trait
+    inverted: true
+    values:
+    - Swashbuckler
+    - WeaponsGeneralist
+    - Mystic
+  name: trait-name-Spearmaster
+  description: trait-description-Spearmaster
+- type: trait
+  id: WeaponsGeneralist
+  category: Physical
+  points: 0
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: OniDamageModifier
+      modifiers:
+        coefficients:
+          Blunt: 1.3
+          Slash: 1.3
+          Piercing: 1.3
+  requirements:
+  - kind: Species
+    values:
+    - Oni
+  - kind: Trait
+    inverted: true
+    values:
+    - Swashbuckler
+    - Spearmaster
+    - Mystic
+  name: trait-name-WeaponsGeneralist
+  description: trait-description-WeaponsGeneralist
+- type: trait
+  id: MothFlight
+  category: Physical
+  points: -2
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: Flight
+      speedModifier: 1.19
+      flapInterval: 0.75
+      needsHands: false
+  requirements:
+  - kind: Species
+    values:
+    - Moth
+  - kind: Weight
+    max: 60
+  name: trait-name-MothFlight
+  description: trait-description-MothFlight
+- type: trait
+  id: IPCInefficientCogitator
+  category: Physical
+  points: 3
+  functions:
+  - !type:TraitModifyComponent
+    components:
+    - components:
+      - type: Silicon
+        entityType: enum.SiliconType.Player
+        batteryPowered: true
+        drainPerSecond: 2
+        chargeThresholdMid: 0.8
+        chargeThresholdLow: 0.35
+        chargeThresholdCritical: 0.1
+        speedModifierThresholds:
+          4: 1
+          3: 1
+          2: 0.8
+          1: 0.45
+          0: 0.0
+      fields:
+      - entityType
+      - batteryPowered
+      - drainPerSecond
+      - chargeThresholdMid
+      - chargeThresholdLow
+      - chargeThresholdCritical
+      - speedModifierThresholds
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  name: trait-name-IPCInefficientCogitator
+  description: trait-description-IPCInefficientCogitator
+- type: trait
+  id: IPCBrittleBoneDisease
+  category: Physical
+  points: 6
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: CritModifier
+      critThresholdModifier: -60
+  - !type:TraitReplaceComponent
+    components:
+    - type: DeadModifier
+      deadThresholdModifier: -60
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  name: trait-name-IPCBrittleBoneDisease
+  description: trait-description-IPCBrittleBoneDisease
+- type: trait
+  id: IPCFragileCircuits
+  category: Physical
+  points: 4
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: KillOnDamage
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  name: trait-name-IPCFragileCircuits
+  description: trait-description-IPCFragileCircuits
+- type: trait
+  id: IPCFaultyWaterproofing
+  category: Physical
+  points: 3
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: Reactive
+      groups:
+        Flammable:
+        - Touch
+        Extinguish:
+        - Touch
+        Acidic:
+        - Touch
+      reactions:
+      - reagents:
+        - Water
+        - SpaceCleaner
+        methods:
+        - Touch
+        effects:
+        - !type:WashCreamPieReaction {}
+      - reagents:
+        - Water
+        methods:
+        - Touch
+        effects:
+        - !type:HealthChange
+          scaleByQuantity: true
+          damage:
+            types:
+              Shock: 2.5
+        - !type:PopupMessage
+          type: Pvs
+          visualType: LargeCaution
+          messages:
+          - faultyWaterproofing-damage-popup
+          probability: 1
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  - kind: Trait
+    inverted: true
+    values:
+    - HardenedCircuits
+  name: trait-name-IPCFaultyWaterproofing
+  description: trait-description-IPCFaultyWaterproofing
+- type: trait
+  id: HeavyweightDrunk
+  category: Physical
+  points: -1
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - LightweightDrunk
+    - LiquorLifeline
+  - kind: Species
+    inverted: true
+    values:
+    - Dwarf
+    - IPC
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: LightweightDrunk
+      boozeStrengthMultiplier: 0.5
+  name: trait-name-HeavyweightDrunk
+  description: trait-description-HeavyweightDrunk
+  mutuallyExclusiveTraits:
+  - AlcoholTolerance
+- type: trait
+  id: ParkourTraining
+  category: Physical
+  points: -5
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - Sluggish
+    - SnailPaced
+    - BadKnees
+    - WheelchairBound
+  - kind: Species
+    inverted: true
+    values:
+    - Diona
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: ClimbDelayModifier
+      climbDelayMultiplier: 0.5
+    - type: SlippableModifier
+      paralyzeTimeMultiplier: 0.7
+    - type: SpeedModifiedByContactModifier
+      walkModifierEffectiveness: 0.5
+      sprintModifierEffectiveness: 0.5
+  name: trait-name-ParkourTraining
+  description: trait-description-ParkourTraining
+  mutuallyExclusiveTraits:
+  - BionicLegs
+- type: trait
+  id: LightStep
+  category: Auditory
+  points: -2
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: FootstepVolumeModifier
+      sprintVolumeModifier: -10
+      walkVolumeModifier: -10
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+  name: trait-name-LightStep
+  description: trait-description-LightStep
+- type: trait
+  id: Singer
+  category: Auditory
+  points: -1
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Harpy
+  - kind: Trait
+    inverted: true
+    values:
+    - Muted
+  functions:
+  - !type:TraitConfigureSinger
+    allInstruments: false
+  name: trait-name-Singer
+  description: trait-description-Singer
+- type: trait
+  id: LyreBird
+  category: Auditory
+  points: -3
+  requirements:
+  - kind: Species
+    values:
+    - Harpy
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Muted
+  functions:
+  - !type:TraitConfigureSinger
+    allInstruments: true
+  name: trait-name-LyreBird
+  description: trait-description-LyreBird
+- type: trait
+  id: AnomalousPositronics
+  category: Psionics
+  points: -4
+  functions:
+  - !type:TraitRemoveComponent
+    components:
+    - type: PsionicInsulation
+  requirements:
+  - kind: Species
+    values:
+    - IPC
+  name: trait-name-AnomalousPositronics
+  description: trait-description-AnomalousPositronics
+  priority: -100
+- type: trait
+  id: HighPotential
+  category: Psionics
+  points: -10
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Trait
+      values:
+      - LatentPsychic
+      - PsychoHistorian
+    - kind: Job
+      values:
+      - ResearchDirector
+      - ForensicMantis
+      - Chaplain
+      - Librarian
+  - kind: Any
+    requirements:
+    - kind: Species
+      inverted: true
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - AnomalousPositronics
+  - kind: Species
+    inverted: true
+    values:
+    - Oni
+    - Shadowkin
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: PotentiaModifier
+      potentiaMultiplier: 1.5
+  name: trait-name-HighPotential
+  description: trait-description-HighPotential
+- type: trait
+  id: PowerOverwhelming
+  category: Psionics
+  points: -10
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Trait
+      values:
+      - LatentPsychic
+      - PsychoHistorian
+    - kind: Job
+      values:
+      - ResearchDirector
+      - ForensicMantis
+      - Chaplain
+      - Librarian
+  - kind: Any
+    requirements:
+    - kind: Species
+      inverted: true
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - AnomalousPositronics
+  functions:
+  - !type:TraitAddPsionics
+    psionicPowers:
+    - PowerOverwhelming
+  name: trait-name-PowerOverwhelming
+  description: trait-description-PowerOverwhelming
+- type: trait
+  id: LatentPsychic
+  priority: -50
+  category: Psionics
+  points: -4
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: Psionic
+  requirements:
+  - kind: Group
+    values:
+    - LatentPsychic
+    - PsionicInsulation
+    - PsychoHistorian
+    max: 1
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+    - ResearchDirector
+    - ForensicMantis
+    - Chaplain
+    - Librarian
+    - Prisoner
+  - kind: Any
+    requirements:
+    - kind: Species
+      inverted: true
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - AnomalousPositronics
+  name: trait-name-LatentPsychic
+  description: trait-description-LatentPsychic
+- type: trait
+  id: PsionicInsulation
+  priority: -50
+  category: Psionics
+  points: -10
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: PsionicInsulation
+    - type: Mindbroken
+  requirements:
+  - kind: Group
+    values:
+    - LatentPsychic
+    - PsionicInsulation
+    - PsychoHistorian
+    max: 1
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+    - ResearchDirector
+    - ForensicMantis
+    - Chaplain
+    - Librarian
+  - kind: Any
+    requirements:
+    - kind: Species
+      inverted: true
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - AnomalousPositronics
+  name: trait-name-PsionicInsulation
+  description: trait-description-PsionicInsulation
+- type: trait
+  id: PsychoHistorian
+  priority: -50
+  category: Psionics
+  points: -4
+  functions:
+  - !type:TraitModifyComponent
+    components:
+    - components:
+      - type: Psionic
+        baselinePowerCost: 75
+        nextPowerCost: 75
+        removable: false
+        powerPool: PsychoHistorianPowerPool
+      fields:
+      - baselinePowerCost
+      - nextPowerCost
+      - removable
+      - powerPool
+  - !type:TraitAddPsionics
+    psionicPowers:
+    - TelepathyPower
+  requirements:
+  - kind: Group
+    values:
+    - LatentPsychic
+    - PsionicInsulation
+    - PsychoHistorian
+    max: 1
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+    - ResearchDirector
+    - ForensicMantis
+    - Chaplain
+    - Librarian
+    - Prisoner
+  - kind: Any
+    requirements:
+    - kind: Species
+      inverted: true
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - AnomalousPositronics
+  name: trait-name-PsychoHistorian
+  description: trait-description-PsychoHistorian
+- type: trait
+  id: HighAdrenaline
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - AdrenalDysfunction
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: Adrenaline
+      rangeModifier: 0.4
+      inverse: true
+  name: trait-name-HighAdrenaline
+  description: trait-description-HighAdrenaline
+- type: trait
+  id: AdrenalDysfunction
+  category: Physical
+  points: 2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - HighAdrenaline
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: Adrenaline
+      rangeModifier: 0.8
+  name: trait-name-AdrenalDysfunction
+  description: trait-description-AdrenalDysfunction
+- type: trait
+  id: Masochism
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - LowPainTolerance
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: PainTolerance
+      rangeModifier: 0.4
+      inverse: true
+  name: trait-name-Masochism
+  description: trait-description-Masochism
+  mutuallyExclusiveTraits:
+  - PainNumbness
+- type: trait
+  id: LowPainTolerance
+  category: Physical
+  points: 3
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - Masochism
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: PainTolerance
+      rangeModifier: 0.6
+  name: trait-name-LowPainTolerance
+  description: trait-description-LowPainTolerance
+  mutuallyExclusiveTraits:
+  - PainNumbness
+- type: trait
+  id: MartialArtist
+  category: Physical
+  points: -5
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+    - Boxer
+    - MartialArtist
+    - Gladiator
+  functions:
+  - !type:TraitModifyUnarmed
+    heavyOnLightMiss: true
+    attackRateModifier: 0.8
+    rangeModifier: 1.1
+  - !type:TraitReplaceComponent
+    components:
+    - type: TraitMartialArtist
+      modifiers:
+        coefficients:
+          Blunt: 1.2
+          Slash: 1.2
+          Piercing: 1.2
+          Heat: 1.2
+          Poison: 1.2
+          Asphyxiation: 1.2
+  name: trait-name-MartialArtist
+  description: trait-description-MartialArtist
+- type: trait
+  id: Small
+  category: Physical
+  points: 0
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+  - kind: Height
+    max: 150
+  - kind: Width
+    max: 32
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: PseudoItem
+      storedOffset: 0,17
+      shape:
+      - 0,0,1,4
+      - 0,2,3,4
+      - 4,0,5,4
+  name: trait-name-Small
+  description: trait-description-Small
+- type: trait
+  id: Talons
+  category: Physical
+  points: 0
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Harpy
+    - Arachnid
+    - Xelthia
+  - kind: Trait
+    inverted: true
+    values:
+    - Claws
+  functions:
+  - !type:TraitModifyUnarmed
+    soundHit:
+      collection: AlienClaw
+    animation: WeaponArcClaw
+    damage:
+      types:
+        Piercing: 5
+  - !type:TraitRemoveComponent
+    components:
+    - type: DamageOnHit
+      damage:
+        types:
+          Blunt: 0
+  name: trait-name-Talons
+  description: trait-description-Talons
+- type: trait
+  id: Claws
+  category: Physical
+  points: -1
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+    - Reptilian
+    - Shadowkin
+    - Xelthia
+  - kind: Trait
+    inverted: true
+    values:
+    - Talons
+  functions:
+  - !type:TraitModifyComponent
+    components:
+    - components:
+      - type: MeleeWeapon
+        soundHit:
+          collection: AlienClaw
+        animation: WeaponArcClaw
+        damage:
+          types:
+            Slash: 5
+      fields:
+      - soundHit
+      - animation
+      - damage
+  - !type:TraitRemoveComponent
+    components:
+    - type: DamageOnHit
+      damage:
+        types:
+          Blunt: 0
+  name: trait-name-Claws
+  description: trait-description-Claws
+- type: trait
+  id: NaturalWeaponRemoval
+  category: Physical
+  points: 0
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Human
+    - Oni
+    - SlimePerson
+    - Diona
+    - Dwarf
+    - Arachne
+    - IPC
+    - Xelthia
+  - kind: Trait
+    inverted: true
+    values:
+    - Talons
+    - Claws
+  functions:
+  - !type:TraitModifyUnarmed
+    soundHit:
+      collection: Punch
+    animation: WeaponArcFist
+    damage:
+      types:
+        Blunt: 5
+  - !type:TraitRemoveComponent
+    components:
+    - type: DamageOnHit
+      damage:
+        types:
+          Blunt: 0
+  name: trait-name-NaturalWeaponRemoval
+  description: trait-description-NaturalWeaponRemoval
+- type: trait
+  id: Spinarette
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    inverted: true
+    values:
+    - Arachnid
+    - Arachne
+    - Shadowkin
+    - IPC
+    - Xelthia
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: Sericulture
+      action: ActionSericulture
+      productionLength: 2
+      entityProduced: MaterialWebSilk1
+      hungerCost: 1
+  - !type:TraitAddTag
+    tags:
+    - SpiderCraft
+  name: trait-name-Spinarette
+  description: trait-description-Spinarette
+  mutuallyExclusiveTraits:
+  - BionicSpinarette
+- type: trait
+  id: BionicArm
+  category: Physical
+  points: -8
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Job
+      values:
+      - Paramedic
+    - kind: Department
+      values:
+      - Security
+      - Command
+      - Dignitary
+  - kind: Trait
+    inverted: true
+    values:
+    - BionicPryArm
+  - kind: Species
+    inverted: true
+    values:
+    - Xelthia
+  functions:
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Arm
+    partSymmetry: Left
+    protoId: JawsOfLifeLeftArm
+    slotId: left arm
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Arm
+    partSymmetry: Right
+    protoId: JawsOfLifeRightArm
+    slotId: right arm
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-bionic-arm-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-BionicArm
+  description: trait-description-BionicArm
+  mutuallyExclusiveTraits:
+  - PrybarProsthetics
+  - BionicPryArm
+- type: trait
+  id: CyberEyes
+  category: Physical
+  points: -1
+  slots: 0
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-cybereyes-message
+      fontSize: 12
+      requireDetailRange: true
+  - !type:TraitRemoveComponent
+    components:
+    - type: EyeDamageOnFlashing
+  name: trait-name-CyberEyes
+  description: trait-description-CyberEyes
+- type: trait
+  id: CyberEyesSecurity
+  category: Physical
+  points: -1
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Department
+    values:
+    - Security
+    - Command
+    - Dignitary
+  - kind: Trait
+    values:
+    - CyberEyes
+  - kind: Trait
+    inverted: true
+    values:
+    - CyberEyesOmni
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ShowJobIcons
+    - type: ShowMindShieldIcons
+    - type: ShowCriminalRecordIcons
+  name: trait-name-CyberEyesSecurity
+  description: trait-description-CyberEyesSecurity
+- type: trait
+  id: CyberEyesMedical
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    values:
+    - CyberEyes
+  - kind: Trait
+    inverted: true
+    values:
+    - CyberEyesDiagnostic
+    - CyberEyesOmni
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: SolutionScanner
+    - type: ShowHealthBars
+      damageContainers:
+      - Biological
+    - type: ShowHealthIcons
+      damageContainers:
+      - Biological
+  name: trait-name-CyberEyesMedical
+  description: trait-description-CyberEyesMedical
+- type: trait
+  id: CyberEyesDiagnostic
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    values:
+    - CyberEyes
+  - kind: Trait
+    inverted: true
+    values:
+    - CyberEyesMedical
+    - CyberEyesOmni
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: EyeProtection
+    - type: ShowHealthBars
+      damageContainers:
+      - Inorganic
+      - Silicon
+      - SiliconUnshielded
+  name: trait-name-CyberEyesDiagnostic
+  description: trait-description-CyberEyesDiagnostic
+- type: trait
+  id: CyberEyesOmni
+  category: Physical
+  points: -3
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Department
+    values:
+    - Security
+    - Command
+    - Dignitary
+  - kind: Trait
+    values:
+    - CyberEyes
+  - kind: Trait
+    inverted: true
+    values:
+    - CyberEyesMedical
+    - CyberEyesDiagnostic
+    - CyberEyesSecurity
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: SolutionScanner
+    - type: EyeProtection
+    - type: ShowJobIcons
+    - type: ShowMindShieldIcons
+    - type: ShowCriminalRecordIcons
+    - type: ShowHealthIcons
+      damageContainers:
+      - Biological
+    - type: ShowHealthBars
+      damageContainers:
+      - Biological
+      - Inorganic
+      - Silicon
+      - SiliconUnshielded
+  name: trait-name-CyberEyesOmni
+  description: trait-description-CyberEyesOmni
+- type: trait
+  id: RestrictedGear
+  category: Physical
+  points: -6
+  requirements:
+  - kind: RestrictedGear
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  name: trait-name-RestrictedGear
+  description: trait-description-RestrictedGear
+  functions: []
+- type: trait
+  id: BrittleBoneDisease
+  category: Physical
+  points: 6
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Tenacity
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: CritModifier
+      critThresholdModifier: -50
+  name: trait-name-BrittleBoneDisease
+  description: trait-description-BrittleBoneDisease
+  mutuallyExclusiveTraits:
+  - OsteogenesisImperfecta
+- type: trait
+  id: LightAmplification
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    values:
+    - CyberEyes
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: NightVision
+      enabled: true
+      action: ToggleNightVision
+  name: trait-name-LightAmplification
+  description: trait-description-LightAmplification
+- type: trait
+  id: ThermographicVision
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    values:
+    - CyberEyes
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ThermalVision
+      pulseTime: 2
+      toggleAction: PulseThermalVision
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-thermal-vision-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-ThermographicVision
+  description: trait-description-ThermographicVision
+- type: trait
+  id: NaniteAutoRepairBots
+  category: Physical
+  points: -5
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    values:
+    - IPC
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: PassiveDamage
+      allowedStates:
+      - Alive
+      - Dead
+      damageCap: 125
+      damage:
+        groups:
+          Brute: -0.5
+          Burn: -0.5
+  name: trait-name-NaniteAutoRepairBots
+  description: trait-description-NaniteAutoRepairBots
+  mutuallyExclusiveTraits:
+  - NaniteRepairDrones
+- type: trait
+  id: CyberneticLeftLeg
+  category: Physical
+  points: 0
+  slots: 0
+  functions:
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Leg
+    partSymmetry: Left
+    protoId: LeftLegCybernetic
+    slotId: left leg
+  name: trait-name-CyberneticLeftLeg
+  description: trait-description-CyberneticLeftLeg
+  requirements: []
+- type: trait
+  id: CyberneticRightLeg
+  category: Physical
+  points: 0
+  slots: 0
+  functions:
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Leg
+    partSymmetry: Right
+    protoId: RightLegCybernetic
+    slotId: right leg
+  name: trait-name-CyberneticRightLeg
+  description: trait-description-CyberneticRightLeg
+  requirements: []
+- type: trait
+  id: SecurityEyesModule
+  category: Physical
+  points: -1
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Department
+    values:
+    - Security
+    - Command
+    - Dignitary
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - OmniEyesModule
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ShowJobIcons
+    - type: ShowMindShieldIcons
+    - type: ShowCriminalRecordIcons
+  name: trait-name-SecurityEyesModule
+  description: trait-description-SecurityEyesModule
+- type: trait
+  id: MedicalEyesModule
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - DiagnosticEyesModule
+    - OmniEyesModule
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: SolutionScanner
+    - type: ShowHealthBars
+      damageContainers:
+      - Biological
+    - type: ShowHealthIcons
+      damageContainers:
+      - Biological
+  name: trait-name-MedicalEyesModule
+  description: trait-description-MedicalEyesModule
+- type: trait
+  id: DiagnosticEyesModule
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - MedicalEyesModule
+    - OmniEyesModule
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: EyeProtection
+    - type: ShowHealthBars
+      damageContainers:
+      - Inorganic
+      - Silicon
+      - SiliconUnshielded
+  name: trait-name-DiagnosticEyesModule
+  description: trait-description-DiagnosticEyesModule
+- type: trait
+  id: OmniEyesModule
+  category: Physical
+  points: -3
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Department
+    values:
+    - Security
+    - Command
+    - Dignitary
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - MedicalEyesModule
+    - DiagnosticEyesModule
+    - SecurityEyesModule
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: SolutionScanner
+    - type: EyeProtection
+    - type: ShowJobIcons
+    - type: ShowMindShieldIcons
+    - type: ShowCriminalRecordIcons
+    - type: ShowHealthIcons
+      damageContainers:
+      - Biological
+    - type: ShowHealthBars
+      damageContainers:
+      - Biological
+      - Inorganic
+      - Silicon
+      - SiliconUnshielded
+  name: trait-name-OmniEyesModule
+  description: trait-description-OmniEyesModule
+- type: trait
+  id: LightAmplificationModule
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: NightVision
+      enabled: true
+      action: ToggleNightVision
+  name: trait-name-LightAmplificationModule
+  description: trait-description-LightAmplificationModule
+- type: trait
+  id: ThermographicVisionModule
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Photophobia
+    - Blindness
+    - Nearsighted
+    - PoorVision
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ThermalVision
+      pulseTime: 2
+      toggleAction: PulseThermalVision
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-thermal-vision-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-ThermographicVisionModule
+  description: trait-description-ThermographicVisionModule
+- type: trait
+  id: Bodybuilder
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - Featherweight
+  functions:
+  - !type:TraitModifyDensity
+    densityModifier: 55
+    multiply: false
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-bodybuilder-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-Bodybuilder
+  description: trait-description-Bodybuilder
+- type: trait
+  id: Featherweight
+  category: Physical
+  points: 4
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - Bodybuilder
+  functions:
+  - !type:TraitModifyDensity
+    densityModifier: 0.5
+    multiply: true
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-featherweight-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-Featherweight
+  description: trait-description-Featherweight
+- type: trait
+  id: Vampirism
+  category: Physical
+  points: -5
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: Vampirism
+      succDelay: 3
+      specialDigestible:
+        tags:
+        - Pill
+        - Crayon
+        - Paper
+  name: trait-name-Vampirism
+  description: trait-description-Vampirism
+- type: trait
+  id: BionicPryArm
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    inverted: true
+    values:
+    - BionicArm
+  - kind: Species
+    inverted: true
+    values:
+    - Xelthia
+  functions:
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Arm
+    partSymmetry: Left
+    protoId: CrowbarLeftArm
+    slotId: left arm
+  - !type:TraitCyberneticLimbReplacement
+    removeBodyPart: Arm
+    partSymmetry: Right
+    protoId: CrowbarRightArm
+    slotId: right arm
+  - !type:TraitPushDescription
+    descriptionExtensions:
+    - description: examine-bionic-pryarm-message
+      fontSize: 12
+      requireDetailRange: true
+  name: trait-name-BionicPryArm
+  description: trait-description-BionicPryArm
+  mutuallyExclusiveTraits:
+  - PrybarProsthetics
+  - BionicArm
+- type: trait
+  id: SuperiorRadiationShielding
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  functions:
+  - !type:TraitAddArmor
+    damageModifierSets:
+    - SuperiorRadiationShielding
+  name: trait-name-SuperiorRadiationShielding
+  description: trait-description-SuperiorRadiationShielding
+- type: trait
+  id: G2Chassis
+  category: Physical
+  points: -5
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: Reflect
+      spread: 270
+      reflectProb: 0.07
+      reflects:
+      - Energy
+      - NonEnergy
+      innate: true
+  name: trait-name-G2Chassis
+  description: trait-description-G2Chassis
+- type: trait
+  id: HardenedCircuits
+  category: Physical
+  points: -3
+  requirements:
+  - kind: Any
+    requirements:
+    - kind: Species
+      values:
+      - IPC
+    - kind: Trait
+      values:
+      - Shell
+  - kind: Trait
+    inverted: true
+    values:
+    - IPCFaultyWaterproofing
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ExplosionResistance
+      damageCoefficient: 0.8
+  - !type:TraitAddArmor
+    damageModifierSets:
+    - HardenedCircuits
+  name: trait-name-HardenedCircuits
+  description: trait-description-HardenedCircuits
+- type: trait
+  id: Dwarf
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Height
+    max: 150
+  - kind: Width
+    max: 32
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: LiquorLifeline
+    - type: LightweightDrunk
+      boozeStrengthMultiplier: 0.5
+  - !type:TraitAddComponent
+    components:
+    - type: ScottishAccent
+  - !type:TraitAddArmor
+    damageModifierSets:
+    - ExtremePoisonResistance
+  name: trait-name-Dwarf
+  description: trait-description-Dwarf
+- type: trait
+  id: Kobold
+  category: Physical
+  points: -4
+  requirements:
+  - kind: Species
+    values:
+    - Reptilian
+  - kind: Height
+    max: 150
+  - kind: Width
+    max: 32
+  functions:
+  - !type:TraitReplaceComponent
+    components:
+    - type: LiquorLifeline
+    - type: LightweightDrunk
+      boozeStrengthMultiplier: 0.5
+  - !type:TraitAddComponent
+    components:
+    - type: ScottishAccent
+  - !type:TraitAddArmor
+    damageModifierSets:
+    - ExtremePoisonResistance
+  name: trait-name-Kobold
+  description: trait-description-Kobold
+- type: trait
+  id: ForkedTongue
+  category: Physical
+  points: -2
+  requirements:
+  - kind: Species
+    values:
+    - Reptilian
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ScentTracker
+  name: trait-name-ForkedTongue
+  description: trait-description-ForkedTongue
+- type: trait
+  id: StuntedSnout
+  category: Physical
+  points: 1
+  requirements:
+  - kind: Species
+    values:
+    - Vulpkanin
+  functions:
+  - !type:TraitRemoveComponent
+    components:
+    - type: ScentTracker
+  name: trait-name-StuntedSnout
+  description: trait-description-StuntedSnout
+- type: trait
+  id: Shell
+  category: Physical
+  points: -2
+  slots: 0
+  requirements:
+  - kind: Species
+    values:
+    - Human
+  functions:
+  - !type:TraitModifyLanguages
+    languagesSpoken:
+    - RobotTalk
+    languagesUnderstood:
+    - RobotTalk
+  - !type:TraitRemoveComponent
+    components:
+    - type: Mood
+    - type: Perishable
+    - type: Butcherable
+      butcheringType: Spike
+      spawned:
+      - id: FoodMeatHuman
+        amount: 5
+    - type: Respirator
+      damage:
+        types:
+          Asphyxiation: 2
+      damageRecovery:
+        types:
+          Asphyxiation: -1.0
+    - type: Dna
+    - type: Hunger
+    - type: Thirst
+    - type: Internals
+  - !type:TraitReplaceComponent
+    components:
+    - type: Damageable
+      damageContainer: SiliconUnshielded
+      damageModifierSet: IPC
+  - !type:TraitModifyComponent
+    components:
+    - components:
+      - type: Bloodstream
+        bloodlossDamage:
+          types:
+            Bloodloss: 0
+        bloodlossHealDamage:
+          types:
+            Bloodloss: 0
+        bloodReagent: Oil
+      fields:
+      - bloodlossDamage
+      - bloodlossHealDamage
+      - bloodReagent
+  - !type:TraitModifyComponent
+    components:
+    - components:
+      - type: PowerCellSlot
+        cellSlotId: cell_slot
+        fitsInCharger: true
+      fields:
+      - cellSlotId
+      - fitsInCharger
+    - components:
+      - type: ItemSlots
+        slots:
+          cell_slot:
+            name: power-cell-slot-component-slot-name-default
+            startingItem: PowerCellMedium
+      fields:
+      - slots
+    - components:
+      - type: ItemSlotsRequirePanel
+        slots:
+          cell_slot: true
+      fields:
+      - slots
+    - components:
+      - type: EncryptionHolderRequiresLock
+      fields: []
+    - components:
+      - type: SiliconEmitSoundOnDrained
+        sound: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
+        minInterval: 15
+        maxInterval: 30
+        popUp: silicon-power-low
+      fields:
+      - sound
+      - minInterval
+      - maxInterval
+      - popUp
+    - components:
+      - type: WiresPanel
+        openDelay: 5
+      fields:
+      - openDelay
+    - components:
+      - type: LockedWiresPanel
+      fields: []
+    - components:
+      - type: Lock
+        locked: true
+        lockOnClick: false
+        unlockOnClick: false
+        breakOnAccessBreaker: false
+      fields:
+      - locked
+      - lockOnClick
+      - unlockOnClick
+      - breakOnAccessBreaker
+    - components:
+      - type: AccessReader
+        breakOnAccessBreaker: true
+      fields:
+      - breakOnAccessBreaker
+    - components:
+      - type: MobState
+        allowedStates:
+        - Alive
+        - Dead
+      fields:
+      - allowedStates
+    - components:
+      - type: MobThresholds
+        thresholds:
+          0: Alive
+          120: Dead
+        stateAlertDict:
+          Alive: BorgHealth
+          Dead: BorgDead
+      fields:
+      - thresholds
+      - stateAlertDict
+    - components:
+      - type: TypingIndicator
+        proto: robot
+      fields:
+      - proto
+    - components:
+      - type: SlowOnDamage
+        speedModifierThresholds:
+          60: 0.75
+          90: 0.5
+          120: 0.3
+      fields:
+      - speedModifierThresholds
+    - components:
+      - type: SiliconDownOnDead
+      fields: []
+    - components:
+      - type: Inventory
+        templateId: ipc
+      fields:
+      - templateId
+    - components:
+      - type: Silicon
+        entityType: enum.SiliconType.Player
+        batteryPowered: true
+        drainPerSecond: 1.5
+        chargeThresholdMid: 0.8
+        chargeThresholdLow: 0.35
+        chargeThresholdCritical: 0.1
+        speedModifierThresholds:
+          4: 1
+          3: 1
+          2: 0.8
+          1: 0.45
+          0: 0.0
+      fields:
+      - entityType
+      - batteryPowered
+      - drainPerSecond
+      - chargeThresholdMid
+      - chargeThresholdLow
+      - chargeThresholdCritical
+      - speedModifierThresholds
+    - components:
+      - type: BatteryDrinker
+      fields: []
+    - components:
+      - type: EncryptionKeyHolder
+        keySlots: 4
+        examineWhileLocked: false
+        keysExtractionMethod: Cutting
+        keysUnlocked: false
+      fields:
+      - keySlots
+      - examineWhileLocked
+      - keysExtractionMethod
+      - keysUnlocked
+    - components:
+      - type: ActiveRadio
+      fields: []
+    - components:
+      - type: IntrinsicRadioReceiver
+      fields: []
+    - components:
+      - type: IntrinsicRadioTransmitter
+      fields: []
+    - components:
+      - type: DeadStartupButton
+        sound:
+          path: /Audio/Effects/Silicon/startup.ogg
+      fields:
+      - sound
+    - components:
+      - type: EmitBuzzWhileDamaged
+      fields: []
+    - components:
+      - type: ProtectedFromStepTriggers
+        whitelist:
+          types:
+          - Shard
+      fields:
+      - whitelist
+    - components:
+      - type: Tag
+        tags:
+        - CanPilot
+        - FootstepSound
+        - DoorBumpOpener
+        - SiliconEmotes
+        - SiliconMob
+      fields:
+      - tags
+    - components:
+      - type: Barotrauma
+        damage:
+          types:
+            Heat: 0.55
+      fields:
+      - damage
+    - components:
+      - type: Temperature
+        heatDamageThreshold: 1800
+        coldDamageThreshold: 260
+        currentTemperature: 310.15
+        specificHeat: 42
+        coldDamage:
+          types:
+            Cold: 0.1
+        heatDamage:
+          types:
+            Heat: 3
+        atmosTemperatureTransferEfficiency: 0.05
+      fields:
+      - heatDamageThreshold
+      - coldDamageThreshold
+      - currentTemperature
+      - specificHeat
+      - coldDamage
+      - heatDamage
+      - atmosTemperatureTransferEfficiency
+    - components:
+      - type: KillOnOverheat
+      fields: []
+    - components:
+      - type: Deathgasp
+        prototype: SiliconDeathgasp
+        needsCritical: false
+      fields:
+      - prototype
+      - needsCritical
+    - components:
+      - type: Flammable
+        fireSpread: true
+        canResistFire: true
+        damage:
+          types:
+            Heat: 0
+      fields:
+      - fireSpread
+      - canResistFire
+      - damage
+    - components:
+      - type: RangedDamageSound
+        soundGroups:
+          Brute:
+            collection: MetalBulletImpact
+        soundTypes:
+          Heat:
+            collection: MetalLaserImpact
+      fields:
+      - soundGroups
+      - soundTypes
+    - components:
+      - type: Speech
+        speechSounds: Pai
+      fields:
+      - speechSounds
+    - components:
+      - type: Vocal
+        wilhelm: /Audio/Voice/IPC/wilhelm.ogg
+        sounds:
+          Male: UnisexIPC
+          Female: UnisexIPC
+          Unsexed: UnisexIPC
+      fields:
+      - wilhelm
+      - sounds
+    - components:
+      - type: LightningTarget
+        priority: 1
+        lightningExplode: false
+      fields:
+      - priority
+      - lightningExplode
+  name: trait-name-Shell
+  description: trait-description-Shell
+  priority: -200
+- type: trait
+  id: NormalVision
+  category: Visual
+  requirements:
+  - kind: Species
+    values:
+    - Harpy
+    - Vulpkanin
+  functions:
+  - !type:TraitRemoveComponent
+    components:
+    - type: UltraVision
+    - type: DogVision
+  name: trait-name-NormalVision
+  description: trait-description-NormalVision
+- type: trait
+  id: Nearsighted
+  category: Visual
+  points: 1
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - Blindness
+    - CyberEyes
+    - SecurityEyesModule
+    - MedicalEyesModule
+    - DiagnosticEyesModule
+    - OmniEyesModule
+    - LightAmplificationModule
+    - ThermographicVisionModule
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: PermanentBlindness
+      blindness: 3
+  name: trait-name-Nearsighted
+  description: trait-description-Nearsighted
+  mutuallyExclusiveTraits:
+  - PoorVision
+- type: trait
+  id: BadKnees
+  category: Physical
+  points: 4
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - ParkourTraining
+  - kind: Species
+    inverted: true
+    values:
+    - Diona
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: ClimbDelayModifier
+      climbDelayMultiplier: 1.5
+    - type: SlippableModifier
+      paralyzeTimeMultiplier: 1.4
+    - type: SpeedModifiedByContactModifier
+      walkModifierEffectiveness: 1.35
+      sprintModifierEffectiveness: 1.35
+  name: trait-name-BadKnees
+  description: trait-description-BadKnees
+- type: trait
+  id: Sluggish
+  category: Physical
+  points: 5
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - ParkourTraining
+    - SnailPaced
+    - WheelchairBound
+  - kind: Species
+    inverted: true
+    values:
+    - Diona
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: TraitSpeedModifier
+      sprintModifier: 0.84
+      walkModifier: 0.84
+      requiredTriggeredSpeedModifier: 0.84
+  name: trait-name-Sluggish
+  description: trait-description-Sluggish
+  mutuallyExclusiveTraits:
+  - BionicLegs
+- type: trait
+  id: SnailPaced
+  category: Physical
+  points: 8
+  requirements:
+  - kind: Trait
+    inverted: true
+    values:
+    - ParkourTraining
+    - Sluggish
+    - WheelchairBound
+  - kind: Species
+    inverted: true
+    values:
+    - Diona
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: TraitSpeedModifier
+      sprintModifier: 0.68
+      walkModifier: 0.68
+      requiredTriggeredSpeedModifier: 0.68
+  name: trait-name-SnailPaced
+  description: trait-description-SnailPaced
+  mutuallyExclusiveTraits:
+  - BionicLegs
+- type: trait
+  id: BloodDeficiency
+  category: Physical
+  points: 4
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+    - Lamia
+    - Plasmaman
+  - kind: Trait
+    inverted: true
+    values:
+    - PlateletFactories
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: BloodDeficiency
+      bloodLossPercentage: 0.0002333333
+  name: trait-name-BloodDeficiency
+  description: trait-description-BloodDeficiency
+- type: trait
+  id: Photophobia
+  category: Visual
+  points: 1
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Vulpkanin
+    - Shadowkin
+    - Tajaran
+  - kind: Trait
+    inverted: true
+    values:
+    - Blindness
+    - CyberEyes
+    - SecurityEyesModule
+    - MedicalEyesModule
+    - DiagnosticEyesModule
+    - OmniEyesModule
+    - LightAmplificationModule
+    - ThermographicVisionModule
+  functions:
+  - !type:TraitAddComponent
+    components:
+    - type: EyeDamageOnFlashing
+  name: trait-name-Photophobia
+  description: trait-description-Photophobia

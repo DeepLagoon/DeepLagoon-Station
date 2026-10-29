@@ -25,6 +25,11 @@ public sealed partial class ClothingComponent : Component
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
     public ClothingBodyFit BodyFit = ClothingBodyFit.Auto;
 
+    /// <summary>Fit mouth-covering equipment to the selected head and snout, including rigid helmets.</summary>
+    [DataField]
+    [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
+    public bool FaceFit = true;
+
     /// <summary>Keep a hanging skirt or robe hem independent of the wearer's leg bend.</summary>
     [DataField]
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]

@@ -40,6 +40,10 @@ public sealed partial class DockingScreen : BoxContainer
     public DockingScreen()
     {
         RobustXamlLoader.Load(this);
+        DockingControl.FitViewport = true;
+        DockingControl.MinSize = Vector2.Zero;
+        DockingControl.SetSize = new Vector2(float.NaN, float.NaN);
+        LayoutContainer.SetAnchorPreset(DockingControl, LayoutContainer.LayoutPreset.Wide);
         IoCManager.InjectDependencies(this);
         _shuttles = _entManager.System<SharedShuttleSystem>();
 

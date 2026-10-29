@@ -4,6 +4,14 @@ using Content.Shared.Humanoid.Prototypes;
 
 namespace Content.Shared.Humanoid.Markings
 {
+    public enum MarkingEditorType : byte
+    {
+        Tail,
+        Snout,
+        Ears,
+        Wings,
+    }
+
     [Prototype]
     public sealed partial class MarkingPrototype : IPrototype
     {
@@ -23,6 +31,17 @@ namespace Content.Shared.Humanoid.Markings
 
         [DataField]
         public bool EditorExclusive { get; private set; }
+
+        [DataField]
+        public MarkingEditorType? EditorType { get; private set; }
+
+        public MarkingEditorType? FilterType => EditorType ?? MarkingCategory switch
+        {
+            MarkingCategories.Tail or MarkingCategories.TailExtras => MarkingEditorType.Tail,
+            MarkingCategories.Snout => MarkingEditorType.Snout,
+            MarkingCategories.Wings => MarkingEditorType.Wings,
+            _ => null,
+        };
 
         public bool IsBodyReplacement => EditorExclusive && MarkingCategory is
             MarkingCategories.Head or MarkingCategories.Chest or MarkingCategories.Arms or MarkingCategories.Legs && BodyPart is

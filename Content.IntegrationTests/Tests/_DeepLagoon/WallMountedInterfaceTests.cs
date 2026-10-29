@@ -13,6 +13,60 @@ public sealed class WallMountedInterfaceTests
 {
     private enum TestKey { Key }
 
+    [TestCase("APCBasic", false)]
+    [TestCase("StationMap", false)]
+    [TestCase("APCBasic", true)]
+    [TestCase("StationMap", true)]
+    public async Task OpenMountedInterfaceSurvivesUpdatesUntilActorLeaves(string prototype, bool connected)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = connected, Destructive = true });
+        var map = await pair.CreateTestMap();
+        EntityUid actor = default, device = default;
+        Enum key = default!;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            maps.SetTiles(map.Grid.Owner, map.Grid.Comp, Enumerable.Range(-2, 5)
+                .SelectMany(x => Enumerable.Range(-2, 5).Select(y => (new Vector2i(x, y), floor))).ToList());
+            var center = new Vector2(.5f, .5f);
+            entities.SpawnEntity("WallSolid", new EntityCoordinates(map.Grid.Owner, center));
+            device = entities.SpawnEntity(prototype, new EntityCoordinates(map.Grid.Owner, center));
+            actor = entities.SpawnEntity("MobHuman", new EntityCoordinates(map.Grid.Owner, center + Angle.Zero.ToWorldVec()));
+            key = entities.GetComponent<Content.Shared.UserInterface.ActivatableUIComponent>(device).Key!;
+            if (prototype == "StationMap")
+                entities.System<Content.Server.Power.EntitySystems.PowerReceiverSystem>().SetNeedsPower(device, false);
+            if (connected)
+                pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), actor);
+        });
+        await pair.RunTicksSync(5);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var ui = entities.System<SharedUserInterfaceSystem>();
+            Assert.That(entities.System<SharedInteractionSystem>().InRangeAndAccessible(actor, device), Is.True);
+            ui.OpenUi(device, key, actor);
+            Assert.That(ui.IsUiOpen(device, key, actor), Is.True);
+        });
+        await pair.RunTicksSync(30);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.System<SharedUserInterfaceSystem>().IsUiOpen(device, key, actor), Is.True,
+                "An open wall UI must survive the engine's recurring range checks for a living actor.");
+            entities.System<SharedTransformSystem>().SetCoordinates(actor,
+                new EntityCoordinates(map.Grid.Owner, new Vector2(5.5f, .5f)));
+        });
+        await pair.RunTicksSync(2);
+        await pair.Server.WaitAssertion(() => Assert.That(
+            pair.Server.EntMan.System<SharedUserInterfaceSystem>().IsUiOpen(device, key, actor), Is.False,
+            "The same interface must close when the actor actually leaves interaction range."));
+        if (connected)
+            await pair.Server.WaitAssertion(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task MountedInterfacesStayOpenFromTheirFrontOnRotatedGrids()
     {

@@ -28,4 +28,7 @@ public sealed partial class TypingIndicatorPrototype : IPrototype
     [DataField("shader")]
     public string Shader = "shaded";
 
+    [DataField]
+    public Color Color = Color.White;
+
 }

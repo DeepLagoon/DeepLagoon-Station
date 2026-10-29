@@ -31,22 +31,23 @@ public sealed class BeforeShowTypingIndicatorEvent : IInventoryRelayEvent
 
     private ProtoId<TypingIndicatorPrototype>? _overrideIndicator = null;
     private TimeSpan? _latestEquipTime = null;
+    private int _priority = int.MinValue;
     public BeforeShowTypingIndicatorEvent()
     {
         _overrideIndicator = null;
         _latestEquipTime = null;
     }
     /// <summary>
-    ///     Will only update the time and indicator if the given time is more recent than
-    ///     the stored time or if the stored time is null.
+    ///     Prefer higher-priority clothing, then the most recently equipped item.
     /// </summary>
     ///  <returns>
-    ///     True if the given time is more recent than the stored time, and false otherwise.
+    ///     True if this equipped item replaces the current override.
     ///  </returns>
-    public bool TryUpdateTimeAndIndicator(ProtoId<TypingIndicatorPrototype>? indicator, TimeSpan? equipTime)
+    public bool TryUpdateTimeAndIndicator(ProtoId<TypingIndicatorPrototype>? indicator, TimeSpan? equipTime, int priority = 0)
     {
-        if (equipTime != null && (_latestEquipTime == null || _latestEquipTime < equipTime))
+        if (equipTime != null && (priority > _priority || priority == _priority && (_latestEquipTime == null || _latestEquipTime < equipTime)))
         {
+            _priority = priority;
             _latestEquipTime = equipTime;
             _overrideIndicator = indicator;
             return true;

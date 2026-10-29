@@ -1,0 +1,23 @@
+light_mode unshaded;
+uniform highp vec4 cloudColor;
+uniform highp float cloudSeed;
+uniform highp float cloudDensity;
+
+highp float hash(highp vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+highp float noise(highp vec2 p) {
+    highp vec2 i = floor(p);
+    highp vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+        mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0)), f.x), f.y);
+}
+void fragment() {
+    highp vec2 p = UV * 2.0 - 1.0;
+    highp float edge = 1.0 - smoothstep(0.65, 1.0, length(p));
+    highp vec2 flow = vec2(TIME * 0.006, TIME * 0.003);
+    highp float n = noise(p * 6.0 + vec2(cloudSeed) + flow);
+    n = n * 0.7 + noise(p * 15.0 + vec2(cloudSeed) - flow) * 0.3;
+    COLOR = vec4(cloudColor.rgb * (0.55 + n * 0.45), edge * n * cloudDensity * 0.24);
+}

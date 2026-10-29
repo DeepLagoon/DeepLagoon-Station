@@ -8,7 +8,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 6
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: surface
   targetSexes:
   - Male
   animation: {}
@@ -32,7 +35,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 6
+  targetArousalGain: 12
+  targetBodyPart: vagina
+  targetFluidDestination: mouth
   targetSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -56,7 +62,12 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: vagina
+  targetBodyPart: penis
+  userFluidDestination: penis
+  targetFluidDestination: vagina
   userSexes:
   - Female
   targetSexes:
@@ -77,7 +88,10 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: vagina
+  userFluidDestination: mouth
   userSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -100,7 +114,9 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: vagina
   userSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -120,7 +136,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: vagina
+  userFluidDestination: surface
   userSexes:
   - Female
   animation: {}
@@ -142,7 +161,12 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: vagina
+  targetBodyPart: vagina
+  userFluidDestination: vagina
+  targetFluidDestination: vagina
   userSexes:
   - Female
   targetSexes:
@@ -166,7 +190,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 6
+  userBodyPart: vagina
+  userFluidDestination: mouth
   userSexes:
   - Female
   animation: {}
@@ -187,7 +214,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 6
+  userBodyPart: vagina
+  userFluidDestination: mouth
   userSexes:
   - Female
   animation: {}
@@ -210,7 +240,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
 - type: interactionPanel
   id: molot-lewd-do-boobjob
   order: 1000
@@ -220,7 +251,11 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 6
+  targetArousalGain: 12
+  userBodyPart: breasts
+  targetBodyPart: penis
+  targetFluidDestination: breasts
   targetSexes:
   - Male
   animation: {}
@@ -241,7 +276,9 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 6
+  targetArousalGain: 0
+  userBodyPart: breasts
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-self-nipsuck-audio
@@ -257,7 +294,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 0
+  targetArousalGain: 6
+  targetBodyPart: breasts
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-nipsuck-audio
@@ -291,7 +330,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   userSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -310,7 +350,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 0
+  targetArousalGain: 6
+  targetBodyPart: breasts
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-titgrope-audio
@@ -327,7 +369,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 2.0
+  userArousalGain: 0
+  targetArousalGain: 6
+  targetBodyPart: breasts
   animation: {}
   effect: DeepLagoonInteractionPanelHearts
   sounds:
@@ -347,7 +391,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-slap-breasts-audio
@@ -360,7 +405,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   animation: {}
   sounds:
   - molot-highfive-audio
@@ -373,7 +419,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   messages:
   - dl-interaction-panel-result-variant-molot-lewd-nuzzle-belly-1
@@ -388,7 +435,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 6
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-lickfeet-audio
@@ -404,7 +452,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: vagina
+  targetFluidDestination: surface
   targetSexes:
   - Female
   animation: {}
@@ -429,7 +480,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: surface
   targetSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -449,7 +503,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: surface
   targetSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -469,7 +526,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 6
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-grindface-audio
@@ -485,7 +543,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 6
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-grindmouth-audio
@@ -504,7 +563,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   animation: {}
   effect: DeepLagoonInteractionPanelHearts
   sounds:
@@ -518,7 +578,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-cuddle-audio
@@ -540,7 +601,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-sniff-audio
 - type: interactionPanel
@@ -552,7 +614,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: vagina
+  targetFluidDestination: surface
   targetSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -573,7 +638,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: anus
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-fingerass-audio
@@ -590,7 +657,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-headpat-audio
 - type: interactionPanel
@@ -602,7 +670,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: surface
   targetSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -621,7 +692,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - lick_nice
@@ -641,7 +713,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   messages:
   - dl-interaction-panel-result-variant-molot-lewd-smother-armpit-1
@@ -656,7 +729,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-handshake-audio
 - type: interactionPanel
@@ -668,7 +742,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-bird-audio
 - type: interactionPanel
@@ -680,7 +755,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-handwave-audio
 - type: interactionPanel
@@ -692,7 +768,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   animation: {}
 - type: interactionPanel
   id: molot-lewd-mountass
@@ -703,7 +780,11 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: anus
+  targetBodyPart: penis
+  targetFluidDestination: anus
   targetSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -721,7 +802,9 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: anus
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-fingerass-self-audio
@@ -738,7 +821,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-grope-ass-audio
@@ -751,7 +835,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 6
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-mountface-audio
@@ -764,7 +849,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-slap-audio
@@ -777,7 +863,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-pat-audio
 - type: interactionPanel
@@ -789,7 +876,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 3
+  targetArousalGain: 3
+  rawArousalLimit: 100
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-cheekkiss-audio
@@ -809,7 +898,9 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 20
+  targetArousalGain: 20
+  rawArousalLimit: 100
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-neckkiss-audio
@@ -830,7 +921,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-kiss-audio
@@ -847,7 +939,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-earscratch-audio
@@ -867,7 +960,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-scratch-audio
   messages:
@@ -886,7 +980,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   sounds:
   - molot-neckscratch-audio
   messages:
@@ -903,7 +998,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 0
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: surface
   targetSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -923,7 +1021,8 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 0
+  targetArousalGain: 0
   animation: {}
 - type: interactionPanel
   id: molot-lewd-facefuck
@@ -934,7 +1033,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 6
+  userBodyPart: penis
+  userFluidDestination: mouth
   userSexes:
   - Male
   animation: {}
@@ -956,7 +1058,10 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: penis
+  userFluidDestination: mouth
   userSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -975,7 +1080,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 6
+  targetArousalGain: 12
+  targetBodyPart: penis
+  targetFluidDestination: mouth
   targetSexes:
   - Male
   animation: {}
@@ -996,7 +1104,9 @@
   - INTERACTION_SELF
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: penis
   userSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -1016,7 +1126,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: penis
+  userFluidDestination: surface
   userSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -1035,7 +1148,12 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: penis
+  targetBodyPart: penis
+  userFluidDestination: penis
+  targetFluidDestination: penis
   userSexes:
   - Male
   targetSexes:
@@ -1053,7 +1171,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 6
+  userBodyPart: penis
+  userFluidDestination: mouth
   userSexes:
   - Male
   animation: {}
@@ -1072,7 +1193,12 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 0.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: penis
+  targetBodyPart: vagina
+  userFluidDestination: vagina
+  targetFluidDestination: penis
   userSexes:
   - Male
   targetSexes:
@@ -1090,7 +1216,11 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 12
+  userBodyPart: penis
+  targetBodyPart: anus
+  userFluidDestination: anus
   userSexes:
   - Male
   animation: {}
@@ -1107,7 +1237,10 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 8.0
+  userArousalGain: 12
+  targetArousalGain: 6
+  userBodyPart: penis
+  userFluidDestination: surface
   userSexes:
   - Male
   effect: DeepLagoonInteractionPanelHearts
@@ -1127,7 +1260,11 @@
   - INTERACTION_OTHER
   - INTERACTION_HUMANOID
   chatColor: '#C6E8DA'
-  arousalGain: 12.0
+  userArousalGain: 12
+  targetArousalGain: 0
+  userBodyPart: penis
+  targetBodyPart: breasts
+  userFluidDestination: breasts
   userSexes:
   - Male
   animation: {}

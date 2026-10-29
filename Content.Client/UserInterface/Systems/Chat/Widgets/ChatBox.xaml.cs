@@ -153,6 +153,7 @@ public partial class ChatBox : UIWidget
             }
         }
         _controller.UpdateSelectedChannel(this);
+        _controller.NotifyChatChannel(this);
     }
 
     public void Repopulate()
@@ -295,19 +296,21 @@ public partial class ChatBox : UIWidget
 
         // Warn typing indicator about change
         if (!_changingDraftChannel)
-            _controller.NotifyChatTextChange();
+            _controller.NotifyChatTextChange(this);
     }
 
     private void OnFocusEnter(LineEditEventArgs args)
     {
         // Warn typing indicator about focus
-        _controller.NotifyChatFocus(true);
+        if (_composer == null)
+            _controller.NotifyChatFocus(this, true);
     }
 
     private void OnFocusExit(LineEditEventArgs args)
     {
         // Warn typing indicator about focus
-        _controller.NotifyChatFocus(false);
+        if (_composer == null)
+            _controller.NotifyChatFocus(this, false);
     }
 
     [Obsolete("Controls should only be removed from UI tree instead of being disposed")]

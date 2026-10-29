@@ -4,10 +4,39 @@ from pathlib import Path
 
 from PIL import Image, PngImagePlugin
 
-from import_assets import definitions, digest, frame_layout, frames_for, matrix_layers, read_dmi
+from import_assets import candidates, definitions, digest, frame_layout, frames_for, matrix_layers, read_dmi
 
 
 class ImportTests(unittest.TestCase):
+    def test_tail_front_uses_native_tail_layer_and_rear_stays_behind_body(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            file = root / 'tail.dmi'
+            sheet = Image.new('RGBA', (32 * 8, 32), (255, 255, 255, 255))
+            info = PngImagePlugin.PngInfo()
+            info.add_text('Description', 'width = 32\nheight = 32\nstate = "m_tail_fox_BEHIND"\ndirs = 4\nframes = 1\nstate = "m_tail_fox_FRONT"\ndirs = 4\nframes = 1\n')
+            sheet.save(file, format='PNG', pnginfo=info)
+            data = {'name': '"Fox"', 'icon_state': '"fox"', 'icon': "'tail.dmi'",
+                    '_source': 'tail.dm', 'mutant_part_string': '"tail"',
+                    'relevant_layers': 'BODY_BEHIND_LAYER, BODY_FRONT_LAYER'}
+            for category in ('tails', 'spines'):
+                entry, = candidates(root, f'/datum/sprite_accessory/{category}/fox', data)
+                self.assertEqual([(name, anchor) for name, _, _, anchor in entry['layers']],
+                                 [('m_tail_fox_BEHIND_base', 'before:Chest'), ('m_tail_fox_FRONT_base', 'Tail')])
+            read_dmi.cache_clear()
+
+    def test_unsplit_tail_uses_native_tail_layer(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            file = root / 'tail.dmi'
+            info = PngImagePlugin.PngInfo()
+            info.add_text('Description', 'width = 32\nheight = 32\nstate = "vox_tail"\ndirs = 4\nframes = 1\n')
+            Image.new('RGBA', (32 * 4, 32), (255, 255, 255, 255)).save(file, format='PNG', pnginfo=info)
+            data = {'name': '"Vox"', 'icon_state': '"vox_tail"', 'icon': "'tail.dmi'", '_source': 'tail.dm'}
+            entry, = candidates(root, '/datum/sprite_accessory/tails/vox', data)
+            self.assertEqual(entry['layers'][0][3], 'Tail')
+            read_dmi.cache_clear()
+
     def test_direction_major_export_skips_unnamed_frames(self):
         with tempfile.TemporaryDirectory() as folder:
             file = Path(folder) / 'test.dmi'

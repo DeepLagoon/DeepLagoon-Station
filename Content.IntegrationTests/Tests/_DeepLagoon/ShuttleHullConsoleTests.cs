@@ -243,6 +243,90 @@ public sealed class ShuttleHullConsoleTests
         await pair.CleanReturnAsync();
     }
 
+    [Test]
+    public async Task HullOnlyScansWhileStatusIsViewedAndResetClearsWeaponGhosts()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        EntityUid console = default, grid = default, actor = default, secondActor = default;
+        ShuttleHullState paused = null!;
+        System.Collections.Generic.Dictionary<EntityUid, ShuttleHullState> Cache(IEntityManager entities) =>
+            (System.Collections.Generic.Dictionary<EntityUid, ShuttleHullState>) typeof(ShuttleConsoleSystem)
+                .GetField("_hullStates", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(entities.System<ShuttleConsoleSystem>())!;
+        void View(IEntityManager entities, EntityUid viewer, bool active) => entities.EventBus.RaiseLocalEvent(console,
+            new ShuttleHullViewMessage(active) { Actor = viewer, UiKey = ShuttleConsoleUiKey.Key });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId);
+            var created = maps.CreateGridEntity(mapId);
+            grid = created.Owner;
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            for (var x = 0; x < 4; x++)
+                maps.SetTile(created, new Vector2i(x, 0), floor);
+            console = Spawn(entities, grid, "ComputerShuttle", 0);
+            actor = Spawn(entities, grid, "MobHuman", 0);
+            secondActor = Spawn(entities, grid, "MobHuman", 0);
+            entities.System<PowerReceiverSystem>().SetNeedsPower(console, false);
+            entities.RemoveComponent<ShuttleConsoleLockComponent>(console);
+            entities.RemoveComponent<Content.Shared.Access.Components.AccessReaderComponent>(console);
+            var gun = Spawn(entities, grid, "ShuttleGunKinetic", 2);
+            entities.DeleteEntity(gun);
+            var shuttle = entities.System<ShuttleConsoleSystem>();
+            shuttle.RefreshState(console);
+            Assert.That(Cache(entities).ContainsKey(grid), Is.False, "A normal console refresh must not scan the hull");
+            Assert.That(shuttle.GetDestroyedWeapons(grid), Is.EqualTo(new[] { new Vector2(2.5f, 0.5f) }),
+                "Destroyed gun positions must be retained without opening the status tab");
+            var fireState = entities.System<Content.Server._Mono.FireControl.FireControlSystem>().GetConsoleState(console)!;
+            Assert.That(fireState.DestroyedWeapons, Has.Length.EqualTo(1));
+        });
+        await pair.RunTicksSync(180);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(Cache(entities).ContainsKey(grid), Is.False, "Idle ships must not receive periodic hull scans");
+            var ui = entities.System<Robust.Server.GameObjects.UserInterfaceSystem>();
+            ui.OpenUi(console, ShuttleConsoleUiKey.Key, actor);
+            ui.OpenUi(console, ShuttleConsoleUiKey.Key, secondActor);
+            Assert.That(ui.IsUiOpen(console, ShuttleConsoleUiKey.Key, actor), Is.True);
+            entities.System<ShuttleConsoleSystem>().RefreshState(console);
+            Assert.That(Cache(entities).ContainsKey(grid), Is.False, "Opening the navigation tab must not scan the hull");
+            View(entities, actor, true);
+            paused = Cache(entities)[grid];
+            Assert.That(paused.MissingWeapons, Is.EqualTo(1));
+            View(entities, actor, false);
+            entities.System<SharedMapSystem>().SetTile(grid, entities.GetComponent<Robust.Shared.Map.Components.MapGridComponent>(grid),
+                new Vector2i(3, 0), Tile.Empty);
+        });
+        await pair.RunTicksSync(180);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(Cache(entities)[grid], Is.SameAs(paused), "Leaving status must stop scans even with the console open");
+            View(entities, secondActor, true);
+            Assert.That(Cache(entities)[grid].MissingTiles, Is.EqualTo(1), "Entering status must immediately capture current damage");
+            View(entities, actor, true);
+            entities.System<Robust.Server.GameObjects.UserInterfaceSystem>().CloseUi(console, ShuttleConsoleUiKey.Key, actor);
+            paused = Cache(entities)[grid];
+        });
+        await pair.RunTicksSync(180);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(Cache(entities)[grid], Is.Not.SameAs(paused), "One viewer closing must not stop another viewer's scans");
+            entities.EventBus.RaiseLocalEvent(console,
+                new ShuttleHullResetMessage { Actor = secondActor, UiKey = ShuttleConsoleUiKey.Key });
+            Assert.That(entities.System<ShuttleConsoleSystem>().GetDestroyedWeapons(grid), Is.Empty);
+            Assert.That(Cache(entities)[grid].MissingWeapons, Is.Zero);
+            entities.System<Robust.Server.GameObjects.UserInterfaceSystem>().CloseUi(console, ShuttleConsoleUiKey.Key, secondActor);
+            paused = Cache(entities)[grid];
+        });
+        await pair.RunTicksSync(180);
+        await pair.Server.WaitAssertion(() =>
+            Assert.That(Cache(pair.Server.EntMan)[grid], Is.SameAs(paused), "Closing the last viewer must stop scanning"));
+        await pair.CleanReturnAsync();
+    }
     private static EntityUid Spawn(IEntityManager entities, EntityUid grid, string prototype, int x)
     {
         return entities.SpawnEntity(prototype, new EntityCoordinates(grid, new Vector2(x + 0.5f, 0.5f)));
@@ -250,10 +334,11 @@ public sealed class ShuttleHullConsoleTests
 
     private static ShuttleHullState ReadHull(IEntityManager entities, EntityUid console)
     {
-        entities.System<ShuttleConsoleSystem>().RefreshState(console);
-        var ui = entities.GetComponent<UserInterfaceComponent>(console);
-        var state = (ShuttleBoundUserInterfaceState) ui.States[ShuttleConsoleUiKey.Key];
-        Assert.That(state.HullState, Is.Not.Null);
-        return state.HullState!;
+        // Baseline/telemetry fixtures request a snapshot directly. Normal console refreshes
+        // deliberately no longer scan the hull before the status tab is selected.
+        var system = entities.System<ShuttleConsoleSystem>();
+        var capture = typeof(ShuttleConsoleSystem).GetMethod("CaptureHull",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        return (ShuttleHullState) capture.Invoke(system, [entities.GetComponent<TransformComponent>(console).GridUid!.Value])!;
     }
 }

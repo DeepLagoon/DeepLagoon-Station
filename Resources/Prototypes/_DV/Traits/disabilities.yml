@@ -1,15 +1,41 @@
 - type: trait
   id: UltraVision
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Vulpkanin
+    - Harpy
+    - Shadowkin
+  - kind: Trait
+    inverted: true
+    values:
+    - DogVision
+  points: 0
+  slots: 1
   name: trait-ultravision-name
   description: trait-ultravision-desc
-  category: Disabilities
+  category: Visual
   components:
     - type: UltraVision
 
 - type: trait
   id: DogVision
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Vulpkanin
+    - Harpy
+    - Shadowkin
+  - kind: Trait
+    inverted: true
+    values:
+    - UltraVision
+  points: 0
+  slots: 1
   name: trait-deuteranopia-name
   description: trait-deuteranopia-desc
-  category: Disabilities
+  category: Visual
   components:
     - type: DogVision

@@ -111,13 +111,8 @@ public sealed partial class GridEditorSystem : EntitySystem
                 .Object("data", new TguiData().Number("closeRequested", ++_closeVersion)).ToString()));
             _window.Panel.OnAction += TabAction;
             _window.Panel.OnClose += Close;
-            _window.Panel.Web.Ready += () =>
-            {
-                _snapshotQueue.Clear();
-                foreach (var token in _tabs.Keys.OrderBy(token => token != _activeTab).ToArray())
-                    InTab(token, PublishCurrentState);
-                ActivateTab(_activeTab);
-            };
+            _window.Panel.Web.Ready += ReplayEditor;
+            _window.Panel.Web.Resumed += ReplayEditor;
             _window.Panel.SetState("GridEditor", "{}", "Редактор grid");
             _window.OpenCentered();
             _window.Panel.Web.FocusInput();
@@ -130,7 +125,8 @@ public sealed partial class GridEditorSystem : EntitySystem
     private void PublishCurrentState()
     {
         if (_window?.Panel.Web.IsReady != true || _tab.State is not { } ev) return;
-        var visuals = ev.Items.Select(i => (i.Kind, i.Prototype)).Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
+        var visuals = ev.Items.Concat(_tab.RecoveryEdits.Values).Where(i => i.Kind != "remove").Select(i => (i.Kind, i.Prototype))
+            .Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
         var header = new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
             .String("gridName", _tab.EnvironmentState?.GridName ?? "").Number("gridNameMaxLength", GridEditorNameRequest.MaxLength)
             .String("gridNameError", "").Number("gridNameResultVersion", _nameResultVersion)
@@ -139,9 +135,13 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Bool("alwaysPowered", _tab.EnvironmentState?.AlwaysPowered ?? false).Bool("forceGravity", _tab.EnvironmentState?.ForceGravity ?? false)
             .Bool("safeAtmosphere", _tab.EnvironmentState?.SafeAtmosphere ?? false).Bool("apartmentProtected", _tab.EnvironmentState?.ApartmentProtected ?? false)
             .Array("exportIssues", Array.Empty<TguiData>())
-            .Number("previewGeneration", _tab.PreviewGeneration).Bool("initialized", ev.Initialized).Bool("copySupported", true)
+            .Number("previewGeneration", _tab.PreviewGeneration).Number("snapshotPatchVersion", _tab.PatchVersion)
+            .Number("lastAppliedVersion", _tab.LastAppliedVersion).Bool("initialized", ev.Initialized).Bool("copySupported", true)
             .Array("routeDevices", RouteDevices()).Array("visuals", visuals);
-        _tab.Snapshot = new SnapshotTransfer(header, ev.Items);
+        var recovery = new TguiData().Array("edits", builder => GridEditorJson.AppendItems(builder, _tab.RecoveryEdits.Values))
+            .Object("expansion", new TguiData().Number("left", _tab.RecoveryExpansion.Left).Number("right", _tab.RecoveryExpansion.Right)
+                .Number("bottom", _tab.RecoveryExpansion.Bottom).Number("top", _tab.RecoveryExpansion.Top)).ToString();
+        _tab.Snapshot = new SnapshotTransfer(header, ev.Items, recovery);
         _snapshotQueue.Enqueue(ev.Token);
     }
 
@@ -178,6 +178,7 @@ public sealed partial class GridEditorSystem : EntitySystem
     private void Patch(GridEditorPatchEvent ev)
     {
         if (_tab.State == null || _tab.State.Token != ev.Token) return;
+        RebaseRecovery(ev);
         var items = _tab.State.Items.ToDictionary(i => i.Id);
         foreach (var id in ev.Removed) items.Remove(id);
         foreach (var item in ev.Items) items[item.Id] = item;

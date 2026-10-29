@@ -21,6 +21,10 @@ public sealed partial class MeleeWeaponComponent : Component
     [DataField, ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
     public bool AltDisarm = true;
 
+    /// <summary>Use a wide attack when a click cannot hit a single target.</summary>
+    [DataField, AutoNetworkedField]
+    public bool HeavyOnLightMiss;
+
     /// <summary>
     /// Should the melee weapon's damage stats be examinable.
     /// </summary>

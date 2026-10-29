@@ -21,6 +21,7 @@ import { captureExternalLinks } from './links';
 import { createRenderer } from './renderer';
 import { getRoutedComponent } from './routes';
 import { configureStore } from './store';
+import { mountArtTablet } from './interfaces/ArtTablet';
 
 perf.mark('inception', window.performance?.timing?.navigationStart);
 perf.mark('init');
@@ -93,6 +94,11 @@ const setupApp = () => {
     return;
   }
 
+  if (document.documentElement.dataset.artTablet === 'true') {
+    mountArtTablet();
+    return;
+  }
+
   setupGlobalEvents();
   setupHotKeys();
   captureExternalLinks();
@@ -108,6 +114,7 @@ const setupApp = () => {
   const dispatchIncomingMessage = msg => {
     window.__recordIncomingTguiMessage__?.(msg);
     const message = Byond.parseJson(msg);
+    if (message.type === 'art/draft') { window.dispatchEvent(new CustomEvent('art-draft', { detail: message.payload })); return; }
     if (message.type === 'console/key') {
       window.dispatchEvent(new CustomEvent('deeplagoon/console-key', { detail: message.payload }));
       return;

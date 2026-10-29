@@ -32,7 +32,9 @@ public sealed partial class ShipRepairDoAfterEvent : SimpleDoAfterEvent
         if (other is not ShipRepairDoAfterEvent cast)
             return false;
 
-        return TargetGridIndices == cast.TargetGridIndices && RepairId == cast.RepairId;
+        // Replicated DoAfter events omit the local grid reference. Keep blocking duplicates in that case.
+        return (TargetGrid == null || cast.TargetGrid == null || TargetGrid == cast.TargetGrid)
+            && TargetGridIndices == cast.TargetGridIndices && RepairId == cast.RepairId;
     }
 }
 

@@ -5,6 +5,7 @@
 - type: marking
   id: RodentiaHeadTopEarDefault
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: []
   coloring:
@@ -33,6 +34,7 @@
 - type: marking
   id: RodentiaHeadTopEarBat
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -42,6 +44,7 @@
 - type: marking
   id: RodentiaHeadTopEarBatLarge
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -51,6 +54,7 @@
 - type: marking
   id: RodentiaHeadTopEarHamster
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -62,6 +66,7 @@
 - type: marking
   id: RodentiaHeadTopEarLong
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -73,6 +78,7 @@
 - type: marking
   id: RodentiaHeadTopEarMouse
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -84,6 +90,7 @@
 - type: marking
   id: RodentiaHeadTopEarMouseLarge
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -95,6 +102,7 @@
 - type: marking
   id: RodentiaHeadTopEarNone
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -104,6 +112,7 @@
 - type: marking
   id: RodentiaHeadTopEarPointy
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -113,6 +122,7 @@
 - type: marking
   id: RodentiaHeadTopEarRabbit
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:
@@ -124,6 +134,7 @@
 - type: marking
   id: RodentiaHeadTopEarSmall
   markingCategory: HeadTop
+  editorType: Ears
   bodyPart: HeadTop
   speciesRestriction: [Rodentia]
   sprites:

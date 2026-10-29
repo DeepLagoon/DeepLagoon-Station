@@ -17,6 +17,76 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class InteractionPanelSexTests
 {
+    [Test]
+    public async Task ErpNoHidesStandardAndCustomActionsInTheClientAndProfileChangesRefreshThem()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var map = await pair.CreateTestMap();
+        EntityUid body = default;
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var clientSystem = typeof(Content.Client._DeepLagoon.InteractionPanel.InteractionPanelSystem);
+        var windowType = typeof(Content.Client._DeepLagoon.InteractionPanel.InteractionPanelWindow);
+        object window = null;
+        JsonDocument State()
+        {
+            var current = clientSystem.GetField("_panel", flags)!.GetValue(pair.Client.EntMan.System<Content.Client._DeepLagoon.InteractionPanel.InteractionPanelSystem>());
+            window ??= current;
+            Assert.That(current, Is.SameAs(window), "Preference changes preserve the open panel");
+            var tgui = windowType.GetField("_panel", flags)!.GetValue(current)!;
+            return JsonDocument.Parse((string) tgui.GetType().GetField("_data", flags)!.GetValue(tgui)!);
+        }
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            body = e.SpawnEntity("MobHuman", new EntityCoordinates(map.Grid, new Vector2(0.5f, 0.5f)));
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            var preferences = e.GetComponent<InteractionPanelPreferencesComponent>(body);
+            preferences.Profile = preferences.Profile.WithInteractionPanelConsent(InteractionPanelCategory.Erotic, InteractionPanelConsent.No);
+            var panels = e.System<InteractionPanelSystem>();
+            var libraries = (System.Collections.IDictionary) typeof(InteractionPanelSystem).GetField("_libraries", flags)!.GetValue(panels)!;
+            libraries[session.UserId] = new[]
+            {
+                new InteractionPanelCustomAction { Id = "custom:neutral-test", Category = InteractionPanelCategory.Neutral,
+                    Flags = InteractionPanelActionFlags.INTERACTION_SELF | InteractionPanelActionFlags.INTERACTION_HUMANOID },
+                new InteractionPanelCustomAction { Id = "custom:erotic-test", Category = InteractionPanelCategory.Erotic,
+                    Flags = InteractionPanelActionFlags.INTERACTION_SELF | InteractionPanelActionFlags.INTERACTION_HUMANOID },
+            };
+            panels.OpenPanel(body, body);
+        });
+        await pair.RunTicksSync(15);
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var state = State();
+            var actions = state.RootElement.GetProperty("actions").EnumerateArray().ToArray();
+            Assert.That(actions, Is.Not.Empty);
+            Assert.That(actions.All(a => a.GetProperty("category").GetInt32() == (int) InteractionPanelCategory.Neutral), Is.True);
+            Assert.That(actions.Any(a => a.GetProperty("id").GetString() == "custom:neutral-test"), Is.True);
+            Assert.That(actions.Any(a => a.GetProperty("id").GetString() == "custom:erotic-test"), Is.False,
+                "Hidden actions are absent from the frontend data, including favorites and search");
+        });
+        await pair.Server.WaitPost(() =>
+        {
+            var e = pair.Server.EntMan;
+            var preferences = e.GetComponent<InteractionPanelPreferencesComponent>(body);
+            var profile = new InteractionPanelProfileLoadedEvent(preferences.Profile.WithInteractionPanelConsent(InteractionPanelCategory.Erotic, InteractionPanelConsent.Ask));
+            e.EventBus.RaiseLocalEvent(body, ref profile);
+        });
+        await pair.RunTicksSync(15);
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var state = State();
+            var actions = state.RootElement.GetProperty("actions").EnumerateArray().ToArray();
+            Assert.That(actions.Any(a => a.GetProperty("category").GetInt32() != (int) InteractionPanelCategory.Neutral &&
+                !a.GetProperty("id").GetString()!.StartsWith("custom:")), Is.True, "Ask restores standard actions");
+            Assert.That(actions.Any(a => a.GetProperty("id").GetString() == "custom:erotic-test"), Is.True, "Ask restores custom actions");
+        });
+        await pair.Server.WaitPost(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));
+        await pair.Server.WaitPost(() => pair.Server.EntMan.DeleteEntity(map.MapUid));
+        await pair.ReallyBeIdle();
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("penis", InteractionPanelSexTraits.Male)]
     [TestCase("testicles", InteractionPanelSexTraits.Male)]
     [TestCase("vagina", InteractionPanelSexTraits.Female)]

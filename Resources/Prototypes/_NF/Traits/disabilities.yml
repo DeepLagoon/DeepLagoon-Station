@@ -1,5 +1,17 @@
 - type: trait
   id: Clumsy
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Clown
+  - kind: Department
+    inverted: true
+    values:
+    - Command
+    - Security
+  points: 5
+  slots: 1
   name: trait-clumsy-name
   description: trait-clumsy-desc
   category: Disabilities
@@ -15,6 +27,20 @@
 # Upstream
 - type: trait
   id: WheelchairBound
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - ParkourTraining
+    - Sluggish
+    - SnailPaced
+  points: 10
+  slots: 1
   name: trait-wheelchair-bound-name
   description: trait-wheelchair-bound-desc
   category: Disabilities
@@ -28,6 +54,18 @@
 
 - type: trait
   id: Uncloneable
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  points: 1
+  slots: 1
   name: trait-uncloneable-name
   description: trait-uncloneable-desc
   category: Disabilities

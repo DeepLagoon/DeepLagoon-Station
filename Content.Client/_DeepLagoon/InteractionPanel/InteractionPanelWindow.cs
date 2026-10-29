@@ -11,6 +11,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Configuration;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
@@ -48,6 +49,7 @@ public sealed class InteractionPanelWindow : BaseWindow
     public event Action<InteractionPanelCustomAction>? SaveRequested;
     public event Action<string>? DeleteRequested;
     public event Action<string, int>? BodyVisibilityRequested;
+    public event Action<string, string, bool, bool>? ClimaxRequested;
     public event Action<string, string, string>? GearRequested;
     private LustWishGearStateEvent? _gear;
     public void SetGearState(LustWishGearStateEvent state)
@@ -58,21 +60,30 @@ public sealed class InteractionPanelWindow : BaseWindow
     private BodyFeature[] _bodyFeatures = [];
     private readonly IEntityManager _entities = IoCManager.Resolve<IEntityManager>();
     private readonly IPlayerManager _players = IoCManager.Resolve<IPlayerManager>();
+    private readonly IConfigurationManager _cfg = IoCManager.Resolve<IConfigurationManager>();
     private float _arousalCurrent;
     private float _arousalMaximum = 100;
+    private float _recoverySeconds;
+    private int _orgasms;
 
     private bool UpdateArousal()
     {
         var current = 0f;
         var maximum = 100f;
+        var recovery = 0f;
+        var orgasms = 0;
         if (_entities.TryGetComponent(_players.LocalEntity, out InteractionPanelArousalComponent? arousal))
         {
             maximum = float.IsFinite(arousal.Maximum) && arousal.Maximum > 0 ? arousal.Maximum : 100;
             current = float.IsFinite(arousal.Current) ? Math.Clamp(arousal.Current, 0, maximum) : 0;
+            recovery = Math.Max(0, (float)(arousal.RecoveryUntil - IoCManager.Resolve<IGameTiming>().CurTime).TotalSeconds);
+            orgasms = arousal.Orgasms;
         }
-        if (_arousalCurrent == current && _arousalMaximum == maximum) return false;
+        if (_arousalCurrent == current && _arousalMaximum == maximum && (int)_recoverySeconds == (int)recovery && _orgasms == orgasms) return false;
         _arousalCurrent = current;
         _arousalMaximum = maximum;
+        _recoverySeconds = recovery;
+        _orgasms = orgasms;
         return true;
     }
 
@@ -160,6 +171,13 @@ public sealed class InteractionPanelWindow : BaseWindow
     {
         var state = new TguiData().String("name", _data.Name).Bool("self", _data.Self)
             .Number("arousalCurrent", _arousalCurrent).Number("arousalMaximum", _arousalMaximum)
+            .Array("producingParts", (_entities.TryGetComponent(_players.LocalEntity, out InteractionPanelArousalComponent? ownArousal) ? ownArousal.ProducingParts : Array.Empty<string>()).Select(part => new TguiData().String("id", part).String("name", Loc.GetString("dl-interaction-panel-climax-" + part))))
+            .Number("recoverySeconds", _recoverySeconds).Number("orgasms", _orgasms)
+            .Bool("customMoanChance", _cfg.GetCVar(InteractionPanelCVars.CustomMoanChance))
+            .Bool("neutralArousal", _cfg.GetCVar(InteractionPanelCVars.NeutralArousal))
+            .Bool("automaticMoans", _cfg.GetCVar(InteractionPanelCVars.AutomaticMoans))
+            .Number("moanChance", InteractionPanelArousalRules.ClampMoanChance(_cfg.GetCVar(InteractionPanelCVars.MoanChance)))
+            .Number("arousalMultiplier", InteractionPanelArousalRules.ClampMultiplier(_cfg.GetCVar(InteractionPanelCVars.ArousalMultiplier)))
             .Bool("arousalOnly", arousalOnly)
             .Bool("gearOnly", gearOnly)
             .String("heldName", _gear?.HeldName ?? "").String("heldSlot", _gear?.HeldSlot ?? "")
@@ -179,7 +197,7 @@ public sealed class InteractionPanelWindow : BaseWindow
             .Array("categories", Enum.GetValues<InteractionPanelCategory>().Select(category => new TguiData()
                 .Number("id", (int) category).String("name", Loc.GetString("dl-interaction-panel-category-" + category.ToString().ToLowerInvariant()))))
             .Array("sounds", _sounds)
-            .Array("actions", _definitions.Where(a => a.Supports(_data.Self, _data.Humanoid) && a.SupportsSexTraits(_data.UserSexTraits, _data.TargetSexTraits))
+            .Array("actions", _definitions.Where(a => _available.Contains(a.Id) && a.Supports(_data.Self, _data.Humanoid) && a.SupportsSexTraits(_data.UserSexTraits, _data.TargetSexTraits))
                 .Select(a => new TguiData().String("id", a.Id).String("name", ActionName(a)).String("body", a.Body)
                     .Number("category", (int) a.Category).Bool("available", _available.Contains(a.Id))
                     .Bool("favorite", _favorites.Contains(a.Id)).Bool("repeating", _repeating.Contains(a.Id))))
@@ -196,6 +214,27 @@ public sealed class InteractionPanelWindow : BaseWindow
         if (action == "stop") { RepeatRequested?.Invoke("", false, Interval); return; }
         if (!TguiActionData.TryParse(payload, out var parsed) || parsed == null) return;
         var id = parsed.String("id") ?? "";
+        if (action == "arousal-preference" && parsed.TryFloat("value", out var preference) && float.IsFinite(preference))
+        {
+            switch (id)
+            {
+                case "custom-chance": _cfg.SetCVar(InteractionPanelCVars.CustomMoanChance, preference != 0); break;
+                case "neutral": _cfg.SetCVar(InteractionPanelCVars.NeutralArousal, preference != 0); break;
+                case "moans": _cfg.SetCVar(InteractionPanelCVars.AutomaticMoans, preference != 0); break;
+                case "chance": _cfg.SetCVar(InteractionPanelCVars.MoanChance, InteractionPanelArousalRules.ClampMoanChance(preference)); break;
+                case "multiplier": _cfg.SetCVar(InteractionPanelCVars.ArousalMultiplier, InteractionPanelArousalRules.ClampMultiplier(preference)); break;
+                default: return;
+            }
+            _cfg.SaveToFile();
+            Publish();
+            return;
+        }
+        if (action == "climax")
+        {
+            ClimaxRequested?.Invoke(parsed.String("part") ?? "", parsed.String("destination") ?? "surface",
+                parsed.String("container") == "1", parsed.String("clearPregnancy") == "1");
+            return;
+        }
         if (action == "gear")
         {
             GearRequested?.Invoke(parsed.String("operation") ?? "", parsed.String("slot") ?? "", parsed.String("value") ?? "");
@@ -303,6 +342,9 @@ public sealed class InteractionPanelWindow : BaseWindow
         "validation-template-long", "validation-tokens", "validation-hidden", "validation-targets", "validation-actors", "validation-color",
         "compact-target", "compact-expand", "compact-collapse", "compact-available", "compact-found", "compact-close", "compact-preview",
         "tab-body", "body-own", "body-empty", "body-hidden", "body-under", "body-over",
+        "arousal-settings", "automatic-moans", "moan-chance", "moan-help", "arousal-multiplier", "arousal-multiplier-help",
+        "custom-chance", "neutral-arousal", "recovery", "climax-part", "climax-destination", "climax", "climax-container", "pregnancy-clear",
+        "climax-surface", "climax-mouth", "climax-vagina", "climax-anus", "climax-breasts", "climax-belly", "climax-penis", "climax-nipples", "climax-urethra",
         "tab-gear", "gear-help", "gear-empty", "gear-held", "gear-attach", "gear-remove", "gear-escape", "gear-release-all",
         "gear-lock", "gear-unlock", "gear-pair", "gear-toggle", "gear-mode", "gear-pulse", "gear-leash", "gear-unleash", "gear-color",
         "compact-delete-confirm", "compact-cancel", "compact-locked", "compact-all", "compact-help", "compact-seconds", "sounds-all", "compact-available-only", "compact-body-hint", "body-all",

@@ -1,4 +1,5 @@
 using Content.Server.GameTicking;
+using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared._FarHorizons.StarSystem;
 using Content.Shared._FarHorizons.StarSystem.Helpers;
 using Content.Shared._FarHorizons.StarSystem.Prototypes;
@@ -34,12 +35,14 @@ public sealed partial class StarSystemMapSystem : SharedStarSystemMapSystem
     public void SetSystem(Entity<StarSystemMapComponent> ent, ProtoId<StarSystemPrototype> system)
     {
         ent.Comp.System = system;
-        ent.Comp.StarSystem = BuildPlanetarySystem(system);
+        ent.Comp.StarSystem = BuildPlanetarySystem(system, ent.Comp.Definition);
         Dirty(ent);
 
         EnsureComp<StarLightComponent>(ent);
 
         SpawnEntities(ent);
+        var assigned = new StarSystemAssignedEvent(ent.Owner, system.Id);
+        RaiseLocalEvent(ref assigned);
     }
 
     private void SpawnEntities(Entity<StarSystemMapComponent> ent)
@@ -47,10 +50,17 @@ public sealed partial class StarSystemMapSystem : SharedStarSystemMapSystem
         if (ent.Comp.StarSystem == null)
             return;
 
+        var children = Transform(ent).ChildEnumerator;
+        var old = new List<EntityUid>();
+        while (children.MoveNext(out var child))
+            if (HasComp<SectorLandmarkComponent>(child)) old.Add(child);
+        foreach (var child in old) Del(child);
+
         if (_protoMan.TryIndex<EntityPrototype>(Star.STAR_ENTITY, out var starEnt))
         {
             var coords = new EntityCoordinates(ent, ent.Comp.StarSystem.Star.Position);
             var spawned = SpawnAtPosition(starEnt.ID, coords);
+            EnsureComp<SectorLandmarkComponent>(spawned);
             _metadata.SetEntityName(spawned, ent.Comp.StarSystem.Star.Name);
             _pvs.AddGlobalOverride(spawned);
         }
@@ -61,6 +71,7 @@ public sealed partial class StarSystemMapSystem : SharedStarSystemMapSystem
             {
                 var planetCoords = new EntityCoordinates(ent, planet.Position);
                 var spawnedPlanet = SpawnAtPosition(planetEnt.ID, planetCoords);
+                EnsureComp<SectorLandmarkComponent>(spawnedPlanet);
                 _metadata.SetEntityName(spawnedPlanet, planet.Name);
                 _pvs.AddGlobalOverride(spawnedPlanet);
             }

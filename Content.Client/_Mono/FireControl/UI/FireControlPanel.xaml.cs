@@ -35,6 +35,7 @@ public sealed partial class FireControlPanel : BoxContainer
     public FireControlPanel(FireControlNavControl radar, bool showRadarControls = true)
     {
         _radar = radar;
+        _radar.OnWeaponSelectionRequested += ToggleWeapon;
         RobustXamlLoader.Load(this);
         RadarSettings.Visible = showRadarControls;
         IoCManager.InjectDependencies(this);
@@ -64,6 +65,16 @@ public sealed partial class FireControlPanel : BoxContainer
 
         OnWeaponSelectionChanged?.Invoke();
 
+        UpdateAllWeaponButtonTexts();
+    }
+
+    public void ToggleWeapon(NetEntity entity)
+    {
+        if (!WeaponsList.TryGetValue(entity, out var button) || button.Disabled)
+            return;
+        button.Pressed ^= true;
+        _radar.UpdateSelectedWeapons(WeaponsList.Where(pair => pair.Value.Pressed).Select(pair => pair.Key).ToHashSet());
+        OnWeaponSelectionChanged?.Invoke();
         UpdateAllWeaponButtonTexts();
     }
 
@@ -212,6 +223,7 @@ public sealed partial class FireControlPanel : BoxContainer
 
     public void UpdateStatus(FireControlConsoleBoundInterfaceState state)
     {
+        _radar.UpdateDestroyedWeapons(state.DestroyedWeapons);
         _currentState = state;
         UpdateShieldState(state.ShieldState);
         _weaponStates.Clear();

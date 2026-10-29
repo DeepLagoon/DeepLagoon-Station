@@ -172,6 +172,7 @@
   id: HydrakinEarsDefault
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -181,6 +182,7 @@
   id: HydrakinEarsDefaultPainted
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -192,6 +194,7 @@
   id: HydrakinEarsOld
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -201,6 +204,7 @@
   id: HydrakinEarsOldPainted
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -212,6 +216,7 @@
   id: HydrakinEarsFin
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -221,6 +226,7 @@
   id: HydrakinEarsFinPainted
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -232,6 +238,7 @@
   id: HydrakinEarsFrilled
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -241,6 +248,7 @@
   id: HydrakinEarsFrilledPainted
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -252,6 +260,7 @@
   id: HydrakinHydraSeerEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi
@@ -261,6 +270,7 @@
   id: HydrakinHydraSeerEarsPainted
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Hydrakin]
   sprites:
   - sprite: _Obelisk/Mobs/Customization/hydrakin_parts.rsi

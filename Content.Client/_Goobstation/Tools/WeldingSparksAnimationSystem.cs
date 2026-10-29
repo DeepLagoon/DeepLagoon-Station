@@ -34,8 +34,8 @@ public sealed partial class WeldingSparksAnimationSystem : EntitySystem
             // `targetEnt` is validated with the `TryComp()` calls, so that can just use `GetEntity()`.
             return;
 
-        var animationPlayer = EnsureComp<AnimationPlayerComponent>(targetEnt);
-        if (_animation.HasRunningAnimation(targetEnt, animationPlayer, ANIM_KEY))
+        var animationPlayer = EnsureComp<AnimationPlayerComponent>(sparksEnt.Value);
+        if (_animation.HasRunningAnimation(sparksEnt.Value, animationPlayer, ANIM_KEY))
             return;
 
         var (startOffset, endOffset) = GetOffsets((targetEnt, sparksAnim), weldableComp.IsWelded);

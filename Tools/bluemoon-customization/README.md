@@ -48,9 +48,19 @@ including cases where those dimensions differ from the DMI frame size.
 mask in world coordinates with the corresponding shipped palette layers, across
 all directions and animation frames. Palette masks become grayscale tintable regions.
 `spriteLayersBefore` anchors rear overlays before the body/head; ordinary
-`spriteLayers` anchors front overlays after their body part. Cosmetic wings use
+`spriteLayers` anchors front overlays after their body part. Tail front overlays
+and unsplit tails use the native Tail anchor, above the torso, arms, hands and
+legs; split rear overlays remain behind the torso. Cosmetic wings use
 the Chest body part so ordinary humanoid species can render them. This import
 adds cosmetic choices, without flight or other BYOND gameplay mechanics.
+
+The editor filters tails (including tail extras), snouts and wings by their
+native marking categories. Ears have explicit `editorType: Ears` metadata:
+render layers such as HeadSide also contain frills and synthetic screens, so
+the catalogue must not infer ears from a render layer or a translated name.
+Explicit types also cover harpy wings stored as arm extensions, muzzle markings
+stored on the head, and tail decorations stored as general overlays.
+The importer retains the source `ears` classification when generating resources.
 
 Output is limited to `Resources/Textures/_DeepLagoon/Customization/BlueMoon`,
 `bluemoon.yml` and the two locale files. Rerunning regenerates these resources

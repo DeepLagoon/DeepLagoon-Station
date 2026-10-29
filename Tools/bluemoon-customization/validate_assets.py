@@ -5,7 +5,7 @@ from collections import Counter
 from PIL import Image
 import yaml
 
-from import_assets import DEST, ROOT, existing_markings
+from import_assets import DEST, ROOT, existing_markings, rsi_frames
 
 
 def main():
@@ -23,6 +23,22 @@ def main():
         ids.add(identifier)
         assert prototype.get('sexRestriction') in (None, 'Male', 'Female'), identifier
         assert prototype['sprites'], identifier
+        if identifier.startswith('BlueMoonEars'):
+            assert prototype.get('editorType') == 'Ears', f'{identifier}: missing ear classification'
+        if prototype['markingCategory'] == 'Tail':
+            front = prototype.get('spriteLayers', {})
+            rear = prototype.get('spriteLayersBefore', {})
+            north_visible = False
+            for sprite in prototype['sprites']:
+                state = sprite['state']
+                if state in rear:
+                    assert rear[state] == 'Chest', identifier
+                    continue
+                assert front.get(state, 'Tail') == 'Tail', f'{identifier}/{state}: tail below limbs'
+                frames, _ = rsi_frames(sprite)
+                north = frames[1] if len(frames) > 1 else frames[0]
+                north_visible |= any(frame.getbbox() for frame in north)
+            assert north_visible, f'{identifier}: no north-facing tail above the body'
         for sprite in prototype['sprites']:
             directory = textures / sprite['sprite']
             assert directory.resolve().is_relative_to((textures / DEST).resolve()), directory

@@ -114,7 +114,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const [draggedBrush, setDraggedBrush] = useState(null);
   useEffect(() => { catalogDrag.current = null; setDraggedBrush(null); setHotbarDrop(null); }, [data.token]);
   useLayoutEffect(() => {
-    const resize = () => setHotbarSlots(Math.max(1, Math.floor((hotbar.current.clientWidth + 5) / 43)));
+    const resize = () => { if (hotbar.current) setHotbarSlots(Math.max(1, Math.floor((hotbar.current.clientWidth + 5) / 43))); };
     const observer = new ResizeObserver(resize); observer.observe(hotbar.current); resize();
     return () => observer.disconnect();
   }, []);
@@ -205,6 +205,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       setPanelWidths(previous => ({ ...previous, [side]: Math.max(180, Math.min(Math.max(180, root.current.clientWidth - 72), previous[side] + direction * 16)) })); }} />;
   useEffect(() => {
     const observer = new ResizeObserver(() => {
+      if (!root.current) return;
       const available = Math.max(180, root.current.clientWidth - 72);
       setPanelWidths(previous => {
         const right = Math.min(previous.right, available);
@@ -408,13 +409,24 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
   const search = (page = 0) => act('search', { category, query, page });
+  const hydrated = useRef(false);
   useEffect(() => {
-    setUndo([]); setRedo([]); setSelected([]);
-    setExpansion({ left: 0, right: 0, bottom: 0, top: 0 });
-    setBaseline(data.items || []); replaceEdits([]); patchCursor.current = 0; serverArea.current = baseArea;
-    mirrorPairs.current.clear(); update(data.items || [], true); setPending(false); setBefore(false);
+    const first = !hydrated.current, applied = (data.lastAppliedVersion || 0) > patchCursor.current;
+    const recovery = data.draftRecovery || {}, items = data.items || [];
+    const edits = first || applied ? copyItems(recovery.edits || []) : editsRef.current;
+    const nextExpansion = first || applied ? { left: 0, right: 0, bottom: 0, top: 0, ...recovery.expansion }
+      : rebaseExpansion(serverArea.current || baseArea, baseArea, expansion);
+    hydrated.current = true;
+    if (first || applied) { setUndo([]); setRedo([]); setSelected([]); mirrorPairs.current.clear(); setBefore(false); }
+    setBaseline(items); replaceEdits(edits); setExpansion(nextExpansion);
+    patchCursor.current = data.snapshotPatchVersion || 0; serverArea.current = baseArea;
+    update(collaborativeDraft(items, data.peerDrafts || [], edits,
+      id => !!visuals.get(`entity:${id}`)?.exclusive || visuals.get(`entity:${id}`)?.category === 'wall'), true);
+    setPending(false); setExporting(false); draftFile.current = null;
+    if (copying?.token === data.token) setCopying(false);
     gesture.current = null; setMovePreview(null); setPreviewCells([]); setRubberband(null); setContextMenu(null); setFailure(null); upload.current = null;
-  }, [data.token]);
+    act('patchAck', { version: patchCursor.current });
+  }, [data.token, data.snapshotId]);
   useEffect(() => {
     if (!data.patchVersion || data.patchVersion <= patchCursor.current) return;
     const batches = data.patchBatches || [{ version: data.patchVersion, applied: !!data.patchApplied,
@@ -448,7 +460,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (gesture.current?.original) gesture.current.original = copyItems(merged);
     if (applied) { setPending(false); upload.current = null; }
     act('patchAck', { version: patchCursor.current });
-  }, [data.patchVersion]);
+  }, [data.patchVersion, data.snapshotId]);
   useEffect(() => { setPending(false); if (data.success === false && data.status) setFailure({ title: failureTitle.current, message: data.status }); }, [data.resultVersion]);
   useEffect(() => {
     const transfer = draftFile.current;
@@ -832,6 +844,13 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
   }, [active, draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
     exporting, data.downloading, data.gridName, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, decalMode, z, editLayers, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
+  useEffect(() => {
+    if (active) return;
+    stopKeyboardPan(); keyboardPan.current.shift = false;
+    space.current = shiftHeld.current = selectHold.current = deleteHold.current = false;
+    setPanning(false); setShift(false); setSelectHeld(false); setDeleteHeld(false);
+    gesture.current = null; setMovePreview(null); setRubberband(null); setPreviewCells([]); setContextMenu(null);
+  }, [active]);
   const restoreZoomCenter = () => {
     const center = zoomCenter.current; if (!center) return;
     const node = viewport.current;
@@ -863,8 +882,11 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     restoreZoomCenter();
     measureView();
   }, [zoom, view.width, view.height]);
-  const fit = () => setScale(Math.min((viewport.current.clientWidth - 32) / (area.width * 32), (viewport.current.clientHeight - 32) / (area.height * 32)),
-    { x: area.width / 2, y: area.height / 2 });
+  const fit = () => {
+    if (!viewport.current || !canvas.current) return;
+    setScale(Math.min((viewport.current.clientWidth - 32) / (area.width * 32), (viewport.current.clientHeight - 32) / (area.height * 32)),
+      { x: area.width / 2, y: area.height / 2 });
+  };
   const fitted = useRef(false);
   useEffect(() => {
     if (!active) return;

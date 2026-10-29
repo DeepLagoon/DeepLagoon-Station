@@ -1,8 +1,11 @@
-﻿- type: entity
+- type: entity
   parent: [ClothingHeadsetCommon, ClothingHeadsetAlt]
   id: ClothingHeadsetAltMercenary
   name: mercenary over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonFreelance
+    priority: 10
   - type: Sprite
     sprite: _NF/Clothing/Ears/Headsets/mercenary.rsi
   - type: Clothing
@@ -23,6 +26,9 @@
   id: ClothingHeadsetAltNfsdBrown
   name: TSFMC over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonSecurity
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -58,6 +64,9 @@
   name: colonel's over-ear headset
   categories: [ HideSpawnMenu ]
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCommand
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots: # Mono: no master keys

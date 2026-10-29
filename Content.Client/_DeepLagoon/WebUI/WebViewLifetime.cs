@@ -29,8 +29,20 @@ public static class WebViewLifetime
     {
         Resume(view);
         Active.Remove(view);
+        if (view.Disposed) return;
         view.ReleaseKeyboardFocus();
         view.AlwaysActive = false;
+        // Ancestor exit visits the parent before its children. Removing the view
+        // here would skip its ExitedTree and leave the stock CEF browser open.
+        if (view.IsInsideTree && view.Parent is { IsInsideTree: false })
+        {
+            view.UserInterfaceManager.DeferAction(() =>
+            {
+                // The owner may dispose its children before the deferred queue runs.
+                if (!view.Disposed) view.Orphan();
+            });
+            return;
+        }
         view.Orphan();
     }
 

@@ -1,5 +1,7 @@
 - type: trait
   id: Pacifist
+  points: 6
+  slots: 1
   name: trait-pacifist-name
   description: trait-pacifist-desc
   category: Quirks
@@ -8,6 +10,24 @@
 
 - type: trait
   id: LightweightDrunk
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - HeavyweightDrunk
+    - LiquorLifeline
+  - kind: Species
+    inverted: true
+    values:
+    - Dwarf
+    - IPC
+  points: 0
+  slots: 1
   name: trait-lightweight-name
   description: trait-lightweight-desc
   category: Quirks
@@ -17,6 +37,18 @@
 
 - type: trait
   id: Snoring
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  points: 0
+  slots: 1
   name: trait-snoring-name
   description: trait-snoring-desc
   category: Quirks

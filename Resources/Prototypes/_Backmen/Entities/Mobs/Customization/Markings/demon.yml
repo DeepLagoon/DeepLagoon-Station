@@ -87,6 +87,7 @@
   id: DemonCowEars
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Demon]
   sprites:
   - sprite: _ADT/Mobs/Demon/custom.rsi
@@ -96,6 +97,7 @@
   id: DemonEars
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Demon]
   sprites:
   - sprite: _ADT/Mobs/Demon/custom.rsi

@@ -296,7 +296,7 @@ def candidates(source, path, data):
     if state in states:
         frames, delays = frames_for(file, state, center, dimensions)
         if nonempty(frames):
-            yield base | {'layers': [(state, frames, delays, 'before:Chest' if category == 'tails' else base['bodyPart'])]}
+            yield base | {'layers': [(state, frames, delays, base['bodyPart'])]}
         return
     part = quoted(data.get('mutant_part_string')) or category
     suffixes = [('BEHIND', 'BODY_BEHIND_LAYER'), ('ADJ', 'BODY_ADJ_LAYER'), ('ADJUP', 'BODY_ADJ_UPPER_LAYER'),
@@ -324,7 +324,7 @@ def candidates(source, path, data):
             if suffix == 'BEHIND':
                 anchor = 'before:Chest' if category in ('tails', 'spines') or base['category'] == 'Wings' else 'before:Head'
             elif suffix in ('FRONT', 'HORNS') and category in ('tails', 'spines'):
-                anchor = 'Chest'
+                anchor = 'Tail'
             elif suffix == 'FRONT' and base['category'] == 'Wings':
                 anchor = 'Chest'
             color_src = data.get(extra + 'color_src' if extra else 'color_src')
@@ -474,9 +474,11 @@ def export(source, definitions_list, audit):
                 sprites.append({'sprite': f'{DEST}/{rsi_name}.rsi', 'state': target_state})
                 if anchor.startswith('before:'):
                     before_anchors[target_state] = anchor[7:]
-                elif anchor != entry['bodyPart']:
+                elif anchor != entry['bodyPart'] or entry['category'] == 'Tail':
                     anchors[target_state] = anchor
             proto = {'type': 'marking', 'id': identifier, 'bodyPart': entry['bodyPart'], 'markingCategory': entry['category']}
+            if category == 'ears':
+                proto['editorType'] = 'Ears'
             if entry.get('species'):
                 proto['speciesRestriction'] = entry['species']
             if entry.get('sex'):

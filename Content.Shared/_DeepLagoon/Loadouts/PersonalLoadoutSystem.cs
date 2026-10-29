@@ -5,6 +5,7 @@ using Content.Shared.Players.PlayTimeTracking;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
 using Content.Shared.Roles;
+using Content.Shared.Traits;
 using Robust.Shared.Configuration;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -81,6 +82,8 @@ public sealed partial class PersonalLoadoutSystem : EntitySystem
     private bool Check(PersonalLoadoutRequirement r, HumanoidCharacterProfile profile, string job, IReadOnlyDictionary<string, TimeSpan> times, ICommonSession? session, int depth = 0)
     {
         if (depth > 16)
+            return false;
+        if (r.Kind == "CharacterTraitRequirement" && !TraitSelection.Evaluate(profile, _prototypes, _configuration, job).Valid)
             return false;
         var result = r.Kind switch
         {

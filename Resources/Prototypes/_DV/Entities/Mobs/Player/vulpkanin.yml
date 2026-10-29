@@ -4,6 +4,7 @@
   parent: BaseMobVulpkanin
   id: MobVulpkanin
   components:
+    - type: ScentTracker
     - type: CombatMode
     - type: InteractionPopup
       successChance: 1

@@ -33,19 +33,21 @@ public sealed partial class UplinkSystem : EntitySystem
     /// <param name="balance">The amount of currency on the uplink. If null, will just use the amount specified in the preset.</param>
     /// <param name="uplinkEntity">The entity that will actually have the uplink functionality. Defaults to the PDA if null.</param>
     /// <param name="giveDiscounts">Marker that enables discounts for uplink items.</param>
+    /// <param name="chargeImplantCost">Deduct the implant's price when no PDA is available.</param>
     /// <returns>Whether or not the uplink was added successfully</returns>
     public bool AddUplink(
         EntityUid user,
         FixedPoint2 balance,
         EntityUid? uplinkEntity = null,
-        bool giveDiscounts = false)
+        bool giveDiscounts = false,
+        bool chargeImplantCost = true)
     {
         // Try to find target item if none passed
 
         uplinkEntity ??= FindUplinkTarget(user);
 
         if (uplinkEntity == null)
-            return ImplantUplink(user, balance, giveDiscounts);
+            return ImplantUplink(user, balance, giveDiscounts, chargeImplantCost);
 
         EnsureComp<UplinkComponent>(uplinkEntity.Value);
 
@@ -86,7 +88,7 @@ public sealed partial class UplinkSystem : EntitySystem
     /// <summary>
     /// Implant an uplink as a fallback measure if the traitor had no PDA
     /// </summary>
-    private bool ImplantUplink(EntityUid user, FixedPoint2 balance, bool giveDiscounts)
+    private bool ImplantUplink(EntityUid user, FixedPoint2 balance, bool giveDiscounts, bool chargeImplantCost)
     {
         var implantProto = new string(FallbackUplinkImplant);
 
@@ -96,10 +98,13 @@ public sealed partial class UplinkSystem : EntitySystem
         if (!catalog.Cost.TryGetValue(TelecrystalCurrencyPrototype, out var cost))
             return false;
 
-        if (balance < cost) // Can't use Math functions on FixedPoint2
-            balance = 0;
-        else
-            balance = balance - cost;
+        if (chargeImplantCost)
+        {
+            if (balance < cost) // Can't use Math functions on FixedPoint2
+                balance = 0;
+            else
+                balance = balance - cost;
+        }
 
         var implant = _subdermalImplant.AddImplant(user, implantProto);
 

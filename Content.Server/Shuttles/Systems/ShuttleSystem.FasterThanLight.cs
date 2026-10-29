@@ -410,7 +410,9 @@ public sealed partial class ShuttleSystem
             }
         }
 
-        var hyperspace = EnsureComp<FTLComponent>(shuttleUid);
+        if (!TrySetupFTL(shuttleUid, component, out var hyperspace))
+            return;
+
         SetupFTL(hyperspace, startupTime, hyperspaceTime, priorityTag);
 
         if (TryComp<DockingComponent>(target, out var dock) && dock.Docked && dock.DockedWith != null)
@@ -1254,8 +1256,7 @@ public sealed partial class ShuttleSystem
                 else
                 {
                     var margin = _random.NextFloat(-maxMargin, maxMargin);
-                    targetAABB.Left += margin;
-                    targetAABB.Right += margin;
+                    targetAABB = targetAABB.Translated(new Vector2(margin, 0f));
                 }
 
                 if (positiveY == true)
@@ -1273,8 +1274,7 @@ public sealed partial class ShuttleSystem
                 else
                 {
                     var margin = _random.NextFloat(-maxMargin, maxMargin);
-                    targetAABB.Bottom += margin;
-                    targetAABB.Top += margin;
+                    targetAABB = targetAABB.Translated(new Vector2(0f, margin));
                 }
             }
             iteration++;

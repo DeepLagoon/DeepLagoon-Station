@@ -73,6 +73,7 @@ public sealed partial class TguiPanel : Control
     public void SwitchToNative()
     {
         if (Disposed || _usingNative) return;
+        if (_forceTgui) { _failure.Visible = true; return; }
         EndWindowDrag();
         ClearConsoleKeys();
         _usingNative = true;

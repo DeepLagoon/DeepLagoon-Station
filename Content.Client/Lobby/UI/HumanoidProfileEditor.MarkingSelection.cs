@@ -74,6 +74,7 @@ public sealed partial class HumanoidProfileEditor
         .Select(m => Choice(m.ID, _markingManager.EditorMirror(m) != null ? PairName(Loc.GetString($"marking-{m.ID}")) : Loc.GetString($"marking-{m.ID}"))
             .String("category", MarkingCategoryName(m)).String("combinationCategory", MarkingCategoryKey(m))
             .String("part", m.BodyPart.ToString()).String("categoryId", MarkingCategoryKey(m))
+            .String("typeId", m.FilterType?.ToString() ?? "")
             .Array("races", MarkingRaceChoices(m)).String("iconId", "marking/" + m.ID));
 
     private void DisableMarkingCombination(string category)

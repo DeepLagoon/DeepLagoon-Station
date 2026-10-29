@@ -87,6 +87,33 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
             foreach (var hand in hands.Append("gloves"))
             { MoveLayer(uid, sprite, hand, anchor, after: true); anchor = hand; }
         }
+        // Genitals must remain in front of hands, including species built from limb markings.
+        var limbs = new HashSet<HumanoidVisualLayers>
+        {
+            HumanoidVisualLayers.LArm, HumanoidVisualLayers.RArm,
+            HumanoidVisualLayers.LHand, HumanoidVisualLayers.RHand,
+        };
+        var limbKeys = limbs.Cast<object>().Append("gloves").ToList();
+        foreach (var marking in humanoid.MarkingSet.Markings.Values.SelectMany(markings => markings))
+        {
+            if (!_prototypes.TryIndex<MarkingPrototype>(marking.MarkingId, out var prototype)
+                || !limbs.Contains(prototype.BodyPart)) continue;
+            foreach (var spec in prototype.Sprites)
+                if (spec is SpriteSpecifier.Rsi rsi) limbKeys.Add($"{prototype.ID}-{rsi.RsiState}");
+        }
+        var limbAnchor = limbKeys.Where(key => sprite.LayerMapTryGet(key, out _))
+            .OrderBy(key => { sprite.LayerMapTryGet(key, out var index); return index; }).LastOrDefault();
+        if (limbAnchor != null)
+        {
+            foreach (var key in layers.Where(key => key.EndsWith("/FRONT")
+                && key.Split('/')[1] is "vagina" or "anus" or "testicles" or "penis"))
+            {
+                sprite.LayerMapTryGet(key, out var index);
+                sprite.LayerMapTryGet(limbAnchor, out var anchorIndex);
+                if (index <= anchorIndex) MoveLayer(uid, sprite, key, limbAnchor, after: true);
+                limbAnchor = key;
+            }
+        }
         UpdateVisibility(uid, humanoid, sprite);
         EntityManager.System<ClothingBodyFitSystem>().Refresh(uid, humanoid, sprite);
     }

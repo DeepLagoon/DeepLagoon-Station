@@ -46,9 +46,10 @@ namespace Content.Server.Abilities.Psionics
             var ev = new PsionicRegenerationDoAfterEvent(_gameTiming.CurTime);
             var doAfterArgs = new DoAfterArgs(EntityManager, uid, component.UseDelay, ev, uid);
 
-            _doAfterSystem.TryStartDoAfter(doAfterArgs, out var doAfterId);
+            if (!_doAfterSystem.TryStartDoAfter(doAfterArgs, out var doAfterId))
+                return;
 
-            component.DoAfter = doAfterId;
+            component.DoAfter = _doAfterSystem.IsRunning(doAfterId) ? doAfterId : null;
 
             _popupSystem.PopupEntity(Loc.GetString("psionic-regeneration-begin", ("entity", uid)),
                 uid,
@@ -84,7 +85,10 @@ namespace Content.Server.Abilities.Psionics
             // small doses of the reagent, so we wait until either the action
             // is cancelled (by being dispelled) or complete to give the
             // appropriate dose. A timestamp delta is used to accomplish this.
-            var percentageComplete = Math.Min(1f, (_gameTiming.CurTime - args.StartedAt).TotalSeconds / component.UseDelay);
+            var delay = args.DoAfter.Args.Delay.TotalSeconds;
+            var percentageComplete = !args.Cancelled ? 1d : delay > 0
+                ? Math.Clamp((_gameTiming.CurTime - args.StartedAt).TotalSeconds / delay, 0d, 1d)
+                : 0d;
 
             var solution = new Solution();
             solution.AddReagent("PsionicRegenerationEssence", FixedPoint2.New(component.EssenceAmount * percentageComplete));

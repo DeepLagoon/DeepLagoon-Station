@@ -1,0 +1,79 @@
+- type: typingIndicator
+  id: DeepLagoonEmote
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: emote
+  idleState: emote-idle
+
+- type: typingIndicator
+  id: DeepLagoonLooc
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: normal
+  idleState: normal-idle
+  color: "#40e0d0"
+
+- type: typingIndicator
+  id: DeepLagoonCommand
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: command
+  idleState: command-idle
+
+- type: typingIndicator
+  id: DeepLagoonMedical
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: medical
+  idleState: medical-idle
+
+- type: typingIndicator
+  id: DeepLagoonEngineering
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: engineering
+  idleState: engineering-idle
+
+- type: typingIndicator
+  id: DeepLagoonScience
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: science
+  idleState: science-idle
+
+- type: typingIndicator
+  id: DeepLagoonCargo
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: cargo
+  idleState: cargo-idle
+
+- type: typingIndicator
+  id: DeepLagoonSecurity
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: security
+  idleState: security-idle
+
+- type: typingIndicator
+  id: DeepLagoonService
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: service
+  idleState: service-idle
+
+- type: typingIndicator
+  id: DeepLagoonCentCom
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: command
+  idleState: command-idle
+  color: "#a4edc0"
+
+- type: typingIndicator
+  id: DeepLagoonFreelance
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  offset: 0, 0.0625
+  typingState: normal
+  idleState: normal-idle
+  color: "#e2bcff"

@@ -13,21 +13,32 @@ export function useGridEditorPeers({ data, act, edits, visuals, expansion }) {
   const [revision, setRevision] = useState(0);
   actRef.current = act;
   const generation = data.previewGeneration || 0;
-  useEffect(() => { transfer.current = null; sent.current = []; sentExpansion.current = null; }, [data.token, generation]);
+  const latest = useRef(null); latest.current = { edits, expansion, generation };
+  const timer = useRef(null);
+  const restored = useRef(null);
   useEffect(() => {
-    if (transfer.current) return;
+    const snapshot = `${data.token}:${data.snapshotId || ''}`;
+    const recovery = restored.current !== snapshot ? data.draftRecovery : null;
+    restored.current = snapshot;
+    transfer.current = null; sent.current = recovery?.edits || []; sentExpansion.current = recovery?.expansion || null;
+  }, [data.token, generation, data.snapshotId]);
+  useEffect(() => () => { clearTimeout(timer.current); timer.current = null; }, [data.token, generation, data.snapshotId]);
+  useEffect(() => {
+    if (transfer.current || timer.current !== null) return;
     const changes = previewPatch(sent.current, edits);
     if (!changes.length && JSON.stringify(sentExpansion.current) === JSON.stringify(expansion)) return;
     if (!changes.length && !sentExpansion.current && !Object.values(expansion).some(Boolean)) return;
-    const timer = setTimeout(() => {
+    timer.current = setTimeout(() => {
+      timer.current = null;
+      const { edits, expansion, generation } = latest.current;
+      const changes = previewPatch(sent.current, edits);
       let encoded;
       try { encoded = gridEditorTransfer(changes); } catch { return; }
       const id = `p_${Date.now()}_${serial.current++}`, {encoding, chunks} = encoded;
       transfer.current = { id, chunks, encoding, target: edits, expansion };
       actRef.current('previewStart', { id, count: changes.length, chunks: chunks.length, encoding, generation, expansion });
     }, 100);
-    return () => clearTimeout(timer);
-  }, [edits, data.token, generation, revision, expansion]);
+  }, [edits, data.token, generation, data.snapshotId, revision, expansion]);
   useEffect(() => {
     const pending = transfer.current;
     if (pending && data.previewId === pending.id && data.previewNext < pending.chunks.length)

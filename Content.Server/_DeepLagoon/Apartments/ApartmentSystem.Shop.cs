@@ -48,7 +48,11 @@ public sealed partial class ApartmentSystem
         if (!_instances.TryGetValue(owner, out var instance) || instance.Template.ID == saved.Template) return;
         _instances.Remove(owner);
         if (Visitors(instance).Length > 0 || HasComp<ApartmentElevatorReservedComponent>(instance.Grid)) _retiring.Add(instance);
-        else Del(instance.Grid);
+        else
+        {
+            if (!SaveApartment(instance)) { _retiring.Add(instance); return; }
+            Del(instance.Grid);
+        }
     }
     private async void OpenShop(ApartmentShopRequest ev, EntitySessionEventArgs args)
     {
@@ -105,6 +109,8 @@ public sealed partial class ApartmentSystem
             }
             if (!CanManage(session) || _shopTokens.GetValueOrDefault(session.UserId) != ev.Token) return;
             var before = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
+            if (_instances.TryGetValue(session.UserId, out var current) && !SaveApartment(current))
+                throw new InvalidOperationException("Cannot save the current apartment before switching templates.");
             Store.Select(session.UserId.UserId, template);
             _templates[session.UserId] = template.ID;
             if (before != template.ID) _numbers.Rotate(session.UserId.UserId);
@@ -123,6 +129,6 @@ public sealed partial class ApartmentSystem
         var instance = PrepareElevatorApartment(session.UserId);
         var token = Guid.NewGuid(); _editors[session.UserId] = token; _lobbyEditors[session.UserId] = instance;
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
-            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), instance.MapFurniture.Values.ToList(), true, _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
+            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), EditableMapFurniture(instance).ToList(), true, _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
     }
 }

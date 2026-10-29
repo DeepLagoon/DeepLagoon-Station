@@ -15,6 +15,9 @@
   id: ClothingHeadsetNfsdBrown
   name: TSFMC headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonSecurity
+    priority: 10
   - type: Sprite
     sprite: _NF/Clothing/Ears/Headsets/nfsd_e_brown.rsi
   - type: Clothing
@@ -128,6 +131,9 @@
   name: doc's headset
   description: Letting the DoC know what's up. Takes encryption keys.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonMedical
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:

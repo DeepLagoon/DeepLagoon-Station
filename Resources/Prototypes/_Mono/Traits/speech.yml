@@ -2,6 +2,28 @@
 
 - type: trait
   id: BoganAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-bogan-accent-name
   description: trait-bogan-accent-desc
   category: SpeechTraits

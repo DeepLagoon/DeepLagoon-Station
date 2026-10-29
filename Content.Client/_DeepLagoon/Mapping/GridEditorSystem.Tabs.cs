@@ -39,6 +39,9 @@ public sealed partial class GridEditorSystem
         public List<GridEditorItem> Preview = new();
         public StringBuilder? PreviewText;
         public List<GridEditorPeerDraft> PeerDrafts = new();
+        public readonly Dictionary<string, GridEditorItem> RecoveryEdits = new();
+        public GridEditorExpansion RecoveryExpansion = new();
+        public int LastAppliedVersion;
         public Stream? Download;
         public Guid DownloadRequest;
         public int DownloadIndex;
@@ -63,11 +66,14 @@ public sealed partial class GridEditorSystem
     private long _nextTabOrder;
     private readonly Queue<Guid> _snapshotQueue = new();
     private const int SnapshotChunkItems = 1024;
-    private sealed class SnapshotTransfer(TguiData header, List<GridEditorItem> items)
+    private sealed class SnapshotTransfer(TguiData header, List<GridEditorItem> items, string recovery)
     {
         public readonly string Id = Guid.NewGuid().ToString();
         public readonly TguiData Header = header;
         public readonly List<GridEditorItem> Items = items;
+        public readonly string Recovery = recovery;
+        public int RecoveryOffset;
+        public int RecoveryChunks;
         public int Offset;
         public int Chunks;
         public bool Started;
@@ -102,10 +108,20 @@ public sealed partial class GridEditorSystem
                 .Object("data", new TguiData().Array("items", builder => GridEditorJson.AppendItems(builder, chunk))).ToString());
             transfer.Offset += Math.Min(SnapshotChunkItems, transfer.Items.Count - transfer.Offset);
         }
+        else if (transfer.RecoveryOffset < transfer.Recovery.Length)
+        {
+            var length = Math.Min(32768, transfer.Recovery.Length - transfer.RecoveryOffset);
+            var end = transfer.RecoveryOffset + length;
+            if (end < transfer.Recovery.Length && transfer.Recovery[end - 1] is >= '\uD800' and <= '\uDBFF') length--;
+            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "draft").Number("index", transfer.RecoveryChunks++))
+                .Object("data", new TguiData().String("text", transfer.Recovery.Substring(transfer.RecoveryOffset, length))).ToString());
+            transfer.RecoveryOffset += length;
+        }
         else
         {
             _tab.Snapshot = null;
-            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "complete").Number("chunks", transfer.Chunks)).ToString());
+            SendTabUpdate(new TguiData().Object("gridEditorSnapshot", message.String("phase", "complete").Number("chunks", transfer.Chunks)
+                .Number("draftChunks", transfer.RecoveryChunks)).ToString());
             PublishPendingPatches(); PublishPeerDrafts();
             if (_tab.EnvironmentState is { } environment) EnvironmentState(environment);
             Search(_tab.SearchQuery, _tab.SearchCategory, _tab.SearchPage);

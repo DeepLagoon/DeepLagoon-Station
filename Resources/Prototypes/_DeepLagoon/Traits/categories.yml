@@ -1,0 +1,10 @@
+# Adapted from Einstein Engines; legacy DeepLagoon trait IDs are retained.
+- type: traitCategory
+  id: Visual
+  name: trait-category-visual
+- type: traitCategory
+  id: Auditory
+  name: trait-category-auditory
+- type: traitCategory
+  id: Psionics
+  name: trait-category-psionics

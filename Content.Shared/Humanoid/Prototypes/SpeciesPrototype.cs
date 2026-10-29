@@ -6,6 +6,9 @@ namespace Content.Shared.Humanoid.Prototypes;
 [Prototype]
 public sealed partial class SpeciesPrototype : IPrototype
 {
+    [DataField] public int BonusTraitPoints;
+    [DataField] public float AverageHeight = 176.1f;
+    [DataField] public float AverageWidth = 40f;
     /// <summary>
     /// Prototype ID of the species.
     /// </summary>

@@ -1,4 +1,5 @@
-﻿using Content.Shared.Examine;
+using Content.Shared.Examine;
+using Content.Shared.Whitelist;
 using Content.Shared.Inventory;
 using Content.Shared.StepTrigger.Components;
 
@@ -7,6 +8,7 @@ namespace Content.Shared.StepTrigger.Systems;
 public sealed partial class StepTriggerImmuneSystem : EntitySystem
 {
     [Dependency] private InventorySystem _inventory = default!;
+    [Dependency] private EntityWhitelistSystem _whitelist = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -17,7 +19,10 @@ public sealed partial class StepTriggerImmuneSystem : EntitySystem
 
     private void OnStepTriggerClothingAttempt(Entity<PreventableStepTriggerComponent> ent, ref StepTriggerAttemptEvent args)
     {
-        if (HasComp<ProtectedFromStepTriggersComponent>(args.Tripper) || _inventory.TryGetInventoryEntity<ProtectedFromStepTriggersComponent>(args.Tripper, out _))
+        if ((TryComp<ProtectedFromStepTriggersComponent>(args.Tripper, out var innate)
+             && _whitelist.IsWhitelistPassOrNull(innate.Whitelist, ent.Owner))
+            || (_inventory.TryGetInventoryEntity<ProtectedFromStepTriggersComponent>(args.Tripper, out var clothing)
+                && _whitelist.IsWhitelistPassOrNull(clothing.Comp!.Whitelist, ent.Owner)))
         {
             args.Cancelled = true;
         }

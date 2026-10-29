@@ -1,6 +1,8 @@
 - type: vendingMachineInventory
   id: DLLustWishInventory
   startingInventory:
+    DLBlueMoonCondom: 20
+    DLBlueMoonChastityCage: 4
     DLLustWishChaps: 4
     DLLustWishBunnySuit: 5
     DLLustWishBunnySuitWhite: 5

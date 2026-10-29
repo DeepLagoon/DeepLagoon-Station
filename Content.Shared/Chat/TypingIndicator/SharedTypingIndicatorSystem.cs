@@ -4,6 +4,8 @@ using Content.Shared.Clothing;
 using Content.Shared.Inventory;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
+using Content.Shared.CCVar;
+using Robust.Shared.Configuration;
 
 namespace Content.Shared.Chat.TypingIndicator;
 
@@ -15,6 +17,7 @@ public abstract partial class SharedTypingIndicatorSystem : EntitySystem
     [Dependency] private ActionBlockerSystem _actionBlocker = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
 
     /// <summary>
     ///     Default ID of <see cref="TypingIndicatorPrototype"/>
@@ -60,7 +63,7 @@ public abstract partial class SharedTypingIndicatorSystem : EntitySystem
 
     private void BeforeShow(Entity<TypingIndicatorClothingComponent> entity, ref InventoryRelayedEvent<BeforeShowTypingIndicatorEvent> args)
     {
-        args.Args.TryUpdateTimeAndIndicator(entity.Comp.TypingIndicatorPrototype, entity.Comp.GotEquippedTime);
+        args.Args.TryUpdateTimeAndIndicator(entity.Comp.TypingIndicatorPrototype, entity.Comp.GotEquippedTime, entity.Comp.Priority);
     }
 
     private void OnTypingChanged(TypingChangedEvent ev, EntitySessionEventArgs args)
@@ -72,8 +75,15 @@ public abstract partial class SharedTypingIndicatorSystem : EntitySystem
             return;
         }
 
-        // check if this entity can speak or emote
-        if (!_actionBlocker.CanEmote(uid.Value) && !_actionBlocker.CanSpeak(uid.Value))
+        var allowed = ev.State switch
+        {
+            TypingIndicatorState.None => true,
+            TypingIndicatorState.Idle or TypingIndicatorState.Typing => _actionBlocker.CanSpeak(uid.Value),
+            TypingIndicatorState.EmoteIdle or TypingIndicatorState.EmoteTyping => _actionBlocker.CanEmote(uid.Value),
+            TypingIndicatorState.LoocIdle or TypingIndicatorState.LoocTyping => true,
+            _ => false,
+        };
+        if (!allowed || !_cfg.GetCVar(CCVars.ChatShowTypingIndicator))
         {
             // nah, make sure that typing indicator is disabled
             SetTypingIndicatorState(uid.Value, TypingIndicatorState.None);

@@ -2,6 +2,7 @@
   id: HumanLongEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human, Dwarf]
@@ -13,6 +14,7 @@
   id: LongEarsWide
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human]
@@ -24,6 +26,7 @@
   id: LongEarsSmall
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human, Dwarf]
@@ -35,6 +38,7 @@
   id: LongEarsUpwards
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human]
@@ -46,6 +50,7 @@
   id: LongEarsTall
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human]
@@ -57,6 +62,7 @@
   id: LongEarsThin
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   forcedColoring: true
   followSkinColor: true
   speciesRestriction: [Human, Dwarf]

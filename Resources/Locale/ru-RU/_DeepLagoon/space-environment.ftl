@@ -1,0 +1,25 @@
+sector-profile-frontier = Пограничный сектор
+sector-profile-asteroids = Астероидное облако
+sector-profile-wreckage = Кладбище обломков
+sector-profile-radiation = Радиационные поля
+sector-profile-quiet = Спокойная область
+space-environment-kind-dust = Пылевая область
+space-environment-kind-asteroids = Астероидный поток
+space-environment-kind-debris = Обломочное поле
+space-environment-kind-plasma = Плазменные помехи
+space-environment-kind-radiation = Радиационное поле
+space-environment-charted = [изучено]
+space-environment-ftl-blocked = Плазменное возмущение препятствует подготовке FTL. Выйдите за обозначенную границу.
+space-environment-sector = Сектор: { $sector }. Характер: { $profile }. Исследовано областей: { $surveyed }/{ $total }.
+space-environment-survey = Сканировать космическую среду
+space-environment-survey-hint = Через контекстное меню можно сканировать среду. В пыли держите скорость до 12 м/с; для записи исследования — до 4 м/с. Радиация требует защиты, плотная плазма мешает связи и FTL.
+space-environment-survey-cooldown = Приборы обрабатывают предыдущий замер. Повторите сканирование через 20 секунд.
+space-environment-survey-empty = В радиусе 1800 м нет неизученных сигналов.
+space-environment-survey-signal = Обнаружено: { $kind }. Центр: ({ $x }, { $y }), расстояние { $distance } м. Для записи подойдите во внутреннюю область. Выберите безопасную скорость и защиту.
+space-environment-survey-slow = Для устойчивого измерения снизьте скорость до 4 м/с.
+space-environment-survey-complete = Исследование завершено: { $kind }. Данные записаны в журнал.
+space-environment-survey-recorded = Данные этой области уже есть в журнале.
+
+space-environment-route = Прямой курс: пыль ~{ $dust } м; радиация ~{ $radiation } м (с учётом интенсивности).
+space-environment-route-ftl-blocked = FTL: плазменное возмущение в точке отправления или прибытия.
+space-environment-route-ftl-clear = FTL: помех среды в конечных точках не обнаружено. Прочие ограничения сохраняются.

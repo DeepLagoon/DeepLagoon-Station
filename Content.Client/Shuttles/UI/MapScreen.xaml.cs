@@ -79,6 +79,9 @@ public sealed partial class MapScreen : BoxContainer
     public MapScreen()
     {
         RobustXamlLoader.Load(this);
+        MapRadar.FitViewport = true;
+        MapRadar.SetSize = new Vector2(float.NaN, float.NaN);
+        LayoutContainer.SetAnchorPreset(MapRadar, LayoutContainer.LayoutPreset.Wide);
         IoCManager.InjectDependencies(this);
 
         _detection = _entManager.System<DetectionSystem>(); // Mono

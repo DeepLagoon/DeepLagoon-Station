@@ -1,0 +1,33 @@
+- type: entity
+  id: ActionToggleFlight
+  name: action-name-trait-flight
+  description: action-description-trait-flight
+  components:
+  - type: InstantAction
+    event: !type:ToggleFlightEvent
+
+- type: entity
+  id: ToggleNightVision
+  name: action-name-trait-night-vision
+  components:
+  - type: InstantAction
+    icon:
+      sprite: Clothing/Eyes/Goggles/nightvision.rsi
+      state: icon
+    event: !type:ToggleNightVisionEvent
+
+- type: entity
+  id: ScentTrackEffect
+  categories: [HideSpawnMenu]
+  components:
+  - type: TimedDespawn
+    lifetime: 1
+  - type: Sprite
+    noRot: true
+    drawdepth: Effects
+    sprite: Effects/chemsmoke.rsi
+    state: chemsmoke
+    scale: 0.08, 0.08
+    color: "#ffff00"
+  - type: EffectVisuals
+  - type: AnimationPlayer

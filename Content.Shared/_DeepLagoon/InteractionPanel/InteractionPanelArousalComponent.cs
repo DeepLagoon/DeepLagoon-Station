@@ -8,8 +8,18 @@ namespace Content.Shared._DeepLagoon.InteractionPanel;
 public sealed partial class InteractionPanelArousalComponent : Component
 {
     [DataField, AutoNetworkedField] public float Current;
-    [DataField, AutoNetworkedField] public float Maximum = 100;
-    [ViewVariables] public TimeSpan RecoveryUntil;
+    [DataField, AutoNetworkedField] public float Maximum = 300;
+    [DataField, AutoNetworkedField] public TimeSpan RecoveryUntil;
+    [DataField, AutoNetworkedField] public int Orgasms = 1;
+    [DataField] public BlueMoonPreferences Physiology = new();
+    [DataField, AutoNetworkedField] public string[] ProducingParts = [];
+    [ViewVariables] public bool PermanentArousal;
+    [ViewVariables] public bool NeverAroused;
+    [ViewVariables] public bool InHeat;
+    [ViewVariables] public TimeSpan NextMoanAttempt;
+    [ViewVariables] public bool AutomaticMoans = true;
+    [ViewVariables] public float MoanChance = 20;
+    [ViewVariables] public float ArousalMultiplier = 100;
 }
 
 [Prototype]
@@ -32,6 +42,27 @@ public sealed partial class InteractionPanelArousalPrototype : IPrototype
 
 public static class InteractionPanelArousalRules
 {
+    public const float MoanThreshold = 0.3f;
+    public static readonly TimeSpan MoanInterval = TimeSpan.FromSeconds(5);
+    public const float NeutralInteractionGain = 2;
+
+    public static float ClampMoanChance(float value) => float.IsFinite(value) ? Math.Clamp(value, 0, 100) : 20;
+    public static float ClampMultiplier(float value) => float.IsFinite(value) ? Math.Clamp(value, 0, 300) : 100;
+
+    public static float Gain(float amount, float multiplier, bool interaction = false)
+    {
+        if (!float.IsFinite(amount)) return 0;
+        if (amount < 0) return amount;
+        var scale = ClampMultiplier(multiplier) / 100;
+        return amount == 0 && interaction
+            ? NeutralInteractionGain * Math.Max(0, scale - 1)
+            : amount * scale;
+    }
+
+    public static bool CanMoan(float current, float maximum, bool enabled, float chance) =>
+        enabled && ClampMoanChance(chance) > 0 && float.IsFinite(current) && float.IsFinite(maximum)
+        && maximum > 0 && current > maximum * MoanThreshold;
+
     public static float Capacity(float health, float multiplier, float fallback)
     {
         if (!float.IsFinite(fallback) || fallback <= 0) fallback = 100;

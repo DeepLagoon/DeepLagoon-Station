@@ -678,6 +678,7 @@
   id: VoxTailStripes
   bodyPart: Chest
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false
@@ -867,6 +868,7 @@
   id: VoxTailBell
   bodyPart: Tail
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false
@@ -891,6 +893,7 @@
   id: VoxTailLantern
   bodyPart: Tail
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false
@@ -903,6 +906,7 @@
   id: VoxTailSingleStripe
   bodyPart: Chest
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false
@@ -914,6 +918,7 @@
   id: VoxTailSmallPlume
   bodyPart: Tail
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false
@@ -925,6 +930,7 @@
   id: VoxTailSpines
   bodyPart: Tail
   markingCategory: Overlay
+  editorType: Tail
   speciesRestriction: [ Vox ]
   forcedColoring: false
   followSkinColor: false

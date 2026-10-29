@@ -85,3 +85,50 @@ export function brushSegment(ctx, a, b, options) {
   }
   ctx.restore();
 }
+
+// Keep coverage for a complete gesture. Overlapping segments must not compound opacity.
+export const beginStroke = ctx => ({ ctx, base: copySurface(ctx.canvas), paint: surface(), scratch: surface() });
+export function extendStroke(stroke, a, b, options, fromPressure = 1, toPressure = 1) {
+  const { size, flow, shape, erase, mask } = options;
+  const color = mask ? erase ? '#ffffff' : '#000000' : options.color;
+  const radius = Math.max(1, size * Math.max(fromPressure, toPressure)) / 2;
+  const x = Math.max(0, Math.floor(Math.min(a.x, b.x) - radius - 2)), y = Math.max(0, Math.floor(Math.min(a.y, b.y) - radius - 2));
+  const right = Math.min(SIZE, Math.ceil(Math.max(a.x, b.x) + radius + 2)), bottom = Math.min(SIZE, Math.ceil(Math.max(a.y, b.y) + radius + 2));
+  const width = right - x, height = bottom - y;
+  if (width <= 0 || height <= 0) return;
+  const scratch = stroke.scratch.getContext('2d', { willReadFrequently: true });
+  scratch.clearRect(x, y, width, height);
+  if (shape === 'round') {
+    const dx = b.x - a.x, dy = b.y - a.y, distance = Math.hypot(dx, dy);
+    const ra = Math.max(1, size * fromPressure) / 2, rb = Math.max(1, size * toPressure) / 2;
+    const rgb = [1, 3, 5].map(n => parseInt(color.slice(n, n + 2), 16));
+    if (distance > .01) {
+      const gradient = scratch.createLinearGradient(a.x, a.y, b.x, b.y);
+      gradient.addColorStop(0, `rgba(${rgb.join(',')},${fromPressure})`);
+      gradient.addColorStop(1, `rgba(${rgb.join(',')},${toPressure})`);
+      scratch.fillStyle = gradient;
+    } else scratch.fillStyle = `rgba(${rgb.join(',')},${toPressure})`;
+    scratch.beginPath();
+    if (distance > .01) {
+      const nx = -dy / distance, ny = dx / distance;
+      scratch.moveTo(a.x - nx * ra, a.y - ny * ra); scratch.lineTo(b.x - nx * rb, b.y - ny * rb);
+      scratch.lineTo(b.x + nx * rb, b.y + ny * rb); scratch.lineTo(a.x + nx * ra, a.y + ny * ra); scratch.closePath();
+    }
+    scratch.moveTo(a.x + ra, a.y); scratch.arc(a.x, a.y, ra, 0, Math.PI * 2);
+    scratch.moveTo(b.x + rb, b.y); scratch.arc(b.x, b.y, rb, 0, Math.PI * 2);
+    scratch.fill();
+  } else brushSegment(scratch, a, b, { ...options, color, mask: false, erase: false, size: Math.max(1, size * toPressure), flow: toPressure });
+  const paint = stroke.paint.getContext('2d', { willReadFrequently: true });
+  const previous = paint.getImageData(x, y, width, height), next = scratch.getImageData(x, y, width, height);
+  for (let i = 0; i < previous.data.length; i += 4) {
+    if (next.data[i + 3] <= previous.data[i + 3]) continue;
+    previous.data[i] = next.data[i]; previous.data[i + 1] = next.data[i + 1];
+    previous.data[i + 2] = next.data[i + 2]; previous.data[i + 3] = next.data[i + 3];
+  }
+  paint.putImageData(previous, x, y);
+  const ctx = stroke.ctx;
+  ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, SIZE, SIZE); ctx.drawImage(stroke.base, 0, 0);
+  ctx.globalCompositeOperation = erase && !mask ? 'destination-out' : 'source-over'; ctx.globalAlpha = flow;
+  ctx.drawImage(stroke.paint, 0, 0); ctx.restore();
+}

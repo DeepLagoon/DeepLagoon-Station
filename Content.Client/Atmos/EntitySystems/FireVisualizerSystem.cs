@@ -11,6 +11,7 @@ namespace Content.Client.Atmos.EntitySystems;
 public sealed partial class FireVisualizerSystem : VisualizerSystem<FireVisualsComponent>
 {
     [Dependency] private PointLightSystem _lights = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
 
     public override void Initialize()
     {
@@ -43,6 +44,12 @@ public sealed partial class FireVisualizerSystem : VisualizerSystem<FireVisualsC
             return;
 
         sprite.LayerMapReserveBlank(FireVisualLayers.Fire);
+        if (sprite.SnapCardinals)
+        {
+            // Multi-directional flames must not inherit cardinal snapping from the machine.
+            _sprites.SetGranularLayersRendering((uid, sprite), true);
+            _sprites.LayerSetRenderingStrategy((uid, sprite), FireVisualLayers.Fire, LayerRenderingStrategy.NoRotation);
+        }
         sprite.LayerSetVisible(FireVisualLayers.Fire, false);
         sprite.LayerSetShader(FireVisualLayers.Fire, "unshaded");
         if (component.Sprite != null)

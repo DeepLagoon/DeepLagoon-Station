@@ -64,6 +64,8 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         window.ActionRequested += id => RaiseNetworkEvent(new InteractionPanelActionEvent(args.Target, id));
         window.GearRequested += (operation, slot, value) => RaiseNetworkEvent(new LustWishGearRequestEvent(args.Target, operation, slot, value));
         window.BodyVisibilityRequested += (part, visibility) => RaiseNetworkEvent(new InteractionPanelBodyVisibilityEvent(part, visibility));
+        window.ClimaxRequested += (part, destination, container, clearPregnancy) =>
+            RaiseNetworkEvent(new InteractionPanelClimaxRequestEvent(args.Target, part, destination, container, clearPregnancy));
         window.RepeatRequested += (id, enabled, interval) => RaiseNetworkEvent(new InteractionPanelRepeatEvent(args.Target, id, enabled, interval));
         window.PreferencesChanged += () => SavePreferences(window);
         window.OnClose += () =>

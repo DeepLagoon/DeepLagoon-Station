@@ -60,6 +60,7 @@ namespace Content.Server.Atmos.EntitySystems
         private static readonly TimeSpan UpdateTime = TimeSpan.FromSeconds(1);
 
         private readonly Dictionary<Entity<FlammableComponent>, float> _fireEvents = new();
+        private readonly List<Entity<FlammableComponent>> _updates = new();
 
         public override void Initialize()
         {
@@ -476,10 +477,23 @@ namespace Content.Server.Atmos.EntitySystems
             var curTime = _timing.CurTime;
 
             // TODO: This needs cleanup to take off the crust from TemperatureComponent and shit.
+            // Damage and local events can create or remove flammable components.
+            // Finish enumerating before running any callbacks.
+            _updates.Clear();
             var query = EntityQueryEnumerator<FlammableComponent, TransformComponent>();
             while (query.MoveNext(out var uid, out var flammable, out _))
             {
-                if (curTime < flammable.NextUpdate)
+                if (curTime >= flammable.NextUpdate)
+                    _updates.Add((uid, flammable));
+            }
+            query.Dispose();
+
+            foreach (var entity in _updates)
+            {
+                var uid = entity.Owner;
+                var flammable = entity.Comp;
+                if (TerminatingOrDeleted(uid) || !TryComp<FlammableComponent>(uid, out var current)
+                    || !ReferenceEquals(current, flammable))
                     continue;
 
                 flammable.NextUpdate += UpdateTime;
@@ -558,6 +572,7 @@ namespace Content.Server.Atmos.EntitySystems
                     Extinguish(uid, flammable);
                 }
             }
+            _updates.Clear();
         }
     }
 

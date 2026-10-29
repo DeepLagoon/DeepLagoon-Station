@@ -58,6 +58,7 @@
   id: ResomiEars
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Resomi]
   sprites:
   - sprite: _Moffstation/Mobs/Customization/Resomi/resomi_head_markings.rsi
@@ -67,6 +68,7 @@
   id: ResomiUpperEars
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Resomi]
   sprites:
   - sprite: _Moffstation/Mobs/Customization/Resomi/resomi_head_markings.rsi
@@ -76,6 +78,7 @@
   id: ResomiUpperEarsShort
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Resomi]
   sprites:
   - sprite: _Moffstation/Mobs/Customization/Resomi/resomi_head_markings.rsi
@@ -85,6 +88,7 @@
   id: ResomiUpperEarsAlternate
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Resomi]
   sprites:
   - sprite: _Moffstation/Mobs/Customization/Resomi/resomi_head_markings.rsi
@@ -96,6 +100,7 @@
   id: ResomiLowerEars
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   speciesRestriction: [Resomi]
   sprites:
   - sprite: _Moffstation/Mobs/Customization/Resomi/resomi_head_markings.rsi

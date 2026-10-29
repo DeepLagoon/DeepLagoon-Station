@@ -310,6 +310,7 @@ namespace Content.Server.Database
                     item.Data,
                     item.Sticky))) // Mono end
                 .WithOocNotes(profile.OocNotes)
+                .WithArousalPreferences(JsonSerializer.Deserialize<BlueMoonPreferences>(profile.ArousalPreferencesJson) ?? new())
                 .WithInteractionPanelConsent(InteractionPanelCategory.Erotic, (InteractionPanelConsent)profile.ERPConsent)
                 .WithInteractionPanelConsent(InteractionPanelCategory.NonCon, (InteractionPanelConsent)profile.NonConConsent)
                 .WithInteractionPanelConsent(InteractionPanelCategory.Vore, (InteractionPanelConsent)profile.VoreConsent).WithHeadshotId(profile.HeadshotId);
@@ -367,6 +368,7 @@ namespace Content.Server.Database
             }));
             // Mono end
             profile.ERPConsent = (int)humanoid.ERPConsent;
+            profile.ArousalPreferencesJson = JsonSerializer.Serialize(humanoid.ArousalPreferences.Sanitize());
             profile.NonConConsent = (int)humanoid.NonConConsent;
             profile.VoreConsent = (int)humanoid.VoreConsent;
 

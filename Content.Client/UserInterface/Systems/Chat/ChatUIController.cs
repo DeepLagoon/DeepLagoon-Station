@@ -981,13 +981,23 @@ public sealed partial class ChatUIController : UIController
         return MapLocalIfGhost(PreferredChannel);
     }
 
-    public void NotifyChatTextChange()
+    public void NotifyChatTextChange(ChatBox box)
     {
-        _typingIndicator?.ClientChangedChatText();
+        NotifyChatChannel(box);
+        var (_, text, _, _) = SplitInputContents(box.ChatInput.Input.Text.TrimStart());
+        _typingIndicator?.ClientChangedChatText(!string.IsNullOrWhiteSpace(text));
     }
 
-    public void NotifyChatFocus(bool isFocused)
+    public void NotifyChatChannel(ChatBox box)
     {
+        var (channel, _, _, _) = SplitInputContents(box.ChatInput.Input.Text.TrimStart());
+        _typingIndicator?.ClientChangedChatChannel(channel == ChatSelectChannel.None ? box.SelectedChannel : channel);
+    }
+
+    public void NotifyChatFocus(ChatBox box, bool isFocused)
+    {
+        if (isFocused)
+            NotifyChatChannel(box);
         _typingIndicator?.ClientChangedChatFocus(isFocused);
     }
 

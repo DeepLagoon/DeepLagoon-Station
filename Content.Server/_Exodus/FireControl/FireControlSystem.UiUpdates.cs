@@ -181,7 +181,7 @@ public sealed partial class FireControlSystem
         _queueAllUiConsoles = true;
     }
 
-    private void QueueGridConsoleUiUpdates(EntityUid grid)
+    public void QueueGridConsoleUiUpdates(EntityUid grid)
     {
         _pendingUiGrids.Add(grid);
     }

@@ -8,10 +8,10 @@
   color: '#E978B4'
   metabolisms:
     Medicine:
-      metabolismRate: 0.5
+      metabolismRate: 0.05
       effects:
-      - !type:AdjustArousal
-        amount: 6
+      - !type:BlueMoonChemical
+        chemical: Crocin
 - type: reagent
   id: DLCamphor
   name: reagent-name-dl-camphor
@@ -22,10 +22,10 @@
   color: '#A8CDE3'
   metabolisms:
     Medicine:
-      metabolismRate: 0.5
+      metabolismRate: 0.05
       effects:
-      - !type:AdjustArousal
-        amount: -12
+      - !type:BlueMoonChemical
+        chemical: Camphor
 - type: entity
   parent: Pill
   id: DLLustWishCrocinPill

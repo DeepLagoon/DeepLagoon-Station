@@ -4,3 +4,10 @@ enabled = false
 
 [shuttle]
 auto_call_time = 0
+
+# Keep the local MonoDev round on its own grid.
+[nf14.publictransit]
+enabled = false
+
+[deeplagoon]
+apartments_enabled = false

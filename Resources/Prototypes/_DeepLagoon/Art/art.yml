@@ -2,7 +2,7 @@
   parent: BaseItem
   id: DLArtCanvas
   name: painting canvas
-  description: A blank canvas. Use a brush or crayon to paint it, then put it in a wall frame.
+  description: A blank canvas. Use a brush or crayon to paint it and save it to the library from the canvas editor.
   components:
   - type: Sprite
     sprite: _DeepLagoon/Art/supplies.rsi
@@ -55,6 +55,7 @@
     size: Small
   - type: ArtTool
     kind: spray
+    color: "#777777"
   - type: StaticPrice
     price: 20
 
@@ -79,7 +80,7 @@
   parent: BaseSign
   id: DLArtFrame
   name: wooden painting frame
-  description: An empty wall frame. Insert a saved canvas to archive it for future rounds.
+  description: An empty wall frame for displaying a saved painting.
   components:
   - type: Sprite
     sprite: _DeepLagoon/Art/supplies.rsi

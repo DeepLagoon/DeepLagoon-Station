@@ -160,8 +160,9 @@ public sealed partial class HungerSystem : EntitySystem
 
         if (component.HungerThresholdDecayModifiers.TryGetValue(component.CurrentThreshold, out var modifier))
         {
+            var hunger = GetHunger(component);
             component.ActualDecayRate = component.BaseDecayRate * modifier;
-            SetAuthoritativeHungerValue((uid, component), GetHunger(component));
+            SetAuthoritativeHungerValue((uid, component), hunger);
         }
 
         component.LastThreshold = component.CurrentThreshold;

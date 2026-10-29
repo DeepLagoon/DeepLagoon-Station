@@ -45,3 +45,7 @@ dl-apartment-atmosphere-oxygen = Кислород, % (0–100)
 dl-apartment-atmosphere-nitrogen = Азот: { $percent } %
 dl-apartment-atmosphere-apply = Применить состав воздуха
 dl-apartment-atmosphere-save-failed = Не удалось сохранить. Откройте настройки заново.
+
+dl-apartment-trash = Мусорный бак
+ent-DLApartmentTrashBin = квартирный мусорный бак
+    .desc = Оставленные внутри вещи удаляются в конце раунда. До этого их можно забрать обратно.

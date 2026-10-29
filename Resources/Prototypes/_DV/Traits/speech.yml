@@ -2,6 +2,30 @@
 
 - type: trait
   id: ScottishAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   disabled: true
   name: trait-scottish-accent-name
   description: trait-scottish-accent-desc

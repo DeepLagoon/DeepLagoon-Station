@@ -12,8 +12,11 @@ namespace Content.Shared.Weapons.Reflect;
 public sealed partial class ReflectComponent : Component
 {
     /// <summary>
-    /// What we reflect.
+    /// Reflect without an item toggle, for innate chassis protection.
     /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool Innate;
+
     [ViewVariables(VVAccess.ReadWrite), DataField("reflects")]
     public ReflectType Reflects = ReflectType.Energy | ReflectType.NonEnergy;
 

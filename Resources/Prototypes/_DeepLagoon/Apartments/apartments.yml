@@ -1,4 +1,39 @@
 - type: apartmentFurniture
+  id: DLAptTrash
+  name: dl-apartment-trash
+  entity: DLApartmentTrashBin
+  category: Оборудование
+  maxCount: 2
+
+- type: entity
+  id: DLApartmentTrashBin
+  parent: BaseStructure
+  name: apartment trash bin
+  description: Items left inside are deleted at the end of the round. You can retrieve them before then.
+  components:
+  - type: ApartmentTrash
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: Structures/Storage/Crates/trashcart.rsi
+    layers:
+    - state: base
+    - state: closed
+  - type: Storage
+    grid:
+    - 0,0,9,9
+    maxItemSize: Ginormous
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: NoDeconstruct
+
+- type: apartmentFurniture
   id: DLAptAtmosphere
   name: dl-apartment-atmosphere-title
   entity: DLApartmentAtmosphereController
@@ -77,7 +112,7 @@
   height: 8
   maxFurniture: 400
   maxVisitors: 4
-  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere]
+  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere, DLAptTrash]
   furniture:
   - id: base_sofa_01
     furniture: DLAptSofa
@@ -226,5 +261,5 @@
   maxFurniture: 400
   maxVisitors: 4
   reservedCells: ["3,12", "4,12", "5,12", "3,13", "4,13", "5,13", "3,14", "4,14", "5,14", "4,10", "4,11"]
-  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere, DLAptDecor006, DLAptDecor007, DLAptDecor008, DLAptDecor009, DLAptDecor010, DLAptDecor011, DLAptDecor012, DLAptDecor013, DLAptDecor014, DLAptDecor015, DLAptDecor016, DLAptDecor017, DLAptDecor018, DLAptDecor019, DLAptDecor020, DLAptDecor021, DLAptDecor022, DLAptDecor023, DLAptDecor024, DLAptDecor025, DLAptDecor026, DLAptDecor027, DLAptDecor028, DLAptDecor029, DLAptDecor030, DLAptDecor031, DLAptDecor032, DLAptDecor033, DLAptDecor034, DLAptDecor035, DLAptDecor036, DLAptDecor037, DLAptDecor038, DLAptDecor039, DLAptDecor040, DLAptDecor041, DLAptDecor042, DLAptDecor043, DLAptDecor044, DLAptDecor045, DLAptDecor046, DLAptDecor047, DLAptDecor048, DLAptDecor049, DLAptDecor050, DLAptDecor051, DLAptDecor052, DLAptDecor053, DLAptDecor054, DLAptDecor055, DLAptDecor056, DLAptDecor057, DLAptDecor058, DLAptDecor059, DLAptDecor060, DLAptDecor061, DLAptDecor062, DLAptDecor063, DLAptDecor064, DLAptDecor065, DLAptDecor066, DLAptDecor067, DLAptDecor068, DLAptDecor069, DLAptDecor070, DLAptDecor071, DLAptDecor072, DLAptDecor073, DLAptDecor074, DLAptDecor075, DLAptDecor076, DLAptDecor077, DLAptDecor078, DLAptDecor079, DLAptDecor080, DLAptDecor081, DLAptDecor082, DLAptDecor083, DLAptDecor084, DLAptDecor085, DLAptDecor086, DLAptDecor087, DLAptDecor088, DLAptDecor089, DLAptDecor090, DLAptDecor091, DLAptDecor092, DLAptDecor093, DLAptDecor094, DLAptDecor095, DLAptDecor096, DLAptDecor097, DLAptDecor098, DLAptDecor099, DLAptDecor100, DLAptDecor101, DLAptDecor102, DLAptDecor103, DLAptDecor104, DLAptDecor105, DLAptDecor106, DLAptDecor107, DLAptDecor108, DLAptDecor109, DLAptDecor110, DLAptDecor111, DLAptDecor112]
+  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere, DLAptTrash, DLAptDecor006, DLAptDecor007, DLAptDecor008, DLAptDecor009, DLAptDecor010, DLAptDecor011, DLAptDecor012, DLAptDecor013, DLAptDecor014, DLAptDecor015, DLAptDecor016, DLAptDecor017, DLAptDecor018, DLAptDecor019, DLAptDecor020, DLAptDecor021, DLAptDecor022, DLAptDecor023, DLAptDecor024, DLAptDecor025, DLAptDecor026, DLAptDecor027, DLAptDecor028, DLAptDecor029, DLAptDecor030, DLAptDecor031, DLAptDecor032, DLAptDecor033, DLAptDecor034, DLAptDecor035, DLAptDecor036, DLAptDecor037, DLAptDecor038, DLAptDecor039, DLAptDecor040, DLAptDecor041, DLAptDecor042, DLAptDecor043, DLAptDecor044, DLAptDecor045, DLAptDecor046, DLAptDecor047, DLAptDecor048, DLAptDecor049, DLAptDecor050, DLAptDecor051, DLAptDecor052, DLAptDecor053, DLAptDecor054, DLAptDecor055, DLAptDecor056, DLAptDecor057, DLAptDecor058, DLAptDecor059, DLAptDecor060, DLAptDecor061, DLAptDecor062, DLAptDecor063, DLAptDecor064, DLAptDecor065, DLAptDecor066, DLAptDecor067, DLAptDecor068, DLAptDecor069, DLAptDecor070, DLAptDecor071, DLAptDecor072, DLAptDecor073, DLAptDecor074, DLAptDecor075, DLAptDecor076, DLAptDecor077, DLAptDecor078, DLAptDecor079, DLAptDecor080, DLAptDecor081, DLAptDecor082, DLAptDecor083, DLAptDecor084, DLAptDecor085, DLAptDecor086, DLAptDecor087, DLAptDecor088, DLAptDecor089, DLAptDecor090, DLAptDecor091, DLAptDecor092, DLAptDecor093, DLAptDecor094, DLAptDecor095, DLAptDecor096, DLAptDecor097, DLAptDecor098, DLAptDecor099, DLAptDecor100, DLAptDecor101, DLAptDecor102, DLAptDecor103, DLAptDecor104, DLAptDecor105, DLAptDecor106, DLAptDecor107, DLAptDecor108, DLAptDecor109, DLAptDecor110, DLAptDecor111, DLAptDecor112]
   furniture: []

@@ -106,7 +106,7 @@ namespace Content.Server._NF.PacifiedZone
                     // New entity in zone, needs the Pacified comp.
                     var pacifiedComponent = _pacification.AddPacification(humanoidUid, component.DisallowAllCombat);
                     EnableAlert(humanoidUid, pacifiedComponent);
-                    AddComp<PacifiedByZoneComponent>(humanoidUid);
+                    EnsureComp<PacifiedByZoneComponent>(humanoidUid);
                     newEntities.Add(humanoidUid);
                 }
             }

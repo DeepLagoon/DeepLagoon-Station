@@ -95,7 +95,7 @@ public sealed partial class RevivifyPowerSystem : EntitySystem
         if (!_doAfterSystem.TryStartDoAfter(doAfterArgs, out var doAfterId))
             return;
 
-        component.DoAfter = doAfterId;
+        component.DoAfter = _doAfterSystem.IsRunning(doAfterId) ? doAfterId : null;
     }
 
     private void OnDispelled(EntityUid uid, PsionicComponent component, DispelledEvent args)

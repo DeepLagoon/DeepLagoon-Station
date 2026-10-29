@@ -14,25 +14,62 @@ namespace Content.Server._Goobstation.Tools;
 public sealed partial class WeldingSparksSystem : EntitySystem
 {
     [Dependency] private ToolSystem _toolSystem = default!;
+    [Dependency] private SharedDoAfterSystem _doAfter = default!;
+
+    private readonly List<DoAfterId> _expiredEffects = new();
 
     public override void Initialize()
     {
         base.Initialize();
 
+        SubscribeLocalEvent<WeldingSparksComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<WeldingSparksComponent, UseToolEvent>(OnUseTool);
         SubscribeLocalEvent<WeldingSparksComponent, SharedToolSystem.ToolDoAfterEvent>(OnAfterUseTool);
         SubscribeLocalEvent<WeldingSparksComponent, BeforeRangedInteractEvent>(OnBeforeInteract);
     }
 
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+
+        var query = EntityQueryEnumerator<WeldingSparksComponent>();
+        while (query.MoveNext(out var comp))
+        {
+            _expiredEffects.Clear();
+            foreach (var (id, effect) in comp.SpawnedEffects)
+            {
+                // Deleting the user or their DoAfter component does not raise the tool's completion event.
+                if (!Exists(effect) || !_doAfter.IsRunning(id))
+                    _expiredEffects.Add(id);
+            }
+
+            foreach (var id in _expiredEffects)
+            {
+                QueueDel(comp.SpawnedEffects[id]);
+                comp.SpawnedEffects.Remove(id);
+            }
+        }
+    }
+
+    private void OnShutdown(Entity<WeldingSparksComponent> ent, ref ComponentShutdown args)
+    {
+        foreach (var effect in ent.Comp.SpawnedEffects.Values)
+            QueueDel(effect);
+
+        ent.Comp.SpawnedEffects.Clear();
+    }
+
     private void OnUseTool(Entity<WeldingSparksComponent> ent, ref UseToolEvent args)
     {
+        var doAfterId = new DoAfterId(args.User, args.DoAfterIdx);
+        // Instant actions finish inside TryStartDoAfter, before UseToolEvent is raised.
+        if (!_doAfter.IsRunning(doAfterId))
+            return;
+
         if (TryComp<ToolComponent>(ent, out var toolComp))
         {
             _toolSystem.PlayToolSound(ent, toolComp, null, AudioParams.Default.WithVolume(-2f));
         }
-
-        // Get the actual `DoAfterID` using its index, for use as a dictionary key.
-        var doAfterId = new DoAfterId(args.User, args.DoAfterIdx);
 
         var spawnLoc = GetSpawnLoc(ent, args.Target);
         if (spawnLoc is not { } loc)

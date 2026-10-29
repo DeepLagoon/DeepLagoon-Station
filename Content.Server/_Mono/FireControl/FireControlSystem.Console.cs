@@ -325,6 +325,7 @@ public sealed partial class FireControlSystem : EntitySystem
 
         var state = new FireControlConsoleBoundInterfaceState(connected, array, navState)
         {
+            DestroyedWeapons = _shuttleConsoleSystem.GetDestroyedWeapons(Transform(uid).GridUid),
             ShieldState = Transform(uid).GridUid is { } grid
                 ? EntityManager.System<Content.Server._Crescent.ShipShields.ShipShieldsSystem>().GetShieldState(grid) : null
         };

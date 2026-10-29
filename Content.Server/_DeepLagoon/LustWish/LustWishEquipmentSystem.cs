@@ -67,6 +67,12 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeNetworkEvent<LustWishGearRequestEvent>(OnRequest);
+        SubscribeLocalEvent<BlueMoonProtectionComponent, BlueMoonProtectionAttachEvent>((uid, _, args) =>
+        {
+            if (args.Cancelled || args.Handled || args.Target is not { } target) return;
+            args.Handled = true;
+            Apply(args.User, target, uid, uid, "attach", "penis", "", false, protectionCompleted: true);
+        });
         InitializeNativeInventory();
         SubscribeNetworkEvent<LustWishSetColorEvent>(OnSetColor);
         SubscribeLocalEvent<LustWishPaletteComponent, LustWishChooseColorEvent>(OnChooseColor);
@@ -164,7 +170,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
             { NeedHand = false, RequireCanInteract = false, BreakOnMove = true, BreakOnDamage = true, BlockDuplicate = true });
             return;
         }
-        Request(user, target, uid, held, args.Operation, args.Slot, args.Value, false);
+        Apply(user, target, uid, held, args.Operation, args.Slot, args.Value, false);
     }
 
     private void Request(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote, bool native = false)
@@ -197,7 +203,7 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         Apply(pending.User, pending.Target, pending.Item, pending.Held, pending.Operation, pending.Slot, pending.Value, pending.Remote, pending.Native);
     }
 
-    private bool Apply(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote, bool native = false)
+    private bool Apply(EntityUid user, EntityUid target, EntityUid item, EntityUid? held, string operation, string slot, string value, bool remote, bool native = false, bool protectionCompleted = false)
     {
         if (!Alive(user) || !Alive(target) || !Exists(item) || !_blocker.CanConsciouslyPerformAction(user) ||
             held != _hands.GetActiveItem(user)) return false;
@@ -217,6 +223,13 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         if (operation == "attach")
         {
             if ((!native && held != item) || accessory.Wearer != null) return false;
+            if (TryComp<BlueMoonProtectionComponent>(item, out var protection) && (protection.Wrapped || !_arousal.CanExposePart(target, accessory.Slot))) return false;
+            if (protection != null && !protectionCompleted)
+            {
+                return _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, user, TimeSpan.FromSeconds(4),
+                    new BlueMoonProtectionAttachEvent(), item, target, item)
+                { NeedHand = true, BreakOnMove = true, BreakOnDamage = true, BreakOnHandChange = true, BlockDuplicate = true });
+            }
             if (accessory.InventorySlots.Length > 0)
             {
                 var nativeSlot = native && accessory.InventorySlots.Contains(slot) ? slot : accessory.InventorySlots.FirstOrDefault(s => _inventory.HasSlot(target, s) && !_inventory.TryGetSlotEntity(target, s, out _));
@@ -301,7 +314,11 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
         StopLeash(accessory); accessory.Active = false; accessory.Wearer = null;
         if (accessory.InventorySlots.Length == 0 && TryComp<LustWishPaletteComponent>(item, out var palette)) _actions.RemoveAction(wearer, palette.ColorAction);
         if (accessory.InventorySlots.Length > 0)
-            _inventory.TryUnequip(user, wearer, accessory.Slot, force: true);
+        {
+            _approvedNative.Add((user, wearer, item));
+            try { _inventory.TryUnequip(user, wearer, accessory.Slot, force: true); }
+            finally { _approvedNative.Remove((user, wearer, item)); }
+        }
         else if (_containers.TryGetContainer(wearer, LustWishEquipment.ContainerPrefix + accessory.Slot, out var container)) _containers.Remove(item, container);
         Refresh(wearer);
         _hands.TryPickupAnyHand(user, item);
@@ -427,10 +444,10 @@ public sealed partial class LustWishEquipmentSystem : EntitySystem
             if (accessory.Wearer is not { } wearer) continue;
             if (!Exists(wearer)) { StopLeash(accessory); accessory.Wearer = null; accessory.Active = false; continue; }
             if (!Alive(wearer)) { StopLeash(accessory); accessory.Active = false; if (Exists(wearer) && !Terminating(wearer)) Refresh(wearer); continue; }
-            if (accessory.LeashHolder is { } holder && (Consent(wearer) == InteractionPanelConsent.No || accessory.Leash is not { } leash || !Alive(holder) || !_hands.IsHolding(holder, leash, out _) ||
+            if (accessory.LeashHolder is { } holder && (accessory.Leash is not { } leash || !Alive(holder) || !_hands.IsHolding(holder, leash, out _) ||
                 !TryComp<PullableComponent>(wearer, out var pullable) || pullable.Puller != holder || !RemoteInRange(holder, wearer, 3))) StopLeash(accessory);
             if (accessory.Active && (accessory.ActiveController is { } controller && controller != wearer &&
-                (!Alive(controller) || Consent(controller) == InteractionPanelConsent.No || Consent(wearer) == InteractionPanelConsent.No) ||
+                !Alive(controller) ||
                 accessory.Electronic && !UsePower(uid, accessory.Intensity))) { accessory.Active = false; Refresh(wearer); }
             if (accessory.Active && accessory.Electronic && !accessory.Shock) _arousal.AdjustArousal(wearer, wearer, accessory.Intensity * 2);
         }

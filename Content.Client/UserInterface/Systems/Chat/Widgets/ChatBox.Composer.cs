@@ -70,7 +70,7 @@ public partial class ChatBox
         _composerRevision++;
         PublishComposer();
         _composer.Panel.Web.FocusTextInput();
-        _controller.NotifyChatFocus(true);
+        _controller.NotifyChatFocus(this, true);
     }
 
     private void PublishComposer()
@@ -109,6 +109,12 @@ public partial class ChatBox
         {
             _composerComposing = false;
             _composer?.Panel.Web.FocusTextInput();
+            _controller.NotifyChatFocus(this, true);
+            return;
+        }
+        if (action == "blur")
+        {
+            _controller.NotifyChatFocus(this, false);
             return;
         }
         if (action == "composition")
@@ -181,7 +187,7 @@ public partial class ChatBox
         window.Panel.Web.Failed -= OnComposerFailed;
         window.Panel.Web.ReleaseTextInput();
         window.Close();
-        _controller.NotifyChatFocus(false);
+        _controller.NotifyChatFocus(this, false);
     }
 
     private void OnComposerFailed()

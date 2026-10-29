@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "MOLOT BlueMoon / SPLURT / Bubber / Skyrat / tgstation contributors. Converted DMI to RSI; states renamed. Sources: https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e9ece923dd956fb78ae6cb83e1eaaf259b61a432/modular_splurt/icons/obj/lewd_items/chastity.dmi (state standard_cage)",
+  "states": [
+    {
+      "name": "icon"
+    }
+  ]
+}

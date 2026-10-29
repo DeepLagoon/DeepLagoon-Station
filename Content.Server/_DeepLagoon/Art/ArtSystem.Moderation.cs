@@ -23,6 +23,7 @@ public sealed partial class ArtSystem
     {
         _ui.CloseUis(uid);
         Release(uid, canvas);
+        ClearDraft(uid, canvas);
         canvas.Document = ArtLimits.EmptyDocument;
         canvas.SavedPreview = "";
         canvas.Title = "";

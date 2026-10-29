@@ -31,6 +31,7 @@ export const GridEditorScene = memo(({ token, pool, active = true, index, area, 
     if (!active) return;
     let cancelled = false;
     cache.current.prepare(index, layers, visuals, value => {
+      if (cancelled) return;
       if (!value) ready.current = true;
       onProgress(value && { ...value, blocking: !ready.current });
     }, () => cancelled)

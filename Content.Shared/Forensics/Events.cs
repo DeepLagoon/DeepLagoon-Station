@@ -68,3 +68,7 @@ public record struct GenerateDnaEvent()
     /// </summary>
     public required string DNA;
 }
+
+
+[Serializable, NetSerializable]
+public sealed partial class ScentTrackerDoAfterEvent : SimpleDoAfterEvent;

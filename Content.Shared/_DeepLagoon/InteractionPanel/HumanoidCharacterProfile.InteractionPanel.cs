@@ -7,6 +7,14 @@ public sealed partial class HumanoidCharacterProfile
     [DataField] public InteractionPanelConsent ERPConsent { get; private set; } = InteractionPanelConsent.Ask;
     [DataField] public InteractionPanelConsent NonConConsent { get; private set; } = InteractionPanelConsent.Ask;
     [DataField] public InteractionPanelConsent VoreConsent { get; private set; } = InteractionPanelConsent.Ask;
+    [DataField] public BlueMoonPreferences ArousalPreferences { get; private set; } = new();
+
+    public HumanoidCharacterProfile WithArousalPreferences(BlueMoonPreferences preferences)
+    {
+        var copy = Clone();
+        copy.ArousalPreferences = preferences.Sanitize();
+        return copy;
+    }
 
     public InteractionPanelConsent GetInteractionPanelConsent(InteractionPanelCategory category) => category switch
     {
@@ -35,13 +43,16 @@ public sealed partial class HumanoidCharacterProfile
         ERPConsent = other.ERPConsent;
         NonConConsent = other.NonConConsent;
         VoreConsent = other.VoreConsent;
+        ArousalPreferences = other.ArousalPreferences.Sanitize();
     }
 
     private bool InteractionPanelPreferencesEqual(HumanoidCharacterProfile other) =>
-        ERPConsent == other.ERPConsent && NonConConsent == other.NonConConsent && VoreConsent == other.VoreConsent;
+        ERPConsent == other.ERPConsent && NonConConsent == other.NonConConsent && VoreConsent == other.VoreConsent
+        && ArousalPreferences == other.ArousalPreferences;
 
     private void ValidateInteractionPanelPreferences()
     {
+        ArousalPreferences = ArousalPreferences.Sanitize();
         if (!Enum.IsDefined(ERPConsent)) ERPConsent = InteractionPanelConsent.No;
         if (!Enum.IsDefined(NonConConsent)) NonConConsent = InteractionPanelConsent.No;
         if (!Enum.IsDefined(VoreConsent)) VoreConsent = InteractionPanelConsent.No;

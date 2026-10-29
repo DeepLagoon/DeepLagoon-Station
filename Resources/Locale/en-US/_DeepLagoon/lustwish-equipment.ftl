@@ -1,6 +1,6 @@
 
 dl-interaction-panel-tab-gear = Accessories
-dl-interaction-panel-gear-help = Hold an accessory, key or remote in your active hand. Actions on others use their consent preferences. You can escape or release your own equipment.
+dl-interaction-panel-gear-help = Hold an accessory, key or remote in your active hand. Panel actions execute regardless of participants' preferences. Follow the server rules. You can escape or release your own equipment.
 dl-interaction-panel-gear-held = In hand
 dl-interaction-panel-gear-empty = No attached accessories.
 dl-interaction-panel-gear-attach = Attach

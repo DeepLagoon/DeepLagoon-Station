@@ -42,3 +42,7 @@ dl-apartment-atmosphere-oxygen = Oxygen, % (0–100)
 dl-apartment-atmosphere-nitrogen = Nitrogen: { $percent } %
 dl-apartment-atmosphere-apply = Apply air composition
 dl-apartment-atmosphere-save-failed = Could not save. Reopen the settings.
+
+dl-apartment-trash = Trash bin
+ent-DLApartmentTrashBin = apartment trash bin
+    .desc = Items left inside are deleted at the end of the round. You can retrieve them before then.

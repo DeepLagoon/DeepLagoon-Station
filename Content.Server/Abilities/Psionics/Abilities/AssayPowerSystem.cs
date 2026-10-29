@@ -36,7 +36,7 @@ public sealed partial class AssayPowerSystem : EntitySystem
     private void OnPowerUsed(EntityUid uid, PsionicComponent psionic, AssayPowerActionEvent args)
     {
         if (!_psionics.OnAttemptPowerUse(args.Performer, args.Target, "assay", true)
-            || psionic.DoAfter is not null)
+            || _doAfterSystem.IsRunning(psionic.DoAfter))
             return;
 
         var ev = new AssayDoAfterEvent(_gameTiming.CurTime, args.FontSize, args.FontColor);
@@ -50,7 +50,7 @@ public sealed partial class AssayPowerSystem : EntitySystem
         if (!_doAfterSystem.TryStartDoAfter(doAfterArgs, out var doAfterId))
             return;
 
-        psionic.DoAfter = doAfterId;
+        psionic.DoAfter = _doAfterSystem.IsRunning(doAfterId) ? doAfterId : null;
 
         _popups.PopupEntity(Loc.GetString(args.PopupTarget, ("entity", args.Target)), args.Performer, PopupType.Medium);
         _audioSystem.PlayPvs(args.SoundUse, args.Performer, AudioParams.Default.WithVolume(8f).WithMaxDistance(1.5f).WithRolloffFactor(3.5f));

@@ -24,10 +24,10 @@ public sealed partial class TraitorRuleComponent : Component
     public ProtoId<NpcFactionPrototype> SyndicateFaction = "Syndicate";
 
     [DataField]
-    public ProtoId<DatasetPrototype> CodewordAdjectives = "adjectives";
+    public ProtoId<DatasetPrototype> CodewordAdjectives = "DeepLagoonTraitorAdjectives";
 
     [DataField]
-    public ProtoId<DatasetPrototype> CodewordVerbs = "verbs";
+    public ProtoId<DatasetPrototype> CodewordVerbs = "DeepLagoonTraitorVerbs";
 
     [DataField]
     public ProtoId<DatasetPrototype> ObjectiveIssuers = "TraitorCorporations";
@@ -87,5 +87,5 @@ public sealed partial class TraitorRuleComponent : Component
     /// The amount of TC traitors start with.
     /// </summary>
     [DataField]
-    public FixedPoint2 StartingBalance = 20;
+    public FixedPoint2 StartingBalance = 100;
 }

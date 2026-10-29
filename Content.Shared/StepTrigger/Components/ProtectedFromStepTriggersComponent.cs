@@ -1,4 +1,5 @@
 using Content.Shared.Inventory;
+using Content.Shared.Whitelist;
 using Content.Shared.StepTrigger.Systems;
 using Robust.Shared.GameStates;
 
@@ -11,6 +12,9 @@ namespace Content.Shared.StepTrigger.Components;
 [Access(typeof(StepTriggerImmuneSystem))]
 public sealed partial class ProtectedFromStepTriggersComponent : Component, IClothingSlots
 {
+    /// <summary>Optional restriction on which hazards this protection blocks.</summary>
+    [DataField] public EntityWhitelist? Whitelist;
+
     [DataField]
     public SlotFlags Slots { get; set; } = SlotFlags.FEET;
 }

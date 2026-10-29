@@ -13,6 +13,55 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class BlueMoonCustomizationTests
 {
+    [TestCase("Human")]
+    [TestCase("Synth")]
+    public async Task ImportedTailFrontLayersDrawAboveEveryBodyPart(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var dummy = entities.SpawnEntity("MobHumanDummy", MapCoordinates.Nullspace);
+            var bodyParts = new[]
+            {
+                HumanoidVisualLayers.Chest, HumanoidVisualLayers.Head,
+                HumanoidVisualLayers.LArm, HumanoidVisualLayers.RArm,
+                HumanoidVisualLayers.LHand, HumanoidVisualLayers.RHand,
+                HumanoidVisualLayers.LLeg, HumanoidVisualLayers.RLeg,
+                HumanoidVisualLayers.LFoot, HumanoidVisualLayers.RFoot,
+            };
+            try
+            {
+                var tails = prototypes.EnumeratePrototypes<MarkingPrototype>()
+                    .Where(p => p.ID.StartsWith("BlueMoon") && p.MarkingCategory == MarkingCategories.Tail).ToArray();
+                Assert.That(tails, Is.Not.Empty);
+                foreach (var marking in tails)
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies(species)
+                        .WithTraitPreference("GeneticModification", prototypes);
+                    profile = profile.WithCharacterAppearance(profile.Appearance.WithMarkings(new() { marking.AsMarking() }));
+                    entities.System<Content.Client.Humanoid.HumanoidAppearanceSystem>().LoadProfile(dummy, profile);
+                    var sprite = entities.GetComponent<SpriteComponent>(dummy);
+                    foreach (var rsi in marking.Sprites.Cast<SpriteSpecifier.Rsi>())
+                    {
+                        var index = sprite.LayerMapGet(marking.ID + "-" + rsi.RsiState);
+                        Assert.That(sprite[index].Visible, Is.True, marking.ID);
+                        if (marking.SpriteLayersBefore.ContainsKey(rsi.RsiState))
+                        {
+                            Assert.That(index, Is.LessThan(sprite.LayerMapGet(HumanoidVisualLayers.Chest)), marking.ID);
+                            continue;
+                        }
+                        foreach (var part in bodyParts)
+                            Assert.That(index, Is.GreaterThan(sprite.LayerMapGet(part)), $"{marking.ID}/{part}");
+                    }
+                }
+            }
+            finally { entities.DeleteEntity(dummy); }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task ImportedWingAndTailLayersStraddleTheHumanBody()
     {
@@ -29,7 +78,8 @@ public sealed class BlueMoonCustomizationTests
                     var marking = prototypes.EnumeratePrototypes<MarkingPrototype>().First(p => p.ID.StartsWith("BlueMoon")
                         && p.MarkingCategory == category && p.SpeciesRestrictions == null && p.SexRestriction == null
                         && p.SpriteLayersBefore.Values.Contains(HumanoidVisualLayers.Chest));
-                    var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human");
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human")
+                        .WithTraitPreference("GeneticModification", prototypes);
                     profile = profile.WithCharacterAppearance(profile.Appearance.WithMarkings(new() { marking.AsMarking() }));
                     entities.System<Content.Client.Humanoid.HumanoidAppearanceSystem>().LoadProfile(dummy, profile);
                     var sprite = entities.GetComponent<SpriteComponent>(dummy);

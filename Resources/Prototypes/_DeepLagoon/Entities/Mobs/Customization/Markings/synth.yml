@@ -532,6 +532,7 @@
   id: SynthFeroxiEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -566,6 +567,7 @@
   id: SynthFeroxiEarsTips
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -856,6 +858,7 @@
   id: SynthVulpEar
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -868,6 +871,7 @@
   id: SynthVulpEarFade
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -880,6 +884,7 @@
   id: SynthVulpEarSharp
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -892,6 +897,7 @@
   id: SynthVulpEarJackal
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -904,6 +910,7 @@
   id: SynthVulpEarTerrier
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -916,6 +923,7 @@
   id: SynthVulpEarWolf
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -928,6 +936,7 @@
   id: SynthVulpEarFennec
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -940,6 +949,7 @@
   id: SynthVulpEarFox
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -950,6 +960,7 @@
   id: SynthVulpEarOtie
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -962,6 +973,7 @@
   id: SynthVulpEarTajaran
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -974,6 +986,7 @@
   id: SynthVulpEarShock
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -984,6 +997,7 @@
   id: SynthVulpEarCoyote
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:
@@ -994,6 +1008,7 @@
   id: SynthVulpEarDalmatian
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction:
   - Synth
   sprites:

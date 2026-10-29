@@ -105,7 +105,8 @@ createRoot(document.getElementById('root')).render(<App/>);
       await page.evaluate(() => window.activateTab('T1')); await settle();
       assert.equal(await editor.locator('[aria-label="Есть изменения"]').count(), 1, 'Background patches preserve local edits/history');
       const beforeExpiry = await rasterized();
-      await page.evaluate(() => {
+      if (size === 96) await page.waitForTimeout(31000);
+      else await page.evaluate(() => {
         const pool = window.pool, now = pool.now;
         if (pool.timer !== null) clearTimeout(pool.timer);
         pool.now = () => now() + 31000; pool.expire(); pool.now = now;
@@ -113,6 +114,25 @@ createRoot(document.getElementById('root')).render(<App/>);
       assert.equal(await page.evaluate(() => window.pool.warm.size), 0);
       await page.evaluate(() => window.activateTab('T8')); await settle();
       assert.equal(await rasterized(), beforeExpiry, 'Expired surfaces restore from compressed chunks');
+      await page.evaluate(() => window.activateTab('T1')); await settle();
+      await page.keyboard.press('2'); await click(size / 2 + 6.5, size / 2 + .5); await settle();
+      assert.equal(await editor.locator('[aria-label="Есть изменения"]').count(), 1, 'An expired tab remains editable');
+      await page.keyboard.press('Control+z'); await settle();
+      assert.equal(await editor.locator('[aria-label="Есть изменения"]').count(), 1, 'Undo affects the new edit and preserves the old draft');
+      await page.keyboard.press('Control+z'); await settle();
+      assert.equal(await editor.locator('[aria-label="Есть изменения"]').count(), 0, 'The history survives background expiry');
+      await page.keyboard.press('Control+Shift+z'); await settle();
+      // Switch away during a new large scene's asynchronous preparation.
+      for (let index = 9; index < 12; index++) {
+        await page.evaluate(token => window.openTab(token), 'T' + index);
+        await page.waitForTimeout(15);
+        await page.evaluate(() => window.activateTab('T1'));
+        await page.waitForTimeout(15);
+        await page.evaluate(token => window.activateTab(token), 'T' + index);
+        await settle();
+        await page.evaluate(token => window.closeTab(token), 'T' + index);
+      }
+      await page.evaluate(() => window.activateTab('T8')); await settle();
       const retainedBytes = await page.evaluate(() => window.pool.surfaceBytes);
       for (let index = 1; index < 8; index++) await page.evaluate(token => window.closeTab(token), 'T' + index);
       await settle(); assert.equal(await page.getByRole('tab').count(), 1);

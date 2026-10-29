@@ -15,7 +15,9 @@ public sealed partial class ShuttleConsoleWindow
     private LayoutContainer _radarLayer = default!;
     private bool _statusMode;
     private ShuttleHullNavMapControl _hullMap = default!;
+    private EntityUid? _hullGrid;
     public event Action? ResetHullHistory;
+    public event Action<bool>? HullViewChanged;
     private TguiData _hullState = new TguiData().Bool("present", false);
     private Control[] _views = Array.Empty<Control>();
     private Vector4 _viewport;
@@ -33,6 +35,7 @@ public sealed partial class ShuttleConsoleWindow
 
     public void UpdateHullState(ShuttleHullState? state)
     {
+        UpdateHullMap();
         _hullMap.Hull = state;
         _hullState = state == null
             ? new TguiData().Bool("present", false)
@@ -121,6 +124,7 @@ public sealed partial class ShuttleConsoleWindow
     private void UpdateTguiMode()
     {
         if (_nativeConsole) return;
+        UpdateHullMap();
         if (_statusMode || _mode != ShuttleConsoleMode.Nav)
             ((Content.Client._DeepLagoon.Shuttles.CombatShuttleNavControl)CombatRadar).StopFiring();
         for (var i = 0; i < _views.Length; i++)
@@ -129,10 +133,21 @@ public sealed partial class ShuttleConsoleWindow
         _publishTimer = 0;
     }
 
+    private void UpdateHullMap()
+    {
+        if (!_statusMode || _hullMap.MapUid == _hullGrid)
+            return;
+        _hullMap.MapUid = _hullGrid;
+        _hullMap.Offset = _hullMap.TargetOffset = Vector2.Zero;
+        _hullMap.ForceNavMapUpdate();
+    }
+
     private void RestoreNativeConsole()
     {
         if (_nativeConsole) return;
         _nativeConsole = true;
+        if (_statusMode)
+            HullViewChanged?.Invoke(false);
         _statusMode = false;
         MinSize = _nativeMinimum;
         ((CombatShuttleNavControl)CombatRadar).StopFiring();
@@ -173,7 +188,12 @@ public sealed partial class ShuttleConsoleWindow
         }
         if (action == "mode" && args!.TryInt("value", out var mode) && mode is >= 0 and <= 3)
         {
-            _statusMode = mode == 3;
+            var statusMode = mode == 3;
+            if (_statusMode != statusMode)
+            {
+                _statusMode = statusMode;
+                HullViewChanged?.Invoke(statusMode);
+            }
             if (!_statusMode)
                 SwitchMode((ShuttleConsoleMode)mode);
             UpdateTguiMode();

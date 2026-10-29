@@ -60,6 +60,11 @@ namespace Content.Server.Psionics
 
         private void OnInsulShutdown(EntityUid uid, PsionicInsulationComponent component, ComponentShutdown args)
         {
+            if (Terminating(uid))
+            {
+                component.SuppressedFactions.Clear();
+                return;
+            }
             SetCanSeePsionicInvisiblity(uid, false);
 
             if (!HasComp<PsionicComponent>(uid))

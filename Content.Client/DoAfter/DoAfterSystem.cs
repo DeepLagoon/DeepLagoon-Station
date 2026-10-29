@@ -42,14 +42,14 @@ public sealed partial class DoAfterSystem : SharedDoAfterSystem
 
         var playerEntity = _player.LocalEntity;
 
-        if (!TryComp(playerEntity, out ActiveDoAfterComponent? active))
+        if (!TryComp(playerEntity, out ActiveDoAfterComponent? active)
+            || !TryComp(playerEntity, out DoAfterComponent? comp))
             return;
 
         if (_metadata.EntityPaused(playerEntity.Value))
             return;
 
         var time = GameTiming.CurTime;
-        var comp = Comp<DoAfterComponent>(playerEntity.Value);
         var xformQuery = GetEntityQuery<TransformComponent>();
         var handsQuery = GetEntityQuery<HandsComponent>();
         Update(playerEntity.Value, active, comp, time, xformQuery, handsQuery);
@@ -77,13 +77,12 @@ public sealed partial class DoAfterSystem : SharedDoAfterSystem
         @event = null;
         progress = default;
 
-        if (!TryComp(playerEntity, out ActiveDoAfterComponent? active))
+        if (!TryComp(playerEntity, out ActiveDoAfterComponent? active)
+            || !TryComp(playerEntity, out DoAfterComponent? comp))
             return false;
 
         if (_metadata.EntityPaused(playerEntity.Value))
             return false;
-
-        var comp = Comp<DoAfterComponent>(playerEntity.Value);
 
         var time = GameTiming.CurTime;
 

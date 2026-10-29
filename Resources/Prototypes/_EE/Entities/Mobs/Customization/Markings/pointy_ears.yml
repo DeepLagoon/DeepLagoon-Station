@@ -2,6 +2,7 @@
   id: PointyEarsStandard
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -12,6 +13,7 @@
   id: PointyEarsWide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -22,6 +24,7 @@
   id: PointyEarsSmall
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -32,6 +35,7 @@
   id: PointyEarsUpwards
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -42,6 +46,7 @@
   id: PointyEarsTall
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -52,6 +57,7 @@
   id: PointyEarsSlanted
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -62,6 +68,7 @@
   id: PointyEarsThin
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -72,6 +79,7 @@
   id: PointyEarsLarge
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:
@@ -82,6 +90,7 @@
   id: PointyEarsNone
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Ears
   forcedColoring: true
   speciesRestriction: [Oni]
   sprites:

@@ -31,6 +31,13 @@ public class FireControlNavControl : ShuttleNavControl
     private EntityUid? _activeConsole;
     private FireControllableEntry[]? _controllables;
     private HashSet<NetEntity> _selectedWeapons = new();
+    private Vector2[] _destroyedWeapons = Array.Empty<Vector2>();
+    private readonly List<(NetEntity? Entity, Vector2 Position)> _weaponMarkers = new();
+    private bool _weaponClick;
+    public event Action<NetEntity>? OnWeaponSelectionRequested;
+
+    private const float WeaponMarkerRadius = 5f;
+    private const float WeaponHitRadius = 8f;
 
     private readonly Dictionary<NetEntity, Color> _blipColors = new();
 
@@ -56,6 +63,7 @@ public class FireControlNavControl : ShuttleNavControl
 
     protected override void Draw(DrawingHandleScreen handle)
     {
+        _weaponMarkers.Clear();
         if (_coordinates == null || _rotation == null)
             return;
 
@@ -109,12 +117,96 @@ public class FireControlNavControl : ShuttleNavControl
                 }
             }
         }
+
+        handle.UseShader(null);
+        if (_activeConsole is { } console && EntManager.TryGetComponent<TransformComponent>(console, out var consoleXform)
+            && consoleXform.GridUid is { } weaponGrid)
+        {
+            foreach (var position in _destroyedWeapons)
+            {
+                var worldPos = _transform.ToMapCoordinates(new EntityCoordinates(weaponGrid, position)).Position;
+                DrawWeaponMarker(handle, Vector2.Transform(worldPos, worldToView), null, Color.Red);
+            }
+        }
+        if (_controllables == null)
+            return;
+        foreach (var weapon in _controllables)
+        {
+            var worldPos = _transform.ToMapCoordinates(EntManager.GetCoordinates(weapon.Coordinates)).Position;
+            DrawWeaponMarker(handle, Vector2.Transform(worldPos, worldToView), weapon.NetEntity,
+                _selectedWeapons.Contains(weapon.NetEntity) ? Color.Cyan : Color.Yellow);
+        }
     }
+
+    private void DrawWeaponMarker(DrawingHandleScreen handle, Vector2 position, NetEntity? entity, Color color)
+    {
+        if (!new UIBox2(Vector2.Zero, PixelSize).Contains(position))
+            return;
+        _weaponMarkers.Add((entity, position));
+        var extent = new Vector2(WeaponMarkerRadius * UIScale);
+        handle.DrawRect(new UIBox2(position - extent, position + extent), Color.Black.WithAlpha(0.8f));
+        handle.DrawRect(new UIBox2(position - extent, position + extent), color, filled: false);
+        if (entity == null)
+        {
+            handle.DrawLine(position - extent, position + extent, color);
+            handle.DrawLine(position + new Vector2(-extent.X, extent.Y), position + new Vector2(extent.X, -extent.Y), color);
+        }
+        else if (_selectedWeapons.Contains(entity.Value))
+            handle.DrawRect(new UIBox2(position - extent / 2, position + extent / 2), color);
+    }
+
+    protected override void KeyBindDown(GUIBoundKeyEventArgs args)
+    {
+        _weaponClick = false;
+        if (args.Function == EngineKeyFunctions.UIClick && TrySelectWeapon(args.RelativePosition))
+        {
+            _weaponClick = true;
+            _isMouseDown = false;
+            args.Handle();
+            return;
+        }
+        base.KeyBindDown(args);
+    }
+
+    protected override void KeyBindUp(GUIBoundKeyEventArgs args)
+    {
+        if (args.Function == EngineKeyFunctions.UIClick && _weaponClick)
+        {
+            _weaponClick = false;
+            _isMouseDown = false;
+            args.Handle();
+            return;
+        }
+        base.KeyBindUp(args);
+    }
+
+    public bool TrySelectWeapon(Vector2 relativePosition)
+    {
+        var distance = WeaponHitRadius * UIScale;
+        var nearest = distance * distance;
+        (NetEntity? Entity, Vector2 Position)? hit = null;
+        foreach (var marker in _weaponMarkers)
+        {
+            var squared = Vector2.DistanceSquared(relativePosition * UIScale, marker.Position);
+            if (squared > nearest || squared == nearest && hit?.Entity != null)
+                continue;
+            nearest = squared;
+            hit = marker;
+        }
+        if (hit == null)
+            return false;
+        if (hit.Value.Entity is { } entity && _controllables?.Any(weapon => weapon.NetEntity == entity) == true)
+            OnWeaponSelectionRequested?.Invoke(entity);
+        return true;
+    }
+
+    public void UpdateDestroyedWeapons(Vector2[] positions) => _destroyedWeapons = positions;
 
     public void UpdateControllables(EntityUid console, FireControllableEntry[] controllables)
     {
         _activeConsole = console;
         _controllables = controllables;
+        _selectedWeapons.RemoveWhere(entity => !controllables.Any(weapon => weapon.NetEntity == entity));
     }
 
     public void UpdateSelectedWeapons(HashSet<NetEntity> selectedWeapons)

@@ -29,6 +29,7 @@
   id: ProtogenEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Protogen]
   sprites:
   - sprite: _Mono/Mobs/Customization/protogen_parts.rsi
@@ -38,6 +39,7 @@
   id: TwoProtogenEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Protogen]
   sprites:
   - sprite: _Mono/Mobs/Customization/protogen_parts.rsi

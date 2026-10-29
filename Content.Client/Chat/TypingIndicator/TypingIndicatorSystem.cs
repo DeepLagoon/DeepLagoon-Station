@@ -1,4 +1,5 @@
 using Content.Shared.CCVar;
+using Content.Shared.Chat;
 using Content.Shared.Chat.TypingIndicator;
 using Robust.Client.Player;
 using Robust.Shared.Configuration;
@@ -13,10 +14,13 @@ public sealed partial class TypingIndicatorSystem : SharedTypingIndicatorSystem
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
 
-    private readonly TimeSpan _typingTimeout = TimeSpan.FromSeconds(2);
+    private readonly TimeSpan _typingTimeout = TimeSpan.FromSeconds(5);
     private TimeSpan _lastTextChange;
     private bool _isClientTyping;
     private bool _isClientChatFocused;
+    private ChatSelectChannel _channel = ChatSelectChannel.Local;
+    private EntityUid? _lastEntity;
+    private TypingIndicatorState _lastState;
 
     public override void Initialize()
     {
@@ -25,37 +29,41 @@ public sealed partial class TypingIndicatorSystem : SharedTypingIndicatorSystem
         Subs.CVar(_cfg, CCVars.ChatShowTypingIndicator, OnShowTypingChanged);
     }
 
-    public void ClientChangedChatText()
+    public void ClientChangedChatText(bool hasText = true)
     {
         // don't update it if player don't want to show typing indicator
         if (!_cfg.GetCVar(CCVars.ChatShowTypingIndicator))
             return;
 
         // client typed something - show typing indicator
-        _isClientTyping = true;
+        _isClientTyping = hasText;
+        _lastTextChange = _time.RealTime;
         ClientUpdateTyping();
-        _lastTextChange = _time.CurTime;
     }
 
     public void ClientSubmittedChatText()
     {
-        // don't update it if player don't want to show typing
-        if (!_cfg.GetCVar(CCVars.ChatShowTypingIndicator))
-            return;
-
         // client submitted text - hide typing indicator
         _isClientTyping = false;
+        _isClientChatFocused = false;
         ClientUpdateTyping();
     }
 
     public void ClientChangedChatFocus(bool isFocused)
     {
-        // don't update it if player don't want to show typing
-        if (!_cfg.GetCVar(CCVars.ChatShowTypingIndicator))
+        _isClientChatFocused = isFocused;
+        if (!isFocused)
+            _isClientTyping = false;
+        ClientUpdateTyping();
+    }
+
+    public void ClientChangedChatChannel(ChatSelectChannel channel)
+    {
+        if (_channel == channel)
             return;
 
-        // client submitted text - hide typing indicator
-        _isClientChatFocused = isFocused;
+        _channel = channel;
+        _isClientTyping = false;
         ClientUpdateTyping();
     }
 
@@ -71,8 +79,8 @@ public sealed partial class TypingIndicatorSystem : SharedTypingIndicatorSystem
         // check if client didn't changed chat text box for a long time
         if (_isClientTyping)
         {
-            var dif = _time.CurTime - _lastTextChange;
-            if (dif > _typingTimeout)
+            var dif = _time.RealTime - _lastTextChange;
+            if (dif >= _typingTimeout)
             {
                 // client didn't typed anything for a long time - change indicator
                 _isClientTyping = false;
@@ -84,24 +92,43 @@ public sealed partial class TypingIndicatorSystem : SharedTypingIndicatorSystem
     private void ClientUpdateTyping()
     {
         // check if player controls any pawn
-        if (_playerManager.LocalEntity == null)
+        if (_playerManager.LocalEntity is not { } entity)
+        {
+            _lastEntity = null;
             return;
-		
-        var state = TypingIndicatorState.None;
-        if (_isClientChatFocused)
-            state = _isClientTyping ? TypingIndicatorState.Typing : TypingIndicatorState.Idle;
+        }
+
+        var state = GetState(_channel, _isClientChatFocused && _cfg.GetCVar(CCVars.ChatShowTypingIndicator), _isClientTyping);
+        if (_lastEntity == entity && _lastState == state)
+            return;
+
+        _lastEntity = entity;
+        _lastState = state;
 
         // send a networked event to server
         RaiseNetworkEvent(new TypingChangedEvent(state));
+    }
+
+    public static TypingIndicatorState GetState(ChatSelectChannel channel, bool focused, bool typing)
+    {
+        if (!focused)
+            return TypingIndicatorState.None;
+
+        return channel switch
+        {
+            ChatSelectChannel.Local or ChatSelectChannel.Whisper or ChatSelectChannel.Radio =>
+                typing ? TypingIndicatorState.Typing : TypingIndicatorState.Idle,
+            ChatSelectChannel.Emotes => typing ? TypingIndicatorState.EmoteTyping : TypingIndicatorState.EmoteIdle,
+            ChatSelectChannel.LOOC => typing ? TypingIndicatorState.LoocTyping : TypingIndicatorState.LoocIdle,
+            _ => TypingIndicatorState.None,
+        };
     }
 
     private void OnShowTypingChanged(bool showTyping)
     {
         // hide typing indicator immediately if player don't want to show it anymore
         if (!showTyping)
-        {
             _isClientTyping = false;
-            ClientUpdateTyping();
-        }
+        ClientUpdateTyping();
     }
 }

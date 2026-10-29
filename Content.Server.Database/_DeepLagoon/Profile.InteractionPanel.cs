@@ -4,6 +4,8 @@ namespace Content.Server.Database;
 
 public partial class Profile
 {
+    [Column("arousal_preferences_json")]
+    public string ArousalPreferencesJson { get; set; } = "{}";
     // 0 = No, 1 = Ask, 2 = Yes. Старые профили после миграции получают Ask.
     // Имена свойств можно менять, но имена колонок сохраняем для существующих БД.
     // Переименование колонки требует отдельной миграции, а не правки старой.

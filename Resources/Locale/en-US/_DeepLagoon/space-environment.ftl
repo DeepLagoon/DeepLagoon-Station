@@ -1,0 +1,25 @@
+sector-profile-frontier = Frontier sector
+sector-profile-asteroids = Asteroid cloud
+sector-profile-wreckage = Wreckage field
+sector-profile-radiation = Radiation fields
+sector-profile-quiet = Quiet reach
+space-environment-kind-dust = Dust cloud
+space-environment-kind-asteroids = Asteroid stream
+space-environment-kind-debris = Debris field
+space-environment-kind-plasma = Plasma interference
+space-environment-kind-radiation = Radiation field
+space-environment-charted = [surveyed]
+space-environment-ftl-blocked = Plasma interference prevents FTL preparation. Leave the marked boundary.
+space-environment-sector = Sector: { $sector }. Profile: { $profile }. Regions surveyed: { $surveyed }/{ $total }.
+space-environment-survey = Scan space environment
+space-environment-survey-hint = Scan the environment through the context menu. Stay below 12 m/s in dust and 4 m/s to record a survey. Radiation requires protection; dense plasma disrupts radio and FTL.
+space-environment-survey-cooldown = Instruments are processing the previous reading. Scans have a 20 second cooldown.
+space-environment-survey-empty = No unsurveyed signals within 1800 m.
+space-environment-survey-signal = Detected: { $kind }. Centre: ({ $x }, { $y }), distance { $distance } m. Approach the inner area to record a survey. Choose safe speed and protection.
+space-environment-survey-slow = Slow down to 4 m/s for a stable reading.
+space-environment-survey-complete = Survey complete: { $kind }. Data recorded in the journal.
+space-environment-survey-recorded = This region is already recorded in the journal.
+
+space-environment-route = Direct course: dust ~{ $dust } m; radiation ~{ $radiation } m (intensity weighted).
+space-environment-route-ftl-blocked = FTL: plasma interference at departure or arrival.
+space-environment-route-ftl-clear = FTL: no environmental endpoint interference detected. Other travel restrictions still apply.

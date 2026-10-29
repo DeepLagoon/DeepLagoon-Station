@@ -47,6 +47,7 @@ export const ChatComposer = () => {
   }, [data.revision, data.channels, channel]);
   useEffect(() => {
     clearTimeout(timer.current);
+    timer.current = undefined;
     setText(data.text || '');
     latest.current = data.text || '';
   }, [data.revision]);
@@ -66,13 +67,16 @@ export const ChatComposer = () => {
   }, [channel, data.revision]);
   const dispatch = (action, value = latest.current, nextChannel = channel) => {
     clearTimeout(timer.current);
+    timer.current = undefined;
     act(action, { text: value, channel: nextChannel });
   };
   const change = value => {
     setText(value);
     latest.current = value;
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => dispatch('draft', latest.current), 180);
+    // Flush during continuous input too, so the native typing timeout stays fresh.
+    if (timer.current === undefined) {
+      timer.current = setTimeout(() => dispatch('draft', latest.current), 180);
+    }
   };
   return <div className="ChatComposer__stage">
     <section className={'ChatComposer' + (emote ? ' ChatComposer--emote' : '')} aria-label="Ввод сообщения">
@@ -86,6 +90,8 @@ export const ChatComposer = () => {
         onSelected={value => dispatch('channel', latest.current, value)} /></div>
       <textarea ref={input} value={text} maxLength={data.maxLength} aria-label="Сообщение"
         placeholder={emote ? 'Опишите действие персонажа…' : 'Введите сообщение…'}
+        onFocus={() => act('focus')}
+        onBlur={() => act('blur')}
         onChange={event => change(event.target.value)}
         onCompositionStart={() => { composing.current = true; act('composition', { active: true }); }}
         onCompositionEnd={() => { composing.current = false; act('composition', { active: false }); }}

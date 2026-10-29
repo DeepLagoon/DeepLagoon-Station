@@ -1,3 +1,4 @@
+using Content.Shared.Traits.Assorted.Components;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Content.Shared.ActionBlocker;
@@ -360,6 +361,8 @@ public abstract partial class SharedMoverController : VirtualController
                 var soundModifier = mover.Sprinting ? InputMoverComponent.SprintingSoundModifier
                     : InputMoverComponent.WalkingSoundModifier;
 
+                if (TryComp<FootstepVolumeModifierComponent>(uid, out var volumeModifier))
+                    soundModifier += mover.Sprinting ? volumeModifier.SprintVolumeModifier : volumeModifier.WalkVolumeModifier;
                 var audioParams = sound.Params
                     .WithVolume(sound.Params.Volume + soundModifier)
                     .WithVariation(sound.Params.Variation ?? mobMover.FootstepVariation);

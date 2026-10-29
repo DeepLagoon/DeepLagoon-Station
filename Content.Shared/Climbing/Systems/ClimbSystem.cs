@@ -1,3 +1,4 @@
+using Content.Shared.Traits.Assorted.Components;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Buckle.Components;
 using Content.Shared.Climbing.Components;
@@ -207,7 +208,10 @@ public sealed partial class ClimbSystem : VirtualController
         if (ev.Cancelled)
             return false;
 
-        var args = new DoAfterArgs(EntityManager, user, comp.ClimbDelay, new ClimbDoAfterEvent(),
+        var delay = comp.ClimbDelay;
+        if (user == entityToMove && TryComp<ClimbDelayModifierComponent>(user, out var modifier))
+            delay *= modifier.ClimbDelayMultiplier;
+        var args = new DoAfterArgs(EntityManager, user, delay, new ClimbDoAfterEvent(),
             entityToMove,
             target: climbable,
             used: entityToMove)

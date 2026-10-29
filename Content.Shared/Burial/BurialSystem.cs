@@ -54,14 +54,15 @@ public sealed partial class BurialSystem : EntitySystem
             if (component.Stream == null)
                 component.Stream = _audioSystem.PlayPredicted(component.DigSound, uid, args.User)?.Entity;
 
-            if (!_doAfterSystem.TryStartDoAfter(doAfterEventArgs))
+            if (!_doAfterSystem.TryStartDoAfter(doAfterEventArgs, out var id))
             {
-                _audioSystem.Stop(component.Stream);
+                component.Stream = _audioSystem.Stop(component.Stream);
                 return;
             }
 
 
-            StartDigging(uid, args.User, args.Used, component);
+            if (_doAfterSystem.IsRunning(id))
+                StartDigging(uid, args.User, args.Used, component);
         }
         else
         {
@@ -95,12 +96,15 @@ public sealed partial class BurialSystem : EntitySystem
         if (args.Used != null)
         {
             component.ActiveShovelDigging = false;
-            component.Stream = _audioSystem.Stop(component.Stream);
+            Dirty(uid, component);
         }
         else
         {
             component.HandDiggingDoAfter = null;
         }
+
+        if (!component.ActiveShovelDigging && !_doAfterSystem.IsRunning(component.HandDiggingDoAfter))
+            component.Stream = _audioSystem.Stop(component.Stream);
 
         if (args.Cancelled || args.Handled)
             return;
@@ -177,12 +181,14 @@ public sealed partial class BurialSystem : EntitySystem
         if (component.Stream == null)
             component.Stream = _audioSystem.PlayPredicted(component.DigSound, uid, args.Entity)?.Entity;
 
-        if (!_doAfterSystem.TryStartDoAfter(doAfterEventArgs, out component.HandDiggingDoAfter))
+        if (!_doAfterSystem.TryStartDoAfter(doAfterEventArgs, out var id))
         {
-            _audioSystem.Stop(component.Stream);
+            component.Stream = _audioSystem.Stop(component.Stream);
             return;
         }
 
-        StartDigging(uid, args.Entity, null, component);
+        component.HandDiggingDoAfter = _doAfterSystem.IsRunning(id) ? id : null;
+        if (component.HandDiggingDoAfter != null)
+            StartDigging(uid, args.Entity, null, component);
     }
 }

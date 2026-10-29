@@ -11,6 +11,45 @@ namespace Content.Tests.Server;
 public sealed class ApartmentLayoutStoreTests
 {
     [Test]
+    public void SnapshotsAreIsolatedByOwnerAndTemplateAndFinalizeUnloadedTrashAfterReopen()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"dl-apartment-snapshot-{Guid.NewGuid():N}.db");
+        var owner = Guid.NewGuid();
+        try
+        {
+#if USE_SYSTEM_SQLITE
+            SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+#else
+            SQLitePCL.Batteries_V2.Init();
+#endif
+            using (var store = new ApartmentLayoutStore(path))
+            {
+                var full = new ApartmentSnapshot { Grid = "with trash", Layout = new() { Template = "home", OxygenPercent = 35 },
+                    MapFurniture = new() { new() { Prototype = "ChairWood", Baseline = new() { Id = "stable", Furniture = "stable", X = 3 }, AllowsOverlap = true } } };
+                store.SaveSnapshot(owner, "home", full, new ApartmentSnapshot { Grid = "empty bin", Layout = full.Layout, MapFurniture = full.MapFurniture });
+                store.SaveSnapshot(owner, "other", new() { Grid = "other home" }, new() { Grid = "other home" });
+                Assert.That(store.LoadSnapshot(Guid.NewGuid(), "home"), Is.Null);
+                Assert.That(store.LoadSnapshot(owner, "missing"), Is.Null);
+            }
+            using var reopened = new ApartmentLayoutStore(path);
+            Assert.That(reopened.LoadSnapshot(owner, "home")!.Grid, Is.EqualTo("with trash"));
+            reopened.FinishRound();
+            reopened.FinishRound();
+            var saved = reopened.LoadSnapshot(owner, "home")!;
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.Grid, Is.EqualTo("empty bin"));
+                Assert.That(saved.Layout.OxygenPercent, Is.EqualTo(35));
+                Assert.That(saved.MapFurniture.Single().Baseline.Id, Is.EqualTo("stable"));
+                Assert.That(saved.MapFurniture.Single().Baseline.X, Is.EqualTo(3));
+                Assert.That(saved.MapFurniture.Single().AllowsOverlap, Is.True);
+                Assert.That(reopened.LoadSnapshot(owner, "other")!.Grid, Is.EqualTo("other home"));
+            });
+        }
+        finally { File.Delete(path); File.Delete(path + "-wal"); File.Delete(path + "-shm"); }
+    }
+
+    [Test]
     public void SwitchingTemplatesArchivesLayoutsAndPurchaseOrdersSurviveRetries()
     {
 #if USE_SYSTEM_SQLITE

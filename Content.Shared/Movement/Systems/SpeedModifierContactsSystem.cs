@@ -130,6 +130,11 @@ public sealed partial class SpeedModifierContactsSystem : EntitySystem
             walkSpeed = MathF.Max(walkSpeed, evMax.MaxWalkSlowdown);
             sprintSpeed = MathF.Max(sprintSpeed, evMax.MaxSprintSlowdown);
 
+            if (TryComp<SpeedModifiedByContactModifierComponent>(uid, out var modifier))
+            {
+                walkSpeed = 1f - (1f - walkSpeed) * modifier.WalkModifierEffectiveness;
+                sprintSpeed = 1f - (1f - sprintSpeed) * modifier.SprintModifierEffectiveness;
+            }
             args.ModifySpeed(walkSpeed, sprintSpeed);
         }
 

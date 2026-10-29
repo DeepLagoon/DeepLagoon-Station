@@ -5,7 +5,7 @@ const http = require('node:http');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const repo = path.resolve(__dirname, '../..');
 const resources = path.join(repo, 'Resources/Web/DeepLagoon');
-const labels = Object.fromEntries(['interaction_panel.ftl', 'lustwish-equipment.ftl'].flatMap(file =>
+const labels = Object.fromEntries(['interaction_panel.ftl', 'lustwish-equipment.ftl', 'body-customization.ftl', 'bluemoon-physiology.ftl'].flatMap(file =>
   [...fs.readFileSync(path.join(repo, 'Resources/Locale/ru-RU/_DeepLagoon', file), 'utf8')
     .matchAll(/^dl-interaction-panel-([\w-]+)\s*=\s*(.+)$/gm)].map(m => [m[1], m[2].trim()])));
 (async () => {
@@ -33,7 +33,9 @@ const labels = Object.fromEntries(['interaction_panel.ftl', 'lustwish-equipment.
     const data={name:'Персонаж',self:true,humanoid:true,debug:false,interval:3,status:'Готово',labels,
       regions:[{id:'all',name:'Все'}],categories:[{id:3,name:'Нейтральные'}],actions:[],custom:[],sounds:[],
       libraryLoaded:true,waiting:false,libraryStatus:'',libraryRevision:0,librarySaved:false,
-      targetDoll:{base:'',parts:{}},bodyFeatures:[],arousalCurrent:0,arousalMaximum:200, heldName:'Ошейник',heldSlot:'neck',gearColors:[{id:'#AC70D4',name:'#AC70D4'}],gear:[{slot:'neck',name:'Электрический ошейник',locked:true,active:false,electronic:true,shock:true,intensity:2,colorable:true,leashed:false}]};
+      targetDoll:{base:'',parts:{}},bodyFeatures:[],arousalCurrent:0,arousalMaximum:200,
+      producingParts:[{id:"penis",name:"Пенис"}],automaticMoans:true,customMoanChance:true,moanChance:20,arousalMultiplier:100,
+      heldName:'Ошейник',heldSlot:'neck',gearColors:[{id:'#AC70D4',name:'#AC70D4'}],gear:[{slot:'neck',name:'Электрический ошейник',locked:true,active:false,electronic:true,shock:true,intensity:2,colorable:true,leashed:false}]};
     await page.evaluate(data=>window.update(JSON.stringify({type:'update',payload:{replaceData:true,config:{interface:'InteractionPanel',title:'Панель взаимодействий',status:2,window:{key:'meter',fancy:false}},data}})),data);
     const meter=page.getByRole('progressbar',{name:labels.arousal});
     await meter.waitFor();
@@ -71,6 +73,36 @@ const labels = Object.fromEntries(['interaction_panel.ftl', 'lustwish-equipment.
     await page.getByRole('button',{name:labels['tab-custom'],exact:true}).click();
     assert.equal(await title.inputValue(),'Сохранённый черновик');
     assert.deepEqual(errors,[]);
+    await page.getByRole('button',{name:labels['tab-body'],exact:true}).click();
+    const chance=page.getByRole('slider',{name:labels['moan-chance']});
+    const gain=page.getByRole('slider',{name:labels['arousal-multiplier']});
+    assert.equal(await chance.inputValue(),'20');
+    assert.equal(await gain.inputValue(),'100');
+    await page.evaluate(()=>window.update(JSON.stringify({type:'update',payload:{data:{automaticMoans:false}}})));
+    await chance.waitFor({state:'visible'});
+    assert(await chance.isDisabled());
+    assert(await gain.isEnabled());
+    await page.evaluate(()=>window.update(JSON.stringify({type:'update',payload:{data:{automaticMoans:true,moanChance:100,arousalMultiplier:300}}})));
+    await page.waitForFunction(()=>document.querySelector('.InteractionPanel__arousalSlider output').textContent==='100%');
+    assert.equal(await gain.inputValue(),'300');
+    assert(await chance.isEnabled());
+    await page.evaluate(()=>window.update(JSON.stringify({type:'update',payload:{data:{customMoanChance:false}}})));
+    assert(await chance.isDisabled(), 'The native formula disables the custom chance slider');
+    await page.evaluate(()=>window.update(JSON.stringify({type:'update',payload:{data:{producingParts:[]}}})));
+    assert(await page.getByRole('button',{name:labels.climax,exact:true}).isDisabled(), 'Missing anatomy disables manual emission');
+    await gain.focus();
+    await gain.press('Home');
+    assert.equal(await gain.inputValue(),'0');
+    for(const width of [420,360]) {
+      await page.setViewportSize({width,height:420});
+      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      for(const slider of [chance,gain]) {
+        const box=await slider.boundingBox();
+        assert(box.x>=0 && box.x+box.width<=width);
+      }
+    }
+    assert.deepEqual(errors,[]);
+    console.log('PASS: own arousal settings, moan toggle disables chance, 0/100/300 slider values, keyboard input, 420/360px layout');
     console.log('PASS: live 0/30/100 percent, clamping, 420/360px layout, purple fill, draft and tab preservation, accessory controls and draft preservation, no browser exceptions');
   } finally {await browser?.close(); await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

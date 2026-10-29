@@ -1,3 +1,4 @@
+using Content.Shared.Traits.Assorted.Components;
 using Content.Shared.Charges.Components;
 using Content.Shared.Charges.Systems;
 using Content.Shared.Examine;
@@ -158,6 +159,8 @@ public abstract partial class SharedFlashSystem : EntitySystem
         if (attempt.Cancelled)
             return;
 
+        if (TryComp<EyeDamageOnFlashingComponent>(target, out var sensitivity))
+            flashDuration *= sensitivity.FlashDurationMultiplier;
         // don't paralyze, slowdown or convert to rev if the target is immune to flashes
         if (!_statusEffectsSystem.TryAddStatusEffect<FlashedComponent>(target, FlashedKey, flashDuration, true))
             return;

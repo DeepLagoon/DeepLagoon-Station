@@ -2,6 +2,7 @@
   id: CatEars
   bodyPart: Special
   markingCategory: Special
+  editorType: Ears
   speciesRestriction: [] # Frontier: Human<empty list
   coloring:
     default:

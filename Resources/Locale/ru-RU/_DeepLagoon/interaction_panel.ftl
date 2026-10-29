@@ -4,8 +4,8 @@ dl-interaction-panel-category-erp = ERP
 dl-interaction-panel-category-noncon = NonCon
 dl-interaction-panel-category-vore = Vore
 dl-interaction-panel-examine = { $category }: { $status }
-dl-interaction-panel-hint = Yes — разрешено; Ask — запрос; No — отключено.
-dl-interaction-panel-action-hint = Нажатие подтверждает ваше согласие. При Ask у адресата будет запрошено разрешение.
+dl-interaction-panel-hint = ERP = No скрывает все ненейтральные действия в вашей панели. No в отдельной категории скрывает её действия. Ask не требует подтверждения.
+dl-interaction-panel-action-hint = Доступное действие выполняется сразу. Ask не требует подтверждения. Соблюдайте правила сервера.
 dl-interaction-panel-body-head = Голова
 dl-interaction-panel-body-hands = Руки
 dl-interaction-panel-body-shoulders = Плечи
@@ -32,7 +32,7 @@ dl-interaction-panel-busy = Предыдущий запрос ещё ожида�
 dl-interaction-panel-unavailable = Взаимодействие сейчас недоступно.
 
 dl-interaction-panel-self-mode = На себе
-dl-interaction-panel-debug = DEV: все предпочтения = Yes
+dl-interaction-panel-debug = DEV: доступны цели без подключённого игрока
 dl-interaction-panel-preview = Персонаж
 dl-interaction-panel-body-all = Все области
 dl-interaction-panel-body-groin = Пах
@@ -69,13 +69,13 @@ dl-interaction-panel-self-animal-rest = { $user } устраивается по�
 
 dl-interaction-panel-tab-actions = Взаимодействия
 dl-interaction-panel-tab-custom = Мои действия
-dl-interaction-panel-editor-help = До 32 действий на аккаунт. Название — до 48 символов, текст — до 280. Начните текст с $you: это имя вашего персонажа; $target — имя цели. Например: $you мило поглаживает $target. Используйте обычный текст без переносов строк. Выбранный преференс проверяется у обоих участников; No запрещает действие, Ask требует согласия. При Ask повтор не создаёт новые запросы автоматически. Сохранение и использование видны администрации.
+dl-interaction-panel-editor-help = До 32 действий на аккаунт. Название — до 48 символов, текст — до 280. Начните текст с $you: это имя вашего персонажа; $target — имя цели. Например: $you мило поглаживает $target. Используйте обычный текст без переносов строк. ERP = No скрывает все ненейтральные действия в вашей панели, а No в отдельной категории — её действия. Ask не требует подтверждения. Сохранение и использование видны администрации.
 dl-interaction-panel-editor-title = Название кнопки
 dl-interaction-panel-editor-title-example = Ласково погладить
 dl-interaction-panel-editor-template = Текст сообщения ($you и $target)
 dl-interaction-panel-editor-example = $you мило поглаживает $target
 dl-interaction-panel-editor-insert = Добавить { $token }
-dl-interaction-panel-editor-preference = Категория действия (Нейтральные — независимо от настроек)
+dl-interaction-panel-editor-preference = Категория действия
 dl-interaction-panel-editor-region = Область (для негуманоидов выберите «Все области»)
 dl-interaction-panel-editor-self = На себе
 dl-interaction-panel-editor-other = На другом
@@ -143,7 +143,7 @@ dl-interaction-panel-step-2 = Участники
 dl-interaction-panel-step-3 = Цвет и звук
 dl-interaction-panel-step-4 = Проверка и сохранение
 dl-interaction-panel-step-text-help = Придумайте название кнопки (до 48 символов) и сообщение (до 280). Начните с $you и пробела: $you — ваш персонаж, $target — цель. Например: $you мило поглаживает $target. Ниже показан результат.
-dl-interaction-panel-step-help-1 = Преференс проверяется у обоих участников. No запрещает действие, Ask требует согласия. Для других мобов выберите «Все области».
+dl-interaction-panel-step-help-1 = ERP = No скрывает все ненейтральные действия в вашей панели, а No в отдельной категории — её действия. Ask не требует подтверждения. Для других мобов выберите «Все области».
 dl-interaction-panel-step-help-2 = Выберите, можно ли использовать действие на себе, на других или в обоих случаях. Затем выберите типы целей.
 dl-interaction-panel-step-help-3 = Цвет задаётся в формате #RRGGBB. Звук необязателен: оставьте «Без звука» или выберите его из библиотеки.
 dl-interaction-panel-review = Название: { $name }
@@ -168,7 +168,7 @@ dl-interaction-panel-compact-close = Закрыть панель
 dl-interaction-panel-compact-preview = Предпросмотр сообщения
 dl-interaction-panel-compact-delete-confirm = Удалить это действие из библиотеки?
 dl-interaction-panel-compact-cancel = Отмена
-dl-interaction-panel-compact-locked = Недоступно: проверьте предпочтения участников и условия действия.
+dl-interaction-panel-compact-locked = Недоступно: проверьте условия действия.
 dl-interaction-panel-compact-all = всего
 dl-interaction-panel-compact-help = Как пользоваться
 dl-interaction-panel-compact-seconds = с
@@ -176,3 +176,9 @@ dl-interaction-panel-compact-body-hint = Нажмите на часть тела
 
 dl-interaction-panel-category-neutral = Нейтральные
 dl-interaction-panel-category-erotic = { dl-interaction-panel-category-erp }
+dl-interaction-panel-arousal-settings = Возбуждение и стоны
+dl-interaction-panel-automatic-moans = Автоматические стоны
+dl-interaction-panel-moan-chance = Шанс стона
+dl-interaction-panel-moan-help = В режиме BlueMoon стоны вызываются положительной стимуляцией; обычный шанс растёт от 50% возбуждения до кульминации. Свой шанс заменяет эту формулу. Переключатель отключает автоматические стоны.
+dl-interaction-panel-arousal-multiplier = Накопление возбуждения
+dl-interaction-panel-arousal-multiplier-help = 100% — обычная чувствительность. 0% отключает прирост от стимуляции. Прирост от обычных интеракций включается отдельно. Настройки физиологии и беременности находятся в редакторе персонажа.

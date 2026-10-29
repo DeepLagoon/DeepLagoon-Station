@@ -9,11 +9,19 @@ import { MarkingChoices } from './CharacterAppearance';
 import { filter as fuzzyFilter } from './fuzzySearch';
 import './CharacterEditor.scss';
 
+const markingTypes = [
+  { id: 'Tail', name: 'Хвост' },
+  { id: 'Snout', name: 'Морды' },
+  { id: 'Ears', name: 'Уши' },
+  { id: 'Wings', name: 'Крылья' },
+];
+
 export const CharacterCatalog = () => {
   const { data, act } = useBackend();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [race, setRace] = useState('');
+  const [type, setType] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const markings = data.kind === 'markings', beard = data.kind === 'beard';
   const title = markings ? 'Каталог особенностей' : beard ? 'Все бороды и усы' : 'Все причёски';
@@ -25,12 +33,16 @@ export const CharacterCatalog = () => {
     .sort((a, b) => a.name.localeCompare(b.name, 'ru')), [options]);
   const raceRestricted = markings && !!data.markingSpeciesRestricted;
   const activeRace = !raceRestricted && races.some(item => item.id === race) ? race : '';
+  const types = useMemo(() => markingTypes.filter(item => options.some(option => option.typeId === item.id)), [options]);
+  const activeType = types.some(item => item.id === type) ? type : '';
   const filtered = useMemo(() => fuzzyFilter(options.filter(option => !markings ||
-    ((!activeCategory || option.category === activeCategory) && (!activeRace || option.races?.some(item => item.id === activeRace)))), query,
-    option => option.name + ' ' + option.id), [options, query, markings, activeCategory, activeRace]);
+    ((!activeCategory || option.category === activeCategory) && (!activeRace || option.races?.some(item => item.id === activeRace))
+      && (!activeType || option.typeId === activeType))), query,
+    option => option.name + ' ' + option.id), [options, query, markings, activeCategory, activeRace, activeType]);
   const key = beard ? 'beard' : 'hair';
   const color = data[key + 'Locked'] ? data.skinColor : data[key + 'Color'];
-  useEffect(() => { setQuery(''); setCategory(''); setRace(''); setFilterOpen(false); }, [data.kind]);
+  useEffect(() => { setQuery(''); setCategory(''); setRace(''); setType(''); setFilterOpen(false); }, [data.kind]);
+  useEffect(() => { if (type && !types.some(item => item.id === type)) setType(''); }, [type, types]);
   useEffect(() => { if (raceRestricted) { setRace(''); setFilterOpen(false); } }, [raceRestricted]);
   useEffect(() => {
     const key = event => { if (event.key === 'Escape') act('catalog-close'); };
@@ -45,14 +57,17 @@ export const CharacterCatalog = () => {
     <main className="CharacterEditor__catalogBody">
       {raceRestricted && <p className="CharacterEditor__raceRestriction" role="note">{`Сейчас раса вашего персонажа это "${data.speciesName || data.species}", чтобы выбрать элементы других рас, вам нужно взять черту "Генная модификация"`}</p>}
       <div className="CharacterEditor__catalogToolbar"><input type="search" aria-label={'Поиск: ' + title} placeholder="Поиск…" value={query} onChange={event => setQuery(event.target.value)} />
-      {markings && <Button role="button" icon="filter" aria-label="Фильтр" disabled={raceRestricted} aria-disabled={raceRestricted} aria-expanded={!raceRestricted && filterOpen}
-        aria-controls="marking-race-filter" selected={!!activeRace} onClick={() => setFilterOpen(!filterOpen)}>Фильтр</Button>}
+      {markings && <Button role="button" icon="filter" aria-label="Фильтр" aria-expanded={filterOpen}
+        aria-controls="marking-catalog-filter" selected={!!activeRace || !!activeType} onClick={() => setFilterOpen(!filterOpen)}>Фильтр</Button>}
       {markings && <label className="CharacterEditor__combineMarkings"><input type="checkbox" disabled={!combinationCategory}
         checked={!!combinationCategory && (data.combinedMarkingCategories || []).some(item => item.id === combinationCategory)}
         onChange={() => act('marking-combine', { value: combinationCategory })} /><span>Комбинировать выборы этой категории</span></label>}
     </div>
-      {markings && !raceRestricted && filterOpen && <div className="CharacterEditor__catalogFilter" id="marking-race-filter">
-        <label><span>Расовая категория</span><EmbeddedSelect aria-label="Расовая категория" value={activeRace} onChange={event => setRace(event.target.value)}>
+      {markings && filterOpen && <div className="CharacterEditor__catalogFilter" id="marking-catalog-filter">
+        <label><span>Тип элемента</span><EmbeddedSelect aria-label="Тип элемента" value={activeType} onChange={event => setType(event.target.value)}>
+          <option value="">Все типы</option>{types.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </EmbeddedSelect></label>
+        <label><span>Расовая категория</span><EmbeddedSelect aria-label="Расовая категория" disabled={raceRestricted} value={activeRace} onChange={event => setRace(event.target.value)}>
           <option value="">Все расы</option>{races.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
         </EmbeddedSelect></label>
       </div>}

@@ -9,6 +9,23 @@
 
 - type: trait
   id: Vigor
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - Lethargy
+  - kind: Species
+    inverted: true
+    values:
+    - Oni
+    - IPC
+  points: -6
+  slots: 1
   name: trait-vigor-name
   description: trait-vigor-desc
   category: Physical
@@ -23,6 +40,23 @@
 
 - type: trait
   id: Lethargy
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - Vigor
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+  points: 4
+  slots: 1
   name: trait-lethargy-name
   description: trait-lethargy-desc
   category: Physical
@@ -40,6 +74,22 @@
 
 - type: trait
   id: GlassJaw
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Tenacity
+  points: 2
+  slots: 1
   name: trait-glass-jaw-name
   description: trait-glass-jaw-desc
   category: Physical
@@ -53,6 +103,24 @@
 
 - type: trait
   id: Tenacity
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - GlassJaw
+    - BrittleBoneDisease
+    - OsteogenesisImperfecta
+  points: -1
+  slots: 1
   name: trait-tenacity-name
   description: trait-tenacity-desc
   category: Physical
@@ -67,6 +135,23 @@
 
 - type: trait
   id: WillToLive
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - Redshirt
+    - WillToDie
+  points: -1
+  slots: 1
   name: trait-will-to-live-name
   description: trait-will-to-live-desc
   category: Physical
@@ -84,6 +169,22 @@
 
 - type: trait
   id: WillToDie
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - WillToLive
+  points: 1
+  slots: 1
   name: trait-will-to-die-name
   description: trait-will-to-die-desc
   category: Physical
@@ -100,6 +201,13 @@
 
 - type: trait
   id: Thieving
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+  points: -3
+  slots: 1
   name: trait-thieving-name
   description: trait-thieving-desc
   category: Physical
@@ -140,6 +248,20 @@
 
 - type: trait
   id: Hemophilia
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+    - Lamia
+    - Plasmaman
+  points: 4
+  slots: 1
   name: trait-hemophilia-name
   description: trait-hemophilia-desc
   category: Physical
@@ -154,6 +276,14 @@
 
 - type: trait
   id: Voracious
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Vulpkanin
+    - IPC
+  points: -1
+  slots: 1
   name: trait-voracious-name
   description: trait-voracious-desc
   category: Physical
@@ -188,6 +318,23 @@
 
 - type: trait
   id: Feeble
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+  - kind: Trait
+    inverted: true
+    values:
+    - Steadfast
+  points: 4
+  slots: 1
   name: trait-feeble-name
   description: trait-feeble-desc
   category: Physical
@@ -205,6 +352,15 @@
 
 - type: trait
   id: TrapAvoider
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+    - Harpy
+  points: -3
+  slots: 1
   name: trait-trap-avoider-name
   description: trait-trap-avoider-desc
   category: Physical
@@ -218,6 +374,8 @@
 
 - type: trait
   id: SelfAware
+  points: -2
+  slots: 1
   name: trait-self-aware-name
   description: trait-self-aware-desc
   category: Physical
@@ -227,6 +385,24 @@
 
 - type: trait
   id: LiquorLifeline
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - LightweightDrunk
+    - HeavyweightDrunk
+  - kind: Species
+    inverted: true
+    values:
+    - Dwarf
+    - IPC
+  points: -6
+  slots: 1
   name: trait-liquor-lifeline-name
   description: trait-liquor-lifeline-desc
   category: Physical
@@ -244,6 +420,22 @@
 
 - type: trait
   id: Redshirt
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - WillToLive
+  points: 8
+  slots: 1
   name: trait-redshirt-name
   description: trait-redshirt-desc
   category: Physical
@@ -261,6 +453,22 @@
 
 - type: trait
   id: StrikingCalluses
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Trait
+    inverted: true
+    values:
+    - Claws
+    - Talons
+  - kind: Species
+    inverted: true
+    values:
+    - Xelthia
+  points: -2
+  slots: 1
   name: trait-striking-calluses-name
   description: trait-striking-calluses-desc
   category: Physical
@@ -273,6 +481,23 @@
 
 - type: trait
   id: Steadfast
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Species
+    inverted: true
+    values:
+    - Felinid
+    - Tajaran
+  - kind: Trait
+    inverted: true
+    values:
+    - Feeble
+  points: -3
+  slots: 1
   name: trait-steadfast-name
   description: trait-steadfast-desc
   category: Physical
@@ -293,6 +518,13 @@
 
 - type: trait
   id: DermalArmor
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  points: -6
+  slots: 1
   name: trait-dermal-armor-name
   description: trait-dermal-armor-desc
   category: Physical
@@ -340,6 +572,14 @@
 
 - type: trait
   id: TemperatureTolerance
+  requirements:
+  - kind: Species
+    inverted: true
+    values:
+    - Vulpkanin
+    - Plasmaman
+  points: -1
+  slots: 1
   name: trait-temperature-tolerance-name
   description: trait-temperature-tolerance-desc
   category: Physical
@@ -369,6 +609,21 @@
 
 - type: trait
   id: PlateletFactories
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Prisoner
+  - kind: Species
+    inverted: true
+    values:
+    - IPC
+  - kind: Trait
+    inverted: true
+    values:
+    - BloodDeficiency
+  points: -10
+  slots: 1
   name: trait-platelet-factories-name
   description: trait-platelet-factories-desc
   category: Physical

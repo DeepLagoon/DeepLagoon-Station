@@ -18,7 +18,7 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   await page.addInitScript(()=>{window.__sent=[];const NativeImage=window.Image;window.Image=class extends NativeImage{set src(value){if(!value.startsWith('res://deeplagoon/Web/DeepLagoon/bridge?')){super.src=value;return;}const[type,payload]=value.split('?')[1].split('&');window.__sent.push({type:decodeURIComponent(type),payload:JSON.parse(decodeURIComponent(payload))});queueMicrotask(()=>this.onload?.(new Event('load')));}};});
   await page.goto(`http://127.0.0.1:${server.address().port}/interface.html`);await page.waitForFunction(()=>window.__tguiAppBooted__);
   const publish=(iface,data)=>page.evaluate(({iface,data})=>window.update(JSON.stringify({type:'update',payload:{replaceData:true,replaceStaticData:true,resetPartialData:true,config:{interface:iface,status:2,window:{key:'appearance-test',fancy:false}},data}})),{iface,data});
-  const option=(id,part,category,races=[{id:'common',name:'Общие'}])=>({id,part,category,combinationCategory:category,races,name:id});
+  const option=(id,part,category,races=[{id:'common',name:'Общие'}],typeId='')=>({id,part,category,combinationCategory:category,races,typeId,name:id});
   const row=(index,part,name)=>({index,part,name,id:name,categoryId:part==='Chest'?'Chest':'Arms',category:part==='Chest'?'Грудь':'Руки',colors:[{name:'#ff0000'}],locked:false});
   const state={available:true,mode:'markings',appearance:{},canUndoAppearance:true,canRedoAppearance:true,tabs:[{id:0,name:'Основное',mode:'appearance'},{id:4,name:'Внешность',mode:'markings'}],markings:[row(0,'LArm','Левая рука'),row(1,'RArm','Правая рука'),row(2,'Chest','Торс')],markingOptions:[option('Другой левый протез','LArm','Левая рука'),option('Другой правый протез','RArm','Правая рука'),option('Другой торс','Chest','Грудь')],previewSlots:[{id:'jumpsuit',name:'Комбинезон',images:[]}],tattooEditor:{tattoos:[]}};
   for(const width of [1280,800,480,420]){
@@ -105,7 +105,7 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   assert.equal(await page.getByRole('button',{name:'Вернуть',exact:true}).getAttribute('aria-disabled'),'true');
   for(const width of [1280,800,480,420]){
    await page.setViewportSize({width,height:860});
-   const catalogue={...state,kind:'markings',markingOptions:[...state.markingOptions,option('Кошачий хвост','Tail','Хвост',[{id:'Tajaran',name:'Таяран'},{id:'Ariral',name:'Арирал'}]),option('Шрам','Head','Общие')]};
+   const catalogue={...state,kind:'markings',markingOptions:[...state.markingOptions,option('Кошачий хвост','Tail','Хвост',[{id:'Tajaran',name:'Таяран'},{id:'Ariral',name:'Арирал'}],'Tail'),option('Шрам','Head','Общие')]};
    await publish('CharacterCatalog',catalogue);
    const nav=page.getByRole('navigation',{name:'Категории особенностей'});
    assert.equal(await nav.evaluate(e=>getComputedStyle(e).flexDirection),'row');
@@ -159,6 +159,55 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    assert.equal(await page.locator('.CharacterEditor').evaluate(e=>e.scrollWidth>e.clientWidth),false,`Catalogue overflow at ${width}`);
    if(process.env.CATALOG_SCREENSHOT&&width===1280)await page.screenshot({path:process.env.CATALOG_SCREENSHOT});
   }
+  const vulp=[{id:'Vulpkanin',name:'Вульпканин'}],cat=[{id:'Tajaran',name:'Таяран'}];
+  const typeOptions=[
+   option('Лисий хвост','Tail','Хвост',vulp,'Tail'),option('Кошачий хвост','Tail','Хвост',cat,'Tail'),
+   option('Полосы хвоста','TailExtras','Дополнения хвоста',cat,'Tail'),
+   option('Лисья морда','Snout','Морда',vulp,'Snout'),option('Кошачья морда','Snout','Морда',cat,'Snout'),
+   option('Уши сверху','HeadTop','Голова (верх)',cat,'Ears'),option('Уши сбоку','HeadSide','Голова (бок)',cat,'Ears'),
+   option('Специальные уши','Special','Специальное',cat,'Ears'),option('Крылья виверны','Chest','Крылья',cat,'Wings'),
+   option('Рога','HeadTop','Голова (верх)'),option('Жабры','HeadSide','Голова (бок)'),option('Экран синтетика','HeadSide','Голова (бок)'),
+  ];
+  for(const width of [1280,800,480,420]){
+   await page.setViewportSize({width,height:860});
+   const catalogue={...state,kind:'markings',markingOptions:typeOptions};
+   await publish('CharacterCatalog',catalogue);
+   const nav=page.getByRole('navigation',{name:'Категории особенностей'});
+   await nav.getByRole('button',{name:'Все',exact:true}).click();
+   const filter=page.getByRole('button',{name:'Фильтр',exact:true});await filter.click();
+   const type=page.getByRole('combobox',{name:'Тип элемента',exact:true});
+   const race=page.getByRole('combobox',{name:'Расовая категория',exact:true});
+   const choose=async(control,name)=>{await control.click();await page.getByRole('option',{name,exact:true}).click();};
+   for(const [name,count] of [['Хвост',3],['Морды',2],['Уши',3],['Крылья',1]]){
+    await choose(type,name);assert.equal(await page.locator('[data-marking-option]').count(),count,`${name} uses explicit type metadata at ${width}`);
+   }
+   await choose(type,'Морды');await choose(race,'Вульпканин');
+   assert.equal(await page.locator('[data-marking-option]').count(),1,'Race and type filters intersect');
+   const search=page.getByRole('searchbox',{name:'Поиск: Каталог особенностей'});
+   await search.fill('кошачья');assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено');await search.fill('');
+   await choose(type,'Все типы');assert.equal(await page.locator('[data-marking-option]').count(),2,'All types preserves the selected race');
+   await choose(type,'Хвост');await choose(race,'Все расы');
+   await nav.getByRole('button',{name:'Дополнения хвоста',exact:true}).click();
+   assert.equal(await page.locator('[data-marking-option]').count(),1,'Tail extras intersect the tail type');
+   await nav.getByRole('button',{name:'Все',exact:true}).click();
+   await filter.click();assert.equal(await page.locator('[data-marking-option]').count(),3,'Closing filters preserves the type');await filter.click();
+   await choose(type,'Уши');
+   assert.deepEqual(await page.locator('[data-marking-option]').evaluateAll(nodes=>nodes.map(node=>node.dataset.markingOption).sort()),
+    ['Уши сверху','Уши сбоку','Специальные уши'].sort(),'Head render layers do not classify horns, gills or screens as ears');
+   assert.equal(await page.locator('.CharacterEditor').evaluate(e=>e.scrollWidth>e.clientWidth),false,`Type filter overflow at ${width}`);
+   if(process.env.CATALOG_TYPES_SCREENSHOT&&width===420)await page.screenshot({path:process.env.CATALOG_TYPES_SCREENSHOT});
+   const restricted={...catalogue,species:'Vulpkanin',speciesName:'Вульпканин',markingSpeciesRestricted:true};
+   await publish('CharacterCatalog',restricted);await type.waitFor({state:'detached'});await filter.click();
+   assert.equal(await race.isDisabled(),true);assert.equal(await type.isEnabled(),true);
+   assert.equal(await page.locator('[data-marking-option]').count(),3,'A type choice survives racial restriction changes');
+   await choose(type,'Хвост');assert.equal(await page.locator('[data-marking-option]').count(),3,'Types remain usable with racial restrictions');
+   await publish('CharacterCatalog',catalogue);await choose(type,'Уши');
+   await publish('CharacterCatalog',{...catalogue,markingOptions:typeOptions.filter(option=>option.typeId!=='Ears')});
+   await page.waitForFunction(()=>document.querySelector('[aria-label="Тип элемента"]').textContent.includes('Все типы'));
+   assert.equal(await page.locator('[data-marking-option]').count(),9,'Unavailable types clear their stale selection');
+   await publish('CharacterCatalog',catalogue);assert.equal(await page.locator('[data-marking-option]').count(),12);
+   await filter.click();
+  }
   const restrictedCatalogue={...state,kind:'markings',species:'Vulpkanin',speciesName:'Вульпканин',markingSpeciesRestricted:true};
   const restrictionText='Сейчас раса вашего персонажа это "Вульпканин", чтобы выбрать элементы других рас, вам нужно взять черту "Генная модификация"';
   for(const width of [1280,420]){
@@ -168,14 +217,16 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    const warningBox=await warning.boundingBox(),searchBox=await page.getByRole('searchbox').boundingBox();
    assert.ok(warningBox.y+warningBox.height<=searchBox.y,'Restriction notice stays above the search field');
    const blockedFilter=page.getByRole('button',{name:'Фильтр',exact:true});
-   assert.equal(await blockedFilter.getAttribute('aria-disabled'),'true');
+   assert.equal(await blockedFilter.isEnabled(),true,'Type filters remain available with racial restrictions');
    await blockedFilter.evaluate(element=>element.click());
-   assert.equal(await blockedFilter.getAttribute('aria-expanded'),'false');
-   assert.equal(await page.getByRole('combobox',{name:'Расовая категория',exact:true}).count(),0);
+   assert.equal(await blockedFilter.getAttribute('aria-expanded'),'true');
+   assert.equal(await page.getByRole('combobox',{name:'Расовая категория',exact:true}).isDisabled(),true);
+   assert.equal(await page.getByRole('combobox',{name:'Тип элемента',exact:true}).isEnabled(),true);
    await page.getByRole('searchbox').fill('нетэлемента');assert.equal(await warning.innerText(),restrictionText);
    await page.getByRole('searchbox').fill('');
    assert.equal(await page.locator('.CharacterEditor').evaluate(e=>e.scrollWidth>e.clientWidth),false);
    if(process.env.RESTRICTION_SCREENSHOT&&width===420)await page.screenshot({path:process.env.RESTRICTION_SCREENSHOT});
+   await blockedFilter.click();
    await publish('CharacterCatalog',{...restrictedCatalogue,markingSpeciesRestricted:false});
    assert.equal(await page.getByRole('note').count(),0,'The notice disappears when the racial restriction is removed');
    await blockedFilter.click();assert.equal(await page.getByRole('combobox',{name:'Расовая категория',exact:true}).count(),1);
@@ -243,6 +294,6 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   await page.getByRole('button',{name:'Закрыть выбор цвета'}).click();
   assert.ok(await page.evaluate(()=>window.__sent.some(e=>e.type==='act/color-picker-close'&&e.payload.id==='test')));
   assert.deepEqual(errors,[]);
-  console.log('PASS: 1280/800/480/420 selected elements left and preview right; scoped undo/redo actions; both preview backgrounds; large catalogue; category-specific catalogue checkbox, paired-side dropdown, glow card control, preview arousal, tooltip occlusion relay and equipment name search; floating catalogue with horizontal categories, Common group, all limbs, collapsible selected categories, racial categories, restricted filter and red notice, live restriction changes, combined filters, multi-race elements, internal search and Escape; native color dialog and color relay.');
+  console.log('PASS: 1280/800/480/420 selected elements left and preview right; scoped undo/redo actions; both preview backgrounds; large catalogue; category-specific catalogue checkbox, paired-side dropdown, glow card control, preview arousal, tooltip occlusion relay and equipment name search; floating catalogue with horizontal categories, Common group, all limbs, collapsible selected categories, racial and anatomy type filters, restricted race selector and red notice, live restriction changes, combined filters, multi-race elements, internal search and Escape; native color dialog and color relay.');
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});

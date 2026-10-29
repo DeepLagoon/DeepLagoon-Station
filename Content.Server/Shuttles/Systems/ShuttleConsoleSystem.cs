@@ -86,6 +86,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             subs.Event<ShuttleConsoleFTLPositionMessage>(OnPositionFTLMessage);
             subs.Event<ToggleFTLLockRequestMessage>(OnToggleFTLLock);
             subs.Event<ShuttleHullResetMessage>(OnHullReset);
+            subs.Event<ShuttleHullViewMessage>(OnHullView);
             subs.Event<BoundUIClosedEvent>(OnConsoleUIClose);
         });
 
@@ -173,6 +174,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             return;
         }
 
+        RemoveHullViewer(uid, args.Actor);
         RemovePilot(args.Actor);
     }
 
@@ -438,7 +440,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             var state = new ShuttleBoundUserInterfaceState(navState, mapState, dockState)
             {
                 ShieldState = shuttleGridUid is { } shieldGrid ? _shipShields.GetShieldState(shieldGrid) : null,
-                HullState = consoleXform?.Anchored == true ? GetHullState(shuttleGridUid) : null,
+                HullState = consoleXform?.Anchored == true && _hullViewers.ContainsKey(consoleUid)
+                    && shuttleGridUid is { } hullGrid ? _hullStates.GetValueOrDefault(hullGrid) : null,
                 FireControlState = EntityManager.System<Content.Server._Mono.FireControl.FireControlSystem>()
                     .GetConsoleState(consoleUid, navState)
             };
@@ -480,6 +483,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 
     private void OnConsoleShutdown(EntityUid uid, ShuttleConsoleComponent component, ComponentShutdown args)
     {
+        _hullViewers.Remove(uid);
         ClearPilots(component);
     }
 

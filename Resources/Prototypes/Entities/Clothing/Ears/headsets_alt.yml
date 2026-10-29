@@ -15,6 +15,9 @@
   id: ClothingHeadsetAltCargo
   name: quartermaster's over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCargo
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -31,6 +34,9 @@
   id: ClothingHeadsetAltCentCom
   name: CentComm over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCentCom
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -47,6 +53,9 @@
   id: ClothingHeadsetAltCommand
   name: command over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCommand
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -61,6 +70,9 @@
   id: ClothingHeadsetAltEngineering
   name: chief engineer's over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonEngineering
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -77,6 +89,9 @@
   id: ClothingHeadsetAltMedical
   name: chief medical officer's over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonMedical
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -96,6 +111,9 @@
   id: ClothingHeadsetAltSecurity
   name: head of security's over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonSecurity
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -112,6 +130,9 @@
   id: ClothingHeadsetAltScience
   name: research director's over-ear headset
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonScience
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -147,6 +168,9 @@
   id: ClothingHeadsetAltFreelancer
   name: vanguard over-ear headset
   components:
+    - type: TypingIndicatorClothing
+      proto: DeepLagoonFreelance
+      priority: 10
     - type: Headset
   #  - type: EncryptionKeyHolder #Mono parity with ClothingHeadset key capacity.
   #      keySlots: 5

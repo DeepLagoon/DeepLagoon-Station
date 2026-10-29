@@ -1,6 +1,8 @@
 - type: vendingMachineInventory
   id: GoodCleanFunInventory
   startingInventory:
+    DLArtCanvas: 6
+    DLArtBrush: 6
     DiceBag: 6
     Paper: 80
     d6Dice: 8

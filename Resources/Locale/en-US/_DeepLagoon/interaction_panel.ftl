@@ -4,8 +4,8 @@ dl-interaction-panel-category-erp = Friendly interactions
 dl-interaction-panel-category-noncon = Hugs
 dl-interaction-panel-category-vore = Playful gestures
 dl-interaction-panel-examine = { $category }: { $status }
-dl-interaction-panel-hint = Yes: allowed; Ask: request; No: disabled.
-dl-interaction-panel-action-hint = Clicking confirms your consent. The recipient is prompted when set to Ask.
+dl-interaction-panel-hint = ERP = No hides all non-neutral actions in your panel. No in a specific category hides its actions. Ask does not require confirmation.
+dl-interaction-panel-action-hint = Available actions execute immediately. Ask does not require confirmation. Follow the server rules.
 dl-interaction-panel-body-head = Head
 dl-interaction-panel-body-hands = Hands
 dl-interaction-panel-body-shoulders = Shoulders
@@ -32,7 +32,7 @@ dl-interaction-panel-busy = A previous request is still pending.
 dl-interaction-panel-unavailable = This interaction is currently unavailable.
 
 dl-interaction-panel-self-mode = Self
-dl-interaction-panel-debug = DEV: all preferences = Yes
+dl-interaction-panel-debug = DEV: targets without a connected player are available
 dl-interaction-panel-preview = Character
 dl-interaction-panel-body-all = All regions
 dl-interaction-panel-body-groin = Groin
@@ -69,13 +69,13 @@ dl-interaction-panel-self-animal-rest = { $user } gets comfortable.
 
 dl-interaction-panel-tab-actions = Interactions
 dl-interaction-panel-tab-custom = My actions
-dl-interaction-panel-editor-help = Up to 32 actions per account. Title: 48 characters; message: 280. Start with $you (your character's name); $target is the target's name. Example: $you gently pats $target. Use plain text without line breaks. The selected preference is checked for both participants: No blocks the action, Ask requires consent. Ask repeats never create new requests automatically. Saving and using actions is logged for moderation.
+dl-interaction-panel-editor-help = Up to 32 actions per account. Title: 48 characters; message: 280. Start with $you (your character's name); $target is the target's name. Example: $you gently pats $target. Use plain text without line breaks. ERP = No hides all non-neutral actions in your panel; No in a specific category hides its actions. Ask does not require confirmation. Saving and using actions is logged for moderation.
 dl-interaction-panel-editor-title = Button title
 dl-interaction-panel-editor-title-example = Gently pat
 dl-interaction-panel-editor-template = Message template ($you and $target)
 dl-interaction-panel-editor-example = $you gently pats $target
 dl-interaction-panel-editor-insert = Insert { $token }
-dl-interaction-panel-editor-preference = Action category (Neutral ignores preferences)
+dl-interaction-panel-editor-preference = Action category
 dl-interaction-panel-editor-region = Body area (choose all for non-humanoids)
 dl-interaction-panel-editor-self = Self
 dl-interaction-panel-editor-other = Others
@@ -127,7 +127,7 @@ dl-interaction-panel-step-2 = Participants
 dl-interaction-panel-step-3 = Color and sound
 dl-interaction-panel-step-4 = Review and save
 dl-interaction-panel-step-text-help = Enter a button name (up to 48 characters) and a message (up to 280). Start with $you and a space: $you is your character, $target is the target. Example: $you gently pats $target. A preview appears below.
-dl-interaction-panel-step-help-1 = Both participants' preferences are checked. No prevents an action, Ask requires consent. Choose All regions for other mobs.
+dl-interaction-panel-step-help-1 = ERP = No hides all non-neutral actions in your panel; No in a specific category hides its actions. Ask does not require confirmation. Choose All regions for other mobs.
 dl-interaction-panel-step-help-2 = Allow the action on yourself, on others, or both. Then select the supported target types.
 dl-interaction-panel-step-help-3 = Enter a color in #RRGGBB format. Sound is optional: keep No sound or select one from the library.
 dl-interaction-panel-review = Name: { $name }
@@ -155,8 +155,14 @@ dl-interaction-panel-compact-close = Close panel
 dl-interaction-panel-compact-preview = Message preview
 dl-interaction-panel-compact-delete-confirm = Delete this action from your library?
 dl-interaction-panel-compact-cancel = Cancel
-dl-interaction-panel-compact-locked = Unavailable: check participants' preferences and action requirements.
+dl-interaction-panel-compact-locked = Unavailable: check action requirements.
 dl-interaction-panel-compact-all = total
 dl-interaction-panel-compact-help = How to use
 dl-interaction-panel-compact-seconds = s
 dl-interaction-panel-compact-body-hint = Click a body part. Click it again to clear the filter.
+dl-interaction-panel-arousal-settings = Arousal and moans
+dl-interaction-panel-automatic-moans = Automatic moans
+dl-interaction-panel-moan-chance = Moan chance
+dl-interaction-panel-moan-help = BlueMoon moans occur on positive stimulation; the default chance rises from 50% arousal to climax. A custom chance replaces that curve. The toggle disables automatic moans.
+dl-interaction-panel-arousal-multiplier = Arousal gain
+dl-interaction-panel-arousal-multiplier-help = 100% is normal stimulation gain; 0% disables stimulation gain. Ordinary-interaction gain is a separate option. Physiology and pregnancy settings are in the character editor.

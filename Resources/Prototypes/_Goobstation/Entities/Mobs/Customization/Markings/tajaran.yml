@@ -70,6 +70,7 @@
   id: TajaranEarsRetro
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/ears.rsi
@@ -79,6 +80,7 @@
   id: TajaranEarsSeparate
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/ears.rsi
@@ -90,6 +92,7 @@
   id: TajaranEarsRetroNear
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/ears.rsi
@@ -99,6 +102,7 @@
   id: TajaranEarsSeparateNear
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/ears.rsi
@@ -121,6 +125,7 @@
   id: TajaranHeadMuzzle
   bodyPart: Head
   markingCategory: Head
+  editorType: Snout
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/head.rsi
@@ -130,6 +135,7 @@
   id: TajaranHeadMuzzleLarge
   bodyPart: Head
   markingCategory: Head
+  editorType: Snout
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/head.rsi
@@ -226,6 +232,7 @@
   id: TajaranEarsBasic
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -237,6 +244,7 @@
   id: TajaranEarsCurled
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -248,6 +256,7 @@
   id: TajaranEarsDroopy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -259,6 +268,7 @@
   id: TajaranEarsFuzzy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -270,6 +280,7 @@
   id: TajaranEarsStubby
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -281,6 +292,7 @@
   id: TajaranEarsTall
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -294,6 +306,7 @@
   id: TajaranEarsTorn
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi
@@ -305,6 +318,7 @@
   id: TajaranEarsWide
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Tajaran]
   sprites:
   - sprite: _Goobstation/Mobs/Customization/Tajaran/felinid_ears.rsi

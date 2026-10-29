@@ -2,6 +2,30 @@
 
 - type: trait
   id: Accentless
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-accentless-name
   description: trait-accentless-desc
   category: SpeechTraits
@@ -19,6 +43,28 @@
 
 - type: trait
   id: SouthernAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-southern-name
   description: trait-southern-desc
   category: SpeechTraits
@@ -28,6 +74,30 @@
 
 - type: trait
   id: PirateAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-pirate-accent-name
   description: trait-pirate-accent-desc
   category: SpeechTraits
@@ -37,6 +107,28 @@
 
 - type: trait
   id: CowboyAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-cowboy-name
   description: trait-cowboy-desc
   category: SpeechTraits
@@ -47,6 +139,30 @@
 
 - type: trait
   id: GermanAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-german-name
   description: trait-german-desc
   category: SpeechTraits
@@ -56,6 +172,30 @@
 
 - type: trait
   id: ItalianAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-italian-name
   description: trait-italian-desc
   category: SpeechTraits
@@ -66,6 +206,30 @@
 
 - type: trait
   id: FrenchAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-french-name
   description: trait-french-desc
   category: SpeechTraits
@@ -75,6 +239,30 @@
 
 - type: trait
   id: SpanishAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-spanish-name
   description: trait-spanish-desc
   category: SpeechTraits
@@ -84,6 +272,30 @@
 
 - type: trait
   id: Liar
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-liar-name
   description: trait-liar-desc
   category: SpeechTraits
@@ -95,6 +307,30 @@
 # Mono
 - type: trait
   id: RussianAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-russian-name
   description: trait-russian-desc
   category: SpeechTraits
@@ -106,6 +342,28 @@
 
 - type: trait
   id: SocialAnxiety
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-socialanxiety-name
   description: trait-socialanxiety-desc
   category: SpeechTraits
@@ -119,6 +377,30 @@
 
 - type: trait
   id: FrontalLisp
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
+  points: 0
+  slots: 1
   name: trait-frontal-lisp-name
   description: trait-frontal-lisp-desc
   category: SpeechTraits

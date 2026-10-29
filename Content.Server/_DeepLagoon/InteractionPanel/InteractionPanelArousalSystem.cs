@@ -1,6 +1,7 @@
 using System.Linq;
 using Content.Server._DeepLagoon.BodyCustomization;
 using Content.Server.Chat.Managers;
+using Content.Server.Chat.Systems;
 using Content.Shared.Chat;
 using Content.Shared.Humanoid;
 using Content.Shared.Mobs.Components;
@@ -8,6 +9,7 @@ using Content.Shared.Mobs.Systems;
 using Content.Shared._DeepLagoon.InteractionPanel;
 using Robust.Server.Audio;
 using Robust.Shared.Audio;
+using Robust.Shared.Configuration;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
@@ -19,12 +21,13 @@ namespace Content.Server._DeepLagoon.InteractionPanel;
 public sealed partial class InteractionPanelArousalSystem : EntitySystem
 {
     [Dependency] private IPrototypeManager _prototypes = default!;
-    [Dependency] private MobThresholdSystem _thresholds = default!;
     [Dependency] private AudioSystem _audio = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private IChatManager _chat = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private BodyCustomizationSystem _bodyCustomization = default!;
+    [Dependency] private INetConfigurationManager _cfg = default!;
+    [Dependency] private ChatSystem _chatSystem = default!;
     private TimeSpan _nextRefresh;
     private TimeSpan _lastRefresh;
     private InteractionPanelArousalPrototype Settings => _prototypes.Index<InteractionPanelArousalPrototype>(new ProtoId<InteractionPanelArousalPrototype>("InteractionPanelArousal"));
@@ -33,65 +36,133 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
     {
         var arousal = EnsureComp<InteractionPanelArousalComponent>(uid);
         RefreshMaximum(uid, arousal);
-        _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
+        EnsureComp<BlueMoonPhysiologyComponent>(uid);
+        UpdateBodyArousal(uid, arousal);
     }
 
-    public float Maximum(EntityUid uid)
-    {
-        var settings = Settings;
-        var health = _thresholds.TryGetDeadThreshold(uid, out var threshold) ? (float)threshold.Value : settings.FallbackHealth;
-        return InteractionPanelArousalRules.Capacity(health, settings.HealthMultiplier, settings.FallbackHealth);
-    }
+    public float Maximum(EntityUid uid) => BlueMoonArousalRules.Threshold(Preferences(uid).Tolerance);
+
+    public BlueMoonPreferences Preferences(EntityUid uid) =>
+        TryComp<InteractionPanelPreferencesComponent>(uid, out var preferences)
+            ? preferences.Profile.ArousalPreferences.Sanitize() : new();
 
     private void RefreshMaximum(EntityUid uid, InteractionPanelArousalComponent arousal)
     {
-        var maximum = Maximum(uid);
-        if (arousal.Maximum == maximum) return;
+        var preferences = Preferences(uid);
+        var maximum = BlueMoonArousalRules.Threshold(preferences.Tolerance);
+        var parts = ProducingParts(uid);
+        if (arousal.Maximum == maximum && arousal.Physiology == preferences && arousal.ProducingParts.SequenceEqual(parts)) return;
+        arousal.ProducingParts = parts;
         arousal.Maximum = maximum;
+        arousal.Physiology = preferences;
         Dirty(uid, arousal);
+    }
+
+    public override void Initialize()
+    {
+        base.Initialize();
+        InitializePhysiology();
     }
 
     public override void Update(float frameTime)
     {
         if (_timing.CurTime < _nextRefresh) return;
-        var elapsed = Math.Clamp((float)(_timing.CurTime - _lastRefresh).TotalSeconds, 0, 2);
+        var elapsed = Math.Max(0, (float)(_timing.CurTime - _lastRefresh).TotalSeconds);
         _lastRefresh = _timing.CurTime;
         _nextRefresh = _timing.CurTime + TimeSpan.FromSeconds(1);
-        // Учитываем изменение максимального здоровья, даже когда действия не выполняются.
         var query = EntityQueryEnumerator<InteractionPanelArousalComponent>();
         while (query.MoveNext(out var uid, out var arousal))
         {
+            SyncPreferences(uid, arousal);
             RefreshMaximum(uid, arousal);
-            if (arousal.Current < arousal.Maximum)
-            {
-                var previous = arousal.Current;
-                InteractionPanelArousalRules.Add(ref arousal.Current, -Math.Max(0, Settings.DecayPerSecond) * elapsed, arousal.Maximum);
-                if (arousal.Current != previous) Dirty(uid, arousal);
-                _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
-                continue;
-            }
-            arousal.Current = 0;
-            arousal.RecoveryUntil = _timing.CurTime + Settings.RecoveryDuration;
-            Dirty(uid, arousal);
-            Discharge(uid, uid);
-            _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
+            var previous = arousal.Current;
+            arousal.Current = Math.Max(0, arousal.Current - Math.Max(0, Settings.DecayPerSecond) * elapsed);
+            if (arousal.Current != previous) Dirty(uid, arousal);
+            UpdateBodyArousal(uid, arousal);
+            UpdatePhysiology(uid);
         }
     }
 
-    public void AdjustArousal(EntityUid source, EntityUid target, float amount)
+    private void SyncPreferences(EntityUid uid, InteractionPanelArousalComponent arousal)
     {
-        if (!float.IsFinite(amount) || amount == 0 || !TryComp<MobStateComponent>(target, out var mob) || mob.CurrentState != Content.Shared.Mobs.MobState.Alive) return;
+        if (!TryComp<ActorComponent>(uid, out var actor)) return;
+        arousal.AutomaticMoans = _cfg.GetClientCVar(actor.PlayerSession.Channel, InteractionPanelCVars.AutomaticMoans);
+        arousal.MoanChance = InteractionPanelArousalRules.ClampMoanChance(_cfg.GetClientCVar(actor.PlayerSession.Channel, InteractionPanelCVars.MoanChance));
+        arousal.ArousalMultiplier = InteractionPanelArousalRules.ClampMultiplier(_cfg.GetClientCVar(actor.PlayerSession.Channel, InteractionPanelCVars.ArousalMultiplier));
+    }
+
+    private bool EroticEffectsAllowed(EntityUid uid) => Preferences(uid).Enabled;
+
+    private void TryInteractionMoan(EntityUid uid, InteractionPanelArousalComponent arousal, float amount)
+    {
+        if (amount <= 0 || !arousal.AutomaticMoans || !EroticEffectsAllowed(uid)) return;
+        var custom = TryComp<ActorComponent>(uid, out var actor)
+            && _cfg.GetClientCVar(actor.PlayerSession.Channel, InteractionPanelCVars.CustomMoanChance);
+        if (custom && !InteractionPanelArousalRules.CanMoan(arousal.Current, arousal.Maximum, arousal.AutomaticMoans, arousal.MoanChance)) return;
+        var chance = custom ? arousal.MoanChance : BlueMoonArousalRules.MoanChance(arousal.Current, arousal.Maximum);
+        if (_random.Prob(chance / 100)) _chatSystem.TryEmoteWithChat(uid, "ExtendedMoan");
+    }
+
+    public void AdjustArousal(EntityUid source, EntityUid target, float amount, bool interaction = true,
+        string? bodyPart = null, string? fluidDestination = null, float? rawLimit = null)
+    {
+        if (!float.IsFinite(amount) || !TryComp<MobStateComponent>(target, out var mob)
+            || mob.CurrentState != Content.Shared.Mobs.MobState.Alive || !EroticEffectsAllowed(target)) return;
         var arousal = EnsureComp<InteractionPanelArousalComponent>(target);
-        if (amount > 0 && arousal.RecoveryUntil > _timing.CurTime) return;
+        SyncPreferences(target, arousal);
         RefreshMaximum(target, arousal);
-        var discharged = InteractionPanelArousalRules.Add(ref arousal.Current, amount, arousal.Maximum);
-        Dirty(target, arousal);
-        if (discharged)
+        if (arousal.NeverAroused || amount > 0 && IsChastened(target, bodyPart)) return;
+        if (rawLimit is { } limit)
         {
-            arousal.RecoveryUntil = _timing.CurTime + Settings.RecoveryDuration;
-            Discharge(source, target);
+            if (arousal.Current < limit) arousal.Current = Math.Max(0, arousal.Current + amount);
+            Dirty(target, arousal);
+            UpdateBodyArousal(target, arousal);
+            return;
         }
-        _bodyCustomization.UpdateGenitalArousal(target, arousal.Current, arousal.Maximum);
+        var preferences = Preferences(target);
+        var sensitivity = preferences.Sensitivity(bodyPart);
+        var adjusted = amount * BlueMoonArousalRules.StimulationMultiplier(sensitivity);
+        if (sensitivity == BlueMoonSensitivity.EdgingOnly && arousal.Current + adjusted >= arousal.Maximum * .8f)
+            arousal.Current = arousal.Maximum * .8f - 1;
+        var neutral = interaction && TryComp<ActorComponent>(target, out var actor)
+            && _cfg.GetClientCVar(actor.PlayerSession.Channel, InteractionPanelCVars.NeutralArousal);
+        adjusted = InteractionPanelArousalRules.Gain(adjusted, arousal.ArousalMultiplier, neutral);
+        arousal.Current = Math.Max(0, arousal.Current + adjusted);
+        Dirty(target, arousal);
+        TryInteractionMoan(target, arousal, amount * BlueMoonArousalRules.StimulationMultiplier(sensitivity));
+        if (interaction && arousal.Current > arousal.Maximum)
+            TryClimax(target, source == target ? null : source, bodyPart, fluidDestination);
+        UpdateBodyArousal(target, arousal);
+    }
+
+    public bool TryClimax(EntityUid uid, EntityUid? partner = null, string? bodyPart = null,
+        string? destination = null, EntityUid? container = null, bool allParts = true, bool automaticCycle = true)
+    {
+        if (!TryComp<MobStateComponent>(uid, out var mob) || mob.CurrentState != Content.Shared.Mobs.MobState.Alive
+            || !EroticEffectsAllowed(uid)) return false;
+        var arousal = EnsureComp<InteractionPanelArousalComponent>(uid);
+        if (arousal.NeverAroused) return false;
+        var preferences = Preferences(uid);
+        if (automaticCycle)
+        {
+            arousal.Orgasms++;
+            arousal.RecoveryUntil = _timing.CurTime + TimeSpan.FromSeconds(BlueMoonArousalRules.RecoverySeconds(
+                preferences.Potency, arousal.Orgasms, _random.NextFloat(30, 90), extendedBranch: true));
+        }
+        if (!automaticCycle || preferences.Potency == -1 || arousal.Orgasms < preferences.Potency)
+            EmitClimaxFluids(uid, partner, allParts ? null : bodyPart, destination, container);
+        arousal.Current = 0;
+        Dirty(uid, arousal);
+        Discharge(partner ?? uid, uid);
+        UpdateBodyArousal(uid, arousal);
+        return true;
+    }
+
+    private void UpdateBodyArousal(EntityUid uid, InteractionPanelArousalComponent arousal)
+    {
+        if (!EroticEffectsAllowed(uid) || arousal.NeverAroused || IsChastened(uid, "penis")) _bodyCustomization.SetGenitalArousal(uid, false);
+        else if (arousal.PermanentArousal) _bodyCustomization.SetGenitalArousal(uid, true);
+        else _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
     }
 
     public void PlayActionSound(EntityUid target, InteractionPanelActionDefinition action)

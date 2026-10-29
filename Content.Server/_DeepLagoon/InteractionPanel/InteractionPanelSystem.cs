@@ -37,14 +37,9 @@ public sealed partial class InteractionPanelSystem : EntitySystem
 
     private readonly Dictionary<EntityUid, Panel> _panels = new();
     private readonly Dictionary<(EntityUid User, InteractionPanelCategory Category), TimeSpan> _cooldowns = new();
-    private readonly Dictionary<Guid, Pending> _pending = new();
     private readonly Dictionary<(EntityUid User, InteractionPanelCategory Category), Repeat> _repeats = new();
     private TimeSpan _nextUpdate;
-    private readonly InteractionPanelAskLimiter _askLimiter = new();
-    private readonly Dictionary<Guid, (Guid Sender, Guid Recipient, TimeSpan Expires)> _askHistory = new();
     private sealed record Panel(EntityUid Target, ICommonSession Session, TimeSpan Expires);
-    private sealed record Pending(Guid Token, EntityUid User, EntityUid Target, InteractionPanelCategory Category, ICommonSession Session, ICommonSession Recipient,
-        string Action, TimeSpan Expires, string? MessageKey = null);
     private sealed class Repeat(string action, float interval, TimeSpan next)
     {
         public string Action = action;
@@ -63,14 +58,16 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeNetworkEvent<InteractionPanelCustomDeleteEvent>(OnCustomDelete);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ =>
         {
-            _askLimiter.Clear(); _askHistory.Clear(); _pending.Clear(); _repeats.Clear(); _panels.Clear(); _cooldowns.Clear();
+            _repeats.Clear(); _panels.Clear(); _cooldowns.Clear(); _nextManualClimax.Clear();
         });
         SubscribeNetworkEvent<InteractionPanelOpenEvent>(OnOpen);
         SubscribeNetworkEvent<InteractionPanelActionEvent>(OnAction);
-        SubscribeNetworkEvent<InteractionPanelAnswerEvent>(OnAnswer);
         SubscribeNetworkEvent<InteractionPanelRepeatEvent>(OnRepeat);
         SubscribeNetworkEvent<InteractionPanelCloseEvent>(OnClose);
         SubscribeNetworkEvent<InteractionPanelBodyVisibilityEvent>(OnBodyVisibility);
+        SubscribeNetworkEvent<InteractionPanelClimaxRequestEvent>(OnClimaxRequest);
+        SubscribeLocalEvent<InteractionPanelArousalComponent, BlueMoonClimaxDoAfterEvent>(OnClimaxDoAfter);
+        SubscribeLocalEvent<InteractionPanelArousalComponent, ComponentShutdown>((uid, _, _) => { _nextManualClimax.Remove(uid); });
         SubscribeLocalEvent<HumanoidAppearanceComponent, Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationChangedEvent>(OnBodyChanged);
         SubscribeLocalEvent<HumanoidAppearanceComponent, SexChangedEvent>((uid, _, _) => RefreshAvailability(uid));
     }
@@ -81,11 +78,14 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         _arousal.InitializeMob(uid);
     }
 
-    private void OnProfile(EntityUid uid, HumanoidAppearanceComponent component, ref InteractionPanelProfileLoadedEvent args) =>
+    private void OnProfile(EntityUid uid, HumanoidAppearanceComponent component, ref InteractionPanelProfileLoadedEvent args)
+    {
         EnsureComp<InteractionPanelPreferencesComponent>(uid).Profile = args.Profile.Clone();
+        RefreshAvailability(uid);
+        if (_panels.TryGetValue(uid, out var panel)) SendLibrary(panel.Session);
+    }
 
-    // Отладочный override не меняет БД. Символ определяется только для Configuration != Release.
-    private InteractionPanelConsent Consent(EntityUid uid, InteractionPanelCategory category) => category == InteractionPanelCategory.Neutral || InteractionPanelActions.DebugConsentOverride
+    private InteractionPanelConsent Consent(EntityUid uid, InteractionPanelCategory category) => category == InteractionPanelCategory.Neutral
         ? InteractionPanelConsent.Yes
         : TryComp<InteractionPanelPreferencesComponent>(uid, out var preferences)
             ? preferences.Profile.GetInteractionPanelConsent(category) : InteractionPanelConsent.Ask;
@@ -110,7 +110,10 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     private Sex? BodySex(EntityUid uid) => TryComp<HumanoidAppearanceComponent>(uid, out var appearance) ? appearance.Sex : null;
 
     private bool Allowed(EntityUid user, EntityUid target, InteractionPanelActionDefinition action) =>
-        action.Supports(user == target, HasComp<HumanoidAppearanceComponent>(target)) && action.SupportsSexTraits(BodySexTraits(user), BodySexTraits(target)) && Consent(user, action.Category) != InteractionPanelConsent.No && Consent(target, action.Category) != InteractionPanelConsent.No;
+        (!action.RequiresRecovered || !TryComp<InteractionPanelArousalComponent>(user, out var arousal) || arousal.RecoveryUntil <= _timing.CurTime) &&
+        (action.Category == InteractionPanelCategory.Neutral ||
+            Consent(user, InteractionPanelCategory.Erotic) != InteractionPanelConsent.No && Consent(user, action.Category) != InteractionPanelConsent.No) &&
+        action.Supports(user == target, HasComp<HumanoidAppearanceComponent>(target)) && action.SupportsSexTraits(BodySexTraits(user), BodySexTraits(target));
 
     private void OnVerbs(EntityUid uid, InteractionPanelPreferencesComponent component, GetVerbsEvent<InteractionVerb> args)
     {
@@ -220,46 +223,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         }
         _cooldowns[(user, action.Category)] = _timing.CurTime + TimeSpan.FromSeconds(InteractionPanelActions.MinInterval);
         _panels[user] = panel with { Expires = _timing.CurTime + TimeSpan.FromMinutes(10) };
-        // На себе нажатие является согласием. Ask другого игрока разрешает только один запуск.
-        if (user != panel.Target && Consent(panel.Target, action.Category) == InteractionPanelConsent.Ask)
-        {
-            if (!TryComp<ActorComponent>(panel.Target, out var recipient)) { Stop(user, action.Category); Status(user, "dl-interaction-panel-unavailable"); return; }
-            if (_pending.Values.Any(p => p.Target == panel.Target) ||
-                !_askLimiter.TryRequest(panel.Session.UserId.UserId, recipient.PlayerSession.UserId.UserId, _timing.CurTime))
-            {
-                Stop(user, action.Category); Status(user, "dl-interaction-panel-ask-limited"); return;
-            }
-            // Ask разрешает один запуск. Автоповтор не создаёт новые окна запросов.
-            _repeats.Remove((user, action.Category));
-            var messageKey = action.Template == null && action.HasMessageVariants(user == panel.Target)
-                ? action.MessageKey(user == panel.Target, _random) : null;
-            var pending = new Pending(Guid.NewGuid(), user, panel.Target, action.Category, panel.Session, recipient.PlayerSession,
-                action.Id, _timing.CurTime + TimeSpan.FromSeconds(20), messageKey);
-            _pending[pending.Token] = pending;
-            _askHistory[pending.Token] = (panel.Session.UserId.UserId, recipient.PlayerSession.UserId.UserId, _timing.CurTime + TimeSpan.FromMinutes(2));
-            var preview = action.Template != null ? InteractionPanelCustomRules.Render(action.Template, Name(user), Name(panel.Target))
-                : messageKey != null ? Loc.GetString(messageKey, ("user", Name(user)), ("target", Name(panel.Target))) : null;
-            RaiseNetworkEvent(new InteractionPanelAskEvent(pending.Token, Name(user), action.Id, action.Title, preview), recipient.PlayerSession);
-            Status(user, "dl-interaction-panel-sent");
-            return;
-        }
         Execute(user, panel.Target, action);
-    }
-
-    private void OnAnswer(InteractionPanelAnswerEvent args, EntitySessionEventArgs session)
-    {
-        // Получатель может заблокировать отправителя даже после закрытия им панели.
-        if (!args.Accepted && args.Block && _askHistory.TryGetValue(args.Token, out var issued) &&
-            issued.Recipient == session.SenderSession.UserId.UserId && issued.Expires > _timing.CurTime)
-            _askLimiter.Decline(issued.Sender, issued.Recipient, _timing.CurTime, true);
-        if (session.SenderSession.AttachedEntity is not { } target || !_pending.TryGetValue(args.Token, out var pending) ||
-            pending.Target != target || pending.Recipient != session.SenderSession) return;
-        _pending.Remove(args.Token);
-        if (!args.Accepted) { _askLimiter.Decline(pending.Session.UserId.UserId, pending.Recipient.UserId.UserId, _timing.CurTime, args.Block); Stop(pending.User, pending.Category); Status(pending.User, "dl-interaction-panel-declined"); return; }
-        var action = FindAction(pending.User, pending.Action);
-        if (pending.Expires < _timing.CurTime || !ValidPanel(pending.User, pending.Session, GetNetEntity(target)) ||
-            action == null || !Allowed(pending.User, target, action)) { Stop(pending.User, pending.Category); Status(pending.User, "dl-interaction-panel-unavailable"); return; }
-        Execute(pending.User, target, action, pending.MessageKey);
     }
 
     private void Execute(EntityUid user, EntityUid target, InteractionPanelActionDefinition action, string? messageKey = null)
@@ -279,9 +243,13 @@ public sealed partial class InteractionPanelSystem : EntitySystem
             if (TryComp<ActorComponent>(participant, out var actor))
                 _chat.ChatMessageToOne(ChatChannel.Emotes, message, wrapped, EntityUid.Invalid, false, actor.PlayerSession.Channel, color);
         _arousal.PlayActionSound(target, action);
-        _arousal.AdjustArousal(user, target, action.ArousalGain);
+        _arousal.AdjustArousal(user, target, user == target ? action.UserArousalGain ?? action.TargetArousalGain ?? action.ArousalGain : action.TargetArousalGain ?? action.ArousalGain, interaction: action.RawArousalLimit == null,
+            rawLimit: action.RawArousalLimit,
+            bodyPart: user == target ? action.UserBodyPart ?? action.TargetBodyPart : action.TargetBodyPart,
+            fluidDestination: user == target ? action.UserFluidDestination ?? action.TargetFluidDestination : action.TargetFluidDestination);
         if (user != target)
-            _arousal.AdjustArousal(target, user, action.ArousalGain);
+            _arousal.AdjustArousal(target, user, action.UserArousalGain ?? action.ArousalGain, interaction: action.RawArousalLimit == null, rawLimit: action.RawArousalLimit,
+                bodyPart: action.UserBodyPart, fluidDestination: action.UserFluidDestination);
         if (action.Effect != null) Spawn(action.Effect, new EntityCoordinates(target, Vector2.Zero));
         if (action.Animation != null && _interaction.InRangeAndAccessible(user, target)) RaiseNetworkEvent(new InteractionPanelAnimationEvent(GetNetEntity(user), GetNetEntity(target), action.Animation.Clamped()), Filter.Pvs(user));
         if (_repeats.TryGetValue((user, action.Category), out var repeat)) repeat.Next = _timing.CurTime + TimeSpan.FromSeconds(repeat.Interval);
@@ -289,13 +257,11 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     }
 
     // Без категории останавливаем всё (закрытие панели, потеря цели, общая кнопка Стоп).
-    // С категорией затрагиваем только её повтор и запрос согласия.
+    // С категорией затрагиваем только её повтор.
     private void Stop(EntityUid user, InteractionPanelCategory? category = null)
     {
         foreach (var key in _repeats.Keys.Where(k => k.User == user && (category == null || k.Category == category)).ToArray())
             _repeats.Remove(key);
-        foreach (var (token, pending) in _pending.ToArray())
-            if (pending.User == user && (category == null || pending.Category == category)) _pending.Remove(token);
     }
 
     private void Status(EntityUid user, string key)
@@ -310,17 +276,6 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         base.Update(frameTime);
         if (_nextUpdate > _timing.CurTime) return;
         _nextUpdate = _timing.CurTime + TimeSpan.FromSeconds(0.2);
-        foreach (var (token, issued) in _askHistory.ToArray())
-            if (issued.Expires <= _timing.CurTime) _askHistory.Remove(token);
-        foreach (var (token, pending) in _pending.ToArray())
-        {
-            if (pending.Expires > _timing.CurTime && Exists(pending.Target) && Exists(pending.User) &&
-                pending.Session.AttachedEntity == pending.User && pending.Recipient.AttachedEntity == pending.Target) continue;
-            _pending.Remove(token);
-            _askLimiter.Decline(pending.Session.UserId.UserId, pending.Recipient.UserId.UserId, _timing.CurTime);
-            Stop(pending.User, pending.Category);
-            Status(pending.User, "dl-interaction-panel-expired");
-        }
         foreach (var (user, panel) in _panels.ToArray())
         {
             if (panel.Expires > _timing.CurTime && panel.Session.AttachedEntity == user && CanUse(user, panel.Target)) continue;
@@ -328,7 +283,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         }
         foreach (var (key, repeat) in _repeats.ToArray())
         {
-            if (repeat.Next > _timing.CurTime || _pending.Values.Any(p => p.User == key.User && p.Category == key.Category)) continue;
+            if (repeat.Next > _timing.CurTime) continue;
             repeat.Next = _timing.CurTime + TimeSpan.FromSeconds(repeat.Interval);
             Request(key.User, repeat.Action);
         }

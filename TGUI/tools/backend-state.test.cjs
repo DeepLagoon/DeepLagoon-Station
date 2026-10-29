@@ -9,8 +9,23 @@ const source = fs.readFileSync(path.resolve(__dirname, '../packages/tgui/backend
 const reducerSource = source.slice(source.indexOf('const initialState'), source.indexOf('export const backendMiddleware'))
   .replace('export const backendReducer', 'const backendReducer');
 const context = vm.createContext({});
+vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../packages/tgui/interfaces/gridEditorTabs.mjs'), 'utf8').replaceAll('export ', ''), context);
 vm.runInContext(transformSync(reducerSource + '\nglobalThis.reduce = backendReducer;', { loader: 'ts' }).code, context);
 const update = (state, payload) => context.reduce(state, { type: 'backend/update', payload });
+
+test('a warm Grid Editor presentation replay retains mounted tabs and their in-flight state', () => {
+  let state = update(undefined, { replaceData: true, config: { interface: 'GridEditor' }, data: {} });
+  state = update(state, { gridEditorToken: 'A', data: { token: 'A', items: [{ id: 'a' }], uploadId: 'pending' } });
+  state = update(state, { gridEditorToken: 'B', data: { token: 'B', items: [{ id: 'b' }] } });
+  state = update(state, { data: { activeEditorTab: 'B' } });
+  const tabs = state.data.editorTabs;
+  state = update(state, { replaceData: true, config: { interface: 'GridEditor', presentation: 2 }, data: { chatAppearance: {} } });
+  assert.equal(state.data.editorTabs, tabs);
+  assert.equal(state.data.activeEditorTab, 'B');
+  assert.equal(state.data.editorTabs.A.uploadId, 'pending');
+  state = update(state, { replaceData: true, config: { interface: 'Other' }, data: {} });
+  assert.equal(state.data.editorTabs, undefined);
+});
 
 test('full snapshots remove stale profile fields while preserving static catalogues and partial replies', () => {
   let state = update(undefined, { replaceData: true, config: { interface: 'CharacterEditor' }, data: { available: true, name: 'Old', hairOptions: [1] } });

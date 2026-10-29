@@ -684,9 +684,11 @@ public abstract partial class SharedGunSystem : EntitySystem
         Angle? angle = null,
         bool playSound = true)
     {
+        if (!TryComp(entity, out TransformComponent? xform) || TerminatingOrDeleted(entity))
+            return;
+
         // TODO: Sound limit version.
         var offsetPos = Random.NextVector2(EjectOffset);
-        var xform = Transform(entity);
 
         var coordinates = xform.Coordinates;
         coordinates = coordinates.Offset(offsetPos);

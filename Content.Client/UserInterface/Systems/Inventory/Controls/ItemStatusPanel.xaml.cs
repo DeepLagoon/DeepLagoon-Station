@@ -29,9 +29,8 @@ public sealed partial class ItemStatusPanel : Control
 
     public void SetSide(HandUILocation location)
     {
-        // AN IMPORTANT REMINDER ABOUT THIS CODE:
-        // In the UI, the RIGHT hand is on the LEFT on the screen.
-        // So that a character facing DOWN matches the hand positions.
+        // Texture names follow the original mirrored hand layout:
+        // Right styles the left status panel, and Left styles the right.
 
         Texture? texture;
         Texture? textureHighlight;

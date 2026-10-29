@@ -36,7 +36,7 @@ public sealed partial class GridEnvironmentSystem : EntitySystem
 
     public void RefreshGrid(EntityUid uid, GridEnvironmentComponent environment)
     {
-        if (!HasComp<MapGridComponent>(uid)) return;
+        if (TerminatingOrDeleted(uid) || !HasComp<MapGridComponent>(uid)) return;
         if (environment.SafeAtmosphere) _atmos.SetSafeGridAtmosphere(uid);
         var gravity = EnsureComp<GravityComponent>(uid);
         var previous = gravity.Enabled;
@@ -71,6 +71,7 @@ public sealed partial class GridEnvironmentSystem : EntitySystem
         var receivers = AllEntityQuery<ApcPowerReceiverComponent, TransformComponent>();
         while (receivers.MoveNext(out var uid, out var receiver, out var transform))
         {
+            if (TerminatingOrDeleted(uid) || transform.GridUid is { } grid && TerminatingOrDeleted(grid)) continue;
             var bypass = TryComp<GridEnvironmentComponent>(transform.GridUid, out var environment) && environment.AlwaysPowered;
             if (bypass)
             {
@@ -89,6 +90,7 @@ public sealed partial class GridEnvironmentSystem : EntitySystem
         var consumers = AllEntityQuery<PowerConsumerComponent, TransformComponent>();
         while (consumers.MoveNext(out var uid, out var consumer, out var transform))
         {
+            if (TerminatingOrDeleted(uid) || transform.GridUid is { } grid && TerminatingOrDeleted(grid)) continue;
             var bypass = TryComp<GridEnvironmentComponent>(transform.GridUid, out var environment) && environment.AlwaysPowered;
             if (bypass)
             {
@@ -115,6 +117,7 @@ public sealed partial class GridEnvironmentSystem : EntitySystem
         var grids = AllEntityQuery<GridEnvironmentComponent, MapGridComponent>();
         while (grids.MoveNext(out var uid, out var environment, out _))
         {
+            if (TerminatingOrDeleted(uid)) continue;
             if (environment.ForceGravity && (!TryComp<GravityComponent>(uid, out var gravity) || !gravity.Enabled || !gravity.Inherent)) RefreshGrid(uid, environment);
             if (environment.SafeAtmosphere) _atmos.SetSafeGridAtmosphere(uid);
         }

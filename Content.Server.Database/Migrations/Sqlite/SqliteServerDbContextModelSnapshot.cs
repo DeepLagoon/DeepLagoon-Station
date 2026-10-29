@@ -957,6 +957,11 @@ namespace Content.Server.Database.Migrations.Sqlite
 
             modelBuilder.Entity("Content.Server.Database.Profile", b =>
                 {
+                    b.Property<string>("ArousalPreferencesJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("arousal_preferences_json");
+
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")

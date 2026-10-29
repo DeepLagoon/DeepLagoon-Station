@@ -28,6 +28,15 @@ public sealed partial class ArtCanvasComponent : Component
 {
     [DataField] public string Document = ArtLimits.EmptyDocument;
     [DataField] public string SavedPreview = "";
+    [DataField] public string DraftDocument = "";
+    [DataField] public string DraftPreview = "";
+    [DataField] public Guid RecoveryId;
+    [DataField] public Guid RecoveryOwner;
+    [DataField] public int DraftEpoch;
+    [DataField] public int DraftVersion;
+    [DataField] public string DraftWriter = "";
+    [DataField] public int DraftSequence;
+    public int DraftLeaseGeneration;
     [DataField] public Guid WorkId;
     [DataField] public Guid Author;
     [DataField] public string AuthorName = "";
@@ -42,6 +51,7 @@ public sealed partial class ArtCanvasComponent : Component
 public sealed partial class ArtToolComponent : Component
 {
     [DataField] public string Kind = "brush";
+    [DataField] public Color Color = Color.FromHex("#202020");
 }
 
 [RegisterComponent]
@@ -57,22 +67,54 @@ public sealed partial class ArtFrameComponent : Component
 
 [Serializable, NetSerializable] public enum ArtUiKey : byte { Key }
 [Serializable, NetSerializable]
-public sealed class ArtEditorState(string document, int revision, string tool, string status = "", int result = 0) : BoundUserInterfaceState
+public sealed class ArtEditorState(string document, int revision, string tool, string status = "", int result = 0, string color = "#202020") : BoundUserInterfaceState
 {
     public string Document = document;
+    public string SavedDocument = document;
+    public bool HasDraft;
+    public string RecoveryKey = "";
+    public int DraftEpoch;
+    public int DraftVersion;
+    public string DraftWriter = "";
+    public int DraftSequence;
     public int Revision = revision;
     public string Tool = tool;
+    public string Color = color;
     public string Status = status;
     public int Result = result;
+    public bool TabletAvailable;
+    public bool TabletActive;
+    public int TabletRevision;
 }
 
 /// <summary>Bounded content messages over the existing BUI transport.</summary>
 [Serializable, NetSerializable]
-public sealed class ArtEditorMessage(string action, string text, int revision, int index = 0, int count = 0) : BoundUserInterfaceMessage
+public sealed class ArtEditorMessage(string action, string text, int revision, int index = 0, int count = 0, string writer = "", int sequence = 0, int epoch = 0, int version = 0) : BoundUserInterfaceMessage
 {
     public string Action = action;
     public string Text = text;
     public int Revision = revision;
     public int Index = index;
     public int Count = count;
+    public string Writer = writer;
+    public int Sequence = sequence;
+    public int Epoch = epoch;
+    public int Version = version;
+}
+
+/// <summary>Delivered only to the editing actor; capability links must never be stored in replicated UI state.</summary>
+[Serializable, NetSerializable]
+public sealed class ArtTabletLinkMessage(string url) : BoundUserInterfaceMessage
+{
+    public string Url = url;
+}
+
+[Serializable, NetSerializable]
+public sealed class ArtDraftStatusMessage(string writer, int sequence, int epoch, int version, bool success) : BoundUserInterfaceMessage
+{
+    public string Writer = writer;
+    public int Sequence = sequence;
+    public int Epoch = epoch;
+    public int Version = version;
+    public bool Success = success;
 }

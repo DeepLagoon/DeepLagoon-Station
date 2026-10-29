@@ -1,5 +1,6 @@
 - type: species
   id: Human
+  bonusTraitPoints: 2
   name: species-name-human
   roundStart: true
   prototype: MobHuman

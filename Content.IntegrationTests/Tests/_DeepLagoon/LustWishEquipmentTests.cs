@@ -43,7 +43,7 @@ public sealed class LustWishEquipmentTests
     }
 
     [Test]
-    public async Task ConsentSnapshotsKeysAndRestrictionsAreEnforcedByTheServer()
+    public async Task PanelIgnoresPreferencesWhileNativeConsentKeysAndRestrictionsAreEnforced()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
         var map = await pair.CreateTestMap();
@@ -55,6 +55,8 @@ public sealed class LustWishEquipmentTests
             var coords = new EntityCoordinates(map.Grid, new Vector2(0.5f, 0.5f));
             var user = e.SpawnEntity("MobHuman", coords);
             var target = e.SpawnEntity("MobHuman", coords);
+            foreach (var session in sessions)
+                pair.Server.PlayerMan.SetStatus(session, Robust.Shared.Enums.SessionStatus.InGame);
             pair.Server.PlayerMan.SetAttachedEntity(sessions[0], user);
             pair.Server.PlayerMan.SetAttachedEntity(sessions[1], target);
             var gear = e.System<LustWishEquipmentSystem>();
@@ -74,11 +76,8 @@ public sealed class LustWishEquipmentTests
             Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryEquip(user,target,collar,"neck",silent:true), Is.False, "Native inventory cannot bypass consent");
             panels.OpenPanel(user, target);
             Consent(user, InteractionPanelConsent.Yes);
-            Consent(target, InteractionPanelConsent.No);
-            Request(gear, sessions[0], target, "attach");
-            Assert.That(accessory.Wearer, Is.Null);
             Consent(target, InteractionPanelConsent.Ask);
-            Request(gear, sessions[0], target, "attach");
+            Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryEquip(user, target, collar, "neck", silent: true), Is.False);
             var pending = (IDictionary) typeof(LustWishEquipmentSystem).GetField("_pending", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(gear)!;
             Assert.That(pending.Count, Is.EqualTo(1));
             var token = (Guid) pending.Keys.Cast<object>().Single();
@@ -87,10 +86,19 @@ public sealed class LustWishEquipmentTests
             hands.TryDrop(user, collar);
             Answer(gear, sessions[1], token);
             Assert.That(accessory.Wearer, Is.Null, "Consent must not survive swapping the held item");
-            Consent(target, InteractionPanelConsent.Yes);
+            Consent(user, InteractionPanelConsent.No);
+            Consent(target, InteractionPanelConsent.No);
             Hold(hands, user, collar);
             Request(gear, sessions[0], target, "attach");
-            Assert.That(accessory.Wearer, Is.EqualTo(target));
+            Assert.That(accessory.Wearer, Is.EqualTo(target), "Panel clicks ignore No for both participants");
+            Request(gear, sessions[0], target, "remove", "neck");
+            Assert.That(accessory.Wearer, Is.Null);
+            Assert.That(e.System<Content.Shared.Inventory.InventorySystem>().TryGetSlotEntity(target, "neck", out _), Is.False);
+            Hold(hands, user, collar);
+            Consent(target, InteractionPanelConsent.Ask);
+            Request(gear, sessions[0], target, "attach");
+            Assert.That(accessory.Wearer, Is.EqualTo(target), "Panel clicks execute without an Ask prompt");
+            Assert.That(pending.Count, Is.Zero);
             var originalKey = e.SpawnEntity("DLLustWishKey", coords);
             Hold(hands, user, originalKey);
             Request(gear, sessions[0], target, "lock", "neck");
@@ -118,6 +126,10 @@ public sealed class LustWishEquipmentTests
             Request(gear, sessions[0], target, "leash", "neck");
             Assert.That(accessory.LeashHolder, Is.EqualTo(user));
             Assert.That(e.GetComponent<Content.Shared.Movement.Pulling.Components.PullableComponent>(target).Puller, Is.EqualTo(user));
+            Consent(target, InteractionPanelConsent.No);
+            typeof(LustWishEquipmentSystem).GetField("_nextUpdate", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(gear, TimeSpan.Zero);
+            gear.Update(0);
+            Assert.That(accessory.LeashHolder, Is.EqualTo(user), "Equipment updates must not undo panel clicks because of No");
             Request(gear, sessions[0], target, "unleash", "neck");
             Assert.That(accessory.LeashHolder, Is.Null);
             Assert.That(e.GetComponent<Content.Shared.Movement.Pulling.Components.PullableComponent>(target).Puller, Is.Null);
@@ -151,6 +163,11 @@ public sealed class LustWishEquipmentTests
             var remote = e.SpawnEntity("DLLustWishRemote", coords);
             Hold(hands, user, remote);
             Request(gear, sessions[0], target, "pair", "neck");
+            Request(gear, sessions[0], target, "toggle", "neck", "1");
+            typeof(LustWishEquipmentSystem).GetField("_nextUpdate", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(gear, TimeSpan.Zero);
+            gear.Update(0);
+            Assert.That(e.GetComponent<LustWishAccessoryComponent>(shock).Active, Is.True, "No must not deactivate equipment started through the panel");
+            Request(gear, sessions[0], target, "toggle", "neck", "0");
             Assert.That(e.System<Content.Server.PowerCell.PowerCellSystem>().TryGetBatteryFromSlot(shock, out var cell, out var battery), Is.True);
             var before = battery!.CurrentCharge;
             Request(gear, sessions[0], target, "pulse", "neck");
@@ -189,6 +206,7 @@ public sealed class LustWishEquipmentTests
             var e = pair.Server.EntMan;
             var coords = new EntityCoordinates(map.Grid, new Vector2(0.5f, 0.5f));
             user = e.SpawnEntity("MobHuman", coords);
+            pair.Server.PlayerMan.SetStatus(sessions[0], Robust.Shared.Enums.SessionStatus.InGame);
             pair.Server.PlayerMan.SetAttachedEntity(sessions[0], user);
             var hands = e.System<SharedHandsSystem>();
             var gear = e.System<LustWishEquipmentSystem>();

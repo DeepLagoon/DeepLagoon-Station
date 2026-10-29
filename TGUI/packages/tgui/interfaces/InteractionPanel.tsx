@@ -10,6 +10,7 @@ type Option = { id: string; name: string };
 type Action = { id: string; name: string; body: string; category: number; available: boolean; favorite: boolean; repeating: boolean };
 type Custom = { id: string; title: string; template: string; body: string; category: number; flags: number; color: string; sound: string };
 type Data = {
+  producingParts?: { id: string; name: string }[];
   name: string; self: boolean; humanoid: boolean; debug: boolean; interval: number; status: string;
   labels: Record<string, string>; regions: Option[]; categories: { id: number; name: string }[];
   actions: Action[]; custom: Custom[]; sounds: (Option & { category: string })[];
@@ -18,6 +19,8 @@ type Data = {
   targetDoll: { base: string; parts: Record<string, string> };
   bodyFeatures: { part: string; name: string; visibility: number }[];
   arousalCurrent: number; arousalMaximum: number;
+  automaticMoans: boolean; moanChance: number; arousalMultiplier: number;
+  customMoanChance: boolean; neutralArousal: boolean; recoverySeconds: number; orgasms: number;
   heldName: string; heldSlot: string; gearColors: Option[];
   gear: { slot: string; slotName: string; name: string; locked: boolean; active: boolean; electronic: boolean;
     shock: boolean; hypnosis: boolean; intensity: number; colorable: boolean; leashed: boolean }[];
@@ -48,6 +51,10 @@ export const InteractionPanel = () => {
   ].filter(g => g.items.length);
   const repeating = actions.some(a => a.repeating);
   const [help, setHelp] = useState(false);
+  const [selectedClimaxPart, setClimaxPart] = useState('');
+  const producingParts = data.producingParts || [];
+  const climaxPart = producingParts.some(part => part.id === selectedClimaxPart) ? selectedClimaxPart : producingParts[0]?.id || '';
+  const [climaxDestination, setClimaxDestination] = useState('surface');
   const arousalMaximum = Number.isFinite(data.arousalMaximum) && data.arousalMaximum > 0 ? data.arousalMaximum : 100;
   const arousalPercent = Number.isFinite(data.arousalCurrent)
     ? Math.max(0, Math.min(100, data.arousalCurrent / arousalMaximum * 100)) : 0;
@@ -157,6 +164,31 @@ export const InteractionPanel = () => {
       </div>
       {tab === 'body' && <main className="InteractionPanel__bodySettings">
         <p>{t('body-own')}</p>
+        <section className="InteractionPanel__arousalSettings" aria-label={t('arousal-settings')}>
+          <strong>{t('arousal-settings')}</strong>
+          <small>{t('recovery')}: {Math.ceil(data.recoverySeconds || 0)} {t('compact-seconds')}</small>
+          <button aria-pressed={data.automaticMoans}
+            onClick={() => act('arousal-preference', { id: 'moans', value: data.automaticMoans ? 0 : 1 })}>
+            <Icon aria-hidden="true" name={data.automaticMoans ? 'toggle-on' : 'toggle-off'} /> {t('automatic-moans')}
+          </button>
+          <button aria-pressed={data.customMoanChance} onClick={() => act('arousal-preference', { id: 'custom-chance', value: data.customMoanChance ? 0 : 1 })}>{t('custom-chance')}</button>
+          <ArousalSlider label={t('moan-chance')} value={data.moanChance ?? 20} max={100} disabled={!data.automaticMoans || !data.customMoanChance}
+            onCommit={value => act('arousal-preference', { id: 'chance', value })} />
+          <small>{t('moan-help')}</small>
+          <ArousalSlider label={t('arousal-multiplier')} value={data.arousalMultiplier ?? 100} max={300}
+            onCommit={value => act('arousal-preference', { id: 'multiplier', value })} />
+          <small>{t('arousal-multiplier-help')}</small>
+          <button aria-pressed={data.neutralArousal} onClick={() => act('arousal-preference', { id: 'neutral', value: data.neutralArousal ? 0 : 1 })}>{t('neutral-arousal')}</button>
+          <label><span>{t('climax-part')}</span><EmbeddedSelect value={climaxPart} onChange={e => setClimaxPart(e.target.value)}>
+            {producingParts.map(part => <option key={part.id} value={part.id}>{part.name}</option>)}
+          </EmbeddedSelect></label>
+          <label><span>{t('climax-destination')}</span><EmbeddedSelect value={climaxDestination} onChange={e => setClimaxDestination(e.target.value)}>
+            {['surface', 'mouth', 'vagina', 'anus', 'breasts', 'belly', 'penis', 'nipples', 'urethra'].map(part => <option key={part} value={part}>{t('climax-' + part)}</option>)}
+          </EmbeddedSelect></label>
+          <button disabled={!climaxPart} onClick={() => act('climax', { part: climaxPart, destination: climaxDestination })}>{t('climax')}</button>
+          <button disabled={!climaxPart} onClick={() => act('climax', { part: climaxPart, destination: 'surface', container: '1' })}>{t('climax-container')}</button>
+          <button onClick={() => act('climax', { clearPregnancy: '1' })}>{t('pregnancy-clear')}</button>
+        </section>
         {!(data.bodyFeatures || []).length && <p className="InteractionPanel__empty">{t('body-empty')}</p>}
         {(data.bodyFeatures || []).map(feature => <label key={feature.part}>
           <span>{feature.name}</span>
@@ -198,6 +230,22 @@ export const InteractionPanel = () => {
       </main>}
     </div>
   );
+};
+
+const ArousalSlider = ({ label, value, max, disabled = false, onCommit }: {
+  label: string; value: number; max: number; disabled?: boolean; onCommit: (value: number) => void;
+}) => {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const commit = (value: number) => { if (value !== draft) setDraft(value); onCommit(value); };
+  return <label className="InteractionPanel__arousalSlider"><span>{label}</span>
+    <input type="range" min="0" max={max} step="1" value={draft} disabled={disabled}
+      onChange={e => setDraft(Number(e.target.value))}
+      onPointerUp={e => commit(Number(e.currentTarget.value))}
+      onKeyUp={e => commit(Number(e.currentTarget.value))}
+      onBlur={e => commit(Number(e.currentTarget.value))} />
+    <output>{draft}%</output>
+  </label>;
 };
 
 const CustomEditor = ({ data, act, t, focus }: { data: Data; act: (action: string, payload?: object) => void; t: (key: string) => string; focus: () => void }) => {

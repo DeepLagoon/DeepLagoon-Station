@@ -133,7 +133,7 @@ public sealed partial class LustWishBuildEvent : SimpleDoAfterEvent;
 
 public static class LustWishEquipment
 {
-    public static readonly string[] Slots = ["neck", "wrists", "ankles", "hands", "head", "eyes", "ears", "torso"];
+    public static readonly string[] Slots = ["neck", "wrists", "ankles", "hands", "head", "eyes", "ears", "torso", "penis"];
     public static readonly string[] Colors = ["#FFFFFF", "#AC70D4", "#E978B4", "#3EA5C3", "#CF4141", "#587C48", "#303039"];
     public const string ContainerPrefix = "lustwish-accessory-";
 }

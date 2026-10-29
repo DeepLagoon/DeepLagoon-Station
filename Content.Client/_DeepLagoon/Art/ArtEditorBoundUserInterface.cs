@@ -10,8 +10,10 @@ namespace Content.Client._DeepLagoon.Art;
 
 public sealed class ArtEditorWindow : BaseWindow
 {
-    public override void Close() { if (Panel.CanCloseNative()) base.Close(); }
-    public readonly TguiPanel Panel = new(inheritChatAppearance: false, captureKeyboard: true, showWindowControls: false);
+    public event Action? CloseRequested;
+    public bool ConfirmedClose;
+    public override void Close() { if (ConfirmedClose || !Panel.Web.IsReady) base.Close(); else CloseRequested?.Invoke(); }
+    public readonly TguiPanel Panel = new(inheritChatAppearance: false, captureKeyboard: true, forceTgui: true) { WindowControlsInset = new Vector2(8, 5) };
     public ArtEditorWindow()
     {
         MinSize = new Vector2(700, 520); SetSize = new Vector2(980, 720); AddChild(Panel);
@@ -27,12 +29,14 @@ public sealed class ArtEditorBoundUserInterface(EntityUid owner, Enum uiKey) : B
     private IInputManager? _input;
     private bool _editingText;
     private int _closeRequest;
+    private string _openedTablet = "";
     protected override void Open()
     {
         base.Open();
         _window = this.CreateWindow<ArtEditorWindow>();
         _window.Panel.OnAction += Action;
         _window.Panel.OnClose += RequestClose;
+        _window.CloseRequested += RequestClose;
         _input = IoCManager.Resolve<IInputManager>();
         _input.FirstChanceOnKeyEvent += Key;
         Push();
@@ -43,17 +47,32 @@ public sealed class ArtEditorBoundUserInterface(EntityUid owner, Enum uiKey) : B
         if (state is not ArtEditorState art) return;
         _state = art; Push();
     }
+    protected override void ReceiveMessage(BoundUserInterfaceMessage message)
+    {
+        base.ReceiveMessage(message);
+        if (message is ArtDraftStatusMessage draft && _window != null)
+            _window.Panel.Web.Send("art/draft", new TguiData().String("writer", draft.Writer).Number("sequence", draft.Sequence)
+                .Number("epoch", draft.Epoch).Number("version", draft.Version).Bool("success", draft.Success).ToString());
+        if (message is ArtTabletLinkMessage link && _window != null && link.Url != _openedTablet)
+        {
+            _openedTablet = link.Url;
+            IoCManager.Resolve<IUriOpener>().OpenUri(link.Url);
+        }
+    }
     private void Push()
     {
         if (_window == null || _state == null) return;
         var labels = new TguiData();
-        foreach (var key in new[] { "editor", "save", "discard", "undo", "redo", "close", "brush", "eraser", "mask", "size", "opacity", "layers", "add-layer", "add-mask", "delete-layer", "duplicate-layer", "up", "down", "name", "round", "soft", "flat", "chalk", "spray", "color", "shape", "layer-opacity", "visible", "rename", "cancel", "unsaved", "saving", "too-large", "loading", "confirm-discard", "reset-view", "zoom", "remove-mask" })
+        foreach (var key in ArtTabletLabels.Keys)
             labels.String(key, Loc.GetString("dl-art-ui-" + key));
-        _window.Panel.SetState("ArtStudio", new TguiData().String("document", _state.Document)
-            .Number("revision", _state.Revision).String("tool", _state.Tool).Number("result", _state.Result)
+        _window.Panel.SetState("ArtStudio", new TguiData().String("document", _state.Document).String("savedDocument", _state.SavedDocument).Bool("hasDraft", _state.HasDraft)
+            .String("recoveryKey", _state.RecoveryKey).Number("draftEpoch", _state.DraftEpoch).Number("draftVersion", _state.DraftVersion)
+            .String("draftWriter", _state.DraftWriter).Number("draftSequence", _state.DraftSequence)
+            .Number("revision", _state.Revision).String("tool", _state.Tool).String("color", _state.Color).Number("result", _state.Result)
             .String("status", _state.Status.Length == 0 ? "" : Loc.GetString(_state.Status))
             .Number("closeRequest", _closeRequest).Number("maxLayers", ArtLimits.MaxLayers)
             .Number("maxDocument", ArtLimits.MaxDocumentChars).Number("chunkSize", ArtLimits.ChunkChars)
+            .Bool("tabletAvailable", _state.TabletAvailable).Bool("tabletActive", _state.TabletActive).Number("tabletRevision", _state.TabletRevision)
             .Object("labels", labels).ToString(), Loc.GetString("dl-art-ui-editor"));
     }
     private void RequestClose() { _closeRequest++; Push(); }
@@ -61,11 +80,15 @@ public sealed class ArtEditorBoundUserInterface(EntityUid owner, Enum uiKey) : B
     {
         if (!TguiActionData.TryParse(payload, out var data) || _state == null) return;
         if (action == "editing-text") { _editingText = data!.String("value") == "true"; return; }
-        if (action == "close") { Close(); return; }
+        if (action == "close") { if (_window != null) _window.ConfirmedClose = true; Close(); return; }
         if (action == "discard") { SendMessage(new ArtEditorMessage("discard", "", _state.Revision)); return; }
-        if (action is not ("save" or "preview") || !data!.TryInt("index", out var index)
+        if (action == "tablet-revoke") { SendMessage(new ArtEditorMessage(action, "", _state.Revision)); return; }
+        if (action is not ("save" or "preview" or "tablet" or "draft") || !data!.TryInt("index", out var index)
             || !data.TryInt("count", out var count) || data.String("text") is not { } text || text.Length > ArtLimits.ChunkChars) return;
-        SendMessage(new ArtEditorMessage(action, text, _state.Revision, index, count));
+        data.TryInt("sequence", out var sequence); data.TryInt("epoch", out var epoch); data.TryInt("version", out var version);
+        var writer = data.String("writer") ?? "";
+        if (writer.Length > 32) return;
+        SendMessage(new ArtEditorMessage(action, text, _state.Revision, index, count, writer, sequence, epoch, version));
     }
     private void Key(KeyEventArgs args, KeyEventType type)
     {

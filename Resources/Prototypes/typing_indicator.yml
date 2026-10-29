@@ -1,7 +1,9 @@
 - type: typingIndicator
   id: default
-  typingState: default0
-  idleState: default3
+  spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
+  typingState: normal
+  idleState: normal-idle
+  offset: 0, 0.0625
 
 - type: typingIndicator
   id: empty

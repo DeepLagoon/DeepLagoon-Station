@@ -26,17 +26,12 @@ public sealed class HandsContainer : ItemSlotUIContainer<HandButton>
 
     public override HandButton? AddButton(HandButton newButton)
     {
-        if (MaxButtonCount > 0)
-        {
-            if (ButtonCount >= MaxButtonCount)
-                return null;
+        if (MaxButtonCount > 0 && ButtonCount >= MaxButtonCount)
+            return null;
 
-            _grid.AddChild(newButton);
-        }
-        else
-        {
-            _grid.AddChild(newButton);
-        }
+        var index = GetButtons().Count(button => button.HandLocation <= newButton.HandLocation);
+        _grid.AddChild(newButton);
+        newButton.SetPositionInParent(index);
 
         _grid.Columns = Math.Min(_grid.ChildCount, MaxButtonsPerRow);
         return base.AddButton(newButton);

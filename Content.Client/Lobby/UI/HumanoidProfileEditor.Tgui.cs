@@ -332,6 +332,7 @@ public sealed partial class HumanoidProfileEditor
             data.Array("markings", MarkingSelectionData());
             if (includeCatalogs) data.Array("markingOptions", MarkingOptionData());
         }
+        data.Bool("traitsValid", TraitSelection.Evaluate(p, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(p)).Valid);
         var species = _prototypeManager.Index(p.Species);
         if (mode == "appearance") data.String("hairPreviewImage", HairPreviewImage());
         data.String("name", p.Name).Number("age", p.Age).String("species", p.Species.Id)
@@ -347,6 +348,7 @@ public sealed partial class HumanoidProfileEditor
             .Number("skinTone", Skin.Value).Bool("humanSkin", species.SkinColoration == HumanoidSkinColor.HumanToned)
             .Number("minAge", species.MinAge).Number("maxAge", species.MaxAge)
             .Number("erp", (int)p.ERPConsent).Number("noncon", (int)p.NonConConsent).Number("vore", (int)p.VoreConsent)
+            .Array("physiology", Content.Client._DeepLagoon.InteractionPanel.BlueMoonPreferencesData.Options(p.ArousalPreferences))
             .Number("unavailable", (int)p.PreferenceUnavailable).String("company", p.Company);
         if (mode == "appearance" && includeCatalogs)
         {
@@ -372,24 +374,24 @@ public sealed partial class HumanoidProfileEditor
         }
         else if (mode == "traits")
         {
-            if (includeCatalogs) data.Array("traits", _prototypeManager.EnumeratePrototypes<TraitPrototype>().OrderBy(t => Loc.GetString(t.Name))
-                .Where(t => !t.Disabled && !t.SpeciesBlacklist.Contains(p.Species))
-                .Select(t => new TguiData().String("id", t.ID).String("name", Loc.GetString(t.Name))
-                    .String("description", t.Description is { } description ? Loc.GetString(description) : "")
-                    .String("category", t.Category is { } category && _prototypeManager.TryIndex(category, out var cat) ? Loc.GetString(cat.Name) : Loc.GetString("humanoid-profile-editor-traits-default-category"))
-                    .Number("cost", t.Cost).Bool("selected", p.TraitPreferences.Contains(t.ID))
-                    .Bool("visible", p.TraitPreferences.Contains(t.ID) || CanSelectTguiTrait(t))));
+            var status = TraitSelection.Evaluate(p, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(p));
+            if (includeCatalogs) data.Array("traits", _prototypeManager.EnumeratePrototypes<TraitPrototype>()
+                .Where(t => !t.Disabled).OrderBy(t => Loc.GetString(t.Name)).Select(t =>
+                    TguiTraitState(t).String("id", t.ID).String("name", Loc.GetString(t.Name))
+                        .String("description", t.Description is { } description ? Loc.GetString(description) : "")
+                        .String("category", t.Category is { } category && _prototypeManager.TryIndex(category, out var cat)
+                            ? Loc.GetString(cat.Name) : Loc.GetString("humanoid-profile-editor-traits-default-category"))
+                        .Number("points", t.Points).Number("slots", t.Slots)));
             else
             {
                 var traits = new TguiData();
-                foreach (var trait in _prototypeManager.EnumeratePrototypes<TraitPrototype>().Where(t => !t.Disabled && !t.SpeciesBlacklist.Contains(p.Species)))
-                    traits.Object(trait.ID, new TguiData().Bool("selected", p.TraitPreferences.Contains(trait.ID))
-                        .Bool("visible", p.TraitPreferences.Contains(trait.ID) || CanSelectTguiTrait(trait)));
+                foreach (var trait in _prototypeManager.EnumeratePrototypes<TraitPrototype>().Where(t => !t.Disabled))
+                    traits.Object(trait.ID, TguiTraitState(trait));
                 data.Object("traitState", traits);
             }
-            data.Array("traitPoints", _prototypeManager.EnumeratePrototypes<TraitCategoryPrototype>().Where(c => c.MaxTraitPoints is >= 0)
-                .Select(c => new TguiData().String("name", Loc.GetString(c.Name)).Number("max", c.MaxTraitPoints!.Value)
-                    .Number("used", p.TraitPreferences.Select(id => _prototypeManager.Index(id)).Where(t => t.Category == c.ID).Sum(t => t.Cost))));
+            data.Object("traitBudget", new TguiData().Number("points", status.Points).Number("slots", status.Slots)
+                .Number("maxSlots", status.MaxSlots).Bool("valid", status.Valid)
+                .Array("reasons", builder => builder.Append(string.Join(',', status.Reasons.Select(GameWebView.Quote)))));
         }
         else if (mode == "company")
         {
@@ -462,11 +464,24 @@ public sealed partial class HumanoidProfileEditor
             .Number("priority", (int)(Profile?.JobPriorities.GetValueOrDefault(job.ID, JobPriority.Never) ?? JobPriority.Never));
     }
 
+    private TguiData TguiTraitState(TraitPrototype trait)
+    {
+        if (Profile == null) return new TguiData();
+        var selected = Profile.TraitPreferences.Contains(trait.ID);
+        var candidate = selected ? Profile : Profile.WithTraitPreference(trait.ID, _prototypeManager);
+        var available = TraitSelection.IsAvailable(trait, candidate, candidate.TraitPreferences,
+            _prototypeManager, _cfgManager, TraitSelection.PreferredJob(candidate), out var reason);
+        var status = TraitSelection.Evaluate(candidate, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(candidate));
+        return new TguiData().Bool("selected", selected).Bool("available", available).Bool("visible", true)
+            .Bool("canSelect", selected || available && status.Valid).String("reason", reason.Length > 0 ? reason
+                : !status.Valid ? string.Join("\n", status.Reasons) : "");
+    }
+
     private bool CanSelectTguiTrait(TraitPrototype trait)
     {
-        if (Profile == null || trait.Disabled || trait.SpeciesBlacklist.Contains(Profile.Species)) return false;
-        return Profile.TraitPreferences.All(id => id == trait.ID ||
-            (!trait.MutuallyExclusiveTraits.Contains(id) && !_prototypeManager.Index(id).MutuallyExclusiveTraits.Contains(trait.ID)));
+        if (Profile == null) return false;
+        var candidate = Profile.WithTraitPreference(trait.ID, _prototypeManager);
+        return TraitSelection.Evaluate(candidate, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(candidate)).Valid;
     }
 
     private string CompanyDataImage(CompanyPrototype company)
@@ -643,7 +658,7 @@ public sealed partial class HumanoidProfileEditor
             case "name": if (value.Length > HumanoidCharacterProfile.MaxNameLength) return false; SetName(value); break;
             case "random-name": RandomizeName(); break;
             case "random-all": RandomizeEverything(); break;
-            case "save": if (!IsDirty) return false; Save?.Invoke(); break;
+            case "save": if (!IsDirty || !TraitSelection.Evaluate(Profile, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(Profile)).Valid) return false; Save?.Invoke(); break;
             case "reset": ResetToDefault(); break;
             case "import": ImportProfile(); break;
             case "export": ExportProfile(); break;
@@ -738,6 +753,10 @@ public sealed partial class HumanoidProfileEditor
                 if (!args.TryInt("value", out var consent) || !Enum.IsDefined((InteractionPanelConsent)consent)) return false;
                 var consentCategory = action == "erp" ? InteractionPanelCategory.Erotic : action == "noncon" ? InteractionPanelCategory.NonCon : InteractionPanelCategory.Vore;
                 Profile = Profile.WithInteractionPanelConsent(consentCategory, (InteractionPanelConsent)consent); UpdateInteractionPanelPreferences(); SetDirty(); break;
+            case "physiology":
+                if (args.String("id") is not { } physiologyId || !args.TryFloat("value", out var physiologyValue) || !float.IsFinite(physiologyValue)) return false;
+                Profile = Profile.WithArousalPreferences(Profile.ArousalPreferences.WithOption(physiologyId, physiologyValue));
+                SetDirty(); break;
             case "job":
                 if (args.String("id") is not { } jobId || !_prototypeManager.TryIndex<JobPrototype>(jobId, out var job) || !job.SetPreference ||
                     !_requirements.IsAllowed(job, (HumanoidCharacterProfile?)_preferencesManager.Preferences?.SelectedCharacter, out _) ||

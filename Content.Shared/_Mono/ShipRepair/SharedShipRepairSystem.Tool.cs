@@ -51,6 +51,15 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         if (!TryGetChunk(repairData, gridIndices, out var chunk))
             return;
 
+        _toRemoveIds.Clear();
+        foreach (var id in ent.Comp.DoAfters)
+        {
+            if (!_doAfter.IsRunning(id))
+                _toRemoveIds.Add(id);
+        }
+        foreach (var id in _toRemoveIds)
+            ent.Comp.DoAfters.Remove(id);
+
         // first try repair tile if we can
         if (ent.Comp.EnableTileRepair)
         {
@@ -114,32 +123,25 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
                     needsRepair = ev.Repairable;
                 }
 
-                // try repair another if we're already trying to repair this entity
-                if (TryComp<DoAfterComponent>(args.User, out var doAfterComp))
+                // Each tool may still have actions started by another user.
+                var hasIdentical = false;
+                foreach (var doAfterId in ent.Comp.DoAfters)
                 {
-                    var hasIdentical = false;
-                    _toRemoveIds.Clear();
-                    foreach (var doAfterId in ent.Comp.DoAfters)
-                    {
-                        if (!doAfterComp.DoAfters.TryGetValue(doAfterId.Index, out var doAfter)
-                            || doAfter.Args.Event is not ShipRepairDoAfterEvent repairEv)
-                        {
-                            _toRemoveIds.Add(doAfterId);
-                            continue;
-                        }
-
-                        if (repairEv.TargetGridIndices == gridIndices && repairEv.RepairId == id)
-                        {
-                            hasIdentical = true;
-                            break;
-                        }
-                    }
-                    foreach (var remove in _toRemoveIds)
-                        ent.Comp.DoAfters.Remove(remove);
-
-                    if (hasIdentical)
+                    if (!TryComp<DoAfterComponent>(doAfterId.Uid, out var doAfterComp)
+                        || !doAfterComp.DoAfters.TryGetValue(doAfterId.Index, out var doAfter)
+                        || doAfter.Args.Event is not ShipRepairDoAfterEvent repairEv)
                         continue;
+
+                    if ((repairEv.TargetGrid == null || repairEv.TargetGrid == targetGrid.Owner)
+                        && repairEv.TargetGridIndices == gridIndices && repairEv.RepairId == id)
+                    {
+                        hasIdentical = true;
+                        break;
+                    }
                 }
+
+                if (hasIdentical)
+                    continue;
 
                 var enough = !_charges.HasInsufficientCharges(ent, cost);
                 notEnoughCharges |= !enough;
@@ -180,7 +182,8 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
 
         if (_doAfter.TryStartDoAfter(args, out var id))
         {
-            tool.Comp.DoAfters.Add(id.Value);
+            if (_doAfter.IsRunning(id))
+                tool.Comp.DoAfters.Add(id.Value);
             _audio.PlayPredicted(tool.Comp.RepairSound, tool, user);
             // we don't need to spawn it on server, however this makes serverside failures make the effect anyway
             if (_net.IsClient && _timing.IsFirstTimePredicted)

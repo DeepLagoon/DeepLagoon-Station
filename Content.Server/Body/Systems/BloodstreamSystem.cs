@@ -1,3 +1,4 @@
+using Content.Server.Traits;
 using Content.Server.Body.Components;
 using Content.Server.EntityEffects.Effects;
 using Content.Server.Fluids.EntitySystems;
@@ -122,6 +123,8 @@ public sealed partial class BloodstreamSystem : EntitySystem
             if (!_solutionContainerSystem.ResolveSolution(uid, bloodstream.BloodSolutionName, ref bloodstream.BloodSolution, out var bloodSolution))
                 continue;
 
+            if (TryComp<BloodDeficiencyComponent>(uid, out var deficiency) && !_mobStateSystem.IsDead(uid))
+                TryModifyBloodLevel(uid, -(bloodstream.BloodRefreshAmount + bloodstream.BloodMaxVolume * deficiency.BloodLossPercentage), bloodstream);
             // Adds blood to their blood level if it is below the maximum; Blood regeneration. Must be alive.
             if (bloodSolution.Volume < bloodSolution.MaxVolume && !_mobStateSystem.IsDead(uid))
             {

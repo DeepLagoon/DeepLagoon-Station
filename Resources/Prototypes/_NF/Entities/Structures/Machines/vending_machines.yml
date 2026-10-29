@@ -113,7 +113,7 @@
     sprite: _NF/Structures/Machines/VendingMachines/expeditionaryflatpackvend.rsi
 
 - type: entity
-  parent: [StorePresetUplink, VendingMachine] # Mono - Removed BaseStructureDisableAnchoring
+  parent: [BaseStructureDisableAnchoring, StorePresetUplink, VendingMachine]
   id: VendingMachineSyndieContraband
   name: UndergroundVend # Mono
   description: This vending machine has been banned by the TSF due to allowing users to directly access a distant Persean black market. That, of course, hasn't stopped anyone. # Mono

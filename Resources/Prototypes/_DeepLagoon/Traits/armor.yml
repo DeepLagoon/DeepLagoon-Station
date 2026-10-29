@@ -1,0 +1,20 @@
+- type: damageModifierSet
+  id: SuperiorRadiationShielding
+  flatReductions:
+    Radiation: 4
+- type: damageModifierSet
+  id: HardenedCircuits
+  coefficients:
+    Shock: 0.666
+- type: damageModifierSet
+  id: ExtremePoisonResistance
+  coefficients:
+    Poison: 0.1
+- type: damageContainer
+  id: SiliconUnshielded
+  supportedGroups:
+  - Brute
+  supportedTypes:
+  - Heat
+  - Shock
+  - Radiation

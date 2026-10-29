@@ -24,6 +24,43 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class SpeciesAppearanceTests
 {
+    [Test]
+    public async Task CatalogueTypesSeparateEarsFromOtherHeadFeatures()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            using var editor = Editor(pair.Client);
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Synth"), 0);
+            using var state = JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
+            var options = state.RootElement.GetProperty("markingOptions").EnumerateArray()
+                .ToDictionary(option => option.GetProperty("id").GetString()!, option => option.GetProperty("typeId").GetString());
+            foreach (var id in new[] { "BlueMoonEarsHumanBearHeadSide", "VulpEarFennec", "SynthVulpEarFennec",
+                         "CatEars", "HarpyEarsDefault", "LizardHornsKoboldEars" })
+                Assert.That(options[id], Is.EqualTo("Ears"), id);
+            foreach (var id in new[] { "LizardFrillsAquatic", "RobotAntennaTv", "ScreenBlue", "OniHornBull", "RodentiaCheeksRound" })
+                Assert.That(options[id], Is.Empty, id);
+            Assert.That(options["BlueMoonTailsHumanFoxTail"], Is.EqualTo("Tail"));
+            Assert.That(options["VoxTailStripes"], Is.EqualTo("Tail"));
+            Assert.That(options["TajaranHeadMuzzle"], Is.EqualTo("Snout"));
+            Assert.That(options["BlueMoonDeco_wingsWyvernFoldedChest"], Is.EqualTo("Wings"));
+            Assert.That(options["HarpyWingDefaultHuescale"], Is.EqualTo("Wings"));
+            foreach (var (id, type) in options)
+            {
+                var prototype = prototypes.Index<MarkingPrototype>(id);
+                if (prototype.MarkingCategory is MarkingCategories.Tail or MarkingCategories.TailExtras)
+                    Assert.That(type, Is.EqualTo("Tail"), id);
+                if (prototype.MarkingCategory == MarkingCategories.Snout)
+                    Assert.That(type, Is.EqualTo("Snout"), id);
+                if (prototype.MarkingCategory == MarkingCategories.Wings)
+                    Assert.That(type, Is.EqualTo("Wings"), id);
+            }
+            Assert.That(options.Values, Does.Contain("Snout"));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static HumanoidProfileEditor Editor(Robust.UnitTesting.RobustIntegrationTest.ClientIntegrationInstance client) => new(
         client.ResolveDependency<IClientPreferencesManager>(), client.ResolveDependency<IConfigurationManager>(),
         client.ResolveDependency<IEntityManager>(), client.ResolveDependency<IFileDialogManager>(),

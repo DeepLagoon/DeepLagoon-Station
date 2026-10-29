@@ -156,6 +156,15 @@ public sealed partial class ShuttleConsoleSystem
 
         targetCoordinates = _shuttle.ClampCoordinatesToFTLRange(shuttleUid.Value, targetCoordinates);
 
+        var sectorDestination = _transform.ToMapCoordinates(targetCoordinates);
+        if (_mapSystem.TryGetMap(sectorDestination.MapId, out var sectorMap)
+            && EntityManager.System<Content.Server._DeepLagoon.SpaceEnvironment.SpaceEnvironmentSystem>()
+                .BlocksFtl(sectorMap.Value, sectorDestination.Position))
+        {
+            _popup.PopupEntity(Loc.GetString("space-environment-ftl-blocked"), ent.Owner, PopupType.Medium);
+            return;
+        }
+
         List<ShuttleExclusionObject>? exclusions = null;
         GetExclusions(ref exclusions);
 

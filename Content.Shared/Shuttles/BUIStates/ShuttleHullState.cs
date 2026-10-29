@@ -39,3 +39,9 @@ public sealed class ShuttleHullStateMessage(ShuttleHullState? state) : BoundUser
 
 [Serializable, NetSerializable]
 public sealed class ShuttleHullResetMessage : BoundUserInterfaceMessage;
+
+[Serializable, NetSerializable]
+public sealed class ShuttleHullViewMessage(bool active) : BoundUserInterfaceMessage
+{
+    public bool Active = active;
+}

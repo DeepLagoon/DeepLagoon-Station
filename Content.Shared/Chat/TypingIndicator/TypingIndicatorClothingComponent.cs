@@ -20,6 +20,9 @@ public sealed partial class TypingIndicatorClothingComponent : Component
     [DataField("proto", required: true)]
     public ProtoId<TypingIndicatorPrototype> TypingIndicatorPrototype = default!;
 
+    [DataField]
+    public int Priority;
+
     /// <summary>
     ///     This stores the time the item was equipped in someones inventory. If null, item is currently not equipped.
     /// </summary>

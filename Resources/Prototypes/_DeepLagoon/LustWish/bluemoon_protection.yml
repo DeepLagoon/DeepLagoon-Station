@@ -1,0 +1,50 @@
+- type: entity
+  parent: BaseItem
+  id: DLBlueMoonCondom
+  name: condom
+  description: A sealed fluid barrier. Unwrap it in hand and equip through the interaction panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/BlueMoonCondom.rsi
+    layers:
+    - state: wrapped
+      map: [protection]
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.BlueMoonProtectionVisuals.State:
+        protection:
+          wrapped: {state: wrapped}
+          empty: {state: empty}
+          filled: {state: filled}
+          medium: {state: medium}
+          large: {state: large}
+          huge: {state: huge}
+  - type: BlueMoonProtection
+    captureFluids: true
+    wrapped: true
+  - type: LustWishAccessory
+    slot: penis
+    lockable: false
+  - type: SolutionContainerManager
+    solutions:
+      captured:
+        maxVol: 300
+  - type: DrawableSolution
+    solution: captured
+  - type: DrainableSolution
+    solution: captured
+
+- type: entity
+  parent: BaseItem
+  id: DLBlueMoonChastityCage
+  name: chastity cage
+  description: A lockable accessory. Equip or remove through the interaction panel.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/LustWish/BlueMoonChastity.rsi
+    state: icon
+  - type: BlueMoonProtection
+    chastity: true
+  - type: LustWishAccessory
+    slot: penis

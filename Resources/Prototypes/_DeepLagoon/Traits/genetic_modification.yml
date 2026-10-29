@@ -3,5 +3,6 @@
   name: trait-genetic-modification-name
   description: trait-genetic-modification-desc
   category: Quirks
+  slots: 0
   cost: 0
   components: []

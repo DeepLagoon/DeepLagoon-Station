@@ -13,6 +13,7 @@ import { EquipmentBrowser } from './EquipmentBrowser';
 import { filter as fuzzyFilter } from './fuzzySearch'; // DeepLagoon: fuzzy search
 import { CharacterEditorSettings, editorAppearance } from './CharacterEditorSettings';
 import { CharacterAppearance, PreviewBackgroundButton, PreviewArousalButton } from './CharacterAppearance';
+import { BlueMoonPreferences } from './BlueMoonPreferences';
 import { configureNativeChatBackground, clearNativeChatBackground } from '../../tgui-panel/chat/nativeBackground';
 
 const Field = ({ label, children }) => <label className="CharacterEditor__field"><span>{label}</span>{children}</label>;
@@ -129,10 +130,14 @@ const BodyFeatureEditor = ({ feature, features, skinColor, act }) => {
 
 export const CharacterEditor = () => {
   const { data, act } = useBackend();
+  const [traitQuery, setTraitQuery] = useState('');
+  const [showUnavailableTraits, setShowUnavailableTraits] = useState(false);
   const departments = useMemo(() => (data.departments || []).map(department => ({ ...department,
     jobs: department.jobs.map(job => ({ ...job, ...data.jobState?.[job.id] })) })), [data.departments, data.jobState]);
   const traits = useMemo(() => (data.traits || []).map(trait => ({ ...trait, ...data.traitState?.[trait.id] }))
-    .filter(trait => trait.visible !== false), [data.traits, data.traitState]);
+    .filter(trait => (showUnavailableTraits || trait.selected || trait.available)
+      && (trait.name + ' ' + trait.description).toLocaleLowerCase('ru').includes(traitQuery.toLocaleLowerCase('ru'))),
+    [data.traits, data.traitState, showUnavailableTraits, traitQuery]);
   const backgroundRoot = useRef(null);
   const previewTarget = useRef(null);
   useEffect(() => {
@@ -244,7 +249,7 @@ export const CharacterEditor = () => {
           {colorTransfer.color && <span className="CharacterEditor__pipetteColor" style={{ backgroundColor: colorTransfer.color }} />}
           <span className="CharacterEditor__pipetteLabel" aria-live="polite">{colorTransfer.phase === 'pick' ? 'Взять цвет' : colorTransfer.phase === 'apply' ? 'Вставить цвет' : 'Пипетка'}</span>
         </Button>
-        <Button disabled={!data.dirty} color="good" onClick={()=>act('save')}>Сохранить</Button>
+        <Button role="button" aria-disabled={!data.dirty || data.traitsValid === false} disabled={!data.dirty || data.traitsValid === false} color="good" onClick={()=>act('save')}>Сохранить</Button>
         <Button disabled={!data.dirty} onClick={()=>act('reset')}>Сбросить</Button>
         <Button icon={data.maximized ? "compress" : "expand"} onClick={() => act("window-maximize", { value: !data.maximized })}>{data.maximized ? "Свернуть" : "Развернуть"}</Button>
         {data.setup && <Button icon="times" onClick={()=>act('setup/close')}>Закрыть</Button>}
@@ -300,6 +305,10 @@ export const CharacterEditor = () => {
         <Select label="Vore" value={data.vore} options={consentOptions} onChange={change('vore')} />
         <Select label="Приоритет появления" value={data.spawn} options={data.spawnOptions} onChange={change('spawn')} />
       </div>
+        <details className="CharacterEditor__physiology"><summary>Возбуждение, жидкости и физиология</summary>
+          <p>Рост от жидкостей и визуальная беременность отключены по умолчанию. Изменение тела также требует разрешения в настройках химических изменений. Беременность изменяет только живот и описание при осмотре.</p>
+          <BlueMoonPreferences options={data.physiology} act={act} />
+        </details>
       {data.canUsePlantigradeLegs && <label className="CharacterEditor__legShape">
         <input type="checkbox" checked={!!data.plantigradeLegs}
           onChange={event => change('plantigrade-legs')(event.target.checked)} /> Прямые ноги
@@ -340,19 +349,26 @@ export const CharacterEditor = () => {
       </Section>)}
     </>}
     {data.mode === 'traits' && <>
-      <Button color="bad" onClick={() => { if (confirmClear) { act('clear-traits'); setConfirmClear(false); } else setConfirmClear(true); }}>
-        {confirmClear ? 'Подтвердить удаление всех черт' : 'Очистить все черты'}</Button>
-      {confirmClear && <Button onClick={() => setConfirmClear(false)}>Отмена</Button>}
-      {[...new Set(traits.map(trait => trait.category))].map(category => {
-        const points = data.traitPoints?.find(item => item.name === category);
-        return <Section key={category} title={category}>
-          {points && <div className="CharacterEditor__points">Осталось очков: {Math.max(0, points.max - points.used)} / {points.max}
-            <progress max={Math.max(1, points.max)} value={Math.max(0, points.max - points.used)} /></div>}
-          <div className="CharacterEditor__traits">{traits.filter(trait => trait.category === category).map(trait =>
-            <Button fluid key={trait.id} selected={trait.selected} tooltip={trait.description} disabled={!trait.selected && points && points.used + trait.cost > points.max}
-              onClick={() => act('trait', { id: trait.id })}>{trait.name} ({trait.cost})</Button>)}</div>
-        </Section>;
-      })}
+      <Section title="Черты персонажа">
+        <div role="status" className="CharacterEditor__points">
+          Осталось очков: {data.traitBudget?.points ?? 0} · Слоты: {data.traitBudget?.slots ?? 0} / {data.traitBudget?.maxSlots ?? 0}
+        </div>
+        {!data.traitBudget?.valid && <div role="alert">{data.traitBudget?.reasons?.map(reason => <p key={reason}>{reason}</p>)}</div>}
+        <input type="search" aria-label="Поиск черт" placeholder="Поиск черт…" value={traitQuery} onChange={event => setTraitQuery(event.target.value)} />
+        <Button role="button" aria-pressed={showUnavailableTraits} selected={showUnavailableTraits} onClick={() => setShowUnavailableTraits(!showUnavailableTraits)}>Показать недоступные</Button>
+        <Button role="button" color="bad" onClick={() => { if (confirmClear) { act('clear-traits'); setConfirmClear(false); } else setConfirmClear(true); }}>
+          {confirmClear ? 'Подтвердить удаление всех черт' : 'Очистить все черты'}</Button>
+        {confirmClear && <Button role="button" onClick={() => setConfirmClear(false)}>Отмена</Button>}
+      </Section>
+      {[...new Set(traits.map(trait => trait.category))].map(category => <Section key={category} title={category}>
+        <div className="CharacterEditor__traits">{traits.filter(trait => trait.category === category).map(trait =>
+          <Button role="button" fluid key={trait.id} selected={trait.selected} color={trait.selected && !trait.available ? 'bad' : undefined}
+            tooltip={[trait.description, trait.reason].filter(Boolean).join('\n')} aria-disabled={!trait.selected && !trait.canSelect} disabled={!trait.selected && !trait.canSelect}
+            onClick={() => act('trait', { id: trait.id })}>
+            {trait.name} ({trait.points > 0 ? '+' : ''}{trait.points}; слоты: {trait.slots})
+          </Button>)}</div>
+      </Section>)}
+      {!traits.length && <p role="status">Черты не найдены</p>}
     </>}
     {data.mode === 'saved' && <Section title="Сохранённые предметы"><div className="CharacterEditor__tiles">{(data.savedItems||[]).map((item,i)=><div key={i}><div className="CharacterEditor__sprite">{item.images.map((image,j)=><TintedSprite key={j} image={image.url} color={image.color} />)}</div>{item.name}</div>)}</div></Section>}
     {equipmentCache.current && <div style={{display:data.mode==='equipment'?'block':'none'}}><EquipmentBrowser data={equipmentCache.current} act={(action,payload)=>act('equipment/'+action,payload)} /></div>}

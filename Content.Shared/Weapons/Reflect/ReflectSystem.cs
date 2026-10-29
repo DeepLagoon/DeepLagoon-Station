@@ -197,7 +197,7 @@ public sealed partial class ReflectSystem : EntitySystem
     private bool TryReflectProjectile(EntityUid user, EntityUid reflector, EntityUid projectile, ProjectileComponent? projectileComp = null, ReflectComponent? reflect = null)
     {
         if (!Resolve(reflector, ref reflect, false) ||
-            !_toggle.IsActivated((reflector, null)) ||
+            !reflect.Innate && !_toggle.IsActivated((reflector, null)) ||
             !TryComp<ReflectiveComponent>(projectile, out var reflective) ||
             (reflect.Reflects & reflective.Reflective) == 0x0 ||
             !_random.Prob(reflect.ReflectProb) ||
@@ -275,7 +275,7 @@ public sealed partial class ReflectSystem : EntitySystem
         [NotNullWhen(true)] out Vector2? newDirection)
     {
         if (!TryComp<ReflectComponent>(reflector, out var reflect) ||
-            !_toggle.IsActivated((reflector, null)) ||
+            !reflect.Innate && !_toggle.IsActivated((reflector, null)) ||
             !_random.Prob(reflect.ReflectProb))
         {
             newDirection = null;

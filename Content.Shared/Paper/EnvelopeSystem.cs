@@ -67,7 +67,7 @@ public sealed partial class EnvelopeSystem : EntitySystem
 
     private void TryStartDoAfter(Entity<EnvelopeComponent> ent, EntityUid user, TimeSpan delay)
     {
-        if (ent.Comp.EnvelopeDoAfter.HasValue)
+        if (_doAfterSystem.IsRunning(ent.Comp.EnvelopeDoAfter))
             return;
 
         var doAfterEventArgs = new DoAfterArgs(EntityManager, user, delay, new EnvelopeDoAfterEvent(), ent.Owner, ent.Owner)
@@ -80,7 +80,7 @@ public sealed partial class EnvelopeSystem : EntitySystem
         };
 
         if (_doAfterSystem.TryStartDoAfter(doAfterEventArgs, out var doAfterId))
-            ent.Comp.EnvelopeDoAfter = doAfterId;
+            ent.Comp.EnvelopeDoAfter = _doAfterSystem.IsRunning(doAfterId) ? doAfterId : null;
     }
     private void OnDoAfter(Entity<EnvelopeComponent> ent, ref EnvelopeDoAfterEvent args)
     {

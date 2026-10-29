@@ -1,3 +1,5 @@
+using Content.Client._DeepLagoon.SpaceEnvironment;
+using Content.Shared._DeepLagoon.SpaceEnvironment;
 using System.Numerics;
 using Content.Shared._FarHorizons.StarSystem;
 using Content.Shared._FarHorizons.StarSystem.Helpers;
@@ -11,6 +13,7 @@ namespace Content.Client.Shuttles.UI;
 public partial class ShuttleNavControl
 {
     private readonly List<BlipData> _beaconBlips = new();
+    private readonly DrawVertexUV2DColor[] _spaceFillVertices = new DrawVertexUV2DColor[SpaceRegionRadarMesh.VertexCount];
 
     private void DrawStarSystem(DrawingHandleScreen handle, Matrix3x2 worldToShuttle, Matrix3x2 shuttleToView, EntityUid? mapUid)
     {
@@ -19,19 +22,18 @@ public partial class ShuttleNavControl
             return;
 
         var worldToView = worldToShuttle * shuttleToView;
-        var viewScale = MathF.Sqrt((worldToView.M11 * worldToView.M11) + (worldToView.M12 * worldToView.M12));
-
-        var starPos = Vector2.Transform(starSystem.StarSystem.Star.Position, worldToView);
-        var starRadius = Star.NAV_PIXEL_SIZE * starSystem.StarSystem.Star.Radius * viewScale;
-
-        handle.DrawCircle(starPos, starRadius, starSystem.StarSystem.Star.Color.WithAlpha(0.5f));
-
-        foreach (var planet in starSystem.StarSystem.Planets)
-        {
-            var planetPos = Vector2.Transform(planet.Position, worldToView);
-            var planetRadius = Planet.NAV_PIXEL_SIZE * planet.Radius * viewScale;
-            handle.DrawCircle(planetPos, planetRadius, Color.Gray.WithAlpha(0.5f));
-        }
+        Matrix3x2.Invert(worldToView, out var inverse);
+        var origin = Vector2.Transform(MidPointVector, inverse);
+        if (EntManager.TryGetComponent<SpaceEnvironmentComponent>(mapUid, out var environment))
+            SpaceNavigationDraw.Regions(handle, Font, environment, worldToView, PixelSize, UIScale,
+                EntManager.System<SpaceEnvironmentOverlaySystem>().Contours(mapUid!.Value, environment.Definition),
+                EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(mapUid!.Value, environment.Definition), _spaceFillVertices);
+        var system = starSystem.StarSystem;
+        SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
+            Star.NAV_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, origin, UIScale, true);
+        foreach (var planet in system.Planets)
+            SpaceNavigationDraw.Body(handle, Font, planet.Position, planet.Name, Planet.NAV_PIXEL_SIZE * planet.Radius,
+                new Color(0.5f, 0.8f, 1f), worldToView, PixelSize, origin, UIScale, true);
     }
 
     // code stolen from IFF beacon rendering code for grids
@@ -51,6 +53,7 @@ public partial class ShuttleNavControl
         {
             if (xform.MapUid != mapUid ||
                 EntManager.HasComponent<MapGridComponent>(uid) ||
+                EntManager.HasComponent<SectorLandmarkComponent>(uid) ||
                 (iff.Flags & IFFFlags.Hide) != 0x0)
                 continue;
 
@@ -63,7 +66,7 @@ public partial class ShuttleNavControl
 
             var uiXOffset = uiPosition.X - uiXCentre;
             var uiYOffset = uiPosition.Y - uiYCentre;
-            var uiDistance = (int)Math.Sqrt(Math.Pow(uiXOffset, 2) + Math.Pow(uiYOffset, 2));
+            var uiDistance = Math.Max(1, (int)Math.Sqrt(Math.Pow(uiXOffset, 2) + Math.Pow(uiYOffset, 2)));
             var uiX = uiXCentre * uiXOffset / uiDistance;
             var uiY = uiYCentre * uiYOffset / uiDistance;
 

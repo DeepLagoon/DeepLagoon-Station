@@ -1,9 +1,30 @@
 - type: trait
   id: Blindness
+  requirements:
+  - kind: Job
+    inverted: true
+    values:
+    - Borg
+    - MedicalBorg
+  - kind: Trait
+    inverted: true
+    values:
+    - Photophobia
+    - Nearsighted
+    - CyberEyes
+    - SecurityEyesModule
+    - MedicalEyesModule
+    - DiagnosticEyesModule
+    - OmniEyesModule
+    - LightAmplificationModule
+    - ThermographicVisionModule
+    - PoorVision
+  points: 6
+  slots: 1
   name: trait-blindness-name
   description: trait-blindness-desc
   traitGear: WhiteCane
-  category: Disabilities
+  category: Visual
   whitelist:
     components:
       - Blindable
@@ -15,7 +36,7 @@
   name: trait-poor-vision-name
   description: trait-poor-vision-desc
   traitGear: ClothingEyesGlasses
-  category: Disabilities
+  category: Visual
   whitelist:
     components:
       - Blindable
@@ -25,6 +46,8 @@
 
 - type: trait
   id: Narcolepsy
+  points: 6
+  slots: 1
   name: trait-narcolepsy-name
   description: trait-narcolepsy-desc
   category: Disabilities
@@ -43,6 +66,8 @@
 
 - type: trait
   id: Muted
+  points: 6
+  slots: 1
   name: trait-muted-name
   description: trait-muted-desc
   category: Disabilities
@@ -54,9 +79,11 @@
 
 - type: trait
   id: Paracusia
+  points: 1
+  slots: 1
   name: trait-paracusia-name
   description: trait-paracusia-desc
-  category: Disabilities
+  category: Auditory
   components:
     - type: Paracusia
       minTimeBetweenIncidents: 0.1

@@ -67,6 +67,7 @@ public sealed partial class GridEditorSystem
         if (_tab.Preview.Count > _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
         if (_tab.PreviewNext < _tab.PreviewChunks) { AckPreview(); return true; }
         if (_tab.Preview.Count != _tab.PreviewCount) { _tab.PreviewId = null; _tab.Preview.Clear(); return true; }
+        if (_tab.PreviewUploadGeneration == _tab.PreviewGeneration) RememberPreview();
         RaiseNetworkEvent(new GridEditorDraftUpdateEvent(_tab.State.Token, _tab.PreviewUploadGeneration, new List<GridEditorItem>(_tab.Preview), _tab.PreviewExpansion));
         SendTabUpdate(new TguiData().Object("data", new TguiData().String("previewFinished", _tab.PreviewId)).ToString());
         _tab.PreviewId = null; _tab.Preview.Clear(); _tab.PreviewText = null; return true;

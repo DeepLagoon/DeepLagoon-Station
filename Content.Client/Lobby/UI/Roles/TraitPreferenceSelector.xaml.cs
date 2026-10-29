@@ -29,26 +29,26 @@ public sealed partial class TraitPreferenceSelector : Control
     {
         RobustXamlLoader.Load(this);
 
-        Cost = trait.Cost;
+        Cost = -trait.Points;
 
         // Set the trait name
         NameLabel.Text = Loc.GetString(trait.Name);
 
         // Set the cost text and color
         string costText = "";
-        if (trait.Cost > 0)
+        if (Cost > 0)
         {
-            costText = $"-{trait.Cost}";
+            costText = $"-{Cost}";
             CostLabel.FontColorOverride = Color.Red;
         }
-        else if (trait.Cost < 0)
+        else if (Cost < 0)
         {
-            costText = $"+{-trait.Cost}";
+            costText = $"+{-Cost}";
             CostLabel.FontColorOverride = Color.Green;
         }
         else
         {
-            costText = $"{trait.Cost}";
+            costText = $"{Cost}";
             CostLabel.FontColorOverride = Color.Gray;
         }
 

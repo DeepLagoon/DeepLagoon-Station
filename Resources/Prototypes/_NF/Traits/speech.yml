@@ -2,6 +2,28 @@
 
 - type: trait
   id: StreetpunkAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-streetpunk-accent-name
   description: trait-streetpunk-accent-desc
   category: SpeechTraits
@@ -13,6 +35,28 @@
 
 - type: trait
   id: GoblinAccent
+  requirements:
+  - kind: Group
+    groupName: trait-group-accents
+    max: 1
+    values:
+    - Accentless
+    - SouthernAccent
+    - PirateAccent
+    - CowboyAccent
+    - GermanAccent
+    - ItalianAccent
+    - FrenchAccent
+    - SpanishAccent
+    - Liar
+    - RussianAccent
+    - SocialAnxiety
+    - FrontalLisp
+    - BoganAccent
+    - ScottishAccent
+    - StreetpunkAccent
+    - GoblinAccent
+    - Accentless
   name: trait-goblin-accent-name
   description: trait-goblin-accent-desc
   category: SpeechTraits

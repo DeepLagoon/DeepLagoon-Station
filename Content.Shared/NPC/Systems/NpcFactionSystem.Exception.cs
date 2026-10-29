@@ -53,6 +53,9 @@ public sealed partial class NpcFactionSystem
     /// </summary>
     public bool IsIgnored(Entity<FactionExceptionComponent?> ent, EntityUid target)
     {
+        if (IsForcedHostile(ent, target))
+            return false;
+
         if (!Resolve(ent, ref ent.Comp, false))
             return false;
 

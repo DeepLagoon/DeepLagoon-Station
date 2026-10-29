@@ -88,7 +88,11 @@ public partial class InventorySystem : EntitySystem
         if (!_prototypeManager.TryIndex(ent.Comp.TemplateId, out InventoryTemplatePrototype? invTemplate))
             return;
 
-        DebugTools.Assert(ent.Comp.Slots.Length == invTemplate.Slots.Length);
+        if (!ent.Comp.Slots.Select(s => s.Name).SequenceEqual(invTemplate.Slots.Select(s => s.Name)))
+        {
+            RefreshTraitTemplate(ent, ent.Comp);
+            return;
+        }
 
         ent.Comp.Slots = invTemplate.Slots;
 

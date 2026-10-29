@@ -3,6 +3,7 @@
   id: FeroxiEars
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [ Feroxi ]
   sprites:
   - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi
@@ -35,6 +36,7 @@
   id: FeroxiEarsTips
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [ Feroxi ]
   sprites:
   - sprite: _DV/Mobs/Customization/Feroxi/ear_markings.rsi

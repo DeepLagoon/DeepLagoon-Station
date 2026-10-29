@@ -1,4 +1,5 @@
 using Robust.Shared.Serialization;
+using System.Numerics;
 using Robust.Shared.Map;
 using Content.Shared.Shuttles.BUIStates;
 
@@ -16,6 +17,7 @@ public sealed class FireControlConsoleBoundInterfaceState : BoundUserInterfaceSt
     public bool Connected;
     public FireControllableEntry[] FireControllables;
     public NavInterfaceState NavState;
+    public Vector2[] DestroyedWeapons = Array.Empty<Vector2>();
 
     public FireControlConsoleBoundInterfaceState(bool connected, FireControllableEntry[] fireControllables, NavInterfaceState navState)
     {

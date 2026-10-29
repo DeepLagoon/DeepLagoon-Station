@@ -1,0 +1,209 @@
+# Native SS14 chemistry for the BlueMoon arousal cycle.
+- type: reagent
+  id: DLHexacrocin
+  name: reagent-name-dl-hexacrocin
+  desc: reagent-desc-dl-hexacrocin
+  group: Medicine
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: '#FF2BFF'
+  metabolisms:
+    Medicine:
+      metabolismRate: 0.05
+      effects:
+      - !type:BlueMoonChemical
+        chemical: Hexacrocin
+- type: reagent
+  id: DLHexacamphor
+  name: reagent-name-dl-hexacamphor
+  desc: reagent-desc-dl-hexacamphor
+  group: Medicine
+  physicalDesc: reagent-physical-desc-translucent
+  flavor: medicine
+  color: '#D9D9D9'
+  metabolisms:
+    Medicine:
+      metabolismRate: 0.05
+      effects:
+      - !type:BlueMoonChemical
+        chemical: Hexacamphor
+- type: reagent
+  id: DLSemen
+  name: reagent-name-dl-semen
+  desc: reagent-desc-dl-semen
+  group: Foods
+  physicalDesc: reagent-physical-desc-opaque
+  flavor: salty
+  color: '#FFFFFF'
+  recognizable: true
+  metabolisms:
+    Food:
+      metabolismRate: 0.2
+      effects:
+      - !type:SatiateHunger
+        factor: 0.5
+    Drink:
+      metabolismRate: 0.2
+      effects:
+      - !type:SatiateThirst
+        factor: 2
+- type: reagent
+  id: DLFemaleEjaculate
+  name: reagent-name-dl-femaleejaculate
+  desc: reagent-desc-dl-femaleejaculate
+  group: Foods
+  physicalDesc: reagent-physical-desc-opaque
+  flavor: salty
+  color: '#F4EFF4'
+  recognizable: true
+  metabolisms:
+    Food:
+      metabolismRate: 0.05
+      effects:
+      - !type:SatiateHunger
+        factor: 1
+    Drink:
+      metabolismRate: 0.05
+      effects:
+      - !type:SatiateThirst
+        factor: 1
+- type: reagent
+  id: DLSynthLubricant
+  name: reagent-name-dl-synthlubricant
+  desc: reagent-desc-dl-synthlubricant
+  group: Foods
+  physicalDesc: reagent-physical-desc-opaque
+  flavor: salty
+  color: '#5CB2CC'
+  recognizable: true
+  metabolisms:
+    Food:
+      metabolismRate: 0.2
+      effects:
+      - !type:SatiateHunger
+        factor: 0.05
+    Drink:
+      metabolismRate: 0.2
+      effects:
+      - !type:SatiateThirst
+        factor: 2
+- type: moodEffect
+  id: DLOrgasm
+  moodChange: 3
+  timeout: 180
+- type: reaction
+  id: DLCrocin
+  priority: 30
+  minTemp: 400
+  reactants:
+    Carbon:
+      amount: 2
+    Hydrogen:
+      amount: 2
+    Oxygen:
+      amount: 2
+    Water:
+      amount: 1
+  products:
+    DLCrocin: 6
+- type: reaction
+  id: DLHexacrocin
+  priority: 30
+  minTemp: 400
+  reactants:
+    DLCrocin:
+      amount: 6
+    Phenol:
+      amount: 1
+  products:
+    DLHexacrocin: 1
+- type: reaction
+  id: DLCamphor
+  priority: 30
+  minTemp: 400
+  reactants:
+    Carbon:
+      amount: 2
+    Hydrogen:
+      amount: 2
+    Oxygen:
+      amount: 2
+    Sulfur:
+      amount: 1
+  products:
+    DLCamphor: 6
+- type: reaction
+  id: DLHexacamphor
+  priority: 30
+  minTemp: 400
+  reactants:
+    DLCamphor:
+      amount: 6
+    Acetone:
+      amount: 1
+  products:
+    DLHexacamphor: 1
+- type: interactionPanelSound
+  id: final_m1
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_m1.ogg
+  volume: -5
+- type: interactionPanelSound
+  id: final_m2
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_m2.ogg
+  volume: -5
+- type: interactionPanelSound
+  id: final_m3
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_m3.ogg
+  volume: -5
+- type: interactionPanelSound
+  id: final_f1
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_f1.ogg
+  volume: -5
+- type: interactionPanelSound
+  id: final_f2
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_f2.ogg
+  volume: -5
+- type: interactionPanelSound
+  id: final_f3
+  path: /Audio/_DeepLagoon/Interaction_Panel/final_f3.ogg
+  volume: -5
+
+- type: moodEffect
+  id: DLPhysiologyOverdose
+  moodChange: -8
+  timeout: 300
+
+- type: moodEffect
+  id: DLHexacrocinWithdrawal1
+  moodChange: -2
+
+- type: moodEffect
+  id: DLHexacrocinWithdrawal2
+  moodChange: -5
+
+- type: moodEffect
+  id: DLHexacrocinWithdrawal3
+  moodChange: -8
+
+- type: moodEffect
+  id: DLHexacrocinWithdrawal4
+  moodChange: -10
+
+- type: reagent
+  parent: Milk
+  id: DLPhysiologyMilk
+  name: reagent-name-milk
+  desc: reagent-desc-milk
+  metabolisms:
+    Drink:
+      metabolismRate: 0.1
+      effects:
+      - !type:SatiateHunger
+        factor: 1
+      - !type:SatiateThirst
+        factor: 1.5
+      - !type:HealthChange
+        probability: 0.1
+        damage:
+          groups:
+            Brute: -1

@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Adapted from MOLOT-BlueMoon-Station icons/mob/talk.dmi at e9ece923dd956fb78ae6cb83e1eaaf259b61a432. BYOND padding cropped; idle frames extracted by DeepLagoon. Source SHA256: c26095637bf1b71e07d0b876cb75d12f7edcfb57a8b0170a3298536d39490c4a.",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "normal",
+      "delays": [
+        [
+          0.3,
+          0.3,
+          0.3
+        ]
+      ]
+    },
+    {
+      "name": "normal-idle"
+    },
+    {
+      "name": "emote",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "emote-idle"
+    },
+    {
+      "name": "medical",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "medical-idle"
+    },
+    {
+      "name": "science",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "science-idle"
+    },
+    {
+      "name": "engineering",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "engineering-idle"
+    },
+    {
+      "name": "command",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "command-idle"
+    },
+    {
+      "name": "cargo",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "cargo-idle"
+    },
+    {
+      "name": "security",
+      "delays": [
+        [
+          0.3,
+          0.3,
+          0.3,
+          0.4
+        ]
+      ]
+    },
+    {
+      "name": "security-idle"
+    },
+    {
+      "name": "service",
+      "delays": [
+        [
+          0.2,
+          0.3,
+          0.3,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "service-idle"
+    }
+  ]
+}

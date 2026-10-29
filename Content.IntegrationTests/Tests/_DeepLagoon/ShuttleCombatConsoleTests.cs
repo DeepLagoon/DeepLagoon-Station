@@ -21,6 +21,70 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ShuttleCombatConsoleTests
 {
     [Test]
+    public async Task RadarWeaponClicksToggleSelectionWithoutFiringAndGhostsCannotBeSelected()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            using var radar = new FireControlNavControl();
+            using var panel = new FireControlPanel(radar);
+            var first = entities.SpawnEntity(null, MapCoordinates.Nullspace);
+            var second = entities.SpawnEntity(null, MapCoordinates.Nullspace);
+            var firstNet = entities.GetNetEntity(first);
+            var secondNet = entities.GetNetEntity(second);
+            var nav = new NavInterfaceState(512, null, null, new(), Content.Shared._NF.Shuttles.Events.InertiaDampeningMode.Dampen);
+            var weapons = new[]
+            {
+                new FireControllableEntry(firstNet, default, "First"),
+                new FireControllableEntry(secondNet, default, "Second"),
+            };
+            panel.UpdateStatus(new FireControlConsoleBoundInterfaceState(true, weapons, nav));
+            radar.UpdateControllables(first, weapons);
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var markers = (System.Collections.Generic.List<(NetEntity? Entity, Vector2 Position)>) typeof(FireControlNavControl)
+                .GetField("_weaponMarkers", flags)!.GetValue(radar)!;
+            // Hit boxes from the previous draw are in pixels, matching the native radar's input contract.
+            var firstPosition = new Vector2(40, 50);
+            var secondPosition = new Vector2(80, 50);
+            var ghostPosition = new Vector2(120, 50);
+            markers.Add((firstNet, firstPosition * radar.UIScale));
+            markers.Add((secondNet, secondPosition * radar.UIScale));
+            markers.Add((null, ghostPosition * radar.UIScale));
+            var fireRequests = 0;
+            radar.OnRadarClick += _ => fireRequests++;
+            void Click(Vector2 position)
+            {
+                var down = new Robust.Client.UserInterface.GUIBoundKeyEventArgs(Robust.Shared.Input.EngineKeyFunctions.UIClick,
+                    Robust.Shared.Input.BoundKeyState.Down, default, true, position, position * radar.UIScale);
+                typeof(FireControlNavControl).GetMethod("KeyBindDown", flags)!.Invoke(radar, [down]);
+                Assert.That(radar.IsMouseDown(), Is.False, "Selecting a marker must not begin a held burst");
+                var up = new Robust.Client.UserInterface.GUIBoundKeyEventArgs(Robust.Shared.Input.EngineKeyFunctions.UIClick,
+                    Robust.Shared.Input.BoundKeyState.Up, default, true, position, position * radar.UIScale);
+                typeof(FireControlNavControl).GetMethod("KeyBindUp", flags)!.Invoke(radar, [up]);
+            }
+            Click(firstPosition);
+            Assert.That(panel.WeaponsList[firstNet].Pressed, Is.True);
+            Assert.That(panel.WeaponsList[secondNet].Pressed, Is.False);
+            Click(secondPosition);
+            Assert.That(panel.WeaponsList[firstNet].Pressed && panel.WeaponsList[secondNet].Pressed, Is.True);
+            Click(firstPosition);
+            Assert.That(panel.WeaponsList[firstNet].Pressed, Is.False);
+            Click(ghostPosition);
+            Assert.That(panel.WeaponsList[secondNet].Pressed, Is.True);
+            Assert.That(fireRequests, Is.Zero, "Neither live markers nor destroyed ghosts may send a firing click");
+            panel.UpdateStatus(new FireControlConsoleBoundInterfaceState(true, [weapons[0]], nav));
+            radar.UpdateControllables(first, [weapons[0]]);
+            Assert.That(panel.WeaponsList.ContainsKey(secondNet), Is.False, "A destroyed gun must lose its selection button");
+            Click(secondPosition);
+            Assert.That(fireRequests, Is.Zero, "A stale hit box must not select or fire a removed gun");
+            Assert.That(radar.TrySelectWeapon(new Vector2(300, 300)), Is.False, "Free radar space remains available for aiming");
+            entities.DeleteEntity(first);
+            entities.DeleteEntity(second);
+        });
+        await pair.CleanReturnAsync();
+    }
+    [Test]
     public async Task ClassicNavigationFitsRadarAndScrollablePanelsWithManyWeapons()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

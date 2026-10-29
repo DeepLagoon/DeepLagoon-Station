@@ -41,6 +41,9 @@
   name: cargo headset
   description: A headset used by supply employees.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCargo
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -68,6 +71,9 @@
   name: qm headset
   description: A headset used by the quartermaster.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCargo
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -81,6 +87,9 @@
   name: CentComm headset
   description: A headset used by the upper echelons of the Trans-Solar Federation.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCentCom
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -97,6 +106,9 @@
   name: command headset
   description: A headset with a commanding channel.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonCommand
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -112,6 +124,9 @@
   name: engineering headset
   description: A headset for engineers to chat while the station burns around them.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonEngineering
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -141,6 +156,9 @@
   name: medical headset
   description: A headset for the trained staff of the medbay.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonMedical
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -170,6 +188,9 @@
   name: science headset
   description: A sciency headset. Like usual.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonScience
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -186,6 +207,9 @@
   name: medical research headset
   description: A headset that is a result of the mating between medical and science.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonMedical
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -202,6 +226,9 @@
   name: robotics headset
   description: Made specifically for the roboticists, who cannot decide between departments.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonScience
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -231,6 +258,9 @@
   name: security headset
   description: This is used by your elite security force.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonSecurity
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -247,6 +277,9 @@
   name: brigmedic headset
   description: A headset that helps to hear the death cries.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonMedical
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -264,6 +297,9 @@
   name: service headset
   description: Headset used by the service staff, tasked with keeping the station full, happy and clean.
   components:
+  - type: TypingIndicatorClothing
+    proto: DeepLagoonService
+    priority: 10
   - type: ContainerFill
     containers:
       key_slots:
@@ -280,6 +316,9 @@
   name: freelancer headset
   description: This is used by a roaming group of freelancers.
   components:
+    - type: TypingIndicatorClothing
+      proto: DeepLagoonFreelance
+      priority: 10
     - type: ContainerFill
       containers:
         key_slots:

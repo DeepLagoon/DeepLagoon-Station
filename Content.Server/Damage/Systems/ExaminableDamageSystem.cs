@@ -37,7 +37,11 @@ public sealed partial class ExaminableDamageSystem : EntitySystem
         if (messages.Length == 0)
             return;
 
-        var level = GetDamageLevel(uid, component);
+        if (!TryComp<DamageableComponent>(uid, out var damageable) ||
+            !TryComp<DestructibleComponent>(uid, out var destructible))
+            return;
+
+        var level = GetDamageLevel(uid, component, damageable, destructible);
         var msg = Loc.GetString(messages[level]);
         args.PushMarkup(msg,-99);
     }

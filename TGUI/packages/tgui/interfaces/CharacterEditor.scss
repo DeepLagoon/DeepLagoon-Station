@@ -236,7 +236,7 @@
 .CharacterEditor__catalogToolbar { display:flex; align-items:center; gap:8px; flex-shrink:0; padding:10px; }
 .CharacterEditor__catalogToolbar input[type=search] { flex:1; min-width:0; box-sizing:border-box; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
 .CharacterEditor__catalogToolbar > .Button { flex-shrink:0; margin:0; }
-.CharacterEditor__catalogFilter { padding:0 10px 10px; flex-shrink:0; }
+.CharacterEditor__catalogFilter { display:grid; gap:8px; padding:0 10px 10px; flex-shrink:0; }
 .CharacterEditor__catalogFilter label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
 .CharacterEditor__catalogFilter .EmbeddedSelect { flex:1; min-width:150px; border:1px solid #646473; border-radius:4px; background:var(--editor-control-bg,#252b35); color:inherit; padding:7px; font:inherit; }
 .CharacterEditor__catalogContent { min-height:0; overflow:auto; padding:0 10px 12px; }

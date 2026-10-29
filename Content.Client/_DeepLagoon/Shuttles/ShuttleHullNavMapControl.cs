@@ -23,6 +23,8 @@ public sealed class ShuttleHullNavMapControl : NavMapControl
 
     protected override void FrameUpdate(FrameEventArgs args)
     {
+        if (!VisibleInTree)
+            return;
         base.FrameUpdate(args);
         if (MapUid == null || _framedGrid == MapUid || Hull is not { Width: > 0 } hull
             || !EntManager.TryGetComponent(MapUid, out MapGridComponent? grid))

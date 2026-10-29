@@ -45,7 +45,7 @@ public sealed partial class TraitPrototype : IPrototype
     /// The components that get added to the player, when they pick this trait.
     /// </summary>
     [DataField]
-    public ComponentRegistry Components { get; private set; } = default!;
+    public ComponentRegistry Components { get; private set; } = new();
 
     /// <summary>
     /// Gear that is given to the player, when they pick this trait.
@@ -58,6 +58,15 @@ public sealed partial class TraitPrototype : IPrototype
     /// </summary>
     [DataField]
     public int Cost = 0;
+
+    // Legacy prototypes keep their cost and saved ID. New prototypes use EE's signed points.
+    [DataField("points")] private int? _points;
+    public int Points => _points ?? -Cost;
+
+    [DataField] public int Slots = 1;
+    [DataField] public int Priority;
+    [DataField] public List<TraitRequirement> Requirements = new();
+    [DataField(serverOnly: true)] public TraitFunction[] Functions = [];
 
     /// <summary>
     /// Adds a trait to a category, allowing you to limit the selection of some traits to the settings of that category.

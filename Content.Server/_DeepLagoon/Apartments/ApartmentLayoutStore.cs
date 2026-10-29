@@ -14,6 +14,9 @@ public interface IApartmentLayoutStore : IDisposable
     (string Operation, long Price) BeginPurchase(Guid owner, string template, long price);
     void Grant(Guid owner, string template);
     ApartmentDelta Select(Guid owner, ApartmentTemplatePrototype template);
+    ApartmentSnapshot? LoadSnapshot(Guid owner, string template);
+    void SaveSnapshot(Guid owner, string template, ApartmentSnapshot snapshot, ApartmentSnapshot roundEnd);
+    void FinishRound();
 }
 
 /// <summary>Separate prototype DB. Never touches donation balances or the production schema.</summary>
@@ -31,7 +34,26 @@ public sealed class ApartmentLayoutStore : IApartmentLayoutStore
         using var command = _connection.CreateCommand();
         command.CommandText = "PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS layouts (owner TEXT PRIMARY KEY, revision INTEGER NOT NULL, delta TEXT NOT NULL); CREATE TABLE IF NOT EXISTS template_layouts(owner TEXT NOT NULL, template TEXT NOT NULL, delta TEXT NOT NULL, PRIMARY KEY(owner,template)); CREATE TABLE IF NOT EXISTS template_purchases(owner TEXT NOT NULL, template TEXT NOT NULL, operation TEXT NOT NULL, price INTEGER NOT NULL, granted INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(owner,template))";
         command.ExecuteNonQuery();
+        Execute("CREATE TABLE IF NOT EXISTS apartment_snapshots(owner TEXT NOT NULL, template TEXT NOT NULL, data TEXT NOT NULL, round_end_data TEXT NOT NULL, PRIMARY KEY(owner,template))");
     }
+
+    private static readonly JsonSerializerOptions SnapshotJson = new() { IncludeFields = true };
+
+    public ApartmentSnapshot? LoadSnapshot(Guid owner, string template)
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT data FROM apartment_snapshots WHERE owner=$owner AND template=$template";
+        command.Parameters.AddWithValue("$owner", owner.ToString());
+        command.Parameters.AddWithValue("$template", template);
+        return command.ExecuteScalar() is string json ? JsonSerializer.Deserialize<ApartmentSnapshot>(json, SnapshotJson) : null;
+    }
+
+    public void SaveSnapshot(Guid owner, string template, ApartmentSnapshot snapshot, ApartmentSnapshot roundEnd) => Execute(
+        "INSERT INTO apartment_snapshots VALUES($owner,$template,$data,$end) ON CONFLICT(owner,template) DO UPDATE SET data=$data,round_end_data=$end",
+        ("$owner", owner.ToString()), ("$template", template),
+        ("$data", JsonSerializer.Serialize(snapshot, SnapshotJson)), ("$end", JsonSerializer.Serialize(roundEnd, SnapshotJson)));
+
+    public void FinishRound() => Execute("UPDATE apartment_snapshots SET data=round_end_data WHERE data<>round_end_data");
 
     public ApartmentDelta? Load(Guid owner)
     {

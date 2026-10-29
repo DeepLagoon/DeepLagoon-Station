@@ -2,6 +2,7 @@ using System.Linq;
 using Content.Client.Gameplay;
 using Content.Shared._White.Blink;
 using Content.Shared.CombatMode;
+using Content.Shared.Damage;
 using Content.Shared.Effects;
 using Content.Shared.Hands.Components;
 using Content.Shared.Mobs.Components;
@@ -184,6 +185,8 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             if (mousePos.MapId != attackerPos.MapId ||
                 (attackerPos.Position - mousePos.Position).Length() > weapon.Range)
             {
+                if (weapon.HeavyOnLightMiss)
+                    ClientHeavyAttack(userOverride, coordinates, weaponUid, weapon);
                 return;
             }
 
@@ -197,6 +200,12 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             // Don't light-attack if interaction will be handling this instead // Mono - add hands check (why is this duplicated?)
             if (HasComp<HandsComponent>(userOverride) && Interaction.CombatModeCanHandInteract(userOverride, target))
                 return;
+
+            if (weapon.HeavyOnLightMiss && !CanClickHit(userOverride, target, weapon))
+            {
+                ClientHeavyAttack(userOverride, coordinates, weaponUid, weapon);
+                return;
+            }
 
             RaisePredictiveEvent(new LightAttackEvent(GetNetEntity(target), GetNetEntity(weaponUid), GetNetCoordinates(coordinates)));
         }
@@ -292,7 +301,11 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         var attackerPos = TransformSystem.GetMapCoordinates(attacker);
 
         if (mousePos.MapId != attackerPos.MapId || (attackerPos.Position - mousePos.Position).Length() > meleeComponent.Range)
+        {
+            if (meleeComponent.HeavyOnLightMiss)
+                ClientHeavyAttack(attacker, coordinates, weaponUid, meleeComponent);
             return;
+        }
 
         EntityUid? target = null;
 
@@ -303,8 +316,18 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         if (HasComp<HandsComponent>(attacker) && Interaction.CombatModeCanHandInteract(attacker, target))
             return;
 
+        if (meleeComponent.HeavyOnLightMiss && !CanClickHit(attacker, target, meleeComponent))
+        {
+            ClientHeavyAttack(attacker, coordinates, weaponUid, meleeComponent);
+            return;
+        }
+
         RaisePredictiveEvent(new LightAttackEvent(GetNetEntity(target), GetNetEntity(weaponUid), GetNetCoordinates(coordinates)));
     }
+
+    private bool CanClickHit(EntityUid user, EntityUid? target, MeleeWeaponComponent weapon) =>
+        target is { } entity && !Deleted(entity) && HasComp<DamageableComponent>(entity)
+        && InRange(user, entity, weapon.Range, null);
 
     private void OnMeleeLunge(MeleeLungeEvent ev)
     {

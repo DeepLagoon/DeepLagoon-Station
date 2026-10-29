@@ -80,8 +80,10 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         ClothingComponent clothing, HashSet<string> keys, HumanoidAppearanceComponent? humanoid = null)
     {
         ClearSlot(uid, slot);
-        if (!Resolve(uid, ref humanoid, false) ||
-            humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Chest) ||
+        if (!Resolve(uid, ref humanoid, false)) return;
+        if (slot is "head" or "mask" or "neck" or "neck2" or "neck3")
+            ApplyFace(uid, item, slot, sprite, clothing, keys, humanoid);
+        if (humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Chest) ||
             !IsSoft(item, slot, clothing)) return;
 
         var parts = new List<Part>();
@@ -122,6 +124,12 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         if (body.Count == 0) return;
         var hands = BodyLayers(humanoid, sprite, HumanoidVisualLayers.LHand, HumanoidVisualLayers.RHand);
 
+        ApplyParts(uid, slot, sprite, keys, body, parts, hands);
+    }
+
+    private void ApplyParts(EntityUid uid, string slot, SpriteComponent sprite, HashSet<string> keys,
+        List<SpriteComponent.Layer> body, List<Part> parts, List<SpriteComponent.Layer> hands)
+    {
         var equipment = new List<(string Key, SpriteComponent.Layer Layer, SpriteComponent.Layer? Displacement)>();
         foreach (var key in keys.ToArray())
         {
@@ -208,8 +216,12 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         foreach (var h in hands) AppendKey(signature, h);
         foreach (var part in parts)
         {
-            signature.Append("|part|");
-            for (var i = 0; i < part.Layers.Count; i++) AppendKey(signature, part.Layers[i], part.Shapes[i]);
+            signature.Append("|part|").Append(part.Kind);
+            for (var i = 0; i < part.Layers.Count; i++)
+            {
+                AppendKey(signature, part.Layers[i], part.Shapes[i]);
+                AppendKey(signature, part.Layers[i], part.Anchors[i]);
+            }
         }
         var mapKey = signature.ToString();
         if (!_maps.TryGetValue(mapKey, out var map))
@@ -293,7 +305,9 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     if ((int) ((RsiDirection) d).OffsetRsiDir(garment.DirOffset) == direction) worldDirection = d;
                 garment.GetLayerDrawMatrix((RsiDirection) worldDirection, out var garmentMatrix);
                 using var skin = new Image<Rgba32>(width, height);
-                foreach (var layer in body) Composite(skin, layer, layer.ActualState!, worldDirection, garmentMatrix);
+                var face = parts.FirstOrDefault(p => p.Kind == "face");
+                foreach (var layer in body)
+                    Composite(skin, layer, face?.Anchors[0] ?? layer.ActualState!, worldDirection, garmentMatrix);
                 using var handMask = new Image<Rgba32>(width, height);
                 foreach (var layer in hands) Composite(handMask, layer, layer.ActualState!, worldDirection, garmentMatrix);
                 using var coverage = new Image<Rgba32>(width, height);
@@ -325,7 +339,9 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     }
                     var displaced = displacement?.ActualState is { } displacementState
                         ? Read(displacementState, DirectionFor(displacement!, displacementState, worldDirection), 0) : null;
-                    using var fitted = ClothingBodyFitMap.Build(skin, shapes, coverage, displaced, padding, hands: handMask, contours: contours);
+                    using var fitted = face != null
+                        ? ClothingFaceFitMap.Build(skin, shapes[0].Shape, coverage, displaced, padding)
+                        : ClothingBodyFitMap.Build(skin, shapes, coverage, displaced, padding, hands: handMask, contours: contours);
                     changed |= fitted != null;
                     using var identity = fitted == null ? ClothingBodyFitMap.Build(skin, [], coverage, displaced, padding, true) : null;
                     var map = fitted ?? identity;

@@ -486,6 +486,15 @@ public partial class SharedGunSystem
 
     private void OnRevolverTakeAmmo(EntityUid uid, RevolverAmmoProviderComponent component, TakeAmmoEvent args)
     {
+        for (var i = 0; i < component.Capacity; i++)
+        {
+            if (component.AmmoSlots[i] is not { } slot || !TerminatingOrDeleted(slot))
+                continue;
+
+            component.AmmoSlots[i] = null;
+            component.Chambers[i] = null;
+        }
+
         if (args.WillBeFired) // Frontier: fire the revolver
         {
             var currentIndex = component.CurrentIndex;

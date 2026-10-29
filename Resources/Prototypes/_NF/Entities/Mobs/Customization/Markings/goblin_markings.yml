@@ -3,6 +3,7 @@
   id: GoblinEarsBasic
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Goblin]
   sprites:
   - sprite: _NF/Mobs/Customization/goblin_ears.rsi
@@ -12,6 +13,7 @@
   id: GoblinEarsBasicAlt
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Goblin]
   sprites:
   - sprite: _NF/Mobs/Customization/goblin_ears.rsi
@@ -21,6 +23,7 @@
   id: GoblinEarsLong01
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Goblin]
   sprites:
   - sprite: _NF/Mobs/Customization/goblin_ears.rsi
@@ -30,6 +33,7 @@
   id: GoblinEarsLong02
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Ears
   speciesRestriction: [Goblin]
   sprites:
   - sprite: _NF/Mobs/Customization/goblin_ears.rsi
