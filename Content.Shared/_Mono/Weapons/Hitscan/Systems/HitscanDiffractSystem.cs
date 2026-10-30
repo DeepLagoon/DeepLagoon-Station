@@ -1,4 +1,5 @@
 using System.Numerics;
+using Content.Shared._DeepLagoon.Weapons;
 using Content.Shared.Physics;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Hitscan.Events;
@@ -12,6 +13,7 @@ namespace Content.Shared.Weapons.Hitscan.Systems;
 public sealed partial class HitscanDiffractSystem : EntitySystem
 {
     [Dependency] private SharedPhysicsSystem _physics = default!;
+    [Dependency] private LaserWindowSystem _windows = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private IPrototypeManager _prototypeManager = default!;
 
@@ -100,6 +102,15 @@ public sealed partial class HitscanDiffractSystem : EntitySystem
 
         // Spawn entity
         var newHitscan = Spawn(prototypeToSpawn.Value, fromCoordinates);
+        var from = _transform.ToMapCoordinates(originalArgs.FromCoordinates);
+        var to = _transform.ToMapCoordinates(fromCoordinates);
+        var distance = Vector2.Distance(from.Position, to.Position);
+        var transmission = _windows.Transmission(from, originalArgs.ShotDirection, distance);
+        if (TryComp<HitscanBasicDamageComponent>(newHitscan, out var damage))
+            damage.Damage *= transmission;
+        if (TryComp<HitscanStaminaDamageComponent>(newHitscan, out var stamina))
+            stamina.StaminaDamage *= transmission;
+
 
         // Fire
         var diffractedTraceEvent = new HitscanTraceEvent

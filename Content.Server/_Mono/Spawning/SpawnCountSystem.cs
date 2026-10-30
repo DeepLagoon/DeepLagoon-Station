@@ -14,6 +14,7 @@ public sealed partial class SpawnCountSystem : EntitySystem
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private StackSystem _stack = default!;
+    [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
     public override void Initialize()
     {
         base.Initialize();
@@ -24,13 +25,15 @@ public sealed partial class SpawnCountSystem : EntitySystem
     {
         var count = _random.Next(ent.Comp.MinimumCount, ent.Comp.MaximumCount);
 
-        SpawnCount(ent.Comp.Prototype, Transform(ent).Coordinates, count);
+        SpawnCount(ent.Comp.Prototype, Transform(ent).Coordinates, count, ent.Owner);
         if (ent.Comp.DespawnAfterSpawn)
             QueueDel(ent);
     }
 
-    public void SpawnCount(EntProtoId prototype, EntityCoordinates coordinates, int count)
+    public void SpawnCount(EntProtoId prototype, EntityCoordinates coordinates, int count, EntityUid? source = null)
     {
+        if (source is { } owner)
+            prototype = _expeditionLoot.ResolvePrototype(owner, prototype);
         if (!_proto.TryIndex<EntityPrototype>(prototype, out var entProto))
             return;
 
@@ -47,14 +50,14 @@ public sealed partial class SpawnCountSystem : EntitySystem
         for (var i = 0; i < stackCount; i += bound)
         {
             // spawn the remainder, potentially over the stack limit, this will be clamped in SetCount()
-            SpawnEntity(prototype, coordinates, stackCount - i);
+            SpawnEntity(prototype, coordinates, stackCount - i, source);
         }
     }
 
 
-    private void SpawnEntity(string? prototype, EntityCoordinates coordinates, int stackCount)
+    private void SpawnEntity(string? prototype, EntityCoordinates coordinates, int stackCount, EntityUid? source)
     {
-        var ent = Spawn(prototype, coordinates);
+        var ent = source is { } owner ? _expeditionLoot.SpawnLoot(owner, prototype, coordinates) : Spawn(prototype, coordinates);
 
         if (TryComp<StackComponent>(ent, out var stack))
             _stack.SetCount(ent, stackCount, stack);

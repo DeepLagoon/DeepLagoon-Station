@@ -5,7 +5,7 @@
   entityIcon: ClothingOuterVestWeb
   discipline: RogueEquipment
   tier: 1
-  cost: 20000
+  cost: 40000
   recipeUnlocks:
   - ClothingOuterVestWebRogue
   - ClothingOuterVestWebEliteRogue

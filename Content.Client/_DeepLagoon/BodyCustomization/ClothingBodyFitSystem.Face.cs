@@ -43,7 +43,7 @@ public sealed partial class ClothingBodyFitSystem
         if (!_faceResources.GetResource<RSIResource>(new ResPath("/Textures/Mobs/Species/Human/parts.rsi"))
                 .RSI.TryGetState(humanoid.Sex == Sex.Female ? "head_f" : "head_m", out var reference)) return;
         var part = new Part("face", face, face.Select(layer => layer.ActualState!).ToList(),
-            face.Select(_ => reference).ToList());
+            face.Select(_ => reference).ToList(), CoversMouth: slot is "mask" or "balaclava");
         ApplyParts(uid, slot, sprite, keys, new List<SpriteComponent.Layer> { head[0] }, new List<Part> { part }, new List<SpriteComponent.Layer>());
     }
 }

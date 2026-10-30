@@ -1663,20 +1663,6 @@
   - UplinkWearables
 
 - type: listing
-  id: UplinkClothingOuterHardsuitJuggernaut
-  name: uplink-clothing-outer-hardsuit-juggernaut-name
-  description: uplink-clothing-outer-hardsuit-juggernaut-desc
-  icon: { sprite: /Textures/Structures/Storage/Crates/syndicate.rsi, state: icon }
-  productEntity: CrateCybersunJuggernautBundle
-  discountCategory: veryRareDiscounts
-  discountDownTo:
-    Telecrystal: 60 # Mono
-  cost:
-    Telecrystal: 100 # Mono
-  categories:
-  - UplinkWearables
-
-- type: listing
   id: UplinkClothingEyesHudSyndicate
   name: uplink-clothing-eyes-hud-syndicate-name
   description: uplink-clothing-eyes-hud-syndicate-desc

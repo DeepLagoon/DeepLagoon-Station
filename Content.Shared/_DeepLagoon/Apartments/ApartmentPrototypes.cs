@@ -41,6 +41,8 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
 {
     [IdDataField] public string ID { get; set; } = default!;
     [DataField] public string Name = "";
+    [DataField] public string Description = "";
+    [DataField] public string Category = "Классика";
     [DataField] public int Version = 1;
     [DataField] public string? Map;
     [DataField] public bool Available = true;

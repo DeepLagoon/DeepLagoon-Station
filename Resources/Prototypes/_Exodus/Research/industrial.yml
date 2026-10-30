@@ -4,7 +4,7 @@
   entityIcon: BluespaceRPED
   discipline: Industrial
   tier: 3
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - BluespaceRPED
   - BorgModuleBluespaceRPED

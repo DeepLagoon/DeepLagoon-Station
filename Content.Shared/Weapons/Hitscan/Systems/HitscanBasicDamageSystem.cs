@@ -1,4 +1,5 @@
 using Content.Shared.Damage;
+using Content.Shared._DeepLagoon.Weapons;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Hitscan.Events;
 
@@ -7,6 +8,7 @@ namespace Content.Shared.Weapons.Hitscan.Systems;
 public sealed partial class HitscanBasicDamageSystem : EntitySystem
 {
     [Dependency] private DamageableSystem _damage = default!;
+    [Dependency] private LaserWindowSystem _windows = default!;
 
     public override void Initialize()
     {
@@ -25,7 +27,7 @@ public sealed partial class HitscanBasicDamageSystem : EntitySystem
         foreach (var hitEntity in args.HitEntities) // Mono edit
         {
             var damageDealt = _damage.TryChangeDamage(hitEntity,
-                dmg,
+                dmg * _windows.Transmission(args, hitEntity),
                 origin: args.Gun,
                 tool: ent.Owner, // Mono - we need this
                 armorPenetration: ent.Comp.ArmorPenetration,

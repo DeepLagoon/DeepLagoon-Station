@@ -191,7 +191,7 @@
     maxCharge: 720
     startingCharge: 720
   - type: BatterySelfRecharger
-    autoRecharge: true
+    autoRecharge: false
     autoRechargeRate: 15 # Mono
   - type: ProjectileBatteryAmmoProvider
     proto: HoloFlareCyan

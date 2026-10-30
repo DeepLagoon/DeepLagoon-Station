@@ -2,7 +2,7 @@
   id: WeaponHeavyMiningLaser
   parent: [ BaseWeaponBattery ]
   name: industrial heavy mining laser
-  description: A giant heavy handheld laser. Capable of excavating metric tons of rock, and self-recharging after a long delay. # Has a high-power short-range mode for shipbreaking work as a pseudo plasma cutter, and a low-power long-range mode for normal mining.
+  description: A giant heavy handheld laser. Capable of excavating metric tons of rock. Its battery is replenished in a weapon recharger. # Has a high-power short-range mode for shipbreaking work as a pseudo plasma cutter, and a low-power long-range mode for normal mining.
   components:
   - type: Sprite
     sprite: _Mono/Objects/Weapons/Guns/Battery/hml.rsi
@@ -42,7 +42,7 @@
   - type: BatterySelfRecharger
     autoRechargePause: true
     autoRechargePauseTime: 60
-    autoRecharge: true
+    autoRecharge: false
     autoRechargeRate: 200
   - type: HitscanBatteryAmmoProvider
     proto: HMLLaser

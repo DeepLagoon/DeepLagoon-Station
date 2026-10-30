@@ -4,7 +4,7 @@ using Robust.Client.UserInterface.Controls;
 namespace Content.Client.Lobby.UI;
 
 /// <summary>
-/// Places character and music controls at the left, with collapsible utilities beside the full-height chat.
+/// Places character and music controls at the left, with collapsible utilities beside the round status and chat.
 /// </summary>
 public sealed class LobbyColumns : Container
 {

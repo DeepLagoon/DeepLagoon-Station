@@ -18,72 +18,71 @@
 - type: entity
   parent: SpaceCashExpedition
   id: SpaceCashExpeditionT1
-  name: credits (5,000)
+  name: credits (1,000)
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SpawnItemsOnUse
+    items:
+      - id: SpaceCash1000
+    sound:
+      collection: storageRustle
+  - type: StaticPrice # Require since you can still sell a ship that have it on it
+    price: 1000
+
+- type: entity
+  parent: SpaceCashExpedition
+  id: SpaceCashExpeditionT2
+  name: credits (2,500)
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SpawnItemsOnUse
+    items:
+      - id: SpaceCash2500
+    sound:
+      collection: storageRustle
+  - type: StaticPrice # Require since you can still sell a ship that have it on it
+    price: 2500
+
+- type: entity
+  parent: SpaceCashExpedition
+  id: SpaceCashExpeditionT3
+  name: credits (7,500)
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SpawnItemsOnUse
+    items:
+      - id: SpaceCash2500
+        amount: 3
+    sound:
+      collection: storageRustle
+  - type: StaticPrice # Require since you can still sell a ship that have it on it
+    price: 7500
+
+- type: entity
+  parent: SpaceCashExpedition
+  id: SpaceCashExpeditionT4
+  name: credits (15,000)
   categories: [ HideSpawnMenu ]
   components:
   - type: SpawnItemsOnUse
     items:
       - id: SpaceCash5000
+        amount: 3
     sound:
       collection: storageRustle
   - type: StaticPrice # Require since you can still sell a ship that have it on it
-    price: 5000
-
-- type: entity
-  parent: SpaceCashExpedition
-  id: SpaceCashExpeditionT2
-  name: credits (10,000)
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: SpawnItemsOnUse
-    items:
-      - id: SpaceCash10000
-    sound:
-      collection: storageRustle
-  - type: StaticPrice # Require since you can still sell a ship that have it on it
-    price: 10000
-
-- type: entity
-  parent: SpaceCashExpedition
-  id: SpaceCashExpeditionT3
-  name: credits (20,000)
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: SpawnItemsOnUse
-    items:
-      - id: SpaceCash20000
-    sound:
-      collection: storageRustle
-  - type: StaticPrice # Require since you can still sell a ship that have it on it
-    price: 20000
-
-- type: entity
-  parent: SpaceCashExpedition
-  id: SpaceCashExpeditionT4
-  name: credits (40,000)
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: SpawnItemsOnUse
-    items:
-      - id: SpaceCash20000
-        amount: 2
-    sound:
-      collection: storageRustle
-  - type: StaticPrice # Require since you can still sell a ship that have it on it
-    price: 40000
+    price: 15000
 
 - type: entity
   parent: SpaceCashExpedition
   id: SpaceCashExpeditionT5
-  name: credits (70,000)
+  name: credits (25,000)
   categories: [ HideSpawnMenu ]
   components:
   - type: SpawnItemsOnUse
     items:
       - id: SpaceCash25000
-        amount: 2
-      - id: SpaceCash20000
     sound:
       collection: storageRustle
   - type: StaticPrice # Require since you can still sell a ship that have it on it
-    price: 70000
+    price: 25000

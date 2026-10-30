@@ -4,7 +4,7 @@
   entityIcon: WeaponLMGRatel
   discipline: Arsenal
   tier: 2
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - WeaponLMGRatel
   - WeaponShotgunBigBuddy
@@ -21,7 +21,7 @@
   entityIcon: WeaponSubMachineGunVector9x19mm
   discipline: Arsenal
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - WeaponShotgunBigJohnny
   - WeaponShotgunEnforcerMerc
@@ -44,7 +44,7 @@
   entityIcon: WeaponRadAx
   discipline: Arsenal
   tier: 3
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - WeaponRadAx # Monolith
   - HardlightShield

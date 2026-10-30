@@ -9,3 +9,10 @@ deeplagoon-lobby-music-pause-tooltip = Приостановить музыку �
 deeplagoon-lobby-music-resume-tooltip = Продолжить с того же места — только для вас
 deeplagoon-lobby-collapse-entry = Свернуть кнопки и персонажа
 deeplagoon-lobby-expand-entry = Развернуть кнопки и персонажа
+
+dl-lobby-comms-heading = DEEP LAGOON / COMMS
+dl-lobby-countdown-caption = ДО НАЧАЛА
+dl-lobby-round-time-caption = ВРЕМЯ РАУНДА
+dl-lobby-starting-caption = ЗАПУСК
+dl-lobby-paused-caption = ПАУЗА
+dl-lobby-server-info-heading = ИНФОРМАЦИЯ О СЕРВЕРЕ

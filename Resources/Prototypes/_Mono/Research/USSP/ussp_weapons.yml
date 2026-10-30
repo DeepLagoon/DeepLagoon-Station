@@ -4,7 +4,7 @@
   entityIcon: WeaponRifleAK502
   discipline: Ussp
   tier: 2
-  cost: 35000
+  cost: 70000
   recipeUnlocks:
   - WeaponRifleAK502USSP
   - WeaponRevolverMatebaUSSP
@@ -18,7 +18,7 @@
   entityIcon: WeaponRifleAK410
   discipline: Ussp
   tier: 2
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - WeaponRifleAK410USSP
   - AmmoBox762x39mmSubsonic
@@ -32,7 +32,7 @@
   entityIcon: WeaponDP29
   discipline: Ussp
   tier: 3
-  cost: 80000
+  cost: 160000
   recipeUnlocks:
   - WeaponDP29USSP
   - MagazineDP29

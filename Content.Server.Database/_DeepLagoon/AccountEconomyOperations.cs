@@ -196,6 +196,11 @@ public static partial class AccountEconomyOperations
                 price = state.Furniture.Contains(purchase.Product) ? 0 : LagoonEconomyRules.DecorPrice(purchase.Price, Effective(state));
                 state.Furniture.Add(purchase.Product);
                 break;
+            case "apartment-item":
+                // Delivery is committed with the apartment snapshot. The receipt makes
+                // retries after an interrupted delivery safe, without granting furniture stock.
+                price = purchase.Price;
+                break;
             case "apartment":
                 price = Math.Max(0, purchase.Price - state.ApartmentCredit);
                 state.ApartmentCredit = Math.Max(state.ApartmentCredit, purchase.Price);

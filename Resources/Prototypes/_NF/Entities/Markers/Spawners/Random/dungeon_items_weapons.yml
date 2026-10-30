@@ -145,6 +145,7 @@
       color: red
   - type: RandomSpawner
     prototypes:
+    - SpawnDeepLagoonReviewedWeaponsT2
     - WeaponCaseShortViper
     - WeaponCaseShortPython
     - WeaponCaseLongKammererExpedition
@@ -232,6 +233,7 @@
       color: red
   - type: RandomSpawner
     prototypes:
+    - SpawnDeepLagoonReviewedWeaponsT3
     - WeaponCaseShortMateba
     - WeaponCaseShortCobra
     - WeaponCaseLongWT550Expedition

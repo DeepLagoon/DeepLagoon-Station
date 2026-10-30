@@ -1,0 +1,12 @@
+- type: entity
+  id: DeepLagoonSpaceSurveyDisk
+  parent: ResearchDisk
+  name: sector survey data disk
+  description: Research data from a previously uncharted space region. Insert into an RnD server to upload the points.
+  components:
+  - type: ResearchDisk
+    points: 0
+  - type: StaticPrice
+    price: 0
+  - type: Tag
+    tags: []

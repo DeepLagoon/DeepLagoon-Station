@@ -252,13 +252,18 @@ public sealed partial class ThrusterSystem : EntitySystem
         {
             oldShuttleComponent.LinearThrust[oldDirection] -= component.Thrust;
             oldShuttleComponent.BaseLinearThrust[oldDirection] -= component.BaseThrust;
+            oldShuttleComponent.RatedBaseLinearThrust[oldDirection] -= RatedThrust(component);
             DebugTools.Assert(oldShuttleComponent.LinearThrusters[oldDirection].Contains(uid));
             oldShuttleComponent.LinearThrusters[oldDirection].Remove(uid);
 
             shuttleComponent.LinearThrust[direction] += component.Thrust;
             shuttleComponent.BaseLinearThrust[direction] += component.BaseThrust;
+            shuttleComponent.RatedBaseLinearThrust[direction] += RatedThrust(component);
             DebugTools.Assert(!shuttleComponent.LinearThrusters[direction].Contains(uid));
             shuttleComponent.LinearThrusters[direction].Add(uid);
+            RefreshCenter(uid, oldShuttleComponent);
+            if (oldShuttleComponent != shuttleComponent)
+                RefreshCenter(uid, shuttleComponent);
         }
     }
 
@@ -343,6 +348,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
                 shuttleComponent.LinearThrust[direction] += component.Thrust;
                 shuttleComponent.BaseLinearThrust[direction] += component.BaseThrust;
+                shuttleComponent.RatedBaseLinearThrust[direction] += RatedThrust(component);
                 DebugTools.Assert(!shuttleComponent.LinearThrusters[direction].Contains(uid));
                 shuttleComponent.LinearThrusters[direction].Add(uid);
 
@@ -385,7 +391,6 @@ public sealed partial class ThrusterSystem : EntitySystem
     private void RefreshCenter(EntityUid uid, ShuttleComponent shuttle)
     {
         // TODO: Only refresh relevant directions.
-        var center = Vector2.Zero;
         var thrustQuery = GetEntityQuery<ThrusterComponent>();
         var xformQuery = GetEntityQuery<TransformComponent>();
 
@@ -395,6 +400,7 @@ public sealed partial class ThrusterSystem : EntitySystem
             var index = (int)dir / 2;
             var pop = shuttle.LinearThrusters[index];
             var totalThrust = 0f;
+            var center = Vector2.Zero;
 
             foreach (var ent in pop)
             {
@@ -405,8 +411,7 @@ public sealed partial class ThrusterSystem : EntitySystem
                 totalThrust += thruster.Thrust;
             }
 
-            center /= pop.Count * totalThrust;
-            shuttle.CenterOfThrust[index] = center;
+            shuttle.CenterOfThrust[index] = totalThrust > 0f ? center / totalThrust : Vector2.Zero;
         }
     }
 
@@ -442,6 +447,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
                 shuttleComponent.LinearThrust[direction] -= component.Thrust;
                 shuttleComponent.BaseLinearThrust[direction] -= component.BaseThrust;
+                shuttleComponent.RatedBaseLinearThrust[direction] -= RatedThrust(component);
                 DebugTools.Assert(shuttleComponent.LinearThrusters[direction].Contains(uid));
                 shuttleComponent.LinearThrusters[direction].Remove(uid);
                 break;
@@ -652,6 +658,12 @@ public sealed partial class ThrusterSystem : EntitySystem
 
         if (component.Enabled && CanEnable(uid, component))
             EnableThruster(uid, component);
+    }
+
+    private static float RatedThrust(ThrusterComponent component)
+    {
+        return component.BaseThrust * ShuttleFlightLimits.PartTier(component.BaseThrust,
+            component.Thrust, component.PartRatingThrustMultiplier);
     }
 
     private void OnUpgradeExamine(EntityUid uid, ThrusterComponent component, UpgradeExamineEvent args)

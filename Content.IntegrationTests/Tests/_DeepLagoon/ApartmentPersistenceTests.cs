@@ -29,6 +29,7 @@ public sealed class ApartmentPersistenceTests
         var outside = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             var entities = pair.Server.EntMan;
             var session = pair.Server.PlayerMan.Sessions.Single();
             var apartments = entities.System<ApartmentSystem>();
@@ -106,6 +107,7 @@ public sealed class ApartmentPersistenceTests
         var outside = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             var entities = pair.Server.EntMan;
             var session = pair.Server.PlayerMan.Sessions.Single();
             var apartments = entities.System<ApartmentSystem>();

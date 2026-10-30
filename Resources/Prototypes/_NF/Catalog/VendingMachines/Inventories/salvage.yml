@@ -2,12 +2,7 @@
   id: NFSalvageEquipmentInventory
   startingInventory:
     NFWeaponHoloflareGun: 4
-    WeaponProtoKineticAccelerator: 4
-    WeaponCrusher: 6
-    WeaponCrusherDagger: 8
     ClothingHandsConcussiveGauntlets: 2
-    WeaponHeavyMiningLaser: 1
-    WeaponGrapplingGun: 10
     Pickaxe: 10
     OreBag: 6
     Floodlight: 10
@@ -23,12 +18,7 @@
   id: NFSalvageEquipmentPOIInventory
   startingInventory:
     NFWeaponHoloflareGun: 4294967295 # Infinite
-    WeaponProtoKineticAccelerator: 4294967295 # Infinite
-    WeaponCrusher: 4294967295 # Infinite
-    WeaponCrusherDagger: 4294967295 # Infinite
-    WeaponGrapplingGun: 4294967295 # Infinite
     ClothingHandsConcussiveGauntlets: 4294967295 # Infinite
-    WeaponHeavyMiningLaser: 4294967295
     Pickaxe: 4294967295 # Infinite
     OreBag: 4294967295 # Infinite
     Floodlight: 4294967295 # Infinite

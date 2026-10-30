@@ -1,11 +1,14 @@
-.ApartmentShop { height: 100vh; display: flex; flex-direction: column; color: #e7f0f4; background: #12212b; font: 14px/1.5 sans-serif;
-  header, footer { display: flex; gap: 8px; padding: 12px; flex-shrink: 0; border-bottom: 1px solid #496371; } header strong { flex: 1; }
-  main { flex: 1; overflow: auto; padding: 12px; } button { background: #233b49; color: inherit; border: 1px solid #496371; border-radius: 5px; padding: 8px 12px; cursor: pointer; } button:disabled { opacity: .5; cursor: default; }
-  article { display: flex; gap: 12px; align-items: center; padding: 12px; border: 1px solid #496371; margin: 8px 0; } article div { flex: 1; } small { display: block; color: #acc3cf; } section { border: 1px solid #71bdd5; padding: 12px; } section button { margin-right: 8px; }
-}
+.ApartmentGallery__thumbnail { align-self: center; padding: 8px; background: #fff; }
+.ApartmentGallery__thumbnail img { display: block; width: 128px; height: 128px; object-fit: contain; }
+.ApartmentGallery__preview { display: block; width: 384px; max-width: 100%; aspect-ratio: 1; object-fit: contain; margin: 12px auto; background: #fff; }
 
-.ApartmentShop__tabs { display: flex; gap: 8px; padding: 8px 12px; flex-wrap: wrap; }
-.ApartmentShop__tabs button[aria-pressed="true"] { border-color: #82ee99; }
-.ApartmentShop__filters { display: flex; gap: 12px; flex-wrap: wrap; }
-.ApartmentShop__filters label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.ApartmentShop__filters input, .ApartmentShop__filters .EmbeddedSelect { color: inherit; background: #233b49; border: 1px solid #496371; padding: 8px; max-width: 100%; }
+.ApartmentShop__itemPreview { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.ApartmentShop__itemImage { display: grid; place-items: center; width: 100%; min-height: 112px; background: #0b1720; border-radius: 5px; padding: 8px; }
+.ApartmentShop__itemLayers { position: relative; display: block; width: 96px; height: 96px; max-width: 100%; }
+.ApartmentShop__itemLayers img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.ApartmentShop__itemImage--large { margin: 16px 0; min-height: 272px; }
+.ApartmentShop__itemImage--large .ApartmentShop__itemLayers { width: 256px; height: 256px; }
+
+.ApartmentShop__deliveryNotice, .ApartmentShop__itemCategory, .ApartmentShop__itemName { text-align: center; }
+.LagoonStore__filters.ApartmentShop__itemFilters { grid-template-columns: minmax(0, 1fr); }
+.ApartmentShop__itemFilters input { width: 100%; }

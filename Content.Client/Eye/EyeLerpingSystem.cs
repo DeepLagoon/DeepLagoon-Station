@@ -15,8 +15,7 @@ public sealed partial class EyeLerpingSystem : EntitySystem
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private SharedEyeSystem _eye = default!;
-    [Dependency] private SharedMoverController _mover = default!;
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private TransformSystem _transform = default!;
 
     // Convenience variable for for VV.
     [ViewVariables, UsedImplicitly]
@@ -160,13 +159,16 @@ public sealed partial class EyeLerpingSystem : EntitySystem
         // If we can move then tie our eye to our inputs (these also get lerped so it should be fine).
         if (Resolve(uid, ref mover, false))
         {
-            return -_mover.GetParentGridAngle(mover);
+            var rotation = mover.RelativeRotation;
+            if (mover.RelativeEntity is { } relativeEntity && TryComp(relativeEntity, out TransformComponent? relativeXform))
+                rotation += _transform.GetRenderWorldRotation((relativeEntity, relativeXform));
+            return -rotation;
         }
 
         // if not tied to a mover then lock it to map / grid
         var relative = xform.GridUid ?? xform.MapUid;
         if (relative != null)
-            return -_transform.GetWorldRotation(relative.Value);
+            return -_transform.GetRenderWorldRotation(relative.Value);
 
         return Angle.Zero;
     }

@@ -128,13 +128,16 @@ public sealed partial class LagoonEconomySystem : EntitySystem
     private async Task Publish(ICommonSession session, string message = "")
     {
         var snapshot = await _database.GetEconomyAsync(session.UserId, ExternalTier(session));
+        var referrals = await _database.GetReferralsAsync(session.UserId);
         if (!session.Channel.IsConnected) return;
         Remember(session, snapshot);
         var token = Guid.NewGuid(); _tokens[session.UserId] = token;
         var state = snapshot.State;
         var tier = _supporters.GetProductTier(session);
         var data = JsonSerializer.Serialize(new { balance = snapshot.Balance, message, tier, color = state.OocColor ?? "#7ABFA5",
-            referralCode = state.ReferralCode, referralStage = state.ReferralStage,
+            playerName = session.Name, referralCode = state.ReferralCode, referralStage = state.ReferralStage,
+            referrerBound = state.Referrer != null,
+            referrals = referrals.Select(friend => new { name = friend.Name, stage = friend.Stage, reward = friend.Reward }),
             passTier = state.PassTier, passDays = state.PassTicks / (double) TimeSpan.TicksPerDay,
             paused = state.ExternalTier >= state.PassTier && state.PassTier > 0,
             subscriptions = Enumerable.Range(1, 4).Select(t => new { id = t, name = LagoonEconomyRules.Name(t), price = LagoonEconomyRules.PassPrice(t), rate = LagoonEconomyRules.HourlyRate(t) }) });

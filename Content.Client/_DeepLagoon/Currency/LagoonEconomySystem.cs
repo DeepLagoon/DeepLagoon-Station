@@ -30,7 +30,7 @@ public sealed class LagoonEconomySystem : EntitySystem
     public void Open()
     {
         if (_window != null) { _window.MoveToFront(); return; }
-        _window = new ApartmentTravelWindow { Title = "Lagoon Coin и подписки" };
+        _window = new ApartmentTravelWindow(shop: true) { Title = "Lagoon Coin и подписки" };
         _window.OnClose += Close;
         _window.Panel.OnClose += Close;
         _window.Panel.OnAction += Action;

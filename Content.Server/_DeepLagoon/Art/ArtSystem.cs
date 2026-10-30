@@ -1,11 +1,13 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Content.Server.Database;
+using Content.Server._DeepLagoon.Apartments;
 using Content.Server.Crayon;
 using Content.Server.Popups;
 using Content.Shared._DeepLagoon.Art;
+using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction;
 using Content.Shared.GameTicking;
@@ -67,6 +69,7 @@ public sealed partial class ArtSystem : EntitySystem
         SubscribeLocalEvent<ArtFrameComponent, GetVerbsEvent<AlternativeVerb>>(OnFrameVerbs);
         SubscribeLocalEvent<ArtFrameComponent, MapInitEvent>((uid, c, _) => { if (c.FillOnRoundStart) FillFrame(uid, c); });
         SubscribeLocalEvent<ArtFrameItemComponent, AfterInteractEvent>(OnInstallFrame);
+        SubscribeLocalEvent<ApartmentPaintingFrameComponent, ContainerIsInsertingAttemptEvent>(OnApartmentCanvasInsert);
     }
 
     private string? ToolKind(EntityUid tool) => TryComp<ArtToolComponent>(tool, out var art) ? art.Kind
@@ -282,14 +285,37 @@ public sealed partial class ArtSystem : EntitySystem
     {
         if (ev.Handled || !ev.CanReach || ev.Target is not { } wall || !_tags.HasTag(wall, "Wall")
             || !_hands.IsHolding(ev.User, uid, out _) || Transform(wall).GridUid == null) return;
+        var apartments = EntityManager.System<ApartmentSystem>();
+        var privateFrame = HasComp<ApartmentPaintingFrameComponent>(uid) || HasComp<ApartmentGridComponent>(Transform(wall).GridUid);
+        if (privateFrame && !apartments.CanDecorate(ev.User, wall))
+        {
+            ev.Handled = true;
+            _popup.PopupEntity(Loc.GetString("dl-art-apartment-owner-only"), uid, ev.User);
+            return;
+        }
         var coords = Transform(wall).Coordinates;
         var frames = EntityQueryEnumerator<ArtFrameComponent, TransformComponent>();
         while (frames.MoveNext(out _, out _, out var xform))
             if (xform.Coordinates.EntityId == coords.EntityId && (xform.Coordinates.Position - coords.Position).LengthSquared() < .01f) return;
-        var frame = Spawn("DLArtFrame", coords);
+        var frame = Spawn(privateFrame ? "DLApartmentPaintingFrame" : "DLArtFrame", coords);
         // The prototype may already have anchored during spawn; never add it to the snap grid twice.
         if (!Transform(frame).Anchored && !_transform.AnchorEntity(frame)) { QueueDel(frame); return; }
         ev.Handled = true;
+        if (privateFrame)
+        {
+            if (!_players.TryGetSessionByEntity(ev.User, out var owner)) { Del(frame); return; }
+            Comp<ApartmentPaintingFrameComponent>(frame).Owner = owner.UserId.UserId;
+            // The held item is excluded with the visitor from the snapshot. Commit
+            // the mounted frame before consuming it, so failed writes keep the item.
+            if (!apartments.SaveDecoration(frame))
+            {
+                Del(frame);
+                _popup.PopupEntity(Loc.GetString("dl-art-apartment-save-failed"), uid, ev.User);
+                return;
+            }
+            QueueDel(uid);
+            return;
+        }
         if (!_hands.TryDrop(ev.User, uid)) { QueueDel(frame); return; }
         QueueDel(uid);
     }
@@ -298,22 +324,57 @@ public sealed partial class ArtSystem : EntitySystem
         if (ev.Handled || c.Busy || !Transform(uid).Anchored || !TryComp<ArtCanvasComponent>(ev.Used, out var canvas)
             || !_hands.IsHolding(ev.User, ev.Used, out _) || !_interaction.InRangeUnobstructed(ev.User, uid) || Slot(uid).ContainedEntity != null) return;
         ev.Handled = true;
+        var privateFrame = HasComp<ApartmentPaintingFrameComponent>(uid);
+        if (privateFrame && !CanChangeApartmentFrame(uid, ev.User))
+        { _popup.PopupEntity(Loc.GetString("dl-art-apartment-owner-only"), uid, ev.User); return; }
+        if (privateFrame && !HasComp<ArtDurableCanvasComponent>(ev.Used))
+        { _popup.PopupEntity(Loc.GetString("dl-art-durable-only"), uid, ev.User); return; }
         if (canvas.Artist != null) { _popup.PopupEntity(Loc.GetString("dl-art-close-first"), uid, ev.User); return; }
-        if (canvas.RevisionHash.Length == 0) { _popup.PopupEntity(Loc.GetString("dl-art-empty"), uid, ev.User); return; }
+        if (privateFrame ? CurrentPreview(canvas).Length == 0 : canvas.RevisionHash.Length == 0)
+        { _popup.PopupEntity(Loc.GetString("dl-art-empty"), uid, ev.User); return; }
         if (!_hands.TryDropIntoContainer(ev.User, ev.Used, Slot(uid))) return;
-        SetPreview(uid, canvas.SavedPreview);
+        SetPreview(uid, privateFrame ? CurrentPreview(canvas) : canvas.SavedPreview);
+        if (privateFrame && !EntityManager.System<ApartmentSystem>().SaveDecoration(uid))
+        {
+            _containers.Remove(ev.Used, Slot(uid));
+            _hands.TryPickupAnyHand(ev.User, ev.Used);
+            SetPreview(uid, "");
+            _popup.PopupEntity(Loc.GetString("dl-art-apartment-save-failed"), uid, ev.User);
+        }
     }
 
     private void OnFrameVerbs(EntityUid uid, ArtFrameComponent c, GetVerbsEvent<AlternativeVerb> ev)
     {
-        if (!ev.CanAccess || !ev.CanInteract || c.Busy || Slot(uid).ContainedEntity is not { } canvas) return;
+        if (!ev.CanAccess || !ev.CanInteract || c.Busy || Slot(uid).ContainedEntity is not { } canvas ||
+            HasComp<ApartmentPaintingFrameComponent>(uid) && !CanChangeApartmentFrame(uid, ev.User)) return;
         var user = ev.User;
         ev.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-art-remove"), Act = () =>
         {
             if (!Exists(uid) || c.Busy || Slot(uid).ContainedEntity != canvas || !_interaction.InRangeUnobstructed(user, uid)) return;
+            if (HasComp<ApartmentPaintingFrameComponent>(uid) && !CanChangeApartmentFrame(uid, user)) return;
             if (!_containers.Remove(canvas, Slot(uid))) return;
-            SetPreview(uid, ""); _hands.TryPickupAnyHand(user, canvas);
+            SetPreview(uid, "");
+            // Save the removed canvas on the floor before handing it over, rather
+            // than excluding it with a visitor's inventory from this checkpoint.
+            if (HasComp<ApartmentPaintingFrameComponent>(uid) && !EntityManager.System<ApartmentSystem>().SaveDecoration(uid))
+            {
+                _containers.Insert(canvas, Slot(uid));
+                SetPreview(uid, CurrentPreview(Comp<ArtCanvasComponent>(canvas)));
+                _popup.PopupEntity(Loc.GetString("dl-art-apartment-save-failed"), uid, user);
+                return;
+            }
+            _hands.TryPickupAnyHand(user, canvas);
         }});
+    }
+
+    private bool CanChangeApartmentFrame(EntityUid uid, EntityUid user) =>
+        EntityManager.System<ApartmentSystem>().CanDecorate(user, uid) &&
+        _players.TryGetSessionByEntity(user, out var session) && Comp<ApartmentPaintingFrameComponent>(uid).Owner == session.UserId.UserId;
+
+    private void OnApartmentCanvasInsert(EntityUid uid, ApartmentPaintingFrameComponent component, ContainerIsInsertingAttemptEvent ev)
+    {
+        if (ev.Container.ID == "art-canvas" && (!HasComp<ArtDurableCanvasComponent>(ev.EntityUid) || !HasComp<ArtCanvasComponent>(ev.EntityUid)))
+            ev.Cancel();
     }
 
     private async void FillFrame(EntityUid uid, ArtFrameComponent c)

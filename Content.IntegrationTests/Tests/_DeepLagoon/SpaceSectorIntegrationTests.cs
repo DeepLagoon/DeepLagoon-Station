@@ -32,6 +32,8 @@ public sealed class SpaceSectorIntegrationTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
         var shaders = new System.Collections.Generic.HashSet<string>();
+        var portraits = new System.Collections.Generic.List<(Content.Shared._FarHorizons.StarSystem.Helpers.Planet Planet,
+            Content.Shared._FarHorizons.StarSystem.Helpers.Star Star)>();
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
@@ -49,6 +51,7 @@ public sealed class SpaceSectorIntegrationTests
                 {
                     Assert.That(prototypes.HasIndex<PlanetPalettePrototype>(planet.Palette), Is.True);
                     shaders.Add(planet.Shader);
+                    portraits.Add((planet, star.StarSystem.Star));
                 }
                 int Count()
                 {
@@ -68,6 +71,14 @@ public sealed class SpaceSectorIntegrationTests
         {
             var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
             foreach (var id in shaders) Assert.That(prototypes.Index<ShaderPrototype>(id), Is.Not.Null);
+            foreach (var (planet, star) in portraits)
+            {
+                using var portrait = Content.Client._FarHorizons.StarSystem.PlanetShaderFactory.Create(prototypes, planet, star);
+                Assert.That(portrait, Is.Not.Null, planet.Name);
+                portrait.SetParameter("planetaryRadiusFactor", 1f);
+                portrait.SetParameter("viewportMin", -Vector2.One);
+                portrait.SetParameter("viewportSize", Vector2.One * 2);
+            }
             using var cloud = prototypes.Index<ShaderPrototype>("DeepLagoonSpaceCloud").InstanceUnique();
             cloud.SetParameter("cloudDensity", 0.5f);
             cloud.SetParameter("cloudSeed", 1f);
@@ -211,7 +222,9 @@ public sealed class SpaceSectorIntegrationTests
     public async Task SectorManifestAndSurveyReachTheClientWithTheSamePlanetAppearance()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, InLobby = true });
-        EntityUid map = default, user = default;
+        EntityUid map = default, user = default, watchedPile = default;
+        Vector2 observerOrigin = default;
+        EntityUid detachedLoot = default;
         NetEntity netMap = default;
         string[] names = null;
         float[] rotations = null;
@@ -227,15 +240,24 @@ public sealed class SpaceSectorIntegrationTests
             rotations = star.StarSystem.Planets.Select(planet => planet.Rotation).ToArray();
             regionId = entities.GetComponent<SpaceEnvironmentComponent>(map).Definition.Regions[0].Id;
             netMap = entities.GetNetEntity(map);
-            user = entities.SpawnEntity("MobHuman", new EntityCoordinates(map, Vector2.Zero));
+            var field = entities.GetComponent<SpaceEnvironmentComponent>(map).Definition.Regions.First(r => r.Kind == SpaceRegionKind.Debris);
+            observerOrigin = new Vector2(field.X, field.Y);
+            user = entities.SpawnEntity("MobHuman", new EntityCoordinates(map, observerOrigin));
             pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), user);
         });
-        await pair.RunTicksSync(30);
+        await pair.RunTicksSync(90);
         await pair.Client.WaitAssertion(() =>
         {
             var entities = pair.Client.EntMan;
             var clientMap = entities.GetEntity(netMap);
             var star = entities.GetComponent<StarSystemMapComponent>(clientMap);
+            var navigation = entities.System<Content.Client._DeepLagoon.SpaceEnvironment.SpaceEnvironmentOverlaySystem>();
+            foreach (var planet in star.StarSystem!.Planets)
+            {
+                var portrait = navigation.PlanetShader(clientMap, star.StarSystem, planet);
+                Assert.That(portrait, Is.Not.Null, planet.Name);
+                Assert.That(navigation.PlanetShader(clientMap, star.StarSystem, planet), Is.SameAs(portrait));
+            }
             Assert.That(star.StarSystem!.Planets.Select(planet => planet.Name), Is.EqualTo(names));
             Assert.That(star.StarSystem.Planets.Select(planet => planet.Rotation), Is.EqualTo(rotations));
             Assert.That(entities.GetComponent<SpaceEnvironmentComponent>(clientMap).Definition.Regions, Is.Not.Empty);
@@ -243,8 +265,39 @@ public sealed class SpaceSectorIntegrationTests
                 Content.Client._DeepLagoon.SpaceEnvironment.SpaceEnvironmentClientCVars.Visuals, false);
             Assert.That(star.StarSystem.Planets, Has.Count.EqualTo(5), "Cosmetic quality must not remove navigation data");
         });
-        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.System<SectorSystem>().Survey(map, regionId), Is.True));
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var debris = entities.System<OrbitalDebrisSystem>();
+            Assert.That(debris.ActiveCount, Is.GreaterThan(0), "An active observer must materialize local debris");
+            watchedPile = debris.SpawnPile(map, observerOrigin + new Vector2(20, 0), observerOrigin + new Vector2(1000, 0), 51)!.Value;
+            debris.ClearUnclaimed(map);
+            Assert.That(entities.EntityExists(watchedPile), Is.True, "A visible pile must survive explicit ambient cleanup");
+            var children = entities.GetComponent<TransformComponent>(watchedPile).ChildEnumerator;
+            while (children.MoveNext(out var child))
+                if (entities.HasComponent<Content.Shared.Item.ItemComponent>(child)
+                    && !entities.GetComponent<TransformComponent>(child).Anchored) { detachedLoot = child; break; }
+            Assert.That(detachedLoot, Is.Not.EqualTo(EntityUid.Invalid), "The field pile should contain a portable find");
+            var transform = entities.System<SharedTransformSystem>();
+            transform.SetCoordinates(detachedLoot, new EntityCoordinates(map, observerOrigin + new Vector2(-10, 0)));
+            debris.Update(0);
+            Assert.That(entities.EntityExists(detachedLoot), Is.True, "Detached loot stays while the player can see it");
+            Assert.That(entities.System<SectorSystem>().TryUnload(map), Is.False, "An occupied map cannot be unloaded");
+            Assert.That(entities.EntityExists(watchedPile), Is.True);
+            Assert.That(entities.System<SectorSystem>().Survey(map, regionId), Is.True);
+        });
+        await pair.RunTicksSync(2);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.EntityExists(detachedLoot), Is.True, "Visible detached loot must survive deletion processing");
+            entities.System<SharedTransformSystem>().SetCoordinates(detachedLoot,
+                new EntityCoordinates(map, observerOrigin + new Vector2(5000, 0)));
+            entities.System<OrbitalDebrisSystem>().Update(0);
+        });
         await pair.RunTicksSync(30);
+        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.EntityExists(detachedLoot), Is.False,
+            "Detached loot is culled after leaving the player's screen envelope"));
         await pair.Client.WaitAssertion(() =>
         {
             var entities = pair.Client.EntMan;

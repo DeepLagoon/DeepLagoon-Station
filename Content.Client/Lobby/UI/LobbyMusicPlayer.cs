@@ -14,6 +14,11 @@ public sealed class LobbyMusicPlayer : LobbyConsolePanel
     public readonly Button Next = new() { Text = ">", HorizontalExpand = true };
     public readonly Button Pause = new() { HorizontalExpand = true };
     private readonly Label _heading = new() { Text = Loc.GetString("deeplagoon-lobby-music-heading"), ClipText = true };
+    private readonly PanelContainer _headingBackground = new()
+    {
+        Name = "MusicHeadingBackground",
+        PanelOverride = LobbyConsoleTheme.CreateHeadingStyle(),
+    };
     private readonly Label _title = new() { ClipText = true };
     private readonly Label _artist = new() { ClipText = true };
     private readonly CoverDisplay _cover = new();
@@ -32,7 +37,13 @@ public sealed class LobbyMusicPlayer : LobbyConsolePanel
             label.FontOverride = LobbyConsoleTheme.GetFont(label == _title ? 15 : 12);
             label.FontColorOverride = LobbyConsoleTheme.Green;
             label.OutlineThicknessOverride = 0;
-            details.AddChild(label);
+            if (label == _heading)
+            {
+                _headingBackground.AddChild(label);
+                details.AddChild(_headingBackground);
+            }
+            else
+                details.AddChild(label);
         }
         _buttons = new BoxContainer { SeparationOverride = 8 };
         foreach (var button in new[] { Previous, Pause, Next })
@@ -75,6 +86,7 @@ public sealed class LobbyMusicPlayer : LobbyConsolePanel
         _cover.Visible = availableSize.X >= 280;
         Previous.Visible = Next.Visible = availableSize.X >= 280;
         _heading.Visible = _buttons.Visible = availableSize.X >= 140;
+        _headingBackground.Visible = _heading.Visible;
         return base.MeasureOverride(availableSize);
     }
 

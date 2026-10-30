@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Content.Server.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,10 +8,25 @@ namespace DeepLagoon.AccountService;
 public sealed record EconomyRequest(string DiscordId, string ActorDiscordId, string RequestId,
     bool HostAuthorized = false, string? TaskId = null, string? Category = null, int Amount = 0, string? Reason = null,
     int Tier = 0, string? Receipt = null, DateTimeOffset PaidAt = default, bool Historical = false,
-    string? Color = null, string? ReferralCode = null, int ExternalTier = 0, string? NewcomerDiscordId = null, DateTimeOffset ObservedAt = default, string? OperationId = null);
+    string? Color = null, string? ReferralCode = null, int ExternalTier = 0, string? NewcomerDiscordId = null, DateTimeOffset ObservedAt = default, string? OperationId = null, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Guid? ExpectedUid = null);
 
 public sealed partial class AccountOperations
 {
+    private static async Task<object[]> ShopReferrals(ServerDbContext db, Guid user, CancellationToken cancel)
+    {
+        // Scope the SQL query before decoding state, then verify the actual referral edge.
+        var owner = user.ToString();
+        var rows = await (from account in db.LagoonEconomyRecords.AsNoTracking()
+            where account.Id.StartsWith("account:") && account.Data.Contains(owner)
+            join player in db.Player.AsNoTracking() on account.UserId equals player.UserId
+            select new { account.Data, player.LastSeenUserName }).ToListAsync(cancel);
+        return rows.Select(row => (State: JsonSerializer.Deserialize<LagoonEconomyState>(row.Data), Name: row.LastSeenUserName))
+            .Where(row => row.State?.Referrer == user)
+            .Select(row => new { name = row.Name, stage = row.State!.ReferralStage,
+                reward = row.State.ReferrerReward ? row.State.ReferralStage >= 2 ? 100 : row.State.ReferralStage == 1 ? 25 : 0 : 0 })
+            .OrderBy(row => row.name, StringComparer.OrdinalIgnoreCase).Cast<object>().ToArray();
+    }
+
     private static async Task<object> EconomyStatus(ServerDbContext db, Guid user, EconomyRequest request, CancellationToken cancel)
     {
         if ((request.TaskId != null ? 1 : 0) + (request.Receipt != null ? 1 : 0) + (request.OperationId != null ? 1 : 0) != 1)
@@ -40,6 +56,8 @@ public sealed partial class AccountOperations
         if (staff && !request.HostAuthorized || !staff && request.DiscordId != request.ActorDiscordId && !request.HostAuthorized)
             throw new AccountError("forbidden", 403);
         var target = FindLink(request.DiscordId) ?? throw new AccountError("not_linked", 404);
+        if (request.ExpectedUid is { } expected && expected != target.Uid)
+            throw new AccountError("not_linked", 409);
         var author = FindLink(request.ActorDiscordId) ?? throw new AccountError("actor_not_linked", 403);
         AssertStableLink(request.DiscordId, target.Uid);
         AssertStableLink(request.ActorDiscordId, author.Uid);
@@ -92,7 +110,12 @@ public sealed partial class AccountOperations
             db.ChangeTracker.Clear();
             var snapshot = await AccountEconomyOperations.Get(db, target.Uid, 0, now, cancel, Stable);
             return new { uid = target.Uid, request_id = request.RequestId, balance = snapshot.Balance,
-                applied = result?.Applied, awarded = result?.Awarded, state = snapshot.State };
+                applied = result?.Applied, awarded = result?.Awarded, state = snapshot.State,
+                referrals = request.ExpectedUid.HasValue ? await ShopReferrals(db, target.Uid, cancel) : [],
+                subscriptions = Enumerable.Range(1, 4).Select(t => new { id = t,
+                    name = Content.Shared.Database.LagoonEconomyRules.Name(t),
+                    price = Content.Shared.Database.LagoonEconomyRules.PassPrice(t),
+                    rate = Content.Shared.Database.LagoonEconomyRules.HourlyRate(t) }) };
         }
         catch (InvalidOperationException)
         {

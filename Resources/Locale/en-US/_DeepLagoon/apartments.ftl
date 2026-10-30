@@ -46,3 +46,6 @@ dl-apartment-atmosphere-save-failed = Could not save. Reopen the settings.
 dl-apartment-trash = Trash bin
 ent-DLApartmentTrashBin = apartment trash bin
     .desc = Items left inside are deleted at the end of the round. You can retrieve them before then.
+
+dl-apartment-basic-description = A furnished home for everyday life. Inspect the layout, then arrange the furniture in the furnishing menu.
+dl-apartment-studio-description = A compact studio with a shared living area. An archived apartment template.

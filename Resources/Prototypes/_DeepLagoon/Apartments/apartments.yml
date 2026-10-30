@@ -107,6 +107,8 @@
   id: DLApartmentStudio
   available: false
   name: dl-apartment-studio
+  description: dl-apartment-studio-description
+  category: Классика
   version: 1
   width: 10
   height: 8
@@ -253,6 +255,8 @@
   id: DLApartmentBasic
   price: 0
   name: dl-apartment-basic
+  description: dl-apartment-basic-description
+  category: Классика
   version: 1
   map: /Maps/_DeepLagoon/Apartments/apartments_basic.yml
   width: 11

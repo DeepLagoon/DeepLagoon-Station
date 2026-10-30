@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Validate server revisions against an official engine release, without commit pins.
 
-Client, authentication, transport, loader and version sources stay official.
+Authentication, transport, loader and version sources stay official.
+UI scale validation and grid collision stepping have reviewed implementation-only fixes.
 """
 import argparse
 import json
@@ -20,6 +21,11 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Physics/Systems/FixtureSystem.cs",
     "Robust.Shared/Physics/Systems/FixtureSystem.Validation.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Components.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.GridSubsteps.cs",
+    "Robust.Shared.IntegrationTests/Physics/GridMotionSubstepTests.cs",
+    "Robust.Client/UserInterface/UserInterfaceManager.Scaling.cs",
+    "Robust.Client.Tests/UserInterface/UIScaleTest.cs",
     "Robust.Shared/Physics/Events/InvalidPhysicsFixtureEvent.cs",
     "Robust.Shared.IntegrationTests/Physics/InvalidFixtureTests.cs",
     "Robust.Shared/GameObjects/Systems/SharedPointLightSystem.cs",

@@ -6,7 +6,7 @@
   entityIcon: MiningDrill
   discipline: Industrial
   tier: 1
-  cost: 10000 # Mono
+  cost: 20000 # Mono
   recipeUnlocks:
   - MiningDrill
   - WeaponGrapplingGun # Frontier
@@ -35,7 +35,7 @@
   entityIcon: HandHeldMassScanner
   discipline: Industrial
   tier: 1
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - RadarConsoleCircuitboard
   - HandHeldMassScanner
@@ -70,7 +70,7 @@
   entityIcon: MachineFlatpacker
   discipline: Industrial
   tier: 2
-  cost: 12500
+  cost: 25000
   recipeUnlocks:
   - FlatpackerMachineCircuitboard
   - RPED
@@ -86,7 +86,7 @@
   entityIcon: IndustrialPressEconomyElectronics
   discipline: Industrial
   tier: 1
-  cost: 22500
+  cost: 45000
   recipeUnlocks:
   # Begin DeltaV Removals - replaced by upgrade kits + departmental techfabs
   #- AutolatheHyperConvectionMachineCircuitboard
@@ -120,7 +120,7 @@
   entityIcon: PortableGeneratorPacman
   discipline: Industrial
   tier: 1
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - PortableGeneratorPacmanMachineCircuitboard
   - PortableGeneratorSuperPacmanMachineCircuitboard
@@ -147,7 +147,7 @@
   entityIcon: GasThermoMachineFreezerEnabled
   discipline: Industrial
   tier: 1
-  cost: 8500
+  cost: 17000
   recipeUnlocks:
   - ThermomachineFreezerMachineCircuitBoard
   - GasRecyclerMachineCircuitboard
@@ -163,7 +163,7 @@
   entityIcon: Thruster
   discipline: Industrial
   tier: 2
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - ShuttleConsoleCircuitboard
   - ShuttleConsoleCircuitboardTSFN # Mono
@@ -185,7 +185,7 @@
   entityIcon: GasThermoMachineHellfireFreezer
   discipline: Industrial
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - HellfireFreezerMachineCircuitBoard
   - PortableScrubberMachineCircuitBoard
@@ -202,7 +202,7 @@
   entityIcon: WelderExperimental
   discipline: Industrial
   tier: 2
-  cost: 23500
+  cost: 47000
   recipeUnlocks:
   - WelderExperimental
   - PowerDrill
@@ -235,7 +235,7 @@
   entityIcon: MiningDrillDiamond
   discipline: Industrial
   tier: 2
-  cost: 15000 # aint that good tbh.
+  cost: 30000 # aint that good tbh.
   recipeUnlocks:
   - OreBagOfHolding
   - MiningDrillDiamond
@@ -278,7 +278,7 @@
   entityIcon: PowerCellMicroreactor
   discipline: Industrial
   tier: 3
-  cost: 22500
+  cost: 45000
   recipeUnlocks:
   - PowerCellMicroreactor
   - PowerCellCombat # Mono
@@ -296,7 +296,7 @@
   entityIcon: MachineMaterialSilo
   discipline: Industrial
   tier: 3
-  cost: 50000
+  cost: 100000
   recipeUnlocks:
   - MaterialSiloMachineCircuitboard
   technologyPrerequisites:

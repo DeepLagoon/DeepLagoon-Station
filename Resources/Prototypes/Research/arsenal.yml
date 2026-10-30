@@ -28,7 +28,7 @@
   entityIcon: WeaponLaserCarbine
   discipline: Arsenal
   tier: 1
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - WeaponLaserCarbine
   - WeaponMechCombatFiredartLaser # Goobstation
@@ -59,7 +59,7 @@
   entityIcon: Truncheon
   discipline: Arsenal
   tier: 1
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - Truncheon
   - TelescopicShield
@@ -78,7 +78,7 @@
   entityIcon: ExplosivePayload
   discipline: Arsenal
   tier: 1
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - SignallerAdvanced
   - SignalTrigger
@@ -115,7 +115,7 @@
   entityIcon: WeaponLaserCannon
   discipline: Arsenal
   tier: 2
-  cost: 25000 # Mono
+  cost: 50000 # Mono
   recipeUnlocks:
   - WeaponLaserCannon
   - WeaponMechCombatSolarisLaser # Goobstation
@@ -144,7 +144,7 @@
   entityIcon: PowerCageHigh
   discipline: Arsenal
   tier: 2
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   #  - PowerCageRechargerCircuitboard # Mono - moved to industrial
   #  - PowerCageSmall # Mono
@@ -172,7 +172,7 @@
   entityIcon: WeaponAdvancedLaser
   discipline: Arsenal
   tier: 3
-  cost: 30000
+  cost: 60000
   recipeUnlocks:
   - WeaponAdvancedLaser
   - PortableRecharger

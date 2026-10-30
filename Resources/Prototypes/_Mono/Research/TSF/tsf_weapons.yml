@@ -4,7 +4,7 @@
   entityIcon: WeaponRifleLecter
   discipline: TsfmcWeaponry
   tier: 1
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - WeaponRifleLecterTSF
   - WeaponSubMachineGunDrozdTSF
@@ -18,7 +18,7 @@
   entityIcon: WeaponRifleAnnie
   discipline: TsfmcWeaponry
   tier: 2
-  cost: 30000
+  cost: 60000
   recipeUnlocks:
   - WeaponRifleAnnieTSF
   - WeaponLMGGrizzlyTSF
@@ -44,7 +44,7 @@
   entityIcon: WeaponDEWSmilodon
   discipline: TsfmcWeaponry
   tier: 3
-  cost: 30000
+  cost: 60000
   recipeUnlocks:
   #- WeaponAMRShenzhenTSF
   - WeaponDEWSmilodon
@@ -62,7 +62,7 @@
   entityIcon: WeaponRifleXlr556
   discipline: TsfmcWeaponry
   tier: 3
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - WeaponRifleXlr556Tsf
   - Magazine35mmGrenade #anubis SAPHE

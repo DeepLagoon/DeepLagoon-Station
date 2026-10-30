@@ -19,7 +19,14 @@ space-environment-survey-signal = Detected: { $kind }. Centre: ({ $x }, { $y }),
 space-environment-survey-slow = Slow down to 4 m/s for a stable reading.
 space-environment-survey-complete = Survey complete: { $kind }. Data recorded in the journal.
 space-environment-survey-recorded = This region is already recorded in the journal.
+space-environment-survey-research = Awarded { $points } research points to the RnD server.
+space-environment-survey-research-disk = Issued a disk containing { $points } RnD points. Upload it to a research server. If your hands are full, the disk is beside the console.
+space-environment-survey-disk-name = Sector survey disk ({ $points } RnD)
+ent-DeepLagoonSpaceSurveyDisk = sector survey data disk
+    .desc = Research data from a previously uncharted space region. Insert into an RnD server to upload the points.
 
 space-environment-route = Direct course: dust ~{ $dust } m; radiation ~{ $radiation } m (intensity weighted).
 space-environment-route-ftl-blocked = FTL: plasma interference at departure or arrival.
 space-environment-route-ftl-clear = FTL: no environmental endpoint interference detected. Other travel restrictions still apply.
+
+space-environment-space-junk = space junk

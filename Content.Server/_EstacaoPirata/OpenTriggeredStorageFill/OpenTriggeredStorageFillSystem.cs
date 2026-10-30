@@ -20,6 +20,7 @@ public sealed partial class OpenTriggeredStorageFillSystem : EntitySystem
     [Dependency] private SharedStorageSystem _storage = default!;
     [Dependency] private PopupSystem _popup = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -45,7 +46,7 @@ public sealed partial class OpenTriggeredStorageFillSystem : EntitySystem
         {
             DebugTools.Assert(!_prototype.Index<EntityPrototype>(item)
                 .HasComponent(typeof(RandomSpawnerComponent)));
-            var ent = Spawn(item, coordinates);
+            var ent = _expeditionLoot.SpawnLoot(uid, item, coordinates);
 
             if (!TryComp<ItemComponent>(ent, out var itemComp))
             {

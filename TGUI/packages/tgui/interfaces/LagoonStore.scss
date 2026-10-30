@@ -1,0 +1,74 @@
+
+.LagoonStore {
+  --store-bg: #101c26; --store-panel: #172733; --store-border: #314955; --store-muted: #a4bac5; --store-accent: #87d9bd;
+  height: 100vh; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  color: #edf3f6; background: var(--store-bg); font: 14px/1.5 sans-serif; color-scheme: dark;
+  &, * { box-sizing: border-box; }
+  h1, h2, h3, p { margin: 0; } h1 { font-size: 23px; line-height: 1.25; } h2 { font-size: 19px; } h3 { font-size: 17px; }
+  small, .muted { color: var(--store-muted); } small { font-size: 12px; }
+  button, input { font: inherit; color: inherit; }
+  button { background: #223946; border: 1px solid #456270; border-radius: 7px; padding: 9px 13px; cursor: pointer; }
+  button:hover:not(:disabled) { background: #2c4856; border-color: #7cafb3; }
+  button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--store-accent); outline-offset: 3px; }
+  button.primary { background: var(--store-accent); color: #102a26; border-color: var(--store-accent); font-weight: 700; }
+  button.primary:hover:not(:disabled) { background: #b0efd8; }
+  input { background: #101e29; border: 1px solid #456270; border-radius: 6px; padding: 9px 10px; min-width: 0; max-width: 100%; }
+  input[type=range] { padding: 0; accent-color: var(--store-accent); width: 100%; }
+  label { display: flex; flex-direction: column; gap: 5px; color: var(--store-muted); font-size: 12px; min-width: 0; }
+  summary { cursor: pointer; color: var(--store-accent); padding: 8px 0; }
+  details p { white-space: pre-line; overflow-wrap: anywhere; padding-bottom: 8px; }
+  main { min-height: 0; flex: 1; overflow: auto; padding: 20px 24px; }
+  footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 24px; border-top: 1px solid var(--store-border); background: var(--store-panel); }
+  .EmbeddedSelect { width: 100%; min-width: 0; }
+  .price { color: #f4d794; font-size: 25px; font-weight: 700; line-height: 1.25; font-variant-numeric: tabular-nums; }
+  .price span { font-size: 13px; }
+  .badge { display: inline-block; background: #233b46; border: 1px solid #3e5966; padding: 2px 8px; border-radius: 5px; color: #c7d9e2; font-size: 12px; }
+  .badge.active { color: #a5e9c9; border-color: #47725e; background: #1b372f; }
+  .empty { padding: 32px 12px; text-align: center; color: var(--store-muted); border: 1px dashed var(--store-border); border-radius: 8px; }
+}
+.LagoonStore__header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 24px 18px; flex-shrink: 0; background: var(--store-panel); border-bottom: 1px solid var(--store-border); }
+.LagoonStore__wallet { flex-shrink: 0; padding: 8px 14px; background: #102b29; border: 1px solid #3e695e; border-radius: 9px; text-align: right; }
+.LagoonStore__wallet strong { display: block; font-size: 22px; color: #acedd3; font-variant-numeric: tabular-nums; }
+.LagoonStore__tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 24px; flex-shrink: 0; border-bottom: 1px solid var(--store-border); }
+.LagoonStore__tabs button { border-color: transparent; background: transparent; color: var(--store-muted); }
+.LagoonStore__tabs button[aria-selected=true] { background: #254239; border-color: #497b66; color: #b5f0d5; }
+.LagoonStore__notice { padding: 11px 14px; border: 1px solid #52796b; border-radius: 7px; background: #1c342e; margin-bottom: 16px !important; }
+.LagoonStore__intro { margin-bottom: 18px; display: flex; gap: 12px; flex-direction: column; }
+.LagoonStore__filters { display: grid; grid-template-columns: minmax(130px, 2fr) minmax(110px, 1.1fr) repeat(2, minmax(65px, .6fr)) minmax(150px, 1.2fr); gap: 10px; margin-bottom: 18px; }
+.LagoonStore__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 14px; }
+.LagoonStore__card { background: var(--store-panel); border: 1px solid var(--store-border); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.LagoonStore__card.selected { border-color: #639d83; }
+.LagoonStore__cardTop { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.LagoonStore__cardActions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 10px; align-items: center; justify-content: space-between; }
+.LagoonStore__cardActions .price { margin-right: auto; }
+.LagoonStore__overlay { position: absolute; inset: 0; z-index: 100; background: #07111ad9; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.LagoonStore__dialog { width: min(100%, 480px); max-height: 100%; overflow: auto; padding: 24px; border-radius: 12px; background: #192b37; border: 1px solid #658b88; box-shadow: 0 16px 50px #0009; }
+.LagoonStore__dialog p { margin: 12px 0; }
+.LagoonStore__dialogActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.LagoonStore__preview { width: min(100%, 780px); }
+.LagoonStore__plan { position: relative; isolation: isolate; margin: 14px auto; background: #0a131c; border: 1px solid var(--store-border); image-rendering: pixelated; overflow: hidden; }
+.LagoonStore__planItem { position: absolute; width: var(--cell); height: var(--cell); }
+.LagoonStore__planItem img { position: absolute; max-width: none; width: 100%; height: 100%; left: 0; top: 0; }
+.LagoonStore__settings { max-width: 640px; display: flex; flex-direction: column; gap: 18px; }
+.LagoonStore__swatches { display: flex; flex-wrap: wrap; gap: 9px; }
+.LagoonStore__swatches button { width: 38px; height: 38px; padding: 5px; background: #12232e; }
+.LagoonStore__swatches button[aria-pressed=true] { outline: 2px solid var(--store-accent); outline-offset: 2px; }
+.LagoonStore__swatches span { display: block; width: 100%; height: 100%; border-radius: 3px; }
+.LagoonStore__rgb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.LagoonStore__sample { padding: 16px; border: 1px solid var(--store-border); border-radius: 7px; }
+.LagoonStore__refCode { display: block; overflow-wrap: anywhere; padding: 14px; background: #102b29; color: #b2ecd3; font: 700 20px monospace; letter-spacing: .08em; border-radius: 6px; }
+.LagoonStore__refList { list-style: none; padding: 0; margin: 0; }
+.LagoonStore__refList li { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--store-border); }
+.LagoonStore__refList li > div { display: flex; flex-direction: column; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .LagoonStore__filters { grid-template-columns: 1fr 1fr; }
+  .LagoonStore__filters label:first-child { grid-column: 1 / -1; }
+  .LagoonStore__header, .LagoonStore main { padding: 16px; }
+  .LagoonStore__tabs { padding: 8px 12px; }
+  .LagoonStore h1 { font-size: 20px; }
+}
+@media (max-width: 540px) {
+  .LagoonStore__header { gap: 8px; } .LagoonStore__wallet { padding: 6px 10px; } .LagoonStore__wallet strong { font-size: 18px; }
+  .LagoonStore__grid { grid-template-columns: 1fr; } .LagoonStore__dialog { padding: 16px; }
+}

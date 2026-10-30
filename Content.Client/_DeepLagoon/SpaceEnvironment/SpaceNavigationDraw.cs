@@ -8,7 +8,7 @@ namespace Content.Client._DeepLagoon.SpaceEnvironment;
 public static class SpaceNavigationDraw
 {
     public static void Body(DrawingHandleScreen handle, Font font, Vector2 world, string name, float radius,
-        Color color, Matrix3x2 transform, Vector2 size, Vector2 origin, float uiScale, bool edge)
+        Color color, Matrix3x2 transform, Vector2 size, Vector2 origin, float uiScale, bool edge, ShaderInstance? portrait = null, bool planet = false)
     {
         var position = Vector2.Transform(world, transform);
         var margin = MathF.Min(20f * uiScale, MathF.Min(size.X, size.Y) * 0.2f);
@@ -24,9 +24,19 @@ public static class SpaceNavigationDraw
             position = center + delta / factor;
         }
         var scale = MathF.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12);
-        var displayRadius = outside ? 3f * uiScale : Math.Clamp(radius * scale, 4f * uiScale, 70f * uiScale);
-        handle.DrawCircle(position, displayRadius, color.WithAlpha(0.2f));
-        handle.DrawCircle(position, displayRadius, color.WithAlpha(0.9f), false);
+        var displayRadius = outside ? 3f * uiScale : DisplayRadius(radius * scale, uiScale, planet);
+        if (!outside && portrait != null)
+        {
+            var previous = handle.GetShader();
+            handle.UseShader(portrait);
+            handle.DrawTextureRect(Texture.White, UIBox2.FromDimensions(position - new Vector2(displayRadius), new Vector2(displayRadius * 2)));
+            handle.UseShader(previous);
+        }
+        else
+        {
+            handle.DrawCircle(position, displayRadius, color.WithAlpha(0.2f));
+            handle.DrawCircle(position, displayRadius, color.WithAlpha(0.9f), false);
+        }
         if (outside)
         {
             var direction = Vector2.Normalize(delta);
@@ -40,6 +50,9 @@ public static class SpaceNavigationDraw
         labelPos.Y = Math.Clamp(labelPos.Y, dimensions.Y, MathF.Max(dimensions.Y, size.Y - dimensions.Y));
         handle.DrawString(font, labelPos, label, uiScale * 0.8f, color);
     }
+
+    public static float DisplayRadius(float scaledRadius, float uiScale, bool planet)
+        => Math.Clamp(scaledRadius, (planet ? 16f : 4f) * uiScale, 70f * uiScale);
 
     public static void Regions(DrawingHandleScreen handle, Font font, SpaceEnvironmentComponent environment,
         Matrix3x2 transform, Vector2 size, float uiScale, Vector2[][] contours, DrawVertexUV2DColor[][] fills,

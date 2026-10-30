@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
@@ -69,14 +69,20 @@ public sealed class ApartmentTemplateShopTests
         }
         await pair.Server.WaitAssertion(() =>
         {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             var entities = pair.Server.EntMan; var session = pair.Server.PlayerMan.Sessions.Single();
             var system = entities.System<ApartmentSystem>();
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             oldNumber = system.Number(session.UserId);
             Assert.That(Store(system).Save(session.UserId.UserId, new ApartmentDelta { Template = "DLApartmentStudio", TemplateVersion = 1, Revision = 1 }, 0), Is.True);
             Show(system, session);
             Assert.That(Store(system).Load(session.UserId.UserId)!.Template, Is.EqualTo("DLApartmentBasic"));
             migratedNumber = system.Number(session.UserId);
             Assert.That(migratedNumber, Is.Not.EqualTo(oldNumber)); Assert.That(system.NumberOwner(oldNumber), Is.Null);
+            Assert.That(system.Enabled, Is.True, "Apartment feature must be enabled in this test");
+            Assert.That((bool) typeof(ApartmentSystem).GetMethod("CanManage", flags)!.Invoke(system, new object[] { session })!, Is.True,
+                $"CanManage: connected={session.Channel.IsConnected}, status={entities.System<GameTicker>().PlayerGameStatuses.GetValueOrDefault(session.UserId)}");
+            Assert.That(((HashSet<NetUserId>) typeof(ApartmentSystem).GetField("_shopping", flags)!.GetValue(system)!).Contains(session.UserId), Is.False);
             Action(system, session, "edit");
             var instance = system.Instances[session.UserId];
             var layout = ((List<ApartmentPlacement>) typeof(ApartmentSystem).GetMethod("CurrentLayout", flags)!.Invoke(system, new object[] { instance })!);
@@ -121,6 +127,7 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(Balance(), Is.EqualTo(15)); Assert.That(system.Number(session.UserId), Is.EqualTo(paidNumber));
             ((IDictionary<NetUserId, PlayerGameStatus>) entities.System<GameTicker>().PlayerGameStatuses)[session.UserId] = PlayerGameStatus.JoinedGame;
             body = entities.SpawnEntity("MobHuman", outside.GridCoords); pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            entities.AddComponent<ApartmentLatejoinSpawnComponent>(outside.MapUid);
             var spawned = new PlayerSpawnCompleteEvent(body, session, null, true, false, 1, outside.MapUid, HumanoidCharacterProfile.DefaultWithSpecies("Human"));
             entities.EventBus.RaiseEvent(EventSource.Local, spawned);
             paidGrid = system.Instances[session.UserId].Grid;
@@ -144,6 +151,7 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(newHome.Grid));
             Assert.That(Balance(), Is.EqualTo(15));
             system.Leave(session.UserId, out _); pair.Server.PlayerMan.SetAttachedEntity(session, null); entities.DeleteEntity(body);
+            ((IDictionary<NetUserId, PlayerGameStatus>) entities.System<GameTicker>().PlayerGameStatuses)[session.UserId] = PlayerGameStatus.NotReadyToPlay;
         });
         await pair.CleanReturnAsync();
     }

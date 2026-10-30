@@ -60,6 +60,7 @@ public sealed class SectorSystem : EntitySystem
             ExcludeInitialStations(args.Map, definition);
             definition = Store.GetOrCreate(Campaign, definition);
         }
+        definition = ExpandRegions(definition, args.Map);
         Bind(args.Map, definition);
     }
 
@@ -68,7 +69,7 @@ public sealed class SectorSystem : EntitySystem
     {
         SectorStore.ValidateKey(id);
         var existing = Store.Load(Campaign, id);
-        if (existing != null) return existing;
+        if (existing != null) return ExpandRegions(existing);
         return Store.GetOrCreate(Campaign, SectorGenerator.Generate(id, seed, _prototypes.Index<SectorProfilePrototype>(profile)));
     }
 
@@ -111,11 +112,12 @@ public sealed class SectorSystem : EntitySystem
     public bool TryUnload(EntityUid map)
     {
         if (!HasComp<SpaceEnvironmentComponent>(map)) return false;
-        var grids = AllEntityQuery<MapGridComponent, TransformComponent>();
-        while (grids.MoveNext(out _, out _, out var transform))
-            if (transform.MapUid == map) return false;
         var players = AllEntityQuery<ActorComponent, TransformComponent>();
         while (players.MoveNext(out _, out _, out var transform))
+            if (transform.MapUid == map) return false;
+        EntityManager.System<OrbitalDebrisSystem>().ClearUnclaimed(map);
+        var grids = AllEntityQuery<MapGridComponent, TransformComponent>();
+        while (grids.MoveNext(out _, out _, out var transform))
             if (transform.MapUid == map) return false;
         Del(map);
         return true;
@@ -142,6 +144,19 @@ public sealed class SectorSystem : EntitySystem
     {
         _loaded.Remove((component.Campaign, component.Definition.Id));
         EntityManager.System<SpaceEnvironmentSystem>().RemoveSector(uid);
+        EntityManager.System<OrbitalDebrisSystem>().ForgetMap(uid);
+    }
+
+    private SectorDefinition ExpandRegions(SectorDefinition original, EntityUid? map = null)
+    {
+        var profile = _prototypes.Index<SectorProfilePrototype>(original.Profile);
+        if (original.Regions.Count >= profile.RegionCount) return original;
+        var expanded = SectorGenerator.ExpandRegions(original, profile);
+        var additions = expanded.Regions.GetRange(original.Regions.Count, expanded.Regions.Count - original.Regions.Count);
+        // Clear only new areas around inhabited grids; never move or remove an old discovery.
+        expanded.Regions = additions;
+        if (map is { } mapUid) ExcludeInitialStations(mapUid, expanded);
+        return additions.Count == 0 ? original : Store.AppendRegions(Campaign, original, additions);
     }
 
     private void ExcludeInitialStations(EntityUid map, SectorDefinition definition)

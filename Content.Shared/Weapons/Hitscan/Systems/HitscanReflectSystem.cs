@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Shared._DeepLagoon.Weapons;
 using Content.Shared.Damage;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Hitscan.Events;
@@ -11,6 +12,7 @@ namespace Content.Shared.Weapons.Hitscan.Systems;
 public sealed partial class HitscanReflectSystem : EntitySystem
 {
     [Dependency] private DamageableSystem _damage = default!; // Mono
+    [Dependency] private LaserWindowSystem _windows = default!;
     public override void Initialize()
     {
         base.Initialize();
@@ -31,6 +33,9 @@ public sealed partial class HitscanReflectSystem : EntitySystem
         if (TryComp<HitscanBasicDamageComponent>(hitscan, out var hitscanDamage))
             damage = hitscanDamage.Damage * _damage.UniversalHitscanDamageModifier;
 
+        var transmission = _windows.Transmission(args, args.HitEntities.First());
+        damage *= transmission;
+
         // Mono - Use hitscan damage component if available
         var ev = new HitScanReflectAttemptEvent(args.Shooter ?? args.Gun, args.Gun, hitscan.Comp.ReflectiveType, args.ShotDirection, false, damage);
         // Mono End
@@ -42,6 +47,12 @@ public sealed partial class HitscanReflectSystem : EntitySystem
         hitscan.Comp.CurrentReflections++;
 
         args.Canceled = true;
+
+        // A reflected beam retains the energy lost before reaching its reflector.
+        if (hitscanDamage != null)
+            hitscanDamage.Damage *= transmission;
+        if (TryComp<HitscanStaminaDamageComponent>(hitscan, out var staminaDamage))
+            staminaDamage.StaminaDamage *= transmission;
 
         var fromEffect = Transform(args.HitEntities.First()).Coordinates; // Mono
 

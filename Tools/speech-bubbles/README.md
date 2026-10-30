@@ -50,6 +50,13 @@ channel changes, focus/submission, disabled indicators and clothing priority.
 animation, and inherited headset prototypes with loaded game resources.
 Run the client sandbox tests against rebuilt client/shared assemblies too.
 
+`TguiTypingIndicatorTests` drives composer actions through the native chat
+callbacks, checks the server's replicated typing state, and verifies that the
+player's sprite layer animates for Say/emote/LOOC. TGUI draft writes must opt in
+to `LineEdit.SetText(..., invokeEvent: true)`; otherwise the draft is saved without
+raising the text-change notification that starts typing. Browser bridge checks
+alone cannot detect that native-side failure.
+
 For manual verification, use two connected clients and check native/TGUI input,
 long uninterrupted typing, a five-second pause, clearing the draft, changing
 prefixes/channels, Escape, focus loss, and headset swaps while idle and typing.

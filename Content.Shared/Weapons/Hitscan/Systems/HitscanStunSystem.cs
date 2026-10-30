@@ -1,4 +1,5 @@
 using Content.Shared.Damage.Systems;
+using Content.Shared._DeepLagoon.Weapons;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Hitscan.Events;
 
@@ -7,6 +8,7 @@ namespace Content.Shared.Weapons.Hitscan.Systems;
 public sealed partial class HitscanStunSystem : EntitySystem
 {
     [Dependency] private StaminaSystem _stamina = default!; // Mono - SharedStaminaSystem not ported yet
+    [Dependency] private LaserWindowSystem _windows = default!;
 
     public override void Initialize()
     {
@@ -22,7 +24,7 @@ public sealed partial class HitscanStunSystem : EntitySystem
 
         foreach (var hitEntity in args.HitEntities) // Mono
         {
-            _stamina.TakeStaminaDamage(hitEntity, hitscan.Comp.StaminaDamage, source: args.Shooter ?? args.Gun);
+            _stamina.TakeStaminaDamage(hitEntity, hitscan.Comp.StaminaDamage * _windows.Transmission(args, hitEntity), source: args.Shooter ?? args.Gun);
         }
     }
 }

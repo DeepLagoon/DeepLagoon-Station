@@ -4,7 +4,7 @@
   entityIcon: ComputerAdvancedRadar
   discipline: CivilianServices
   tier: 3
-  cost: 55000
+  cost: 110000
   recipeUnlocks:
 #  - ShieldControlComputerCircuitboard
 #  - MachineShieldMS225Circuitboard
@@ -29,7 +29,7 @@
   entityIcon: MachineFTLDrive50
   discipline: Experimental
   tier: 3
-  cost: 45000
+  cost: 90000
   recipeUnlocks:
   - MachineDriveCTLA25sCircuitboard
   - MachineDriveCTLA50Circuitboard

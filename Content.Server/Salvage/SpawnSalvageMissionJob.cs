@@ -225,6 +225,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         expedition.EndTime = _timing.CurTime + mission.Duration;
         expedition.MissionParams = _missionParams;
         expedition.Difficulty = _missionParams.Difficulty;
+        _entManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().InitializeBudget(mapUid, expedition.Difficulty);
         expedition.Rewards = mission.Rewards.Select(id => new EntProtoId(id)).ToList();
 
         // On Frontier, we cant share our locations it breaks ftl in a bad bad way

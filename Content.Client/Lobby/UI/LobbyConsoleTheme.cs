@@ -3,6 +3,7 @@ using System.Text;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Content.Client.Resources;
+using Robust.Client.UserInterface;
 
 namespace Content.Client.Lobby.UI;
 
@@ -23,6 +24,17 @@ public static class LobbyConsoleTheme
 
     public static Font GetFont(int size = 13) => new ConsoleFont(IoCManager.Resolve<IResourceCache>()
         .GetFont("/Fonts/RobotoMono/RobotoMono-Regular.ttf", size), size);
+
+    public static StyleBoxFlat CreateHeadingStyle() => new()
+    {
+        BackgroundColor = Color.FromHex("#14271B"),
+        BorderColor = Green.WithAlpha(0.3f),
+        BorderThickness = new Thickness(0, 0, 0, 1),
+        ContentMarginLeftOverride = 8,
+        ContentMarginRightOverride = 8,
+        ContentMarginTopOverride = 4,
+        ContentMarginBottomOverride = 4,
+    };
 
     // The template uses CSS pixels; VectorFont sizes are points at 96 DPI.
     // Apply 72/96 while keeping the user's UI/font DPI scaling in effect.

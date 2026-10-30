@@ -163,7 +163,7 @@ public sealed partial class ApartmentSystem
         return writer.ToString();
     }
 
-    public bool SaveApartment(Instance instance, bool discardTrash = false)
+    public bool SaveApartment(Instance instance, bool discardTrash = false, Guid delivery = default)
     {
         if (!Exists(instance.Grid)) return false;
         try
@@ -175,7 +175,7 @@ public sealed partial class ApartmentSystem
             var (current, clean) = SerializeApartment(instance);
             var snapshot = new ApartmentSnapshot { Grid = current, Layout = layout, MapFurniture = instance.MapFurniture.Values.ToList() };
             var roundEnd = new ApartmentSnapshot { Grid = clean, Layout = layout, MapFurniture = snapshot.MapFurniture };
-            Store.SaveSnapshot(instance.Owner.UserId, instance.Template.ID, snapshot, roundEnd);
+            Store.SaveSnapshot(instance.Owner.UserId, instance.Template.ID, snapshot, roundEnd, delivery);
             return true;
         }
         catch (Exception exception)

@@ -4,7 +4,7 @@
   entityIcon: HeavyBallisticShield
   discipline: RogueWeaponry
   tier: 3
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - HeavyBallisticShield
   - TelescopicShield
@@ -20,7 +20,7 @@
   entityIcon: WeaponVT7
   discipline: RogueWeaponry
   tier: 3
-  cost: 45000
+  cost: 90000
   recipeUnlocks:
   - HFSwordVT7
   technologyPrerequisites:
@@ -33,7 +33,7 @@
   entityIcon: WeaponSubMachineGunC20r
   discipline: RogueWeaponry
   tier: 1
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - WeaponSubMachineGunC20rRogue
   - WeaponRifleVympelRogue
@@ -50,7 +50,7 @@
   entityIcon: WeaponLauncherPanzero
   discipline: RogueWeaponry
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - WeaponLauncherPanzeroRogue
   technologyPrerequisites:
@@ -64,7 +64,7 @@
   entityIcon: WeaponSniperHristov
   discipline: RogueWeaponry
   tier: 3
-  cost: 20000
+  cost: 40000
   recipeUnlocks:
   - Magazine762x39mmBox
   - Magazine127x99mm
@@ -85,7 +85,7 @@
   entityIcon: WeaponSubMachineGunMla73
   discipline: RogueWeaponry
   tier: 2
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - Magazine762x39mmSubsonic
   - AmmoBox762x39mmSubsonic

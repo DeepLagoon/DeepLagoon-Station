@@ -218,7 +218,7 @@ public sealed partial class SalvageSystem
             Log.Debug($"Completed mission {expedition.MissionParams.MissionType} with seed {expedition.MissionParams.Seed}");
             component.NextOffer = _timing.CurTime + TimeSpan.FromSeconds(_cooldown);
             Announce(uid, Loc.GetString("salvage-expedition-mission-completed"));
-            GiveRewards(expedition);
+            GiveRewards(uid, expedition);
         }
         else
         {
@@ -343,11 +343,8 @@ public sealed partial class SalvageSystem
         args.PushMarkup(Loc.GetString("salvage-expedition-structure-examine"));
     }
 
-    private void GiveRewards(SalvageExpeditionComponent comp)
+    private void GiveRewards(EntityUid expedition, SalvageExpeditionComponent comp)
     {
-        if (!_cfgManager.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
-            return;
-
         var palletList = new List<EntityUid>();
         var pallets = EntityQueryEnumerator<SalvageExpeditionConsoleComponent>(); // Frontier CargoPalletComponent<SalvageExpeditionConsoleComponent
         while (pallets.MoveNext(out var pallet, out var palletComp))
@@ -361,9 +358,12 @@ public sealed partial class SalvageSystem
         if (!(palletList.Count > 0))
             return;
 
-        foreach (var reward in comp.Rewards)
+        var destination = Transform(_random.Pick(palletList)).Coordinates;
+        EntityManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().GiveCompletionReward(expedition, destination);
+        if (_cfgManager.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
         {
-            Spawn(reward, (Transform(_random.Pick(palletList)).MapPosition));
+            foreach (var reward in comp.Rewards)
+                Spawn(reward, destination);
         }
     }
 

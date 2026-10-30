@@ -1,0 +1,39 @@
+# Space support keeps native wall anchoring and grid physics, without a walkable room floor.
+- type: tile
+  id: DeepLagoonSpaceJunkSupport
+  name: tiles-space
+  isSpace: true
+  isSubfloor: true
+  sturdy: false
+  transparent: true
+  heatCapacity: 10000
+  mass: 10
+
+# A small subset of the native blue NFBaseWreckDebris loot. Maximum two table results per pile.
+- type: entityTable
+  id: DeepLagoonSpaceJunkLoot
+  table: !type:GroupSelector
+    children:
+    - !type:NestedSelector
+      tableId: SalvageScrapLowValue
+      weight: 75
+    - !type:NestedSelector
+      tableId: SalvageEquipmentCommon
+      weight: 20
+    - !type:NestedSelector
+      tableId: SalvageTreasureCommon
+      weight: 5
+
+- type: entityTable
+  id: DeepLagoonSpaceJunkFieldLoot
+  table: !type:GroupSelector
+    children:
+    - !type:NestedSelector
+      tableId: SalvageScrapHighValue
+      weight: 45
+    - !type:NestedSelector
+      tableId: SalvageEquipmentUncommon
+      weight: 35
+    - !type:NestedSelector
+      tableId: SalvageTreasureUncommon
+      weight: 20

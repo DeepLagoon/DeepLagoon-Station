@@ -258,6 +258,7 @@ public sealed partial class PointOfInterestSystem : EntitySystem
         if (!_map.TryLoadGridTracked(mapUid, proto.GridPath, out var loadedGrid, offset: offset, rot: _random.NextAngle()))
             return false;
         gridUid = loadedGrid.Value;
+        EnsureComp<Content.Server._DeepLagoon.SpaceEnvironment.SpaceJunkExclusionComponent>(loadedGrid.Value);
         List<EntityUid> gridList = [loadedGrid.Value];
 
         string stationName = string.IsNullOrEmpty(overrideName) ? proto.Name : overrideName;

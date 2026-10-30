@@ -52,3 +52,5 @@ public sealed record LagoonEconomyPurchase(string Key, string Kind, string Produ
     int Quantity = 1, int PackSize = 0, long? ExpectedUnitPrice = null);
 public sealed record LagoonEconomyReceipt(string Fingerprint);
 public sealed record LagoonPublicSupporter(string Name, DateTime FirstPaidAt);
+
+public sealed record LagoonReferral(string Name, int Stage, int Reward);

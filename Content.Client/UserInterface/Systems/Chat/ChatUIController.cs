@@ -458,8 +458,10 @@ public sealed partial class ChatUIController : UIController
 
     private void CreateSpeechBubble(EntityUid entity, SpeechBubbleData speechData)
     {
+        // Decide when displaying the message, so queued messages also see earlier bubbles.
         var bubble =
-            SpeechBubble.CreateSpeechBubble(speechData.Type, speechData.Message, entity);
+            SpeechBubble.CreateSpeechBubble(speechData.Type, speechData.Message, entity,
+                showSpeaker: !_activeSpeechBubbles.ContainsKey(entity));
 
         bubble.OnDied += SpeechBubbleDied;
 

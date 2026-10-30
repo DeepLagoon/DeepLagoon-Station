@@ -21,3 +21,44 @@
   &__grip {height:12px;flex-shrink:0;cursor:ns-resize;touch-action:none;background:repeating-linear-gradient(90deg,#8893a8 0 3px,transparent 3px 7px) center/70px 3px no-repeat #303744;border-top:1px solid #62677f;}
 }
 .LobbyStatus.Chat[class] {min-height:0;padding:8px 10px;flex-shrink:0;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;strong{width:100%;}}
+
+// The lobby's native console owns the frame and live round status. Keep this
+// presentation local: gameplay chat and persisted message appearance are intact.
+.LobbyChat {
+  background-color: #0b1810;
+  color: #d2d9d4;
+
+  .Section { background-color: #0b1810; }
+  .Layout__content--scrollable { scrollbar-color: #45634e #0b1810; }
+
+  .LobbyChat__toolbar {
+    border-bottom: 1px solid #294336;
+    padding: 4px 0 8px;
+
+    > .Section__rest > .Section__content > .Stack { flex-wrap: wrap; }
+    .Stack__item--grow { min-width: 0; overflow-x: auto; }
+    .Button {
+      background-color: #122019;
+      border: 1px solid #314b3c;
+      border-radius: 0;
+      color: #82cf99;
+      &:hover { background-color: #20382b; color: #b4f1bf; }
+    }
+    .Tab {
+      color: #93a79b;
+      background-color: transparent;
+      border: 1px solid transparent;
+      border-radius: 0;
+      &--selected { background-color: #183323; border-color: #487654; color: #b4f1bf; }
+      &:hover { background-color: #20382b; }
+    }
+  }
+
+  .LobbyChat__scroll {
+    background-color: #111f17;
+    border: 1px solid #3a6048;
+    border-radius: 0;
+    color: #82cf99;
+    &:hover { background-color: #20382b; }
+  }
+}

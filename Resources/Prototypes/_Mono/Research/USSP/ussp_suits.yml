@@ -4,7 +4,7 @@
   entityIcon: ClothingOuterHardsuitUsspL10
   discipline: Ussp
   tier: 1
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
   - ClothingOuterHardsuitUsspL10USSP
   - ClothingOuterHardsuitUsspL10AUSSP
@@ -18,7 +18,7 @@
   entityIcon: ClothingOuterHardsuitUsspL27
   discipline: Ussp
   tier: 2
-  cost: 45000
+  cost: 90000
   recipeUnlocks:
   - ClothingOuterHardsuitUsspL27USSP
   - ClothingOuterHardsuitUsspM10USSP
@@ -33,7 +33,7 @@
   entityIcon: ClothingModsuitUSSPZastavnik
   discipline: Ussp
   tier: 3
-  cost: 85000
+  cost: 170000
   recipeUnlocks:
   - ClothingModsuitUSSPVaryagUSSP
   - ClothingModsuitUSSPZastavnikUSSP

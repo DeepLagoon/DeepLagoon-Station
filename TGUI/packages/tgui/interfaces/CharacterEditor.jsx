@@ -306,7 +306,6 @@ export const CharacterEditor = () => {
         <Select label="Приоритет появления" value={data.spawn} options={data.spawnOptions} onChange={change('spawn')} />
       </div>
         <details className="CharacterEditor__physiology"><summary>Возбуждение, жидкости и физиология</summary>
-          <p>Рост от жидкостей и визуальная беременность отключены по умолчанию. Изменение тела также требует разрешения в настройках химических изменений. Беременность изменяет только живот и описание при осмотре.</p>
           <BlueMoonPreferences options={data.physiology} act={act} />
         </details>
       {data.canUsePlantigradeLegs && <label className="CharacterEditor__legShape">

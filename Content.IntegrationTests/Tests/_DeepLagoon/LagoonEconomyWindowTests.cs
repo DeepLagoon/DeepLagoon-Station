@@ -26,6 +26,9 @@ public sealed class LagoonEconomyWindowTests
             system.Open();
             var first = ui.WindowRoot.Children.OfType<ApartmentTravelWindow>().Single();
             Assert.That(first.IsOpen, Is.True, "Clicking the menu must open a window before the server has replied");
+            var panelType = typeof(Content.Client._DeepLagoon.WebUI.TguiPanel);
+            Assert.That(panelType.GetField("_forceTgui", flags)!.GetValue(first.Panel), Is.True);
+            Assert.That(panelType.GetField("_showWindowControls", flags)!.GetValue(first.Panel), Is.False);
             var oldRequest = Request();
             system.Open();
             Assert.That(ui.WindowRoot.Children.OfType<ApartmentTravelWindow>().Count(), Is.EqualTo(1));

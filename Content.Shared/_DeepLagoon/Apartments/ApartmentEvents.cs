@@ -1,4 +1,4 @@
-using Robust.Shared.Serialization;
+﻿using Robust.Shared.Serialization;
 using Content.Shared._DeepLagoon.Mapping;
 
 namespace Content.Shared._DeepLagoon.Apartments;
@@ -83,26 +83,39 @@ public sealed class ApartmentResultEvent(bool success, string message, int revis
 [Serializable, NetSerializable]
 public sealed class ApartmentShopRequest : EntityEventArgs;
 [Serializable, NetSerializable]
-public sealed class ApartmentShopAction(Guid token, string action, string template = "") : EntityEventArgs
+public sealed class ApartmentShopAction(Guid token, string action, string template = "", Guid order = default, long unitPrice = -1, int page = 0) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly string Action = action, Template = template;
+    public readonly Guid Order = order;
+    public readonly long UnitPrice = unitPrice;
+    public readonly int Page = page;
 }
 [Serializable, NetSerializable]
 public sealed class ApartmentShopEntry
 {
     public string Id = "", Name = "", Category = "", Entity = "";
+    public string Description = "";
+    public int Width, Height, Popularity;
     public int MaxCount;
     public long Price;
     public bool Owned, Selected;
 }
 [Serializable, NetSerializable]
-public sealed class ApartmentShopState(Guid token, List<ApartmentShopEntry> templates, int number, bool lobby, bool legacy, string message, List<ApartmentShopEntry>? furniture = null, long balance = -1) : EntityEventArgs
+public sealed class ApartmentShopPreview(Guid token, string template, ApartmentRoomScene? scene, string error = "") : EntityEventArgs
+{
+    public readonly Guid Token = token;
+    public readonly string Template = template, Error = error;
+    public readonly ApartmentRoomScene? Scene = scene;
+}
+[Serializable, NetSerializable]
+public sealed class ApartmentShopState(Guid token, List<ApartmentShopEntry> templates, int number, bool lobby, bool legacy, string message, List<ApartmentShopEntry>? furniture = null, long balance = -1, Guid pendingItemOrder = default) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly List<ApartmentShopEntry> Templates = templates;
     public readonly List<ApartmentShopEntry> Furniture = furniture ?? [];
     public readonly long Balance = balance;
+    public readonly Guid PendingItemOrder = pendingItemOrder;
     public readonly int Number = number;
     public readonly bool Lobby = lobby, Legacy = legacy;
     public readonly string Message = message;

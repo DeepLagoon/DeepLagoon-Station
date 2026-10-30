@@ -174,3 +174,31 @@ independent WL/LC, concurrent duplicates, debit protection, persistent retries,
 conflicting receipt reuse, admin protection, scoped authorization, pending merges,
 rollback before commit, and concurrent game/service database writers. Bot routing
 tests additionally hold a game request open while WL and LC finish independently.
+
+## Launcher shop
+
+Optional `ACCOUNT_LAUNCHER_SHOP_TOKEN` enables only
+`launcher_economy_state`, `launcher_economy_pass`, `launcher_economy_color` and
+`launcher_economy_referral`. Use an independent random key of at least 32
+characters, distinct from coin/WL/supporter keys. Put the same value in the
+identity service's protected environment as `LAGOON_ACCOUNT_SHOP_TOKEN`, never
+in a launcher binary. An unset key leaves the shop routes unauthorized.
+
+The identity service authenticates a current Lagoon session and constructs the
+account request. The account API requires matching actor/target Discord IDs,
+`expected_uid`, no host assertion and no external-tier assertion. It checks the
+expected UID before writing and retains the existing stable-link checks before
+commit. This scope cannot authorize staff rewards, payments, WL or other API
+scopes. The existing durable receipt, transaction and wallet code handles
+purchases; the catalog uses the game's `LagoonEconomyRules`.
+
+Deploy this service and updated launcher identity code together, restart both,
+and verify `launcher_shop_api_version: 1` on `/health/live` at the actual account
+port. No schema migration or game restart is required. Older services return
+404 for these routes, and identity reports the shop unavailable. Rollback may
+disable the shop key while retaining native economy data and receipt records.
+
+Regression checks are in `LauncherShopTests.cs`; run the existing account-service
+test command above. Launcher `identity/test_economy.py` verifies session/link
+checks, payload allowlists and stable operation IDs. Synthetic UI validation is
+in Launcher `diagnostics/ShopProbe`.

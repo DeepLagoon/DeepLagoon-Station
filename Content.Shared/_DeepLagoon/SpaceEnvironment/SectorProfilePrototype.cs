@@ -7,7 +7,7 @@ public sealed partial class SectorProfilePrototype : IPrototype
 {
     [IdDataField] public string ID { get; private set; } = "DeepLagoonFrontier";
     [DataField(required: true)] public string Name = "";
-    [DataField] public int RegionCount = 36;
+    [DataField] public int RegionCount = 72;
     [DataField] public float InnerRadius = 4000f;
     [DataField] public float OuterRadius = 28000f;
     [DataField] public float MinRegionRadius = 450f;

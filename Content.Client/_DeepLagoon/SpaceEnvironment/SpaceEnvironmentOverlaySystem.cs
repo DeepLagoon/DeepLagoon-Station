@@ -1,5 +1,8 @@
 using System.Numerics;
 using Content.Client.Parallax;
+using Content.Client._FarHorizons.StarSystem;
+using Content.Shared._FarHorizons.StarSystem;
+using Content.Shared._FarHorizons.StarSystem.Helpers;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Robust.Client.Graphics;
 using Robust.Shared.Configuration;
@@ -20,6 +23,7 @@ public sealed class SpaceEnvironmentOverlaySystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
     private SpaceEnvironmentOverlay? _overlay;
+    private readonly Dictionary<EntityUid, (PlanetarySystem System, Dictionary<Planet, ShaderInstance?> Shaders)> _planetShaders = new();
     private readonly Dictionary<EntityUid, (SectorDefinition Definition, Vector2[][] Contours, DrawVertexUV2DColor[][] Fills)> _contours = new();
 
     public override void Initialize()
@@ -28,6 +32,7 @@ public sealed class SpaceEnvironmentOverlaySystem : EntitySystem
         _overlay = new SpaceEnvironmentOverlay(EntityManager, _prototypes, _cfg);
         _overlays.AddOverlay(_overlay);
         SubscribeLocalEvent<SpaceEnvironmentComponent, ComponentShutdown>(OnEnvironmentShutdown);
+        SubscribeLocalEvent<StarSystemMapComponent, ComponentShutdown>(OnStarSystemShutdown);
     }
 
     public override void Shutdown()
@@ -35,6 +40,8 @@ public sealed class SpaceEnvironmentOverlaySystem : EntitySystem
         if (_overlay != null) _overlays.RemoveOverlay(_overlay);
         _overlay = null;
         _contours.Clear();
+        foreach (var map in _planetShaders.Keys) DisposePlanetShaders(map);
+        _planetShaders.Clear();
         base.Shutdown();
     }
     public Vector2[][] Contours(EntityUid map, SectorDefinition definition)
@@ -58,6 +65,46 @@ public sealed class SpaceEnvironmentOverlaySystem : EntitySystem
         var geometry = (definition, contours, fills);
         _contours[map] = geometry;
         return geometry;
+    }
+
+    /// <summary>Only small portrait quads run the native planet shader; instances are reused by both consoles.</summary>
+    public ShaderInstance? PlanetShader(EntityUid map, PlanetarySystem system, Planet planet)
+    {
+        if (!_planetShaders.TryGetValue(map, out var cache) || !ReferenceEquals(cache.System, system))
+        {
+            DisposePlanetShaders(map);
+            cache = (system, new Dictionary<Planet, ShaderInstance?>());
+            _planetShaders[map] = cache;
+        }
+        if (cache.Shaders.TryGetValue(planet, out var existing)) return existing;
+        if (cache.Shaders.Count >= SectorGenerator.MaxPlanets) return null;
+        var shader = PlanetShaderFactory.Create(_prototypes, planet, system.Star);
+        if (shader != null)
+        {
+            // Recenter the virtual viewport to avoid precision loss in distant sectors.
+            var extent = planet.Radius * MathF.Max(1.3f, (planet.Rings?.RadiusOuter ?? 1f) * 1.3f);
+            shader.SetParameter("planetPos", Vector2.Zero);
+            shader.SetParameter("starPos", system.Star.Position - planet.Position);
+            shader.SetParameter("planetaryRadiusFactor", 1f);
+            shader.SetParameter("parallaxCenter", Vector2.Zero);
+            shader.SetParameter("viewportMin", new Vector2(-extent, -extent));
+            shader.SetParameter("viewportSize", new Vector2(extent * 2));
+        }
+        cache.Shaders.Add(planet, shader);
+        return shader;
+    }
+
+    private void DisposePlanetShaders(EntityUid map)
+    {
+        if (!_planetShaders.TryGetValue(map, out var cache)) return;
+        foreach (var shader in cache.Shaders.Values) shader?.Dispose();
+        cache.Shaders.Clear();
+    }
+
+    private void OnStarSystemShutdown(EntityUid uid, StarSystemMapComponent component, ComponentShutdown args)
+    {
+        DisposePlanetShaders(uid);
+        _planetShaders.Remove(uid);
     }
 
     private void OnEnvironmentShutdown(EntityUid uid, SpaceEnvironmentComponent component, ComponentShutdown args)

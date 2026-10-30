@@ -361,6 +361,14 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
             return;
         }
 
+        // Moving crates are absent from the static navigation graph. Handle them before NoPath.
+        if (TryVaultExpeditionObstacle(uid, steering, xform))
+        {
+            SetDirection(uid, mover, steering, Vector2.Zero, clear: false);
+            ResetStuck(steering, xform.Coordinates);
+            return;
+        }
+
         // No path set from pathfinding or the likes.
         if (steering.Status == SteeringStatus.NoPath)
         {

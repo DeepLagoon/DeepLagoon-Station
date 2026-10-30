@@ -34,15 +34,15 @@ public static class Program
         var operations = app.Services.GetRequiredService<AccountOperations>();
         var slots = new SemaphoreSlim(16, 16);
         var healthSlots = new SemaphoreSlim(1, 1);
-        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }));
+        app.MapGet("/health/live", () => Results.Json(new { alive = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1, launcher_shop_api_version = 1 }));
         async Task<IResult> Readiness(HttpContext context)
         {
             using var lease = new AccountRequestLease(healthSlots);
-            if (!lease.Acquired) return Results.Json(new { ready = false, bug_report_reward_api_version = 1 }, statusCode: 503);
+            if (!lease.Acquired) return Results.Json(new { ready = false, bug_report_reward_api_version = 1, launcher_shop_api_version = 1 }, statusCode: 503);
             using var cancel = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
             cancel.CancelAfter(TimeSpan.FromSeconds(3));
-            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }); }
-            catch { return Results.Json(new { ready = false, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1 }, statusCode: 503); }
+            try { await operations.CheckSchema(cancel.Token); return Results.Json(new { ready = true, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1, launcher_shop_api_version = 1 }); }
+            catch { return Results.Json(new { ready = false, economy_api_version = 1, security_api_version = 2, bug_report_reward_api_version = 1, launcher_shop_api_version = 1 }, statusCode: 503); }
         }
         app.MapGet("/health", (Func<HttpContext, Task<IResult>>) Readiness);
         app.MapGet("/health/ready", (Func<HttpContext, Task<IResult>>) Readiness);
@@ -55,6 +55,7 @@ public static class Program
                 "whitelist" or "remove_whitelist" => settings.WhitelistToken,
                 "lc_add" or "lc_remove" or "lc_history" or "bug_report_reward" => settings.CoinToken,
                 "economy_supporter" => settings.SupporterToken,
+                "launcher_economy_state" or "launcher_economy_pass" or "launcher_economy_color" or "launcher_economy_referral" => settings.LauncherShopToken,
                 _ when action.StartsWith("economy_", StringComparison.Ordinal) => settings.CoinToken,
                 _ => null,
             };
@@ -69,11 +70,18 @@ public static class Program
             deadline.CancelAfter(TimeSpan.FromSeconds(10));
             try
             {
-                if (action.StartsWith("economy_", StringComparison.Ordinal))
+                if (action.StartsWith("economy_", StringComparison.Ordinal) || action.StartsWith("launcher_economy_", StringComparison.Ordinal))
                 {
                     var economy = await JsonSerializer.DeserializeAsync<EconomyRequest>(context.Request.Body,
                         new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower }, deadline.Token);
                     if (economy == null) return Results.BadRequest(new { error = "invalid_request" });
+                    if (action.StartsWith("launcher_", StringComparison.Ordinal))
+                    {
+                        if (economy.ExpectedUid == null || economy.ExpectedUid == Guid.Empty || economy.HostAuthorized ||
+                            economy.ActorDiscordId != economy.DiscordId || economy.ExternalTier != 0)
+                            return Results.Json(new { error = "forbidden" }, statusCode: 403);
+                        action = action["launcher_".Length..];
+                    }
                     return Results.Json(await operations.ExecuteEconomy(action, economy, deadline.Token));
                 }
                 var request = await JsonSerializer.DeserializeAsync<AccountRequest>(context.Request.Body,
@@ -101,6 +109,7 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
     string ReceiptDatabase, string WhitelistToken, string CoinToken, int Port = 1213)
 {
     public string SupporterToken { get; init; } = "";
+    public string LauncherShopToken { get; init; } = "";
     public long MaxGrant { get; init; } = 6000;
     public long HourlyGrantLimit { get; init; } = 12000;
     public long DailyGrantLimit { get; init; } = 24000;
@@ -114,12 +123,15 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
             int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LISTEN_PORT") ?? "1213"))
         {
             SupporterToken = Required("ACCOUNT_SUPPORTER_TOKEN"),
+            LauncherShopToken = Environment.GetEnvironmentVariable("ACCOUNT_LAUNCHER_SHOP_TOKEN") ?? "",
             MaxGrant = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_MAX_GRANT") ?? "6000"),
             HourlyGrantLimit = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_HOURLY_GRANT_LIMIT") ?? "12000"),
             DailyGrantLimit = long.Parse(Environment.GetEnvironmentVariable("ACCOUNT_DAILY_GRANT_LIMIT") ?? "24000"),
         };
         if (settings.Engine is not ("postgres" or "sqlite") || settings.Port is < 1024 or > 65535 ||
             settings.WhitelistToken.Length < 32 || settings.CoinToken.Length < 32 || settings.WhitelistToken == settings.CoinToken ||
+            (settings.LauncherShopToken.Length > 0 && (settings.LauncherShopToken.Length < 32 ||
+                settings.LauncherShopToken == settings.CoinToken || settings.LauncherShopToken == settings.WhitelistToken || settings.LauncherShopToken == settings.SupporterToken)) ||
             settings.SupporterToken.Length < 32 || settings.SupporterToken == settings.CoinToken || settings.SupporterToken == settings.WhitelistToken ||
             settings.MaxGrant <= 0 || settings.MaxGrant > settings.HourlyGrantLimit || settings.HourlyGrantLimit > settings.DailyGrantLimit || settings.DailyGrantLimit > 9007199254740991 ||
             !Path.IsPathFullyQualified(settings.LinkDatabase) || !File.Exists(settings.LinkDatabase) ||

@@ -348,8 +348,9 @@ public sealed partial class ShuttleSystem
         tileCount = 0;
         var mass = 0f;
         _countedEnts.Clear();
+        var center = _mapSystem.GridTileToLocal(uid, grid, centerTile).Position;
 
-        foreach (var tileRef in _mapSystem.GetLocalTilesIntersecting(uid, grid, new Circle(centerTile, radius)))
+        foreach (var tileRef in _mapSystem.GetLocalTilesIntersecting(uid, grid, new Circle(center, radius)))
         {
             var def = _turf.GetContentTileDefinition(tileRef);
             mass += def.Mass;
@@ -376,9 +377,12 @@ public sealed partial class ShuttleSystem
     {
         // Create a list of all tiles to process
         var tilesToProcess = new List<ImpactTileData>();
+        // Tile indices identify corners. Center the zone on the struck tile so
+        // even a radius smaller than half a tile includes the first hull contact.
+        var center = _mapSystem.GridTileToLocal(uid, grid, centerTile).Position;
 
         // Pre-calculate all tiles that need processing
-        foreach (var tileRef in _mapSystem.GetLocalTilesIntersecting(uid, grid, new Circle(centerTile, radius)))
+        foreach (var tileRef in _mapSystem.GetLocalTilesIntersecting(uid, grid, new Circle(center, radius)))
         {
             var distance = centerTile - tileRef.GridIndices;
             // Calculate distance-based energy falloff

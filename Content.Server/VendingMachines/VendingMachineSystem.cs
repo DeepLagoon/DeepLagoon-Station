@@ -41,6 +41,7 @@ namespace Content.Server.VendingMachines
     public sealed partial class VendingMachineSystem : SharedVendingMachineSystem
     {
         [Dependency] private IRobustRandom _random = default!;
+        [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
         [Dependency] private AccessReaderSystem _accessReader = default!;
         [Dependency] private AppearanceSystem _appearanceSystem = default!;
         [Dependency] private PricingSystem _pricing = default!;
@@ -107,6 +108,7 @@ namespace Content.Server.VendingMachines
         protected override void OnMapInit(EntityUid uid, VendingMachineComponent component, MapInitEvent args) // Mono
         {
             base.OnMapInit(uid, component, args);
+            _expeditionLoot.FilterVendingInventory(uid, component);
 
             if (HasComp<ApcPowerReceiverComponent>(uid))
             {
@@ -527,7 +529,7 @@ namespace Content.Server.VendingMachines
                 spawnCoordinates = spawnCoordinates.Offset(offset);
             }
 
-            var ent = Spawn(vendComponent.NextItemToEject, spawnCoordinates);
+            var ent = _expeditionLoot.SpawnLoot(uid, vendComponent.NextItemToEject, spawnCoordinates);
 
             // Mono: Track vending machine purchases for pricing modifications
             // Only track if this was a paid purchase (not a random eject or force eject)
@@ -628,6 +630,7 @@ namespace Content.Server.VendingMachines
                 return;
 
             RestockInventoryFromPrototype(uid, vendComponent);
+            _expeditionLoot.FilterVendingInventory(uid, vendComponent);
 
             Dirty(uid, vendComponent);
             TryUpdateVisualState(uid, vendComponent);

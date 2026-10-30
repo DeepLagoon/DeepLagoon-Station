@@ -73,6 +73,20 @@ public sealed class SpaceSectorStoreTests
     }
 
     [Test]
+    public void AppendOnlyUpgradePreservesDiscoveriesAndRejectsStaleOverwrite()
+    {
+        using var store = new SectorStore(":memory:");
+        var old = store.GetOrCreate("crew", SectorGenerator.Generate("old", 51, new SectorProfilePrototype { RegionCount = 36 }));
+        store.TrySurvey("crew", old.Id, old.Regions[0].Id);
+        var expanded = SectorGenerator.ExpandRegions(old, new SectorProfilePrototype { RegionCount = 72 });
+        var added = expanded.Regions.Skip(old.Regions.Count).ToList();
+        Assert.That(store.AppendRegions("crew", old, added).Regions, Has.Count.EqualTo(72));
+        Assert.That(store.AppendRegions("crew", old, added).Regions, Has.Count.EqualTo(72));
+        Assert.That(store.Surveys("crew", old.Id), Is.EqualTo(new[] { old.Regions[0].Id }));
+        Assert.That(store.Load("crew", old.Id).Planets[0].AppearanceSeed, Is.EqualTo(old.Planets[0].AppearanceSeed));
+    }
+
+    [Test]
     public void UnknownVersionsAndNonFiniteGeometryFailClosed()
     {
         using var store = new SectorStore(":memory:");

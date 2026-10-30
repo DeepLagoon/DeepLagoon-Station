@@ -31,12 +31,13 @@ const Panel = () => {
   useEffect(()=>{const height=Number(settings.settingsHeight);if(Number.isFinite(height)&&height>=100)setSettingsHeight(height);},[settings.settingsHeight]);
   const [searchOpen, setSearchOpen] = useState(false);
   return (
-    <Pane theme={settings.theme === 'default' ? 'light' : settings.theme}>
+    <Pane className={lobby.externalStatus ? 'LobbyChat' : undefined}
+      theme={lobby.externalStatus ? 'dark' : settings.theme === 'default' ? 'light' : settings.theme}>
       <Stack fill vertical>
-        {lobby.server && <Stack.Item><div className={'LobbyStatus Chat '+playerTheme(settings).className} style={playerTheme(settings).style}>
+        {lobby.server && !lobby.externalStatus && <Stack.Item><div className={'LobbyStatus Chat '+playerTheme(settings).className} style={playerTheme(settings).style}>
           <strong>{lobby.server}</strong><span>{lobby.time}</span><span>{lobby.status}</span>
         </div></Stack.Item>}
-        <Stack.Item><Section fitted><Stack align="center">
+        <Stack.Item><Section fitted className="LobbyChat__toolbar"><Stack align="center">
           <Stack.Item grow><ChatTabs /></Stack.Item>
           <Stack.Item><Button icon="pen" tooltip="Написать сообщение" onClick={() => Byond.topic({ type: 'act/compose', payload: {} })} /></Stack.Item>
           <Stack.Item><Button icon="search" onClick={() => setSearchOpen(!searchOpen)} /></Stack.Item>
@@ -55,7 +56,7 @@ const Panel = () => {
         <Stack.Item grow><Section fill fitted position="relative">
           <Pane.Content scrollable><ChatPanel lineHeight={settings.lineHeight} /></Pane.Content>
         </Section></Stack.Item>
-        <Stack.Item><Button fluid onClick={() => chatRenderer.scrollToBottom?.()}>↓</Button></Stack.Item>
+        <Stack.Item><Button className="LobbyChat__scroll" fluid onClick={() => chatRenderer.scrollToBottom?.()}>↓</Button></Stack.Item>
       </Stack>
     </Pane>
   );

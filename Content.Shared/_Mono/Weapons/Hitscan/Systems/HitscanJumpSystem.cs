@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using Content.Shared._DeepLagoon.Weapons;
+using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared._Mono.Weapons.Hitscan.Components;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Weapons.Hitscan.Events;
@@ -13,6 +15,7 @@ namespace Content.Shared._Mono.Weapons.Hitscan.Systems;
 public sealed partial class HitscanJumpSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _lookup = default!;
+    [Dependency] private LaserWindowSystem _windows = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 
     [Dependency] private EntityQuery<MobThresholdsComponent> _mobQuery = default!;
@@ -21,7 +24,7 @@ public sealed partial class HitscanJumpSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<HitscanJumpComponent, HitscanRaycastFiredEvent>(OnHitscanHit, after: [ typeof(HitscanReflectSystem) ]);
+        SubscribeLocalEvent<HitscanJumpComponent, HitscanRaycastFiredEvent>(OnHitscanHit, after: [ typeof(HitscanReflectSystem), typeof(HitscanBasicDamageSystem), typeof(HitscanStunSystem) ]);
     }
 
     /// <summary>
@@ -57,7 +60,27 @@ public sealed partial class HitscanJumpSystem : EntitySystem
             Shooter = args.HitEntities.First(),
         };
 
-        RaiseLocalEvent(ent, ref hitFire);
+        var transmission = _windows.Transmission(args, args.HitEntities.First());
+        var damage = CompOrNull<HitscanBasicDamageComponent>(ent);
+        var stamina = CompOrNull<HitscanStaminaDamageComponent>(ent);
+        var originalDamage = damage?.Damage;
+        var originalStamina = stamina?.StaminaDamage ?? 0f;
+        if (damage != null)
+            damage.Damage *= transmission;
+        if (stamina != null)
+            stamina.StaminaDamage *= transmission;
+        try
+        {
+            RaiseLocalEvent(ent, ref hitFire);
+        }
+        finally
+        {
+            // Nested jumps must not alter the damage of their parent segment.
+            if (damage != null)
+                damage.Damage = originalDamage!;
+            if (stamina != null)
+                stamina.StaminaDamage = originalStamina;
+        }
     }
 
     private bool GetClosestTarget(EntityCoordinates coords,

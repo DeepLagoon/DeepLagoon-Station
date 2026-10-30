@@ -11,6 +11,69 @@ namespace Content.Tests.Server;
 public sealed class ApartmentLayoutStoreTests
 {
     [Test]
+    public void ItemDeliveryCommitsWithSnapshotAndOrdersSurviveReopenWithoutDuplicateDelivery()
+    {
+#if USE_SYSTEM_SQLITE
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+#else
+        SQLitePCL.Batteries_V2.Init();
+#endif
+        var path = Path.Combine(Path.GetTempPath(), $"dl-apartment-items-{Guid.NewGuid():N}.db");
+        var owner = Guid.NewGuid();
+        var id = Guid.NewGuid();
+        try
+        {
+            using (var store = new ApartmentLayoutStore(path))
+            {
+                var order = store.BeginItemOrder(owner, id, "canvas", 100);
+                Assert.That(store.BeginItemOrder(owner, id, "canvas", 100), Is.EqualTo(order));
+                Assert.Throws<InvalidOperationException>(() => store.BeginItemOrder(owner, id, "frame", 35));
+                Assert.Throws<InvalidOperationException>(() => store.BeginItemOrder(owner, Guid.NewGuid(), "frame", 35));
+                Assert.That(store.PendingItemOrder(Guid.NewGuid()), Is.Null);
+                store.SaveSnapshot(owner, "home", new() { Grid = "before" }, new() { Grid = "before" });
+                // Updating a snapshot without its matching pending delivery must roll back both.
+                Assert.Throws<InvalidOperationException>(() => store.SaveSnapshot(owner, "home",
+                    new() { Grid = "bad" }, new() { Grid = "bad" }, Guid.NewGuid()));
+                Assert.That(store.LoadSnapshot(owner, "home")!.Grid, Is.EqualTo("before"));
+                Assert.That(store.PendingItemOrder(owner), Is.EqualTo(order));
+            }
+            using var reopened = new ApartmentLayoutStore(path);
+            Assert.That(reopened.PendingItemOrder(owner)!.Id, Is.EqualTo(id));
+            reopened.SaveSnapshot(owner, "home", new() { Grid = "delivered canvas" }, new() { Grid = "delivered canvas" }, id);
+            Assert.That(reopened.PendingItemOrder(owner), Is.Null);
+            Assert.That(reopened.BeginItemOrder(owner, id, "canvas", 100).Delivered, Is.True);
+            Assert.Throws<InvalidOperationException>(() => reopened.SaveSnapshot(owner, "home",
+                new() { Grid = "duplicate canvas" }, new() { Grid = "duplicate canvas" }, id));
+            Assert.That(reopened.LoadSnapshot(owner, "home")!.Grid, Is.EqualTo("delivered canvas"));
+            var cancelled = Guid.NewGuid();
+            reopened.BeginItemOrder(owner, cancelled, "frame", 35);
+            reopened.CancelItemOrder(owner, cancelled);
+            Assert.That(reopened.PendingItemOrder(owner), Is.Null);
+        }
+        finally { File.Delete(path); File.Delete(path + "-wal"); File.Delete(path + "-shm"); }
+    }
+
+    [Test]
+    public void PopularityCountsGrantedOwnersOnceAndIgnoresPendingPurchases()
+    {
+#if USE_SYSTEM_SQLITE
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+#else
+        SQLitePCL.Batteries_V2.Init();
+#endif
+        using var store = new ApartmentLayoutStore(":memory:");
+        var alice = Guid.NewGuid(); var bob = Guid.NewGuid();
+        store.BeginPurchase(alice, "home", 10);
+        Assert.That(store.Popularity(), Is.Empty);
+        store.Grant(alice, "home");
+        store.Grant(alice, "home");
+        store.BeginPurchase(bob, "home", 10); store.Grant(bob, "home");
+        store.BeginPurchase(bob, "pending", 20);
+        Assert.That(store.Popularity()["home"], Is.EqualTo(2));
+        Assert.That(store.Popularity().ContainsKey("pending"), Is.False);
+    }
+
+    [Test]
     public void SnapshotsAreIsolatedByOwnerAndTemplateAndFinalizeUnloadedTrashAfterReopen()
     {
         var path = Path.Combine(Path.GetTempPath(), $"dl-apartment-snapshot-{Guid.NewGuid():N}.db");

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Content.Server.GameTicking;
 using Content.Server._DeepLagoon.Currency;
 using Content.Shared._DeepLagoon.Apartments;
@@ -67,20 +67,31 @@ public sealed partial class ApartmentSystem
         var account = _economy.Cached(session.UserId);
         var selected = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
         var token = Guid.NewGuid(); _shopTokens[session.UserId] = token;
+        var popularity = Store.Popularity();
         var entries = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>().Where(Available).OrderBy(p => p.Price).ThenBy(p => p.ID)
             .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = Math.Max(0, p.Price - (account?.State.ApartmentCredit ?? 0)),
+                Description = p.Description.Length == 0 ? "" : Loc.GetString(p.Description), Category = p.Category,
+                Width = p.Width, Height = p.Height, Popularity = popularity.GetValueOrDefault(p.ID),
                 Owned = p.Price == 0 || (account?.State.ApartmentCredit ?? 0) >= p.Price || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
         var legacy = _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Template.Map == null;
-        RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message, balance: account?.Balance ?? -1), session);
+        RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message,
+            furniture: ShopItems(), balance: account?.Balance ?? -1, pendingItemOrder: Store.PendingItemOrder(session.UserId.UserId)?.Id ?? Guid.Empty), session);
     }
     private async void ShopAction(ApartmentShopAction ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
         if (!_shopTokens.TryGetValue(session.UserId, out var token) || token != ev.Token) return;
         if (ev.Action == "close") { _shopTokens.Remove(session.UserId); return; }
+        if (ev.Action == "preview") { PreviewShop(session, ev); return; }
+        if (ev.Action == "gallery") { Gallery(session, ev); return; }
         if (!CanManage(session) || !_shopping.Add(session.UserId)) return;
         try
         {
+            if (ev.Action is "buyItem" or "retryItem")
+            {
+                await BuyItem(session, ev);
+                return;
+            }
             if (ev.Action == "legacyExit")
             {
                 if (_visits.TryGetValue(session.UserId, out var old) && old.Apartment.Template.Map == null)
@@ -119,8 +130,16 @@ public sealed partial class ApartmentSystem
             PublishShop(session, InLobby(session) ? "Шаблон выбран. Можно изменить обстановку до входа в раунд."
                 : $"Шаблон выбран. Спуститесь на остановку и введите новый номер: {Number(session.UserId)}.");
         }
-        catch (Content.Server.Database.InsufficientLagoonCoinsException) { if (CanManage(session)) PublishShop(session, "Недостаточно Lagoon Coin."); }
-        catch (Exception e) { Log.Error($"Apartment shop operation failed for {session.UserId}: {e}"); if (CanManage(session)) PublishShop(session, "Операция не завершена. Повторите запрос; повторного списания за этот шаблон не будет."); }
+        catch (Content.Server.Database.InsufficientLagoonCoinsException) { if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token) PublishShop(session, "Недостаточно Lagoon Coin."); }
+        catch (Exception e) when (e is ArgumentException or InvalidOperationException or OverflowException)
+        {
+            Log.Warning($"Apartment shop operation rejected for {session.UserId}: {e.GetType().Name}");
+            if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token)
+                PublishShop(session, ev.Action is "buyItem" or "retryItem" ? "Покупка не завершена. Проверьте цену и завершите ожидающую доставку, если она есть." : "Операция не завершена. Повторите запрос.");
+        }
+        catch (Exception e) { Log.Error($"Apartment shop operation failed for {session.UserId}: {e}"); if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token) PublishShop(session,
+            ev.Action is "buyItem" or "retryItem" ? "Покупка не завершена. Если доступно, нажмите «Завершить доставку»; повторного списания не будет."
+                : "Операция не завершена. Повторите запрос; повторного списания за этот шаблон не будет."); }
         finally { _shopping.Remove(session.UserId); }
     }
     private void OpenLobbyEditor(ICommonSession session)

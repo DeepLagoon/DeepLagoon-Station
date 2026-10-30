@@ -1,0 +1,276 @@
+# Physical goods are delivered to the apartment entrance, not to furniture stock.
+- type: apartmentItem
+  id: DLApartmentFrame
+  entity: DLApartmentPaintingFrameItem
+  category: Картины
+  price: 35
+
+- type: apartmentItem
+  id: DLApartmentCanvas
+  entity: DLArtDurableCanvas
+  category: Картины
+  price: 100
+
+- type: apartmentItem
+  id: DLApartmentBrush
+  entity: DLArtBrush
+  category: Картины
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineCaptain
+  entity: ToyFigurineCaptain
+  category: Фигурки
+  price: 20
+
+- type: apartmentItem
+  id: DLApartmentFigurineEngineer
+  entity: ToyFigurineEngineer
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineDoctor
+  entity: ToyFigurineMedicalDoctor
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineScientist
+  entity: ToyFigurineScientist
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineClown
+  entity: ToyFigurineClown
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineMime
+  entity: ToyFigurineMime
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentFigurineDragon
+  entity: ToyFigurineSpaceDragon
+  category: Фигурки
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentFigurineSlime
+  entity: ToyFigurineSlime
+  category: Фигурки
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentDuck
+  entity: ToyRubberDuck
+  category: Декор
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentPlushBee
+  entity: PlushieBee
+  category: Декор
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentPlushShark
+  entity: PlushieSharkBlue
+  category: Декор
+  price: 30
+
+- type: apartmentItem
+  id: DLApartmentCandleRed
+  entity: CandleRed
+  category: Декор
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentCandleBlue
+  entity: CandleBlue
+  category: Декор
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentPlantBush
+  entity: PottedPlant0
+  category: Растения
+  price: 30
+
+- type: apartmentItem
+  id: DLApartmentPlantTropical
+  entity: PottedPlant6
+  category: Растения
+  price: 30
+
+- type: apartmentItem
+  id: DLApartmentPlantGlowing
+  entity: PottedPlantBioluminscent
+  category: Растения
+  price: 45
+
+- type: apartmentItem
+  id: DLApartmentPlantPlastic
+  entity: PottedPlant27
+  category: Растения
+  price: 20
+
+- type: apartmentItem
+  id: DLApartmentLamp
+  entity: Lamp
+  category: Освещение
+  price: 35
+
+- type: apartmentItem
+  id: DLApartmentLampBanana
+  entity: LampBanana
+  category: Освещение
+  price: 35
+
+- type: apartmentItem
+  id: DLApartmentLampDesk
+  entity: LampGold
+  category: Освещение
+  price: 45
+
+- type: apartmentItem
+  id: DLApartmentChess
+  entity: ChessBoard
+  category: Настольные игры
+  price: 40
+
+- type: apartmentItem
+  id: DLApartmentCheckers
+  entity: CheckerBoard
+  category: Настольные игры
+  price: 30
+
+- type: apartmentItem
+  id: DLApartmentBackgammon
+  entity: BackgammonBoard
+  category: Настольные игры
+  price: 35
+
+- type: apartmentItem
+  id: DLApartmentDice
+  entity: DiceBag
+  category: Настольные игры
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentCards
+  entity: CardBoxBlack
+  category: Настольные игры
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentPillow
+  entity: DLLustWishPillow
+  category: Домашний уют
+  price: 20
+
+- type: apartmentItem
+  id: DLApartmentBedsheetBlue
+  entity: BedsheetBlue
+  category: Домашний уют
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentBedsheetGreen
+  entity: BedsheetGreen
+  category: Домашний уют
+  price: 25
+
+- type: apartmentItem
+  id: DLApartmentBedsheetCosmos
+  entity: BedsheetCosmos
+  category: Домашний уют
+  price: 35
+
+- type: apartmentItem
+  id: DLApartmentMug
+  entity: DrinkMug
+  category: Посуда
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentMugBlue
+  entity: DrinkMugBlue
+  category: Посуда
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentMugBlack
+  entity: DrinkMugBlack
+  category: Посуда
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentMugHeart
+  entity: DrinkMugHeart
+  category: Посуда
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentPlate
+  entity: FoodPlate
+  category: Посуда
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentPlateSmall
+  entity: FoodPlateSmall
+  category: Посуда
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentBook
+  entity: BookBase
+  category: Творчество
+  price: 20
+
+- type: apartmentItem
+  id: DLApartmentPen
+  entity: Pen
+  category: Творчество
+  price: 10
+
+- type: apartmentItem
+  id: DLApartmentMusicBox
+  entity: MusicBoxInstrument
+  category: Музыка
+  price: 45
+
+- type: apartmentItem
+  id: DLApartmentHarmonica
+  entity: HarmonicaInstrument
+  category: Музыка
+  price: 30
+
+- type: apartmentItem
+  id: DLApartmentFlute
+  entity: FluteInstrument
+  category: Музыка
+  price: 40
+
+- type: apartmentItem
+  id: DLApartmentGuitar
+  entity: AcousticGuitarInstrument
+  category: Музыка
+  price: 75
+
+- type: apartmentItem
+  id: DLApartmentFigurineMusician
+  entity: ToyFigurineMusician
+  category: Сувениры
+  price: 15
+
+- type: apartmentItem
+  id: DLApartmentPlushHamster
+  entity: PlushieHampter
+  category: Сувениры
+  price: 25

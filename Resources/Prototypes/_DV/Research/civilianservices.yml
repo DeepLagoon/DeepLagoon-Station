@@ -4,7 +4,7 @@
   entityIcon: LauncherSyringe
   discipline: CivilianServices
   tier: 2
-  cost: 25000
+  cost: 50000
   recipeUnlocks:
     - LauncherSyringe
     - MiniSyringe

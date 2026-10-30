@@ -31,6 +31,7 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
 
         public void Execute(EntityUid owner, DestructibleSystem system, EntityUid? cause = null)
         {
+            var loot = system.EntityManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>();
             var tSys = system.EntityManager.System<TransformSystem>();
             var position = tSys.GetMapCoordinates(owner);
 
@@ -56,8 +57,8 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
                     if (EntityPrototypeHelpers.HasComponent<StackComponent>(entityId, system.PrototypeManager, system.EntityManager.ComponentFactory))
                     {
                         var spawned = SpawnInContainer
-                            ? system.EntityManager.SpawnNextToOrDrop(entityId, owner)
-                            : system.EntityManager.SpawnEntity(entityId, position.Offset(getRandomVector()));
+                            ? loot.SpawnLootNextToOrDrop(owner, entityId)
+                            : loot.SpawnLoot(owner, entityId, position.Offset(getRandomVector()));
                         system.StackSystem.SetCount(spawned, count);
 
                         TransferForensics(spawned, system, owner);
@@ -67,8 +68,8 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
                         for (var i = 0; i < count; i++)
                         {
                             var spawned = SpawnInContainer
-                                ? system.EntityManager.SpawnNextToOrDrop(entityId, owner)
-                                : system.EntityManager.SpawnEntity(entityId, position.Offset(getRandomVector()));
+                                ? loot.SpawnLootNextToOrDrop(owner, entityId)
+                                : loot.SpawnLoot(owner, entityId, position.Offset(getRandomVector()));
 
                             TransferForensics(spawned, system, owner);
                         }

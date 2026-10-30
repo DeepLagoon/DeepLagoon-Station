@@ -39,6 +39,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         {"eyes", "EYES"},
         {"ears", "EARS"},
         {"mask", "MASK"},
+        {"balaclava", "BALACLAVA"},
         {"outerClothing", "OUTERCLOTHING"},
         {Jumpsuit, "INNERCLOTHING"},
         {"neck", "NECK"},

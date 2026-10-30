@@ -50,7 +50,6 @@ export const InteractionPanel = () => {
       .filter(r => data.humanoid || r.id === 'all'),
   ].filter(g => g.items.length);
   const repeating = actions.some(a => a.repeating);
-  const [help, setHelp] = useState(false);
   const [selectedClimaxPart, setClimaxPart] = useState('');
   const producingParts = data.producingParts || [];
   const climaxPart = producingParts.some(part => part.id === selectedClimaxPart) ? selectedClimaxPart : producingParts[0]?.id || '';
@@ -63,15 +62,13 @@ export const InteractionPanel = () => {
     <div className="InteractionPanel">
       <header className="InteractionPanel__title">
         <Icon aria-hidden="true" name="hand" /><strong>{t('open')}</strong>
-        <button className="InteractionPanel__icon" title={t('compact-help')} aria-label={t('compact-help')}
-          onClick={() => setHelp(!help)}><Icon aria-hidden="true" name="circle-question" /></button>
-        <button className="InteractionPanel__icon InteractionPanel__close" title={t('compact-close')} aria-label={t('compact-close')}
+        <button className="InteractionPanel__icon InteractionPanel__close" aria-label={t('compact-close')}
           onClick={() => act('close')}><Icon aria-hidden="true" name="times" /></button>
       </header>
       <section className="InteractionPanel__target">
         <div className="InteractionPanel__portrait" aria-label={data.name} />
         <div className="InteractionPanel__identity"><small>{t(data.self ? 'self-mode' : 'compact-target')}</small>
-          <strong title={data.name}>{data.name}</strong>
+          <strong>{data.name}</strong>
           <span>{actions.filter(a => a.available).length} {t('compact-available')} · {actions.length} {t('compact-all')}</span>
           <div className="InteractionPanel__arousal" role="progressbar" aria-label={t('arousal')}
             aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(arousalPercent)}>
@@ -81,7 +78,6 @@ export const InteractionPanel = () => {
         </div>
       </section>
       {data.debug && <div className="InteractionPanel__notice">{t('debug')}</div>}
-      {help && <div className="InteractionPanel__notice">{t('action-hint')}</div>}
       <nav className="InteractionPanel__tabs" aria-label={t('open')}>
         <button aria-pressed={tab === 'actions'} onClick={() => setTab('actions')}><Icon aria-hidden="true" name="hand" /> {t('tab-actions')}</button>
         <button aria-pressed={tab === 'custom'} onClick={() => setTab('custom')}><Icon aria-hidden="true" name="pen" /> {t('tab-custom')}</button>
@@ -92,33 +88,31 @@ export const InteractionPanel = () => {
         <div className="InteractionPanel__search"><Icon aria-hidden="true" name="search" />
           <input aria-label={t('search')} placeholder={t('search')} value={query} onFocus={focus}
             onChange={e => { setQuery(e.target.value); setCollapsed({}); }} />
-          {!!query && <button className="InteractionPanel__icon" title={t('clear')} aria-label={t('clear')}
+          {!!query && <button className="InteractionPanel__icon" aria-label={t('clear')}
             onClick={() => setQuery('')}><Icon aria-hidden="true" name="times" /></button>}
         </div>
         <div className="InteractionPanel__bodyPicker">
         <div className="InteractionPanel__filters">
-          {data.humanoid && <><button className="InteractionPanel__icon" aria-expanded={bodyMap} title={t('editor-region')}
+          {data.humanoid && <><button className="InteractionPanel__icon" aria-expanded={bodyMap}
             aria-label={t('editor-region')} onClick={() => setBodyMap(!bodyMap)}><Icon aria-hidden="true" name="person" /></button>
             <span className="InteractionPanel__selectedRegion">{data.regions?.find(r => r.id === region)?.name}</span>
-            {region !== 'all' && <button className="InteractionPanel__icon" aria-label={t('body-all')} title={t('body-all')}
+            {region !== 'all' && <button className="InteractionPanel__icon" aria-label={t('body-all')}
               onClick={() => { setRegion('all'); setCollapsed({}); }}><Icon aria-hidden="true" name="times" /></button>}</>}
-          <button aria-pressed={favoritesOnly} title={t('favorites')} onClick={() => { setFavoritesOnly(!favoritesOnly); setCollapsed({}); }}>
+          <button aria-pressed={favoritesOnly} onClick={() => { setFavoritesOnly(!favoritesOnly); setCollapsed({}); }}>
             <Icon aria-hidden="true" name="star" /> {t('favorites')}</button>
-          <button className="InteractionPanel__icon" aria-pressed={availableOnly} title={t('compact-available-only')}
+          <button className="InteractionPanel__icon" aria-pressed={availableOnly}
             aria-label={t('compact-available-only')} onClick={() => setAvailableOnly(!availableOnly)}><Icon aria-hidden="true" name="lock-open" /></button>
         </div>
         {bodyMap && data.humanoid && <div className="InteractionPanel__bodyMap">
           <InteractionTargetDoll images={data.targetDoll} region={region} label={t('editor-region')}
             regionName={id => data.regions?.find(r => r.id === id)?.name || id}
             onSelect={id => { setRegion(id); setCollapsed({}); }} />
-          <div className="InteractionPanel__bodyHint"><strong>{data.regions?.find(r => r.id === region)?.name}</strong>
-            <span>{t('compact-body-hint')}</span></div>
         </div>}
         </div>
         <div className="InteractionPanel__listTools"><span>{filtered.length} {t('compact-found')}</span>
-          <button title={t('compact-expand')} aria-label={t('compact-expand')}
+          <button aria-label={t('compact-expand')}
             onClick={() => setCollapsed({})}><Icon aria-hidden="true" name="angles-down" /></button>
-          <button title={t('compact-collapse')} aria-label={t('compact-collapse')}
+          <button aria-label={t('compact-collapse')}
             onClick={() => { setQuery(''); setFavoritesOnly(false); setRegion('all');
               setCollapsed(Object.fromEntries(['favorites', ...(data.regions || []).map(r => r.id)].map(id => [id, true]))); }}><Icon aria-hidden="true" name="angles-up" /></button>
         </div>
@@ -133,16 +127,16 @@ export const InteractionPanel = () => {
                 {group.id === 'favorites' && <Icon aria-hidden="true" name="star" />}<strong>{group.name}</strong><span>{group.items.length}</span>
               </button>
               {open && group.items.map(a => <div key={a.id} className={'InteractionPanel__row InteractionPanel__row--' + a.category + (a.repeating ? ' is-repeating' : '')}>
-                <button className="InteractionPanel__run" disabled={!a.available} title={t(a.available ? 'action-hint' : 'compact-locked')}
+                <button className="InteractionPanel__run" disabled={!a.available}
                   onClick={() => act('run', { id: a.id })}>
-                  <span className="InteractionPanel__actionIcon" title={data.categories?.find(c => c.id === a.category)?.name}><Icon aria-hidden="true" name={a.available ? categoryIcons[a.category] : 'lock'} /></span>
+                  <span className="InteractionPanel__actionIcon"><Icon aria-hidden="true" name={a.available ? categoryIcons[a.category] : 'lock'} /></span>
                   <span>{a.name}</span>
                 </button>
                 <button className="InteractionPanel__icon" aria-pressed={a.repeating} disabled={!a.available}
-                  title={t(a.repeating ? 'stop' : 'repeat')} aria-label={t(a.repeating ? 'stop' : 'repeat') + ': ' + a.name}
+                  aria-label={t(a.repeating ? 'stop' : 'repeat') + ': ' + a.name}
                   onClick={() => act('repeat', { id: a.id })}><Icon aria-hidden="true" name={a.repeating ? 'stop' : 'repeat'} /></button>
                 <button className="InteractionPanel__icon InteractionPanel__favorite" aria-pressed={a.favorite}
-                  title={t('favorite-toggle')} aria-label={t('favorite-toggle') + ': ' + a.name}
+                  aria-label={t('favorite-toggle') + ': ' + a.name}
                   onClick={() => act('favorite', { id: a.id })}><Icon aria-hidden="true" name="star" /></button>
               </div>)}
             </section>;
@@ -156,14 +150,13 @@ export const InteractionPanel = () => {
               onKeyUp={e => act('interval', { value: Number(e.currentTarget.value) })} />
             <output>{interval.toFixed(1)} {t('compact-seconds')}</output>
             <button disabled={!repeating} onClick={() => act('stop')}><Icon aria-hidden="true" name="stop" /> {t('stop')}</button>
-          </div><div className="InteractionPanel__status" role="status" title={data.status}>{data.status}</div>
+          </div><div className="InteractionPanel__status" role="status">{data.status}</div>
         </footer>
       </> : null}
       <div className="InteractionPanel__customPage" hidden={tab !== 'custom'}>
         <CustomEditor data={data} act={act} t={t} focus={focus} />
       </div>
       {tab === 'body' && <main className="InteractionPanel__bodySettings">
-        <p>{t('body-own')}</p>
         <section className="InteractionPanel__arousalSettings" aria-label={t('arousal-settings')}>
           <strong>{t('arousal-settings')}</strong>
           <small>{t('recovery')}: {Math.ceil(data.recoverySeconds || 0)} {t('compact-seconds')}</small>
@@ -174,10 +167,8 @@ export const InteractionPanel = () => {
           <button aria-pressed={data.customMoanChance} onClick={() => act('arousal-preference', { id: 'custom-chance', value: data.customMoanChance ? 0 : 1 })}>{t('custom-chance')}</button>
           <ArousalSlider label={t('moan-chance')} value={data.moanChance ?? 20} max={100} disabled={!data.automaticMoans || !data.customMoanChance}
             onCommit={value => act('arousal-preference', { id: 'chance', value })} />
-          <small>{t('moan-help')}</small>
           <ArousalSlider label={t('arousal-multiplier')} value={data.arousalMultiplier ?? 100} max={300}
             onCommit={value => act('arousal-preference', { id: 'multiplier', value })} />
-          <small>{t('arousal-multiplier-help')}</small>
           <button aria-pressed={data.neutralArousal} onClick={() => act('arousal-preference', { id: 'neutral', value: data.neutralArousal ? 0 : 1 })}>{t('neutral-arousal')}</button>
           <label><span>{t('climax-part')}</span><EmbeddedSelect value={climaxPart} onChange={e => setClimaxPart(e.target.value)}>
             {producingParts.map(part => <option key={part.id} value={part.id}>{part.name}</option>)}
@@ -201,7 +192,6 @@ export const InteractionPanel = () => {
         </label>)}
       </main>}
       {tab === 'gear' && <main className="InteractionPanel__gear">
-        <p>{t('gear-help')}</p>
         <div className="InteractionPanel__gearControls"><span>{t('gear-held')}: {data.heldName || '—'}</span>
           <button disabled={!data.heldSlot} onClick={() => act('gear', { operation: 'attach' })}>{t('gear-attach')}</button>
           {data.self && <button onClick={() => act('gear', { operation: 'release-all' })}>{t('gear-release-all')}</button>}
@@ -267,7 +257,7 @@ const CustomEditor = ({ data, act, t, focus }: { data: Data; act: (action: strin
   return <div className="InteractionPanel__custom">
     <div className="InteractionPanel__customTools">
       {draft ? <button disabled={busy} onClick={() => setDraft(null)}><Icon aria-hidden="true" name="arrow-left" /> {t('back')}</button>
-        : <button disabled={busy || data.custom?.length >= 32} title={data.custom?.length >= 32 ? t('library-full') : t('editor-new')}
+        : <button disabled={busy || data.custom?.length >= 32}
           onClick={() => { setSoundCategory(''); setDraft({ id: '', title: '', template: t('editor-example'), body: 'all', category: 3, flags: 6, color: '#C6E8DA', sound: '' }); }}>
           <Icon aria-hidden="true" name="plus" /> {t('editor-new')}</button>}
       <span>{data.custom?.length || 0} / 32</span>
@@ -307,13 +297,12 @@ const CustomEditor = ({ data, act, t, focus }: { data: Data; act: (action: strin
           {deleting === a.id ? <div className="InteractionPanel__deleteConfirm"><span>{t('compact-delete-confirm')}</span>
             <button disabled={busy} onClick={() => { act('delete', { id: a.id }); setDeleting(''); }}>{t('editor-delete')}</button>
             <button onClick={() => setDeleting('')}>{t('compact-cancel')}</button></div> : <>
-            <button className="InteractionPanel__icon" disabled={busy} title={t('edit')} aria-label={t('edit') + ': ' + a.title}
+            <button className="InteractionPanel__icon" disabled={busy} aria-label={t('edit') + ': ' + a.title}
               onClick={() => { setSoundCategory(''); setDraft({ ...a }); }}><Icon aria-hidden="true" name="pen" /></button>
-            <button className="InteractionPanel__icon" disabled={busy} title={t('editor-delete')} aria-label={t('editor-delete') + ': ' + a.title}
+            <button className="InteractionPanel__icon" disabled={busy} aria-label={t('editor-delete') + ': ' + a.title}
               onClick={() => setDeleting(a.id)}><Icon aria-hidden="true" name="trash" /></button></>}
         </article>)}
       </>}
-      <details className="InteractionPanel__help"><summary>{t('compact-help')}</summary>{t('editor-help')}</details>
     </div>
     <div className="InteractionPanel__status" role="status">{data.waiting ? t('library-busy') : data.libraryStatus}</div>
   </div>;

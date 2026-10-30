@@ -22,15 +22,18 @@ namespace Content.Server.Research.Disk
 
         private void OnAfterInteract(EntityUid uid, ResearchDiskComponent component, AfterInteractEvent args)
         {
-            if (!args.CanReach)
+            if (args.Handled || !args.CanReach)
                 return;
 
             if (!TryComp<ResearchServerComponent>(args.Target, out var server))
                 return;
 
+            // Claim the disk before crediting points, including repeated interactions in this tick.
+            if (!TryQueueDel(uid))
+                return;
+
             _research.ModifyServerPoints(args.Target.Value, component.Points, server);
             _popupSystem.PopupEntity(Loc.GetString("research-disk-inserted", ("points", component.Points)), args.Target.Value, args.User);
-            QueueDel(uid);
             args.Handled = true;
         }
 

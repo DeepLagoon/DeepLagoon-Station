@@ -99,6 +99,15 @@ class EngineCompatibilityTests(unittest.TestCase):
                 with self.assertRaisesRegex(gate.CompatibilityError, "uncommitted"):
                     gate.check(self.root)
 
+    def test_reviewed_flight_safety_implementation_paths_are_accepted(self):
+        self.changed = [
+            "Robust.Client/UserInterface/UserInterfaceManager.Scaling.cs",
+            "Robust.Client.Tests/UserInterface/UIScaleTest.cs",
+            "Robust.Shared/Physics/Systems/SharedPhysicsSystem.cs",
+            "Robust.Shared/Physics/Systems/SharedPhysicsSystem.GridSubsteps.cs",
+            "Robust.Shared.IntegrationTests/Physics/GridMotionSubstepTests.cs",
+        ]
+        self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
     def test_protected_sources_cannot_be_changed(self):
         for path in ("Robust.Client/Entry.cs", "Robust.Shared/Network/NetManager.cs", "Robust.LoaderApi",
                      "MSBuild/Robust.Engine.Version.props"):

@@ -60,7 +60,7 @@
     - Sidearm
   - type: BatterySelfRecharger
     autoRecharge: true
-    autoRechargeRate: 75 # Mono - 75 < 35
+    autoRechargeRate: 37.5 # DeepLagoon: half-speed EG-4 recharge.
   - type: PirateBountyItem # Mono
     id: TSFLaserWeapon
 
@@ -68,7 +68,7 @@
   name: DT-12 Lawbringer
   parent: [BaseWeaponBatterySmall]
   id: WeaponEnergyGunLawbringer
-  description: Sometimes rank is a function of firepower. A versatile energy gun with a myriad of firing modes designed for the Judges. Self-recharges after a 5 second delay.
+  description: Sometimes rank is a function of firepower. A versatile energy gun with a myriad of firing modes designed for the Judges. Recharge its battery in a weapon recharger.
   components:
   - type: Sprite
     sprite: _Goobstation/Objects/Weapons/Guns/Battery/lawbringer.rsi
@@ -133,7 +133,7 @@
   - type: StaticPrice
     price: 750
   - type: BatterySelfRecharger
-    autoRecharge: true
+    autoRecharge: false
     autoRechargeRate: 50
     autoRechargePause: true
     autoRechargePauseTime: 5

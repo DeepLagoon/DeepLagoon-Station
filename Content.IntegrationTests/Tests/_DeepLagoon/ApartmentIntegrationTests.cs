@@ -8,6 +8,8 @@ using Content.Shared.Inventory;
 using Content.Shared.GameTicking;
 using Content.Shared.Maps;
 using Content.Shared.Preferences;
+using Content.Shared.Roles;
+using Content.Shared.Silicons.Borgs.Components;
 using Content.Shared.Light.Components;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Atmos.Components;
@@ -83,6 +85,41 @@ public sealed class ApartmentIntegrationTests
                 Assert.That(transform.LocalPosition, Is.EqualTo(home.Position));
                 Assert.That(system.Leave(session.UserId, out message), Is.True, message);
             }
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task LatejoinBorgKeepsNormalSpawnWhenApartmentsAreEnabled()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var testMap = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var config = pair.Server.ResolveDependency<IConfigurationManager>();
+            config.SetCVar(ApartmentCVars.Enabled, true);
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var system = entities.System<ApartmentSystem>();
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var station = entities.SpawnEntity("StandardFrontierOutpost", MapCoordinates.Nullspace);
+            entities.AddComponent<ApartmentLatejoinSpawnComponent>(station);
+            var job = prototypes.Index<JobPrototype>("Borg");
+            var body = entities.SpawnEntity(job.JobEntity, testMap.GridCoords);
+            Assert.That(entities.HasComponent<BorgChassisComponent>(body), Is.True);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            var original = entities.GetComponent<TransformComponent>(body).Coordinates;
+
+            entities.EventBus.RaiseLocalEvent(body,
+                new PlayerSpawnCompleteEvent(body, session, job.ID, true, false, 1,
+                    station, HumanoidCharacterProfile.DefaultWithSpecies()), true);
+
+            Assert.That(entities.GetComponent<TransformComponent>(body).Coordinates, Is.EqualTo(original));
+            Assert.That(system.TryGetVisit(session.UserId, out _, out _), Is.False);
+            Assert.That(system.Instances.ContainsKey(session.UserId), Is.False);
+            Assert.That(entities.HasComponent<ApartmentResidentComponent>(body), Is.False);
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
         });

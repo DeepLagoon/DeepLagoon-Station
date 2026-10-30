@@ -51,6 +51,23 @@ public sealed class SpaceSectorTests
     }
 
     [Test]
+    public void ExpansionKeepsOldAreasAndBodiesAndReachesTheNewDensity()
+    {
+        var old = SectorGenerator.Generate("old", 713, new SectorProfilePrototype { RegionCount = 36 });
+        // A missing ID represents an area excluded around an initial station.
+        old.Regions.RemoveAt(5);
+        var before = JsonSerializer.Serialize(old, Json);
+        var expanded = SectorGenerator.ExpandRegions(old, new SectorProfilePrototype { RegionCount = 120 });
+        Assert.That(expanded.Regions, Has.Count.EqualTo(120));
+        Assert.That(expanded.Regions.Take(old.Regions.Count), Is.EqualTo(old.Regions));
+        Assert.That(expanded.Regions.Select(r => r.Id).Distinct().Count(), Is.EqualTo(120));
+        Assert.That(JsonSerializer.Serialize(old, Json), Is.EqualTo(before));
+        Assert.That(JsonSerializer.Serialize(expanded.Planets, Json), Is.EqualTo(JsonSerializer.Serialize(old.Planets, Json)));
+        Assert.That(JsonSerializer.Serialize(SectorGenerator.ExpandRegions(expanded, new SectorProfilePrototype { RegionCount = 120 }), Json),
+            Is.EqualTo(JsonSerializer.Serialize(expanded, Json)));
+    }
+
+    [Test]
     public void InvalidProfileCannotProduceUnboundedWork()
     {
         Assert.Throws<ArgumentException>(() => SectorGenerator.Generate("bad", 1, new SectorProfilePrototype { RegionCount = 1000000 }));

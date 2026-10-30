@@ -32,6 +32,7 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
     [Dependency] private IConsoleHost _console = default!;
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private ITileDefinitionManager _tileDefManager = default!;
     [Dependency] private AnchorableSystem _anchorable = default!;

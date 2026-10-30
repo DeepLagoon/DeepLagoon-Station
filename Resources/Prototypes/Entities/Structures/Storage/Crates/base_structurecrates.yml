@@ -38,6 +38,8 @@
         - CrateMask #this is so they can go under plastic flaps
         layer:
         - MachineLayer
+  - type: Climbable
+    delay: 1.5
   - type: EntityStorage
   - type: PlaceableSurface
     isPlaceable: false # defaults to closed.

@@ -17,13 +17,6 @@ namespace Content.Server.Shuttles.Components
         /// </summary>
         public const float BrakeCoefficient = 3.0f;
 
-        /// <summary>
-        /// Mono - velocity that 2x slowdown will be applied at. (4x at 2x this, 8x at 3x this, etc.)
-        /// Not advised to exceed 30 when manually setting this for a shuttle.
-        /// </summary>
-        [ViewVariables(VVAccess.ReadWrite)]
-        public float BaseMaxLinearVelocity = 20f;
-
         public const float MaxAngularVelocity = 4f;
 
         /// <summary>
@@ -37,6 +30,10 @@ namespace Content.Server.Shuttles.Components
         /// </summary>
         [ViewVariables]
         public readonly float[] BaseLinearThrust = new float[4];
+
+        /// <summary>Base thrust weighted by installed part rating, for each powered direction.</summary>
+        [ViewVariables]
+        public readonly float[] RatedBaseLinearThrust = new float[4];
 
         /// <summary>
         /// The thrusters contributing to each direction for impulse.

@@ -2,11 +2,9 @@
   id: BountyVendInventory
   startingInventory:
     PinpointerUniversal: 5
-    WeaponGrapplingGun: 5
     HandheldGPSBasic: 3
     JetpackMiniFilled: 5
     WeaponDisabler: 10
-    Stunbaton: 10
     Handcuffs: 20 # Mono
     Zipties: 20
     Flash: 10
@@ -34,11 +32,9 @@
   id: BountyVendPOIInventory
   startingInventory:
     PinpointerUniversal: 4294967295 # Frontier: 5<Infinite
-    WeaponGrapplingGun: 4294967295 # Frontier: 5<Infinite
     HandheldGPSBasic: 4294967295 # Frontier: 3<Infinite
     JetpackMiniFilled: 4294967295 # Frontier: 5<Infinite
     WeaponDisabler: 4294967295 # Frontier: 10<Infinite
-    Stunbaton: 4294967295 # Frontier: 10<Infinite
     Handcuffs: 4294967295 # Mono: Infinite
     Zipties: 4294967295 # Frontier: 20<Infinite
     Flash: 4294967295 # Frontier: 10<Infinite

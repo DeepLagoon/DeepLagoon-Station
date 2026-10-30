@@ -29,6 +29,7 @@ public class LobbyConsolePanel : PanelContainer
     }
 
     public bool DrawScanlines { get; set; } = true;
+    public float ScreenInset { get; set; } = LobbyConsoleTheme.ScreenInset;
 
     public LobbyConsolePanel()
     {
@@ -61,7 +62,7 @@ public class LobbyConsolePanel : PanelContainer
     protected override Vector2 ArrangeOverride(Vector2 finalSize)
     {
         base.ArrangeOverride(finalSize);
-        var inset = new Vector2(LobbyConsoleTheme.ScreenInset);
+        var inset = new Vector2(ScreenInset);
         _scanlines.Visible = UseConsoleStyle && DrawScanlines;
         _scanlines.Arrange(UIBox2.FromDimensions(inset, Vector2.Max(finalSize - 2 * inset, Vector2.Zero)));
         return finalSize;
@@ -72,7 +73,7 @@ public class LobbyConsolePanel : PanelContainer
         base.Draw(handle);
         if (!UseConsoleStyle)
             return;
-        var inset = new Vector2(LobbyConsoleTheme.ScreenInset * UIScale);
+        var inset = new Vector2(ScreenInset * UIScale);
         var size = Vector2.Max(PixelSize - 2 * inset, Vector2.Zero);
         handle.DrawRect(UIBox2.FromDimensions(inset, size), LobbyConsoleTheme.Screen);
         // The template adds a subtle gray inner lip to the original housing.

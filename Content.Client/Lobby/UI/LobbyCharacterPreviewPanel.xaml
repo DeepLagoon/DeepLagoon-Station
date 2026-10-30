@@ -4,7 +4,9 @@
     xmlns:lobby="clr-namespace:Content.Client.Lobby.UI">
     <lobby:LobbyConsolePanel Name="Frame">
         <BoxContainer Name="VBox" Orientation="Vertical" SeparationOverride="8">
-            <Label Name="Header" Text="{Loc 'lobby-character-preview-panel-header'}" HorizontalAlignment="Center" />
+            <PanelContainer Name="HeadingBackground">
+                <Label Name="Header" Text="{Loc 'lobby-character-preview-panel-header'}" HorizontalAlignment="Center" />
+            </PanelContainer>
             <BoxContainer Name="Loaded" Orientation="Vertical"
                           Visible="False" SeparationOverride="4">
                 <Label Name="Summary" Align="Center" ClipText="True"/>

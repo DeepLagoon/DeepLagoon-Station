@@ -10,6 +10,60 @@ namespace Content.Tests._DeepLagoon;
 [TestFixture]
 public sealed class ClothingFaceFitTests
 {
+    [TestCase("Clothing/Mask/gas.rsi/equipped-MASK.png")]
+    [TestCase("Clothing/Mask/gas.rsi/equipped-MASK-vulpkanin.png")]
+    [TestCase("Clothing/Mask/muzzle.rsi/equipped-MASK.png")]
+    [TestCase("Clothing/Mask/muzzle.rsi/equipped-MASK-vulpkanin.png")]
+    [TestCase("_Mono/Clothing/Balaclavas/balaclava_ski_mask.rsi/equipped-BALACLAVA.png")]
+    [TestCase("_Mono/Clothing/Balaclavas/balaclava_ski_mask.rsi/equipped-BALACLAVA-vulpkanin.png")]
+    public void ActualWornStatesCoverTheWholeStandardVulpMuzzle(string path)
+    {
+        foreach (var sex in new[] { "m", "f" })
+        for (var direction = 0; direction < 4; direction++)
+        {
+            using var reference = Read($"Mobs/Species/Human/parts.rsi/head_{sex}.png", direction);
+            using var face = Read($"_DV/Mobs/Species/Vulpkanin/parts.rsi/head_{sex}.png", direction);
+            using var garment = Read(path, direction);
+            using var map = ClothingFaceFitMap.Build(reference, face, garment, null, 16, coversMouth: true);
+            using var fitted = Render(garment, map);
+            var before = 0;
+            var after = 0;
+            for (var y = 5; y < 14; y++)
+            for (var x = 0; x < 32; x++)
+            {
+                if (face[x, y].A < 128 || reference[x, y].A >= 128) continue;
+                if (garment[x, y].A < 128) before++;
+                if (fitted[x + 16, y + 16].A < 128) after++;
+            }
+            Assert.That(after, Is.Zero, $"{path}/{sex}/{direction}: {before} exposed muzzle pixels became {after}.");
+            if (before > 0) Assert.That(map, Is.Not.Null, "A shader with no effective pixel deformation is insufficient.");
+        }
+    }
+
+    [TestCase("_Mono/Clothing/Balaclavas/balaclava_ski_mask.rsi/equipped-BALACLAVA.png")]
+    [TestCase("_Mono/Clothing/Balaclavas/balaclava_ski_mask.rsi/equipped-BALACLAVA-vulpkanin.png")]
+    public void BalaclavaEyeOpeningsRemainAtTheirOriginalPosition(string path)
+    {
+        var holes = 0;
+        foreach (var sex in new[] { "m", "f" })
+        for (var direction = 0; direction < 4; direction++)
+        {
+            using var reference = Read($"Mobs/Species/Human/parts.rsi/head_{sex}.png", direction);
+            using var face = Read($"_DV/Mobs/Species/Vulpkanin/parts.rsi/head_{sex}.png", direction);
+            using var garment = Read(path, direction);
+            using var map = ClothingFaceFitMap.Build(reference, face, garment, null, 16, coversMouth: true);
+            using var fitted = Render(garment, map);
+            for (var y = 3; y <= 6; y++)
+            for (var x = 0; x < 32; x++)
+            {
+                if (reference[x, y].A < 128 || garment[x, y].A >= 128) continue;
+                holes++;
+                Assert.That(fitted[x + 16, y + 16].A, Is.LessThan(128), $"{path}/{sex}/{direction}/{x}/{y}: eye hole closed.");
+            }
+        }
+        Assert.That(holes, Is.GreaterThan(0));
+    }
+
     [TestCase("Clothing/Head/Hats/beret_engineering.rsi/equipped-HELMET.png")]
     [TestCase("Clothing/Head/Helmets/security.rsi/equipped-HELMET.png")]
     public void RealOpenHeadwearDoesNotStretchOverTheMouth(string path)
@@ -110,6 +164,27 @@ public sealed class ClothingFaceFitTests
         for (var y = top; y <= bottom; y++)
         for (var x = left; x <= right; x++) image[x, y] = new Rgba32(255, 255, 255, 255);
         return image;
+    }
+
+    private static Image<Rgba32> Render(Image<Rgba32> garment, Image<Rgba32> map)
+    {
+        var result = new Image<Rgba32>(64, 64);
+        for (var y = 0; y < 64; y++)
+        for (var x = 0; x < 64; x++)
+        {
+            if (map == null)
+            {
+                if (x >= 16 && x < 48 && y >= 16 && y < 48) result[x, y] = garment[x - 16, y - 16];
+                continue;
+            }
+            var point = map[x, y];
+            if (point.A == 0) continue;
+            Assert.That(point.R, Is.LessThan(32));
+            Assert.That(point.G, Is.LessThan(32));
+            var sample = garment[point.R, point.G];
+            result[x, y] = new Rgba32(sample.R, sample.G, sample.B, (byte) (sample.A * point.A / 255));
+        }
+        return result;
     }
 
     private static Image<Rgba32> Read(string path, int direction)

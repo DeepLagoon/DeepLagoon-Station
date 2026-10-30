@@ -205,6 +205,9 @@
   id: SalvageEquipmentCommon
   table: !type:GroupSelector
     children:
+    - !type:NestedSelector
+      tableId: DeepLagoonReviewedWeaponsT1
+      weight: 0.5
     - id: Flare
     - id: Crowbar
     - id: Pickaxe
@@ -232,6 +235,9 @@
   id: SalvageEquipmentUncommon
   table: !type:GroupSelector
     children:
+    - !type:NestedSelector
+      tableId: DeepLagoonReviewedWeaponsT2
+      weight: 0.5
     - id: OreBag
 #    - id: HandheldGPSBasic # Frontier - Useless
     - id: PowerCellHighPrinted

@@ -72,11 +72,12 @@ public sealed partial class ApartmentTravelSystem : EntitySystem
 
 public sealed class ApartmentTravelWindow : FancyWindow
 {
-    public readonly TguiPanel Panel = new();
-    public ApartmentTravelWindow()
+    public readonly TguiPanel Panel;
+    public ApartmentTravelWindow(bool shop = false)
     {
+        Panel = new TguiPanel(showWindowControls: !shop, forceTgui: shop);
         Title = "Жилой маршрут Lagoon";
-        SetSize = new Vector2(740, 600);
+        SetSize = shop ? new Vector2(1000, 720) : new Vector2(740, 600);
         MinSize = new Vector2(520, 420);
         ContentsContainer.AddChild(Panel);
     }

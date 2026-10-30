@@ -6,7 +6,7 @@
   entityIcon: hydroponicsTray
   discipline: CivilianServices
   tier: 1
-  cost: 5000
+  cost: 10000
   recipeUnlocks:
   - BorgModuleGardening
   - BorgModuleHarvesting
@@ -34,7 +34,7 @@
   entityIcon: MechHamtrBattery
   discipline: CivilianServices
   tier: 1
-  cost: 5000
+  cost: 10000
   recipeUnlocks:
   - HamtrHarness
   - HamtrLArm
@@ -55,7 +55,7 @@
   entityIcon: ComputerTelevision # Mono
   discipline: CivilianServices
   tier: 1
-  cost: 7500 # Mono
+  cost: 15000 # Mono
   recipeUnlocks:
   - SurveillanceCameraRouterCircuitboard
   #  - SurveillanceCameraWirelessRouterCircuitboard # Frontier - Removal of range limits made it useless to build
@@ -151,7 +151,7 @@
   entityIcon: StasisBed
   discipline: CivilianServices
   tier: 2
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - StasisBedMachineCircuitboard
   - CryoPodMachineCircuitboard
@@ -168,7 +168,7 @@
   entityIcon: EnergyScalpel
   discipline: CivilianServices
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - BorgModuleAdvancedTreatment
   - BorgModuleDefibrillator
@@ -189,7 +189,7 @@
   entityIcon: SecurityCyberneticEyes
   discipline: CivilianServices
   tier: 2
-  cost: 20000
+  cost: 40000
   recipeUnlocks:
   - JawsOfLifeLeftArm
   - JawsOfLifeRightArm
@@ -212,7 +212,7 @@
   entityIcon: AdvMopItem
   discipline: CivilianServices
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - AdvMopItem
   - MegaSprayBottle
@@ -232,7 +232,7 @@
   entityIcon: MechHonkerFilled
   discipline: CivilianServices
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - HonkerHarness
   - HonkerLArm
@@ -297,7 +297,7 @@
   entityIcon: BluespaceBeaker
   discipline: CivilianServices
   tier: 3
-  cost: 35000
+  cost: 70000
   recipeUnlocks:
   - BluespaceBeaker
   - SyringeBluespace

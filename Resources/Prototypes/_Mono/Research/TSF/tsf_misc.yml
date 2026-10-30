@@ -4,7 +4,7 @@
   entityIcon: ForensicScanner
   discipline: TsfmcGear
   tier: 1
-  cost: 5000
+  cost: 10000
   recipeUnlocks:
   - ForensicsScannerTSF
   - DemagTSF
@@ -21,7 +21,7 @@
   entityIcon: EnergyShield
   discipline: TsfmcWeaponry
   tier: 2
-  cost: 30000
+  cost: 60000
   recipeUnlocks:
   - EnergyShieldTSF
   technologyPrerequisites:
@@ -34,7 +34,7 @@
   entityIcon: ShipVoucherTsfT0
   discipline: TsfmcShipyard
   tier: 1
-  cost: 40000
+  cost: 80000
   recipeUnlocks:
   - ShipVoucherTsfT0Recipe
   - ShipVoucherTsfT1Recipe
@@ -48,7 +48,7 @@
   entityIcon: ShipVoucherTsfT2
   discipline: TsfmcShipyard
   tier: 2
-  cost: 60000
+  cost: 120000
   recipeUnlocks:
   - ShipVoucherTsfT2Recipe
   technologyPrerequisites:
@@ -62,7 +62,7 @@
   entityIcon: ShipVoucherLuda
   discipline: TsfmcShipyard
   tier: 3
-  cost: 150000
+  cost: 300000
   recipeUnlocks:
   - ShipVoucherLudaRecipe
   - ShipVoucherPolarisRecipe
@@ -78,7 +78,7 @@
   entityIcon: MedkitCombatFilled
   discipline: TsfmcGear
   tier: 2
-  cost: 20000
+  cost: 40000
   recipeUnlocks:
   - SutureTSF
   - MeshTSF
@@ -92,7 +92,7 @@
   entityIcon: NanolaminateFoamGrenade
   discipline: TsfmcGear
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - NanolaminateFoamGrenadeTSF
   technologyPrerequisites:
@@ -105,7 +105,7 @@
   entityIcon: PortableRecharger
   discipline: TsfmcGear
   tier: 1
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
     - PortableRecharger
   technologyPrerequisites:
@@ -118,7 +118,7 @@
   entityIcon: BorgModuleTSFStandardWeapon
   discipline: TsfmcGear
   tier: 1
-  cost: 10000
+  cost: 20000
   recipeUnlocks:
   - BasicBorgCombatModuleTSF
   - BorgIFFTSF
@@ -132,7 +132,7 @@
   entityIcon: BorgModuleTSFAdvancedWeapon
   discipline: TsfmcGear
   tier: 3
-  cost: 65000
+  cost: 130000
   recipeUnlocks:
   - AdvancedBorgCombatModuleTSF
   technologyPrerequisites:
@@ -145,7 +145,7 @@
   entityIcon: OrganHeartTSFSandevistan
   discipline: TsfmcGear
   tier: 3
-  cost: 75000
+  cost: 150000
   recipeUnlocks:
   - AutosurgeonSandevistanTSF
   technologyPrerequisites:

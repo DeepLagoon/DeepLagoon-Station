@@ -189,36 +189,6 @@
   - UplinkWearables
 
 - type: listing
-  id: UplinkUllmanPulsePistol
-  name: uplink-ullman-pulse-pistol-name
-  description: uplink-ullman-pulse-pistol-desc
-  productEntity: UllmanWeaponPulsePistol
-  cost:
-    Telecrystal: 50
-  categories:
-  - UplinkWeaponry
-
-- type: listing
-  id: UplinkUllmanPulseRifle
-  name: uplink-ullman-pulse-rifle-name
-  description: uplink-ullman-pulse-rifle-desc
-  productEntity: UllmanWeaponPulseRifle
-  cost:
-    Telecrystal: 95
-  categories:
-  - UplinkWeaponry
-
-- type: listing
-  id: UplinkUllmanPulseSniper
-  name: uplink-ullman-pulse-sniper-name
-  description: uplink-ullman-pulse-sniper-desc
-  productEntity: UllmanWeaponPulseSniper
-  cost:
-    Telecrystal: 125
-  categories:
-  - UplinkWeaponry
-
-- type: listing
   id: UplinkUllmanSmartPistol
   name: uplink-ullman-smart-pistol-name
   description: uplink-ullman-smart-pistol-desc

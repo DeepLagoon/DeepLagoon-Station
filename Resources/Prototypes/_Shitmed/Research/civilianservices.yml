@@ -10,7 +10,7 @@
   entityIcon: OmnimedTool
   discipline: CivilianServices
   tier: 3
-  cost: 45000
+  cost: 90000
   recipeUnlocks:
   - ShitmedOmnimedTool
   - AutodocCircuitboard

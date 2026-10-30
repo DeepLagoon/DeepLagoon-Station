@@ -1,0 +1,66 @@
+# Weapons moved out of vending machines. Ordinary pools never contain T4/T5 stock.
+
+- type: entityTable
+  id: DeepLagoonReviewedWeaponsT1
+  table: !type:GroupSelector
+    children:
+    - id: WeaponLaserGun
+    - id: WeaponRevolverArgenti
+    - id: WeaponRifleNovaliteC1
+    - id: WeaponShotgunDoubleBarreled
+
+- type: entity
+  parent: MarkerBasePlaceFree
+  id: SpawnDeepLagoonReviewedWeaponsT1
+  name: random weapon
+  suffix: Reviewed vending stock, T1
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: EntityTableSpawner
+    table: !type:NestedSelector
+      tableId: DeepLagoonReviewedWeaponsT1
+
+- type: entityTable
+  id: DeepLagoonReviewedWeaponsT2
+  table: !type:GroupSelector
+    children:
+    - id: Stunbaton
+    - id: WeaponCrusher
+    - id: WeaponCrusherDagger
+    - id: WeaponGrapplingGun
+    - id: WeaponLaserPistolNF
+    - id: WeaponProtoKineticAccelerator
+    - id: WeaponRifleGestio
+    - id: WeaponSubMachineGunAK220
+
+- type: entity
+  parent: MarkerBasePlaceFree
+  id: SpawnDeepLagoonReviewedWeaponsT2
+  name: random weapon
+  suffix: Reviewed vending stock, T2
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: EntityTableSpawner
+    table: !type:NestedSelector
+      tableId: DeepLagoonReviewedWeaponsT2
+
+- type: entityTable
+  id: DeepLagoonReviewedWeaponsT3
+  table: !type:GroupSelector
+    children:
+    - id: WeaponEnergyGun
+    - id: WeaponEnergyGunPMC
+    - id: WeaponEnergyRevolver
+    - id: WeaponHeavyMiningLaser
+    - id: WeaponLaserCarbine
+
+- type: entity
+  parent: MarkerBasePlaceFree
+  id: SpawnDeepLagoonReviewedWeaponsT3
+  name: random weapon
+  suffix: Reviewed vending stock, T3
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: EntityTableSpawner
+    table: !type:NestedSelector
+      tableId: DeepLagoonReviewedWeaponsT3

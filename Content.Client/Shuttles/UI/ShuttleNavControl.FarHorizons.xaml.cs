@@ -33,7 +33,8 @@ public partial class ShuttleNavControl
             Star.NAV_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, origin, UIScale, true);
         foreach (var planet in system.Planets)
             SpaceNavigationDraw.Body(handle, Font, planet.Position, planet.Name, Planet.NAV_PIXEL_SIZE * planet.Radius,
-                new Color(0.5f, 0.8f, 1f), worldToView, PixelSize, origin, UIScale, true);
+                new Color(0.5f, 0.8f, 1f), worldToView, PixelSize, origin, UIScale, true,
+                EntManager.System<SpaceEnvironmentOverlaySystem>().PlanetShader(mapUid!.Value, system, planet), planet: true);
     }
 
     // code stolen from IFF beacon rendering code for grids

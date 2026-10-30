@@ -14,6 +14,7 @@ namespace Content.Server.Storage.EntitySystems
     public sealed partial class SpawnItemsOnUseSystem : EntitySystem
     {
         [Dependency] private IRobustRandom _random = default!;
+        [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
         [Dependency] private IAdminLogManager _adminLogger = default!;
         [Dependency] private SharedHandsSystem _hands = default!;
         [Dependency] private PricingSystem _pricing = default!;
@@ -34,7 +35,7 @@ namespace Content.Server.Storage.EntitySystems
 
             foreach (var entry in ungrouped)
             {
-                var protUid = Spawn(entry.PrototypeId, MapCoordinates.Nullspace);
+                var protUid = Spawn(entry.PrototypeId is { } id ? (Robust.Shared.Prototypes.EntProtoId?) _expeditionLoot.ResolvePrototype(uid, id) : null, MapCoordinates.Nullspace);
 
                 // Calculate the average price of the possible spawned items
                 args.Price += _pricing.GetPrice(protUid) * entry.SpawnProbability * entry.GetAmount(getAverage: true);
@@ -46,7 +47,7 @@ namespace Content.Server.Storage.EntitySystems
             {
                 foreach (var entry in group.Entries)
                 {
-                    var protUid = Spawn(entry.PrototypeId, MapCoordinates.Nullspace);
+                    var protUid = Spawn(entry.PrototypeId is { } id ? (Robust.Shared.Prototypes.EntProtoId?) _expeditionLoot.ResolvePrototype(uid, id) : null, MapCoordinates.Nullspace);
 
                     // Calculate the average price of the possible spawned items
                     args.Price += _pricing.GetPrice(protUid) *
@@ -75,7 +76,7 @@ namespace Content.Server.Storage.EntitySystems
 
             foreach (var proto in spawnEntities)
             {
-                entityToPlaceInHands = SpawnAtPosition(proto, coords); // Frontier: Spawn<SpawnAtPosition
+                entityToPlaceInHands = _expeditionLoot.SpawnLootAtPosition(uid, proto, coords);
                 _adminLogger.Add(LogType.EntitySpawn, LogImpact.Low, $"{ToPrettyString(args.User)} used {ToPrettyString(uid)} which spawned {ToPrettyString(entityToPlaceInHands.Value)}");
             }
 

@@ -5,7 +5,6 @@
     WeaponDisabler: 10
     WeaponRevolverArgentiNonlethal: 10
     WeaponShotgunDoubleBarreledRubber: 10
-    Stunbaton: 10
   # Ammo boxes
     AmmoBox12_gaugeBeanbag: 8
     AmmoBox556x45mmRubber: 8
@@ -30,7 +29,6 @@
     WeaponDisabler: 4294967295 # Infinite
     WeaponRevolverArgentiNonlethal: 4294967295 # Infinite
     WeaponShotgunDoubleBarreledRubber: 4294967295 # Infinite
-    Stunbaton: 4294967295 # Infinite
   # Ammo boxes
     AmmoBox12_gaugeBeanbag: 4294967295 # Infinite
     AmmoBox556x45mmRubber: 4294967295 # Infinite

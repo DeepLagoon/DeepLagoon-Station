@@ -6,7 +6,7 @@
   entityIcon: KitchenReagentGrinder
   discipline: CivilianServices
   tier: 1
-  cost: 7500
+  cost: 15000
   recipeUnlocks:
   - MicrowaveMachineCircuitboard
   - ReagentGrinderMachineCircuitboard
@@ -27,7 +27,7 @@
   entityIcon: NFPouchContractor
   discipline: CivilianServices
   tier: 1
-  cost: 5000
+  cost: 10000
   recipeUnlocks:
   - NFPouchUtility
   - NFPouchEngineering
@@ -75,7 +75,7 @@
   entityIcon: MedicalAssembler
   discipline: CivilianServices
   tier: 2
-  cost: 13500
+  cost: 27000
   recipeUnlocks:
   - MedicalAssemblerMachineCircuitboard
   - ThermobathMachineCircuitboard
@@ -95,7 +95,7 @@
   entityIcon: JetpackVoid
   discipline: CivilianServices
   tier: 2 # 3->2 - Mono
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - JetpackVoid
   technologyPrerequisites:

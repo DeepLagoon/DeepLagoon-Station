@@ -5,7 +5,7 @@
   entityIcon: GrenadeShrapnel
   discipline: Ussp
   tier: 1
-  cost: 60000
+  cost: 120000
   technologyPrerequisites:
   - UniversalMaterialResearchT1
   recipeUnlocks:

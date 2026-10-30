@@ -24,6 +24,33 @@
     price: 25
 
 - type: entity
+  parent: DLArtCanvas
+  id: DLArtDurableCanvas
+  name: durable painting canvas
+  description: A durable canvas for a private apartment painting frame. Its painting and layers are kept between rounds while it is in your apartment.
+  components:
+  - type: ArtDurableCanvas
+
+- type: entity
+  parent: DLArtFrameItem
+  id: DLApartmentPaintingFrameItem
+  name: apartment painting frame
+  description: Use it on a wall in your own apartment, then insert a durable painting canvas. Ordinary canvases do not fit.
+  components:
+  - type: ApartmentPaintingFrame
+  - type: Construction
+    graph: DLArtFrame
+    node: apartmentFrame
+
+- type: entity
+  parent: DLArtFrame
+  id: DLApartmentPaintingFrame
+  name: apartment painting frame
+  description: A private frame for a durable canvas. The painting is saved with the apartment between rounds.
+  components:
+  - type: ApartmentPaintingFrame
+
+- type: entity
   parent: BaseItem
   id: DLArtBrush
   name: paintbrush
@@ -123,6 +150,9 @@
         doAfter: 2
   - node: frame
     entity: DLArtFrameItem
+  # No crafting edge: apartment frames are purchased in the apartment shop.
+  - node: apartmentFrame
+    entity: DLApartmentPaintingFrameItem
 
 - type: construction
   id: DLArtFrameItem

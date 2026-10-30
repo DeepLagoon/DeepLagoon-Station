@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Numerics;
 using Robust.Client.UserInterface.Controls;
 using Content.Client.Message;
 using Content.Client.UserInterface.Systems.EscapeMenu;
@@ -17,6 +18,8 @@ namespace Content.Client.Lobby.UI
         [Dependency] private IClientConsoleHost _consoleHost = default!;
 
         private (string?, string?, string?)? _lastLobbyState;
+        private (Vector2 Size, string? Markup, float Scale)? _lastInfoLayout;
+        private readonly RichTextLabel _serverInfoText;
 
         public LobbyGui()
         {
@@ -25,7 +28,22 @@ namespace Content.Client.Lobby.UI
             SetAnchorPreset(MainContainer, LayoutPreset.Wide);
             SetAnchorPreset(Background, LayoutPreset.Wide);
             Chat.ChatInput.UseCompactLayout();
+            Chat.ApplyLobbyStyle();
             Chat.EnableTguiChat();
+            RoundStatusPanel.PanelOverride = LobbyConsolePanel.CreateFrame(16, 10, 10);
+            ChatPanel.PanelOverride = LobbyConsolePanel.CreateFrame(12, 10, 10);
+            RoundStatusHeading.PanelOverride = LobbyConsoleTheme.CreateHeadingStyle();
+            ServerInfoHeading.PanelOverride = LobbyConsoleTheme.CreateHeadingStyle();
+            ServerInfoTitle.FontOverride = LobbyConsoleTheme.GetFont(11);
+            ServerInfoTitle.FontColorOverride = LobbyConsoleTheme.Green;
+            ServerName.FontOverride = LobbyConsoleTheme.GetFont(14);
+            ServerName.FontColorOverride = LobbyConsoleTheme.Hover;
+            StationTime.FontOverride = LobbyConsoleTheme.GetFont(11);
+            StationTime.FontColorOverride = Color.FromHex("#93A79B");
+            RoundCountdown.FontOverride = LobbyConsoleTheme.GetFont(26);
+            RoundCountdown.FontColorOverride = Color.FromHex("#E1D297");
+            RoundCountdownCaption.FontOverride = LobbyConsoleTheme.GetFont(10);
+            RoundCountdownCaption.FontColorOverride = Color.FromHex("#93A79B");
             // Keep the original buttons and their controller bindings, including the
             // character setup button's preferences-loaded state.
             var setup = CharacterPreview.CharacterSetupButton;
@@ -56,12 +74,53 @@ namespace Content.Client.Lobby.UI
                 Element<RichTextLabel>().Prop("font", LobbyConsoleTheme.GetFont())
                     .Prop(nameof(RichTextLabel.LineHeightScale), 1.7f).Prop("font-outline-thickness", 0f),
             });
-            HeaderContainer.Visible = LobbyInfoScroll.Visible = StartTime.Visible = false;
+            _serverInfoText = ServerInfo.Children.OfType<RichTextLabel>().Single();
+            RightSide.StatusMeasuring += UpdateServerInfoLayout;
 
             EconomyButton.OnPressed += _ => IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Currency.LagoonEconomySystem>().Open();
             ApartmentsButton.OnPressed += _ => IoCManager.Resolve<IEntityManager>().System<Content.Client._DeepLagoon.Apartments.ApartmentShopSystem>().Open();
             LeaveButton.OnPressed += _ => _consoleHost.ExecuteCommand("disconnect");
             OptionsButton.OnPressed += _ => UserInterfaceManager.GetUIController<OptionsUIController>().ToggleWindow();
+        }
+
+        public void SetServerInfo(string markup)
+        {
+            ServerInfo.SetInfoBlob(markup);
+            // The fallback may be inside the folded drawer, so its own measure
+            // queue alone cannot decide whether the text fits above chat again.
+            RightSide.InvalidateMeasure();
+            MainContainer.InvalidateMeasure();
+        }
+
+        private void UpdateServerInfoLayout(Vector2 statusSize)
+        {
+            var state = (statusSize, _serverInfoText.GetMessage(), UIScale);
+            if (_lastInfoLayout == state)
+                return;
+            _lastInfoLayout = state;
+
+            var padding = RoundStatusPanel.PanelOverride?.MinimumSize ?? Vector2.Zero;
+            var available = Vector2.Max(statusSize - padding, Vector2.Zero);
+            RoundStatusHeading.Measure(available);
+            // Probe the existing rich text with tighter leading, keeping its font,
+            // colors and markup. The cache prevents repeated fallback probes from
+            // invalidating every layout pass on a small screen.
+            _serverInfoText.LineHeightScale = 1.25f;
+            _serverInfoText.Measure(new Vector2(available.X, float.PositiveInfinity));
+            var inline = available.X >= 320 && !string.IsNullOrEmpty(state.Item2) &&
+                         RoundStatusHeading.DesiredSize.Y + 6 + _serverInfoText.DesiredSize.Y <= available.Y;
+            var leading = inline ? 1.25f : 1.7f;
+            if (_serverInfoText.LineHeightScale != leading)
+                _serverInfoText.LineHeightScale = leading;
+
+            var target = inline ? InlineServerInfo : SeparateServerInfo;
+            if (ServerInfo.Parent != target)
+            {
+                ServerInfo.Orphan();
+                target.AddChild(ServerInfo);
+            }
+            InlineServerInfo.Visible = inline;
+            ServerConsole.Visible = !inline;
         }
 
         private void DecorateBanner(Control banner)
@@ -82,13 +141,13 @@ namespace Content.Client.Lobby.UI
         protected override void FrameUpdate(Robust.Shared.Timing.FrameEventArgs args)
         {
             base.FrameUpdate(args);
-            HeaderContainer.Visible = LobbyInfoScroll.Visible = StartTime.Visible = Chat.WebChat == null;
             var state = (ServerName.Text, StationTime.Text, StartTime.Text);
             if (Chat.WebChat?.IsReady == true && state != _lastLobbyState)
             {
                 _lastLobbyState = state;
                 Chat.WebChat.Send("deeplagoon/lobby-status", new Content.Client._DeepLagoon.WebUI.TguiData()
-                    .String("server", state.Item1).String("time", state.Item2).String("status", state.Item3).ToString());
+                    .String("server", state.Item1).String("time", state.Item2).String("status", state.Item3)
+                    .Bool("externalStatus", true).ToString());
             }
             if (Chat.WebChat?.IsReady != true) _lastLobbyState = null;
         }

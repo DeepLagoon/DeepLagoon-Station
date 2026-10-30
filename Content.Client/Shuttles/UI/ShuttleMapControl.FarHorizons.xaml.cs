@@ -51,6 +51,7 @@ public sealed partial class ShuttleMapControl
             Star.MAP_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, Offset, UIScale, false);
         foreach (var planet in system.Planets)
             SpaceNavigationDraw.Body(handle, Font, planet.Position, planet.Name, Planet.MAP_PIXEL_SIZE * planet.Radius,
-                new Color(0.5f, 0.8f, 1f), worldToView, PixelSize, Offset, UIScale, false);
+                new Color(0.5f, 0.8f, 1f), worldToView, PixelSize, Offset, UIScale, false,
+                EntManager.System<SpaceEnvironmentOverlaySystem>().PlanetShader(map, system, planet), planet: true);
     }
 }

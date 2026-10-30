@@ -5,7 +5,7 @@ namespace Content.Shared._DeepLagoon.SpaceEnvironment;
 
 public static class SectorGenerator
 {
-    public const int MaxRegions = 80;
+    public const int MaxRegions = 160;
     public const int MaxPlanets = 8;
 
     public static SectorDefinition Generate(string id, uint seed, SectorProfilePrototype profile)
@@ -55,9 +55,24 @@ public static class SectorGenerator
         return sector;
     }
 
-    private static void GenerateRegions(SectorDefinition sector, SectorProfilePrototype profile)
+    /// <summary>Append-only density upgrade. Existing positions, identities and appearance seeds remain intact.</summary>
+    public static SectorDefinition ExpandRegions(SectorDefinition original, SectorProfilePrototype profile)
     {
-        var random = new SectorRandom(SectorRandom.Derive(sector.Seed, "regions"));
+        ValidateProfile(profile);
+        var expanded = new SectorDefinition
+        {
+            Version = original.Version, Id = original.Id, Seed = original.Seed, Profile = original.Profile,
+            Star = original.Star, Planets = new(original.Planets), Regions = new(original.Regions),
+        };
+        GenerateRegions(expanded, profile, "region-expansion-v1", "extra-region-");
+        return expanded;
+    }
+
+    private static void GenerateRegions(SectorDefinition sector, SectorProfilePrototype profile,
+        string stream = "regions", string prefix = "region-")
+    {
+        var random = new SectorRandom(SectorRandom.Derive(sector.Seed, stream));
+        var nextId = sector.Regions.Count;
         for (var attempt = 0; attempt < profile.RegionCount * 24 && sector.Regions.Count < profile.RegionCount; attempt++)
         {
             var angle = random.Range(0, MathF.Tau);
@@ -72,7 +87,8 @@ public static class SectorGenerator
                 clear &= Vector2.Distance(center, new Vector2(planet.X, planet.Y)) > radius + 800f;
             if (!clear)
                 continue;
-            var id = $"region-{sector.Regions.Count}";
+            var id = $"{prefix}{nextId++}";
+            while (sector.Regions.Exists(region => region.Id == id)) id = $"{prefix}{nextId++}";
             sector.Regions.Add(new SpaceRegion
             {
                 Id = id, X = center.X, Y = center.Y, Radius = radius,

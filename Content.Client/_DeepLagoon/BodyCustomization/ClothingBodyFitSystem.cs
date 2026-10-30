@@ -50,7 +50,8 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         SpriteComponent.Layer? Displacement, bool DisplacementVisible, string Helper,
         HashSet<string> Revealed, ShaderInstance Shader, Map Map);
 
-    private sealed record Part(string Kind, List<SpriteComponent.Layer> Layers, List<RSI.State> Shapes, List<RSI.State> Anchors);
+    private sealed record Part(string Kind, List<SpriteComponent.Layer> Layers, List<RSI.State> Shapes,
+        List<RSI.State> Anchors, bool CoversMouth = false);
 
     public override void Initialize()
     {
@@ -81,7 +82,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
     {
         ClearSlot(uid, slot);
         if (!Resolve(uid, ref humanoid, false)) return;
-        if (slot is "head" or "mask" or "neck" or "neck2" or "neck3")
+        if (slot is "head" or "mask" or "balaclava" or "neck" or "neck2" or "neck3")
             ApplyFace(uid, item, slot, sprite, clothing, keys, humanoid);
         if (humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Chest) ||
             !IsSoft(item, slot, clothing)) return;
@@ -216,7 +217,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         foreach (var h in hands) AppendKey(signature, h);
         foreach (var part in parts)
         {
-            signature.Append("|part|").Append(part.Kind);
+            signature.Append("|part|").Append(part.Kind).Append(':').Append(part.CoversMouth);
             for (var i = 0; i < part.Layers.Count; i++)
             {
                 AppendKey(signature, part.Layers[i], part.Shapes[i]);
@@ -340,7 +341,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     var displaced = displacement?.ActualState is { } displacementState
                         ? Read(displacementState, DirectionFor(displacement!, displacementState, worldDirection), 0) : null;
                     using var fitted = face != null
-                        ? ClothingFaceFitMap.Build(skin, shapes[0].Shape, coverage, displaced, padding)
+                        ? ClothingFaceFitMap.Build(skin, shapes[0].Shape, coverage, displaced, padding, face.CoversMouth)
                         : ClothingBodyFitMap.Build(skin, shapes, coverage, displaced, padding, hands: handMask, contours: contours);
                     changed |= fitted != null;
                     using var identity = fitted == null ? ClothingBodyFitMap.Build(skin, [], coverage, displaced, padding, true) : null;

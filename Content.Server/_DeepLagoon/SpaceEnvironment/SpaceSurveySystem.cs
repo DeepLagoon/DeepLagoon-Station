@@ -1,18 +1,23 @@
 using System.Numerics;
 using Content.Server.Power.EntitySystems;
 using Content.Server.Shuttles.Components;
+using Content.Server.Hands.Systems;
+using Content.Server.Research.Disk;
+using Content.Server.Research.Systems;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared.Access.Systems;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
+using Content.Shared.Research.Components;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.Systems;
 using Content.Shared.Verbs;
 using Robust.Shared.Timing;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Configuration;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
 
@@ -28,6 +33,10 @@ public sealed class SpaceSurveySystem : EntitySystem
     [Dependency] private readonly AccessReaderSystem _access = default!;
     [Dependency] private readonly SharedShuttleConsoleLockSystem _locks = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private ResearchSystem _research = default!;
+    [Dependency] private HandsSystem _hands = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
 
     public override void Initialize()
     {
@@ -95,10 +104,49 @@ public sealed class SpaceSurveySystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("space-environment-survey-slow"), console, user);
             return true;
         }
-        var recorded = _sectors.Survey(map, nearest.Id);
-        _popup.PopupEntity(Loc.GetString(recorded ? "space-environment-survey-complete" : "space-environment-survey-recorded",
-            ("kind", kind)), console, user);
-        return recorded;
+        var points = SpaceSurveyResearchReward.Calculate(nearest, _cfg.GetCVar(SpaceEnvironmentCVars.SurveyResearchBase));
+        if (!_sectors.Survey(map, nearest.Id))
+        {
+            _popup.PopupEntity(Loc.GetString("space-environment-survey-recorded"), console, user);
+            return false;
+        }
+        // The persistent first-discovery claim must succeed before delivering any reward.
+        var rewardMessage = AwardResearch(console, grid, user, points);
+        _popup.PopupEntity(Loc.GetString("space-environment-survey-complete", ("kind", kind)) + "\n" + rewardMessage, console, user);
+        return true;
+    }
+
+    private string AwardResearch(EntityUid console, EntityUid grid, EntityUid user, int points)
+    {
+        var server = ResearchServer(console, grid);
+        if (server is { } target && Comp<ResearchServerComponent>(target).Points <= int.MaxValue - points)
+        {
+            _research.ModifyServerPoints(target, points);
+            return Loc.GetString("space-environment-survey-research", ("points", points));
+        }
+
+        var disk = Spawn("DeepLagoonSpaceSurveyDisk", Transform(console).Coordinates);
+        Comp<ResearchDiskComponent>(disk).Points = points;
+        _metadata.SetEntityName(disk, Loc.GetString("space-environment-survey-disk-name", ("points", points)));
+        _hands.TryPickupAnyHand(user, disk);
+        return Loc.GetString("space-environment-survey-research-disk", ("points", points));
+    }
+
+    private EntityUid? ResearchServer(EntityUid console, EntityUid grid)
+    {
+        if (_research.TryGetClientServer(console, out var connected, out _) && !TerminatingOrDeleted(connected.Value))
+            return connected;
+
+        EntityUid? selected = null;
+        var query = EntityQueryEnumerator<ResearchServerComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out _, out var transform))
+        {
+            if (transform.GridUid != grid || TerminatingOrDeleted(uid)) continue;
+            // Multiple independent RnD networks require an explicit connection or a portable reward.
+            if (selected != null) return null;
+            selected = uid;
+        }
+        return selected;
     }
 
     private bool TryEnvironment(EntityUid console, out SpaceEnvironmentComponent environment, out EntityUid map, out EntityUid grid)

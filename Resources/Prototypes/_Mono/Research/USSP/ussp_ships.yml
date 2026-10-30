@@ -4,7 +4,7 @@
   entityIcon: ShipVoucherUSSPT0
   discipline: Ussp
   tier: 1
-  cost: 45000
+  cost: 90000
   recipeUnlocks:
   - ShipVoucherUsspT0Recipe
   technologyPrerequisites:
@@ -17,7 +17,7 @@
   entityIcon: ShipVoucherDrakon
   discipline: Ussp
   tier: 2
-  cost: 65000
+  cost: 130000
   recipeUnlocks:
   - ShipVoucherUsspDrakon
   - ShipVoucherUsspTayfun
@@ -31,7 +31,7 @@
   entityIcon: ShipVoucherBuran
   discipline: Ussp
   tier: 3
-  cost: 95000
+  cost: 190000
   recipeUnlocks:
   - ShipVoucherUsspBuran
   technologyPrerequisites:

@@ -6,7 +6,7 @@
   entityIcon: ClothingEyesNightVisionGoggles
   discipline: Experimental
   tier: 2
-  cost: 20000
+  cost: 40000
   recipeUnlocks:
   - ClothingEyesNightVisionGoggles
   - ClothingHelmetAttachmentNVGsBasic
@@ -20,7 +20,7 @@
   entityIcon: ClothingEyesThermalVisionGoggles
   discipline: Experimental
   tier: 2
-  cost: 15000
+  cost: 30000
   recipeUnlocks:
   - ClothingEyesThermalVisionGoggles
   - ClothingHelmetAttachmentInfraredBasic

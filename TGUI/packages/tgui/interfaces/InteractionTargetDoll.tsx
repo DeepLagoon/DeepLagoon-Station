@@ -25,7 +25,7 @@ export const InteractionTargetDoll = ({ images, region, regionName, onSelect, la
     {images?.base && <img className="InteractionTargetDoll__base" src={images.base} alt="" draggable={false} />}
     {pieces.map((piece, i) => <button key={piece.part + '-' + piece.region} type="button"
       className="InteractionTargetDoll__part" data-region={piece.region} data-part={piece.part}
-      aria-label={regionName(piece.region)} title={regionName(piece.region)} aria-pressed={region === piece.region}
+      aria-label={regionName(piece.region)} aria-pressed={region === piece.region}
       // One keyboard stop for each catalog region; mouse users can click either side.
       tabIndex={pieces.findIndex(p => p.region === piece.region) === i ? 0 : -1}
       style={{ left: piece.x * 3, top: piece.y * 3, width: piece.width * 3, height: piece.height * 3 }}

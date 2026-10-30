@@ -39,6 +39,7 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
             Element<RichTextLabel>().Prop("font", LobbyConsoleTheme.GetFont()).Prop("font-outline-thickness", 0f),
         });
         Header.FontOverride = LobbyConsoleTheme.GetFont(15);
+        HeadingBackground.PanelOverride = LobbyConsoleTheme.CreateHeadingStyle();
         var subscriptionStyle = new StyleBoxFlat
         {
             BackgroundColor = LobbyConsoleTheme.Green.WithAlpha(0.10f),

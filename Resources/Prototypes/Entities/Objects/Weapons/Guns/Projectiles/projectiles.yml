@@ -259,6 +259,7 @@
   parent: BaseBullet
   categories: [ HideSpawnMenu ]
   components:
+  - type: LaserProjectileWindow
   - type: Reflective
     reflective:
     - Energy
@@ -1002,6 +1003,7 @@
   parent: BaseBullet
   categories: [ HideSpawnMenu ]
   components:
+  - type: LaserProjectileWindow
   - type: Reflective
     reflective:
     - Energy
@@ -1077,6 +1079,7 @@
   parent: BulletEnergyTurretBase
   categories: [ HideSpawnMenu ]
   components:
+  - type: LaserProjectileWindow
   - type: Ammo
     muzzleFlash: MuzzleFlashEffectHeavyLaser
   - type: Sprite
@@ -1153,6 +1156,7 @@
   parent: BaseBullet
   categories: [ HideSpawnMenu ]
   components:
+  - type: LaserProjectileWindow
   - type: Reflective
     reflective:
     - Energy
@@ -1352,6 +1356,7 @@
   parent: BaseBullet
   categories: [ HideSpawnMenu ]
   components:
+  - type: LaserProjectileWindow
   - type: Reflective
     reflective:
     - Energy

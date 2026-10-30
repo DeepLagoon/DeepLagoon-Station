@@ -35,7 +35,7 @@
     maxCharge: 1200
     startingCharge: 1200
   - type: BatterySelfRecharger
-    autoRecharge: true
+    autoRecharge: false
     autoRechargeRate: 24
   - type: GunSpreadModifier
     spread: 0.8

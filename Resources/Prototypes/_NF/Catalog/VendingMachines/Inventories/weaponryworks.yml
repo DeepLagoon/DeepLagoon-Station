@@ -3,13 +3,7 @@
   startingInventory:
     SurvivalKnife: 1
     WeaponBrassKnuckles: 1
-    WeaponLaserPistolNF: 1
-    WeaponRifleGestio: 1
-    WeaponRifleNovaliteC1: 1
-    WeaponShotgunDoubleBarreled: 1
-    WeaponRevolverArgenti: 1
     WeaponPistolMk32: 1
-    WeaponSubMachineGunAK220: 1
     AmmoBox12_gaugeSlug: 1
     AmmoBox12_gaugeBuckshot: 1
     AmmoBox12_gaugeBeanbag: 1
@@ -34,13 +28,7 @@
   startingInventory:
     SurvivalKnife: 4294967295
     WeaponBrassKnuckles: 4294967295
-    WeaponLaserPistolNF: 4294967295
-    WeaponRifleGestio: 4294967295
-    WeaponRifleNovaliteC1: 4294967295
-    WeaponShotgunDoubleBarreled: 4294967295
-    WeaponRevolverArgenti: 4294967295
     WeaponPistolMk32: 4294967295
-    WeaponSubMachineGunAK220: 4294967295
 # Magazines
     Magazine9x19mmPistolFMJ: 4294967295 # 9x19mm Pistol
     Magazine45_ACPPistolFMJ: 4294967295 # .45 ACP Pistol
@@ -94,11 +82,8 @@
     WeaponShotgunHelepolis: 4294967295
 # Energy
     # WeaponLaserCannonPMC: 4294967295
-    WeaponLaserCarbine: 4294967295
-    WeaponEnergyGunPMC: 4294967295
     WeaponDisablerSMGPMC: 4294967295
 # Sidearms
-    WeaponLaserPistolNF: 4294967295
     WeaponShotgunSawn: 4294967295
     WeaponRevolverArgenti: 4294967295
     WeaponPistolViperPMC: 4294967295

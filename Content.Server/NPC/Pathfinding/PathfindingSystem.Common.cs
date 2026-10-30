@@ -70,13 +70,13 @@ public sealed partial class PathfindingSystem
             {
                 modifier += 10f;
             }
-            else if ((request.Flags & PathFlags.Smashing) != 0x0 && end.Data.Damage > 0f)
-            {
-                modifier += 10f + end.Data.Damage / 100f;
-            }
             else if (isClimb && (request.Flags & PathFlags.Climbing) != 0x0)
             {
                 modifier += 0.5f;
+            }
+            else if ((request.Flags & PathFlags.Smashing) != 0x0 && end.Data.Damage > 0f)
+            {
+                modifier += 10f + end.Data.Damage / 100f;
             }
             else
             {

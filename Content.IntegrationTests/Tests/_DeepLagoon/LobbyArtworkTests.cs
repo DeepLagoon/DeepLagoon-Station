@@ -17,6 +17,72 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class LobbyArtworkTests
 {
     [Test]
+    public async Task ServerInformationMovesAboveChatOnlyWhileItsFullTextFits()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var lobby = new LobbyGui();
+            const string blob = "Добро пожаловать на DeepLagoon Station!\nТекущий раунд: #169\nИгроков на сервере: 1 (готовы: 0)\nТекущий режим: Стандарт (ТСФ|ДФ)\n[color=yellow]Местные силы ДФ мешают колониальной экспансии ТСФ в сектор.[/color]";
+            lobby.ServerName.Text = "Лобби: MyServer";
+            lobby.StationTime.Text = "Раунд ещё не начался";
+            lobby.RoundCountdown.Text = "01:13";
+            lobby.SetServerInfo(blob);
+            var info = lobby.ServerInfo;
+            var text = info.Children.OfType<Robust.Client.UserInterface.Controls.RichTextLabel>().Single();
+            void Arrange(Vector2 size)
+            {
+                lobby.MainContainer.SidePanelWidth = 600;
+                lobby.MainContainer.InvalidateMeasure();
+                lobby.RightSide.InvalidateMeasure();
+                lobby.MainContainer.Measure(size);
+                lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
+            }
+            foreach (var (size, inline) in new[]
+                     {
+                         (new Vector2(2754, 1348), true),
+                         (new Vector2(1024, 600), false),
+                         (new Vector2(2560, 1440), true),
+                         (new Vector2(1280, 720), false),
+                         (new Vector2(3840, 2160), true),
+                         (new Vector2(1920, 1080), false),
+                     })
+            {
+                Arrange(size);
+                Assert.That(info.Parent, Is.SameAs(inline ? lobby.InlineServerInfo : lobby.SeparateServerInfo), $"Viewport {size}");
+                Assert.That(lobby.ServerConsole.Visible, Is.EqualTo(!inline));
+                Assert.That(lobby.InlineServerInfo.Visible, Is.EqualTo(inline));
+                Assert.That(lobby.ServerInfo, Is.SameAs(info), "Resize moves the live information control without duplicating it");
+                Assert.That(text.GetMessage(), Does.Contain("#169").And.Contain("[color=yellow]"));
+                Assert.That(lobby.ChatPanel.Height, Is.EqualTo(size.Y * 0.85f).Within(1));
+                if (inline)
+                {
+                    Assert.That(text.GlobalPosition.Y,
+                        Is.GreaterThanOrEqualTo(lobby.RoundStatusHeading.GlobalPosition.Y + lobby.RoundStatusHeading.Height));
+                    Assert.That(text.GlobalPosition.Y + text.Height,
+                        Is.LessThanOrEqualTo(lobby.RoundStatusPanel.GlobalPosition.Y + lobby.RoundStatusPanel.Height - 9));
+                }
+            }
+            lobby.SetServerInfo(string.Join('\n', Enumerable.Repeat("Длинное описание сервера без обрезания текста.", 30)));
+            Arrange(new Vector2(3840, 2160));
+            Assert.That(info.Parent, Is.SameAs(lobby.SeparateServerInfo), "Long information keeps the scrollable fallback even on a large monitor");
+            lobby.UtilityDrawer.Collapsed = true;
+            lobby.SetServerInfo(blob);
+            // Use the same size and rely on the update's invalidation, rather
+            // than the helper's forced resize, while the old host is hidden.
+            var unchangedSize = new Vector2(3840, 2160);
+            lobby.MainContainer.Measure(unchangedSize);
+            lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, unchangedSize));
+            Assert.That(info.Parent, Is.SameAs(lobby.InlineServerInfo), "Updated server information is remeasured at the same viewport size");
+            Assert.That(lobby.UtilityDrawer.Collapsed, Is.True, "Moving server text preserves the drawer's chosen state");
+            var header = lobby.Chat.FindControl<Robust.Client.UserInterface.Controls.PanelContainer>("LobbyChatHeading");
+            Assert.That(header.PanelOverride, Is.TypeOf<Robust.Client.Graphics.StyleBoxFlat>());
+            Assert.That(lobby.RoundStatusHeading.PanelOverride, Is.TypeOf<Robust.Client.Graphics.StyleBoxFlat>());
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task LobbyRestartReplacesItsAutomaticVoteWithoutCancellingManualVotes()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -59,6 +125,9 @@ public sealed class LobbyArtworkTests
             Assert.That(lobby.UtilityScroll.Parent, Is.SameAs(lobby.UtilityDrawer));
             Assert.That(lobby.MusicPlayer.Parent, Is.SameAs(lobby.LeftSide));
             Assert.That(lobby.ChatPanel.Parent, Is.SameAs(lobby.RightSide));
+            Assert.That(lobby.RoundStatusPanel.Parent, Is.SameAs(lobby.RightSide));
+            Assert.That(lobby.ServerName.Parent, Is.SameAs(lobby.HeaderContainer));
+            Assert.That(lobby.ChatPanel.UseConsoleStyle && lobby.RoundStatusPanel.UseConsoleStyle, Is.True);
             var setup = lobby.CharacterPreview.CharacterSetupButton;
             Assert.That(lobby.ButtonPanel.Children.Any(child => child == setup.Parent), Is.True);
             Assert.That(lobby.CharacterPreview.Parent, Is.SameAs(lobby.CenterContents));
@@ -91,7 +160,7 @@ public sealed class LobbyArtworkTests
             var characterView = lobby.CharacterPreview.FindControl<Control>("ViewBox").Children
                 .OfType<Robust.Client.UserInterface.Controls.SpriteView>().Single();
             lobby.ServerInfo.SetInfoBlob("Добро пожаловать на DeepLagoon Station!\nТекущий раунд: #19\nИгроков на сервере: 1\n[color=yellow]Местные силы ДФ мешают колониальной экспансии ТСФ в сектор.[/color]");
-            Assert.That(lobby.ServerInfo.Parent, Is.SameAs(lobby.ServerConsole));
+            Assert.That(lobby.ServerInfo.Parent, Is.SameAs(lobby.SeparateServerInfo));
             var consoleText = lobby.ServerInfo.Children.OfType<Robust.Client.UserInterface.Controls.RichTextLabel>().Single();
             Assert.That(consoleText.GetMessage(), Does.Contain("[color=yellow]"));
             var utilities = lobby.UtilityButtons.Children
@@ -155,8 +224,12 @@ public sealed class LobbyArtworkTests
                     Is.LessThanOrEqualTo(lobby.ButtonPanel.Position.Y));
                 Assert.That(lobby.UtilityDrawer.GlobalPosition.X + lobby.UtilityDrawer.Width,
                     Is.LessThan(lobby.ChatPanel.GlobalPosition.X));
-                Assert.That(lobby.ChatPanel.Height, Is.EqualTo(lobby.MainContainer.Height).Within(0.001f),
-                    "Chat must retain the entire viewport height beside the drawer");
+                Assert.That(lobby.ChatPanel.Height, Is.EqualTo(lobby.MainContainer.Height * 0.85f).Within(1),
+                    "Chat is 15 percent shorter, with round status above it");
+                Assert.That(lobby.ChatPanel.Position.Y + lobby.ChatPanel.Height,
+                    Is.EqualTo(lobby.RightSide.Height).Within(1));
+                Assert.That(lobby.ChatPanel.Position.Y - lobby.RoundStatusPanel.Height,
+                    Is.EqualTo(LobbyConsoleTheme.BlockGap).Within(1));
                 Assert.That(characterView.Size, Is.EqualTo(new Vector2(LobbyCharacterPreviewPanel.PreviewSize)),
                     $"The character must remain large at viewport {size} and chat width {chatWidth}");
                 Assert.That(characterFrame.Width, Is.EqualTo(LobbyButtonPanel.BackplateWidth).Within(0.001f),
@@ -170,7 +243,7 @@ public sealed class LobbyArtworkTests
                 Assert.That(heading.HorizontalAlignment, Is.EqualTo(Control.HAlignment.Center));
                 Assert.That(popup.GlobalPosition.X,
                     Is.EqualTo(lobby.UtilityDrawer.GlobalPosition.X).Within(1), "Votes must stay beside chat");
-                Assert.That(popup.Width, Is.EqualTo(lobby.ServerConsole.Width).Within(1), "Vote cards must fill the same sidebar width as the console");
+                Assert.That(popup.Width, Is.EqualTo(lobby.UtilityTray.Width).Within(1), "Vote cards must fill the same sidebar width as the utility controls");
                 var timer = bar.Parent!.Children.OfType<LobbyVoteTimer>().Single();
                 Assert.That(timer.GlobalPosition.Y + timer.Height, Is.LessThanOrEqualTo(bar.GlobalPosition.Y),
                     "The timer must be above the bar, never in the same horizontal row");
@@ -178,7 +251,8 @@ public sealed class LobbyArtworkTests
                     Is.EqualTo(bar.GlobalPosition.X + bar.Width / 2).Within(1), "Timer and bar share the same center");
                 Assert.That(bar.GlobalPosition.X + bar.Width / 2,
                     Is.EqualTo(popup.GlobalPosition.X + popup.Width / 2).Within(1), "Timer width cannot shift the progress bar");
-                Assert.That(lobby.UtilityTray.Width, Is.EqualTo(lobby.ServerConsole.Width).Within(1));
+                if (lobby.ServerConsole.Visible)
+                    Assert.That(lobby.UtilityTray.Width, Is.EqualTo(lobby.ServerConsole.Width).Within(1));
                 Assert.That(lobby.ButtonPanel.GlobalPosition.X + lobby.ButtonPanel.Width / 2,
                     Is.EqualTo(lobby.CharacterPreview.GlobalPosition.X + lobby.CharacterPreview.Width / 2).Within(1));
                 var chatSize = lobby.ChatPanel.Size;

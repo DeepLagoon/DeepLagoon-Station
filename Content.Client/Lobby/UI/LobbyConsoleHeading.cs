@@ -20,6 +20,7 @@ public sealed class LobbyConsoleHeading : Control
     protected override void Draw(DrawingHandleScreen handle)
     {
         base.Draw(handle);
+        handle.DrawRect(UIBox2.FromDimensions(0, 0, PixelWidth, 21 * UIScale), Color.FromHex("#14271B"));
         var ink = LobbyConsoleTheme.Green.WithAlpha(0.55f);
         handle.DrawRect(UIBox2.FromDimensions(3 * UIScale, 5 * UIScale, 4 * UIScale, 4 * UIScale), ink);
         handle.DrawString(_font, new Vector2(13, 0) * UIScale, "DEEPLAGOON / TERMINAL", UIScale, ink);

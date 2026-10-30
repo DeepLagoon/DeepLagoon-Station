@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Numerics;
 using Content.Server.GameTicking;
 using Content.Server.Spawners.Components;
@@ -15,6 +16,7 @@ namespace Content.Server.Spawners.EntitySystems
         [Dependency] private IRobustRandom _robustRandom = default!;
         [Dependency] private GameTicker _ticker = default!;
         [Dependency] private EntityTableSystem _entityTable = default!;
+        [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
 
         public override void Initialize()
         {
@@ -89,14 +91,18 @@ namespace Content.Server.Spawners.EntitySystems
             }
 
             if (!Deleted(uid))
-                Spawn(_robustRandom.Pick(component.Prototypes), Transform(uid).Coordinates);
+                _expeditionLoot.SpawnLoot(uid, _robustRandom.Pick(component.Prototypes), Transform(uid).Coordinates);
         }
 
         private void Spawn(EntityUid uid, RandomSpawnerComponent component)
         {
-            if (component.RarePrototypes.Count > 0 && (component.RareChance == 1.0f || _robustRandom.Prob(component.RareChance)))
+            // Do not reroll a capped T3 marker through its T4 -> T3 replacement forever.
+            var rare = _expeditionLoot.TryGetOrigin(uid, out var origin)
+                ? component.RarePrototypes.Where(id => _expeditionLoot.GetTier(id) <= origin.MaximumTier).ToList()
+                : component.RarePrototypes;
+            if (rare.Count > 0 && (component.RareChance == 1.0f || _robustRandom.Prob(component.RareChance)))
             {
-                Spawn(_robustRandom.Pick(component.RarePrototypes), Transform(uid).Coordinates);
+                _expeditionLoot.SpawnLoot(uid, _robustRandom.Pick(rare), Transform(uid).Coordinates);
                 return;
             }
 
@@ -118,7 +124,7 @@ namespace Content.Server.Spawners.EntitySystems
 
             var coordinates = Transform(uid).Coordinates.Offset(new Vector2(xOffset, yOffset));
 
-            Spawn(_robustRandom.Pick(component.Prototypes), coordinates);
+            _expeditionLoot.SpawnLoot(uid, _robustRandom.Pick(component.Prototypes), coordinates);
         }
 
         private void Spawn(Entity<EntityTableSpawnerComponent> ent)
@@ -135,7 +141,7 @@ namespace Content.Server.Spawners.EntitySystems
                 var yOffset = _robustRandom.NextFloat(-ent.Comp.Offset, ent.Comp.Offset);
                 var trueCoords = coords.Offset(new Vector2(xOffset, yOffset));
 
-                Spawn(proto, trueCoords);
+                _expeditionLoot.SpawnLoot(ent, proto, trueCoords);
             }
         }
     }

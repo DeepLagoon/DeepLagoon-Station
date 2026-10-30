@@ -127,7 +127,7 @@ public partial class ChatBox
         if (TguiActionData.TryParse(payload, out var args) && args!.String("text") is { } text)
         {
             if (text.Length > _controller.MaxMessageLength) return;
-            ChatInput.Input.SetText(text);
+            ChatInput.Input.SetText(text, invokeEvent: action == "draft");
             if (action == "cycle")
             {
                 if (_controller.SelectableChannels == 0) return;

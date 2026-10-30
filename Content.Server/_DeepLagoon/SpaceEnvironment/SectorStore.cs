@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
 
-/// <summary>Immutable sector manifests and an idempotent survey ledger keyed by stable world and sector identities.</summary>
+/// <summary>Append-only sector manifests and an idempotent survey ledger keyed by stable world and sector identities.</summary>
 public sealed class SectorStore : IDisposable
 {
     private static readonly JsonSerializerOptions Json = new() { IncludeFields = true };
@@ -55,6 +55,28 @@ public sealed class SectorStore : IDisposable
         command.Parameters.AddWithValue("$data", JsonSerializer.Serialize(sector, Json));
         command.ExecuteNonQuery();
         return Load(campaign, sector.Id)!;
+    }
+
+    /// <summary>Compare-and-swap an append-only upgrade without rewriting bodies or the survey ledger.</summary>
+    public SectorDefinition AppendRegions(string campaign, SectorDefinition expected, List<SpaceRegion> additions)
+    {
+        ValidateKey(campaign);
+        Validate(expected);
+        var expanded = new SectorDefinition
+        {
+            Version = expected.Version, Id = expected.Id, Seed = expected.Seed, Profile = expected.Profile,
+            Star = expected.Star, Planets = new(expected.Planets), Regions = new(expected.Regions),
+        };
+        expanded.Regions.AddRange(additions);
+        Validate(expanded);
+        using var command = _connection.CreateCommand();
+        command.CommandText = "UPDATE sector_manifests SET data=$data WHERE campaign=$campaign AND id=$id AND data=$expected";
+        command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$id", expected.Id);
+        command.Parameters.AddWithValue("$expected", JsonSerializer.Serialize(expected, Json));
+        command.Parameters.AddWithValue("$data", JsonSerializer.Serialize(expanded, Json));
+        command.ExecuteNonQuery();
+        return Load(campaign, expected.Id) ?? throw new InvalidDataException("Missing sector during expansion.");
     }
 
     public List<string> Surveys(string campaign, string sector)

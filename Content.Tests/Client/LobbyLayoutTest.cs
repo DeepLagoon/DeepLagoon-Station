@@ -43,7 +43,7 @@ public sealed class LobbyLayoutTest : RobustUnitTest
     [TestCase(1280, 720, 600)]
     [TestCase(1024, 600, 465)]
     [TestCase(800, 600, 400)]
-    public void CharacterAndMusicStayLeftOfUtilitiesAndFullHeightChat(int width, int height, int chatWidth)
+    public void CharacterAndMusicStayLeftOfUtilitiesAndRightSidebar(int width, int height, int chatWidth)
     {
         using var layout = new LobbyColumns { SidePanelWidth = chatWidth };
         var left = new Control();
@@ -101,6 +101,31 @@ public sealed class LobbyLayoutTest : RobustUnitTest
         Assert.That(left.Position, Is.EqualTo(Vector2.Zero));
         Assert.That(left.Size, Is.EqualTo(leftSize));
         Assert.That(drawer.Width, Is.EqualTo(LobbyUtilityDrawer.TabWidth));
+    }
+
+    [TestCase(400, 1080)]
+    [TestCase(400, 720)]
+    [TestCase(320, 600)]
+    [TestCase(180, 480)]
+    public void RoundStatusStaysAboveChatWithoutChangingSidebarWidth(int width, int height)
+    {
+        using var layout = new LobbyRightPanel();
+        var status = new Control();
+        var chat = new Control { MinHeight = 120 };
+        layout.AddChild(status);
+        layout.AddChild(chat);
+        var size = new Vector2(width, height);
+        layout.Measure(size);
+        layout.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
+        Assert.Multiple(() =>
+        {
+            Assert.That(chat.Height, Is.EqualTo(height * 0.85f).Within(1));
+            Assert.That(chat.Position.Y + chat.Height, Is.EqualTo(height).Within(1));
+            Assert.That(chat.Position.Y - status.Height, Is.EqualTo(LobbyConsoleTheme.BlockGap).Within(1));
+            Assert.That(chat.Width, Is.EqualTo(width));
+            Assert.That(status.Width, Is.EqualTo(width));
+            Assert.That(status.Position, Is.EqualTo(Vector2.Zero));
+        });
     }
 
     private sealed class DrawerStub : Control

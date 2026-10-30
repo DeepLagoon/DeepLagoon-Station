@@ -1,4 +1,4 @@
-using Content.Client.Administration.Managers;
+﻿using Content.Client.Administration.Managers;
 using Content.Client.Changelog;
 using Content.Client.Chat.Managers;
 using Content.Client.DebugMon;
@@ -128,6 +128,7 @@ namespace Content.Client.Entry
             _prototypeManager.RegisterIgnore("nukeopsRole");
             _prototypeManager.RegisterIgnore("ghostRoleRaffleDecider");
             _prototypeManager.RegisterIgnore("pointOfInterest"); // Frontier: worldgen-related, server-only
+            _prototypeManager.RegisterIgnore("apartmentItem"); // Physical-goods prices and delivery are server-only.
 
             _componentFactory.GenerateNetIds();
             _adminManager.Initialize();

@@ -64,8 +64,6 @@
   &__notice { flex-shrink: 0; padding: 5px 8px; font-size: 11px; background: #413626; color: #efd9a0; }
   &__empty { padding: 12px 6px; color: #91a9b9; text-align: center; }
   &__bodyMap { position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: 4px 10px; background: #182a36; border: 1px solid #628892; border-radius: 4px; box-shadow: 0 6px 16px #0009; }
-  &__bodyHint { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-  &__bodyHint span { color: #91a9b9; font-size: 11px; }
   &__customPage { display: flex; flex: 1; min-height: 0; }
   &__customPage[hidden] { display: none; }
   &__custom { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 0 8px 6px; }
@@ -88,8 +86,6 @@
   &__libraryItem small { display: block; color: #92a9b7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
   &__deleteConfirm { display: flex; width: 100%; flex-wrap: wrap; gap: 5px; font-size: 11px; color: #efb8ab; }
   &__deleteConfirm span { width: 100%; }
-  &__help { margin: 6px 0; font-size: 11px; color: #9fb4c0; }
-  &__help summary { cursor: pointer; padding: 5px 0; color: #9ccec7; }
 }
 
 .InteractionTargetDoll {

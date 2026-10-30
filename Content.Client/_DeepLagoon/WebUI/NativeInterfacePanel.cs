@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Linq;
 using Content.Shared._DeepLagoon.InteractionPanel;
@@ -25,6 +25,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
     private readonly Action _close;
     private readonly BoxContainer _body = new() { Orientation = LayoutOrientation.Vertical, SeparationOverride = 6 };
     private string _interface = "";
+    private bool _shopGallery;
     private NativeUiData _data = new();
     private NativeApartmentEditor? _apartment;
     private NativeGridEditor? _grid;
@@ -105,6 +106,14 @@ public sealed partial class NativeInterfacePanel : BoxContainer
                 break;
             case "InteractionPanel": Interaction(); break;
             case "ApartmentShop":
+                var shopTabs = Row(); _body.AddChild(shopTabs);
+                Button(shopTabs, "Квартиры и предметы", () => { _shopGallery = false; UpdateState(name, json); });
+                Button(shopTabs, "Галерея", () => { _shopGallery = true; Send("gallery", new TguiData().Number("page", 0)); });
+                if (_shopGallery)
+                {
+                    ApartmentGallery();
+                    break;
+                }
                 Text(_body, "Номер квартиры: " + _data.String("number"));
                 if (long.TryParse(_data.String("balance"), out var shopBalance) && shopBalance >= 0) Text(_body, "Баланс: " + _data.String("balance") + " LC");
                 Text(_body, _data.String("message"));
@@ -117,6 +126,23 @@ public sealed partial class NativeInterfacePanel : BoxContainer
                     Text(confirmation, entry.Bool("owned") ? "Выбрать этот шаблон?" : "Купить за " + entry.String("price") + " LC и выбрать?");
                     var confirm = Button(confirmation, "Подтвердить", () =>
                         Send("select", new TguiData().String("template", entry.String("id"))));
+                    confirm.OnPressed += _ => confirm.Disabled = true;
+                    Button(confirmation, "Отмена", () => confirmation.Visible = false);
+                    _body.AddChild(confirmation);
+                }
+                Text(_body, "Предметы — доставка ко входу в квартиру");
+                var pendingItem = _data.String("pendingItemOrder");
+                if (pendingItem.Length > 0)
+                    Button(_body, "Завершить доставку", () => Send("retryItem", new TguiData().String("order", pendingItem)));
+                foreach (var item in _data.Array("items"))
+                {
+                    Text(_body, item.String("name") + " · " + item.String("category") + " · " + item.String("price") + " LC");
+                    var confirmation = Column(); confirmation.Visible = false;
+                    Button(_body, "Купить", () => confirmation.Visible = true, pendingItem.Length == 0);
+                    Text(confirmation, "Купить за " + item.String("price") + " LC? Предмет появится у входа в квартиру.");
+                    var order = Guid.NewGuid().ToString();
+                    var confirm = Button(confirmation, "Подтвердить", () => Send("buyItem", new TguiData()
+                        .String("template", item.String("id")).String("order", order).String("unitPrice", item.String("price"))));
                     confirm.OnPressed += _ => confirm.Disabled = true;
                     Button(confirmation, "Отмена", () => confirmation.Visible = false);
                     _body.AddChild(confirmation);
@@ -229,6 +255,27 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         foreach (var image in _data.Array("headshots")) NativeImage.Add(column, image.String("image"));
         foreach (var key in new[] { "erp", "noncon", "vore" })
             Text(column, key.ToUpperInvariant() + ": " + (InteractionPanelConsent)_data.Int(key));
+    }
+
+    private void ApartmentGallery()
+    {
+        Text(_body, "Личная картина");
+        Text(_body, "Купите рамку и долговечный холст в разделе «Предметы». Используйте рамку на стене своей квартиры, нарисуйте картину, закройте редактор и вставьте холст в рамку. Картина и слои сохранятся между раундами без публикации в библиотеке. Обычный холст не подходит.");
+        var gallery = _data.Object("gallery");
+        var page = gallery.Int("page");
+        Button(_body, "Обновить галерею", () => Send("gallery", new TguiData().Number("page", page)));
+        if (!gallery.Bool("loaded")) { Text(_body, "Загрузка картин квартиры…"); return; }
+        if (gallery.String("error").Length > 0) { Text(_body, gallery.String("error")); return; }
+        Text(_body, "Картин в квартире: " + gallery.Int("total"));
+        foreach (var painting in gallery.Array("paintings"))
+        {
+            Text(_body, painting.String("title") + (painting.Bool("framed") ? " · В рамке" : " · Холст вне рамки"));
+            NativeImage.Add(_body, painting.String("image"));
+        }
+        var pages = Row(); _body.AddChild(pages);
+        Button(pages, "Предыдущие картины", () => Send("gallery", new TguiData().Number("page", page - 1)), page > 0);
+        Button(pages, "Следующие картины", () => Send("gallery", new TguiData().Number("page", page + 1)),
+            (page + 1) * Content.Shared._DeepLagoon.Apartments.ApartmentGalleryState.PageSize < gallery.Int("total"));
     }
 
     private void Gallery()

@@ -6,6 +6,8 @@ namespace Content.Server.Spawners.EntitySystems;
 
 public sealed class SpawnOnDespawnSystem : EntitySystem
 {
+    [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -21,7 +23,7 @@ public sealed class SpawnOnDespawnSystem : EntitySystem
         // Mono start - multiple entity spawning
             for (int i = 0; i <= comp.Count; i++)
             {
-                Spawn(comp.Prototype, xform.Coordinates);
+                _expeditionLoot.SpawnLoot(uid, comp.Prototype, xform.Coordinates);
             }
         // End mono
     }

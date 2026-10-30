@@ -19,7 +19,14 @@ space-environment-survey-signal = Обнаружено: { $kind }. Центр: (
 space-environment-survey-slow = Для устойчивого измерения снизьте скорость до 4 м/с.
 space-environment-survey-complete = Исследование завершено: { $kind }. Данные записаны в журнал.
 space-environment-survey-recorded = Данные этой области уже есть в журнале.
+space-environment-survey-research = На сервер RnD начислено { $points } очков исследования.
+space-environment-survey-research-disk = Выдан диск на { $points } очков RnD. Загрузите его в исследовательский сервер. Если руки заняты, диск лежит возле консоли.
+space-environment-survey-disk-name = Диск исследований сектора ({ $points } RnD)
+ent-DeepLagoonSpaceSurveyDisk = Диск исследований сектора
+    .desc = Данные о ранее неизученной космической области. Загрузите диск в сервер RnD для начисления очков исследования.
 
 space-environment-route = Прямой курс: пыль ~{ $dust } м; радиация ~{ $radiation } м (с учётом интенсивности).
 space-environment-route-ftl-blocked = FTL: плазменное возмущение в точке отправления или прибытия.
 space-environment-route-ftl-clear = FTL: помех среды в конечных точках не обнаружено. Прочие ограничения сохраняются.
+
+space-environment-space-junk = космический мусор

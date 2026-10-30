@@ -1,0 +1,9 @@
+ent-DLArtDurableCanvas = durable painting canvas
+    .desc = A canvas for a private painting. Paint it and insert it into an apartment frame: its image and layers are kept with the apartment between rounds. Publishing to the library is optional.
+ent-DLApartmentPaintingFrameItem = apartment painting frame
+    .desc = Hold the frame and use it on a wall in your own apartment. Only a durable canvas from the apartment shop fits.
+ent-DLApartmentPaintingFrame = apartment painting frame
+    .desc = A private wall frame for a durable canvas. Its painting is saved with the apartment between rounds.
+dl-art-durable-only = This frame only accepts a durable canvas from the apartment shop.
+dl-art-apartment-owner-only = You can only install a frame and change its painting in your own apartment.
+dl-art-apartment-save-failed = The apartment could not be saved. The action was cancelled; please try again.

@@ -24,6 +24,7 @@ using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Movement.Pulling.Systems;
+using Content.Shared.Silicons.Borgs.Components;
 using Content.Shared.Verbs;
 using Robust.Server.Player;
 using Robust.Shared.Configuration;
@@ -150,6 +151,10 @@ public sealed partial class ApartmentSystem : EntitySystem
             Result(args.Player, true, "", -1);
 
         if (!args.LateJoin || !HasComp<ApartmentLatejoinSpawnComponent>(args.Station))
+            return;
+
+        // Borgs keep their normal job spawn instead of starting in an apartment.
+        if (HasComp<BorgChassisComponent>(args.Mob))
             return;
 
         // Keep the normal arrival point and loadout for leaving the apartment.
@@ -636,6 +641,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             _editors.Remove(args.Session.UserId);
             _lobbyEditors.Remove(args.Session.UserId);
             _shopTokens.Remove(args.Session.UserId);
+            _lastShopPreview.Remove(args.Session.UserId);
         }
         if (!_visits.TryGetValue(args.Session.UserId, out var visit)) return;
         RefreshActivity(visit.Apartment);
@@ -692,6 +698,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }
         _commerceRequests.Clear();
+        _lastShopPreview.Clear();
         _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);

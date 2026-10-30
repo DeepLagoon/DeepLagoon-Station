@@ -19,6 +19,7 @@ namespace Content.Server.Storage.EntitySystems;
 public sealed partial class StorageSystem : SharedStorageSystem
 {
     [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
 
     public override void Initialize()
     {

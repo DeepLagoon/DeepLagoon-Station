@@ -145,19 +145,25 @@ namespace Content.Client.Lobby
                 Lobby!.StartTime.Text = string.Empty;
                 var roundTime = _gameTiming.CurTime.Subtract(_gameTicker.RoundStartTimeSpan);
                 Lobby!.StationTime.Text = Loc.GetString("lobby-state-player-status-round-time", ("hours", roundTime.Hours), ("minutes", roundTime.Minutes));
+                Lobby.RoundCountdown.Text = $"{(int) roundTime.TotalHours:00}:{roundTime.Minutes:00}";
+                Lobby.RoundCountdownCaption.Text = Loc.GetString("dl-lobby-round-time-caption");
                 return;
             }
 
             Lobby!.StationTime.Text = Loc.GetString("lobby-state-player-status-round-not-started");
+            Lobby.RoundCountdown.Text = "--:--";
+            Lobby.RoundCountdownCaption.Text = Loc.GetString("dl-lobby-countdown-caption");
             string text;
 
             if (_gameTicker.Paused)
             {
                 text = Loc.GetString("lobby-state-paused");
+                Lobby.RoundCountdownCaption.Text = Loc.GetString("dl-lobby-paused-caption");
             }
             else if (_gameTicker.StartTime < _gameTiming.CurTime)
             {
                 Lobby!.StartTime.Text = Loc.GetString("lobby-state-soon");
+                Lobby.RoundCountdownCaption.Text = Loc.GetString("dl-lobby-starting-caption");
                 return;
             }
             else
@@ -174,8 +180,9 @@ namespace Content.Client.Lobby
                 }
                 else
                 {
-                    text = $"{difference.Minutes}:{difference.Seconds:D2}";
+                    text = $"{difference.Minutes:D2}:{difference.Seconds:D2}";
                 }
+                Lobby.RoundCountdown.Text = text;
             }
 
             Lobby!.StartTime.Text = Loc.GetString("lobby-state-round-start-countdown-text", ("timeLeft", text));
@@ -214,7 +221,7 @@ namespace Content.Client.Lobby
 
             if (_gameTicker.ServerInfoBlob != null)
             {
-                Lobby!.ServerInfo.SetInfoBlob(_gameTicker.ServerInfoBlob);
+                Lobby!.SetServerInfo(_gameTicker.ServerInfoBlob);
             }
         }
 
