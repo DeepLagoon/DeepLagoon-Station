@@ -35,6 +35,10 @@ public sealed partial class ClothingComponent : Component
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
     public bool PreserveLegHem;
 
+    /// <summary>Hide all uniform visuals while this item is worn in the outer clothing slot.</summary>
+    [DataField]
+    public bool HidesUniform;
+
     /// <summary>
     /// The name of the layer in the user that this piece of clothing will map to
     /// </summary>

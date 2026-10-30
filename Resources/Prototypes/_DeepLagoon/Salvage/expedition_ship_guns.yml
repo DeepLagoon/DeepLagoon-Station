@@ -1,0 +1,209 @@
+# Expedition salvage of weapons mounted on Security-group TSFMC vessel maps.
+# Existing flatpacks are reused; unpacking constructs the original ship weapon.
+
+- type: entity
+  parent: BaseFlatpack
+  id: PhalanxFlatpack
+  name: L-1 Phalanx flatpack
+  description: A flatpack used for constructing a L-1 Phalanx.
+  components:
+  - type: Flatpack
+    entity: WeaponLaserTurretL1Phalanx
+
+- type: entity
+  parent: BaseFlatpack
+  id: FlareFlatpack
+  name: GS-002 Sunny flare system flatpack
+  description: A flatpack used for constructing a GS-002 Sunny flare system.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretFlare
+
+- type: entity
+  parent: BaseFlatpack
+  id: PrometheusFlatpack
+  name: TPC Prometheus Laser Cannon flatpack
+  description: A flatpack used for constructing a TPC Prometheus Laser Cannon.
+  components:
+  - type: Flatpack
+    entity: WeaponLaserTurretPrometheus
+
+- type: entity
+  parent: BaseFlatpack
+  id: AC35Flatpack
+  name: AC-35 Chaingun flatpack
+  description: A flatpack used for constructing a AC-35 Chaingun.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretAC-35
+
+- type: entity
+  parent: BaseFlatpack
+  id: DravonFlatpack
+  name: ADBP-7 DRAVON 57mm Autocannon flatpack
+  description: A flatpack used for constructing a ADBP-7 DRAVON 57mm Autocannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretDravon
+
+- type: entity
+  parent: BaseFlatpack
+  id: RAC30Flatpack
+  name: RAC-30 Draupnir Autocannon flatpack
+  description: A flatpack used for constructing a RAC-30 Draupnir Autocannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretRAC30
+
+- type: entity
+  parent: BaseFlatpack
+  id: TarnyxFlatpack
+  name: ADBX-31 TARNYX 90mm EMP Cannon flatpack
+  description: A flatpack used for constructing a ADBX-31 TARNYX 90mm EMP Cannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretTarnyxReload
+
+- type: entity
+  parent: BaseFlatpack
+  id: M220Flatpack
+  name: M220 RUBICON EMP launcher flatpack
+  description: A flatpack used for constructing a M220 RUBICON EMP launcher.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretM220
+
+- type: entity
+  parent: BaseFlatpack
+  id: Type54Flatpack
+  name: Type-54C plasma autopulser flatpack
+  description: A flatpack used for constructing a Type-54C plasma autopulser.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretType54
+
+- type: entity
+  parent: BaseFlatpack
+  id: VanykFlatpack
+  name: ASM-150 "Vanyk" Missile Pod flatpack
+  description: A flatpack used for constructing a ASM-150 "Vanyk" Missile Pod.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretVanyk
+
+- type: entity
+  parent: BaseFlatpack
+  id: TovekFlatpack
+  name: ADMX-250 TOVEK Missile Pod flatpack
+  description: A flatpack used for constructing a ADMX-250 TOVEK Missile Pod.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretTovek
+
+- type: entity
+  parent: BaseFlatpack
+  id: AK820Flatpack
+  name: AK820 100mm autocannon flatpack
+  description: A flatpack used for constructing a AK820 100mm autocannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretAk820
+
+- type: entity
+  parent: BaseFlatpack
+  id: CyrexaFlatpack
+  name: CYREXA 130mm cannon flatpack
+  description: A flatpack used for constructing a CYREXA 130mm cannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretCyrexa
+
+- type: entity
+  parent: BaseFlatpack
+  id: PaladinFlatpack
+  name: MLRS-382 "Paladin" Missile Pod flatpack
+  description: A flatpack used for constructing a MLRS-382 "Paladin" Missile Pod.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretPaladin
+
+- type: entity
+  parent: BaseFlatpack
+  id: ASM220Flatpack
+  name: ASM-220 "Trident" Torpedo Rack flatpack
+  description: A flatpack used for constructing a ASM-220 "Trident" Torpedo Rack.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretASM220
+
+- type: entity
+  parent: BaseFlatpack
+  id: ScyllaFlatpack
+  name: TPC Scylla plasma impulse driver flatpack
+  description: A flatpack used for constructing a TPC Scylla plasma impulse driver.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretScylla
+
+- type: entity
+  parent: BaseFlatpack
+  id: HadesFlatpack
+  name: HADES 203mm cannon flatpack
+  description: A flatpack used for constructing a HADES 203mm cannon.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretHades
+
+- type: entity
+  parent: BaseFlatpack
+  id: SandboxFlatpack
+  name: SS-N-40 "Sandbox" launcher flatpack
+  description: A flatpack used for constructing a SS-N-40 "Sandbox" launcher.
+  components:
+  - type: Flatpack
+    entity: WeaponTurretSandbox
+
+- type: entity
+  id: SpawnDeepLagoonExpeditionShipGunLight
+  parent: MarkerBasePlaceFree
+  name: random ship weapon flatpack
+  suffix: Expedition, Light, T3
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    layers:
+    - state: green
+  - type: RandomSpawner
+    prototypes:
+    - L58Flatpack
+    - PhalanxFlatpack
+    - M25Flatpack
+    - FlareFlatpack
+    chance: 1
+    offset: 0
+
+- type: entity
+  id: SpawnDeepLagoonExpeditionShipGunMedium
+  parent: MarkerBasePlaceFree
+  name: random ship weapon flatpack
+  suffix: Expedition, Medium, T3
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    layers:
+    - state: green
+  - type: RandomSpawner
+    prototypes:
+    - AK570Flatpack
+    - PrometheusFlatpack
+    - AC35Flatpack
+    - DravonFlatpack
+    - RAC30Flatpack
+    - TarnyxFlatpack
+    - M220Flatpack
+    - Type35Flatpack
+    - Type54Flatpack
+    - VanykFlatpack
+    - TovekFlatpack
+    chance: 1
+    offset: 0

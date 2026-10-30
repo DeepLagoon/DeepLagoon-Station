@@ -69,10 +69,10 @@ public sealed partial class ApartmentSystem
         var token = Guid.NewGuid(); _shopTokens[session.UserId] = token;
         var popularity = Store.Popularity();
         var entries = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>().Where(Available).OrderBy(p => p.Price).ThenBy(p => p.ID)
-            .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = Math.Max(0, p.Price - (account?.State.ApartmentCredit ?? 0)),
+            .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = p.Price,
                 Description = p.Description.Length == 0 ? "" : Loc.GetString(p.Description), Category = p.Category,
                 Width = p.Width, Height = p.Height, Popularity = popularity.GetValueOrDefault(p.ID),
-                Owned = p.Price == 0 || (account?.State.ApartmentCredit ?? 0) >= p.Price || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
+                Owned = p.Price == 0 || account?.State.Apartments.Contains(p.ID) == true || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
         var legacy = _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Template.Map == null;
         RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message,
             furniture: ShopItems(), balance: account?.Balance ?? -1, pendingItemOrder: Store.PendingItemOrder(session.UserId.UserId)?.Id ?? Guid.Empty), session);

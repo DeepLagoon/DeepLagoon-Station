@@ -96,7 +96,7 @@ export const ApartmentShop = () => {
           <label>До, LC<input aria-label="Максимальная цена" type="number" min="0" value={maximum} onFocus={() => act('focus')} onChange={e => setMaximum(e.target.value)} /></label>
           <label>Сортировка<EmbeddedSelect aria-label="Сортировка" value={sort} onChange={e => setSort(e.target.value)}><option value="cheap">Сначала дешёвые</option><option value="expensive">Сначала дорогие</option><option value="popular">Сначала популярные</option></EmbeddedSelect></label>
         </div>
-        {tab === 'catalog' && <p className="muted" style={{ marginBottom: 12 }}>Откройте предпросмотр, прежде чем покупать. Цена учитывает ваш квартирный кредит.</p>}
+        {tab === 'catalog' && <p className="muted" style={{ marginBottom: 12 }}>Откройте предпросмотр, прежде чем покупать. Каждый шаблон покупается отдельно за полную указанную цену. Купленные квартиры можно выбирать бесплатно.</p>}
         <div className="LagoonStore__grid">{visible.map(item => <article className={`LagoonStore__card ${item.selected ? 'selected' : ''}`} key={item.id}>
           <div className="LagoonStore__cardTop"><span className="badge">{item.category || 'Классика'}</span>{item.selected && <span className="badge active">Текущая квартира</span>}</div>
           <h3>{item.name}</h3><small>{item.width} × {item.height} клеток · Владельцев: {item.popularity || 0}</small>

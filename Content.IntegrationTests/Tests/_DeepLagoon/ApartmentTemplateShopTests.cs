@@ -20,6 +20,40 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ApartmentTemplateShopTests
 {
+    [Test]
+    public async Task CatalogueUsesFullPricesAndExplicitOwnershipDespiteLegacyCredit()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, InLobby = true });
+        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.EntMan.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().Remember(session,
+                new LagoonEconomySnapshot(2000, new LagoonEconomyState
+                {
+                    ApartmentCredit = 5000,
+                    Apartments = new() { "ApartmentShopPaidTest" }
+                }));
+            typeof(ApartmentSystem).GetMethod("PublishShop", flags)!.Invoke(pair.Server.EntMan.System<ApartmentSystem>(), new object[] { session, "" });
+        });
+        await pair.RunTicksSync(10);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var shop = pair.Client.EntMan.System<Content.Client._DeepLagoon.Apartments.ApartmentShopSystem>();
+            var state = (ApartmentShopState) typeof(Content.Client._DeepLagoon.Apartments.ApartmentShopSystem).GetField("_state", flags)!.GetValue(shop)!;
+            var owned = state.Templates.Single(p => p.Id == "ApartmentShopPaidTest");
+            var unowned = state.Templates.Single(p => p.Id == "ApartmentShopExpensiveTest");
+            Assert.That(owned.Price, Is.EqualTo(10));
+            Assert.That(owned.Owned, Is.True);
+            Assert.That(unowned.Price, Is.EqualTo(100));
+            Assert.That(unowned.Owned, Is.False, "Legacy credit must not grant another template");
+            Assert.That(state.Templates.Single(p => p.Id == "DLApartmentBasic").Owned, Is.True);
+            typeof(Content.Client._DeepLagoon.Apartments.ApartmentShopSystem).GetMethod("Close", flags)!.Invoke(shop, null);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestPrototypes]
     private const string Templates = @"
 - type: apartmentTemplate

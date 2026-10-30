@@ -5,6 +5,7 @@ using Content.Shared.Interaction.Events;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
 using Content.Shared.Popups;
+using Content.Shared.UserInterface;
 using Content.Shared.Verbs;
 
 namespace Content.Server.Ghost.Roles;
@@ -21,13 +22,14 @@ public sealed partial class ToggleableGhostRoleSystem : EntitySystem
     /// <inheritdoc/>
     public override void Initialize()
     {
-        SubscribeLocalEvent<ToggleableGhostRoleComponent, UseInHandEvent>(OnUseInHand);
+        // PDAs also have this component for the wipe verb. Their UI must handle activation first.
+        SubscribeLocalEvent<ToggleableGhostRoleComponent, UseInHandEvent>(OnUseInHand, after: new[] { typeof(ActivatableUISystem) });
         SubscribeLocalEvent<ToggleableGhostRoleComponent, ExaminedEvent>(OnExamined);
         SubscribeLocalEvent<ToggleableGhostRoleComponent, MindAddedMessage>(OnMindAdded);
         SubscribeLocalEvent<ToggleableGhostRoleComponent, MindRemovedMessage>(OnMindRemoved);
         SubscribeLocalEvent<ToggleableGhostRoleComponent, GetVerbsEvent<ActivationVerb>>(AddWipeVerb);
 
-        SubscribeLocalEvent<ToggleableGhostRoleComponent, ActivateInWorldEvent>(OnActivateInWorld); // Goobstation
+        SubscribeLocalEvent<ToggleableGhostRoleComponent, ActivateInWorldEvent>(OnActivateInWorld, after: new[] { typeof(ActivatableUISystem) }); // Goobstation
     }
 
     private void OnUseInHand(EntityUid uid, ToggleableGhostRoleComponent component, UseInHandEvent args)

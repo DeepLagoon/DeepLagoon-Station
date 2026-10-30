@@ -2,6 +2,7 @@ using Content.Client._DeepLagoon.Apartments;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Shared._DeepLagoon.Currency;
 using Robust.Client;
+using Robust.Client.UserInterface;
 using Robust.Shared.Network;
 
 namespace Content.Client._DeepLagoon.Currency;
@@ -9,6 +10,7 @@ namespace Content.Client._DeepLagoon.Currency;
 public sealed class LagoonEconomySystem : EntitySystem
 {
     [Dependency] private IBaseClient _client = default!;
+    [Dependency] private IClipboardManager _clipboard = default!;
     private ApartmentTravelWindow? _window;
     private Guid _token, _request;
     private bool _loading;
@@ -66,7 +68,13 @@ public sealed class LagoonEconomySystem : EntitySystem
         if (action == "retry") { Request(); return; }
         if (_token == Guid.Empty) return;
         if (action == "focus") { _window?.Panel.Web.FocusTextInput(); return; }
-        if (!TguiActionData.TryParse(payload, out var fields, 1024) || !Guid.TryParse(fields!.String("order"), out var order)) return;
+        if (!TguiActionData.TryParse(payload, out var fields, 1024)) return;
+        if (action == "copyReferral")
+        {
+            if (!string.IsNullOrEmpty(fields!.String("code"))) _clipboard.SetText(fields.String("code")!);
+            return;
+        }
+        if (!Guid.TryParse(fields!.String("order"), out var order)) return;
         RaiseNetworkEvent(new LagoonEconomyAction(_token, action, fields.String("product") ?? "", order));
     }
     private void Close()

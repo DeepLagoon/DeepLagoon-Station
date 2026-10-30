@@ -170,6 +170,20 @@
     - AdvancedMatterBinStockPart
     - SalvagePartsT2Spawner
     3:
+    - PhalanxFlatpack
+    - FlareFlatpack
+    - PrometheusFlatpack
+    - AC35Flatpack
+    - DravonFlatpack
+    - RAC30Flatpack
+    - TarnyxFlatpack
+    - M220Flatpack
+    - Type54Flatpack
+    - VanykFlatpack
+    - TovekFlatpack
+    - M25Flatpack
+    - SpawnDeepLagoonExpeditionShipGunLight
+    - SpawnDeepLagoonExpeditionShipGunMedium
     - SpawnDeepLagoonReviewedWeaponsT3
     - WeaponEnergyGun
     - WeaponEnergyGunPMC
@@ -350,6 +364,11 @@
     - SuperMatterBinStockPart
     - SalvagePartsT3Spawner
     4:
+    - AK820Flatpack
+    - CyrexaFlatpack
+    - PaladinFlatpack
+    - ASM220Flatpack
+    - M381Flatpack
     - CaptainSabre
     - ClothingHeadHatCatEars
     - ClothingHeadHatFancyCrown
@@ -405,6 +424,9 @@
     - BluespaceMatterBinStockPart
     - SalvagePartsT4Spawner
     5:
+    - ScyllaFlatpack
+    - HadesFlatpack
+    - SandboxFlatpack
     - UllmanWeaponPulsePistol
     - UllmanWeaponPulseRifle
     - UllmanWeaponPulseSniper
@@ -452,6 +474,28 @@
     - WeaponXrayCannon
     - WeaponXrayCannonExpedition
   replacements:
+    PhalanxFlatpack: SheetSteel10
+    M25Flatpack: SheetSteel10
+    FlareFlatpack: SheetSteel10
+    PrometheusFlatpack: SheetSteel10
+    AC35Flatpack: SheetSteel10
+    DravonFlatpack: SheetSteel10
+    RAC30Flatpack: SheetSteel10
+    TarnyxFlatpack: SheetSteel10
+    M220Flatpack: SheetSteel10
+    Type54Flatpack: SheetSteel10
+    VanykFlatpack: SheetSteel10
+    TovekFlatpack: SheetSteel10
+    M381Flatpack: SheetSteel10
+    AK820Flatpack: SheetSteel10
+    CyrexaFlatpack: SheetSteel10
+    PaladinFlatpack: SheetSteel10
+    ASM220Flatpack: SheetSteel10
+    ScyllaFlatpack: SheetSteel10
+    HadesFlatpack: SheetSteel10
+    SandboxFlatpack: SheetSteel10
+    SpawnDeepLagoonExpeditionShipGunLight: SheetSteel10
+    SpawnDeepLagoonExpeditionShipGunMedium: SheetSteel10
     SpawnDeepLagoonReviewedWeaponsT3: SpawnDeepLagoonReviewedWeaponsT2
     SpawnDeepLagoonReviewedWeaponsT2: SpawnDeepLagoonReviewedWeaponsT1
     AK570Flatpack: SheetSteel10
@@ -840,6 +884,11 @@
     NanoManipulatorStockPart: MicroManipulatorStockPart
     AdvancedMatterBinStockPart: MatterBinStockPart
   tier4Rewards:
+  - M381Flatpack
+  - AK820Flatpack
+  - CyrexaFlatpack
+  - PaladinFlatpack
+  - ASM220Flatpack
   - WeaponPulseCarbine
   - WeaponPulsePistol
   - WeaponCaseAbielle
@@ -866,6 +915,9 @@
   - FemtoManipulatorStockPart
   - BluespaceMatterBinStockPart
   tier5Rewards:
+  - ScyllaFlatpack
+  - HadesFlatpack
+  - SandboxFlatpack
   - ClothingBackpackDuffelSmilodonBundle
   - CrateCybersunJuggernautBundle
   - UllmanWeaponPulsePistol

@@ -134,6 +134,7 @@
   name: base hardsuit
   components:
   - type: Clothing
+    hidesUniform: true
     bodyFit: Rigid
     preserveLegHem: false
   - type: PressureProtection
@@ -209,6 +210,7 @@
   name: base EVA Suit
   components:
   - type: Clothing
+    hidesUniform: true
     bodyFit: Rigid
     preserveLegHem: false
   - type: PressureProtection

@@ -19,7 +19,7 @@ namespace Content.Shared.Chunking;
 public sealed partial class ChunkingSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _configurationManager = default!;
-    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    [Dependency] private SharedMapSystem _mapManager = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
 
     private EntityQuery<TransformComponent> _xformQuery;

@@ -53,12 +53,12 @@ namespace Content.Shared.Interaction
     public abstract partial class SharedInteractionSystem : EntitySystem
     {
         [Dependency] private IGameTiming _gameTiming = default!;
-        private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
         [Dependency] private ISharedAdminLogManager _adminLogger = default!;
         [Dependency] private ActionBlockerSystem _actionBlockerSystem = default!;
         [Dependency] private RotateToFaceSystem _rotateToFaceSystem = default!;
         [Dependency] private SharedContainerSystem _containerSystem = default!;
-        private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+        // UI range checks also run on worker threads, where IoCManager has no context.
+        [Dependency] private SharedMapSystem _map = default!;
         [Dependency] private SharedPhysicsSystem _broadphase = default!;
         [Dependency] private SharedTransformSystem _transform = default!;
         [Dependency] private SharedVerbSystem _verbSystem = default!;
@@ -898,7 +898,7 @@ namespace Content.Shared.Interaction
                     ignoreAnchored = angleDelta < wallMount.Arc / 2 || Math.Tau - angleDelta < wallMount.Arc / 2;
                 }
 
-                if (ignoreAnchored && _mapManager.TryFindGridAt(targetCoords, out var gridUid, out var grid))
+                if (ignoreAnchored && _map.TryFindGridAt(targetCoords, out var gridUid, out var grid))
                     ignored.UnionWith(_map.GetAnchoredEntities((gridUid, grid), targetCoords));
             }
 

@@ -18,6 +18,7 @@
       visible: false
       map: [ "sealed" ]
   - type: Clothing
+    hidesUniform: true
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ outerClothing ]

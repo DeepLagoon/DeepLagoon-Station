@@ -76,14 +76,30 @@ namespace Content.Client.PDA
             _menu.OnInstallButtonPressed += InstallCartridge;
             _menu.OnUninstallButtonPressed += UninstallCartridge;
             _menu.ProgramCloseButton.OnPressed += _ => DeactivateActiveCartridge();
+            _menu.OnDeviceAction += action =>
+            {
+                switch (action)
+                {
+                    case "flashlight": SendMessage(new PdaToggleFlashlightMessage()); break;
+                    case "id": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaIdSlotId)); break;
+                    case "pen": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaPenSlotId)); break;
+                    case "pai": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaPaiSlotId)); break;
+                    case "ringtone": SendMessage(new PdaShowRingtoneMessage()); break;
+                    case "music": SendMessage(new PdaShowMusicMessage()); break;
+                    case "uplink": SendMessage(new PdaShowUplinkMessage()); break;
+                    case "lockUplink": SendMessage(new PdaLockUplinkMessage()); break;
+                    case "closeProgram": DeactivateActiveCartridge(); break;
+                }
+            };
 
             var borderColorComponent = GetBorderColorComponent();
-            if (borderColorComponent == null)
-                return;
-
-            _menu.BorderColor = borderColorComponent.BorderColor;
-            _menu.AccentHColor = borderColorComponent.AccentHColor;
-            _menu.AccentVColor = borderColorComponent.AccentVColor;
+            if (borderColorComponent != null)
+            {
+                _menu.BorderColor = borderColorComponent.BorderColor;
+                _menu.AccentHColor = borderColorComponent.AccentHColor;
+                _menu.AccentVColor = borderColorComponent.AccentVColor;
+            }
+            _menu.InitializeOrbital();
         }
 
         protected override void UpdateState(BoundUserInterfaceState state)

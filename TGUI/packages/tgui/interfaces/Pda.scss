@@ -1,0 +1,71 @@
+html:has(.Pda), body:has(.Pda) { background: transparent !important; }
+body:has(.Pda) { zoom: 1 !important; overflow: hidden; }
+.Pda {
+  --pda-case: #25363c;
+  --pda-screen: #14272c;
+  --pda-panel: #1c3339;
+  --pda-line: #355057;
+  --pda-ink: #d6e1df;
+  --pda-muted: #99b5b3;
+  --pda-accent: #df8f60;
+  width: 100%; height: 100vh; color: var(--pda-ink); font: 14px/1.45 'Segoe UI', sans-serif;
+  &, * { box-sizing: border-box; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:disabled { opacity: .38; cursor: default; }
+  button:focus-visible { outline: 2px solid var(--pda-accent); outline-offset: -2px; }
+  p { margin: 0; }
+  &__device { height: 100%; display: flex; flex-direction: column; position: relative; padding: 18px 20px 14px; border: 1px solid #17282d; border-radius: 18px; background: var(--pda-case); box-shadow: inset 0 2px #4a6068, inset 0 -5px #15292e; }
+  &__bezel { display: flex; align-items: center; gap: 14px; min-height: 43px; margin: 0 3px 15px; padding: 0 116px 0 10px; border-left: 3px solid var(--pda-accent); position: relative; flex-shrink: 0; }
+  &__brand { min-width: 0; strong { display: block; font-size: 13px; font-weight: 600; letter-spacing: .12em; } small { display: block; margin-top: 3px; font: 10px 'Courier New', monospace; letter-spacing: .12em; color: var(--pda-muted); } }
+  &__vents { margin-left: auto; width: 47px; height: 15px; background: repeating-linear-gradient(90deg, #101f24 0 3px, transparent 3px 7px); flex-shrink: 0; }
+  &__pilot { color: #b0c8a3; font-size: 10px; &--lit { color: #ffe6a5; text-shadow: 0 0 8px #ffe6a5; } }
+  &__close { position: absolute; right: 0; top: 7px; width: 27px; height: 27px; border: 1px solid #14292f; background: #263b43; border-radius: 4px; }
+  &__display { display: flex; flex-direction: column; flex: 1; min-height: 0; border: 2px solid #101e21; border-radius: 6px; background: var(--pda-screen); overflow: hidden; }
+  &__screenHead { display: flex; justify-content: space-between; gap: 12px; flex-shrink: 0; margin: 0 21px; padding: 19px 0 17px; border-bottom: 1px solid var(--pda-line); h1 { margin: 4px 0 0; font-size: 24px; font-weight: 500; line-height: 1.2; overflow-wrap: anywhere; } }
+  &__eyebrow { color: var(--pda-muted); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+  &__clock { background: none; border: 0; text-align: right; padding: 0; flex-shrink: 0; strong { display: block; color: var(--pda-accent); font: 30px/1 'Courier New', monospace; font-variant-numeric: tabular-nums; } span { display: block; font-size: 11px; color: var(--pda-muted); margin-top: 7px; } }
+  &__content { padding: 20px 21px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+  &__home { display: grid; grid-template-columns: 155px minmax(0, 1fr); gap: 20px; }
+  &__identity { padding-right: 16px; border-right: 1px solid var(--pda-line); min-width: 0; p { font-size: 12px; color: var(--pda-muted); margin-top: 6px; overflow-wrap: anywhere; } }
+  &__portrait { width: 70px; height: 68px; background: var(--pda-panel); border: 1px solid var(--pda-line); border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-bottom: 13px; .Icon { font-size: 29px; color: var(--pda-accent); } }
+  &__idName { display: block; background: none; border: 0; text-align: left; padding: 6px 0 0; font-size: 20px !important; font-weight: 500 !important; overflow-wrap: anywhere; }
+  &__owner { margin-top: 18px; font-size: 11px; color: var(--pda-muted); span { display: block; margin-bottom: 4px; } button { padding: 0; background: none; border: 0; text-align: left; overflow-wrap: anywhere; } }
+  &__desktop { min-width: 0; }
+  &__appGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; &--catalog { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  &__app { background: var(--pda-panel); border-bottom: 2px solid var(--pda-line); border-radius: 3px; min-width: 0; display: flex; flex-direction: column; }
+  &__appLaunch { border: 0; background: transparent; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; padding: 13px; min-height: 95px; flex: 1; overflow-wrap: anywhere; .Icon { font-size: 21px; color: var(--pda-accent); margin-bottom: 4px; } small { font-size: 10px; color: var(--pda-muted); } &:hover:not(:disabled) { background: #29464c; } }
+  &__install { border: 0; background: #29464c; padding: 7px; font-size: 11px !important; overflow-wrap: anywhere; }
+  &__allPrograms { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid var(--pda-line); background: none; padding: 12px 0; text-align: left; font-size: 11px !important; color: var(--pda-muted) !important; span { margin-left: auto; color: var(--pda-accent); font-variant-numeric: tabular-nums; } }
+  &__details { margin-top: 10px; }
+  &__detail { display: flex; width: 100%; background: none; border: 0; gap: 10px; justify-content: space-between; text-align: left; padding: 6px 0; font-size: 11px !important; span { color: var(--pda-muted); } strong { font-weight: 400; text-align: right; overflow-wrap: anywhere; min-width: 0; } }
+  &__instructions { display: flex; gap: 8px; text-align: left; font-size: 11px !important; color: var(--pda-muted) !important; border: 0; border-top: 1px solid var(--pda-line); background: none; padding: 12px 0 0; margin-top: 10px; line-height: 1.5 !important; }
+  &__alertDot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; background: var(--pda-accent); }
+  &__empty { grid-column: 1 / -1; padding: 24px 12px; color: var(--pda-muted); text-align: center; .Icon { font-size: 28px; margin-bottom: 12px; } }
+  &__programArea { flex: 1; min-height: 0; margin: 12px 14px; overflow: hidden; }
+  &__settings { max-width: 540px; margin: auto; }
+  &__setting { display: flex; align-items: center; gap: 13px; width: 100%; background: var(--pda-panel); border: 0; border-bottom: 1px solid var(--pda-line); padding: 16px; text-align: left; .Icon:first-child { color: var(--pda-accent); width: 20px; } .Icon:last-child, small { margin-left: auto; color: var(--pda-muted); } &[aria-pressed=true] { box-shadow: inset 3px 0 var(--pda-accent); } }
+  &__dock { display: flex; justify-content: center; flex-shrink: 0; flex-wrap: wrap; gap: 5px; padding: 8px 10px; background: #1b3036; border-top: 1px solid var(--pda-line); button { display: flex; gap: 8px; align-items: center; min-width: 0; max-width: 100%; padding: 8px 11px; background: transparent; border: 0; border-radius: 3px; font-size: 11px; span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } &[aria-pressed=true] { background: var(--pda-accent); color: var(--pda-screen); } &:hover { box-shadow: inset 0 0 0 1px var(--pda-line); } } }
+  &__screenFoot { padding: 8px 14px; border-top: 1px solid var(--pda-line); display: flex; align-items: center; gap: 8px; justify-content: space-between; color: var(--pda-muted); font: 10px 'Courier New', monospace; flex-shrink: 0; button { padding: 0; border: 0; background: none; font: inherit; overflow-wrap: anywhere; } }
+  &__hardware { display: flex; align-items: center; flex-shrink: 0; gap: 7px; padding-top: 13px; color: #c8d3d0; button { padding: 7px 10px; font: 10px 'Courier New', monospace; letter-spacing: .06em; min-height: 28px; border: 1px solid #14292f; border-radius: 5px; background: #263b43; box-shadow: inset 0 1px #ffffff25, 0 2px #14252b; &:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 1px 3px #0007; } &[aria-pressed=true] { color: var(--pda-accent); } } }
+  &__hardwareLabel { margin: 0 auto; color: var(--pda-muted); font-size: 9px; letter-spacing: .1em; }
+  &__slots { display: flex; align-items: center; gap: 5px; }
+  &__resize { position: absolute; bottom: 5px; right: 6px; width: 10px; height: 10px; background: repeating-linear-gradient(135deg, transparent 0 3px, #587077 3px 4px); pointer-events: none; }
+  @media (max-width: 600px) {
+    &__device { padding: 14px 12px 12px; }
+    &__bezel { margin-bottom: 11px; }
+    &__brand small { font-size: 9px; letter-spacing: .04em; }
+    &__vents { display: none; }
+    &__screenHead { margin: 0 14px; padding: 14px 0; h1 { font-size: 21px; } }
+    &__clock strong { font-size: 25px; }
+    &__content { padding: 15px 14px; }
+    &__home { grid-template-columns: 120px minmax(0, 1fr); gap: 13px; }
+    &__identity { padding-right: 10px; }
+    &__idName { font-size: 17px !important; }
+    &__appGrid--catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    &__appLaunch { padding: 10px; min-height: 92px; font-size: 12px !important; }
+    &__dock button { padding: 7px 9px; gap: 6px; }
+    &__hardwareLabel { display: none; }
+    &__slots { margin-left: auto; }
+    &__hardware { gap: 5px; button { padding: 7px 8px; } }
+  }
+}

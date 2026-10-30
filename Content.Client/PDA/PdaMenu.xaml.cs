@@ -249,10 +249,13 @@ namespace Content.Client.PDA
             ActivateMusicButton.Visible = state.CanPlayMusic;
             ShowUplinkButton.Visible = state.HasUplink;
             LockUplinkButton.Visible = state.HasUplink;
+            _orbitalState = state;
+            PublishOrbital();
         }
 
         public void UpdateAvailablePrograms(List<(EntityUid, CartridgeComponent)> programs)
         {
+            UpdateOrbitalPrograms(programs);
             ProgramList.RemoveAllChildren();
 
             if (programs.Count == 0)
@@ -337,6 +340,7 @@ namespace Content.Client.PDA
             ProgramCloseButton.Visible = false;
             ProgramListButton.Visible = true;
             SettingsButton.Visible = true;
+            PublishOrbital();
         }
 
         /// <summary>
@@ -355,6 +359,7 @@ namespace Content.Client.PDA
             SettingsButton.Visible = false;
 
             ProgramTitle.LabelText = title;
+            OrbitalHost?.ResetViewport();
             ChangeView(ProgramContentView);
         }
 
@@ -364,6 +369,12 @@ namespace Content.Client.PDA
         /// </summary>
         public void ChangeView(int view)
         {
+            if (OrbitalActive)
+            {
+                _currentView = view;
+                PublishOrbital();
+                return;
+            }
             if (ViewContainer.ChildCount <= view)
                 return;
 

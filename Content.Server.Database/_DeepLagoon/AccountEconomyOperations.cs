@@ -202,8 +202,7 @@ public static partial class AccountEconomyOperations
                 price = purchase.Price;
                 break;
             case "apartment":
-                price = Math.Max(0, purchase.Price - state.ApartmentCredit);
-                state.ApartmentCredit = Math.Max(state.ApartmentCredit, purchase.Price);
+                price = state.Apartments.Contains(purchase.Product) ? 0 : purchase.Price;
                 state.Apartments.Add(purchase.Product);
                 break;
             default: throw new ArgumentException("Unknown purchase type.");

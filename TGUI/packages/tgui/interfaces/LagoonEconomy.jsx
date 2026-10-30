@@ -18,6 +18,8 @@ export const LagoonEconomy = () => {
   const [pending, setPending] = useState(false), [confirm, setConfirm] = useState(null);
   const [color, setColor] = useState(data.color || '#7ABFA5'), [hex, setHex] = useState(data.color || '#7ABFA5');
   const [referral, setReferral] = useState('');
+  const [copied, setCopied] = useState(false);
+  useEffect(() => setCopied(false), [data.referralCode]);
   useEffect(() => { setPending(false); setConfirm(null); }, [data]);
   useEffect(() => { setColor(data.color || '#7ABFA5'); setHex(data.color || '#7ABFA5'); }, [data.color]);
   const chooseColor = value => { setColor(value); setHex(value); };
@@ -62,7 +64,10 @@ export const LagoonEconomy = () => {
         </div>}
         {tab === 'referrals' && <div className="LagoonStore__settings">
           <div><h2>Приглашайте друзей</h2><p className="muted">До 100 LC вам и 50 LC другу за активную игру и возвращение в разные дни.</p></div>
-          <label>Ваш код приглашения<input className="LagoonStore__refCode" aria-label="Ваш код приглашения" readOnly value={data.referralCode || ''} onFocus={event => { act('focus'); event.target.select(); }} /></label><small>Выделите и скопируйте код, чтобы отправить другу.</small>
+          <div className="LagoonStore__refCopy">
+            <label>Ваш код приглашения<input className="LagoonStore__refCode" aria-label="Ваш код приглашения" readOnly value={data.referralCode || ''} onFocus={event => { act('focus'); event.target.select(); }} /></label>
+            <button disabled={!data.referralCode} onClick={() => { act('copyReferral', { code: data.referralCode }); setCopied(true); }}>{copied ? 'Код скопирован' : 'Копировать код'}</button>
+          </div><small role="status">{copied ? 'Код скопирован в буфер обмена. Отправьте его другу.' : 'Скопируйте код и отправьте его другу.'}</small>
           <article className="LagoonStore__card"><h3>Вас пригласил друг?</h3>{data.referrerBound ? <p className="badge active">Код пригласившего уже закреплён за аккаунтом</p> : <><p className="muted">Введите код до 2 часов игры и в первые 7 дней. Пригласившего можно закрепить только один раз.</p><label>Код пригласившего<input aria-label="Код пригласившего" value={referral} maxLength={20} spellCheck={false} onFocus={() => act('focus')} onChange={e => setReferral(e.target.value.toUpperCase())} /></label><button disabled={pending || !/^[A-F0-9]{20}$/.test(referral.trim())} onClick={() => submit('referral', referral.trim())}>Закрепить код</button></>}</article>
           <h3>Приглашённые игроки · {referrals.length}</h3>
           {referrals.length ? <ul className="LagoonStore__refList">{referrals.map((friend, index) => <li key={index}><div><strong>{friend.name}</strong><small>{friend.stage >= 2 ? 'Все этапы пройдены' : friend.stage === 1 ? 'Освоился · ожидаем возвращения' : 'Начинает знакомство со станцией'}</small></div><span className="badge">{friend.reward} LC</span></li>)}</ul> : <p className="empty">Пока никто не закрепил ваш код.</p>}

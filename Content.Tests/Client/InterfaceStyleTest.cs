@@ -46,7 +46,7 @@ public sealed class InterfaceStyleTest
         while (directory != null && !Directory.Exists(Path.Combine(directory.FullName, "TGUI", "packages"))) directory = directory.Parent;
         Assert.That(directory, Is.Not.Null);
         // Interfaces that restore the original strongly typed SS14 window.
-        var typed = new HashSet<string> { "CharacterEditor", "CharacterCatalog", "CharacterColorPicker", "ChatComposer", "ShuttleConsole", "ShipRadarConsole", "GhostRoles", "Jukebox", "VendingMachine", "LatheConsole", "ResearchConsole", "BatteryStorage", "PortableGenerator", "DiskConsole" };
+        var typed = new HashSet<string> { "CharacterEditor", "CharacterCatalog", "CharacterColorPicker", "ChatComposer", "ShuttleConsole", "ShipRadarConsole", "GhostRoles", "Jukebox", "VendingMachine", "LatheConsole", "ResearchConsole", "BatteryStorage", "PortableGenerator", "DiskConsole", "Pda" };
         var names = new HashSet<string>();
         foreach (var file in Directory.EnumerateFiles(Path.Combine(directory!.FullName, "Content.Client"), "*.cs", SearchOption.AllDirectories))
         {

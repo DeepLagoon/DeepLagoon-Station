@@ -32,6 +32,7 @@ public sealed class LagoonEconomyState
     public string? OocColor { get; set; }
     public HashSet<string> Furniture { get; set; } = new();
     public Dictionary<string, int> FurnitureStock { get; set; } = new();
+    // Legacy serialized value; apartment purchases no longer use a shared price credit.
     public long ApartmentCredit { get; set; }
     public HashSet<string> Apartments { get; set; } = new();
     public string ReferralCode { get; set; } = "";

@@ -207,6 +207,9 @@ public sealed partial class ClientClothingSystem : ClothingSystem
 
     private void OnDidUnequip(EntityUid uid, SpriteComponent component, DidUnequipEvent args)
     {
+        if (args.Slot == "outerClothing")
+            RefreshUniform(uid);
+
         _bodyFit.ClearSlot(uid, args.Slot);
         UpdateBodyVisibility(uid, component);
         if (!TryComp(uid, out InventorySlotsComponent? inventorySlots))
@@ -256,6 +259,9 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         if (!_inventorySystem.TryGetSlot(equipee, slot, out var slotDef, inventory))
             return;
 
+        if (slot == "outerClothing")
+            RefreshUniform(equipee, inventory);
+
         _bodyFit.ClearSlot(equipee, slot);
 
         // Remove old layers. We could also just set them to invisible, but as items may add arbitrary layers, this
@@ -275,7 +281,9 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         var ev = new GetEquipmentVisualsEvent(equipee, slot);
-        RaiseLocalEvent(equipment, ev);
+        // Omit every uniform layer, including displacement and body-fit helpers, under a space suit.
+        if (slot != Jumpsuit || !IsUniformHidden(equipee, inventory))
+            RaiseLocalEvent(equipment, ev);
 
         if (ev.Layers.Count == 0)
         {
@@ -370,6 +378,18 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         _bodyFit.Apply(equipee, equipment, slot, sprite, clothingComponent, revealedLayers);
         UpdateBodyVisibility(equipee, sprite);
         RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
+    }
+
+    private bool IsUniformHidden(EntityUid uid, InventoryComponent inventory)
+    {
+        return _inventorySystem.TryGetSlotEntity(uid, "outerClothing", out var outer, inventory) &&
+               TryComp<ClothingComponent>(outer, out var clothing) && clothing.HidesUniform;
+    }
+
+    private void RefreshUniform(EntityUid uid, InventoryComponent? inventory = null)
+    {
+        if (_inventorySystem.TryGetSlotEntity(uid, Jumpsuit, out var uniform, inventory))
+            RenderEquipment(uid, uniform.Value, Jumpsuit, inventory);
     }
 
     private void UpdateBodyVisibility(EntityUid uid, SpriteComponent sprite)

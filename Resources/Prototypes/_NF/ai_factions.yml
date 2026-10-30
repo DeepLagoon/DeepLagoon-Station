@@ -39,6 +39,8 @@
 
 - type: npcFaction
   id: SyndicateNF
+  hostileToPlayerMinds: true
+  playerMindFriendlyFactions: [Syndicate]
   friendly:
   - Syndicate
   defaultHostile: true

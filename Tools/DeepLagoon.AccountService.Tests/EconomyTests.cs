@@ -115,14 +115,65 @@ public sealed partial class AccountServiceTests
         Assert.That((await Economy(_user)).Balance, Is.EqualTo(250));
     }
     [Test]
-    public async Task ApartmentUpgradeChargesDifferenceAndFurnitureDiscountIsPermanent()
+    public async Task ApartmentTemplatesChargeFullPriceRegardlessOfOtherPurchases()
     {
         await Fund(5000);
-        await Buy("studio", "apartment", "Studio", 300);
-        var comfort = await Buy("comfort", "apartment", "Comfort", 900);
-        Assert.That(comfort.Balance, Is.EqualTo(4100));
-        var old = await Buy("back-to-studio", "apartment", "Studio", 300);
-        Assert.That(old.Balance, Is.EqualTo(4100));
+        var studio = await Buy("studio", "apartment", "Studio", 500);
+        Assert.That(studio.Balance, Is.EqualTo(4500));
+        var comfort = await Buy("comfort", "apartment", "Comfort", 1200, 4);
+        Assert.That(comfort.Balance, Is.EqualTo(3300), "The full price applies even with another apartment and a subscription");
+        Assert.That(comfort.Awarded, Is.EqualTo(-1200));
+        var cheaper = await Buy("cheaper", "apartment", "Small", 300);
+        Assert.That(cheaper.Balance, Is.EqualTo(3000), "Cheaper templates must also be purchased separately");
+        var samePrice = await Buy("same-price", "apartment", "Loft", 1200);
+        Assert.That(samePrice.Balance, Is.EqualTo(1800));
+        var replay = await Buy("comfort", "apartment", "Comfort", 1200, 4);
+        Assert.That(replay.Applied, Is.False);
+        Assert.That(replay.Balance, Is.EqualTo(1800));
+        var owned = await Buy("back-to-studio", "apartment", "Studio", 500);
+        Assert.That(owned.Balance, Is.EqualTo(1800));
+        Assert.That(owned.Awarded, Is.Zero);
+        Assert.That(owned.State.Apartments, Is.EquivalentTo(new[] { "Studio", "Comfort", "Small", "Loft" }));
+        Assert.That(owned.State.ApartmentCredit, Is.Zero);
+    }
+    [Test]
+    public async Task LegacyApartmentCreditDoesNotReduceNewPricesOrRemoveExistingOwnership()
+    {
+        await Fund(2000);
+        await Economy(_user);
+        await using (var db = _settings.OpenDatabase())
+        {
+            var record = await db.LagoonEconomyRecords.SingleAsync(p => p.Id == "account:" + _user.ToString("N"));
+            var state = JsonSerializer.Deserialize<LagoonEconomyState>(record.Data)!;
+            state.ApartmentCredit = 5000;
+            state.Apartments.Add("Studio");
+            record.Data = JsonSerializer.Serialize(state);
+            await db.SaveChangesAsync();
+        }
+        var owned = await Buy("old-studio", "apartment", "Studio", 500);
+        Assert.That(owned.Balance, Is.EqualTo(2000));
+        var comfort = await Buy("new-comfort", "apartment", "Comfort", 1200);
+        Assert.That(comfort.Balance, Is.EqualTo(800));
+        Assert.That(comfort.Awarded, Is.EqualTo(-1200));
+        Assert.That(comfort.State.ApartmentCredit, Is.EqualTo(5000), "Legacy data is preserved but ignored");
+        Assert.That(comfort.State.Apartments, Is.EquivalentTo(new[] { "Studio", "Comfort" }));
+    }
+    [Test]
+    public async Task ApartmentPurchaseRejectsInsufficientFullPriceWithoutGrantingOwnership()
+    {
+        await Fund(1500);
+        await Buy("studio", "apartment", "Studio", 500);
+        Assert.ThrowsAsync<InsufficientLagoonCoinsException>(async () => await Buy("comfort", "apartment", "Comfort", 1200));
+        var fresh = await Economy(_user);
+        Assert.That(fresh.Balance, Is.EqualTo(1000));
+        Assert.That(fresh.State.Apartments, Is.EquivalentTo(new[] { "Studio" }));
+        await using var db = _settings.OpenDatabase();
+        Assert.That(await db.LagoonCoinOperations.CountAsync(p => p.UserId == _user && p.OperationId == "spend:comfort"), Is.Zero);
+    }
+    [Test]
+    public async Task FurnitureDiscountAndOwnershipArePermanent()
+    {
+        await Fund(4100);
         var decor = await Buy("decor", "furniture", "Lamp", 101, 4);
         Assert.That(decor.Balance, Is.EqualTo(4014));
         var owned = await Buy("decor-owned", "furniture", "Lamp", 101);

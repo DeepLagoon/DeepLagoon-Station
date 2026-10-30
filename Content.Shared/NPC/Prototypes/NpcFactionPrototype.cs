@@ -36,6 +36,19 @@ public sealed partial class NpcFactionPrototype : IPrototype
     [DataField]
     public bool DefaultHostileIncluded = true;
 
+    /// <summary>
+    /// Mindless members attack player minds except explicitly allied factions.
+    /// </summary>
+    [DataField]
+    public bool HostileToPlayerMinds;
+
+    /// <summary>
+    /// Player factions exempt from forced hostility, including on expeditions.
+    /// These factions should also be friendly to this faction.
+    /// </summary>
+    [DataField]
+    public HashSet<ProtoId<NpcFactionPrototype>> PlayerMindFriendlyFactions = new();
+
 }
 
 /// <summary>
@@ -54,4 +67,10 @@ public record struct FactionData
 
     [ViewVariables]
     public bool DefaultHostile; // Mono edit - better NpcFactionSystem usage.
+
+    [ViewVariables]
+    public bool HostileToPlayerMinds;
+
+    [ViewVariables]
+    public HashSet<ProtoId<NpcFactionPrototype>> PlayerMindFriendlyFactions;
 }

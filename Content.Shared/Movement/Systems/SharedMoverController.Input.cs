@@ -116,6 +116,7 @@ namespace Content.Shared.Movement.Systems
             entity.Comp.TargetRelativeRotation = state.TargetRelativeRotation;
             entity.Comp.CanMove = state.CanMove;
             entity.Comp.RelativeEntity = EnsureEntity<InputMoverComponent>(state.RelativeEntity, entity.Owner);
+            entity.Comp.GridVelocityRotation = state.GridVelocityRotation;
 
             // Reset
             entity.Comp.LastInputTick = GameTick.Zero;
@@ -146,6 +147,7 @@ namespace Content.Shared.Movement.Systems
                 HeldMoveButtons = entity.Comp.HeldMoveButtons,
                 RelativeRotation = entity.Comp.RelativeRotation,
                 TargetRelativeRotation = entity.Comp.TargetRelativeRotation,
+                GridVelocityRotation = entity.Comp.GridVelocityRotation,
             };
         }
 
@@ -262,6 +264,10 @@ namespace Content.Shared.Movement.Systems
 
         private void OnInputParentChange(Entity<InputMoverComponent> entity, ref EntParentChangedMessage args)
         {
+            // Momentum has already been converted by physics; do not rotate it again in the old grid's frame.
+            if (!Timing.ApplyingState)
+                SetGridVelocityRotation(entity, null);
+
             // If we change our grid / map then delay updating our LastGridAngle.
             var relative = args.Transform.GridUid;
             relative ??= args.Transform.MapUid;

@@ -182,6 +182,7 @@ public sealed partial class NpcFactionSystem : EntitySystem
             return Array.Empty<EntityUid>();
 
         var hostiles = GetNearbyFactions(ent, range, ent.Comp1.HostileFactions, includeForcedHostiles: true)
+            .Union(GetNearbyPlayerHostiles((ent, ent.Comp1), range))
             // ignore mobs that have both hostile faction and the same faction,
             // otherwise having multiple factions is strictly negative
             .Where(target => !IsEntityFriendly((ent, ent.Comp1), target));
@@ -236,10 +237,61 @@ public sealed partial class NpcFactionSystem : EntitySystem
 
     private bool IsForcedHostile(EntityUid entity, EntityUid target)
     {
-        return entity != target &&
-               TryComp<NpcForcedHostilityComponent>(entity, out var hostility) &&
+        if (entity == target)
+            return false;
+
+        if (TryComp<MindContainerComponent>(target, out var targetMind) && targetMind.HasMind &&
+            IsHostileToPlayerMinds(entity))
+            return !IsPlayerMindAlly(entity, target);
+
+        return TryComp<NpcForcedHostilityComponent>(entity, out var hostility) &&
                (!TryComp<NpcForcedHostilityComponent>(target, out var other) || hostility.Group != other.Group ||
                 TryComp<MindContainerComponent>(target, out var mind) && mind.HasMind);
+    }
+
+    private bool IsHostileToPlayerMinds(Entity<NpcFactionMemberComponent?> ent)
+    {
+        // Player-controlled faction members retain their ordinary relationships.
+        if (TryComp<MindContainerComponent>(ent, out var mind) && mind.HasMind ||
+            !Resolve(ent, ref ent.Comp, false))
+            return false;
+
+        foreach (var faction in ent.Comp.Factions)
+        {
+            if (_factions.TryGetValue(faction, out var data) && data.HostileToPlayerMinds)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsPlayerMindAlly(Entity<NpcFactionMemberComponent?> ent, Entity<NpcFactionMemberComponent?> target)
+    {
+        if (!Resolve(ent, ref ent.Comp, false) || !Resolve(target, ref target.Comp, false))
+            return false;
+
+        foreach (var faction in ent.Comp.Factions)
+        {
+            if (_factions.TryGetValue(faction, out var data) && data.HostileToPlayerMinds &&
+                data.PlayerMindFriendlyFactions.Overlaps(target.Comp.Factions))
+                return true;
+        }
+
+        return false;
+    }
+
+    private IEnumerable<EntityUid> GetNearbyPlayerHostiles(Entity<NpcFactionMemberComponent?> ent, float range)
+    {
+        if (!IsHostileToPlayerMinds(ent))
+            yield break;
+
+        // Include player bodies without NpcFactionMember as well.
+        var coordinates = _xform.GetMapCoordinates(ent.Owner);
+        foreach (var target in _lookup.GetEntitiesInRange<MindContainerComponent>(coordinates, range))
+        {
+            if (target.Owner != ent.Owner && target.Comp.HasMind)
+                yield return target.Owner;
+        }
     }
 
     public bool IsFactionFriendly(string target, string with)
@@ -332,7 +384,9 @@ public sealed partial class NpcFactionSystem : EntitySystem
             {
                 Friendly = faction.Friendly.ToHashSet(),
                 Neutral = faction.Neutral.ToHashSet(),
-                Hostile = GetHostileFactions(faction, faction.DefaultHostile, factionPrototypes)
+                Hostile = GetHostileFactions(faction, faction.DefaultHostile, factionPrototypes),
+                HostileToPlayerMinds = faction.HostileToPlayerMinds,
+                PlayerMindFriendlyFactions = faction.PlayerMindFriendlyFactions.ToHashSet()
             });
 
         var query = AllEntityQuery<NpcFactionMemberComponent>();

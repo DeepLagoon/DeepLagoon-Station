@@ -225,6 +225,7 @@ public abstract partial class SharedMoverController : VirtualController
             || PullableQuery.TryGetComponent(uid, out var pullable) && pullable.BeingPulled)
         {
             UsedMobMovement[uid] = false;
+            SetGridVelocityRotation(entity, null);
             return;
         }
 
@@ -238,6 +239,7 @@ public abstract partial class SharedMoverController : VirtualController
             if (!weightless)
             {
                 UsedMobMovement[uid] = false;
+                SetGridVelocityRotation(entity, null);
                 return;
             }
             inAirHelpless = true;
@@ -251,6 +253,14 @@ public abstract partial class SharedMoverController : VirtualController
         float accel;
         Vector2 wishDir;
         var velocity = physicsComponent.LinearVelocity;
+
+        Angle? gridRotation = !weightless && physicsComponent.BodyStatus == BodyStatus.OnGround &&
+                              xform.ParentUid == xform.GridUid
+            ? _transform.GetWorldRotation(xform.ParentUid)
+            : null;
+        if (gridRotation is { } rotation && mover.GridVelocityRotation is { } previousRotation)
+            velocity = (rotation - previousRotation).RotateVec(velocity);
+        SetGridVelocityRotation(entity, gridRotation);
 
         // Get current tile def for things like speed/friction mods
         ContentTileDefinition? tileDef = null;
@@ -333,6 +343,15 @@ public abstract partial class SharedMoverController : VirtualController
     }
 
     protected virtual bool QueueMobMovement(MobMovementStep step) => false;
+
+    private void SetGridVelocityRotation(Entity<InputMoverComponent> entity, Angle? rotation)
+    {
+        if (entity.Comp.GridVelocityRotation == rotation)
+            return;
+
+        entity.Comp.GridVelocityRotation = rotation;
+        Dirty(entity);
+    }
 
     protected void FinishMobMovement(MobMovementStep step, Vector2 velocity)
     {

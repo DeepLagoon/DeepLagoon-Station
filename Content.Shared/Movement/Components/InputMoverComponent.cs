@@ -53,6 +53,13 @@ namespace Content.Shared.Movement.Components
         public EntityUid? RelativeEntity;
 
         /// <summary>
+        /// Grid orientation used by the previous locomotion velocity. Physics stores that velocity in map axes,
+        /// so grounded movement must carry it around with the grid before applying friction and input.
+        /// Kept in the component state so prediction rollback restores the same reference frame as physics.
+        /// </summary>
+        public Angle? GridVelocityRotation;
+
+        /// <summary>
         /// Although our movement might be relative to a particular entity we may have an additional relative rotation
         /// e.g. if we've snapped to a different cardinal direction
         /// </summary>
@@ -88,6 +95,7 @@ namespace Content.Shared.Movement.Components
         public NetEntity? RelativeEntity;
         public Angle TargetRelativeRotation;
         public Angle RelativeRotation;
+        public Angle? GridVelocityRotation;
         public TimeSpan LerpTarget;
         public bool CanMove;
     }

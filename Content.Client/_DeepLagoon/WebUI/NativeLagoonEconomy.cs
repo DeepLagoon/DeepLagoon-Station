@@ -30,6 +30,7 @@ public sealed partial class NativeInterfacePanel
         var color = Field(_body, "Цвет никнейма OOC (#RRGGBB)", _data.String("color"));
         Button(_body, "Сохранить цвет", () => Send("color", new TguiData().String("product", color.Text).String("order", Guid.NewGuid().ToString())), _data.Int("tier") > 0);
         Text(_body, "Ваш реферальный код: " + _data.String("referralCode"));
+        Button(_body, "Копировать код", () => Send("copyReferral", new TguiData().String("code", _data.String("referralCode"))), !string.IsNullOrEmpty(_data.String("referralCode")));
         var referral = Field(_body, "Код пригласившего");
         Button(_body, "Закрепить код", () => Send("referral", new TguiData().String("product", referral.Text).String("order", Guid.NewGuid().ToString())));
     }

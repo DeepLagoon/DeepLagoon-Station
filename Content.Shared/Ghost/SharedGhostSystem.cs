@@ -5,6 +5,9 @@ using Content.Shared.Item;
 using Content.Shared.Popups;
 using Robust.Shared.Serialization;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
+using Robust.Shared.Timing;
+using System.Numerics;
 
 namespace Content.Shared.Ghost
 {
@@ -15,6 +18,8 @@ namespace Content.Shared.Ghost
     public abstract partial class SharedGhostSystem : EntitySystem
     {
         [Dependency] protected SharedPopupSystem Popup = default!;
+        [Dependency] private SharedPhysicsSystem _physics = default!;
+        [Dependency] private IGameTiming _timing = default!;
 
         public override void Initialize()
         {
@@ -24,6 +29,18 @@ namespace Content.Shared.Ghost
             SubscribeLocalEvent<GhostComponent, EmoteAttemptEvent>(OnAttempt);
             SubscribeLocalEvent<GhostComponent, DropAttemptEvent>(OnAttempt);
             SubscribeLocalEvent<GhostComponent, PickupAttemptEvent>(OnAttempt);
+            SubscribeLocalEvent<GhostComponent, EntParentChangedMessage>(OnParentChanged);
+        }
+
+        private void OnParentChanged(Entity<GhostComponent> ent, ref EntParentChangedMessage args)
+        {
+            // Grid traversal conserves physical momentum before raising this event. Observers are controlled
+            // directly and must not inherit a shuttle's linear or tangential launch velocity.
+            if (_timing.ApplyingState || !TryComp<PhysicsComponent>(ent, out var body))
+                return;
+
+            _physics.SetLinearVelocity(ent, Vector2.Zero, body: body);
+            _physics.SetAngularVelocity(ent, 0f, body: body);
         }
 
         protected void SetAdminMovement(Entity<GhostComponent> ent, bool enabled)

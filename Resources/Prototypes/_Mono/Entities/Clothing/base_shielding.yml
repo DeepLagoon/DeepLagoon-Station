@@ -42,6 +42,8 @@
   id: ClothingOuterHardsuitBaseNoPlateholder
   name: base hardsuit no plateholder
   components:
+  - type: Clothing
+    hidesUniform: true
   - type: PressureProtection
     highPressureMultiplier: 0.3
     lowPressureMultiplier: 1000

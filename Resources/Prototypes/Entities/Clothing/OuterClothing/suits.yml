@@ -137,6 +137,7 @@
     sprite: Clothing/OuterClothing/Suits/spaceninja.rsi
   - type: Clothing
     sprite: Clothing/OuterClothing/Suits/spaceninja.rsi
+    hidesUniform: true
   # hardsuit stuff
   - type: PressureProtection
     highPressureMultiplier: 0.6
@@ -293,6 +294,8 @@
   suffix: Hardsuit, DO NOT MAP
   categories: [ DoNotMap ]
   components:
+  - type: Clothing
+    hidesUniform: true
   - type: PressureProtection
     highPressureMultiplier: 0.6
     lowPressureMultiplier: 1000

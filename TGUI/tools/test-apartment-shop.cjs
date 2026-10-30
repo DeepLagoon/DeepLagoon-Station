@@ -4,7 +4,7 @@ const path = require('node:path');
 const http = require('node:http');
 const assert = require('node:assert/strict');
 const playwright = require(process.env.TATTOO_PLAYWRIGHT || 'playwright');
-const assets = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
+const assets = process.env.LAGOON_STORE_ASSETS || path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
 const output = path.resolve(__dirname, '../../.local/codex/lagoon-stores/browser');
 const actions = [], errors = [];
 const server = http.createServer((req, res) => {
@@ -144,6 +144,12 @@ const server = http.createServer((req, res) => {
     await page.screenshot({ path: path.join(output, 'ooc-settings.png') });
     await page.getByRole('tab', { name: 'Приглашение друзей' }).click();
     assert.equal(await page.getByRole('textbox', { name: 'Ваш код приглашения', exact: true }).inputValue(), economy.referralCode);
+    await page.getByRole('button', { name: 'Копировать код', exact: true }).click();
+    await page.getByRole('button', { name: 'Код скопирован', exact: true }).waitFor();
+    await page.waitForTimeout(50);
+    const copies = actions.filter(a => a.type === 'act/copyReferral');
+    assert.equal(copies.length, 1);
+    assert.equal((typeof copies[0].payload === 'string' ? JSON.parse(copies[0].payload) : copies[0].payload).code, economy.referralCode);
     assert.match(await page.locator('.LagoonStore__refList').innerText(), /Друг.*25 LC/s);
     await page.getByRole('textbox', { name: 'Код пригласившего', exact: true }).fill('ABCDEF0123456789ABCD');
     await page.getByRole('button', { name: 'Закрепить код' }).click();

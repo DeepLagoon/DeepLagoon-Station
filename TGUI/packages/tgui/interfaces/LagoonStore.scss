@@ -58,6 +58,8 @@
 .LagoonStore__rgb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .LagoonStore__sample { padding: 16px; border: 1px solid var(--store-border); border-radius: 7px; }
 .LagoonStore__refCode { display: block; overflow-wrap: anywhere; padding: 14px; background: #102b29; color: #b2ecd3; font: 700 20px monospace; letter-spacing: .08em; border-radius: 6px; }
+.LagoonStore__refCopy { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.LagoonStore__refCopy label { flex: 1 1 280px; min-width: 0; }
 .LagoonStore__refList { list-style: none; padding: 0; margin: 0; }
 .LagoonStore__refList li { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--store-border); }
 .LagoonStore__refList li > div { display: flex; flex-direction: column; overflow-wrap: anywhere; }
