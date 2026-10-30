@@ -68,7 +68,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         if (Deleted(body) || Deleted(panel) || !TryComp<ApartmentElevatorComponent>(panel, out var cabin)) return false;
         var transform = Transform(body);
         var origin = Transform(panel);
-        var delta = transform.LocalPosition - origin.LocalPosition;
+        var delta = (-origin.LocalRotation).RotateVec(transform.LocalPosition - origin.LocalPosition);
         return origin.Anchored && origin.GridUid != null && transform.ParentUid == origin.GridUid &&
             transform.GridUid == origin.GridUid && delta.X >= cabin.CabinMin.X - .45f && delta.X <= cabin.CabinMax.X + .45f &&
             delta.Y >= cabin.CabinMin.Y - .45f && delta.Y <= cabin.CabinMax.Y + .45f;
@@ -133,7 +133,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
             var query = EntityQueryEnumerator<DoorComponent, TransformComponent>();
             while (query.MoveNext(out var uid, out var door, out var transform))
                 if (transform.GridUid == Transform(panel).GridUid && transform.Anchored &&
-                    Vector2.DistanceSquared(transform.LocalPosition, Transform(panel).LocalPosition + offset) < .1f)
+                    Vector2.DistanceSquared(transform.LocalPosition, Transform(panel).LocalPosition + Transform(panel).LocalRotation.RotateVec(offset)) < .1f)
                 {
                     if (HasComp<ApartmentEntranceComponent>(uid) || door.State == DoorState.Welded) return null;
                     found = uid;
@@ -186,7 +186,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                 return "Все пассажиры должны быть живы, стоять в кабине и завершить предыдущую поездку.";
             if (returning ? !_apartments.TryGetVisit(session.UserId, out _, out _) : _apartments.TryGetVisit(session.UserId, out _, out _))
                 return "У пассажира уже есть незавершённая поездка.";
-            passengers.Add((session, body, Transform(body).LocalPosition - Transform(source).LocalPosition));
+            passengers.Add((session, body, (-Transform(source).LocalRotation).RotateVec(Transform(body).LocalPosition - Transform(source).LocalPosition)));
         }
         if (passengers.Count == 0 || passengers.All(p => p.Item1 != driver)) return "Встаньте в кабину.";
         if (!returning && _apartments.Instances.TryGetValue(owner, out var home) &&
@@ -214,7 +214,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         var cabin = Comp<ApartmentElevatorComponent>(panel);
         for (var x = (int)cabin.CabinMin.X; x <= cabin.CabinMax.X; x++)
         for (var y = (int)cabin.CabinMin.Y; y <= cabin.CabinMax.Y; y++)
-            Spawn("DLApartmentElevatorMist", new EntityCoordinates(Transform(panel).GridUid!.Value, Transform(panel).LocalPosition + new Vector2(x, y)));
+            Spawn("DLApartmentElevatorMist", new EntityCoordinates(Transform(panel).GridUid!.Value, Transform(panel).LocalPosition + Transform(panel).LocalRotation.RotateVec(new Vector2(x, y))));
         if (cabin.HissSound != null) _audio.PlayPvs(cabin.HissSound, panel);
     }
 
@@ -258,7 +258,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                 foreach (var passenger in trip.Passengers)
                 {
                     var (session, body, offset) = passenger;
-                    var arrival = new EntityCoordinates(trip.DestinationGrid, Transform(trip.Destination).LocalPosition + offset);
+                    var arrival = new EntityCoordinates(trip.DestinationGrid, Transform(trip.Destination).LocalPosition + Transform(trip.Destination).LocalRotation.RotateVec(offset));
                     bool success;
                     if (trip.Returning)
                     {
@@ -267,7 +267,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                     }
                     else
                     {
-                        success = _apartments.Enter(session, trip.Owner, out _, returnPoint: new EntityCoordinates(trip.SourceGrid, Transform(trip.Source).LocalPosition + offset));
+                        success = _apartments.Enter(session, trip.Owner, out _, returnPoint: new EntityCoordinates(trip.SourceGrid, Transform(trip.Source).LocalPosition + Transform(trip.Source).LocalRotation.RotateVec(offset)));
                         if (success) _transform.SetCoordinates(body, arrival);
                     }
                     if (!success) { failed = true; break; }

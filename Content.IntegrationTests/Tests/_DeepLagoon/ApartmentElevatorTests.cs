@@ -20,8 +20,9 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ApartmentElevatorTests
 {
-    [Test]
-    public async Task KnownNumberNeedsNoInvitationAndRoundTripRestoresExactGear()
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task KnownNumberNeedsNoInvitationAndRoundTripRestoresExactGear(bool rotated)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         var testMap = await pair.CreateTestMap();
@@ -35,6 +36,9 @@ public sealed class ApartmentElevatorTests
             pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
             var session = pair.Server.PlayerMan.Sessions.Single();
             var apartments = entities.System<ApartmentSystem>();
+            var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(apartments)!;
+            store.BeginPurchase(owner.UserId, "DLApartmentBasic", 0);
+            store.Grant(owner.UserId, "DLApartmentBasic");
             var home = apartments.PrepareElevatorApartment(owner);
             // This fixture installs a one-tile cabin at a known location.
             var templatePanels = new List<EntityUid>();
@@ -51,6 +55,7 @@ public sealed class ApartmentElevatorTests
             entities.SpawnEntity("DLApartmentBusStop", sourceCoordinates);
             source = entities.SpawnEntity("DLApartmentElevatorPanel", sourceCoordinates);
             destination = entities.SpawnEntity("DLApartmentElevatorPanel", new EntityCoordinates(home.Grid, new Vector2(2.5f, 2.5f)));
+            if (rotated) entities.System<SharedTransformSystem>().SetLocalRotation(destination, Angle.FromDegrees(180));
             foreach (var panel in new[] { source, destination })
             {
                 var cabin = entities.GetComponent<ApartmentElevatorComponent>(panel);
@@ -61,7 +66,7 @@ public sealed class ApartmentElevatorTests
                 Assert.That(audio.GetAudioLength(audio.ResolveSound(cabin.TravelSound!)).TotalSeconds, Is.EqualTo(12).Within(.0001));
                 Assert.That(audio.GetAudioLength(audio.ResolveSound(cabin.ArrivalSound!)).TotalSeconds, Is.EqualTo(3).Within(.0001));
                 var transform = entities.GetComponent<TransformComponent>(panel);
-                var door = entities.SpawnEntity("Airlock", new EntityCoordinates(transform.GridUid!.Value, transform.LocalPosition + Vector2.UnitX));
+                var door = entities.SpawnEntity("Airlock", new EntityCoordinates(transform.GridUid!.Value, transform.LocalPosition + transform.LocalRotation.RotateVec(Vector2.UnitX)));
                 doors.Add(door);
                 Assert.That(entities.GetComponent<TransformComponent>(door).Anchored, Is.True, "Door must stand on an existing floor tile.");
             }

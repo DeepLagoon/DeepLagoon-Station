@@ -54,6 +54,8 @@ public sealed class GridEnvironmentTests
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
             config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            // This geometry fixture deliberately keeps the legacy map as a free test template.
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
             var session = pair.Server.PlayerMan.Sessions.Single();
             body = entities.SpawnEntity("MobHuman", outside.GridCoords);
             pair.Server.PlayerMan.SetAttachedEntity(session, body);

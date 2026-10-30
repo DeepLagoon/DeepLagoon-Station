@@ -56,7 +56,7 @@ public static class ApartmentLayout
         if (layout.Count > SafetyLimit) return "Не удалось разместить мебель: слишком много объектов.";
         if (mapped.Keys.Any(id => layout.All(p => p.Id != id))) return "Исходный интерьер можно перемещать, но нельзя удалять.";
         var ids = new HashSet<string>();
-        var occupied = new HashSet<Vector2i>();
+        var occupied = new Dictionary<Vector2i, bool>();
         var blocked = new HashSet<Vector2i>();
         var counts = new Dictionary<string, int>();
         var floors = scene?.Tiles.Select(tile => new Vector2i((int) tile.X, (int) tile.Y)).ToHashSet();
@@ -71,6 +71,7 @@ public static class ApartmentLayout
             var original = template.Furniture.FirstOrDefault(item => item.Id == p.Id);
             if (original != null && original.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
             if (mapped.TryGetValue(p.Id, out var mapOriginal) && mapOriginal.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
+            var unchangedMapPlacement = mapped.TryGetValue(p.Id, out var baseline) && p.SameAs(baseline);
             counts[furniture.StockKey] = counts.GetValueOrDefault(furniture.StockKey) + 1;
             if (validateStock && counts[furniture.StockKey] > (furniture.ExistingOnly ? 1 : stock?.Invoke(furniture.StockKey) ?? furniture.MaxCount))
                 return "Недостаточно доступных экземпляров мебели. Откройте ещё один набор в обустройстве.";
@@ -79,11 +80,17 @@ public static class ApartmentLayout
                 if (floors != null ? !floors.Contains(cell) : cell.X < 1 || cell.Y < 1 || cell.X >= template.Width - 1 || cell.Y >= template.Height - 1)
                     return "Предмет пересекается со стеной.";
                 if (furniture.Layer == "Wall" && scene?.Walls.Contains(cell) != true) return "Настенный декор нужно разместить на стене.";
-                if (scene?.Occupied.Contains(cell) == true && (furniture.Layer != "Wall" || !scene.Walls.Contains(cell))) return "Место занято стационарным объектом квартиры.";
+                if (!unchangedMapPlacement && scene?.Occupied.Contains(cell) == true && (furniture.Layer != "Wall" || !scene.Walls.Contains(cell))) return "Место занято стационарным объектом квартиры.";
                 if (template.ReservedCells.Contains(cell)) return "Площадку лифта и коридор нельзя занимать мебелью.";
                 if (cell == template.Arrival || scene == null && cell == template.Arrival + new Vector2i(0, 1))
                     return "Площадка прибытия и терминал должны оставаться свободными.";
-                if (!furniture.AllowsOverlap && !occupied.Add(cell)) return "Предметы пересекаются.";
+                if (!furniture.AllowsOverlap)
+                {
+                    // Preserve authored map overlaps, while moved or added objects still require a free cell.
+                    if (occupied.TryGetValue(cell, out var previousUnchanged) && !(previousUnchanged && unchangedMapPlacement))
+                        return "Предметы пересекаются.";
+                    occupied[cell] = unchangedMapPlacement;
+                }
                 if (furniture.BlocksMovement) blocked.Add(cell);
             }
         }

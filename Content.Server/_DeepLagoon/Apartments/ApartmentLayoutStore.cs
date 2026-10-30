@@ -13,6 +13,7 @@ public interface IApartmentLayoutStore : IDisposable
     ApartmentDelta? Load(Guid owner);
     bool Save(Guid owner, ApartmentDelta delta, int expectedRevision);
     bool Owned(Guid owner, string template);
+    bool HasLayout(Guid owner, string template);
     Dictionary<string, int> Popularity();
     (string Operation, long Price) BeginPurchase(Guid owner, string template, long price);
     void Grant(Guid owner, string template);
@@ -150,6 +151,14 @@ public sealed class ApartmentLayoutStore : IApartmentLayoutStore
         using var command = _connection.CreateCommand();
         command.CommandText = "SELECT granted FROM template_purchases WHERE owner=$owner AND template=$template";
         command.Parameters.AddWithValue("$owner", owner.ToString()); command.Parameters.AddWithValue("$template", template);
+        return command.ExecuteScalar() is long value && value == 1;
+    }
+    public bool HasLayout(Guid owner, string template)
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT EXISTS(SELECT 1 FROM template_layouts WHERE owner=$owner AND template=$template UNION ALL SELECT 1 FROM apartment_snapshots WHERE owner=$owner AND template=$template)";
+        command.Parameters.AddWithValue("$owner", owner.ToString());
+        command.Parameters.AddWithValue("$template", template);
         return command.ExecuteScalar() is long value && value == 1;
     }
     public Dictionary<string, int> Popularity()

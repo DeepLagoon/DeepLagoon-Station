@@ -49,3 +49,21 @@ ent-DLApartmentTrashBin = apartment trash bin
 
 dl-apartment-basic-description = A furnished home for everyday life. Inspect the layout, then arrange the furniture in the furnishing menu.
 dl-apartment-studio-description = A compact studio with a shared living area. An archived apartment template.
+
+dl-apartment-small = Apartment 1
+dl-apartment-small-description = Apartment description 1.
+
+dl-apartment-normal = Apartment 2
+dl-apartment-normal-description = Apartment description 2.
+
+dl-apartment-silhouette = Apartment 3
+dl-apartment-silhouette-description = Apartment description 3.
+
+dl-apartment-scrap = Apartment 4
+dl-apartment-scrap-description = Apartment description 4.
+
+dl-apartment-snowcabin = Apartment 5
+dl-apartment-snowcabin-description = Apartment description 5.
+
+dl-apartment-strip = Apartment 6
+dl-apartment-strip-description = Apartment description 6.

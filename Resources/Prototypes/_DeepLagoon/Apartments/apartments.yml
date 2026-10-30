@@ -253,6 +253,7 @@
 
 - type: apartmentTemplate
   id: DLApartmentBasic
+  existingOnly: true
   price: 0
   name: dl-apartment-basic
   description: dl-apartment-basic-description

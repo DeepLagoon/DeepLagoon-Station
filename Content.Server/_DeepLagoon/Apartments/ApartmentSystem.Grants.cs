@@ -11,8 +11,9 @@ public sealed partial class ApartmentSystem
         if (!Enabled) return "apartments_disabled";
         if (!_prototypes.TryIndex<ApartmentTemplatePrototype>(templateId, out var template) || !Available(template))
             return "apartment_unavailable";
-        alreadyOwned = Store.Owned(owner.UserId, template.ID);
+        alreadyOwned = OwnsTemplate(owner, template);
         if (alreadyOwned) return null;
+        if (template.ExistingOnly) return "apartment_unavailable";
         try
         {
             EnsureMaps();

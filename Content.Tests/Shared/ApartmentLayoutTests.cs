@@ -138,4 +138,24 @@ public sealed class ApartmentLayoutTests
         replacement.Id = "new"; replacement.Furniture = "ExplosiveBanana";
         Assert.That(ApartmentLayout.Validate(template, new[] { replacement }, Catalog), Does.Contain("каталоге"));
     }
+
+    [Test]
+    public void AuthoredMapOverlapsRemainValidButMovedFurnitureCannotUseThem()
+    {
+        var template = Template();
+        var chair = new ApartmentPlacement { Id = "mapped-chair", Furniture = "chair", X = 4, Y = 4 };
+        var table = new ApartmentPlacement { Id = "mapped-table", Furniture = "table", X = 4, Y = 4 };
+        var baseline = new[] { chair, table };
+        Assert.That(ApartmentLayout.Validate(template, baseline, Catalog, mapFurniture: baseline), Is.Null);
+        var movedChair = chair.Copy(); movedChair.X = 5;
+        Assert.That(ApartmentLayout.Validate(template, new[] { movedChair, table }, Catalog, mapFurniture: baseline), Does.Contain("пересекаются"));
+        Assert.That(ApartmentLayout.Validate(template, new[] { table, movedChair }, Catalog, mapFurniture: baseline), Does.Contain("пересекаются"));
+        var scene = new ApartmentRoomScene();
+        for (var x = 1; x < 7; x++)
+        for (var y = 1; y < 7; y++) scene.Tiles.Add(new Content.Shared._DeepLagoon.Mapping.GridEditorItem { X = x, Y = y });
+        scene.Occupied.Add(new Vector2i(4, 4));
+        Assert.That(ApartmentLayout.Validate(template, baseline, Catalog, scene, baseline), Is.Null);
+        var added = new ApartmentPlacement { Id = "added-chair", Furniture = "chair", X = 4, Y = 4 };
+        Assert.That(ApartmentLayout.Validate(template, new[] { chair, table, added }, Catalog, scene, baseline), Does.Contain("стационарным"));
+    }
 }

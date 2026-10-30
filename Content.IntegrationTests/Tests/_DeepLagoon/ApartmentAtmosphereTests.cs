@@ -125,6 +125,7 @@ public sealed class ApartmentAtmosphereTests
     public async Task ManagedApartmentKeepsCompositionAfterLayoutSaveAndUnload()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitPost(() => pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true));
         var testMap = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {

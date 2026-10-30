@@ -23,6 +23,11 @@ public sealed partial class ApartmentSystem
         _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Owner == session.UserId && session.AttachedEntity == visit.Body &&
         Transform(visit.Body).GridUid == visit.Apartment.Grid && !HasComp<ApartmentTripPendingComponent>(visit.Body));
     private bool Available(ApartmentTemplatePrototype template) => template.Available && template.Map != null && template.Price >= 0;
+    private bool OwnsTemplate(NetUserId owner, ApartmentTemplatePrototype template) => Store.Owned(owner.UserId, template.ID) ||
+        _economy.Cached(owner)?.State.Apartments.Contains(template.ID) == true ||
+        template.ExistingOnly && Store.HasLayout(owner.UserId, template.ID);
+    private bool CanSelectTemplate(NetUserId owner, ApartmentTemplatePrototype template) =>
+        Available(template) && (!template.ExistingOnly || OwnsTemplate(owner, template));
     private ApartmentDelta? SelectedLayout(NetUserId owner)
     {
         var saved = Store.Load(owner.UserId);
@@ -31,10 +36,10 @@ public sealed partial class ApartmentSystem
             saved = ApartmentLayout.Diff(old.Template, CurrentLayout(old), 1, MapBaseline(old));
             if (!Store.Save(owner.UserId, saved, 0)) saved = Store.Load(owner.UserId);
         }
-        if (saved != null && (!_prototypes.TryIndex<ApartmentTemplatePrototype>(saved.Template, out var previous) || !Available(previous)))
+        if (saved != null && (!_prototypes.TryIndex<ApartmentTemplatePrototype>(saved.Template, out var previous) || !CanSelectTemplate(owner, previous)))
         {
             var fallback = _prototypes.Index<ApartmentTemplatePrototype>(_config.GetCVar(ApartmentCVars.DefaultTemplate));
-            if (!Available(fallback) || fallback.Price != 0) throw new InvalidOperationException("Default apartment must be available and free.");
+            if (!Available(fallback) || fallback.ExistingOnly || fallback.Price != 0) throw new InvalidOperationException("Default apartment must be available and free.");
             saved = Store.Select(owner.UserId, fallback);
             _numbers.Rotate(owner.UserId);
         }
@@ -68,11 +73,11 @@ public sealed partial class ApartmentSystem
         var selected = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
         var token = Guid.NewGuid(); _shopTokens[session.UserId] = token;
         var popularity = Store.Popularity();
-        var entries = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>().Where(Available).OrderBy(p => p.Price).ThenBy(p => p.ID)
+        var entries = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>().Where(p => CanSelectTemplate(session.UserId, p)).OrderBy(p => p.Price).ThenBy(p => p.ID)
             .Select(p => new ApartmentShopEntry { Id = p.ID, Name = Loc.GetString(p.Name), Price = p.Price,
                 Description = p.Description.Length == 0 ? "" : Loc.GetString(p.Description), Category = p.Category,
                 Width = p.Width, Height = p.Height, Popularity = popularity.GetValueOrDefault(p.ID),
-                Owned = p.Price == 0 || account?.State.Apartments.Contains(p.ID) == true || Store.Owned(session.UserId.UserId, p.ID), Selected = selected == p.ID }).ToList();
+                Owned = p.Price == 0 || OwnsTemplate(session.UserId, p), Selected = selected == p.ID }).ToList();
         var legacy = _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Template.Map == null;
         RaiseNetworkEvent(new ApartmentShopState(token, entries, Number(session.UserId), InLobby(session), legacy, message,
             furniture: ShopItems(), balance: account?.Balance ?? -1, pendingItemOrder: Store.PendingItemOrder(session.UserId.UserId)?.Id ?? Guid.Empty), session);
@@ -103,7 +108,7 @@ public sealed partial class ApartmentSystem
                 if (InLobby(session)) OpenLobbyEditor(session); else OpenEditor(session);
                 return;
             }
-            if (ev.Action != "select" || ev.Template is not { Length: > 0 and <= 128 } || !_prototypes.TryIndex<ApartmentTemplatePrototype>(ev.Template, out var template) || !Available(template)) return;
+            if (ev.Action != "select" || ev.Template is not { Length: > 0 and <= 128 } || !_prototypes.TryIndex<ApartmentTemplatePrototype>(ev.Template, out var template) || !CanSelectTemplate(session.UserId, template)) return;
             EnsureMaps();
             var validation = CreateFresh(session.UserId, template.ID, true);
             Del(validation.Grid);

@@ -10,7 +10,7 @@ public static class ApartmentCVars
     public static readonly CVarDef<bool> Enabled = CVarDef.Create("deeplagoon.apartments_enabled", true, CVar.SERVERONLY);
     public static readonly CVarDef<string> StopMap = CVarDef.Create("deeplagoon.apartments_stop_map",
         "/Maps/_DeepLagoon/Apartments/residential_stop.yml", CVar.SERVERONLY);
-    public static readonly CVarDef<string> DefaultTemplate = CVarDef.Create("deeplagoon.apartments_default_template", "DLApartmentBasic", CVar.SERVERONLY);
+    public static readonly CVarDef<string> DefaultTemplate = CVarDef.Create("deeplagoon.apartments_default_template", "DLApartmentSmall", CVar.SERVERONLY);
     public static readonly CVarDef<int> LoadedLimit = CVarDef.Create("deeplagoon.apartments_loaded_limit", 30, CVar.SERVERONLY);
     public static readonly CVarDef<int> EmptyTimeout = CVarDef.Create("deeplagoon.apartments_empty_timeout", 120, CVar.SERVERONLY);
 }
@@ -46,6 +46,7 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
     [DataField] public int Version = 1;
     [DataField] public string? Map;
     [DataField] public bool Available = true;
+    [DataField] public bool ExistingOnly;
     [DataField] public long Price;
     [DataField] public List<Vector2i> ReservedCells = new();
     [DataField] public int Width = 10;

@@ -13,6 +13,7 @@
                 <RichTextLabel Text="{Loc 'dl-ui-style-hint'}" />
                 <CheckBox Name="VanillaChat" Text="{Loc 'ui-options-vanilla-chat'}" />
                 <CheckBox Name="TattoosEnabled" Text="{Loc 'ui-options-tattoos-enabled'}" ToolTip="{Loc 'ui-options-tattoos-enabled-tooltip'}" />
+                <CheckBox Name="ClientPredictionCheckBox" Text="{Loc 'ui-options-client-prediction'}" />
                 <Label Text="{Loc 'ui-options-general-discord'}"
                        StyleClasses="LabelKeyText"/>
                 <CheckBox Name="DiscordRich" Text="{Loc 'ui-options-discordrich'}" />

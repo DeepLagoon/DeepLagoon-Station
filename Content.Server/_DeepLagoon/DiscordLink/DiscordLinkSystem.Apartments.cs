@@ -18,7 +18,7 @@ public sealed partial class DiscordLinkSystem
         if (request.Operation == "apartment_catalog")
             return new ApiResult(HttpStatusCode.OK, new { rows = _prototypes.EnumeratePrototypes<ApartmentTemplatePrototype>()
                 .OrderBy(item => item.ID).Select(item => new { id = item.ID, name = Loc.GetString(item.Name),
-                    price = item.Price, available = item.Available && item.Map != null && item.Price >= 0,
+                    price = item.Price, available = item.Available && !item.ExistingOnly && item.Map != null && item.Price >= 0,
                     map = item.Map, width = item.Width, height = item.Height, version = item.Version }).ToArray() });
         if (request.Template is not { Length: > 0 and <= 128 } || request.Message is not { Length: > 0 and <= 500 } ||
             string.IsNullOrWhiteSpace(request.Message)) return ModerationError("invalid_request");

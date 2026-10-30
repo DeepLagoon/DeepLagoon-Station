@@ -44,6 +44,8 @@ public sealed class ApartmentIntegrationTests
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
             config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            // This geometry fixture deliberately keeps the legacy map as a free test template.
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
             Assert.That(config.GetCVar(ApartmentCVars.LoadedLimit), Is.EqualTo(30));
             var session = pair.Server.PlayerMan.Sessions.Single();
             var body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
@@ -162,6 +164,8 @@ public sealed class ApartmentIntegrationTests
 
             config.SetCVar(ApartmentCVars.Enabled, true);
             config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            // This geometry fixture deliberately keeps the legacy map as a free test template.
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
             if (template == "DLApartmentStudio")
             {
                 var store = (IApartmentLayoutStore) typeof(ApartmentSystem)
@@ -236,6 +240,8 @@ public sealed class ApartmentIntegrationTests
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(ApartmentCVars.Enabled, true);
             config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            // This geometry fixture deliberately keeps the legacy map as a free test template.
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
             body = entities.SpawnEntity("MobHuman", testMap.GridCoords);
             var session = pair.Server.PlayerMan.Sessions.Single();
             pair.Server.PlayerMan.SetAttachedEntity(session, body);

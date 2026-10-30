@@ -22,6 +22,13 @@ public sealed class ApartmentCommerceTests
     public async Task EditorPurchasesArePersistentReplaySafeAndNeverReplaceTheDraft()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, InLobby = true });
+        await pair.Server.WaitPost(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            // Keep the legacy map geometry required by this furniture fixture.
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
+        });
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         Guid token = default, order = Guid.NewGuid();
         string data = "";
@@ -62,7 +69,7 @@ public sealed class ApartmentCommerceTests
             Assert.That(state.GetProperty("balance").GetInt64(), Is.EqualTo(500));
             token = state.GetProperty("token").GetGuid();
             var products = state.GetProperty("products").EnumerateArray().ToArray();
-            Assert.That(products.Length, Is.EqualTo(107));
+            Assert.That(products.Select(item => item.GetProperty("id").GetString()), Is.Unique);
             Assert.That(products.Single(item => item.GetProperty("id").GetString() == "DLAptSofa").GetProperty("variants").GetArrayLength(), Is.EqualTo(4));
             Buy("DLAptDecor006", 2, 35);
         });

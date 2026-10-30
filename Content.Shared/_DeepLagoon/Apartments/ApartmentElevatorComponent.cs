@@ -8,7 +8,7 @@ namespace Content.Shared._DeepLagoon.Apartments;
 [RegisterComponent]
 public sealed partial class ApartmentElevatorComponent : Component
 {
-    // Grid-local offsets from the panel. Bounds include passenger tile centers.
+    // Panel-local offsets, rotated with the panel. Bounds include passenger tile centers.
     [DataField] public Vector2 CabinMin = new(-1, -1);
     [DataField] public Vector2 CabinMax = new(1, 1);
     [DataField] public List<Vector2> DoorOffsets = new() { new(0, -2) };

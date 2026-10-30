@@ -168,6 +168,8 @@ public sealed class ApartmentLayoutStoreTests
             Assert.Multiple(() =>
             {
                 Assert.That(reopened.Owned(owner, "host-granted"), Is.True);
+                Assert.That(reopened.HasLayout(owner, "studio"), Is.True);
+                Assert.That(reopened.HasLayout(Guid.NewGuid(), "studio"), Is.False);
                 Assert.That(reopened.Owned(Guid.NewGuid(), "host-granted"), Is.False);
                 Assert.That(loaded.Revision, Is.EqualTo(2));
                 Assert.That(loaded.TemplateVersion, Is.EqualTo(3));

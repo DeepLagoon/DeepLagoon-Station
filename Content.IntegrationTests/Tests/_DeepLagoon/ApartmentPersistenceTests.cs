@@ -26,6 +26,12 @@ public sealed class ApartmentPersistenceTests
     public async Task ContentsDecalsAndFurnitureStateSurviveUnloadAndRoundCleanup()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitPost(() =>
+        {
+            // Keep the legacy map geometry required by this furniture fixture.
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
+        });
         var outside = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {
@@ -104,6 +110,12 @@ public sealed class ApartmentPersistenceTests
     public async Task TrashCanBeRecoveredUntilRoundEndIncludingWhenApartmentIsUnloaded(bool unload)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        await pair.Server.WaitPost(() =>
+        {
+            // Keep the legacy map geometry required by this furniture fixture.
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
+        });
         var outside = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {

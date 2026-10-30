@@ -48,7 +48,7 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(owned.Owned, Is.True);
             Assert.That(unowned.Price, Is.EqualTo(100));
             Assert.That(unowned.Owned, Is.False, "Legacy credit must not grant another template");
-            Assert.That(state.Templates.Single(p => p.Id == "DLApartmentBasic").Owned, Is.True);
+            Assert.That(state.Templates.Single(p => p.Id == "DLApartmentSmall").Owned, Is.True);
             typeof(Content.Client._DeepLagoon.Apartments.ApartmentShopSystem).GetMethod("Close", flags)!.Invoke(shop, null);
         });
         await pair.CleanReturnAsync();
@@ -56,6 +56,16 @@ public sealed class ApartmentTemplateShopTests
 
     [TestPrototypes]
     private const string Templates = @"
+- type: apartmentTemplate
+  id: ApartmentShopFreeTest
+  name: dl-apartment-basic
+  price: 0
+  map: /Maps/_DeepLagoon/Apartments/apartments_basic.yml
+  width: 11
+  height: 16
+  arrival: '4,8'
+  reservedCells: ['3,12', '4,12', '5,12', '3,13', '4,13', '5,13', '3,14', '4,14', '5,14', '4,10', '4,11']
+  catalog: [DLAptChair, DLAptPlant]
 - type: apartmentTemplate
   id: ApartmentShopPaidTest
   name: dl-apartment-basic
@@ -109,8 +119,10 @@ public sealed class ApartmentTemplateShopTests
             pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             oldNumber = system.Number(session.UserId);
             Assert.That(Store(system).Save(session.UserId.UserId, new ApartmentDelta { Template = "DLApartmentStudio", TemplateVersion = 1, Revision = 1 }, 0), Is.True);
+            // Keep the authored basic-map geometry for this legacy-layout fixture.
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "ApartmentShopFreeTest");
             Show(system, session);
-            Assert.That(Store(system).Load(session.UserId.UserId)!.Template, Is.EqualTo("DLApartmentBasic"));
+            Assert.That(Store(system).Load(session.UserId.UserId)!.Template, Is.EqualTo("ApartmentShopFreeTest"));
             migratedNumber = system.Number(session.UserId);
             Assert.That(migratedNumber, Is.Not.EqualTo(oldNumber)); Assert.That(system.NumberOwner(oldNumber), Is.Null);
             Assert.That(system.Enabled, Is.True, "Apartment feature must be enabled in this test");
@@ -168,7 +180,7 @@ public sealed class ApartmentTemplateShopTests
             Assert.That(system.Instances[session.UserId].Template.ID, Is.EqualTo("ApartmentShopPaidTest"));
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(paidGrid));
             Assert.That(entities.GetComponent<TransformComponent>(body).LocalPosition, Is.EqualTo(new Vector2(9.5f, 6.5f)));
-            Show(system, session); Action(system, session, "select", "DLApartmentBasic");
+            Show(system, session); Action(system, session, "select", "ApartmentShopFreeTest");
         });
         await pair.RunTicksSync(30);
         await pair.Server.WaitAssertion(() =>

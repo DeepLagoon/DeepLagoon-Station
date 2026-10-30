@@ -12,7 +12,7 @@ public sealed partial class ApartmentSystem
     private void PreviewShop(ICommonSession session, ApartmentShopAction ev)
     {
         if (!CanManage(session) || ev.Template.Length is < 1 or > 128 ||
-            !_prototypes.TryIndex<ApartmentTemplatePrototype>(ev.Template, out var template) || !Available(template)) return;
+            !_prototypes.TryIndex<ApartmentTemplatePrototype>(ev.Template, out var template) || !CanSelectTemplate(session.UserId, template)) return;
         if (_lastShopPreview.TryGetValue(session.UserId, out var last) && _timing.RealTime - last < TimeSpan.FromMilliseconds(500))
         {
             RaiseNetworkEvent(new ApartmentShopPreview(ev.Token, template.ID, null, "Слишком частые запросы. Повторите предпросмотр."), session);

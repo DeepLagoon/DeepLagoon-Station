@@ -53,6 +53,7 @@ public sealed partial class MiscTab : Control
         interfaceStyle.ImmediateValueChanged += style => VanillaChat.Pressed = !Content.Shared._DeepLagoon.WebUI.WebUiCVars.UseTgui(style);
         Control.AddOptionCheckBox(Content.Shared._DeepLagoon.WebUI.WebUiCVars.VanillaChat, VanillaChat);
         Control.AddOptionCheckBox(Content.Shared._DeepLagoon.Tattoos.TattooCVars.Enabled, TattoosEnabled);
+        Control.AddOptionCheckBox(CVars.NetPredict, ClientPredictionCheckBox);
 
         Control.AddOptionCheckBox(CVars.DiscordEnabled, DiscordRich);
         Control.AddOptionCheckBox(CCVars.ShowOocPatronColor, ShowOocPatronColor);

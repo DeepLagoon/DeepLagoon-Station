@@ -283,6 +283,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         var saved = ignoreSaved ? null : SelectedLayout(owner);
         var template = _prototypes.Index<ApartmentTemplatePrototype>(saved?.Template ?? templateId);
+        if (!ignoreSaved && template.ExistingOnly && !OwnsTemplate(owner, template))
+            throw new InvalidOperationException("Apartment template is restricted to existing owners.");
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);
         if (!ignoreSaved && Store.LoadSnapshot(owner.UserId, template.ID) is { } snapshot)

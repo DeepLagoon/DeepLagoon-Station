@@ -55,6 +55,7 @@ public sealed class DiscordApartmentTests
         await server.WaitPost(() =>
         {
             enabled.SetValue(system, true);
+            server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
             store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", flags)!.GetValue(apartments)!;
         });
         try
@@ -83,18 +84,19 @@ public sealed class DiscordApartmentTests
                 else { admin.Suspended=suspended; admin.Flags=adminFlags.ToList(); await database.UpdateAdminAsync(admin); }
                 return true;
             });
-            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("apartment_host_required"));
+            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             await SetAdmin(false, new AdminFlag { Flag="PERMISSIONS" }, new AdminFlag { Flag="ADMIN" });
-            Assert.That((await Call("apartment_grant")).GetProperty("error").GetString(), Is.EqualTo("apartment_host_required"));
+            Assert.That((await Call("apartment_grant")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             await SetAdmin(true, new AdminFlag { Flag="HOST" });
-            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("apartment_host_required"));
+            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             await SetAdmin(false, new AdminFlag { Flag="HOST", Negative=true });
-            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("apartment_host_required"));
+            Assert.That((await Call("apartment_catalog")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             await SetAdmin(false, new AdminFlag { Flag="HOST" });
             var catalog = (await Call("apartment_catalog")).GetProperty("rows").EnumerateArray().ToArray();
             Assert.That(catalog.Single(row => row.GetProperty("id").GetString() == "DiscordApartmentPaidTest").GetProperty("price").GetInt64(), Is.EqualTo(500));
             Assert.That(catalog.Single(row => row.GetProperty("id").GetString() == "DLApartmentStudio").GetProperty("available").GetBoolean(), Is.False);
-            foreach (var id in new[] { "missing", "DLApartmentStudio" })
+            Assert.That(catalog.Single(row => row.GetProperty("id").GetString() == "DLApartmentBasic").GetProperty("available").GetBoolean(), Is.False);
+            foreach (var id in new[] { "missing", "DLApartmentStudio", "DLApartmentBasic" })
                 Assert.That((await Call("apartment_grant", id)).GetProperty("error").GetString(), Is.EqualTo("apartment_unavailable"));
             Assert.That((await Call("apartment_grant", reason:" ")).GetProperty("error").GetString(), Is.EqualTo("invalid_request"));
             Assert.That((await Call("apartment_grant", "DiscordApartmentBrokenTest")).GetProperty("error").GetString(), Is.EqualTo("apartment_invalid_map"));
