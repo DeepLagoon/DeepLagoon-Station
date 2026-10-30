@@ -16,6 +16,15 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 REVIEWED_ENGINE_PATHS = frozenset({
+    # Fork documentation/ownership; no executable build inputs are exempted.
+    ".github/CODEOWNERS",
+    "AGENTS.md",
+    "README.md",
+    # Sprite initialization and absolute mouse-button position fixes.
+    "Robust.Client/GameObjects/EntitySystems/SpriteSystem.cs",
+    "Robust.Client/Graphics/Clyde/Windowing/Sdl3.Event.cs",
+    "Robust.Client/Graphics/Clyde/Windowing/Sdl3.RawEvent.cs",
+    "Robust.UnitTesting/Client/Graphics/MouseButtonPositionTest.cs",
     "Robust.Shared/Prototypes/PrototypeManager.cs",
     "Robust.Shared.IntegrationTests/Prototypes/PrototypeReloadTests.cs",
     "Robust.Shared/Physics/Systems/FixtureSystem.cs",

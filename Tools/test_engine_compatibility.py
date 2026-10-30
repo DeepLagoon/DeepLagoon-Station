@@ -110,11 +110,23 @@ class EngineCompatibilityTests(unittest.TestCase):
         self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
     def test_protected_sources_cannot_be_changed(self):
         for path in ("Robust.Client/Entry.cs", "Robust.Shared/Network/NetManager.cs", "Robust.LoaderApi",
-                     "MSBuild/Robust.Engine.Version.props"):
+                     "MSBuild/Robust.Engine.Version.props", "Robust.Client/Sandbox.yml",
+                     "Robust.Client/Graphics/Clyde/Windowing/Other.cs", ".github/workflows/build.yml",
+                     "Robust.Shared/Serialization/TypeSerializers/Implementations/OtherSerializer.cs"):
             with self.subTest(path=path):
                 self.changed = [path]
                 with self.assertRaisesRegex(gate.CompatibilityError, "Unreviewed"):
                     gate.check(self.root)
+
+    def test_reviewed_sprite_mouse_and_fork_documentation_are_accepted(self):
+        self.changed = [
+            ".github/CODEOWNERS", "AGENTS.md", "README.md",
+            "Robust.Client/GameObjects/EntitySystems/SpriteSystem.cs",
+            "Robust.Client/Graphics/Clyde/Windowing/Sdl3.Event.cs",
+            "Robust.Client/Graphics/Clyde/Windowing/Sdl3.RawEvent.cs",
+            "Robust.UnitTesting/Client/Graphics/MouseButtonPositionTest.cs",
+        ]
+        self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
 
     def test_contract_does_not_accept_commit_or_blob_pins(self):
         for field in ("engine_commit", "official_engine_commit", "allowed_engine_changes"):
