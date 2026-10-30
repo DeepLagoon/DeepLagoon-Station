@@ -37,3 +37,14 @@
     - !type:NestedSelector
       tableId: SalvageTreasureUncommon
       weight: 20
+
+# Asteroid-stream junk favors single artifact fragments within the existing loot budget.
+- type: entityTable
+  id: DeepLagoonSpaceJunkAsteroidLoot
+  table: !type:GroupSelector
+    children:
+    - id: ArtifactFragment1
+      weight: 25
+    - !type:NestedSelector
+      tableId: DeepLagoonSpaceJunkFieldLoot
+      weight: 75

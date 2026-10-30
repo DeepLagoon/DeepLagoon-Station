@@ -47,7 +47,7 @@ public sealed class OrbitalDebrisIntegrationTests
                 Assert.That(physics.BodyType, Is.EqualTo(BodyType.Dynamic));
                 var tiles = maps.GetAllTiles(uid, grid);
                 while (tiles.MoveNext())
-                    Assert.That(tiles.Current.Tile.TypeId, Is.EqualTo(pair.Server.ResolveDependency<ITileDefinitionManager>()[OrbitalDebrisSystem.SupportTile].TileId));
+                    Assert.That(tiles.Current.Tile.TypeId, Is.EqualTo(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
                 var children = entities.GetComponent<TransformComponent>(uid).ChildEnumerator;
                 var walls = 0;
                 while (children.MoveNext(out var child))
@@ -174,8 +174,10 @@ public sealed class OrbitalDebrisIntegrationTests
         await pair.CleanReturnAsync();
     }
 
-    [Test]
-    public async Task DebrisFieldsUseLargeSparseOrePilesAndRicherLoot()
+    [TestCase(SpaceRegionKind.Debris, false)]
+    [TestCase(SpaceRegionKind.Asteroids, false)]
+    [TestCase(SpaceRegionKind.Asteroids, true)]
+    public async Task DebrisFieldsUseLargeSparseOrePilesAndRicherLoot(SpaceRegionKind kind, bool overlapping)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
         await pair.Server.WaitAssertion(() =>
@@ -185,11 +187,14 @@ public sealed class OrbitalDebrisIntegrationTests
             var map = maps.CreateMap(out _);
             var environment = entities.EnsureComponent<SpaceEnvironmentComponent>(map);
             environment.Definition = new SectorDefinition { Id = "field-test", Regions = new()
-                { new SpaceRegion { X = 5000, Radius = 1500, Kind = SpaceRegionKind.Debris } } };
+                { new SpaceRegion { X = 5000, Radius = 1500, Kind = kind } } };
+            if (overlapping) environment.Definition.Regions.Insert(0,
+                new SpaceRegion { X = 5000, Radius = 1500, Kind = SpaceRegionKind.Debris });
             var debris = entities.System<OrbitalDebrisSystem>();
             var large = false;
             var ores = new HashSet<string>();
             var fauna = 0;
+            var fragments = 0;
             for (uint seed = 1; seed <= 24; seed++)
             {
                 var uid = debris.SpawnPile(map, new Vector2(4200 + seed * 50, 0), new Vector2(5000, 1000), seed)!.Value;
@@ -207,11 +212,14 @@ public sealed class OrbitalDebrisIntegrationTests
                     var proto = entities.GetComponent<MetaDataComponent>(child).EntityPrototype?.ID;
                     if (proto?.StartsWith("WallRockScrapPile", StringComparison.Ordinal) == true) ores.Add(proto);
                     if (proto == "MobCarpSalvage") fauna++;
+                    if (proto == "ArtifactFragment1") fragments++;
                 }
             }
             Assert.That(large, Is.True);
             Assert.That(ores.Count, Is.GreaterThan(3));
             Assert.That(fauna, Is.InRange(1, 24));
+            if (kind == SpaceRegionKind.Asteroids)
+                Assert.That(fragments, Is.GreaterThan(0), "Asteroid-stream piles must materialize artifact fragments, including in overlapping fields");
             entities.DeleteEntity(map);
         });
         await pair.CleanReturnAsync();

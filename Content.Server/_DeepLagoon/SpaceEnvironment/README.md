@@ -48,11 +48,15 @@ existing regions, planets or survey entries. Concurrent/stale updates cannot ove
 
 Space junk uses native scrap-wall grids. Normal piles fit within 4x4; debris and asteroid
 fields allow footprints up to 10x10, with a maximum of 36 connected occupied cells per pile.
-Invisible space support provides native wall anchoring and physics without an ordinary floor.
+Standard Plating provides the visible subfloor, native wall anchoring and grid physics.
 Walls include WallRockScrapPile, iron, quartz, coal and silver variants. Rich field piles also
 include gold, plasma, uranium and occasional bluespace ore. Native blue NFBaseWreckDebris
 loot tables provide 1-2 ordinary results, or up to 4 richer field results. Field piles have a
 1-in-8 chance of one native salvage carp; no large random mob group is generated.
+Asteroid-stream piles use a dedicated loot table: each loot selection has a 25% chance
+to choose one ArtifactFragment1, with the remaining 75% using the normal rich field table.
+The existing two field selections and four-result cap apply. Asteroid streams take precedence
+where they overlap debris fields; other habitats retain their original loot tables.
 
 Density follows the actual habitat at the predicted spawn position:
 - Debris/asteroid fields: up to 10 local piles (depth adjusts the target between 6 and 10),

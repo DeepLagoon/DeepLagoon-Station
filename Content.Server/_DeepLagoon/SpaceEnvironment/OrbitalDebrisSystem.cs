@@ -21,7 +21,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
     public const int MapLimit = 100;
     public const int VisibleLimit = 10;
     public const float UnseenSeconds = 10;
-    public const string SupportTile = "DeepLagoonSpaceJunkSupport";
+    public const string SupportTile = "Plating";
     public const string LootTable = "DeepLagoonSpaceJunkLoot";
     [Dependency] private readonly MapSystem _maps = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
@@ -211,7 +211,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         }
     }
 
-    /// <summary>Native scrap walls on invisible space support, with bounded field-specific size and contents.</summary>
+    /// <summary>Native scrap walls on standard plating, with bounded field-specific size and contents.</summary>
     public EntityUid? SpawnPile(EntityUid map, Vector2 position, Vector2 anchor, uint seed)
     {
         if (!TryComp<MapComponent>(map, out var mapComponent) || !float.IsFinite(position.X) || !float.IsFinite(position.Y)
@@ -248,7 +248,9 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         var lootRandom = new System.Random(unchecked((int) random.Next()));
         var maximumLoot = habitat.Rich ? 4 : 2;
         var lootCount = 0;
-        var table = _prototypes.Index<EntityTablePrototype>(habitat.Rich ? "DeepLagoonSpaceJunkFieldLoot" : LootTable).Table;
+        var tableId = habitat.Kind == SpaceJunkHabitatKind.AsteroidField ? "DeepLagoonSpaceJunkAsteroidLoot"
+            : habitat.Rich ? "DeepLagoonSpaceJunkFieldLoot" : LootTable;
+        var table = _prototypes.Index<EntityTablePrototype>(tableId).Table;
         for (var roll = 0; roll < (habitat.Rich ? 2 : 1) && lootCount < maximumLoot; roll++)
         foreach (var proto in _tables.GetSpawns(table, lootRandom))
         {

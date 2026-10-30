@@ -11,12 +11,15 @@ public sealed partial class OrbitalDebrisSystem
     public const float ReactionSeconds = 8f;
     public static SpaceJunkHabitat Habitat(SectorDefinition sector, Vector2 position)
     {
+        SpaceJunkHabitatKind? field = null;
         foreach (var region in sector.Regions)
         {
             if (region.Kind is not (SpaceRegionKind.Debris or SpaceRegionKind.Asteroids) || !SpaceRegionGeometry.Contains(region, position)) continue;
-            return new SpaceJunkHabitat(region.Kind == SpaceRegionKind.Debris ? SpaceJunkHabitatKind.DebrisField : SpaceJunkHabitatKind.AsteroidField,
-                10, 10, 36, 1, true);
+            field = region.Kind == SpaceRegionKind.Debris ? SpaceJunkHabitatKind.DebrisField : SpaceJunkHabitatKind.AsteroidField;
+            // The asteroid-stream loot also applies where a debris field overlaps it.
+            if (field == SpaceJunkHabitatKind.AsteroidField) break;
         }
+        if (field is { } kind) return new SpaceJunkHabitat(kind, 10, 10, 36, 1, true);
         foreach (var planet in sector.Planets)
             if (Vector2.DistanceSquared(position, new Vector2(planet.X, planet.Y)) <= 2000f * 2000f)
                 return new SpaceJunkHabitat(SpaceJunkHabitatKind.PlanetOrbit, 3, 4, 16, 12, false);
