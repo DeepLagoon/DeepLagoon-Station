@@ -75,7 +75,8 @@ public sealed class LobbyArtworkTests
             lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, unchangedSize));
             Assert.That(info.Parent, Is.SameAs(lobby.InlineServerInfo), "Updated server information is remeasured at the same viewport size");
             Assert.That(lobby.UtilityDrawer.Collapsed, Is.True, "Moving server text preserves the drawer's chosen state");
-            var header = lobby.Chat.FindControl<Robust.Client.UserInterface.Controls.PanelContainer>("LobbyChatHeading");
+            var header = (Robust.Client.UserInterface.Controls.PanelContainer) lobby.Chat.ChatWindowPanel.GetChild(0).GetChild(0);
+            Assert.That(header.Name, Is.EqualTo("LobbyChatHeading"));
             Assert.That(header.PanelOverride, Is.TypeOf<Robust.Client.Graphics.StyleBoxFlat>());
             Assert.That(lobby.RoundStatusHeading.PanelOverride, Is.TypeOf<Robust.Client.Graphics.StyleBoxFlat>());
         });
