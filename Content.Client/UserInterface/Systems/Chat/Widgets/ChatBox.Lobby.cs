@@ -1,8 +1,8 @@
+using System.Linq;
 using Content.Client.Lobby.UI;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
-using static Robust.Client.UserInterface.StylesheetHelpers;
 
 namespace Content.Client.UserInterface.Systems.Chat.Widgets;
 
@@ -34,18 +34,23 @@ public partial class ChatBox
         headingPanel.AddChild(styleRow);
         layout.AddChild(headingPanel);
         headingPanel.SetPositionFirst();
-        styleRow.Stylesheet = new Stylesheet(new StyleRule[]
+        // A local stylesheet replaces the native one, including Label/LineEdit
+        // fonts. Override only the chrome so input and switch captions keep
+        // inheriting the complete SS14 theme.
+        StyleBoxFlat ButtonBox() => new()
         {
-            Element<Button>().Prop("stylebox", new StyleBoxFlat
-            {
-                BackgroundColor = Color.FromHex("#122019"),
-                BorderColor = Color.FromHex("#314B3C"),
-                BorderThickness = new Thickness(1),
-                ContentMarginLeftOverride = 6,
-                ContentMarginRightOverride = 6,
-            }).Prop("font-color", LobbyConsoleTheme.Green),
-        });
-        ChatInput.Stylesheet = styleRow.Stylesheet;
+            BackgroundColor = Color.FromHex("#122019"),
+            BorderColor = Color.FromHex("#314B3C"),
+            BorderThickness = new Thickness(1),
+            ContentMarginLeftOverride = 6,
+            ContentMarginRightOverride = 6,
+        };
+        foreach (var button in styleRow.Children.OfType<Button>())
+        {
+            button.StyleBoxOverride = ButtonBox();
+            button.Label.FontColorOverride = LobbyConsoleTheme.Green;
+        }
+        ChatInput.ChannelSelector.StyleBoxOverride = ButtonBox();
         ChatInput.Input.StyleBoxOverride = new StyleBoxFlat
         {
             BackgroundColor = Color.FromHex("#111F17"),

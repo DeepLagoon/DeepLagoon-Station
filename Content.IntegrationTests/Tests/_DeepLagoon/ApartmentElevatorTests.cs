@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using Content.Server.Doors.Systems;
 using Content.Server._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Apartments;
@@ -107,29 +106,29 @@ public sealed class ApartmentElevatorTests
             }
         });
         await pair.RunTicksSync(90);
-        await pair.Client.WaitAssertion(() =>
+        await pair.RunTicksSync(15);
+        await pair.Server.WaitAssertion(() =>
         {
-            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var system = pair.Client.EntMan.System<Content.Client._DeepLagoon.Apartments.ApartmentElevatorSystem>();
-            var curtain = system.GetType().GetField("_curtain", flags)!.GetValue(system)!;
-            Assert.That((TimeSpan)curtain.GetType().GetField("_end", flags)!.GetValue(curtain)!, Is.EqualTo(TimeSpan.Zero));
+            var entities = pair.Server.EntMan;
+            var mist = entities.EntityQueryEnumerator<MetaDataComponent, TransformComponent>();
+            var cabins = new HashSet<EntityUid> { source, destination };
+            while (mist.MoveNext(out _, out var metadata, out var transform))
+            {
+                if (metadata.EntityPrototype?.ID != "DLApartmentElevatorMist") continue;
+                var panel = cabins.Single(c => entities.GetComponent<TransformComponent>(c).GridUid == transform.GridUid);
+                Assert.That(transform.LocalPosition, Is.EqualTo(entities.GetComponent<TransformComponent>(panel).LocalPosition));
+                cabins.Remove(panel);
+            }
+            Assert.That(cabins, Is.Empty, "Both cabins must have local mist before the passengers move.");
+            Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(source).GridUid));
         });
-        await pair.RunTicksSync(90);
+        await pair.RunTicksSync(75);
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(destination).GridUid));
             Assert.That(entities.HasComponent<ApartmentTripPendingComponent>(body), Is.True);
             foreach (var door in doors) Assert.That(entities.System<DoorSystem>().TryOpen(door), Is.False);
-        });
-        await pair.Client.WaitAssertion(() =>
-        {
-            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var system = pair.Client.EntMan.System<Content.Client._DeepLagoon.Apartments.ApartmentElevatorSystem>();
-            var curtain = system.GetType().GetField("_curtain", flags)!.GetValue(system)!;
-            var start = (TimeSpan)curtain.GetType().GetField("_start", flags)!.GetValue(curtain)!;
-            var end = (TimeSpan)curtain.GetType().GetField("_end", flags)!.GetValue(curtain)!;
-            Assert.That((end - start).TotalSeconds, Is.EqualTo(2).Within(.001));
         });
         await pair.RunTicksSync(60);
         await pair.Server.WaitAssertion(() =>

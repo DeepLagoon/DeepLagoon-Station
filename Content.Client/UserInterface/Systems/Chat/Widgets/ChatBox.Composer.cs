@@ -75,6 +75,15 @@ public partial class ChatBox
 
     private void PublishComposer()
     {
+        // Permissions can change while the composer is closed. Never publish
+        // a selection missing from its options, including on the first open.
+        var selected = _controller.MapLocalIfGhost(SelectedChannel);
+        if (!ChannelSelectorPopup.ChannelSelectorOrder.Contains(selected) ||
+            (_controller.SelectableChannels & selected) == 0)
+            selected = ChatSelectChannel.OOC;
+        if (selected != SelectedChannel)
+            SafelySelectChannel(selected);
+
         _composer?.SetEmoteMode(SelectedChannel == ChatSelectChannel.Emotes);
         var channels = ChannelSelectorPopup.ChannelSelectorOrder
             .Where(channel => (_controller.SelectableChannels & channel) != 0)
@@ -89,10 +98,6 @@ public partial class ChatBox
 
     private void OnComposerChannelsChanged(ChatSelectChannel channels)
     {
-        if ((channels & SelectedChannel) == 0)
-            SafelySelectChannel(_controller.MapLocalIfGhost(SelectedChannel));
-        if ((channels & SelectedChannel) == 0)
-            SafelySelectChannel(ChatSelectChannel.OOC);
         PublishComposer();
     }
 

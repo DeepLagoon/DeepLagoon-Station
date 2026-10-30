@@ -60,9 +60,9 @@ public sealed partial class JukeboxBoundUserInterface
         window.Panel.Web.Failed -= DeferClassic;
         // Detach the BUI close callback while replacing its presentation.
         WindowInterfaceStyle.ClosePresentation(this, window);
-#pragma warning disable CS0618
-        if (!window.Disposed) window.Dispose();
-#pragma warning restore CS0618
+        // Leaving the UI tree closes the browser. CEF may still call GetViewRect
+        // until OnBeforeClose; disposing the control makes the signed WebView
+        // return an empty rectangle, which aborts the entire client process.
     }
 
     protected override void Dispose(bool disposing)

@@ -45,8 +45,8 @@ ent-SurgeryAttachLeftFoot = Прикрепить левую стопу
 ent-SurgeryAttachRightFoot = Прикрепить правую стопу
     .desc = { ent-SurgeryBase.desc }
 
-ent-SurgeryCorticalBorerRemoval = Удалить борера
-    .desc = Удаляет борера из тела.
+ent-SurgeryCorticalBorerRemoval = Удалить мозгового червя
+    .desc = Удаляет мозгового червя из тела.
 
 ent-SurgeryTendWoundsBrute = Лечение механических повреждений
     .desc = { ent-SurgeryBase.desc }

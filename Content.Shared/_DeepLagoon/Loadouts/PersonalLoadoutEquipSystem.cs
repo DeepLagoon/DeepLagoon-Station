@@ -1,5 +1,6 @@
 using System.Linq;
 using Content.Shared.Clothing.Components;
+using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.Inventory;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
@@ -24,16 +25,31 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
     [Dependency] private PersonalLoadoutSystem _loadouts = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
+    [Dependency] private ToggleableClothingSystem _toggleable = default!;
 
     public void Customize(EntityUid item, PersonalLoadoutCustomization? data)
     {
         if (data?.Name != null) _metadata.SetEntityName(item, data.Name);
         if (data?.Description != null) _metadata.SetEntityDescription(item, data.Description);
         if (data?.Color != null && Color.TryFromHex(data.Color, out var color))
+            PaintOutfit(item, color, new HashSet<EntityUid>());
+    }
+
+    private void PaintOutfit(EntityUid item, Color color, HashSet<EntityUid> painted)
+    {
+        if (!painted.Add(item))
+            return;
+
+        EnsureComp<PersonalLoadoutVisualsComponent>(item);
+        EnsureComp<AppearanceComponent>(item);
+        _appearance.SetData(item, PersonalLoadoutVisuals.Color, color);
+
+        // Attached helmets, hoods and MOD parts are separate entities, even when deployed.
+        // Follow the clothing links rather than containers, which may hold unrelated items.
+        if (_toggleable.GetAttachedClothingsList(item) is { } parts)
         {
-            EnsureComp<PersonalLoadoutVisualsComponent>(item);
-            EnsureComp<AppearanceComponent>(item);
-            _appearance.SetData(item, PersonalLoadoutVisuals.Color, color);
+            foreach (var part in parts)
+                PaintOutfit(part, color, painted);
         }
     }
 
@@ -65,16 +81,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                     targetSlots.Any(slot => unequipped.Contains(slot.Name) && (clothing.Slots & slot.SlotFlags) != 0))
                     continue;
                 var item = Spawn(itemPrototype, Transform(character).Coordinates);
-                if (data?.Name != null)
-                    _metadata.SetEntityName(item, data.Name);
-                if (data?.Description != null)
-                    _metadata.SetEntityDescription(item, data.Description);
-                if (data?.Color != null && Color.TryFromHex(data.Color, out var color))
-                {
-                    EnsureComp<PersonalLoadoutVisualsComponent>(item);
-                    EnsureComp<AppearanceComponent>(item);
-                    _appearance.SetData(item, PersonalLoadoutVisuals.Color, color);
-                }
+                Customize(item, data);
                 if (data?.Heirloom == true)
                 {
                     EnsureComp<PersonalLoadoutVisualsComponent>(item);

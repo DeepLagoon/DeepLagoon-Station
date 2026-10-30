@@ -96,4 +96,4 @@ surgery-popup-step-SurgeryStepInsertStomach = { $user } вставляет же�
 
 surgery-popup-step-SurgeryStepSealOrganWound = { $user } запечатывает раны на { $part } у { $target }.
 
-surgery-popup-step-SurgeryStepRemoveCorticalBorer = { $user } удаляет борера из { $part } у { $target }!
+surgery-popup-step-SurgeryStepRemoveCorticalBorer = { $user } удаляет мозгового червя из { $part } у { $target }!

@@ -27,8 +27,7 @@ public sealed partial class ApartmentElevatorReservedComponent : Component;
 
 public sealed partial class ApartmentElevatorSystem : EntitySystem
 {
-    private const float TransferCoverDuration = 2f;
-    private const float TransferCoverLead = .75f;
+    private const float TransferSmokeLead = .75f;
     [Dependency] private ApartmentSystem _apartments = default!;
     [Dependency] private ApartmentTravelSystem _travel = default!;
     [Dependency] private SharedInteractionSystem _interaction = default!;
@@ -241,16 +240,14 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                         if (_audio.PlayEntity(sound, session, body, cabin.TravelSound.Params) is { } audio) trip.Audio.Add(audio.Entity);
                 }
                 trip.ArrivesAt = _timing.CurTime + duration;
-                trip.Next = _timing.CurTime + duration / 2 - TimeSpan.FromSeconds(TransferCoverLead);
+                trip.Next = _timing.CurTime + duration / 2 - TimeSpan.FromSeconds(TransferSmokeLead);
             }
             else if (trip.Stage == 1 && _timing.CurTime >= trip.Next)
             {
                 trip.Stage = 2;
                 Smoke(trip.Source);
                 Smoke(trip.Destination);
-                trip.Next = _timing.CurTime + TimeSpan.FromSeconds(TransferCoverLead);
-                foreach (var (session, _, _) in trip.Passengers)
-                    RaiseNetworkEvent(new ApartmentElevatorCurtainEvent(TransferCoverDuration), session);
+                trip.Next = _timing.CurTime + TimeSpan.FromSeconds(TransferSmokeLead);
             }
             else if (trip.Stage == 2 && _timing.CurTime >= trip.Next)
             {
@@ -321,7 +318,6 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         {
             if (!Deleted(body)) RemComp<ApartmentTripPendingComponent>(body);
             if (session.Status != SessionStatus.InGame) continue;
-            RaiseNetworkEvent(new ApartmentElevatorCurtainEvent(0), session);
             _popups.PopupCursor(message, session);
             Publish(session, message);
         }

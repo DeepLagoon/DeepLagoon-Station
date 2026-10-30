@@ -5,21 +5,15 @@ namespace Content.Client._DeepLagoon.Apartments;
 
 public sealed partial class ApartmentElevatorSystem : EntitySystem
 {
-    [Dependency] private Robust.Client.Graphics.IOverlayManager _overlays = default!;
-    [Dependency] private Robust.Shared.Timing.IGameTiming _timing = default!;
-    private ApartmentElevatorCurtain _curtain = default!;
     private ApartmentTravelWindow? _window;
     private ApartmentElevatorStateEvent? _state;
     public override void Initialize()
     {
         base.Initialize();
-        _curtain = new ApartmentElevatorCurtain(_timing);
-        _overlays.AddOverlay(_curtain);
-        SubscribeNetworkEvent<ApartmentElevatorCurtainEvent>(ev => _curtain.Show(ev.Duration));
         SubscribeNetworkEvent<ApartmentElevatorStateEvent>(OnState);
         SubscribeNetworkEvent<ApartmentElevatorClosedEvent>(_ => Close());
     }
-    public override void Shutdown() { Close(); _overlays.RemoveOverlay(_curtain); base.Shutdown(); }
+    public override void Shutdown() { Close(); base.Shutdown(); }
 
     private void OnState(ApartmentElevatorStateEvent state)
     {

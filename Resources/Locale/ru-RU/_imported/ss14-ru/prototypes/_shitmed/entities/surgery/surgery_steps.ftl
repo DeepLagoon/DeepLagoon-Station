@@ -87,5 +87,5 @@ ent-SurgeryStepInsertHeart = Вживить сердце
 ent-SurgeryStepSealOrganWound = Закрыть рану
     .desc = { ent-SurgeryStepBase.desc }
 
-ent-SurgeryStepRemoveCorticalBorer = Удалить борера
+ent-SurgeryStepRemoveCorticalBorer = Удалить мозгового червя
     .desc = { ent-SurgeryStepBase.desc }
