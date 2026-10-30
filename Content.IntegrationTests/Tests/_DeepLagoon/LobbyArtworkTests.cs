@@ -54,7 +54,7 @@ public sealed class LobbyArtworkTests
                 Assert.That(lobby.InlineServerInfo.Visible, Is.EqualTo(inline));
                 Assert.That(lobby.ServerInfo, Is.SameAs(info), "Resize moves the live information control without duplicating it");
                 Assert.That(text.GetMessage(), Does.Contain("#169").And.Contain("[color=yellow]"));
-                Assert.That(lobby.ChatPanel.Height, Is.EqualTo(size.Y * 0.85f).Within(1));
+                Assert.That(lobby.ChatPanel.Height, Is.EqualTo(lobby.RightSide.Height * 0.85f).Within(1));
                 if (inline)
                 {
                     Assert.That(text.GlobalPosition.Y,
