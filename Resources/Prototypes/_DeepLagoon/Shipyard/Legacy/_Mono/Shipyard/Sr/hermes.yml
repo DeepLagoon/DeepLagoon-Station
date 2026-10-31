@@ -1,0 +1,37 @@
+- type: vessel
+  id: Hermes
+  parent: BaseVessel
+  name: Гермес # Ru-Localization
+  description: Почтовый многофункциональный служебный шаттл, спроектированный с приоритетом его скорости в ушерб некоторых других элементов. Разработан и произведён Пантеон Коллектив. # Ru-Localization
+  price: 65424 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.998461366 # Exodus: expected-price allowance for randomized contents.
+  category: Small
+  group: Sr
+  access: Mail
+  shuttlePath: /SharedMaps/_Mono/Shuttles/hermes.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Cargo
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Hermes
+  mapName: 'Гермес' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/hermes.yml
+  minPlayers: 0
+  stations:
+    Hermes:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Гермес{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs: {}

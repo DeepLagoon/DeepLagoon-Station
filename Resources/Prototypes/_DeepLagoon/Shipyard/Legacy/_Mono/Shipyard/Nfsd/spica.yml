@@ -1,0 +1,42 @@
+#Author: Starch(!)
+
+- type: vessel
+  id: Spica
+  parent: BaseVesselIFFDisabled
+  name: Спика # Ru-Localization
+  description: Лёгкая фронтовая опора флотов ТСФ. Удивительный набор вооружения в компактном корпусе, созданный для боя с более крупными целями. # Ru-Localization
+  price: 117000
+  purchasable: false # voucher only
+  category: Small
+  group: Security
+  access: Security
+  shuttlePath: /SharedMaps/_Exodus/Shuttles/TSFCM/spica.yml # Exodus
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Patrol
+  - Pursuit
+  engine:
+  - Bananium
+
+- type: gameMap
+  id: Spica
+  mapName: 'Спика' # Ru-Localization
+  mapPath: /SharedMaps/_Exodus/Shuttles/TSFCM/spica.yml # Exodus
+  minPlayers: 0
+  stations:
+    Spica:
+      stationProto: StandardFrontierSecurityVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Спика{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]

@@ -1,0 +1,47 @@
+# Author Info
+# GitHub: NazrinNya
+# Discord: NaztinNya
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Phantom
+  parent: BaseVessel
+  name: Фантом # Ru-Localization
+  description: Экспериментальный шаттл с  возможностью развития огромных скоростей. Имеет модуль БСС-25У. # Ru-Localization
+  price: 106000 # Station appraisal; includes 1% allowance for randomized contents.
+  category: Small
+  group: Medical
+  access: Command # DoC exclusive.
+  limit: 2
+  shuttlePath: /SharedMaps/_Mono/Shuttles/phantom.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus MD faction
+    factions:
+    - MD
+  guidebookPage: null
+  class:
+  - Medical
+  engine:
+  - Bananium
+
+- type: gameMap
+  id: Phantom
+  mapName: 'Фантом' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/phantom.yml
+  minPlayers: 0
+  stations:
+    Phantom:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Фантом{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            MdMedic: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

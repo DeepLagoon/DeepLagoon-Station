@@ -1,0 +1,45 @@
+# Author Info
+# GitHub: Rubeebeebee
+# Discord: rubeebee
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Artemis
+  parent: BaseVessel
+  name: Артемида # Ru-Localization
+  description: Артемида - компактный шаттл-амбулатория, предназначенный для быстрой эвакуации пациентов и выхода из зоны так же быстро, как и прибыл. # Ru-Localization
+  price: 53531 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Medical
+  shuttlePath: /SharedMaps/_Mono/Shuttles/artemis.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus MD faction
+    factions:
+    - MD
+  guidebookPage: null
+  class:
+  - Medical
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Artemis
+  mapName: 'Артемида' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/artemis.yml
+  minPlayers: 0
+  stations:
+    Artemis:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Артемида{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            MdMedic: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

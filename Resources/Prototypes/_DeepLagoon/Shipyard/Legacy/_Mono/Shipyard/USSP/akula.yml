@@ -1,0 +1,39 @@
+#Author: Grandalff on Github.
+
+- type: vessel
+  id: Akula
+  parent: BaseVesselUSSPAntag
+  name: Акула # Ru-Localization
+  description: Дальнобойный шаттл СССП, предназначенный для быстрых боёв. Оснащён двумя Дравонами и модулем БСС-25. # Ru-Localization
+  price: 64000
+  category: Medium
+  group: Ussp
+  access: Mercenary # Exodus temp-ussp-mercenary-access
+  # access: USSP # Exodus temp-ussp-mercenary-access
+  shuttlePath: /SharedMaps/_Mono/Shuttles/USSP/akula.yml
+  guidebookPage: Null
+  class:
+  - Patrol
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Akula
+  mapName: 'Акула' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/USSP/akula.yml
+  minPlayers: 0
+  stations:
+    Akula:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Акула СССП{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        # Exodus-begin disable-ussp-faction
+        # - type: StationJobs
+        #   availableJobs:
+        #     USSPSergeant: [ 0, 0 ]
+        #     USSPRifleman: [ 0, 0 ]
+        # Exodus-end

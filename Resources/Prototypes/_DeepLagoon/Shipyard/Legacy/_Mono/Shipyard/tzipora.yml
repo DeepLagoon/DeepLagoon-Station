@@ -1,0 +1,46 @@
+# Author Info
+# GitHub: starch70
+# Discord: _starch_
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Tzipora
+  parent: BaseVessel
+  name: Тзипора # Ru-Localization
+  description: Продвинутый медицинский шаттл, оснащённый криокапсулой, химической лабораторией и другим хирургическим оборудованием. # Ru-Localization
+  price: 145530
+  category: Large
+  group: Medical
+  shuttlePath: /SharedMaps/_Mono/Shuttles/tzipora.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus MD faction
+    factions:
+    - MD
+  guidebookPage: null
+  class:
+  - Medical
+  - Chemistry
+  engine:
+  - AME
+
+- type: gameMap
+  id: Tzipora
+  mapName: 'Тзипора' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/tzipora.yml
+  minPlayers: 0
+  stations:
+    Tzipora:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Тзипора{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            MdMedic: [ 0, 0 ]
+            # Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ] # Exodus keep Mercenary vessel role

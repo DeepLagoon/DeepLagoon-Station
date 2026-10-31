@@ -1,0 +1,47 @@
+# Author Info
+# GitHub: bluebrouny
+# Discord: half_spinning_monkey
+
+# Minor edits by Redrover1760 (github)
+
+# Shuttle Notes:
+- type: vessel
+  id: McChilly
+  parent: BaseVessel
+  name: МакЧилли # Ru-Localization
+  description: Небольшой шаттл для продажи мороженого. На случай, когда припекает, лучше всего взять... Кто это писал? # Ru-Localization
+  price: 22732 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.999932766 # Exodus: expected-price allowance for randomized contents.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/mcchilly.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Civilian
+  - Kitchen
+  engine:
+  - APU
+
+- type: gameMap
+  id: McChilly
+  mapName: 'МакЧилли' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/mcchilly.yml
+  minPlayers: 0
+  stations:
+    McChilly:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'МакЧилли{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

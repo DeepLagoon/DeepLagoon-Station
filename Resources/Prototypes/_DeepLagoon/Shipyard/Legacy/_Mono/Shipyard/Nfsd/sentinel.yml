@@ -1,0 +1,43 @@
+#Author: Starch(!)
+
+- type: vessel
+  id: Sentinel
+  parent: BaseVesselIFFDisabled
+  name: Центинел # Ru-Localization
+  description: Бронированный корвет с двумя носовыми орудиями Бофорс, четырьмя плазменными пушками Мародёр и двумя кормовыми 20-мм орудиями Л85 для обороны. # Ru-Localization
+  price: 210200 # Appraises around 100k, but marked up since appraisegrid is too stupid to realize the true value of my creations (plastitanium walls probably has their value set really low)
+  purchasable: false # voucher only
+  category: Medium
+  group: Security
+  access: Security
+  shuttlePath: /SharedMaps/_Exodus/Shuttles/TSFCM/sentinel.yml # Exodus
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Patrol
+  - Corvette
+  engine:
+  - AME
+
+- type: gameMap
+  id: Sentinel
+  mapName: 'Центинел' # Ru-Localization
+  mapPath: /SharedMaps/_Exodus/Shuttles/TSFCM/sentinel.yml # Exodus
+  minPlayers: 0
+  stations:
+    Sentinel:
+      stationProto: StandardFrontierSecurityVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Центинел{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]
+

@@ -1,0 +1,36 @@
+- type: vessel
+  id: Hunter
+  parent: BaseVesselIFFDisabled
+  name: Охотник # Ru-Localization
+  description: Дешёвый бронированный шаттл, вооружённый четырьмя 90мм орудиями. # Ru-Localization
+  price: 50000
+  category: Small
+  group: Syndicate
+  purchasable: false # Exodus syndicate voucher only
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Syndicate/hunter.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - Syndicate
+  guidebookPage: Null
+  class:
+  - Syndicate
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Hunter
+  mapName: 'Охотник' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Syndicate/hunter.yml
+  minPlayers: 0
+  stations:
+    Hunter:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Охотник{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs: {}

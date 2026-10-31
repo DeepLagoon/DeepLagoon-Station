@@ -1,0 +1,40 @@
+#Author: Articular1 on Github, Articular on Discord
+- type: vessel
+  id: Spyglass
+  parent: BaseVessel
+  name: СпайГласс # Ru-Localization
+  description: Исследовательский корабль Ульман Индастрис. Эта малютка способна заниматься ксеноархеологией - и ничем больше. # Ru-Localization
+  price: 66616 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/spyglass.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Science
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Spyglass
+  mapName: 'СпайГласс' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/spyglass.yml
+  minPlayers: 0
+  stations:
+    Spyglass:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'СпайГласс{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]
+

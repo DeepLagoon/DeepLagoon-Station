@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: UnicornOnLSD
+# Discord: unicornonlsd
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Rig
+  parent: BaseVessel
+  name: Риг # Ru-Localization
+  description: Тяжёлый рудодобывающий шаттл, произведённый на верфях Дрэйк Индастрис. Способен добывать, собирать и перерабатывать материалы, превращая их в то, что требует постоянно меняющийся рынок Колоссеи. Оснащён двумя пусковыми установками для фальшфейеров для противоракетной обороны, четырьмя шахтёрскими пульсаторами и специальной системой для подачи руды прямо на встроенную конвеерную систему. # Ru-Localization
+  price: 104900 # +50% Markup from 69900 appraisegrid price. To amount for all of the QOL included in the vessel
+  category: Medium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/rig.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Salvage
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Rig
+  mapName: 'Риг' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/rig.yml
+  minPlayers: 0
+  stations:
+    Rig:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Риг{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            # Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ] # Exodus keep Mercenary vessel role

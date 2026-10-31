@@ -1,0 +1,47 @@
+#Author: Core-Mene on Github,  Core-Mene on Discord.
+
+- type: vessel
+  id: Vulture
+  parent: BaseVesselIFFDisabled
+  name: Гриф # Ru-Localization
+  description: Тяжёлый утилизаторский шаттл производства "Ульман Индастрис", изначально созданный для добычи в глубоком космосе, но недавно был переделан под более боевые задачи и продан Династии Фаэтона. Оснащён тремя орудиями Бофорс. # Ru-Localization
+  limit: 2
+  hyperwarTimelock: 1800
+  price: 295958 # Exodus: expected ship and contents value; no additional markup.
+  purchasable: false # voucher only
+  category: Large
+  group: BlackMarket
+  access: Pirate
+  shuttlePath: /SharedMaps/_Mono/Shuttles/BlackMarket/vulture.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - PirateNF
+  guidebookPage: Null
+  class:
+  - Pirate
+  - Frigate
+  engine:
+  - AME
+
+- type: gameMap
+  id: Vulture
+  mapName: 'Гриф' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/BlackMarket/vulture.yml
+  minPlayers: 0
+  stations:
+    Vulture:
+      stationProto: StandardFrontierVessel
+      gridComponents:
+      - type: VesselInfo
+        description: "Ходят слухи, что один Гриф самостоятельно уничтожил небольшую планету. Теперь ваша очередь проверить это на себе." # Ru-Localization
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Гриф{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Pirate: [ 0, 0 ]
+            PdvBorg: [ 0, 0 ]

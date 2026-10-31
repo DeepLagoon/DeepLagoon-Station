@@ -1,0 +1,45 @@
+# Author Info
+# GitHub: OneZerooo0
+# Discord: onezero00
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Judiciary
+  parent: BaseVessel
+  name: Судья # Ru-Localization
+  description: Переоборудованное исследовательское судно, оснащённое экспедиционным и боевым оборудованием. # Ru-Localization
+  price: 78518 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.998913288 # Exodus: expected-price allowance for randomized contents.
+  category: Medium
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/judiciary.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null # Legacy guidebook page is not present in Station.
+  class:
+  - Expedition
+  engine:
+  - AME
+
+- type: gameMap
+  id: Judiciary
+  mapName: 'Судья' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Expedition/judiciary.yml
+  minPlayers: 0
+  stations:
+    Judiciary:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Судья{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

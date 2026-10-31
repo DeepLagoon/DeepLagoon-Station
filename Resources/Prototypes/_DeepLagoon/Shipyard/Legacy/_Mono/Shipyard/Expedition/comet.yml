@@ -1,0 +1,41 @@
+- type: vessel
+  id: Comet
+  parent: BaseVessel
+  name: Комета # Ru-Localization
+  description: Демилитаризованный универсальный вспомогательный шаттл с экспедиционным функционалом. # Ru-Localization
+  price: 146223 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.740169764 # Exodus: expected-price allowance for randomized contents.
+  category: Large
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/comet.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Expedition
+  - Science
+  - Salvage
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Comet
+  mapName: 'Комета' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Expedition/comet.yml
+  minPlayers: 0
+  stations:
+    Comet:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Комета{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

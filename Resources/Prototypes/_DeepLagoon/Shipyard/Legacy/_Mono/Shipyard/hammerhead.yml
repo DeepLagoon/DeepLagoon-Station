@@ -1,0 +1,51 @@
+# Author Info
+# GitHub: starch70
+# Discord: starch70
+
+# Shuttle Notes: Made under patreon commission
+
+- type: vessel
+  id: Hammerhead
+  parent: BaseVessel
+  name: Молотоглав # Ru-Localization
+  description: Многоцелевой наёмнический шаттл с вооружением из четырёх 225-мм пушек, четырёх 20-мм орудий и шести 57-мм. Немного уступает в защите полноценным военным шаттлам такого же размера. # Ru-Localization
+  price: 333586 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.999985397 # Exodus: expected-price allowance for randomized contents.
+  category: Large
+  group: Shipyard
+  access: Mercenary
+  shuttlePath: /SharedMaps/_Mono/Shuttles/hammerhead.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Patrol
+  - Corvette
+  - Science
+  - Salvage
+  - Medical
+  - Chemistry
+  engine:
+  - AME
+
+- type: gameMap
+  id: Hammerhead
+  mapName: 'Молотоглав' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/hammerhead.yml
+  minPlayers: 0
+  stations:
+    Hammerhead:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Молотоглав{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

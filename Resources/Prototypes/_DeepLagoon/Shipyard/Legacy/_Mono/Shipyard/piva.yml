@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: Rubeebeebee
+# Discord: rubeebee
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Piva
+  parent: BaseVessel
+  name: Пива # Ru-Localization
+  description: Небольшой, но манёвренный грузовой шаттл с боковым выходом в космос для обмена грузами в космосе без стыковки. # Ru-Localization
+  price: 23676 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/piva.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Cargo
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Piva
+  mapName: 'Пива' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/piva.yml
+  minPlayers: 0
+  stations:
+    Piva:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Пива{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

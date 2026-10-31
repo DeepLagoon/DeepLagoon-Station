@@ -4,7 +4,7 @@ using Content.Shared.Eui;
 
 namespace Content.Server._DeepLagoon.DiscordLink;
 
-public sealed class DiscordLinkEui(DiscordLinkStore store, Func<bool> admitted) : BaseEui
+public sealed class DiscordLinkEui(DiscordLinkStore store, Func<bool> admitted, bool disposeStoreOnClose = false) : BaseEui
 {
     private string _message = "Откройте канал привязки Discord, нажмите «привязать дискорд» и создайте тикет.\nЗатем нажмите здесь «Создать код» и введите его в тикете: /link_discord code:КОД.\nКод подтверждает владение вашим аккаунтом. Не отправляйте его другим людям.";
     private string _code = "";
@@ -18,6 +18,13 @@ public sealed class DiscordLinkEui(DiscordLinkStore store, Func<bool> admitted) 
         StateDirty();
     }
     public override EuiStateBase GetNewState() => new DiscordLinkEuiState(_message, _code, _linked);
+
+    public override void Closed()
+    {
+        if (disposeStoreOnClose)
+            store.Dispose();
+        base.Closed();
+    }
 
     public override void HandleMessage(EuiMessageBase msg)
     {

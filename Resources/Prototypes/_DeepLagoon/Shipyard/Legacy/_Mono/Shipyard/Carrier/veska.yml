@@ -1,0 +1,36 @@
+#Author: Starch(!)
+
+# Exodus: retain main-build ship configuration during upstream merge
+- type: vessel
+  id: Veska
+  parent: BaseVesselIFFDisabled
+  name: Веска # Ru-Localization
+  description: Модифицированный Эмпл, из которого убрали рудодобывающее оборудование и установили лёгкое корабельное орудие. # Ru-Localization
+  price: 8358 # Exodus: expected ship and contents value; no additional markup.
+  category: Micro
+  group: Custom
+  mapchecker_group_override: BlackMarket  # Treat this as a BlackMarket vessel for mapchecker purposes
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Carrier/veska.yml
+  guidebookPage: Null
+  class:
+  - Pirate
+  - Fighter
+  engine:
+  - APU
+
+- type: gameMap
+  id: Veska
+  mapName: 'Веска' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Carrier/veska.yml
+  minPlayers: 0
+  stations:
+    Veska:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Веска{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs: {}

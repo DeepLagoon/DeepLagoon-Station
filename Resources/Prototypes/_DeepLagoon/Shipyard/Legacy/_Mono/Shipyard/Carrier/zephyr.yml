@@ -1,0 +1,39 @@
+#Author: Starch(!)
+
+- type: vessel
+  id: Zephyr
+  parent: BaseVesselIFFDisabled
+  name: Зефир # Ru-Localization
+  description: Шаттл, сделанный наспех из обломков старых шаттлов. # Ru-Localization
+  price: 17866 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Custom
+  mapchecker_group_override: Shipyard  # Treat this as a Shipyard vessel for mapchecker purposes
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Carrier/zephyr.yml
+  addComponents: # Exodus TSF faction-owned drone target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Pursuit
+  - Fighter
+  engine:
+  - APU
+
+- type: gameMap
+  id: Zephyr
+  mapName: 'Зефир' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Carrier/zephyr.yml
+  minPlayers: 0
+  stations:
+    Zephyr:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Зефир{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs: {}

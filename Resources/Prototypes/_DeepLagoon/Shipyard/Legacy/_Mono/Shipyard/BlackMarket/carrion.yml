@@ -1,0 +1,41 @@
+#Author: Helicast
+
+- type: vessel
+  id: Carrion
+  parent: BaseVesselIFFDisabled
+  name: Керрион # Ru-Localization
+  description: Истребитель, вооружённый четырьмя 90-мм Дравонами и малым боевым отсеком вооружения. Создан для разведки и скоротечных боёв на больших скоростях. # Ru-Localization
+  price: 52707 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: BlackMarket
+  access: Pirate
+  shuttlePath: /SharedMaps/_Mono/Shuttles/BlackMarket/carrion.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - PirateNF
+  guidebookPage: Null
+  class:
+  - Pirate
+  - Fighter
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Carrion
+  mapName: 'Керрион' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/BlackMarket/carrion.yml
+  minPlayers: 0
+  stations:
+    Carrion:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Керрион{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Pirate: [ 0, 0 ]
+            PdvBorg: [ 0, 0 ]

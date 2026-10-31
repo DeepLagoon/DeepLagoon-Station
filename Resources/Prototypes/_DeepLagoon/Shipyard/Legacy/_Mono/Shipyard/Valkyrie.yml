@@ -1,0 +1,45 @@
+# Author Info
+# GitHub: Arcticular1
+# Discord: Arcticular
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Valkyrie
+  parent: BaseVessel
+  name: Валькирия # Ru-Localization
+  description: Древний перехватчик династии Фаэтона. Его приборы устарели, а корпус проржавел. Тем не менее, Валькирия всё ещё может соперничать с шаттлами своего класса. # Ru-Localization
+  price: 105729 # Exodus: expected ship and contents value; no additional markup.
+  category: Medium
+  group: Shipyard
+  access: Mercenary
+  shuttlePath: /SharedMaps/_Mono/Shuttles/valkyrie.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Pursuit
+  engine:
+  - AME
+
+- type: gameMap
+  id: Valkyrie
+  mapName: 'Валькирия' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/valkyrie.yml
+  minPlayers: 0
+  stations:
+    Valkyrie:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Валькирия{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

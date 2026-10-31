@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: Rubeebeebee
+# Discord: rubeebee
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Borer
+  parent: BaseVessel
+  name: Борер # Ru-Localization
+  description: Разработанный мануфактурным комплекс Стальной молот и произведённый в сотрудничестве с Дрэйк Индастрис, Борер - экономичный шаттл для утилизации брошенных шаттлов. # Ru-Localization
+  price: 27790 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/borer.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Salvage
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Borer
+  mapName: 'Борер' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/borer.yml
+  minPlayers: 0
+  stations:
+    Borer:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Борер{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

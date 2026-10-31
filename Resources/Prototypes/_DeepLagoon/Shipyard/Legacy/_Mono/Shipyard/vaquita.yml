@@ -1,0 +1,45 @@
+# Author Info
+# GitHub: UnicornOnLSD
+# Discord: unicornonlsd
+
+# Shuttle Notes: The sabine replacement. Tight, has all the gear needed for the lowest scale mining.
+#
+- type: vessel
+  id: Vaquita
+  parent: BaseVessel
+  name: Вакита # Ru-Localization
+  description: Небольшой шаттл, оснащённый всем необходимым для оптимальной утилизации в одиночку, включая шахтёрские пульсаторы и мощные двигатели для быстрого отхода. «Добывай руду прямо из кабины, не напрягая ничего кроме пальца!» - по крайней мере, так его рекламирует Дрейк Индастрис. # Ru-Localization
+  price: 55820 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.989502549 # Exodus: expected-price allowance for randomized contents.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/vaquita.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Salvage
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Vaquita
+  mapName: 'Вакита' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/vaquita.yml
+  minPlayers: 0
+  stations:
+    Vaquita:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Вакита{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

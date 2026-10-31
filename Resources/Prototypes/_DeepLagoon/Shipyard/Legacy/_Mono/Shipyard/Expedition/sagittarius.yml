@@ -1,0 +1,42 @@
+#Author: Primusirius on Github and Discord.
+
+- type: vessel
+  id: Sagittarius
+  parent: BaseVessel
+  name: Сагиттариус # Ru-Localization
+  description: Сагиттариус - старший брат Сириуса. Его фишки - более мощное вооружение и большее свободное пространства. # Ru-Localization
+  price: 175000 # Station appraisal; includes 1% allowance for randomized contents.
+  category: Large
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/sagittarius.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Expedition
+  - Chemistry
+  - Salvage
+  engine:
+  - AME
+
+- type: gameMap
+  id: Sagittarius
+  mapName: 'Сагиттариус' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Expedition/sagittarius.yml
+  minPlayers: 0
+  stations:
+    Sagittarius:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Сагиттариус{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

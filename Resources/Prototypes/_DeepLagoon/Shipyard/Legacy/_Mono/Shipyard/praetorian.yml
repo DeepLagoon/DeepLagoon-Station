@@ -1,0 +1,45 @@
+# Author Info
+# GitHub: starch70
+# Discord: _starch_
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Praetorian
+  parent: BaseVessel
+  name: Преторианец # Ru-Localization
+  description: Более компактный и продвинутый Арчер, оснащённый генератором щита, четырьмя АК570, двумя Л85 и двумя Мародёрами. # Ru-Localization
+  price: 101520
+  category: Medium
+  group: Shipyard
+  access: Mercenary
+  shuttlePath: /SharedMaps/_Mono/Shuttles/praetorian.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - Pursuit
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Praetorian
+  mapName: 'Преторианец' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/praetorian.yml
+  minPlayers: 0
+  stations:
+    Praetorian:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Преторианец{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            # Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ] # Exodus keep Mercenary vessel role

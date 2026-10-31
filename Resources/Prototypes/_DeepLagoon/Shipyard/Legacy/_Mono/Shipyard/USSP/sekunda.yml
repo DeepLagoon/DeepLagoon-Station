@@ -1,0 +1,43 @@
+#Author: Grandalff on Github.
+
+- type: vessel
+  id: Sekunda
+  parent: BaseVesselUSSPAntag
+  name: Секунда # Ru-Localization
+  description: Корабль медицинской и огневой поддержки СССП. Оснащён модулем БСС, небольшим медицинским и химическим отсеками, лёгким вооружением и тесным интерьером. Произведён народным производственным союзом. # Ru-Localization
+  price: 71833 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.992623627 # Exodus: expected-price allowance for randomized contents.
+  category: Medium
+  group: Ussp
+  access: Mercenary # Exodus temp-ussp-mercenary-access
+  # access: USSP # Exodus temp-ussp-mercenary-access
+  shuttlePath: /SharedMaps/_Mono/Shuttles/USSP/sekunda.yml
+  guidebookPage: Null
+  class:
+  - Patrol
+  - Medical
+  - Chemistry
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Sekunda
+  mapName: 'Секунда' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/USSP/sekunda.yml
+  minPlayers: 0
+  stations:
+    Sekunda:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Секунда СССП{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        # Exodus-begin disable-ussp-faction
+        # - type: StationJobs
+        #   availableJobs:
+        #    USSPSergeant: [ 0, 0 ]
+        #    USSPRifleman: [ 0, 0 ]
+        # Exodus-end
+#Idfk what im doing I will not lie at all. What am I doing? Hello? Mooooooooooooom? AAAAAAAAAAAAAAAAA! *crashes your entire game and dies*

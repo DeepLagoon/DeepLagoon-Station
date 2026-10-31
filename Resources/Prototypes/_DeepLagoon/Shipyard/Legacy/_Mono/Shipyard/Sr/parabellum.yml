@@ -1,0 +1,39 @@
+# Author Info
+# Github: Rubeebeebee
+# Discord: rubeebee
+
+- type: vessel
+  id: Parabellum
+  parent: BaseVessel
+  name: Парабеллум # Ru-Localization
+  description: Парабеллум - патрульный шаттл, созданный для сопровождения и, как несложно догадаться, для патрулирования сектора для защиты от вражеских шаттлов. Оснащён двумя АДМХ-23 Товек, а также двумя М220 Рубикон для более серьёзных столкновений. # Ru-Localization
+  price: 92000
+  category: Medium
+  group: Sr
+  access: Brig # Oddball, matches guard ID, specific enough to exclude cadets
+  mapchecker_group_override: Security  # Treat this as a security vessel for mapchecker purposes
+  shuttlePath: /SharedMaps/_Mono/Shuttles/parabellum.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus SecColossus faction
+    factions:
+    - SecColossus
+  guidebookPage: Null
+  class:
+  - Civilian
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Parabellum
+  mapName: 'Парабеллум' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/parabellum.yml
+  minPlayers: 0
+  stations:
+    Parabellum:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Парабеллум{1}'
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'

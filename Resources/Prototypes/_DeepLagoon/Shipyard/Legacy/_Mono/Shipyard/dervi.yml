@@ -1,0 +1,42 @@
+# Author Info
+# GitHub: NazrinNya
+# Discord: NazrinNya
+
+- type: vessel
+  id: Dervi
+  parent: BaseVessel
+  name: Дерви # Ru-Localization
+  description: Медицинский шаттл необычной формы с двумя защитными элементами. Оснащён базовым медотсеком, химической лабораторией и установкой для клонирования. # Ru-Localization
+  price: 94430 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Medical
+  shuttlePath: /SharedMaps/_Mono/Shuttles/dervi.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus MD faction
+    factions:
+    - MD
+  guidebookPage: null
+  class:
+  - Medical
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Dervi
+  mapName: 'Дерви' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/dervi.yml
+  minPlayers: 0
+  stations:
+    Dervi:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Дерви{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

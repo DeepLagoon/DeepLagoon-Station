@@ -1,0 +1,33 @@
+# Exodus: retain main-build ship configuration during upstream merge
+- type: vessel
+  id: Ample
+  parent: BaseVessel
+  name: Эмпл # Ru-Localization
+  description: Лёгкий шахтёрский шаттл, использующий для работы PTK-800. # Ru-Localization
+  price: 7130 # Exodus: expected ship and contents value; no additional markup.
+  category: Micro
+  group: Custom
+  mapchecker_group_override: Shipyard  # Treat this as a Shipyard vessel for mapchecker purposes
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Carrier/ample.yml
+  guidebookPage: Null
+  class:
+  - Salvage
+  engine:
+  - APU
+
+- type: gameMap
+  id: Ample
+  mapName: 'Эмпл' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Carrier/ample.yml
+  minPlayers: 0
+  stations:
+    Ample:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Эмпл{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs: {}

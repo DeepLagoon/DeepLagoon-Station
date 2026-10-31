@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: UnicornOnLSD
+# Discord: unicornonlsd
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Brute
+  parent: BaseVessel
+  name: Брут # Ru-Localization
+  description: То, что по сути является большегрузом, отдел маркетинга Дрейк Индастрис рекламирует как новое чудо грузоперевозок. Имеет четыре слоя стен для защиты вашего драгоценного груза во время пьяного вождения. # Ru-Localization
+  price: 88307 # Exodus: expected ship and contents value; no additional markup.
+  category: Medium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/brute.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Cargo
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Brute
+  mapName: 'Брут' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/brute.yml
+  minPlayers: 0
+  stations:
+    Brute:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Брут{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

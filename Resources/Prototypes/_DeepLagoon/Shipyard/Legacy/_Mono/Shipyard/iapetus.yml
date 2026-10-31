@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: starch70
+# Discord: _starch_
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Iapetus
+  parent: BaseVessel
+  name: Ипетус # Ru-Localization
+  description: Стандартный шаттл для ксеноархеологии с минимальным вооружением. # Ru-Localization
+  price: 50125 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/iapetus.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Science
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Iapetus
+  mapName: 'Ипетус' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/iapetus.yml
+  minPlayers: 0
+  stations:
+    Iapetus:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Ипетус{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

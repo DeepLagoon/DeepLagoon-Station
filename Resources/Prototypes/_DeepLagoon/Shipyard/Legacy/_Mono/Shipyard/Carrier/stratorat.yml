@@ -1,0 +1,33 @@
+# Exodus: retain main-build ship configuration during upstream merge
+- type: vessel
+  id: StratoRat
+  parent: BaseVessel
+  name: Страто-Рат # Ru-Localization
+  description: Крайне простой газодобывающий шаттл. Оснащён газовой камерой на 120 КМоль и одним М25. # Ru-Localization
+  price: 22935 # Exodus: expected ship and contents value; no additional markup.
+  category: Micro
+  group: Custom
+  mapchecker_group_override: Shipyard  # Treat this as a Shipyard vessel for mapchecker purposes
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Carrier/stratorat.yml
+  guidebookPage: Null
+  class:
+  - Atmospherics
+  engine:
+  - APU
+
+- type: gameMap
+  id: StratoRat
+  mapName: 'Страто-Рат' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Carrier/stratorat.yml
+  minPlayers: 0
+  stations:
+    StratoRat:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Страто-Рат{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs: {}

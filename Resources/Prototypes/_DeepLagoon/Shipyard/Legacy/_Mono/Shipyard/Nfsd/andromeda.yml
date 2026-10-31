@@ -1,0 +1,48 @@
+#Author: Articular1 on Github, Articular on Discord.
+
+- type: vessel
+  id: Andromeda
+  parent: BaseVesselIFFDisabled
+  name: Андромеда # Ru-Localization
+  description: Экспериментальный тяжёлый фрегат с мощным залповым носовым вооружением и высокой манёвренностью. # Ru-Localization
+  limit: 3
+  hyperwarLimit: 5
+  hyperwarTimelock: 1800
+  price: 385000 # Station appraisal; includes 1% allowance for randomized contents.
+  minPriceMarkup: 0.999997437 # Exodus: expected-price allowance for randomized contents.
+  purchasable: false # voucher only
+  category: Large
+  group: Security
+  access: Armory
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Nfsd/andromeda.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Frigate
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Andromeda
+  mapName: 'Андромеда' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Nfsd/andromeda.yml
+  minPlayers: 0
+  stations:
+    Andromeda:
+      stationProto: StandardFrontierSecurityVessel
+      gridComponents:
+      - type: VesselInfo
+        description: "Достаточно орудий, чтобы затмить звёзды." # Ru-Localization
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Андромеда{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]

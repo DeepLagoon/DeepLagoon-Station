@@ -1,0 +1,28 @@
+- type: vessel
+  id: Kopye
+  parent: BaseVesselUSSPAntag
+  name: М-Копьё # Ru-Localization
+  description: Тонкий заострённый таран, подходящий для стыковочного порта Ледокола. # Ru-Localization
+  price: 45000
+  purchasable: false # voucher only
+  category: Large
+  group: Custom
+  access: Mercenary # Exodus temp-ussp-mercenary-access
+  # access: USSP # Exodus temp-ussp-mercenary-access
+  shuttlePath: /SharedMaps/_Mono/Shuttles/USSP/Ledokol/Attachments/kopye.yml
+  guidebookPage: Null
+
+- type: gameMap
+  id: Kopye
+  mapName: 'М-Копьё' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/USSP/Ledokol/Attachments/kopye.yml
+  minPlayers: 0
+  stations:
+    Kopye:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'М-Копьё СССП Мод{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'

@@ -1,0 +1,47 @@
+# Author Info
+# GitHub: Junerisms
+# Discord: widdershins6094
+
+# Shuttle Notes:
+#
+#
+
+- type: vessel
+  id: Jitterbug
+  parent: BaseVessel
+  name: Джиттербаг # Ru-Localization
+  description: Ботанический шаттл с десятью лотками и некоторым количеством материалов для старта. Имеет уникальную форму жука - как мило. # Ru-Localization
+  price: 44070 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/jitterbug.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Civilian
+  - Botany
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Jitterbug
+  mapName: 'Джиттербаг' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/jitterbug.yml
+  minPlayers: 0
+  stations:
+    Jitterbug:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Джиттербаг{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

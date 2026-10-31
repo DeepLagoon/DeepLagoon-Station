@@ -1,0 +1,48 @@
+# Author Info
+# GitHub: Corrupt142
+# Discord: Corrupt
+
+# Shuttle Notes: To hell with you plunderer! Armament uniformised to ballistics, sorry y'all, a pirate shit bucket doesn't get laser PD.
+
+- type: vessel
+  id: Scallywag
+  parent: BaseVessel
+  name: Пройдоха # Ru-Localization
+  description: Появившийся из глубин Тесея примерно столетие назад от неизвестного создателя, Пройдоха был сделан не по чертежам, не за месяцы исследований и не трудами инженеров. Он был сделан из того, что было под рукой, и задуман как остриё копья против тех, кто пытался обдирать "честных" граждан, и для установления справедливости и закона - как они это сами называли. # Ru-Localization
+  price: 135639 # Exodus: expected ship and contents value; no additional markup.
+  minPriceMarkup: 0.739610434 # Exodus: expected-price allowance for randomized contents.
+  category: medium
+  group: Scrap
+  access: Mercenary
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Scrap/scallywag.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: Null
+  class:
+  - pursuit
+  - Scrapyard
+
+  engine:
+  - uranium
+
+- type: gameMap
+  id: Scallywag
+  mapName: 'Пройдоха' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Scrap/scallywag.yml
+  minPlayers: 0
+  stations:
+    Scallywag:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Пройдоха{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

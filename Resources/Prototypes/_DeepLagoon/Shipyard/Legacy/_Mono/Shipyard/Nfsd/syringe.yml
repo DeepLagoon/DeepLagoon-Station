@@ -1,0 +1,44 @@
+#Author: Articular1 on Github, Articular on Discord
+
+- type: vessel
+  id: Syringe
+  parent: BaseVesselIFFDisabled
+  name: Сиренж # Ru-Localization
+  description: Небольшой шаттл, предназначенный для сопровождения и оказания помощи другим шаттлам ТСФ. Имеет тесный интерьер и лёгкое вооружение. # Ru-Localization
+  price: 73804 # Exodus: expected ship and contents value; no additional markup.
+  category: Small
+  group: Security
+  access: Security
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Nfsd/syringe.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Patrol
+  engine:
+  - Uranium
+  cloakHunter: true
+  company:
+  - TSF
+
+- type: gameMap
+  id: Syringe
+  mapName: 'Сиренж' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Nfsd/syringe.yml
+  minPlayers: 0
+  stations:
+    Syringe:
+      stationProto: StandardFrontierSecurityVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Сиренж{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]
+

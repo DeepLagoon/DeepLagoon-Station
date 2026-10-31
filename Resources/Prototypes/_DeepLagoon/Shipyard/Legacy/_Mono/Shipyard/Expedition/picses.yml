@@ -1,0 +1,44 @@
+# Author Info
+# GitHub: starch70
+# Discord: _starch_
+
+# Shuttle Notes: its the goob nukeops shuttle exterior (docking ports are a bit different)
+#
+- type: vessel
+  id: Picses
+  parent: BaseVessel
+  name: Пиксес # Ru-Localization
+  description: Компактный, но вместительный экспедиционный шаттл, обладающий прочным корпусом. Также шаттл имеет военную систему "свой-чужой". # Ru-Localization
+  price: 77150
+  category: Medium
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/picses.yml
+  addComponents:
+  - type: NpcFactionMember # Exodus NanoTrasen faction
+    factions:
+    - NanoTrasen
+  guidebookPage: null
+  class:
+  - Expedition
+  engine:
+  - AME
+
+- type: gameMap
+  id: Picses
+  mapName: 'Пиксес' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Expedition/picses.yml
+  minPlayers: 0
+  stations:
+    Picses:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Пиксес{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            Contractor: [ 0, 0 ]
+            Pilot: [ 0, 0 ]
+            Mercenary: [ 0, 0 ]

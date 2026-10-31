@@ -1,0 +1,43 @@
+#Author: Starch(!)
+
+- type: vessel
+  id: Aldebaran
+  parent: BaseVesselIFFDisabled
+  name: Альдебаран # Ru-Localization
+  description: Корвет с усиленным носовым вооружением, оснащённый двумя Цирексами для боя на дальних дистанциях и ракетами для тяжёлых целей и ближнего боя. # Ru-Localization
+  price: 169796 # Exodus: expected ship and contents value; no additional markup.
+  purchasable: false # voucher only
+  category: Medium
+  group: Security
+  access: Security
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Nfsd/aldebaran.yml
+  addComponents: # Exodus faction-owned shuttle target filtering
+  - type: NpcFactionMember
+    factions:
+    - TSFMC
+  guidebookPage: Null
+  class:
+  - Patrol
+  - Corvette
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Aldebaran
+  mapName: 'Альдебаран' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/Nfsd/aldebaran.yml
+  minPlayers: 0
+  stations:
+    Aldebaran:
+      stationProto: StandardFrontierSecurityVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Альдебаран{1}' # Ru-Localization
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]
+

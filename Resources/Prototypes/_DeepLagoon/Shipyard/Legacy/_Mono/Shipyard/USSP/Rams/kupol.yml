@@ -1,0 +1,29 @@
+- type: vessel
+  id: Kupol
+  parent: BaseVesselUSSPAntag
+  name: М-Купол # Ru-Localization
+  description: Оружейный модуль, созданный для компенсации недостаточной огневой мощи Ледокола. # Ru-Localization
+  limit: 1
+  price: 92607 # Exodus: expected ship and contents value; no additional markup.
+  purchasable: false # voucher only
+  category: Small
+  group: Custom
+  access: Mercenary # Exodus temp-ussp-mercenary-access
+  # access: USSP # Exodus temp-ussp-mercenary-access
+  shuttlePath: /SharedMaps/_Mono/Shuttles/USSP/Ledokol/Attachments/kupol.yml
+  guidebookPage: Null
+
+- type: gameMap
+  id: Kupol
+  mapName: 'М-Купол' # Ru-Localization
+  mapPath: /SharedMaps/_Mono/Shuttles/USSP/Ledokol/Attachments/kupol.yml
+  minPlayers: 0
+  stations:
+    Kupol:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'М-Купол СССП Мод{1}' # Ru-Localization
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
