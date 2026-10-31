@@ -79,7 +79,7 @@ namespace Content.Server.GameTicking
                 RunLevel == GameRunLevel.PreRoundLobby
                     ? "game-ticker-get-info-preround-text"
                     : "game-ticker-get-info-text",
-                ("roundId", RoundId),
+                ("roundId", RoundNumber),
                 ("playerCount", playerCount),
                 ("readyCount", readyCount),
                 //("mapName", stationNames.ToString()), // Mono

@@ -1,0 +1,28 @@
+- type: loadout
+  id: DLLoadoutPortableJukebox
+  dummyEntity: DLPortableJukebox
+  personalItems: [DLPortableJukebox]
+  personalCategory: Items
+  personalCost: 0
+  personalExclusive: false
+  personalDonor: Boosty
+  personalDonorTier: 1
+
+- type: loadout
+  id: DLLoadoutPortableJukeboxBlack
+  dummyEntity: DLPortableJukeboxBlack
+  personalItems: [DLPortableJukeboxBlack]
+  personalCategory: Items
+  personalCost: 0
+  personalExclusive: false
+  personalDonor: Boosty
+  personalDonorTier: 1
+
+- type: loadoutGroup
+  id: DLLoadoutPortableJukebox
+  name: dl-loadout-group-portable-jukebox
+  minLimit: 0
+  maxLimit: 1
+  loadouts:
+  - DLLoadoutPortableJukebox
+  - DLLoadoutPortableJukeboxBlack

@@ -2,6 +2,7 @@
   id: DLEinsteinPersonal
   canCustomizeName: false
   groups:
+  - DLLoadoutPortableJukebox
   - DLEinsteinLoadoutAcolyteEquipment
   - DLEinsteinLoadoutAcolyteUniforms
   - DLEinsteinLoadoutAdminAssistantGloves

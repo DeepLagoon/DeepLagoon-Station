@@ -1,0 +1,41 @@
+- type: entity
+  parent: BaseItem
+  id: DLPortableJukebox
+  name: neon portable jukebox
+  description: A portable speaker for your favourite station tunes.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_neon.rsi
+    layers:
+    - state: idle
+      map: [speaker]
+  - type: Item
+    size: Normal
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_neon.rsi
+    heldPrefix: idle
+  - type: Jukebox
+  - type: PortableJukebox
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.ToggleableVisuals.Enabled:
+        speaker:
+          True: { state: playing }
+          False: { state: idle }
+  - type: ActivatableUI
+    key: enum.JukeboxUiKey.Key
+    inHandsOnly: true
+  - type: UserInterface
+    interfaces:
+      enum.JukeboxUiKey.Key:
+        type: JukeboxBoundUserInterface
+
+- type: entity
+  parent: DLPortableJukebox
+  id: DLPortableJukeboxBlack
+  name: black portable jukebox
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_black.rsi
+  - type: Item
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_black.rsi

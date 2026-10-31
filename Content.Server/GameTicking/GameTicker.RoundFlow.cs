@@ -641,7 +641,7 @@ namespace Content.Server.GameTicking
                 gamemodeTitle,
                 roundEndText,
                 roundDuration,
-                RoundId,
+                RoundNumber,
                 listOfPlayerInfoFinal.Length,
                 listOfPlayerInfoFinal,
                 sound
@@ -663,7 +663,7 @@ namespace Content.Server.GameTicking
 
                 var duration = RoundDuration();
                 var content = Loc.GetString("discord-round-notifications-end",
-                    ("id", RoundId),
+                    ("id", RoundNumber),
                     ("hours", Math.Truncate(duration.TotalHours)),
                     ("minutes", duration.Minutes),
                     ("seconds", duration.Seconds));
@@ -771,8 +771,8 @@ namespace Content.Server.GameTicking
 
                 // Prepare base embed content
                 var title = "Round End Summary";
-                var description = "Round **" + RoundId + "** has ended with **" + manifestLines.Count + "** total characters involved.";
-                var footerText = serverName + " - Round " + RoundId;
+                var description = "Round **" + RoundNumber + "** has ended with **" + manifestLines.Count + "** total characters involved.";
+                var footerText = serverName + " - Round " + RoundNumber;
 
                 // Calculate base embed character count (title + description + footer)
                 var baseCharacterCount = title.Length + description.Length + footerText.Length;
@@ -1125,7 +1125,7 @@ namespace Content.Server.GameTicking
                     return;
 
                 var mapName = _gameMapManager.GetSelectedMap()?.MapName ?? Loc.GetString("discord-round-notifications-unknown-map");
-                var content = Loc.GetString("discord-round-notifications-started", ("id", RoundId), ("map", mapName));
+                var content = Loc.GetString("discord-round-notifications-started", ("id", RoundNumber), ("map", mapName));
 
                 var payload = new WebhookPayload { Content = content };
 

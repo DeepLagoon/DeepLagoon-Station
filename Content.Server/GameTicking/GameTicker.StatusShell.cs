@@ -34,6 +34,9 @@ namespace Content.Server.GameTicking
             IoCManager.Resolve<IStatusHost>().OnStatusRequest += GetStatusResponse;
         }
 
+        /// <summary>Presentation only. Persistence, receipts and logs always use RoundId.</summary>
+        public int RoundNumber => RoundNumberCVars.Display(RoundId, _cfg.GetCVar(RoundNumberCVars.Offset));
+
         private void GetStatusResponse(JsonNode jObject)
         {
             var preset = CurrentPreset ?? Preset;
@@ -44,6 +47,7 @@ namespace Content.Server.GameTicking
                 jObject["name"] = _baseServer.ServerName;
                 jObject["map"] = _gameMapManager.GetSelectedMap()?.MapName;
                 jObject["round_id"] = _gameTicker.RoundId;
+                jObject["round_number"] = RoundNumber;
                 jObject["players"] = _cfg.GetCVar(CCVars.AdminsCountInReportedPlayerCount)
                     ? _playerManager.PlayerCount
                     : _playerManager.PlayerCount - _adminManager.ActiveAdmins.Count();
