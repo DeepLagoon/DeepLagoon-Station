@@ -36,6 +36,7 @@ namespace Content.Client.Options.UI
             AccessibilityTab.Control.ReloadValues();
             AudioTab.Control.ReloadValues();
             AdminOptionsTab.Control.ReloadValues();
+            ExtraTab.Control.ReloadValues();
         }
     }
 }

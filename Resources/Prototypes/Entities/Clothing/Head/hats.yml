@@ -719,6 +719,7 @@
   - type: Sprite
     sprite: Clothing/Head/Hats/xmascrown.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Hats/xmascrown.rsi
   - type: Tag
     tags:
@@ -1002,6 +1003,7 @@
   - type: Sprite
     sprite: Clothing/Head/Hats/tacticalmaidheadband.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Hats/tacticalmaidheadband.rsi
   - type: Tag
     tags:

@@ -2,6 +2,7 @@ using System.Linq;
 using Content.Client._DeepLagoon.BodyCustomization;
 using Content.Client._DeepLagoon.Tattoos;
 using Content.Client.Humanoid;
+using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.Humanoid;
@@ -28,6 +29,90 @@ public sealed class ClothingFaceFitIntegrationTests
           - type: Inventory
             speciesId: vulpkanin
         """;
+
+    [TestCase("Vox")]
+    [TestCase("Resomi")]
+    [TestCase("Vulpkanin")]
+    public async Task AvianMaskFitSwitchRefreshesEquippedMasksAndPreservesOtherSpecies(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        EntityUid uid = default;
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            Assert.That(pair.Client.CfgMan.GetCVar(BodyCustomizationCVars.AvianMaskFit), Is.False,
+                "Avian mask fitting is temporarily disabled by default.");
+            uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies(species);
+            profile.Appearance.BodyFeatures.Clear();
+            entities.System<HumanoidAppearanceSystem>().LoadProfile(uid, profile);
+        });
+        async Task SetEnabled(bool enabled)
+        {
+            await pair.Server.WaitPost(() => pair.Server.CfgMan.SetCVar(BodyCustomizationCVars.AvianMaskFit, enabled));
+            await pair.RunTicksSync(10);
+            await pair.Client.WaitAssertion(() =>
+                Assert.That(pair.Client.CfgMan.GetCVar(BodyCustomizationCVars.AvianMaskFit), Is.EqualTo(enabled)));
+        }
+        try
+        {
+            foreach (var (prototype, slot) in new[]
+            {
+                ("ClothingMaskGas", "mask"),
+                ("ClothingBalaclavaSkiMaskGreen", "balaclava"),
+            })
+            {
+                EntityUid item = default;
+                Action<bool> check = null;
+                await pair.Client.WaitAssertion(() =>
+                {
+                    var entities = pair.Client.EntMan;
+                    item = entities.SpawnEntity(prototype, MapCoordinates.Nullspace);
+                    Assert.That(entities.System<InventorySystem>().TryEquip(uid, item, slot, force: true), Is.True);
+                    var sprite = entities.GetComponent<SpriteComponent>(uid);
+                    var layer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(slot + "-0")];
+                    var count = sprite.AllLayers.Count();
+                    var scale = layer.Scale;
+                    var shader = layer.ShaderPrototype;
+                    check = enabled =>
+                    {
+                        Assert.That(sprite.LayerMapTryGet(slot + "-0-body-fit-source", out _),
+                            Is.EqualTo(enabled || species == "Vulpkanin"), prototype);
+                        if (enabled) return;
+                        Assert.That(sprite.AllLayers.Count(), Is.EqualTo(count));
+                        var current = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(slot + "-0")];
+                        Assert.That(current.Scale, Is.EqualTo(scale));
+                        Assert.That(current.ShaderPrototype, Is.EqualTo(shader));
+                    };
+                    check(false);
+                });
+                try
+                {
+                    for (var i = 0; i < 3; i++)
+                    {
+                        await SetEnabled(true);
+                        await pair.Client.WaitAssertion(() => check(true));
+                        await SetEnabled(false);
+                        await pair.Client.WaitAssertion(() => check(false));
+                    }
+                }
+                finally
+                {
+                    await SetEnabled(false);
+                    await pair.Client.WaitPost(() =>
+                    {
+                        pair.Client.EntMan.System<InventorySystem>().TryUnequip(uid, slot, force: true, reparent: false);
+                        pair.Client.EntMan.DeleteEntity(item);
+                    });
+                }
+            }
+        }
+        finally
+        {
+            await pair.Client.WaitPost(() => pair.Client.EntMan.DeleteEntity(uid));
+        }
+        await pair.CleanReturnAsync();
+    }
 
     [TestCase(Sex.Male, false)]
     [TestCase(Sex.Female, false)]

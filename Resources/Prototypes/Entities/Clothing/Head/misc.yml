@@ -7,6 +7,7 @@
   - type: Sprite
     sprite: Clothing/Head/Misc/bunny.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Misc/bunny.rsi
   - type: Tag
     tags:
@@ -51,6 +52,7 @@
   - type: Sprite
     sprite: Clothing/Head/Misc/flower-wreath.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Misc/flower-wreath.rsi
     slots:
     - HEAD
@@ -113,6 +115,7 @@
   - type: Sprite
     sprite: Clothing/Head/Misc/head_mirror.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Misc/head_mirror.rsi
   - type: Tag
     tags:
@@ -196,6 +199,7 @@
   - type: Sprite
     sprite: Clothing/Head/Misc/fancycrown.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Misc/fancycrown.rsi
   - type: StaticPrice
     price: 3000
@@ -217,6 +221,7 @@
   - type: Sprite
     sprite: Clothing/Head/Hats/catears.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Hats/catears.rsi
   - type: AddAccentClothing
     accent: OwOAccent
@@ -262,6 +267,7 @@
   - type: Sprite
     sprite: Clothing/Head/Hats/dogears.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Hats/dogears.rsi
   - type: AddAccentClothing
     accent: BarkAccent
@@ -367,6 +373,7 @@
   - type: Sprite
     sprite: Clothing/Head/Misc/hairflower.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: Clothing/Head/Misc/hairflower.rsi
   - type: Tag
     tags:

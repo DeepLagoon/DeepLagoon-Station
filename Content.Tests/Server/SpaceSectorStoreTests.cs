@@ -22,6 +22,35 @@ public sealed class SpaceSectorStoreTests
     }
 
     [Test]
+    public void DerelictSlotsAreFiniteAndSurviveReopening()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"dl-derelicts-{Guid.NewGuid():N}.db");
+        try
+        {
+            var definition = SectorGenerator.Generate("wrecks", 713, new SectorProfilePrototype());
+            definition.Regions = new() { new SpaceRegion { Id = "stream", Kind = SpaceRegionKind.Asteroids, Radius = 2000 } };
+            var limit = OrbitalDebrisSystem.DerelictLimit(definition.Seed, "stream");
+            Assert.That(limit, Is.InRange(1, 3));
+            using (var store = new SectorStore(path))
+            {
+                store.GetOrCreate("crew", definition);
+                for (var slot = 0; slot < limit; slot++)
+                {
+                    Assert.That(store.TryRecordDerelict("crew", definition.Id, "stream", slot), Is.True);
+                    Assert.That(store.TryRecordDerelict("crew", definition.Id, "stream", slot), Is.False);
+                }
+                Assert.That(store.TryRecordDerelict("crew", definition.Id, "stream", limit), Is.False);
+                Assert.That(store.TryRecordDerelict("crew", definition.Id, "missing", 0), Is.False);
+                Assert.That(store.TryRecordDerelict("other", definition.Id, "stream", 0), Is.False);
+            }
+            using var reopened = new SectorStore(path);
+            Assert.That(reopened.DerelictSlots("crew", definition.Id, "stream"), Is.EqualTo((1 << limit) - 1));
+            Assert.That(reopened.TryRecordDerelict("crew", definition.Id, "stream", 0), Is.False);
+        }
+        finally { if (File.Exists(path)) File.Delete(path); }
+    }
+
+    [Test]
     public void ReopeningPreservesManifestAndIdempotentSurveysAcrossCampaigns()
     {
         var path = Path.Combine(Path.GetTempPath(), $"dl-sector-{Guid.NewGuid():N}.db");

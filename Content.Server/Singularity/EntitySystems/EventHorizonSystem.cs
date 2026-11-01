@@ -32,6 +32,7 @@ public sealed partial class EventHorizonSystem : SharedEventHorizonSystem
     [Dependency] private SharedContainerSystem _containerSystem = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _xformSystem = default!;
+    [Dependency] private Content.Shared.Maps.TurfSystem _turf = default!;
     private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private TagSystem _tagSystem = default!;
     #endregion Dependencies
@@ -252,7 +253,7 @@ public sealed partial class EventHorizonSystem : SharedEventHorizonSystem
     /// </summary>
     public void ConsumeTiles(EntityUid hungry, List<(Vector2i, Tile)> tiles, EntityUid gridId, MapGridComponent grid, EventHorizonComponent eventHorizon)
     {
-        if (tiles.Count <= 0)
+        if (tiles.Count <= 0 || _turf.IsIndestructibleGround(gridId))
             return;
 
         var ev = new TilesConsumedByEventHorizonEvent(tiles, gridId, grid, hungry, eventHorizon);

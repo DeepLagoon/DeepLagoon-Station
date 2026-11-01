@@ -409,7 +409,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
 
     private bool FitsSlot(LoadoutPrototype loadout, SlotDefinition slot)
     {
-        return loadout.PersonalItems.Any(id => _prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) && (clothing.Slots & slot.SlotFlags) != 0);
+        return !loadout.PersonalInhand && loadout.PersonalItems.Any(id => _prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) && (clothing.Slots & slot.SlotFlags) != 0);
     }
 
     private IEnumerable<SlotDefinition> FilterPreviewSlots(IEnumerable<SlotDefinition> slots)

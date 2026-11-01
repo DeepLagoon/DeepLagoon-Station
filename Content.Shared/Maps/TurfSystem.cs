@@ -14,6 +14,13 @@ namespace Content.Shared.Maps;
 /// </summary>
 public sealed partial class TurfSystem : EntitySystem
 {
+    /// <summary>
+    /// Whether this grid represents expedition ground whose underlying floor cannot be destroyed.
+    /// Check the grid itself so visiting ships retain their normal hull damage.
+    /// </summary>
+    public bool IsIndestructibleGround(EntityUid grid)
+        => HasComp<Content.Shared._DeepLagoon.Salvage.ExpeditionGroundComponent>(grid);
+
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private EntityLookupSystem _entityLookup = default!;
     [Dependency] private SharedTransformSystem _transform = default!;

@@ -94,14 +94,14 @@ public sealed partial class OrbitalDebrisSystem
         return FairShare(players, ordinal);
     }
 
-    private bool CanAddAt(EntityUid map, Vector2 position)
+    private bool CanAddAt(EntityUid map, Vector2 position, float padding = 8f)
     {
         foreach (var viewer in _activeViewers)
         {
-            if (!viewer.Views.Exists(view => Visible(view, map, position))) continue;
+            if (!viewer.Views.Exists(view => Visible(view, map, position, padding))) continue;
             var count = 0;
             foreach (var (uid, pile) in _piles)
-                if (viewer.Views.Exists(view => Visible(view, pile.Map, _transform.GetWorldPosition(uid)))) count++;
+                if (viewer.Views.Exists(view => Visible(view, pile.Map, PilePosition(uid, pile), pile.HalfExtent))) count++;
             if (count >= VisibleLimit) return false;
         }
         return true;
@@ -120,10 +120,10 @@ public sealed partial class OrbitalDebrisSystem
         foreach (var (uid, pile) in _piles)
         {
             if (TerminatingOrDeleted(uid)) continue;
-            var position = _transform.GetWorldPosition(uid);
+            var position = PilePosition(uid, pile);
             var distance = float.PositiveInfinity;
             foreach (var view in views)
-                if (Visible(view, pile.Map, position)) distance = MathF.Min(distance, Vector2.DistanceSquared(view.Position, position));
+                if (Visible(view, pile.Map, position, pile.HalfExtent)) distance = MathF.Min(distance, Vector2.DistanceSquared(view.Position, position));
             if (!float.IsPositiveInfinity(distance)) _limitCandidates.Add((uid, distance));
         }
         _limitCandidates.Sort((a, b) => b.Distance.CompareTo(a.Distance));
@@ -150,7 +150,7 @@ public sealed partial class OrbitalDebrisSystem
                 foreach (var (uid, pile) in _piles)
                 {
                     if (pile.Map != view.Map || pile.Sponsor != viewer.Session) continue;
-                    var position = _transform.GetWorldPosition(uid);
+                    var position = PilePosition(uid, pile);
                     _limitCandidates.Add((uid, SeenByAnyone(pile.Map, position)
                         ? Vector2.DistanceSquared(view.Position, position) : float.MaxValue));
                 }

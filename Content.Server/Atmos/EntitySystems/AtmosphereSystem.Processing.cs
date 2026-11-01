@@ -206,7 +206,7 @@ namespace Content.Server.Atmos.EntitySystems
             {
                 if (!tile.MapAtmosphere)
                 {
-                    (tile.Air, tile.Space) = GetDefaultMapAtmosphere(mapAtmos);
+                    (tile.Air, tile.Space) = GetDefaultMapAtmosphere(mapAtmos, ent.Owner, ent.Comp4.MapUid);
                     tile.MapAtmosphere = true;
                     ent.Comp1.MapTiles.Add(tile);
                 }

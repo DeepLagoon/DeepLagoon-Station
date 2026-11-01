@@ -10,10 +10,27 @@ public static class WikiNavigationPolicy
     public static bool IsPage(string url, IReadOnlySet<string> paths, string origin = Origin, string treeRoot = "/ru/in_game")
     {
         return TryUri(url, out var uri) && IsWiki(uri, origin) &&
-            uri.Query.Length == 0 && IsPath(uri.AbsolutePath) && (paths.Contains(uri.AbsolutePath) || (IsPath(treeRoot) && (uri.AbsolutePath == treeRoot || uri.AbsolutePath.StartsWith(treeRoot + "/", StringComparison.Ordinal))));
+            uri.Query.Length == 0 && IsPath(uri.AbsolutePath) && (paths.Contains(uri.AbsolutePath) || IsPublicPath(uri.AbsolutePath, treeRoot));
     }
 
+    // Wiki.js serves public articles under /<locale>/, including home, rules and
+    // guidebook. The administration and authentication routes are outside it.
+    private static bool IsPublicPath(string path, string treeRoot)
+    {
+        if (!IsPath(treeRoot)) return false;
+        var separator = treeRoot.IndexOf('/', 1);
+        return separator > 1 && path.StartsWith(treeRoot[..(separator + 1)], StringComparison.Ordinal);
+    }
+
+    public static bool IsDocumentNavigation(string url, IReadOnlySet<string> paths, string origin,
+        string treeRoot, string? bookPath = null) => IsPage(url, paths, origin, treeRoot) &&
+        (bookPath == null || (TryUri(url, out var uri) && uri.AbsolutePath == bookPath && uri.Fragment.Length == 0));
+
     public static bool IsTreeRequest(string url, string origin = Origin) => TryUri(url, out var uri) && IsWiki(uri, origin) && uri.AbsolutePath == "/graphql" && uri.Query.Length == 0;
+
+    public static bool IsExternalLink(string url, string origin = Origin) => TryUri(url, out var uri) &&
+        (uri.Scheme == "https" || uri.Scheme == "http") && uri.UserInfo.Length == 0 &&
+        TryUri(origin, out var configured) && uri.Host != configured.Host;
 
     public static bool IsAsset(string url, string origin = Origin)
     {
@@ -21,6 +38,7 @@ public static class WikiNavigationPolicy
             (uri.AbsolutePath.StartsWith("/_assets/", StringComparison.Ordinal) ||
              uri.AbsolutePath.StartsWith("/wiki-design-assets/", StringComparison.Ordinal) ||
              uri.AbsolutePath.StartsWith("/guidebook/in_game/assets/", StringComparison.Ordinal) ||
+             uri.AbsolutePath.StartsWith("/ru/guidebook/in_game/assets/", StringComparison.Ordinal) ||
              uri.AbsolutePath == "/anima_00168_.png" || uri.AbsolutePath == "/favicon.ico");
     }
 

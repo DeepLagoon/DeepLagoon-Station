@@ -15,6 +15,7 @@ public abstract partial class SharedGravityAnomalySystem : EntitySystem
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private ThrowingSystem _throwing = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
+    [Dependency] private Content.Shared.Maps.TurfSystem _turf = default!;
     private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     /// <inheritdoc/>
@@ -59,7 +60,8 @@ public abstract partial class SharedGravityAnomalySystem : EntitySystem
             .ToArray();
 
         var tiles = tileref.Select(t => (t.GridIndices, Tile.Empty)).ToList();
-        _mapSystem.SetTiles(xform.GridUid.Value, grid, tiles);
+        if (!_turf.IsIndestructibleGround(xform.GridUid.Value))
+            _mapSystem.SetTiles(xform.GridUid.Value, grid, tiles);
 
         var range = component.MaxThrowRange * 2 * args.PowerModifier;
         var strength = component.MaxThrowStrength * 2 * args.PowerModifier;

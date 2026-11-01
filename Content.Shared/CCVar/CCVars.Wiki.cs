@@ -9,7 +9,7 @@ public sealed partial class CCVars
     public static readonly CVarDef<string> WikiRoutes = CVarDef.Create(
         "wiki.routes", "", CVar.SERVER | CVar.REPLICATED);
     public static readonly CVarDef<string> WikiTreeRoot = CVarDef.Create(
-        "wiki.tree_root", "/ru/in_game", CVar.SERVER | CVar.REPLICATED);
+        "wiki.tree_root", "/ru/guidebook/in_game", CVar.SERVER | CVar.REPLICATED);
     public static readonly CVarDef<string> WikiTreeLocale = CVarDef.Create(
         "wiki.tree_locale", "ru", CVar.SERVER | CVar.REPLICATED);
     public static readonly CVarDef<float> WikiNewPlayerMinutes = CVarDef.Create(

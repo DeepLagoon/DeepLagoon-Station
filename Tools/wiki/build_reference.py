@@ -25,6 +25,7 @@ from prose_editorial import editorial_prose
 from weapon_reference import build_weapon_reference, CATALOGUES, PREFIX as WEAPONS_PREFIX
 from industrial_reference import build_industrial_reference
 from book_sources import BOOK_SOURCE_PATHS, DEFERRED_BOOKS
+from species_reference import build_species_reference, SPECIES_ARTICLES, species_for_path, PREFIX as SPECIES_PREFIX
 
 
 EDITORIAL = {
@@ -227,6 +228,10 @@ def main():
         if path in body_cache:
             return body_cache[path]
         source = docs.get(path)
+        species_html = build_species_reference(path, data, blocks)
+        if species_html is not None:
+            body_cache[path] = species_html
+            return species_html
         old = snapshots.get(path, {})
         text = article_body(old['content']) if old.get('content') else EDITORIAL.get(path, '')
         if protected_page(path):
@@ -338,8 +343,8 @@ def main():
         elif key == 'page:InGame':
             target = '/ru/in_game'
         routes.append((key, target))
-    assert len(routes) == len(route_pairs) == 521
-    assert len({k for k, _ in routes}) == 521
+    assert len(routes) == len(route_pairs)
+    assert len({k for k, _ in routes}) == len(routes)
 
     css = ((args.design / 'theme.css').read_text(encoding='utf-8') + EXTRA_CSS + CONTROLS_CSS + DIRECTORY_CSS).replace('.dlwiki', '.dlwiki.dlwiki.dlwiki').replace('.btn.primary', '.btn.dl-primary')
     (output / 'page-styles.css').write_text(css, encoding='utf-8')
@@ -361,7 +366,8 @@ def main():
                           'tags': [tag['tag'] for tag in old.get('tags', [])],
                           'beforeUpdatedAt': old.get('updatedAt'), 'markdown': '', 'prefix': '', 'suffix': '', 'sources': sources or [], 'preserveExact': True})
             return
-        title = article_title(path, title)
+        species_id = species_for_path(path)
+        title = data.loc(data.raw['species'][species_id]['name']) if species_id else article_title(path, title)
         if book:
             prefix = header('b').replace('dlwiki theme-b', 'dlwiki theme-b dl-book-page') + '<main class="wrap"><div class="breadcrumb"><a href="/ru/guidebook/in_game/books">Книжная полка</a> / ' + E(title) + '</div><div class="book-stage"><article class="book"><div class="running"><span>Библиотека DeepLagoon</span><span>Прикладные руководства</span></div><header class="titlepage"><h1>' + E(title) + '</h1><div class="ornament" aria-hidden="true">— ❦ —</div></header><div class="prose">'
             suffix = '</div><div class="folio"><span>' + E(title) + '</span><span>DeepLagoon</span></div></article></div></main>' + footer
@@ -387,6 +393,12 @@ def main():
         if path.startswith('guidebook/in_game/imported/mono/economy/') or path == 'guidebook/in_game/imported/nf/medical/medical-recipes':
             sources.extend(['Resources/Prototypes/_Mono/Recipes/Lathes', 'Resources/Prototypes/_Mono/Entities/Structures/Machines', 'Resources/Prototypes/_NF/Entities/Structures/Machines'])
         add(path, snapshots[path]['title'], body(path), sources=sources)
+    for species_id, relative in SPECIES_ARTICLES.items():
+        path = SPECIES_PREFIX + relative
+        if species_id in data.raw['species'] and not any(page['path'] == path for page in pages):
+            add(path, data.loc(data.raw['species'][species_id]['name']),
+                html_content=build_species_reference(path, data, blocks),
+                sources=[data.sources[('species', species_id)]])
     for group in sorted({data.get('reagent', key).get('group', 'Unknown') for key in data.raw['reagent']}):
         add('guidebook/in_game/reagents/' + slug(group), GROUPS.get(group, group), html_content=blocks.reagent_group(group), sources=['Resources/Prototypes/Reagents', 'Resources/Prototypes/Recipes/Reactions'])
     for identifier, title in collection_ids.items():

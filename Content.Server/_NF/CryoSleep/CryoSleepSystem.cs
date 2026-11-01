@@ -37,7 +37,6 @@ using Robust.Shared.Enums;
 using Robust.Shared.Map;
 using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Timing;
 using Content.Server.Ghost;
 using Content.Shared.Roles;
 using Content.Server._NF.Shuttles.Components;
@@ -70,7 +69,7 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
     [Dependency] private StationJobsSystem _stationJobs = default!;
     [Dependency] private StationSystem _station = default!;
 
-    private readonly Dictionary<NetUserId, StoredBody?> _storedBodies = new();
+    private readonly Dictionary<NetUserId, Stack<StoredBody>> _storedBodies = new();
     private readonly Dictionary<EntityUid, CryoSleepEui> _openEuis = new(); // Exodus: body -> its open accept EUI, so it can be closed server-side.
     private EntityUid? _storageMap;
 
@@ -294,7 +293,7 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
         var characterName = "Unknown";
         string? jobTitle = null;
 
-        if (_mind.TryGetMind(bodyId, out var mindEntity, out var mind) && mind.CurrentEntity is { Valid : true } body)
+        if (_mind.TryGetMind(bodyId, out var mindEntity, out var mind))
         {
             var argMind = mind;
             RaiseLocalEvent(bodyId, new CryosleepBeforeMindRemovedEvent(cryopod, argMind?.UserId), true);
@@ -303,7 +302,11 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
             id = mind.UserId;
             if (id != null)
             {
-                _storedBodies[id.Value] = new StoredBody() { Body = body, Cryopod = cryopod };
+                if (!_storedBodies.TryGetValue(id.Value, out var bodies))
+                    _storedBodies[id.Value] = bodies = new Stack<StoredBody>();
+
+                // Keep earlier characters available if this player stores another body in the same round.
+                bodies.Push(new StoredBody { Body = bodyId, Cryopod = cryopod });
 
                 // Get the player's current job prototype, first from mind, then from component
                 string? currentJobPrototype = null;
@@ -483,15 +486,7 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
         _radioSystem.SendRadioMessage(cryopod, message, radioComp.RadioChannel, cryopod);
         // Mono end
 
-        // Start a timer. When it ends, the body needs to be deleted.
-        Timer.Spawn(TimeSpan.FromSeconds(_configurationManager.GetCVar(NFCCVars.CryoExpirationTime)), () =>
-        {
-            if (id != null)
-                ResetCryosleepState(id.Value);
-
-            if (!Deleted(bodyId) && Transform(bodyId).ParentUid == _storageMap)
-                QueueDel(bodyId);
-        });
+        // Keep the original body and its inventory on the paused storage map until round cleanup.
     }
 
     /// <param name="body">If not null, will not eject if the stored body is different from that parameter.</param>
@@ -538,6 +533,16 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
 
         if (_openEuis.Remove(args.Entity, out var eui))
             eui.Close();
+    }
+
+    public void OnConfirmationClosed(EntityUid body, EntityUid cryopod, CryoSleepEui eui)
+    {
+        if (!_openEuis.TryGetValue(body, out var current) || current != eui)
+            return;
+
+        // Remove first: ejecting the body also raises OnBodyRemoved.
+        _openEuis.Remove(body);
+        EjectBody(cryopod, body: body);
     }
     // Exodus-End
 

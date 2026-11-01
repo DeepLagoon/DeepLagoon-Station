@@ -9,6 +9,7 @@ public readonly record struct SpaceJunkHabitat(SpaceJunkHabitatKind Kind, int Ta
 public sealed partial class OrbitalDebrisSystem
 {
     public const float ReactionSeconds = 8f;
+    public const int OpenSpaceInterval = 75; // 90 / 1.2: 20% more opportunities, not 20 percentage points.
     public static SpaceJunkHabitat Habitat(SectorDefinition sector, Vector2 position)
     {
         SpaceJunkHabitatKind? field = null;
@@ -23,7 +24,7 @@ public sealed partial class OrbitalDebrisSystem
         foreach (var planet in sector.Planets)
             if (Vector2.DistanceSquared(position, new Vector2(planet.X, planet.Y)) <= 2000f * 2000f)
                 return new SpaceJunkHabitat(SpaceJunkHabitatKind.PlanetOrbit, 3, 4, 16, 12, false);
-        return new SpaceJunkHabitat(SpaceJunkHabitatKind.OpenSpace, 1, 4, 16, 90, false);
+        return new SpaceJunkHabitat(SpaceJunkHabitatKind.OpenSpace, 1, 4, 16, OpenSpaceInterval, false);
     }
 
     /// <summary>For moving ships, new junk starts at least eight seconds ahead of the view horizon.</summary>

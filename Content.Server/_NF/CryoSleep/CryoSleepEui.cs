@@ -19,11 +19,9 @@ public sealed class CryoSleepEui : BaseEui
 
     public override void HandleMessage(EuiMessageBase msg)
     {
-        base.HandleMessage(msg);
-
         if (msg is not AcceptCryoChoiceMessage choice)
         {
-            Close();
+            base.HandleMessage(msg);
             return;
         }
 
@@ -42,6 +40,12 @@ public sealed class CryoSleepEui : BaseEui
             }
         }
 
-        Close();
+        if (!IsShutDown)
+            Close();
+    }
+
+    public override void Closed()
+    {
+        _cryoSystem.OnConfirmationClosed(_body, _cryopod, this);
     }
 }

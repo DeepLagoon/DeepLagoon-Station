@@ -1,1 +1,12 @@
 ui-options-client-prediction = Client-side prediction
+dl-options-interface = DeepLagoon interface
+dl-options-graphics = DeepLagoon graphics
+dl-options-character = Character settings
+dl-options-prediction-hint = Prediction reduces action latency. When disabled, actions wait for the server; interface windows still work. The sliders below only affect enabled prediction.
+dl-options-prediction-strength = Prediction strength (extra ticks)
+dl-options-prediction-strength-tooltip = Extra ticks beyond the ping-based estimate. Higher values predict further ahead but may cause larger corrections. Zero only removes the extra tick margin.
+dl-options-prediction-lag = Prediction latency margin
+dl-options-prediction-lag-tooltip = Extra time to predict ahead of the server. The Windows default is 16 ms. Increase for unstable latency; excessive values cause larger corrections.
+dl-options-prediction-smoothing = Prediction correction smoothing
+dl-options-prediction-smoothing-tooltip = Time for a visual error to halve. Higher values smooth corrections for longer; zero applies corrections instantly. Default: 100 ms.
+dl-options-milliseconds = { $value } ms

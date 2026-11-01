@@ -101,7 +101,7 @@ public sealed class OrbitalDebrisTests
         var planet = OrbitalDebrisSystem.Habitat(sector, new Vector2(5000, 0));
         var field = OrbitalDebrisSystem.Habitat(sector, new Vector2(10000, 0));
         Assert.That(open.Target, Is.EqualTo(1));
-        Assert.That(open.Interval, Is.EqualTo(90));
+        Assert.That(open.Interval, Is.EqualTo(75));
         Assert.That(planet.Target, Is.EqualTo(3));
         Assert.That(field.Target, Is.EqualTo(10));
         Assert.That(field.MaxExtent, Is.EqualTo(10));

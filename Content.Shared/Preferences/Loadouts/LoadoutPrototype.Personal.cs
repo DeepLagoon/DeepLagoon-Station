@@ -10,6 +10,8 @@ public sealed partial class LoadoutPrototype
     [DataField] public string PersonalCategory = string.Empty;
     [DataField] public int PersonalCost;
     [DataField] public bool PersonalExclusive;
+    /// <summary>Give personal items to a free hand instead of equipping them in clothing slots.</summary>
+    [DataField] public bool PersonalInhand;
     [DataField] public bool PersonalCustomName = true;
     [DataField] public bool PersonalCustomDescription = true;
     [DataField] public bool PersonalCustomColor;

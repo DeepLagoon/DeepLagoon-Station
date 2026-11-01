@@ -30,3 +30,4 @@ space-environment-route-ftl-blocked = FTL: плазменное возмущен
 space-environment-route-ftl-clear = FTL: помех среды в конечных точках не обнаружено. Прочие ограничения сохраняются.
 
 space-environment-space-junk = космический мусор
+space-environment-blue-wreck = дрейфующие обломки

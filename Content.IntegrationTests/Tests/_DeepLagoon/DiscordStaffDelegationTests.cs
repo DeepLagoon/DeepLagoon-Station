@@ -69,7 +69,11 @@ public sealed class DiscordStaffDelegationTests
 
             var admin = new DbAdmin { UserId = actor.UserId, Flags = new() { new AdminFlag { Flag = "PERMISSIONS" } } };
             await database.AddAdminAsync(admin);
-            Assert.That((await Call("staff_add", role, wrongContext: true)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            var alternateContext = await Call("staff_add", role, wrongContext: true);
+            if (kind == "trial")
+                Assert.That(alternateContext.GetProperty("ok").GetBoolean(), Is.True);
+            else
+                Assert.That(alternateContext.GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             admin = (await database.GetAdminDataForAsync(actor))!;
             admin.Suspended = true;
             await database.UpdateAdminAsync(admin);

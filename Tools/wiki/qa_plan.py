@@ -105,7 +105,9 @@ def main():
         writer.writeheader()
         writer.writerows(coverage)
     print(json.dumps({key:value if not isinstance(value,list) else len(value) for key,value in report.items()}, ensure_ascii=False, indent=2))
-    assert len(routes) == 521
+    for identifier, species in prototypes['species'].items():
+        if species.get('roundStart'):
+            assert 'species:' + identifier in routes, identifier
     assert not report['unresolvedBindings'], report['unresolvedBindings']
     assert actual_reactions == expected_reactions
     assert actual_foods == expected_foods

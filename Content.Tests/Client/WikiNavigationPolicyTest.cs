@@ -34,13 +34,18 @@ public sealed class WikiNavigationPolicyTest
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/rules", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game/jobs/engineer#tools", true)]
-    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game_other", false)]
-    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/home", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game_other", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/home", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/guidebook/in_game/mobs/human", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/guidebook/in_game/guides#medical", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/en/guidebook/in_game", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/a", false)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/login", false)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game?edit=1", false)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/in_game/%2fadmin", false)]
     [TestCase("https://example.com/ru/in_game", false)]
     [TestCase("http://wiki.deep-lagoon-ss14.ru/ru/in_game", false)]
-    public void NewArticlesAreAllowedOnlyInPublicGameTree(string url, bool expected)
+    public void ArticleLinksCanReachThePublicLocaleWithoutOpeningAdministration(string url, bool expected)
         => Assert.That(WikiNavigationPolicy.IsPage(url, Pages), Is.EqualTo(expected));
 
     [TestCase("https://wiki.deep-lagoon-ss14.ru/graphql", true)]
@@ -51,6 +56,7 @@ public sealed class WikiNavigationPolicyTest
 
     [TestCase("https://wiki.deep-lagoon-ss14.ru/wiki-design-assets/logo.png", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/guidebook/in_game/assets/dl-beaker.png", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/ru/guidebook/in_game/assets/dl-beaker.png", true)]
     [TestCase("https://example.com/guidebook/in_game/assets/dl-beaker.png", false)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/guidebook/in_game/assets_other/image.png", false)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/graphql", false)]
@@ -59,7 +65,7 @@ public sealed class WikiNavigationPolicyTest
 
     [TestCase("https://docs.example.org/en/manual/jobs", true)]
     [TestCase("https://docs.example.org/en/rules", true)]
-    [TestCase("https://docs.example.org/en/manual_other", false)]
+    [TestCase("https://docs.example.org/en/manual_other", true)]
     [TestCase("https://wiki.deep-lagoon-ss14.ru/en/manual", false)]
     [TestCase("https://docs.example.org/en/manual?edit=1", false)]
     [TestCase("https://docs.example.org/en/manual/%2fadmin", false)]
@@ -75,4 +81,29 @@ public sealed class WikiNavigationPolicyTest
     [TestCase("https://docs.example.org:444")]
     public void InvalidConfiguredOriginsAreRejected(string origin)
         => Assert.That(WikiNavigationPolicy.IsOrigin(origin), Is.False);
+
+    [TestCase("/ru/guidebook/in_game/books/ussplaw", true)]
+    [TestCase("/ru/guidebook/in_game/books/ussplaw#chapter", false)]
+    [TestCase("/ru/guidebook/in_game/books/ussplaw?edit=1", false)]
+    [TestCase("/ru/guidebook/in_game/mobs/human", false)]
+    [TestCase("/ru/in_game", false)]
+    public void BooksOnlyLoadOrReloadTheirOwnDocument(string path, bool expected)
+        => Assert.That(WikiNavigationPolicy.IsDocumentNavigation(WikiNavigationPolicy.Origin + path, Pages,
+            WikiNavigationPolicy.Origin, "/ru/in_game", "/ru/guidebook/in_game/books/ussplaw"), Is.EqualTo(expected));
+
+    [TestCase("/ru/home")]
+    [TestCase("/ru/guidebook/in_game/mobs/human")]
+    [TestCase("/ru/rules#main")]
+    public void OrdinaryHelpKeepsNavigationAfterABookWasClosed(string path)
+        => Assert.That(WikiNavigationPolicy.IsDocumentNavigation(WikiNavigationPolicy.Origin + path, Pages,
+            WikiNavigationPolicy.Origin, "/ru/in_game"), Is.True);
+
+    [TestCase("https://example.org/manual?chapter=1", true)]
+    [TestCase("http://example.org/manual", true)]
+    [TestCase("https://wiki.deep-lagoon-ss14.ru/a", false)]
+    [TestCase("https://user@example.org/", false)]
+    [TestCase("file:///C:/file", false)]
+    [TestCase("javascript:alert(1)", false)]
+    public void ExternalArticleLinksUseOnlyWebSchemesAndCannotBypassWikiRoutes(string url, bool expected)
+        => Assert.That(WikiNavigationPolicy.IsExternalLink(url), Is.EqualTo(expected));
 }

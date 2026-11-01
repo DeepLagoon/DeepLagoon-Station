@@ -18,6 +18,7 @@ public partial class ShipDrillSystem : EntitySystem
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private ITileDefinitionManager _tileDef = default!;
     [Dependency] private TileSystem _tile = default!;
+    [Dependency] private TurfSystem _turf = default!;
     [Dependency] private SharedDecalSystem _decal = default!;
     [Dependency] private GatherableSystem _gather = default!;
 
@@ -89,7 +90,8 @@ public partial class ShipDrillSystem : EntitySystem
                 {
                     var tileDef = _tileDef[tileRef.Tile.TypeId];
 
-                    if (comp.TileWhitelist != null && !comp.TileWhitelist.Contains(tileDef.ID))
+                    if (_turf.IsIndestructibleGround(grid.Owner) ||
+                        comp.TileWhitelist != null && !comp.TileWhitelist.Contains(tileDef.ID))
                         continue;
 
                     _map.SetTile(grid.Owner, grid, tileRef.GridIndices, Tile.Empty);

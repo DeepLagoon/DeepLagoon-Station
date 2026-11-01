@@ -8758,6 +8758,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemAcousticGuitar
+  personalInhand: true
   dummyEntity: AcousticGuitarInstrument
   personalItems:
   - AcousticGuitarInstrument
@@ -8775,6 +8776,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemAcousticGuitarInstrumentMusician
+  personalInhand: true
   dummyEntity: AcousticGuitarInstrument
   personalItems:
   - AcousticGuitarInstrument
@@ -8853,6 +8855,7 @@
   personalRequirements: []
 - type: loadout
   id: DLEELoadoutItemBassGuitar
+  personalInhand: true
   dummyEntity: BassGuitarInstrument
   personalItems:
   - BassGuitarInstrument
@@ -8870,6 +8873,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemBassGuitarInstrumentMusician
+  personalInhand: true
   dummyEntity: BassGuitarInstrument
   personalItems:
   - BassGuitarInstrument
@@ -9327,6 +9331,7 @@
   personalRequirements: []
 - type: loadout
   id: DLEELoadoutItemElectricGuitar
+  personalInhand: true
   dummyEntity: ElectricGuitarInstrument
   personalItems:
   - ElectricGuitarInstrument
@@ -9344,6 +9349,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemElectricGuitarInstrumentMusician
+  personalInhand: true
   dummyEntity: ElectricGuitarInstrument
   personalItems:
   - ElectricGuitarInstrument
@@ -9922,6 +9928,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemRockGuitar
+  personalInhand: true
   dummyEntity: RockGuitarInstrument
   personalItems:
   - RockGuitarInstrument
@@ -9939,6 +9946,7 @@
     kind: CharacterJobRequirement
 - type: loadout
   id: DLEELoadoutItemRockGuitarInstrumentMusician
+  personalInhand: true
   dummyEntity: RockGuitarInstrument
   personalItems:
   - RockGuitarInstrument

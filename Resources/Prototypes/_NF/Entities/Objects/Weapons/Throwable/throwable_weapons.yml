@@ -21,7 +21,7 @@
   - type: DamageOtherOnHit
     damage:
       types:
-        Piercing: 6
+        Poison: 12
   - type: SolutionContainerManager
     solutions:
       ammo:

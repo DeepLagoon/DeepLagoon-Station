@@ -96,6 +96,16 @@ export const ChatComposer = () => {
         onCompositionStart={() => { composing.current = true; act('composition', { active: true }); }}
         onCompositionEnd={() => { composing.current = false; act('composition', { active: false }); }}
         onKeyDown={event => {
+          // The official WebView truncates U+041B's Char key code to Escape and
+          // drops it before keypress/input. Its keydown still carries the letter.
+          if (event.key === 'Л' && !event.ctrlKey && !event.altKey && !event.metaKey
+              && !composing.current && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            // Keep selection, maxlength, undo and React's input handling native.
+            // Cancelling keydown also prevents duplicates in unaffected browsers.
+            document.execCommand('insertText', false, event.key);
+            return;
+          }
           if (event.key === 'Escape') { event.preventDefault(); dispatch('cancel'); }
           if (event.key === 'Backspace' && event.currentTarget.value === ''
               && !composing.current && !event.nativeEvent.isComposing) {

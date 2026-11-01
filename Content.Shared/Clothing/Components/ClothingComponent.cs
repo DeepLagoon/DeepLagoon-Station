@@ -30,6 +30,11 @@ public sealed partial class ClothingComponent : Component
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
     public bool FaceFit = true;
 
+    /// <summary>In the head slot, hide hair above and beside the lower edge of the worn sprite.</summary>
+    [DataField]
+    [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]
+    public bool HairOcclusion = true;
+
     /// <summary>Keep a hanging skirt or robe hem independent of the wearer's leg bend.</summary>
     [DataField]
     [Access(typeof(ClothingSystem), typeof(InventorySystem), Other = AccessPermissions.ReadExecute)]

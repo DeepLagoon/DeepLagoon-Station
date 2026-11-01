@@ -18,8 +18,8 @@ new_player_minutes = 180.0
 # Назначение: /путь, page:ID, guide:ID, local:GuideEntryID, external:https://адрес.
 # page:ID и guide:ID — ссылки на другие строки, разрешается цепочка до 32 переходов.
 # Пустое назначение отключает переход; циклы и неизвестные назначения не открываются.
-# Встроенный просмотр разрешает только HTTPS wiki.origin, пути без query и страницы
-# из маршрутов/дерева tree_root. external: открывает системный браузер.
+# Встроенный просмотр разрешает HTTPS wiki.origin, пути без query, публичные страницы
+# локали tree_root и явно настроенные статьи. external: открывает системный браузер.
 # page:НовоеИмя = /ru/new_article также добавит кнопку НовоеИмя в окно справки.
 # Приоритет для сущности: entity:точный_ID -> entity:родители -> guide:тема -> default.
 # Привязка к базовому прототипу распространяется на потомков без собственного override.
@@ -553,4 +553,34 @@ link:VoltageNetworks = /ru/guidebook/in_game/engineering/voltage-networks
 link:Vox = /ru/guidebook/in_game/mobs/vox
 link:YourFirstCharacter = /ru/guidebook/in_game/new-player/your-first-character
 link:Zombies = /ru/guidebook/in_game/antagonist/zombies
+
+# Прямые статьи рас.
+species:Human = /ru/guidebook/in_game/mobs/human
+species:Arachnid = /ru/guidebook/in_game/mobs/arachnid
+species:Diona = /ru/guidebook/in_game/imported/nf/mobs/diona
+species:Dwarf = /ru/guidebook/in_game/imported/nf/mobs/dwarf
+species:Goblin = /ru/guidebook/in_game/imported/nf/mobs/goblin
+species:Moth = /ru/guidebook/in_game/mobs/moth
+species:Reptilian = /ru/guidebook/in_game/mobs/mono/mono-reptilian
+species:SlimePerson = /ru/guidebook/in_game/mobs/slime-person
+species:Vox = /ru/guidebook/in_game/mobs/vox
+species:Demon = /ru/guidebook/in_game/mobs/demon
+species:Synth = /ru/guidebook/in_game/mobs/synth
+species:Chitinid = /ru/guidebook/in_game/mobs/chitinid
+species:Feroxi = /ru/guidebook/in_game/mobs/feroxi
+species:Harpy = /ru/guidebook/in_game/mobs/dv/harpy
+species:Rodentia = /ru/guidebook/in_game/mobs/rodentia
+species:Vulpkanin = /ru/guidebook/in_game/mobs/vulpkanin
+species:IPC = /ru/guidebook/in_game/mobs/ipcs
+species:Tajaran = /ru/guidebook/in_game/mobs/tajaran
+species:Resomi = /ru/guidebook/in_game/mobs/resomi
+species:Hydrakin = /ru/guidebook/in_game/mobs/hydrakin
+species:Ariral = /ru/guidebook/in_game/mobs/shiba-station/ariral
+species:Oni = /ru/guidebook/in_game/mobs/oni
+species:Felinid = /ru/guidebook/in_game/mobs/felinid
+species:Protogen = /ru/guidebook/in_game/mobs/protogen
+species:Yowie = /ru/guidebook/in_game/mobs/yowie
+species:Skeleton = /ru/guidebook/in_game/mobs/skeleton
+species:Gingerbread = /ru/guidebook/in_game/mobs/gingerbread
+species:Asakim = /ru/guidebook/in_game/mobs/asakim
 '''

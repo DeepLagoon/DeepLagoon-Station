@@ -178,7 +178,7 @@
       capacity: 1
       count: 1
 
-# Syndicate "Medic", throws poisoned darts laced with 2u of Impedrezene (hallucinogenic, deals minor poison damage, makes you barf and slows you down)
+# Syndicate "Medic", throws darts dealing 12 poison damage on impact, plus their injected reagents.
 # Look for darts here: /Resources/Prototypes/_NF/Entities/Objects/Weapons/Throwable/throwable_weapons.yml
 - type: entity
   name: wayward medic
@@ -448,7 +448,7 @@
       count: 4
     - type: Gun
       showExamineText: false
-      fireRate: 6
+      fireRate: 0.5 # One EMP shot every 2 seconds.
       selectedMode: FullAuto
       availableModes:
       - FullAuto

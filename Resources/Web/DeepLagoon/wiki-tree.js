@@ -1,100 +1,74 @@
 (() => {
   const config = window.__deepLagoonWikiConfig;
-  if (!config || !config.root || !config.locale) return;
-  const rootPath = config.root;
-  const prefix = '/' + config.locale + '/';
-  if (!rootPath.startsWith(prefix)) return;
-  const treePath = rootPath.slice(prefix.length);
-  const inTree = location.pathname===rootPath || location.pathname.startsWith(rootPath+'/');
-  if (!inTree) {
-    document.getElementById('dl-game-wiki-tree')?.remove();
-    document.getElementById('dl-game-wiki-toggle')?.remove();
-    document.getElementById('dl-game-wiki-style')?.remove();
-    document.body.classList.remove('dl-game-wiki', 'dl-game-wiki-tree-open');
-    window.__deepLagoonGuideTree = false;
-    return;
-  }
-  if (window.__deepLagoonGuideTree) return;
-  window.__deepLagoonGuideTree = true;
-  const style = document.createElement('style');
-  style.id = 'dl-game-wiki-style';
-  style.textContent = `
-    body.dl-game-wiki { box-sizing:border-box; margin:0; padding-left:240px; }
-    .dl-game-wiki .v-navigation-drawer, .dl-game-wiki .v-app-bar,
-    .dl-game-wiki .nav-header, .dl-game-wiki .page-col-sd,
-    .dl-game-wiki .page-header-section, .dl-game-wiki .v-footer { display:none!important; }
-    .dl-game-wiki .v-main, .dl-game-wiki .v-content { padding:0!important; }
-    .dl-game-wiki .page-col-content { flex:0 0 100%!important; max-width:100%!important; min-width:0; }
-    .dl-game-wiki .container { max-width:100%!important; }
-    .dl-game-wiki .contents { padding:16px!important; min-width:0; }
-    .dl-game-wiki .dlwiki { min-width:0; }
-    .dl-game-wiki .dlwiki .masthead { display:none!important; }
-    .dl-game-wiki .dlwiki .wrap { padding:0 16px!important; }
-    .dl-game-wiki .dlwiki .article-head { grid-template-columns:minmax(0,1fr)!important; }
-    .dl-game-wiki .dlwiki .head-figure { display:none!important; }
-    .dl-game-wiki .dlwiki .article-grid { display:flex!important; flex-direction:column-reverse; gap:24px!important; }
-    .dl-game-wiki .dlwiki .toc { position:static!important; width:100%; border-left:0!important; padding-left:0!important; }
-    .dl-game-wiki .dlwiki .hero, .dl-game-wiki .dlwiki .feature,
-    .dl-game-wiki .dlwiki .directory, .dl-game-wiki .dlwiki .dl-entities,
-    .dl-game-wiki .dlwiki .dl-reference-index { grid-template-columns:minmax(0,1fr)!important; }
-    #dl-game-wiki-tree { box-sizing:border-box; position:fixed; left:0; top:0; bottom:0; width:240px;
-      overflow:auto; background:#171c24; color:#ddd; padding:14px; z-index:10000; font:14px/1.5 Arial; }
-    #dl-game-wiki-tree h3 { margin:0 0 12px; font-size:16px; }
-    #dl-game-wiki-tree button, #dl-game-wiki-toggle { color:#ddd; background:#263440; border:1px solid #526875; padding:8px; cursor:pointer; }
-    #dl-game-wiki-tree a { display:block; color:#abc6ec; padding:6px 4px; overflow-wrap:anywhere; }
-    #dl-game-wiki-tree summary { cursor:pointer; overflow-wrap:anywhere; }
-    #dl-game-wiki-toggle { display:none; }
-    @media(max-width:850px) {
-      body.dl-game-wiki { padding-left:0; padding-top:42px; }
-      #dl-game-wiki-toggle { display:block; position:fixed; top:0; left:0; width:100%; height:42px; z-index:10001; text-align:left; }
-      #dl-game-wiki-tree { display:none; top:42px; width:min(320px,100%); }
-      .dl-game-wiki-tree-open #dl-game-wiki-tree { display:block; }
-    }
-  `;
-  document.head.append(style);
+  if (!config) return;
+  // Re-applied after Wiki.js navigation. Articles supply their own navigation.
+  document.getElementById('dl-game-wiki-tree')?.remove();
+  document.getElementById('dl-game-wiki-toggle')?.remove();
+  document.body.classList.remove('dl-game-wiki-tree-open');
   document.body.classList.add('dl-game-wiki');
-  const toggle = document.createElement('button');
-  toggle.id = 'dl-game-wiki-toggle';
-  toggle.textContent = 'Разделы справочника';
-  toggle.setAttribute('aria-controls', 'dl-game-wiki-tree');
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.onclick = () => toggle.setAttribute('aria-expanded', String(document.body.classList.toggle('dl-game-wiki-tree-open')));
-  document.body.append(toggle);
-  const panel = document.createElement('aside');
-  panel.id = 'dl-game-wiki-tree';
-  const heading = document.createElement('h3'); heading.textContent = 'Игровая справка'; panel.append(heading);
-  const reload = document.createElement('button'); reload.textContent = 'Обновить дерево'; panel.append(reload);
-  const tree = document.createElement('div'); panel.append(tree); document.body.append(panel);
-  const load = async () => {
-    tree.textContent = 'Загрузка…';
-    try {
-      const response = await fetch('/graphql', {method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query($locale: String!) { pages { tree(mode: ALL, locale: $locale) { id path title isFolder parent } } }', variables:{locale:config.locale}})});
-      if (!response.ok) throw Error('HTTP '+response.status);
-      const result = await response.json();
-      if (!Array.isArray(result.data?.pages?.tree)) throw Error('Дерево страниц недоступно');
-      const pages = result.data.pages.tree.filter(p => p.path===treePath || p.path.startsWith(treePath+'/'));
-      tree.replaceChildren();
-      if (!pages.length) tree.textContent = 'В разделе '+rootPath+' пока нет опубликованных статей.';
-      const root = {children:new Map()};
-      for (const page of pages) {
-        let node=root;
-        for (const segment of page.path.slice(treePath.length).split('/').filter(Boolean)) {
-          if (!node.children.has(segment)) node.children.set(segment,{children:new Map(),title:segment});
-          node=node.children.get(segment);
-        }
-        node.title=page.title; if (!page.isFolder) node.path=page.path;
+  document.body.classList.toggle('dl-game-book', !!config.book);
+  document.body.classList.toggle('dl-game-book-content', !!config.book && !!document.querySelector('.contents .book'));
+  let style = document.getElementById('dl-game-wiki-style');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'dl-game-wiki-style';
+    style.textContent = `
+      body.dl-game-wiki { box-sizing:border-box; margin:0; padding:0!important; }
+      .dl-game-wiki .v-navigation-drawer, .dl-game-wiki .v-app-bar,
+      .dl-game-wiki .nav-header, .dl-game-wiki .page-col-sd, .dl-game-wiki .v-btn--fixed,
+      .dl-game-wiki .page-header-section, .dl-game-wiki .v-main__wrap > header, .dl-game-wiki .v-footer,
+      .dl-game-wiki .dlwiki .masthead, .dl-game-wiki .dlwiki .footer { display:none!important; }
+      body.dl-game-wiki #app .v-main, body.dl-game-wiki #app .v-content { transition:none!important; padding:0!important; }
+      .dl-game-wiki .page-col-content { flex:0 0 100%!important; max-width:100%!important; min-width:0; padding:0!important; }
+      body.dl-game-wiki #app .container { max-width:100%!important; padding:0!important; }
+      body.dl-game-wiki #app .layout.row { margin:0!important; }
+      .dl-game-wiki .contents { padding:12px!important; min-width:0; }
+      .dl-game-wiki .dlwiki { min-width:0; }
+      .dl-game-wiki .dlwiki .wrap { padding:0 12px!important; }
+      .dl-game-wiki .dlwiki .article-head { grid-template-columns:minmax(0,1fr)!important; }
+      .dl-game-wiki .dlwiki .article-grid { display:flex!important; flex-direction:column!important; gap:24px!important; }
+      .dl-game-wiki .dlwiki .toc { position:static!important; width:100%; border-left:0!important; padding-left:0!important; }
+      .dl-game-wiki .dlwiki .hero, .dl-game-wiki .dlwiki .feature,
+      .dl-game-wiki .dlwiki .directory, .dl-game-wiki .dlwiki .dl-entities,
+      .dl-game-wiki .dlwiki .dl-reference-index { grid-template-columns:minmax(0,1fr)!important; }
+      .dl-game-book-content .contents { padding:0!important; }
+      .dl-game-book-content .dlwiki > :not(main),
+      .dl-game-book-content .dlwiki main > :not(.book-stage),
+      .dl-game-book-content .dlwiki .book-stage > :not(.book) { display:none!important; }
+      .dl-game-book-content .dlwiki, .dl-game-book-content .dlwiki .wrap,
+      .dl-game-book-content .dlwiki .book-stage { margin:0!important; padding:0!important; width:100%!important; max-width:none!important; }
+      .dl-game-book-content .dlwiki .book { box-sizing:border-box; width:100%!important; max-width:none!important; margin:0!important; padding:clamp(20px,5vw,64px)!important; border:0!important; box-shadow:none!important; }
+      .dl-game-book a { pointer-events:none!important; cursor:text!important; }
+    `;
+    document.head.append(style);
+  }
+  // Some authored articles use target=_blank. Keep links in this viewer.
+  for (const link of document.querySelectorAll('a[href]')) {
+    if (config.book) {
+      if (!link.hasAttribute('data-dl-book-tabindex'))
+        link.setAttribute('data-dl-book-tabindex', link.getAttribute('tabindex') ?? '');
+      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('tabindex', '-1');
+    } else {
+      if (link.hasAttribute('data-dl-book-tabindex')) {
+        const previous = link.getAttribute('data-dl-book-tabindex');
+        if (previous) link.setAttribute('tabindex', previous);
+        else link.removeAttribute('tabindex');
+        link.removeAttribute('data-dl-book-tabindex');
+        link.removeAttribute('aria-disabled');
       }
-      const render = (node,parent) => {
-        for (const child of [...node.children.values()].sort((a,b)=>a.title.localeCompare(b.title,config.locale))) {
-          let container=parent;
-          if (child.children.size) {const details=document.createElement('details');details.open=true;const summary=document.createElement('summary');summary.textContent=child.title;details.append(summary);parent.append(details);container=details;}
-          if (child.path) {const link=document.createElement('a');link.textContent=child.title;link.href=prefix+child.path;container.append(link);}
-          render(child,container);
-        }
-      };
-      if (root.path) {const link=document.createElement('a');link.textContent=root.title;link.href=prefix+root.path;tree.append(link);}
-      render(root,tree);
-    } catch (_) {tree.textContent='Не удалось загрузить дерево. Нажмите «Обновить дерево».';}
-  };
-  reload.onclick=load;load();
+      link.setAttribute('target', '_self');
+    }
+  }
+  if (!window.__deepLagoonWikiClickGuard) {
+    window.__deepLagoonWikiClickGuard = true;
+    const guard = event => {
+      if (window.__deepLagoonWikiConfig?.book && event.target.closest?.('a[href]')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+    document.addEventListener('click', guard, true);
+    document.addEventListener('auxclick', guard, true);
+  }
 })();

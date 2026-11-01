@@ -30,3 +30,4 @@ space-environment-route-ftl-blocked = FTL: plasma interference at departure or a
 space-environment-route-ftl-clear = FTL: no environmental endpoint interference detected. Other travel restrictions still apply.
 
 space-environment-space-junk = space junk
+space-environment-blue-wreck = drifting wreckage

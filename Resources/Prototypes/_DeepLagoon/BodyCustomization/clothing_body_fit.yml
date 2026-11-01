@@ -2,3 +2,9 @@
   id: DeepLagoonClothingBodyFit
   kind: source
   path: /Textures/_DeepLagoon/Shaders/clothing_body_fit.swsl
+
+- type: shader
+  id: DeepLagoonHairOcclusionUnshaded
+  kind: source
+  path: /Textures/_DeepLagoon/Shaders/clothing_body_fit.swsl
+  light_mode: unshaded

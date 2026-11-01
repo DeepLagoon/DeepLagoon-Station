@@ -114,6 +114,30 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                 limbAnchor = key;
             }
         }
+        // Tails are anchored above the native body, but must not cut into front-facing
+        // genitals. Keep rear anatomy (including the anus) at its existing depth.
+        var tailKeys = new List<object> { HumanoidVisualLayers.Tail, HumanoidVisualLayers.TailExtras };
+        foreach (var marking in humanoid.MarkingSet.Markings.Values.SelectMany(markings => markings))
+        {
+            if (!_prototypes.TryIndex<MarkingPrototype>(marking.MarkingId, out var prototype)
+                || prototype.BodyPart is not (HumanoidVisualLayers.Tail or HumanoidVisualLayers.TailExtras)) continue;
+            foreach (var spec in prototype.Sprites)
+                if (spec is SpriteSpecifier.Rsi rsi) tailKeys.Add($"{prototype.ID}-{rsi.RsiState}");
+        }
+        var tailAnchor = tailKeys.Where(key => sprite.LayerMapTryGet(key, out var index)
+                && sprite[index] is SpriteComponent.Layer { ActualState: not null })
+            .OrderBy(key => { sprite.LayerMapTryGet(key, out var index); return index; }).LastOrDefault();
+        if (tailAnchor != null)
+        {
+            foreach (var key in layers.Where(key => key.EndsWith("/FRONT")
+                && key.Split('/')[1] is "vagina" or "testicles" or "penis"))
+            {
+                sprite.LayerMapTryGet(key, out var index);
+                sprite.LayerMapTryGet(tailAnchor, out var anchorIndex);
+                if (index <= anchorIndex) MoveLayer(uid, sprite, key, tailAnchor, after: true);
+                tailAnchor = key;
+            }
+        }
         UpdateVisibility(uid, humanoid, sprite);
         EntityManager.System<ClothingBodyFitSystem>().Refresh(uid, humanoid, sprite);
     }

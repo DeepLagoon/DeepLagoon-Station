@@ -224,9 +224,16 @@ public sealed partial class AtmosphereSystem
             tile.MonstermosInfo.CurrentTransferDirection = AtmosDirection.Invalid;
     }
 
-    private (GasMixture Air, bool IsSpace) GetDefaultMapAtmosphere(MapAtmosphereComponent? map)
+    private (GasMixture Air, bool IsSpace) GetDefaultMapAtmosphere(
+        MapAtmosphereComponent? map,
+        EntityUid? grid = null,
+        EntityUid? mapUid = null)
     {
-        if (map == null)
+        // Expedition air belongs to the planet, not to visiting shuttle grids.
+        // Keep their existing simulated cabin air and exclude planetary gas from their map boundary.
+        if (map == null || grid != mapUid &&
+            HasComp<Content.Server.Shuttles.Components.ShuttleComponent>(grid) &&
+            HasComp<Content.Shared._DeepLagoon.Salvage.ExpeditionGroundComponent>(mapUid))
             return (GasMixture.SpaceGas, true);
 
         var air = map.Mixture;

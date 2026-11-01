@@ -1,11 +1,13 @@
 using System.Linq;
 using Content.Client._DeepLagoon.Tattoos;
+using Content.Shared._DeepLagoon.BodyCustomization;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
 using Content.Shared.Nutrition.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.ResourceManagement;
+using Robust.Shared.Configuration;
 using Robust.Shared.Utility;
 
 namespace Content.Client._DeepLagoon.BodyCustomization;
@@ -13,10 +15,26 @@ namespace Content.Client._DeepLagoon.BodyCustomization;
 public sealed partial class ClothingBodyFitSystem
 {
     [Dependency] private IResourceCache _faceResources = default!;
+    [Dependency] private IConfigurationManager _faceConfiguration = default!;
+    private bool _avianMaskFit;
+
+    private void OnAvianMaskFitChanged(bool enabled)
+    {
+        _avianMaskFit = enabled;
+        var query = EntityQueryEnumerator<HumanoidAppearanceComponent, SpriteComponent>();
+        while (query.MoveNext(out var uid, out var humanoid, out var sprite))
+        {
+            if (humanoid.Species.Id is "Vox" or "Resomi")
+                Refresh(uid, humanoid, sprite);
+        }
+    }
 
     private void ApplyFace(EntityUid uid, EntityUid item, string slot, SpriteComponent sprite,
         ClothingComponent clothing, HashSet<string> keys, HumanoidAppearanceComponent humanoid)
     {
+        if (!_avianMaskFit && slot is ("mask" or "balaclava") && humanoid.Species.Id is ("Vox" or "Resomi"))
+            return;
+
         if (!clothing.FaceFit || HasComp<SmokableComponent>(item) ||
             humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Head) ||
             TryComp<MaskComponent>(item, out var mask) && mask.IsToggled)

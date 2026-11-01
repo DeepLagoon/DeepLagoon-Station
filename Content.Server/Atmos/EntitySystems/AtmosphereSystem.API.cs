@@ -133,7 +133,7 @@ public partial class AtmosphereSystem
             mixtures ??= new GasMixture?[tiles.Count];
             for (var i = 0; i < tiles.Count; i++)
             {
-                mixtures[i] ??= mapEnt.Comp.Mixture;
+                mixtures[i] ??= GetDefaultMapAtmosphere(mapEnt.Comp, grid?.Owner, mapEnt.Owner).Air;
             }
 
             return mixtures;
@@ -178,7 +178,7 @@ public partial class AtmosphereSystem
         }
 
         if (map is {} mapEnt && _mapAtmosQuery.Resolve(mapEnt, ref mapEnt.Comp, false))
-            return mapEnt.Comp.Mixture;
+            return GetDefaultMapAtmosphere(mapEnt.Comp, grid?.Owner, mapEnt.Owner).Air;
 
         // Default to a space mixture... This is a space game, after all!
         return GasMixture.SpaceGas;
@@ -212,7 +212,7 @@ public partial class AtmosphereSystem
         }
 
         if (map is {} mapEnt && _mapAtmosQuery.Resolve(mapEnt, ref mapEnt.Comp, false))
-            return mapEnt.Comp.Space;
+            return GetDefaultMapAtmosphere(mapEnt.Comp, grid?.Owner, mapEnt.Owner).IsSpace;
 
         // If nothing handled the event, it'll default to true.
         // Oh well, this is a space game after all, deal with it!

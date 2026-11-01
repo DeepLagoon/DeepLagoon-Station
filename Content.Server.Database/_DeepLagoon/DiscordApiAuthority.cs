@@ -16,6 +16,8 @@ public static class DiscordApiAuthority
         if (!host && !head) return false;
         if (operation != "staff_add" || host) return true;
         if (kind is "admin" or "mapper") return applicationId == null;
+        // Trial can be granted manually outside an application, or on acceptance.
+        if (applicationId == null) return true;
         return applicationId is { Length: >= 15 and <= 20 } && applicationId.All(char.IsAsciiDigit) &&
                ulong.TryParse(applicationId, out var id) && id > 0;
     }

@@ -2,6 +2,7 @@ using System.IO;
 using System.Numerics;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.WebView;
+using Robust.Client.UserInterface;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -12,6 +13,7 @@ namespace Content.Client._DeepLagoon.WebUI;
 public sealed class WikiDocumentView : BoxContainer
 {
     private readonly WikiRoutingConfiguration _configuration = IoCManager.Resolve<WikiRoutingConfiguration>();
+    private readonly IUriOpener _uriOpener = IoCManager.Resolve<IUriOpener>();
     private readonly WebViewControl _web = new() { HorizontalExpand = true, VerticalExpand = true };
     private readonly Label _status = new();
     private string? _statusKey;
@@ -20,6 +22,7 @@ public sealed class WikiDocumentView : BoxContainer
     private string _origin = "";
     private string _treeRoot = "";
     private string _treeLocale = "";
+    private string? _bookPath;
     private float _loadSeconds;
     private float _treeRefresh;
     private bool _ensureViewport;
@@ -38,8 +41,10 @@ public sealed class WikiDocumentView : BoxContainer
         AddChild(_web);
     }
 
-    public void LoadPath(string path)
+    public void LoadPath(string path, bool book = false)
     {
+        _bookPath = book ? path : null;
+        _status.Visible = true;
         _origin = _configuration.Origin;
         _treeRoot = _configuration.TreeRoot;
         _treeLocale = _configuration.TreeLocale;
@@ -76,16 +81,24 @@ public sealed class WikiDocumentView : BoxContainer
 
     private void BeforeBrowse(IBeforeBrowseContext context)
     {
-        if (context.Method != "GET" || !WikiNavigationPolicy.IsPage(context.Url, _paths, _origin, _treeRoot))
+        if (context.Method != "GET" || !WikiNavigationPolicy.IsDocumentNavigation(context.Url, _paths, _origin, _treeRoot, _bookPath))
+        {
             context.DoCancel();
+            if (_bookPath == null && context.Method == "GET" && context.UserGesture && !context.IsRedirect &&
+                WikiNavigationPolicy.IsExternalLink(context.Url, _origin))
+                _uriOpener.OpenUri(context.Url);
+        }
     }
 
     private void ResourceRequest(IRequestHandlerContext context)
     {
+        // Prototype portraits tint their RSI layers with embedded SVG filters.
+        if (!context.IsDownload && !context.IsNavigation && context.Method == "GET" &&
+            context.Url.StartsWith("data:image/", StringComparison.Ordinal)) return;
         if (!context.IsDownload && !context.IsNavigation && context.Method == "POST" &&
             WikiNavigationPolicy.IsTreeRequest(context.Url, _origin)) return;
         if (context.IsDownload || context.Method != "GET" ||
-            (context.IsNavigation ? !WikiNavigationPolicy.IsPage(context.Url, _paths, _origin, _treeRoot) :
+            (context.IsNavigation ? !WikiNavigationPolicy.IsDocumentNavigation(context.Url, _paths, _origin, _treeRoot, _bookPath) :
                 !WikiNavigationPolicy.IsAsset(context.Url, _origin) &&
                 !WikiNavigationPolicy.IsPage(context.Url, _paths, _origin, _treeRoot)))
             context.DoCancel();
@@ -107,10 +120,11 @@ public sealed class WikiDocumentView : BoxContainer
         {
             _treeRefresh = 1;
             _web.ExecuteJavaScript("window.__deepLagoonWikiConfig=" + new TguiData()
-                .String("root", _treeRoot).String("locale", _treeLocale) + ";" + _treeScript);
+                .String("root", _treeRoot).String("locale", _treeLocale).Bool("book", _bookPath != null) + ";" + _treeScript);
         }
         SetStatus(_web.IsLoading
             ? (_loadSeconds >= 30 ? "wiki-load-timeout" : "wiki-loading") : "wiki-load-hint");
+        _status.Visible = _bookPath == null || _web.IsLoading;
     }
 
     [Obsolete("Controls should only be removed from UI tree instead of being disposed")]

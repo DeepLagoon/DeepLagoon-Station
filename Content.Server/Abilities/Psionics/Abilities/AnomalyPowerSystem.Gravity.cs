@@ -10,6 +10,8 @@ namespace Content.Server.Abilities.Psionics;
 
 public sealed partial class AnomalyPowerSystem
 {
+    [Dependency] private Content.Shared.Maps.TurfSystem _turf = default!;
+
     private void DoGravityAnomalyEffects(EntityUid uid, PsionicComponent component, AnomalyPowerActionEvent args, bool overcharged = false)
     {
         if (args.Gravity is null)
@@ -35,7 +37,8 @@ public sealed partial class AnomalyPowerSystem
             .ToArray();
 
         var tiles = tileref.Select(t => (t.GridIndices, Tile.Empty)).ToList();
-        _mapSystem.SetTiles(xform.GridUid.Value, grid, tiles);
+        if (!_turf.IsIndestructibleGround(xform.GridUid.Value))
+            _mapSystem.SetTiles(xform.GridUid.Value, grid, tiles);
 
         var range = gravity.MaxThrowRange * component.CurrentDampening;
         var strength = gravity.MaxThrowStrength * component.CurrentAmplification;

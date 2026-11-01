@@ -1,6 +1,9 @@
 using System.Numerics;
+using Content.Server._Mono.GridClaimer;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared.EntityTable;
+using Content.Shared.Fluids.Components;
+using Robust.Shared.Audio.Components;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
 using Robust.Shared.Configuration;
@@ -50,6 +53,8 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         public float Direction;
         public TimeSpan LastSeen;
         public TimeSpan InterceptUntil;
+        public Vector2 Center;
+        public float HalfExtent = 8f;
         public ICommonSession? Sponsor;
         public readonly Dictionary<Vector2i, Tile> Tiles = new();
         public readonly HashSet<EntityUid> Children = new();
@@ -62,6 +67,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         _looseLoot.Clear();
         _viewers.Clear();
         _protected.Clear();
+        _derelictFields.Clear();
         base.Shutdown();
     }
 
@@ -90,7 +96,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             }
             var pile = _piles[uid];
             if (Claimed(uid, grid, pile)) { Release(uid); continue; }
-            var position = _transform.GetWorldPosition(uid);
+            var position = PilePosition(uid, pile);
             TryComp<PhysicsComponent>(uid, out var body);
             if (!OrbitClear(pile.Map, pile.Anchor, pile.Radius) || !PositionClear(pile.Map, position)
                 || body != null && !PathClear(pile.Map, position, position + body.LinearVelocity * 3f))
@@ -98,7 +104,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
                 DeletePile(uid);
                 continue;
             }
-            if (SeenByAnyone(pile.Map, position)) pile.LastSeen = _timing.CurTime;
+            if (SeenByAnyone(pile.Map, position, pile.HalfExtent)) pile.LastSeen = _timing.CurTime;
             else if (_timing.CurTime >= pile.InterceptUntil && (_timing.CurTime - pile.LastSeen).TotalSeconds >= UnseenSeconds)
             {
                 DeletePile(uid);
@@ -145,7 +151,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             if (pile.Map != observer.Map) continue;
             inMap++;
             if (pile.Sponsor == viewer.Session) owned++;
-            if (Visible(observer, pile.Map, _transform.GetWorldPosition(uid), 100f)) nearby++;
+            if (Visible(observer, pile.Map, PilePosition(uid, pile), 100f)) nearby++;
         }
         if (inMap >= MapLimit || owned >= quota || nearby >= quota) return false;
         var random = new SectorRandom(SectorRandom.Derive(environment.Definition.Seed, $"debris/{_sequence++}"));
@@ -170,7 +176,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             var cooldown = (observer.Map, habitat.Kind);
             if (!viewer.NextSpawn.TryGetValue(cooldown, out var ready))
             {
-                ready = _timing.CurTime + TimeSpan.FromSeconds(habitat.Kind == SpaceJunkHabitatKind.OpenSpace ? random.Range(30, 90) : 0);
+                ready = _timing.CurTime + TimeSpan.FromSeconds(habitat.Kind == SpaceJunkHabitatKind.OpenSpace ? random.Range(25, OpenSpaceInterval) : 0);
                 viewer.NextSpawn[cooldown] = ready;
             }
             if (_timing.CurTime < ready) continue;
@@ -222,12 +228,16 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         foreach (var pile in _piles.Values) if (pile.Map == map) count++;
         if (count >= MapLimit) return null;
         var random = new SectorRandom(seed);
+        var habitat = TryComp<SpaceEnvironmentComponent>(map, out var environment)
+            ? Habitat(environment.Definition, position) : new SpaceJunkHabitat(SpaceJunkHabitatKind.OpenSpace, 1, 4, 16, OpenSpaceInterval, false);
+        if (TryFindDerelict(map, position, out var region, out var slot))
+            return SpawnDerelict(map, position, anchor, seed, region, slot);
+        var blue = habitat.Kind == SpaceJunkHabitatKind.AsteroidField
+            && SectorRandom.Derive(seed, "blue-wreck") % 3 == 0;
         var grid = _maps.CreateGridEntity(mapComponent.MapId);
         _transform.SetWorldPosition(grid, position);
         var state = new Pile { Map = map, Anchor = anchor, Radius = MathF.Max(1f, Vector2.Distance(position, anchor)),
             Speed = random.Range(2f, 6f), Direction = random.Index(2) == 0 ? -1f : 1f, LastSeen = _timing.CurTime };
-        var habitat = TryComp<SpaceEnvironmentComponent>(map, out var environment)
-            ? Habitat(environment.Definition, position) : new SpaceJunkHabitat(SpaceJunkHabitatKind.OpenSpace, 1, 4, 16, 90, false);
         var width = 1 + random.Index(habitat.MaxExtent);
         var height = 1 + random.Index(habitat.MaxExtent);
         var floor = new Tile(_tiles[SupportTile].TileId);
@@ -242,7 +252,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         foreach (var (index, _) in cells)
         {
             if (index == pocket) continue;
-            Spawn(ScrapWall(ref random, habitat.Rich), new EntityCoordinates(grid, (Vector2) index + new Vector2(0.5f)));
+            Spawn(blue ? WreckWall(ref random) : ScrapWall(ref random, habitat.Rich), new EntityCoordinates(grid, (Vector2) index + new Vector2(0.5f)));
         }
         var lootPosition = new EntityCoordinates(grid, (Vector2) (pocket ?? cells[0].GridIndices) + new Vector2(0.5f));
         var lootRandom = new System.Random(unchecked((int) random.Next()));
@@ -263,14 +273,14 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         while (children.MoveNext(out var child))
         {
             state.Children.Add(child);
-            if (!Transform(child).Anchored && !TerminatingOrDeleted(child)) _looseLoot[child] = grid;
+            if (!Transform(child).Anchored && !TerminatingOrDeleted(child) && !HasComp<AudioComponent>(child)) _looseLoot[child] = grid;
         }
         var body = EnsureComp<PhysicsComponent>(grid);
         _physics.SetBodyType(grid, BodyType.Dynamic, body: body);
         var radial = Normal(position - anchor);
         _physics.SetLinearVelocity(grid, new Vector2(-radial.Y, radial.X) * (state.Speed * state.Direction), body: body);
         _physics.SetAngularVelocity(grid, random.Range(-0.08f, 0.08f), body: body);
-        EntityManager.System<MetaDataSystem>().SetEntityName(grid, Loc.GetString("space-environment-space-junk"));
+        SetEncounterIdentity(grid, blue, false, seed);
         _piles.Add(grid, state);
         return grid;
     }
@@ -292,8 +302,10 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
     {
         var transform = Transform(uid);
         if (transform.MapUid != pile.Map || _occupied.Contains(uid)) return true;
+        if (TryComp<ClaimableGridComponent>(uid, out var claimable) && claimable.Claimed) return true;
         var children = transform.ChildEnumerator;
-        while (children.MoveNext(out var child)) if (!pile.Children.Contains(child)) return true;
+        while (children.MoveNext(out var child))
+            if (!pile.Children.Contains(child) && !HasComp<AudioComponent>(child) && !HasComp<PuddleComponent>(child)) return true;
         var tiles = _maps.GetAllTiles(uid, grid);
         while (tiles.MoveNext())
         {
@@ -305,6 +317,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
 
     public void ForgetMap(EntityUid map)
     {
+        ForgetDerelictFields(map);
         Snapshot();
         foreach (var uid in _snapshot) if (_piles[uid].Map == map) _piles.Remove(uid);
         foreach (var viewer in _viewers.Values)
@@ -324,7 +337,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             if (pile.Map != map) continue;
             if (TryComp<MapGridComponent>(uid, out var grid) && !Claimed(uid, grid, pile))
             {
-                if (SeenByAnyone(map, _transform.GetWorldPosition(uid))) continue;
+                if (SeenByAnyone(map, PilePosition(uid, pile), pile.HalfExtent)) continue;
                 _piles.Remove(uid);
                 Del(uid);
             }

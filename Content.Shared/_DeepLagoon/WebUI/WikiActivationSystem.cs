@@ -35,6 +35,7 @@ public sealed partial class WikiActivationSystem : EntitySystem
                 defaults["page:" + page.ID] = page.Path;
                 if (page.Default) defaults["default"] = "page:" + page.ID;
                 foreach (var guide in page.GuideEntries) defaults["guide:" + guide] = "page:" + page.ID;
+                foreach (var (source, path) in page.SourceRoutes) defaults[source] = path;
             }
             try { _routes = new WikiRouteTable(defaults, configuration); }
             catch (ArgumentException) { _routes = new WikiRouteTable(defaults, ""); }

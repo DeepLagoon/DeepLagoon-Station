@@ -28,6 +28,10 @@
         conditions:
         - !type:OrganType
           type: Human
+      - !type:Oxygenate # DeepLagoon - Ariral
+        conditions:
+        - !type:OrganType
+          type: Ariral
       - !type:Oxygenate # Mono - Hydrakin
         conditions:
         - !type:OrganType

@@ -22,7 +22,9 @@ public sealed class DiscordStaffAuthorityTests
                 Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_add", kind, role, kind == "trial" ? Application : null), Is.True);
                 Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_status", kind, role, null), Is.True);
                 Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_remove", kind, role, null), Is.True);
-                Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_add", kind, role, kind == "trial" ? null : Application), Is.False);
+                Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_add", kind, role, null), Is.True);
+                if (kind != "trial")
+                    Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_add", kind, role, Application), Is.False);
             }
             foreach (var kind in new[] { "admin", "trial", "mapper" })
                 Assert.That(DiscordApiAuthority.CanManageStaff(admin, "staff_add", kind, Host, null), Is.True);
@@ -33,6 +35,7 @@ public sealed class DiscordStaffAuthorityTests
     public void CrossDepartmentUnknownRoleMalformedContextAndOtherOperationsAreDenied()
     {
         foreach (var (role, kind) in new[] { (HeadAdmin, "mapper"), (HeadMapper, "admin"), (HeadMapper, "trial"),
+                     ("1555837434292477972", "trial"), ("1554200874920845332", "trial"),
                      ("1554196521980006540", "admin"), ("HOST", "admin"), (Host, "host"), (HeadAdmin, "") })
             Assert.That(DiscordApiAuthority.CanManageStaff(null, "staff_add", kind, role, Application), Is.False);
         foreach (var role in new[] { Host, HeadAdmin, HeadMapper })
@@ -48,6 +51,8 @@ public sealed class DiscordStaffAuthorityTests
         foreach (var admin in new[] { new Admin { Suspended = true }, new Admin { Deadminned = true } })
             foreach (var role in new[] { Host, HeadAdmin, HeadMapper })
                 foreach (var operation in new[] { "staff_add", "staff_remove", "staff_status" })
-                    Assert.That(DiscordApiAuthority.CanManageStaff(admin, operation, "mapper", role, Application), Is.False);
+                    foreach (var kind in new[] { "mapper", "trial", "admin" })
+                        foreach (var application in new string?[] { null, Application })
+                            Assert.That(DiscordApiAuthority.CanManageStaff(admin, operation, kind, role, application), Is.False);
     }
 }

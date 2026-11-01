@@ -83,7 +83,7 @@ public abstract partial class SharedToolSystem
         if (!tool.Qualities.Overlaps(tileDef.DeconstructTools))
             return false;
 
-        if (string.IsNullOrWhiteSpace(tileDef.BaseTurf))
+        if (!_tiles.CanDeconstructTile(tileRef))
             return false;
 
         if (comp.RequiresUnobstructed && _turfs.IsTileBlocked(gridUid, tileRef.GridIndices, CollisionGroup.MobMask))
@@ -101,7 +101,7 @@ public abstract partial class SharedToolSystem
     public bool TryDeconstructWithToolQualities(TileRef tileRef, HashSet<ProtoId<ToolQualityPrototype>> withToolQualities)
     {
         var tileDef = (ContentTileDefinition) _tileDefManager[tileRef.Tile.TypeId];
-        if (withToolQualities.Overlaps(tileDef.DeconstructTools))
+        if (withToolQualities.Overlaps(tileDef.DeconstructTools) && _tiles.CanDeconstructTile(tileRef))
         {
             // don't do this on the client or else the tile entity spawn mispredicts and looks horrible
             return _net.IsClient || _tiles.DeconstructTile(tileRef);

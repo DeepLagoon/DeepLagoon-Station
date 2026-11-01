@@ -121,6 +121,7 @@
   - type: Sprite
     sprite: _NF/Clothing/Head/Hoods/mccargocrown.rsi
   - type: Clothing
+    hairOcclusion: false
     sprite: _NF/Clothing/Head/Hoods/mccargocrown.rsi
   - type: Tag
     tags:

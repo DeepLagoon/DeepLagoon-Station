@@ -32,7 +32,7 @@ public sealed partial class PersonalLoadoutSystem
     public bool UsesSlot(LoadoutPrototype item, SlotDefinition slot) =>
         item.Equipment.ContainsKey(slot.Name) ||
         _prototypes.TryIndex(item.StartingGear, out var gear) && gear.Equipment.ContainsKey(slot.Name) ||
-        item.PersonalItems.Any(id => _prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) &&
+        !item.PersonalInhand && item.PersonalItems.Any(id => _prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) &&
             (clothing.Slots & slot.SlotFlags) != 0);
 
     public bool HasUnequippedSlots(HumanoidCharacterProfile profile, string job, LoadoutPrototype item)
@@ -66,7 +66,7 @@ public sealed partial class PersonalLoadoutSystem
     /// <summary>Compare actual equipment slots, not catalogue category labels.</summary>
     public bool Conflicts(HumanoidCharacterProfile profile, LoadoutPrototype personal, LoadoutPrototype jobItem, string? targetSlot = null)
     {
-        if ((!personal.PersonalExclusive && targetSlot == null) || personal.PersonalItems.Count == 0)
+        if (personal.PersonalInhand || (!personal.PersonalExclusive && targetSlot == null) || personal.PersonalItems.Count == 0)
             return false;
         var species = _prototypes.Index(profile.Species);
         if (!_prototypes.Index(species.Prototype).TryGetComponent<InventoryComponent>(out var inventory) ||
@@ -103,6 +103,8 @@ public sealed partial class PersonalLoadoutSystem
 
     public string? PersonalSlot(HumanoidCharacterProfile profile, LoadoutPrototype item, string? requested = null)
     {
+        if (item.PersonalInhand)
+            return null;
         var slots = EditableSlots(profile).Where(slot => UsesSlot(item, slot)).ToArray();
         if (requested != null) return slots.FirstOrDefault(slot => slot.Name == requested)?.Name;
         var preferred = item.PersonalCategory switch

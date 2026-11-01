@@ -2,12 +2,38 @@ using Content.Client.Lobby;
 using Robust.Client;
 using Robust.Client.State;
 using Robust.Client.Timing;
+using Content.Client._DeepLagoon.WebUI;
+using Content.Shared.Humanoid.Prototypes;
+using Content.Shared._DeepLagoon.WebUI;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
 public sealed class WikiConnectionTests
 {
+    [Test]
+    public async Task EveryRoundStartSpeciesHasItsOwnArticleByDefault()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var routes = pair.Client.ResolveDependency<WikiRoutingConfiguration>().Read();
+            var defaults = prototypes.Index<WikiPagePrototype>("InGame").SourceRoutes;
+            foreach (var species in prototypes.EnumeratePrototypes<SpeciesPrototype>())
+            {
+                if (!species.RoundStart) continue;
+                var source = "species:" + species.ID;
+                Assert.That(defaults.ContainsKey(source), Is.True, source);
+                Assert.That(routes.Resolve(new[] { source }), Is.EqualTo(defaults[source]), source);
+                Assert.That(defaults[source], Does.StartWith("/ru/guidebook/in_game/"), source);
+                Assert.That(defaults[source], Is.Not.EqualTo("/ru/in_game"), source);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task LobbyConnectionLocksSubscriptionsAndKeepsApplyingServerStates()
     {

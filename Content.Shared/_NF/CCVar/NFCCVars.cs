@@ -33,7 +33,7 @@ public sealed class NFCCVars
         CVarDef.Create("nf14.uncryo.enabled", true, CVar.SERVER | CVar.REPLICATED);
 
     /// <summary>
-    /// The time in seconds after which a cryosleeping body is considered expired and can be deleted from the storage map.
+    /// Legacy setting retained for configuration compatibility. Cryosleeping bodies now persist until round cleanup.
     /// </summary>
     public static readonly CVarDef<float> CryoExpirationTime =
         CVarDef.Create("nf14.uncryo.maxtime", 180 * 60f, CVar.SERVER | CVar.REPLICATED);
@@ -58,7 +58,7 @@ public sealed class NFCCVars
     /// The amount of time the bus waits at a station.
     /// </summary>
     public static readonly CVarDef<float> PublicTransitWaitTime =
-        CVarDef.Create("nf14.publictransit.wait_time", 40f, CVar.SERVERONLY);
+        CVarDef.Create("nf14.publictransit.wait_time", 15f, CVar.SERVERONLY);
 
     /// <summary>
     /// The amount of time the bus flies through FTL space.

@@ -440,6 +440,9 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                     ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, ent, sprite, marking.Unshaded);
             }
         }
+        if (layer == HumanoidVisualLayers.Hair)
+            EntityManager.System<Content.Client._DeepLagoon.BodyCustomization.ClothingBodyFitSystem>()
+                .RefreshHair(ent.Owner, ent.Comp, sprite);
     }
 
     private bool HasBodyReplacement(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer) =>

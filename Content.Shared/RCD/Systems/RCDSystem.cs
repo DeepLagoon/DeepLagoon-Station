@@ -507,7 +507,7 @@ public partial class RCDSystem : EntitySystem
             // The tile cannot be destroyed
             var tileDef = _turf.GetContentTileDefinition(mapGridData.Tile);
 
-            if (tileDef.Indestructible)
+            if (tileDef.Indestructible || _turf.IsIndestructibleGround(mapGridData.GridUid))
             {
                 if (popMsgs)
                     _popup.PopupClient(Loc.GetString("rcd-component-tile-indestructible-message"), uid, user);

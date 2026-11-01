@@ -8,6 +8,7 @@ using Content.Client.Players.PlayTimeTracking;
 using Content.Client.UserInterface.Controls;
 using Content.Shared.Guidebook;
 using Content.Shared.Input;
+using Content.Shared.Tag;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Client.UserInterface;
 using Robust.Shared.Input.Binding;
@@ -141,10 +142,10 @@ public sealed partial class GuidebookUIController : UIController, IOnStateEntere
     {
         var sources = EntitySources(entity, prefix);
         if (guides != null) sources.AddRange(guides.Select(id => "guide:" + id));
-        return OpenDestination(_routing.Read().Resolve(sources));
+        return OpenDestination(_routing.Read().Resolve(sources), _entities.System<TagSystem>().HasTag(entity, "Book"));
     }
 
-    private bool OpenDestination(string destination)
+    private bool OpenDestination(string destination, bool book = false)
     {
         if (destination.StartsWith("external:", StringComparison.Ordinal))
         {
@@ -172,7 +173,7 @@ public sealed partial class GuidebookUIController : UIController, IOnStateEntere
         }
         if (_guideWindow == null || !WikiNavigationPolicy.IsPath(destination) || !WikiNavigationPolicy.IsOrigin(_routing.Origin)) return false;
         _localWindow?.Close();
-        _guideWindow.ShowPath(destination);
+        _guideWindow.ShowPath(destination, book);
         _guideWindow.OpenCenteredRight();
         return true;
     }

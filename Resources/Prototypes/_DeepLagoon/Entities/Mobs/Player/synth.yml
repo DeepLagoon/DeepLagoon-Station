@@ -124,6 +124,9 @@
     drainPerSecond: 0.65
   - type: BatteryDrinker
   - type: WeldingHealable
+  - type: DeadStartupButton
+    sound:
+      path: /Audio/_EinsteinEngines/Effects/Silicon/startup.ogg
   - type: SiliconDownOnDead
   - type: NpcFactionMember
     factions:

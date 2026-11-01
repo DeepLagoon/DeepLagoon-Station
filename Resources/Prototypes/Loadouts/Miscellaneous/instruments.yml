@@ -43,27 +43,23 @@
 
 - type: loadout
   id: ElectricGuitar
-  storage:
-    back:
-    - ElectricGuitarInstrument
+  inhand:
+  - ElectricGuitarInstrument
 
 - type: loadout
   id: BassGuitar
-  storage:
-    back:
-    - BassGuitarInstrument
+  inhand:
+  - BassGuitarInstrument
 
 - type: loadout
   id: RockGuitar
-  storage:
-    back:
-    - RockGuitarInstrument
+  inhand:
+  - RockGuitarInstrument
 
 - type: loadout
   id: AcousticGuitar
-  storage:
-    back:
-    - AcousticGuitarInstrument
+  inhand:
+  - AcousticGuitarInstrument
 
 - type: loadout
   id: Banjo

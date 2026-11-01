@@ -23,7 +23,8 @@ public sealed class SectorStore : IDisposable
         using var command = _connection.CreateCommand();
         command.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; " +
             "CREATE TABLE IF NOT EXISTS sector_manifests(campaign TEXT NOT NULL,id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(campaign,id)); " +
-            "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,PRIMARY KEY(campaign,sector,region));";
+            "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,PRIMARY KEY(campaign,sector,region)); " +
+            "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot));";
         command.ExecuteNonQuery();
     }
 
@@ -102,6 +103,37 @@ public sealed class SectorStore : IDisposable
         command.Parameters.AddWithValue("$campaign", campaign);
         command.Parameters.AddWithValue("$sector", sector);
         command.Parameters.AddWithValue("$region", region);
+        return command.ExecuteNonQuery() == 1;
+    }
+
+    public int DerelictSlots(string campaign, string sector, string region)
+    {
+        ValidateKey(campaign);
+        ValidateKey(sector);
+        ValidateKey(region);
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT slot FROM sector_derelicts WHERE campaign=$campaign AND sector=$sector AND region=$region";
+        command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$sector", sector);
+        command.Parameters.AddWithValue("$region", region);
+        using var reader = command.ExecuteReader();
+        var mask = 0;
+        while (reader.Read()) mask |= 1 << reader.GetInt32(0);
+        return mask;
+    }
+
+    public bool TryRecordDerelict(string campaign, string sector, string region, int slot)
+    {
+        if (slot is < 0 or > 2) return false;
+        var definition = Load(campaign, sector);
+        if (definition == null || slot >= OrbitalDebrisSystem.DerelictLimit(definition.Seed, region)
+            || !definition.Regions.Any(r => r.Id == region && r.Kind == SpaceRegionKind.Asteroids)) return false;
+        using var command = _connection.CreateCommand();
+        command.CommandText = "INSERT INTO sector_derelicts VALUES($campaign,$sector,$region,$slot) ON CONFLICT DO NOTHING";
+        command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$sector", sector);
+        command.Parameters.AddWithValue("$region", region);
+        command.Parameters.AddWithValue("$slot", slot);
         return command.ExecuteNonQuery() == 1;
     }
 

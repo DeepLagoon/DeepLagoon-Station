@@ -1,9 +1,67 @@
-# Public /ru/in_game/ descendants are discovered live.
+# Public articles and explicit entry points for the embedded wiki viewer.
 - type: wikiPage
   id: InGame
   name: wiki-page-in-game
   path: /ru/in_game
   default: true
+  sourceRoutes:
+    'species:Human': /ru/guidebook/in_game/mobs/human
+    'guide:Human': /ru/guidebook/in_game/mobs/human
+    'species:Arachnid': /ru/guidebook/in_game/mobs/arachnid
+    'guide:Arachnid': /ru/guidebook/in_game/mobs/arachnid
+    'species:Diona': /ru/guidebook/in_game/imported/nf/mobs/diona
+    'guide:Diona': /ru/guidebook/in_game/imported/nf/mobs/diona
+    'species:Dwarf': /ru/guidebook/in_game/imported/nf/mobs/dwarf
+    'guide:Dwarf': /ru/guidebook/in_game/imported/nf/mobs/dwarf
+    'species:Goblin': /ru/guidebook/in_game/imported/nf/mobs/goblin
+    'guide:Goblin': /ru/guidebook/in_game/imported/nf/mobs/goblin
+    'species:Moth': /ru/guidebook/in_game/mobs/moth
+    'guide:Moth': /ru/guidebook/in_game/mobs/moth
+    'species:Reptilian': /ru/guidebook/in_game/mobs/mono/mono-reptilian
+    'guide:Reptilian': /ru/guidebook/in_game/mobs/mono/mono-reptilian
+    'species:SlimePerson': /ru/guidebook/in_game/mobs/slime-person
+    'guide:SlimePerson': /ru/guidebook/in_game/mobs/slime-person
+    'species:Vox': /ru/guidebook/in_game/mobs/vox
+    'guide:Vox': /ru/guidebook/in_game/mobs/vox
+    'species:Demon': /ru/guidebook/in_game/mobs/demon
+    'guide:Demon': /ru/guidebook/in_game/mobs/demon
+    'species:Synth': /ru/guidebook/in_game/mobs/synth
+    'guide:Synth': /ru/guidebook/in_game/mobs/synth
+    'species:Chitinid': /ru/guidebook/in_game/mobs/chitinid
+    'guide:Chitinid': /ru/guidebook/in_game/mobs/chitinid
+    'species:Feroxi': /ru/guidebook/in_game/mobs/feroxi
+    'guide:Feroxi': /ru/guidebook/in_game/mobs/feroxi
+    'species:Harpy': /ru/guidebook/in_game/mobs/dv/harpy
+    'guide:Harpy': /ru/guidebook/in_game/mobs/dv/harpy
+    'species:Rodentia': /ru/guidebook/in_game/mobs/rodentia
+    'guide:Rodentia': /ru/guidebook/in_game/mobs/rodentia
+    'species:Vulpkanin': /ru/guidebook/in_game/mobs/vulpkanin
+    'guide:Vulpkanin': /ru/guidebook/in_game/mobs/vulpkanin
+    'species:IPC': /ru/guidebook/in_game/mobs/ipcs
+    'guide:IPC': /ru/guidebook/in_game/mobs/ipcs
+    'species:Tajaran': /ru/guidebook/in_game/mobs/tajaran
+    'guide:Tajaran': /ru/guidebook/in_game/mobs/tajaran
+    'species:Resomi': /ru/guidebook/in_game/mobs/resomi
+    'guide:Resomi': /ru/guidebook/in_game/mobs/resomi
+    'species:Hydrakin': /ru/guidebook/in_game/mobs/hydrakin
+    'guide:Hydrakin': /ru/guidebook/in_game/mobs/hydrakin
+    'species:Ariral': /ru/guidebook/in_game/mobs/shiba-station/ariral
+    'guide:Ariral': /ru/guidebook/in_game/mobs/shiba-station/ariral
+    'species:Oni': /ru/guidebook/in_game/mobs/oni
+    'guide:Oni': /ru/guidebook/in_game/mobs/oni
+    'species:Felinid': /ru/guidebook/in_game/mobs/felinid
+    'guide:Felinid': /ru/guidebook/in_game/mobs/felinid
+    'species:Protogen': /ru/guidebook/in_game/mobs/protogen
+    'guide:Protogen': /ru/guidebook/in_game/mobs/protogen
+    'species:Yowie': /ru/guidebook/in_game/mobs/yowie
+    'guide:Yowie': /ru/guidebook/in_game/mobs/yowie
+    'species:Skeleton': /ru/guidebook/in_game/mobs/skeleton
+    'guide:Skeleton': /ru/guidebook/in_game/mobs/skeleton
+    'species:Gingerbread': /ru/guidebook/in_game/mobs/gingerbread
+    'guide:Gingerbread': /ru/guidebook/in_game/mobs/gingerbread
+    'species:Asakim': /ru/guidebook/in_game/mobs/asakim
+    'guide:Asakim': /ru/guidebook/in_game/mobs/asakim
+    'guide:Species': /ru/guidebook/in_game/mobs/species
   entityRoutes:
     BookBartendersManual: /ru/guidebook/in_game/books/bartenders-manual
     BookChemicalCompendium: /ru/guidebook/in_game/books/chemical-compendium

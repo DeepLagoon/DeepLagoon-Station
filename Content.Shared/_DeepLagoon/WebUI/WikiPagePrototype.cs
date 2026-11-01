@@ -14,6 +14,7 @@ public sealed partial class WikiPagePrototype : IPrototype
     [DataField] public bool Default;
     [DataField] public List<string> GuideEntries = new();
     [DataField] public Dictionary<string, string> EntityRoutes = new();
+    [DataField] public Dictionary<string, string> SourceRoutes = new();
 }
 
 [Serializable, NetSerializable]

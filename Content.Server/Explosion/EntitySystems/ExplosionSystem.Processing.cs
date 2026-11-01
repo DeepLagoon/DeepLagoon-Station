@@ -29,6 +29,8 @@ namespace Content.Server.Explosion.EntitySystems;
 
 public sealed partial class ExplosionSystem
 {
+    [Dependency] private TurfSystem _turf = default!;
+
     /// <summary>
     ///     Used to limit explosion processing time. See <see cref="MaxProcessingTime"/>.
     /// </summary>
@@ -561,8 +563,12 @@ public sealed partial class ExplosionSystem
             canCreateVacuum = true; // is already a vacuum.
 
         int tileBreakages = 0;
+        var protectGround = _turf.IsIndestructibleGround(tileRef.GridUid);
         while (maxTileBreak > tileBreakages && _robustRandom.Prob(type.TileBreakChance(effectiveIntensity)))
         {
+            if (protectGround && tileDef.IsSubFloor)
+                break;
+
             tileBreakages++;
             effectiveIntensity -= type.TileBreakRerollReduction;
 
@@ -571,6 +577,9 @@ public sealed partial class ExplosionSystem
                 break;
 
             if (_tileDefinitionManager[tileDef.BaseTurf] is not ContentTileDefinition newDef)
+                break;
+
+            if (protectGround && (newDef.TileId == 0 || newDef.ID == "Lattice"))
                 break;
 
             if (newDef.MapAtmosphere && !canCreateVacuum)

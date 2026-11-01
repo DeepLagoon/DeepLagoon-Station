@@ -2,6 +2,7 @@ using System.Linq;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.Inventory;
+using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
 using Robust.Shared.GameStates;
@@ -26,6 +27,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private ToggleableClothingSystem _toggleable = default!;
+    [Dependency] private SharedHandsSystem _hands = default!;
 
     public void Customize(EntityUid item, PersonalLoadoutCustomization? data)
     {
@@ -77,7 +79,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                 var targetSlots = slots.Where(slot => targetSlot == null || slot.Name == targetSlot).ToArray();
                 // A mandatory personal choice may be restored by validation.
                 // Do not spawn it into another slot or drop it as a failed item.
-                if (_prototypes.Index(itemPrototype).TryGetComponent<ClothingComponent>(out var clothing) &&
+                if (!prototype.PersonalInhand && _prototypes.Index(itemPrototype).TryGetComponent<ClothingComponent>(out var clothing) &&
                     targetSlots.Any(slot => unequipped.Contains(slot.Name) && (clothing.Slots & slot.SlotFlags) != 0))
                     continue;
                 var item = Spawn(itemPrototype, Transform(character).Coordinates);
@@ -88,8 +90,8 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                     EnsureComp<AppearanceComponent>(item);
                     _appearance.SetData(item, PersonalLoadoutVisuals.Heirloom, true);
                 }
-                var equipped = false;
-                if (HasComp<ClothingComponent>(item))
+                var equipped = prototype.PersonalInhand && _hands.TryPickupAnyHand(character, item, checkActionBlocker: false);
+                if (!prototype.PersonalInhand && HasComp<ClothingComponent>(item))
                 {
                     foreach (var slot in targetSlots)
                     {

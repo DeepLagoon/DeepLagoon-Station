@@ -499,7 +499,8 @@ public sealed partial class ShuttleSystem
         List<Vector2i> sparkTiles)
     {
         // Break tiles
-        _mapSystem.SetTiles(uid, grid, brokenTiles);
+        if (!_turf.IsIndestructibleGround(uid))
+            _mapSystem.SetTiles(uid, grid, brokenTiles);
 
         if (TerminatingOrDeleted(uid))
             return;

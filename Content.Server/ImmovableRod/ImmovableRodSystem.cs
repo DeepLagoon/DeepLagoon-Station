@@ -25,6 +25,7 @@ public sealed partial class ImmovableRodSystem : EntitySystem
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private DamageableSystem _damageable = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private Content.Shared.Maps.TurfSystem _turf = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     public override void Update(float frameTime)
@@ -40,7 +41,8 @@ public sealed partial class ImmovableRodSystem : EntitySystem
             if (!TryComp<MapGridComponent>(trans.GridUid, out var grid))
                 continue;
 
-            _map.SetTile(trans.GridUid.Value, grid, trans.Coordinates, Tile.Empty);
+            if (!_turf.IsIndestructibleGround(trans.GridUid.Value))
+                _map.SetTile(trans.GridUid.Value, grid, trans.Coordinates, Tile.Empty);
         }
     }
 

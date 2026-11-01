@@ -151,6 +151,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         mapUid = _map.CreateMap(out var mapId, runMapInit: false); // Frontier: remove "var"
         MetaDataComponent? metadata = null;
         var grid = _entManager.EnsureComponent<MapGridComponent>(mapUid);
+        _entManager.EnsureComponent<Content.Shared._DeepLagoon.Salvage.ExpeditionGroundComponent>(mapUid);
         var random = new Random(_missionParams.Seed);
         var destComp = _entManager.AddComponent<FTLDestinationComponent>(mapUid);
         destComp.BeaconsOnly = true;

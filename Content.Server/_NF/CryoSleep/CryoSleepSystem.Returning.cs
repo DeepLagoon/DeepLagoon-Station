@@ -1,11 +1,9 @@
 using Content.Server.Administration.Logs;
-using Content.Server.GameTicking;
 using Content.Shared.Bed.Sleep;
 using Content.Shared.Database;
 using Content.Shared.Ghost;
 using Content.Shared.Mind;
 using Content.Shared._NF.CCVar;
-using Content.Shared.GameTicking;
 using Content.Shared.Players;
 using Robust.Shared.Network;
 
@@ -19,8 +17,6 @@ public sealed partial class CryoSleepSystem
     {
         SubscribeNetworkEvent<WakeupRequestMessage>(OnWakeupMessage);
         SubscribeNetworkEvent<GetStatusMessage>(OnGetStatusMessage);
-        SubscribeLocalEvent<PlayerJoinedLobbyEvent>(e => ResetCryosleepState(e.PlayerSession.UserId));
-        SubscribeLocalEvent<PlayerBeforeSpawnEvent>(e => ResetCryosleepState(e.Player.UserId));
     }
 
     private void OnWakeupMessage(WakeupRequestMessage message, EntitySessionEventArgs session)
@@ -50,14 +46,17 @@ public sealed partial class CryoSleepSystem
             return ReturnToBodyStatus.Disabled;
 
         var id = mind.UserId;
-        if (id == null || !_storedBodies.TryGetValue(id.Value, out var storedBody))
+        if (id == null || !_storedBodies.TryGetValue(id.Value, out var bodies) || !bodies.TryPeek(out var storedBody))
             return ReturnToBodyStatus.BodyMissing;
 
         if (!force && (mind.CurrentEntity is not { Valid: true } ghost || !HasComp<GhostComponent>(ghost)))
             return ReturnToBodyStatus.NotAGhost;
 
-        var cryopod = storedBody!.Value.Cryopod;
-        var body = storedBody.Value.Body;
+        var cryopod = storedBody.Cryopod;
+        var body = storedBody.Body;
+        if (Deleted(body))
+            return ReturnToBodyStatus.BodyMissing;
+
         if (!Exists(cryopod) || Deleted(cryopod) || !TryComp<CryoSleepComponent>(cryopod, out var cryoComp))
         {
             var fallbackQuery = EntityQueryEnumerator<CryoSleepFallbackComponent, CryoSleepComponent>();
@@ -82,7 +81,9 @@ public sealed partial class CryoSleepSystem
                 return ReturnToBodyStatus.Occupied;
         }
 
-        _storedBodies.Remove(id.Value);
+        bodies.Pop();
+        if (bodies.Count == 0)
+            _storedBodies.Remove(id.Value);
         _mind.ControlMob(id.Value, body);
         // Force the mob to sleep
         var sleep = EnsureComp<SleepingComponent>(body);
@@ -96,22 +97,8 @@ public sealed partial class CryoSleepSystem
         return ReturnToBodyStatus.Success;
     }
 
-    /// <summary>
-    ///   Removes the body of the given user from the cryosleep dictionary, making them unable to return to it.
-    ///   Also actually deletes the body if it's still on that map.
-    /// </summary>
-    public void ResetCryosleepState(NetUserId id)
-    {
-        var body = _storedBodies.GetValueOrDefault(id, null);
-
-        if (body != null && _storedBodies.Remove(id) && Transform(body!.Value.Body).ParentUid == _storageMap)
-        {
-            QueueDel(body.Value.Body);
-        }
-    }
-
     public bool HasCryosleepingBody(NetUserId id)
     {
-        return _storedBodies.ContainsKey(id);
+        return _storedBodies.TryGetValue(id, out var bodies) && bodies.Count > 0;
     }
 }

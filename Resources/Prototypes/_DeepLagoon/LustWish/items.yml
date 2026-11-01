@@ -248,6 +248,7 @@
     sprite: _DeepLagoon/LustWish/MaidHeadband.rsi
     state: icon
   - type: Clothing
+    hairOcclusion: false
     sprite: _DeepLagoon/LustWish/MaidHeadband.rsi
     slots:
     - HEAD

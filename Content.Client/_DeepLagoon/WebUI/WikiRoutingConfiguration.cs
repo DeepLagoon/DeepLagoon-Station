@@ -37,6 +37,7 @@ public sealed partial class WikiRoutingConfiguration
             if (page.Default) defaults["default"] = "page:" + page.ID;
             foreach (var guide in page.GuideEntries) defaults["guide:" + guide] = "page:" + page.ID;
             foreach (var (entity, path) in page.EntityRoutes) defaults["entity:" + entity] = path;
+            foreach (var (source, path) in page.SourceRoutes) defaults[source] = path;
         }
         var configuration = _cfg.GetCVar(CCVars.WikiRoutes);
         var signature = string.Join("\n", defaults.Select(pair => pair.Key + "=" + pair.Value));

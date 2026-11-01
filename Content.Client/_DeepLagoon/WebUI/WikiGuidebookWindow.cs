@@ -24,9 +24,10 @@ public sealed class WikiGuidebookWindow : FancyWindow
         ContentsContainer.AddChild(body);
     }
 
-    public void ShowPath(string path)
+    public void ShowPath(string path, bool book = false)
     {
         _toolbar.RemoveAllChildren();
+        _toolbar.Visible = !book;
         var prototypes = IoCManager.Resolve<IPrototypeManager>();
         var routes = _configuration.Read();
         foreach (var key in routes.Routes.Keys)
@@ -40,6 +41,6 @@ public sealed class WikiGuidebookWindow : FancyWindow
         var reload = new Button { Text = Loc.GetString("wiki-reload") };
         reload.OnPressed += _ => _document.Reload();
         _toolbar.AddChild(reload);
-        _document.LoadPath(path);
+        _document.LoadPath(path, book);
     }
 }

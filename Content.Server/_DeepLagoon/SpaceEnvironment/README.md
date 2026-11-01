@@ -62,7 +62,27 @@ Density follows the actual habitat at the predicted spawn position:
 - Debris/asteroid fields: up to 10 local piles (depth adjusts the target between 6 and 10),
   one opportunity per second, larger piles, richer loot and fauna.
 - Within 2 km of a planet: up to 3 small piles, one opportunity per 12 seconds.
-- Open space: at most 1 small pile, an initial 30-90 second delay, then a 90 second interval.
+- Open space: at most 1 small pile, an initial 25-75 second delay, then a 75 second interval.
+  This is a relative 20% increase in opportunities over the former 30-90 / 90 second cadence;
+  occupied slots, exclusions and cooldowns can still delay actual materialization.
+
+One third of the ordinary asteroid-stream piles use drifting blue wreckage: the native
+NFBaseWreckDebris radar colour (#88b0d1), rusted walls, girders, broken grilles and windows,
+within the same 10x10 / 36-tile budget. The asteroid loot table and orbital encounter planning apply.
+
+Each asteroid stream has a deterministic lifetime budget of 1-3 Derelicts. These are existing
+BluespaceSalvage-family maps: disciple, orange, point, nugget and canister, with their original
+equipment and contents. No new shuttle layouts are generated. They load lazily into an offscreen
+encounter, at most once per 90 seconds per stream and one loading attempt per five seconds globally.
+Runtime acceptance limits are 256 tiles, 32 m enclosing radius and 768 descendants per map.
+Heavy assets such as scrap-comet (1265 descendants after initialization) are excluded.
+Original map inventories replace the ordinary pile loot rolls. Derelicts share the 100-sector,
+10-view and sponsorship budgets, movement, offscreen cleanup and player acquisition rules.
+Footprint-aware visibility counts their hull rather than only their map origin.
+
+The append-only sector_derelicts ledger consumes a slot only after a map passes placement checks.
+Deleting, claiming or unloading a Derelict never refunds that slot; reopening the sector preserves
+the remaining budget. This records encounter history, not a persistent ship/inventory snapshot.
 
 Station grids, marked POIs (including mobile/unregistered ones), force-anchored POIs and
 warp-point grids have a 1 km exclusion margin beyond their enclosing footprint. Both the
@@ -95,6 +115,8 @@ objects outside all eye envelopes are removed on the next simulation update with
 timer. Items in hands/inventory or placed on an ordinary player grid become player property;
 unrelated items are never swept up. Detached objects remain tracked even after their home
 pile expires. A 120 second cell cooldown prevents immediate farming; its cache is bounded.
+Service audio entities never count as player cargo or detached loot; environmental puddles
+also do not claim a grid when its original fluids spread.
 
 There are no full wreck maps or persistent fleet snapshots yet.
 The first interactive encounter is surveying; rescue/repair/branching encounters remain
@@ -162,8 +184,9 @@ foundation deliberately does not claim that saving a sector also saves a ship.
 - Space junk: 100 managed grids per sector, 10 per player view (shared across cameras),
   at most 2 creations per second globally. Per-player shares and a rotating scheduler prevent
   one explorer consuming the sector pool. Claimed grids follow ordinary player-grid rules.
-- Normal piles: at most 16 cells; field piles: at most 36 cells within a 10x10 footprint.
+- Procedural piles: at most 16 cells normally, or 36 cells within a 10x10 field footprint.
   At most one original fauna entity per field pile. No invisible distant population is simulated.
+- Existing Derelict maps retain their contents within the separate tile/entity limits above.
 - Placement, POI exclusion refresh and gentle orbital correction run at 1 Hz. Visibility caps
   and detached-object cleanup follow simulation updates; observer buffers are reused.
 - Debris cooldown cache is bounded to 4096 entries globally, expires after 120 s and is

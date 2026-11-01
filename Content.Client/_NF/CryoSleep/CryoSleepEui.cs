@@ -9,22 +9,25 @@ namespace Content.Client._NF.CryoSleep;
 public sealed class CryoSleepEui : BaseEui
 {
     private readonly AcceptCryoWindow _window;
+    private bool _choiceSent;
 
     public CryoSleepEui()
     {
         _window = new AcceptCryoWindow();
 
-        _window.DenyButton.OnPressed += _ =>
-        {
-            SendMessage(new AcceptCryoChoiceMessage(AcceptCryoUiButton.Deny));
-            _window.Close();
-        };
+        _window.DenyButton.OnPressed += _ => Choose(AcceptCryoUiButton.Deny);
+        _window.AcceptButton.OnPressed += _ => Choose(AcceptCryoUiButton.Accept);
+        _window.OnClose += () => Choose(AcceptCryoUiButton.Deny);
+    }
 
-        _window.AcceptButton.OnPressed += _ =>
-        {
-            SendMessage(new AcceptCryoChoiceMessage(AcceptCryoUiButton.Accept));
-            _window.Close();
-        };
+    private void Choose(AcceptCryoUiButton choice)
+    {
+        if (_choiceSent)
+            return;
+
+        _choiceSent = true;
+        SendMessage(new AcceptCryoChoiceMessage(choice));
+        _window.Close();
     }
 
     public override void Opened()
@@ -35,6 +38,7 @@ public sealed class CryoSleepEui : BaseEui
 
     public override void Closed()
     {
+        _choiceSent = true;
         _window.Close();
     }
 

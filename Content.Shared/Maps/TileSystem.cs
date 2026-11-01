@@ -157,7 +157,7 @@ public sealed partial class TileSystem : EntitySystem
 
         var tileDef = (ContentTileDefinition) _tileDefinitionManager[tileRef.Tile.TypeId];
 
-        if (string.IsNullOrEmpty(tileDef.BaseTurf))
+        if (!CanDeconstructTile(tileRef))
             return false;
 
         var gridUid = tileRef.GridUid;
@@ -194,5 +194,19 @@ public sealed partial class TileSystem : EntitySystem
         _maps.SetTile(gridUid, mapGrid, tileRef.GridIndices, new Tile(plating.TileId));
 
         return true;
+    }
+
+    /// <summary>
+    /// Allows removing a floor covering on expedition ground, but never its subfloor or terrain.
+    /// Used before starting tool do-afters as well as when actually removing the tile.
+    /// </summary>
+    public bool CanDeconstructTile(TileRef tileRef)
+    {
+        var tileDef = (ContentTileDefinition) _tileDefinitionManager[tileRef.Tile.TypeId];
+        if (tileRef.Tile.IsEmpty || string.IsNullOrEmpty(tileDef.BaseTurf))
+            return false;
+
+        return !_turf.IsIndestructibleGround(tileRef.GridUid) ||
+            !tileDef.IsSubFloor && tileDef.BaseTurf != ContentTileDefinition.SpaceID && tileDef.BaseTurf != "Lattice";
     }
 }

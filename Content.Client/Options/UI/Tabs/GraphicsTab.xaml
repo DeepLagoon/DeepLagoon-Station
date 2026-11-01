@@ -12,13 +12,6 @@
                 <!-- Quality -->
                 <Label Text="{Loc 'ui-options-quality-label'}" StyleClasses="LabelKeyText"/>
                 <ui:OptionDropDown Name="DropDownLightingQuality" Title="{Loc 'ui-options-lighting-label'}" />
-                <CheckBox Name="LightBloomCheckBox" Text="{Loc 'ui-options-light-bloom'}" />
-                <ui:OptionSlider Name="LightBloomIntensitySlider" Title="{Loc 'ui-options-light-bloom-intensity'}" />
-                <CheckBox Name="ContactOcclusionCheckBox" Text="{Loc 'deeplagoon-options-ambient-occlusion'}" />
-                <CheckBox Name="AmbientOcclusionEntitiesCheckBox" Text="{Loc 'ui-options-ambient-occlusion-entities'}" />
-                <ui:OptionSlider Name="AmbientOcclusionIntensitySlider" Title="{Loc 'ui-options-ambient-occlusion-intensity'}" />
-                <ui:OptionSlider Name="AmbientOcclusionDrawDistanceSlider" Title="{Loc 'ui-options-ambient-occlusion-draw-distance'}" />
-                <ui:OptionSlider Name="AmbientOcclusionMaxCastersSlider" Title="{Loc 'ui-options-ambient-occlusion-max-casters'}" />
                 <CheckBox Name="ViewportLowResCheckBox" Text="{Loc 'ui-options-vp-low-res'}" />
                 <CheckBox Name="ParallaxLowQualityCheckBox" Text="{Loc 'ui-options-parallax-low-quality'}" />
                 <CheckBox Name="AmbientOcclusionCheckBox" Text="{Loc 'ui-options-ambient-occlusion'}" />
@@ -28,8 +21,6 @@
 
                 <!-- Interface -->
                 <Label Text="{Loc 'ui-options-interface-label'}" StyleClasses="LabelKeyText"/>
-                <CheckBox Name="LobbyAnimatedBackgroundCheckBox" Text="{Loc 'deeplagoon-options-lobby-animation'}"
-                          ToolTip="{Loc 'deeplagoon-options-lobby-animation-tooltip'}" />
                 <ui:OptionDropDown Name="DropDownUIScale" Title="{Loc 'ui-options-scale-label'}" />
                 <CheckBox Name="ViewportStretchCheckBox" Text="{Loc 'ui-options-vp-stretch'}" />
                 <ui:OptionSlider Name="ViewportScaleSlider" Title="{Loc ui-options-vp-scale}" />

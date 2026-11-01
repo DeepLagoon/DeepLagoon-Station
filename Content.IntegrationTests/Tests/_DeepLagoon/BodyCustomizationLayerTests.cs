@@ -16,6 +16,68 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class BodyCustomizationLayerTests
 {
     [TestCase("Human")]
+    [TestCase("Vulpkanin")]
+    [TestCase("Synth")]
+    public async Task FrontGenitalsDrawAboveTailsAfterAppearanceRefresh(string species)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var dummy = entities.SpawnEntity("MobHumanDummy", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var visualizer = entities.System<BodyCustomizationVisualizerSystem>();
+                var humanoid = entities.GetComponent<HumanoidAppearanceComponent>(dummy);
+                var sprite = entities.GetComponent<SpriteComponent>(dummy);
+                var tails = prototypes.EnumeratePrototypes<MarkingPrototype>()
+                    .Where(p => p.BodyPart is HumanoidVisualLayers.Tail or HumanoidVisualLayers.TailExtras).ToArray();
+                Assert.That(tails, Is.Not.Empty);
+                foreach (var tail in tails)
+                foreach (var visibility in new[] { 1, 2 })
+                {
+                    var profile = HumanoidCharacterProfile.DefaultWithSpecies(species)
+                        .WithTraitPreference("GeneticModification", prototypes);
+                    profile.Appearance.Markings.Add(tail.AsMarking());
+                    foreach (var part in new[] { "vagina", "anus", "testicles", "penis" })
+                    {
+                        var feature = BodyCustomizationCatalog.Default(part);
+                        feature.Enabled = true;
+                        feature.Visibility = visibility;
+                        profile.Appearance.BodyFeatures.Add(feature);
+                    }
+                    appearance.LoadProfile(dummy, profile);
+                    var count = sprite.AllLayers.Count();
+                    foreach (var aroused in new[] { false, true, false })
+                    {
+                        // Hidden tails may become visible again without rebuilding their layers.
+                        foreach (var rsi in tail.Sprites.OfType<SpriteSpecifier.Rsi>())
+                            sprite.LayerSetVisible($"{tail.ID}-{rsi.RsiState}", aroused);
+                        humanoid.GenitalAroused = aroused;
+                        visualizer.Refresh(dummy, humanoid, sprite);
+                        Assert.That(sprite.AllLayers.Count(), Is.EqualTo(count));
+                        foreach (var part in new[] { "vagina", "testicles", "penis" })
+                            if (sprite.LayerMapTryGet($"dl-body/{part}/BEHIND", out var rear))
+                                Assert.That(rear, Is.LessThan(sprite.LayerMapGet(HumanoidVisualLayers.Chest)));
+                        foreach (var rsi in tail.Sprites.OfType<SpriteSpecifier.Rsi>())
+                        {
+                            if (tail.SpriteLayersBefore.ContainsKey(rsi.RsiState)) continue;
+                            var index = sprite.LayerMapGet($"{tail.ID}-{rsi.RsiState}");
+                            foreach (var part in new[] { "vagina", "testicles", "penis" })
+                                Assert.That(sprite.LayerMapGet($"dl-body/{part}/FRONT"), Is.GreaterThan(index),
+                                    $"{species}/{tail.ID}/{rsi.RsiState}/{visibility}/{aroused}/{part}");
+                        }
+                    }
+                }
+            }
+            finally { entities.DeleteEntity(dummy); }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase("Human")]
     [TestCase("Synth")]
     public async Task GenitalsDrawAboveArmsAndHandsAfterAppearanceRefresh(string species)
     {

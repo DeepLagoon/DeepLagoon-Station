@@ -45,7 +45,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         public long LastUse;
     }
 
-    private sealed record Fit(string Slot, string Key, SpriteComponent.Layer Layer, Vector2 Scale,
+    private sealed record Fit(string Slot, object Key, SpriteComponent.Layer Layer, Vector2 Scale,
         ShaderInstance? OriginalShader, ProtoId<ShaderPrototype>? OriginalShaderId,
         SpriteComponent.Layer? Displacement, bool DisplacementVisible, string Helper,
         HashSet<string> Revealed, ShaderInstance Shader, Map Map);
@@ -55,6 +55,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
 
     public override void Initialize()
     {
+        Subs.CVar(_faceConfiguration, BodyCustomizationCVars.AvianMaskFit, OnAvianMaskFitChanged, true);
         // Component lifecycle subscriptions belong to their owning systems. Observe removal without
         // competing with SpriteSystem or BodyCustomizationVisualizerSystem for an exclusive event.
         EntityManager.ComponentRemoved += OnComponentRemoved;
@@ -82,6 +83,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
     {
         ClearSlot(uid, slot);
         if (!Resolve(uid, ref humanoid, false)) return;
+        if (slot == "head") ApplyHair(uid, sprite, clothing, keys, humanoid);
         if (slot is "head" or "mask" or "balaclava" or "neck" or "neck2" or "neck3")
             ApplyFace(uid, item, slot, sprite, clothing, keys, humanoid);
         if (humanoid.PermanentlyHidden.Contains(HumanoidVisualLayers.Chest) ||
@@ -232,7 +234,15 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         }
         map.LastUse = ++_lastUse;
         if (map.Texture == null) return;
-        var shader = _prototypes.Index<ShaderPrototype>(ShaderId).InstanceUnique();
+        ApplyMap(uid, slot, key, sprite, layer, displacement, keys, map);
+    }
+
+    private void ApplyMap(EntityUid uid, string slot, object key, SpriteComponent sprite,
+        SpriteComponent.Layer layer, SpriteComponent.Layer? displacement, HashSet<string> keys,
+        Map map, string shaderId = ShaderId)
+    {
+        if (map.Texture == null) return;
+        var shader = _prototypes.Index<ShaderPrototype>(shaderId).InstanceUnique();
         var helperKey = key + "-body-fit-source";
         var fit = new Fit(slot, key, layer, layer.Scale, layer.Shader, layer.ShaderPrototype,
             displacement, displacement?.Visible ?? false, helperKey, keys, shader, map);
@@ -273,7 +283,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         keys.Add(helperKey);
         if (displacement != null) displacement.Visible = false;
         sprite.LayerMapTryGet(key, out index);
-        sprite.LayerSetShader(index, shader, ShaderId);
+        sprite.LayerSetShader(index, shader, shaderId);
         sprite.LayerSetScale(index, fit.Scale * map.Scale);
     }
 
@@ -410,6 +420,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
 
     public void ClearSlot(EntityUid uid, string slot)
     {
+        if (slot == "head") ClearSlot(uid, HairSlot);
         if (!_fits.TryGetValue(uid, out var fits)) return;
         TryComp<SpriteComponent>(uid, out var sprite);
         for (var i = fits.Count - 1; i >= 0; i--)
