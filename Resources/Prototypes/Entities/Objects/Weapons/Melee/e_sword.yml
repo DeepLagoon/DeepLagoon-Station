@@ -257,6 +257,18 @@
   - type: Tag
     tags:
     - Write
+  - type: UseDelay
+    delays:
+      stamp:
+        length: 1.0
+  - type: Stamp
+    stampedColor: "#333333"
+    stampState: "paper_stamp-nf-signature"
+    sound:
+      path: /Audio/Items/Paper/paper_scribble1.ogg
+      params:
+        volume: -2
+        maxDistance: 5
 
 - type: entity
   parent: BaseItem

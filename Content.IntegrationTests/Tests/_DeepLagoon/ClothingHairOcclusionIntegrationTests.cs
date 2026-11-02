@@ -50,7 +50,7 @@ public sealed class ClothingHairOcclusionIntegrationTests
                     appearance.LoadProfile(uid, profile);
                     var hairKey = style + "-" + state;
                     var helper = hairKey + "-body-fit-source";
-                    foreach (var prototype in new[] { "ClothingHeadBandBlack", "ClothingHeadHatGreyFlatcap", "ClothingHeadHatFedoraBrown" })
+                    foreach (var prototype in new[] { "ClothingHeadBandBlack", "ClothingHeadHatGreyFlatcap", "ClothingHeadHatFedoraBrown", "ClothingHeadHelmetBasic" })
                     {
                         var item = entities.SpawnEntity(prototype, MapCoordinates.Nullspace);
                         try
@@ -101,13 +101,23 @@ public sealed class ClothingHairOcclusionIntegrationTests
                     }
                 }
 
-                foreach (var (prototype, slot) in new[] { ("HairOcclusionOptOutHat", "head"), ("ClothingHeadHatHairflower", "head"), ("ClothingHeadHatCatEars", "head"), ("ClothingHeadHatBow", "head"), ("ClothingHeadBandBlack", "pocket1") })
+                foreach (var (prototype, slot) in new[]
+                {
+                    ("HairOcclusionOptOutHat", "head"), ("ClothingHeadHatHairflower", "head"),
+                    ("ClothingHeadHatFlowerWreath", "head"), ("FoodPoppy", "head"), ("FoodLily", "head"),
+                    ("FoodPoppyWhite", "head"), ("ClothingHeadHatCatEars", "head"), ("ClothingHeadHatBow", "head"),
+                    ("ClothingHeadBandBlack", "pocket1"),
+                })
                 {
                     var item = entities.SpawnEntity(prototype, MapCoordinates.Nullspace);
                     try
                     {
                         Assert.That(inventory.TryEquip(uid, item, slot, force: true), Is.True);
-                        Assert.That(sprite.LayerMapTryGet("HumanHairLong-long-body-fit-source", out _), Is.False);
+                        for (var i = 0; i < 3; i++) fit.Refresh(uid, humanoid, sprite);
+                        Assert.That(sprite.LayerMapTryGet("HumanHairLong-long-body-fit-source", out _), Is.False, prototype);
+                        var hair = (SpriteComponent.Layer) sprite[sprite.LayerMapGet("HumanHairLong-long")];
+                        Assert.That(hair.Visible, Is.True, prototype);
+                        Assert.That(hair.ShaderPrototype, Is.Null, prototype + " must preserve the original hair.");
                     }
                     finally { inventory.TryUnequip(uid, slot, force: true, reparent: false); entities.DeleteEntity(item); }
                 }

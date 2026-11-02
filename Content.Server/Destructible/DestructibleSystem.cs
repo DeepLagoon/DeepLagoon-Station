@@ -11,6 +11,10 @@ using Content.Server.Explosion.EntitySystems;
 using Content.Server.Fluids.EntitySystems;
 using Content.Server.Stack;
 using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Body.Components;
+using Content.Shared._Shitmed.Targeting;
+using Content.Shared.Body.Part;
+using Content.Shared.Body.Systems;
 using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Shared.Destructible;
@@ -50,7 +54,7 @@ namespace Content.Server.Destructible
         public override void Initialize()
         {
             base.Initialize();
-            SubscribeLocalEvent<DestructibleComponent, DamageChangedEvent>(Execute);
+            SubscribeLocalEvent<DestructibleComponent, DamageChangedEvent>(Execute, before: new[] { typeof(SharedBodySystem) });
 
             _destructibleQuery = GetEntityQuery<DestructibleComponent>();
         }
@@ -60,8 +64,21 @@ namespace Content.Server.Destructible
         /// </summary>
         public void Execute(EntityUid uid, DestructibleComponent component, DamageChangedEvent args)
         {
+            // Attached anatomy uses the body's controlled severing rules. Generic item
+            // thresholds would otherwise ash burned limbs or gib them from blunt damage.
+            // Run before the body system so a severing hit cannot also destroy the dropped part.
+            if (EntityManager.TryGetComponent(uid, out BodyPartComponent? part) && part.Body != null)
+                return;
+
+            var targetedBody = EntityManager.HasComponent<BodyComponent>(uid)
+                               && EntityManager.HasComponent<TargetingComponent>(uid);
             foreach (var threshold in component.Thresholds)
             {
+                // Whole-body gib thresholds must not bypass the per-limb damage rules.
+                // Explicit gibbing (admin commands, machinery, etc.) still uses BodySystem.
+                if (targetedBody && threshold.Behaviors.Any(behavior => behavior is GibBehavior))
+                    continue;
+
                 if (threshold.Reached(args.Damageable, this))
                 {
                     RaiseLocalEvent(uid, new DamageThresholdReached(component, threshold), true);

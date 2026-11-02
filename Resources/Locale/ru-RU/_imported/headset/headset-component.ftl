@@ -31,3 +31,5 @@ chat-radio-xenoborg = Ксеноборги
 chat-radio-mothership = Материнский корабль
 
 chat-radio-vanguard-command = Командование Фаэтон
+
+examine-headset-default-channel = Используйте { $prefix } для канала по умолчанию ([color={ $color }]{ $channel }[/color]).

@@ -1460,6 +1460,7 @@
   description: A flower with extracts often used in the production of medicine.
   components:
   - type: Clothing
+    hairOcclusion: false
     slots:
     - HEAD
     quickEquip: false

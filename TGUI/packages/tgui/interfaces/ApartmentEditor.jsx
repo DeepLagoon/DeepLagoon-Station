@@ -2,7 +2,7 @@ import { useInterfaceStyleGuard } from './useInterfaceStyleGuard';
 import { useEffect, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { ApartmentBalance, ApartmentFurnishingCatalog } from './ApartmentFurnishingCatalog';
-import { copyLayout, validateLayout, sendApartmentLayout } from './apartmentLayout.mjs';
+import { copyLayout, validateLayout, sendApartmentLayout, footprint } from './apartmentLayout.mjs';
 import './ApartmentEditor.scss';
 import { useApartmentViewport } from './useApartmentViewport';
 import { NavMapPlan } from './NavMapPlan.jsx';
@@ -23,6 +23,8 @@ export const ApartmentEditor = () => {
   const { data, act } = useBackend();
   const [draft, setDraft] = useState(data.layout || []);
   const [selected, setSelected] = useState(null);
+  const [context, setContext] = useState(null);
+  const [restoring, setRestoring] = useState(null);
   const [brush, setBrush] = useState(null);
   const [hover, setHover] = useState(null);
   const [before, setBefore] = useState(false);
@@ -33,7 +35,7 @@ export const ApartmentEditor = () => {
   const [confirmClose, setConfirmClose] = useState(false);
   const plan = useRef(null);
   const viewport = useRef(null);
-  const { view, zoom, cellSize, panning, fit, setScale, events: viewportEvents } = useApartmentViewport(viewport, data.width, data.height, data.token);
+  const { view, zoom, cellSize, panning, fit, setScale, events: viewportEvents } = useApartmentViewport(viewport, data.width, data.height, data.token, false);
   const [gridLines, setGridLines] = useState(true);
   const drag = useRef(null);
   const current = useRef(draft);
@@ -48,11 +50,28 @@ export const ApartmentEditor = () => {
   useInterfaceStyleGuard(dirty || pending || commerceBusy);
   const selectedItem = draft.find((item) => item.id === selected);
   const definition = room.catalog.find((item) => item.id === selectedItem?.furniture);
+  const storedItems = [...new Map([...(data.stored || []), ...(data.layout || [])]
+    .filter(item => !draft.some(placed => placed.id === item.id)).map(item => [item.id, item])).values()];
+  const chooseStored = item => { setBrush(item.furniture); setRestoring(item); setSelected(null); setHover(null); setContext(null); };
+  const contextItems = context ? draft.filter(item => {
+    const def = room.catalog.find(entry => entry.id === item.furniture);
+    return def && footprint(item, def).some(([x, y]) => x === context.cell.x && y === context.cell.y);
+  }) : [];
+  const contextFixed = context ? (data.scene?.objects || []).filter(item => Math.floor(item.x) === context.cell.x && Math.floor(item.y) === context.cell.y) : [];
+  const contextItem = contextItems.find(item => item.id === context?.id) || contextItems[0];
+  const contextDefinition = room.catalog.find(item => item.id === contextItem?.furniture);
+  const openContext = event => {
+    event.preventDefault(); event.stopPropagation();
+    if (before || pending || commerceBusy) return;
+    act('focus'); setHover(null); setBrush(null); setRestoring(null);
+    setContext({ x: Math.max(8, Math.min(window.innerWidth - 312, event.clientX)),
+      y: Math.max(8, Math.min(window.innerHeight - 350, event.clientY)), cell: cellAt(event) });
+  };
 
   useEffect(() => {
     const next = copyLayout(data.layout || []);
     current.current = next; setDraft(next); setUndo([]); setRedo([]);
-    setSelected(null); setBrush(null); setHover(null); setBefore(false); setPending(false);
+    setSelected(null); setBrush(null); setRestoring(null); setContext(null); setHover(null); setBefore(false); setPending(false);
   }, [data.token]);
   useEffect(() => { setPending(false); }, [data.applySequence]);
   useEffect(() => {
@@ -73,14 +92,15 @@ export const ApartmentEditor = () => {
   };
   const pointerDown = (event) => {
     if (before || pending || commerceBusy || event.button !== 0) return;
+    setContext(null);
     event.preventDefault(); // Keep DOM focus on the plan after a click on a ghost.
     act('focus'); // The native host must also hand keyboard input to this CEF view.
     const cell = cellAt(event);
     const id = event.target.closest('[data-placement]')?.dataset.placement;
     plan.current.focus();
     if (brush) {
-      const item = { id: `added_${Date.now()}_${counter.current++}`, furniture: brush, ...cell, rotation: hover?.rotation || 0 };
-      change([...current.current, item]); setSelected(item.id); setBrush(null); setHover(null);
+      const item = { id: restoring?.id || `added_${Date.now()}_${counter.current++}`, furniture: brush, ...cell, rotation: hover?.rotation ?? restoring?.rotation ?? 0 };
+      change([...current.current, item]); setSelected(item.id); setBrush(null); setRestoring(null); setHover(null);
     } else if (id) {
       setSelected(id);
       const item = current.current.find((entry) => entry.id === id);
@@ -94,7 +114,7 @@ export const ApartmentEditor = () => {
   const pointerMove = (event) => {
     if (before || pending || commerceBusy) return;
     const cell = cellAt(event);
-    if (brush) setHover({ id: '__hover', furniture: brush, ...cell, rotation: hover?.rotation || 0 });
+    if (brush) setHover({ id: restoring?.id || '__hover', furniture: brush, ...cell, rotation: hover?.rotation ?? restoring?.rotation ?? 0 });
     if (!drag.current) return;
     const gesture = drag.current;
     const x = cell.x - gesture.x, y = cell.y - gesture.y;
@@ -108,7 +128,7 @@ export const ApartmentEditor = () => {
     if (hover && brush) setHover({ ...hover, rotation: (hover.rotation + 1) % 4 });
     else if (selectedItem) change(draft.map((item) => item.id === selected ? { ...item, rotation: (item.rotation + 1) % 4 } : item));
   };
-  const remove = () => { if (selectedItem && !definition?.existingOnly) { change(draft.filter((item) => item.id !== selected)); setSelected(null); } };
+  const remove = () => { if (selectedItem) { change(draft.filter((item) => item.id !== selected)); setSelected(null); } };
   const stepBack = () => {
     if (!undo.length) return;
     setRedo((history) => [...history, copyLayout(draft)]); update(copyLayout(undo[undo.length - 1])); setUndo(undo.slice(0, -1));
@@ -123,7 +143,7 @@ export const ApartmentEditor = () => {
     if (event.key.toLowerCase() === 'r') { event.preventDefault(); rotate(); }
     if (event.key === 'Delete') { event.preventDefault(); remove(); }
     if (event.ctrlKey && event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? stepForward() : stepBack(); }
-    if (event.key === 'Escape') { setBrush(null); setHover(null); setSelected(null); }
+    if (event.key === 'Escape') { setBrush(null); setRestoring(null); setContext(null); setHover(null); setSelected(null); }
   };
   const displayed = before ? data.layout || [] : hover && brush ? [...draft, hover] : draft;
   // Clicking toolbar buttons changes DOM focus; shortcuts still belong to this editor.
@@ -138,9 +158,9 @@ export const ApartmentEditor = () => {
     <header><div><strong>{data.name || 'Обустройство квартиры'}{data.number ? ` · Квартира ${data.number}` : ''}</strong><small>{before ? 'Сохранённая обстановка' : 'Примерка — изменения ещё не применены'}</small></div><ApartmentBalance data={data} /><button disabled={commerceBusy} onClick={close} aria-label="Закрыть редактор">×</button></header>
     <div className="ApartmentEditor__body">
       <ApartmentFurnishingCatalog data={data} room={room} draft={draft} brush={brush} selected={selected}
-        before={before} pending={pending} act={act} Sprite={Sprite} onPurchaseBusy={setCommerceBusy}
-        choose={id => { setBrush(id); setSelected(null); setHover(null); }}
-        selectExisting={id => { setSelected(id); setBrush(null); setHover(null); }} />
+        before={before} pending={pending} act={act} Sprite={Sprite} onPurchaseBusy={setCommerceBusy} storedItems={storedItems} chooseStored={chooseStored}
+        choose={id => { const saved = storedItems.find(item => item.furniture === id); if (saved) chooseStored(saved); else { setBrush(id); setRestoring(null); setSelected(null); setHover(null); } }}
+        selectExisting={id => { const item = storedItems.find(entry => entry.id === id); if (item) chooseStored(item); else { setSelected(id); setBrush(null); setHover(null); } }} />
       <main><div className="ApartmentEditor__toolbar">
         <button disabled={!undo.length || before || pending || commerceBusy} onClick={stepBack}>Отменить</button>
         <button disabled={!redo.length || before || pending || commerceBusy} onClick={stepForward}>Повторить</button>
@@ -155,6 +175,7 @@ export const ApartmentEditor = () => {
         <div className="ApartmentEditor__surface" style={{ width: data.width * cellSize + view.width, height: data.height * cellSize + view.height }}>
         <div ref={plan} className={`ApartmentEditor__plan ${before ? 'before' : ''} ${gridLines ? 'grid' : ''}`} tabIndex={0} aria-label="План квартиры"
           style={{ left: view.width / 2, top: view.height / 2, width: data.width * cellSize, height: data.height * cellSize, '--cell': `${cellSize}px`, '--columns': data.width, '--rows': data.height }}
+          onContextMenu={openContext}
           onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={(event) => { if (drag.current) pointerMove(event); drag.current = null; }} onPointerCancel={() => { if (drag.current?.moved) update(drag.current.original); drag.current = null; }}
           onPointerLeave={() => { if (!drag.current) setHover(null); }}>
           <NavMapPlan tiles={data.scene?.tiles || Array.from({ length: data.width * data.height }, (_, i) => ({ x: i % data.width, y: Math.floor(i / data.width) }))}
@@ -181,7 +202,7 @@ export const ApartmentEditor = () => {
             if (!def) return null;
             const width = item.rotation % 2 ? def.height : def.width, height = item.rotation % 2 ? def.width : def.height;
             return <div key={item.id} data-placement={item.id} title={displayErrors[item.id] || def.name}
-              className={`ApartmentEditor__ghost ${selected === item.id ? 'selected' : ''} ${displayErrors[item.id] ? 'invalid' : ''} ${item.id === '__hover' ? 'hover' : ''}`}
+              className={`ApartmentEditor__ghost ${selected === item.id ? 'selected' : ''} ${displayErrors[item.id] ? 'invalid' : ''} ${brush && item.id === hover?.id ? 'hover' : ''}`}
               style={{ zIndex: index + 1, left: `${(item.x - originX) / data.width * 100}%`, top: `${(originY + data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
               <span style={{ width: cellSize, height: cellSize, transform: `rotate(${def.noRotation ? 0 : -item.rotation * 90}deg)` }}><PlanSprite images={def.images} /></span>
             </div>;
@@ -189,9 +210,9 @@ export const ApartmentEditor = () => {
         </div>
         </div>
         </div>
-        <div className="ApartmentEditor__selection"><span>{definition ? `${definition.name} · Нажмите новую клетку, чтобы переместить` : (brush ? 'Нажмите на план, чтобы разместить предмет' : 'ЛКМ — мебель · ПКМ / СКМ — перемещение вида')}</span>
+        <div className="ApartmentEditor__selection"><span>{definition ? `${definition.name} · Нажмите новую клетку, чтобы переместить` : (brush ? 'Нажмите на план, чтобы разместить предмет' : 'ЛКМ — мебель · ПКМ — действия · СКМ — перемещение вида')}</span>
           <button disabled={before || pending || commerceBusy || (!selectedItem && !hover) || definition?.canRotate === false} onClick={rotate}>Повернуть · R</button>
-          <button disabled={before || pending || commerceBusy || !selectedItem || definition?.existingOnly} onClick={remove}>Убрать · Delete</button></div>
+          <button disabled={before || pending || commerceBusy || !selectedItem} onClick={remove}>Убрать · Delete</button></div>
         <p className={valid ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'} role="status">{Object.values(errors)[0] || 'Выход свободен'}</p>
         {data.status && <p className={data.success ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'}>{data.status}</p>}
       </main>
@@ -199,6 +220,23 @@ export const ApartmentEditor = () => {
     <footer><button disabled={commerceBusy || pending || dirty} onClick={() => act('shop')}>Шаблоны квартир</button><button disabled={commerceBusy || pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
       <button disabled={commerceBusy || pending || !valid || !dirty || before || !!brush} className="primary" onClick={() => { setPending(true); sendApartmentLayout(act, 'apply', draft); }}>{pending ? 'Сохранение…' : 'Применить'}</button>
       <button disabled={commerceBusy || pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>{data.lobby ? 'Закрыть обустройство' : 'Вернуться из квартиры'}</button></footer>
+    {context && <div className="ApartmentEditor__contextVeil" onPointerDown={() => setContext(null)} onContextMenu={event => { event.preventDefault(); setContext(null); }}>
+      <div className="ApartmentEditor__context" role="dialog" aria-label="Предметы на клетке" style={{ left: context.x, top: context.y }} onPointerDown={event => event.stopPropagation()}>
+        <strong>Клетка {context.cell.x}, {context.cell.y}</strong>
+        <div className="ApartmentEditor__cellItems" role="list" aria-label="Все предметы на клетке">
+          {contextItems.map(item => <button key={item.id} role="listitem" aria-pressed={contextItem?.id === item.id} onClick={() => { setContext({ ...context, id: item.id }); setSelected(item.id); }}>
+            {room.catalog.find(def => def.id === item.furniture)?.name}</button>)}
+          {contextFixed.map(item => <span key={item.id} role="listitem">{item.name} · защищено</span>)}
+          {!contextItems.length && !contextFixed.length && <span>На клетке нет предметов</span>}
+        </div>
+        <div className="ApartmentEditor__radial" aria-label="Действия с предметом">
+          <button className="move" disabled={!contextItem || before || pending || commerceBusy} onClick={() => { setSelected(contextItem.id); setBrush(null); setContext(null); }}>Переместить</button>
+          <button className="remove" disabled={!contextItem || before || pending || commerceBusy} onClick={() => { change(draft.filter(item => item.id !== contextItem.id)); setSelected(null); setContext(null); }}>Убрать</button>
+          <button className="rotate" disabled={!contextItem || contextDefinition?.canRotate === false || before || pending || commerceBusy} onClick={() => { change(draft.map(item => item.id === contextItem.id ? { ...item, rotation: (item.rotation + 1) % 4 } : item)); setContext(null); }}>Повернуть</button>
+          <button className="cancel" onClick={() => setContext(null)}>Закрыть</button>
+        </div>
+      </div>
+    </div>}
     {confirmClose && <div className="ApartmentEditor__veil"><div role="dialog" aria-label="Несохранённые изменения"><strong>Изменения ещё не применены</strong><p>Закрыть редактор и отказаться от черновика?</p><button onClick={() => setConfirmClose(false)}>Продолжить обустройство</button><button onClick={() => act(confirmClose === 'exit' ? 'exit' : 'close')}>Отказаться от изменений</button></div></div>}
   </div>;
 };

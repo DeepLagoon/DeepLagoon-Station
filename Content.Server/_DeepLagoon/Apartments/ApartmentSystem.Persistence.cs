@@ -77,7 +77,7 @@ public sealed partial class ApartmentSystem
         {
             while (uid.IsValid() && uid != instance.Grid)
             {
-                if (excluded.Contains(uid) || HasComp<ActorComponent>(uid) ||
+                if (excluded.Contains(uid) || HasComp<ApartmentChameleonGearComponent>(uid) || HasComp<ActorComponent>(uid) ||
                     TryComp<MindContainerComponent>(uid, out var mind) && mind.Mind != null) return true;
                 if (!TryComp<TransformComponent>(uid, out var transform)) return true;
                 if (!transform.ParentUid.IsValid())
@@ -203,6 +203,7 @@ public sealed partial class ApartmentSystem
             foreach (var mapped in snapshot.MapFurniture) instance.MapFurniture.Add(mapped.Baseline.Id, mapped);
             foreach (var entity in ApartmentEntities(instance.Grid))
                 if (TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity)) instance.Furniture.Add(identity.Id, entity);
+            RegisterMapFurniture(instance);
             return instance;
         }
         catch { Del(grid.Value.Owner); throw; }

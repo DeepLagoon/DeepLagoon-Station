@@ -183,11 +183,35 @@ public abstract partial class ClothingSystem : EntitySystem
         clothing.ClothingVisuals = otherClothing.ClothingVisuals;
         clothing.EquippedPrefix = otherClothing.EquippedPrefix;
         clothing.RsiPath = otherClothing.RsiPath;
+        clothing.EquippedState = otherClothing.EquippedState;
+        clothing.BodyFit = otherClothing.BodyFit;
+        clothing.FaceFit = otherClothing.FaceFit;
+        clothing.HairOcclusion = otherClothing.HairOcclusion;
+        clothing.PreserveLegHem = otherClothing.PreserveLegHem;
+        clothing.HidesUniform = otherClothing.HidesUniform;
+        clothing.MappedLayer = otherClothing.MappedLayer;
 
         _itemSys.VisualsChanged(uid);
         Dirty(uid, clothing);
     }
 
+    public void CopyVisuals(EntityUid uid, ChameleonClothingAppearance copy, ClothingComponent? clothing = null)
+    {
+        if (!Resolve(uid, ref clothing))
+            return;
+        clothing.RsiPath = copy.ClothingRsi;
+        clothing.EquippedPrefix = copy.EquippedPrefix;
+        clothing.EquippedState = copy.EquippedState;
+        clothing.ClothingVisuals = copy.ClothingVisuals;
+        clothing.BodyFit = (ClothingBodyFit) copy.BodyFit;
+        clothing.FaceFit = copy.FaceFit;
+        clothing.HairOcclusion = copy.HairOcclusion;
+        clothing.PreserveLegHem = copy.PreserveLegHem;
+        clothing.HidesUniform = copy.HidesUniform;
+        clothing.MappedLayer = copy.MappedLayer;
+        _itemSys.VisualsChanged(uid);
+        Dirty(uid, clothing);
+    }
     public void SetLayerColor(ClothingComponent clothing, string slot, string mapKey, Color? color)
     {
         foreach (var layer in clothing.ClothingVisuals[slot])

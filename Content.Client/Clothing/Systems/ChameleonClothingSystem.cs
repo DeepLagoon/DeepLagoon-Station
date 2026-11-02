@@ -12,6 +12,10 @@ namespace Content.Client.Clothing.Systems;
 public sealed partial class ChameleonClothingSystem : SharedChameleonClothingSystem
 {
     [Dependency] private IPrototypeManager _proto = default!;
+    [Dependency] private Content.Client.Sprite.RandomSpriteSystem _randomSprite = default!;
+    [Dependency] private Content.Client.Clothing.ClientClothingSystem _clothingVisuals = default!;
+    [Dependency] private Content.Shared.Item.SharedItemSystem _itemVisuals = default!;
+    private readonly HashSet<EntityUid> _pendingClothingRefresh = new();
 
     private static readonly SlotFlags[] IgnoredSlots =
     {
@@ -32,6 +36,37 @@ public sealed partial class ChameleonClothingSystem : SharedChameleonClothingSys
         SubscribeLocalEvent<PrototypesReloadedEventArgs>(OnProtoReloaded);
     }
 
+    protected override void AfterUpdateVisuals(EntityUid uid, ChameleonClothingComponent component)
+    {
+        base.AfterUpdateVisuals(uid, component);
+        _pendingClothingRefresh.Add(uid);
+        if (component.CopiedAppearance is { RandomSprites.Count: > 0 } copy)
+            _randomSprite.ApplySelectedAppearance(uid, copy.RandomSprites);
+        if (component.CopiedAppearance?.PaletteColor is { } color && TryComp<SpriteComponent>(uid, out var sprite))
+            sprite.Color = color;
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        if (_pendingClothingRefresh.Count == 0)
+            return;
+        // Rebuild after the complete game state, including containers and inventory, has been applied.
+        var wearers = new HashSet<EntityUid>();
+        foreach (var item in _pendingClothingRefresh)
+        {
+            if (!Exists(item))
+                continue;
+            _itemVisuals.VisualsChanged(item);
+            var wearer = Transform(item).ParentUid;
+            if (HasComp<InventoryComponent>(wearer))
+                wearers.Add(wearer);
+        }
+        _pendingClothingRefresh.Clear();
+        foreach (var wearer in wearers)
+            _clothingVisuals.InitClothing(wearer, Comp<InventoryComponent>(wearer));
+    }
+
     private void OnProtoReloaded(PrototypesReloadedEventArgs args)
     {
         if (args.WasModified<EntityPrototype>())
@@ -50,6 +85,14 @@ public sealed partial class ChameleonClothingSystem : SharedChameleonClothingSys
             && proto.TryComp(out SpriteComponent? otherSprite, Factory))
         {
             sprite.CopyFrom(otherSprite);
+            // Foldable disguises use the same layers as the original hat, jacket, etc.
+            if (TryComp<ChameleonClothingComponent>(uid, out var chameleon))
+            {
+                if (sprite.LayerMapTryGet("foldedLayer", out var foldedLayer))
+                    sprite.LayerSetVisible(foldedLayer, chameleon.Folded);
+                if (sprite.LayerMapTryGet("unfoldedLayer", out var unfoldedLayer))
+                    sprite.LayerSetVisible(unfoldedLayer, !chameleon.Folded);
+            }
         }
 
         // Edgecase for PDAs to include visuals when UI is open

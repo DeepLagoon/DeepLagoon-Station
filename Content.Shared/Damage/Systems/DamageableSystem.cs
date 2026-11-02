@@ -154,7 +154,8 @@ namespace Content.Shared.Damage
         ///     The damage changed event is used by other systems, such as damage thresholds.
         /// </remarks>
         public void DamageChanged(EntityUid uid, DamageableComponent component, DamageSpecifier? damageDelta = null,
-            bool interruptsDoAfters = true, EntityUid? origin = null, bool? canSever = null, float armorPenetration = 0f) // Shitmed Change
+            bool interruptsDoAfters = true, EntityUid? origin = null, bool? canSever = null, float armorPenetration = 0f,
+            DamageOriginFlag? originFlag = null) // Shitmed Change
         {
             component.Damage.GetDamagePerGroup(_prototypeManager, component.DamagePerGroup);
             component.TotalDamage = component.Damage.GetTotal();
@@ -165,7 +166,7 @@ namespace Content.Shared.Damage
                 var data = new DamageVisualizerGroupData(component.DamagePerGroup.Keys.ToList());
                 _appearance.SetData(uid, DamageVisualizerKeys.DamageUpdateGroups, data, appearance);
             }
-            RaiseLocalEvent(uid, new DamageChangedEvent(component, damageDelta, interruptsDoAfters, origin, canSever ?? true)); // Shitmed Change
+            RaiseLocalEvent(uid, new DamageChangedEvent(component, damageDelta, interruptsDoAfters, origin, canSever ?? true, originFlag)); // Shitmed Change
         }
 
         // Mono: damage origin flags for if we can't or don't want to discern by UID
@@ -215,7 +216,7 @@ namespace Content.Shared.Damage
                 return null;
 
             // Shitmed Change Start
-            var partDamage = new TryChangePartDamageEvent(damage, origin, targetPart, ignoreResistances, canSever ?? true, canEvade ?? false, partMultiplier ?? 1.00f);
+            var partDamage = new TryChangePartDamageEvent(damage, origin, targetPart, ignoreResistances, canSever ?? true, canEvade ?? false, partMultiplier ?? 1.00f, OriginFlag: originFlag);
             RaiseLocalEvent(uid.Value, ref partDamage);
 
             if (partDamage.Evaded || partDamage.Cancelled)
@@ -266,7 +267,7 @@ namespace Content.Shared.Damage
             }
 
             if (delta.DamageDict.Count > 0)
-                DamageChanged(uid.Value, damageable, delta, interruptsDoAfters, origin, canSever); // Shitmed Change
+                DamageChanged(uid.Value, damageable, delta, interruptsDoAfters, origin, canSever, originFlag: originFlag); // Shitmed Change
 
             return delta;
         }
@@ -491,7 +492,8 @@ namespace Content.Shared.Damage
         bool CanEvade = false,
         float PartMultiplier = 1.00f,
         bool Evaded = false,
-        bool Cancelled = false);
+        bool Cancelled = false,
+        DamageOriginFlag? OriginFlag = null);
 
     /// <summary>
     ///     Raised on an entity when damage is about to be dealt,
@@ -563,12 +565,19 @@ namespace Content.Shared.Damage
         /// </summary>
         public readonly bool CanSever;
 
-        public DamageChangedEvent(DamageableComponent damageable, DamageSpecifier? damageDelta, bool interruptsDoAfters, EntityUid? origin, bool canSever = true) // Shitmed Change
+        /// <summary>
+        /// The indirect damage source, preserved when damage is distributed to body parts.
+        /// </summary>
+        public readonly DamageOriginFlag? OriginFlag;
+
+        public DamageChangedEvent(DamageableComponent damageable, DamageSpecifier? damageDelta, bool interruptsDoAfters, EntityUid? origin, bool canSever = true,
+            DamageOriginFlag? originFlag = null) // Shitmed Change
         {
             Damageable = damageable;
             DamageDelta = damageDelta;
             Origin = origin;
             CanSever = canSever; // Shitmed Change
+            OriginFlag = originFlag;
             if (DamageDelta == null)
                 return;
 

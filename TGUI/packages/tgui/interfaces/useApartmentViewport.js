@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-export const useApartmentViewport = (viewport, width, height, token) => {
+export const useApartmentViewport = (viewport, width, height, token, rightPan = true) => {
   const [view, setView] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(1);
   const [panning, setPanning] = useState(false);
@@ -54,7 +54,7 @@ export const useApartmentViewport = (viewport, width, height, token) => {
   }, [width, height]);
 
   const onPointerDownCapture = event => {
-    if (event.button !== 1 && event.button !== 2) return;
+    if (event.button !== 1 && (event.button !== 2 || !rightPan)) return;
     event.preventDefault(); event.stopPropagation();
     autoFit.current = false;
     const node = viewport.current;

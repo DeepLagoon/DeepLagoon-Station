@@ -117,7 +117,7 @@ public sealed partial class BodyPartComponent : Component, ISurgeryToolComponent
     public string Species { get; set; } = "";
 
     /// <summary>
-    ///     Shitmed Change: The total damage that has to be dealt to a body part
+    ///     The accumulated slash damage that has to be dealt to a body part
     ///     to make possible severing it.
     /// </summary>
     [DataField, AutoNetworkedField]

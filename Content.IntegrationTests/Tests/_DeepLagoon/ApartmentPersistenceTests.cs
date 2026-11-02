@@ -23,6 +23,60 @@ public sealed class ApartmentPersistenceTests
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
     [Test]
+    public async Task EditorStoragePreservesOriginalContentsAcrossUnloadAndRoundEnd()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var outside = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
+            var entities = pair.Server.EntMan;
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var apartments = entities.System<ApartmentSystem>();
+            var containers = entities.System<SharedContainerSystem>();
+            var body = entities.SpawnEntity("MobHuman", outside.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            Assert.That(apartments.Enter(session, session.UserId, out var message), Is.True, message);
+            var home = apartments.Instances[session.UserId];
+            Assert.That(apartments.OpenEditor(session), Is.True);
+            var mapped = home.MapFurniture.Values.First(item => item.Prototype == "PottedPlant2");
+            var furniture = home.Furniture[mapped.Baseline.Id];
+            var paper = entities.SpawnEntity("Paper", new EntityCoordinates(home.Grid, Vector2.One));
+            entities.GetComponent<PaperComponent>(paper).Content = "Keep this inside stored furniture";
+            Assert.That(containers.Insert(paper, containers.EnsureContainer<Container>(furniture, "keepsakes")), Is.True);
+            var layout = (List<ApartmentPlacement>) typeof(ApartmentSystem).GetMethod("CurrentLayout", Private)!.Invoke(apartments, new object[] { home })!;
+            var editors = (Dictionary<NetUserId, Guid>) typeof(ApartmentSystem).GetField("_editors", Private)!.GetValue(apartments)!;
+            Assert.That(apartments.Apply(session, editors[session.UserId], home.Delta.Revision, layout.Where(item => item.Id != mapped.Baseline.Id).ToArray()), Is.Null);
+            Assert.That(entities.GetComponent<ApartmentFurnitureIdentityComponent>(furniture).Stored, Is.True);
+            Assert.That(containers.GetContainer(home.Grid, "apartment-furniture-storage").Contains(furniture), Is.True);
+            Assert.That(containers.GetContainer(furniture, "keepsakes").Contains(paper), Is.True);
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            Unload(apartments, home);
+            typeof(ApartmentSystem).GetMethod("Cleanup", Private)!.Invoke(apartments, null);
+            Assert.That(apartments.Enter(session, session.UserId, out message), Is.True, message);
+            home = apartments.Instances[session.UserId];
+            var restored = home.Furniture[mapped.Baseline.Id];
+            Assert.That(entities.GetComponent<ApartmentFurnitureIdentityComponent>(restored).Stored, Is.True);
+            var restoredPaper = containers.GetContainer(restored, "keepsakes").ContainedEntities.Single();
+            Assert.That(entities.GetComponent<PaperComponent>(restoredPaper).Content, Is.EqualTo("Keep this inside stored furniture"));
+            Assert.That(apartments.OpenEditor(session), Is.True);
+            var current = (List<ApartmentPlacement>) typeof(ApartmentSystem).GetMethod("CurrentLayout", Private)!.Invoke(apartments, new object[] { home })!;
+            Assert.That(current.Any(item => item.Id == mapped.Baseline.Id), Is.False);
+            typeof(ApartmentSystem).GetField("_lastApply", Private)!.GetValue(apartments)!.GetType().GetMethod("Clear")!.Invoke(typeof(ApartmentSystem).GetField("_lastApply", Private)!.GetValue(apartments), null);
+            Assert.That(apartments.Apply(session, editors[session.UserId], home.Delta.Revision, current.Append(mapped.Baseline.Copy()).ToArray()), Is.Null);
+            Assert.That(home.Furniture[mapped.Baseline.Id], Is.EqualTo(restored));
+            Assert.That(entities.GetComponent<ApartmentFurnitureIdentityComponent>(restored).Stored, Is.False);
+            Assert.That(containers.GetContainer(restored, "keepsakes").ContainedEntities.Single(), Is.EqualTo(restoredPaper));
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ContentsDecalsAndFurnitureStateSurviveUnloadAndRoundCleanup()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });

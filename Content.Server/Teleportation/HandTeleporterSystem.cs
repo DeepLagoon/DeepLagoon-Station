@@ -41,7 +41,7 @@ public sealed partial class HandTeleporterSystem : EntitySystem
 
     private void OnUseInHand(EntityUid uid, HandTeleporterComponent component, UseInHandEvent args)
     {
-        if (args.Handled)
+        if (args.Handled || !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(args.User))
             return;
 
         if (Deleted(component.FirstPortal))
@@ -80,7 +80,7 @@ public sealed partial class HandTeleporterSystem : EntitySystem
     /// </summary>
     private void HandlePortalUpdating(EntityUid uid, HandTeleporterComponent component, EntityUid user)
     {
-        if (Deleted(user))
+        if (Deleted(user) || !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(user))
             return;
 
         var xform = Transform(user);

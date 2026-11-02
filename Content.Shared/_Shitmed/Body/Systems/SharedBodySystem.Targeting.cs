@@ -33,7 +33,10 @@ public partial class SharedBodySystem
     [Dependency] private IRobustRandom _random = default!;
 
     [Dependency] private SharedPopupSystem _popup = default!;
-    private readonly string[] _severingDamageTypes = { "Slash", "Piercing", "Blunt" };
+    // Applied part damage, after resistance and part multipliers. A wielded chainsaw/scythe
+    // deals 8.4 slash per focused hit; small cuts must not finish off a burned limb.
+    private const int MinimumSeveringSlashDamage = 8;
+    private const int MinimumSeveringExplosionDamage = 50;
     private const double IntegrityJobTime = 0.005;
     private readonly JobQueue _integrityJobQueue = new(IntegrityJobTime);
     public sealed class IntegrityJob : Job<object>
@@ -146,10 +149,10 @@ public partial class SharedBodySystem
                 }
             }
 
-            if (targetPart == null)
+            if (targetPart == null || damage == null)
                 return;
 
-            if (!TryChangePartDamage(ent, args.Damage, args.IgnoreResistances, args.CanSever, args.CanEvade, args.PartMultiplier, targetPart.Value)
+            if (!TryChangePartDamage(ent, damage, args.IgnoreResistances, args.CanSever, args.CanEvade, args.PartMultiplier, targetPart.Value, args.OriginFlag)
                 && args.CanEvade)
             {
                 if (_net.IsServer)
@@ -187,9 +190,32 @@ public partial class SharedBodySystem
         bool canSever,
         bool canEvade,
         float partMultiplier,
-        TargetBodyPart targetParts)
+        TargetBodyPart targetParts,
+        DamageableSystem.DamageOriginFlag? originFlag)
     {
         var landed = false;
+        EntityUid? explosionSeverTarget = null;
+        if (canSever && originFlag == DamageableSystem.DamageOriginFlag.Explosion)
+        {
+            // A blast damages every part, but may only detach one arm or leg per body.
+            // Its attached hand/foot follows it through the normal removal code.
+            var candidates = new List<EntityUid>();
+            foreach (var part in GetBodyChildren(entity))
+            {
+                if (part.Component.PartType is not (BodyPartType.Arm or BodyPartType.Leg)
+                    || !part.Component.CanSever
+                    || HasComp<BodyPartReattachedComponent>(part.Id)
+                    || GetTargetBodyPart(part.Component) is not { } target
+                    || !targetParts.HasFlag(target))
+                    continue;
+
+                candidates.Add(part.Id);
+            }
+
+            if (candidates.Count > 0)
+                explosionSeverTarget = _random.Pick(candidates);
+        }
+
         var targets = SharedTargetingSystem.GetValidParts();
         foreach (var target in targets)
         {
@@ -202,7 +228,10 @@ public partial class SharedBodySystem
                 if (canEvade && TryEvadeDamage(entity, GetEvadeChance(targetType)))
                     continue;
 
-                var damageResult = Damageable.TryChangeDamage(part.FirstOrDefault().Id, damage * partMultiplier, ignoreResistances, canSever: canSever);
+                var partId = part.FirstOrDefault().Id;
+                var maySever = canSever && (originFlag != DamageableSystem.DamageOriginFlag.Explosion || partId == explosionSeverTarget);
+                var damageResult = Damageable.TryChangeDamage(partId, damage * partMultiplier, ignoreResistances,
+                    canSever: maySever, originFlag: originFlag);
                 if (damageResult != null && damageResult.GetTotal() != 0)
                     landed = true;
             }
@@ -225,9 +254,10 @@ public partial class SharedBodySystem
             && partIdSlot is not null
             && delta != null
             && !HasComp<BodyPartReattachedComponent>(partEnt)
-            && !partEnt.Comp.Enabled
-            && damageable.TotalDamage >= partEnt.Comp.SeverIntegrity
-            && _severingDamageTypes.Any(damageType => delta.DamageDict.TryGetValue(damageType, out var value) && value > 0))
+            && (args.OriginFlag == DamageableSystem.DamageOriginFlag.Explosion
+                ? GetExplosionSeveringDamage(delta) >= MinimumSeveringExplosionDamage
+                : delta.DamageDict.GetValueOrDefault("Slash") >= MinimumSeveringSlashDamage
+                  && damageable.Damage.DamageDict.GetValueOrDefault("Slash") >= partEnt.Comp.SeverIntegrity))
             severed = true;
 
         CheckBodyPart(partEnt, GetTargetBodyPart(partEnt), severed, damageable);
@@ -236,6 +266,14 @@ public partial class SharedBodySystem
             DropPart(partEnt);
 
         Dirty(partEnt, partEnt.Comp);
+    }
+
+    private static FixedPoint2 GetExplosionSeveringDamage(DamageSpecifier damage)
+    {
+        // Fire, cold and structural damage do not measure the force applied to a limb.
+        return FixedPoint2.Max(damage.DamageDict.GetValueOrDefault("Blunt"), FixedPoint2.Zero)
+               + FixedPoint2.Max(damage.DamageDict.GetValueOrDefault("Piercing"), FixedPoint2.Zero)
+               + FixedPoint2.Max(damage.DamageDict.GetValueOrDefault("Slash"), FixedPoint2.Zero);
     }
 
     /// <summary>

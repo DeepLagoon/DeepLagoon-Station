@@ -125,9 +125,6 @@ public sealed partial class PlantHarvestSystem : EntitySystem
         if (!ent.Comp.ReadyForHarvest || plantData.ProductPrototypes.Count == 0 || plant.Yield == 0)
             return;
 
-        var name = Loc.GetString(plantData.Name);
-        _popup.PopupCursor(Loc.GetString("botany-harvest-success-message", ("name", name)), user, PopupType.Medium);
-
         var totalYield = 0;
         if (plant.Yield >= 0)
         {
@@ -141,6 +138,9 @@ public sealed partial class PlantHarvestSystem : EntitySystem
         ent.Comp.ReadyForHarvest = false;
         ent.Comp.LastHarvest = ent.Comp.Age;
         Dirty(ent);
+
+        var name = Loc.GetString(plantData.Name);
+        _popup.PopupCursor(Loc.GetString("botany-harvest-success-message", ("name", name)), user, PopupType.Medium);
 
         if (harvest.HarvestRepeat == HarvestType.NoRepeat)
             _plant.RemovePlant(ent.Owner);

@@ -319,22 +319,31 @@ public sealed partial class HolopadWindow : FancyWindow
         }
     }
 
-    private sealed class HolopadContactButton : Button
+    private sealed class HolopadContactButton : ContainerButton
     {
         public NetEntity NetEntity;
+        public string Text { get; private set; } = string.Empty;
+
+        private readonly RichTextLabel _label;
 
         public HolopadContactButton()
         {
             HorizontalExpand = true;
-            SetHeight = 32;
+            MinHeight = 32;
             Margin = new Thickness(0f, 1f, 0f, 1f);
             ReservesSpace = false;
+            AddStyleClass(StyleClassButton);
+
+            // Wrap to the viewport width instead of making every row as wide as the longest name.
+            _label = new RichTextLabel { HorizontalExpand = true };
+            AddChild(_label);
         }
 
         public void UpdateValues(NetEntity netEntity, string label)
         {
             NetEntity = netEntity;
             Text = Loc.GetString("holopad-window-contact-label", ("label", label));
+            _label.SetMessage(Text);
         }
     }
 

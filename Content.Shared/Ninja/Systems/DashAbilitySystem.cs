@@ -93,6 +93,7 @@ public sealed partial class DashAbilitySystem : EntitySystem
             return;
         }
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(user, args.Target)) return;
         if (!_charges.TryUseCharge(uid))
         {
             _popup.PopupClient(Loc.GetString("dash-ability-no-charges", ("item", uid)), user, user);

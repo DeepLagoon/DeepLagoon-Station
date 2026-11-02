@@ -15,6 +15,8 @@ public sealed partial class ApartmentFurnitureIdentityComponent : Component
 {
     [DataField] public string Id = "";
     [DataField] public string Furniture = "";
+    [DataField] public bool Stored;
+    [DataField] public int StoredRotation;
 }
 
 /// <summary>Contents are discarded at the round boundary, not when the apartment is unloaded.</summary>

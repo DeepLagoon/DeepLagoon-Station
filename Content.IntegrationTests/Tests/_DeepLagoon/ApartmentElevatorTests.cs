@@ -26,6 +26,8 @@ public sealed class ApartmentElevatorTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         var testMap = await pair.CreateTestMap();
+        var observers = await pair.Server.AddDummySessions(2);
+        var ghosts = new List<EntityUid>();
         EntityUid body = default, uniform = default, source = default, destination = default;
         var doors = new List<EntityUid>();
         NetUserId owner = new(Guid.NewGuid());
@@ -34,7 +36,7 @@ public sealed class ApartmentElevatorTests
             var entities = pair.Server.EntMan;
             pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.Enabled, true);
             pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
-            var session = pair.Server.PlayerMan.Sessions.Single();
+            var session = pair.Server.PlayerMan.Sessions.Single(session => !observers.Contains(session));
             var apartments = entities.System<ApartmentSystem>();
             var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(apartments)!;
             store.BeginPurchase(owner.UserId, "DLApartmentBasic", 0);
@@ -56,6 +58,13 @@ public sealed class ApartmentElevatorTests
             source = entities.SpawnEntity("DLApartmentElevatorPanel", sourceCoordinates);
             destination = entities.SpawnEntity("DLApartmentElevatorPanel", new EntityCoordinates(home.Grid, new Vector2(2.5f, 2.5f)));
             if (rotated) entities.System<SharedTransformSystem>().SetLocalRotation(destination, Angle.FromDegrees(180));
+            foreach (var (observer, panel) in observers.Zip(new[] { source, destination }))
+            {
+                pair.Server.PlayerMan.SetStatus(observer, Robust.Shared.Enums.SessionStatus.InGame);
+                var ghost = entities.SpawnEntity("MobObserver", entities.GetComponent<TransformComponent>(panel).Coordinates);
+                ghosts.Add(ghost);
+                pair.Server.PlayerMan.SetAttachedEntity(observer, ghost);
+            }
             foreach (var panel in new[] { source, destination })
             {
                 var cabin = entities.GetComponent<ApartmentElevatorComponent>(panel);
@@ -90,7 +99,7 @@ public sealed class ApartmentElevatorTests
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            var session = pair.Server.PlayerMan.Sessions.Single();
+            var session = pair.Server.PlayerMan.Sessions.Single(session => !observers.Contains(session));
             Assert.That(entities.HasComponent<ApartmentTripPendingComponent>(body), Is.False);
             Assert.That(entities.System<ApartmentSystem>().TryGetVisit(session.UserId, out _, out _), Is.False);
             Assert.That(entities.System<InventorySystem>().TryGetSlotEntity(body, "jumpsuit", out var equipped), Is.True);
@@ -146,7 +155,7 @@ public sealed class ApartmentElevatorTests
         {
             var entities = pair.Server.EntMan;
             var apartments = entities.System<ApartmentSystem>();
-            var session = pair.Server.PlayerMan.Sessions.Single();
+            var session = pair.Server.PlayerMan.Sessions.Single(session => !observers.Contains(session));
             Assert.That(apartments.TryGetVisit(session.UserId, out var home, out var resident), Is.True);
             Assert.That(home.Owner, Is.EqualTo(owner));
             Assert.That(resident, Is.EqualTo(body));
@@ -160,7 +169,7 @@ public sealed class ApartmentElevatorTests
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            var session = pair.Server.PlayerMan.Sessions.Single();
+            var session = pair.Server.PlayerMan.Sessions.Single(session => !observers.Contains(session));
             Assert.That(entities.System<ApartmentSystem>().TryGetVisit(session.UserId, out _, out _), Is.False);
             Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(source).GridUid));
             Assert.That(entities.System<InventorySystem>().TryGetSlotEntity(body, "jumpsuit", out var restored), Is.True);
@@ -168,6 +177,18 @@ public sealed class ApartmentElevatorTests
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
         });
+        await pair.Server.WaitAssertion(() =>
+        {
+            for (var index = 0; index < ghosts.Count; index++)
+            {
+                var panel = index == 0 ? source : destination;
+                Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(ghosts[index]).GridUid,
+                    Is.EqualTo(pair.Server.EntMan.GetComponent<TransformComponent>(panel).GridUid));
+                pair.Server.PlayerMan.SetAttachedEntity(observers[index], null);
+                pair.Server.EntMan.DeleteEntity(ghosts[index]);
+            }
+        });
+        await pair.Server.RemoveAllDummySessions();
         await pair.CleanReturnAsync();
     }
 }

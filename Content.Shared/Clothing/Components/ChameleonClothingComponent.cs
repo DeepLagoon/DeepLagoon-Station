@@ -27,6 +27,12 @@ public sealed partial class ChameleonClothingComponent : Component
     [DataField(required: true), AutoNetworkedField]
     public EntProtoId? Default;
 
+    [DataField, AutoNetworkedField]
+    public ChameleonClothingAppearance? CopiedAppearance;
+
+    [DataField, AutoNetworkedField]
+    public bool Folded;
+
     /// <summary>
     ///     Current user that wears chameleon clothing.
     /// </summary>

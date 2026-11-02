@@ -1,3 +1,4 @@
+using System.Numerics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;
@@ -51,9 +52,16 @@ public abstract class ChatPopupButton<TPopup> : Button
     {
         if (args.Pressed)
         {
-            // At the bottom of the screen, place the menu above its button so
-            // clamping does not cover the toggle and intercept the next click.
-            Popup.Open(GetPopupPosition(), altPosUp: GlobalPosition);
+            var position = GetPopupPosition();
+            Popup.Open(position);
+
+            // Measure the visible popup, including channel labels and highlights.
+            // The upward fallback replaces the horizontal clamp in PopupContainer,
+            // so it must already fit the screen at the right edge of a split HUD.
+            var availableSize = Popup.Parent!.Size;
+            Popup.Measure(availableSize);
+            var left = Math.Clamp(position.Left, 0, Math.Max(0, availableSize.X - Popup.DesiredSize.X));
+            PopupContainer.SetAltOriginUp(Popup, new Vector2(left, GlobalPosition.Y));
         }
         else
         {

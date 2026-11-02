@@ -45,6 +45,8 @@ public sealed partial class PortalArtifactSystem : EntitySystem
         var secondPortal = Spawn(artifact.Comp.PortalProto, _transform.GetMapCoordinates(target));
 
         //Manual position swapping, because the portal that opens doesn't trigger a collision, and doesn't teleport targets the first time.
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(target, Transform(artifact.Owner).Coordinates) ||
+            !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(artifact.Owner, Transform(target).Coordinates)) return;
         _transform.SwapPositions(target, artifact.Owner);
 
         _link.TryLink(firstPortal, secondPortal, true);

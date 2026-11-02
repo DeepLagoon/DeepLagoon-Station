@@ -12,14 +12,15 @@ export const footprint = (item, definition) => {
 export const validateLayout = (layout, room) => {
   const errors = {};
   const occupied = new Map();
+  const unchanged = item => { const def = room.catalog.find(entry => entry.id === item.furniture); return def?.existingOnly && item.id === def.placementId && item.x === def.originalX && item.y === def.originalY && item.rotation === def.originalRotation; };
   const blocked = new Set();
   const counts = {};
   const ids = new Set();
   const floors = room.scene ? new Set(room.scene.tiles.map(cell => `${cell.x},${cell.y}`)) : null;
   const fixed = new Set((room.scene?.occupied || []).map(cell => `${cell.x},${cell.y}`));
+  const restricted = new Set((room.scene?.restricted || []).map(cell => `${cell.x},${cell.y}`));
   const staticBlocked = new Set((room.scene?.blocked || []).map(cell => `${cell.x},${cell.y}`));
   const mapped = room.catalog.filter(def => def.existingOnly);
-  if (mapped.some(def => !layout.some(item => item.id === def.placementId && item.furniture === def.id))) errors.general = 'Исходную обстановку нельзя удалять или заменять.';
   if (layout.length > 400) errors.general = 'Не удалось разместить мебель: слишком много объектов.';
   for (const item of layout) {
     const def = room.catalog.find((entry) => entry.id === item.furniture);
@@ -30,18 +31,19 @@ export const validateLayout = (layout, room) => {
     if (![item.x, item.y, item.rotation].every(Number.isInteger) || item.rotation < 0 || item.rotation > 3) {
       errors[item.id] = 'Некорректное положение.'; continue;
     }
-    if (def.canRotate === false && item.rotation !== 0) errors[item.id] = 'Этот предмет нельзя поворачивать.';
+    if (def.canRotate === false && item.rotation !== (def.originalRotation || 0)) errors[item.id] = 'Этот предмет нельзя поворачивать.';
     const stockKey = def.product || item.furniture;
     counts[stockKey] = (counts[stockKey] || 0) + 1;
     if (counts[stockKey] > def.maxCount) errors[item.id] = 'Недостаточно доступных экземпляров.';
     for (const [x, y] of footprint(item, def)) {
       const key = `${x},${y}`;
+      if (restricted.has(key)) errors[item.id] = "За пределами квартиры нельзя размещать предметы.";
       if ((room.reservedCells || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = 'Площадку лифта и коридор нельзя занимать мебелью.';
       if (floors ? !floors.has(key) : x < 1 || y < 1 || x >= room.width - 1 || y >= room.height - 1) errors[item.id] = 'Предмет пересекается со стеной.';
       if (def.layer === "Wall" && !(room.scene?.walls || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = "Настенный декор нужно разместить на стене.";
-      if (fixed.has(key) && def.layer !== "Wall") errors[item.id] = 'Место занято стационарным объектом квартиры.';
+      if (!unchanged(item) && fixed.has(key) && def.layer !== "Wall") errors[item.id] = 'Место занято стационарным объектом квартиры.';
       if (x === room.arrivalX && (y === room.arrivalY || !room.scene && y === room.arrivalY + 1)) errors[item.id] = 'Площадка прибытия и терминал должны оставаться свободными.';
-      if (!def.allowsOverlap && occupied.has(key)) {
+      if (!def.allowsOverlap && occupied.has(key) && !(unchanged(item) && unchanged(layout.find(other => other.id === occupied.get(key))))) {
         errors[item.id] = errors[occupied.get(key)] = 'Предметы пересекаются.';
       }
       if (!def.allowsOverlap) occupied.set(key, item.id);
@@ -56,7 +58,7 @@ export const validateLayout = (layout, room) => {
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         const nx = x + dx, ny = y + dy, key = `${nx},${ny}`;
         if (floors ? !floors.has(key) : nx < 1 || ny < 1 || nx >= room.width - 1 || ny >= room.height - 1) continue;
-        if (obstacles.has(key) || staticBlocked.has(key) || reachable.has(key)) continue;
+        if (obstacles.has(key) || staticBlocked.has(key) || restricted.has(key) || reachable.has(key)) continue;
         reachable.add(key); queue.push([nx, ny]);
       }
     }

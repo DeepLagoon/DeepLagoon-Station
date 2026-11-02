@@ -100,6 +100,7 @@ public sealed partial class LustWishPortalSystem : EntitySystem
     }
 
     private bool CanParticipate(EntityUid portal, EntityUid user) => Exists(user) &&
+        EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(user, Transform(portal).Coordinates) &&
         TryComp<MobStateComponent>(user, out var mob) && mob.CurrentState == MobState.Alive &&
         _blocker.CanInteract(user, portal) && _interaction.InRangeAndAccessible(user, portal);
 

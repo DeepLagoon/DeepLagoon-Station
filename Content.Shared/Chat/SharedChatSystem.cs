@@ -26,7 +26,7 @@ public abstract partial class SharedChatSystem : EntitySystem
     public const char WhisperPrefix = ',';
     public const char CollectiveMindPrefix = '+';
     public const char TelepathicPrefix = '=';
-    public const char DefaultChannelKey = 'h';
+    public const char DefaultChannelKey = 'г';
 
     public static readonly ProtoId<RadioChannelPrototype> CommonChannel = "Common";
 

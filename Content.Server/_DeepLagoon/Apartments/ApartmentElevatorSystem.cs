@@ -9,6 +9,8 @@ using Content.Shared.Chat;
 using Content.Shared.Doors;
 using Content.Shared.Doors.Components;
 using Content.Shared.GameTicking;
+using Content.Shared.Ghost;
+using Content.Shared.Ghost;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
@@ -180,7 +182,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         var passengers = new List<(ICommonSession, EntityUid, Vector2)>();
         foreach (var session in _players.Sessions)
         {
-            if (session.AttachedEntity is not { } body || !Inside(body, source)) continue;
+            if (session.AttachedEntity is not { } body || HasComp<GhostComponent>(body) || !Inside(body, source)) continue;
             if (session.Status != SessionStatus.InGame || !TryComp<MobStateComponent>(body, out var mob) || mob.CurrentState != MobState.Alive ||
                 (TryComp<BuckleComponent>(body, out var buckle) && buckle.Buckled) || HasComp<ApartmentTripPendingComponent>(body))
                 return "Все пассажиры должны быть живы, стоять в кабине и завершить предыдущую поездку.";
@@ -192,7 +194,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         if (!returning && _apartments.Instances.TryGetValue(owner, out var home) &&
             _apartments.Visitors(home).Length + passengers.Count > home.Template.MaxVisitors) return "В квартире недостаточно мест для всех пассажиров.";
         // Keep an occupied arrival cabin free of a second party.
-        if (_players.Sessions.Any(s => s.AttachedEntity is { } body && Inside(body, targetPanel))) return "Кабина назначения занята.";
+        if (_players.Sessions.Any(s => s.AttachedEntity is { } body && !HasComp<GhostComponent>(body) && Inside(body, targetPanel))) return "Кабина назначения занята.";
         var trip = new Trip { Source = source, Destination = targetPanel, SourceGrid = sourceGrid, DestinationGrid = destinationGrid,
             Owner = owner, Returning = returning, Passengers = passengers, Doors = sourceDoors.Concat(destinationDoors).Distinct().ToList(),
             Next = _timing.CurTime + TimeSpan.FromSeconds(5) };

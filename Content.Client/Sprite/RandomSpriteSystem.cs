@@ -39,6 +39,14 @@ public sealed partial class RandomSpriteSystem : SharedRandomSpriteSystem
         UpdateClothingComponentAppearance(uid, component);
     }
 
+    /// <summary>Apply an existing selection without generating another random outfit.</summary>
+    public void ApplySelectedAppearance(EntityUid uid, Dictionary<string, (string State, Color? Color)> selected)
+    {
+        var visuals = new RandomSpriteComponent { Selected = selected };
+        UpdateSpriteComponentAppearance(uid, visuals);
+        UpdateClothingComponentAppearance(uid, visuals);
+    }
+
     private void UpdateClothingComponentAppearance(EntityUid uid, RandomSpriteComponent component, ClothingComponent? clothing = null)
     {
         if (!Resolve(uid, ref clothing, false))

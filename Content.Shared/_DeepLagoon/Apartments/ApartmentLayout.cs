@@ -54,7 +54,6 @@ public static class ApartmentLayout
     {
         var mapped = (mapFurniture ?? []).ToDictionary(p => p.Id);
         if (layout.Count > SafetyLimit) return "Не удалось разместить мебель: слишком много объектов.";
-        if (mapped.Keys.Any(id => layout.All(p => p.Id != id))) return "Исходный интерьер можно перемещать, но нельзя удалять.";
         var ids = new HashSet<string>();
         var occupied = new Dictionary<Vector2i, bool>();
         var blocked = new HashSet<Vector2i>();
@@ -67,10 +66,12 @@ public static class ApartmentLayout
             if ((!template.Catalog.Any(id => id.ToString() == p.Furniture) &&
                  (!mapped.TryGetValue(p.Id, out var mappedOriginal) || mappedOriginal.Furniture != p.Furniture)) || catalog(p.Furniture) is not { } furniture)
                 return "Предмет отсутствует в каталоге квартиры.";
-            if (!furniture.CanRotate && p.Rotation != 0) return "Этот предмет нельзя поворачивать.";
+            if (!furniture.CanRotate && p.Rotation != (mapped.TryGetValue(p.Id, out var fixedOriginal) ? fixedOriginal.Rotation : 0)) return "Этот предмет нельзя поворачивать.";
             var original = template.Furniture.FirstOrDefault(item => item.Id == p.Id);
             if (original != null && original.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
             if (mapped.TryGetValue(p.Id, out var mapOriginal) && mapOriginal.Furniture != p.Furniture) return "Нельзя подменить предмет шаблона.";
+            if (furniture.ExistingOnly && (!mapped.TryGetValue(p.Id, out var existing) || existing.Furniture != p.Furniture))
+                return "Нельзя копировать исходный интерьер.";
             var unchangedMapPlacement = mapped.TryGetValue(p.Id, out var baseline) && p.SameAs(baseline);
             counts[furniture.StockKey] = counts.GetValueOrDefault(furniture.StockKey) + 1;
             if (validateStock && counts[furniture.StockKey] > (furniture.ExistingOnly ? 1 : stock?.Invoke(furniture.StockKey) ?? furniture.MaxCount))
@@ -81,6 +82,7 @@ public static class ApartmentLayout
                     return "Предмет пересекается со стеной.";
                 if (furniture.Layer == "Wall" && scene?.Walls.Contains(cell) != true) return "Настенный декор нужно разместить на стене.";
                 if (!unchangedMapPlacement && scene?.Occupied.Contains(cell) == true && (furniture.Layer != "Wall" || !scene.Walls.Contains(cell))) return "Место занято стационарным объектом квартиры.";
+                if (scene?.Restricted.Contains(cell) == true) return "За пределами квартиры нельзя размещать предметы.";
                 if (template.ReservedCells.Contains(cell)) return "Площадку лифта и коридор нельзя занимать мебелью.";
                 if (cell == template.Arrival || scene == null && cell == template.Arrival + new Vector2i(0, 1))
                     return "Площадка прибытия и терминал должны оставаться свободными.";
@@ -106,7 +108,7 @@ public static class ApartmentLayout
             {
                 var next = cell + direction;
                 if (floors != null ? !floors.Contains(next) : next.X < 1 || next.Y < 1 || next.X >= template.Width - 1 || next.Y >= template.Height - 1) continue;
-                if (obstacles.Contains(next) || scene?.Blocked.Contains(next) == true) continue;
+                if (obstacles.Contains(next) || scene?.Blocked.Contains(next) == true || scene?.Restricted.Contains(next) == true) continue;
                 if (result.Add(next)) queue.Enqueue(next);
             }
             return result;

@@ -1,9 +1,12 @@
 using System.Numerics;
+using System.Reflection;
 using Content.Client.UserInterface.Systems.Chat.Controls;
+using Moq;
 using NUnit.Framework;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.IoC;
+using Robust.Shared.ContentPack;
 using Robust.Shared.Maths;
 using Robust.Shared.Utility;
 using Robust.UnitTesting;
@@ -14,8 +17,79 @@ namespace Content.Tests.Client;
 public sealed class ChatControlsTest : RobustUnitTest
 {
     public override UnitTestProject Project => UnitTestProject.Client;
+
+    protected override void OverrideIoC()
+    {
+        base.OverrideIoC();
+        var loader = new Mock<IModLoader>();
+        loader.Setup(mod => mod.IsContentAssembly(typeof(TestPopup).Assembly)).Returns(true);
+        IoCManager.RegisterInstance<IModLoader>(loader.Object, overwrite: true);
+    }
+
     [OneTimeSetUp]
     public void InitializeUi() => IoCManager.Resolve<IUserInterfaceManager>().InitializeTesting();
+
+    [TestCase(800, 600, 770, 570, false)]
+    [TestCase(800, 600, 4, 570, false)]
+    [TestCase(800, 600, 770, 4, false)]
+    [TestCase(800, 600, 400, 570, false)]
+    [TestCase(480, 400, 450, 370, false)]
+    [TestCase(800, 600, 770, 570, true)]
+    public void ChatPopupsFitAtScreenEdgesAndLeaveTheBottomToggleAccessible(
+        int width, int height, int x, int y, bool selector)
+    {
+        var button = new PopupButton { Selector = selector };
+        var popup = button.Popup;
+        popup.AddChild(new Control { MinSize = new Vector2(360, 320) });
+        var container = popup.Parent!;
+        var screenSize = new Vector2(width, height);
+        var screenBox = UIBox2.FromDimensions(Vector2.Zero, screenSize);
+        button.Arrange(UIBox2.FromDimensions(new Vector2(x, y), new Vector2(30)));
+        container.Measure(screenSize);
+        container.Arrange(screenBox);
+
+        try
+        {
+            button.Toggle(true);
+            container.Measure(screenSize);
+            container.Arrange(screenBox);
+            Assert.Multiple(() =>
+            {
+                Assert.That(popup.Visible, Is.True);
+                Assert.That(popup.Width, Is.EqualTo(360));
+                Assert.That(popup.Height, Is.EqualTo(320));
+                Assert.That(popup.Position.X, Is.GreaterThanOrEqualTo(0));
+                Assert.That(popup.Position.X + popup.Width, Is.LessThanOrEqualTo(width));
+                Assert.That(popup.Position.Y, Is.GreaterThanOrEqualTo(0));
+                Assert.That(popup.Position.Y + popup.Height, Is.LessThanOrEqualTo(height));
+                if (y > height / 2)
+                    Assert.That(popup.Position.Y + popup.Height, Is.LessThanOrEqualTo(y));
+            });
+
+            button.Toggle(false);
+            Assert.That(popup.Visible, Is.False);
+        }
+        finally
+        {
+            popup.Close();
+            popup.Orphan();
+        }
+    }
+
+    public sealed class TestPopup : Popup;
+
+    private sealed class PopupButton : ChatPopupButton<TestPopup>
+    {
+        public bool Selector;
+
+        public void Toggle(bool pressed) => typeof(ChatPopupButton<TestPopup>)
+            .GetMethod("OnButtonToggled", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(this, new object[] { new BaseButton.ButtonToggledEventArgs(pressed, this, null!) });
+
+        protected override UIBox2 GetPopupPosition() => UIBox2.FromDimensions(
+            Selector ? GlobalPosition + new Vector2(0, Height) : GlobalPosition - new Vector2(120, 0),
+            Vector2.Zero);
+    }
 
     [Test]
     public void WheelAndBrightnessApplyOnEachChange()

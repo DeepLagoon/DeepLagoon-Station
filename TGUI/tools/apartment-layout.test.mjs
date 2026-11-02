@@ -53,12 +53,12 @@ test('map scene allows existing disconnected rooms but forbids new barriers in t
   assert.match(validateLayout([item('a', 'box', 2, 1)], mapped).general, /проход/);
 });
 
-test('mapped originals can move without consuming stock but cannot be removed or cloned', () => {
+test('mapped originals can move or enter storage without being cloned', () => {
   const mapped = { ...room, maxFurniture: 0, catalog: [...room.catalog,
     { id: 'map_73', placementId: 'map_73', width: 1, height: 1, maxCount: 1, existingOnly: true, blocksMovement: false, originalX: 4, originalY: 4, originalRotation: 0 }] };
   const original = item('map_73', 'map_73', 3, 4, 1);
   assert.deepEqual(validateLayout([original], mapped), {});
-  assert.match(validateLayout([], mapped).general, /удалять/);
+  assert.deepEqual(validateLayout([], mapped), {});
   assert.match(validateLayout([original, { ...original, id: 'clone', x: 5 }], mapped).clone, /экземпляров|копировать/);
 });
 
@@ -72,4 +72,12 @@ test('fixed-orientation mapped appliances cannot be rotated', () => {
   const mapped = { ...room, catalog: [{ id: 'fridge', placementId: 'map_77', width: 1, height: 1, maxCount: 1, existingOnly: true, canRotate: false, blocksMovement: false, originalX: 4, originalY: 4, originalRotation: 0 }] };
   assert.deepEqual(validateLayout([item('map_77', 'fridge', 3, 4)], mapped), {});
   assert.match(validateLayout([item('map_77', 'fridge', 3, 4, 1)], mapped).map_77, /нельзя поворачивать/);
+});
+
+
+test('stored fixed-orientation fixtures retain their authored rotation', () => {
+  const mapped = { ...room, catalog: [{ id: 'lamp', placementId: 'map_lamp', width: 1, height: 1, maxCount: 1,
+    existingOnly: true, canRotate: false, allowsOverlap: true, blocksMovement: false, originalX: 4, originalY: 4, originalRotation: 2 }] };
+  assert.deepEqual(validateLayout([item('map_lamp', 'lamp', 3, 4, 2)], mapped), {});
+  assert.match(validateLayout([item('map_lamp', 'lamp', 3, 4, 0)], mapped).map_lamp, /нельзя поворачивать/);
 });

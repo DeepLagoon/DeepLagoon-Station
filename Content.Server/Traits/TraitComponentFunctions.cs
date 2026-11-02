@@ -72,6 +72,7 @@ public sealed partial class TraitCyberneticLimbReplacement : TraitFunction
     [DataField] public BodyPartSymmetry PartSymmetry = BodyPartSymmetry.Left;
     [DataField(required: true)] public EntProtoId ProtoId;
     [DataField(required: true)] public string SlotId = "";
+    [DataField] public bool PreserveAppearance;
 
     public override void OnPlayerSpawn(EntityUid uid, IComponentFactory factory,
         IEntityManager entityManager, ISerializationManager serializationManager)
@@ -84,10 +85,16 @@ public sealed partial class TraitCyberneticLimbReplacement : TraitFunction
         {
             if (part.Component.Symmetry != PartSymmetry) continue;
             var limb = entityManager.SpawnEntity(ProtoId, entityManager.GetComponent<TransformComponent>(uid).Coordinates);
+            var appearanceSystem = entityManager.System<TraitLimbAppearanceSystem>();
+            var appearance = PreserveAppearance ? appearanceSystem.CaptureAppearance(part.Id) : null;
             entityManager.System<SharedTransformSystem>().AttachToGridOrMap(part.Id);
             if (entityManager.TryGetComponent(limb, out BodyPartComponent? replacement)
                 && bodySystem.AttachPart(root.Value.Entity, SlotId, limb, root.Value.BodyPart, replacement))
+            {
+                if (appearance != null)
+                    appearanceSystem.ApplyAppearance(limb, appearance);
                 entityManager.QueueDeleteEntity(part.Id);
+            }
             else
             {
                 entityManager.QueueDeleteEntity(limb);

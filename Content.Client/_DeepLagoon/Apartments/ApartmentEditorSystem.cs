@@ -100,6 +100,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
             .Number("maxFurniture", ApartmentLayout.SafetyLimit).Number("arrivalX", Template.Arrival.X).Number("arrivalY", Template.Arrival.Y)
             .Array("reservedCells", Template.ReservedCells.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
             .Array("layout", _state.Layout.Select(PlacementData))
+            .Array("stored", _state.Stored.Select(PlacementData))
             .Array("catalog", Template.Catalog.Select(id => Catalog(id)!).Where(item => item.Price >= 0).Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
             {
                 var mapped = _state.MapFurniture.FirstOrDefault(entry => entry.Baseline.Furniture == item.ID);
@@ -119,6 +120,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
         {
             var walls = new TguiWallImages(_images, scene.Objects, _prototypes);
             data.Object("scene", new TguiData().Number("x", scene.X).Number("y", scene.Y)
+                .Array("restricted", scene.Restricted.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("walls", scene.Walls.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("tiles", scene.Tiles.Select(tile => new TguiData().Number("x", tile.X).Number("y", tile.Y)))
                 .Array("objects", scene.Objects.Select(item =>
@@ -250,7 +252,7 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
 public sealed class ApartmentEditorWindow : FancyWindow
 {
     public override void Close() { if (Panel.CanCloseNative()) base.Close(); }
-    public readonly TguiPanel Panel = new();
+    public readonly TguiPanel Panel = new(forceTgui: true);
     public ApartmentEditorWindow()
     {
         Title = "Обустройство квартиры";

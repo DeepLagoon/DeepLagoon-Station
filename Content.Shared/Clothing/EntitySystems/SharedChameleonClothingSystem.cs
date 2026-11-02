@@ -28,6 +28,7 @@ public abstract partial class SharedChameleonClothingSystem : EntitySystem
         SubscribeLocalEvent<ChameleonClothingComponent, GotEquippedEvent>(OnGotEquipped);
         SubscribeLocalEvent<ChameleonClothingComponent, GotUnequippedEvent>(OnGotUnequipped);
         SubscribeLocalEvent<ChameleonClothingComponent, GetVerbsEvent<InteractionVerb>>(OnVerb);
+        SubscribeLocalEvent<ChameleonClothingComponent, GetVerbsEvent<AlternativeVerb>>(OnVariantVerb);
     }
 
     private void OnGotEquipped(EntityUid uid, ChameleonClothingComponent component, GotEquippedEvent args)
@@ -75,6 +76,8 @@ public abstract partial class SharedChameleonClothingSystem : EntitySystem
             _clothingSystem.CopyVisuals(uid, otherClothing, clothing);
         }
 
+        ApplyCopiedAppearance(uid, component, proto);
+
         // appearance data logic
         if (TryComp(uid, out AppearanceComponent? appearance) &&
             proto.TryGetComponent("Appearance", out AppearanceComponent? appearanceOther))
@@ -82,6 +85,9 @@ public abstract partial class SharedChameleonClothingSystem : EntitySystem
             _appearance.AppendData(appearanceOther, uid);
             Dirty(uid, appearance);
         }
+
+        AfterUpdateVisuals(uid, component);
+        _itemSystem.VisualsChanged(uid);
 
         // properly mark contraband
         if (proto.TryGetComponent("Contraband", out ContrabandComponent? contra))
@@ -112,6 +118,7 @@ public abstract partial class SharedChameleonClothingSystem : EntitySystem
     }
 
     protected virtual void UpdateSprite(EntityUid uid, EntityPrototype proto) { }
+    protected virtual void AfterUpdateVisuals(EntityUid uid, ChameleonClothingComponent component) { }
 
     /// <summary>
     ///     Check if this entity prototype is valid target for chameleon item.

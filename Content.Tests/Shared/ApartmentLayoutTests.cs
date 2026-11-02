@@ -30,7 +30,7 @@ public sealed class ApartmentLayoutTests
     }
 
     [Test]
-    public void MappedFurnitureMovesPersistWithoutCloningOrDeletingTheOriginal()
+    public void MappedFurnitureMovesOrStoresWithoutCloningTheOriginal()
     {
         var template = Template();
         var original = new ApartmentPlacement { Id = "map_73", Furniture = "map_73", X = 5, Y = 5 };
@@ -43,7 +43,10 @@ public sealed class ApartmentLayoutTests
         Assert.That(delta.Changed.Single().Id, Is.EqualTo(original.Id));
         Assert.That(delta.Added, Is.Empty);
         Assert.That(ApartmentLayout.Resolve(template, delta, new[] { original }).Last().SameAs(layout.Last()), Is.True);
-        Assert.That(ApartmentLayout.Validate(template, layout.Take(1).ToArray(), Definitions, mapFurniture: new[] { original }), Does.Contain("нельзя удалять"));
+        Assert.That(ApartmentLayout.Validate(template, layout.Take(1).ToArray(), Definitions, mapFurniture: new[] { original }), Is.Null);
+        var stored = ApartmentLayout.Diff(template, layout.Take(1).ToArray(), 2, new[] { original });
+        Assert.That(stored.Removed, Does.Contain(original.Id));
+        Assert.That(ApartmentLayout.Resolve(template, stored, new[] { original }).Any(p => p.Id == original.Id), Is.False);
         definition.CanRotate = false;
         Assert.That(ApartmentLayout.Validate(template, layout, Definitions, mapFurniture: new[] { original }), Does.Contain("нельзя поворачивать"));
         definition.CanRotate = true;

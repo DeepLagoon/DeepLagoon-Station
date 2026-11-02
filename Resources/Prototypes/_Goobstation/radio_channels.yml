@@ -1,7 +1,7 @@
 ﻿- type: radioChannel
   id: Future
   name: chat-radio-future
-  keycode: 'q'
+  keycode: 'д'
   frequency: 9999
   color: "#91E8E5"
   longRange: true
@@ -9,7 +9,7 @@
 - type: radioChannel
   id: RadioShow
   name: chat-radio-radioshow
-  keycode: '2'
+  keycode: 'щ'
   frequency: 1285
   color: "#bc1ac4"
   longRange: true

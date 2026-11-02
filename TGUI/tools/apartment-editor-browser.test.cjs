@@ -4,6 +4,8 @@ const path = require('node:path');
 const http = require('node:http');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const resources = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
+const screenshots = process.env.APARTMENT_EDITOR_OUTPUT_DIRECTORY || path.resolve(__dirname, '../../.local/codex/apartment-interior');
+fs.mkdirSync(screenshots, { recursive: true });
 const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT || path.resolve(__dirname, '../../.local/codex/apartment-interior/apartment-room-preview.json'), 'utf8'));
 
 (async () => {
@@ -63,7 +65,7 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
       const cell = await page.locator('[data-cell]').first().boundingBox();
       assert.ok(Math.abs(cell.width - cell.height) < 1);
       assert.ok(await page.locator('.ApartmentEditor__viewport').evaluate(node => node.clientHeight) > 40);
-      await page.screenshot({ path: path.resolve(__dirname, `../../.local/codex/apartment-interior/apartment-${size.width}x${size.height}.png`) });
+      await page.screenshot({ path: path.join(screenshots, `apartment-${size.width}x${size.height}.png`) });
     }
     await page.getByRole('button', { name: 'Сетка', exact: true }).click();
     assert.equal(await page.locator('.ApartmentEditor__plan.grid').count(), 0);
@@ -71,7 +73,7 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     assert.equal(await page.locator('.ApartmentEditor__plan.grid').count(), 1);
     const rect = await page.locator('.ApartmentEditor__plan').boundingBox();
     assert.ok(Math.abs(rect.width / rect.height - data.width / data.height) < .01);
-    await page.screenshot({ path: path.resolve(__dirname, '../../.local/codex/apartment-interior/apartment-editor.png') });
+    await page.screenshot({ path: path.join(screenshots, 'apartment-editor.png') });
     const fixed = new Set(data.scene.occupied.map(cell => `${cell.x},${cell.y}`));
     const reserved = new Set(data.reservedCells.map(cell => `${cell.x},${cell.y}`));
     const free = data.scene.tiles.filter(cell => !fixed.has(`${cell.x},${cell.y}`) && !reserved.has(`${cell.x},${cell.y}`) && !data.layout.some(item => item.x === cell.x && item.y === cell.y) && (cell.x !== data.arrivalX || cell.y !== data.arrivalY));
@@ -79,7 +81,7 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     const original = data.layout.find(item => item.id === mapped.placementId);
     await page.getByRole('button', { name: 'Исходный интерьер', exact: true }).click();
     await page.locator(`[data-existing="${mapped.id}"]`).click();
-    assert.equal(await page.getByRole('button', { name: 'Убрать · Delete', exact: true }).isDisabled(), true);
+    assert.equal(await page.getByRole('button', { name: 'Убрать · Delete', exact: true }).isDisabled(), false);
     await page.getByRole('button', { name: 'Увеличить масштаб', exact: true }).click();
     const enlarged = await page.locator('.ApartmentEditor__plan').boundingBox();
     assert.ok(enlarged.width > rect.width);
@@ -106,9 +108,9 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     const panBox = await viewport.boundingBox();
     const previousScroll = await viewport.evaluate(node => ({ x: node.scrollLeft, y: node.scrollTop }));
     await page.mouse.move(panBox.x + panBox.width / 2, panBox.y + panBox.height / 2);
-    await page.mouse.down({ button: 'right' });
+    await page.mouse.down({ button: 'middle' });
     await page.mouse.move(panBox.x + panBox.width / 2 + 50, panBox.y + panBox.height / 2 + 35, { steps: 5 });
-    await page.mouse.up({ button: 'right' });
+    await page.mouse.up({ button: 'middle' });
     const nextScroll = await viewport.evaluate(node => ({ x: node.scrollLeft, y: node.scrollTop }));
     assert.ok(Math.abs(previousScroll.x - nextScroll.x - 50) < 2 && Math.abs(previousScroll.y - nextScroll.y - 35) < 2);
     assert.equal(await page.locator('.ApartmentEditor footer .primary').isDisabled(), true);
@@ -120,8 +122,22 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     assert.ok(Math.abs(movedBox.x - cellBox.x) < 3 && Math.abs(movedBox.y - cellBox.y) < 3);
     assert.equal(await page.locator('.ApartmentEditor__ghost.invalid').count(), 0);
     assert.equal(await page.locator('.ApartmentEditor footer .primary').isEnabled(), true);
-    await page.keyboard.press('Delete');
+    await page.locator(`[data-placement="${original.id}"]`).click({ button: 'right' });
+    const menu = page.getByRole('dialog', { name: 'Предметы на клетке', exact: true });
+    await menu.waitFor();
+    await page.screenshot({ path: path.join(screenshots, "context-menu.png") });
+    assert.ok(await menu.getByRole('listitem').count() >= 1);
+    assert.equal(await menu.locator('.remove').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(150, 44, 60)');
+    assert.equal(await menu.locator('.move').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(29, 87, 144)');
+    await menu.getByRole('button', { name: 'Убрать', exact: true }).click();
+    assert.equal(await page.locator(`[data-placement="${original.id}"]`).count(), 0);
+    await page.getByRole('button', { name: /^Хранилище/ }).click();
+    await page.screenshot({ path: path.join(screenshots, 'storage.png') });
+    await page.locator(`[data-stored="${original.id}"]`).click();
+    await page.locator(`[data-cell="${free[0].x},${free[0].y}"]`).click();
     assert.equal(await page.locator(`[data-placement="${original.id}"]`).count(), 1);
+    await page.getByRole('button', { name: 'Отменить', exact: true }).click();
+    await page.getByRole('button', { name: 'Отменить', exact: true }).click();
     await page.getByRole('button', { name: 'Отменить', exact: true }).click();
     assert.equal(await page.locator('.ApartmentEditor footer .primary').isDisabled(), true);
     await page.getByRole('button', { name: 'Все', exact: true }).click();
@@ -135,7 +151,7 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     await page.getByRole('button', { name: 'Сбросить изменения', exact: true }).click();
     await page.getByRole('button', { name: 'Уместить', exact: true }).click();
     await checkFit();
-    await page.screenshot({ path: path.resolve(__dirname, '../../.local/codex/apartment-interior/apartment-editor.png') });
+    await page.screenshot({ path: path.join(screenshots, 'apartment-editor.png') });
     assert.deepEqual(errors, []);
     console.log(`PASS: real apartment snapshot, ${data.scene.tiles.length} tiles, ${data.scene.objects.length} fixtures, responsive square grid at 620x440 through 1920x1080, resize/zoom/pan, original furniture movement, undo and protected fixtures`);
   } finally {

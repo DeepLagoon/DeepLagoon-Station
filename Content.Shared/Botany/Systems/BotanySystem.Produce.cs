@@ -6,6 +6,7 @@ using Content.Shared.FixedPoint;
 using Content.Shared.Random.Helpers;
 using JetBrains.Annotations;
 using Robust.Shared.Map;
+using Robust.Shared.Network;
 using Robust.Shared.Random;
 
 namespace Content.Shared.Botany.Systems;
@@ -23,6 +24,7 @@ public sealed partial class BotanySystem
     }
 
     [Dependency] private SharedEntityEffectsSystem _entityEffects = default!;
+    [Dependency] private INetManager _net = default!;
 
     private void OnProduceExamined(Entity<ProduceComponent> ent, ref ExaminedEvent args)
     {
@@ -45,6 +47,10 @@ public sealed partial class BotanySystem
 
     private void ProduceGrown(Entity<ProduceComponent> ent)
     {
+        // Solution entities are created on the server and do not exist on predicted produce yet.
+        if (_net.IsClient)
+            return;
+
         if (!TryGetPlantComponent<PlantComponent>(ent.Comp.PlantData, ent.Comp.PlantProtoId, out var plant)
             || !TryGetPlantComponent<PlantChemicalsComponent>(ent.Comp.PlantData, ent.Comp.PlantProtoId, out var chems))
             return;

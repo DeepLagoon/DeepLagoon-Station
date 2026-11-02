@@ -22,7 +22,7 @@ public sealed partial class ApartmentSystem
     private IEnumerable<ApartmentMapFurniture> EditableMapFurniture(Instance instance) => instance.MapFurniture.Values.Where(item =>
         instance.Furniture.TryGetValue(item.Baseline.Id, out var entity) && Exists(entity) && Transform(entity).ParentUid == instance.Grid);
 
-    private IEnumerable<ApartmentPlacement> MapBaseline(Instance instance) => EditableMapFurniture(instance).Select(item => item.Baseline);
+    private IEnumerable<ApartmentPlacement> MapBaseline(Instance instance) => instance.MapFurniture.Values.Select(item => item.Baseline);
 
     private ApartmentFurniturePrototype? Catalog(Instance instance, string id) =>
         instance.MapFurniture.TryGetValue(id, out var mapped) ? mapped.Definition() : Catalog(id);
@@ -32,25 +32,27 @@ public sealed partial class ApartmentSystem
 
     private void RegisterMapFurniture(Instance instance)
     {
+        instance.Shell = ApartmentShell(instance);
         var children = Transform(instance.Grid).ChildEnumerator;
         while (children.MoveNext(out var uid))
         {
             var transform = Transform(uid);
             var cell = new Vector2i((int) MathF.Floor(transform.LocalPosition.X), (int) MathF.Floor(transform.LocalPosition.Y));
-            if (!transform.Anchored || !TryComp<YamlUidComponent>(uid, out var yaml) ||
-                HasComp<DoorComponent>(uid) || HasComp<ApartmentTerminalComponent>(uid) || HasComp<ApartmentElevatorComponent>(uid) ||
-                IsWallFixture(uid) || _tags.HasTag(uid, "Wall") ||
-                instance.Template.ReservedCells.Contains(cell) || cell == instance.Template.Arrival) continue;
+            if (HasComp<ApartmentFurnitureIdentityComponent>(uid) ||
+                HasComp<ApartmentElevatorComponent>(uid) || HasComp<ActorComponent>(uid) ||
+                HasComp<Content.Shared.Mobs.Components.MobStateComponent>(uid) || IsApartmentShell(instance, uid, cell) ||
+                instance.Exterior.Contains(cell) || instance.Template.ReservedCells.Contains(cell) || cell == instance.Template.Arrival) continue;
             var metadata = MetaData(uid);
-            if (metadata.EntityPrototype is not { } prototype || prototype.Components.ContainsKey("PoweredLight") || prototype.Components.ContainsKey("Window")) continue;
-            var id = "map_" + yaml.Uid;
+            if (metadata.EntityPrototype is not { } prototype || prototype.Components.ContainsKey("TimedDespawn")) continue;
+            var id = "map_" + (TryComp<YamlUidComponent>(uid, out var yaml) ? yaml.Uid.ToString() : GetNetEntity(uid).ToString());
+            if (instance.MapFurniture.ContainsKey(id)) id = "map_" + Guid.NewGuid().ToString("N");
             instance.MapFurniture.Add(id, new ApartmentMapFurniture
             {
                 Baseline = new ApartmentPlacement { Id = id, Furniture = id, X = cell.X, Y = cell.Y,
                     Rotation = ((int) MathF.Round((float) transform.LocalRotation.Degrees / 90) % 4 + 4) % 4 },
                 Prototype = prototype.ID, Name = metadata.EntityName,
                 BlocksMovement = TryComp<PhysicsComponent>(uid, out var physics) && physics.CanCollide && physics.Hard && (physics.CollisionLayer & (int) CollisionGroup.Impassable) != 0 && !HasComp<ItemComponent>(uid),
-                AllowsOverlap = HasComp<ItemComponent>(uid) || prototype.Components.ContainsKey("Microwave"),
+                AllowsOverlap = HasComp<ItemComponent>(uid) || IsWallFixture(uid) || prototype.Components.ContainsKey("Microwave"),
                 CanRotate = !transform.NoLocalRotation
             });
             instance.Furniture.Add(id, uid);
@@ -62,10 +64,15 @@ public sealed partial class ApartmentSystem
     private void MoveMapFurniture(Instance instance, ApartmentPlacement placement)
     {
         var entity = instance.Furniture[placement.Id];
+        if (TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) && identity.Stored)
+        {
+            _containers.Remove(entity, FurnitureStorage(instance), force: true);
+            identity.Stored = false;
+        }
         _transform.Unanchor(entity);
         _transform.SetCoordinates(entity, new EntityCoordinates(instance.Grid, new Vector2(placement.X + .5f, placement.Y + .5f)));
         _transform.SetLocalRotation(entity, Angle.FromDegrees(placement.Rotation * 90));
-        _transform.AnchorEntity(entity);
+        if (!HasComp<ItemComponent>(entity)) _transform.AnchorEntity(entity);
     }
 
     private List<ApartmentPlacement> CurrentLayout(Instance instance)
@@ -75,7 +82,7 @@ public sealed partial class ApartmentSystem
             .Concat(instance.Delta.Added).Concat(instance.Delta.Changed).GroupBy(item => item.Id).ToDictionary(group => group.Key, group => group.Last());
         foreach (var (id, entity) in instance.Furniture)
         {
-            if (!Exists(entity)) continue;
+            if (!Exists(entity) || TryComp<ApartmentFurnitureIdentityComponent>(entity, out var storedIdentity) && storedIdentity.Stored) continue;
             var transform = Transform(entity);
             if (transform.ParentUid != instance.Grid) continue;
             var furniture = TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) && identity.Furniture.Length > 0
@@ -100,6 +107,7 @@ public sealed partial class ApartmentSystem
             Width = Math.Max(1, (int) MathF.Ceiling(bounds.Right) - (int) MathF.Floor(bounds.Left)),
             Height = Math.Max(1, (int) MathF.Ceiling(bounds.Top) - (int) MathF.Floor(bounds.Bottom))
         };
+        scene.Restricted.UnionWith(instance.Exterior);
         foreach (var tile in _map.GetAllTiles(instance.Grid, grid))
             scene.Tiles.Add(new GridEditorItem { Id = $"t:{tile.GridIndices.X}:{tile.GridIndices.Y}", Kind = "tile",
                 X = tile.GridIndices.X, Y = tile.GridIndices.Y, Prototype = _tiles[tile.Tile.TypeId].ID,

@@ -1,4 +1,4 @@
-﻿using Content.Server.Xenoarchaeology.XenoArtifacts.Effects.Components;
+using Content.Server.Xenoarchaeology.XenoArtifacts.Effects.Components;
 using Content.Server.Xenoarchaeology.XenoArtifacts.Events;
 using Content.Shared.Popups;
 using Robust.Shared.Player;
@@ -23,6 +23,8 @@ public sealed partial class RandomTeleportArtifactSystem : EntitySystem
         var xform = Transform(uid);
         _popup.PopupCoordinates(Loc.GetString("blink-artifact-popup"), xform.Coordinates, PopupType.Medium);
 
-        _xform.SetCoordinates(uid, xform, xform.Coordinates.Offset(_random.NextVector2(component.MinRange, component.MaxRange)));
+        var target = xform.Coordinates.Offset(_random.NextVector2(component.MinRange, component.MaxRange));
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(uid, target)) return;
+        _xform.SetCoordinates(uid, xform, target);
     }
 }

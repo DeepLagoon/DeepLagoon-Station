@@ -29,6 +29,7 @@ using Content.Shared.Verbs;
 using Robust.Server.Player;
 using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
+using Robust.Shared.Containers;
 using Robust.Shared.Enums;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
@@ -68,6 +69,8 @@ public sealed partial class ApartmentSystem : EntitySystem
         public required ApartmentDelta Delta;
         public readonly Dictionary<string, EntityUid> Furniture = new();
         public readonly Dictionary<string, ApartmentMapFurniture> MapFurniture = new();
+        public HashSet<Vector2i> Shell = new();
+        public HashSet<Vector2i> Exterior = new();
         public required ApartmentGuestAccess Guests;
         public bool Frozen;
         public TimeSpan IdleSince;
@@ -80,7 +83,9 @@ public sealed partial class ApartmentSystem : EntitySystem
         public required EntityCoordinates Return;
         public bool ResidentialTransit;
         public readonly List<(EntityUid Item, string? Slot, string? Hand)> Gear = new();
-        public EntityUid? Uniform;
+        public Container? Escrow;
+        public readonly HashSet<EntityUid> TemporaryGear = new();
+        public readonly Dictionary<string, Content.Shared.Clothing.Components.ChameleonClothingAppearance> ClothingAppearances = new();
     }
 
     [Dependency] private MapLoaderSystem _mapLoader = default!;
@@ -99,6 +104,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     private IApartmentLayoutStore? _store;
     private EntityUid _activeMap;
     private EntityUid _sleepMap;
+    private EntityUid _escrowMap;
     private TimeSpan _nextUpdate;
     private const int ApartmentGap = 2;
     private const int ApartmentRowWidth = 192;
@@ -121,6 +127,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         SubscribeNetworkEvent<ApartmentActionEvent>(OnAction);
         SubscribeLocalEvent<ApartmentTerminalComponent, GetVerbsEvent<AlternativeVerb>>(OnVerbs);
         SubscribeLocalEvent<ApartmentResidentComponent, BeforeDamageChangedEvent>(OnDamage);
+        SubscribeLocalEvent<ApartmentChameleonGearComponent, GridUidChangedEvent>(OnChameleonGridChanged);
         SubscribeLocalEvent<ApartmentGridComponent, MassDataChangedEvent>(OnGridMassChanged, after: new[] { typeof(AutomaticAtmosSystem) });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => Cleanup());
         SubscribeLocalEvent<RoundEndedEvent>(_ => SaveApartments(true));
@@ -175,11 +182,15 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (Exists(_activeMap)) return;
         _activeMap = CreateResidentialMap(false);
         _sleepMap = CreateResidentialMap(true);
+        // Keep escrow away from sleeping grids: grid traversal can adopt loose
+        // map children when an apartment moves over them, then wake/move them too.
+        _escrowMap = CreateResidentialMap(true);
     }
 
     private EntityUid CreateResidentialMap(bool paused)
     {
         var uid = _map.CreateMap(out var id);
+        EnsureComp<ApartmentIsolationComponent>(uid);
         _map.SetAmbientLight(id, Color.White);
         var gravity = EnsureComp<GravityComponent>(uid);
         gravity.Enabled = gravity.Inherent = true;
@@ -231,10 +242,12 @@ public sealed partial class ApartmentSystem : EntitySystem
             EnsureComp<ApartmentResidentComponent>(body);
             _transform.SetCoordinates(body, ArrivalCoordinates(instance, spawnAtBed));
             _visits.Add(session.UserId, visit);
+            IssueChameleonGear(visit);
         }
         catch (Exception e)
         {
             Log.Error($"Apartment entry failed: {e}");
+            _visits.Remove(session.UserId);
             RemComp<ApartmentResidentComponent>(body);
             if (originalCoordinates.IsValid(EntityManager)) _transform.SetCoordinates(body, originalCoordinates);
             RestoreGear(visit);
@@ -358,6 +371,8 @@ public sealed partial class ApartmentSystem : EntitySystem
                     if (!item.SameAs(mapped.Baseline)) MoveMapFurniture(instance, item);
                 }
                 else instance.Furniture[item.Id] = SpawnFurniture(item, grid);
+            foreach (var id in delta.Removed)
+                if (instance.Furniture.TryGetValue(id, out var removed) && Exists(removed)) StoreFurniture(instance, removed);
             return instance;
         }
         catch { Del(grid); throw; }
@@ -439,8 +454,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         { message = "Точка возвращения недоступна. Обратитесь к администратору."; return false; }
         if (TryComp<BuckleComponent>(visit.Body, out var buckle) && buckle.Buckled)
         { message = "Сначала встаньте с сиденья."; return false; }
-        // Delete only the temporary clothes we issued; never clone or delete deposited gear.
-        if (visit.Uniform is { } uniform && Exists(uniform)) Del(uniform);
+        RemoveChameleonGear(visit);
         _transform.SetCoordinates(visit.Body, visit.Return);
         RemComp<ApartmentResidentComponent>(visit.Body);
         RestoreGear(visit);
@@ -454,6 +468,11 @@ public sealed partial class ApartmentSystem : EntitySystem
     private void DepositGear(Visit visit)
     {
         var body = visit.Body;
+        // Loose items on the sleep map can still be processed by a cleanup queue
+        // populated before they were paused. Give each visitor a private container,
+        // independent of the apartment owner and of the apartment grid's lifetime.
+        var escrow = Spawn(null, new EntityCoordinates(_escrowMap, Vector2.Zero));
+        visit.Escrow = _containers.EnsureContainer<Container>(escrow, "apartment-gear");
         if (TryComp<PullerComponent>(body, out var puller) && puller.Pulling is { } pulled && TryComp<PullableComponent>(pulled, out var pulledComp)) _pulling.TryStopPull(pulled, pulledComp);
         if (TryComp<PullableComponent>(body, out var bodyPullable)) _pulling.TryStopPull(body, bodyPullable);
         if (TryComp<InventoryComponent>(body, out var inventory))
@@ -461,13 +480,18 @@ public sealed partial class ApartmentSystem : EntitySystem
             // Unequipping a suit may also drop its dependent slots. Snapshot before any mutation.
             var equipped = new List<(EntityUid Item, string Slot)>();
             foreach (var slot in inventory.Slots)
-                if (_inventory.TryGetSlotEntity(body, slot.Name, out var item)) equipped.Add((item.Value, slot.Name));
+                if (_inventory.TryGetSlotEntity(body, slot.Name, out var item))
+                {
+                    equipped.Add((item.Value, slot.Name));
+                    if (_apartmentChameleon.CaptureAppearance(item.Value) is { } appearance)
+                        visit.ClothingAppearances[slot.Name] = appearance;
+                }
             foreach (var (item, slot) in equipped)
             {
                 if (_inventory.TryGetSlotEntity(body, slot, out var current) && current == item &&
                     !_inventory.TryUnequip(body, slot, out _, silent: true, force: true)) throw new InvalidOperationException("Cannot deposit equipped item.");
                 visit.Gear.Add((item, slot, null));
-                _transform.SetCoordinates(item, new EntityCoordinates(_sleepMap, Vector2.Zero));
+                if (!_containers.Insert(item, visit.Escrow)) throw new InvalidOperationException("Cannot store equipped item.");
             }
         }
         if (TryComp<HandsComponent>(body, out var hands))
@@ -476,28 +500,26 @@ public sealed partial class ApartmentSystem : EntitySystem
             if (hand.HeldEntity is not { } item) continue;
             if (!_hands.TryDrop(body, hand, checkActionBlocker: false, doDropInteraction: false)) throw new InvalidOperationException("Cannot deposit held item.");
             visit.Gear.Add((item, null, name));
-            _transform.SetCoordinates(item, new EntityCoordinates(_sleepMap, Vector2.Zero));
-        }
-        // Preserve species-specific organs/implants; the prototype is restricted to local HOST testing.
-        if (_inventory.HasSlot(body, "jumpsuit"))
-        {
-            var uniform = Spawn("ClothingUniformJumpsuitColorGrey", Transform(body).Coordinates);
-            visit.Uniform = uniform;
-            if (!_inventory.TryEquip(body, uniform, "jumpsuit", silent: true, force: true)) Del(uniform);
+            if (!_containers.Insert(item, visit.Escrow)) throw new InvalidOperationException("Cannot store held item.");
         }
     }
 
     private void RestoreGear(Visit visit)
     {
-        if (visit.Uniform is { } uniform && Exists(uniform)) Del(uniform);
+        RemoveChameleonGear(visit);
         foreach (var (item, slot, hand) in visit.Gear)
         {
             if (!Exists(item)) continue;
-            _transform.SetCoordinates(item, Transform(visit.Body).Coordinates);
+            if (visit.Escrow is { } escrow && escrow.Contains(item))
+                _containers.Remove(item, escrow, force: true, destination: Transform(visit.Body).Coordinates);
+            else
+                _transform.SetCoordinates(item, Transform(visit.Body).Coordinates);
             if (slot != null) _inventory.TryEquip(visit.Body, item, slot, silent: true, force: true);
             else _hands.TryPickup(visit.Body, item, hand, checkActionBlocker: false, animate: false);
         }
         visit.Gear.Clear();
+        if (visit.Escrow is { } storage && Exists(storage.Owner)) Del(storage.Owner);
+        visit.Escrow = null;
     }
 
     public bool OpenEditor(ICommonSession session, EntityUid? terminal = null)
@@ -511,12 +533,13 @@ public sealed partial class ApartmentSystem : EntitySystem
             return false;
         }
         if (terminal is { } console && (!HasComp<ApartmentTerminalComponent>(console) || Transform(console).GridUid != instance.Grid)) return false;
+        RegisterMapFurniture(instance);
         var token = Guid.NewGuid();
         _editors[session.UserId] = token;
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
             CurrentLayout(instance), instance.Furniture.Where(p => Exists(p.Value) && Transform(p.Value).ParentUid == instance.Grid)
                 .ToDictionary(p => p.Key, p => GetNetEntity(p.Value)),
-            CaptureRoom(instance), Number(instance.Owner), EditableMapFurniture(instance).ToList(), ownedFurniture: _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
+            CaptureRoom(instance), Number(instance.Owner), EditableMapFurniture(instance).ToList(), ownedFurniture: _economy.Cached(session.UserId)?.State.Furniture.ToArray(), stored: StoredFurniture(instance)), session);
         return true;
     }
 
@@ -565,12 +588,32 @@ public sealed partial class ApartmentSystem : EntitySystem
         var account = _economy.Cached(session.UserId);
         if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance),
                 stock: id => FurnitureCapacity(id, account)) is { } error) return error;
+        // Hidden instances retain their state and consume the same finite stock as placed ones.
+        var physicalStock = instance.Furniture.Values.Where(Exists)
+            .Select(entity => TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) ? Catalog(instance, identity.Furniture) : null)
+            .OfType<ApartmentFurniturePrototype>().Where(item => !item.ExistingOnly).GroupBy(item => item.StockKey)
+            .ToDictionary(group => group.Key, group => group.Count());
+        foreach (var placement in layout.Where(p => !instance.Furniture.TryGetValue(p.Id, out var known) || !Exists(known)))
+        {
+            var definition = Catalog(instance, placement.Furniture)!;
+            if (definition.ExistingOnly) continue;
+            physicalStock[definition.StockKey] = physicalStock.GetValueOrDefault(definition.StockKey) + 1;
+            if (physicalStock[definition.StockKey] > FurnitureCapacity(definition.StockKey, account))
+                return "Запас уже находится в хранилище. Разместите сохранённый предмет из хранилища.";
+        }
         var old = CurrentLayout(instance).ToDictionary(p => p.Id);
-        if (layout.Any(p => old.TryGetValue(p.Id, out var previous) && previous.Furniture != p.Furniture))
+        if (layout.Any(p => old.TryGetValue(p.Id, out var previous) && previous.Furniture != p.Furniture ||
+                instance.Furniture.TryGetValue(p.Id, out var known) && Exists(known) &&
+                TryComp<ApartmentFurnitureIdentityComponent>(known, out var identity) && identity.Furniture != p.Furniture))
             return "Нельзя подменить тип существующей мебели. Сначала удалите старый предмет.";
         var touched = layout.Where(p => !old.TryGetValue(p.Id, out var previous) || !p.SameAs(previous)).ToList();
         if (layout.Any(p => instance.Furniture.TryGetValue(p.Id, out var entity) && Exists(entity) && Transform(entity).ParentUid != instance.Grid))
             return "Перед перестановкой достаньте предмет из контейнера и положите на пол.";
+        if (instance.Furniture.Any(pair => Exists(pair.Value) &&
+                (touched.Any(p => p.Id == pair.Key) || old.ContainsKey(pair.Key) && layout.All(p => p.Id != pair.Key)) &&
+                ApartmentEntities(pair.Value).Prepend(pair.Value).Any(entity => HasComp<ActorComponent>(entity) ||
+                    HasComp<Content.Shared.Mobs.Components.MobStateComponent>(entity))))
+            return "Перед уборкой или перестановкой освободите мебель от живых существ.";
         if (touched.Any(p => instance.Furniture.TryGetValue(p.Id, out var entity) && TryComp<StrapComponent>(entity, out var strap) && strap.BuckledEntities.Count > 0))
             return "Перед перестановкой освободите мебель от пассажиров.";
         if (!lobby && TryComp<BuckleComponent>(visit!.Body, out var buckle) && buckle.Buckled) return "Перед применением встаньте с сиденья.";
@@ -606,19 +649,19 @@ public sealed partial class ApartmentSystem : EntitySystem
         foreach (var (id, entity) in instance.Furniture.ToArray())
             if (old.ContainsKey(id) && layout.All(p => p.Id != id) || !Exists(entity))
             {
-                if (Exists(entity)) { SpillFurnitureContents(entity, instance.Grid); Del(entity); }
-                instance.Furniture.Remove(id);
+                if (Exists(entity)) StoreFurniture(instance, entity);
+                else instance.Furniture.Remove(id);
             }
         foreach (var p in touched)
         {
             if (instance.Furniture.ContainsKey(p.Id)) { MoveMapFurniture(instance, p); continue; }
             var entity = prepared[p.Id];
             _transform.SetCoordinates(entity, new EntityCoordinates(instance.Grid, new Vector2(p.X + .5f, p.Y + .5f)));
-            _transform.AnchorEntity(entity);
+            if (!HasComp<Content.Shared.Item.ItemComponent>(entity)) _transform.AnchorEntity(entity);
             instance.Furniture[p.Id] = entity;
         }
         instance.Delta = delta;
-        SaveApartment(instance);
+        if (!SaveApartment(instance)) return "Не удалось записать полный снимок. Обстановка находится в памяти; откройте редактор заново и повторите сохранение.";
         return null;
     }
 
@@ -671,6 +714,8 @@ public sealed partial class ApartmentSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        RemoveEscapedChameleonGear();
+        ContainResidents();
         if (_timing.RealTime < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0) return;
         _nextUpdate = _timing.RealTime + TimeSpan.FromSeconds(1);
         if (_timing.RealTime >= _nextCheckpoint)
@@ -699,11 +744,13 @@ public sealed partial class ApartmentSystem : EntitySystem
         foreach (var visit in _visits.Values)
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }
+        _escapedChameleonGear.Clear();
         _commerceRequests.Clear();
         _lastShopPreview.Clear();
         _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);
-        _activeMap = _sleepMap = EntityUid.Invalid;
+        if (Exists(_escrowMap)) Del(_escrowMap);
+        _activeMap = _sleepMap = _escrowMap = EntityUid.Invalid;
     }
 }

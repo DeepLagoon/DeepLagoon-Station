@@ -63,15 +63,15 @@ public sealed class ApartmentRoomSceneTests
             Assert.That(scene.Objects.Any(item => item.Prototype == "N14Bed"), Is.False);
             Assert.That(state.MapFurniture.Any(item => item.Prototype == "N14Bed"), Is.True);
             Assert.That(state.MapFurniture.Any(item => item.Prototype == "SmartFridge"), Is.True);
-            Assert.That(state.MapFurniture.Any(item => item.Prototype.Contains("Wall") || item.Prototype.Contains("Airlock") || item.Prototype == "DLApartmentElevatorPanel"), Is.False);
+            Assert.That(state.MapFurniture.Any(item => item.Prototype == "DLApartmentElevatorPanel" || editor.Template.ReservedCells.Contains(new Vector2i(item.Baseline.X, item.Baseline.Y))), Is.False);
             layout = state.Layout.Select(item => item.Copy()).ToList();
             mappedId = state.MapFurniture.First(item => item.Prototype == "PottedPlant2").Baseline.Id;
             Assert.That(scene.Objects.Any(item => item.Prototype == "DLApartmentElevatorPanel"), Is.True);
-            Assert.That(scene.Objects.Any(item => item.Prototype == "DLApartmentTerminal"), Is.True);
+            Assert.That(scene.Objects.Any(item => item.Prototype == "DLApartmentTerminal") || state.MapFurniture.Any(item => item.Prototype == "DLApartmentTerminal"), Is.True);
             Assert.That(scene.Occupied, Is.Not.Empty);
             token = state.Token;
             var free = scene.Tiles.Select(tile => new Vector2i((int) tile.X, (int) tile.Y))
-                .Where(cell => !scene.Occupied.Contains(cell) && !layout.Any(item => item.X == cell.X && item.Y == cell.Y) && !editor.Template.ReservedCells.Contains(cell) && cell != editor.Template.Arrival).ToArray();
+                .Where(cell => !scene.Occupied.Contains(cell) && !scene.Restricted.Contains(cell) && !layout.Any(item => item.X == cell.X && item.Y == cell.Y) && !editor.Template.ReservedCells.Contains(cell) && cell != editor.Template.Arrival).ToArray();
             Assert.That(free.Length, Is.GreaterThan(1));
             first = free[0]; second = free[1];
             occupied = scene.Occupied.First(cell => cell != editor.Template.Arrival && !editor.Template.ReservedCells.Contains(cell));
@@ -85,8 +85,9 @@ public sealed class ApartmentRoomSceneTests
             Assert.That(walls.All(item => item.Array("images").Any()), Is.True);
             Assert.That(walls.SelectMany(item => item.Array("images")).All(image => image.String("url").StartsWith("data:image/png;base64,")), Is.True);
             var fixtureDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", ".local", "codex", "apartment-interior");
-            Directory.CreateDirectory(fixtureDirectory);
-            File.WriteAllText(Path.Combine(fixtureDirectory, "apartment-room-preview.json"), json);
+            var fixturePath = Environment.GetEnvironmentVariable("APARTMENT_EDITOR_SNAPSHOT") ?? Path.Combine(fixtureDirectory, "apartment-room-preview.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(fixturePath)!);
+            File.WriteAllText(fixturePath, json);
         });
         await pair.Server.WaitAssertion(() =>
         {

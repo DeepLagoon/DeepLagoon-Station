@@ -322,6 +322,7 @@ public abstract partial class SharedMagicSystem : EntitySystem
         if (transform.MapID != _transform.GetMapId(args.Target) || !_interaction.InRangeUnobstructed(args.Performer, args.Target, range: 1000F, collisionMask: CollisionGroup.Opaque, popup: true))
             return;
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(args.Performer, args.Target)) return;
         _transform.SetCoordinates(args.Performer, args.Target);
         _transform.AttachToGridOrMap(args.Performer, transform);
         Speak(args);
@@ -336,6 +337,8 @@ public abstract partial class SharedMagicSystem : EntitySystem
         ev.Handled = true;
         Speak(ev);
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(ev.Performer, Transform(ev.Target).Coordinates) ||
+            !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(ev.Target, Transform(ev.Performer).Coordinates)) return;
         _transform.SwapPositions(ev.Performer, ev.Target);
     }
     // End Teleport Spells

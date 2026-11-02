@@ -153,6 +153,8 @@ public sealed partial class SwapTeleporterSystem : EntitySystem
         var teleEnt = GetTeleportingEntity((uid, xform));
         var otherTeleEnt = GetTeleportingEntity((linkedEnt, Transform(linkedEnt)));
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(teleEnt, Transform(otherTeleEnt).Coordinates) ||
+            !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(otherTeleEnt, Transform(teleEnt).Coordinates)) return;
         _container.TryGetOuterContainer(teleEnt, Transform(teleEnt), out var cont);
         _container.TryGetOuterContainer(otherTeleEnt, Transform(otherTeleEnt), out var otherCont);
 

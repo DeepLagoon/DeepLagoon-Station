@@ -9,12 +9,17 @@ namespace Content.Shared.Construction.Steps
 
         [DataField("icon")] public SpriteSpecifier? Icon { get; private set; }
 
+        protected string GetLocalizedName()
+        {
+            return Loc.TryGetString(Name, out var name) ? name : Name;
+        }
+
         public override void DoExamine(ExaminedEvent examinedEvent)
         {
             if (string.IsNullOrEmpty(Name))
                 return;
 
-            examinedEvent.PushMarkup(Loc.GetString("construction-insert-arbitrary-entity", ("stepName", Name)));
+            examinedEvent.PushMarkup(Loc.GetString("construction-insert-arbitrary-entity", ("stepName", GetLocalizedName())));
         }
 
         public override ConstructionGuideEntry GenerateGuideEntry()
@@ -22,7 +27,7 @@ namespace Content.Shared.Construction.Steps
             return new ConstructionGuideEntry
             {
                 Localization = "construction-presenter-arbitrary-step",
-                Arguments = new (string, object)[]{("name", Name)},
+                Arguments = new (string, object)[]{("name", GetLocalizedName())},
                 Icon = Icon,
             };
         }

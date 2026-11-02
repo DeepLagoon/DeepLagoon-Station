@@ -1,4 +1,4 @@
-﻿using Robust.Shared.Serialization;
+using Robust.Shared.Serialization;
 using Content.Shared._DeepLagoon.Mapping;
 
 namespace Content.Shared._DeepLagoon.Apartments;
@@ -35,6 +35,7 @@ public sealed class ApartmentRoomScene
     public int X, Y, Width, Height;
     public readonly List<GridEditorItem> Tiles = new();
     public readonly List<GridEditorItem> Objects = new();
+    public readonly HashSet<Vector2i> Restricted = new();
     public readonly HashSet<Vector2i> Walls = new();
     public readonly HashSet<Vector2i> Occupied = new();
     public readonly HashSet<Vector2i> Blocked = new();
@@ -43,8 +44,9 @@ public sealed class ApartmentRoomScene
 [Serializable, NetSerializable]
 public sealed class ApartmentEditorEvent(NetEntity grid, string template, int revision, Guid token,
     List<ApartmentPlacement> layout, Dictionary<string, NetEntity> entities, ApartmentRoomScene? scene = null, int number = 0,
-    List<ApartmentMapFurniture>? mapFurniture = null, bool lobby = false, string[]? ownedFurniture = null) : EntityEventArgs
+    List<ApartmentMapFurniture>? mapFurniture = null, bool lobby = false, string[]? ownedFurniture = null, List<ApartmentPlacement>? stored = null) : EntityEventArgs
 {
+    public readonly List<ApartmentPlacement> Stored = stored ?? new();
     public readonly string[] OwnedFurniture = ownedFurniture ?? [];
     public readonly bool Lobby = lobby;
     public readonly NetEntity Grid = grid;

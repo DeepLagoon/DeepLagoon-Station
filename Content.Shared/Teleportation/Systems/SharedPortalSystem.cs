@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Content.Shared.Ghost;
 using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Movement.Pulling.Systems;
@@ -175,6 +175,7 @@ public abstract partial class SharedPortalSystem : EntitySystem
         if (!Resolve(portal, ref portalComponent))
             return;
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(subject, target)) return;
         var ourCoords = Transform(portal).Coordinates;
         var onSameMap = ourCoords.GetMapId(EntityManager) == target.GetMapId(EntityManager);
         var distanceInvalid = portalComponent.MaxTeleportRadius != null

@@ -17,7 +17,7 @@ export const ApartmentBalance = ({ data }) => {
   return <div className="ApartmentEditor__balance" aria-label="Баланс Lagoon Coin"><small>Баланс</small><strong>{balance} <span>LC</span></strong></div>;
 };
 
-export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected, before, pending, choose, selectExisting, act, Sprite, onPurchaseBusy }) => {
+export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected, before, pending, choose, selectExisting, act, Sprite, onPurchaseBusy, storedItems = [], chooseStored }) => {
   const [query, setQuery] = useState(''), [category, setCategory] = useState('all'), [filter, setFilter] = useState('all');
   const [active, setActive] = useState(null), [purchase, setPurchase] = useState(null), [quantity, setQuantity] = useState('1');
   const [transaction, setTransaction] = useState(null), [waiting, setWaiting] = useState(false), [error, setError] = useState('');
@@ -73,11 +73,14 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
     <aside className="ApartmentEditor__catalog">
       <div className="ApartmentEditor__catalogHead"><h3>Каталог обустройства</h3><input aria-label="Поиск предметов" type="search" value={query} placeholder="Найти предмет…" onFocus={() => act('focus')} onChange={event => setQuery(event.target.value)} />
         <EmbeddedSelect aria-label="Категория предметов" value={category} onFocus={() => act('focus')} onChange={event => setCategory(event.target.value)}><option value="all">Все категории</option>{[...new Set(products.map(item => item.category))].map(value => <option key={value}>{value}</option>)}</EmbeddedSelect>
-        <div className="ApartmentEditor__filters">{[['all', 'Все'], ['owned', 'Открытые'], ['locked', 'За LC']].map(([id, label]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}<button aria-pressed={filter === 'original'} onClick={() => setFilter('original')}>Исходный интерьер</button></div>
+        <div className="ApartmentEditor__filters">{[['all', 'Все'], ['owned', 'Открытые'], ['locked', 'За LC']].map(([id, label]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}<button aria-pressed={filter === 'storage'} onClick={() => setFilter('storage')}>Хранилище ({storedItems.length})</button><button aria-pressed={filter === 'original'} onClick={() => setFilter('original')}>Исходный интерьер</button></div>
         {!ready && <p role="status">{data.commerceMessage || 'Загрузка баланса и цен…'}{data.commerceMessage && <button onClick={() => act('refreshCommerce')}>Повторить загрузку</button>}</p>}
       </div>
       <div className="ApartmentEditor__products">
-        {filter === 'original' ? original.map(item => <button key={item.id} data-existing={item.id} className={selected === item.placementId ? 'selected' : ''} disabled={before || pending || !!transaction} onClick={() => selectExisting(item.placementId)}><Sprite images={item.images} /><span>{item.name}</span></button>) : visible.map(item => {
+        {filter === 'storage' ? storedItems.filter(item => {
+          const def = catalog.find(entry => entry.id === item.furniture);
+          return def && (category === 'all' || def.category === category) && def.name.toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru'));
+        }).map(item => { const def = catalog.find(entry => entry.id === item.furniture); return <button key={item.id} data-stored={item.id} disabled={before || pending || !!transaction} onClick={() => chooseStored(item)}><Sprite images={def.images} /><span>{def.name} · Разместить</span></button>; }) : filter === 'original' ? original.map(item => <button key={item.id} data-existing={item.id} className={selected === item.placementId ? 'selected' : ''} disabled={before || pending || !!transaction} onClick={() => selectExisting(item.placementId)}><Sprite images={item.images} /><span>{item.name}</span></button>) : visible.map(item => {
           const variants = variantsFor(item, catalog), count = used(item), available = item.stock - count;
           const canPlace = !before && !pending && !transaction && available > 0;
           const canBuy = ready && !pending && !transaction && item.price >= 0 && data.balance >= item.price;
@@ -91,7 +94,7 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
             </div>
           </article>;
         })}
-        {filter !== 'original' && !visible.length && <p>Предметы не найдены.</p>}
+        {filter !== 'original' && filter !== 'storage' && !visible.length && <p>Предметы не найдены.</p>}
       </div>
     </aside>
     {product && <div className="ApartmentEditor__veil"><div className="ApartmentEditor__purchase" role="dialog" aria-label="Покупка набора мебели"><h3>{product.stock > 0 ? 'Увеличить запас' : 'Открыть модель'}</h3>

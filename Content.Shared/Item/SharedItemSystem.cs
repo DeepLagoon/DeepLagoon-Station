@@ -86,6 +86,16 @@ public abstract partial class SharedItemSystem : EntitySystem
 
     #endregion
 
+    public void CopyVisuals(EntityUid uid, Content.Shared.Clothing.Components.ChameleonClothingAppearance copy, ItemComponent? item = null)
+    {
+        if (!Resolve(uid, ref item))
+            return;
+        item.RsiPath = copy.ItemRsi;
+        item.HeldPrefix = copy.HeldPrefix;
+        item.InhandVisuals = copy.InhandVisuals;
+        Dirty(uid, item);
+        VisualsChanged(uid);
+    }
     private void OnHandInteract(EntityUid uid, ItemComponent component, InteractHandEvent args)
     {
         if (args.Handled)

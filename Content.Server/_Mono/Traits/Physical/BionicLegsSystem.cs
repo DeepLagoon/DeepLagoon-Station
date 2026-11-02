@@ -8,6 +8,9 @@ using System.Numerics;
 using Content.Shared._Mono.Traits.Physical;
 using Robust.Shared.Map;
 using Content.Shared.Standing;
+using Content.Server.Traits;
+using Content.Shared._Shitmed.Body.Part;
+using Content.Shared.Humanoid;
 
 namespace Content.Server._Mono.Traits.Physical;
 
@@ -17,6 +20,7 @@ public sealed partial class BionicLegsSystem : EntitySystem
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private SharedContainerSystem _containerSystem = default!;
     [Dependency] private StandingStateSystem _standing = default!;
+    [Dependency] private TraitLimbAppearanceSystem _limbAppearance = default!;
 
     public override void Initialize()
     {
@@ -74,7 +78,16 @@ public sealed partial class BionicLegsSystem : EntitySystem
         if (!TryComp(parentEntity, out BodyPartComponent? parentPart))
             return;
 
+        var newPart = Spawn(partProtoId, new EntityCoordinates(parentEntity, Vector2.Zero));
+
+        if (!TryComp(newPart, out BodyPartComponent? newPartComp))
+        {
+            QueueDel(newPart);
+            return;
+        }
+
         var containerId = SharedBodySystem.GetPartSlotContainerId(slotId);
+        Dictionary<HumanoidVisualLayers, BodyPartAppearanceComponent>? appearance = null;
 
         if (_containerSystem.TryGetContainer(parentEntity, containerId, out var container))
         {
@@ -83,7 +96,10 @@ public sealed partial class BionicLegsSystem : EntitySystem
             foreach (var oldEntity in oldEntities)
             {
                 if (TryComp(oldEntity, out BodyPartComponent? oldPart))
+                {
+                    appearance = _limbAppearance.CaptureAppearance(oldEntity);
                     DeleteChildParts(oldEntity, oldPart);
+                }
             }
 
             foreach (var entity in oldEntities)
@@ -93,16 +109,10 @@ public sealed partial class BionicLegsSystem : EntitySystem
             }
         }
 
-        var newPart = Spawn(partProtoId, new EntityCoordinates(parentEntity, Vector2.Zero));
-
-        if (!TryComp(newPart, out BodyPartComponent? newPartComp))
-        {
-            QueueDel(newPart);
-            return;
-        }
-
         if (!_bodySystem.AttachPart(parentEntity, slotId, newPart, parentPart, newPartComp))
             QueueDel(newPart);
+        else if (appearance != null)
+            _limbAppearance.ApplyAppearance(newPart, appearance);
     }
 
     private void DeleteChildParts(EntityUid parent, BodyPartComponent part)

@@ -46,6 +46,7 @@ public sealed partial class AnomalyPowerSystem
 
             _adminLogger.Add(LogType.Teleport, $"{ToPrettyString(ent)} has been teleported to {pos} by the supercritical {ToPrettyString(uid)} at {mapPos}");
 
+            if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(ent, new Robust.Shared.Map.MapCoordinates(pos, xform.MapID))) continue;
             _xform.SetWorldPosition(ent, pos);
             _audio.PlayPvs(args.Bluespace!.Value.TeleportSound, ent);
         }
@@ -73,6 +74,7 @@ public sealed partial class AnomalyPowerSystem
         for (var i = 0; i < allEnts.Count; i++)
         {
             _adminLogger.Add(LogType.Teleport, $"{ToPrettyString(allEnts[i])} has been shuffled to {coords[i]} by the {ToPrettyString(uid)} at {xform.Coordinates}");
+            if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(allEnts[i], new Robust.Shared.Map.MapCoordinates(coords[i], xform.MapID))) continue;
             _xform.SetWorldPosition(allEnts[i], coords[i]);
         }
     }

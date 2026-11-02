@@ -71,6 +71,7 @@ public abstract partial class SharedBlinkSystem : EntitySystem
         else
             targetPos = coords + (msg.Direction.Length() > blink.Distance ? dir * blink.Distance : msg.Direction);
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(user, new Robust.Shared.Map.MapCoordinates(targetPos, xform.MapID))) return;
         _useDelay.TryResetDelay((weapon, delay), id: blink.BlinkDelay);
         _transform.SetWorldPosition(user, targetPos);
         _audio.PlayPredicted(blink.BlinkSound, user, user);

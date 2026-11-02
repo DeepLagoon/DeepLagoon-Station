@@ -38,8 +38,8 @@ Examine your headset to see the department channels available to you.
 
 Examining an unmodified engineering headset would show you the prefixes for the [color=#32cd32]Common[/color] and [color=#f37746]Engineering[/color] channels.
 
-It is also possible to use [color=#a4885c]:h[/color]. This hotkey will automatically default to your department radio channel.
-For example, if you're a Station Engineer then [color=#a4885c]:h[/color] will default to [color=#f37746]:e[/color].
+It is also possible to use [color=#a4885c]:г[/color]. This hotkey will automatically default to your department radio channel.
+For example, if you're a Station Engineer then [color=#a4885c]:г[/color] will default to [color=#f37746]:и[/color].
 
 ## Encryption Keys
 [color=#a4885c]Encryption keys[/color] give you access to their respective channel.

@@ -1,9 +1,9 @@
 <controls:FancyWindow xmlns="https://spacestation14.io"
                xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
                xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
-               Resizable="False"
-               MaxSize="400 800"
-               MinSize="400 150">
+               Resizable="True"
+               SetSize="560 540"
+               MinSize="400 220">
     <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True">
 
         <BoxContainer Name="ControlsLockOutContainer" Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" ReservesSpace="False" Visible="False">
@@ -14,9 +14,9 @@
                 </PanelContainer>
             </controls:StripeBack>
             
-            <Label Text="{Loc 'holopad-window-controls-locked-out'}" HorizontalAlignment="Center" Margin="10 5 10 0" ReservesSpace="False"/>
-            <RichTextLabel Name="LockOutIdText" HorizontalAlignment="Center" Margin="10 5 10 0" ReservesSpace="False"/>
-            <Label Name="LockOutCountDownText" Text="{Loc 'holopad-window-controls-unlock-countdown'}" HorizontalAlignment="Center" Margin="10 15 10 10" ReservesSpace="False"/>
+            <RichTextLabel Text="{Loc 'holopad-window-controls-locked-out'}" Margin="10 5 10 0" ReservesSpace="False"/>
+            <RichTextLabel Name="LockOutIdText" Margin="10 5 10 0" ReservesSpace="False"/>
+            <RichTextLabel Name="LockOutCountDownText" Text="{Loc 'holopad-window-controls-unlock-countdown'}" Margin="10 15 10 10" ReservesSpace="False"/>
         </BoxContainer>
 
         <BoxContainer Name="ControlsContainer" Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" ReservesSpace="False">
@@ -26,11 +26,11 @@
 
                 <!-- Header text -->
                 <BoxContainer MinHeight="60" Orientation="Vertical" VerticalAlignment="Center">
-                    <Label Name="CallStatusText" Margin="10 5 10 0" ReservesSpace="False"/>
+                    <RichTextLabel Name="CallStatusText" Margin="10 5 10 0" ReservesSpace="False"/>
                     <BoxContainer Name="CallerIdContainer" Orientation="Vertical" ReservesSpace="False">
-                        <RichTextLabel Name="CallerIdText" HorizontalAlignment="Center" Margin="0 0 0 0"/>
-                        <Label Text="{Loc 'holopad-window-relay-label'}" Margin="10 10 10 0" ReservesSpace="False"/>
-                        <RichTextLabel Name="HolopadIdText" HorizontalAlignment="Center" Margin="0 0 0 10"/>
+                        <RichTextLabel Name="CallerIdText" Margin="10 0 10 0"/>
+                        <RichTextLabel Text="{Loc 'holopad-window-relay-label'}" Margin="10 10 10 0" ReservesSpace="False"/>
+                        <RichTextLabel Name="HolopadIdText" Margin="10 0 10 10"/>
                     </BoxContainer>
                 </BoxContainer>
 
@@ -51,9 +51,9 @@
 
                 <controls:StripeBack>
                     <PanelContainer>
-                        <BoxContainer Orientation="Vertical">
-                            <RichTextLabel Name="SubtitleText" HorizontalAlignment="Center" Margin="0 5 0 0"/>
-                            <RichTextLabel Name="OptionsText" HorizontalAlignment="Center" Margin="0 0 0 5"/>
+                        <BoxContainer Orientation="Vertical" Margin="10 0">
+                            <RichTextLabel Name="SubtitleText" Margin="0 5 0 0"/>
+                            <RichTextLabel Name="OptionsText" Margin="0 0 0 5"/>
                         </BoxContainer>
                     </PanelContainer>
                 </controls:StripeBack>
@@ -68,27 +68,27 @@
                 </BoxContainer>
 
                 <!-- List of contactable holopads (the list is created in C#) -->
-                <BoxContainer Name="HolopadContactListContainer" Orientation="Vertical" Margin="10 0 10 5" ReservesSpace="False" Visible="False">
+                <BoxContainer Name="HolopadContactListContainer" Orientation="Vertical" VerticalExpand="True" Margin="10 0 10 5" ReservesSpace="False" Visible="False">
                     <PanelContainer Name="HolopadContactListHeaderPanel">
-                        <Label Text="{Loc 'holopad-window-select-contact-from-list'}" HorizontalAlignment="Center" Margin="0 3 0 3"/>
+                        <RichTextLabel Text="{Loc 'holopad-window-select-contact-from-list'}" Margin="8 3"/>
                     </PanelContainer>
 
-                    <PanelContainer Name="HolopadContactListPanel">
-                        <BoxContainer Orientation="Vertical">
+                    <PanelContainer Name="HolopadContactListPanel" VerticalExpand="True">
+                        <BoxContainer Orientation="Vertical" VerticalExpand="True">
 
                             <!-- Contact filter -->
                             <LineEdit Name="SearchLineEdit" HorizontalExpand="True" Margin="4, 4, 4, 0"
                                       PlaceHolder="{Loc holopad-window-filter-line-placeholder}" />
 
-                            <ScrollContainer HorizontalExpand="True" VerticalExpand="True" Margin="8, 8, 8, 8" MinHeight="256">
+                            <ScrollContainer HorizontalExpand="True" VerticalExpand="True" HScrollEnabled="False" Margin="8, 8, 8, 8" MinHeight="128">
 
                                 <!-- If there is no data yet, this will be displayed -->
-                                <BoxContainer Name="FetchingAvailableHolopadsContainer" HorizontalAlignment="Center" HorizontalExpand="True" VerticalExpand="True" ReservesSpace="False">
-                                    <Label Text="{Loc 'holopad-window-fetching-contacts-list'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <BoxContainer Name="FetchingAvailableHolopadsContainer" HorizontalExpand="True" VerticalExpand="True" ReservesSpace="False">
+                                    <RichTextLabel Text="{Loc 'holopad-window-fetching-contacts-list'}" HorizontalExpand="True" VerticalAlignment="Center"/>
                                 </BoxContainer>
 
                                 <!-- Container for the contacts -->
-                                <BoxContainer Name="ContactsList" Orientation="Vertical" HorizontalExpand="True" VerticalExpand="True" Margin="10 0 10 0"/>
+                                <BoxContainer Name="ContactsList" Orientation="Vertical" HorizontalExpand="True" Margin="0 0 8 0"/>
                             </ScrollContainer>
                         </BoxContainer>
                     </PanelContainer>

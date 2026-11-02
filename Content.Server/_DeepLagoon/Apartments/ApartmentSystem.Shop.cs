@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Content.Server.GameTicking;
 using Content.Server._DeepLagoon.Currency;
 using Content.Shared._DeepLagoon.Apartments;
@@ -151,8 +151,9 @@ public sealed partial class ApartmentSystem
     {
         if (!InLobby(session)) return;
         var instance = PrepareElevatorApartment(session.UserId);
+        RegisterMapFurniture(instance);
         var token = Guid.NewGuid(); _editors[session.UserId] = token; _lobbyEditors[session.UserId] = instance;
         RaiseNetworkEvent(new ApartmentEditorEvent(GetNetEntity(instance.Grid), instance.Template.ID, instance.Delta.Revision, token,
-            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), EditableMapFurniture(instance).ToList(), true, _economy.Cached(session.UserId)?.State.Furniture.ToArray()), session);
+            CurrentLayout(instance), new(), CaptureRoom(instance), Number(session.UserId), EditableMapFurniture(instance).ToList(), true, _economy.Cached(session.UserId)?.State.Furniture.ToArray(), StoredFurniture(instance)), session);
     }
 }

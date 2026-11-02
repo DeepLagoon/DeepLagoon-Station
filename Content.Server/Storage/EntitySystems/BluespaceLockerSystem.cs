@@ -80,7 +80,7 @@ public sealed partial class BluespaceLockerSystem : EntitySystem
 
         // Select target
         var target = GetTarget(uid, component);
-        if (target == null)
+        if (target == null || !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(uid, Transform(target.Value.uid).Coordinates))
             return;
 
         // Close target if it is open
@@ -304,7 +304,7 @@ public sealed partial class BluespaceLockerSystem : EntitySystem
 
         // Select target
         var target = GetTarget(uid, component);
-        if (target == null)
+        if (target == null || !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(uid, Transform(target.Value.uid).Coordinates))
             return;
 
         // Move contained items

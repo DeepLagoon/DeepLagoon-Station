@@ -40,7 +40,7 @@ public sealed partial class TeleportSystem : EntitySystem
 
     private void OnUseInHand(EntityUid uid, RandomTeleportOnUseComponent component, UseInHandEvent args)
     {
-        if (args.Handled)
+        if (args.Handled || !EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(args.User))
             return;
 
         _adminLogger.Add(LogType.Action, LogImpact.Low, $"{ToPrettyString(args.User):actor} teleported with {ToPrettyString(uid)}");
@@ -73,6 +73,7 @@ public sealed partial class TeleportSystem : EntitySystem
 
     public void RandomTeleport(EntityUid uid, float minRadius, float radius, SoundSpecifier sound, int attempts, bool avoidSpace, bool forceSafe)
     {
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(uid)) return;
         // We need stop the user from being pulled so they don't just get "attached" with whoever is pulling them.
         // This can for example happen when the user is cuffed and being pulled.
         if (TryComp<PullableComponent>(uid, out var pull) && _pullingSystem.IsPulled(uid, pull))
@@ -122,6 +123,7 @@ public sealed partial class TeleportSystem : EntitySystem
                 break;
         }
 
+        if (!EntityManager.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(uid, targetCoords)) return;
         _xform.SetWorldPosition(uid, targetCoords.Position);
         _audio.PlayPvs(sound, uid);
     }

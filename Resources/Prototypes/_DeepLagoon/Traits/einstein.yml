@@ -1483,11 +1483,13 @@
     partSymmetry: Left
     protoId: CrowbarLeftArm
     slotId: left arm
+    preserveAppearance: true
   - !type:TraitCyberneticLimbReplacement
     removeBodyPart: Arm
     partSymmetry: Right
     protoId: CrowbarRightArm
     slotId: right arm
+    preserveAppearance: true
   - !type:TraitPushDescription
     descriptionExtensions:
     - description: examine-bionic-pryarm-message

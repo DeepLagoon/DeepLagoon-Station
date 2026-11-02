@@ -76,6 +76,8 @@ public sealed partial class MechSystem : SharedMechSystem
         SubscribeLocalEvent<MechPilotComponent, InhaleLocationEvent>(OnInhale);
         SubscribeLocalEvent<MechPilotComponent, ExhaleLocationEvent>(OnExhale);
         SubscribeLocalEvent<MechPilotComponent, AtmosExposedGetAirEvent>(OnExpose);
+        SubscribeLocalEvent<MechPilotComponent, MobStateChangedEvent>(OnPilotMobStateChanged);
+        SubscribeLocalEvent<MechPilotComponent, ComponentShutdown>(OnPilotShutdown);
 
         SubscribeLocalEvent<MechAirComponent, GetFilterAirEvent>(OnGetFilterAir);
 
@@ -314,9 +316,20 @@ public sealed partial class MechSystem : SharedMechSystem
             var damage = args.DamageDelta * component.MechToPilotDamageMultiplier;
             _damageable.TryChangeDamage(component.PilotSlot.ContainedEntity, damage);
         }
+    }
 
-        if (TryComp<MobStateComponent>(component.PilotSlot.ContainedEntity, out var state) && state.CurrentState != MobState.Alive) // Frontier - Eject players from mechs when they go crit
-            TryEject(uid, component);
+    private void OnPilotMobStateChanged(EntityUid uid, MechPilotComponent component, MobStateChangedEvent args)
+    {
+        // Pilot damage (e.g. heat or suffocation) need not damage the mech itself.
+        if (args.NewMobState == MobState.Alive)
+            return;
+
+        TryEject(component.Mech, pilot: uid);
+    }
+
+    private void OnPilotShutdown(EntityUid uid, MechPilotComponent component, ComponentShutdown args)
+    {
+        _ui.CloseUis(component.Mech, uid);
     }
 
     private void OnEmpAttempt(EntityUid uid, MechComponent comp, EmpAttemptEvent args) // Monolith
