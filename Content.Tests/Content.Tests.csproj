@@ -22,6 +22,21 @@
   <Import Project="..\RobustToolbox\Imports\Server.props" />
   <Import Project="..\RobustToolbox\Imports\Shared.props" />
   <Import Project="..\RobustToolbox\Imports\Testing.props" />
+  <!-- FullRelease Content.Client uses the signed module without exporting its
+       direct assembly reference to test code that also uses WebView and CEF. -->
+  <PropertyGroup Condition="'$(WebViewSignedReference)' != ''">
+    <_SignedWebViewReferenceDirectory>$([System.IO.Path]::GetDirectoryName('$(WebViewSignedReference)'))</_SignedWebViewReferenceDirectory>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(WebViewSignedReference)' != ''">
+    <Reference Include="Robust.Client.WebView">
+      <HintPath>$(WebViewSignedReference)</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SpaceWizards.CefGlue">
+      <HintPath>$(_SignedWebViewReferenceDirectory)/SpaceWizards.CefGlue.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Content.Client\Content.Client.csproj" />
     <ProjectReference Include="..\Content.Server\Content.Server.csproj" />
