@@ -5,6 +5,9 @@
   description: Displays the time until the public bus arrives at this stop.
   components:
   - type: BusScreen
+  - type: TextScreenVisuals
+    textOffset: 0,11
+    timerOffset: 0,4
   - type: DeviceNetwork
     receiveFrequencyId: DLBusScreen
 
