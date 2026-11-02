@@ -134,6 +134,12 @@ public partial class SharedBodySystem
 
     private void OnPartAttachedToBody(EntityUid uid, BodyComponent component, ref BodyPartAddedEvent args)
     {
+        // PVS re-entry restores part containers on clients too. The body's replicated appearance
+        // is authoritative; replaying the part's saved markings can re-add a stationary tail
+        // over its current wagging variant (and dirty the client's appearance during prediction).
+        if (_net.IsClient && !IsClientSide(uid))
+            return;
+
         if (!TryComp(args.Part, out BodyPartAppearanceComponent? partAppearance)
             || !TryComp(uid, out HumanoidAppearanceComponent? bodyAppearance))
             return;
@@ -146,6 +152,10 @@ public partial class SharedBodySystem
 
     private void OnPartDroppedFromBody(EntityUid uid, BodyComponent component, ref BodyPartRemovedEvent args)
     {
+        // Container removal during PVS detach is not an authoritative amputation either.
+        if (_net.IsClient && !IsClientSide(uid))
+            return;
+
         if (TerminatingOrDeleted(uid)
             || TerminatingOrDeleted(args.Part)
             || !TryComp(uid, out HumanoidAppearanceComponent? bodyAppearance))

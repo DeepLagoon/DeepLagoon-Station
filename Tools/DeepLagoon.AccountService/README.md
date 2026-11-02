@@ -202,3 +202,33 @@ Regression checks are in `LauncherShopTests.cs`; run the existing account-servic
 test command above. Launcher `identity/test_economy.py` verifies session/link
 checks, payload allowlists and stable operation IDs. Synthetic UI validation is
 in Launcher `diagnostics/ShopProbe`.
+
+## Paid periods without a Discord badge
+
+A non-historical confirmed `economy_payment` grants the tier through optional
+`paid_until` (UTC), or one calendar month from `paid_at`. The payment's gift,
+immutable expiry and account access are one transaction. Removing the Boosty
+Discord role changes its short observation only; the paid period survives.
+Historical imports grant neither a gift nor current access. Replaying a receipt
+cannot credit again, extend its expiry or move it to another account.
+
+Paid periods stay in `payment:<receipt>`. `external:<uid>` publishes the highest
+active source with its corresponding end for existing game builds. Its separate
+`DiscordTier`/`DiscordExpiresAt` fields retain the original 15-minute observation.
+A lower paid tier cannot extend a higher Discord source. No LC purchase or
+Discord role is fabricated. The Bot retains an existing ordinary color role
+using the authoritative account tier. Health advertises
+`paid_subscription_api_version: 1`; install this service before updating the Bot.
+
+The provider payment must first be verified by the host using `/reward_payment`.
+This change does not import Boosty billing data automatically. An explicitly
+manual restoration uses a stable manual receipt ID and its reviewed paid dates.
+
+`deploy/upgrade_paid_subscriptions.py` verifies a SHA-256 manifest bundle and
+supports a non-mutating check without `--apply`. Applying requires interactive
+sudo. It preserves the existing port, identity links, private receipts and Bot
+queue, backs up the old application/env/receipts/code, installs the required
+restricted database grants, and starts AccountService before restarting Bot.
+It does not restart the game or migrate the game schema. Failed startup rolls
+back code/config while retaining all financial receipts; never rewind a live
+receipt store. Inspect the exact bundle and command before applying.

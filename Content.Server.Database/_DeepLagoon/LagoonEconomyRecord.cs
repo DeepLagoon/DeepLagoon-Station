@@ -45,7 +45,7 @@ public sealed class LagoonEconomyState
     public string ApartmentLabel { get; set; } = "";
 }
 
-public sealed record LagoonPayment(Guid User, string Name, int Tier, DateTime PaidAt, bool Historical);
+public sealed record LagoonPayment(Guid User, string Name, int Tier, DateTime PaidAt, bool Historical, DateTime? ExpiresAt = null);
 public sealed record LagoonTask(Guid User, Guid Creator, string Kind, int Amount, string Description, Guid? Approver = null);
 public sealed record LagoonEconomySnapshot(long Balance, LagoonEconomyState State, long Awarded = 0, bool Applied = false);
 public sealed record LagoonActivity(string Key, long Ticks, int Rate, string Day, string Round, bool Ready);
