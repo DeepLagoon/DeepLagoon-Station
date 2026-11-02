@@ -1,7 +1,7 @@
 <controls:FancyWindow xmlns="https://spacestation14.io"
                       xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
-            SetSize="315 165"
-            MinSize="315 165"
+            SetSize="520 230"
+            MinSize="520 230"
                       Title="{Loc 'medical-bounty-redemption-ui-title'}">
     <BoxContainer Orientation="Vertical"
                   VerticalExpand="True"
@@ -12,11 +12,14 @@
                     HorizontalExpand="True"
                     Text="{Loc 'medical-bounty-redemption-body-label-init'}"
                     Margin="0 5"/>
-            <Label Name="RedeemLabel"
+            <RichTextLabel Name="RedeemLabel"
                     HorizontalAlignment="Center"
                     HorizontalExpand="True"
                     Text="{Loc 'medical-bounty-redemption-redeem-label-init'}"
                     Margin="0 5"/>
+            <RichTextLabel Text="{Loc 'medical-bounty-redemption-medical-staff-hint'}"
+                           HorizontalExpand="True"
+                           Margin="0 5"/>
             <Button Name="SellButton"
                     Text="{Loc 'medical-bounty-redemption-ui-sell-button'}"
                     Margin="0 5"/>

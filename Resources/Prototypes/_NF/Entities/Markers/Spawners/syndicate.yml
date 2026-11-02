@@ -32,7 +32,7 @@
         - MonolithicCrystalMedium
       # - SpawnMobWeaponTurretLaserSyndicateNF # Mono: why would PDV put turrets on supply drops they WANT people to take the gear out of to smuggle?
       # - SpawnMobWeaponTurretSyndicate # Mono: why would PDV put turrets on supply drops they WANT people to take the gear out of to smuggle?
-        - CrateSyndicateSurplusBundle # Mono
+        - CrateSyndicateSurplusBundleSmuggling
         - CrateNanotrasenLootFilledT1 # Mono
       rareChance: 0.1 # Mono
 
@@ -54,13 +54,13 @@
         - CrateTradeContrabandSecure3
         - CrateNanotrasenLootFilledT1 # Mono
       rarePrototypes:
-        - CrateSyndicateSurplusBundle
-        - CrateSyndicateSurplusBundle
-        - CrateSyndicateSuperSurplusBundle
+        - CrateSyndicateSurplusBundleSmuggling
+        - CrateSyndicateSurplusBundleSmuggling
+        - CrateSyndicateSuperSurplusBundleSmuggling
 # Begin Mono additions
-        - CrateSyndicateSurplusBundle
-        - CrateSyndicateSurplusBundle
-        - CrateSyndicateSuperSurplusBundle
+        - CrateSyndicateSurplusBundleSmuggling
+        - CrateSyndicateSurplusBundleSmuggling
+        - CrateSyndicateSuperSurplusBundleSmuggling
         - CrateNanotrasenLootFilledT3
         - CrateNanotrasenLootFilledT2
         - CrateNanotrasenLootFilledT2

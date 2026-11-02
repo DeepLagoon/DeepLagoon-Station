@@ -10,6 +10,11 @@
     Telecrystal: 200 # 400->200 - Mono
   categories:
   - UplinkAllies
+  conditions:
+  - !type:BuyerWhitelistCondition
+    blacklist:
+      tags:
+      - SmugglingSurplusBundle
 
 - type: listing
   id: UplinkMauler
@@ -21,6 +26,11 @@
     Telecrystal: 325 # 650->325 - Mono
   categories:
   - UplinkAllies
+  conditions:
+  - !type:BuyerWhitelistCondition
+    blacklist:
+      tags:
+      - SmugglingSurplusBundle
 #  conditions: # Mono
 #  - !type:StoreWhitelistCondition
 #    whitelist:

@@ -1,23 +1,24 @@
 - type: vessel
   id: Europa
-  parent: BaseVesselIFFDisabled
+  parent: "BaseVesselIFFDisabled"
   name: PD-VI Europa
-  description: "Массивный фрегат для дальних патрулей с двухметровыми поясами усиленной пластитановой брони и четырьмя автопушками Longbow 85x680 мм. Из средств точечной обороны — только пусковые установки тепловых ловушек и четыре пустых оружейных крепления."
+  description: "Большой боевой корабль с тяжелым вооружением и крепкими стенами"
   limit: 2
   hyperwarLimit: 3
   hyperwarTimelock: 3600
-  price: 500000
-  purchasable: false # Voucher only - T3
+  price: 393000
+  purchasable: true
   category: Large
-  group: BlackMarket
-  access: Pirate
+  group: "BlackMarket"
+  access: "Pirate"
   shuttlePath: /SharedMaps/_Mono/Shuttles/PDV/europa.yml
   guidebookPage: ShipyardNFROperation
-  class:
-  - Brawler
-  - Frigate
-  engine:
-  - AME
+  minPriceMarkup: 1
+  class: [Pirate, Medical, Capital]
+  engine: [NFR]
+  addComponents:
+  - type: NpcFactionMember
+    factions: [PirateNF]
 
 - type: gameMap
   id: Europa

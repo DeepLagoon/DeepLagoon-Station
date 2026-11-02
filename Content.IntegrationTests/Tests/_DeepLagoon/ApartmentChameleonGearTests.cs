@@ -112,6 +112,77 @@ public sealed class ApartmentChameleonGearTests
     [TestCase(0)]
     [TestCase(1)]
     [TestCase(2)]
+    public async Task DroppedUniformDoesNotDuplicateOnReentryOrReload(int reload)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        var session = await pair.Server.AddDummySession();
+        await PoolManager.WaitUntil(pair.Server, () => session.Status == SessionStatus.InGame, 600);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentSmall");
+            var apartments = e.System<ApartmentSystem>();
+            var inventory = e.System<InventorySystem>();
+            var transform = e.System<SharedTransformSystem>();
+            var body = e.SpawnEntity("MobHuman", map.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            var original = e.SpawnEntity("ClothingUniformJumpsuitColorBlue", map.GridCoords);
+            Assert.That(inventory.TryEquip(body, original, "jumpsuit", force: true), Is.True);
+            EntityUid[] previousKit = [];
+            var expectedKitCount = 0;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            for (var entry = 0; entry < 3; entry++)
+            {
+                Assert.That(apartments.Enter(session, session.UserId, out var message), Is.True, message);
+                var home = apartments.Instances[session.UserId];
+                Assert.That(previousKit.All(item => !e.EntityExists(item)), Is.True, "A previous visit must not leave any temporary kit entity.");
+                var kit = e.EntityQuery<ApartmentChameleonGearComponent>(true).Select(component => component.Owner).ToArray();
+                if (entry == 0) expectedKitCount = kit.Length;
+                Assert.That(expectedKitCount, Is.GreaterThan(0));
+                Assert.That(kit.Length, Is.EqualTo(expectedKitCount), "Each entry must have exactly one kit.");
+                Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var uniform), Is.True);
+                Assert.That(e.GetComponent<MetaDataComponent>(uniform.Value).EntityPrototype?.ID,
+                    Is.EqualTo("ClothingUniformJumpsuitChameleon"));
+                Assert.That(inventory.TryUnequip(body, "jumpsuit", out _, force: true), Is.True);
+                var floor = e.System<SharedMapSystem>().GetAllTiles(home.Grid, e.GetComponent<Robust.Shared.Map.Components.MapGridComponent>(home.Grid))
+                    .First(tile => !home.Template.ReservedCells.Contains(tile.GridIndices) && tile.GridIndices != home.Template.Arrival);
+                transform.SetCoordinates(uniform.Value, new EntityCoordinates(home.Grid, floor.GridIndices.X + .5f, floor.GridIndices.Y + .5f));
+                // Opening the furnishing editor must not turn a dropped rental into saved inventory.
+                typeof(ApartmentSystem).GetMethod("RegisterMapFurniture", flags)!.Invoke(apartments, [home]);
+                Assert.That(e.HasComponent<ApartmentFurnitureIdentityComponent>(uniform.Value), Is.False);
+                Assert.That(home.Furniture.Values, Does.Not.Contain(uniform.Value));
+                Assert.That(apartments.SaveApartment(home), Is.True);
+                var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", flags)!.GetValue(apartments)!;
+                var snapshot = store.LoadSnapshot(session.UserId.UserId, home.Template.ID)!;
+                Assert.That(snapshot.Grid, Does.Not.Contain("proto: ClothingUniformJumpsuitChameleon"));
+                Assert.That(snapshot.MapFurniture.Any(item => item.Prototype == "ClothingUniformJumpsuitChameleon"), Is.False);
+                Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+                Assert.That(kit.All(item => !e.EntityExists(item)), Is.True, "Exit must remove even the uniform left on the floor.");
+                Assert.That(inventory.TryGetSlotEntity(body, "jumpsuit", out var restored), Is.True);
+                Assert.That(restored, Is.EqualTo(original));
+                previousKit = kit;
+                if (reload == 1)
+                {
+                    home.IdleSince = System.TimeSpan.FromSeconds(-10000);
+                    typeof(ApartmentSystem).GetField("_nextUpdate", flags)!.SetValue(apartments, System.TimeSpan.Zero);
+                    apartments.Update(1);
+                    Assert.That(apartments.Instances.ContainsKey(session.UserId), Is.False);
+                }
+                else if (reload == 2)
+                    typeof(ApartmentSystem).GetMethod("Cleanup", flags)!.Invoke(apartments, null);
+            }
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            e.DeleteEntity(body);
+        });
+        await pair.Server.RemoveAllDummySessions();
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
     public async Task GearCannotEscapeInsideBodyOrNestedContainer(int transport)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });

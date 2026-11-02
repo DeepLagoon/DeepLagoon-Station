@@ -1,19 +1,21 @@
 - type: vessel
   id: Tethys
-  parent: BaseVesselIFFDisabled
+  parent: "BaseVesselIFFDisabled"
   name: PDV Tethys
-  description: "Скрытный корабль наблюдения и раннего обнаружения. Двигатели скрытного хода плохо подходят для боя, так что будьте осторожны."
-  price: 103700
+  description: "Маленький грузовой челнок, не обладающий выделяющимся бронированием или вооружением"
+  price: 95372
   category: Medium
-  group: BlackMarket
-  access: Pirate
+  group: "BlackMarket"
+  access: "Pirate"
   shuttlePath: /SharedMaps/_Mono/Shuttles/PDV/tethys.yml
   guidebookPage: Null
-  class:
-  - Stealth
-  - EarlyWarning
-  engine:
-  - Uranium
+  minPriceMarkup: 1
+  purchasable: true
+  class: [Pirate, Medical, Chemistry, Cargo]
+  engine: [Uranium]
+  addComponents:
+  - type: NpcFactionMember
+    factions: [PirateNF]
 
 - type: gameMap
   id: Tethys

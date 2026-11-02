@@ -1,0 +1,39 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+# Author: Maksimvini (discord)
+
+- type: vessel
+  id: Edelweiss
+  parent: BaseVessel
+  name: Edelweiss
+  description: Небольшого размера медицинский шаттл для спасательных операций. Имеет небольшой химический уголок и ботанику.
+  price: 71093
+  category: Small
+  class:
+  - Civilian
+  - Medical
+  - Botany
+  - Chemistry
+  engine:
+  - Uranium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Edelweiss.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Edelweiss
+  mapName: "Edelweiss"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Edelweiss.yml
+  minPlayers: 0
+  stations:
+    Edelweiss:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Edelweiss {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

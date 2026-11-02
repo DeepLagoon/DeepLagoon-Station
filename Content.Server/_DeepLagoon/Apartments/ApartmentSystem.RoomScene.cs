@@ -38,7 +38,8 @@ public sealed partial class ApartmentSystem
         {
             var transform = Transform(uid);
             var cell = new Vector2i((int) MathF.Floor(transform.LocalPosition.X), (int) MathF.Floor(transform.LocalPosition.Y));
-            if (HasComp<ApartmentFurnitureIdentityComponent>(uid) ||
+            // The visit owns temporary equipment; it must never become persistent furniture.
+            if (HasComp<ApartmentChameleonGearComponent>(uid) || HasComp<ApartmentFurnitureIdentityComponent>(uid) ||
                 HasComp<ApartmentElevatorComponent>(uid) || HasComp<ActorComponent>(uid) ||
                 HasComp<Content.Shared.Mobs.Components.MobStateComponent>(uid) || IsApartmentShell(instance, uid, cell) ||
                 instance.Exterior.Contains(cell) || instance.Template.ReservedCells.Contains(cell) || cell == instance.Template.Arrival) continue;

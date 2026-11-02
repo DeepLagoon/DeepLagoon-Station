@@ -1,0 +1,37 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+# Author: Maksimvini (discord)
+
+- type: vessel
+  id: Lifecomer
+  parent: BaseVessel
+  name: Lifecomer
+  description: Шаттл для спасательных операций, оборудованный небольшой лабораторией, приёмной и моргом.
+  price: 100389
+  category: Medium
+  class:
+  - Civilian
+  - Medical
+  engine:
+  - Uranium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Lifecomer.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Lifecomer
+  mapName: "Lifecomer"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Lifecomer.yml
+  minPlayers: 0
+  stations:
+    Lifecomer:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Lifecomer {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

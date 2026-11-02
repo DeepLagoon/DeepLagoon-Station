@@ -1,0 +1,21 @@
+# Smuggling drops use the normal surplus pool except for mech bundles.
+- type: Tag
+  id: SmugglingSurplusBundle
+
+- type: entity
+  parent: CrateSyndicateSurplusBundle
+  id: CrateSyndicateSurplusBundleSmuggling
+  suffix: Smuggling
+  components:
+  - type: Tag
+    tags:
+    - SmugglingSurplusBundle
+
+- type: entity
+  parent: CrateSyndicateSuperSurplusBundle
+  id: CrateSyndicateSuperSurplusBundleSmuggling
+  suffix: Smuggling
+  components:
+  - type: Tag
+    tags:
+    - SmugglingSurplusBundle

@@ -86,7 +86,8 @@ public sealed partial class VendingMachineBoundUserInterface
 
         if (inventoryChanged)
         {
-            _inventoryKey = string.Join(',', _cachedInventory.Select(VendingMachineTguiData.Key));
+            _inventoryKey = string.Join(',', _cachedInventory.Select(entry =>
+                VendingMachineTguiData.Key(entry) + ":" + entry.Price?.ToString(CultureInfo.InvariantCulture)));
             _stockData = new TguiData().Array("stock", VendingMachineTguiData.Stock(_cachedInventory));
         }
         var key = _mod.ToString(CultureInfo.InvariantCulture) + ":" + _requiresCash + ":" + _inventoryKey;

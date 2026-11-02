@@ -1,0 +1,36 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+# Author: 25Hydra08 (discord)
+
+- type: vessel
+  id: Pioneer-IIE
+  parent: BaseVessel
+  name: Pioneer-IIE
+  description: Маленький, относительно дешёвый, и удобный шаттл с многолетней историей. Легенда в новом экспедиционном корпусе и максимальной комплектации. Рассчитан на 2 человека.
+  price: 80000
+  category: Micro
+  class:
+  - Expedition
+  engine:
+  - Plasma
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/Pioneer-IIExp.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Pioneer-IIE
+  mapName: "Pioneer-IIE"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/Pioneer-IIExp.yml
+  minPlayers: 0
+  stations:
+    Pioneer-IIE:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Pioneer-IIE {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

@@ -1,0 +1,39 @@
+# Author Info
+# GitHub: starch70
+# Discord: _starch_
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: BMPraetorian
+  parent: BaseVessel
+  name: BM-Praetorian
+  description: Praetorian с навигационным компьютером для экспедиций. Оснащён военной системой опознавания.
+  price: 132708
+  category: Medium
+  class:
+  - Mercenary
+  - Expedition
+  engine:
+  - Uranium
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/praetorian_expd.yml
+  guidebookPage: null
+  access: Mercenary
+
+- type: gameMap
+  id: BMPraetorian
+  mapName: "BM-Praetorian"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/praetorian_expd.yml
+  minPlayers: 0
+  stations:
+    BMPraetorian:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "BM-Praetorian {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

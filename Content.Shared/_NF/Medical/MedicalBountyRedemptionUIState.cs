@@ -28,11 +28,13 @@ public enum MedicalBountyRedemptionVisuals : byte
 public sealed class MedicalBountyRedemptionUIState : BoundUserInterfaceState
 {
     public int BountyValue { get; }
+    public int MedicalBountyValue { get; }
     public MedicalBountyRedemptionStatus BountyStatus { get; }
 
-    public MedicalBountyRedemptionUIState(MedicalBountyRedemptionStatus bountyStatus, int bountyValue)
+    public MedicalBountyRedemptionUIState(MedicalBountyRedemptionStatus bountyStatus, int bountyValue, int medicalBountyValue = 0)
     {
         BountyStatus = bountyStatus;
         BountyValue = bountyValue;
+        MedicalBountyValue = medicalBountyValue;
     }
 }

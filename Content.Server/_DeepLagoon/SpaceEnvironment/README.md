@@ -1,215 +1,253 @@
-# Space environment and persistent sector foundation
+# Космическая среда и основа постоянных секторов
 
-The current implementation works inside Station and extends its FarHorizons star system.
-It does not depend on LuaWorld or introduce engine/client trust changes.
+Реализация работает внутри Station и расширяет звёздную систему FarHorizons.
+Она не зависит от LuaWorld и не меняет механизмы доверия движка и клиента.
 
-## What is active
+## Что уже работает
 
-- The first loaded Kyphrus game map gets a persistent manifest in the `frontier` campaign.
-- On first assignment, environmental fields overlapping the initially loaded stations are excluded before the manifest is saved.
-- The existing five planets retain their templates, names and coordinates. Appearance seeds
-  vary rotation, terrain frequencies, cloud coverage and colour within each template.
-- Both shuttle radar and map draw bodies and named environmental regions. Known bodies
-  remain visible with IFF switched off; radar shows edge indicators for distant bodies.
-  Planet portraits share the exact procedural shader setup with the space background, including
-  generated palettes, terrain, atmosphere, lighting and rings. On-screen portraits have a minimum
-  diameter of 32 UI pixels (scaled with interface DPI) and a maximum of 140. Only visible portrait
-  quads run the shader; instances are shared by both navigation controls and disposed with their map.
-- Environmental regions have translucent, softly shaded interiors on both navigation views.
-  Their colour follows the region type, density follows intensity, and the seeded shading
-  remains stable while panning/rotating. Fills stay inside the gameplay boundary and below
-  contours, labels and ship markers, including where regions overlap.
-- Dust/asteroid/debris regions permit safe slow travel (12 m/s). After an eight-second
-  grace period, faster ships receive a bounded hull hit at most once per five seconds.
-  Active powered ship shields absorb hits using their existing damage/load accounting.
-- Plasma prevents FTL preparation and arrival inside its ellipse; intense plasma jams radio.
-  It does not damage a ship merely because a hyperspace line passes across the ellipse.
-- Radiation uses the native radiation receiver pipeline, including personal/container
-  protection. It is a uniform environment contribution, not a simulated all-direction
-  ray field through the hull. A grid `SpaceEnvironmentProtection` can provide attenuation.
-- The console context menu offers `Scan space environment`. At 1800 m it detects the
-  nearest unfinished survey, inside the inner region and below 4 m/s it records completion.
-  The 20 second cooldown belongs to the ship, shared across consoles and crew.
-- Surveys are campaign-wide knowledge. Only the first successful journal entry awards RnD.
-  The default reward is ceil(6500 * (1 + intensity) * (1 + radius * sqrt(aspect) / 1000)).
-  6500 is the base artifact-node value; equivalent radius accounts for the ellipse's area.
-  Valid regions yield 6825-39000 points with the default base. Larger and more intense regions
-  always increase the reward. Journal uniqueness prevents repeat rewards after unloading/reloading.
-- Rewards go to the console's explicitly connected research server, or the unique server on
-  the same ship grid. Missing/ambiguous servers produce a portable research disk instead.
-  Full server counters also fall back to a disk. Disks are handed to the explorer, or left by
-  the console if their hands are occupied; they use native RnD disk redemption and have no sale value.
-  Existing RnD balances and items use their native persistence rules; the journal is not a fleet snapshot.
+- Первая загруженная игровая карта Kyphrus получает постоянное описание сектора — манифест — в пространстве сохранений `frontier`.
+- При первом назначении системы области среды, пересекающиеся с изначально загруженными станциями, исключаются до сохранения манифеста.
+- Пять существующих планет сохраняют шаблоны, названия и координаты. Начальные значения генератора внешнего вида меняют вращение, частоты рельефа, облачность и цвет в пределах каждого шаблона.
+- Радар и карта шаттла отображают небесные тела и именованные области среды. Известные тела видны даже при выключенном IFF; для далёких тел радар показывает указатели у края экрана. Изображения планет используют те же настройки процедурного шейдера, что и космический фон: сгенерированные палитры, рельеф, атмосферу, освещение и кольца. Минимальный диаметр — 32 пикселя интерфейса с учётом DPI, максимальный — 140. Шейдер обрабатывает только видимые прямоугольники изображений. Его экземпляры совместно используются обоими навигационными элементами интерфейса и освобождаются вместе с картой.
+- Области среды имеют полупрозрачную заливку с мягкими переходами на обоих навигационных экранах. Цвет зависит от типа области, плотность — от интенсивности. Рисунок, заданный генератором, остаётся стабильным при перемещении и вращении вида. Заливка остаётся внутри игровых границ и рисуется под контурами, подписями и отметками кораблей, в том числе в местах пересечения областей.
+- Пылевые области, астероидные потоки и обломочные поля допускают безопасное движение со скоростью до 12 м/с. После восьмисекундного периода на реакцию более быстрые корабли получают ограниченный удар по корпусу не чаще одного раза в пять секунд. Активные корабельные щиты с питанием поглощают удары через существующую систему учёта урона и нагрузки.
+- Плазма мешает подготовке FTL и прибытию внутрь своего эллипса; интенсивная плазма глушит радио. Само пересечение эллипса линией гиперпространственного маршрута не повреждает корабль.
+- Радиация использует штатную систему облучения, включая личную защиту и защиту контейнерами. Она добавляет равномерное фоновое облучение; распространение лучей через корпус со всех сторон не моделируется. Компонент грида `SpaceEnvironmentProtection` может ослаблять воздействие.
+- В контекстном меню консоли доступна команда «Сканировать космическую среду». В радиусе 1800 м она обнаруживает ближайшую неизученную область. Внутри центральной части области при скорости до 4 м/с исследование записывается в журнал. Задержка между измерениями — 20 секунд, общая для всех консолей и членов экипажа корабля.
+- Результаты исследований общие для всего пространства сохранений. Очки RnD начисляются только за первую успешную запись в журнал. Награда по умолчанию: `ceil(6500 * (1 + intensity) * (1 + radius * sqrt(aspect) / 1000))`. Здесь `intensity` — интенсивность, `radius` — радиус, `aspect` — отношение осей эллипса; `ceil` округляет вверх, `sqrt` вычисляет квадратный корень. Значение 6500 соответствует базовой награде за узел артефакта; эквивалентный радиус учитывает площадь эллипса. При стандартной базе допустимые области дают 6825–39000 очков. Увеличение размера и интенсивности всегда повышает награду. Уникальная запись предотвращает повторную выдачу после выгрузки и загрузки сектора.
+- Награда поступает на исследовательский сервер, явно подключённый к консоли, либо на единственный сервер на том же гриде корабля. Если сервера нет или подходящих серверов несколько, выдаётся переносной исследовательский диск. При переполненном счётчике сервера также выдаётся диск. Он передаётся в руку либо остаётся возле консоли, если руки заняты. Диски загружаются через штатную систему RnD и не имеют цены продажи. Существующие очки RnD и предметы сохраняются по своим штатным правилам; журнал исследований не содержит снимок состояния флота.
 
-Profiles now target 72 frontier, 120 asteroid-cloud, 104 wreckage, 96 radiation-sea and
-32 quiet-reach regions. Placement remains bounded and excludes initial inhabited grids.
-An append-only upgrade fills older saved manifests toward the new target without changing
-existing regions, planets or survey entries. Concurrent/stale updates cannot overwrite a newer manifest.
+Целевое количество областей по профилям: 72 для пограничного сектора, 120 для астероидного облака,
+104 для кладбища обломков, 96 для радиационных полей и 32 для спокойной области.
+Размещение ограничено и исключает изначальные обитаемые гриды. Обновление старых манифестов
+только добавляет области до нового целевого количества, сохраняя существующие области,
+планеты и записи исследований. Одновременное или запоздалое обновление не может перезаписать
+более новый манифест.
 
-Space junk uses native scrap-wall grids. Normal piles fit within 4x4; debris and asteroid
-fields allow footprints up to 10x10, with a maximum of 36 connected occupied cells per pile.
-Standard Plating provides the visible subfloor, native wall anchoring and grid physics.
-Walls include WallRockScrapPile, iron, quartz, coal and silver variants. Rich field piles also
-include gold, plasma, uranium and occasional bluespace ore. Native blue NFBaseWreckDebris
-loot tables provide 1-2 ordinary results, or up to 4 richer field results. Field piles have a
-1-in-8 chance of one native salvage carp; no large random mob group is generated.
-Asteroid-stream piles use a dedicated loot table: each loot selection has a 25% chance
-to choose one ArtifactFragment1, with the remaining 75% using the normal rich field table.
-The existing two field selections and four-result cap apply. Asteroid streams take precedence
-where they overlap debris fields; other habitats retain their original loot tables.
+Космический мусор состоит из гридов со штатными стенами из металлолома. Обычные кучи помещаются
+в 4×4 клетки; в обломочных полях и астероидных потоках размер достигает 10×10, но на одной куче
+занято не более 36 связанных клеток. Стандартный `Plating` обеспечивает видимый пол,
+штатное закрепление стен и физику грида.
+Используются `WallRockScrapPile` и варианты с железом, кварцем, углём и серебром. Богатые кучи
+в полях также содержат золото, плазму, уран и изредка блюспейс-руду. Штатные таблицы добычи
+синих обломков `NFBaseWreckDebris` дают 1–2 обычных результата либо до 4 результатов
+из более богатой таблицы для полей. У полевой кучи есть шанс 1 из 8 создать одного штатного
+утилизационного карпа; большие случайные группы существ не создаются.
+В астероидных потоках используется отдельная таблица: при каждом выборе добычи с вероятностью
+25% выпадает один `ArtifactFragment1`, а оставшиеся 75% обращаются к обычной богатой таблице поля.
+Сохраняются два выбора добычи для полевой кучи и общий предел в четыре результата.
+При пересечении с обломочным полем приоритет имеет астероидный поток;
+остальные типы среды сохраняют свои таблицы добычи.
 
-Density follows the actual habitat at the predicted spawn position:
-- Debris/asteroid fields: up to 10 local piles (depth adjusts the target between 6 and 10),
-  one opportunity per second, larger piles, richer loot and fauna.
-- Within 2 km of a planet: up to 3 small piles, one opportunity per 12 seconds.
-- Open space: at most 1 small pile, an initial 25-75 second delay, then a 75 second interval.
-  This is a relative 20% increase in opportunities over the former 30-90 / 90 second cadence;
-  occupied slots, exclusions and cooldowns can still delay actual materialization.
+Плотность зависит от среды в прогнозируемой точке появления:
 
-One third of the ordinary asteroid-stream piles use drifting blue wreckage: the native
-NFBaseWreckDebris radar colour (#88b0d1), rusted walls, girders, broken grilles and windows,
-within the same 10x10 / 36-tile budget. The asteroid loot table and orbital encounter planning apply.
+- Обломочные поля и астероидные потоки: целевое количество — до 10 местных куч; удалённость от обитаемого космоса меняет его от 6 до 10. Возможность создания появляется раз в секунду; кучи крупнее, с более богатой добычей и фауной. Личный предел в 5 гридов имеет приоритет над целевой плотностью среды.
+- В пределах 2 км от планеты: до 3 небольших куч, возможность создания раз в 12 секунд.
+- Открытый космос: не более 1 небольшой кучи, начальная задержка 20,83–62,5 секунды, затем интервал 62,5 секунды. Это ещё одно относительное увеличение частоты на 20% по сравнению с прежними задержкой 25–75 секунд и интервалом 75 секунд. Занятые места, запретные зоны и задержки повторного появления могут отложить фактическое создание.
+- Плазменные потоки: до 4 хромитовых астероидов, возможность создания раз в 8 секунд; размер до 10×10 и не более 36 занятых клеток. Используются штатный `FloorChromite` и добываемые хромитовые скалы с рудой.
+- Пылевые и радиационные области: до 2 небольших куч с интервалами 25 и 30 секунд соответственно.
 
-Each asteroid stream has a deterministic lifetime budget of 1-3 Derelicts. These are existing
-BluespaceSalvage-family maps: disciple, orange, point, nugget and canister, with their original
-equipment and contents. No new shuttle layouts are generated. They load lazily into an offscreen
-encounter, at most once per 90 seconds per stream and one loading attempt per five seconds globally.
-Runtime acceptance limits are 256 tiles, 32 m enclosing radius and 768 descendants per map.
-Heavy assets such as scrap-comet (1265 descendants after initialization) are excluded.
-Original map inventories replace the ordinary pile loot rolls. Derelicts share the 100-sector,
-10-view and sponsorship budgets, movement, offscreen cleanup and player acquisition rules.
-Footprint-aware visibility counts their hull rather than only their map origin.
+Треть обычных куч в астероидном потоке имеет вид дрейфующих синих обломков: штатный цвет
+`NFBaseWreckDebris` на радаре (`#88b0d1`), ржавые стены, балки, сломанные решётки и окна.
+Действует тот же предел 10×10 и 36 клеток. Применяются астероидная таблица добычи
+и планирование орбитальных встреч.
 
-The append-only sector_derelicts ledger consumes a slot only after a map passes placement checks.
-Deleting, claiming or unloading a Derelict never refunds that slot; reopening the sector preserves
-the remaining budget. This records encounter history, not a persistent ship/inventory snapshot.
+Для каждого астероидного потока задан постоянный лимит в 1–3 заброшенных шаттла Derelict,
+определяемый генератором. Используются существующие карты семейства `BluespaceSalvage`:
+`disciple`, `orange`, `point`, `nugget` и `canister`, с исходным оборудованием и содержимым.
+Новые планировки шаттлов не генерируются. Карты подгружаются по необходимости за пределами
+экрана: не чаще одного раза в 90 секунд для потока и не более одной попытки загрузки
+за пять секунд на весь сервер. Загружаемая карта должна укладываться в 256 клеток,
+охватывающий радиус 32 м и 768 дочерних сущностей с учётом вложенности.
+Тяжёлые карты, такие как `scrap-comet` с 1265 дочерними сущностями после инициализации,
+исключены. Исходное содержимое карт заменяет обычные выборы добычи для кучи.
+На Derelict распространяются общий предел 100 гридов на сектор, предел 5 на обзор игрока,
+распределение квот, движение, удаление вне экрана и правила присвоения игроком.
+При проверке видимости учитывается весь корпус, а не только начало координат карты.
 
-Station grids, marked POIs (including mobile/unregistered ones), force-anchored POIs and
-warp-point grids have a 1 km exclusion margin beyond their enclosing footprint. Both the
-spawn point and the entire orbit must be clear. Existing managed piles are checked again
-against moving/new POIs and a three-second velocity forecast, so orbital motion cannot
-carry untouched junk into a station. PointOfInterestSystem marks every newly loaded POI.
-Player-owned/deeded ships do not become exclusion zones merely because late joining gives
-them a station entity or warp point. Explicit POI and force-anchor markers still take precedence.
+Журнал `sector_derelicts`, в который только добавляются записи, расходует место лишь после
+успешной проверки размещения карты. Удаление, присвоение или выгрузка Derelict не возвращает
+это место. Повторное открытие сектора сохраняет оставшийся лимит. В журнал записывается
+история встреч; полного состояния кораблей и их инвентаря в нём нет.
 
-Moving observers get new junk ahead of their map velocity, including the parent ship's
-translation and rotation. The horizon has at least eight seconds of forward lead; newly
-materialized approaching piles reserve their estimated approach time plus five seconds (maximum
-90 seconds) to reach the observer envelope. Lead also accounts for junk speed and footprint.
-An orbit is calculated backward from an encounter inside the predicted normal viewport,
-including for stationary observers. Distant orbit anchors (at least 256 m) prevent invisible
-small circles around the observer at a field center; a local 768 m fallback handles isolated fields.
-Speeds above 500 m/s suppress new placement. Both paths exclude every other active eye/camera.
+Вокруг гридов станций, отмеченных мест интереса — POI, включая подвижные и незарегистрированные, —
+принудительно закреплённых POI и гридов с точками телепортации действует запретная полоса
+шириной 1 км за пределами их охватывающей границы. Свободными должны быть и точка появления,
+и вся орбита. Существующие управляемые кучи повторно проверяются относительно перемещающихся
+или новых POI и прогноза движения на три секунды вперёд. Поэтому орбитальное движение не должно
+приносить нетронутый мусор к станции. `PointOfInterestSystem` отмечает каждый новый загруженный POI.
+Корабли игроков с владельцем или документом на владение не становятся запретной зоной только
+из-за получения сущности станции или точки телепортации при позднем подключении игрока.
+Явные отметки POI и принудительного закрепления всё равно имеют приоритет.
 
-There are at most 100 managed junk grids per sector and at most 10 across all eyes of each
-player. Overlapping observers share the physical population. Converging views retire excess
-unclaimed distant piles instead of adding their counts. Sponsors receive even per-sector
-shares (maximum 10 each), with unseen excess reclaimed first when more explorers arrive.
-Spawn opportunities rotate through players, at most two grid creations per second globally.
-For more than 100 observers in one sector, the remainder rotates every 30 seconds.
+Для движущегося наблюдателя мусор создаётся впереди по направлению его скорости на карте,
+с учётом поступательного движения и вращения корабля. До входа в горизонт обзора остаётся
+не менее восьми секунд на реакцию. Только что созданная приближающаяся куча получает время
+на достижение области видимости: расчётное время сближения плюс пять секунд, всего не более
+90 секунд. При расчёте упреждения учитываются скорость и размеры мусора.
+Орбита рассчитывается в обратном направлении от будущей встречи внутри прогнозируемого
+обычного поля зрения, в том числе для неподвижных наблюдателей. Удалённые центры орбит
+на расстоянии не менее 256 м исключают незаметное движение по крошечным кругам вокруг
+наблюдателя в центре поля. Для изолированных полей предусмотрен запасной центр на расстоянии
+768 м. При скорости выше 500 м/с новое размещение отключается. Оба способа размещения
+учитывают все остальные активные точки обзора и камеры.
 
-Untouched junk outside all conservative observer envelopes for 10 seconds is removed.
-Boarding, cargo or construction retires ambient ownership and preserves an ordinary player
-grid. Originally generated loose items/fauna are tracked by home grid. After leaving it,
-objects outside all eye envelopes are removed on the next simulation update without a grace
-timer. Items in hands/inventory or placed on an ordinary player grid become player property;
-unrelated items are never swept up. Detached objects remain tracked even after their home
-pile expires. A 120 second cell cooldown prevents immediate farming; its cache is bounded.
-Service audio entities never count as player cargo or detached loot; environmental puddles
-also do not claim a grid when its original fluids spread.
+В секторе одновременно находится не более 100 управляемых гридов мусора, а в совокупном
+обзоре всех камер одного игрока — не более 5. Наблюдатели с пересекающимися обзорами видят
+общую физическую популяцию. При сближении обзоров лишние далёкие кучи, ещё не присвоенные
+игроками, выводятся из популяции, а их количества не складываются. Игроки, для которых
+создаётся мусор, получают равномерные квоты сектора, не более 5 гридов каждый.
+При появлении новых исследователей сначала освобождаются невидимые излишки.
+Возможности создания распределяются между игроками по очереди; на весь сервер создаётся
+не более двух гридов в секунду. Если наблюдателей в одном секторе больше 100,
+право на оставшиеся места передаётся по кругу каждые 30 секунд.
 
-There are no full wreck maps or persistent fleet snapshots yet.
-The first interactive encounter is surveying; rescue/repair/branching encounters remain
-future content on this foundation.
+Нетронутый мусор удаляется после 10 секунд вне расширенных областей видимости всех наблюдателей.
+Высадка игрока, добавление груза или строительство прекращают управление гридом как фоновым
+объектом и сохраняют его как обычный грид игрока. Изначально созданные свободные предметы
+и фауна отслеживаются по родному гриду. Если они покидают его и оказываются вне обзора всех
+камер, то удаляются на следующем обновлении симуляции, без дополнительной задержки.
+Предметы в руках, инвентаре или на обычном гриде игрока становятся его собственностью;
+посторонние предметы эта очистка не затрагивает. Отделившиеся объекты продолжают отслеживаться
+даже после удаления родной кучи. Задержка повторного появления в одной ячейке — 120 секунд;
+её кэш ограничен. Служебные звуковые сущности не считаются грузом игрока или отделившейся добычей.
+Лужи, возникающие при растекании исходных жидкостей, также не делают грид присвоенным игроком.
 
-## Configuration and operations
+## Прототип навигационных встреч
 
-Server CVars:
+В контекстном меню консоли шаттла появились сканирование навигационных сигналов в радиусе
+1800 м и два взаимоисключающих действия: восстановить данные или извлечь припасы в пределах
+80 м. Для данных нужна скорость до 2 м/с, для припасов — до 4 м/с. При выполнении каждого
+действия повторно проверяются питание и закрепление консоли, возможность взаимодействия
+игрока, его доступ и действующая блокировка корабля. Между операциями зонда действует общая
+для корабля задержка 20 секунд. Данные приносят 1500–3500 очков RnD через существующую выдачу
+на сервер или диск. Обычные исследования областей сохраняют более высокую награду,
+основанную на цене узла артефакта.
 
-- `sector.environment_enabled` (true): enable new assignment and environmental effects.
-- `sector.campaign` (`frontier`): stable save namespace. Choose before loading sectors.
-- `sector.orbital_debris` (true): materialize local space junk; existing untouched piles still age out.
-- `sector.max_loaded` (8, clamped to 1-64): maximum simultaneously instantiated sectors.
-- `sector.world_seed` (20261029): seed for newly visited sectors; existing manifests win.
-- `sector.survey_research_base` (6500, clamped to 1-1000000): base RnD reward for future first discoveries.
+- Открытый космос: до 12 редко расположенных автоматических SOS-капсул; выбор между аптечкой и данными чёрного ящика.
+- Пыль: один заряженный пробоотборник на облако; кварц или исследовательские данные. Извлечение кварца вызывает разряд и наносит оператору 5 единиц штатного электрического урона с учётом личной защиты. Проход вдоль большой оси эллипса, с локальной координатой `y` в пределах ±0,12, снижает пылевую нагрузку на 85%. Сканирование сообщает две точки на оси прохода. При быстром движении вне прохода сохраняется обычный риск.
+- Обломки: узел телеметрии запечатанного архива; можно получить данные либо разобрать грузовой отсек на сталь.
+- Радиация: исследовательский контейнер в защитном кармане с центром в локальной точке `(0.4,0)` и радиусом `0.18`. Фоновая радиация там составляет 20% от обычной, в том числе для штатной системы личного облучения. На выбор выдаются исследовательские данные или фрагмент артефакта; на подходе защита по-прежнему важна.
+- Плазма: один накопитель на поток; заряженная батарея высокой ёмкости или исследовательские данные. Получение доступно только в двадцатисекундное затишье каждые 90 секунд; фаза определяется начальным значением генератора. Воздействие плазмы и радиопомехи в это время снижаются до 15%. FTL остаётся заблокирован во всём эллипсе, что соответствует существующему навигационному отображению. Хромитовые астероиды используют общий бюджет управляемых гридов.
+- Орбита планеты: неисправный спутник на расстоянии 1200 м. Для получения исследовательских данных нужно восстановить телеметрию, израсходовав 5 единиц НВ-кабеля из руки; альтернативный выбор — разобрать корпус на сталь.
 
-Client `render.sector_environment` only disables cosmetic clouds, not radar warnings or gameplay.
+Пока все находки физически представлены небольшим ретранслятором 2×3 клетки с полом `Plating`
+и бирюзовой отметкой на радаре. Получение находки изображает работу зонда, управляемого
+с консоли. Спасение экипажа и новые планировки Derelict не создаются. Сигналы сообщают
+координаты, интенсивность среды и качество телеметрии, определяемое генератором.
+Качество описывает сигнал и не является случайным шансом выдачи награды.
+Отдельного нового окна интерфейса нет: используются контекстное меню и всплывающие сообщения.
+Проходы и карманы пока обозначаются координатами сканера. Существующая оценка длины опасного
+участка маршрута остаётся консервативной и не вычитает эти местные ослабления воздействия.
 
-Mapping/admin command (creates/loads a sector map; never transfers a player or ship):
+`NavigationSiteCatalog` версии 1 формирует стабильные идентификаторы и координаты независимо
+от временного мусора. Каждая область добавляет не более одного описания находки,
+каждая планета — один спутник; дополнительно предусмотрены 12 возможных SOS-сигналов.
+Физический объект создаётся только при наличии наблюдателя в пределах 1200 м,
+за горизонтом обзора всех камер и с достаточным упреждением для реакции на ходу.
+Ретрансляторы используют общие лимиты: 100 гридов на сектор, 5 на игрока, 2 создания в секунду,
+а также все правила защиты станций и POI и правила очистки. Описания карманов и проходов
+не требуют отдельных сущностей частиц. Локальные кэши удаляются вместе с картой;
+перебор всей истории мира не выполняется.
+
+Журнал `sector_encounters` дополняется уникальной записью по пространству сохранений,
+сектору и находке. Выбранный исход записывается до выдачи награды. Повторное открытие сектора,
+вторая консоль или конкурирующее подключение SQLite не позволяют получить обе награды.
+Добавление областей не перемещает прежние сигналы. Сохраняются исходы встреч;
+полные снимки состояния кораблей и флота ещё предстоит реализовать.
+
+## Настройка и эксплуатация
+
+Серверные параметры CVar:
+
+- `sector.environment_enabled` (`true`): включить назначение среды новым системам и её воздействие.
+- `sector.campaign` (`frontier`): стабильное пространство имён сохранения. Выбирать до загрузки секторов.
+- `sector.orbital_debris` (`true`): создавать местный космический мусор; уже существующие нетронутые кучи по-прежнему удаляются по времени.
+- `sector.max_loaded` (8, ограничивается диапазоном 1–64): максимальное количество одновременно созданных секторов.
+- `sector.world_seed` (20261029): начальное значение генератора для новых посещаемых секторов; существующие манифесты имеют приоритет.
+- `sector.survey_research_base` (6500, ограничивается диапазоном 1–1000000): базовая награда RnD для последующих первых исследований.
+
+Клиентский параметр `render.sector_environment` отключает только декоративные облака,
+сохраняя предупреждения радара и игровые эффекты.
+
+Команда для маппинга и администрирования создаёт или загружает карту сектора,
+но не перемещает игроков и корабли:
 
 ```
 dl_sector_create expedition/1 719 DeepLagoonAsteroidCloud
 ```
 
-Profiles: `DeepLagoonFrontier`, `DeepLagoonAsteroidCloud`, `DeepLagoonWreckage`,
+Профили: `DeepLagoonFrontier`, `DeepLagoonAsteroidCloud`, `DeepLagoonWreckage`,
 `DeepLagoonRadiationSea`, `DeepLagoonQuietReach`.
-Repeated creation of an already loaded identity returns that map; reopening a saved identity
-keeps its original bodies and regions, even if a different seed/profile was supplied.
-Only an explicit append-only density upgrade may add areas.
-Use `dl_sector_unload <map-id>` after transferring all ships and players. It refuses
-to delete a sector containing any ordinary grid/player; unclaimed ambient debris is cleared first; manifests and surveys remain on disk.
-There is no timer-based deletion of occupied sectors. The future travel layer should
-unload an old empty map after a successful transfer.
-Generated maps are FTL destinations, subject to normal console/engine travel restrictions.
-The endpoint is checked after the existing range clamp.
+Повторное создание уже загруженного сектора возвращает его карту. Повторное открытие
+сохранённого сектора оставляет исходные небесные тела и области, даже если передано другое
+начальное значение генератора или другой профиль. Добавлять области может только явно
+предусмотренное обновление плотности без изменения старых объектов.
+После перемещения всех кораблей и игроков используйте `dl_sector_unload <map-id>`.
+Команда отказывается удалять сектор с обычными гридами или игроками. Сначала очищается
+неприсвоенный фоновый мусор; манифесты и исследования остаются на диске.
+Занятые секторы не удаляются по таймеру. Будущая система перемещения должна выгружать
+старую пустую карту после успешного перехода. Сгенерированные карты доступны как назначения
+FTL с обычными ограничениями консоли и движка. Конечная точка проверяется после штатного
+ограничения дальности.
 
-## Durable state contract
+## Правила долговременного сохранения
 
-`space-sectors.db` resides in the server's user-data directory. Back it up with the server
-stopped, or use SQLite's online backup API (include the WAL when copying an open database).
-No existing production/account database schema is changed.
+`space-sectors.db` находится в каталоге пользовательских данных сервера. Резервную копию
+следует делать при остановленном сервере либо через API резервного копирования работающей
+SQLite. При копировании открытой базы нужно учитывать файл WAL. Схемы существующих рабочих
+баз и базы учётных записей не меняются.
 
-`SectorStore` stores an append-only full manifest, not just a seed. Campaign + stable sector ID
-is the key. `Version` identifies the manifest/generator/appearance contract; version 1
-algorithms must remain available or get an explicit migration. Unsupported versions and
-missing templates fail closed instead of regenerating visited terrain.
+`SectorStore` хранит полный манифест с возможностью добавления данных, а не только начальное
+значение генератора. Ключ — пространство сохранений `campaign` и стабильный идентификатор
+сектора. `Version` задаёт версию формата манифеста и правил генерации и внешнего вида.
+Алгоритмы версии 1 должны оставаться доступными либо заменяться явной миграцией.
+При неподдерживаемой версии или отсутствии шаблонов загрузка прекращается;
+повторная генерация посещённой территории не выполняется.
 
-The survey ledger has a unique campaign/sector/region key. Repeated/concurrent completion
-cannot create duplicate discoveries. Runtime map IDs and entity UIDs are never
-persistent identities. No history-sized collection is loaded into memory.
+Журнал исследований имеет уникальный ключ: пространство сохранений, сектор, область.
+Повторное или одновременное завершение не создаёт дублирующихся открытий. Временные
+идентификаторы карт и UID сущностей не используются как постоянные идентификаторы.
+В память не загружается коллекция размером со всю историю мира.
 
-The future travel layer can request `SectorSystem.GetOrCreateAt(long x, long y, profile)`.
-Coordinates are logical addresses; generation is lazy and only bound maps get runtime caches.
-`GetOrCreate(id, seed, profile)` and `Bind(map, manifest)` are the lower-level seams.
+Будущая система перемещения может обращаться к `SectorSystem.GetOrCreateAt(long x, long y, profile)`.
+Координаты служат логическими адресами. Генерация выполняется по необходимости;
+кэши времени выполнения получают только подключённые карты.
+`GetOrCreate(id, seed, profile)` и `Bind(map, manifest)` предоставляют доступ к более низкому уровню.
 
-A fully persistent expedition still needs a separate versioned ship/fleet snapshot,
-crew/account progression, a durable current-address checkpoint and atomic transfer/rollback.
-Do not update the travel checkpoint before ship and player transfer has committed. This
-foundation deliberately does not claim that saving a sector also saves a ship.
+Для полностью сохраняемой экспедиции ещё нужны отдельный версионируемый снимок кораблей
+и флота, прогресс экипажа и учётных записей, постоянная запись текущего адреса и атомарный
+переход с возможностью отката. Нельзя обновлять контрольную точку маршрута, пока перенос
+корабля и игроков не завершён. Сохранение сектора само по себе не сохраняет корабль.
 
-## Performance contract
+## Ограничения производительности
 
-- At most 160 regions and 8 planets per generated sector; invalid profiles are rejected.
-- Regions are descriptors, not per-particle entities.
-- Space junk: 100 managed grids per sector, 10 per player view (shared across cameras),
-  at most 2 creations per second globally. Per-player shares and a rotating scheduler prevent
-  one explorer consuming the sector pool. Claimed grids follow ordinary player-grid rules.
-- Procedural piles: at most 16 cells normally, or 36 cells within a 10x10 field footprint.
-  At most one original fauna entity per field pile. No invisible distant population is simulated.
-- Existing Derelict maps retain their contents within the separate tile/entity limits above.
-- Placement, POI exclusion refresh and gentle orbital correction run at 1 Hz. Visibility caps
-  and detached-object cleanup follow simulation updates; observer buffers are reused.
-- Debris cooldown cache is bounded to 4096 entries globally, expires after 120 s and is
-  removed with the sector. Per-player map/habitat timers are also removed on sector unload.
-- Cached radar contours per map (no per-frame trigonometric reconstruction).
-- Cached radar fill meshes: 96 triangles per region, one draw per visible region, no particles
-  or per-frame heap allocation. Navigation fills remain visible with cosmetic clouds disabled.
-- One spatial index per loaded map, ship queries at 1 Hz, swept tests between samples.
-- Long displacements fall back to the bounded region list instead of walking empty cells.
-- At most one hull hit / 5 s / exposed fast ship; at most 256 children inspected per hit.
-- A single inexpensive two-scale noise shader, maximum 12 visible region quads. No full-screen
-  multi-pass nebula baking. Clouds remain inside the radar/gameplay ellipse.
-- Manifests are networked on binding/change; survey lists only change on discoveries.
-- Exposure state, indexes, scan cooldowns and loaded-map identities are removed on shutdown.
+- Не более 160 областей и 8 планет на сгенерированный сектор; некорректные профили отклоняются.
+- Области представлены описаниями данных, а не отдельными сущностями для каждой частицы.
+- Космический мусор: 100 управляемых гридов на сектор, 5 на совокупный обзор камер игрока, не более 2 созданий в секунду на весь сервер. Личные квоты и распределение возможностей по очереди не позволяют одному исследователю израсходовать весь запас сектора. Присвоенные гриды подчиняются обычным правилам гридов игроков.
+- Процедурные кучи: не более 16 клеток в обычном космосе либо 36 клеток в пределах 10×10 внутри поля. На полевую кучу изначально создаётся не более одного существа. Невидимая далёкая популяция не моделируется.
+- Существующие карты Derelict сохраняют содержимое в пределах отдельных ограничений на клетки и сущности, указанных выше.
+- Размещение, обновление запретных зон POI и мягкая коррекция орбит выполняются с частотой 1 Гц. Ограничение видимости и очистка отделившихся объектов выполняются при обновлениях симуляции; буферы наблюдателей используются повторно.
+- Кэш задержек появления мусора ограничен 4096 записями на весь сервер. Записи истекают через 120 секунд и удаляются вместе с сектором. Личные таймеры по карте и типу среды также очищаются при выгрузке сектора.
+- Контуры радара кэшируются для каждой карты; тригонометрия не пересчитывается на каждом кадре.
+- Сетки заливки радара кэшируются: 96 треугольников на область, один вызов отрисовки на видимую область, без частиц и выделения памяти в куче на каждом кадре. Навигационная заливка остаётся видимой при отключённых декоративных облаках.
+- Один пространственный индекс на загруженную карту; проверка кораблей с частотой 1 Гц и проверка всего пройденного отрезка между измерениями.
+- При больших перемещениях используется ограниченный список областей, без обхода множества пустых ячеек.
+- Не более одного удара по корпусу за 5 секунд на быстрый корабль под воздействием среды; при ударе проверяется не более 256 дочерних сущностей.
+- Один недорогой шейдер с шумом двух масштабов, не более 12 видимых прямоугольников областей. Полноэкранное многопроходное запекание туманностей не выполняется. Облака остаются внутри эллипса, используемого радаром и игровой логикой.
+- Манифесты передаются по сети при подключении карты или изменении; списки исследований меняются только при открытиях.
+- Состояние воздействия среды, индексы, задержки сканирования и идентификаторы загруженных карт очищаются при завершении работы соответствующей системы.
 
-The map previews the direct course to the cursor (at most 5 estimates per second),
-showing intensity-weighted dust/radiation distance, or endpoint interference in FTL mode.
-The route evaluator is also an API for a future route-comparison panel, not an automatic navigator.
+Карта показывает оценку прямого курса к курсору, обновляя её не чаще пяти раз в секунду:
+длину пылевого и радиационного участков с учётом интенсивности либо помехи в конечных точках
+в режиме FTL. Расчёт маршрута также доступен через API для будущей панели сравнения маршрутов;
+автоматического навигатора пока нет.
 
-## Verification
+## Проверка
 
-Unit fixtures: `SpaceSectorTests`, `SpaceSectorStoreTests`.
-Integration fixture: `SpaceSectorIntegrationTests`.
-Rebuild the client/shared modules before `ClientSandboxTest`; test against an installed
-launcher engine when available. Rendered official-client piloting and a long-session
-performance comparison are separate from compilation/unit checks.
+Наборы модульных тестов: `SpaceSectorTests`, `SpaceSectorStoreTests`.
+Набор интеграционных тестов: `SpaceSectorIntegrationTests`.
+Перед запуском `ClientSandboxTest` нужно пересобрать клиентские и общие модули.
+При наличии установленного движка лаунчера следует также проверить совместимость с ним.
+Проверка отображения и пилотирования в официальном клиенте и сравнение производительности
+при длительной работе выполняются отдельно от компиляции и модульных тестов.

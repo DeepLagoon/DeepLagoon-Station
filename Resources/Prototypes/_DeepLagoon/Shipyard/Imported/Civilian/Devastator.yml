@@ -1,0 +1,37 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Devastator
+  parent: BaseVessel
+  name: Devastator
+  description: Горно и газо добывабщий фрегат, предназначенный для исследования и добычи ресурсов в отдаленных уголках космоса.
+  price: 119291
+  category: Medium
+  class:
+  - Civilian
+  - Salvage
+  - Atmospherics
+  engine:
+  - Bananium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Devastator.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Devastator
+  mapName: "Devastator"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Devastator.yml
+  minPlayers: 0
+  stations:
+    Devastator:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Devastator {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

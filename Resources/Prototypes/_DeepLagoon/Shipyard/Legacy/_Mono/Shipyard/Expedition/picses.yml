@@ -8,20 +8,20 @@
   id: Picses
   parent: BaseVessel
   name: Пиксес # Ru-Localization
-  description: Компактный, но вместительный экспедиционный шаттл, обладающий прочным корпусом. Также шаттл имеет военную систему "свой-чужой". # Ru-Localization
-  price: 77150
+  description: "Компактное экспедиционное судно с прочной обшивкой и военной системой опознавания."
+  price: 111565
   category: Medium
-  group: Expedition
+  group: "Expedition"
   shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/picses.yml
   addComponents:
   - type: NpcFactionMember # Exodus NanoTrasen faction
     factions:
     - NanoTrasen
   guidebookPage: null
-  class:
-  - Expedition
-  engine:
-  - AME
+  minPriceMarkup: 1
+  purchasable: true
+  class: [Civilian, Expedition]
+  engine: [AME]
 
 - type: gameMap
   id: Picses

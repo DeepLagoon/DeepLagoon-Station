@@ -1,0 +1,38 @@
+- type: vessel
+  id: Gungnir
+  parent: BaseVesselIFFDisabled
+  name: Gungnir
+  description: Малый пиратский шаттл, снабженный артиллерийским вооружением и базовыми вещами для грабежа.
+  price: 159000
+  category: Medium
+  class:
+  - Pirate
+  - Pursuit
+  engine:
+  - Bananium
+  group: BlackMarket
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/BlackMarket/gungnir.yml
+  guidebookPage: null
+  access: Pirate
+  limit: 4
+  addComponents:
+  - type: NpcFactionMember
+    factions:
+    - PirateNF
+
+- type: gameMap
+  id: Gungnir
+  mapName: "Gungnir"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/BlackMarket/gungnir.yml
+  minPlayers: 0
+  stations:
+    Gungnir:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Gungnir {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Pirate: [ 0, 0 ]

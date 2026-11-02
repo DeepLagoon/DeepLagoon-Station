@@ -1,0 +1,39 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: ShuttleTinia
+  parent: BaseVessel
+  name: Тиния
+  description: Корабль-станция Тиния, предпочтителен для большой команды, в наличии Бар, Кухня, Ботаника.
+  price: 226028
+  category: Large
+  class:
+  - Civilian
+  - Botany
+  - Kitchen
+  engine:
+  - Solar
+  - Uranium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/shuttletinia.yml
+  guidebookPage: null
+  limit: 2
+
+- type: gameMap
+  id: ShuttleTinia
+  mapName: "Тиния"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/shuttletinia.yml
+  minPlayers: 0
+  stations:
+    ShuttleTinia:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Тиния {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

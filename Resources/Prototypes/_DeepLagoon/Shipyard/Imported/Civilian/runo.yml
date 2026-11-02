@@ -1,0 +1,35 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Runo
+  parent: BaseVessel
+  name: NT Runo
+  description: маленький добывающий шаттл для материнского корабля Sauron
+  price: 46533
+  category: Micro
+  class:
+  - Civilian
+  engine:
+  - Uranium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/runo.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Runo
+  mapName: "NT Runo"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/runo.yml
+  minPlayers: 0
+  stations:
+    Runo:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "NT Runo {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

@@ -1,0 +1,38 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+# Author: germanreutt (discord)
+
+- type: vessel
+  id: GFSeagull
+  parent: BaseVessel
+  name: GF-Seagull
+  description: Корабль крупной судоверфи Гефест. Создан для спасательных операций в самых дальних уголках космоса.
+  price: 143516
+  category: Medium
+  class:
+  - Civilian
+  - Medical
+  - Chemistry
+  engine:
+  - AME
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/seagull.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: GFSeagull
+  mapName: "GF-Seagull"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/seagull.yml
+  minPlayers: 0
+  stations:
+    GFSeagull:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "GF-Seagull {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

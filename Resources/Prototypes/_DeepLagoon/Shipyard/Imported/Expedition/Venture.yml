@@ -1,0 +1,38 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Venture
+  parent: BaseVessel
+  name: Venture
+  description: небольшое медико-научное судно с минимальными удобствами.
+  price: 80962
+  category: Small
+  class:
+  - Civilian
+  - Expedition
+  - Medical
+  - Science
+  engine:
+  - Bananium
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/Venture.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Venture
+  mapName: "Venture"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/Venture.yml
+  minPlayers: 0
+  stations:
+    Venture:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Venture {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

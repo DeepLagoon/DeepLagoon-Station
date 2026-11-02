@@ -38,7 +38,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
 
     public static bool Supports(string name) => name is "InteractionPanel" or "CharacterCard" or
         "CharacterHeadshotLibrary" or "CharacterSavePrompt" or "ShipyardPreview" or "ApartmentTravel" or "ApartmentTerminal" or
-        "LagoonEconomy" or "ApartmentShop" or "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "DeepLagoonDemo";
+        "LagoonEconomy" or "ApartmentShop" or "ApartmentEditor" or "ApartmentElevator" or "GridEditor" or "ArtStudio" or "TattooStudio" or "ShuttleParking" or "DeepLagoonDemo";
 
     public NativeInterfacePanel(Action<string, string> send, Action close)
     {
@@ -92,6 +92,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         _body.RemoveAllChildren();
         switch (name)
         {
+            case "ShuttleParking": Parking(); break;
             case "LagoonEconomy": Economy(); break;
             case "ApartmentElevator": _elevator = new NativeApartmentElevator(_send); _body.AddChild(_elevator); _elevator.Update(_data); break;
             case "ApartmentTravel": case "ApartmentTerminal": Travel(); break;

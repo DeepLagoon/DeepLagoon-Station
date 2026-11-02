@@ -1,0 +1,36 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+# Author: 25Hydra08 (discord)
+
+- type: vessel
+  id: Pioneer-II
+  parent: BaseVessel
+  name: Pioneer-II
+  description: Маленький, дешёвый, и удобный шаттл с многолетней историей. Легенда в новом корпусе.
+  price: 18000
+  category: Micro
+  class:
+  - Civilian
+  engine:
+  - Plasma
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Pioneer-II.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Pioneer-II
+  mapName: "Pioneer-II"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Pioneer-II.yml
+  minPlayers: 0
+  stations:
+    Pioneer-II:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Pioneer-II {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

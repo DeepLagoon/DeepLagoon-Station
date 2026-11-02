@@ -1,0 +1,39 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Sauron
+  parent: BaseVessel
+  name: Sauron
+  description: Научный шаттл, сделанный под заказ известной компанией. Имеет возможность прыгать в экспедиции.
+  price: 266593
+  category: Large
+  class:
+  - Civilian
+  - Expedition
+  - Medical
+  - Science
+  engine:
+  - AME
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/sauron.yml
+  guidebookPage: null
+  limit: 3
+
+- type: gameMap
+  id: Sauron
+  mapName: "Sauron"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/sauron.yml
+  minPlayers: 0
+  stations:
+    Sauron:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Sauron {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

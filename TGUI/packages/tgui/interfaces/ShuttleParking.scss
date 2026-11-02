@@ -1,0 +1,24 @@
+.ShuttleParking {
+  color: #e4edf7; background: #171e27; padding: 16px; height: 100vh; overflow-y: auto; overflow-x: hidden; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.45;
+  *, *::before, *::after { box-sizing: border-box; }
+  button, select { font: inherit; color: inherit; background: #263445; border: 1px solid #52647b; border-radius: 3px; padding: 8px 12px; min-height: 38px; white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+  button { cursor: pointer; &:disabled { opacity: .5; cursor: default; } &:focus-visible { outline: 2px solid #91caff; outline-offset: 2px; } }
+  button[aria-pressed=true], button.ShuttleParking__primary { background: #286c98; }
+  small { display: block; color: #b5c7db; }
+  h2 { font-size: 18px; } h3 { font-size: 16px; } h2, h3 { margin: 6px 0; overflow-wrap: anywhere; }
+  p, span, strong { overflow-wrap: anywhere; }
+  nav, &__actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  &__identity, &__slot-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  &__identity > div { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+  &__balance { margin: 12px 0; background: #222d3b; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  &__details { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 10px; }
+  &__field { display: grid; gap: 6px; margin: 12px 0; select { width: 100%; min-width: 0; } }
+  section { border: 1px solid #425368; padding: 12px; margin: 12px 0; background: #222d3b; }
+  &__actions > button { flex: 1; min-width: 130px; }
+  &__warning { color: #ffd19a; }
+  &__shop-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(130px,190px); gap: 12px; align-items: center; }
+  &__confirm > button { width: 100%; } &__confirm section { margin-bottom: 0; }
+  &__check { display: flex; gap: 8px; align-items: center; }
+  footer { border-top: 1px solid #425368; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  @media(max-width: 500px) { padding: 10px; &__shop-row { grid-template-columns: 1fr; } button { min-height: 44px; } }
+}

@@ -8,21 +8,20 @@
   id: Magus
   parent: BaseVessel
   name: Магус # Ru-Localization
-  description: Экспедиционный шаттл, на удивление имеющий много медицинского оборудования для своего вида. # Ru-Localization
-  price: 79863 # Exodus: expected ship and contents value; no additional markup.
-  minPriceMarkup: 0.998462379 # Exodus: expected-price allowance for randomized contents.
+  description: "Вооружённый медицинский транспорт для планетарных экспедиций и работы наёмников."
+  price: 162778
+  minPriceMarkup: 1
   category: Medium
-  group: Expedition
+  group: "Expedition"
   shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/magus.yml
   addComponents:
   - type: NpcFactionMember # Exodus NanoTrasen faction
     factions:
     - NanoTrasen
   guidebookPage: null
-  class:
-  - Expedition
-  engine:
-  - AME
+  purchasable: true
+  class: [Civilian, Medical, Mercenary, Expedition, Chemistry]
+  engine: [AME]
 
 - type: gameMap
   id: Magus

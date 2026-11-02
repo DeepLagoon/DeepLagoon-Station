@@ -16,7 +16,10 @@ using Content.Shared.Damage;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
+using Content.Shared.Mind;
 using Content.Shared.Power;
+using Content.Shared.Roles;
+using Content.Shared.Roles.Jobs;
 using Content.Shared.UserInterface;
 using Robust.Server.Audio;
 using Robust.Server.GameObjects;
@@ -29,6 +32,12 @@ namespace Content.Server._NF.Medical;
 
 public sealed partial class MedicalBountySystem : EntitySystem
 {
+    public const int StandardReward = 5000;
+    public const int MedicalReward = 20000;
+
+    // Frontier's medical staff belong to the Frontier department, not Medical.
+    private static readonly ProtoId<JobPrototype>[] MedicalJobs = ["DirectorOfCare", "MdMedic"];
+
     [Dependency] IRobustRandom _random = default!;
     [Dependency] IPrototypeManager _proto = default!;
     [Dependency] DamageableSystem _damageable = default!;
@@ -41,6 +50,8 @@ public sealed partial class MedicalBountySystem : EntitySystem
     [Dependency] PowerReceiverSystem _power = default!;
     [Dependency] SharedAppearanceSystem _appearance = default!;
     [Dependency] BankSystem _bank = default!;
+    [Dependency] SharedMindSystem _mind = default!;
+    [Dependency] SharedJobSystem _jobs = default!;
 
     private List<MedicalBountyPrototype> _cachedPrototypes = new();
 
@@ -167,7 +178,8 @@ public sealed partial class MedicalBountySystem : EntitySystem
 
         if (!TryComp<MedicalBountyComponent>(bountyUid, out var medicalBounty) ||
             medicalBounty.Bounty == null ||
-            !TryComp<DamageableComponent>(bountyUid, out var damageable))
+            !TryComp<DamageableComponent>(bountyUid, out var damageable) ||
+            !TryComp<MobStateComponent>(bountyUid, out var mobState))
         {
             _popup.PopupEntity(Loc.GetString("medical-bounty-redemption-fail-no-bounty"), uid);
             _audio.PlayPvs(component.DenySound, uid);
@@ -183,19 +195,20 @@ public sealed partial class MedicalBountySystem : EntitySystem
             return;
         }
 
-        // Calculate amount of reward to pay out.
-        var bountyPayout = medicalBounty.MaxBountyValue;
-        foreach (var (damageType, damageVal) in damageable.Damage.DamageDict)
+        if (mobState.CurrentState != MobState.Alive)
         {
-            if (bounty.DamageSets.ContainsKey(damageType))
-            {
-                bountyPayout -= (int)(bounty.DamageSets[damageType].PenaltyPerPoint * damageVal);
-            }
-            else
-            {
-                bountyPayout -= (int)(bounty.PenaltyPerOtherPoint * damageVal);
-            }
+            _popup.PopupEntity(Loc.GetString("medical-bounty-redemption-fail-not-alive"), uid);
+            _audio.PlayPvs(component.DenySound, uid);
+            return;
         }
+
+        var bountyPayout = GetBountyReward(ev.Actor);
+
+        // Consume the body before dispensing cash so a second request cannot redeem it again.
+        if (!_container.Remove(bountyUid, container))
+            return;
+
+        QueueDel(bountyUid);
 
         // Spawn cash on the machine
         if (bountyPayout > 0)
@@ -210,11 +223,21 @@ public sealed partial class MedicalBountySystem : EntitySystem
             }
         }
 
-        QueueDel(bountyUid);
-
         _popup.PopupEntity(Loc.GetString("medical-bounty-redemption-success"), uid);
         _audio.PlayPvs(component.RedeemSound, uid);
         UpdateUserInterface(uid, component);
+    }
+
+    public int GetBountyReward(EntityUid seller)
+    {
+        if (_mind.TryGetMind(seller, out var mind, out _) &&
+            _jobs.MindTryGetJobId(mind, out var job) &&
+            job is { } jobId && MedicalJobs.Contains(jobId))
+        {
+            return MedicalReward;
+        }
+
+        return StandardReward;
     }
 
     private void OnEntityInserted(EntityUid uid, MedicalBountyRedemptionComponent component, EntInsertedIntoContainerMessage args)
@@ -287,20 +310,6 @@ public sealed partial class MedicalBountySystem : EntitySystem
             return new MedicalBountyRedemptionUIState(MedicalBountyRedemptionStatus.NotAlive, 0);
         }
 
-        // Bounty is redeemable, calculate amount of reward to pay out.
-        var bountyPayout = medicalBounty.MaxBountyValue;
-        foreach (var (damageType, damageVal) in damageable.Damage.DamageDict)
-        {
-            if (bounty.DamageSets.ContainsKey(damageType))
-            {
-                bountyPayout -= (int)(bounty.DamageSets[damageType].PenaltyPerPoint * damageVal);
-            }
-            else
-            {
-                bountyPayout -= (int)(bounty.PenaltyPerOtherPoint * damageVal);
-            }
-        }
-
-        return new MedicalBountyRedemptionUIState(MedicalBountyRedemptionStatus.Valid, int.Max(bountyPayout, 0));
+        return new MedicalBountyRedemptionUIState(MedicalBountyRedemptionStatus.Valid, StandardReward, MedicalReward);
     }
 }

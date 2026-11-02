@@ -1,0 +1,38 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Yunk_P
+  parent: BaseVessel
+  name: SFC Yunk-P
+  description: Некогда культовый шаттл флота Нанотрейзен. Ныне является абсолютной переделкой под гражданские нужды.Имеет гидропоннику, кухню, хим. уголок.
+  price: 180063
+  category: Large
+  class:
+  - Civilian
+  - Chemistry
+  - Kitchen
+  - Botany
+  engine:
+  - AME
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Yunk_P.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Yunk_P
+  mapName: "SFC Yunk-P"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Yunk_P.yml
+  minPlayers: 0
+  stations:
+    Yunk_P:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "SFC Yunk-P {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

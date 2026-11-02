@@ -8,21 +8,20 @@
   id: Littora
   parent: BaseVessel
   name: Литтора # Ru-Localization
-  description: Экспедиционный шаттл среднего-крупного размера с утилизаторским оборудованием. # Ru-Localization
-  price: 90123 # Exodus: expected ship and contents value; no additional markup.
-  minPriceMarkup: 0.999946058 # Exodus: expected-price allowance for randomized contents.
+  description: "Вместительное экспедиционное судно с оборудованием для утилизации."
+  price: 121574
+  minPriceMarkup: 1
   category: Large
-  group: Expedition
+  group: "Expedition"
   shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/littora.yml
   addComponents:
   - type: NpcFactionMember # Exodus NanoTrasen faction
     factions:
     - NanoTrasen
   guidebookPage: null
-  class:
-  - Expedition
-  engine:
-  - AME
+  purchasable: true
+  class: [Civilian, Salvage, Expedition]
+  engine: [AME]
 
 - type: gameMap
   id: Littora

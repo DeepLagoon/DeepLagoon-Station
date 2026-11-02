@@ -1,0 +1,40 @@
+# Author Info
+# GitHub: Rubeebeebee
+# Discord: rubeebee
+# Shuttle Notes:
+#
+- type: vessel
+  id: gixon
+  parent: BaseVessel
+  name: Gixon
+  description: Крупный мехоносец Культа Бога Машины с научным отсеком, добывающим ангаром и горными пульсарами. Обладает сравнительно тонкой бронёй и тремя бананиумными генераторами в общей электросети.
+  price: 306103
+  category: Large
+  class:
+  - Civilian
+  - Expedition
+  - Salvage
+  - Science
+  engine:
+  - Bananium
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/gixon.yml
+  guidebookPage: null
+  limit: 1
+
+- type: gameMap
+  id: gixon
+  mapName: "Gixon"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/gixon.yml
+  minPlayers: 0
+  stations:
+    gixon:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Gixon {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

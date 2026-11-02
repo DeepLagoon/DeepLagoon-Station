@@ -26,7 +26,7 @@ public sealed class VendingMachineTguiData(IEntityManager entities)
             if (!_prototypes.TryIndex<EntityPrototype>(entry.ID, out var prototype))
                 continue;
 
-            var price = requiresCash ? VendingMachinePricing.GetPrice(prototype, modifier, _prototypes, entities) : 0;
+            var price = requiresCash ? entry.Price ?? VendingMachinePricing.GetPrice(prototype, modifier, _prototypes, entities) : 0;
             items.Add(new TguiData().String("key", Key(entry)).String("id", entry.ID).Number("type", (int) entry.Type)
                 .String("name", prototype.Name).String("description", prototype.Description)
                 .Number("price", price).String("priceText", price == 0 ? Loc.GetString("dl-vending-free") : BankSystemExtensions.ToSpesoString(price))

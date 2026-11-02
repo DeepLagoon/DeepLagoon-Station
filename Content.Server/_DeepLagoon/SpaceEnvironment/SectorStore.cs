@@ -24,7 +24,8 @@ public sealed class SectorStore : IDisposable
         command.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; " +
             "CREATE TABLE IF NOT EXISTS sector_manifests(campaign TEXT NOT NULL,id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(campaign,id)); " +
             "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,PRIMARY KEY(campaign,sector,region)); " +
-            "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot));";
+            "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot)); " +
+            "CREATE TABLE IF NOT EXISTS sector_encounters(campaign TEXT NOT NULL,sector TEXT NOT NULL,site TEXT NOT NULL,choice TEXT NOT NULL,PRIMARY KEY(campaign,sector,site));";
         command.ExecuteNonQuery();
     }
 
@@ -140,6 +141,34 @@ public sealed class SectorStore : IDisposable
     public static void ValidateKey(string key)
     {
         if (string.IsNullOrWhiteSpace(key) || key.Length > 128) throw new ArgumentException("Invalid sector/campaign identity.");
+    }
+
+    public HashSet<string> Encounters(string campaign, string sector)
+    {
+        ValidateKey(campaign);
+        ValidateKey(sector);
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT site FROM sector_encounters WHERE campaign=$campaign AND sector=$sector";
+        command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$sector", sector);
+        using var reader = command.ExecuteReader();
+        var sites = new HashSet<string>();
+        while (reader.Read()) sites.Add(reader.GetString(0));
+        return sites;
+    }
+
+    public bool TryRecordEncounter(string campaign, string sector, string site, string choice)
+    {
+        if (choice is not ("data" or "cargo")) return false;
+        var definition = Load(campaign, sector);
+        if (definition == null || !NavigationSiteCatalog.Generate(definition).Any(s => s.Id == site && NavigationSiteCatalog.Available(definition, s))) return false;
+        using var command = _connection.CreateCommand();
+        command.CommandText = "INSERT INTO sector_encounters VALUES($campaign,$sector,$site,$choice) ON CONFLICT DO NOTHING";
+        command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$sector", sector);
+        command.Parameters.AddWithValue("$site", site);
+        command.Parameters.AddWithValue("$choice", choice);
+        return command.ExecuteNonQuery() == 1;
     }
 
     public static void Validate(SectorDefinition sector)

@@ -165,7 +165,7 @@ public sealed class OrbitalDebrisIntegrationTests
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            Assert.That(merged.Count(entities.EntityExists), Is.LessThanOrEqualTo(10), "Converging views must share ten grids");
+            Assert.That(merged.Count(entities.EntityExists), Is.LessThanOrEqualTo(5), "Converging views must share five grids");
             Assert.That(entities.EntityExists(loose), Is.False, "Invisible detached generated loot must be removed without a grace timer");
             Assert.That(entities.EntityExists(stored), Is.True, "Finds taken onto a player's ordinary grid must survive");
             Assert.That(entities.EntityExists(unrelated), Is.True, "Unrelated items are outside generated-loot ownership");

@@ -33,7 +33,7 @@ public sealed class ClothingFaceFitIntegrationTests
     [TestCase("Vox")]
     [TestCase("Resomi")]
     [TestCase("Vulpkanin")]
-    public async Task AvianMaskFitSwitchRefreshesEquippedMasksAndPreservesOtherSpecies(string species)
+    public async Task AvianFaceFitSwitchRefreshesEquippedHeadwearAndMasksAndPreservesOtherSpecies(string species)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         EntityUid uid = default;
@@ -41,7 +41,7 @@ public sealed class ClothingFaceFitIntegrationTests
         {
             var entities = pair.Client.EntMan;
             Assert.That(pair.Client.CfgMan.GetCVar(BodyCustomizationCVars.AvianMaskFit), Is.False,
-                "Avian mask fitting is temporarily disabled by default.");
+                "Avian headwear and mask fitting is temporarily disabled by default.");
             uid = entities.SpawnEntity($"Mob{species}Dummy", MapCoordinates.Nullspace);
             var profile = HumanoidCharacterProfile.DefaultWithSpecies(species);
             profile.Appearance.BodyFeatures.Clear();
@@ -60,6 +60,7 @@ public sealed class ClothingFaceFitIntegrationTests
             {
                 ("ClothingMaskGas", "mask"),
                 ("ClothingBalaclavaSkiMaskGreen", "balaclava"),
+                ("ClothingHeadHelmetHardsuitEngineering", "head"),
             })
             {
                 EntityUid item = default;

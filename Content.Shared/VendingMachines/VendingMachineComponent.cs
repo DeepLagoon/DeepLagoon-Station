@@ -230,6 +230,13 @@ namespace Content.Shared.VendingMachines
         [DataField]
         [AutoNetworkedField]
         public bool RequiresCash = false;
+
+        /// <summary>Successful paid purchases, local to this machine and retained when restocking.</summary>
+        [DataField(serverOnly: true)]
+        public Dictionary<string, int> Purchases = new();
+
+        [DataField(serverOnly: true)]
+        public long TotalPurchases;
     }
 
     [Serializable, NetSerializable, DataDefinition]
@@ -241,6 +248,9 @@ namespace Content.Shared.VendingMachines
         public string ID = string.Empty;
         [DataField, ViewVariables(VVAccess.ReadWrite)]
         public uint Amount;
+        /// <summary>Authoritative current purchase price, including this machine's demand.</summary>
+        [DataField]
+        public int? Price;
         public VendingMachineInventoryEntry() { }
         public VendingMachineInventoryEntry(InventoryType type, string id, uint amount)
         {

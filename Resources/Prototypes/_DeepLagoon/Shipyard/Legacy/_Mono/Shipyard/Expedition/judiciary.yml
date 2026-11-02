@@ -8,21 +8,20 @@
   id: Judiciary
   parent: BaseVessel
   name: Судья # Ru-Localization
-  description: Переоборудованное исследовательское судно, оснащённое экспедиционным и боевым оборудованием. # Ru-Localization
-  price: 78518 # Exodus: expected ship and contents value; no additional markup.
-  minPriceMarkup: 0.998913288 # Exodus: expected-price allowance for randomized contents.
+  description: "Переоборудованное исследовательское судно с боевым оборудованием для экспедиций."
+  price: 131739
+  minPriceMarkup: 1
   category: Medium
-  group: Expedition
+  group: "Expedition"
   shuttlePath: /SharedMaps/_Mono/Shuttles/Expedition/judiciary.yml
   addComponents:
   - type: NpcFactionMember # Exodus NanoTrasen faction
     factions:
     - NanoTrasen
   guidebookPage: null # Legacy guidebook page is not present in Station.
-  class:
-  - Expedition
-  engine:
-  - AME
+  purchasable: true
+  class: [Civilian, Expedition, Mercenary, Salvage, Science]
+  engine: [AME]
 
 - type: gameMap
   id: Judiciary

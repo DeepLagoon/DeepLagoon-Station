@@ -105,9 +105,17 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
             if (!SpaceRegionGeometry.Intersects(region, state.Position, position)) continue;
             switch (region.Kind)
             {
-                case SpaceRegionKind.Plasma: plasma = MathF.Max(plasma, region.Intensity); break;
-                case SpaceRegionKind.Radiation: radiation = MathF.Max(radiation, region.Intensity); break;
-                default: dust = MathF.Max(dust, region.Intensity); break;
+                case SpaceRegionKind.Plasma:
+                    var seed = SectorRandom.Derive(environment.Definition.Seed, "sites-v1/region/" + region.Id);
+                    plasma = MathF.Max(plasma, region.Intensity * (NavigationSiteCatalog.PlasmaQuiet(seed, _timing.CurTime.TotalSeconds) ? 0.15f : 1f));
+                    break;
+                case SpaceRegionKind.Radiation:
+                    radiation = MathF.Max(radiation, region.Intensity * (NavigationSiteCatalog.InRadiationPocket(region, position) ? 0.2f : 1f));
+                    break;
+                default:
+                    var corridor = region.Kind == SpaceRegionKind.Dust && NavigationSiteCatalog.InDustCorridor(region, state.Position, position);
+                    dust = MathF.Max(dust, region.Intensity * (corridor ? 0.15f : 1f));
+                    break;
             }
         }
         state.Position = position;
@@ -205,7 +213,7 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
         var strongest = 0f;
         foreach (var region in _candidates)
             if (region.Kind == SpaceRegionKind.Radiation && SpaceRegionGeometry.Contains(region, position))
-                strongest = MathF.Max(strongest, region.Intensity);
+                strongest = MathF.Max(strongest, region.Intensity * (NavigationSiteCatalog.InRadiationPocket(region, position) ? 0.2f : 1f));
         if (Transform(ent).GridUid is { } grid && TryComp<SpaceEnvironmentProtectionComponent>(grid, out var protection))
             strongest *= Math.Clamp(protection.RadiationMultiplier, 0, 1);
         args.Radiation += strongest * 0.5f;

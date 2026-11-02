@@ -1,13 +1,12 @@
 ﻿using System.Text;
 using Content.Server.Administration.Managers;
-using Content.Server.Afk;
 using Content.Shared.Administration;
 using Robust.Shared.Console;
 using Robust.Shared.Utility;
 
 namespace Content.Server.Administration.Commands;
 
-[AdminCommand(AdminFlags.AdminWho)]
+[AnyCommand]
 public sealed class AdminWhoCommand : IConsoleCommand
 {
     public string Command => "adminwho";
@@ -17,7 +16,6 @@ public sealed class AdminWhoCommand : IConsoleCommand
     public void Execute(IConsoleShell shell, string argStr, string[] args)
     {
         var adminMgr = IoCManager.Resolve<IAdminManager>();
-        var afk = IoCManager.Resolve<IAfkManager>();
 
         var seeStealth = true;
 
@@ -30,7 +28,7 @@ public sealed class AdminWhoCommand : IConsoleCommand
         }
 
         var sb = new StringBuilder();
-        var first = true;
+        var count = 0;
         foreach (var admin in adminMgr.ActiveAdmins)
         {
             var adminData = adminMgr.GetAdminData(admin)!;
@@ -39,23 +37,18 @@ public sealed class AdminWhoCommand : IConsoleCommand
             if (adminData.Stealth && !seeStealth)
                 continue;
 
-            if (!first)
+            if (count > 0)
                 sb.Append('\n');
-            first = false;
+            count++;
 
             sb.Append(admin.Name);
             if (adminData.Title is { } title)
                 sb.Append($": [{title}]");
-
-            if (adminData.Stealth)
-                sb.Append(" (S)");
-
-            if (shell.Player is { } player && adminMgr.HasAdminFlag(player, AdminFlags.Admin))
-            {
-                if (afk.IsAfk(admin))
-                    sb.Append(" [AFK]");
-            }
         }
+
+        if (count > 0)
+            sb.Append('\n');
+        sb.Append(Loc.GetString("cmd-adminwho-total", ("count", count)));
 
         shell.WriteLine(sb.ToString());
     }

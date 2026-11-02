@@ -50,6 +50,7 @@ public sealed class SpaceSurveySystem : EntitySystem
         if (!args.CanAccess || !args.CanInteract || !TryEnvironment(ent, out _, out _, out _)) return;
         var user = args.User;
         args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("space-environment-survey"), Act = () => Scan(ent, user) });
+        EntityManager.System<SpaceNavigationSystem>().AddVerbs(ent, ref args);
     }
 
     private void OnExamine(Entity<ShuttleConsoleComponent> ent, ref ExaminedEvent args)
@@ -59,14 +60,12 @@ public sealed class SpaceSurveySystem : EntitySystem
             ("profile", Loc.GetString(_prototypes.Index<SectorProfilePrototype>(environment.Definition.Profile).Name)),
             ("surveyed", environment.Surveyed.Count), ("total", environment.Definition.Regions.Count)));
         args.PushMarkup(Loc.GetString("space-environment-survey-hint"));
+        EntityManager.System<SpaceNavigationSystem>().AddHint(ent, ref args);
     }
 
     public bool Scan(EntityUid console, EntityUid user)
     {
-        if (!_sectors.Enabled || !Transform(console).Anchored || !this.IsPowered(console, EntityManager)
-            || !_blocker.CanInteract(user, console) || !_interaction.InRangeUnobstructed(user, console)
-            || !_access.IsAllowed(user, console)
-            || TryComp<ShuttleConsoleLockComponent>(console, out var locked) && _locks.GetEffectiveLockState(console, locked)
+        if (!CanOperate(console, user)
             || !TryEnvironment(console, out var environment, out var map, out var grid)) return false;
         var cooldown = EnsureComp<SpaceSurveyCooldownComponent>(grid);
         if (_timing.CurTime < cooldown.ReadyAt)
@@ -116,7 +115,14 @@ public sealed class SpaceSurveySystem : EntitySystem
         return true;
     }
 
-    private string AwardResearch(EntityUid console, EntityUid grid, EntityUid user, int points)
+    public bool CanOperate(EntityUid console, EntityUid user)
+        => _sectors.Enabled && HasComp<ShuttleConsoleComponent>(console)
+            && Transform(console).Anchored && this.IsPowered(console, EntityManager)
+            && _blocker.CanInteract(user, console) && _interaction.InRangeUnobstructed(user, console)
+            && _access.IsAllowed(user, console)
+            && !(TryComp<ShuttleConsoleLockComponent>(console, out var locked) && _locks.GetEffectiveLockState(console, locked));
+
+    public string AwardResearch(EntityUid console, EntityUid grid, EntityUid user, int points)
     {
         var server = ResearchServer(console, grid);
         if (server is { } target && Comp<ResearchServerComponent>(target).Points <= int.MaxValue - points)

@@ -81,13 +81,21 @@
 
 - type: technology
   id: Broadsword
-  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-broadsword
   entityIcon: AFInterceptor
   discipline: MechaEngineering
   tier: 2
   cost: 100000
   recipeUnlocks:
+  - BroadswordHarness
+  - BroadswordHead
+  - BroadswordLArm
+  - BroadswordLLeg
+  - BroadswordRArm
+  - BroadswordRLeg
+  - BroadswordCentralElectronics
+  - BroadswordPeripheralsElectronics
+  - BroadswordTargetingElectronics
   - LightMechaAutocannon
   - LightMechaSMG
   - LightMechaShotgun
@@ -110,13 +118,13 @@
 
 - type: technology
   id: BroadswordSubtypes
-  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-broadsword-subtypes
   entityIcon: AFInterceptorM
   discipline: MechaEngineering
   tier: 1
   cost: 70000
   recipeUnlocks:
+  - HalberdHarness
   - MediumMechDMR
   - MediumMechCoilgun
   - MediumMechTOW

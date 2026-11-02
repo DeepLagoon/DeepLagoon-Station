@@ -6,6 +6,8 @@ medical-bounty-redemption-fail-no-bounty = Выплата за тело в ка�
 
 medical-bounty-redemption-fail-too-much-damage = Найденное тело слишком повреждено, чтобы получить за него выплату.
 
+medical-bounty-redemption-fail-not-alive = Тело должно быть реанимировано перед получением выплаты.
+
 medical-bounty-redemption-success = Обмен совершён! Оплата произведена.
 
 medical-bounty-redemption-ui-title = Устройство для выкупа тела
@@ -28,7 +30,9 @@ medical-bounty-redemption-redeem-label-too-much-damage = Тело слишком
 
 medical-bounty-redemption-redeem-label-not-alive = Тело должно быть реанимировано перед получением выплаты.
 
-medical-bounty-redemption-redeem-label-valid-bounty = Сумма: { $amount }.
+medical-bounty-redemption-redeem-label-valid-bounty = Награда: { $amount }. Медицинскому персоналу: { $medicalAmount }.
+
+medical-bounty-redemption-medical-staff-hint = Квалифицированный медицинский персонал получает более высокую награду
 
 medical-bounty-redemption-ui-sell-button = Обменять
 

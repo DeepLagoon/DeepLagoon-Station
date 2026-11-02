@@ -6,7 +6,7 @@ namespace Content.Shared._DeepLagoon.BodyCustomization;
 public static class BodyCustomizationCVars
 {
     /// <summary>
-    /// Enables automatic face fitting for Vox and Resomi masks and balaclavas.
+    /// Enables automatic face fitting for Vox and Resomi headwear, masks and balaclavas.
     /// Disabled temporarily; native species sprites and displacement maps are preserved.
     /// </summary>
     public static readonly CVarDef<bool> AvianMaskFit =

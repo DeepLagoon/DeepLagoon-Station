@@ -17,6 +17,7 @@ public sealed partial class MedicalBountyPriceGunSystem : EntitySystem
     [Dependency] private UseDelaySystem _useDelay = default!;
     [Dependency] private PopupSystem _popupSystem = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private MedicalBountySystem _medicalBounty = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -66,9 +67,9 @@ public sealed partial class MedicalBountyPriceGunSystem : EntitySystem
 
     private void AppraiseEntity(EntityUid target, EntityUid user)
     {
-        if (TryComp<MedicalBountyComponent>(target, out var bounty))
+        if (HasComp<MedicalBountyComponent>(target))
         {
-            _popupSystem.PopupEntity(Loc.GetString("medical-price-gun-pricing-result", ("object", Identity.Entity(target, EntityManager)), ("price", BankSystemExtensions.ToSpesoString(bounty.MaxBountyValue))), user, user);
+            _popupSystem.PopupEntity(Loc.GetString("medical-price-gun-pricing-result", ("object", Identity.Entity(target, EntityManager)), ("price", BankSystemExtensions.ToSpesoString(_medicalBounty.GetBountyReward(user)))), user, user);
         }
         else
         {

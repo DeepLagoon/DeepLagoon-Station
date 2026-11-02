@@ -74,6 +74,7 @@ namespace Content.Server.VendingMachines
             //SubscribeLocalEvent<VendingMachineComponent, EntRemovedFromContainerMessage>(OnEntityRemoved); // Frontier //Mono: Moved this logic to CreditReceiverSystem
 
             SubscribeLocalEvent<VendingMachineComponent, ActivatableUIOpenAttemptEvent>(OnActivatableUIOpenAttempt);
+            SubscribeLocalEvent<VendingMachineComponent, BeforeActivatableUIOpenEvent>((uid, component, _) => RefreshPrices(uid, component));
 
             Subs.BuiEvents<VendingMachineComponent>(VendingMachineUiKey.Key, subs =>
             {
@@ -109,6 +110,7 @@ namespace Content.Server.VendingMachines
         {
             base.OnMapInit(uid, component, args);
             _expeditionLoot.FilterVendingInventory(uid, component);
+            RefreshPrices(uid, component);
 
             if (HasComp<ApcPowerReceiverComponent>(uid))
             {
@@ -193,6 +195,7 @@ namespace Content.Server.VendingMachines
             }
 
             TryRestockInventory(uid, component);
+            RefreshPrices(uid, component);
 
             Popup.PopupEntity(Loc.GetString("vending-machine-restock-done", ("this", args.Args.Used), ("user", args.Args.User), ("target", uid)), args.Args.User, PopupType.Medium);
 
@@ -336,6 +339,65 @@ namespace Content.Server.VendingMachines
             if (!_prototypeManager.TryIndex<EntityPrototype>(itemId, out var proto))
                 return;
 
+            var totalPrice = GetPurchasePrice(uid, proto, component);
+
+            if (IsAuthorized(uid, sender, component))
+            {
+                int bankBalance = 0;
+                if (!HasComp<IronmanComponent>(sender) && TryComp<BankAccountComponent>(sender, out var bank))
+                    bankBalance = bank.Balance;
+
+                _cash.TryGetCash(uid, out _, out var cashSlotBalance); //Mono: Moved this logic to CreditReceiverSystem
+
+                if (totalPrice > (long)bankBalance + cashSlotBalance)
+                {
+                    _popupSystem.PopupEntity(Loc.GetString("bank-insufficient-funds"), uid);
+                    Deny(uid, component);
+                    return;
+                }
+
+                if (TryEjectVendorItem(uid, type, itemId, component.CanShoot, component))
+                {
+                    // Keep rejected requests from overwriting the price of an item already being dispensed.
+                    component.LastPurchasePrice = totalPrice;
+                    var paidFully = _cash.TryCashPayment(uid, totalPrice, out var _, true);
+
+                    if (totalPrice > cashSlotBalance && !HasComp<IronmanComponent>(sender))
+                        paidFully = _bankSystem.TryBankWithdraw(sender, totalPrice - cashSlotBalance);
+
+                    if (paidFully)
+                    {
+                        if (totalPrice > 0)
+                        {
+                            var purchases = component.Purchases.GetValueOrDefault(itemId);
+                            component.Purchases[itemId] = purchases < int.MaxValue ? purchases + 1 : purchases;
+                            component.TotalPurchases++;
+                            RefreshPrices(uid, component);
+                        }
+
+                        foreach (var (account, taxCoeff) in component.TaxAccounts)
+                        {
+                            if (!float.IsFinite(taxCoeff) || taxCoeff <= 0.0f)
+                                continue;
+                            var tax = (int)Math.Floor(totalPrice * taxCoeff);
+                            _bankSystem.TrySectorDeposit(account, tax, LedgerEntryType.VendorTax);
+                        }
+                    }
+
+                    Dirty(uid, component);
+                    _adminLogger.Add(LogType.Action, LogImpact.Low,
+                        $"{ToPrettyString(sender):user} bought from [vendingMachine:{ToPrettyString(uid!)}, product:{proto.Name}, cost:{totalPrice},  with ${cashSlotBalance} in the cash slot and ${bankBalance} in the bank.");
+                }
+            }
+            // End Frontier
+        }
+
+        /// <summary>Uses the same authoritative price for payment and both vending catalogues.</summary>
+        public int GetPurchasePrice(EntityUid uid, EntityPrototype proto, VendingMachineComponent component)
+        {
+            if (!component.RequiresCash)
+                return 0;
+
             var price = _pricing.GetEstimatedPrice(proto);
             // Somewhere deep in the code of pricing, a hardcoded 20 dollar value exists for anything without
             // a staticprice component for some god forsaken reason, and I cant find it or think of another way to
@@ -348,59 +410,36 @@ namespace Content.Server.VendingMachines
             if (TryComp<MarketModifierComponent>(component.Owner, out var modifier))
                 price *= modifier.Mod;
 
-            var totalPrice = component.RequiresCash ? (int) price : 0;
-
             // If any price has a vendor price, explicitly use its value - higher OR lower, over others.
             var priceVend = _pricing.GetEstimatedVendPrice(proto);
-            if (priceVend > 0.0 && component.RequiresCash) // if vending price exists, overwrite it.
-                totalPrice = (int) priceVend;
+            if (priceVend > 0.0)
+                price = priceVend;
 
-            if (IsAuthorized(uid, sender, component))
+            // Linear growth from the base: +2% per purchase of this product, +0.5% for every other purchase.
+            var demand = 1.0 + component.TotalPurchases * 0.005
+                + component.Purchases.GetValueOrDefault(proto.ID) * 0.015;
+
+            return (int)Math.Clamp(Math.Round(Math.Truncate(price) * demand, MidpointRounding.AwayFromZero), 0, int.MaxValue);
+        }
+
+        private void RefreshPrices(EntityUid uid, VendingMachineComponent component)
+        {
+            var changed = false;
+            foreach (var entry in component.Inventory.Values.Concat(component.ContrabandInventory.Values).Concat(component.EmaggedInventory.Values))
             {
-                int bankBalance = 0;
-                if (!HasComp<IronmanComponent>(sender) && TryComp<BankAccountComponent>(sender, out var bank))
-                    bankBalance = bank.Balance;
+                if (!_prototypeManager.TryIndex<EntityPrototype>(entry.ID, out var proto))
+                    continue;
 
-                _cash.TryGetCash(uid, out _, out var cashSlotBalance); //Mono: Moved this logic to CreditReceiverSystem
+                var price = GetPurchasePrice(uid, proto, component);
+                if (entry.Price == price)
+                    continue;
 
-                if (totalPrice > bankBalance + cashSlotBalance)
-                {
-                    _popupSystem.PopupEntity(Loc.GetString("bank-insufficient-funds"), uid);
-                    Deny(uid, component);
-                    return;
-                }
-
-                bool paidFully = false;
-                // Mono: Store the purchase price for tracking
-                component.LastPurchasePrice = totalPrice;
-
-                if (TryEjectVendorItem(uid, type, itemId, component.CanShoot, component))
-                {
-                    paidFully = _cash.TryCashPayment(uid, totalPrice, out var _, true); // Mono - Attempt to pay with cash before credit
-
-                    if (totalPrice > cashSlotBalance && !HasComp<IronmanComponent>(sender))
-                        paidFully = _bankSystem.TryBankWithdraw(sender, totalPrice - cashSlotBalance); // Mono - if cash was not enough, pay the difference with credit
-
-                    // If we paid completely, pay our station taxes
-                    if (paidFully)
-                    {
-                        foreach (var (account, taxCoeff) in component.TaxAccounts)
-                        {
-                            if (!float.IsFinite(taxCoeff) || taxCoeff <= 0.0f)
-                                continue;
-                            var tax = (int)Math.Floor(totalPrice * taxCoeff);
-                            _bankSystem.TrySectorDeposit(account, tax, LedgerEntryType.VendorTax);
-                        }
-                    }
-
-                    // Something was ejected, update the vending component's state
-                    Dirty(uid, component);
-
-                    _adminLogger.Add(LogType.Action, LogImpact.Low,
-                        $"{ToPrettyString(sender):user} bought from [vendingMachine:{ToPrettyString(uid!)}, product:{proto.Name}, cost:{totalPrice},  with ${cashSlotBalance} in the cash slot and ${bankBalance} in the bank.");
-                }
+                entry.Price = price;
+                changed = true;
             }
-            // End Frontier
+
+            if (changed)
+                Dirty(uid, component);
         }
 
         /// <summary>

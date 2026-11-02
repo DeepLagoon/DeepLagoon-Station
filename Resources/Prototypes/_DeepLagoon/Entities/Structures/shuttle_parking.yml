@@ -1,0 +1,33 @@
+- type: entity
+  id: ComputerShuttleParking
+  parent: BaseComputer
+  name: shuttle parking console
+  description: A console for parking and long-term shuttle storage.
+  components:
+  - type: Sprite
+    sprite: _NF/Structures/Machines/computers.rsi
+    layers:
+    - map: [computerLayerBody]
+      state: computer
+    - map: [computerLayerKeyboard]
+      state: generic_keyboard
+    - map: [computerLayerScreen]
+      state: shipyard
+    - map: [computerLayerKeys]
+      state: telesci_key
+  - type: ItemSlots
+  - type: ParkingConsole
+    card:
+      name: ID
+      whitelist:
+        components: [IdCard]
+      ejectOnBreak: true
+      swap: false
+      insertSound: /Audio/Machines/id_insert.ogg
+      ejectSound: /Audio/Machines/id_swipe.ogg
+  - type: ActivatableUI
+    key: enum.ParkingUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.ParkingUiKey.Key:
+        type: ParkingBoundUserInterface

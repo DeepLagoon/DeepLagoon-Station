@@ -1,0 +1,42 @@
+# Author Info
+# GitHub: core-mene
+# Discord: core_mene / avtomata / zeranov
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: flashpoint
+  parent: BaseVessel
+  name: Flashpoint
+  description: Наёмнический флагман Flashpoint производства Plastitanium Big Boy Shipwork. Подержанное судно с частично снятым оборудованием, пустым ядром ИИ, защитой от абордажа и возможностью проводить экспедиции.
+  price: 428384
+  category: Large
+  class:
+  - Civilian
+  - Cargo
+  - Mercenary
+  - Expedition
+  engine:
+  - AME
+  group: Expedition
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/flashpoint.yml
+  guidebookPage: null
+  access: Mercenary
+  limit: 2
+
+- type: gameMap
+  id: flashpoint
+  mapName: "Flashpoint"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Expedition/flashpoint.yml
+  minPlayers: 0
+  stations:
+    flashpoint:
+      stationProto: StandardFrontierExpeditionVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Flashpoint {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

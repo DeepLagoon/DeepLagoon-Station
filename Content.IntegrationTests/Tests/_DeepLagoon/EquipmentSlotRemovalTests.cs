@@ -54,7 +54,7 @@ public sealed class EquipmentSlotRemovalTests
 ";
 
     [Test]
-    public async Task MandatoryHiddenAndBaseGearCanAllBeRemovedAndStayEmptyAtSpawn()
+    public async Task RemovedGearStaysEmptyAtSpawnExceptMandatoryIdentification()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var requested = new[] { "shoes", "id", "back", "ears", "jumpsuit" };
@@ -125,7 +125,7 @@ public sealed class EquipmentSlotRemovalTests
             {
                 var inventory = entities.System<InventorySystem>();
                 foreach (var slot in requested)
-                    Assert.That(inventory.TryGetSlotEntity(spawned, slot, out _), Is.False, slot);
+                    Assert.That(inventory.TryGetSlotEntity(spawned, slot, out _), Is.EqualTo(slot == "id"), slot);
             }
             finally { entities.DeleteEntity(spawned); }
         });

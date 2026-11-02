@@ -127,7 +127,7 @@ namespace Content.Client.VendingMachines.UI
                 var itemName = Identity.Name(dummy, _entityManager);
                 var cost = 0; // mono
                 if (requiresCash) // frontier
-                    cost = VendingMachinePricing.GetPrice(prototype, priceModifier, _prototypeManager, _entityManager);
+                    cost = entry.Price ?? VendingMachinePricing.GetPrice(prototype, priceModifier, _prototypeManager, _entityManager);
 
                 string itemText;
 

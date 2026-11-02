@@ -43,7 +43,7 @@ public sealed class OrbitalDebrisTests
         var shares = Enumerable.Range(0, players).Select(i => OrbitalDebrisSystem.FairShare(players, i)).ToArray();
         Assert.That(shares.Sum(), Is.LessThanOrEqualTo(100));
         Assert.That(shares.Max() - shares.Min(), Is.LessThanOrEqualTo(1));
-        Assert.That(shares.All(x => x is >= 0 and <= 10), Is.True);
+        Assert.That(shares.All(x => x is >= 0 and <= 5), Is.True);
     }
 
     [TestCase(10f)]
@@ -101,7 +101,7 @@ public sealed class OrbitalDebrisTests
         var planet = OrbitalDebrisSystem.Habitat(sector, new Vector2(5000, 0));
         var field = OrbitalDebrisSystem.Habitat(sector, new Vector2(10000, 0));
         Assert.That(open.Target, Is.EqualTo(1));
-        Assert.That(open.Interval, Is.EqualTo(75));
+        Assert.That(open.Interval, Is.EqualTo(62.5f));
         Assert.That(planet.Target, Is.EqualTo(3));
         Assert.That(field.Target, Is.EqualTo(10));
         Assert.That(field.MaxExtent, Is.EqualTo(10));

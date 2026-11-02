@@ -113,8 +113,8 @@
       offset: "-0.5,0"
       map: ["enum.PaperLabelVisuals.Layer"]
   - type: TradeCrate
-    valueAtDestination: 30000
-    valueElsewhere: 20000
+    valueAtDestination: 15000
+    valueElsewhere: 10000
 
 - type: entity
   parent: [ CrateTradeBaseSecureContraband, BaseFactionGearTaxedT2 ]
@@ -142,11 +142,11 @@
       offset: "-0.5,0"
       map: ["enum.PaperLabelVisuals.Layer"]
   - type: TradeCrate
-    valueAtDestination: 45000
-    valueElsewhere: 4000
+    valueAtDestination: 22500
+    valueElsewhere: 2000
     expressDeliveryDuration: 3600 # one hour, go go (timeout mostly for pirates & NFSD)
-    expressOnTimeBonus: 10000
-    expressLatePenalty: 30000
+    expressOnTimeBonus: 5000
+    expressLatePenalty: 15000
 
 - type: entity
   parent: [ CrateTradeBaseSecureContraband, BaseFactionGearTaxedT2 ]
@@ -174,11 +174,11 @@
       offset: "-0.5,0"
       map: ["enum.PaperLabelVisuals.Layer"]
   - type: TradeCrate
-    valueAtDestination: 45000
-    valueElsewhere: 2000
+    valueAtDestination: 22500
+    valueElsewhere: 1000
     expressDeliveryDuration: 3600 # one hour, go go (timeout mostly for pirates & NFSD)
-    expressOnTimeBonus: 20000
-    expressLatePenalty: 25000
+    expressOnTimeBonus: 10000
+    expressLatePenalty: 12500
 
 - type: entity
   parent: [ CrateTradeBaseSecureContraband, BaseFactionGearTaxedT2 ]
@@ -206,11 +206,11 @@
       offset: "-0.5,0"
       map: ["enum.PaperLabelVisuals.Layer"]
   - type: TradeCrate
-    valueAtDestination: 50000 # 105.000 is psychopathic + 45,000 making it 150,000 which is fucking stupid,
-    valueElsewhere: 3000
+    valueAtDestination: 25000
+    valueElsewhere: 1500
     expressDeliveryDuration: 36000 # one hour, go go (timeout mostly for pirates & NFSD)
-    expressOnTimeBonus: 25000
-    expressLatePenalty: 30000
+    expressOnTimeBonus: 12500
+    expressLatePenalty: 15000
 
 - type: entity
   parent: [ CrateTradeBaseSecureContraband, BaseFactionGearTaxedT3 ] # the only t3
@@ -238,9 +238,9 @@
       offset: "-0.5,0"
       map: ["enum.PaperLabelVisuals.Layer"]
   - type: TradeCrate
-    valueAtDestination: 45000
-    valueElsewhere: 4000
+    valueAtDestination: 22500
+    valueElsewhere: 2000
     expressDeliveryDuration: 3600 # one hour, go go (timeout mostly for pirates & NFSD)
-    expressOnTimeBonus: 25000
-    expressLatePenalty: 30000
+    expressOnTimeBonus: 12500
+    expressLatePenalty: 15000
 # endregion Contraband Crates

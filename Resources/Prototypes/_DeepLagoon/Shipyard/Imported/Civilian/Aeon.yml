@@ -1,0 +1,37 @@
+# LuaWorld - This file is licensed under AGPLv3
+# Copyright (c) 2025 LuaWorld Contributors
+# See LICENSES/AGPL-3.0-or-later.txt for details.
+
+- type: vessel
+  id: Aeon
+  parent: BaseVessel
+  name: Aeon
+  description: небольшое медицинское судно парамедика для спасательных операций.
+  price: 78311
+  category: Small
+  class:
+  - Civilian
+  - Medical
+  - Kitchen
+  engine:
+  - Uranium
+  group: Shipyard
+  shuttlePath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Aeon.yml
+  guidebookPage: null
+
+- type: gameMap
+  id: Aeon
+  mapName: "Aeon"
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/Civilian/Aeon.yml
+  minPlayers: 0
+  stations:
+    Aeon:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Aeon {1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]

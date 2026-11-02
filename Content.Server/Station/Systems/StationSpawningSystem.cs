@@ -8,6 +8,8 @@ using Content.Shared.Access.Components;
 using Content.Shared.Access.Systems;
 using Content.Shared.CCVar;
 using Content.Shared.Clothing;
+using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Hands.EntitySystems;
 using Content.Shared.DetailExaminable;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Prototypes;
@@ -342,9 +344,6 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                 name = $"{name} {identifier.FullIdentifier}";
             }
             // End Frontier
-            if (prototype != null)
-                SetPdaAndIdCardData(entity.Value, name, prototype, station); // Frontier: profile.Name<name
-
             _humanoidSystem.LoadProfile(entity.Value, profile);
             _metaSystem.SetEntityName(entity.Value, name); // Frontier: profile.Name<name
             if (_configurationManager.GetCVar(CCVars.FlavorText))
@@ -363,6 +362,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         }
 
         DoJobSpecials(job, entity.Value);
+        if (prototype != null)
+            SetPdaAndIdCardData(entity.Value, Name(entity.Value), prototype, station);
         _identity.QueueIdentityUpdate(entity.Value);
         return entity.Value;
     }
@@ -387,14 +388,40 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
     /// <param name="station">The station this player is being spawned on.</param>
     public void SetPdaAndIdCardData(EntityUid entity, string characterName, JobPrototype jobPrototype, EntityUid? station)
     {
-        if (!InventorySystem.TryGetSlotEntity(entity, "id", out var idUid))
-            return;
+        // Identification is mandatory at spawn, including when the loadout's id slot
+        // was explicitly removed, unaffordable, or omitted entirely.
+        InventorySystem.TryGetSlotEntity(entity, "id", out var idUid);
+        if (!TryComp<PdaComponent>(idUid, out var pdaComponent))
+        {
+            var previousId = idUid;
+            if (previousId != null)
+                InventorySystem.TryUnequip(entity, "id", silent: true, force: true);
 
-        var cardId = idUid.Value;
-        if (TryComp<PdaComponent>(idUid, out var pdaComponent) && pdaComponent.ContainedId != null)
-            cardId = pdaComponent.ContainedId.Value;
+            idUid = Spawn("ContractorPDA", Transform(entity).Coordinates);
+            pdaComponent = Comp<PdaComponent>(idUid.Value);
+            if (!InventorySystem.TryEquip(entity, idUid.Value, "id", silent: true, force: true))
+                EntityManager.System<SharedHandsSystem>().TryPickupAnyHand(entity, idUid.Value, checkActionBlocker: false);
 
-        if (!TryComp<IdCardComponent>(cardId, out var card))
+            if (previousId is { } previousCard && HasComp<IdCardComponent>(previousCard))
+            {
+                // Keep a directly equipped ID as the PDA's card, including its
+                // non-access data, rather than leaving an extra unconfigured ID.
+                var slots = EntityManager.System<ItemSlotsSystem>();
+                if (slots.TryEject(idUid.Value, pdaComponent.IdSlot, null, out var generatedCard))
+                    Del(generatedCard.Value);
+                slots.TryInsert(idUid.Value, pdaComponent.IdSlot, previousCard, null);
+            }
+            else if (previousId != null)
+                EntityManager.System<SharedHandsSystem>().TryPickupAnyHand(entity, previousId.Value, checkActionBlocker: false);
+        }
+
+        if (pdaComponent.ContainedId == null)
+        {
+            var newCard = Spawn(pdaComponent.IdCard ?? "ContractorIDCard", Transform(entity).Coordinates);
+            EntityManager.System<ItemSlotsSystem>().TryInsert(idUid.Value, pdaComponent.IdSlot, newCard, null);
+        }
+
+        if (pdaComponent.ContainedId is not { } cardId || !TryComp<IdCardComponent>(cardId, out var card))
             return;
 
         _cardSystem.TryChangeFullName(cardId, characterName, card);
@@ -406,14 +433,12 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         var extendedAccess = false;
         if (station != null)
         {
-            var data = Comp<StationJobsComponent>(station.Value);
-            extendedAccess = data.ExtendedAccess;
+            extendedAccess = CompOrNull<StationJobsComponent>(station.Value)?.ExtendedAccess ?? false;
         }
 
         _accessSystem.SetAccessToJob(cardId, jobPrototype, extendedAccess);
 
-        if (pdaComponent != null)
-            _pdaSystem.SetOwner(idUid.Value, pdaComponent, entity, characterName);
+        _pdaSystem.SetOwner(idUid.Value, pdaComponent, entity, characterName);
     }
 
 

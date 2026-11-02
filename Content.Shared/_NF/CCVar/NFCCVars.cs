@@ -58,14 +58,14 @@ public sealed class NFCCVars
     /// The amount of time the bus waits at a station.
     /// </summary>
     public static readonly CVarDef<float> PublicTransitWaitTime =
-        CVarDef.Create("nf14.publictransit.wait_time", 15f, CVar.SERVERONLY);
+        CVarDef.Create("nf14.publictransit.wait_time", 10f, CVar.SERVERONLY);
 
     /// <summary>
     /// The amount of time the bus flies through FTL space.
     /// This does nothing because the transit system is bugged in our favor (instant travel)
     /// </summary>
     public static readonly CVarDef<float> PublicTransitFlyTime =
-        CVarDef.Create("nf14.publictransit.fly_time", 15f, CVar.SERVERONLY);
+        CVarDef.Create("nf14.publictransit.fly_time", 10f, CVar.SERVERONLY);
 
     /*
      *  World Gen

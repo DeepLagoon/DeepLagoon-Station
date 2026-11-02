@@ -3,13 +3,13 @@ using Content.Shared._DeepLagoon.SpaceEnvironment;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
 
-public enum SpaceJunkHabitatKind : byte { OpenSpace, PlanetOrbit, DebrisField, AsteroidField }
-public readonly record struct SpaceJunkHabitat(SpaceJunkHabitatKind Kind, int Target, int MaxExtent, int TileBudget, int Interval, bool Rich);
+public enum SpaceJunkHabitatKind : byte { OpenSpace, PlanetOrbit, DebrisField, AsteroidField, PlasmaStream, DustCloud, RadiationField }
+public readonly record struct SpaceJunkHabitat(SpaceJunkHabitatKind Kind, int Target, int MaxExtent, int TileBudget, float Interval, bool Rich);
 
 public sealed partial class OrbitalDebrisSystem
 {
     public const float ReactionSeconds = 8f;
-    public const int OpenSpaceInterval = 75; // 90 / 1.2: 20% more opportunities, not 20 percentage points.
+    public const float OpenSpaceInterval = 62.5f; // 75 / 1.2: another relative 20% increase in opportunities.
     public static SpaceJunkHabitat Habitat(SectorDefinition sector, Vector2 position)
     {
         SpaceJunkHabitatKind? field = null;
@@ -21,6 +21,16 @@ public sealed partial class OrbitalDebrisSystem
             if (field == SpaceJunkHabitatKind.AsteroidField) break;
         }
         if (field is { } kind) return new SpaceJunkHabitat(kind, 10, 10, 36, 1, true);
+        foreach (var region in sector.Regions)
+        {
+            if (!SpaceRegionGeometry.Contains(region, position)) continue;
+            if (region.Kind == SpaceRegionKind.Plasma)
+                return new SpaceJunkHabitat(SpaceJunkHabitatKind.PlasmaStream, 4, 10, 36, 8, true);
+            if (region.Kind == SpaceRegionKind.Dust)
+                return new SpaceJunkHabitat(SpaceJunkHabitatKind.DustCloud, 2, 4, 16, 25, false);
+            if (region.Kind == SpaceRegionKind.Radiation)
+                return new SpaceJunkHabitat(SpaceJunkHabitatKind.RadiationField, 2, 4, 16, 30, false);
+        }
         foreach (var planet in sector.Planets)
             if (Vector2.DistanceSquared(position, new Vector2(planet.X, planet.Y)) <= 2000f * 2000f)
                 return new SpaceJunkHabitat(SpaceJunkHabitatKind.PlanetOrbit, 3, 4, 16, 12, false);

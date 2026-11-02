@@ -6,16 +6,16 @@
   id: Duran
   parent: BaseVessel
   name: SRA Duran
-  description: "Универсальное экспедиционное судно с кухней в придачу. Дешёвое, медленное и прочное, как хрустящий осенний лист, но, чёрт возьми, с душой."
-  price: 60456
+  description: "Универсальное экспедиционное судно с небольшой кухней."
+  price: 81733
   category: Medium
-  group: Expedition
+  group: "Expedition"
   shuttlePath: /SharedMaps/_Mono/Shuttles/CivilianExp/duran.yml
   guidebookPage: null
-  class:
-  - Expedition
-  engine:
-  - Uranium
+  minPriceMarkup: 1
+  purchasable: true
+  class: [Civilian, Expedition]
+  engine: [Uranium]
 
 - type: gameMap
   id: Duran

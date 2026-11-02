@@ -22,7 +22,7 @@ namespace Content.Server._DeepLagoon.SpaceEnvironment;
 public sealed partial class OrbitalDebrisSystem : EntitySystem
 {
     public const int MapLimit = 100;
-    public const int VisibleLimit = 10;
+    public const int VisibleLimit = 5;
     public const float UnseenSeconds = 10;
     public const string SupportTile = "Plating";
     public const string LootTable = "DeepLagoonSpaceJunkLoot";
@@ -55,6 +55,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         public TimeSpan InterceptUntil;
         public Vector2 Center;
         public float HalfExtent = 8f;
+        public string? SiteId;
         public ICommonSession? Sponsor;
         public readonly Dictionary<Vector2i, Tile> Tiles = new();
         public readonly HashSet<EntityUid> Children = new();
@@ -154,6 +155,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             if (Visible(observer, pile.Map, PilePosition(uid, pile), 100f)) nearby++;
         }
         if (inMap >= MapLimit || owned >= quota || nearby >= quota) return false;
+        if (TrySpawnSite(viewer, observer, environment)) return true;
         var random = new SectorRandom(SectorRandom.Derive(environment.Definition.Seed, $"debris/{_sequence++}"));
         for (var attempt = 0; attempt < 12; attempt++)
         {
@@ -176,7 +178,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             var cooldown = (observer.Map, habitat.Kind);
             if (!viewer.NextSpawn.TryGetValue(cooldown, out var ready))
             {
-                ready = _timing.CurTime + TimeSpan.FromSeconds(habitat.Kind == SpaceJunkHabitatKind.OpenSpace ? random.Range(25, OpenSpaceInterval) : 0);
+                ready = _timing.CurTime + TimeSpan.FromSeconds(habitat.Kind == SpaceJunkHabitatKind.OpenSpace ? random.Range(OpenSpaceInterval / 3f, OpenSpaceInterval) : 0);
                 viewer.NextSpawn[cooldown] = ready;
             }
             if (_timing.CurTime < ready) continue;
@@ -234,13 +236,14 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             return SpawnDerelict(map, position, anchor, seed, region, slot);
         var blue = habitat.Kind == SpaceJunkHabitatKind.AsteroidField
             && SectorRandom.Derive(seed, "blue-wreck") % 3 == 0;
+        var chromite = habitat.Kind == SpaceJunkHabitatKind.PlasmaStream;
         var grid = _maps.CreateGridEntity(mapComponent.MapId);
         _transform.SetWorldPosition(grid, position);
         var state = new Pile { Map = map, Anchor = anchor, Radius = MathF.Max(1f, Vector2.Distance(position, anchor)),
             Speed = random.Range(2f, 6f), Direction = random.Index(2) == 0 ? -1f : 1f, LastSeen = _timing.CurTime };
         var width = 1 + random.Index(habitat.MaxExtent);
         var height = 1 + random.Index(habitat.MaxExtent);
-        var floor = new Tile(_tiles[SupportTile].TileId);
+        var floor = new Tile(_tiles[chromite ? "FloorChromite" : SupportTile].TileId);
         var cells = new List<(Vector2i GridIndices, Tile Tile)>();
         foreach (var index in JunkShape(width, height, habitat.TileBudget, ref random))
         {
@@ -252,7 +255,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         foreach (var (index, _) in cells)
         {
             if (index == pocket) continue;
-            Spawn(blue ? WreckWall(ref random) : ScrapWall(ref random, habitat.Rich), new EntityCoordinates(grid, (Vector2) index + new Vector2(0.5f)));
+            Spawn(chromite ? ChromiteWall(ref random) : blue ? WreckWall(ref random) : ScrapWall(ref random, habitat.Rich), new EntityCoordinates(grid, (Vector2) index + new Vector2(0.5f)));
         }
         var lootPosition = new EntityCoordinates(grid, (Vector2) (pocket ?? cells[0].GridIndices) + new Vector2(0.5f));
         var lootRandom = new System.Random(unchecked((int) random.Next()));
@@ -281,6 +284,11 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         _physics.SetLinearVelocity(grid, new Vector2(-radial.Y, radial.X) * (state.Speed * state.Direction), body: body);
         _physics.SetAngularVelocity(grid, random.Range(-0.08f, 0.08f), body: body);
         SetEncounterIdentity(grid, blue, false, seed);
+        if (chromite)
+        {
+            EnsureComp<SpaceChromiteAsteroidComponent>(grid);
+            EntityManager.System<MetaDataSystem>().SetEntityName(grid, Loc.GetString("space-environment-chromite"));
+        }
         _piles.Add(grid, state);
         return grid;
     }

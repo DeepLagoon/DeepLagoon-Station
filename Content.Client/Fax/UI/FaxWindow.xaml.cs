@@ -39,7 +39,7 @@ public sealed partial class FaxWindow : FancyWindow
     {
         CopyButton.Disabled = !state.CanCopy;
         SendButton.Disabled = !state.CanSend;
-        FromLabel.Text = state.DeviceName;
+        FromLabel.SetMessage(state.DeviceName);
 
         if (state.IsPaperInserted)
         {
@@ -54,6 +54,7 @@ public sealed partial class FaxWindow : FancyWindow
 
         if (state.AvailablePeers.Count == 0)
         {
+            PeerSelector.Clear();
             PeerSelector.AddItem(Loc.GetString("fax-machine-ui-no-peers"));
             PeerSelector.Disabled = true;
         }

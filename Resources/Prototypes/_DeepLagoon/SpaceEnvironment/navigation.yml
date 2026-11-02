@@ -1,0 +1,5 @@
+- type: entity
+  parent: ComputerBroken
+  id: DeepLagoonNavigationRelay
+  name: abandoned navigation relay
+  description: An old telemetry unit. A nearby shuttle console can recover its data or supplies.

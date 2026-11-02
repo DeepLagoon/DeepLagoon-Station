@@ -32,7 +32,7 @@ public sealed partial class ClothingBodyFitSystem
     private void ApplyFace(EntityUid uid, EntityUid item, string slot, SpriteComponent sprite,
         ClothingComponent clothing, HashSet<string> keys, HumanoidAppearanceComponent humanoid)
     {
-        if (!_avianMaskFit && slot is ("mask" or "balaclava") && humanoid.Species.Id is ("Vox" or "Resomi"))
+        if (!_avianMaskFit && slot is ("head" or "mask" or "balaclava") && humanoid.Species.Id is ("Vox" or "Resomi"))
             return;
 
         if (!clothing.FaceFit || HasComp<SmokableComponent>(item) ||
