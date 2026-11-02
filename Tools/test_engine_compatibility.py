@@ -109,7 +109,8 @@ class EngineCompatibilityTests(unittest.TestCase):
         ]
         self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
     def test_protected_sources_cannot_be_changed(self):
-        for path in ("Robust.Client/Entry.cs", "Robust.Shared/Network/NetManager.cs", "Robust.LoaderApi",
+        for path in ("Robust.Client/Entry.cs", "Robust.Shared/Network/NetManager.ServerAuth.cs", "Robust.LoaderApi",
+                     "Robust.Shared/Network/NetManager.ClientConnect.cs", "Robust.Shared/Network/Messages/Handshake/MsgLoginStart.cs",
                      "MSBuild/Robust.Engine.Version.props", "Robust.Client/Sandbox.yml",
                      "Robust.Client/Graphics/Clyde/Windowing/Other.cs", ".github/workflows/build.yml",
                      "Robust.Shared/Serialization/TypeSerializers/Implementations/OtherSerializer.cs"):
@@ -125,6 +126,21 @@ class EngineCompatibilityTests(unittest.TestCase):
             "Robust.Client/Graphics/Clyde/Windowing/Sdl3.Event.cs",
             "Robust.Client/Graphics/Clyde/Windowing/Sdl3.RawEvent.cs",
             "Robust.UnitTesting/Client/Graphics/MouseButtonPositionTest.cs",
+        ]
+        self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
+
+    def test_reviewed_udp_pvs_and_island_fixes_are_accepted(self):
+        self.changed = [
+            ".github/workflows/update-lidgren.yml", ".gitmodules",
+            "Lidgren.Network/CursedHorrorsBeyondOurWildestImagination.cs",
+            "Lidgren.Network/Lidgren.Network", "Robust.Shared/CVars.cs",
+            "Robust.Shared/Network/NetManager.cs",
+            "Robust.Shared.IntegrationTests/Networking/SendBackpressureTests.cs",
+            "Robust.Shared.IntegrationTests/Robust.Shared.IntegrationTests.csproj",
+            "Robust.Server/GameStates/PvsSystem.Send.cs",
+            "Robust.Server.IntegrationTests/GameStates/PvsReliableAckTest.cs",
+            "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Island.cs",
+            "Robust.Shared.IntegrationTests/Physics/IslandAllocationTests.cs",
         ]
         self.assertEqual(self.contract["official_engine_version"], gate.check(self.root)["engine_version"])
 

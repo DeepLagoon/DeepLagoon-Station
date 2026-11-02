@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Validate server revisions against an official engine release, without commit pins.
 
-Authentication, transport, loader and version sources stay official.
-UI scale validation and grid collision stepping have reviewed implementation-only fixes.
+Authentication, wire contracts, loader and version sources stay official.
+Reviewed implementation fixes include UDP backpressure, PVS acknowledgements and physics.
 """
 import argparse
 import json
@@ -45,6 +45,21 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Serialization/TypeSerializers/Implementations/EntProtoIdSerializer.cs",
     "Robust.Shared/Toolshed/ReflectionExtensions.cs",
     "Robust.Shared.IntegrationTests/Serialization/SerializationTests/GeneratedDefinitionReadingTests.cs",
+    # Reviewed DeepLagoon transport integration and its dependency update workflow.
+    ".github/workflows/update-lidgren.yml",
+    ".gitmodules",
+    "Lidgren.Network/CursedHorrorsBeyondOurWildestImagination.cs",
+    "Lidgren.Network/Lidgren.Network",
+    "Robust.Shared/CVars.cs",
+    "Robust.Shared/Network/NetManager.cs",
+    "Robust.Shared.IntegrationTests/Networking/SendBackpressureTests.cs",
+    "Robust.Shared.IntegrationTests/Robust.Shared.IntegrationTests.csproj",
+    # Reliable enqueueing is not an acknowledgement of an applied PVS state.
+    "Robust.Server/GameStates/PvsSystem.Send.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsReliableAckTest.cs",
+    # Return temporary lone-island collections to their existing pools.
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Island.cs",
+    "Robust.Shared.IntegrationTests/Physics/IslandAllocationTests.cs",
 })
 
 

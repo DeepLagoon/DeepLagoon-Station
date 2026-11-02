@@ -91,6 +91,17 @@ class EngineSyncTests(unittest.TestCase):
         self.assertEqual(self.previous, self.git(self.engine, "rev-parse", "HEAD"))
         self.assertEqual("", self.git(self.root, "status", "--porcelain"))
 
+    def test_shallow_remote_tip_and_pin_have_verified_ancestry(self):
+        candidate = self.commit()
+        # Match checkout fetching the default branch at depth 1 before fetching
+        # the older submodule pin: both commits exist, but both are shallow roots.
+        self.git(self.engine, "fetch", "--depth=1", str(self.fork),
+                 "+refs/heads/main:refs/remotes/origin/main")
+        self.git(self.engine, "fetch", "--depth=1", str(self.fork), self.previous)
+        self.assertEqual("true", self.git(self.engine, "rev-parse", "--is-shallow-repository"))
+        self.assertEqual(candidate, sync_engine.prepare(self.root)["engine_commit"])
+        self.assertEqual(self.previous, self.git(self.engine, "merge-base", self.previous, candidate))
+
     def test_new_official_version_requires_compatibility_review(self):
         self.commit("MSBuild/Robust.Engine.Version.props",
                     "<Project><PropertyGroup><Version>999.0.0</Version></PropertyGroup></Project>")

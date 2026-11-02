@@ -53,7 +53,10 @@ def prepare(root=compatibility.ROOT):
     if git(engine, "rev-parse", "HEAD") != previous:
         raise compatibility.CompatibilityError("Engine checkout differs from the Station gitlink")
     # Never trust a mutable origin URL or an event-supplied SHA/ref.
-    git(engine, "fetch", "--no-tags", "--no-recurse-submodules", ENGINE_REMOTE,
+    # Checkout can leave both the pinned commit and an already fetched branch tip
+    # as shallow roots. A normal fetch may then leave their ancestry disconnected.
+    history = ["--unshallow"] if git(engine, "rev-parse", "--is-shallow-repository") == "true" else []
+    git(engine, "fetch", *history, "--no-tags", "--no-recurse-submodules", ENGINE_REMOTE,
         "+refs/heads/main:" + CANDIDATE_REF)
     candidate = git(engine, "rev-parse", CANDIDATE_REF)
     version = candidate_version(engine, candidate)
