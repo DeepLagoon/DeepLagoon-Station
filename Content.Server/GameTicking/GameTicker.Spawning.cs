@@ -219,18 +219,7 @@ namespace Content.Server.GameTicking
                 return;
             }
 
-            PlayerJoinGame(player, silent);
-
-            var data = player.ContentData();
-
-            DebugTools.AssertNotNull(data);
-
-            var newMind = _mind.CreateMind(data!.UserId, character.Name);
-            _mind.SetUserId(newMind, data.UserId);
-
             var jobPrototype = _prototypeManager.Index<JobPrototype>(jobId);
-
-            _playTimeTrackings.PlayerRolesChanged(player);
 
             // Delta-V: Add AlwaysUseSpawner.
             var spawnPointType = SpawnPointType.Unset;
@@ -241,8 +230,20 @@ namespace Content.Server.GameTicking
             }
 
             var mobMaybe = _stationSpawning.SpawnPlayerCharacterOnStation(station, jobId, character, spawnPointType: spawnPointType, session: player); // Frontier: add session
-            DebugTools.AssertNotNull(mobMaybe);
-            var mob = mobMaybe!.Value;
+            if (mobMaybe is not { } mob)
+            {
+                _chatManager.DispatchServerMessage(player,
+                    Loc.GetString("game-ticker-player-spawn-unavailable"));
+                return;
+            }
+
+            // Stay in the lobby, retaining the current mind, until spawning succeeds.
+            PlayerJoinGame(player, silent);
+            var data = player.ContentData();
+            DebugTools.AssertNotNull(data);
+            var newMind = _mind.CreateMind(data!.UserId, character.Name);
+            _mind.SetUserId(newMind, data.UserId);
+            _playTimeTrackings.PlayerRolesChanged(player);
 
             _mind.TransferTo(newMind, mob);
 

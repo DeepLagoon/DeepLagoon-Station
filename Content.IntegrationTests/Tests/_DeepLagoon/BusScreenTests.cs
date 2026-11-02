@@ -69,7 +69,7 @@ public sealed class BusScreenTests
             Assert.That(here, Is.False);
             Assert.That(secondArrival, Is.EqualTo(bus.NextTransfer + flight));
             Assert.That(transit.TryGetBusArrival(third, out var thirdArrival, out _), Is.True);
-            Assert.That(thirdArrival, Is.EqualTo(secondArrival + TimeSpan.FromSeconds(110)));
+            Assert.That(thirdArrival, Is.EqualTo(secondArrival + flight + TimeSpan.FromSeconds(60)));
             Assert.That(transit.TryGetBusArrival(outside, out _, out _), Is.False);
 
             EntityUid Screen(EntityUid grid) => entities.SpawnEntity("DLBusScreen", new EntityCoordinates(grid, new Vector2(.5f, .5f)));

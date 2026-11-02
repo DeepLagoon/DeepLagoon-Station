@@ -37,3 +37,4 @@ dl-loadout-slot-armbandright = Правая повязка
 dl-loadout-slot-armbandleft = Левая повязка
 dl-loadout-slot-helmetcover = Чехол шлема
 dl-loadout-slot-helmetattachment = Крепление шлема
+dl-loadout-incompatible-species-slots = У выбранной расы нет подходящего слота для этого снаряжения.

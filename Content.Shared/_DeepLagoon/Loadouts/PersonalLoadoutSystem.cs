@@ -30,6 +30,11 @@ public sealed partial class PersonalLoadoutSystem : EntitySystem
     public bool CanUse(LoadoutPrototype prototype, HumanoidCharacterProfile profile, string job, ICommonSession? session, out string reason)
     {
         reason = string.Empty;
+        if (!HasCompatibleSlots(profile, prototype))
+        {
+            reason = Loc.GetString("dl-loadout-incompatible-species-slots");
+            return false;
+        }
         if (!_configuration.GetCVar(CCVars.PersonalLoadoutsEnabled))
         {
             reason = Loc.GetString("dl-loadout-disabled");

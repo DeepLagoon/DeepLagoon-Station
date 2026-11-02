@@ -15,12 +15,36 @@ public sealed partial class PersonalLoadoutSystem
 {
     public SlotDefinition[] EditableSlots(HumanoidCharacterProfile profile)
     {
+        return InventorySlots(profile).Where(slot =>
+            (slot.SlotFlags & (SlotFlags.POCKET | SlotFlags.SUITSTORAGE | SlotFlags.PREVENTEQUIP)) == 0).ToArray();
+    }
+
+    private SlotDefinition[] InventorySlots(HumanoidCharacterProfile profile)
+    {
         if (!_prototypes.TryIndex(profile.Species, out var species) ||
             !_prototypes.Index(species.Prototype).TryGetComponent<InventoryComponent>(out var inventory) ||
             !_prototypes.TryIndex<InventoryTemplatePrototype>(inventory.TemplateId, out var template))
             return Array.Empty<SlotDefinition>();
-        return template.Slots.Where(slot =>
-            (slot.SlotFlags & (SlotFlags.POCKET | SlotFlags.SUITSTORAGE | SlotFlags.PREVENTEQUIP)) == 0).ToArray();
+        return template.Slots;
+    }
+
+    /// <summary>Use the playable species inventory, rather than the preview dummy or catalogue category.</summary>
+    public bool HasCompatibleSlots(HumanoidCharacterProfile profile, LoadoutPrototype item)
+    {
+        var slots = InventorySlots(profile);
+        var equipment = item.Equipment.Keys.AsEnumerable();
+        if (_prototypes.TryIndex(item.StartingGear, out var gear))
+            equipment = equipment.Concat(gear.Equipment.Keys);
+        if (equipment.Any(name => !slots.Any(slot => slot.Name == name && (slot.SlotFlags & SlotFlags.PREVENTEQUIP) == 0)))
+            return false;
+
+        // Items explicitly carried in hand do not need a clothing slot.
+        if (item.PersonalInhand)
+            return true;
+        var editable = EditableSlots(profile);
+        return item.PersonalItems.All(id =>
+            !_prototypes.Index(id).TryGetComponent<ClothingComponent>(out var clothing) ||
+            editable.Any(slot => (slot.SlotFlags & clothing.Slots) != 0));
     }
 
     public string EquipmentRole(string job) => _prototypes.HasIndex<RoleLoadoutPrototype>(LoadoutSystem.GetJobPrototype(job))

@@ -37,3 +37,4 @@ dl-loadout-slot-armbandright = Right armband
 dl-loadout-slot-armbandleft = Left armband
 dl-loadout-slot-helmetcover = Helmet cover
 dl-loadout-slot-helmetattachment = Helmet attachment
+dl-loadout-incompatible-species-slots = The selected species has no compatible slot for this equipment.

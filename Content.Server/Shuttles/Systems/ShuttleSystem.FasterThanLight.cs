@@ -368,8 +368,11 @@ public sealed partial class ShuttleSystem
         float? hyperspaceTime = null,
         string? priorityTag = null)
     {
-        // TODO: Validation
-        if (!TryComp<FTLDestinationComponent>(_mapManager.GetMap(_transform.GetMapId(target)), out var dest))
+        // A cached destination can be deleted or detached before departure.
+        // Nullspace is not a registered map and GetMap would throw here.
+        if (Deleted(target) || !TryComp<TransformComponent>(target, out var targetTransform) ||
+            !_mapSystem.TryGetMap(targetTransform.MapID, out var targetMap) ||
+            !TryComp<FTLDestinationComponent>(targetMap, out var dest))
         {
             return;
         }

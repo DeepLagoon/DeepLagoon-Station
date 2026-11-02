@@ -368,6 +368,12 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             return false;
         }
 
+        if (!collection.Resolve<IEntityManager>().System<PersonalLoadoutSystem>().HasCompatibleSlots(profile, loadoutProto))
+        {
+            reason = FormattedMessage.FromUnformatted(Loc.GetString("dl-loadout-incompatible-species-slots"));
+            return false;
+        }
+
         var valid = true;
 
         if (collection.Resolve<IEntityManager>().System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>()

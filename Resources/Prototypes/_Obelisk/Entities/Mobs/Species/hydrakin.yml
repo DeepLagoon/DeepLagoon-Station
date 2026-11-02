@@ -144,6 +144,7 @@
     species: Hydrakin
   - type: Inventory
     speciesId: hydrakin
+    templateId: hydrakin
     displacements:
       jumpsuit:
         sizeMaps:

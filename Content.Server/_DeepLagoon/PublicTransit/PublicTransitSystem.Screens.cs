@@ -56,7 +56,8 @@ public sealed partial class PublicTransitSystem
 
         var now = _timing.CurTime;
         var flightTime = TimeSpan.FromSeconds(_shuttles.DefaultStartupTime + Math.Max(FlyTime, _shuttles.DefaultArrivalTime));
-        var interval = TimeSpan.FromSeconds(FlyTime + _cfgManager.GetCVar(NFCCVars.PublicTransitWaitTime));
+        var waitTime = TimeSpan.FromSeconds(_cfgManager.GetCVar(NFCCVars.PublicTransitWaitTime));
+        var interval = flightTime + waitTime;
         var query = EntityQueryEnumerator<TransitShuttleComponent, ShuttleComponent>();
         while (query.MoveNext(out var uid, out var bus, out _))
         {
@@ -85,7 +86,10 @@ public sealed partial class PublicTransitSystem
             if (!bus.NextStation.Valid || !StationList.Contains(bus.NextStation))
                 continue;
 
-            var nextArrival = (bus.NextTransfer > now ? bus.NextTransfer : now) + flightTime;
+            var departure = bus.NextTransfer > now ? bus.NextTransfer : now;
+            if (ftl?.State == FTLState.Cooldown && ftl.StateTime.End > departure)
+                departure = ftl.StateTime.End;
+            var nextArrival = departure + flightTime;
             if (bus.NextStation == grid && nextArrival < arrival)
                 arrival = nextArrival;
 
