@@ -14,7 +14,7 @@ using Robust.Shared.Maths;
 
 namespace Content.IntegrationTests.Tests.Movement;
 
-[TestFixture]
+[TestFixture, NonParallelizable]
 public sealed class MovingGridEffectsTests
 {
     private TestPair _pair = null!;
