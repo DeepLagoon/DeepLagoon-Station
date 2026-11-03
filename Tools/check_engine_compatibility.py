@@ -57,6 +57,10 @@ REVIEWED_ENGINE_PATHS = frozenset({
     # Reliable enqueueing is not an acknowledgement of an applied PVS state.
     "Robust.Server/GameStates/PvsSystem.Send.cs",
     "Robust.Server.IntegrationTests/GameStates/PvsReliableAckTest.cs",
+    # Pace the initial reliable snapshot until a real client ACK; server-only scheduling.
+    "Robust.Server/GameStates/PvsData.cs",
+    "Robust.Server/GameStates/PvsSystem.Serialize.cs",
+    "Robust.Server.IntegrationTests/GameStates/InitialStateBacklogTest.cs",
     # Return temporary lone-island collections to their existing pools.
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Island.cs",
     "Robust.Shared.IntegrationTests/Physics/IslandAllocationTests.cs",
