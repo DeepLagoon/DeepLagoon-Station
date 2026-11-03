@@ -61,6 +61,8 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Server/GameStates/PvsData.cs",
     "Robust.Server/GameStates/PvsSystem.Serialize.cs",
     "Robust.Server.IntegrationTests/GameStates/InitialStateBacklogTest.cs",
+    # Test-only transport-pressure injection; not part of shipped client/server modules.
+    "Robust.UnitTesting/RobustIntegrationTest.NetManager.cs",
     # Return temporary lone-island collections to their existing pools.
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Island.cs",
     "Robust.Shared.IntegrationTests/Physics/IslandAllocationTests.cs",
