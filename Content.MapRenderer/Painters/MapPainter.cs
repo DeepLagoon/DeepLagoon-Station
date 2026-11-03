@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Content.IntegrationTests;
@@ -10,6 +11,7 @@ using Robust.Client.GameObjects;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
 using Robust.Shared.EntitySerialization;
+using Robust.Shared.EntitySerialization.Components;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Log;
@@ -27,6 +29,39 @@ namespace Content.MapRenderer.Painters
 {
     public sealed class MapPainter
     {
+        public static async IAsyncEnumerable<RenderedGridImage<Rgba32>> PaintSnapshot(string path)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = new ExternalTestContext("Content.MapRenderer", Console.Out);
+            await using var pair = await PoolManager.GetServerClient(new PoolSettings
+            {
+                DummyTicker = false,
+                Connected = true,
+                ServerSeed = 1,
+                ClientSeed = 1,
+            }, context);
+            pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
+            pair.ClientLogHandler.FailureLevel = LogLevel.Fatal;
+            var server = pair.Server;
+            await server.WaitPost(() =>
+            {
+                var mapId = server.EntMan.System<GameTicker>().DefaultMap;
+                var maps = server.EntMan.System<SharedMapSystem>();
+                foreach (var grid in maps.GetAllGrids(mapId).ToArray())
+                    server.EntMan.DeleteEntity(grid);
+                using var reader = File.OpenText(path);
+                if (!server.EntMan.System<MapLoaderSystem>().TryLoadGeneric(reader, path, out _, new MapLoadOptions
+                    {
+                        MergeMap = mapId,
+                        DeserializationOptions = new DeserializationOptions { StoreYamlUids = true },
+                    }))
+                    throw new InvalidDataException($"Could not load snapshot: {path}");
+            });
+            await foreach (var image in RenderPair(stopwatch, pair))
+                yield return image;
+        }
+
         public static async IAsyncEnumerable<RenderedGridImage<Rgba32>> Paint(string map)
         {
             var stopwatch = new Stopwatch();
@@ -196,6 +231,8 @@ namespace Content.MapRenderer.Painters
                 {
                     GridUid = uid,
                     Offset = xformSystem.GetWorldPosition(uid),
+                    LocalOrigin = new System.Numerics.Vector2(left, bottom),
+                    YamlUid = sEntityManager.TryGetComponent(uid, out YamlUidComponent? yaml) ? yaml.Uid : null,
                 };
 
                 yield return renderedImage;

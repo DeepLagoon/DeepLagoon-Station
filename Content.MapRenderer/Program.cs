@@ -32,6 +32,24 @@ namespace Content.MapRenderer
                 return;
 
             PoolManager.Startup();
+            if (arguments.Snapshot != null)
+            {
+                PoolManager.Instance.DefaultCvars.Add(("npc.enabled", "false"));
+                try
+                {
+                    await SnapshotRenderer.Render(arguments.Snapshot, arguments.OutputPath);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine(e);
+                    Environment.ExitCode = 1;
+                }
+                finally
+                {
+                    PoolManager.Shutdown();
+                }
+                return;
+            }
             if (arguments.Maps.Count == 0 && arguments.Grids.Count == 0)
             {
                 Console.WriteLine("Didn't specify any maps to paint! Loading the map list...");

@@ -14,6 +14,7 @@ public sealed class CommandLineArguments
     public bool ExportViewerJson { get; set; } = false;
     public string OutputPath { get; set; } = DirectoryExtensions.MapImages().FullName;
     public bool ArgumentsAreFileNames { get; set; } = false;
+    public string? Snapshot { get; set; }
 
     public static bool TryParse(IReadOnlyList<string> args, [NotNullWhen(true)] out CommandLineArguments? parsed)
     {
@@ -33,6 +34,11 @@ public sealed class CommandLineArguments
             var argument = enumerator.Current;
             switch (argument)
             {
+                case "--snapshot":
+                    if (!enumerator.MoveNext())
+                        throw new CommandLineArgumentException("--snapshot requires a YAML file path");
+                    parsed.Snapshot = enumerator.Current;
+                    break;
                 case "--format":
                     enumerator.MoveNext();
 
@@ -97,6 +103,9 @@ public sealed class CommandLineArguments
     {
         Console.WriteLine(@"Content.MapRenderer <options> [map names]
 Options:
+    --snapshot <absolute YAML path>
+        Render a map or grid snapshot from disk, using the current content prototypes.
+        Writes PNG grids and snapshot.json into --output. Disables NPC AI for the preview.
     --format <png|webp>
         Specifies the format the map images will be exported as.
         Defaults to: png

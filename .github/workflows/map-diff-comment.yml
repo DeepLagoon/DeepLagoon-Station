@@ -1,0 +1,43 @@
+name: Comment PR map diff
+
+on:
+  workflow_run:
+    workflows: [Render PR map diff]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: map-diff-comment-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled' && github.event.workflow_run.conclusion != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # workflow_run checks out default-branch code, never a PR ref or downloaded script.
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Download report data
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: station-map-diff
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/station-map-diff
+      - name: Publish previews and update PR comment
+        uses: actions/github-script@v7
+        env:
+          MAP_DIFF_ARTIFACT: ${{ runner.temp }}/station-map-diff
+        with:
+          script: |
+            const {publish} = require('./Tools/map_diff/publish.cjs');
+            await publish({github, context, core, artifactDir: process.env.MAP_DIFF_ARTIFACT});

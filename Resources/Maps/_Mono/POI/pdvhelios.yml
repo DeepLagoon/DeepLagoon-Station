@@ -1,16 +1,16 @@
 meta:
   format: 7
-  category: Map
+  category: Grid
   engineVersion: 292.0.1
   forkId: ""
   forkVersion: ""
   time: 11/03/2026 12:08:07
-  entityCount: 11070
-maps:
-- 1
+  entityCount: 11069
+maps: []
 grids:
 - 2
-orphans: []
+orphans:
+- 2
 nullspace: []
 tilemap:
   0: Space
@@ -71,22 +71,6 @@ tilemap:
 entities:
 - proto: ""
   entities:
-  - uid: 1
-    components:
-    - type: MetaData
-      name: Map Entity
-    - type: Transform
-    - type: Map
-      mapPaused: True
-    - type: GridTree
-    - type: Broadphase
-    - type: ChunkContainer
-      chunkEntities: []
-    - type: OccluderTree
-    - type: AdminProvenance
-      spawnedByName: AkulyaRa
-      spawnedBy: eb7811f6-ce61-40b1-bfdf-3f2c571dcf1f
-      spawnedAt: 2026-11-03T11:54:54.2079011Z
   - uid: 2
     mapInit: true
     paused: true
@@ -94,7 +78,7 @@ entities:
     - type: MetaData
       name: PDV Helios Fortress
     - type: Transform
-      parent: 1
+      parent: invalid
       pos: -0.5,-31.5
     - type: MapGrid
       chunks:

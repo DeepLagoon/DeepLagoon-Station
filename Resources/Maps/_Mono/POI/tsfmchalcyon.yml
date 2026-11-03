@@ -1,16 +1,16 @@
 meta:
   format: 7
-  category: Map
+  category: Grid
   engineVersion: 292.0.1
   forkId: ""
   forkVersion: ""
   time: 11/03/2026 12:28:46
-  entityCount: 13980
-maps:
-- 1
+  entityCount: 13979
+maps: []
 grids:
 - 2
-orphans: []
+orphans:
+- 2
 nullspace: []
 tilemap:
   2: Space
@@ -62,22 +62,6 @@ tilemap:
 entities:
 - proto: ""
   entities:
-  - uid: 1
-    components:
-    - type: MetaData
-      name: Map Entity
-    - type: Transform
-    - type: Map
-      mapPaused: True
-    - type: GridTree
-    - type: Broadphase
-    - type: ChunkContainer
-      chunkEntities: []
-    - type: OccluderTree
-    - type: AdminProvenance
-      spawnedByName: AkulyaRa
-      spawnedBy: eb7811f6-ce61-40b1-bfdf-3f2c571dcf1f
-      spawnedAt: 2026-11-03T12:21:07.4221741Z
   - uid: 2
     mapInit: true
     paused: true
@@ -85,7 +69,7 @@ entities:
     - type: MetaData
       name: TSFMC Flagship Halcyon
     - type: Transform
-      parent: 1
+      parent: invalid
       pos: -6.500002,2.0000007
     - type: MapGrid
       chunks:
