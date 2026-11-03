@@ -5,7 +5,7 @@ meta:
   forkId: dsfrontier
   forkVersion: ""
   time: 03/17/2026 17:26:53
-  entityCount: 618
+  entityCount: 624
 maps: []
 grids:
 - 1
@@ -4560,4 +4560,52 @@ entities:
       rot: 3.141592653589793 rad
       pos: 5.5,1.5
       parent: 1
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 619
+    components:
+    - type: Transform
+      pos: 3.5,9.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 620
+    components:
+    - type: Transform
+      pos: -4.5,9.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 621
+    components:
+    - type: Transform
+      pos: 2.5,13.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 622
+    components:
+    - type: Transform
+      pos: -3.5,13.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointMissileMedium
+  entities:
+  - uid: 623
+    components:
+    - type: Transform
+      pos: -6.5,1.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointMissileMedium
+  entities:
+  - uid: 624
+    components:
+    - type: Transform
+      pos: 5.5,1.5
+      parent: 1
+      rot: 3.141592653589793 rad
 ...

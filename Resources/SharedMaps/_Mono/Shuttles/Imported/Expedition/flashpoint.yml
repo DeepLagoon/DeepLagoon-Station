@@ -5,7 +5,7 @@ meta:
   forkId: ""
   forkVersion: ""
   time: 12/15/2025 09:47:55
-  entityCount: 2257
+  entityCount: 2268
 maps: []
 grids:
 - 1
@@ -10370,7 +10370,7 @@ entities:
       rot: 1.5707963267948966 rad
       pos: 22.5,-4.5
       parent: 1
-- proto: GunneryServerHigh
+- proto: GunneryServerUltra
   entities:
   - uid: 1302
     components:
@@ -15621,4 +15621,92 @@ entities:
     - type: Transform
       pos: 16.5,-9.5
       parent: 1
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2258
+    components:
+    - type: Transform
+      pos: 22.5,1.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2259
+    components:
+    - type: Transform
+      pos: 26.5,-5.5
+      parent: 1
+      rot: 1.5707963267948966 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2260
+    components:
+    - type: Transform
+      pos: 19.5,3.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2261
+    components:
+    - type: Transform
+      pos: 24.5,-15.5
+      parent: 1
+      rot: 1.5707963267948966 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2262
+    components:
+    - type: Transform
+      pos: 3.5,-7.5
+      parent: 1
+      rot: -1.5707963267948966 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2263
+    components:
+    - type: Transform
+      pos: 4.5,-32.5
+      parent: 1
+      rot: -1.5707963267948966 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2264
+    components:
+    - type: Transform
+      pos: 23.5,-32.5
+      parent: 1
+      rot: 1.5707963267948966 rad
+- proto: HardpointBallisticMedium
+  entities:
+  - uid: 2265
+    components:
+    - type: Transform
+      pos: 25.5,-0.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2266
+    components:
+    - type: Transform
+      pos: 7.5,15.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 2267
+    components:
+    - type: Transform
+      pos: 15.5,15.5
+      parent: 1
+      rot: 3.141592653589793 rad
+- proto: HardpointEnergyMedium
+  entities:
+  - uid: 2268
+    components:
+    - type: Transform
+      pos: 11.5,20.5
+      parent: 1
+      rot: 3.141592653589793 rad
 ...
