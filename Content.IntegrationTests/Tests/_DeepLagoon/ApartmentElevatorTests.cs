@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Content.Server.Doors.Systems;
+using Content.Server.Spawners.Components;
 using Content.Server._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Inventory;
@@ -29,6 +30,7 @@ public sealed class ApartmentElevatorTests
         var observers = await pair.Server.AddDummySessions(2);
         var ghosts = new List<EntityUid>();
         EntityUid body = default, uniform = default, source = default, destination = default;
+        EntityUid observerMap = default;
         var doors = new List<EntityUid>();
         NetUserId owner = new(Guid.NewGuid());
         await pair.Server.WaitAssertion(() =>
@@ -50,6 +52,9 @@ public sealed class ApartmentElevatorTests
             foreach (var oldPanel in templatePanels) entities.DeleteEntity(oldPanel);
             var grid = testMap.Grid.Owner;
             var map = entities.System<SharedMapSystem>();
+            observerMap = map.CreateMap(runMapInit: true);
+            var observerSpawn = entities.SpawnEntity(null, new EntityCoordinates(observerMap, Vector2.Zero));
+            entities.AddComponent<SpawnPointComponent>(observerSpawn).SpawnType = SpawnPointType.Observer;
             for (var x = -2; x <= 3; x++)
             for (var y = -2; y <= 3; y++) map.SetTile(testMap.Grid, new Vector2i(x, y), testMap.Tile.Tile);
             var sourceCoordinates = new EntityCoordinates(grid, new Vector2(.5f, .5f));
@@ -181,9 +186,8 @@ public sealed class ApartmentElevatorTests
         {
             for (var index = 0; index < ghosts.Count; index++)
             {
-                var panel = index == 0 ? source : destination;
-                Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(ghosts[index]).GridUid,
-                    Is.EqualTo(pair.Server.EntMan.GetComponent<TransformComponent>(panel).GridUid));
+                Assert.That(pair.Server.EntMan.GetComponent<TransformComponent>(ghosts[index]).MapUid,
+                    Is.EqualTo(observerMap), "Ordinary ghosts must be returned from both residential elevator cabins.");
                 pair.Server.PlayerMan.SetAttachedEntity(observers[index], null);
                 pair.Server.EntMan.DeleteEntity(ghosts[index]);
             }

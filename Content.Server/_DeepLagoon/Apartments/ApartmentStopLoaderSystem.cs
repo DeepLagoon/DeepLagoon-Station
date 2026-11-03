@@ -76,6 +76,7 @@ public sealed partial class ApartmentStopLoaderSystem : EntitySystem
 
         var path = new ResPath(_config.GetCVar(ApartmentCVars.StopMap));
         var map = _maps.CreateMap(out var mapId);
+        EnsureComp<ApartmentGhostRestrictedMapComponent>(map);
         var retained = false;
         try
         {
