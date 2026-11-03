@@ -7,9 +7,9 @@
   hyperwarLimit: 3
   hyperwarTimelock: 3600
   price: 393000
-  purchasable: true
+  purchasable: false
   category: Large
-  group: "BlackMarket"
+  group: Custom # Disabled on PDV shipyards, including vouchers: guns are not connected to the gunnery console.
   access: "Pirate"
   shuttlePath: /SharedMaps/_Mono/Shuttles/PDV/europa.yml
   guidebookPage: ShipyardNFROperation
