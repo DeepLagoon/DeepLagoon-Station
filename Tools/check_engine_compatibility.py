@@ -60,6 +60,9 @@ REVIEWED_ENGINE_PATHS = frozenset({
     # Pace the initial reliable snapshot until a real client ACK; server-only scheduling.
     "Robust.Server/GameStates/PvsData.cs",
     "Robust.Server/GameStates/PvsSystem.Serialize.cs",
+    # Preserve PVS entry budgets across ticks deferred by transport backpressure.
+    "Robust.Server/GameStates/PvsSystem.Session.cs",
+    "Robust.Server/GameStates/PvsSystem.ToSendSet.cs",
     "Robust.Server.IntegrationTests/GameStates/InitialStateBacklogTest.cs",
     # Test-only transport-pressure injection; not part of shipped client/server modules.
     "Robust.UnitTesting/RobustIntegrationTest.NetManager.cs",
