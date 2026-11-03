@@ -5,7 +5,7 @@
   description: The primary communications computer for issuing MMC announcements.
   components:
   - type: AccessReader
-    access: [[ "MieyoSecurity" ]]
+    access: [[ "MieyoLiason" ]]
   - type: CommunicationsConsole
     title: comms-console-announcement-title-mieyo
     color: "#FF8800"

@@ -283,6 +283,8 @@
   parent: [BaseStructureIndestructible, BaseStructureComputerTabletop, ComputerComms]
   id: ComputerTabletopComms
   components:
+  - type: Anchorable
+    flags: Anchorable
   - type: Sprite
     drawdepth: SmallObjects
     layers:
@@ -303,6 +305,8 @@
   parent: [BaseStructureComputerTabletop, SyndicateComputerComms]
   id: SyndicateComputerTabletopComms
   components:
+  - type: Anchorable
+    flags: Anchorable
   - type: Sprite
     drawdepth: SmallObjects
     layers:

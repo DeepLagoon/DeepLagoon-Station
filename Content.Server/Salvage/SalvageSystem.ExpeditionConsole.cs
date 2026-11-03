@@ -51,6 +51,15 @@ public sealed partial class SalvageSystem
         if (!data.Missions.TryGetValue(args.Index, out var missionparams))
             return;
 
+        if (TryComp<StationDataComponent>(station, out var departureStation) &&
+            _station.GetLargestGrid((station.Value, departureStation)) is { Valid: true } departureGrid &&
+            IsExpeditionShuttleDocked(departureGrid))
+        {
+            PlayDenySound(uid, component);
+            _popupSystem.PopupEntity(Loc.GetString("salvage-expedition-shuttle-docked"), uid, PopupType.MediumCaution);
+            return;
+        }
+
         // Frontier: FTL travel is currently restricted to expeditions and such, and so we need to put this here
         // until FTL changes for us in some way.
         if (!component.Debug) // Skip the test
@@ -74,50 +83,10 @@ public sealed partial class SalvageSystem
             var xform = Transform(grid);
             var bounds = xform.WorldMatrix.TransformBox(gridComp.LocalAABB).Enlarged(ShuttleFTLRange);
             var bodyQuery = GetEntityQuery<PhysicsComponent>();
-            // Keep track of docked grids to exclude them from the proximity check
-            var dockedGrids = new HashSet<EntityUid>();
-
-            // Find all docked grids by looking for DockingComponents on the shuttle
-            var dockQuery = EntityQueryEnumerator<DockingComponent, TransformComponent>();
-            while (dockQuery.MoveNext(out var dockUid, out var dock, out var dockXform))
-            {
-                // Only consider docks on our grid
-                if (dockXform.GridUid != grid || !dock.Docked || dock.DockedWith == null)
-                    continue;
-
-                // If we have a docked entity, get its grid
-                if (TryComp(dock.DockedWith.Value, out TransformComponent? dockedXform) && dockedXform.GridUid != null)
-                {
-                    dockedGrids.Add(dockedXform.GridUid.Value);
-
-                    // Check if we're docked to another grid
-                    var parentGridUid = dockedXform.GridUid.Value;
-
-                    // Find all other grids docked to this parent grid
-                    // These should also be excluded from the proximity check so we can
-                    // still FTL even when other ships are docked to the same station/grid
-                    var parentDockQuery = EntityQueryEnumerator<DockingComponent, TransformComponent>();
-                    while (parentDockQuery.MoveNext(out var parentDockUid, out var parentDock, out var parentDockXform))
-                    {
-                        // Only consider docks on the parent grid
-                        if (parentDockXform.GridUid != parentGridUid || !parentDock.Docked || parentDock.DockedWith == null)
-                            continue;
-
-                        // If we have a docked entity and it's not our grid, add its grid to the exclusion list
-                        if (TryComp(parentDock.DockedWith.Value, out TransformComponent? siblingDockedXform) &&
-                            siblingDockedXform.GridUid != null &&
-                            siblingDockedXform.GridUid != grid)
-                        {
-                            dockedGrids.Add(siblingDockedXform.GridUid.Value);
-                        }
-                    }
-                }
-            }
 
             foreach (var other in _mapManager.FindGridsIntersecting(xform.MapID, bounds))
             {
                 if (other.Owner == grid ||
-                    dockedGrids.Contains(other.Owner) || // Skip grids that are docked to us or to the same parent grid
                     !bodyQuery.TryGetComponent(other.Owner, out var body) ||
                     body.Mass < ShuttleFTLMassThreshold)
                 {
@@ -283,5 +252,21 @@ public sealed partial class SalvageSystem
     private void PlayDenySound(EntityUid uid, SalvageExpeditionConsoleComponent component)
     {
         _audio.PlayPvs(_audio.GetSound(component.ErrorSound), uid);
+    }
+
+    /// <summary>
+    /// Expedition travel requires every docking connection to be released,
+    /// including connections to small craft and grids with an FTL lock.
+    /// </summary>
+    public bool IsExpeditionShuttleDocked(EntityUid grid)
+    {
+        var query = EntityQueryEnumerator<DockingComponent, TransformComponent>();
+        while (query.MoveNext(out var dock, out var xform))
+        {
+            if (xform.GridUid == grid && dock.Docked)
+                return true;
+        }
+
+        return false;
     }
 }

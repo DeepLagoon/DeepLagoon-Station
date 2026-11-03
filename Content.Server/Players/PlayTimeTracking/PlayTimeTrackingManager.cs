@@ -82,6 +82,10 @@ public sealed partial class PlayTimeTrackingManager : ISharedPlaytimeManager, IP
 
     private readonly Dictionary<ICommonSession, PlayTimeData> _playTimeData = new();
 
+    // Serialize administrative edits with player loading so offline edits cannot
+    // be lost when a player connects, or when two moderators edit the same timers.
+    private readonly SemaphoreSlim _editLock = new(1, 1);
+
     public event CalcPlayTimeTrackersCallback? CalcTrackers;
 
     public event Action<ICommonSession>? SessionPlayTimeUpdated;
@@ -313,22 +317,89 @@ public sealed partial class PlayTimeTrackingManager : ISharedPlaytimeManager, IP
 
     public async Task LoadData(ICommonSession session, CancellationToken cancel)
     {
+        // Disconnect cleanup must see the session even while it waits for an edit.
         var data = new PlayTimeData();
         _playTimeData.Add(session, data);
 
-        var playTimes = await _db.GetPlayTimes(session.UserId, cancel);
-        cancel.ThrowIfCancellationRequested();
-
-        foreach (var timer in playTimes)
+        await _editLock.WaitAsync(cancel);
+        try
         {
-            data.TrackerTimes.Add(timer.Tracker, timer.TimeSpent);
+            var playTimes = await _db.GetPlayTimes(session.UserId, cancel);
+            cancel.ThrowIfCancellationRequested();
+
+            foreach (var timer in playTimes)
+            {
+                data.TrackerTimes.Add(timer.Tracker, timer.TimeSpent);
+            }
+            session.ContentData()!.Whitelisted = await _db.GetWhitelistStatusAsync(session.UserId); // Nyanotrasen - Whitelist
+
+            data.Initialized = true;
+
+            QueueRefreshTrackers(session);
+            QueueSendTimers(session);
         }
-        session.ContentData()!.Whitelisted = await _db.GetWhitelistStatusAsync(session.UserId); // Nyanotrasen - Whitelist
+        finally
+        {
+            _editLock.Release();
+        }
+    }
 
-        data.Initialized = true;
+    /// <summary>
+    /// Edits the authoritative timers and persists them before reporting success.
+    /// Connected players must be updated in memory, otherwise autosave overwrites
+    /// direct database edits with their old timers.
+    /// </summary>
+    public async Task UpdateTrackerTimesAsync(NetUserId userId, IReadOnlyDictionary<string, TimeSpan> times, bool overwrite)
+    {
+        await _editLock.WaitAsync();
+        try
+        {
+            await WaitPendingSavesAsync();
 
-        QueueRefreshTrackers(session);
-        QueueSendTimers(session);
+            foreach (var (session, data) in _playTimeData)
+            {
+                if (session.UserId != userId || !data.Initialized)
+                    continue;
+
+                FlushSingleTracker(data, _timing.RealTime);
+                foreach (var (tracker, time) in times)
+                {
+                    var delta = overwrite ? time - data.TrackerTimes.GetValueOrDefault(tracker) : time;
+                    AddTimeToTracker(data, tracker, delta);
+                }
+
+                QueueSendTimers(session);
+                var save = DoSaveSessionAsync(session);
+                TrackPending(save);
+                await save;
+                return;
+            }
+
+            var stored = await _db.GetPlayTimes(userId);
+            var updates = new List<PlayTimeUpdate>();
+            foreach (var (tracker, time) in times)
+            {
+                var total = time;
+                if (!overwrite)
+                {
+                    foreach (var previous in stored)
+                    {
+                        if (previous.Tracker == tracker)
+                            total += previous.TimeSpent;
+                    }
+                }
+
+                updates.Add(new PlayTimeUpdate(userId, tracker, total));
+            }
+
+            var offlineSave = _db.UpdatePlayTimes(updates);
+            TrackPending(offlineSave);
+            await offlineSave;
+        }
+        finally
+        {
+            _editLock.Release();
+        }
     }
 
     public void ClientDisconnected(ICommonSession session)

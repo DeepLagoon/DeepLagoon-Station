@@ -35,7 +35,7 @@ body:has(.ApartmentEditor) { zoom: 1 !important; }
   &__symbol { display: block; width: 100%; height: 100%; }
   &__sceneSprite img { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
   &__tile.wall { background: transparent; border-color: transparent; }
-  &__tile.reserved { background: #357b79; }
+  &__tile.reserved { background: #357b7940; }
   &__ghost { position: absolute; background: transparent; outline: 1px solid #79cfae55; cursor: grab; display: flex; align-items: center; justify-content: center; z-index: 1; }
   &__ghost > span { position: absolute; left: 0; bottom: 0; pointer-events: none; }
   &__planSprite { position: absolute; inset: 0; pointer-events: none; }

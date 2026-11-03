@@ -80,6 +80,20 @@ public sealed class ApartmentRoomSceneTests
             var preview = NativeUiData.Parse(json);
             Assert.That(preview.Object("scene").Array("objects").Count(), Is.EqualTo(scene.Objects.Count));
             Assert.That(preview.Array("catalog").All(item => item.Array("images").Any()), Is.True, "Every furniture entry needs an actual game sprite.");
+            var tiles = preview.Object("scene").Array("tiles").ToArray();
+            Assert.That(tiles.Length, Is.EqualTo(scene.Tiles.Count));
+            Assert.That(tiles.All(tile => tile.String("url").StartsWith("data:image/png;base64,")), Is.True,
+                "Floor tiles must carry their real variant texture.");
+            Assert.That(tiles.Select(tile => tile.String("url")).Distinct().Count(), Is.GreaterThan(1));
+            var movableWalls = preview.Array("catalog").Where(item => item.Array("images").Any(image => image.Bool("worldAligned"))).ToArray();
+            Assert.That(movableWalls, Is.Not.Empty);
+            foreach (var wall in movableWalls)
+            {
+                var corners = wall.Array("images").Where(image => image.Bool("worldAligned")).ToArray();
+                Assert.That(corners.Length, Is.EqualTo(4), "A movable wall needs all four corners.");
+                Assert.That(corners.Select(image => image.String("url")).Distinct().Count(), Is.GreaterThan(1),
+                    "Corner frames must retain their RSI directions instead of repeating the south frame.");
+            }
             var walls = preview.Object("scene").Array("objects").Where(item => item.Bool("wall")).ToArray();
             Assert.That(walls, Is.Not.Empty);
             Assert.That(walls.All(item => item.Array("images").Any()), Is.True);

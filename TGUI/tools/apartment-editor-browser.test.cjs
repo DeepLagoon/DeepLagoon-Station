@@ -37,6 +37,19 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
       replaceData: true, config: { interface: 'ApartmentEditor', status: 2, title: 'Квартира', window: { key: 'apartment-room', fancy: false } }, data,
     } })), data);
     await page.locator('.ApartmentEditor__fixture').first().waitFor({ state: 'attached' });
+    assert.equal(await page.locator('[data-floor-sprite]').count(), data.scene.tiles.length);
+    for (const tile of data.scene.tiles) {
+      const floor = page.locator(`[data-floor-sprite="${tile.x},${tile.y}"]`);
+      assert.equal(await floor.getAttribute('href'), tile.url);
+      assert.ok(tile.url.startsWith('data:image/png;base64,'));
+    }
+    const movableWalls = data.catalog.filter(item => item.images?.some(image => image.worldAligned));
+    assert.ok(movableWalls.length > 0);
+    for (const wall of movableWalls) {
+      assert.equal(wall.images.filter(image => image.worldAligned).length, 4);
+      const placed = data.layout.find(item => item.furniture === wall.id);
+      if (placed) assert.equal(await page.locator(`[data-placement="${placed.id}"] img`).count(), wall.images.length);
+    }
     const occupiedCells = new Set(data.scene.occupied.map(cell => `${cell.x},${cell.y}`));
     assert.equal(await page.locator('.ApartmentEditor__fixture').count(), data.scene.objects.filter(object => !object.wall && !object.door && occupiedCells.has(`${Math.floor(object.x)},${Math.floor(object.y)}`)).length);
     assert.equal(await page.locator('.ApartmentEditor__ghost .ApartmentEditor__planSprite').count(), data.layout.length);
@@ -80,6 +93,15 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     const mapped = data.catalog.find(item => item.id === 'map_80') || data.catalog.find(item => item.existingOnly);
     const original = data.layout.find(item => item.id === mapped.placementId);
     await page.getByRole('button', { name: 'Исходный интерьер', exact: true }).click();
+    const movableWall = movableWalls.find(wall => data.layout.some(item => item.id === wall.placementId));
+    assert.ok(movableWall);
+    await page.locator(`[data-existing="${movableWall.id}"]`).click();
+    await page.locator(`[data-cell="${free[1].x},${free[1].y}"]`).click();
+    const movedWall = page.locator(`[data-placement="${movableWall.placementId}"]`);
+    assert.equal(await movedWall.locator('img').count(), movableWall.images.length);
+    assert.ok((await movedWall.locator('img').evaluateAll(images => new Set(images.map(image => image.src)).size)) > 1);
+    await page.screenshot({ path: path.join(screenshots, 'wall-moved.png') });
+    await page.getByRole('button', { name: 'Отменить', exact: true }).click();
     await page.locator(`[data-existing="${mapped.id}"]`).click();
     assert.equal(await page.getByRole('button', { name: 'Убрать · Delete', exact: true }).isDisabled(), false);
     await page.getByRole('button', { name: 'Увеличить масштаб', exact: true }).click();

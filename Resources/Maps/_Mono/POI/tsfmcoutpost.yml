@@ -2826,7 +2826,7 @@ entities:
       powerLoad: 5
     - type: Battery
       startingCharge: 0
-- proto: ComputerComms
+- proto: TSFComputerComms
   entities:
   - uid: 402
     components:

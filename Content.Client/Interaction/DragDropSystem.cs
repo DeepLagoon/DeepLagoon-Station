@@ -560,7 +560,11 @@ public sealed partial class DragDropSystem : SharedDragDropSystem
         if (Exists(_dragShadow))
         {
             var mousePos = _eyeManager.PixelToMap(_inputManager.MouseScreenPosition);
-            _transformSystem.SetWorldPosition(_dragShadow.Value, mousePos.Position);
+            if (mousePos.MapId == MapId.Nullspace)
+                return;
+            // Stay relative to the cursor's map, including across FTL map changes.
+            // Grid traversal is disabled on this visual-only prototype.
+            _transformSystem.SetCoordinates(_dragShadow.Value, _transformSystem.ToCoordinates(mousePos));
             _transformSystem.SnapRenderTransform(_dragShadow.Value);
         }
     }

@@ -60,6 +60,15 @@ REVIEWED_ENGINE_PATHS = frozenset({
     # Return temporary lone-island collections to their existing pools.
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Island.cs",
     "Robust.Shared.IntegrationTests/Physics/IslandAllocationTests.cs",
+    # Server-only attribution for console spawns and successful VV edits; no wire/client changes.
+    "Robust.Server/Console/Commands/AddComponentCommand.cs",
+    "Robust.Server/Console/Commands/RemoveComponentCommand.cs",
+    "Robust.Server/Console/IServerConsoleHost.cs",
+    "Robust.Server/Console/ServerConsoleHost.cs",
+    "Robust.Server/ViewVariables/ServerViewVariablesManager.cs",
+    "Robust.Server/ViewVariables/ViewVariablesSession.cs",
+    "Robust.Server/ViewVariables/ViewVariablesModifiedEvent.cs",
+    "Robust.Server.IntegrationTests/ViewVariables/ViewVariablesModificationTest.cs",
 })
 
 

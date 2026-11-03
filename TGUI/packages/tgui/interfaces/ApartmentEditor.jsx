@@ -179,6 +179,7 @@ export const ApartmentEditor = () => {
           onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={(event) => { if (drag.current) pointerMove(event); drag.current = null; }} onPointerCancel={() => { if (drag.current?.moved) update(drag.current.original); drag.current = null; }}
           onPointerLeave={() => { if (!drag.current) setHover(null); }}>
           <NavMapPlan tiles={data.scene?.tiles || Array.from({ length: data.width * data.height }, (_, i) => ({ x: i % data.width, y: Math.floor(i / data.width) }))}
+            texturedFloors
             structures={data.scene?.objects.filter(object => object.wall || object.door) || []}
             area={{ x: originX, y: originY, width: data.width, height: data.height }} />
           {Array.from({ length: (data.width || 0) * (data.height || 0) }, (_, index) => {
@@ -204,7 +205,7 @@ export const ApartmentEditor = () => {
             return <div key={item.id} data-placement={item.id} title={displayErrors[item.id] || def.name}
               className={`ApartmentEditor__ghost ${selected === item.id ? 'selected' : ''} ${displayErrors[item.id] ? 'invalid' : ''} ${brush && item.id === hover?.id ? 'hover' : ''}`}
               style={{ zIndex: index + 1, left: `${(item.x - originX) / data.width * 100}%`, top: `${(originY + data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
-              <span style={{ width: cellSize, height: cellSize, transform: `rotate(${def.noRotation ? 0 : -item.rotation * 90}deg)` }}><PlanSprite images={def.images} /></span>
+              <span style={{ width: cellSize, height: cellSize, transform: `rotate(${def.noRotation || def.images?.some(image => image.worldAligned) ? 0 : -item.rotation * 90}deg)` }}><PlanSprite images={def.images} /></span>
             </div>;
           })}
         </div>

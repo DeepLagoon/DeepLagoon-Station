@@ -49,12 +49,10 @@ public sealed class LaserPointerOverlay : Overlay
                 if (xform.MapID != currentMapId)
                     continue;
 
-                var start = data.Start;
-                var end = data.End;
-
-                var coords = _transform.GetRenderMapCoordinates((ent, xform));
-                if (coords.MapId != MapId.Nullspace && coords.MapId == currentMapId)
-                    start = coords.Position;
+                // Keep both endpoints in the holder's rendered grid frame.
+                Entity<TransformComponent> source = xformQuery.TryComp(xform.ParentUid, out var holder)
+                    ? (xform.ParentUid, holder) : (ent, xform);
+                var (start, end) = LaserPointerRenderCoordinates.GetLine(_transform, source, data.End - data.Start);
 
                 var (left, right) = MinMax(start.X, end.X);
                 var (bottom, top) = MinMax(start.Y, end.Y);

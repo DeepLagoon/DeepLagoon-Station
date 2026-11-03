@@ -1,7 +1,7 @@
 import { memo, useId, useMemo } from 'react';
 import { navMapGeometry, navMapPalette } from './navMapPlan.mjs';
 
-export const NavMapPlan = memo(({ tiles = [], structures = [], area }) => {
+export const NavMapPlan = memo(({ tiles = [], structures = [], area, texturedFloors = false }) => {
   const filterPrefix = useId().replaceAll(':', '');
   const colors = [...new Set(structures.flatMap(item => item.images || []).map(image => image.color).filter(color => /^#[\da-f]{6}$/i.test(color) && color.toLowerCase() !== '#ffffff'))];
   const tintId = color => `${filterPrefix}-wall-${color.slice(1)}`;
@@ -12,6 +12,12 @@ export const NavMapPlan = memo(({ tiles = [], structures = [], area }) => {
       <feColorMatrix type="matrix" values={`${parseInt(color.slice(1, 3), 16) / 255} 0 0 0 0 0 ${parseInt(color.slice(3, 5), 16) / 255} 0 0 0 0 0 ${parseInt(color.slice(5, 7), 16) / 255} 0 0 0 0 0 1 0`} />
     </filter>)}</defs>
     <path d={geometry.floors} fill={navMapPalette.floor} />
+    {texturedFloors && tiles.filter(tile => tile.url).map(tile => {
+      const x = tile.x - area.x, y = area.y + area.height - tile.y - 1;
+      return <image key={`${tile.x},${tile.y}`} data-floor-sprite={`${tile.x},${tile.y}`} href={tile.url}
+        x={x} y={y} width={1} height={1} preserveAspectRatio="none" style={{ imageRendering: 'pixelated' }}
+        transform={`translate(${x + .5} ${y + .5}) rotate(${-((tile.mirror || 0) % 4) * 90}) scale(${tile.mirror >= 4 ? -1 : 1} 1) translate(${-x - .5} ${-y - .5})`} />;
+    })}
     {geometry.doors.map((door, index) => <g key={index} transform={`translate(${door.x} ${door.y}) rotate(${door.rotation})`}>
       <rect x={-.335} y={-.335} width={.67} height={.67} fill={navMapPalette.wall} />
       <path d="M0,-.335V.335" stroke={navMapPalette.background} strokeWidth={.045} />

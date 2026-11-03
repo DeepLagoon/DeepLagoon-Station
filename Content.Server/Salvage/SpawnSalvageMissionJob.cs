@@ -303,6 +303,10 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         // Frontier: delay ship FTL
         if (shuttleUid is { Valid: true })
         {
+            // Generation yields; the ship may have docked after claiming the mission.
+            if (_salvage.IsExpeditionShuttleDocked(shuttleUid.Value))
+                throw new InvalidOperationException("Expedition shuttle must undock before departure.");
+
             var shuttle = _entManager.GetComponent<ShuttleComponent>(shuttleUid.Value);
             MassAdjustFTLExpedStartup(shuttleUid, out var massStartupTime);
             _shuttle.FTLToCoordinates(shuttleUid.Value, shuttle, new EntityCoordinates(mapUid, coords), 0f, massStartupTime, HyperSpaceTime);

@@ -3,6 +3,8 @@
   id: dragshadow
   categories: [ HideSpawnMenu ]
   components:
+  - type: Transform
+    gridTraversal: false
   - type: Tag
     tags:
     - HideContextMenu

@@ -66,7 +66,7 @@ public sealed partial class LaserPointerSystem : SharedLaserPointerSystem
                 hovered = screen.GetDamageableClickedEntity(mousePos.Value);
         }
 
-        Vector2? dir = mousePos == null ? null : mousePos.Value.Position - _transform.GetWorldPosition(xform);
+        Vector2? dir = mousePos == null ? null : LaserPointerRenderCoordinates.ToSimulationDirection(_transform, (player, xform), mousePos.Value.Position);
 
         foreach (var held in _hands.EnumerateHeld(player, hands))
         {

@@ -1,47 +1,44 @@
-using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Content.Server._Goobstation.Administration;
 
-/// <summary>
-/// Utility methods for handling play time commands and time string parsing
-/// </summary>
 public static class PlayTimeCommandUtilities
 {
     /// <summary>
-    /// Parses a time string into minutes.
+    /// Accepts minutes or durations such as 1d 2h 30m, including Russian units
+    /// and either decimal separator, independently of the server culture.
     /// </summary>
-    /// <param name="timeString">Time string in a format like "1d 2h 30m" or "90m" or "1.5h"</param>
-    /// <returns>The total number of minutes represented by the string</returns>
-    public static double CountMinutes(string timeString)
+    public static bool TryParseTime(string text, out TimeSpan time)
     {
-        if (string.IsNullOrWhiteSpace(timeString))
-            return 0;
+        time = TimeSpan.Zero;
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
 
-        double totalMinutes = 0;
+        text = text.Trim().ToLowerInvariant().Replace(',', '.');
+        if (!Regex.IsMatch(text, @"^\d+(?:\.\d+)?$") &&
+            !Regex.IsMatch(text, @"^(?:\d+(?:\.\d+)?\s*[dhmдчм]\s*)+$"))
+            return false;
 
-        // Match patterns like "1d", "2h", "30m", "1.5h", etc.
-        var dayMatch = Regex.Match(timeString, @"(\d+\.?\d*)d");
-        var hourMatch = Regex.Match(timeString, @"(\d+\.?\d*)h");
-        var minuteMatch = Regex.Match(timeString, @"(\d+\.?\d*)m");
+        double minutes = 0;
+        foreach (Match part in Regex.Matches(text, @"(\d+(?:\.\d+)?)\s*([dhmдчм]?)"))
+        {
+            if (!double.TryParse(part.Groups[1].Value, NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var value))
+                return false;
 
-        // Parse days
-        if (dayMatch.Success && double.TryParse(dayMatch.Groups[1].Value, out var days))
-            totalMinutes += days * 24 * 60;
+            minutes += part.Groups[2].Value switch
+            {
+                "d" or "д" => value * 1440,
+                "h" or "ч" => value * 60,
+                _ => value
+            };
+        }
 
-        // Parse hours
-        if (hourMatch.Success && double.TryParse(hourMatch.Groups[1].Value, out var hours))
-            totalMinutes += hours * 60;
+        if (!double.IsFinite(minutes) || minutes >= TimeSpan.MaxValue.TotalMinutes)
+            return false;
 
-        // Parse minutes
-        if (minuteMatch.Success && double.TryParse(minuteMatch.Groups[1].Value, out var minutes))
-            totalMinutes += minutes;
-
-        // If no specific unit is provided, assume it's minutes
-        if (!dayMatch.Success && !hourMatch.Success && !minuteMatch.Success && 
-            double.TryParse(timeString, out var plainMinutes))
-            totalMinutes = plainMinutes;
-
-        return totalMinutes;
+        time = TimeSpan.FromMinutes(minutes);
+        return true;
     }
-} 
+}

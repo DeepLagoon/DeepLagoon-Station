@@ -14,48 +14,68 @@ public sealed partial class TracerSystem : EntitySystem
     [Dependency] private IOverlayManager _overlay = default!;
     [Dependency] private TransformSystem _transform = default!;
 
+    private const int MaxHistoryPoints = 256;
+    private readonly Dictionary<EntityUid, MapId> _historyMaps = new();
+
     public override void Initialize()
     {
         base.Initialize();
         _overlay.AddOverlay(new TracerOverlay(this));
+        UpdatesAfter.Add(typeof(TransformSystem));
 
         SubscribeLocalEvent<TracerComponent, ComponentStartup>(OnTracerStart);
+        SubscribeLocalEvent<TracerComponent, ComponentShutdown>(OnTracerShutdown);
     }
 
     private void OnTracerStart(Entity<TracerComponent> ent, ref ComponentStartup args)
     {
         var xform = Transform(ent);
-        var pos = _transform.GetWorldPosition(xform);
+        _historyMaps[ent.Owner] = xform.MapID;
 
         ent.Comp.Data = new TracerData(
-            new List<Vector2> { pos },
+            new List<Vector2>(),
             _timing.CurTime + TimeSpan.FromSeconds(ent.Comp.Lifetime)
         );
+    }
+
+    private void OnTracerShutdown(Entity<TracerComponent> ent, ref ComponentShutdown args)
+    {
+        _historyMaps.Remove(ent.Owner);
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        if (!_timing.IsFirstTimePredicted)
+            return;
+        var query = EntityQueryEnumerator<TracerComponent>();
+        while (query.MoveNext(out var uid, out var tracer))
+        {
+            if (_timing.CurTime > tracer.Data.EndTime)
+                RemCompDeferred<TracerComponent>(uid);
+        }
+    }
 
-        var curTime = _timing.CurTime;
+    public override void FrameUpdate(float frameTime)
+    {
+        base.FrameUpdate(frameTime);
         var query = EntityQueryEnumerator<TracerComponent, TransformComponent>();
-
         while (query.MoveNext(out var uid, out var tracer, out var xform))
         {
-            if (curTime > tracer.Data.EndTime)
+            var positions = tracer.Data.PositionHistory;
+            if (!_historyMaps.TryGetValue(uid, out var map) || map != xform.MapID)
             {
-                RemCompDeferred<TracerComponent>(uid);
-                continue;
+                positions.Clear();
+                _historyMaps[uid] = xform.MapID;
             }
-
-            var currentPos = _transform.GetWorldPosition(xform);
-            tracer.Data.PositionHistory.Add(currentPos);
-
-            while (tracer.Data.PositionHistory.Count > 2 &&
-                   GetTrailLength(tracer.Data.PositionHistory) > tracer.Length)
-            {
-                tracer.Data.PositionHistory.RemoveAt(0);
-            }
+            // Sample after interpolation, once per displayed frame. Prediction
+            // rollback must not append old tick positions to a visible trail.
+            var position = _transform.GetRenderWorldPosition((uid, xform));
+            if (positions.Count == 0 || positions[^1] != position)
+                positions.Add(position);
+            while (positions.Count > 2 &&
+                   (positions.Count > MaxHistoryPoints || GetTrailLength(positions) > tracer.Length))
+                positions.RemoveAt(0);
         }
     }
 
@@ -87,10 +107,7 @@ public sealed partial class TracerSystem : EntitySystem
 
             for (var i = 1; i < positions.Count; i++)
             {
-                var endpoint = i == positions.Count - 1
-                    ? _transform.GetRenderWorldPosition((uid, xform))
-                    : positions[i];
-                handle.DrawLine(positions[i - 1], endpoint, tracer.Color);
+                handle.DrawLine(positions[i - 1], positions[i], tracer.Color);
             }
         }
     }

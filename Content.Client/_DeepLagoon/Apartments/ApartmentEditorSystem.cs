@@ -5,6 +5,7 @@ using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Maps;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -93,6 +94,15 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
     private void Publish()
     {
         if (_window == null || _state == null || Template == null) return;
+        GridEditorItem MapObject(ApartmentMapFurniture mapped)
+        {
+            var placement = _state.Layout.FirstOrDefault(p => p.Id == mapped.Baseline.Id) ?? mapped.Baseline;
+            return new GridEditorItem { Id = placement.Id, Kind = "entity", Prototype = mapped.Prototype,
+                X = placement.X + .5f, Y = placement.Y + .5f, Rotation = placement.Rotation * 90 };
+        }
+        // Movable walls are absent from the fixed scene, but still connect to its walls.
+        var walls = new TguiWallImages(_images, (_state.Scene?.Objects ?? new List<GridEditorItem>())
+            .Concat(_state.MapFurniture.Where(mapped => _state.Layout.Any(p => p.Id == mapped.Baseline.Id)).Select(MapObject)), _prototypes);
         var data = new TguiData().String("template", Template.ID).String("name", Loc.GetString(Template.Name))
             .Number("number", _state.Number).Bool("lobby", _state.Lobby)
             .Number("revision", _state.Revision).String("token", _state.Token.ToString())
@@ -110,7 +120,8 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
                 if (mapped != null) entry.String("placementId", mapped.Baseline.Id).Number("originalX", mapped.Baseline.X).Number("originalY", mapped.Baseline.Y).Number("originalRotation", mapped.Baseline.Rotation);
                 var prototype = _prototypes.Index<EntityPrototype>(item.Entity);
                 prototype.TryGetComponent<SpriteComponent>(out var sprite);
-                var images = _state.Entities.TryGetValue(mapped?.Baseline.Id ?? "", out var net)
+                var smoothed = mapped != null && prototype.TryGetComponent<Content.Client.IconSmoothing.IconSmoothComponent>(out _);
+                var images = smoothed ? walls.Images(MapObject(mapped!)).ToList() : _state.Entities.TryGetValue(mapped?.Baseline.Id ?? "", out var net)
                     ? _images.MapEntity(GetEntity(net)).ToList() : new List<TguiData>();
                 entry.Array("images", images.Count > 0 ? images : _images.MapItem(item.Entity))
                     .Bool("noRotation", sprite?.NoRotation ?? false).Number("drawDepth", sprite?.DrawDepth ?? 0);
@@ -118,11 +129,16 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
             }));
         if (_state.Scene is { } scene)
         {
-            var walls = new TguiWallImages(_images, scene.Objects, _prototypes);
             data.Object("scene", new TguiData().Number("x", scene.X).Number("y", scene.Y)
                 .Array("restricted", scene.Restricted.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
                 .Array("walls", scene.Walls.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
-                .Array("tiles", scene.Tiles.Select(tile => new TguiData().Number("x", tile.X).Number("y", tile.Y)))
+                .Array("tiles", scene.Tiles.Select(tile =>
+                {
+                    var definition = _prototypes.Index<ContentTileDefinition>(tile.Prototype);
+                    return new TguiData().Number("x", tile.X).Number("y", tile.Y).String("prototype", tile.Prototype)
+                        .Number("variant", tile.Variant).Number("mirror", definition.AllowRotationMirror ? tile.Mirror : 0)
+                        .String("url", definition.Sprite is { } path ? _images.TileFrame(path, tile.Variant) : "");
+                }))
                 .Array("objects", scene.Objects.Select(item =>
                 {
                     var prototype = _prototypes.Index<EntityPrototype>(item.Prototype);

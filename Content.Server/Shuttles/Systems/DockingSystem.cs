@@ -1,5 +1,6 @@
 using Content.Server.Doors.Systems;
 using Content.Server.NPC.Pathfinding;
+using Content.Server.Salvage.Expeditions;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Events;
 using Content.Shared.Doors;
@@ -204,6 +205,10 @@ namespace Content.Server.Shuttles.Systems
         public void Dock(Entity<DockingComponent> dockA, Entity<DockingComponent> dockB,
             bool noEvent = false) // Mono
         {
+            if (IsStartingExpedition(Transform(dockA).GridUid) ||
+                IsStartingExpedition(Transform(dockB).GridUid))
+                return;
+
             var dockAUid = dockA.Owner;
             var dockBUid = dockB.Owner;
 
@@ -517,6 +522,9 @@ namespace Content.Server.Shuttles.Systems
             var xformA = Transform(dockA);
             var xformB = Transform(dockB);
 
+            if (IsStartingExpedition(xformA.GridUid) || IsStartingExpedition(xformB.GridUid))
+                return false;
+
             if (!xformA.Anchored || !xformB.Anchored)
                 return false;
 
@@ -525,6 +533,16 @@ namespace Content.Server.Shuttles.Systems
 
             return CanDock(new MapCoordinates(worldPosA, xformA.MapID), worldRotA,
                 new MapCoordinates(worldPosB, xformB.MapID), worldRotB);
+        }
+
+        private bool IsStartingExpedition(EntityUid? grid)
+        {
+            if (!TryComp<FTLComponent>(grid, out var ftl) || ftl.State != FTLState.Starting)
+                return false;
+
+            var target = ftl.TargetCoordinates.EntityId;
+            return HasComp<SalvageExpeditionComponent>(target) ||
+                TryComp<TransformComponent>(target, out var xform) && HasComp<SalvageExpeditionComponent>(xform.MapUid);
         }
 
         private void OnRequestUndockAll(EntityUid uid, ShuttleConsoleComponent component, UndockAllRequestMessage args)

@@ -765,6 +765,8 @@
   name: communications computer
   description: A computer used to make station wide announcements via keyboard, set the appropriate alert level, and call the emergency shuttle.
   components:
+  - type: Anchorable
+    flags: Anchorable
   - type: Sprite
     layers:
     - map: ["computerLayerBody"]
@@ -778,7 +780,7 @@
     - map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
       state: generic_panel_open
   - type: AccessReader
-    access: [["HeadOfPersonnel"], ["HeadOfSecurity"], ["ChiefMedicalOfficer"]]
+    access: [["HeadOfPersonnel"], ["ChiefMedicalOfficer"]]
   - type: CommunicationsConsole
     title: comms-console-announcement-title-station
     global: true #SR WILL NOT BE IGNORED
