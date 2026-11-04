@@ -63,6 +63,11 @@ public sealed partial class ParkingSystem
         var excluded = new HashSet<EntityUid>();
         foreach (var entity in Descendants(grid).Skip(1))
         {
+            if (MetaData(entity).EntityPrototype is { MapSavable: false })
+            {
+                excluded.Add(entity);
+                continue;
+            }
             if (Original(entity, grid)) continue;
             var parent = Transform(entity).ParentUid;
             var depth = 0;

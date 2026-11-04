@@ -22,6 +22,9 @@ using Content.Shared._NF.Shipyard.Prototypes;
 using Content.Shared.Access.Components;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.GameTicking;
+using Content.Shared.Follower;
+using Content.Shared.Follower.Components;
+using Content.Shared.Ghost;
 using Content.Shared.Interaction;
 using Content.Shared.Mind.Components;
 using Content.Shared.Mobs.Components;
@@ -61,6 +64,7 @@ public sealed partial class ParkingSystem : EntitySystem
     [Dependency] private LagoonCoinSystem _coins = default!;
     [Dependency] private BankSystem _bank = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private FollowerSystem _follower = default!;
     private ParkingStore _store = default!;
     private readonly HashSet<Guid> _busy = [];
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _viewers = [];
@@ -252,11 +256,34 @@ public sealed partial class ParkingSystem : EntitySystem
     }
     private void CheckEmpty(EntityUid grid)
     {
+        var ghosts = new List<EntityUid>();
         foreach (var entity in Descendants(grid))
-            if (HasComp<ActorComponent>(entity) || HasComp<MobStateComponent>(entity)
-                || TryComp<MindContainerComponent>(entity, out var mind) && mind.Mind != null)
+        {
+            if (HasComp<GhostComponent>(entity))
+            {
+                ghosts.Add(entity);
+                continue;
+            }
+            if (HasComp<ActorComponent>(entity)
+                || (TryComp<MindContainerComponent>(entity, out var mind) && mind.Mind != null))
                 throw new InvalidOperationException("На шаттле остался пассажир или живое существо: " + Name(entity));
+        }
         if (HasComp<Content.Shared.Shuttles.Components.FTLComponent>(grid)) throw new InvalidOperationException("Дождитесь окончания FTL-перехода.");
+        ReleaseGhosts(ghosts);
+    }
+
+    private void ReleaseGhosts(List<EntityUid> ghosts)
+    {
+        foreach (var entity in ghosts)
+        {
+            if (!Exists(entity) || !TryComp<TransformComponent>(entity, out var ghostTransform)) continue;
+            if (ghostTransform.MapUid is not { } map) continue;
+            var world = _transform.GetWorldPosition(entity);
+            _containers.TryRemoveFromContainer(entity);
+            if (TryComp<FollowerComponent>(entity, out var follower) && Exists(follower.Following))
+                _follower.StopFollowingEntity(entity, follower.Following);
+            _transform.SetCoordinates(entity, new EntityCoordinates(map, world));
+        }
     }
     private void CheckDocked(EntityUid console, EntityUid grid)
     {
