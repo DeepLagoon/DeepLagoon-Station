@@ -1069,6 +1069,10 @@ public sealed partial class ChatSystem : SharedChatSystem
 
     public static readonly ProtoId<ReplacementAccentPrototype> ChatSanitize_Accent = "chatsanitize";
 
+    // DeepLagoon start
+    public static readonly ProtoId<ReplacementAccentPrototype> DeepLagoonChatSanitize_Accent = "dl-ru-chatsan";
+    // DeepLagoon end
+
     public string SanitizeMessageReplaceWords(string message)
     {
         if (string.IsNullOrEmpty(message)) return message;
@@ -1076,6 +1080,8 @@ public sealed partial class ChatSystem : SharedChatSystem
         var msg = message;
 
         msg = _wordreplacement.ApplyReplacements(msg, ChatSanitize_Accent);
+        // DeepLagoon edit
+        msg = _wordreplacement.ApplyReplacements(msg, DeepLagoonChatSanitize_Accent);
 
         return msg;
     }
