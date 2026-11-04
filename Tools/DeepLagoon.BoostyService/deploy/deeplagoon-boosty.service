@@ -1,0 +1,33 @@
+[Unit]
+Description=DeepLagoon Boosty paid-period LC rewards
+After=network-online.target
+Wants=network-online.target
+# Deliberately no Requires/PartOf/BindsTo on the game, Bot or AccountService.
+
+[Service]
+Type=simple
+User=lagoon-boosty
+Group=lagoon-boosty
+WorkingDirectory=/opt/deeplagoon-boosty
+ExecStart=/usr/bin/python3 /opt/deeplagoon-boosty/boosty_service.py run --config /var/lib/deeplagoon-boosty/config.json
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=30
+StateDirectory=deeplagoon-boosty
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/deeplagoon-boosty
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=DeepLagoon Boosty paid-period LC rewards
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/lib/deeplagoon-boosty
+ExecStart=/usr/bin/python3 %h/.local/lib/deeplagoon-boosty/boosty_service.py run --config %h/.local/state/deeplagoon-boosty/config.json
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

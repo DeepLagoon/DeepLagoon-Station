@@ -10,6 +10,7 @@
     <Compile Include="../../Content.Server/_DeepLagoon/DiscordLink/DiscordLinkStore.cs" Link="Native/DiscordLinkStore.cs" />
     <Compile Include="../../Content.Server/_DeepLagoon/DiscordLink/DiscordApiTokens.cs" Link="Native/DiscordApiTokens.cs" />
     <Content Include="bot_contract_probe.py" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="boosty_contract_probe.py" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../DeepLagoon.AccountService/deploy/grants.sql" Link="grants.sql" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../DeepLagoon.AccountService/DeepLagoon.AccountService.csproj" />
     <PackageReference Include="NUnit" />

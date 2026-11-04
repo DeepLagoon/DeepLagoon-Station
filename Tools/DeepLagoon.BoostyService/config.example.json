@@ -1,0 +1,19 @@
+{
+  "blog": "iamasay",
+  "owner_id": "45945494",
+  "start_at": "REPLACE_WITH_ACTIVATION_UTC",
+  "actor_discord_id": "REPLACE_WITH_LINKED_HOST_DISCORD_ID",
+  "levels": {
+    "4140151": 1,
+    "4125180": 2,
+    "4125182": 3,
+    "4125184": 4
+  },
+  "bindings": {},
+  "account_url": "http://127.0.0.1:18765",
+  "account_token_file": "/var/lib/deeplagoon-boosty/account-token",
+  "auth_file": "/var/lib/deeplagoon-boosty/auth.json",
+  "state_file": "/var/lib/deeplagoon-boosty/events.sqlite3",
+  "poll_seconds": 300,
+  "max_pages": 100
+}
