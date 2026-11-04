@@ -106,6 +106,10 @@ public sealed partial class ParkingSystem
     {
         var inside = Descendants(grid).ToHashSet();
         if (inside.Count > 100000) throw new InvalidOperationException("Слишком много объектов для сохранения шаттла.");
+        var skipped = new HashSet<EntityUid>();
+        foreach (var entity in Descendants(grid).Skip(1))
+            if (MetaData(entity).EntityPrototype is { MapSavable: false }) skipped.Add(entity);
+        if (skipped.Count != 0) DetachOriginalSurvivors(grid, skipped);
         HashSet<EntityUid> roots = [grid];
         RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(grid).MapID], FileCategory.Grid));
         var serializer = new EntitySerializer(_dependencies, new SerializationOptions { Category = FileCategory.Grid, ExpectPreInit = false, MissingEntityBehaviour = MissingEntityBehaviour.IncludeNullspace });

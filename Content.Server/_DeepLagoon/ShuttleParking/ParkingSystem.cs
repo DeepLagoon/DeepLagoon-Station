@@ -119,6 +119,9 @@ public sealed partial class ParkingSystem : EntitySystem
         data.OriginalItems.Clear();
         foreach (var entity in Descendants(grid))
         {
+            if (MetaData(entity).EntityPrototype is { MapSavable: false })
+                continue;
+
             var original = EnsureComp<ParkingOriginalComponent>(entity);
             original.Shuttle = data.Identity; original.Identity = Guid.NewGuid();
             data.OriginalItems[original.Identity] = entity;
