@@ -64,6 +64,9 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Server/GameStates/PvsSystem.Session.cs",
     "Robust.Server/GameStates/PvsSystem.ToSendSet.cs",
     "Robust.Server.IntegrationTests/GameStates/InitialStateBacklogTest.cs",
+    # Reject entity messages until the server session is ready and after it is replaced.
+    "Robust.Server/GameObjects/ServerEntityManager.cs",
+    "Robust.Server.IntegrationTests/GameObjects/ServerEntityNetworkManagerTest.cs",
     # Test-only transport-pressure injection; not part of shipped client/server modules.
     "Robust.UnitTesting/RobustIntegrationTest.NetManager.cs",
     # Return temporary lone-island collections to their existing pools.
