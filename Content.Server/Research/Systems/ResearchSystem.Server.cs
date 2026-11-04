@@ -19,6 +19,19 @@ public sealed partial class ResearchSystem
             .Max(s => s.Id) + 1;
         component.Id = unusedId;
         Dirty(uid, component);
+
+        // DeepLagoon start
+        if (Transform(uid).GridUid is { } grid)
+        {
+            var clients = new HashSet<Entity<ResearchClientComponent>>();
+            _lookup.GetChildEntities(grid, clients);
+
+            foreach (var client in clients)
+            {
+                RegisterClient(client, uid, client.Comp, component);
+            }
+        }
+        // DeepLagoon end
     }
 
     private void OnServerShutdown(EntityUid uid, ResearchServerComponent component, ComponentShutdown args)
