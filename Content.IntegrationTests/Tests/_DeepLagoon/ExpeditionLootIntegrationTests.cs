@@ -35,6 +35,8 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ExpeditionLootIntegrationTests
 {
+    private static readonly EntProtoId MergedFlatpackProbe = "DLExpeditionMergedFlatpackProbe";
+
     [TestPrototypes]
     private const string Prototypes = @"
 - type: vendingMachineInventory
@@ -49,6 +51,29 @@ public sealed class ExpeditionLootIntegrationTests
   - type: VendingMachine
     pack: DLExpeditionUnsafeVending
 ";
+
+    [Test]
+    public async Task ClientLoadsEntitiesAfterServerOnlyLootInMergedYaml()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            // Release packaging puts every YAML file in the directory into a separate document.
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            prototypes.LoadString("""
+                ---
+                - type: expeditionLoot
+                  id: DLExpeditionMergedLootProbe
+                ---
+                - type: entity
+                  id: DLExpeditionMergedFlatpackProbe
+                  parent: PrometheusFlatpack
+                """);
+            prototypes.ResolveResults();
+            Assert.That(prototypes.TryIndex(MergedFlatpackProbe, out _), Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
 
     private static Entity<MapGridComponent> Expedition(IEntityManager entities, DifficultyRating difficulty)
     {

@@ -129,6 +129,7 @@ namespace Content.Client.Entry
             _prototypeManager.RegisterIgnore("ghostRoleRaffleDecider");
             _prototypeManager.RegisterIgnore("pointOfInterest"); // Frontier: worldgen-related, server-only
             _prototypeManager.RegisterIgnore("apartmentItem"); // Physical-goods prices and delivery are server-only.
+            _prototypeManager.RegisterIgnore("expeditionLoot"); // Expedition loot tiers and rewards are resolved by the server.
 
             _componentFactory.GenerateNetIds();
             _adminManager.Initialize();
