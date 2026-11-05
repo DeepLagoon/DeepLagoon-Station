@@ -50,10 +50,10 @@ public sealed class SyndicateNpcHostilityTests
                 AssertPlayerRelationship(allied: true);
             }
 
-            // Expedition defenders must preserve this explicit player alliance too.
+            // On an expedition, a visiting Syndicate player is still a target.
             foreach (var defender in defenders)
                 entities.AddComponent<NpcForcedHostilityComponent>(defender).Group = map;
-            AssertPlayerRelationship(allied: true);
+            AssertPlayerRelationship(allied: false);
             factions.ClearFactions(player);
             factions.AddFaction(player, "SyndicateNF");
             AssertPlayerRelationship(allied: false);

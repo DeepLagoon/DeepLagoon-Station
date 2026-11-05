@@ -42,6 +42,8 @@ public sealed partial class NPCRetaliationSystem : EntitySystem
 
     public bool TryRetaliate(Entity<NPCRetaliationComponent> ent, EntityUid target)
     {
+        target = _npcFaction.GetFactionTarget(target);
+
         // don't retaliate against inanimate objects.
         if (!HasComp<MobStateComponent>(target))
             return false;

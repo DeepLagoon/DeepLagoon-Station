@@ -19,6 +19,7 @@ using Content.Shared.Examine;
 using Content.Shared.Fluids.Components;
 using Content.Shared.Hands.Components;
 using Content.Shared.Inventory;
+using Content.Shared.Mech.Components;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
@@ -341,6 +342,9 @@ public sealed partial class NPCUtilitySystem : EntitySystem
             }
             case TargetHealthCon con:
             {
+                if (TryComp<MechComponent>(targetUid, out var mech) && mech.MaxIntegrity > 0)
+                    return Math.Clamp(mech.Integrity.Float() / mech.MaxIntegrity.Float(), 0f, 1f);
+
                 if (!TryComp(targetUid, out DamageableComponent? damage))
                     return 0f;
                 if (con.TargetState != MobState.Invalid && _thresholdSystem.TryGetPercentageForState(targetUid, con.TargetState, damage.TotalDamage, out var percentage))
@@ -385,6 +389,9 @@ public sealed partial class NPCUtilitySystem : EntitySystem
             }
             case TargetIsAliveCon:
             {
+                if (TryComp<MechComponent>(targetUid, out var mech))
+                    return !mech.Broken && mech.PilotSlot.ContainedEntity != null ? 1f : 0f;
+
                 return _mobState.IsAlive(targetUid) ? 1f : 0f;
             }
             case TargetIsCritCon:

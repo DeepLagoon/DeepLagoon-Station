@@ -28,7 +28,6 @@ using Robust.Shared.Containers;
 using Robust.Shared.Player;
 using Content.Shared.Whitelist;
 using Content.Shared.Mobs.Components; // Frontier
-using Content.Shared.NPC.Components; // Frontier
 using Content.Shared.Mobs;
 using Content.Shared.Movement.Systems;
 using Content.Shared.PowerCell.Components; // Frontier
@@ -278,17 +277,6 @@ public sealed partial class MechSystem : SharedMechSystem
             _popup.PopupEntity(Loc.GetString("mech-no-enter", ("item", uid)), args.User);
             return;
         }
-
-        // Frontier - Make AI Attack mechs based on user.
-        if (TryComp<MobStateComponent>(args.User, out var _))
-            EnsureComp<MobStateComponent>(uid);
-        if (TryComp<NpcFactionMemberComponent>(args.User, out var faction))
-        {
-            var factionMech = EnsureComp<NpcFactionMemberComponent>(uid);
-            if (faction.Factions != null)
-                factionMech.Factions = faction.Factions;
-        }
-        // Frontier
 
         TryInsert(uid, args.Args.User, component);
         _actionBlocker.UpdateCanMove(uid);

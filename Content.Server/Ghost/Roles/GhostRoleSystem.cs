@@ -6,6 +6,7 @@ using Content.Server.Ghost.Roles.Events;
 using Content.Shared.Ghost.Roles.Raffles;
 using Content.Server.Ghost.Roles.UI;
 using Content.Server.Mind.Commands;
+using Content.Server.Salvage;
 using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Content.Shared.Database;
@@ -53,6 +54,7 @@ public sealed partial class GhostRoleSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private PopupSystem _popupSystem = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private SalvageExpeditionHostilitySystem _expeditionHostility = default!;
 
     private uint _nextRoleIdentifier;
     private bool _needsUpdateGhostRoleCount = true;
@@ -539,6 +541,7 @@ public sealed partial class GhostRoleSystem : EntitySystem
         var newMind = _mindSystem.CreateMind(player.UserId,
             Comp<MetaDataComponent>(mob).EntityName);
 
+        _expeditionHostility.AssignDefenderMind(newMind, roleUid, mob);
         _mindSystem.SetUserId(newMind, player.UserId);
         _mindSystem.TransferTo(newMind, mob);
 

@@ -18,6 +18,12 @@ public sealed class SalvageExpeditionHostilitySystem : EntitySystem
         SubscribeLocalEvent<NpcFactionMemberComponent, MapInitEvent>(OnMapInit);
     }
 
+    public void AssignDefenderMind(EntityUid mind, EntityUid role, EntityUid mob)
+    {
+        if (TryComp<NpcForcedHostilityComponent>(mob, out var defender) && Transform(role).MapUid == defender.Group)
+            EnsureComp<ExpeditionDefenderMindComponent>(mind).Group = defender.Group;
+    }
+
     private void OnMapInit(Entity<NpcFactionMemberComponent> ent, ref MapInitEvent args)
     {
         var xform = Transform(ent);

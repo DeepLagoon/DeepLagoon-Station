@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Content.Server.Ghost.Roles;
+using Content.Server.Ghost.Roles.Components;
+using Content.Server.Mech.Systems;
+using Content.Server.NPC;
+using Content.Server.NPC.Components;
+using Content.Server.NPC.Systems;
 using Content.Server._NF.Salvage;
 using Content.Server.NPC.HTN;
 using Content.Server.Salvage.Expeditions;
@@ -18,6 +24,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Spawners;
 using Robust.Shared.Maths;
+using Robust.Server.Player;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
@@ -169,7 +176,7 @@ public sealed class SalvageExpeditionHostilityTests
             Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(ally));
             var minds = entities.System<SharedMindSystem>();
             minds.TransferTo(minds.CreateMind(null, "Expedition crew"), ally);
-            Assert.That(factions.IsEntityFriendly(defender, ally), Is.False, "Taking over a defender must not grant immunity to crew.");
+            Assert.That(factions.IsEntityFriendly(defender, ally), Is.False, "A crew mind transferred into a defender body remains hostile.");
             Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Contain(ally));
             xforms.SetCoordinates(defender, homeCoords);
             factions.IgnoreEntity(defender, crew);
@@ -184,12 +191,105 @@ public sealed class SalvageExpeditionHostilityTests
         await pair.CleanReturnAsync();
     }
 
+    [Test]
+    public async Task CombatQueriesTargetOccupiedMechsAndFollowPilotChanges()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = CreateExpedition(entities, pair.Server.ResolveDependency<ITileDefinitionManager>());
+            var coords = new EntityCoordinates(map, new Vector2(0.5f, 0.5f));
+            var factions = entities.System<NpcFactionSystem>();
+            var mechs = entities.System<MechSystem>();
+            var utility = entities.System<NPCUtilitySystem>();
+            var pilot = entities.SpawnEntity("MobHuman", coords);
+            var mech = entities.SpawnEntity("MechRipleyBattery", coords.Offset(new Vector2(2f, 0f)));
+            var defender = entities.SpawnEntity("MobHorrorExpeditions", coords);
+            var ordinary = entities.SpawnEntity("MobHorrorExpeditions", MapCoordinates.Nullspace);
+            entities.System<SharedTransformSystem>().SetCoordinates(ordinary, coords);
+            var turret = entities.SpawnEntity("WeaponTurretSyndicate", coords);
+            var blackboard = new NPCBlackboard();
+            factions.ClearFactions(pilot);
+            factions.AddFaction(pilot, "Chimera");
+
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(mech));
+            Assert.That(mechs.TryInsert(mech, pilot), Is.True);
+            Assert.That(factions.GetNearbyHostiles(ordinary, 8f), Does.Not.Contain(mech));
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(pilot));
+
+            blackboard.SetValue(NPCBlackboard.Owner, defender);
+            Assert.That(utility.GetEntities(blackboard, "NearbyMeleeTargets", bestOnly: false).Entities.Keys, Does.Contain(mech));
+            blackboard.SetValue(NPCBlackboard.Owner, turret);
+            Assert.That(utility.GetEntities(blackboard, "NearbyGunTargets", bestOnly: false).Entities.Keys, Does.Contain(mech));
+
+            factions.ClearFactions(pilot);
+            var retaliation = entities.EnsureComponent<NPCRetaliationComponent>(ordinary);
+            Assert.That(entities.System<NPCRetaliationSystem>().TryRetaliate((ordinary, retaliation), mech), Is.True);
+            Assert.That(factions.GetNearbyHostiles(ordinary, 8f), Does.Contain(mech));
+            Assert.That(factions.GetNearbyHostiles(ordinary, 8f), Does.Not.Contain(pilot));
+            factions.DeAggroEntity(ordinary, pilot);
+
+            factions.AddFaction(pilot, "NanoTrasen");
+            Assert.That(factions.GetNearbyHostiles(ordinary, 8f), Does.Contain(mech));
+            factions.IgnoreEntity(ordinary, pilot);
+            Assert.That(factions.GetNearbyHostiles(ordinary, 8f), Does.Not.Contain(mech));
+            factions.IgnoreEntity(defender, pilot);
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Contain(mech));
+            entities.RemoveComponent<NpcFactionMemberComponent>(pilot);
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Contain(mech));
+            Assert.That(mechs.TryEject(mech), Is.True);
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(mech));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task NativeGhostRoleRemainsAlliedOnFootAndInMech()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Dirty = true, Connected = true, DummyTicker = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var tiles = pair.Server.ResolveDependency<ITileDefinitionManager>();
+            var session = pair.Server.ResolveDependency<IPlayerManager>().Sessions.Single();
+            var maps = entities.System<SharedMapSystem>();
+            var factions = entities.System<NpcFactionSystem>();
+            var map = CreateExpedition(entities, tiles);
+            var otherMap = CreateExpedition(entities, tiles);
+            var coords = new EntityCoordinates(map, new Vector2(0.5f, 0.5f));
+            var defender = entities.SpawnEntity("MobHorrorExpeditions", coords);
+            var otherDefender = entities.SpawnEntity("MobHorrorExpeditions", new EntityCoordinates(otherMap, new Vector2(0.5f, 0.5f)));
+            var role = entities.SpawnEntity("MobExplorerBoss", coords);
+            var mech = entities.SpawnEntity("MechRipleyBattery", coords.Offset(new Vector2(2f, 0f)));
+            var roleId = entities.GetComponent<GhostRoleComponent>(role).Identifier;
+
+            maps.SetPaused(entities.GetComponent<MapComponent>(map).MapId, false);
+            Assert.That(entities.System<GhostRoleSystem>().Takeover(session, roleId), Is.True);
+            maps.SetPaused(entities.GetComponent<MapComponent>(map).MapId, true);
+
+            factions.AggroEntity(defender, role);
+            Assert.That(factions.IsEntityFriendly(defender, role), Is.True);
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(role));
+            Assert.That(factions.IsEntityFriendly(otherDefender, role), Is.False);
+
+            Assert.That(entities.System<MechSystem>().TryInsert(mech, role), Is.True);
+            factions.AggroEntity(defender, mech);
+            Assert.That(factions.IsEntityFriendly(defender, mech), Is.True);
+            Assert.That(factions.GetNearbyHostiles(defender, 8f), Does.Not.Contain(mech));
+            Assert.That(factions.IsEntityFriendly(otherDefender, mech), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static EntityUid CreateExpedition(IEntityManager entities, ITileDefinitionManager tiles)
     {
         var maps = entities.System<SharedMapSystem>();
         var map = maps.CreateMap(out var mapId, runMapInit: false);
         var grid = entities.EnsureComponent<MapGridComponent>(map);
         maps.SetTile((map, grid), Vector2i.Zero, new Tile(tiles["Plating"].TileId));
+        maps.SetTile((map, grid), new Vector2i(1, 0), new Tile(tiles["Plating"].TileId));
+        maps.SetTile((map, grid), new Vector2i(2, 0), new Tile(tiles["Plating"].TileId));
         maps.InitializeMap(mapId);
         var expedition = entities.AddComponent<SalvageExpeditionComponent>(map);
         expedition.Station = entities.SpawnEntity(null, MapCoordinates.Nullspace);

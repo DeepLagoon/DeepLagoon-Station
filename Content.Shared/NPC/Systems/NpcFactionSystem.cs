@@ -1,3 +1,4 @@
+using Content.Shared.Mech.Components;
 using Content.Shared.Mind.Components;
 using Content.Shared.NPC.Components;
 using Content.Shared.NPC.Prototypes;
@@ -183,6 +184,7 @@ public sealed partial class NpcFactionSystem : EntitySystem
 
         var hostiles = GetNearbyFactions(ent, range, ent.Comp1.HostileFactions, includeForcedHostiles: true)
             .Union(GetNearbyPlayerHostiles((ent, ent.Comp1), range))
+            .Union(GetNearbyMechHostiles((ent, ent.Comp1), range))
             // ignore mobs that have both hostile faction and the same faction,
             // otherwise having multiple factions is strictly negative
             .Where(target => !IsEntityFriendly((ent, ent.Comp1), target));
@@ -191,9 +193,10 @@ public sealed partial class NpcFactionSystem : EntitySystem
 
         // ignore anything from enemy faction that we are explicitly friendly towards
         var faction = (ent.Owner, ent.Comp2);
-        return hostiles
-            .Union(GetHostiles(faction))
-            .Where(target => !IsIgnored(faction, target));
+        var personalHostiles = GetHostiles(faction)
+            .Select(target => TryComp<MechPilotComponent>(target, out var pilot) ? pilot.Mech : target)
+            .Where(target => !IsExpeditionRoleAlly(ent, target));
+        return hostiles.Union(personalHostiles).Where(target => !IsIgnored(faction, target));
     }
 
     public IEnumerable<EntityUid> GetNearbyFriendlies(Entity<NpcFactionMemberComponent?> ent, float range)
@@ -214,6 +217,9 @@ public sealed partial class NpcFactionSystem : EntitySystem
             if (ent.Owner == entity)
                 continue;
 
+            if (includeForcedHostiles && (HasComp<MechPilotComponent>(ent) || HasComp<MechComponent>(ent)))
+                continue;
+
             if (!factions.Overlaps(ent.Comp.Factions) && !(includeForcedHostiles && IsForcedHostile(entity, ent.Owner)))
                 continue;
 
@@ -226,8 +232,15 @@ public sealed partial class NpcFactionSystem : EntitySystem
     /// </remarks>
     public bool IsEntityFriendly(Entity<NpcFactionMemberComponent?> ent, Entity<NpcFactionMemberComponent?> other)
     {
+        if (IsExpeditionRoleAlly(ent, other))
+            return true;
+
         if (IsForcedHostile(ent, other))
             return false;
+
+        var factionTarget = GetFactionTarget(other);
+        if (factionTarget != other.Owner)
+            other = factionTarget;
 
         if (!Resolve(ent, ref ent.Comp, false) || !Resolve(other, ref other.Comp, false))
             return false;
@@ -237,16 +250,60 @@ public sealed partial class NpcFactionSystem : EntitySystem
 
     private bool IsForcedHostile(EntityUid entity, EntityUid target)
     {
+        target = GetFactionTarget(target);
+
         if (entity == target)
             return false;
+
+        if (TryComp<NpcForcedHostilityComponent>(entity, out var hostility))
+        {
+            if (IsExpeditionRoleAlly(entity, target))
+                return false;
+
+            return !TryComp<NpcForcedHostilityComponent>(target, out var other) ||
+                   hostility.Group != other.Group ||
+                   TryComp<MindContainerComponent>(target, out var mind) && mind.HasMind;
+        }
 
         if (TryComp<MindContainerComponent>(target, out var targetMind) && targetMind.HasMind &&
             IsHostileToPlayerMinds(entity))
             return !IsPlayerMindAlly(entity, target);
 
-        return TryComp<NpcForcedHostilityComponent>(entity, out var hostility) &&
-               (!TryComp<NpcForcedHostilityComponent>(target, out var other) || hostility.Group != other.Group ||
-                TryComp<MindContainerComponent>(target, out var mind) && mind.HasMind);
+        return false;
+    }
+
+    private bool IsExpeditionRoleAlly(EntityUid entity, EntityUid target)
+    {
+        if (!TryComp<NpcForcedHostilityComponent>(entity, out var hostility))
+            return false;
+
+        return TryComp<MindContainerComponent>(GetFactionTarget(target), out var container) &&
+               TryComp<ExpeditionDefenderMindComponent>(container.Mind, out var role) &&
+               hostility.Group == role.Group;
+    }
+
+    /// <summary>
+    /// Returns the pilot whose faction relationships apply to an occupied mech.
+    /// </summary>
+    public EntityUid GetFactionTarget(EntityUid target)
+    {
+        return TryComp<MechComponent>(target, out var mech) && mech.PilotSlot?.ContainedEntity is { } pilot
+            ? pilot
+            : target;
+    }
+
+    private IEnumerable<EntityUid> GetNearbyMechHostiles(Entity<NpcFactionMemberComponent> ent, float range)
+    {
+        var coordinates = _xform.GetMapCoordinates(ent.Owner);
+        foreach (var mech in _lookup.GetEntitiesInRange<MechComponent>(coordinates, range, LookupFlags.All & ~LookupFlags.Contained))
+        {
+            if (mech.Comp.Broken || mech.Comp.PilotSlot?.ContainedEntity is not { } pilot || pilot == ent.Owner)
+                continue;
+
+            if (IsForcedHostile(ent, pilot) ||
+                TryComp<NpcFactionMemberComponent>(pilot, out var faction) && ent.Comp.HostileFactions.Overlaps(faction.Factions))
+                yield return mech.Owner;
+        }
     }
 
     private bool IsHostileToPlayerMinds(Entity<NpcFactionMemberComponent?> ent)
@@ -282,14 +339,14 @@ public sealed partial class NpcFactionSystem : EntitySystem
 
     private IEnumerable<EntityUid> GetNearbyPlayerHostiles(Entity<NpcFactionMemberComponent?> ent, float range)
     {
-        if (!IsHostileToPlayerMinds(ent))
+        if (!HasComp<NpcForcedHostilityComponent>(ent) && !IsHostileToPlayerMinds(ent))
             yield break;
 
         // Include player bodies without NpcFactionMember as well.
         var coordinates = _xform.GetMapCoordinates(ent.Owner);
         foreach (var target in _lookup.GetEntitiesInRange<MindContainerComponent>(coordinates, range))
         {
-            if (target.Owner != ent.Owner && target.Comp.HasMind)
+            if (target.Comp.HasMind && !HasComp<MechPilotComponent>(target) && IsForcedHostile(ent, target))
                 yield return target.Owner;
         }
     }
