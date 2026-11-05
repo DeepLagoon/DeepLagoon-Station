@@ -325,17 +325,14 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
 
             var adjustedPos = Vector2.Transform(mapCoords.Position, matty);
             var localPos = ScalePosition(adjustedPos with { Y = -adjustedPos.Y });
-            var exclusionColor = exclusion.IsGreenZone ? Color.FromHex("#55D889") : Color.Red;
-            handle.DrawCircle(localPos, exclusion.Range * MinimapScale, exclusionColor.WithAlpha(0.05f));
-            handle.DrawCircle(localPos, exclusion.Range * MinimapScale, exclusionColor, filled: false);
-
             if (exclusion.IsGreenZone)
             {
-                if (PixelRect.Contains((int) localPos.X, (int) localPos.Y))
-                    handle.DrawString(_font, localPos, exclusion.Name, exclusionColor);
+                DrawGreenZone(handle, localPos, exclusion.Range * MinimapScale, exclusion.Name);
             }
             else
             {
+                handle.DrawCircle(localPos, exclusion.Range * MinimapScale, Color.Red.WithAlpha(0.05f));
+                handle.DrawCircle(localPos, exclusion.Range * MinimapScale, Color.Red, filled: false);
                 _viewportExclusions.Add(exclusion);
             }
         }

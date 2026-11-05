@@ -970,6 +970,7 @@
       state: generic_panel_open
   - type: RadarConsole
     noRotate: true # Mono
+    pannable: false
   - type: ActivatableUI
     key: enum.RadarConsoleUiKey.Key
   - type: UserInterface

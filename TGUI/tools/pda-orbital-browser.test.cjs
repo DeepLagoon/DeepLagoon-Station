@@ -7,9 +7,14 @@ const repo = path.resolve(__dirname, '../..');
 const resources = path.join(repo, 'Resources/Web/DeepLagoon');
 const output = path.join(repo, '.local/codex/pda-orbital/browser');
 fs.mkdirSync(output, { recursive: true });
-const labels = language => Object.fromEntries([...fs.readFileSync(path.join(repo,
-  `Resources/Locale/${language}/_DeepLagoon/pda.ftl`), 'utf8').matchAll(/^dl-pda-([\w-]+)\s*=\s*(.+)$/gm)]
-  .map(m => [m[1], m[2].trim()]));
+const labels = language => {
+  const locale = path.join(repo, 'Resources/Locale', language, '_DeepLagoon');
+  const labels = Object.fromEntries([...fs.readFileSync(path.join(locale, 'pda.ftl'), 'utf8')
+    .matchAll(/^dl-pda-([\w-]+)\s*=\s*(.+)$/gm)].map(m => [m[1], m[2].trim()]));
+  labels.messenger = fs.readFileSync(path.join(locale, 'chat/pda-messenger.ftl'), 'utf8')
+    .match(/^dl-messenger-title\s*=\s*(.+)$/m)[1].trim();
+  return labels;
+};
 const programs = [
   { id: '42', name: 'Заметки', kind: 'notekeeper-program-name', installed: true, canInstall: false, canUninstall: true },
   { id: '43', name: 'Манифест экипажа', kind: 'crew-manifest-program-name', installed: true, canInstall: false, canUninstall: false },
@@ -67,6 +72,7 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     await publish(initial);
     await page.getByText('Мария Орлова', { exact: true }).waitFor();
     assert.equal(await page.locator('.Pda__appLaunch').count(), 4, 'Home shows the actual first four cartridges');
+    await action(page.getByRole('button', { name: 'Сообщения', exact: true }), 'messenger');
     assert(!/DeepLagoon\s*\/\s*Локальная сеть|86%|Алексей Волков/i.test(await page.locator('.Pda').innerText()));
     await action(page.locator('.Pda__appLaunch').first(), 'program', { id: '42' });
     for (const [name, command] of [['Фонарик', 'flashlight'], ['Вставить или извлечь ID-карту', 'id'], ['Вставить или извлечь ручку', 'pen'], ['Вставить или извлечь пИИ', 'pai']])
@@ -75,7 +81,10 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     assert.equal(await page.getByRole('button', { name: 'Фонарик', exact: true }).getAttribute('aria-pressed'), 'true');
     await action(page.locator('.Pda__dock').getByRole('button', { name: 'Приложения', exact: true }), 'view', { view: 1 });
     await update({ view: 1 });
-    assert.equal(await page.locator('.Pda__appLaunch').count(), 5);
+    assert.equal(await page.locator('.Pda__appLaunch').count(), programs.length + 1);
+    const messenger = page.locator('.Pda__app').filter({ hasText: 'Сообщения' });
+    await action(messenger.locator('.Pda__appLaunch'), 'messenger');
+    assert.equal(await messenger.locator('.Pda__install').count(), 0);
     await action(page.locator('.Pda__app').filter({ hasText: 'Новости станции' }).getByRole('button', { name: 'Установить', exact: true }), 'install', { id: '44' });
     await action(page.locator('.Pda__app').filter({ hasText: 'Заметки' }).getByRole('button', { name: 'Удалить', exact: true }), 'uninstall', { id: '42' });
     assert.equal(await page.locator('.Pda__app').filter({ hasText: 'Манифест экипажа' }).locator('.Pda__install').count(), 0);
@@ -118,6 +127,9 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     await publish({ ...initial, programs: [], hasId: false });
     await page.getByText('Нет доступных приложений', { exact: true }).waitFor();
     await page.getByText('Нет ID-карты', { exact: true }).waitFor();
+    await update({ view: 1 });
+    assert.equal(await page.locator('.Pda__appLaunch').count(), 1, 'Messages stays available without cartridges');
+    await action(messenger.locator('.Pda__appLaunch'), 'messenger');
     await publish({ ...initial, idOwner: '<img src=x onerror=alert(1)>', company: '<script>test</script>' });
     assert.equal(await page.locator('.Pda img, .Pda script').count(), 0);
     await page.setViewportSize({ width: 760, height: 680 });

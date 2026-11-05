@@ -10,6 +10,8 @@ namespace Content.Client._DeepLagoon.Shuttles;
 /// <summary>One radar for piloting and aiming, with a lightweight CRT overlay.</summary>
 public sealed class CombatShuttleNavControl : FireControlNavControl
 {
+    protected override bool Draggable => false;
+
     private float _sweep;
     private float _noiseTime;
     public void StopFiring() => _isMouseDown = false;

@@ -37,6 +37,7 @@ public partial class BaseShuttleControl : MapGridControl
     private ShaderInstance? _surfaceShader;
     private static readonly Color WarmFringe = Color.FromHex("#9b5964");
     private static readonly Color CoolFringe = Color.FromHex("#4a9b80");
+    private static readonly Color GreenZoneColor = Color.FromHex("#55D889");
 
     public BaseShuttleControl() : this(32f, 32f, 32f)
     {
@@ -83,6 +84,26 @@ public partial class BaseShuttleControl : MapGridControl
             new Vector2(coordsMargins, PixelHeight) - new Vector2(0f, coordsDimensions.Y + coordsMargins),
             text,
             Color.FromSrgb(IFFComponent.SelfColor));
+    }
+
+    protected void DrawGreenZone(DrawingHandleScreen handle, Vector2 center, float radius, string name)
+    {
+        var viewport = (Vector2) PixelSize;
+        var nearest = Vector2.Clamp(center, Vector2.Zero, viewport);
+        if (Vector2.DistanceSquared(nearest, center) > radius * radius)
+            return;
+
+        handle.DrawCircle(center, radius, GreenZoneColor.WithAlpha(0.09f));
+        handle.DrawCircle(center, radius, GreenZoneColor, filled: false);
+
+        if (nearest != center && Vector2.DistanceSquared(MidPointVector, center) > radius * radius)
+            return;
+
+        var inset = new Vector2(8f) * UIScale;
+        var labelSize = handle.GetDimensions(Font, name, UIScale);
+        var label = nearest == center ? center + inset : inset;
+        label = Vector2.Clamp(label, inset, Vector2.Max(inset, viewport - labelSize - inset));
+        handle.DrawString(Font, label, name, UIScale, GreenZoneColor);
     }
 
     protected void DrawCircles(DrawingHandleScreen handle)

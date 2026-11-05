@@ -1,3 +1,4 @@
+using Content.Shared.Shuttles.UI.MapObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Serialization;
 using Content.Shared._NF.Shuttles.Events; // Frontier - InertiaDampeningMode access
@@ -20,6 +21,8 @@ public sealed class NavInterfaceState
     public Angle? Angle;
 
     public Dictionary<NetEntity, List<DockingPortState>> Docks;
+
+    public List<ShuttleExclusionObject> GreenZones = new();
 
     /// <summary>
     /// Custom display names for network port buttons.

@@ -129,15 +129,23 @@ public sealed partial class ShuttleConsoleSystem
             exclusions.Add(new ShuttleExclusionObject(GetNetCoordinates(xform.Coordinates), comp.Range, Loc.GetString("shuttle-console-exclusion")));
         }
 
+        AddGreenZones(ref exclusions);
+    }
+
+    private void AddGreenZones(ref List<ShuttleExclusionObject>? zones)
+    {
         var greenZones = EntityQueryEnumerator<GreenZoneComponent, MapGridComponent>();
         while (greenZones.MoveNext(out var uid, out var greenZone, out var grid))
         {
+            if (greenZone.Radius <= 0f || TerminatingOrDeleted(uid))
+                continue;
+
             var center = _transform.ToMapCoordinates(new EntityCoordinates(uid, grid.LocalAABB.Center));
             if (center.MapId == MapId.Nullspace)
                 continue;
 
-            exclusions ??= new List<ShuttleExclusionObject>();
-            exclusions.Add(new ShuttleExclusionObject(GetNetCoordinates(_transform.ToCoordinates(center)),
+            zones ??= new List<ShuttleExclusionObject>();
+            zones.Add(new ShuttleExclusionObject(GetNetCoordinates(_transform.ToCoordinates(center)),
                 greenZone.Radius, Loc.GetString("dl-green-zone-name"), IsGreenZone: true));
         }
     }
