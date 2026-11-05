@@ -85,7 +85,7 @@ public sealed partial class ParkingSystem
     private string ReviewHash(EntityUid grid)
     {
         var excluded = ExcludedEntities(grid);
-        if (excluded.Count > 500) throw new InvalidOperationException("Слишком много исключаемых предметов. Сначала разгрузите шаттл.");
+        if (excluded.Count > 1000) throw new InvalidOperationException("Слишком много исключаемых предметов. Сначала разгрузите шаттл.");
         return ParkingStore.Hash(GetCategory(grid) + ":" + string.Join('|', excluded.OrderBy(e => e.ToString()).Select(e => e + ":" + Name(e))));
     }
     private void ValidateStorage(Context context, EntityUid grid, Guid slot)
