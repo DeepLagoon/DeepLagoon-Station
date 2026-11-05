@@ -6,3 +6,5 @@
   components:
   - type: AccessReader
     access: [[ "Godfather" ]]
+  - type: CommunicationsConsole
+    canChangeAlertLevel: false

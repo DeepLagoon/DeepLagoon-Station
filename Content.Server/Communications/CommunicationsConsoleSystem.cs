@@ -144,7 +144,7 @@ namespace Content.Server.Communications
                 if (TryComp(stationUid, out AlertLevelComponent? alertComp) && // Frontier: stationUid.Value<stationUid
                     alertComp.AlertLevels != null)
                 {
-                    if (alertComp.IsSelectable)
+                    if (comp.CanChangeAlertLevel && alertComp.IsSelectable)
                     {
                         levels = new();
                         foreach (var (id, detail) in alertComp.AlertLevels.Levels)
@@ -212,6 +212,9 @@ namespace Content.Server.Communications
 
         private void OnSelectAlertLevelMessage(EntityUid uid, CommunicationsConsoleComponent comp, CommunicationsConsoleSelectAlertLevelMessage message)
         {
+            if (!comp.CanChangeAlertLevel)
+                return;
+
             if (message.Actor is not { Valid: true } mob)
                 return;
 

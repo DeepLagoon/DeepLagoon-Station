@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Content.Server._DeepLagoon.Mapping;
 using Content.Server._DeepLagoon.ShuttleParking;
+using Content.Server.Communications;
 using Content.Server.Station.Systems;
 using Content.Shared.Maps;
 using Content.Shared.Roles;
@@ -15,10 +16,10 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class FactionPoiLoadingTests
 {
-    [TestCase("HeliosFortress", "pdvhelios", "PirateCaptain")]
-    [TestCase("TSFMCHalcyon", "tsfmchalcyon", "Sheriff")]
-    [TestCase("Underground", "underground", "Godfather")]
-    public async Task FactionGridCreatesStationJobsAndKeepsParking(string prototype, string file, string job)
+    [TestCase("HeliosFortress", "pdvhelios", "PirateCaptain", "RogueComputerComms")]
+    [TestCase("TSFMCHalcyon", "tsfmchalcyon", "Sheriff", null)]
+    [TestCase("Underground", "underground", "Godfather", "UndergroundComputerComms")]
+    public async Task FactionGridCreatesStationJobsAndKeepsParking(string prototype, string file, string job, string readOnlyComms)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
         await pair.Server.WaitAssertion(() =>
@@ -40,6 +41,23 @@ public sealed class FactionPoiLoadingTests
             while (parking.MoveNext(out _, out _, out var transform))
                 found |= transform.GridUid == grid.Value.Owner;
             Assert.That(found, Is.True, "Parking added to the outpost must survive the Grid-format correction.");
+
+            if (readOnlyComms != null)
+            {
+                var consoles = entities.AllEntityQueryEnumerator<CommunicationsConsoleComponent, MetaDataComponent, TransformComponent>();
+                var foundConsole = false;
+                while (consoles.MoveNext(out _, out var console, out var metadata, out var transform))
+                {
+                    if (transform.GridUid != grid.Value.Owner || metadata.EntityPrototype?.ID != readOnlyComms)
+                        continue;
+
+                    foundConsole = true;
+                    Assert.That(console.CanChangeAlertLevel, Is.False);
+                }
+
+                Assert.That(foundConsole, Is.True, $"The outpost must contain {readOnlyComms}.");
+            }
+
             entities.DeleteEntity(station);
             entities.DeleteEntity(map);
         });

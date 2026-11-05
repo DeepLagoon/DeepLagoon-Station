@@ -57,6 +57,12 @@ namespace Content.Server.Communications
         public bool CanShuttle = true;
 
         /// <summary>
+        /// Whether this console can change the sector alert level.
+        /// </summary>
+        [DataField]
+        public bool CanChangeAlertLevel = true;
+
+        /// <summary>
         /// Announce on all grids (for nukies)
         /// </summary>
         [DataField]
