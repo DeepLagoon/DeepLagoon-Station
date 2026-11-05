@@ -97,6 +97,8 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
     // doesn't support absolute panning and angle follow, but why would you need that?
     protected bool _relativePanning = false;
     protected bool _angleFollow = true;
+    protected override bool Draggable => EntManager.TryGetComponent<RadarConsoleComponent>(_consoleEntity, out var radar)
+        && radar.Pannable;
     private bool _radarModeDefaultsApplied;
 
     private bool _wasPanned = false;
@@ -165,6 +167,14 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         _consoleEntity = consoleEntity;
         _radarModeDefaultsApplied = false;
         ApplyRadarModeDefaults();
+        if (!Draggable)
+        {
+            _draggin = false;
+            _wasPanned = false;
+            Recentering = false;
+            Offset = TargetOffset = Vector2.Zero;
+        }
+        UpdatePanningControls();
     }
 
     // converts Offset to world-relative offset so we can modify radar parameters without conversion headaches
@@ -248,7 +258,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         _radarAnchorButton.ToolTip = Loc.GetString("shuttle-console-button-anchor");
         _radarAnchorButton.OnPressed += _ =>
         {
-            if (_coordinates is not { } cord)
+            if (!Draggable || _coordinates is not { } cord)
                 return;
 
             // if we're anchored or not yet bound to map, just deanchor
@@ -273,7 +283,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         {
             _radarModeDefaultsApplied = false;
             ApplyRadarModeDefaults();
-            if (EntManager.TryGetComponent<TransformComponent>(_consoleEntity, out var xform))
+            if (Draggable && EntManager.TryGetComponent<TransformComponent>(_consoleEntity, out var xform))
             {
                 Offset = Vector2.Zero;
                 _coordinates = xform.Coordinates;
@@ -290,6 +300,12 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         LayoutContainer.SetAnchorAndMarginPreset(_radarModeButtons, LayoutContainer.LayoutPreset.BottomLeft, margin: 10);
     }
 
+    private void UpdatePanningControls()
+    {
+        if (_radarAnchorButton != null)
+            _radarAnchorButton.Visible = Draggable;
+    }
+
     private void ApplyRadarModeDefaults()
     {
         if (_radarModeDefaultsApplied)
@@ -299,7 +315,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
             return;
 
         _radarModeDefaultsApplied = true;
-        Draggable = radar.Pannable;
         _angleFollow = !radar.NoRotate;
         _relativePanning = radar.RelativePanning;
     }
@@ -531,6 +546,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
     {
         EnsureRadarModeButtons();
         ApplyRadarModeDefaults();
+        UpdatePanningControls();
         SetMatrix(EntManager.GetCoordinates(state.Coordinates), state.Angle);
 
         WorldMaxRange = state.MaxRange;
@@ -577,11 +593,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
             return;
         }
 
-        // Mono
-        if (EntManager.TryGetComponent<RadarConsoleComponent>(_consoleEntity, out var radar))
-        {
-            Draggable = radar.Pannable;
-        }
         // Mono - TODO: remove _rotation and make it a method instead
         var coordEnt = _coordinates.Value.EntityId;
         var coordEntRot = _transform.GetWorldRotation(coordEnt);
