@@ -337,6 +337,8 @@ public sealed partial class HumanoidProfileEditor
         if (mode == "appearance") data.String("hairPreviewImage", HairPreviewImage());
         data.String("name", p.Name).Number("age", p.Age).String("species", p.Species.Id)
             .String("speciesName", Loc.GetString(species.Name))
+            .String("customSpeciesName", p.CustomSpeciesName)
+            .Number("maxCustomSpeciesNameLength", HumanoidCharacterProfile.MaxCustomSpeciesNameLength)
             .Bool("markingSpeciesRestricted", !p.UnrestrictedMarkings && p.Species.Id != "Synth")
             .Number("sex", (int)p.Sex).Number("gender", (int)p.Gender)
             .Number("spawn", (int)p.SpawnPriority).Number("height", p.Appearance.Height).Number("width", p.Appearance.Width)
@@ -607,7 +609,10 @@ public sealed partial class HumanoidProfileEditor
                 if (!args.TryInt("value", out var selectedTab) || selectedTab < 0 || selectedTab >= TabContainer.ChildCount) return false;
                 TabContainer.CurrentTab = selectedTab; break;
             case "character-card":
-                Content.Client._DeepLagoon.CharacterInfo.CharacterCardWindow.Open(PreviewDummy, Profile.Name, Profile.FlavorText, Profile.OocNotes, (byte)Profile.ERPConsent, (byte)Profile.NonConConsent, (byte)Profile.VoreConsent, CharacterSlot ?? -1); break;
+                var displayedSpeciesName = Profile.CustomSpeciesName;
+                if (string.IsNullOrEmpty(displayedSpeciesName) && _prototypeManager.TryIndex(Profile.Species, out var baseSpecies))
+                    displayedSpeciesName = Loc.GetString(baseSpecies.Name);
+                Content.Client._DeepLagoon.CharacterInfo.CharacterCardWindow.Open(PreviewDummy, Profile.Name, Profile.FlavorText, Profile.OocNotes, (byte)Profile.ERPConsent, (byte)Profile.NonConConsent, (byte)Profile.VoreConsent, CharacterSlot ?? -1, displayedSpeciesName); break;
             case "headshot-gallery":
                 if (CharacterSlot is not { } gallerySlot || args.String("operation") is not { } operation || operation is not ("toggle" or "primary" or "delete")) return false;
                 RefreshGallery(gallerySlot, operation, value); break;
@@ -638,6 +643,8 @@ public sealed partial class HumanoidProfileEditor
             case "ooc":
                 if (value.Length > HumanoidCharacterProfile.MaxDescLength) return false;
                 Profile = Profile.WithOocNotes(value); SetDirty(); break;
+            case "custom-species-name":
+                Profile = Profile.WithCustomSpeciesName(value); SetDirty(); break;
             case "flavor":
                 if (value.Length > HumanoidCharacterProfile.MaxDescLength) return false;
                 OnFlavorTextChange(value); break;

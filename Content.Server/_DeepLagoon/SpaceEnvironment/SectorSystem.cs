@@ -1,5 +1,6 @@
 using System.IO;
 using System.Numerics;
+using Content.Server.GameTicking.Events;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared._FarHorizons.StarSystem;
 using Content.Shared._FarHorizons.StarSystem.Prototypes;
@@ -26,6 +27,7 @@ public sealed class SectorSystem : EntitySystem
     private readonly Dictionary<(string Campaign, string Id), EntityUid> _loaded = new();
     public int LoadedCount => _loaded.Count;
     public string Campaign => _cfg.GetCVar(SpaceEnvironmentCVars.Campaign);
+    public int SurveyRound { get; private set; }
     public bool Enabled => _cfg.GetCVar(SpaceEnvironmentCVars.Enabled);
     public SectorStore Store => _store ??= new SectorStore(_resources.UserData.RootDir is { } root
         ? Path.Combine(root, "space-sectors.db") : ":memory:");
@@ -35,6 +37,7 @@ public sealed class SectorSystem : EntitySystem
         base.Initialize();
         SubscribeLocalEvent<StarSystemAssignedEvent>(OnSystemAssigned);
         SubscribeLocalEvent<SpaceEnvironmentComponent, ComponentShutdown>(OnSectorShutdown);
+        SubscribeLocalEvent<RoundStartingEvent>(OnRoundStarting);
     }
 
     public override void Shutdown()
@@ -98,7 +101,7 @@ public sealed class SectorSystem : EntitySystem
         environment.Campaign = Campaign;
         environment.Definition = definition;
         _loaded[(Campaign, definition.Id)] = map;
-        environment.Surveyed = Store.Surveys(Campaign, definition.Id);
+        environment.Surveyed = Store.Surveys(Campaign, SurveyRound, definition.Id);
         Dirty(map, environment);
         var star = EnsureComp<StarSystemMapComponent>(map);
         star.Definition = definition;
@@ -126,8 +129,8 @@ public sealed class SectorSystem : EntitySystem
     public bool Survey(EntityUid map, string region)
     {
         if (!TryComp<SpaceEnvironmentComponent>(map, out var environment)
-            || !Store.TrySurvey(environment.Campaign, environment.Definition.Id, region)) return false;
-        environment.Surveyed = Store.Surveys(environment.Campaign, environment.Definition.Id);
+            || !Store.TrySurvey(environment.Campaign, SurveyRound, environment.Definition.Id, region)) return false;
+        environment.Surveyed = Store.Surveys(environment.Campaign, SurveyRound, environment.Definition.Id);
         Dirty(map, environment);
         return true;
     }
@@ -138,6 +141,20 @@ public sealed class SectorSystem : EntitySystem
         var id = FormattableString.Invariant($"sector/{x}/{y}");
         var seed = SectorRandom.Derive(unchecked((uint) _cfg.GetCVar(SpaceEnvironmentCVars.Seed)), id);
         return GetOrCreate(id, seed, profile);
+    }
+
+    private void OnRoundStarting(RoundStartingEvent ev)
+    {
+        SurveyRound = ev.Id;
+        // Sectors can be bound before the round starts, while loading the map.
+        foreach (var map in _loaded.Values)
+        {
+            if (!TryComp<SpaceEnvironmentComponent>(map, out var environment))
+                continue;
+
+            environment.Surveyed = Store.Surveys(environment.Campaign, SurveyRound, environment.Definition.Id);
+            Dirty(map, environment);
+        }
     }
 
     private void OnSectorShutdown(EntityUid uid, SpaceEnvironmentComponent component, ComponentShutdown args)

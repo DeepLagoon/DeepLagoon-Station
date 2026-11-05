@@ -8,6 +8,7 @@ public sealed partial class DetailExaminableComponent : Component
     [DataField(required: true), AutoNetworkedField]
     public string Content = string.Empty;
     [DataField, AutoNetworkedField] public string OocNotes = string.Empty;
+    [DataField, AutoNetworkedField] public string CustomSpeciesName = string.Empty;
     [DataField, AutoNetworkedField] public bool CharacterCard;
     [DataField, AutoNetworkedField] public byte Erp;
     [DataField, AutoNetworkedField] public byte NonCon;

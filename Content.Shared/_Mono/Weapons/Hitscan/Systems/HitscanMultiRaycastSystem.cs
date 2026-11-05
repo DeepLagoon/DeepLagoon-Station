@@ -34,9 +34,14 @@ public sealed partial class HitscanMultiRaycastSystem : EntitySystem
         var shooter = args.Shooter ?? args.Gun;
         var mapCords = _transform.ToMapCoordinates(args.FromCoordinates);
         var ray = new CollisionRay(mapCords.Position, args.ShotDirection, (int) ent.Comp.CollisionMask);
-        var rayCastResults = _physics.IntersectRay(mapCords.MapId, ray, ent.Comp.MaxDistance, shooter, false);
+        var limit = new GetHitscanRangeEvent(mapCords, args.ShotDirection, ent.Comp.MaxDistance);
+        RaiseLocalEvent(args.Gun, ref limit);
+        if (limit.Range <= 0f)
+            return;
+
+        var rayCastResults = _physics.IntersectRay(mapCords.MapId, ray, limit.Range, shooter, false);
         var hitCount = 0;
-        var latestDistance = ent.Comp.MaxDistance;
+        var latestDistance = limit.Range;
 
         foreach (var result in rayCastResults)
         {

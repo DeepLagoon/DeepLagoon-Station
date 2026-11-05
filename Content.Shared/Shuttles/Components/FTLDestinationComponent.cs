@@ -29,4 +29,10 @@ public sealed partial class FTLDestinationComponent : Component
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
     public bool RequireCoordinateDisk = false;
+
+    /// <summary>
+    /// A coordinate disk can reach this destination from another map regardless of the local drive range.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool IgnoreCrossMapDriveRange;
 }

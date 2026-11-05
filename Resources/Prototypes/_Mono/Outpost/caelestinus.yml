@@ -25,6 +25,7 @@
         distance: 4000
       components:
         - type: ApartmentLatejoinSpawn
+        - type: StationPublicShipyardPurchaseAnnouncements
         - type: StationNameSetup
           mapNameTemplate: 'Caelestinus Central'
         - type: StationDeadDrop

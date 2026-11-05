@@ -168,17 +168,19 @@ namespace Content.Client.Cargo.UI
                     Description = {Text = Loc.GetString("cargo-console-menu-order-reason-description",
                                                         ("reason", order.Reason))}
                 };
-                row.Cancel.OnPressed += (args) => { OnOrderCanceled?.Invoke(args); };
                 if (order.Approved)
                 {
                     row.Approve.Visible = false;
                     row.Cancel.Visible = false;
+                    row.Description.Text = Loc.GetString("cargo-console-order-dispatched",
+                        ("dispatched", order.NumDispatched), ("total", order.OrderQuantity), ("reason", order.Reason));
                     Orders.AddChild(row);
                 }
                 else
                 {
                     // TODO: Disable based on access.
                     row.Approve.OnPressed += (args) => { OnOrderApproved?.Invoke(args); };
+                    row.Cancel.OnPressed += (args) => { OnOrderCanceled?.Invoke(args); };
                     Requests.AddChild(row);
                 }
             }

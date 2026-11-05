@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
 
-/// <summary>Append-only sector manifests and an idempotent survey ledger keyed by stable world and sector identities.</summary>
+/// <summary>Append-only sector manifests and an idempotent survey ledger scoped to each round.</summary>
 public sealed class SectorStore : IDisposable
 {
     private static readonly JsonSerializerOptions Json = new() { IncludeFields = true };
@@ -23,7 +23,7 @@ public sealed class SectorStore : IDisposable
         using var command = _connection.CreateCommand();
         command.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; " +
             "CREATE TABLE IF NOT EXISTS sector_manifests(campaign TEXT NOT NULL,id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(campaign,id)); " +
-            "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,PRIMARY KEY(campaign,sector,region)); " +
+            "CREATE TABLE IF NOT EXISTS sector_round_surveys(campaign TEXT NOT NULL,round_id INTEGER NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,PRIMARY KEY(campaign,round_id,sector,region)); " +
             "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot)); " +
             "CREATE TABLE IF NOT EXISTS sector_encounters(campaign TEXT NOT NULL,sector TEXT NOT NULL,site TEXT NOT NULL,choice TEXT NOT NULL,PRIMARY KEY(campaign,sector,site));";
         command.ExecuteNonQuery();
@@ -81,13 +81,14 @@ public sealed class SectorStore : IDisposable
         return Load(campaign, expected.Id) ?? throw new InvalidDataException("Missing sector during expansion.");
     }
 
-    public List<string> Surveys(string campaign, string sector)
+    public List<string> Surveys(string campaign, int roundId, string sector)
     {
         ValidateKey(campaign);
         ValidateKey(sector);
         using var command = _connection.CreateCommand();
-        command.CommandText = "SELECT region FROM sector_surveys WHERE campaign=$campaign AND sector=$sector ORDER BY region";
+        command.CommandText = "SELECT region FROM sector_round_surveys WHERE campaign=$campaign AND round_id=$round AND sector=$sector ORDER BY region";
         command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$round", roundId);
         command.Parameters.AddWithValue("$sector", sector);
         using var reader = command.ExecuteReader();
         var result = new List<string>();
@@ -95,13 +96,14 @@ public sealed class SectorStore : IDisposable
         return result;
     }
 
-    public bool TrySurvey(string campaign, string sector, string region)
+    public bool TrySurvey(string campaign, int roundId, string sector, string region)
     {
         var definition = Load(campaign, sector);
         if (definition == null || !definition.Regions.Any(r => r.Id == region)) return false;
         using var command = _connection.CreateCommand();
-        command.CommandText = "INSERT INTO sector_surveys VALUES($campaign,$sector,$region) ON CONFLICT DO NOTHING";
+        command.CommandText = "INSERT INTO sector_round_surveys VALUES($campaign,$round,$sector,$region) ON CONFLICT DO NOTHING";
         command.Parameters.AddWithValue("$campaign", campaign);
+        command.Parameters.AddWithValue("$round", roundId);
         command.Parameters.AddWithValue("$sector", sector);
         command.Parameters.AddWithValue("$region", region);
         return command.ExecuteNonQuery() == 1;

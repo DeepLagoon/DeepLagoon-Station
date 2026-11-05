@@ -56,3 +56,4 @@
           tags:
           - CentralCommand # no changing these slots
         - type: StationDeadDropHintExempt
+        - type: SalvageExpeditionData

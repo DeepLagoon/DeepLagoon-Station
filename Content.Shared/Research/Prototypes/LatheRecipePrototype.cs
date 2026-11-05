@@ -76,6 +76,12 @@ namespace Content.Shared.Research.Prototypes
         public Dictionary<EntProtoId, int> Entities = new();
 
         /// <summary>
+        /// Match stackable entity ingredients by stack type so their alternate prototypes also count.
+        /// </summary>
+        [DataField]
+        public bool MatchEntityStacks;
+
+        /// <summary>
         ///     Mono - Reagents required to produce this recipe.
         ///     Reagent is acquired from beaker slot.
         /// </summary>

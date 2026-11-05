@@ -97,6 +97,7 @@ public sealed partial class PdaMenu
         var labels = new TguiData();
         foreach (var key in OrbitalLabels)
             labels.String(key, Loc.GetString("dl-pda-" + key));
+        labels.String("messenger", Loc.GetString("dl-messenger-title"));
         host.Panel.SetStaticData(new TguiData().Object("labels", labels).ToString());
         SetSize = new Vector2(760, 680);
         ShowOrbital();
@@ -212,7 +213,7 @@ public sealed partial class PdaMenu
                 else if (action == "uninstall" && program.Component.InstallationStatus == InstallationStatus.Installed && !program.Component.Readonly)
                     OnUninstallButtonPressed?.Invoke(program.Uid);
                 break;
-            case "flashlight" or "ringtone": OnDeviceAction?.Invoke(action); break;
+            case "flashlight" or "ringtone" or "messenger": OnDeviceAction?.Invoke(action); break;
             // Empty slot buttons insert the item held in the active hand, just like the native UI.
             case "id" or "pen" or "pai": OnDeviceAction?.Invoke(action); break;
             case "music" when state.CanPlayMusic: OnDeviceAction?.Invoke(action); break;

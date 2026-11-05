@@ -650,6 +650,7 @@
     runningState: building
     staticPacks:
     - ClothingCivilian
+    - DeepLagoonEditableIdentification
     - ClothingCargo
     - ClothingCommand
     - ClothingEngineering

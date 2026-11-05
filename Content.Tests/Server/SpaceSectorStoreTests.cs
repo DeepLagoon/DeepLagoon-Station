@@ -51,7 +51,7 @@ public sealed class SpaceSectorStoreTests
     }
 
     [Test]
-    public void ReopeningPreservesManifestAndIdempotentSurveysAcrossCampaigns()
+    public void ReopeningPreservesManifestAndOnlyLoadsSurveysForTheRequestedRound()
     {
         var path = Path.Combine(Path.GetTempPath(), $"dl-sector-{Guid.NewGuid():N}.db");
         try
@@ -60,17 +60,19 @@ public sealed class SpaceSectorStoreTests
             using (var store = new SectorStore(path))
             {
                 store.GetOrCreate("crew-a", definition);
-                Assert.That(store.TrySurvey("crew-a", definition.Id, definition.Regions[0].Id), Is.True);
-                Assert.That(store.TrySurvey("crew-a", definition.Id, definition.Regions[0].Id), Is.False);
-                Assert.That(store.TrySurvey("crew-a", definition.Id, "invented-region"), Is.False);
-                Assert.That(store.TrySurvey("crew-b", definition.Id, definition.Regions[0].Id), Is.False);
+                Assert.That(store.TrySurvey("crew-a", 1, definition.Id, definition.Regions[0].Id), Is.True);
+                Assert.That(store.TrySurvey("crew-a", 1, definition.Id, definition.Regions[0].Id), Is.False);
+                Assert.That(store.TrySurvey("crew-a", 1, definition.Id, "invented-region"), Is.False);
+                Assert.That(store.TrySurvey("crew-b", 1, definition.Id, definition.Regions[0].Id), Is.False);
             }
             using var reopened = new SectorStore(path);
             var changed = SectorGenerator.Generate("sector/9", 123, new SectorProfilePrototype { RegionCount = 12 });
             Assert.That(reopened.GetOrCreate("crew-a", changed).Seed, Is.EqualTo(99));
-            Assert.That(reopened.Surveys("crew-a", definition.Id), Has.Count.EqualTo(1));
+            Assert.That(reopened.Surveys("crew-a", 1, definition.Id), Has.Count.EqualTo(1));
+            Assert.That(reopened.Surveys("crew-a", 2, definition.Id), Is.Empty);
+            Assert.That(reopened.TrySurvey("crew-a", 2, definition.Id, definition.Regions[0].Id), Is.True);
             Assert.That(reopened.GetOrCreate("crew-b", changed).Seed, Is.EqualTo(123));
-            Assert.That(reopened.Surveys("crew-b", definition.Id), Is.Empty);
+            Assert.That(reopened.Surveys("crew-b", 1, definition.Id), Is.Empty);
         }
         finally
         {
@@ -90,8 +92,8 @@ public sealed class SpaceSectorStoreTests
             var sector = SectorGenerator.Generate("test", 2, new SectorProfilePrototype());
             first.GetOrCreate("crew", sector);
             var results = await Task.WhenAll(
-                Task.Run(() => first.TrySurvey("crew", "test", sector.Regions[0].Id)),
-                Task.Run(() => second.TrySurvey("crew", "test", sector.Regions[0].Id)));
+                Task.Run(() => first.TrySurvey("crew", 1, "test", sector.Regions[0].Id)),
+                Task.Run(() => second.TrySurvey("crew", 1, "test", sector.Regions[0].Id)));
             Assert.That(results.Count(success => success), Is.EqualTo(1));
         }
         finally
@@ -106,12 +108,12 @@ public sealed class SpaceSectorStoreTests
     {
         using var store = new SectorStore(":memory:");
         var old = store.GetOrCreate("crew", SectorGenerator.Generate("old", 51, new SectorProfilePrototype { RegionCount = 36 }));
-        store.TrySurvey("crew", old.Id, old.Regions[0].Id);
+        store.TrySurvey("crew", 1, old.Id, old.Regions[0].Id);
         var expanded = SectorGenerator.ExpandRegions(old, new SectorProfilePrototype { RegionCount = 72 });
         var added = expanded.Regions.Skip(old.Regions.Count).ToList();
         Assert.That(store.AppendRegions("crew", old, added).Regions, Has.Count.EqualTo(72));
         Assert.That(store.AppendRegions("crew", old, added).Regions, Has.Count.EqualTo(72));
-        Assert.That(store.Surveys("crew", old.Id), Is.EqualTo(new[] { old.Regions[0].Id }));
+        Assert.That(store.Surveys("crew", 1, old.Id), Is.EqualTo(new[] { old.Regions[0].Id }));
         Assert.That(store.Load("crew", old.Id).Planets[0].AppearanceSeed, Is.EqualTo(old.Planets[0].AppearanceSeed));
     }
 

@@ -47,6 +47,11 @@ cargo-console-too-many = Слишком много одобренных зака
 cargo-console-snip-snip = Заказ урезан до вместимости
 
 cargo-console-insufficient-funds = Недостаточно средств (требуется { $cost })
+cargo-console-order-capacity = В заказе { $requested } ед., свободно { $available }. Уменьшите заказ или дождитесь доставки.
+cargo-console-payment-failed = Не удалось списать деньги. Заказ ожидает одобрения.
+cargo-console-order-already-paid = Оплаченный заказ нельзя отменить.
+cargo-console-order-queued = Заказ одобрен. В очереди на доставку: { $quantity } ед.
+cargo-console-order-dispatched = Доставлено { $dispatched } из { $total }. Причина: { $reason }
 
 cargo-console-unfulfilled = Нет места для выполнения заказа
 

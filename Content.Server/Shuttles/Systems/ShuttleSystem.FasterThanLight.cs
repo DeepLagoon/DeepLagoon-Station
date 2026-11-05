@@ -299,7 +299,8 @@ public sealed partial class ShuttleSystem
         Angle angle,
         float? startupTime = null,
         float? hyperspaceTime = null,
-        string? priorityTag = null)
+        string? priorityTag = null,
+        bool safeExpeditionReturn = false)
     {
         // Check if destination is an expedition map
         bool isExpedition = IsTargetExpedition(coordinates);
@@ -347,6 +348,7 @@ public sealed partial class ShuttleSystem
         hyperspace.TargetCoordinates = coordinates;
         hyperspace.TargetAngle = angle;
         hyperspace.PriorityTag = priorityTag;
+        hyperspace.SafeExpeditionReturn = safeExpeditionReturn;
 
         _console.RefreshShuttleConsoles(shuttleUid);
 
@@ -678,7 +680,8 @@ public sealed partial class ShuttleSystem
         comp.State = FTLState.Arriving;
 
         // Create visualizer if it doesn't exist
-        if (comp.VisualizerProto != null && comp.VisualizerEntity == null)
+        if (comp.VisualizerProto != null && comp.VisualizerEntity == null &&
+            !TerminatingOrDeleted(comp.TargetCoordinates.EntityId))
         {
             comp.VisualizerEntity = SpawnAttachedTo(entity.Comp1.VisualizerProto, entity.Comp1.TargetCoordinates);
             DebugTools.Assert(Transform(comp.VisualizerEntity.Value).ParentUid == entity.Comp1.TargetCoordinates.EntityId);
@@ -721,6 +724,17 @@ public sealed partial class ShuttleSystem
         // If this is a linked shuttle, let the main shuttle handle the arrival
         if (comp.LinkedShuttle.HasValue)
             return;
+
+        var dockedShuttles = new HashSet<EntityUid>();
+        GetAllDockedShuttles(uid, dockedShuttles);
+        var target = comp.TargetCoordinates;
+        if (comp.SafeExpeditionReturn && !TryFindExpeditionReturn(uid, target, comp.TargetAngle, dockedShuttles, out target))
+        {
+            // Stay in hyperspace if no safe point or fallback map is currently available.
+            comp.StateTime = StartEndTime.FromCurTime(_gameTiming, 5f);
+            return;
+        }
+
         var xform = _xformQuery.GetComponent(uid);
         var body = _physicsQuery.GetComponent(uid);
         DoTheDinosaur(xform);
@@ -733,9 +747,6 @@ public sealed partial class ShuttleSystem
         }
 
 
-        // Get all docked shuttles
-        var dockedShuttles = new HashSet<EntityUid>();
-        GetAllDockedShuttles(uid, dockedShuttles);
         // Store relative positions before moving main shuttle
         // evil and intimidating copypaste, TODO: uncopypaste
         var relativeTransforms = new Dictionary<EntityUid, (Vector2 Position, Angle Rotation)>();
@@ -761,13 +772,12 @@ public sealed partial class ShuttleSystem
         _physics.SetLinearVelocity(uid, Vector2.Zero, body: body);
         _physics.SetAngularVelocity(uid, 0f, body: body);
 
-        var target = comp.TargetCoordinates;
         MapId mapId;
 
         QueueDel(comp.VisualizerEntity);
         comp.VisualizerEntity = null;
 
-        if (!Exists(comp.TargetCoordinates.EntityId))
+        if (!Exists(target.EntityId))
         {
             // Uhh good luck
             // Pick earliest map?

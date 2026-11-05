@@ -72,7 +72,7 @@
   parent: ClothingModsuitGauntletsBase
   id: ClothingModsuitGauntletsMercenary
   name: mercenary modsuit gauntlets
-  description: The knuckle guards glow when you seal the suit...for no apparent reason. Doubles as literal Finger Guns chambered in .45, so they literally pack a punch and then some.
+  description: The knuckle guards glow when you seal the suit...for no apparent reason. Doubles as literal Finger Guns chambered in .357 Magnum, so they literally pack a punch and then some.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite

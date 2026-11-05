@@ -51,6 +51,9 @@ public sealed partial class SalvageExpeditionConsoleComponent : Component
     /// </summary>
     [DataField]
     public bool Debug = false;
+
+    [DataField]
+    public bool DispatchByDisk;
 }
 
 [Serializable, NetSerializable]

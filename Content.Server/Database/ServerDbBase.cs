@@ -310,6 +310,7 @@ namespace Content.Server.Database
                     item.Data,
                     item.Sticky))) // Mono end
                 .WithOocNotes(profile.OocNotes)
+                .WithCustomSpeciesName(profile.CustomSpeciesName)
                 .WithArousalPreferences(JsonSerializer.Deserialize<BlueMoonPreferences>(profile.ArousalPreferencesJson) ?? new())
                 .WithInteractionPanelConsent(InteractionPanelCategory.Erotic, (InteractionPanelConsent)profile.ERPConsent)
                 .WithInteractionPanelConsent(InteractionPanelCategory.NonCon, (InteractionPanelConsent)profile.NonConConsent)
@@ -332,6 +333,7 @@ namespace Content.Server.Database
             profile.OocNotes = humanoid.OocNotes;
             profile.HeadshotId = humanoid.HeadshotId;
             profile.Species = humanoid.Species;
+            profile.CustomSpeciesName = humanoid.CustomSpeciesName;
             profile.Age = humanoid.Age;
             profile.Sex = humanoid.Sex.ToString();
             profile.Gender = humanoid.Gender.ToString();

@@ -294,13 +294,13 @@ public sealed partial class StorageUIController : UIController, IOnSystemChanged
         control.MouseFilter = Control.MouseFilterMode.Pass;
 
         var localPlayer = _player.LocalEntity;
-        window.RemoveGrid(control);
+        var originalLocation = window.RemoveGrid(control);
         window.FlagDirty();
 
         // If we tried to drag it on top of another grid piece then cancel out.
         if (targetControl is ItemGridPiece || window.StorageEntity is not { } sourceStorage || localPlayer == null)
         {
-            window.Reclaim(control.Location, control);
+            window.Reclaim(originalLocation, control);
             args.Handle();
             _menuDragHelper.EndDrag();
             return;
@@ -318,12 +318,19 @@ public sealed partial class StorageUIController : UIController, IOnSystemChanged
                 var position = targetStorage.GetMouseGridPieceLocation(dragEnt, dragLoc);
                 var newLocation = new ItemStorageLocation(DraggingRotation, position);
 
-                EntityManager.RaisePredictiveEvent(new StorageSetItemLocationEvent(
-                    EntityManager.GetNetEntity(draggingGhost.Entity),
-                    EntityManager.GetNetEntity(sourceStorage),
-                    newLocation));
+                if (_storage.ItemFitsInGridLocation(dragEnt, sourceStorage, newLocation))
+                {
+                    EntityManager.RaisePredictiveEvent(new StorageSetItemLocationEvent(
+                        EntityManager.GetNetEntity(dragEnt),
+                        EntityManager.GetNetEntity(sourceStorage),
+                        newLocation));
 
-                window.Reclaim(newLocation, control);
+                    window.Reclaim(newLocation, control);
+                }
+                else
+                {
+                    window.Reclaim(originalLocation, control);
+                }
             }
             // Dragging to new storage
             else if (targetStorage?.StorageEntity != null && targetStorage != window)
@@ -349,7 +356,7 @@ public sealed partial class StorageUIController : UIController, IOnSystemChanged
                 else
                 {
                     // Cancel it (rather than dropping).
-                    window.Reclaim(dragLoc, control);
+                    window.Reclaim(originalLocation, control);
                 }
             }
 

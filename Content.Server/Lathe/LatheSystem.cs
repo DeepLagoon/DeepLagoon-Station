@@ -37,7 +37,6 @@ using Robust.Shared.Timing;
 using Content.Shared.Cargo.Components; // Frontier
 using Content.Server._NF.Contraband.Systems;
 using Content.Server.Storage.Components;
-using Content.Shared.Stacks; // Frontier
 using Robust.Shared.Containers;
 using Robust.Shared.Utility; // Frontier
 
@@ -307,22 +306,21 @@ namespace Content.Server.Lathe
             {
                 foreach (var (entity, amount) in recipe.Entities)
                 {
-                    var counter = 0;
+                    var remaining = amount;
+                    var stackType = GetIngredientStackType(recipe, entity);
                     foreach (var conEnt in storage.Contents.ContainedEntities)
                     {
-                        if (MetaData(conEnt).EntityPrototype?.ID != entity.Id)
+                        var count = GetIngredientAmount(conEnt, entity, stackType);
+                        if (count <= 0)
                             continue;
 
-                        _stackQuery.TryComp(conEnt, out var stack);
-                        var count = stack?.Count ?? 1;
-
-                        if (count > amount)
-                            _stack.SetCount(conEnt, count - amount);
-                        if (count <= amount)
+                        if (count > remaining)
+                            _stack.SetCount(conEnt, count - remaining);
+                        else
                             QueueDel(conEnt);
 
-                        counter += count;
-                        if (counter >= amount)
+                        remaining -= count;
+                        if (remaining <= 0)
                             break;
                     }
                 }
@@ -699,18 +697,7 @@ namespace Content.Server.Lathe
 
             foreach (var (entity, needed) in recipe.Entities)
             {
-                var processedEntities = 0;
-                foreach (var conEnt in storage.Contents.ContainedEntities)
-                {
-                    if (MetaData(conEnt).EntityPrototype?.ID != entity.Id)
-                        continue;
-
-                    _stackQuery.TryComp(conEnt, out var stack);
-
-                    processedEntities += stack?.Count ?? 1;
-                }
-
-                if (processedEntities < needed * amount)
+                if (CountEntityIngredient(recipe, entity, storage.Contents.ContainedEntities) < needed * amount)
                     return false;
             }
 

@@ -1,6 +1,7 @@
 using System.Linq;
 using Content.Client.Botany;
 using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Botany.Components;
 using Content.Shared.Botany.Events;
 using Content.Shared.Botany.Items.Components;
@@ -16,6 +17,24 @@ namespace Content.IntegrationTests.Tests.Botany;
 [TestFixture]
 public sealed class PlantHarvestTests
 {
+    [TestCase("AmbrosiaVulgarisPlants")]
+    [TestCase("AmbrosiaDeusPlants")]
+    public async Task AmbrosiaHarvestContainsDesoxyephedrine(string prototype)
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var plant = entities.SpawnEntity(prototype, map.GridCoords);
+            entities.System<BotanySystem>().SpawnProduce(plant, map.GridCoords, 1);
+            var produce = entities.EntityQuery<ProduceComponent>().Single(item => item.PlantProtoId?.Id == prototype);
+            Assert.That(entities.System<SharedSolutionContainerSystem>().TryGetSolution(produce.Owner, produce.TargetSolution, out _, out var solution), Is.True);
+            Assert.That(solution!.GetReagentQuantity(new ReagentId("Desoxyephedrine", null)).Float(), Is.EqualTo(2f));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task HarvestSpawnsProduceAndStartsNextProductionCycle()
     {

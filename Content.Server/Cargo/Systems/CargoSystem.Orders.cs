@@ -176,7 +176,9 @@ namespace Content.Server.Cargo.Systems
             }
 
             // Find our order again. It might have been dispatched or approved already
-            var order = orderDatabase.Orders.Find(order => args.OrderId == order.OrderId && !order.Approved);
+            var console = GetNetEntity(uid);
+            var order = orderDatabase.Orders.Find(order =>
+                args.OrderId == order.OrderId && order.Computer == console && !order.Approved);
             if (order == null)
             {
                 return;
@@ -190,33 +192,34 @@ namespace Content.Server.Cargo.Systems
                 return;
             }
 
-            var amount = GetOutstandingOrderCount(orderDatabase);
-            var capacity = orderDatabase.Capacity;
-
-            // Too many orders, avoid them getting spammed in the UI.
-            if (amount >= capacity)
+            var available = Math.Max(0, orderDatabase.Capacity - GetOutstandingOrderCount(orderDatabase));
+            if (order.OrderQuantity > available)
             {
-                ConsolePopup(args.Actor, Loc.GetString("cargo-console-too-many"));
+                ConsolePopup(player, Loc.GetString("cargo-console-order-capacity",
+                    ("requested", order.OrderQuantity), ("available", available)));
                 PlayDenySound(uid, component);
                 return;
             }
 
-            // Cap orders so someone can't spam thousands.
-            var cappedAmount = Math.Min(capacity - amount, order.OrderQuantity);
-
-            if (cappedAmount != order.OrderQuantity)
+            var total = (long) order.Price * order.OrderQuantity;
+            if (order.OrderQuantity <= 0 || total < 0 || total > int.MaxValue)
             {
-                order.OrderQuantity = cappedAmount;
-                ConsolePopup(args.Actor, Loc.GetString("cargo-console-snip-snip"));
+                ConsolePopup(player, Loc.GetString("cargo-console-invalid-product"));
                 PlayDenySound(uid, component);
+                return;
             }
 
-            var cost = order.Price * order.OrderQuantity;
-
-            // Not enough balance
+            var cost = (int) total;
             if (cost > bankAccount.Balance)
             {
                 ConsolePopup(args.Actor, Loc.GetString("cargo-console-insufficient-funds", ("cost", cost)));
+                PlayDenySound(uid, component);
+                return;
+            }
+
+            if (cost > 0 && !_bank.TryBankWithdraw(player, cost))
+            {
+                ConsolePopup(player, Loc.GetString("cargo-console-payment-failed"));
                 PlayDenySound(uid, component);
                 return;
             }
@@ -258,7 +261,7 @@ namespace Content.Server.Cargo.Systems
                 // End Frontier: silence cargo station
             }
 
-            ConsolePopup(args.Actor, Loc.GetString("cargo-console-trade-station", ("destination", MetaData(uid).EntityName))); // ev.FulfillmentEntity.Value<uid
+            ConsolePopup(player, Loc.GetString("cargo-console-order-queued", ("quantity", order.OrderQuantity)));
 
             // Log order approval
             _adminLogger.Add(LogType.Action, LogImpact.Low,
@@ -274,7 +277,6 @@ namespace Content.Server.Cargo.Systems
                 var tax = (int)Math.Floor(cost * taxCoeff);
                 _bank.TrySectorDeposit(account, tax, LedgerEntryType.CargoTax);
             }
-            _bank.TryBankWithdraw(player, cost);
             // End Frontier
 
             UpdateOrders(station.Value);
@@ -332,10 +334,20 @@ namespace Content.Server.Cargo.Systems
 
         private void OnRemoveOrderMessage(EntityUid uid, CargoOrderConsoleComponent component, CargoConsoleRemoveOrderMessage args)
         {
-            if (!TryGetOrderDatabase(uid, out var dbUid, out var orderDatabase, component))
+            if (args.Actor is not { Valid: true } player
+                || !TryGetOrderDatabase(uid, out var dbUid, out var orderDatabase, component))
                 return;
 
-            RemoveOrder(dbUid!.Value, args.OrderId, orderDatabase);
+            var console = GetNetEntity(uid);
+            var order = orderDatabase.Orders.Find(order => order.OrderId == args.OrderId && order.Computer == console);
+            if (order == null)
+                return;
+
+            if (!RemoveOrder(dbUid!.Value, order.OrderId, orderDatabase))
+            {
+                ConsolePopup(player, Loc.GetString("cargo-console-order-already-paid"));
+                PlayDenySound(uid, component);
+            }
         }
 
         private void OnAddOrderMessage(EntityUid uid, CargoOrderConsoleComponent component, CargoConsoleAddOrderMessage args)
@@ -353,6 +365,14 @@ namespace Content.Server.Cargo.Systems
 
             if (!TryGetOrderDatabase(uid, out var dbUid, out var orderDatabase, component))
                 return;
+
+            if (args.Amount > orderDatabase.Capacity)
+            {
+                ConsolePopup(player, Loc.GetString("cargo-console-order-capacity",
+                    ("requested", args.Amount), ("available", orderDatabase.Capacity)));
+                PlayDenySound(uid, component);
+                return;
+            }
 
             if (!_protoMan.TryIndex<CargoProductPrototype>(args.CargoProductId, out var product))
             {
@@ -397,24 +417,22 @@ namespace Content.Server.Cargo.Systems
         // Frontier: custom UpdateOrderState function
         private void UpdateOrderState(EntityUid uid, CargoOrderConsoleComponent component, EntityUid? station)
         {
+            if (!TryComp<StationCargoOrderDatabaseComponent>(station, out var orderDatabase))
+                return;
+
             var uiUsers = _uiSystem.GetActors((uid, null), CargoConsoleUiKey.Orders);
             foreach (var user in uiUsers)
             {
                 var balance = 0;
 
-                if (Transform(user).GridUid is EntityUid stationGrid &&
-                    TryComp<BankAccountComponent>(user, out var playerBank))
+                if (TryComp<BankAccountComponent>(user, out var playerBank))
                 {
-                    station = stationGrid;
                     balance = playerBank.Balance;
                 }
                 else if (TryComp<StationBankAccountComponent>(station, out var stationBank))
                 {
                     balance = stationBank.Balance;
                 }
-
-                if (station == null || !TryGetOrderDatabase(station.Value, out var _, out var orderDatabase, component))
-                    return;
 
                 // Frontier - we only want to see orders made on the same computer, so filter them out
                 var filteredOrders = orderDatabase.Orders
@@ -534,14 +552,15 @@ namespace Content.Server.Cargo.Systems
             return ++orderDB.NumOrdersCreated;
         }
 
-        public void RemoveOrder(EntityUid dbUid, int index, StationCargoOrderDatabaseComponent orderDB)
+        public bool RemoveOrder(EntityUid dbUid, int index, StationCargoOrderDatabaseComponent orderDB)
         {
-            var sequenceIdx = orderDB.Orders.FindIndex(order => order.OrderId == index);
-            if (sequenceIdx != -1)
-            {
-                orderDB.Orders.RemoveAt(sequenceIdx);
-            }
+            var sequenceIdx = orderDB.Orders.FindIndex(order => order.OrderId == index && !order.Approved);
+            if (sequenceIdx == -1)
+                return false;
+
+            orderDB.Orders.RemoveAt(sequenceIdx);
             UpdateOrders(dbUid);
+            return true;
         }
 
         public void ClearOrders(StationCargoOrderDatabaseComponent component)
@@ -552,35 +571,29 @@ namespace Content.Server.Cargo.Systems
             component.Orders.Clear();
         }
 
-        private static bool PopFrontOrder(List<NetEntity> consoleUidList, StationCargoOrderDatabaseComponent orderDB, [NotNullWhen(true)] out CargoOrderData? orderOut)
-        {
-            var orderIdx = orderDB.Orders.FindIndex(order => order.Approved && consoleUidList.Any(consoleUid => consoleUid == order.Computer));
-            if (orderIdx == -1)
-            {
-                orderOut = null;
-                return false;
-            }
-
-            orderOut = orderDB.Orders[orderIdx];
-            orderOut.NumDispatched++;
-
-            if (orderOut.NumDispatched >= orderOut.OrderQuantity)
-            {
-                // Order is complete. Remove from the queue.
-                orderDB.Orders.RemoveAt(orderIdx);
-            }
-            return true;
-        }
-
         /// <summary>
         /// Tries to fulfill the next outstanding order.
         /// </summary>
-        private bool FulfillNextOrder(List<NetEntity> consoleUidList, StationCargoOrderDatabaseComponent orderDB, EntityCoordinates spawn, string? paperProto)
+        internal bool FulfillNextOrder(List<NetEntity> consoleUidList, StationCargoOrderDatabaseComponent orderDB, EntityCoordinates spawn, string? paperProto)
         {
-            if (!PopFrontOrder(consoleUidList, orderDB, out var order))
-                return false;
+            for (var index = 0; index < orderDB.Orders.Count; index++)
+            {
+                var order = orderDB.Orders[index];
+                if (!order.Approved || order.NumDispatched >= order.OrderQuantity
+                    || order.Computer is not { } console || !consoleUidList.Contains(console))
+                    continue;
 
-            return FulfillOrder(order, spawn, paperProto);
+                if (!FulfillOrder(order, spawn, paperProto))
+                    continue;
+
+                order.NumDispatched++;
+                if (order.NumDispatched >= order.OrderQuantity)
+                    orderDB.Orders.Remove(order);
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -588,13 +601,38 @@ namespace Content.Server.Cargo.Systems
         /// </summary>
         private bool FulfillOrder(CargoOrderData order, EntityCoordinates spawn, string? paperProto)
         {
-            // Create the item itself
-            var item = Spawn(order.ProductId, spawn);
+            EntityUid item;
+            try
+            {
+                item = Spawn(order.ProductId, spawn);
+            }
+            catch (EntityCreationException e)
+            {
+                Log.Error($"Could not deliver cargo order {order.OrderId} ({order.ProductId}): {e}");
+                return false;
+            }
 
             // Ensure the item doesn't start anchored
             _transformSystem.Unanchor(item, Transform(item));
 
-            // Create a sheet of paper to write the order details on
+            try
+            {
+                PrintOrderReceipt(order, spawn, item, paperProto);
+            }
+            catch (Exception e)
+            {
+                // The goods have already been delivered. Retrying the order would duplicate them.
+                Log.Error($"Could not print the receipt for delivered cargo order {order.OrderId}: {e}");
+            }
+
+            return true;
+        }
+
+        private void PrintOrderReceipt(CargoOrderData order, EntityCoordinates spawn, EntityUid item, string? paperProto)
+        {
+            if (paperProto == null)
+                return;
+
             var printed = Spawn(paperProto, spawn);
             if (TryComp<PaperComponent>(printed, out var paper))
             {
@@ -617,8 +655,6 @@ namespace Content.Server.Cargo.Systems
                     _slots.TryInsert(item, label.LabelSlot, printed, null);
                 }
             }
-
-            return true;
 
         }
 

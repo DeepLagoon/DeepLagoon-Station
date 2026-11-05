@@ -26,6 +26,7 @@ using Robust.Shared.Random;
 using Robust.Shared.Map;
 using Content.Shared.Shuttles.Components; // Frontier
 using Robust.Shared.Configuration; // Frontier
+using Content.Server.Stack;
 
 namespace Content.Server.Salvage;
 
@@ -123,6 +124,8 @@ public sealed partial class SalvageSystem
     private void OnExpeditionShutdown(EntityUid uid, SalvageExpeditionComponent component, ComponentShutdown args)
     {
         component.Stream = _audio.Stop(component.Stream);
+        if (component.DispatchDisk is { } disk)
+            QueueDel(disk);
 
         foreach (var (job, cancelToken) in _salvageJobs.ToArray())
         {
@@ -191,7 +194,8 @@ public sealed partial class SalvageSystem
         {
             // Handles the mining taxation.
             case SalvageMissionType.Mining:
-                expedition.Completed = true;
+                expedition.Completed = !expedition.DispatchedFromOutpost ||
+                                       expedition.Stage >= ExpeditionStage.Running;
 
                 if (shuttle != null && TryComp<SalvageMiningExpeditionComponent>(uid, out var mining))
                 {
@@ -349,7 +353,8 @@ public sealed partial class SalvageSystem
         var pallets = EntityQueryEnumerator<SalvageExpeditionConsoleComponent>(); // Frontier CargoPalletComponent<SalvageExpeditionConsoleComponent
         while (pallets.MoveNext(out var pallet, out var palletComp))
         {
-            if (_station.GetOwningStation(pallet) == comp.Station)
+            if (_station.GetOwningStation(pallet) == comp.Station &&
+                (!comp.DispatchedFromOutpost || palletComp.DispatchByDisk))
             {
                 palletList.Add(pallet);
             }
@@ -360,6 +365,18 @@ public sealed partial class SalvageSystem
 
         var destination = Transform(_random.Pick(palletList)).Coordinates;
         EntityManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().GiveCompletionReward(expedition, destination);
+        if (comp.DispatchedFromOutpost)
+        {
+            var telecrystals = comp.Difficulty switch
+            {
+                DifficultyRating.Extreme => 15,
+                DifficultyRating.Hazardous => 10,
+                _ => 5
+            };
+            EntityManager.System<StackSystem>().SetCount(Spawn("Telecrystal", destination), telecrystals);
+            return;
+        }
+
         if (_cfgManager.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
         {
             foreach (var reward in comp.Rewards)

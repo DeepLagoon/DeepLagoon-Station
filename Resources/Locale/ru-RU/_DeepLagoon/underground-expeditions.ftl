@@ -1,0 +1,10 @@
+ent-ComputerTabletopUndergroundExpeditions = терминал экспедиций Чёрного рынка
+    .desc = Выдаёт диски координат для экспедиций Чёрного рынка. За успешную экспедицию можно получить телекристаллы у терминала.
+dl-underground-expedition-disk = Вставьте диск в консоль шаттла и прыгните к новой метке. Срок вылета — 10 минут.
+dl-underground-wanted-reason = Участие в деятельности Чёрного рынка.
+dl-underground-ship-voucher = Ваучер верфи Чёрного рынка
+dl-underground-ship-voucher-desc = Обменяйте на Mudskipper или Gungnir на верфи Чёрного рынка.
+ent-ShipVoucherUnderground = ваучер верфи Чёрного рынка
+    .desc = Обменяйте на Mudskipper или Gungnir на верфи Чёрного рынка.
+ent-VendingMachineUndergroundRequisitions = ЧёрноМат
+    .desc = Продаёт экипировку и ваучеры верфи Чёрного рынка.

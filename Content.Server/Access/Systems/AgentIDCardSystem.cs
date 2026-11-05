@@ -32,7 +32,7 @@ namespace Content.Server.Access.Systems
 
         private void OnAfterInteract(EntityUid uid, AgentIDCardComponent component, AfterInteractEvent args)
         {
-            if (args.Target == null || !args.CanReach || !TryComp<AccessComponent>(args.Target, out var targetAccess) || !HasComp<IdCardComponent>(args.Target))
+            if (!component.CanCopyAccess || args.Target == null || !args.CanReach || !TryComp<AccessComponent>(args.Target, out var targetAccess) || !HasComp<IdCardComponent>(args.Target))
                 return;
 
             if (!TryComp<AccessComponent>(uid, out var access) || !HasComp<IdCardComponent>(uid))
@@ -67,7 +67,7 @@ namespace Content.Server.Access.Systems
             if (!TryComp<IdCardComponent>(uid, out var idCard))
                 return;
 
-            var state = new AgentIDCardBoundUserInterfaceState(idCard.FullName ?? "", idCard.LocalizedJobTitle ?? "", idCard.JobIcon);
+            var state = new AgentIDCardBoundUserInterfaceState(idCard.FullName ?? "", idCard.LocalizedJobTitle ?? "", idCard.JobIcon, component.CanChangeJobIcon);
             _uiSystem.SetUiState(uid, AgentIDCardUiKey.Key, state);
         }
 
@@ -89,7 +89,7 @@ namespace Content.Server.Access.Systems
 
         private void OnJobIconChanged(EntityUid uid, AgentIDCardComponent comp, AgentIDCardJobIconChangedMessage args)
         {
-            if (!TryComp<IdCardComponent>(uid, out var idCard))
+            if (!comp.CanChangeJobIcon || !TryComp<IdCardComponent>(uid, out var idCard))
                 return;
 
             if (!_prototypeManager.TryIndex(args.JobIconId, out var jobIcon))

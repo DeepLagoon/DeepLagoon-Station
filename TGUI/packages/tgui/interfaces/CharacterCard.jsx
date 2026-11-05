@@ -45,7 +45,7 @@ export const CharacterCard = () => {
       </aside>
       <main className="CharacterCard__details">
         <header className="CharacterCard__header">
-          <h2>{data.name}</h2>
+          <div><h2>{data.name}</h2>{data.speciesName && <small>{data.speciesName}</small>}</div>
           <Button color="bad" icon="times" onClick={() => act('close')}>Закрыть</Button>
         </header>
         <Collapsible title="Описание персонажа" open>

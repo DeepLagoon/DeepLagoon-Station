@@ -30,7 +30,12 @@ public sealed partial class HitscanDiffractSystem : EntitySystem
 
         // Use BulletImpassable to narrow down list of entities intersected (maybe make this a component in the future?)
         var diffractCheckRay = new CollisionRay(mapCoords.Position, args.ShotDirection, (int)CollisionGroup.BulletImpassable);
-        var diffractCheckResults = _physics.IntersectRay(mapCoords.MapId, diffractCheckRay, 20.0f, shooter, false);
+        var limit = new GetHitscanRangeEvent(mapCoords, args.ShotDirection, 20.0f);
+        RaiseLocalEvent(args.Gun, ref limit);
+        if (limit.Range <= 0f)
+            return;
+
+        var diffractCheckResults = _physics.IntersectRay(mapCoords.MapId, diffractCheckRay, limit.Range, shooter, false);
 
         // Look for the first entity with diffraction target component
         EntityUid? diffractorEntity = null;

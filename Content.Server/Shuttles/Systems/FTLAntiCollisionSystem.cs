@@ -74,7 +74,8 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
         var mapId = xform.MapID;
 
         // Don't process if this is a linked shuttle (those will be moved with their main shuttle)
-        if (TryComp<FTLComponent>(shuttle, out var ftlComp) && ftlComp.LinkedShuttle.HasValue)
+        if (TryComp<FTLComponent>(shuttle, out var ftlComp) &&
+            (ftlComp.LinkedShuttle.HasValue || ftlComp.SafeExpeditionReturn))
             return;
 
         // Get all docked ships to this shuttle to ignore them in collision checks

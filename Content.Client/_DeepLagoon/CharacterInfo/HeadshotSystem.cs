@@ -3,10 +3,12 @@ using System.Linq;
 using Content.Client.Lobby;
 using Content.Shared._DeepLagoon.CharacterInfo;
 using Content.Shared.DetailExaminable;
+using Content.Shared.Humanoid;
 using Content.Shared._DeepLagoon.DiscordLink;
 using Content.Shared.Preferences;
 using Robust.Client.UserInterface;
 using Robust.Shared.Network;
+using Robust.Shared.Prototypes;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Utility;
 using System.Text;
@@ -21,6 +23,7 @@ public sealed partial class HeadshotSystem : EntitySystem
     [Dependency] private IClientNetManager _net = default!;
     [Dependency] private IResourceManager _resources = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
     private sealed class OutgoingUpload(Guid request, byte[] bytes, GameTick tick)
     { public readonly Guid Request = request; public readonly byte[] Bytes = bytes; public int Offset; public GameTick Tick = tick; }
     private OutgoingUpload? _upload;
@@ -44,8 +47,18 @@ public sealed partial class HeadshotSystem : EntitySystem
         SubscribeNetworkEvent<CharacterInfoOpenEvent>((ev,_)=>
         {
             var entity=GetEntity(ev.Target);
-            if (Exists(entity) && TryComp<DetailExaminableComponent>(entity,out var details))
-                CharacterCardWindow.Open(entity, MetaData(entity).EntityName, details.Content, details.OocNotes, details.Erp, details.NonCon, details.Vore, -1);
+            if (!Exists(entity) || !TryComp<DetailExaminableComponent>(entity, out var details))
+                return;
+
+            var speciesName = details.CustomSpeciesName;
+            if (string.IsNullOrEmpty(speciesName) &&
+                TryComp<HumanoidAppearanceComponent>(entity, out var humanoid) &&
+                _prototypes.TryIndex(humanoid.Species, out var species))
+            {
+                speciesName = Loc.GetString(species.Name);
+            }
+
+            CharacterCardWindow.Open(entity, MetaData(entity).EntityName, details.Content, details.OocNotes, details.Erp, details.NonCon, details.Vore, -1, speciesName);
         });
     }
 

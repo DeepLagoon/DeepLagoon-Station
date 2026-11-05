@@ -1,4 +1,5 @@
 using Content.Server.Atmos.Components;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server.Decals;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
@@ -15,6 +16,8 @@ namespace Content.Server.Atmos.EntitySystems
     {
         [Dependency] private DecalSystem _decalSystem = default!;
         [Dependency] private IRobustRandom _random = default!;
+
+        [Dependency] private GreenZoneSystem _greenZones = default!;
 
         private const int HotspotSoundCooldownCycles = 200;
 
@@ -34,6 +37,14 @@ namespace Content.Server.Atmos.EntitySystems
             if (!tile.Hotspot.Valid)
             {
                 gridAtmosphere.HotspotTiles.Remove(tile);
+                return;
+            }
+
+            if (SuppressesHotspot(tile))
+            {
+                tile.Hotspot = new Hotspot();
+                gridAtmosphere.HotspotTiles.Remove(tile);
+                InvalidateVisuals(ent, tile);
                 return;
             }
 
@@ -155,7 +166,7 @@ namespace Content.Server.Atmos.EntitySystems
         private void HotspotExpose(GridAtmosphereComponent gridAtmosphere, TileAtmosphere tile,
             float exposedTemperature, float exposedVolume, bool soh = false, EntityUid? sparkSourceUid = null)
         {
-            if (tile.Air == null)
+            if (tile.Air == null || SuppressesHotspot(tile))
                 return;
 
             var oxygen = tile.Air.GetMoles(Gas.Oxygen);
@@ -202,6 +213,9 @@ namespace Content.Server.Atmos.EntitySystems
                 gridAtmosphere.HotspotTiles.Add(tile);
             }
         }
+
+        private bool SuppressesHotspot(TileAtmosphere tile) =>
+            _greenZones.SuppressesFire(_mapSystem.ToCenterCoordinates(tile.GridIndex, tile.GridIndices), tile.GridIndex);
 
         /// <summary>
         /// The actual meat of how a hotspot reacts with the atmos system is done here, called via ProcessHotspot once a tick

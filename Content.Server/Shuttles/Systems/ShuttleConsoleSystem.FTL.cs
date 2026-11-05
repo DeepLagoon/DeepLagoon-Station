@@ -1,5 +1,6 @@
 using Content.Server.Power.EntitySystems; // Mono
 using Content.Server.Shuttles.Components;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server.Shuttles.Events;
 using Content.Shared._Mono.Ships;
 using Content.Shared.Popups;
@@ -32,6 +33,12 @@ public sealed partial class ShuttleConsoleSystem
         SubscribeLocalEvent<FTLBeaconComponent, AnchorStateChangedEvent>(OnBeaconAnchorChanged);
 
         SubscribeLocalEvent<FTLExclusionComponent, ComponentStartup>(OnExclusionStartup);
+        SubscribeLocalEvent<GreenZoneComponent, ComponentStartup>(OnGreenZoneStartup);
+    }
+
+    private void OnGreenZoneStartup(Entity<GreenZoneComponent> ent, ref ComponentStartup args)
+    {
+        RefreshShuttleConsoles();
     }
 
     private void OnExclusionStartup(Entity<FTLExclusionComponent> ent, ref ComponentStartup args)
@@ -120,6 +127,18 @@ public sealed partial class ShuttleConsoleSystem
 
             exclusions ??= new List<ShuttleExclusionObject>();
             exclusions.Add(new ShuttleExclusionObject(GetNetCoordinates(xform.Coordinates), comp.Range, Loc.GetString("shuttle-console-exclusion")));
+        }
+
+        var greenZones = EntityQueryEnumerator<GreenZoneComponent, MapGridComponent>();
+        while (greenZones.MoveNext(out var uid, out var greenZone, out var grid))
+        {
+            var center = _transform.ToMapCoordinates(new EntityCoordinates(uid, grid.LocalAABB.Center));
+            if (center.MapId == MapId.Nullspace)
+                continue;
+
+            exclusions ??= new List<ShuttleExclusionObject>();
+            exclusions.Add(new ShuttleExclusionObject(GetNetCoordinates(_transform.ToCoordinates(center)),
+                greenZone.Radius, Loc.GetString("dl-green-zone-name"), IsGreenZone: true));
         }
     }
 

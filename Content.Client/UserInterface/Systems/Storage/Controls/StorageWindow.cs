@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using Content.Client.Hands.Systems;
@@ -387,12 +387,15 @@ public sealed partial class StorageWindow : BaseWindow
         _isDirty = true;
     }
 
-    public void RemoveGrid(ItemGridPiece control)
+    public ItemStorageLocation RemoveGrid(ItemGridPiece control)
     {
         control.Orphan();
-        _pieces.Remove(control.Entity);
+        var location = _pieces.Remove(control.Entity, out var existing) && existing.Loc is { } original
+            ? original
+            : control.Location;
         control.OnPiecePressed -= OnPiecePressed;
         control.OnPieceUnpressed -= OnPieceUnpressed;
+        return location;
     }
 
     public void BuildItemPieces()

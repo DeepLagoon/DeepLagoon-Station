@@ -1,4 +1,5 @@
 using Content.Client.CartridgeLoader;
+using Content.Client._DeepLagoon.PdaMessenger;
 using Content.Shared.CartridgeLoader;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.PDA;
@@ -31,6 +32,7 @@ namespace Content.Client.PDA
         private void CreateMenu()
         {
             _menu = this.CreateWindowCenteredLeft<PdaMenu>();
+            _menu.MessengerButton.OnPressed += _ => EntMan.System<PdaMessengerSystem>().Open(Owner);
 
             _menu.FlashLightToggleButton.OnToggled += _ =>
             {
@@ -80,6 +82,7 @@ namespace Content.Client.PDA
             {
                 switch (action)
                 {
+                    case "messenger": EntMan.System<PdaMessengerSystem>().Open(Owner); break;
                     case "flashlight": SendMessage(new PdaToggleFlashlightMessage()); break;
                     case "id": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaIdSlotId)); break;
                     case "pen": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaPenSlotId)); break;

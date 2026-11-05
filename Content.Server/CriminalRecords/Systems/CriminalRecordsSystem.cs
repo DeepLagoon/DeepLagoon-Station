@@ -43,8 +43,17 @@ public sealed partial class CriminalRecordsSystem : SharedCriminalRecordsSystem
 
     private void OnGeneralRecordCreated(AfterGeneralRecordCreatedEvent ev)
     {
-        _records.AddRecordEntry(ev.Key, new CriminalRecord());
-        _records.Synchronize(ev.Key);
+        var criminal = new CriminalRecord();
+        _records.AddRecordEntry(ev.Key, criminal);
+        if (ev.Key.OriginStation == _sectorService.GetServiceEntity() &&
+            ev.Record.JobPrototype is "Fugitive" or "Godfather")
+        {
+            OverwriteStatus(ev.Key, criminal, SecurityStatus.Wanted, Loc.GetString("dl-underground-wanted-reason"));
+        }
+        else
+        {
+            _records.Synchronize(ev.Key);
+        }
     }
 
     /// <summary>

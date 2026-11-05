@@ -46,7 +46,8 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
             return;
         }
 
-        var gridIndices = _map.CoordinatesToTile(targetGrid, targetGrid.Comp, clickPos);
+        var gridClick = _transform.WithEntityId(clickPos, targetGrid);
+        var gridIndices = _map.CoordinatesToTile(targetGrid, targetGrid.Comp, gridClick);
 
         if (!TryGetChunk(repairData, gridIndices, out var chunk))
             return;
@@ -96,29 +97,20 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
                 var cost = repairable.RepairCost;
 
                 // only consider it if it's close enough
-                if ((spec.LocalPosition - clickPos.Position).Length() > ent.Comp.EntitySearchRadius)
+                if ((spec.LocalPosition - gridClick.Position).Length() > ent.Comp.EntitySearchRadius)
                     continue;
 
                 var needsRepair = true;
-                var origUid = spec.OriginalEntity == null ? (EntityUid?)null : GetEntity(spec.OriginalEntity.Value);
-                if (origUid != null && !TerminatingOrDeleted(origUid))
+                if (TryGetOriginal(spec, out var origUid))
                 {
                     var ev = new ShipRepairReinstateQueryEvent(true);
-                    RaiseLocalEvent(origUid.Value, ref ev);
+                    RaiseLocalEvent(origUid, ref ev);
 
-                    if (!ev.Handled)
+                    if (!ev.Handled && !CanRestoreFragment(Transform(origUid), targetGrid)
+                        && !IsLooseDebris(Transform(origUid)))
                     {
-                        // if it's still on a grid, don't repair, else delete it
-                        var origXform = Transform(origUid.Value);
-                        if (origXform.GridUid != null)
-                        {
-                            alreadyExists = true;
-                            continue;
-                        }
-                        else if (_net.IsServer)
-                        {
-                            QueueDel(origUid); // Big PVS does not want us to predict this
-                        }
+                        alreadyExists = true;
+                        continue;
                     }
                     needsRepair = ev.Repairable;
                 }
@@ -219,14 +211,34 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
             if (_net.IsClient || !chunk.Entities.TryGetValue(args.RepairId.Value, out var spec))
                 return;
 
-            // this is technically copypaste code but it's different each time
-            var origUid = spec.OriginalEntity == null ? (EntityUid?)null : GetEntity(spec.OriginalEntity.Value);
-            if (origUid != null && !TerminatingOrDeleted(origUid.Value) && ent.Comp.CheckPreExistingEntities)
+            if (!TryComp<MapGridComponent>(targetGrid, out var grid))
+                return;
+
+            EntityUid? looseDebris = null;
+            if (TryGetOriginal(spec, out var origUid))
             {
                 var ev = new ShipRepairReinstateQueryEvent(true);
-                RaiseLocalEvent(origUid.Value, ref ev);
-                // abort if we can't repair now
-                if (!ev.Handled || !ev.Repairable)
+                RaiseLocalEvent(origUid, ref ev);
+                if (!ev.Handled)
+                {
+                    var original = Transform(origUid);
+                    if (CanRestoreFragment(original, targetGrid))
+                    {
+                        if (TryRestoreFragment(origUid, original, (targetGrid, grid), args.TargetGridIndices, spec))
+                        {
+                            _charges.UseCharges(ent, args.Cost);
+                            args.Handled = true;
+                        }
+
+                        return;
+                    }
+
+                    if (IsLooseDebris(original))
+                        looseDebris = origUid;
+                    else if (ent.Comp.CheckPreExistingEntities)
+                        return;
+                }
+                else if (!ev.Repairable && ent.Comp.CheckPreExistingEntities)
                     return;
             }
 
@@ -235,6 +247,8 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
 
             var spawned = Spawn(protoId, coords);
             _transform.SetLocalRotation(spawned, spec.Rotation);
+            if (looseDebris is { } debris)
+                QueueDel(debris);
 
             spec.OriginalEntity = GetNetEntity(spawned);
 
@@ -248,5 +262,55 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
 
         _charges.UseCharges(ent, args.Cost);
         args.Handled = true;
+    }
+
+    private bool TryGetOriginal(ShipRepairEntitySpecifier spec, out EntityUid original)
+    {
+        original = default;
+        if (spec.OriginalEntity is not { } netEntity || !TryGetEntity(netEntity, out var uid)
+            || TerminatingOrDeleted(uid.Value))
+            return false;
+
+        original = uid.Value;
+        return true;
+    }
+
+    private static bool IsLooseDebris(TransformComponent transform) =>
+        transform.GridUid == null && transform.ParentUid == transform.MapUid;
+
+    private bool CanRestoreFragment(TransformComponent original, EntityUid targetGrid)
+    {
+        return original.Anchored && original.GridUid is { } fragment && fragment != targetGrid
+            && original.ParentUid == fragment
+            && original.MapUid == Transform(targetGrid).MapUid
+            && TryComp<ShipRepairFragmentComponent>(fragment, out var marker)
+            && marker.SourceGrids.Contains(GetNetEntity(targetGrid));
+    }
+
+    private bool TryRestoreFragment(EntityUid original, TransformComponent transform, Entity<MapGridComponent> target,
+        Vector2i indices, ShipRepairEntitySpecifier spec)
+    {
+        if (!_map.TryGetTileRef(target, target.Comp, indices, out var tile) || tile.Tile.IsEmpty)
+            return false;
+
+        var metadata = MetaData(original);
+        var proto = metadata.EntityPrototype;
+        foreach (var entity in _map.GetAnchoredEntities(target, indices))
+        {
+            if (MetaData(entity).EntityPrototype == proto &&
+                Vector2.DistanceSquared(Transform(entity).LocalPosition, spec.LocalPosition) < 0.01f)
+                return false;
+        }
+
+        var previous = transform.Coordinates;
+        var rotation = transform.LocalRotation;
+        _transform.Unanchor(original, transform);
+        _transform.SetCoordinates((original, transform, metadata), new EntityCoordinates(target, spec.LocalPosition), spec.Rotation);
+        if (_transform.AnchorEntity((original, transform, metadata), target))
+            return true;
+
+        _transform.SetCoordinates((original, transform, metadata), previous, rotation);
+        _transform.AnchorEntity((original, transform, metadata));
+        return false;
     }
 }

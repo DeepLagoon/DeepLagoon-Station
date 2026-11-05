@@ -14,6 +14,8 @@ using Content.Shared.IdentityManagement; // Frontier
 using Content.Shared.NPC; // Frontier
 using Content.Server._NF.Salvage; // Frontier
 using Content.Server.Shuttles.Components;
+using Content.Shared.Access.Systems;
+using Content.Shared.Hands.EntitySystems;
 
 namespace Content.Server.Salvage;
 
@@ -24,13 +26,17 @@ public sealed partial class SalvageSystem
     private const float ShuttleFTLMassThreshold = 100f;
 
     [Dependency] private SharedPopupSystem _popupSystem = default!;
+    [Dependency] private AccessReaderSystem _expeditionAccess = default!;
+    [Dependency] private SharedHandsSystem _expeditionHands = default!;
 
     private void OnSalvageClaimMessage(EntityUid uid, SalvageExpeditionConsoleComponent component, ClaimSalvageMessage args)
     {
         var station = _station.GetOwningStation(uid);
 
         // Frontier
-        if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || data.Claimed) // Moved up before the active expedition count
+        if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || data.Claimed ||
+            HasComp<SalvageExpeditionComponent>(Transform(uid).MapUid) ||
+            component.DispatchByDisk && !_expeditionAccess.IsAllowed(args.Actor, uid))
             return;
 
         var activeExpeditionCount = 0;
@@ -51,7 +57,8 @@ public sealed partial class SalvageSystem
         if (!data.Missions.TryGetValue(args.Index, out var missionparams))
             return;
 
-        if (TryComp<StationDataComponent>(station, out var departureStation) &&
+        if (!component.DispatchByDisk &&
+            TryComp<StationDataComponent>(station, out var departureStation) &&
             _station.GetLargestGrid((station.Value, departureStation)) is { Valid: true } departureGrid &&
             IsExpeditionShuttleDocked(departureGrid))
         {
@@ -62,7 +69,7 @@ public sealed partial class SalvageSystem
 
         // Frontier: FTL travel is currently restricted to expeditions and such, and so we need to put this here
         // until FTL changes for us in some way.
-        if (!component.Debug) // Skip the test
+        if (!component.Debug && !component.DispatchByDisk)
         {
             if (!TryComp<StationDataComponent>(station, out var stationData))
                 return;
@@ -101,9 +108,15 @@ public sealed partial class SalvageSystem
         }
         // End Frontier
 
-        // Frontier  change - disable coordinate disks for expedition missions
-        //var cdUid = Spawn(CoordinatesDisk, Transform(uid).Coordinates);
-        SpawnMission(missionparams, station.Value, null);
+        EntityUid? disk = null;
+        if (component.DispatchByDisk)
+        {
+            disk = Spawn(CoordinatesDisk, Transform(args.Actor).Coordinates);
+            _expeditionHands.TryPickupAnyHand(args.Actor, disk.Value);
+            _popupSystem.PopupEntity(Loc.GetString("dl-underground-expedition-disk"), uid, args.Actor);
+        }
+
+        SpawnMission(missionparams, station.Value, disk);
 
         data.ActiveMission = args.Index;
         var mission = GetMission(missionparams.MissionType, missionparams.Difficulty, missionparams.Seed);
@@ -119,7 +132,11 @@ public sealed partial class SalvageSystem
     // Frontier: early expedition end
     private void OnSalvageFinishMessage(EntityUid entity, SalvageExpeditionConsoleComponent component, FinishSalvageMessage e)
     {
-        var station = _station.GetOwningStation(entity);
+        var map = Transform(entity).MapUid;
+        if (!TryComp<SalvageExpeditionComponent>(map, out var expedition))
+            return;
+
+        var station = expedition.DispatchedFromOutpost ? expedition.Station : _station.GetOwningStation(entity);
         if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || !data.CanFinish)
             return;
 
@@ -169,11 +186,6 @@ public sealed partial class SalvageSystem
         data.CanFinish = false;
         UpdateConsoles(station.Value, data);
 
-        var map = Transform(entity).MapUid;
-
-        if (!TryComp<SalvageExpeditionComponent>(map, out var expedition))
-            return;
-
         const int departTime = 20;
         var newEndTime = _timing.CurTime + TimeSpan.FromSeconds(departTime);
 
@@ -200,20 +212,23 @@ public sealed partial class SalvageSystem
 
     private void UpdateConsoles(EntityUid stationUid, SalvageExpeditionDataComponent component)
     {
-        var state = GetState(component);
-
         var query = AllEntityQuery<SalvageExpeditionConsoleComponent, UserInterfaceComponent, TransformComponent>();
-        while (query.MoveNext(out var uid, out _, out var uiComp, out var xform))
+        while (query.MoveNext(out var uid, out var console, out var uiComp, out var xform))
         {
-            var station = _station.GetOwningStation(uid, xform);
-
-            if (station != stationUid)
+            var aboardDispatchedExpedition = TryComp<SalvageExpeditionComponent>(xform.MapUid, out var expedition) &&
+                                              expedition.DispatchedFromOutpost && expedition.Station == stationUid;
+            if (!aboardDispatchedExpedition && _station.GetOwningStation(uid, xform) != stationUid)
                 continue;
 
+            var state = GetState(component);
+            if (console.DispatchByDisk)
+                state.CanFinish = false;
+
             // Frontier: if we have a lingering FTL component, we cannot start a new mission
-            if (!TryComp<StationDataComponent>(station, out var stationData) ||
-                    _station.GetLargestGrid((station!.Value, stationData)) is not { Valid: true } grid ||
-                    HasComp<FTLComponent>(grid))
+            if (!console.DispatchByDisk && !aboardDispatchedExpedition &&
+                (!TryComp<StationDataComponent>(stationUid, out var stationData) ||
+                 _station.GetLargestGrid((stationUid, stationData)) is not { Valid: true } grid ||
+                 HasComp<FTLComponent>(grid)))
             {
                 state.Cooldown = true; //Hack: disable buttons
             }
@@ -238,9 +253,10 @@ public sealed partial class SalvageSystem
         }
 
         // Frontier: if we have a lingering FTL component, we cannot start a new mission
-        if (!TryComp<StationDataComponent>(station, out var stationData) ||
+        if (!component.Comp.DispatchByDisk &&
+            (!TryComp<StationDataComponent>(station, out var stationData) ||
                 _station.GetLargestGrid((station!.Value, stationData)) is not { Valid: true } grid ||
-                HasComp<FTLComponent>(grid))
+                HasComp<FTLComponent>(grid)))
         {
             state.Cooldown = true; //Hack: disable buttons
         }

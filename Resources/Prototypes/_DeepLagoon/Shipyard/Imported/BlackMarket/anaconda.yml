@@ -36,3 +36,25 @@
       - type: StationJobs
         availableJobs:
           Pirate: [ 0, 0 ]
+
+- type: vessel
+  id: UndergroundAnaconda
+  parent: Anaconda
+  name: Anaconda UG
+  group: Syndicate
+  access: Underground
+  installCloakingConsole: true
+
+- type: gameMap
+  id: UndergroundAnaconda
+  mapName: Anaconda UG
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/BlackMarket/anaconda.yml
+  minPlayers: 0
+  stations:
+    UndergroundAnaconda:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Anaconda UGR{1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'

@@ -27,7 +27,6 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
     [Dependency] private SharedTransformSystem _xformSystem = default!;
 
     private EntityQuery<HandsComponent> _handsQuery;
-    private EntityQuery<InventoryComponent> _inventoryQuery;
     private EntityQuery<StorageComponent> _storageQuery;
     private EntityQuery<TransformComponent> _xformQuery;
 
@@ -35,7 +34,6 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
     {
         base.Initialize();
         _handsQuery = GetEntityQuery<HandsComponent>();
-        _inventoryQuery = GetEntityQuery<InventoryComponent>();
         _storageQuery = GetEntityQuery<StorageComponent>();
         _xformQuery = GetEntityQuery<TransformComponent>();
     }
@@ -127,10 +125,10 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
         }
     }
 
-    public void EquipStartingGear(EntityUid entity, LoadoutPrototype loadout, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null)
+    public void EquipStartingGear(EntityUid entity, LoadoutPrototype loadout, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null, List<StartingGearStorageItem>? deferredStorage = null)
     {
-        EquipStartingGear(entity, loadout.StartingGear, raiseEvent, customization, unequippedSlots);
-        EquipStartingGear(entity, (IEquipmentLoadout) loadout, raiseEvent, customization, unequippedSlots);
+        EquipStartingGear(entity, loadout.StartingGear, raiseEvent, customization, unequippedSlots, deferredStorage);
+        EquipStartingGear(entity, (IEquipmentLoadout) loadout, raiseEvent, customization, unequippedSlots, deferredStorage);
 
         // Mono - loadout comps
         EntityManager.AddComponents(entity, loadout.Components);
@@ -139,18 +137,18 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
     /// <summary>
     /// <see cref="EquipStartingGear(Robust.Shared.GameObjects.EntityUid,System.Nullable{Robust.Shared.Prototypes.ProtoId{Content.Shared.Roles.StartingGearPrototype}},bool)"/>
     /// </summary>
-    public void EquipStartingGear(EntityUid entity, ProtoId<StartingGearPrototype>? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null)
+    public void EquipStartingGear(EntityUid entity, ProtoId<StartingGearPrototype>? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null, List<StartingGearStorageItem>? deferredStorage = null)
     {
         PrototypeManager.TryIndex(startingGear, out var gearProto);
-        EquipStartingGear(entity, gearProto, raiseEvent, customization, unequippedSlots);
+        EquipStartingGear(entity, gearProto, raiseEvent, customization, unequippedSlots, deferredStorage);
     }
 
     /// <summary>
     /// <see cref="EquipStartingGear(Robust.Shared.GameObjects.EntityUid,System.Nullable{Robust.Shared.Prototypes.ProtoId{Content.Shared.Roles.StartingGearPrototype}},bool)"/>
     /// </summary>
-    public void EquipStartingGear(EntityUid entity, StartingGearPrototype? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null)
+    public void EquipStartingGear(EntityUid entity, StartingGearPrototype? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null, List<StartingGearStorageItem>? deferredStorage = null)
     {
-        EquipStartingGear(entity, (IEquipmentLoadout?) startingGear, raiseEvent, customization, unequippedSlots);
+        EquipStartingGear(entity, (IEquipmentLoadout?) startingGear, raiseEvent, customization, unequippedSlots, deferredStorage);
     }
 
     /// <summary>
@@ -159,7 +157,7 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
     /// <param name="entity">Entity to load out.</param>
     /// <param name="startingGear">Starting gear to use.</param>
     /// <param name="raiseEvent">Should we raise the event for equipped. Set to false if you will call this manually</param>
-    public void EquipStartingGear(EntityUid entity, IEquipmentLoadout? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null)
+    public void EquipStartingGear(EntityUid entity, IEquipmentLoadout? startingGear, bool raiseEvent = true, PersonalLoadoutCustomization? customization = null, IReadOnlySet<string>? unequippedSlots = null, List<StartingGearStorageItem>? deferredStorage = null)
     {
         if (startingGear == null)
             return;
@@ -198,29 +196,18 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
             }
         }
 
-        if (startingGear.Storage.Count > 0)
+        foreach (var (slot, prototypes) in startingGear.Storage)
         {
-            var coords = _xformSystem.GetMapCoordinates(entity);
-            _inventoryQuery.TryComp(entity, out var inventoryComp);
+            if (prototypes == null)
+                continue;
 
-            foreach (var (slotName, entProtos) in startingGear.Storage)
+            foreach (var prototype in prototypes)
             {
-                if (entProtos == null || entProtos.Count == 0)
-                    continue;
-
-                if (inventoryComp != null &&
-                    InventorySystem.TryGetSlotEntity(entity, slotName, out var slotEnt, inventoryComponent: inventoryComp) &&
-                    _storageQuery.TryComp(slotEnt, out var storage))
-                {
-
-                    foreach (var entProto in entProtos)
-                    {
-                        var spawnedEntity = Spawn(entProto, coords);
-                        EntityManager.System<PersonalLoadoutEquipSystem>().Customize(spawnedEntity, customization);
-
-                        _storage.Insert(slotEnt.Value, spawnedEntity, out _, storageComp: storage, playSound: false);
-                    }
-                }
+                var item = new StartingGearStorageItem(slot, prototype, customization);
+                if (deferredStorage != null)
+                    deferredStorage.Add(item);
+                else
+                    GiveStartingGearStorageItem(entity, item, fallback: false);
             }
         }
 
@@ -230,4 +217,22 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
             RaiseLocalEvent(entity, ref ev);
         }
     }
+
+    protected void GiveStartingGearStorageItem(EntityUid entity, StartingGearStorageItem item, bool fallback)
+    {
+        InventorySystem.TryGetSlotEntity(entity, item.Slot, out var slot);
+        var hasStorage = _storageQuery.TryComp(slot, out var storage);
+        if (!hasStorage && !fallback)
+            return;
+
+        var spawned = Spawn(item.Prototype, _xformSystem.GetMapCoordinates(entity));
+        EntityManager.System<PersonalLoadoutEquipSystem>().Customize(spawned, item.Customization);
+        if (hasStorage && _storage.Insert(slot!.Value, spawned, out _, storageComp: storage, playSound: false))
+            return;
+
+        if (fallback)
+            _handsSystem.TryPickupAnyHand(entity, spawned, checkActionBlocker: false);
+    }
 }
+
+public readonly record struct StartingGearStorageItem(string Slot, EntProtoId Prototype, PersonalLoadoutCustomization? Customization);

@@ -15,6 +15,7 @@
   access:
   - Underground
   special:
+  - !type:RemoveStartingSuitSensorsSpecial
   - !type:GiveItemOnHolidaySpecial
     holiday: FrontierBirthday
     prototype: FrontierBirthdayGift

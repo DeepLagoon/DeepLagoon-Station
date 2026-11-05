@@ -1,0 +1,80 @@
+.PdaMessenger {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #111c2d;
+  color: #e3edf9;
+  font: 14px/1.35 sans-serif;
+
+  header, &__toolbar, &__send, &__preview {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  header {
+    justify-content: space-between;
+    font-size: 17px;
+  }
+  main {
+    min-height: 0;
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(115px, 30%) minmax(0, 1fr);
+    gap: 10px;
+  }
+  aside, section, form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    gap: 6px;
+  }
+  &__contacts, &__history {
+    overflow: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  &__history {
+    flex: 1;
+    background: #0c1626;
+    padding: 7px;
+  }
+  &__contacts button {
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  &__contacts button[aria-pressed='true'] { background: #2b557b; }
+  &__contacts small { display: block; color: #aab9cc; }
+  &__unread { color: #80e5ba; }
+  &__peer { overflow-wrap: anywhere; }
+  &__history article {
+    align-self: flex-start;
+    background: #26364c;
+    border-radius: 6px;
+    padding: 5px 8px;
+    max-width: 85%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  &__history &__outgoing {
+    align-self: flex-end;
+    background: #1e514e;
+  }
+  img { display: block; max-width: 100%; max-height: 180px; }
+  &__preview img { max-width: 80px; max-height: 50px; }
+  &__toolbar { flex-wrap: wrap; }
+  &__send input { flex: 1; min-width: 0; }
+  button, input {
+    padding: 4px 7px;
+    border: 1px solid #406080;
+    border-radius: 4px;
+    background: #1b3048;
+    color: inherit;
+  }
+  button:disabled { opacity: .5; }
+}

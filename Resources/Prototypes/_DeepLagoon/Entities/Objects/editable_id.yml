@@ -1,0 +1,29 @@
+- type: entity
+  parent: IDCardStandard
+  id: DeepLagoonEditableIDCard
+  name: editable identification card
+  description: A blank ID card with editable name and occupation fields.
+  components:
+  - type: Sprite
+    state: default
+  - type: AgentIDCard
+    canCopyAccess: false
+    canChangeJobIcon: false
+  - type: ActivatableUI
+    key: enum.AgentIDCardUiKey.Key
+    inHandsOnly: true
+  - type: UserInterface
+    interfaces:
+      enum.AgentIDCardUiKey.Key:
+        type: AgentIDCardBoundUserInterface
+
+- type: latheRecipe
+  id: DeepLagoonEditableIDCard
+  result: DeepLagoonEditableIDCard
+  completetime: 1
+  materials:
+    Plastic: 100
+
+- type: latheRecipePack
+  id: DeepLagoonEditableIdentification
+  recipes: [DeepLagoonEditableIDCard]

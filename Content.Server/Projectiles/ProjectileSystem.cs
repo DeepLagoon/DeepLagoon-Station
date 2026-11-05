@@ -4,6 +4,7 @@ using Robust.Shared.Threading;
 using System.Linq;
 using System.Numerics;
 using Content.Server.Destructible;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Shared.Damage;
 using Content.Shared.FixedPoint;
 using Content.Shared.Projectiles;
@@ -22,6 +23,8 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
 
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
+
+    [Dependency] private GreenZoneSystem _greenZones = default!;
 
     // <Mono>
     private EntityQuery<PhysicsComponent> _physQuery;
@@ -45,6 +48,19 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
         // Check if projectile is already spent (server-specific check)
         if (component.ProjectileSpent)
             return null;
+
+        if (_greenZones.IsShipProjectile(uid, component))
+        {
+            var start = _transformSystem.GetMapCoordinates(uid);
+            var impact = collisionCoordinates ?? _transformSystem.GetMapCoordinates(target);
+            if (start.MapId == impact.MapId &&
+                _greenZones.TryFindBoundary(start, impact.Position - start.Position, out _))
+            {
+                component.ProjectileSpent = true;
+                QueueDel(uid);
+                return null;
+            }
+        }
 
         var otherName = ToPrettyString(target);
         // Get damage required for destructible before base applies damage
@@ -178,6 +194,14 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
 
             var xform = Transform(uid);
             var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+            if (_greenZones.IsShipProjectile(uid, comp) &&
+                _greenZones.TryFindBoundary(_transformSystem.GetMapCoordinates(xform), vel * frameTime, out _))
+            {
+                comp.ProjectileSpent = true;
+                QueueDel(uid);
+                continue;
+            }
+
             var velLen = vel.Length();
             if (!ShouldRaycastProjectile(velLen) && comp.RaycastResetVelocity == null)
                 continue;

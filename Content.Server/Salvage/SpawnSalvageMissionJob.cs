@@ -133,6 +133,9 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                 Logger.GetSawmill("salvage").Error( $"Expedition generation failed with exception: {errorStackTrace}!");
             if (!success)
             {
+                if (CoordinatesDisk is { } disk)
+                    _entManager.QueueDeleteEntity(disk);
+
                 // Invalidate station, expedition cancellation will be handled by task handler
                 if (_entManager.TryGetComponent<SalvageExpeditionComponent>(mapUid, out var salvage))
                     salvage.Station = EntityUid.Invalid;
@@ -156,19 +159,15 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         var destComp = _entManager.AddComponent<FTLDestinationComponent>(mapUid);
         destComp.BeaconsOnly = true;
         destComp.RequireCoordinateDisk = true;
+        destComp.IgnoreCrossMapDriveRange = CoordinatesDisk.HasValue;
         destComp.Enabled = true;
+        var missionName = _entManager.System<SharedSalvageSystem>().GetFTLName(
+            _prototypeManager.Index<LocalizedDatasetPrototype>("NamesBorer"), _missionParams.Seed);
         _metaData.SetEntityName(
             mapUid,
-            _entManager.System<SharedSalvageSystem>().GetFTLName(_prototypeManager.Index<LocalizedDatasetPrototype>("NamesBorer"), _missionParams.Seed));
-        _entManager.AddComponent<FTLBeaconComponent>(mapUid);
-
-        // Saving the mission mapUid to a CD is made optional, in case one is somehow made in a process without a CD entity
-        if (CoordinatesDisk.HasValue)
-        {
-            var cd = _entManager.EnsureComponent<ShuttleDestinationCoordinatesComponent>(CoordinatesDisk.Value);
-            cd.Destination = mapUid;
-            _entManager.Dirty(CoordinatesDisk.Value, cd);
-        }
+            missionName);
+        if (!CoordinatesDisk.HasValue)
+            _entManager.AddComponent<FTLBeaconComponent>(mapUid);
 
         // Setup mission configs
         // As we go through the config the rating will deplete so we'll go for most important to least important.
@@ -226,6 +225,12 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         expedition.EndTime = _timing.CurTime + mission.Duration;
         expedition.MissionParams = _missionParams;
         expedition.Difficulty = _missionParams.Difficulty;
+        if (CoordinatesDisk.HasValue)
+        {
+            expedition.DispatchedFromOutpost = true;
+            expedition.DispatchDisk = CoordinatesDisk;
+            expedition.MissionDuration = mission.Duration;
+        }
         _entManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().InitializeBudget(mapUid, expedition.Difficulty);
         expedition.Rewards = mission.Rewards.Select(id => new EntProtoId(id)).ToList();
 
@@ -285,7 +290,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         var stationData = _entManager.GetComponent<StationDataComponent>(Station);
 
         // Frontier: get ship bounding box relative to largest grid coords
-        var shuttleUid = _stationSystem.GetLargestGrid((Station, stationData));
+        var shuttleUid = CoordinatesDisk.HasValue ? null : _stationSystem.GetLargestGrid((Station, stationData));
         Box2 shuttleBox = new Box2();
 
         if (shuttleUid is { Valid: true } vesselUid &&
@@ -357,6 +362,22 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                 continue;
             await SpawnDungeonLoot(dungeon, missionBiome, lootProto, mapUid, grid, random, reservedTiles);
         }
+
+        if (CoordinatesDisk is { } dispatchDisk)
+        {
+            // Publish the destination only after the map is ready to receive the crew.
+            expedition.DispatchExpiresAt = _timing.CurTime + TimeSpan.FromMinutes(10);
+            var landing = coords - dungeonRotation.RotateVec(new Vector2(0f, 96f));
+            var beacon = _entManager.SpawnEntity("FTLPoint", new EntityCoordinates(mapUid, landing.Rounded()));
+            _metaData.SetEntityName(beacon, missionName);
+            if (_entManager.TryGetComponent<ShuttleDestinationCoordinatesComponent>(dispatchDisk, out var coordinates))
+            {
+                coordinates.Destination = mapUid;
+                _entManager.Dirty(dispatchDisk, coordinates);
+            }
+            _entManager.System<ShuttleConsoleSystem>().RefreshShuttleConsoles();
+        }
+
         return true;
     }
 

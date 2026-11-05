@@ -1,0 +1,36 @@
+- type: entity
+  parent: BaseShipLPCOneUse
+  id: ShipVoucherUnderground
+  name: Underground ship voucher
+  description: Redeem it at the Underground shipyard for one Mudskipper or Gungnir.
+  components:
+  - type: ShipyardVoucher
+    consoleType: Syndicate
+    vessels: [Mudskipper, UndergroundGungnir]
+
+- type: Tag
+  id: UndergroundVoucherVendor
+
+- type: entity
+  parent: VendingMachineSyndieContrabandPOI
+  id: VendingMachineUndergroundRequisitions
+  name: UndergroundVend
+  description: Sells black market equipment and Underground ship vouchers.
+  components:
+  - type: AccessReader
+    access: [[Underground]]
+  - type: Tag
+    tags: [UndergroundVoucherVendor]
+
+- type: listing
+  id: UplinkUndergroundShipVoucher
+  name: dl-underground-ship-voucher
+  description: dl-underground-ship-voucher-desc
+  productEntity: ShipVoucherUnderground
+  cost:
+    Telecrystal: 100
+  categories: [UplinkPointless]
+  conditions:
+  - !type:StoreWhitelistCondition
+    whitelist:
+      tags: [UndergroundVoucherVendor]

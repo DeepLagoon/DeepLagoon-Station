@@ -40,6 +40,6 @@ public sealed class PlantAnalyzerBoundUserInterface(EntityUid owner, Enum uiKey)
         if (_state is not { } state)
             return;
 
-        _window?.Update(state);
+        _window?.QueueUpdate(state);
     }
 }

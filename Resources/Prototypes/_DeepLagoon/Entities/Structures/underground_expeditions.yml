@@ -1,0 +1,10 @@
+- type: entity
+  parent: [BaseStructureDisableToolUse, ComputerTabletopSalvageExpedition]
+  id: ComputerTabletopUndergroundExpeditions
+  name: underground expedition terminal
+  description: Issues coordinate disks for underground expeditions and pays successful crews in telecrystals.
+  components:
+  - type: AccessReader
+    access: [[Underground]]
+  - type: SalvageExpeditionConsole
+    dispatchByDisk: true

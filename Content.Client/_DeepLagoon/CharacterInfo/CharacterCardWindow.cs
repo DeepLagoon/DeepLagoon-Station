@@ -19,13 +19,13 @@ public sealed class CharacterCardWindow : FancyWindow
     private readonly CardHost _host;
     private readonly TguiData _data;
     private readonly Dictionary<string, string> _headshots = new();
-    private CharacterCardWindow(EntityUid entity, string name, string flavor, string ooc, byte erp, byte nonCon, byte vore, int slot)
+    private CharacterCardWindow(EntityUid entity, string name, string speciesName, string flavor, string ooc, byte erp, byte nonCon, byte vore, int slot)
     {
         _entity = entity;
         _slot = slot;
         Title=Loc.GetString("dl-character-card-title"); SetSize=new Vector2(950,740); MinSize=new Vector2(640,600);
         _sprite.SetEntity(entity);
-        _data=new TguiData().String("name",name).String("flavor",flavor).String("ooc",ooc).Number("erp",erp).Number("noncon",nonCon).Number("vore",vore);
+        _data=new TguiData().String("name",name).String("speciesName",speciesName).String("flavor",flavor).String("ooc",ooc).Number("erp",erp).Number("noncon",nonCon).Number("vore",vore);
         _host=new CardHost(_panel,_sprite); ContentsContainer.AddChild(_host);
         _panel.OnAction += (action,_)=>
         {
@@ -40,7 +40,7 @@ public sealed class CharacterCardWindow : FancyWindow
         _panel.SetState("CharacterCard",_data.ToString());
         OnClose+=Dispose;
     }
-    public static void Open(EntityUid entity,string name,string flavor,string ooc,byte erp,byte nonCon,byte vore,int slot)
+    public static void Open(EntityUid entity,string name,string flavor,string ooc,byte erp,byte nonCon,byte vore,int slot,string speciesName = "")
     {
         var existing = IoCManager.Resolve<IUserInterfaceManager>().WindowRoot.Children
             .OfType<CharacterCardWindow>().FirstOrDefault(window => !window.Disposed && window._entity == entity && window._slot == slot);
@@ -49,7 +49,7 @@ public sealed class CharacterCardWindow : FancyWindow
             existing.MoveToFront();
             return;
         }
-        var window=new CharacterCardWindow(entity,name,flavor,ooc,erp,nonCon,vore,slot);window.OpenCentered();
+        var window=new CharacterCardWindow(entity,name,speciesName,flavor,ooc,erp,nonCon,vore,slot);window.OpenCentered();
         var entities=IoCManager.Resolve<IEntityManager>();
         entities.System<HeadshotSystem>().Read(slot,slot<0?entities.GetNetEntity(entity):null,(bytes,mime,_,error)=>
         {

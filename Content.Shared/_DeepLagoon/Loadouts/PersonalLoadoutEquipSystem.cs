@@ -5,6 +5,8 @@ using Content.Shared.Inventory;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
+using Content.Shared.Storage;
+using Content.Shared.Storage.EntitySystems;
 using Robust.Shared.GameStates;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -28,6 +30,7 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
     [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private ToggleableClothingSystem _toggleable = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private SharedStorageSystem _storage = default!;
 
     public void Customize(EntityUid item, PersonalLoadoutCustomization? data)
     {
@@ -107,11 +110,16 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                                 continue;
                             if (!_inventory.TryUnequip(character, slot.Name, silent: true, force: true))
                                 continue;
-                            Del(previous);
                         }
                         equipped = _inventory.TryEquip(character, item, slot.Name, silent: true, force: true);
                         if (equipped)
+                        {
+                            if (previous is { } replaced)
+                                RetireReplacedItem(replaced, item, failed, preview);
                             break;
+                        }
+                        if (previous is { } original)
+                            _inventory.TryEquip(character, original, slot.Name, silent: true, force: true);
                     }
                 }
                 if (!equipped)
@@ -124,5 +132,26 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
             }
         }
         return failed;
+    }
+
+    private void RetireReplacedItem(EntityUid previous, EntityUid replacement, List<EntityUid> overflow, bool preview)
+    {
+        if (!preview && TryComp<StorageComponent>(previous, out var oldStorage))
+        {
+            if (TryComp<StorageComponent>(replacement, out var newStorage))
+            {
+                foreach (var item in oldStorage.Container.ContainedEntities.ToArray())
+                    _storage.Insert(replacement, item, out _, storageComp: newStorage, playSound: false);
+            }
+
+            // The old bag remains available when some of its contents do not fit.
+            if (oldStorage.Container.ContainedEntities.Count > 0)
+            {
+                overflow.Add(previous);
+                return;
+            }
+        }
+
+        Del(previous);
     }
 }

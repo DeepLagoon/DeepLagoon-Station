@@ -30,7 +30,12 @@ public sealed partial class HitscanBasicRaycastSystem : EntitySystem
         var shooter = args.Shooter ?? args.Gun;
         var mapCords = _transform.ToMapCoordinates(args.FromCoordinates);
         var ray = new CollisionRay(mapCords.Position, args.ShotDirection, (int) ent.Comp.CollisionMask);
-        var rayCastResults = _physics.IntersectRay(mapCords.MapId, ray, ent.Comp.MaxDistance, shooter, false);
+        var limit = new GetHitscanRangeEvent(mapCords, args.ShotDirection, ent.Comp.MaxDistance);
+        RaiseLocalEvent(args.Gun, ref limit);
+        if (limit.Range <= 0f)
+            return;
+
+        var rayCastResults = _physics.IntersectRay(mapCords.MapId, ray, limit.Range, shooter, false);
 
         var target = args.Target;
         // If you are in a container, use the raycast result
@@ -49,7 +54,7 @@ public sealed partial class HitscanBasicRaycastSystem : EntitySystem
             Gun = args.Gun,
             Shooter = args.Shooter,
             HitEntities = [], // Mono
-            DistanceTried = result?.Distance ?? ent.Comp.MaxDistance,
+            DistanceTried = result?.Distance ?? limit.Range,
         };
 
         if (result?.HitEntity != null) // Mono

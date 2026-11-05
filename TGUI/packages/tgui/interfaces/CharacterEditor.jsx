@@ -21,11 +21,11 @@ const Select = ({ label, value, options = [], onChange, disabled }) => <Field la
   <Dropdown aria-label={label} selected={String(value ?? '')} disabled={disabled} width="100%"
     options={options.map(option => ({ value: String(option.id), displayText: option.name }))}
     onSelected={onChange} /></Field>;
-const DraftInput = ({ label, value, onCommit, type = 'text', min, max }) => {
+const DraftInput = ({ label, value, onCommit, type = 'text', min, max, maxLength }) => {
   const [draft, setDraft] = useState(String(value ?? ''));
   useEffect(() => setDraft(String(value ?? '')), [value]);
   const commit = () => { if (draft !== String(value)) onCommit(type === 'number' ? Number(draft) : draft); };
-  return <Field label={label}><input aria-label={label} type={type} min={min} max={max} value={draft}
+  return <Field label={label}><input aria-label={label} type={type} min={min} max={max} maxLength={maxLength} value={draft}
     onChange={event => setDraft(event.target.value)} onBlur={commit}
     onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /></Field>;
 };
@@ -297,6 +297,7 @@ export const CharacterEditor = () => {
       <div className="CharacterEditor__grid">
         <div className="CharacterEditor__speciesRow"><Select label="Раса" value={data.species} options={data.speciesOptions} onChange={change('species')} />
           <Button role="button" className="CharacterEditor__speciesGuide" icon="book" aria-label="Справка о расе" onClick={() => act('species-guide')}>Справка о расе</Button></div>
+        <DraftInput label="Кастомное название расы" value={data.customSpeciesName} maxLength={data.maxCustomSpeciesNameLength} onCommit={change('custom-species-name')} />
         <DraftInput label="Возраст" type="number" min={data.minAge} max={data.maxAge} value={data.age} onCommit={change('age')} />
         <Select label="Пол" value={data.sex} options={data.sexOptions} onChange={change('sex')} />
         <Select label="Местоимения" value={data.gender} options={data.genderOptions} onChange={change('gender')} />

@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Server._EinsteinEngines.Silicon.IPC;
 using Content.Shared.Roles;
 using Content.Shared.Radio.Components;
 using Content.Shared.Inventory;
@@ -22,7 +23,8 @@ public sealed partial class LoadoutEncryptionKeySlottingSystem : EntitySystem
     {
         base.Initialize();
         // Listen for when starting gear is equipped on any character
-        SubscribeLocalEvent<HumanoidAppearanceComponent, StartingGearEquippedEvent>(OnStartingGearEquipped);
+        SubscribeLocalEvent<HumanoidAppearanceComponent, StartingGearEquippedEvent>(OnStartingGearEquipped,
+            after: [typeof(InternalEncryptionKeySpawner)]);
     }
 
     private void OnStartingGearEquipped(EntityUid uid, HumanoidAppearanceComponent component, ref StartingGearEquippedEvent args)

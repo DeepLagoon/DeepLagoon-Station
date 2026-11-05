@@ -34,6 +34,7 @@ namespace Content.Shared.Preferences
         public const int MaxNameLength = 32;
         public const int MaxLoadoutNameLength = 32;
         public const int MaxDescLength = 4096;
+        public const int MaxCustomSpeciesNameLength = 48;
 
         public const int DefaultBalance = 75000;
 
@@ -91,6 +92,25 @@ namespace Content.Shared.Preferences
         /// </summary>
         [DataField]
         public ProtoId<SpeciesPrototype> Species { get; set; } = SharedHumanoidAppearanceSystem.DefaultSpecies;
+
+        [DataField]
+        public string CustomSpeciesName { get; set; } = string.Empty;
+
+        public HumanoidCharacterProfile WithCustomSpeciesName(string value) =>
+            new(this) { CustomSpeciesName = NormalizeCustomSpeciesName(value) };
+
+        private static string NormalizeCustomSpeciesName(string value)
+        {
+            var text = new string(value.Where(c => !char.IsControl(c) && c is not '\u2028' and not '\u2029').ToArray()).Trim();
+            if (text.Length <= MaxCustomSpeciesNameLength)
+                return text;
+
+            var length = MaxCustomSpeciesNameLength;
+            if (char.IsHighSurrogate(text[length - 1]))
+                length--;
+
+            return text[..length].TrimEnd();
+        }
 
         [DataField]
         public int Age { get; set; } = 18;
@@ -218,6 +238,7 @@ namespace Content.Shared.Preferences
             CopyInteractionPanelPreferences(other);
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
+            CustomSpeciesName = other.CustomSpeciesName;
         }
 
         /// <summary>Copy constructor</summary>
@@ -244,6 +265,7 @@ namespace Content.Shared.Preferences
             CopyInteractionPanelPreferences(other);
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
+            CustomSpeciesName = other.CustomSpeciesName;
         }
 
         /// <summary>
@@ -523,7 +545,7 @@ namespace Content.Shared.Preferences
             if (BankBalance != other.BankBalance) return false;
             if (PreferenceUnavailable != other.PreferenceUnavailable) return false;
             if (SpawnPriority != other.SpawnPriority) return false;
-            if (Species != other.Species) return false;
+            if (Species != other.Species || CustomSpeciesName != other.CustomSpeciesName) return false;
             if (Company != other.Company) return false;
             if (!Flags.SequenceEqual(other.Flags)) return false; // Mono
             if (!Components.SequenceEqual(other.Components)) return false; // Mono
@@ -629,6 +651,7 @@ namespace Content.Shared.Preferences
 
             var flavortext = FlavorText[..Math.Min(FlavorText.Length, MaxDescLength)];
             OocNotes = OocNotes[..Math.Min(OocNotes.Length, MaxDescLength)];
+            CustomSpeciesName = NormalizeCustomSpeciesName(CustomSpeciesName);
 
             // Frontier
             //make sure theres no funny bank stuff going on
@@ -787,6 +810,7 @@ namespace Content.Shared.Preferences
             hashCode.Add(OocNotes);
             hashCode.Add(HeadshotId);
             hashCode.Add(Species);
+            hashCode.Add(CustomSpeciesName);
             hashCode.Add(Age);
             hashCode.Add((int)Sex);
             hashCode.Add((int)Gender);

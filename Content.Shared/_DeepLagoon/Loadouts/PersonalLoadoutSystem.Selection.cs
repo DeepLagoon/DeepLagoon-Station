@@ -67,11 +67,11 @@ public sealed partial class PersonalLoadoutSystem
 
     public bool FullyUnequipped(LoadoutPrototype item, IReadOnlySet<string> unequipped)
     {
-        if (unequipped.Count == 0 || item.Inhand.Count > 0 || item.Components.Count > 0) return false;
+        if (unequipped.Count == 0 || item.Inhand.Count > 0 || item.Storage.Count > 0 || item.Components.Count > 0) return false;
         var equipment = item.Equipment.Keys.AsEnumerable();
         if (_prototypes.TryIndex(item.StartingGear, out var gear))
         {
-            if (gear.Inhand.Count > 0) return false;
+            if (gear.Inhand.Count > 0 || gear.Storage.Count > 0) return false;
             equipment = equipment.Concat(gear.Equipment.Keys);
         }
         var slots = equipment.ToArray();

@@ -39743,7 +39743,7 @@ entities:
       powerLoad: 5
     - type: Battery
       startingCharge: 0
-- proto: ComputerTabletopBroken
+- proto: ComputerTabletopUndergroundExpeditions
   entities:
   - uid: 2175
     mapInit: true
@@ -97302,7 +97302,7 @@ entities:
     - type: Advertise
       nextAdvertisementTime: 643.66656
     - type: ActionsContainer
-- proto: VendingMachineSyndieContrabandPOI
+- proto: VendingMachineUndergroundRequisitions
   entities:
   - uid: 4919
     mapInit: true

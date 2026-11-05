@@ -51,6 +51,11 @@ public sealed partial class FTLComponent : Component
     public Angle TargetAngle;
 
     /// <summary>
+    /// Recheck the destination and find a free point when this expedition shuttle leaves hyperspace.
+    /// </summary>
+    public bool SafeExpeditionReturn;
+
+    /// <summary>
     /// If we're docking after FTL what is the prioritised dock tag (if applicable).
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite), DataField]

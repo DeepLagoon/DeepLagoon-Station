@@ -194,6 +194,14 @@ namespace Content.Client.Lobby.UI
             #region Name
 
             NameEdit.OnTextChanged += args => { SetName(args.Text); };
+            CustomSpeciesNameEdit.OnTextChanged += args =>
+            {
+                if (Profile == null)
+                    return;
+
+                Profile = Profile.WithCustomSpeciesName(args.Text);
+                SetDirty();
+            };
             NameRandomize.OnPressed += args => RandomizeName();
             RandomizeEverythingButton.OnPressed += args => { RandomizeEverything(); };
             WarningLabel.SetMarkup($"[color=red]{Loc.GetString("humanoid-profile-editor-naming-rules-warning")}[/color]");
@@ -1462,6 +1470,7 @@ namespace Content.Client.Lobby.UI
         private void UpdateNameEdit()
         {
             NameEdit.Text = Profile?.Name ?? "";
+            CustomSpeciesNameEdit.Text = Profile?.CustomSpeciesName ?? "";
         }
 
         private void UpdateFlavorTextEdit()

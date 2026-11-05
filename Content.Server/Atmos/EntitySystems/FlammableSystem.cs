@@ -7,6 +7,7 @@ using Content.Server.Damage.Components;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Alert;
 using Content.Shared.Atmos;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Damage;
 using Content.Shared.Database;
@@ -357,12 +358,14 @@ namespace Content.Server.Atmos.EntitySystems
             }
         }
 
-        public void Extinguish(EntityUid uid, FlammableComponent? flammable = null)
+        [Dependency] private GreenZoneSystem _greenZones = default!;
+
+        public void Extinguish(EntityUid uid, FlammableComponent? flammable = null, bool force = false)
         {
             if (!Resolve(uid, ref flammable))
                 return;
 
-            if (!flammable.OnFire || !flammable.CanExtinguish)
+            if (!flammable.OnFire || !force && !flammable.CanExtinguish)
                 return;
 
             _adminLogger.Add(LogType.Flammable, $"{ToPrettyString(uid):entity} stopped being on fire damage");
@@ -387,6 +390,12 @@ namespace Content.Server.Atmos.EntitySystems
         {
             if (!Resolve(uid, ref flammable))
                 return;
+
+            if (_greenZones.SuppressesFire(uid))
+            {
+                Extinguish(uid, flammable, force: true);
+                return;
+            }
 
             // _Mono: Used to intercept and remove the event on things like Cortical Borers inside hosts.
             var igniteCheck = new TryIgniteEvent();
@@ -512,6 +521,12 @@ namespace Content.Server.Atmos.EntitySystems
                 {
                     _alertsSystem.ClearAlert(uid, flammable.FireAlert);
                     RaiseLocalEvent(uid, new Content.Shared.Mood.MoodRemoveEffectEvent("OnFire"));
+                    continue;
+                }
+
+                if (_greenZones.SuppressesFire(uid))
+                {
+                    Extinguish(uid, flammable, force: true);
                     continue;
                 }
 

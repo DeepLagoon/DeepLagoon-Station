@@ -241,8 +241,8 @@ public abstract partial class SharedShuttleSystem : EntitySystem
 
         var range = GetFTLRange(shuttleUid);
 
-        // Check range even if it's cross-map.
-        if (range <= 0 || (targetPosition - ourPos).Length() > range)
+        if (range <= 0 || (!IgnoresCrossMapDriveRange(shuttleXform.MapID, mapCoordinates.MapId) &&
+                           (targetPosition - ourPos).Length() > range))
         {
             return false;
         }
@@ -253,6 +253,9 @@ public abstract partial class SharedShuttleSystem : EntitySystem
         {
             foreach (var exclusion in exclusionZones)
             {
+                if (exclusion.IsGreenZone)
+                    continue;
+
                 var exclusionCoords = XformSystem.ToMapCoordinates(GetCoordinates(exclusion.Coordinates));
 
                 if (exclusionCoords.MapId != mapCoordinates.MapId)
@@ -291,7 +294,8 @@ public abstract partial class SharedShuttleSystem : EntitySystem
 
         var targetMapCoordinates = XformSystem.ToMapCoordinates(coordinates);
 
-        if (targetMapCoordinates == MapCoordinates.Nullspace)
+        if (targetMapCoordinates == MapCoordinates.Nullspace ||
+            IgnoresCrossMapDriveRange(shuttleTransform.MapID, targetMapCoordinates.MapId))
             return coordinates;
 
         var targetPosition = targetMapCoordinates.Position;
@@ -306,6 +310,13 @@ public abstract partial class SharedShuttleSystem : EntitySystem
             return coordinates.WithPosition(shuttlePosition + shuttleToTarget.Normalized() * maximumDistance);
 
         return coordinates;
+    }
+
+    private bool IgnoresCrossMapDriveRange(MapId origin, MapId destination)
+    {
+        return origin != destination &&
+               TryComp<FTLDestinationComponent>(_mapManager.GetMap(destination), out var entry) &&
+               entry.RequireCoordinateDisk && entry.IgnoreCrossMapDriveRange;
     }
 }
 

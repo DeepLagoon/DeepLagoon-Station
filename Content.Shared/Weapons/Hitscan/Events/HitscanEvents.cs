@@ -82,6 +82,9 @@ public record struct HitscanRaycastFiredEvent
 }
 
 [ByRefEvent]
+public record struct GetHitscanRangeEvent(MapCoordinates Start, Vector2 Direction, float Range);
+
+[ByRefEvent]
 public record struct HitscanDamageDealtEvent
 {
     /// <summary>

@@ -177,6 +177,7 @@
   id: MedicatedSutureAssembler
   result: MedicatedSuture
   completetime: 5
+  matchEntityStacks: true
   entities:
     Brutepack: 1
     MaterialCloth1: 1
@@ -188,6 +189,7 @@
   id: RegenerativeMeshAssembler
   result: RegenerativeMesh
   completetime: 5
+  matchEntityStacks: true
   entities:
     Ointment: 1
     MaterialCloth1: 1

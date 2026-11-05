@@ -12,6 +12,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
 namespace Content.Client.Botany.UI;
@@ -25,6 +26,7 @@ public sealed partial class PlantAnalyzerWindow : FancyWindow
     [Dependency] private IEntityManager _entityManager = default!;
     private readonly BotanySystem _botanySystem;
     private readonly PlantSystem _plantSystem;
+    private BotanyAnalyzerState? _pendingState;
 
     public PlantAnalyzerWindow()
     {
@@ -32,6 +34,21 @@ public sealed partial class PlantAnalyzerWindow : FancyWindow
         IoCManager.InjectDependencies(this);
         _botanySystem = _entityManager.System<BotanySystem>();
         _plantSystem = _entityManager.System<PlantSystem>();
+    }
+
+    public void QueueUpdate(BotanyAnalyzerState state)
+    {
+        _pendingState = state;
+    }
+
+    protected override void FrameUpdate(FrameEventArgs args)
+    {
+        base.FrameUpdate(args);
+        if (_pendingState is not { } state)
+            return;
+
+        _pendingState = null;
+        Update(state);
     }
 
     public void Update(BotanyAnalyzerState state)

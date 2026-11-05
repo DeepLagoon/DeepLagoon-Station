@@ -11,8 +11,8 @@ using Content.Shared.Mobs.Systems;
 using Content.Shared.Salvage.Expeditions;
 using Robust.Shared.Map;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.Shuttles.Systems;
 using Content.Shared.Localizations;
-using Content.Shared.Station.Components;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
@@ -88,7 +88,7 @@ public sealed partial class SalvageSystem
 
     private void OnFTLRequest(ref FTLRequestEvent ev)
     {
-        if (!HasComp<SalvageExpeditionComponent>(ev.MapUid) ||
+        if (!TryComp<SalvageExpeditionComponent>(ev.MapUid, out var expedition) ||
             !TryComp<FTLDestinationComponent>(ev.MapUid, out var dest))
         {
             return;
@@ -96,6 +96,9 @@ public sealed partial class SalvageSystem
 
         // Only one shuttle can occupy an expedition.
         dest.Enabled = false;
+        Dirty(ev.MapUid, dest);
+        if (expedition.DispatchExpiresAt != null)
+            expedition.DispatchExpiresAt = _timing.CurTime + TimeSpan.FromMinutes(5);
         _shuttleConsoles.RefreshShuttleConsoles();
     }
 
@@ -103,6 +106,17 @@ public sealed partial class SalvageSystem
     {
         if (!TryComp<SalvageExpeditionComponent>(args.MapUid, out var component))
             return;
+
+        if (component.DispatchExpiresAt != null)
+        {
+            component.DispatchExpiresAt = null;
+            component.EndTime = _timing.CurTime + component.MissionDuration;
+            if (TryComp<FTLDestinationComponent>(args.MapUid, out var destination))
+            {
+                destination.Enabled = false;
+                Dirty(args.MapUid, destination);
+            }
+        }
 
         // Frontier
         if (TryComp<SalvageExpeditionDataComponent>(component.Station, out var data))
@@ -129,10 +143,16 @@ public sealed partial class SalvageSystem
 
     private void OnFTLStarted(ref FTLStartedEvent ev)
     {
+        var destination = _transform.GetMap(ev.TargetCoordinates);
+        if (ev.FromMapUid is { } origin && origin != destination &&
+            TryComp<SalvageExpeditionComponent>(destination, out var incomingExpedition))
+        {
+            incomingExpedition.ReturnLocations[ev.Entity] =
+                (new EntityCoordinates(origin, ev.FTLFrom.Translation), ev.FromRotation);
+        }
+
         // Started a mining mission so work out exempt entities
-        if (TryComp<SalvageMiningExpeditionComponent>(
-                _mapManager.GetMap(ev.TargetCoordinates.ToMap(EntityManager, _transform).MapId),
-                out var mining))
+        if (TryComp<SalvageMiningExpeditionComponent>(destination, out var mining))
         {
             var ents = new List<EntityUid>();
             var xformQuery = GetEntityQuery<TransformComponent>();
@@ -155,7 +175,8 @@ public sealed partial class SalvageSystem
         while (query.MoveNext(out var shuttleUid, out _, out var xform))
         {
             if (xform.MapUid == ev.FromMapUid &&
-                _station.GetOwningStation(shuttleUid, xform) == expedition.Station)
+                (expedition.ReturnLocations.ContainsKey(shuttleUid) ||
+                 _station.GetOwningStation(shuttleUid, xform) == expedition.Station))
                 return;
         }
 
@@ -167,12 +188,23 @@ public sealed partial class SalvageSystem
     private void UpdateRunner()
     {
         // Generic missions
-        var query = EntityQueryEnumerator<SalvageExpeditionComponent>();
+        var query = AllEntityQuery<SalvageExpeditionComponent, MetaDataComponent>();
 
         // Run the basic mission timers (e.g. announcements, auto-FTL, completion, etc)
-        while (query.MoveNext(out var uid, out var comp))
+        while (query.MoveNext(out var uid, out var comp, out var metadata))
         {
+            if (comp.DispatchExpiresAt is { } dispatchExpiry)
+            {
+                if (_timing.CurTime >= dispatchExpiry)
+                    QueueDel(uid);
+                continue;
+            }
+
+            if (metadata.EntityPaused)
+                continue;
+
             var remaining = comp.EndTime - _timing.CurTime;
+            var pendingDeparture = false;
             var audioLength = _audio.GetAudioLength(comp.SelectedSong);
 
             if (comp.Stage < ExpeditionStage.FinalCountdown && remaining < TimeSpan.FromSeconds(45))
@@ -199,78 +231,47 @@ public sealed partial class SalvageSystem
             // Auto-FTL out any shuttles
             else if (remaining < TimeSpan.FromSeconds(_shuttle.DefaultStartupTime) + TimeSpan.FromSeconds(0.5))
             {
-                var ftlTime = (float) remaining.TotalSeconds;
-
-                if (remaining < TimeSpan.FromSeconds(_shuttle.DefaultStartupTime))
-                {
-                    ftlTime = MathF.Max(0, (float) remaining.TotalSeconds - 0.5f);
-                }
-
-                ftlTime = MathF.Min(ftlTime, _shuttle.DefaultStartupTime);
+                var ftlTime = Math.Clamp((float) remaining.TotalSeconds - 0.5f, 0f, _shuttle.DefaultStartupTime);
                 var shuttleQuery = AllEntityQuery<ShuttleComponent, TransformComponent>();
+                var departingGroup = new HashSet<EntityUid>();
 
-                if (TryComp<StationDataComponent>(comp.Station, out var data))
+                while (shuttleQuery.MoveNext(out var shuttleUid, out var shuttle, out var shuttleXform))
                 {
-                    foreach (var member in data.Grids)
+                    if (shuttleXform.MapUid != uid || departingGroup.Contains(shuttleUid))
+                        continue;
+
+                    if (TryComp<FTLComponent>(shuttleUid, out var ftl))
                     {
-                        while (shuttleQuery.MoveNext(out var shuttleUid, out var shuttle, out var shuttleXform))
+                        if (ftl.State == FTLState.Starting)
                         {
-                            if (shuttleXform.MapUid != uid || HasComp<FTLComponent>(shuttleUid))
-                                continue;
-
-                            // Frontier: try to find a potential destination for ship that doesn't collide with other grids.
-                            var mapId = _gameTicker.DefaultMap;
-                            if (!_mapSystem.TryGetMap(mapId, out var mapUid))
-                            {
-                                Log.Error($"Could not get DefaultMap EntityUID, shuttle {shuttleUid} may be stuck on expedition.");
-                                continue;
-                            }
-
-                            // Destination generator parameters (move to CVAR?)
-                            int numRetries = 20; // Maximum number of retries
-                            float minDistance = 200f; // Minimum distance from another object, in meters
-                            float minRange = 750f; // Minimum distance from sector centre, in meters
-                            float maxRange = 3500f; // Maximum distance from sector centre, in meters
-
-                            // Get a list of all grid positions on the destination map
-                            List<Vector2> gridCoords = new();
-                            var gridQuery = AllEntityQuery<MapGridComponent, TransformComponent>();
-                            while (gridQuery.MoveNext(out var _, out _, out var xform))
-                            {
-                                if (xform.MapID == mapId)
-                                    gridCoords.Add(_transform.GetWorldPosition(xform));
-                            }
-
-                            Vector2 dropLocation = _random.NextVector2(minRange, maxRange);
-                            for (int i = 0; i < numRetries; i++)
-                            {
-                                bool positionIsValid = true;
-                                foreach (var station in gridCoords)
-                                {
-                                    if (Vector2.Distance(station, dropLocation) < minDistance)
-                                    {
-                                        positionIsValid = false;
-                                        break;
-                                    }
-                                }
-
-                                if (positionIsValid)
-                                    break;
-
-                                // No good position yet, pick another random position.
-                                dropLocation = _random.NextVector2(minRange, maxRange);
-                            }
-
-                            _shuttle.FTLToCoordinates(shuttleUid, shuttle, new EntityCoordinates(mapUid.Value, dropLocation), 0f, 5.5f, 50f);
-                            // End Frontier:  try to find a potential destination for ship that doesn't collide with other grids.
+                            pendingDeparture = true;
+                            _shuttle.GetAllDockedShuttles(shuttleUid, departingGroup);
                         }
+                        continue;
+                    }
 
-                        break;
+                    var hasOrigin = comp.ReturnLocations.TryGetValue(shuttleUid, out var origin);
+                    if (!hasOrigin && _station.GetOwningStation(shuttleUid, shuttleXform) != comp.Station)
+                        continue;
+
+                    if (!hasOrigin || TerminatingOrDeleted(origin.Coordinates.EntityId))
+                    {
+                        if (!_mapSystem.TryGetMap(_gameTicker.DefaultMap, out var fallbackMap))
+                            continue;
+
+                        origin = (new EntityCoordinates(fallbackMap.Value, new Vector2(1500f, 0f)), Angle.Zero);
+                    }
+
+                    _shuttle.FTLToCoordinates(shuttleUid, shuttle, origin.Coordinates, origin.Rotation, ftlTime, 50f, safeExpeditionReturn: true);
+                    if (HasComp<FTLComponent>(shuttleUid))
+                    {
+                        pendingDeparture = true;
+                        _shuttle.GetAllDockedShuttles(shuttleUid, departingGroup);
                     }
                 }
             }
 
-            if (remaining < TimeSpan.Zero)
+            if (remaining < TimeSpan.Zero && !pendingDeparture)
             {
                 QueueDel(uid);
             }

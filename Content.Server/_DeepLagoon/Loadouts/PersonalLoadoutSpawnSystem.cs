@@ -1,9 +1,11 @@
+using Content.Server.Station.Systems;
 using Content.Server.Traits;
 using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Examine;
 using Content.Shared.GameTicking;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Inventory;
+using Content.Shared.Station;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
 
@@ -15,6 +17,7 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
     [Dependency] private InventorySystem _inventory = default!;
     [Dependency] private SharedStorageSystem _storage = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private StationSpawningSystem _spawning = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
 
     public override void Initialize()
@@ -26,9 +29,10 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
 
     private void OnSpawned(PlayerSpawnCompleteEvent args)
     {
-        if (args.JobId == null)
+        var failed = args.JobId is { } job ? _equipment.Apply(args.Mob, args.Profile, job, args.Player) : null;
+        _spawning.FinishDeferredStartingGear(args.Mob);
+        if (failed == null)
             return;
-        var failed = _equipment.Apply(args.Mob, args.Profile, args.JobId, args.Player);
         foreach (var item in failed)
         {
             if (_inventory.TryGetSlotEntity(args.Mob, "back", out var backpack) && HasComp<StorageComponent>(backpack) && _storage.Insert(backpack.Value, item, out _, playSound: false))
@@ -43,4 +47,11 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
         if (_appearance.TryGetData<bool>(uid, PersonalLoadoutVisuals.Heirloom, out var heirloom) && heirloom)
             args.PushMarkup(Loc.GetString("dl-loadout-heirloom-examine"));
     }
+}
+
+
+[RegisterComponent]
+public sealed partial class DeferredStartingGearComponent : Component
+{
+    public List<StartingGearStorageItem> Items = new();
 }

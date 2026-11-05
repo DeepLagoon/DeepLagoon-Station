@@ -36,3 +36,25 @@
       - type: StationJobs
         availableJobs:
           Pirate: [ 0, 0 ]
+
+- type: vessel
+  id: UndergroundGungnir
+  parent: Gungnir
+  name: Gungnir UG
+  group: Syndicate
+  access: Underground
+  installCloakingConsole: true
+
+- type: gameMap
+  id: UndergroundGungnir
+  mapName: Gungnir UG
+  mapPath: /SharedMaps/_Mono/Shuttles/Imported/BlackMarket/gungnir.yml
+  minPlayers: 0
+  stations:
+    UndergroundGungnir:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: "Gungnir UGR{1}"
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'

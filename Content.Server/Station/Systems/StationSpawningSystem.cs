@@ -30,6 +30,7 @@ using Robust.Shared.Utility;
 using Content.Server.Spawners.Components;
 using Content.Shared._NF.Bank.Components; // DeltaV
 using Content.Server._Mono.Persistence; // Mono
+using Content.Server._DeepLagoon.Loadouts;
 using Content.Server._NF.Bank; // Frontier
 using Content.Server.Preferences.Managers; // Frontier
 using System.Linq;
@@ -80,19 +81,20 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
     /// <param name="stationSpawning">Resolve pattern, the station spawning component for the station.</param>
     /// <param name="spawnPointType">Delta-V: Set desired spawn point type.</param>
     /// <param name="session">Frontier: The session associated with the character, if any.</param>
+    /// <param name="deferStartingGear">Finish storage delivery during PlayerSpawnCompleteEvent.</param>
     /// <returns>The resulting player character, if any.</returns>
     /// <exception cref="ArgumentException">Thrown when the given station is not a station.</exception>
     /// <remarks>
     /// This only spawns the character, and does none of the mind-related setup you'd need for it to be playable.
     /// </remarks>
-    public EntityUid? SpawnPlayerCharacterOnStation(EntityUid? station, ProtoId<JobPrototype>? job, HumanoidCharacterProfile? profile, StationSpawningComponent? stationSpawning = null, SpawnPointType spawnPointType = SpawnPointType.Unset, ICommonSession? session = null) // Frontier: add session
+    public EntityUid? SpawnPlayerCharacterOnStation(EntityUid? station, ProtoId<JobPrototype>? job, HumanoidCharacterProfile? profile, StationSpawningComponent? stationSpawning = null, SpawnPointType spawnPointType = SpawnPointType.Unset, ICommonSession? session = null, bool deferStartingGear = false) // Frontier: add session
     {
         if (station != null && !Resolve(station.Value, ref stationSpawning))
             throw new ArgumentException("Tried to use a non-station entity as a station!", nameof(station));
 
         // Delta-V: Set desired spawn point type.
         // Frontier: add session
-        var ev = new PlayerSpawningEvent(job, profile, station, spawnPointType, session);
+        var ev = new PlayerSpawningEvent(job, profile, station, spawnPointType, session, deferStartingGear);
 
         RaiseLocalEvent(ev);
         DebugTools.Assert(ev.SpawnResult is { Valid: true } or null);
@@ -120,7 +122,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         HumanoidCharacterProfile? profile,
         EntityUid? station,
         EntityUid? entity = null,
-        ICommonSession? session = null) // Frontier
+        ICommonSession? session = null,
+        bool deferStartingGear = false) // Frontier
     {
         _prototypeManager.TryIndex(job ?? string.Empty, out var prototype);
         RoleLoadout? loadout = null;
@@ -187,6 +190,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
 
 
 
+        var storageItems = new List<StartingGearStorageItem>();
         if (loadout != null)
         {
             /// Frontier: overwriting EquipRoleLoadout
@@ -253,7 +257,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                     if (loadoutProto.Price <= bankBalance && (loadoutProto.Price <= 0 || hasBalance))
                     {
                         bankBalance -= int.Max(0, loadoutProto.Price); // Treat negatives as zero.
-                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, customization: items.Customization, unequippedSlots: loadout.UnequippedSlots);
+                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, customization: items.Customization, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
                         equippedItems.Add(loadoutProto.ID);
 
                         // Add support for IPC encryption keys from loadout headsets
@@ -288,7 +292,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                             continue;
                         }
 
-                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots);
+                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
                         equippedItems.Add(fallback);
 
                         // Add support for IPC encryption keys from loadout headsets
@@ -308,7 +312,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             // and deduct loadout costs from a bank account if we have one.
             if (prototype?.StartingGear is not null)
             {
-                EquipStartingGear(entity.Value, prototype.StartingGear, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots);
+                EquipStartingGear(entity.Value, prototype.StartingGear, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
 
                 // Add support for IPC encryption keys from job starting gear headsets
                 if (HasComp<EncryptionKeyHolderComponent>(entity.Value) &&
@@ -330,8 +334,11 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             _persistence.LoadPersistentData(entity.Value, profile, session);
         // Mono end
 
-        var gearEquippedEv = new StartingGearEquippedEvent(entity.Value);
-        RaiseLocalEvent(entity.Value, ref gearEquippedEv);
+        // For a player joining the round, personal gear may replace these containers.
+        if (deferStartingGear)
+            EnsureComp<DeferredStartingGearComponent>(entity.Value).Items = storageItems;
+        else
+            FinishStartingGear(entity.Value, storageItems);
 
         if (profile != null)
         {
@@ -351,6 +358,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                 var details = EnsureComp<DetailExaminableComponent>(entity.Value);
                 details.Content = profile.FlavorText;
                 details.OocNotes = profile.OocNotes;
+                details.CustomSpeciesName = profile.CustomSpeciesName;
                 details.HeadshotId = profile.HeadshotId;
                 details.HeadshotImages = EntityManager.System<Content.Server._DeepLagoon.CharacterInfo.HeadshotSystem>().GetActive(profile.HeadshotId, session);
                 details.CharacterCard = true;
@@ -366,6 +374,24 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             SetPdaAndIdCardData(entity.Value, Name(entity.Value), prototype, station);
         _identity.QueueIdentityUpdate(entity.Value);
         return entity.Value;
+    }
+
+    public void FinishDeferredStartingGear(EntityUid entity)
+    {
+        if (!TryComp<DeferredStartingGearComponent>(entity, out var pending))
+            return;
+
+        RemComp<DeferredStartingGearComponent>(entity);
+        FinishStartingGear(entity, pending.Items);
+    }
+
+    private void FinishStartingGear(EntityUid entity, List<StartingGearStorageItem> storageItems)
+    {
+        foreach (var item in storageItems)
+            GiveStartingGearStorageItem(entity, item, fallback: true);
+
+        var ev = new StartingGearEquippedEvent(entity);
+        RaiseLocalEvent(entity, ref ev);
     }
 
     private void DoJobSpecials(ProtoId<JobPrototype>? job, EntityUid entity)
@@ -479,12 +505,15 @@ public sealed class PlayerSpawningEvent : EntityEventArgs
     /// </summary>
     public readonly ICommonSession? Session;
 
-    public PlayerSpawningEvent(ProtoId<JobPrototype>? job, HumanoidCharacterProfile? humanoidCharacterProfile, EntityUid? station, SpawnPointType spawnPointType = SpawnPointType.Unset, ICommonSession? session = null) // Frontier: added session
+    public readonly bool DeferStartingGear;
+
+    public PlayerSpawningEvent(ProtoId<JobPrototype>? job, HumanoidCharacterProfile? humanoidCharacterProfile, EntityUid? station, SpawnPointType spawnPointType = SpawnPointType.Unset, ICommonSession? session = null, bool deferStartingGear = false) // Frontier: added session
     {
         Job = job;
         HumanoidCharacterProfile = humanoidCharacterProfile;
         Station = station;
         DesiredSpawnPointType = spawnPointType;
         Session = session; // Frontier
+        DeferStartingGear = deferStartingGear;
     }
 }

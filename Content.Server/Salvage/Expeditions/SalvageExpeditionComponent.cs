@@ -2,6 +2,7 @@ using System.Numerics;
 using Content.Shared.Salvage;
 using Content.Shared.Salvage.Expeditions;
 using Robust.Shared.Audio;
+using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
@@ -33,6 +34,13 @@ public sealed partial class SalvageExpeditionComponent : SharedSalvageExpedition
     /// </summary>
     [DataField("station")]
     public EntityUid Station;
+
+    public readonly Dictionary<EntityUid, (EntityCoordinates Coordinates, Angle Rotation)> ReturnLocations = new();
+
+    public bool DispatchedFromOutpost;
+    public EntityUid? DispatchDisk;
+    public TimeSpan? DispatchExpiresAt;
+    public TimeSpan MissionDuration;
 
     [ViewVariables] public bool Completed = false;
 

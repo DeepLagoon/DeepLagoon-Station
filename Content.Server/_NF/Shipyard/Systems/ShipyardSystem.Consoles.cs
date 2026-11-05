@@ -396,6 +396,9 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
 
         EntityManager.AddComponents(shuttleUid, vessel.AddComponents);
 
+        if (vessel.InstallCloakingConsole)
+            InstallCloakingConsole(shuttleUid);
+
         // Add ship access control
         AddShipAccessToEntities(shuttleUid);
 
@@ -418,9 +421,17 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             sellValue = CalculateShipResaleValue((shipyardConsoleUid, component), sellValue);
         }
 
-        SendPurchaseMessage(shipyardConsoleUid, player, name, component.ShipyardChannel, secret: false);
-        if (component.SecretShipyardChannel is { } secretChannel)
-            SendPurchaseMessage(shipyardConsoleUid, player, name, secretChannel, secret: true);
+        var publicPurchase = HasComp<StationPublicShipyardPurchaseAnnouncementsComponent>(station);
+        if (publicPurchase)
+        {
+            var channel = _prototypeManager.Index<RadioChannelPrototype>(component.ShipyardChannel);
+            var announcement = Loc.GetString("shipyard-console-docking", ("owner", player), ("vessel", name));
+            _radio.SendRadioMessage(shipyardConsoleUid, announcement, channel, shipyardConsoleUid);
+            _chat.TrySendInGameICMessage(shipyardConsoleUid, announcement, InGameICChatType.Speak, true);
+        }
+
+        if (!publicPurchase || component.SecretShipyardChannel != null)
+            _chat.TrySendInGameICMessage(shipyardConsoleUid, Loc.GetString("shipyard-console-docking-secret"), InGameICChatType.Speak, true);
 
         var vesselStore = EnsureComp<VesselComponent>(shuttleUid);
         vesselStore.VesselId = vessel.ID;
@@ -691,18 +702,18 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         _popup.PopupEntity(text, uid);
     }
 
-    private void SendPurchaseMessage(EntityUid uid, EntityUid player, string name, string shipyardChannel, bool secret)
+    private void InstallCloakingConsole(EntityUid shuttle)
     {
-        var channel = _prototypeManager.Index<RadioChannelPrototype>(shipyardChannel);
+        var consoles = AllEntityQuery<IFFConsoleComponent, TransformComponent, MetaDataComponent>();
+        while (consoles.MoveNext(out var uid, out _, out var transform, out var metadata))
+        {
+            if (transform.GridUid != shuttle || metadata.EntityPrototype?.ID != "ComputerIFF")
+                continue;
 
-        if (secret)
-        {
-            _chat.TrySendInGameICMessage(uid, Loc.GetString("shipyard-console-docking-secret"), InGameICChatType.Speak, true);
-        }
-        else
-        {
-            _radio.SendRadioMessage(uid, Loc.GetString("shipyard-console-docking", ("owner", player), ("vessel", name)), channel, uid);
-            _chat.TrySendInGameICMessage(uid, Loc.GetString("shipyard-console-docking", ("owner", player!), ("vessel", name)), InGameICChatType.Speak, true);
+            var replacement = Spawn("ComputerIFFSyndicate", transform.Coordinates);
+            _transform.SetLocalRotation(replacement, transform.LocalRotation);
+            QueueDel(uid);
+            return;
         }
     }
 

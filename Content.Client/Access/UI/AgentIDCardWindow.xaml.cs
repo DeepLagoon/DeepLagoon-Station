@@ -39,9 +39,13 @@ namespace Content.Client.Access.UI
             JobLineEdit.OnFocusExit += e => OnJobChanged?.Invoke(e.Text);
         }
 
-        public void SetAllowedIcons(string currentJobIconId)
+        public void SetAllowedIcons(string currentJobIconId, bool canChangeJobIcon)
         {
+            JobIconLabel.Visible = canChangeJobIcon;
+            IconGrid.Visible = canChangeJobIcon;
             IconGrid.DisposeAllChildren();
+            if (!canChangeJobIcon)
+                return;
 
             var jobIconButtonGroup = new ButtonGroup();
             var i = 0;

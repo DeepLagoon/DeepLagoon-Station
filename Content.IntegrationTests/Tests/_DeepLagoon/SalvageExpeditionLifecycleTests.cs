@@ -17,6 +17,36 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class SalvageExpeditionLifecycleTests
 {
     [Test]
+    public async Task ExpeditionRecordsIndependentDeparturePointsAndHeadings()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var firstOrigin = maps.CreateMap(out _);
+            var secondOrigin = maps.CreateMap(out _);
+            var destination = maps.CreateMap(out var destinationId);
+            var expedition = entities.AddComponent<SalvageExpeditionComponent>(destination);
+
+            void Enter(EntityUid origin, Vector2 position, Angle heading)
+            {
+                var ship = maps.CreateGridEntity(destinationId).Owner;
+                var ev = new FTLStartedEvent(ship, new EntityCoordinates(destination, Vector2.Zero),
+                    origin, Matrix3x2.CreateTranslation(position), heading);
+                entities.EventBus.RaiseLocalEvent(ship, ref ev, true);
+                Assert.That(expedition.ReturnLocations[ship], Is.EqualTo((new EntityCoordinates(origin, position), heading)));
+            }
+
+            Enter(firstOrigin, new Vector2(7000f, -3000f), new Angle(0.5));
+            Enter(secondOrigin, new Vector2(-18000f, 2500f), new Angle(1.5));
+            Assert.That(expedition.ReturnLocations, Has.Count.EqualTo(2));
+            entities.DeleteEntity(destination);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task WeatherCanBeDisabledAndReenabled()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });

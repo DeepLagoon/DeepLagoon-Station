@@ -21,6 +21,7 @@
   - Underground
   - Godfather
   special:
+  - !type:RemoveStartingSuitSensorsSpecial
   - !type:GiveItemOnHolidaySpecial
     holiday: FrontierBirthday
     prototype: FrontierBirthdayGift

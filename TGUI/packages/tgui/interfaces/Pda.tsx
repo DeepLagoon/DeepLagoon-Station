@@ -109,6 +109,9 @@ export const Pda = () => {
                     {!!data.owner && <div className="Pda__owner"><span>{t('owner')}</span><button type="button" onClick={() => act('copy', { field: 'owner' })}>{data.owner}</button></div>}
                   </aside>
                   <section className="Pda__desktop">
+                    <button type="button" className="Pda__allPrograms" disabled={!ready} onClick={() => act('messenger')}>
+                      <Icon aria-hidden="true" name="envelope" /> {t('messenger')}
+                    </button>
                     <div className="Pda__appGrid">{programs.slice(0, 4).map(program => app(program))}
                       {!programs.length && <div className="Pda__empty"><Icon aria-hidden="true" name="microchip" /><p>{t('empty')}</p></div>}
                     </div>

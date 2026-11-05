@@ -451,6 +451,7 @@ namespace Content.Server.Atmos.EntitySystems
             var reaction = ReactionResult.NoReaction;
             var temperature = mixture.Temperature;
             var energy = GetThermalEnergy(mixture);
+            bool? suppressFire = null;
 
             foreach (var prototype in GasReactions)
             {
@@ -473,6 +474,13 @@ namespace Content.Server.Atmos.EntitySystems
 
                 if (!doReaction)
                     continue;
+
+                if (holder is TileAtmosphere tile && prototype.ID is "PlasmaFire" or "TritiumFire" &&
+                    (suppressFire ??= SuppressesHotspot(tile)))
+                {
+                    mixture.ReactionResults[(byte)GasReaction.Fire] = 0f;
+                    continue;
+                }
 
                 reaction = prototype.React(mixture, holder, this, HeatScale);
                 if(reaction.HasFlag(ReactionResult.StopReactions))

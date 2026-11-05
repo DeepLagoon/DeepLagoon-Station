@@ -139,7 +139,7 @@ namespace Content.Client.Cargo.BUI
         private bool AddOrder()
         {
             var orderAmt = _orderMenu?.Amount.Value ?? 0;
-            if (orderAmt < 1 || orderAmt > OrderCapacity)
+            if (orderAmt < 1)
             {
                 return false;
             }
@@ -166,12 +166,7 @@ namespace Content.Client.Cargo.BUI
             if (args.Button.Parent?.Parent is not CargoOrderRow row || row.Order == null)
                 return;
 
-            if (OrderCount >= OrderCapacity)
-                return;
-
             SendMessage(new CargoConsoleApproveOrderMessage(row.Order.OrderId));
-            // Most of the UI isn't predicted anyway so.
-            // _menu?.UpdateCargoCapacity(OrderCount + row.Order.Amount, OrderCapacity);
         }
     }
 }

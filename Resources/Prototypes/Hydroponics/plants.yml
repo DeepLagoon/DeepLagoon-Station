@@ -1603,6 +1603,10 @@
         min: 1
         max: 5
         potencyDivisor: 20
+      Desoxyephedrine:
+        min: 1
+        max: 10
+        potencyDivisor: 10
       Vitamin:
         min: 1
         max: 2
@@ -1643,6 +1647,10 @@
         min: 1
         max: 5
         potencyDivisor: 20
+      Desoxyephedrine:
+        min: 1
+        max: 10
+        potencyDivisor: 10
 
 - type: entity
   parent: BasePlant

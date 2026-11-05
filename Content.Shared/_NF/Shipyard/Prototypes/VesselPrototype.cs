@@ -144,6 +144,12 @@ public sealed partial class VesselPrototype : IPrototype, IInheritingPrototype
     public bool CloakHunter;
 
     /// <summary>
+    /// Replace the standard IFF console with the cloaking version when this vessel is purchased.
+    /// </summary>
+    [DataField]
+    public bool InstallCloakingConsole;
+
+    /// <summary>
     /// List of company names whose ships this vessel will not suppress IFF flags for.
     /// </summary>
     [DataField]

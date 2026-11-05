@@ -18,7 +18,6 @@ using Content.Client.UserInterface.Controls;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.FixedPoint;
-using Content.Shared.Stacks;
 using Content.Shared.Storage.EntitySystems;
 using Robust.Shared.Containers;
 
@@ -199,7 +198,9 @@ public sealed partial class LatheMenu : FancyWindow
                 continue;
 
             var name = Loc.GetString(proto.Name);
-            var currentAmount = GetEntityCount(id);
+            var currentAmount = _entityManager.TryGetComponent<EntityStorageComponent>(Entity, out var storage)
+                ? _lathe.CountEntityIngredient(prototype, id, storage.Contents.ContainedEntities)
+                : 0;
 
             var missingAmount = amount - currentAmount;
 
@@ -375,29 +376,6 @@ public sealed partial class LatheMenu : FancyWindow
             CurrentCategory = Categories?[obj.Id];
         }
         PopulateRecipes();
-    }
-
-    // mono
-    private int GetEntityCount(EntProtoId recipeEnt)
-    {
-        var count = 0;
-
-        if (!_entityManager.TryGetComponent<EntityStorageComponent>(Entity, out var storage))
-            return count;
-
-        foreach (var containedEnt in storage.Contents.ContainedEntities)
-        {
-            if ( _entityManager.GetComponent<MetaDataComponent>(containedEnt).EntityPrototype is not { } proto
-                || proto.ID != recipeEnt)
-                continue;
-
-            if (_entityManager.TryGetComponent<StackComponent>(containedEnt, out var stack))
-                count += stack.Count;
-            else
-                count += 1;
-        }
-
-        return count;
     }
 
     // mono

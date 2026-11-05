@@ -21,6 +21,8 @@
   stations:
     ZetaNode:
       stationProto: RecordsFrontierOutpost
+      gridComponents:
+        - type: GreenZone
       components:
         - type: StationNameSetup
           mapNameTemplate: 'Zeta Node'

@@ -109,7 +109,7 @@ public sealed class SpaceSurveySystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("space-environment-survey-recorded"), console, user);
             return false;
         }
-        // The persistent first-discovery claim must succeed before delivering any reward.
+        // The first-discovery claim for this round must succeed before delivering any reward.
         var rewardMessage = AwardResearch(console, grid, user, points);
         _popup.PopupEntity(Loc.GetString("space-environment-survey-complete", ("kind", kind)) + "\n" + rewardMessage, console, user);
         return true;

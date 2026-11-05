@@ -180,6 +180,36 @@ public abstract partial class SharedLatheSystem : EntitySystem
     public static int AdjustMaterial(int original, float multScale, float multiplier)
         => (int) MathF.Ceiling(original * MathF.Pow(multiplier, multScale));
 
+    public int CountEntityIngredient(LatheRecipePrototype recipe, EntProtoId ingredient, IReadOnlyList<EntityUid> contents)
+    {
+        var stackType = GetIngredientStackType(recipe, ingredient);
+        var amount = 0;
+        foreach (var item in contents)
+        {
+            amount += GetIngredientAmount(item, ingredient, stackType);
+        }
+
+        return amount;
+    }
+
+    protected ProtoId<StackPrototype>? GetIngredientStackType(LatheRecipePrototype recipe, EntProtoId ingredient)
+    {
+        if (recipe.MatchEntityStacks && _proto.TryIndex(ingredient, out var proto)
+            && proto.TryComp<StackComponent>(out var stack, Factory))
+            return stack.StackTypeId;
+
+        return null;
+    }
+
+    protected int GetIngredientAmount(EntityUid item, EntProtoId ingredient, ProtoId<StackPrototype>? stackType)
+    {
+        _stackQuery.TryComp(item, out var stack);
+        if (stackType is { } type)
+            return stack != null && stack.StackTypeId == type ? stack.Count : 0;
+
+        return MetaData(item).EntityPrototype?.ID == ingredient.Id ? stack?.Count ?? 1 : 0;
+    }
+
     protected abstract bool HasRecipe(EntityUid uid, LatheRecipePrototype recipe, LatheComponent component);
 
     private void OnPrototypesReloaded(PrototypesReloadedEventArgs obj)

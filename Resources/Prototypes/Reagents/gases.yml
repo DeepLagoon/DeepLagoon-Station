@@ -60,6 +60,10 @@
         conditions:
         - !type:OrganType
           type: Feroxi
+      - !type:Oxygenate
+        conditions:
+        - !type:OrganType
+          type: FeroxiDehydrated
       # Convert Oxygen into CO2.
       - !type:ModifyLungGas
         conditions:
