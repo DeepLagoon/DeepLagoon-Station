@@ -49,13 +49,16 @@ export const Pda = () => {
   }, [view, data.programTitle]);
 
   const changeView = (value: number) => act('view', { view: value });
+  const appLaunch = (name: string, glyph: string, installed: boolean, launch: () => void) => (
+    <button type="button" className="Pda__appLaunch" disabled={!ready} onClick={launch}>
+      <Icon aria-hidden="true" name={glyph} />
+      <span>{name}</span>
+      <small>{installed ? t('installed') : t('cartridge')}</small>
+    </button>
+  );
   const app = (program: Program, manage = false) => (
     <div className="Pda__app" key={program.id}>
-      <button type="button" className="Pda__appLaunch" disabled={!ready} onClick={() => act('program', { id: program.id })}>
-        <Icon aria-hidden="true" name={programIcon(program.kind)} />
-        <span>{program.name}</span>
-        <small>{program.installed ? t('installed') : t('cartridge')}</small>
-      </button>
+      {appLaunch(program.name, programIcon(program.kind), program.installed, () => act('program', { id: program.id }))}
       {manage && (program.canInstall || program.canUninstall) && (
         <button type="button" className="Pda__install" disabled={!ready}
           onClick={() => act(program.canInstall ? 'install' : 'uninstall', { id: program.id })}>
@@ -130,7 +133,12 @@ export const Pda = () => {
                   </section>
                 </div>
               )}
-              {view === 1 && <div className="Pda__appGrid Pda__appGrid--catalog">{programs.map(program => app(program, true))}{!programs.length && <p>{t('empty')}</p>}</div>}
+              {view === 1 && <div className="Pda__appGrid Pda__appGrid--catalog">
+                <div className="Pda__app">
+                  {appLaunch(t('messenger'), 'envelope', true, () => act('messenger'))}
+                </div>
+                {programs.map(program => app(program, true))}
+              </div>}
               {view === 2 && <div className="Pda__settings">
                 <button type="button" className="Pda__setting" disabled={!ready} aria-pressed={!!data.flashlight} onClick={() => act('flashlight')}>
                   <Icon aria-hidden="true" name="lightbulb" /><span>{t('flashlight')}</span><small>{t(data.flashlight ? 'on' : 'off')}</small>

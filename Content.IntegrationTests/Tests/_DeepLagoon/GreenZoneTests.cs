@@ -28,7 +28,7 @@ public sealed class GreenZoneTests
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            var zetaNode = pair.Server.ResolveDependency<IPrototypeManager>().Index<GameMapPrototype>("ZetaNode");
+            var zetaNode = pair.Server.ResolveDependency<IPrototypeManager>().Index(new ProtoId<GameMapPrototype>("ZetaNode"));
             entities.System<StationSystem>().InitializeNewStation(zetaNode.Stations["ZetaNode"], [map.Grid]);
             Assert.That(entities.HasComponent<GreenZoneComponent>(map.Grid), Is.True);
 
@@ -43,7 +43,7 @@ public sealed class GreenZoneTests
                 Assert.That(zone.IsGreenZone, Is.True);
                 Assert.That(zone.Range, Is.EqualTo(2000f));
                 Assert.That(zone.Name, Is.Not.Empty);
-                Assert.That(consoles.GetMapState(map.Grid).Exclusions, Does.Contain(zone));
+                Assert.That(consoles.GetMapState(map.Grid.Owner).Exclusions, Does.Contain(zone));
             });
         });
         await pair.CleanReturnAsync();
