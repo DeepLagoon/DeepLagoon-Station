@@ -2,14 +2,19 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
+using Content.Client.Resources;
+using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Shared._DeepLagoon.PdaMessenger;
 using Robust.Client.Graphics;
+using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
+using Robust.Shared.Timing;
 using Robust.Shared.Utility;
+using static Robust.Client.UserInterface.StylesheetHelpers;
 
 namespace Content.Client._DeepLagoon.PdaMessenger;
 
@@ -18,6 +23,16 @@ public sealed class PdaMessengerSystem : EntitySystem
     [Dependency] private IFileDialogManager _dialogs = default!;
     [Dependency] private IClyde _clyde = default!;
     [Dependency] private INetManager _network = default!;
+    [Dependency] private IResourceCache _resources = default!;
+    [Dependency] private IUserInterfaceManager _ui = default!;
+    [Dependency] private IGameTiming _timing = default!;
+
+    private sealed class OutgoingUpload(byte[] bytes, GameTick tick)
+    {
+        public readonly byte[] Bytes = bytes;
+        public int Offset;
+        public GameTick Tick = tick;
+    }
 
     private FancyWindow? _window;
     private TguiPanel? _panel;
@@ -27,6 +42,7 @@ public sealed class PdaMessengerSystem : EntitySystem
     private PdaMessengerSnapshot? _state;
     private byte[]? _attachment;
     private string? _attachmentMime;
+    private OutgoingUpload? _upload;
     private string? _clipboard;
     private byte[]? _receiving;
     private int _imageOffset;
@@ -38,6 +54,7 @@ public sealed class PdaMessengerSystem : EntitySystem
 
     public override void Initialize()
     {
+        UpdatesOutsidePrediction = true;
         SubscribeNetworkEvent<PdaMessengerSnapshot>(OnState);
         SubscribeNetworkEvent<PdaMessengerImageChunk>(OnImage);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(_ => _window?.Close());
@@ -60,11 +77,15 @@ public sealed class PdaMessengerSystem : EntitySystem
             MinSize = new Vector2(430, 320),
         };
         _window = window;
+        var nativeFont = new StackedFont(_resources.NotoStack(size: 12), _resources.GetFont("/Fonts/NotoEmoji.ttf", 12));
+        var rules = _ui.Stylesheet?.Rules ?? Array.Empty<StyleRule>();
         _native = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
             SeparationOverride = 6,
             Visible = false,
+            Stylesheet = new Stylesheet(rules.Concat(
+                [Element<RichTextLabel>().Prop("font", nativeFont), Element<LineEdit>().Prop("font", nativeFont)]).ToArray()),
         };
         var host = new CivilianConsoleHost(() =>
         {
@@ -96,6 +117,7 @@ public sealed class PdaMessengerSystem : EntitySystem
             _state = null;
             _attachment = null;
             _attachmentMime = null;
+            _upload = null;
             _clipboard = null;
             _localStatus = "";
             window.Dispose();
@@ -153,20 +175,38 @@ public sealed class PdaMessengerSystem : EntitySystem
 
     private void Send(string text)
     {
-        if (_state is not { Peer: > 0 } state || text.Length > PdaMessengerLimits.TextLength ||
-            string.IsNullOrWhiteSpace(text) && _attachment == null)
+        if (_upload != null || _state is not { Peer: > 0 } state ||
+            text.Length > PdaMessengerLimits.TextLength)
             return;
 
         var image = state.Attachments ? _attachment : null;
-        Request(PdaMessengerAction.Send, state.Peer, text, image?.Length ?? 0);
-        if (image == null)
+        if (string.IsNullOrWhiteSpace(text) && image == null)
             return;
 
-        for (var offset = 0; offset < image.Length; offset += PdaMessengerLimits.ChunkBytes)
+        Request(PdaMessengerAction.Send, state.Peer, text, image?.Length ?? 0);
+        if (image != null)
+            _upload = new OutgoingUpload(image, _timing.CurTick);
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        if (_upload is not { } upload || _timing.CurTick <= upload.Tick)
+            return;
+
+        if (!_network.IsConnected)
         {
-            var length = Math.Min(PdaMessengerLimits.ChunkBytes, image.Length - offset);
-            RaiseNetworkEvent(new PdaMessengerUploadChunk(_pda, offset, image.AsSpan(offset, length).ToArray()));
+            _upload = null;
+            return;
         }
+
+        // Entity events from one tick can be reordered by the server's dispatch queue.
+        upload.Tick = _timing.CurTick;
+        var end = Math.Min(upload.Bytes.Length, upload.Offset + PdaMessengerLimits.ChunkBytes);
+        RaiseNetworkEvent(new PdaMessengerUploadChunk(_pda, upload.Offset, upload.Bytes[upload.Offset..end]));
+        upload.Offset = end;
+        if (end == upload.Bytes.Length)
+            _upload = null;
     }
 
     private void OnAction(string action, string payload)
