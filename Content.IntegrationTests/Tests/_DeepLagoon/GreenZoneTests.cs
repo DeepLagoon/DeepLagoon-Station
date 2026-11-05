@@ -1,20 +1,54 @@
 using System.Numerics;
 using Content.Server._DeepLagoon.SpaceEnvironment;
+using Content.Server.Shuttles.Systems;
+using Content.Server.Station.Systems;
 using Content.Shared._Mono.ShipGuns;
 using Content.Shared._Mono.Ships.Components;
 using Content.Shared.Projectiles;
+using Content.Shared.Maps;
+using Content.Shared.Shuttles.Components;
 using Content.Shared.Weapons.Hitscan.Events;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture]
 public sealed class GreenZoneTests
 {
+    [Test]
+    public async Task ZetaNodeZoneAppearsInNavigationAndFtlStates()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var zetaNode = pair.Server.ResolveDependency<IPrototypeManager>().Index<GameMapPrototype>("ZetaNode");
+            entities.System<StationSystem>().InitializeNewStation(zetaNode.Stations["ZetaNode"], [map.Grid]);
+            Assert.That(entities.HasComponent<GreenZoneComponent>(map.Grid), Is.True);
+
+            var radar = entities.SpawnEntity(null, map.GridCoords);
+            entities.AddComponent<RadarConsoleComponent>(radar);
+            var consoles = entities.System<ShuttleConsoleSystem>();
+            var nav = consoles.GetNavState(radar, new());
+            Assert.That(nav.GreenZones, Has.Count.EqualTo(1));
+            var zone = nav.GreenZones[0];
+            Assert.Multiple(() =>
+            {
+                Assert.That(zone.IsGreenZone, Is.True);
+                Assert.That(zone.Range, Is.EqualTo(2000f));
+                Assert.That(zone.Name, Is.Not.Empty);
+                Assert.That(consoles.GetMapState(map.Grid).Exclusions, Does.Contain(zone));
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task GreenZoneBlocksShipShotsAndPreservesFireOnVessels()
     {

@@ -577,16 +577,18 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         Angle angle,
         Dictionary<string, string>? portNames = null)
     {
-        if (!Resolve(entity, ref entity.Comp1, ref entity.Comp2, false))
-            return new NavInterfaceState(SharedRadarConsoleSystem.DefaultMaxRange, GetNetCoordinates(coordinates), angle, docks, InertiaDampeningMode.Dampen); // Frontier: add inertial dampening
+        var state = Resolve(entity, ref entity.Comp1, ref entity.Comp2, false)
+            ? new NavInterfaceState(entity.Comp1.MaxRange, GetNetCoordinates(coordinates), angle, docks,
+                _shuttle.NfGetInertiaDampeningMode(entity), portNames)
+            : new NavInterfaceState(SharedRadarConsoleSystem.DefaultMaxRange, GetNetCoordinates(coordinates), angle, docks,
+                InertiaDampeningMode.Dampen);
 
-        return new NavInterfaceState(
-            entity.Comp1.MaxRange,
-            GetNetCoordinates(coordinates),
-            angle,
-            docks,
-            _shuttle.NfGetInertiaDampeningMode(entity), // Frontier: inertia dampening
-            portNames);
+        List<ShuttleExclusionObject>? greenZones = null;
+        AddGreenZones(ref greenZones);
+        if (greenZones != null)
+            state.GreenZones = greenZones;
+
+        return state;
     }
 
     /// <summary>
