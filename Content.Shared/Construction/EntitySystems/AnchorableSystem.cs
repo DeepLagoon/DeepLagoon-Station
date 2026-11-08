@@ -8,10 +8,12 @@ using Content.Shared.Coordinates.Helpers;
 using Content.Shared.Database;
 using Content.Shared.DoAfter;
 using Content.Shared.Interaction;
+using Content.Shared.Maps;
 using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Movement.Pulling.Systems;
 using Content.Shared.Popups;
 using Content.Shared.Tools.Components;
+using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
@@ -29,6 +31,8 @@ public sealed partial class AnchorableSystem : EntitySystem
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PullingSystem _pulling = default!;
+    [Dependency] private SharedContainerSystem _containers = default!;
+    [Dependency] private TurfSystem _turf = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedToolSystem _tool = default!;
     [Dependency] private SharedTransformSystem _transformSystem = default!;
@@ -96,6 +100,10 @@ public sealed partial class AnchorableSystem : EntitySystem
         if (!TryComp(args.Used, out ToolComponent? usedTool) || !_tool.HasQuality(args.Used, anchorable.Tool, usedTool))
             return;
 
+        // Let storage handle tool insertion while the bag is equipped, held, or pulled.
+        if (anchorable.RequireExposedSubfloor && IsHeld(uid))
+            return;
+
         args.Handled = true;
         TryToggleAnchor(uid, args.User, args.Used, anchorable, usingTool: usedTool);
     }
@@ -140,6 +148,9 @@ public sealed partial class AnchorableSystem : EntitySystem
             return;
 
         var xform = Transform(uid);
+        if (component.RequireExposedSubfloor && (xform.Anchored || !CanAnchorToSubfloor(uid, args.User, xform)))
+            return;
+
         if (TryComp<PhysicsComponent>(uid, out var anchorBody) &&
             !TileFree(xform.Coordinates, anchorBody))
         {
@@ -229,6 +240,9 @@ public sealed partial class AnchorableSystem : EntitySystem
         if (!Resolve(usingUid, ref usingTool))
             return;
 
+        if (anchorable.RequireExposedSubfloor && !CanAnchorToSubfloor(uid, userUid, transform))
+            return;
+
         if (!Valid(uid, userUid, usingUid, true, anchorable, usingTool))
             return;
 
@@ -249,6 +263,26 @@ public sealed partial class AnchorableSystem : EntitySystem
         }
 
         _tool.UseTool(usingUid, userUid, uid, anchorable.CurrentDelay, usingTool.Qualities.Select(quality => quality.Id), new TryAnchorCompletedEvent()); // Frontier: Delay<CurrentDelay
+    }
+
+    private bool IsHeld(EntityUid uid)
+        => _containers.IsEntityOrParentInContainer(uid) ||
+           (TryComp<PullableComponent>(uid, out var pullable) && pullable.BeingPulled);
+
+    private bool CanAnchorToSubfloor(EntityUid uid, EntityUid user, TransformComponent transform)
+    {
+        if (IsHeld(uid))
+            return false;
+
+        if (transform.GridUid is { } gridUid && TryComp<MapGridComponent>(gridUid, out var grid) &&
+            _map.TryGetTileRef(gridUid, grid, transform.Coordinates, out var tile) && !tile.Tile.IsEmpty &&
+            _turf.GetContentTileDefinition(tile) is { IsSubFloor: true, MapAtmosphere: false })
+        {
+            return true;
+        }
+
+        _popup.PopupClient(Loc.GetString("subfloor-anchor-failure", ("entity", uid)), user);
+        return false;
     }
 
     private bool Valid(
