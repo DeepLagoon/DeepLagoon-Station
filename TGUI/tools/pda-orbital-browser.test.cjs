@@ -15,6 +15,9 @@ const labels = language => {
     .match(/^dl-messenger-title\s*=\s*(.+)$/m)[1].trim();
   return labels;
 };
+const messengerLabels = language => Object.fromEntries([...fs.readFileSync(
+  path.join(repo, 'Resources/Locale', language, '_DeepLagoon/chat/pda-messenger.ftl'), 'utf8')
+  .matchAll(/^dl-messenger-([\w-]+)\s*=\s*(.+)$/gm)].map(m => [m[1], m[2].trim()]));
 const programs = [
   { id: '42', name: 'Заметки', kind: 'notekeeper-program-name', installed: true, canInstall: false, canUninstall: true },
   { id: '43', name: 'Манифест экипажа', kind: 'crew-manifest-program-name', installed: true, canInstall: false, canUninstall: false },
@@ -130,6 +133,34 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     await update({ view: 1 });
     assert.equal(await page.locator('.Pda__appLaunch').count(), 1, 'Messages stays available without cartridges');
     await action(messenger.locator('.Pda__appLaunch'), 'messenger');
+    const addressBook = { labels: messengerLabels('ru-RU'), ready: true, number: 123456789, peer: 0,
+      contacts: [], messages: [] };
+    await update({ view: 4, messenger: addressBook });
+    const chat = page.locator('.Pda__device .PdaMessenger');
+    await chat.getByText('Сохранённых контактов пока нет.').waitFor();
+    assert.match(await chat.innerText(), /«Осмотреть» на чужом КПК.*«Номер КПК»/);
+    assert.equal(await chat.locator('.PdaMessenger__contacts button').count(), 0);
+    await action(page.getByRole('button', { name: 'Ваш номер КПК 123456789' }), 'messenger-copy-number');
+    await chat.getByRole('textbox', { name: 'Номер КПК (9 цифр)' }).fill('234-567-890');
+    await action(chat.getByRole('button', { name: 'Добавить контакт' }), 'messenger-add', { number: '234-567-890' });
+    const peer = { id: 234567890, saved: false, unread: true, available: true };
+    await update({ messenger: { ...addressBook, contacts: [peer], peer: peer.id,
+      messages: [{ id: 1, text: 'На связи?', outgoing: false, hasImage: false }] } });
+    await chat.getByText('Входящие с новых номеров').waitFor();
+    assert.equal(await chat.getByRole('textbox', { name: 'Написать сообщение' }).count(), 0);
+    await action(chat.getByRole('button', { name: 'Добавить контакт' }).last(), 'messenger-add', { number: '234567890' });
+    await update({ messenger: { ...addressBook, contactRevision: 1, contacts: [{ ...peer, saved: true }], peer: peer.id } });
+    await chat.getByRole('textbox', { name: 'Написать сообщение' }).fill('На связи.');
+    await action(chat.getByRole('button', { name: 'Отправить' }), 'messenger-send', { text: 'На связи.' });
+    for (const [width, height] of [[760, 680], [520, 440]]) {
+      await page.setViewportSize({ width, height });
+      const shell = await page.locator('.Pda__device').boundingBox();
+      const dock = await page.locator('.Pda__dock').boundingBox();
+      assert(shell.height <= height && dock.y + dock.height <= height, 'Messenger uses the PDA shell and dock');
+      const composer = await chat.getByRole('textbox', { name: 'Написать сообщение' }).boundingBox();
+      assert(composer.y + composer.height <= dock.y, 'Composer fits above the PDA dock at minimum size');
+      await page.screenshot({ path: path.join(output, `messenger-${width}.png`) });
+    }
     await publish({ ...initial, idOwner: '<img src=x onerror=alert(1)>', company: '<script>test</script>' });
     assert.equal(await page.locator('.Pda img, .Pda script').count(), 0);
     await page.setViewportSize({ width: 760, height: 680 });
@@ -138,7 +169,7 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     await publish(initial, 'en-US');
     await page.getByRole('heading', { name: 'Shift overview', exact: true }).waitFor();
     assert.deepEqual(errors, []);
-    console.log(JSON.stringify({ passed: true, checks: 'live-data rendering, all device and cartridge bridge actions, capability changes, native aperture, readonly and empty states, localization, safe text, 760/600/520px', screenshots: output }));
+    console.log(JSON.stringify({ passed: true, checks: 'device and cartridge actions, native aperture, contact entry and chat inside the PDA shell, empty states, localization, safe text, 760/600/520px', screenshots: output }));
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));

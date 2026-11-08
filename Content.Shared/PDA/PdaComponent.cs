@@ -35,6 +35,7 @@ namespace Content.Shared.PDA
         // This is useful when we are doing stuff like renaming a player and want to find their PDA to change the name
         // as well.
         [ViewVariables(VVAccess.ReadWrite)] public EntityUid? PdaOwner;
+        [ViewVariables] public int MessengerNumber;
         [ViewVariables] public string? StationName;
         [ViewVariables] public string? StationAlertLevel;
         [ViewVariables] public Color StationAlertColor = Color.White;

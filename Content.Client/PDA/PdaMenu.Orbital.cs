@@ -14,6 +14,7 @@ public sealed partial class PdaMenu
     public bool OrbitalActive { get; private set; }
     public event Action<string>? OnDeviceAction;
     private PdaUpdateState? _orbitalState;
+    private TguiData? _messengerData;
     private readonly Dictionary<string, (EntityUid Uid, CartridgeComponent Component)> _orbitalPrograms = new();
     private readonly List<(Control Control, bool Visible)> _classicChildren = new();
     private Vector2 _classicMinimum;
@@ -140,10 +141,14 @@ public sealed partial class PdaMenu
             child.Visible = visible;
         HideAllViews();
         ChangeView(_currentView);
-        HomeButton.IsCurrent = _currentView == HomeView;
-        ProgramListButton.IsCurrent = _currentView == ProgramListView;
-        SettingsButton.IsCurrent = _currentView == SettingsView;
-        ProgramTitle.IsCurrent = _currentView == ProgramContentView;
+        if (_currentView == MessengerScreen)
+            OnMessengerNativeShown?.Invoke();
+    }
+
+    public void SetMessengerData(TguiData? data)
+    {
+        _messengerData = data;
+        PublishOrbital();
     }
 
     private void UpdateOrbitalPrograms(List<(EntityUid, CartridgeComponent)> programs)
@@ -178,6 +183,8 @@ public sealed partial class PdaMenu
                 .Bool("installed", entry.Value.Component.InstallationStatus != InstallationStatus.Cartridge)
                 .Bool("canInstall", entry.Value.Component.InstallationStatus == InstallationStatus.Cartridge)
                 .Bool("canUninstall", entry.Value.Component.InstallationStatus == InstallationStatus.Installed && !entry.Value.Component.Readonly)));
+        if (_currentView == MessengerScreen && _messengerData != null)
+            data.Object("messenger", _messengerData);
         host.Panel.SetIncrementalState("Pda", data, Loc.GetString("dl-pda-overview"));
     }
 
@@ -186,6 +193,12 @@ public sealed partial class PdaMenu
         if (!OrbitalActive || OrbitalHost is not { } host || !TguiActionData.TryParse(payload, out var args) || args == null)
             return;
         if (action == "close") { Close(); return; }
+        const string messengerPrefix = "messenger-";
+        if (_currentView == MessengerScreen && action.StartsWith(messengerPrefix, StringComparison.Ordinal))
+        {
+            OnMessengerAction?.Invoke(action[messengerPrefix.Length..], payload);
+            return;
+        }
         if (action == "viewport")
         {
             if (_currentView == ProgramContentView && ProgramTitle.Visible && host.SetViewport(args))
@@ -213,7 +226,8 @@ public sealed partial class PdaMenu
                 else if (action == "uninstall" && program.Component.InstallationStatus == InstallationStatus.Installed && !program.Component.Readonly)
                     OnUninstallButtonPressed?.Invoke(program.Uid);
                 break;
-            case "flashlight" or "ringtone" or "messenger": OnDeviceAction?.Invoke(action); break;
+            case "messenger": ChangeView(MessengerScreen); break;
+            case "flashlight" or "ringtone": OnDeviceAction?.Invoke(action); break;
             // Empty slot buttons insert the item held in the active hand, just like the native UI.
             case "id" or "pen" or "pai": OnDeviceAction?.Invoke(action); break;
             case "music" when state.CanPlayMusic: OnDeviceAction?.Invoke(action); break;

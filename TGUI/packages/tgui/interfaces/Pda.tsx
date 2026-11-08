@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { useBackend } from '../backend';
 import { Icon } from '../components';
+import { PdaMessenger } from '../components/PdaMessenger';
 import './Pda.scss';
 
 type Program = { id: string; name: string; kind: string; installed: boolean; canInstall: boolean; canUninstall: boolean };
@@ -11,6 +12,7 @@ type Data = {
   balance: string; ship: string; date: string; address: string; programTitle: string;
   hasId: boolean; hasPen: boolean; hasPai: boolean; flashlight: boolean; canPlayMusic: boolean; hasUplink: boolean;
   programs: Program[];
+  messenger?: Parameters<typeof PdaMessenger>[0]['data'];
 };
 
 const programIcon = (kind: string) => /note/i.test(kind) ? 'file-alt'
@@ -27,7 +29,11 @@ export const Pda = () => {
   const view = data.view ?? 0;
   const ready = !!data.ready;
   const programs = Array.isArray(data.programs) ? data.programs : [];
-  const title = view === 1 ? t('programs') : view === 2 ? t('settings') : view === 3 ? data.programTitle : t('shift');
+  const messenger = data.messenger ?? {};
+  const messengerAction = (action: string, payload?: Record<string, unknown>) => act('messenger-' + action, payload);
+  const ownNumberLabel = messenger.labels?.[messenger.temporary ? 'your-temporary-number' : 'your-number'];
+  const title = view === 1 ? t('programs') : view === 2 ? t('settings') : view === 3 ? data.programTitle
+    : view === 4 ? t('messenger') : t('shift');
 
   // Native cartridge controls are positioned above this exact, measured rectangle.
   useLayoutEffect(() => {
@@ -90,12 +96,26 @@ export const Pda = () => {
         <div className="Pda__display">
           <header className="Pda__screenHead">
             <div><div className="Pda__eyebrow">{view === 0 ? 'PERSONAL DECK' : 'ROBUST / OS'}</div><h1>{title}</h1></div>
-            <button type="button" className="Pda__clock" onClick={() => act('copy', { field: 'time' })}>
-              <strong>{data.time || '00:00:00'}</strong><span>{t('time')}</span>
-            </button>
+            {view === 4 ? (
+              <div className="PdaMessenger__headerActions">
+                <button type="button" className="PdaMessenger__refresh" onClick={() => messengerAction('refresh')}>
+                  {messenger.labels?.refresh}
+                </button>
+                {!!messenger.number && <button type="button" className="Pda__clock" onClick={() => messengerAction('copy-number')}
+                  aria-label={ownNumberLabel + ' ' + messenger.number}>
+                  <strong>{messenger.number}</strong><span>{ownNumberLabel}</span>
+                </button>}
+              </div>
+            ) : (
+              <button type="button" className="Pda__clock" onClick={() => act('copy', { field: 'time' })}>
+                <strong>{data.time || '00:00:00'}</strong><span>{t('time')}</span>
+              </button>
+            )}
           </header>
           {view === 3 && !!data.programTitle ? (
             <div className="Pda__programArea" ref={aperture} aria-label={data.programTitle} />
+          ) : view === 4 ? (
+            <PdaMessenger data={messenger} act={messengerAction} />
           ) : (
             <main className="Pda__content">
               {!ready && <p role="status">{t('waiting')}</p>}
@@ -157,6 +177,7 @@ export const Pda = () => {
             ))}
             {!!data.programTitle && <button type="button" aria-pressed={view === 3} aria-label={t('active-program')} onClick={() => changeView(3)}><Icon aria-hidden="true" name="window-maximize" /><span>{data.programTitle}</span></button>}
             {!!data.programTitle && <button type="button" aria-label={t('close-program')} onClick={() => act('closeProgram')}><Icon aria-hidden="true" name="times" /></button>}
+            {view === 4 && <button type="button" aria-pressed="true" onClick={() => act('messenger')}><Icon aria-hidden="true" name="envelope" /><span>{t('messenger')}</span></button>}
           </nav>
           <footer className="Pda__screenFoot"><span>NT-PDA / 009</span><button type="button" onClick={() => act('copy', { field: 'address' })}>{data.address || '—'}</button></footer>
         </div>

@@ -31,8 +31,17 @@ namespace Content.Client.PDA
 
         private void CreateMenu()
         {
-            _menu = this.CreateWindowCenteredLeft<PdaMenu>();
-            _menu.MessengerButton.OnPressed += _ => EntMan.System<PdaMessengerSystem>().Open(Owner);
+            var menu = _menu = this.CreateWindowCenteredLeft<PdaMenu>();
+            var messenger = EntMan.System<PdaMessengerSystem>();
+            menu.OnMessengerViewChanged += open =>
+            {
+                if (open)
+                    messenger.Open(Owner, menu);
+                else
+                    messenger.Close(menu);
+            };
+            menu.OnMessengerNativeShown += () => messenger.ShowNative(menu);
+            menu.OnMessengerAction += (action, payload) => messenger.HandleAction(menu, action, payload);
 
             _menu.FlashLightToggleButton.OnToggled += _ =>
             {
@@ -82,7 +91,6 @@ namespace Content.Client.PDA
             {
                 switch (action)
                 {
-                    case "messenger": EntMan.System<PdaMessengerSystem>().Open(Owner); break;
                     case "flashlight": SendMessage(new PdaToggleFlashlightMessage()); break;
                     case "id": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaIdSlotId)); break;
                     case "pen": SendPredictedMessage(new ItemSlotButtonPressedEvent(PdaComponent.PdaPenSlotId)); break;
@@ -103,6 +111,13 @@ namespace Content.Client.PDA
                 _menu.AccentVColor = borderColorComponent.AccentVColor;
             }
             _menu.InitializeOrbital();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _menu is { } menu)
+                EntMan.System<PdaMessengerSystem>().Close(menu);
+            base.Dispose(disposing);
         }
 
         protected override void UpdateState(BoundUserInterfaceState state)

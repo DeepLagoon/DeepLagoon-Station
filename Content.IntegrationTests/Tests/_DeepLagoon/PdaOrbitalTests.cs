@@ -102,7 +102,7 @@ public sealed class PdaOrbitalTests
             {
                 classic.InitializeOrbital();
                 Assert.That(classic.OrbitalHost, Is.Null, "A classic-only session creates no hidden browser");
-                Assert.That(classic.ViewContainer.ChildCount, Is.EqualTo(4));
+                Assert.That(classic.ViewContainer.ChildCount, Is.EqualTo(5));
             }
             cfg.SetCVar(WebUiCVars.InterfaceStyle, 1);
             using var menu = new PdaMenu();
@@ -127,17 +127,38 @@ public sealed class PdaOrbitalTests
             {
                 host.Panel.SwitchToNative();
                 Assert.That(menu.ProgramView.Parent, Is.EqualTo(menu.ViewContainer));
-                Assert.That(menu.ViewContainer.ChildCount, Is.EqualTo(4));
+                Assert.That(menu.ViewContainer.ChildCount, Is.EqualTo(5));
                 Assert.That(menu.ProgramView.Visible, Is.True);
                 Assert.That(menu.FindControl<PanelContainer>("AccentH").Visible, Is.True);
                 Assert.That(program.Text, Is.EqualTo("Несохранённая запись"));
                 Assert.That(host.Panel.SwitchToTgui(), Is.True);
                 Assert.That(menu.ProgramView.Parent, Is.EqualTo(host.ProgramLayer));
-                Assert.That(menu.ViewContainer.ChildCount, Is.EqualTo(3));
+                Assert.That(menu.ViewContainer.ChildCount, Is.EqualTo(4));
                 Assert.That(program.Disposed, Is.False);
             }
             Assert.That(cfg.GetCVar(WebUiCVars.InterfaceStyle), Is.EqualTo(1));
             Assert.That(cfg.GetCVar(WebUiCVars.WindowStyles), Is.Empty, "Failure fallback does not change player preferences");
+
+            menu.UpdateState(State());
+            var messengerEvents = new List<bool>();
+            var messengerActions = new List<string>();
+            menu.OnMessengerViewChanged += messengerEvents.Add;
+            menu.OnMessengerAction += (name, _) => messengerActions.Add(name);
+            action("messenger-add", "{}");
+            action("messenger", "{}");
+            menu.SetMessengerData(new TguiData().Number("number", 123456789));
+            using var snapshot = JsonDocument.Parse((string)typeof(TguiPanel).GetField("_data", Private)!.GetValue(host.Panel)!);
+            Assert.That(snapshot.RootElement.GetProperty("view").GetInt32(), Is.EqualTo(PdaMenu.MessengerScreen));
+            Assert.That(snapshot.RootElement.GetProperty("messenger").GetProperty("number").GetInt32(), Is.EqualTo(123456789));
+            action("messenger-add", "{}");
+            Assert.That(messengerActions, Is.EqualTo(new[] { "add" }));
+            host.Panel.SwitchToNative();
+            Assert.That(menu.MessengerView.Visible, Is.True);
+            Assert.That(menu.MessengerView.Parent, Is.SameAs(menu.ViewContainer));
+            Assert.That(menu.ProgramView.Visible, Is.False);
+            Assert.That(host.Panel.SwitchToTgui(), Is.True);
+            action("view", "{\"view\":0}");
+            Assert.That(messengerEvents, Is.EqualTo(new[] { true, false }));
         });
         await pair.CleanReturnAsync();
     }
