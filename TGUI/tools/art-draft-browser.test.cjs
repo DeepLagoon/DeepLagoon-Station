@@ -50,7 +50,15 @@ const resetDraft = () => {data.hasDraft=false;data.draftEpoch++;data.draftVersio
   const url=`http://127.0.0.1:${server.address().port}/art-tablet/`;
   const open=async()=>{const p=await context.newPage();p.on('pageerror',e=>errors.push(String(e)));await p.goto(url+'#'+ticket);await p.waitForFunction(()=>document.querySelector('.ArtStudio__save')&&!document.querySelector('.ArtStudio__save').disabled);return p;};
   const readCache=p=>p.evaluate(async key=>{const m=await import('./recovery-test.mjs');return m.readArtDraft(key);},key);
-  const cached=async p=>{await p.waitForFunction(async key=>{const m=await import('./recovery-test.mjs');return !!await m.readArtDraft(key);},key);return readCache(p);};
+  const cached=async p=>{
+   const deadline=Date.now()+5000;
+   while(Date.now()<deadline){
+    const entry=await readCache(p);
+    if(entry && JSON.parse(entry.document).layers.some(layer=>layer.mask))return entry;
+    await new Promise(resolve=>setTimeout(resolve,50));
+   }
+   assert.fail('The local draft never captured the layer mask');
+  };
   const image=p=>p.locator('.ArtStudio__stage canvas').evaluate(c=>c.toDataURL());
   const stroke=async(p,y=.45)=>{const b=await p.locator('.ArtStudio__stage canvas').boundingBox();await p.mouse.move(b.x+b.width*.2,b.y+b.height*y);await p.mouse.down();await p.mouse.move(b.x+b.width*.75,b.y+b.height*y,{steps:8});await p.mouse.up();};
   let page=await open();const blank=await image(page);

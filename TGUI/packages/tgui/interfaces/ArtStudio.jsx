@@ -7,6 +7,12 @@ import { ArtStudioColorPalette } from './ArtStudioColorPalette';
 import { SIZE, MAX_LAYERS, makeLayer, snapshot, restore, checkpoint, undo, addMask, compose, serialize, loadProject, beginStroke, extendStroke, encode } from './artStudioModel.mjs';
 import './ArtStudio.scss';
 
+const pressureModes = ['pressure-off', 'pressure-size', 'pressure-opacity', 'pressure-both'];
+function readToolSettings(key) {
+  try { return key ? JSON.parse(sessionStorage.getItem(key)) || {} : {}; }
+  catch { return {}; }
+}
+
 export const ArtStudio = () => {
   return <ArtStudioEditor {...useBackend()} />;
 };
@@ -19,32 +25,41 @@ export const ArtStudioEditor = ({ data, act }) => {
   useEffect(() => { act('__style-blocked', { blocked: dirty || busy }); return () => act('__style-blocked', { blocked: false }); }, [dirty || busy]);
   const transferKind = useRef('save'), tabletRevision = useRef(data.tabletRevision || 0), locked = useRef(false);
   locked.current = !!data.tabletActive;
-  const [tool, setTool] = useState('brush'), [shape, setShape] = useState(data.tool === 'brush' ? 'round' : data.tool || 'round');
-  const [eraserSize, setEraserSize] = useState(18);
-  const [color, setColor] = useState(data.color || '#202020'), [size, setSize] = useState(18), [flow, setFlow] = useState(1);
+  const settingsKey = data.recoveryKey && 'deeplagoon-art-tools:' + data.recoveryKey;
+  const [initialSettings] = useState(() => readToolSettings(settingsKey));
+  const [tool, setTool] = useState(initialSettings.tool || 'brush');
+  const [shape, setShape] = useState(initialSettings.shape || (data.tool === 'brush' ? 'round' : data.tool || 'round'));
+  const [eraserSize, setEraserSize] = useState(initialSettings.eraserSize ?? 18);
+  const [color, setColor] = useState(initialSettings.color || data.color || '#202020');
+  const [size, setSize] = useState(initialSettings.size ?? 18), [flow, setFlow] = useState(initialSettings.flow ?? 1);
+  const [pressureMode, setPressureMode] = useState(initialSettings.pressureMode || 'pressure-size');
+  useEffect(() => {
+    if (!settingsKey) return;
+    try { sessionStorage.setItem(settingsKey, JSON.stringify({ tool, shape, eraserSize, color, size, flow, pressureMode })); }
+    catch { /* A browser with storage disabled can still draw. */ }
+  }, [settingsKey, tool, shape, eraserSize, color, size, flow, pressureMode]);
   const [status, setStatus] = useState(''), [dialog, setDialog] = useState('');
   const [saveTitle, setSaveTitle] = useState('');
   const [view, setView] = useState({ zoom: 1, x: 0, y: 0 });
-  const space = useRef(false), paintOptions = useRef(null), dirtyRef = useRef(false), busyRef = useRef(false), closing = useRef(false);
+  const space = useRef(false), dirtyRef = useRef(false), busyRef = useRef(false), closing = useRef(false), pendingClose = useRef(false);
   dirtyRef.current = dirty; busyRef.current = busy;
-  paintOptions.current = { tool, shape, color, size: tool === 'erase' ? eraserSize : size, flow, view };
   const draft = useArtDraft({ data, act, document: () => editor.current && serialize(editor.current), blocked: () => busyRef.current && !closing.current || locked.current || !!data.draftDisabled, localBlocked: () => busyRef.current || locked.current, dirty: () => dirtyRef.current });
-  const changed = (force = false) => { setStatus(''); setDirty(true); dirtyRef.current = true; refresh(n => n + 1); draw(); queuePreview(); draft.capture(force); };
+  const changed = () => { setStatus(''); setDirty(true); dirtyRef.current = true; refresh(n => n + 1); draw(); queuePreview(); draft.progress(); };
   function draw() {
     if (renderTimer.current) return;
     renderTimer.current = requestAnimationFrame(() => {
       renderTimer.current = null;
       if (!canvas.current || !editor.current) return;
-      const ctx = canvas.current.getContext('2d'); ctx.clearRect(0, 0, SIZE, SIZE); ctx.drawImage(compose(editor.current.layers, true), 0, 0);
+      compose(editor.current.layers, canvas.current.getContext('2d'));
     });
   }
   function queuePreview() {
-    if (previewTimer.current) return;
+    if (data.external || previewTimer.current) return;
     previewTimer.current = setTimeout(() => {
       previewTimer.current = null;
-      if (!alive.current || !editor.current || busyRef.current) return;
+      if (!alive.current || !canvas.current || gesture.current || busyRef.current || locked.current) return;
       const small = document.createElement('canvas'); small.width = small.height = 128;
-      small.getContext('2d').drawImage(compose(editor.current.layers, true), 0, 0, 128, 128);
+      small.getContext('2d').drawImage(canvas.current, 0, 0, 128, 128);
       const png = encode(small), chunk = data.chunkSize || 5000, count = Math.ceil(png.length / chunk);
       for (let index = 0; index < count; index++) act('preview', { text: png.slice(index * chunk, (index + 1) * chunk), index, count });
     }, 450);
@@ -64,7 +79,7 @@ export const ArtStudioEditor = ({ data, act }) => {
       if (!alive.current || token !== generation.current) return;
       editor.current = state; saved.current = snapshot(baseline);
       const unsaved = !!data.hasDraft || recovered.local; setDirty(unsaved); dirtyRef.current = unsaved;
-      setReady(true); draw(); if (unsaved) draft.capture(true);
+      setReady(true); draw(); if (unsaved) draft.progress();
     })().catch(() => setStatus(t('loading')));
     return () => { alive.current = false; transfer.current++; if (previewTimer.current) clearTimeout(previewTimer.current); if (renderTimer.current) cancelAnimationFrame(renderTimer.current); };
   }, []);
@@ -85,20 +100,26 @@ export const ArtStudioEditor = ({ data, act }) => {
       if (!alive.current || token !== generation.current) return;
       draft.replace(data); editor.current = state; saved.current = snapshot(baseline);
       setDirty(!!data.hasDraft); dirtyRef.current = !!data.hasDraft; setReady(true); draw();
-      if (data.hasDraft && !locked.current) draft.capture(true);
+      if (data.hasDraft && !locked.current) draft.progress();
     })().catch(() => setStatus(t('loading')));
   }, [data.tabletRevision]);
   useEffect(() => { if (data.closeRequest) requestClose(); }, [data.closeRequest]);
+  useEffect(() => {
+    if (busy || !pendingClose.current) return;
+    pendingClose.current = false;
+    requestClose();
+  }, [busy]);
   async function requestClose() {
-    if (busyRef.current || closing.current) return;
+    if (closing.current) return;
+    if (busyRef.current) { pendingClose.current = true; return; }
     if (locked.current) { act('tablet-revoke'); act('close'); return; }
     if (gesture.current) end({ pointerId: gesture.current.pointerId });
     if (!dirtyRef.current) { act('close'); return; }
     // Capture before locking edits, then keep the draft transport running until acknowledged.
-    const flushed = draft.flush();
+    const flushed = draft.flush(!data.external);
     closing.current = true; setBusy(true); busyRef.current = true; setDialog(''); setStatus('');
     try {
-      if (await flushed) { if (alive.current) act('close'); }
+      if (await flushed) { if (alive.current) await act('close'); }
       else if (alive.current) setStatus(t('draft-failed'));
     } finally {
       closing.current = false;
@@ -125,7 +146,7 @@ export const ArtStudioEditor = ({ data, act }) => {
   }
   async function save(action = 'save') {
     if (!ready || busyRef.current || locked.current || gesture.current) return;
-    if (action === 'tablet') draft.capture(true);
+    if (action === 'tablet') draft.capture();
     draft.pause();
     transferKind.current = action;
     setBusy(true); busyRef.current = true; setDialog(''); setStatus(t('saving'));
@@ -138,19 +159,19 @@ export const ArtStudioEditor = ({ data, act }) => {
       for (let index = 0; index < count; index++) {
         if (!alive.current || token !== transfer.current) return;
         act(action, { text: json.slice(index * chunk, (index + 1) * chunk), index, count, ...draft.metadata() });
-        if (index + 1 < count) await new Promise(resolve => setTimeout(resolve, 25));
+        if (!data.external && index + 1 < count) await new Promise(resolve => setTimeout(resolve, 25));
       }
       setTimeout(() => { if (alive.current && token === transfer.current && busyRef.current) { transfer.current++; setBusy(false); busyRef.current = false; setStatus(t('loading')); } }, 120000);
     } catch (e) { setBusy(false); busyRef.current = false; setStatus(e.message); }
   }
-  function history(forward = false) { if (!locked.current && !busyRef.current && !gesture.current && undo(editor.current, forward)) changed(true); }
-  const mutate = fn => { if (busy || locked.current || gesture.current) return; checkpoint(editor.current); fn(editor.current); changed(true); };
+  function history(forward = false) { if (!locked.current && !busyRef.current && !gesture.current && undo(editor.current, forward)) changed(); }
+  const mutate = fn => { if (busy || locked.current || gesture.current) return; checkpoint(editor.current); fn(editor.current); changed(); };
   function selectMask() {
     if (!ready || busyRef.current || locked.current || gesture.current) return;
     const state = editor.current, layer = state.layers.find(l => l.id === state.active);
     if (state.target === 'mask') { state.target = 'ink'; refresh(n => n + 1); }
     else if (layer.mask) { state.target = 'mask'; refresh(n => n + 1); }
-    else { addMask(state); changed(true); }
+    else { addMask(state); changed(); }
   }
   api.current = { save: dialog === 'save' ? confirmSave : requestSave, history, requestClose, selectMask, resize: delta => (tool === 'erase' ? setEraserSize : setSize)(n => Math.max(1, Math.min(160, n + delta))) };
   useEffect(() => {
@@ -178,7 +199,7 @@ export const ArtStudioEditor = ({ data, act }) => {
     window.addEventListener('keydown', key); window.addEventListener('keyup', up); window.addEventListener('grid-editor-key', key);
     return () => { window.removeEventListener('keydown', key); window.removeEventListener('keyup', up); window.removeEventListener('grid-editor-key', key); };
   }, []);
-  const position = e => { const r = canvas.current.getBoundingClientRect(); return { x: Math.max(0, Math.min(SIZE, (e.clientX - r.left) * SIZE / r.width)), y: Math.max(0, Math.min(SIZE, (e.clientY - r.top) * SIZE / r.height)) }; };
+  const position = (e, r = canvas.current.getBoundingClientRect()) => ({ x: Math.max(0, Math.min(SIZE, (e.clientX - r.left) * SIZE / r.width)), y: Math.max(0, Math.min(SIZE, (e.clientY - r.top) * SIZE / r.height)) });
   const pressure = e => e.pointerType === 'pen' ? Math.max(.01, Math.min(1, e.pressure ?? 1)) : 1;
   const pickColor = e => {
     const p = position(e), pixel = canvas.current.getContext('2d').getImageData(Math.min(SIZE - 1, Math.floor(p.x)), Math.min(SIZE - 1, Math.floor(p.y)), 1, 1).data;
@@ -191,9 +212,17 @@ export const ArtStudioEditor = ({ data, act }) => {
     if (space.current || e.button === 1) { gesture.current = { pointerId: e.pointerId, buttons: e.button === 1 ? 4 : e.button === 2 ? 2 : 1, pan: true, x: e.clientX, y: e.clientY, view }; return; }
     const state = editor.current, layer = state.layers.find(l => l.id === state.active);
     if (!layer?.visible) return;
-    const target = state.target; checkpoint(state, target);
-    const ctx = layer[target].getContext('2d'), p = position(e), options = { ...paintOptions.current, ...(tool === 'erase' ? { shape: 'round', flow: 1 } : {}), erase: tool === 'erase', mask: target === 'mask' };
-    const stroke = beginStroke(ctx), force = pressure(e);
+    const target = state.target, base = layer[target];
+    checkpoint(state, target);
+    const erase = tool === 'erase', p = position(e);
+    const options = {
+      color, size: erase ? eraserSize : size, shape: erase ? 'round' : shape,
+      flow: erase ? 1 : flow, erase, mask: target === 'mask',
+      pressureSize: pressureMode === 'pressure-size' || pressureMode === 'pressure-both',
+      pressureOpacity: pressureMode === 'pressure-opacity' || pressureMode === 'pressure-both',
+    };
+    const stroke = beginStroke(layer[target].getContext('2d'), base);
+    const force = pressureMode === 'pressure-off' ? 1 : pressure(e);
     extendStroke(stroke, p, p, options, force, force); gesture.current = { pointerId: e.pointerId, buttons: 1, stroke, point: p, pressure: force, options }; changed();
   };
   const move = e => {
@@ -202,14 +231,15 @@ export const ArtStudioEditor = ({ data, act }) => {
     if (g.pick) { pickColor(e); return; }
     if (g.pan) { setView({ ...g.view, x: g.view.x + e.clientX - g.x, y: g.view.y + e.clientY - g.y }); return; }
     const samples = e.nativeEvent?.getCoalescedEvents?.() || [];
+    const rect = canvas.current.getBoundingClientRect();
     for (const sample of samples.length ? samples : [e]) {
-      const p = position(sample), force = pressure(sample);
+      const p = position(sample, rect), force = g.options.pressureSize || g.options.pressureOpacity ? pressure(sample) : 1;
       if (Math.hypot(p.x - g.point.x, p.y - g.point.y) < .5 && Math.abs(force - g.pressure) < .01) continue;
       extendStroke(g.stroke, g.point, p, g.options, g.pressure, force); g.point = p; g.pressure = force;
     }
-    draw(); queuePreview(); draft.progress();
+    draw(); draft.progress();
   };
-  const end = e => { const g = gesture.current; if (!g || g.pointerId !== e.pointerId) return; gesture.current = null; if (canvas.current?.hasPointerCapture(e.pointerId)) canvas.current.releasePointerCapture(e.pointerId); if (!g.pan && !g.pick) changed(true); };
+  const end = e => { const g = gesture.current; if (!g || g.pointerId !== e.pointerId) return; gesture.current = null; if (canvas.current?.hasPointerCapture(e.pointerId)) canvas.current.releasePointerCapture(e.pointerId); if (!g.pan && !g.pick) changed(); };
   useEffect(() => {
     const cancel = () => { if (gesture.current) end({ pointerId: gesture.current.pointerId }); space.current = false; };
     window.addEventListener('blur', cancel);
@@ -238,7 +268,8 @@ export const ArtStudioEditor = ({ data, act }) => {
       <div className="ArtStudio__meta"><span>{SIZE} × {SIZE}</span><span>{Math.round(view.zoom * 100)}%</span><span>{state?.target === 'mask' ? t('mask') + ': ' : ''}{layer?.name}</span></div></div>
       <aside className="ArtStudio__panels"><section><label>{t('shape')}<EmbeddedSelect aria-label={t('shape')} value={tool === 'erase' ? 'round' : shape} disabled={busy || tool === 'erase'} onChange={e => setShape(e.target.value)}>{['round','soft','flat','square','chalk','spray'].map(s => <option key={s} value={s}>{s === 'square' ? '■' : t(s)}</option>)}</EmbeddedSelect></label>
       <label>{t(tool === 'erase' ? 'eraser-size' : 'size')} <output>{tool === 'erase' ? eraserSize : size} px</output><input type="range" aria-label={t(tool === 'erase' ? 'eraser-size' : 'size')} min="1" max="160" value={tool === 'erase' ? eraserSize : size} onChange={e => (tool === 'erase' ? setEraserSize : setSize)(Number(e.target.value))} /></label>
-      <label>{t('opacity')} <output>{Math.round(flow * 100)}%</output><input type="range" aria-label={t('opacity')} min="1" max="100" value={Math.round(flow * 100)} onChange={e => setFlow(Number(e.target.value) / 100)} /></label></section>
+      <label>{t('opacity')} <output>{Math.round(flow * 100)}%</output><input type="range" aria-label={t('opacity')} min="1" max="100" value={Math.round(flow * 100)} onChange={e => setFlow(Number(e.target.value) / 100)} /></label>
+      <label>{t('pen-pressure')}<EmbeddedSelect aria-label={t('pen-pressure')} value={pressureMode} disabled={busy} onChange={e => setPressureMode(e.target.value)}>{pressureModes.map(mode => <option key={mode} value={mode}>{t(mode)}</option>)}</EmbeddedSelect></label></section>
       <section><div className="ArtStudio__section-title">{t('layers')}</div><div className="ArtStudio__layers">{[...(state?.layers || [])].reverse().map(l => <div key={l.id} className={l.id === state.active ? 'active' : ''}>
         <button aria-label={t('visible') + ': ' + l.name} aria-pressed={l.visible} disabled={busy} onClick={() => mutate(() => { l.visible = !l.visible; })}><Icon name={l.visible ? 'eye' : 'eye-slash'} /></button>
         <button className="ArtStudio__layer-name" onClick={() => { state.active = l.id; state.target = 'ink'; refresh(n => n + 1); }} onDoubleClick={() => { state.active = l.id; setDialog('rename'); }} disabled={busy}>{l.name}</button>
