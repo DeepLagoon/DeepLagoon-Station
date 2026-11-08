@@ -7,17 +7,17 @@ import { gridEditorTabEntries } from './gridEditorTabs.mjs';
 import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 import { useBackend } from '../backend';
 import { ColorSquare } from '../components/PlayerColorPicker';
-import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { visibleItem, editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorDecalSprite } from './GridEditorDecalSprite';
+import { spriteLayers, spriteUrls } from './gridEditorSprites.mjs';
 import { GridEditorScene, GridEditorSelection } from './GridEditorScene';
 import { GridEditorSelect } from './GridEditorSelect';
 import { GridEditorAtmos } from './GridEditorAtmos';
 import { GridEditorIssues } from './GridEditorIssues';
 import { GridEditorPeers, useGridEditorPeers } from './GridEditorPeers';
 import { useGridEditorRoutes, GridEditorNetworks, GridEditorRouteHandles } from './GridEditorRoutes';
-import { routeProfile } from './gridEditorRouting.mjs';
 import { exportGridDraft, draftFileChunks } from './gridEditorExport.mjs';
 
 const categories = [['tile', 'Полы'], ['wall', 'Стены'], ['entity', 'Объекты'], ['decal', 'Декали'], ['all', 'Все'], ['favorites', '★ Избранное'], ['templates', 'Шаблоны']];
@@ -25,12 +25,25 @@ const tools = [['pan', 'Перемещение · 1'], ['brush', 'Кисть · 
 const toolIcons = { select: '↖', pan: '✥', brush: '▱', line: '╱', pick: '◉', route: '⌁' };
 const panels = [['properties', 'Свойства'], ['atmos', 'Атмосфера'], ['networks', 'Сети'], ['mirror', 'Зеркало'],
   ['reference', 'Подложка'], ['layers', 'Слои'], ['templates', 'Шаблоны'], ['grid', 'Грид'], ['files', 'Файлы'], ['issues', 'Ошибки']];
+const visibilityLayers = [
+  ['tile', 'Полы'], ['entity', 'Объекты и стены'], ['decal', 'Декали'],
+  ['wire', 'Провода'], ['gas', 'Газовые трубы'], ['disposal', 'Трубы мусоросброса'], ['spawn', 'Спавн-маркеры'],
+];
 const Sprite = ({ images = [], color, cellSize = 32, native = false }) => <>{images.map((image, index) => color ?
   <GridEditorDecalSprite key={index} image={image} color={color} cellSize={cellSize} native={native} /> :
   <img key={index} src={image.url} alt="" draggable={false} style={native && image.native ? {
     left:'50%',top:'50%',width:image.width*cellSize/32,height:image.height*cellSize/32,maxWidth:'none',maxHeight:'none',transformOrigin:'0 0',
     transform:`matrix(${image.m11},${-image.m12},${-image.m21},${image.m22},${image.m31*cellSize},${-image.m32*cellSize}) translate(-50%,-50%)`
   } : undefined} />)}</>;
+const MapPreviewSprite = ({ item, visual, cellSize, color }) => {
+  if (item.kind !== 'entity')
+    return <span style={{ transform: `rotate(${-(item.rotation || 0)}deg)` }}><Sprite images={visual?.images} native cellSize={cellSize} color={item.kind === 'decal' ? color : undefined} /></span>;
+  const images = spriteLayers({ ...item, x: 0, y: 0 }, visual).filter(({ image }) => image.url).map(layer => ({
+    url: layer.image.url, native: true, width: layer.width * 32, height: layer.height * 32,
+    m11: layer.a, m12: layer.b, m21: layer.c, m22: layer.d, m31: layer.x, m32: layer.y,
+  }));
+  return <span><Sprite images={images} native cellSize={cellSize} /></span>;
+};
 
 export const GridEditor = () => {
   const { data, act: backendAct } = useBackend();
@@ -142,12 +155,10 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   useEffect(() => { if (tool === 'route') { setActivePanel('networks'); setCatalogOpen(false); } }, [tool]);
   const [zoom, setZoom] = useState(1), [gridLines, setGridLines] = useState(true);
   const requestedZoom = useRef(1), zoomCenter = useRef(null), settledCamera = useRef(null);
-  const [layers, setLayers] = useState({ tile: true, entity: true, decal: true });
+  const [layers, setLayers] = useState(() => Object.fromEntries(visibilityLayers.map(([id]) => [id, true])));
   const [rotation, setRotation] = sharedField('rotation'), [color, setColor] = sharedField('color');
   const [z, setZ] = sharedField('z'), [cleanable, setCleanable] = sharedField('cleanable');
   const decalMode = category === 'decal';
-  const editLayers = useMemo(() => decalMode ? { decal: layers.decal, decalZ: z } : layers, [decalMode, layers, z]);
-  const editable = item => editableItem(item, editLayers);
   const [emptyDecalLayers, setEmptyDecalLayers] = useState([0]);
   const decalLayers = [...new Set([...emptyDecalLayers, z, ...draft.filter(item => item.kind === 'decal').map(item => item.z || 0)])].sort((a, b) => a - b);
   const chooseLayer = value => {
@@ -321,8 +332,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   }, [atmosMode, pending, data.token, data.patchVersion]);
   useEffect(() => setAtmosBusy(false), [data.atmosVersion, data.resultVersion]);
   const reference = useGridEditorReference({ data, act, area, viewport, canvas, cellSize, blocked: selectHeld || deleteHeld || panning || before || pending, onFailure: message => setFailure({ title: 'Не удалось вставить скриншот', message }) });
-  const allDisplayed = before ? baseline : draft;
-  const displayed = allDisplayed; // Network visibility is applied to the scene below.
+  const displayed = before ? baseline : draft;
   const visual = (item) => visuals.get(`${item.kind}:${item.prototype}`);
   const spatial = useRef(null);
   if (active && (spatial.current?.items !== displayed || spatial.current?.visuals !== visuals))
@@ -331,7 +341,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const spatialIndex = spatial.current?.index;
   useEffect(() => {
     if (!active) return;
-    for (const entry of visuals.values()) for (const { url } of entry.images || []) {
+    for (const entry of visuals.values()) for (const url of spriteUrls(entry)) {
       if (!url || alphaMasks.current.has(url)) continue;
       alphaMasks.current.set(url, null);
       const image = new Image();
@@ -351,7 +361,6 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     return x >= 0 && y >= 0 && x < mask.width && y < mask.height && mask.bytes[(Math.floor(y) * mask.width + Math.floor(x)) * 4 + 3] > 16;
   });
   const pointAt = event => { const rect = canvas.current.getBoundingClientRect(); return { x: area.x + (event.clientX - rect.left) / cellSize, y: area.y + area.height - (event.clientY - rect.top) / cellSize }; };
-  const underPointer = point => itemsAtPoint(nearbyItems(spatialIndex, point), point, editLayers, visual, opaque).filter(item=>route.visible || !routeProfile(item));
   const nextId = () => `new_${data.token}_${Date.now()}_${counter.current++}`;
   const update = (next, restore = false, duplicate = true) => {
     if (restore) { current.current = next; setDraft(next); return; }
@@ -367,6 +376,20 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const change = (next, duplicate = true) => { if (JSON.stringify(next) === JSON.stringify(current.current)) return; remember(); update(next, false, duplicate); };
   const route = useGridEditorRoutes({token:data.token, act, items:draft, area, nextId, locked, toCell:event=>at(event),canvas, devices:data.routeDevices || [],
     commit:result=>{change(result.items,false);setSelected([]);},fail:message=>setFailure({title:'Не удалось проложить трассу',message})});
+  const sceneLayers = useMemo(() => ({ ...layers, networks: route.visible }), [layers, route.visible]);
+  const editLayers = useMemo(() => decalMode ? { decal: layers.decal, decalZ: z } : sceneLayers, [decalMode, layers.decal, sceneLayers, z]);
+  const editable = item => editableItem(item, editLayers, visual(item));
+  const underPointer = point => itemsAtPoint(nearbyItems(spatialIndex, point), point, editLayers, visual, opaque);
+  useLayoutEffect(() => {
+    setSelected(ids => {
+      if (!ids.length) return ids;
+      const selectedIds = new Set(ids);
+      const hidden = current.current.filter(item => selectedIds.has(item.id) && !visibleItem(item, sceneLayers, visual(item)));
+      if (!hidden.length) return ids;
+      const hiddenIds = new Set(hidden.map(item => item.id));
+      return ids.filter(id => !hiddenIds.has(id));
+    });
+  }, [sceneLayers, visuals]);
   const sharedEdits=useMemo(()=>{
     if(!route.editing)return localEdits;
     try {
@@ -385,13 +408,6 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   }, [data.peerDrafts, baseline]);
   useEffect(() => { onDirty(changes > 0 || route.editing || pending || exporting || !!data.downloading); },
     [changes, route.editing, pending, exporting, data.downloading]);
-  const sceneItems = useMemo(()=>route.visible ? displayed : displayed.filter(item=>!routeProfile(item)),[displayed,route.visible]);
-  const scene = useRef(null);
-  if (active && scene.current?.items !== sceneItems)
-    scene.current = { items: sceneItems, index: sceneItems.length === displayed.length ? spatialIndex : indexItems(sceneItems) };
-  else if (active && sceneItems.length === displayed.length && scene.current?.index !== spatialIndex)
-    scene.current = { items: sceneItems, index: spatialIndex };
-  const sceneIndex = scene.current?.index;
   const startGridResize = (sides, event) => {
     if (locked || decalMode || event.button !== 0) return;
 
@@ -538,6 +554,14 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   };
   const options = { rotation, color, z, cleanable, replace: true, isWall: (id) => visuals.get(`entity:${id}`)?.category === 'wall' };
   const paint = (cells) => { if (!brush || decalMode && brush.kind !== 'decal') return; update(stamp(current.current, cells.filter((cell) => inside(cell, area)), brush, options, nextId)); };
+  const pickBrush = item => {
+    const definition = visual(item);
+    setBrush({ ...definition, id: item.prototype, kind: item.kind, name: definition?.name || item.prototype,
+      category: definition?.category || item.kind, anchored: item.anchored,
+      pipeLayer: item.pipeLayer >= 0 ? item.pipeLayer : definition?.pipeLayer });
+    setRotation(item.rotation); setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable);
+    setTemplateBrush(null); setTool('brush');
+  };
   const down = (event) => {
     const mode = selectHold.current ? 'select' : tool;
     if (event.button === 2) {
@@ -594,13 +618,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       return;
     }
     if (mode === 'pick') {
-      if (item) {
-        const definition = visual(item);
-        setBrush({ ...definition, id: item.prototype, kind: item.kind, name: definition?.name || item.prototype,
-          category: definition?.category || item.kind, anchored: item.anchored });
-        setRotation(item.rotation); setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); setTool('brush');
-        setTemplateBrush(null);
-      }
+      if (item) pickBrush(item);
       return;
     }
     if (mode === 'select') {
@@ -696,7 +714,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
           const moved = moveSelection(active.original, active.ids, active.offset.dx, active.offset.dy, area);
           update(moved.items); setSelected(moved.ids);
         }
-        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), editLayers, mirror));
+        if (active.erasing) update(active.start.x === active.last.x && active.start.y === active.last.y ? active.original.filter(item => item.id !== active.clicked) : eraseRectangle(active.original, cellRectangle(active.start, active.last), editLayers, mirror, visual));
         if (active.drawing && tool === 'brush') paint(cellsBetween(active.start, active.last, true));
         if (active.drawing && tool === 'line') paint(cellsBetween(active.start, active.last));
         if (JSON.stringify(current.current) !== JSON.stringify(active.original)) remember(active.original, previousEdits);
@@ -721,7 +739,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const remove = () => {
     const region = selectionRegion.current;
     const rectangle = region && region.ids.length === selected.length && region.ids.every(id => selected.includes(id)) ? region.rectangle : null;
-    change(rectangle ? eraseRectangle(current.current, rectangle, editLayers, mirror) : current.current.filter(i => !selected.includes(i.id)));
+    change(rectangle ? eraseRectangle(current.current, rectangle, editLayers, mirror, visual) : current.current.filter(i => !selected.includes(i.id)));
     setSelected([]); selectionRegion.current = null;
   };
   const reflect = (axis = 'x') => {
@@ -760,7 +778,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (outside.length) setFailure({title:'Часть объектов не вставлена', message:outside.map(item => `${item.prototype}: вне области редактирования (${item.x}, ${item.y}).`).join('\n')});
     change(insertTemplate(current.current, copied, target, 0, nextId, item => inside(item, area))); setSelected([]);
   };
-  const menuItems = contextMenu ? contextMenu.ids.map(id => current.current.find(item => item.id === id)).filter(Boolean) : [];
+  const menuItems = contextMenu ? contextMenu.ids.map(id => current.current.find(item => item.id === id)).filter(item => item && editable(item)) : [];
   const menuItem = contextMenu ? menuItems.find(item => item.id === contextMenu.item) : null;
   const menuTargets = menuItem ? selected.includes(menuItem.id) ? current.current.filter(item => selected.includes(item.id)) : [menuItem] : [];
   const menuAction = action => {
@@ -781,9 +799,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (action === 'rotate') { const ids = new Set(targets.map(item => item.id)); change(current.current.map(item => ids.has(item.id) && item.kind !== 'tile' ? { ...item, rotation: (item.rotation + 90) % 360 } : item)); }
     if (action === 'delete') { const ids = new Set(targets.map(item => item.id)); change(current.current.filter(item => !ids.has(item.id))); setSelected([]); }
     if (action === 'pick' && menuItem) {
-      const definition = visual(menuItem);
-      setBrush({ ...definition, id: menuItem.prototype, kind: menuItem.kind, name: definition?.name || menuItem.prototype, category: definition?.category || menuItem.kind, anchored: menuItem.anchored });
-      setTemplateBrush(null); setRotation(menuItem.rotation); setColor(menuItem.color || '#ffffffff'); setZ(menuItem.z); setCleanable(menuItem.cleanable); setSelected([]); setTool('brush');
+      pickBrush(menuItem); setSelected([]);
     }
     setContextMenu(null);
   };
@@ -847,7 +863,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     document.addEventListener('keydown', key, true); document.addEventListener('keyup', release, true); window.addEventListener('blur', blur); window.addEventListener('grid-editor-key', nativeKey);
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
   }, [active, draft, selected, locked, tool, selectHeld, undo, redo, hover, clipboard, failure, contextMenu, confirmClose, mirror, area, zoom, layers,
-    exporting, data.downloading, data.gridName, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, decalMode, z, editLayers, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, route.visible]);
+    exporting, data.downloading, data.gridName, data.alwaysPowered, data.forceGravity, data.safeAtmosphere, data.apartmentProtected, decalMode, z, editLayers, expansion, data.gridX, data.gridY, data.gridWidth, data.gridHeight, pointer, route.graph, route.canUndo, route.canRedo, visuals]);
   useEffect(() => {
     if (active) return;
     stopKeyboardPan(); keyboardPan.current.shift = false;
@@ -907,9 +923,12 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     view.addEventListener('wheel', wheel, { passive: false });
     return () => view.removeEventListener('wheel', wheel);
   }, [zoom]);
-  const pointedItems = useMemo(() => pointer ? underPointer(pointer) : [], [pointer, spatialIndex, editLayers, visuals, route.visible]);
+  const pointedItems = useMemo(() => pointer ? underPointer(pointer) : [], [pointer, spatialIndex, editLayers, visuals]);
   const hoveredItem = (shift || ['pick', 'select'].includes(activeTool)) ? pointedItems[0] : null;
-  const selectedItems = useMemo(() => { const ids = new Set(selected); return displayed.filter(item => ids.has(item.id) && (route.visible || !routeProfile(item))); }, [displayed, selected, route.visible]);
+  const selectedItems = useMemo(() => {
+    const ids = new Set(selected);
+    return displayed.filter(item => ids.has(item.id) && visibleItem(item, sceneLayers, visual(item)));
+  }, [displayed, selected, sceneLayers, visuals]);
   const highlightedItems=useMemo(()=>!movePreview&&hoveredItem&&!selected.includes(hoveredItem.id)?[...selectedItems,hoveredItem]:selectedItems,[selectedItems,hoveredItem,selected,movePreview]);
   const one = selectedItems[0];
   const patchSelected = (patch) => change(current.current.map((i) => selected.includes(i.id) && i.kind !== 'tile' ? { ...i, ...patch } : i));
@@ -1017,25 +1036,25 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
               <button key={sides.join('-')} aria-label={`Растянуть grid: ${sides.join(' ')}`} disabled={locked}
                 className={`GridEditor__resizeGrid ${sides.join(' ')}`} onPointerDown={event => startGridResize(sides, event)}
                 onPointerMove={moveGridResize} onPointerUp={event => endGridResize(event)} onPointerCancel={event => endGridResize(event, true)} />)}
-            <GridEditorScene key={`${data.token}:${sceneAttempt}`} token={data.token} pool={scenePool} active={active} index={sceneIndex} area={area} layers={layers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
-            {active && !before && !!peerDrafts.peers.length && <GridEditorPeers items={[]} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} />}
+            <GridEditorScene key={`${data.token}:${sceneAttempt}`} token={data.token} pool={scenePool} active={active} index={spatialIndex} area={area} layers={sceneLayers} visuals={visuals} view={view} cellSize={cellSize} onProgress={setSceneProgress} />
+            {active && !before && !!peerDrafts.peers.length && <GridEditorPeers items={[]} removed={peerDrafts.removed} area={area} view={view} cellSize={cellSize} visuals={visuals} layers={sceneLayers} />}
             {active && atmosMode && data.atmosToken === data.token && !before && <GridEditorAtmos cells={atmosCells} area={area} view={view} cellSize={cellSize} />}
             {mirror.enabled && <div className={`GridEditor__mirrorLine ${mirror.axis}`} style={mirror.axis === 'x' ? { left: (mirror.center - area.x) * cellSize, height: area.height * cellSize } : { top: (area.y + area.height - mirror.center) * cellSize, width: area.width * cellSize }} />}
             {reference.overlay}
             {rubberband && <div className={`GridEditor__rubberband ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`} style={{
               left: (rubberband.x - area.x) * cellSize, top: (area.y + area.height - rubberband.y - rubberband.height) * cellSize,
               width: rubberband.width * cellSize, height: rubberband.height * cellSize }} />}
-            {!decalMode && route.visible && layers.entity && <GridEditorNetworks items={allDisplayed} area={area} view={view} cellSize={cellSize}/>}
+            {!decalMode && route.visible && layers.entity && <GridEditorNetworks items={displayed} layers={layers} area={area} view={view} cellSize={cellSize}/>}
             {!decalMode && !before && tool==='route' && <GridEditorRouteHandles route={route} area={area} view={view} cellSize={cellSize} locked={locked}/>}
             <GridEditorSelection active={active} items={highlightedItems} visuals={visuals} area={area} layers={layers} view={view} cellSize={cellSize} offset={movePreview} />
             {active && !before && <GridEditorIssues issues={issues} area={area} view={view} cellSize={cellSize} />}
             {((deleteHeld || gesture.current?.erasing || ['brush','line'].includes(activeTool)) ? (previewCells.length ? previewCells : hover ? [hover] : []) : []).map((cell) => <div key={`${cell.x}:${cell.y}`} className={`GridEditor__cursor ${(deleteHeld || gesture.current?.erasing) ? 'erase' : ''}`}
               style={{ left: (cell.x - area.x) * cellSize, top: (area.y + area.height - 1 - cell.y) * cellSize, width: cellSize, height: cellSize }}>
-              {brush && ['brush', 'line'].includes(activeTool) && <span style={{ transform: `rotate(${brush?.noRotation ? 0 : -rotation}deg)` }}><Sprite images={brush.images} native cellSize={cellSize} color={brush.kind === 'decal' ? color : undefined} /></span>}</div>)}
+              {brush && ['brush', 'line'].includes(activeTool) && <MapPreviewSprite item={{ kind: brush.kind, rotation, pipeLayer: brush.pipeLayer }} visual={brush} cellSize={cellSize} color={color} />}</div>)}
             {templatePreview.map((item, index) => <div key={`template_${index}`} className="GridEditor__cursor"
               style={{ left: (item.x - (item.kind === 'entity' ? .5 : 0) - area.x) * cellSize,
                 top: (area.y + area.height - 1 - item.y + (item.kind === 'entity' ? .5 : 0)) * cellSize, width: cellSize, height: cellSize }}>
-              <span style={{ transform: `rotate(${visual(item)?.noRotation ? 0 : -item.rotation}deg)` }}><Sprite images={visual(item)?.images} native cellSize={cellSize} color={item.kind === 'decal' ? item.color : undefined} /></span></div>)}
+              <MapPreviewSprite item={item} visual={visual(item)} cellSize={cellSize} color={item.color} /></div>)}
           </div>
           </div>
         </div>
@@ -1084,7 +1103,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         </section>
         <section className="GridEditor__panelSection" hidden={activePanel !== 'properties'}>
         {!!pointedItems.length && <><strong>Под курсором</strong>{pointedItems.slice(0, 8).map(item => <button key={item.id} disabled={locked} onPointerDown={e => e.preventDefault()} onClick={() => {
-          if (tool === 'pick') { const definition = visual(item); setBrush({ ...definition, id: item.prototype, kind: item.kind, anchored: item.anchored }); setRotation(item.rotation); setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); setTemplateBrush(null); setTool('brush'); }
+          if (tool === 'pick') pickBrush(item);
           else { setSelected([item.id]); setTool('select'); }
         }}>{visual(item)?.name || item.prototype}</button>)}</>}
         </section>
@@ -1122,7 +1141,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
 
         </section>
         <section className="GridEditor__panelSection" data-panel="layers" hidden={activePanel !== 'layers'}>
-        <strong>Видимость</strong>{[['tile', 'Полы'], ['entity', 'Объекты и стены'], ['decal', 'Декали']].map(([id, name]) => <label key={id}><input type="checkbox" checked={layers[id]} onChange={(e) => setLayers({ ...layers, [id]: e.target.checked })} />{name}</label>)}
+        <strong>Видимость</strong>{visibilityLayers.map(([id, name]) => <label key={id}><input type="checkbox" checked={layers[id]} onChange={(e) => setLayers({ ...layers, [id]: e.target.checked })} />{name}</label>)}
         </section>
         <section className="GridEditor__panelSection" data-panel="grid" hidden={activePanel !== 'grid'}>
         <label htmlFor="grid-editor-name">Название грида</label>

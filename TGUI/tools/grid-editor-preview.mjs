@@ -28,7 +28,7 @@ const catalog = [
 for (let i = 0; i < 1000; i++) catalog.push({ ...catalog[0], id: 'FixtureFloor' + i, name: 'Проверочный пол ' + i });
 catalog.push({ id: 'FixtureTable', name: 'Проверочный стол', kind: 'entity', category: 'entity', drawDepth: 2, exclusive: true, images: [{url: svg('<rect x="2" y="2" width="28" height="28" fill="brown"/>')}] },
   { id: 'FixtureCup', name: 'Проверочная чашка', kind: 'entity', category: 'entity', drawDepth: 10, images: [{url: svg('<rect x="13" y="13" width="6" height="6" fill="white"/>')}] });
-for(const profile of routeProfiles)for(const id of routePrototypes(profile))catalog.push({id,name:id,kind:'entity',category:'entity',anchored:true,images:[{url:decal}]});
+for(const profile of routeProfiles)for(const id of routePrototypes(profile))catalog.push({id,name:id,kind:'entity',category:'entity',visibilityLayer:profile.kind,anchored:true,images:[{url:decal}]});
 const defaults = { rotation: 0, color: '#ffffff', z: 0, cleanable: false, anchored: false, variant: 0, flags: 0, mirror: 0 };
 const large = new URLSearchParams(location.search).has('large');
 const fail = new URLSearchParams(location.search).has('fail');
@@ -46,6 +46,12 @@ for (let x = -5; x <= 6; x++) for (let y = -3; y <= 5; y++) {
 }
 items.push({ ...defaults, id: 'e:chair', kind: 'entity', prototype: 'ChairWood', x: .5, y: .5 });
 items.push({ ...defaults, id: 'e:table', kind: 'entity', prototype: 'FixtureTable', x: 2.5, y: 1.5 }, { ...defaults, id: 'e:cup', kind: 'entity', prototype: 'FixtureCup', x: 2.5, y: 1.5 });
+if (new URLSearchParams(location.search).has('visibility')) {
+  for (const [id, visibilityLayer] of [['GasPipeManifold', 'gas'], ['DisposalTagger', 'disposal'], ['SpawnPointCaptain', 'spawn']])
+    catalog.push({ id, name: id, kind: 'entity', category: 'entity', visibilityLayer, anchored: true, images: [{ url: decal }] });
+  ['CableHV', 'GasPipeStraightAlt2', 'DisposalPipe', 'SpawnPointCaptain', 'ChairWood', 'GasPipeManifold', 'DisposalTagger']
+    .forEach((prototype, index) => items.push({ ...defaults, id: 'visibility:' + index, kind: 'entity', prototype, x: index - 2.5, y: 2.5 }));
+}
 if (large) { items.length = 0; for (let x=0; x<250; x++) for(let y=0; y<250; y++) items.push({ ...defaults, id: 't:'+x+':'+y, kind:'tile', prototype:'Plating', x,y }); }
 function App() {
   const [data, setData] = useState({ grid: '142', token: 'fixture', sourcePath:new URLSearchParams(location.search).has('source')?'Resources/Maps/Test/empty.yml':'', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], radarColor: '#FFD700', initialized: false });

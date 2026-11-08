@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { routeProfiles, routeCells, routeShape, pipePorts, readRoute, buildRoute, rotatePorts, moveRoutePoint, deleteRoutePoint, routeProfile, installRouteDevice } from '../packages/tgui/interfaces/gridEditorRouting.mjs';
-import { spriteBounds } from '../packages/tgui/interfaces/gridEditorSprites.mjs';
+import { spriteBounds, spriteLayers } from '../packages/tgui/interfaces/gridEditorSprites.mjs';
 import { itemChunks } from '../packages/tgui/interfaces/gridEditorSceneCache.mjs';
 import { indexItems, nearbyItems, itemsAtPoint } from '../packages/tgui/interfaces/gridEditorModel.mjs';
 const hv=routeProfiles[0],gas=routeProfiles[3];
@@ -157,6 +157,34 @@ test('native scale and layer matrices affect picking while noRotation keeps the 
   const index=indexItems([item],()=>visual);
   assert.ok(nearbyItems(index,{x:8,y:.5}).includes(item));
   assert.equal(itemsAtPoint([item],{x:8,y:.5},{entity:true},()=>visual).length,1);
+});
+
+test('directional sprites use authored frames and keep the layer offset under entity rotation', () => {
+  const item = { id: 'chair', kind: 'entity', x: .5, y: .5, rotation: -90 };
+  const visual = { images: [{ ...image, m32: 0, m31: 1, url: 'south', frames: [{ url: 'east' }, { url: 'north' }, { url: 'west' }] }] };
+  const [layer] = spriteLayers(item, visual);
+  assert.equal(layer.image.url, 'west');
+  assert.ok(Math.abs(layer.a - 1) < 1e-8 && Math.abs(layer.b) < 1e-8);
+  assert.ok(Math.abs(layer.x - .5) < 1e-8 && Math.abs(layer.y + .5) < 1e-8);
+  const [upright] = spriteLayers(item, { ...visual, noRotation: true });
+  assert.equal(upright.image.url, 'west');
+  assert.equal(upright.x, 1.5);
+  assert.equal(upright.y, .5);
+  const [diagonal] = spriteLayers({ ...item, rotation: 45 }, {
+    images: [{ ...image, frames: Array.from({ length: 7 }, (_, i) => ({ url: String(i + 1) })) }],
+  });
+  assert.equal(diagonal.image.url, '1');
+  assert.ok(Math.abs(diagonal.b) < 1e-8);
+});
+
+test('pipe layer and direction select the same frame in the map and hit test', () => {
+  const item = { id: 'p', kind: 'entity', prototype: 'GasPipeBend', x: .5, y: .5, rotation: 90, pipeLayer: 2 };
+  const visual = { images: [{ ...image, width: 32, height: 32, m32: 0, url: 'base', pipeFrames: [{
+    layer: 2, width: 32, height: 32, url: 'alt-south', frames: [{ url: 'alt-east' }, { url: 'alt-north' }, { url: 'alt-west' }],
+  }] }] };
+  assert.equal(spriteLayers(item, visual)[0].image.url, 'alt-east');
+  assert.deepEqual(itemsAtPoint([item], { x: .5, y: .5 }, { entity: true }, () => visual,
+    frames => frames[0].url === 'alt-east'), [item]);
 });
 
 

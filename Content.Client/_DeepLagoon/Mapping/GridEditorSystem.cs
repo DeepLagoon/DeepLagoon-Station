@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
+using Content.Shared.Atmos.Components;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Decals;
 using Content.Shared.Maps;
@@ -220,9 +221,15 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (kind == "entity")
         {
             if (!_prototypes.TryIndex<EntityPrototype>(id, out var proto)) return data.String("name", id).Array("images", Array.Empty<TguiData>());
-            return data.Array("images", _images.MapItem(id)).Bool("noRotation", proto.TryGetComponent<SpriteComponent>(out var mappedSprite) && mappedSprite.NoRotation).String("name", proto.Name)
+            proto.TryComp<SpriteComponent>(out var sprite, EntityManager.ComponentFactory);
+            proto.TryComp<AtmosPipeLayersComponent>(out var pipe, EntityManager.ComponentFactory);
+            return data.Array("images", sprite != null ? _images.GridEditorItemImages(proto, sprite) : _images.Item(id))
+                .Bool("noRotation", sprite?.NoRotation == true).Bool("snapCardinals", sprite?.SnapCardinals == true)
+                .Number("pipeLayer", pipe != null ? (int) pipe.CurrentPipeLayer : -1)
+                .Number("directionBias", (float) (SpriteComponent.DirectionBias * 180 / Math.PI)).String("name", proto.Name)
                 .Bool("pipeColor", proto.Components.ContainsKey("AtmosPipeColor"))
-                .Number("drawDepth", proto.TryGetComponent<SpriteComponent>(out var sprite) ? sprite.DrawDepth : 0)
+                .String("visibilityLayer", VisibilityLayer(proto))
+                .Number("drawDepth", sprite?.DrawDepth ?? 0)
                 .Bool("exclusive", GridEditorPlacement.IsExclusive(proto, _tags)).Bool("diagonal", GridEditorPlacement.HasTag(proto, "Diagonal", _tags))
                 .String("category", GridEditorPlacement.IsWall(proto, _tags) ? "wall" : "entity");
         }
@@ -233,6 +240,51 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Array("images", spec == null ? Array.Empty<TguiData>() :
             new[] { new TguiData().String("url", kind == "tile" && spec is SpriteSpecifier.Texture texture ?
                 _images.TileFrame(texture.TexturePath) : _images.Frame(spec)).String("color", "#ffffff").Number("width", size.X).Number("height", size.Y) });
+    }
+
+    private string VisibilityLayer(EntityPrototype prototype)
+    {
+        if (prototype.Components.ContainsKey("CableVisualizer"))
+            return "wire";
+        if (prototype.Components.ContainsKey("AtmosPipeLayers") || prototype.Components.ContainsKey("PipeAppearance"))
+            return "gas";
+
+        // Server-only components may be present only in the declaring prototype's YAML on the client.
+        foreach (var (id, _) in _prototypes.EnumerateAllParents<EntityPrototype>(prototype.ID, includeSelf: true))
+        {
+            if (id == "DisposalPipeBase")
+                return "disposal";
+            if (!_prototypes.TryGetMapping<EntityPrototype>(id, out var mapping) ||
+                !mapping.TryGet<SequenceDataNode>("components", out var components))
+                continue;
+
+            foreach (var component in components)
+            {
+                if (component is not MappingDataNode entry || !entry.TryGet<ValueDataNode>("type", out var type))
+                    continue;
+
+                switch (type.Value)
+                {
+                    case "DisposalTube":
+                        return "disposal";
+                    case "SpawnPoint":
+                    case "AntagSpawner":
+                    case "GhostRoleAntagSpawner":
+                    case "GhostRoleMobSpawner":
+                    case "ConditionalSpawner":
+                    case "CountSpawner":
+                    case "EntityTableSpawner":
+                    case "GridSpawner":
+                    case "RandomDecalSpawner":
+                    case "RandomHumanoidSpawner":
+                    case "RandomSpawner":
+                    case "TimedSpawner":
+                        return "spawn";
+                }
+            }
+        }
+
+        return "";
     }
 
     private static TguiData ItemData(GridEditorItem i)

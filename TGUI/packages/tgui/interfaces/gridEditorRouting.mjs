@@ -3,7 +3,9 @@ export const routeProfiles = [
   { kind:'wire', id: 'hv', name: 'Кабель высокого напряжения', cable: 'CableHV', color: '#ff963f' },
   { kind:'wire', id: 'mv', name: 'Кабель среднего напряжения', cable: 'CableMV', color: '#ffe35b' },
   { kind:'wire', id: 'lv', name: 'Кабель низкого напряжения', cable: 'CableApcExtension', color: '#73ea83' },
-  ...['', 'Alt1', 'Alt2'].map((suffix, i) => ({ kind:'gas', id: `gas${i}`, name: `Газовые трубы · слой ${i + 1}`, suffix, color: ['#67d4ff','#c59aff','#fa9bd0'][i] })),
+  // The alternative pipe RSIs offset their junctions by seven pixels on each axis.
+  ...['', 'Alt1', 'Alt2'].map((suffix, i) => ({ kind:'gas', id: `gas${i}`, name: `Газовые трубы · слой ${i + 1}`, suffix,
+    color: ['#67d4ff','#c59aff','#fa9bd0'][i], pipeOffset: [0, 7, -7][i] / 32 })),
   {kind:'disposal',id:'disposal',name:'Трубы мусоросброса',disposal:true,color:'#e1b58b'},
 ];
 const disposalShapes=[['DisposalPipe',3],['DisposalBend',6],['DisposalJunction',7],['DisposalJunctionFlipped',11],['DisposalYJunction',14],['DisposalTrunk',2]];
