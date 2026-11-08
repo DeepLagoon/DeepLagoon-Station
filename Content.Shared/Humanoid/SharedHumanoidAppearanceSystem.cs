@@ -112,7 +112,9 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
     private void OnExamined(EntityUid uid, HumanoidAppearanceComponent component, ExaminedEvent args)
     {
         var identity = Identity.Entity(uid, EntityManager);
-        var species = GetSpeciesRepresentation(component.Species).ToLower();
+        var species = TryComp<DetailExaminableComponent>(uid, out var details) && !string.IsNullOrEmpty(details.CustomSpeciesName)
+            ? details.CustomSpeciesName
+            : GetSpeciesRepresentation(component.Species).ToLower();
         var age = GetAgeRepresentation(component.Species, component.Age);
 
         // WWDP EDIT
