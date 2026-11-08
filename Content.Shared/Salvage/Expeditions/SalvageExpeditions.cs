@@ -66,11 +66,14 @@ public sealed class ClaimSalvageMessage : BoundUserInterfaceMessage
 public sealed class FinishSalvageMessage : BoundUserInterfaceMessage;
 
 /// <summary>
-/// Added per station to store data on their available salvage missions.
+/// Stores available salvage missions for a station or an individually configured grid.
 /// </summary>
 [RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class SalvageExpeditionDataComponent : Component
 {
+    [DataField]
+    public bool Enabled = true;
+
     /// <summary>
     /// Is there an active salvage expedition.
     /// </summary>

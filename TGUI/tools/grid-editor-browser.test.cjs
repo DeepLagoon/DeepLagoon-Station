@@ -41,7 +41,8 @@ GridSceneCache.prototype.prepare = async function(...args) {
       return {contents,loader:'jsx',resolveDir:root+'/packages/tgui/interfaces'};
     });
   }}] });
-  const css = sass.compile(root+'/packages/tgui/styles/reset.scss').css+sass.compile(root+'/packages/tgui/interfaces/GridEditor.scss').css;
+  const css = ['styles/reset.scss', 'components/PlayerColorPicker.scss', 'interfaces/GridEditor.scss']
+    .map(file => sass.compile(root+'/packages/tgui/'+file).css).join('\n');
   const server=http.createServer((req,res)=>{if(req.url.endsWith('.js')){res.setHeader('Content-Type','text/javascript');res.end(fs.readFileSync(path.join(output,req.url.includes('old')?'old.js':'new.js')));}else{res.setHeader('Content-Type','text/html');res.end(`<html><meta charset="utf-8"><style>html,body,#root{height:100%;margin:0;font-family:Arial,sans-serif}*{box-sizing:border-box}${css}</style><div id="root"></div><script src="/${req.url.includes('legacy')?'old':'new'}.js"></script></html>`);}});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -117,6 +118,38 @@ GridSceneCache.prototype.prepare = async function(...args) {
     assert.equal(await network.isDisabled(),true);
     await openPanel(page,'Зеркало');assert.equal(await axis.isDisabled(),true);
     report.dropdowns={mouse:true,keyboard:true,nativeKeys:true,noMapPan:true,outsideClick:true,escape:true,tab:true,narrowViewport:true,disabled:true};
+    await page.goto(url+'/');
+    await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    await openPanel(page,'Грид');
+    const radarSwatch=page.getByRole('button',{name:'Цвет на радаре',exact:true});
+    const saveColor=page.getByRole('button',{name:'Сохранить цвет',exact:true});
+    const colorViewport=await page.locator('.GridEditor__viewport').boundingBox();
+    await radarSwatch.click();
+    assert.equal(await radarSwatch.getAttribute('aria-expanded'),'true');
+    assert.equal(await page.locator('.GridEditor input[type="color"]').count(),0,'Color controls must render inside the WebView');
+    const wheel=page.getByRole('slider',{name:'Цветовой круг',exact:true});
+    await wheel.click({position:{x:35,y:55}});
+    await saveColor.click({trial:true});
+    const colorCamera=await camera();
+    await wheel.press('ArrowRight');
+    assert.equal(await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='editing').at(-1)?.payload.active),true);
+    assert.deepEqual(await camera(),colorCamera,'Palette arrows must not pan the map');
+    assert.deepEqual(await page.locator('.GridEditor__viewport').boundingBox(),colorViewport,'Opening and using the palette must preserve the map');
+    const setPaletteHex=async value=>{
+      const hex=page.getByRole('textbox',{name:'HEX',exact:true});
+      await hex.fill(value);
+      await hex.press('Tab');
+      await page.locator('.ColorSquare__popover:visible').getByRole('button',{name:'Закрыть',exact:true}).click();
+    };
+    await setPaletteHex('#2080A0');
+    assert.equal(await page.evaluate(()=>window.fixtureActions.some(a=>a.action==='setGridEnvironment')),false);
+    await saveColor.click();
+    await page.waitForFunction(()=>window.fixtureGetData().radarColor==='#2080a0');
+    assert.ok(await page.evaluate(()=>window.fixtureActions.some(a=>a.action==='setGridEnvironment'&&a.payload.setting==='radarColor'&&a.payload.value==='#2080a0')));
+    assert.equal(await saveColor.isDisabled(),true);
+    report.radarColor={embedded:true,keepsMapVisible:true,savesOnlyOnRequest:true};
+
+    await page.goto(url+'/?visibility');
     await page.goto(url+'/');
     await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
     if(process.env.GRID_EDITOR_SELECT_ONLY){assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'select-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;}
@@ -593,7 +626,8 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await openCatalog(page);await page.getByRole('button',{name:'Декали',exact:true}).click();await openPanel(page,'Слои');
     await page.getByRole('button',{name:'Выделить слой',exact:true}).click();
     assert.match(await page.locator('.GridEditor__properties').textContent(),/Выбрано: 1/);
-    await page.getByLabel('Цвет декали',{exact:true}).fill('#2080a0');
+    await page.getByRole('button',{name:'Цвет декали',exact:true}).click();
+    await setPaletteHex('#2080a0');
     await page.getByRole('button',{name:'Применить',exact:true}).click();
     await page.waitForFunction(()=>window.fixtureGetData().items.find(item=>item.id==='d:layer0')?.color==='#2080a080');
     assert.deepEqual(await page.evaluate(()=>window.fixtureGetData().items.filter(item=>item.kind!=='decal')),originalWorld);

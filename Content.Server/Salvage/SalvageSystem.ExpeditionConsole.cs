@@ -15,6 +15,7 @@ using Content.Shared.NPC; // Frontier
 using Content.Server._NF.Salvage; // Frontier
 using Content.Server.Shuttles.Components;
 using Content.Shared.Access.Systems;
+using Content.Server._NF.Shuttles.Components;
 using Content.Shared.Hands.EntitySystems;
 
 namespace Content.Server.Salvage;
@@ -29,12 +30,61 @@ public sealed partial class SalvageSystem
     [Dependency] private AccessReaderSystem _expeditionAccess = default!;
     [Dependency] private SharedHandsSystem _expeditionHands = default!;
 
+    private EntityUid? GetExpeditionSource(EntityUid console, SalvageExpeditionConsoleComponent component,
+        TransformComponent? xform = null)
+    {
+        xform ??= Transform(console);
+        if (!component.DispatchByDisk && HasComp<SalvageExpeditionDataComponent>(xform.GridUid))
+            return xform.GridUid;
+
+        return _station.GetOwningStation(console, xform);
+    }
+
+    public EntityUid? GetExpeditionDepartureGrid(EntityUid source)
+    {
+        if (HasComp<MapGridComponent>(source))
+            return source;
+
+        return TryComp<StationDataComponent>(source, out var station)
+            ? _station.GetLargestGrid((source, station))
+            : null;
+    }
+
+    public bool GridExpeditionsEnabled(EntityUid grid)
+    {
+        if (TryComp<SalvageExpeditionDataComponent>(grid, out var data))
+            return data.Enabled;
+
+        var station = _station.GetOwningStation(grid);
+        return TryComp<SalvageExpeditionDataComponent>(station, out data) &&
+               data.Enabled && GetExpeditionDepartureGrid(station.Value) == grid;
+    }
+
+    public bool SetGridExpeditions(EntityUid grid, bool enabled)
+    {
+        if (GridExpeditionsEnabled(grid) == enabled)
+            return true;
+
+        var station = _station.GetOwningStation(grid);
+        if ((TryComp<SalvageExpeditionDataComponent>(grid, out var data) && data.Claimed) ||
+            (TryComp<SalvageExpeditionDataComponent>(station, out var stationData) && stationData.Claimed &&
+             GetExpeditionDepartureGrid(station.Value) == grid))
+            return false;
+
+        data = EnsureComp<SalvageExpeditionDataComponent>(grid);
+        data.Enabled = enabled;
+        if (enabled && data.Missions.Count == 0)
+            GenerateMissions(data);
+        UpdateConsoles(grid, data);
+        return true;
+    }
+
     private void OnSalvageClaimMessage(EntityUid uid, SalvageExpeditionConsoleComponent component, ClaimSalvageMessage args)
     {
-        var station = _station.GetOwningStation(uid);
+        var station = GetExpeditionSource(uid, component);
 
         // Frontier
-        if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || data.Claimed ||
+        if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || !data.Enabled || data.Claimed ||
             HasComp<SalvageExpeditionComponent>(Transform(uid).MapUid) ||
             component.DispatchByDisk && !_expeditionAccess.IsAllowed(args.Actor, uid))
             return;
@@ -57,23 +107,28 @@ public sealed partial class SalvageSystem
         if (!data.Missions.TryGetValue(args.Index, out var missionparams))
             return;
 
-        if (!component.DispatchByDisk &&
-            TryComp<StationDataComponent>(station, out var departureStation) &&
-            _station.GetLargestGrid((station.Value, departureStation)) is { Valid: true } departureGrid &&
-            IsExpeditionShuttleDocked(departureGrid))
+        var departureGrid = GetExpeditionDepartureGrid(station.Value);
+        if (!component.DispatchByDisk)
         {
-            PlayDenySound(uid, component);
-            _popupSystem.PopupEntity(Loc.GetString("salvage-expedition-shuttle-docked"), uid, PopupType.MediumCaution);
-            return;
+            if (departureGrid is not { Valid: true } ship || !HasComp<ShuttleComponent>(ship))
+                return;
+
+            if (HasComp<ForceAnchorComponent>(ship) || IsExpeditionShuttleDocked(ship))
+            {
+                PlayDenySound(uid, component);
+                var reason = HasComp<ForceAnchorComponent>(ship)
+                    ? "shuttle-console-force-anchored"
+                    : "salvage-expedition-shuttle-docked";
+                _popupSystem.PopupEntity(Loc.GetString(reason), uid, PopupType.MediumCaution);
+                return;
+            }
         }
 
         // Frontier: FTL travel is currently restricted to expeditions and such, and so we need to put this here
         // until FTL changes for us in some way.
         if (!component.Debug && !component.DispatchByDisk)
         {
-            if (!TryComp<StationDataComponent>(station, out var stationData))
-                return;
-            if (_station.GetLargestGrid((station!.Value, stationData)) is not { Valid: true } grid)
+            if (departureGrid is not { Valid: true } grid)
                 return;
             if (!TryComp<MapGridComponent>(grid, out var gridComp))
                 return;
@@ -136,7 +191,7 @@ public sealed partial class SalvageSystem
         if (!TryComp<SalvageExpeditionComponent>(map, out var expedition))
             return;
 
-        var station = expedition.DispatchedFromOutpost ? expedition.Station : _station.GetOwningStation(entity);
+        var station = expedition.DispatchedFromOutpost ? expedition.Station : GetExpeditionSource(entity, component);
         if (!TryComp<SalvageExpeditionDataComponent>(station, out var data) || !data.CanFinish)
             return;
 
@@ -217,7 +272,7 @@ public sealed partial class SalvageSystem
         {
             var aboardDispatchedExpedition = TryComp<SalvageExpeditionComponent>(xform.MapUid, out var expedition) &&
                                               expedition.DispatchedFromOutpost && expedition.Station == stationUid;
-            if (!aboardDispatchedExpedition && _station.GetOwningStation(uid, xform) != stationUid)
+            if (!aboardDispatchedExpedition && GetExpeditionSource(uid, console, xform) != stationUid)
                 continue;
 
             var state = GetState(component);
@@ -226,9 +281,7 @@ public sealed partial class SalvageSystem
 
             // Frontier: if we have a lingering FTL component, we cannot start a new mission
             if (!console.DispatchByDisk && !aboardDispatchedExpedition &&
-                (!TryComp<StationDataComponent>(stationUid, out var stationData) ||
-                 _station.GetLargestGrid((stationUid, stationData)) is not { Valid: true } grid ||
-                 HasComp<FTLComponent>(grid)))
+                !CanOfferExpeditionDeparture(stationUid))
             {
                 state.Cooldown = true; //Hack: disable buttons
             }
@@ -240,7 +293,7 @@ public sealed partial class SalvageSystem
 
     private void UpdateConsole(Entity<SalvageExpeditionConsoleComponent> component)
     {
-        var station = _station.GetOwningStation(component);
+        var station = GetExpeditionSource(component, component.Comp);
         SalvageExpeditionConsoleState state;
 
         if (TryComp<SalvageExpeditionDataComponent>(station, out var dataComponent))
@@ -254,9 +307,7 @@ public sealed partial class SalvageSystem
 
         // Frontier: if we have a lingering FTL component, we cannot start a new mission
         if (!component.Comp.DispatchByDisk &&
-            (!TryComp<StationDataComponent>(station, out var stationData) ||
-                _station.GetLargestGrid((station!.Value, stationData)) is not { Valid: true } grid ||
-                HasComp<FTLComponent>(grid)))
+            (station is not { } source || !CanOfferExpeditionDeparture(source)))
         {
             state.Cooldown = true; //Hack: disable buttons
         }
@@ -264,6 +315,10 @@ public sealed partial class SalvageSystem
 
         _ui.SetUiState(component.Owner, SalvageConsoleUiKey.Expedition, state);
     }
+
+    private bool CanOfferExpeditionDeparture(EntityUid source) =>
+        GetExpeditionDepartureGrid(source) is { Valid: true } grid &&
+        HasComp<ShuttleComponent>(grid) && !HasComp<FTLComponent>(grid);
 
     private void PlayDenySound(EntityUid uid, SalvageExpeditionConsoleComponent component)
     {

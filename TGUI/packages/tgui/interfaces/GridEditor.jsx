@@ -6,6 +6,7 @@ import { updateItemIndex } from './gridEditorModel.mjs';
 import { gridEditorTabEntries } from './gridEditorTabs.mjs';
 import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 import { useBackend } from '../backend';
+import { ColorSquare } from '../components/PlayerColorPicker';
 import { editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
@@ -84,6 +85,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const failureTitle = useRef('Действие не выполнено');
   const act = (action, payload) => {
     if (action === 'applyStart') failureTitle.current = payload?.purpose === 'template' ? 'Не удалось сохранить шаблон' : 'Не удалось применить изменения';
+    else if (action === 'setGridEnvironment') failureTitle.current = 'Не удалось изменить настройки грида';
     else if (action === 'fillAtmos') failureTitle.current = 'Не удалось заполнить атмосферу';
     else if (action === 'diagnoseAtmos') failureTitle.current = 'Не удалось проверить герметичность';
     else if (action === 'download') failureTitle.current = payload?.scope === 'grid' ? 'Не удалось сохранить grid' : 'Не удалось сохранить карту';
@@ -118,8 +120,10 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     const observer = new ResizeObserver(resize); observer.observe(hotbar.current); resize();
     return () => observer.disconnect();
   }, []);
+  const [radarColorDraft, setRadarColorDraft] = useState(null);
   const [gridNameDraft, setGridNameDraft] = useState(null), [gridNameSaving, setGridNameSaving] = useState(false);
   const gridName = gridNameDraft ?? data.gridName ?? '';
+  useEffect(() => { setRadarColorDraft(null); }, [data.token, data.radarColor]);
   useEffect(() => { setGridNameDraft(null); setGridNameSaving(false); }, [data.token]);
   useEffect(() => { setGridNameDraft(previous => previous?.trim() === (data.gridName || '') ? null : previous); }, [data.gridName]);
   useEffect(() => {
@@ -243,7 +247,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   };
   const panFrame = time => {
     const pan = keyboardPan.current; pan.frame = null;
-    if (!pan.keys.size || gesture.current || document.hidden || document.activeElement?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator],[role=combobox]')) { stopKeyboardPan(); return; }
+    if (!pan.keys.size || gesture.current || document.hidden || document.activeElement?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=separator],[role=combobox],[role=slider]')) { stopKeyboardPan(); return; }
     const dx = Number(pan.keys.has('ArrowRight')) - Number(pan.keys.has('ArrowLeft'));
     const dy = Number(pan.keys.has('ArrowDown')) - Number(pan.keys.has('ArrowUp'));
     const distance = Math.min(50, Math.max(0, time - pan.time)) / 1000 * 600 * (pan.shift ? 4 : 1);
@@ -956,8 +960,8 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     }}
     onDragOver={event => { if (event.dataTransfer.types.includes('Files')) event.preventDefault(); }}
     onDrop={event => { if (event.dataTransfer.files.length) { event.preventDefault(); reference.importFile(event.dataTransfer.files[0]); } }}
-    onFocusCapture={e => act('editing', { active: !!e.target.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}
-    onBlurCapture={e => act('editing', { active: !!e.relatedTarget?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true]') })}>
+    onFocusCapture={e => act('editing', { active: !!e.target.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=slider]') })}
+    onBlurCapture={e => act('editing', { active: !!e.relatedTarget?.closest('input:not([type=checkbox]),textarea,select,[contenteditable=true],[role=slider]') })}>
     {tabBar}
     <header><div className="GridEditor__identity"><strong><span className="GridEditor__gridName" title={data.gridName || 'Редактор grid'}>{data.gridName || 'Редактор grid'}</span><small>Фокус · #{data.grid} · {area.width}×{area.height}</small></strong>
       {data.sourcePath && <code className="GridEditor__sourcePath" title={data.sourcePath}>{data.sourcePath}</code>}</div>
@@ -1064,7 +1068,12 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
           <button disabled={locked} onClick={() => { change(current.current.filter(item => !editable(item))); setSelected([]); selectionRegion.current = null; }}>Удалить слой</button>
         </section>}
         {(decalMode || brush?.kind === 'decal' || one?.kind === 'decal') && <>
-          <label>Цвет <input aria-label="Цвет декали" type="color" value={color.slice(0, 7)} disabled={locked} onChange={(e) => { const value = e.target.value + (color.slice(7) || 'ff'); setColor(value); if (one?.kind === 'decal') patchSelected({ color: value }); }} /></label>
+          <ColorSquare label="Цвет декали" value={color.slice(0, 7)} disabled={locked} onChange={rgb => {
+            const value = rgb + (color.slice(7) || 'ff');
+            if (value === color) return;
+            setColor(value);
+            if (one?.kind === 'decal') patchSelected({ color: value });
+          }} />
           <label>Непрозрачность <input aria-label="Непрозрачность декали" type="range" min="0" max="255" value={parseInt(color.slice(7) || 'ff', 16)} disabled={locked} onChange={e => {
             const value = color.slice(0, 7) + Number(e.target.value).toString(16).padStart(2, '0'); setColor(value);
             if (one?.kind === 'decal') patchSelected({ color: value });
@@ -1123,10 +1132,21 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         <button disabled={pending || gridNameSaving || !gridName.trim() || gridName.trim() === (data.gridName || '')} onClick={saveGridName}>
           {gridNameSaving ? 'Сохранение названия…' : 'Сохранить название'}</button>
         {!decalMode && <strong>Область grid · {area.width}×{area.height}</strong>}
-        <button className={data.alwaysPowered ? 'active' : ''} aria-pressed={!!data.alwaysPowered} disabled={pending}
-          onClick={() => act('setGridPower', { enabled: !data.alwaysPowered })}>Автономное питание</button>
-        <button className={data.forceGravity ? 'active' : ''} aria-pressed={!!data.forceGravity} disabled={pending}
-          onClick={() => act('setGridGravity', { enabled: !data.forceGravity })}>Постоянная гравитация</button>
+        {[
+          ['power', data.alwaysPowered, 'Автономное питание'],
+          ['gravity', data.forceGravity, 'Постоянная гравитация'],
+          ['expeditions', data.expeditions, 'Разрешить вылеты в экспедиции', 'Требуется экспедиционная консоль на борту'],
+          ['ignoreAi', data.ignoredByShuttleAi, 'Игнорировать ИИ шаттлов', 'ИИ шаттлов исключает этот грид из списка целей'],
+          ['anchor', data.forceAnchored, 'Закрепить грид без якоря', 'Блокирует движение и FTL'],
+          ['hideIff', data.hiddenOnIff, 'Скрыть на IFF'],
+        ].map(([setting, enabled, label, title]) => (
+          <button key={setting} className={enabled ? 'active' : ''} aria-pressed={!!enabled} disabled={pending || !data.radarColor}
+            title={title} onClick={() => act('setGridEnvironment', { setting, enabled: !enabled })}>{label}</button>
+        ))}
+        <ColorSquare label="Цвет на радаре" value={radarColorDraft || data.radarColor || '#ffd700'}
+          disabled={pending || !data.radarColor} onChange={value => setRadarColorDraft(value.toLowerCase())} />
+        <button disabled={pending || !radarColorDraft || radarColorDraft === data.radarColor?.toLowerCase()}
+          onClick={() => act('setGridEnvironment', { setting: 'radarColor', value: radarColorDraft })}>Сохранить цвет</button>
         <button disabled={locked} onClick={() => act('repairConnections', {})}>Починить все соединения</button>
         {!!peerDrafts.peers.length && <><strong>Совместное редактирование</strong>
           {peerDrafts.peers.map(peer => <span key={peer.player}>{peer.name}: {peer.items.length + peer.removedItems.length} правок{peer.expansion && Object.values(peer.expansion).some(Boolean) ? ` · растягивание: ←${peer.expansion.left} →${peer.expansion.right} ↓${peer.expansion.bottom} ↑${peer.expansion.top}` : ''}</span>)}

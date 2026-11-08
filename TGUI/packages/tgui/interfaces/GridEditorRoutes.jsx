@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { ColorSquare } from '../components/PlayerColorPicker';
 import { GridEditorSelect } from './GridEditorSelect';
 import { buildRoute, deleteRoutePoint, insertRoutePoint, installRouteDevice, moveRoutePoint, pipePorts, readRoute, routeCells, routeProfile, routeProfiles, routePrototypes } from './gridEditorRouting.mjs';
 
@@ -114,7 +115,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     </>}
     {(!!graph.nodes.length||!!graph.source.length)&&<>
       {profile.kind==='gas'&&!!graph.source.length&&<>
-        <label>Цвет pipenet <input type="color" aria-label="Цвет pipenet" value={networkColor} disabled={locked} onChange={e=>setNetworkColor(e.target.value)}/></label>
+        <ColorSquare label="Цвет pipenet" value={networkColor} disabled={locked} onChange={setNetworkColor} />
         <button disabled={locked} onClick={paintNetwork}>Покрасить pipenet в черновике</button>
       </>}
       <span>Точек: {cells.length} · клеток: {cells.length}</span>
