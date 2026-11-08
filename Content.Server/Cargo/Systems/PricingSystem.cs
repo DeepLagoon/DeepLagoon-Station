@@ -400,7 +400,8 @@ public sealed partial class PricingSystem : EntitySystem
     {
         var price = 0.0;
 
-        if (TryComp<SolutionContainerManagerComponent>(uid, out var solComp))
+        if (TryComp<SolutionContainerManagerComponent>(uid, out var solComp) &&
+            !HasComp<IgnoreSolutionPriceComponent>(uid))
         {
             price += GetSolutionPrice((uid, solComp));
         }
@@ -412,7 +413,8 @@ public sealed partial class PricingSystem : EntitySystem
     {
         var price = 0.0;
 
-        if (prototype.Components.TryGetValue(Factory.GetComponentName<SolutionContainerManagerComponent>(), out var solManager))
+        if (prototype.Components.TryGetValue(Factory.GetComponentName<SolutionContainerManagerComponent>(), out var solManager) &&
+            !prototype.HasComp<IgnoreSolutionPriceComponent>(Factory))
         {
             var solComp = (SolutionContainerManagerComponent) solManager.Component;
             price += GetSolutionPrice(solComp);
