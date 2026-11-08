@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using Content.IntegrationTests.Pair;
+using Content.Server.Administration.Managers;
+using Content.Server.Warps;
 using Content.Shared.Ghost;
 using Content.Shared.Mind;
 using Content.Shared.Players;
@@ -14,6 +16,40 @@ namespace Content.IntegrationTests.Tests.Minds;
 [TestFixture]
 public sealed class GhostTests
 {
+    [Test]
+    public async Task RegularGhostCannotWarpToAPublicOrbitPoint()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, InLobby = true });
+        EntityUid map = default, ghost = default;
+        NetEntity target = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var admins = pair.Server.ResolveDependency<IAdminManager>();
+            if (admins.IsAdmin(pair.Player!))
+                admins.DeAdmin(pair.Player!);
+            map = entities.System<SharedMapSystem>().CreateMap(out _);
+            ghost = entities.SpawnEntity("MobObserver", new EntityCoordinates(map, Vector2.Zero));
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, ghost);
+            var warp = entities.SpawnEntity(null, new EntityCoordinates(map, new Vector2(200, 100)));
+            entities.AddComponent<WarpPointComponent>(warp);
+            target = entities.GetNetEntity(warp);
+        });
+
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitPost(() => pair.Client.EntMan.EntityNetManager!.SendSystemNetworkMessage(new GhostWarpToTargetRequestEvent(target)));
+        await pair.RunTicksSync(5);
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.System<SharedTransformSystem>().GetWorldPosition(ghost), Is.EqualTo(Vector2.Zero));
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, null);
+            entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private struct GhostTestData
     {
         public IEntityManager SEntMan;
