@@ -75,5 +75,8 @@ public enum IFFFlags : byte
     /// </summary>
     AlwaysShowColor = 16,
 
+    /// <summary>Visible only to nearby radar detectors and omitted from the sector map.</summary>
+    LocalRadarOnly = 32,
+
     // TODO: Need one that hides its outline, just replace it with a bunch of triangles or lines or something.
 }

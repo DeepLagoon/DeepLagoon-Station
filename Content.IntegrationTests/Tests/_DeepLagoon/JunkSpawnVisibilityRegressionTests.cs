@@ -20,6 +20,53 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class JunkSpawnVisibilityRegressionTests
 {
+    [Test]
+    public async Task DistantJunkGridIsOnlyReplicatedWhenThePlayerApproaches()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true, InLobby = true });
+        EntityUid map = default, actor = default, pile = default;
+        NetEntity netPile = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(Robust.Shared.CVars.NetPVS, true);
+            var entities = pair.Server.EntMan;
+            map = entities.System<SharedMapSystem>().CreateMap(out _);
+            actor = entities.SpawnEntity("MobObserver", new EntityCoordinates(map, Vector2.Zero));
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, actor);
+            pile = entities.System<OrbitalDebrisSystem>().SpawnPile(map, new Vector2(5000, 0), Vector2.Zero, 713)!.Value;
+            netPile = entities.GetNetEntity(pile);
+        });
+
+        await pair.RunTicksSync(12);
+        await pair.Client.WaitAssertion(() =>
+            Assert.That(pair.Client.EntMan.TryGetEntity(netPile, out _), Is.False));
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var transform = pair.Server.EntMan.System<SharedTransformSystem>();
+            transform.SetWorldPosition(actor, transform.GetWorldPosition(pile) + new Vector2(8, 0));
+        });
+        await pair.RunTicksSync(12);
+        await pair.Client.WaitAssertion(() =>
+            Assert.That(pair.Client.EntMan.HasComponent<MapGridComponent>(pair.Client.EntMan.GetEntity(netPile)), Is.True));
+
+        await pair.Server.WaitAssertion(() => pair.Server.EntMan.System<SharedTransformSystem>().SetWorldPosition(actor, Vector2.Zero));
+        await pair.RunTicksSync(12);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var grid = entities.GetEntity(netPile);
+            Assert.That(entities.GetComponent<TransformComponent>(grid).MapUid, Is.Null);
+        });
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, null);
+            pair.Server.EntMan.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("MobObserver", false)]
     [TestCase("MobObserver", true)]
     [TestCase("MobHuman", false)]

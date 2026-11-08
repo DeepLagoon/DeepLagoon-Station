@@ -1,4 +1,6 @@
 using Content.Shared._Mono.CCVar;
+using Content.Shared.Shuttles.Components;
+using Content.Shared.Shuttles.Systems;
 using Robust.Shared.Configuration;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
@@ -31,6 +33,11 @@ public sealed partial class DetectionSystem : EntitySystem
     public DetectionLevel IsGridDetected(Entity<MapGridComponent?> grid, EntityUid byUid)
     {
         if (!Resolve(grid, ref grid.Comp))
+            return DetectionLevel.Undetected;
+
+        if (TryComp<IFFComponent>(grid, out var iff) && (iff.Flags & IFFFlags.LocalRadarOnly) != 0
+            && (!Transform(grid).Coordinates.TryDistance(EntityManager, Transform(byUid).Coordinates, out var localDistance)
+                || localDistance > SharedRadarConsoleSystem.DefaultMaxRange))
             return DetectionLevel.Undetected;
 
         var comp = EnsureComp<DetectionRangeMultiplierComponent>(byUid);

@@ -803,15 +803,15 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         {
             if (renderFill)
             {
-                var detectionLevel = _consoleEntity == null ? DetectionLevel.Detected : GetGridDetected(grid.Owner);
-                var blipOnly = detectionLevel != DetectionLevel.Detected; // don't show outline outside of detection radius even if IFF on
-
                 var curGridToWorld = _transform.GetWorldMatrix(grid.Owner);
                 var curGridToView = curGridToWorld * worldToView;
 
                 var gridBody = bodyQuery.GetComponent(grid.Owner);
                 EntManager.TryGetComponent<IFFComponent>(grid.Owner, out var iff);
 
+                var localOnly = iff != null && (iff.Flags & IFFFlags.LocalRadarOnly) != 0;
+                var detectionLevel = _consoleEntity == null && !localOnly ? DetectionLevel.Detected : GetGridDetected(grid.Owner);
+                var blipOnly = detectionLevel != DetectionLevel.Detected;
                 if (!_shuttles.CanDraw(grid.Owner, gridBody, iff))
                     continue;
                 var hideLabel = iff != null && (iff.Flags & IFFFlags.HideLabel) != 0x0;
@@ -837,8 +837,9 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
                 var hideLabel = iff != null && (iff.Flags & IFFFlags.HideLabel) != 0x0;
                 var noLabel = iff != null && (iff.Flags & IFFFlags.HideLabelAlways) != 0x0;
-                var detectionLevel = _consoleEntity == null ? DetectionLevel.Detected : GetGridDetected(grid.Owner);
-                var detected = detectionLevel != DetectionLevel.Undetected || !hideLabel;
+                var localOnly = iff != null && (iff.Flags & IFFFlags.LocalRadarOnly) != 0;
+                var detectionLevel = _consoleEntity == null && !localOnly ? DetectionLevel.Detected : GetGridDetected(grid.Owner);
+                var detected = detectionLevel != DetectionLevel.Undetected || !hideLabel && !localOnly;
                 var blipOnly = detectionLevel != DetectionLevel.Detected; // don't show outline outside of detection radius even if IFF on
                 if (!detected)
                     continue;

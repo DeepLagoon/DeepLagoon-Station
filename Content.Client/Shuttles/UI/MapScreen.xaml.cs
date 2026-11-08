@@ -384,6 +384,8 @@ public sealed partial class MapScreen : BoxContainer
             foreach (var grid in _mapManager.GetAllGrids(mapComp.MapId))
             {
                 _entManager.TryGetComponent(grid.Owner, out IFFComponent? iffComp);
+                if (iffComp != null && (iffComp.Flags & IFFFlags.LocalRadarOnly) != 0)
+                    continue;
 
                 // Mono
                 var hideLabel = iffComp != null && (iffComp.Flags & IFFFlags.HideLabel) != 0x0 && grid.Owner != _shuttleEntity; // never hide our own label

@@ -66,6 +66,7 @@ public sealed partial class OrbitalDebrisSystem
             while (children.MoveNext(out var child)) state.Children.Add(child);
             var body = EnsureComp<PhysicsComponent>(grid);
             _physics.SetBodyType(grid, BodyType.Dynamic, body: body);
+            LimitDebrisVisibility(grid);
             var shuttles = EntityManager.System<SharedShuttleSystem>();
             shuttles.SetIFFColor(grid, Color.FromHex("#67d8cc"));
             shuttles.AddIFFFlag(grid, IFFFlags.AlwaysShowColor);
