@@ -152,6 +152,7 @@
     intensitySlope: 2
     totalIntensity: 200 # 4x as volatile as ammo
   - type: StaticPrice
+    price: 50
     vendPrice: 3000
   - type: RadiationSource
     intensity: 2

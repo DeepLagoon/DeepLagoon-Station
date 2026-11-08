@@ -156,7 +156,7 @@
       TradeGoodChemicalSupplies: SpaceCash5000
       TradeGoodChemicalsVolatile: SpaceCash6000
       TradeGoodScrap: SpaceCash4000
-      TradeGoodFusionFuel: SpaceCash12000
+      TradeGoodFusionFuel: SpaceCash6000
       TradeGoodComponents: SpaceCash4000
       TradeGoodFertilizer: SpaceCash4500
       TradeGoodShipComponents: SpaceCash4000
@@ -189,7 +189,7 @@
       TradeGoodSupplies: SpaceCash2500
       TradeGoodMedicalSupplies: SpaceCash4500
       TradeGoodWeaponParts: SpaceCash10000
-      TradeGoodFusionFuel: SpaceCash12000
+      TradeGoodFusionFuel: SpaceCash6000
       TradeGoodLuxuries: SpaceCash14000
       TradeGoodEquipment: SpaceCash3500
       TradeGoodFertilizer: SpaceCash7000
@@ -225,7 +225,7 @@
       TradeGoodChemicalSupplies: SpaceCash4500
       TradeGoodChemicalsVolatile: SpaceCash8000
       TradeGoodWeaponParts: SpaceCash9000
-      TradeGoodFusionFuel: SpaceCash12000
+      TradeGoodFusionFuel: SpaceCash6000
       TradeGoodEquipment: SpaceCash3000
       TradeGoodComponents: SpaceCash6000
       TradeGoodShipComponents: SpaceCash10000
@@ -261,7 +261,7 @@
       TradeGoodChemicalsVolatile: SpaceCash6000
       TradeGoodWeaponParts: SpaceCash12000
       TradeGoodScrap: SpaceCash6000
-      TradeGoodFusionFuel: SpaceCash14000
+      TradeGoodFusionFuel: SpaceCash7000
       TradeGoodEquipment: SpaceCash4500
       TradeGoodComponents: SpaceCash5000
       TradeGoodShipComponents: SpaceCash6000
@@ -299,7 +299,7 @@
       TradeGoodChemicalsVolatile: SpaceCash13000
       TradeGoodWeaponParts: SpaceCash16000
       TradeGoodScrap: SpaceCash4000
-      TradeGoodFusionFuel: SpaceCash24000
+      TradeGoodFusionFuel: SpaceCash12000
       TradeGoodEquipment: SpaceCash7000
       TradeGoodComponents: SpaceCash8500
       TradeGoodShipComponents: SpaceCash2000
