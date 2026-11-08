@@ -45,6 +45,12 @@ public sealed partial class HumanoidSpeciesSpriteLayer : IPrototype
     public SpriteSpecifier? BaseSprite { get; private set; }
 
     /// <summary>
+    ///     Fit this prosthetic sprite to the recipient's native body layer.
+    /// </summary>
+    [DataField]
+    public bool FitToBody { get; private set; }
+
+    /// <summary>
     ///     The alpha of this layer. Ensures that
     ///     this layer will start with this percentage
     ///     of alpha.

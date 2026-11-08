@@ -8,6 +8,7 @@ using Content.Client.Fullscreen;
 using Content.Client.GameTicking.Managers;
 using Content.Client.GhostKick;
 using Content.Client.Guidebook;
+using Content.Client.Humanoid;
 using Content.Client.Launcher;
 using Content.Client.Mapping;
 using Content.Client.Parallax.Managers;
@@ -47,6 +48,7 @@ namespace Content.Client.IoC
             collection.Register<IScreenshotHook, ScreenshotHook>();
             collection.Register<FullscreenHook, FullscreenHook>();
             collection.Register<IClickMapManager, ClickMapManager>();
+            collection.Register<ProstheticSpriteCache>();
             collection.Register<IClientAdminManager, ClientAdminManager>();
             collection.Register<ISharedAdminManager, ClientAdminManager>();
             collection.Register<EuiManager, EuiManager>();
