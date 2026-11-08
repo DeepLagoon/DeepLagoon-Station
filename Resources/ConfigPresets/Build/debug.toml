@@ -9,5 +9,8 @@ auto_call_time = 0
 [nf14.publictransit]
 enabled = false
 
+[nf14.salvage]
+expedition_rewards_enabled = true
+
 [deeplagoon]
 apartments_enabled = false

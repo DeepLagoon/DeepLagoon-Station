@@ -61,6 +61,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
 
     public readonly EntityUid Station;
     public readonly EntityUid? CoordinatesDisk;
+    private readonly EntityUid _dispatchConsole;
     private readonly SalvageMissionParams _missionParams;
 
     // Frontier: Used for saving state between async job
@@ -93,6 +94,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         SharedTransformSystem xform,
         SharedMapSystem map,
         EntityUid station,
+        EntityUid dispatchConsole,
         EntityUid? coordinatesDisk,
         SalvageMissionParams missionParams,
         CancellationToken cancellation = default) : base(maxTime, cancellation)
@@ -112,6 +114,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         _xforms = xform;
         _map = map;
         Station = station;
+        _dispatchConsole = dispatchConsole;
         CoordinatesDisk = coordinatesDisk;
         _missionParams = missionParams;
     }
@@ -222,6 +225,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         // Setup expedition
         var expedition = _entManager.AddComponent<SalvageExpeditionComponent>(mapUid);
         expedition.Station = Station;
+        expedition.DispatchConsole = _dispatchConsole;
         expedition.EndTime = _timing.CurTime + mission.Duration;
         expedition.MissionParams = _missionParams;
         expedition.Difficulty = _missionParams.Difficulty;

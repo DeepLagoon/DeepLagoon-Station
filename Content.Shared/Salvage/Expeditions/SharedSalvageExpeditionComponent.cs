@@ -11,6 +11,8 @@ public abstract partial class SharedSalvageExpeditionComponent : Component
 
     public int ObjectivesTotal;
     public int ObjectivesCompleted;
+    public int RewardAmount;
+    public bool DispatchedFromOutpost;
 }
 
 [Serializable, NetSerializable]
@@ -20,4 +22,13 @@ public sealed class SalvageExpeditionComponentState : ComponentState
     public TimeSpan EndTime;
     public int ObjectivesTotal;
     public int ObjectivesCompleted;
+    public int RewardAmount;
+    public bool DispatchedFromOutpost;
+}
+
+[Serializable, NetSerializable]
+public sealed class SalvageExpeditionRewardIssuedEvent(int amount, bool dispatchedFromOutpost) : EntityEventArgs
+{
+    public int Amount { get; } = amount;
+    public bool DispatchedFromOutpost { get; } = dispatchedFromOutpost;
 }

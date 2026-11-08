@@ -37,7 +37,7 @@ public sealed partial class SalvageExpeditionComponent : SharedSalvageExpedition
 
     public readonly Dictionary<EntityUid, (EntityCoordinates Coordinates, Angle Rotation)> ReturnLocations = new();
 
-    public bool DispatchedFromOutpost;
+    public EntityUid? DispatchConsole;
     public EntityUid? DispatchDisk;
     public TimeSpan? DispatchExpiresAt;
     public TimeSpan MissionDuration;
@@ -76,6 +76,6 @@ public sealed partial class SalvageExpeditionComponent : SharedSalvageExpedition
     /// List of items to order on mission completion
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite), DataField("rewards")]
-    public List<EntProtoId> Rewards = default!;
+    public List<EntProtoId> Rewards = [];
     // End Frontier: expedition difficulty and rewards
 }

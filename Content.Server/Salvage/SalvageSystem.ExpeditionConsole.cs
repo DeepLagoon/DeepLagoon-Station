@@ -116,7 +116,7 @@ public sealed partial class SalvageSystem
             _popupSystem.PopupEntity(Loc.GetString("dl-underground-expedition-disk"), uid, args.Actor);
         }
 
-        SpawnMission(missionparams, station.Value, disk);
+        SpawnMission(missionparams, station.Value, uid, disk);
 
         data.ActiveMission = args.Index;
         var mission = GetMission(missionparams.MissionType, missionparams.Difficulty, missionparams.Seed);
