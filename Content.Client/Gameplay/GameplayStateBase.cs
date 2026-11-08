@@ -1,10 +1,12 @@
 using System.Linq;
 using System.Numerics;
 using Content.Client.Clickable;
+using Content.Client.Storage.Components;
 using Content.Client.UserInterface;
 using Content.Client.Viewport;
 using Content.Shared.Damage;
 using Content.Shared.Input;
+using Content.Shared.Storage;
 using Robust.Client.ComponentTrees;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -151,34 +153,53 @@ namespace Content.Client.Gameplay
             var entities = spriteTree.QueryAabb(coordinates.MapId, clickBounds);
 
             // Check the entities against whether or not we can click them
-            var foundEntities = new List<(EntityUid, int, uint, float)>(entities.Count);
+            var foundEntities = new List<(EntityUid clicked, ClickHit hit, int depth, uint renderOrder, float bottom)>(entities.Count);
             var clickQuery = _entityManager.GetEntityQuery<ClickableComponent>();
             var clickables = _entityManager.System<ClickableSystem>();
 
             foreach (var entity in entities)
             {
-                if (clickQuery.TryGetComponent(entity.Uid, out var component) &&
-                    clickables.CheckClick((entity.Uid, component, entity.Component, entity.Transform), coordinates.Position, eye,  out var drawDepthClicked, out var renderOrder, out var bottom))
-                {
-                    foundEntities.Add((entity.Uid, drawDepthClicked, renderOrder, bottom));
-                }
+                if (!clickQuery.TryGetComponent(entity.Uid, out var component))
+                    continue;
+
+                var hit = clickables.CheckClick((entity.Uid, component, entity.Component, entity.Transform),
+                    coordinates.Position, eye, out var drawDepth, out var renderOrder, out var bottom);
+                if (hit != ClickHit.None)
+                    foundEntities.Add((entity.Uid, hit, drawDepth, renderOrder, bottom));
             }
 
             if (foundEntities.Count == 0)
                 return Array.Empty<EntityUid>();
 
-            // Do drawdepth & y-sorting. First index is the top-most sprite (opposite of normal render order).
+            // Prefer a direct hit, then pick the top-most sprite among hits of the same kind.
             foundEntities.Sort(_comparer);
 
-            return foundEntities.Select(a => a.Item1);
+            // Keep a container accessible when its sprite overlaps the local player's click map.
+            if (foundEntities.Count > 1 && foundEntities[0].clicked == _playerManager.LocalEntity &&
+                foundEntities[1].hit == ClickHit.Direct)
+            {
+                var candidate = foundEntities[1];
+                if (_entityManager.HasComponent<EntityStorageComponent>(candidate.clicked) ||
+                    _entityManager.HasComponent<StorageComponent>(candidate.clicked))
+                {
+                    foundEntities[1] = foundEntities[0];
+                    foundEntities[0] = candidate;
+                }
+            }
+
+            return foundEntities.Select(a => a.clicked);
         }
 
-        private sealed class ClickableEntityComparer : IComparer<(EntityUid clicked, int depth, uint renderOrder, float bottom)>
+        internal sealed class ClickableEntityComparer : IComparer<(EntityUid clicked, ClickHit hit, int depth, uint renderOrder, float bottom)>
         {
-            public int Compare((EntityUid clicked, int depth, uint renderOrder, float bottom) x,
-                (EntityUid clicked, int depth, uint renderOrder, float bottom) y)
+            public int Compare((EntityUid clicked, ClickHit hit, int depth, uint renderOrder, float bottom) x,
+                (EntityUid clicked, ClickHit hit, int depth, uint renderOrder, float bottom) y)
             {
-                var cmp = y.depth.CompareTo(x.depth);
+                var cmp = (int) y.hit - (int) x.hit;
+                if (cmp != 0)
+                    return cmp;
+
+                cmp = y.depth.CompareTo(x.depth);
                 if (cmp != 0)
                 {
                     return cmp;

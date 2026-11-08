@@ -63,42 +63,45 @@ namespace Content.Client.Clickable
             }
         }
 
-        public bool IsOccluding(Texture texture, Vector2i pos)
+        public ClickHit GetClickHit(Texture texture, Vector2i pos)
         {
             if (!_textureMaps.TryGetValue(texture, out var clickMap))
             {
-                return false;
+                return ClickHit.None;
             }
 
             return SampleClickMap(clickMap, pos, clickMap.Size, Vector2i.Zero);
         }
 
-        public bool IsOccluding(RSI rsi, RSI.StateId state, RsiDirection dir, int frame, Vector2i pos)
+        public ClickHit GetClickHit(RSI rsi, RSI.StateId state, RsiDirection dir, int frame, Vector2i pos)
         {
             if (!_rsiMaps.TryGetValue(rsi, out var rsiData))
             {
-                return false;
+                return ClickHit.None;
             }
 
             if (!rsiData.Offsets.TryGetValue(state, out var stateDat) || stateDat.Length <= (int) dir)
             {
-                return false;
+                return ClickHit.None;
             }
 
             var dirDat = stateDat[(int) dir];
             if (dirDat.Length <= frame)
             {
-                return false;
+                return ClickHit.None;
             }
 
             var offset = dirDat[frame];
             return SampleClickMap(rsiData.ClickMap, pos, rsi.Size, offset);
         }
 
-        private static bool SampleClickMap(ClickMap map, Vector2i pos, Vector2i bounds, Vector2i offset)
+        internal static ClickHit SampleClickMap(ClickMap map, Vector2i pos, Vector2i bounds, Vector2i offset)
         {
             var (width, height) = bounds;
             var (px, py) = pos;
+
+            if (px >= 0 && px < width && py >= 0 && py < height && map.IsOccluded(pos + offset))
+                return ClickHit.Direct;
 
             for (var x = -ClickRadius; x <= ClickRadius; x++)
             {
@@ -119,12 +122,12 @@ namespace Content.Client.Clickable
 
                     if (map.IsOccluded((ox, oy) + offset))
                     {
-                        return true;
+                        return ClickHit.Nearby;
                     }
                 }
             }
 
-            return false;
+            return ClickHit.None;
         }
 
         private sealed class RsiClickMapData
@@ -210,8 +213,15 @@ namespace Content.Client.Clickable
 
     public interface IClickMapManager
     {
-        public bool IsOccluding(Texture texture, Vector2i pos);
+        public ClickHit GetClickHit(Texture texture, Vector2i pos);
 
-        public bool IsOccluding(RSI rsi, RSI.StateId state, RsiDirection dir, int frame, Vector2i pos);
+        public ClickHit GetClickHit(RSI rsi, RSI.StateId state, RsiDirection dir, int frame, Vector2i pos);
+    }
+
+    public enum ClickHit : byte
+    {
+        None,
+        Nearby,
+        Direct,
     }
 }

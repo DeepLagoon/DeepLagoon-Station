@@ -33,15 +33,15 @@ public sealed partial class ClickableSystem : EntitySystem
     /// <param name="drawDepth">
     /// The draw depth for the sprite that captured the click.
     /// </param>
-    /// <returns>True if the click worked, false otherwise.</returns>
-    public bool CheckClick(Entity<ClickableComponent?, SpriteComponent, TransformComponent?> entity, Vector2 worldPos, IEye eye, out int drawDepth, out uint renderOrder, out float bottom)
+    /// <returns>Whether the cursor hit the sprite directly, within the pixel tolerance, or missed.</returns>
+    public ClickHit CheckClick(Entity<ClickableComponent?, SpriteComponent, TransformComponent?> entity, Vector2 worldPos, IEye eye, out int drawDepth, out uint renderOrder, out float bottom)
     {
         if (!_clickableQuery.Resolve(entity.Owner, ref entity.Comp1, false))
         {
             drawDepth = default;
             renderOrder = default;
             bottom = default;
-            return false;
+            return ClickHit.None;
         }
 
         if (!_xformQuery.Resolve(entity.Owner, ref entity.Comp3))
@@ -49,7 +49,7 @@ public sealed partial class ClickableSystem : EntitySystem
             drawDepth = default;
             renderOrder = default;
             bottom = default;
-            return false;
+            return ClickHit.None;
         }
 
         var sprite = entity.Comp2;
@@ -60,7 +60,7 @@ public sealed partial class ClickableSystem : EntitySystem
             drawDepth = default;
             renderOrder = default;
             bottom = default;
-            return false;
+            return ClickHit.None;
         }
 
         drawDepth = sprite.DrawDepth;
@@ -82,9 +82,10 @@ public sealed partial class ClickableSystem : EntitySystem
 
         // Check explicitly defined click-able bounds
         if (CheckDirBound((entity.Owner, entity.Comp1, entity.Comp2), relativeRotation, localPos))
-            return true;
+            return ClickHit.Direct;
 
         // Next check each individual sprite layer using automatically computed click maps.
+        var bestHit = ClickHit.None;
         foreach (var spriteLayer in sprite.AllLayers)
         {
             if (spriteLayer is not SpriteComponent.Layer layer || !_sprites.IsVisible(layer))
@@ -96,10 +97,13 @@ public sealed partial class ClickableSystem : EntitySystem
             if (layer.Texture != null)
             {
                 // Convert to image coordinates
-                var imagePos = (Vector2i) (localPos * EyeManager.PixelsPerMeter * new Vector2(1, -1) + layer.Texture.Size / 2f);
+                var imagePos = ToImagePixel(localPos, layer.Texture.Size);
+                var hit = _clickMapManager.GetClickHit(layer.Texture, imagePos);
 
-                if (_clickMapManager.IsOccluding(layer.Texture, imagePos))
-                    return true;
+                if (hit == ClickHit.Direct)
+                    return hit;
+                if (hit == ClickHit.Nearby)
+                    bestHit = hit;
             }
 
             // Either we weren't clicking on the texture, or there wasn't one. In which case: check the RSI next
@@ -114,7 +118,7 @@ public sealed partial class ClickableSystem : EntitySystem
             var layerLocal = Vector2.Transform(localPos, inverseMatrix);
 
             // Convert to image coordinates
-            var layerImagePos = (Vector2i) (layerLocal * EyeManager.PixelsPerMeter * new Vector2(1, -1) + rsiState.Size / 2f);
+            var layerImagePos = ToImagePixel(layerLocal, rsiState.Size);
 
             // Next, to get the right click map we need the "direction" of this layer that is actually being used to draw the sprite on the screen.
             // This **can** differ from the dir defined before, but can also just be the same.
@@ -122,14 +126,26 @@ public sealed partial class ClickableSystem : EntitySystem
                 dir = sprite.DirectionOverride.Convert(rsiState.RsiDirections);
             dir = dir.OffsetRsiDir(layer.DirOffset);
 
-            if (_clickMapManager.IsOccluding(layer.ActualRsi!, layer.State, dir, layer.AnimationFrame, layerImagePos))
-                return true;
+            var layerHit = _clickMapManager.GetClickHit(rsi, layer.State, dir, layer.AnimationFrame, layerImagePos);
+            if (layerHit == ClickHit.Direct)
+                return layerHit;
+            if (layerHit == ClickHit.Nearby)
+                bestHit = layerHit;
         }
+
+        if (bestHit != ClickHit.None)
+            return bestHit;
 
         drawDepth = default;
         renderOrder = default;
         bottom = default;
-        return false;
+        return ClickHit.None;
+    }
+
+    private static Vector2i ToImagePixel(Vector2 localPos, Vector2i size)
+    {
+        var pos = localPos * EyeManager.PixelsPerMeter * new Vector2(1, -1) + size / 2f;
+        return new Vector2i((int) MathF.Floor(pos.X), (int) MathF.Floor(pos.Y));
     }
 
     public bool CheckDirBound(Entity<ClickableComponent, SpriteComponent> entity, Angle relativeRotation, Vector2 localPos)
