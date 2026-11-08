@@ -114,6 +114,18 @@ public sealed class DiscordLinkStore : IDisposable
         return reader.Read() ? new Link(Guid.Parse(reader.GetString(0)), reader.GetString(1)) : null;
     }
 
+    public string? FindDiscordId(Guid uid)
+    {
+        using var command = Command("""
+            SELECT discord_id FROM discord_links WHERE ss14_uid=$uid
+            UNION ALL
+            SELECT l.discord_id FROM discord_account_aliases a
+            JOIN discord_links l ON l.ss14_uid=a.canonical_uid WHERE a.official_uid=$uid
+            LIMIT 1
+            """, ("$uid", uid.ToString()));
+        return command.ExecuteScalar() as string;
+    }
+
     // A short renewable lease prevents permanent privileges after bot outages.
     public void SetBoost(string discordId, bool active)
     {
