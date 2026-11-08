@@ -132,6 +132,8 @@ public sealed partial class NPCUtilitySystem : EntitySystem
 
         var results = new Dictionary<EntityUid, float>();
         var highestScore = 0f;
+        var bestField = EntityUid.Invalid;
+        var bestFieldScore = 0f;
 
         foreach (var ent in ents)
         {
@@ -139,10 +141,12 @@ public sealed partial class NPCUtilitySystem : EntitySystem
                 break;
 
             var score = 1f;
+            EntityUid? blockingField = null;
 
             foreach (var con in weh.Considerations)
             {
-                var conScore = GetScore(blackboard, ent, con);
+                var conScore = GetScore(blackboard, ent, con, out var field);
+                blockingField ??= field;
                 var curve = con.Curve;
                 var curveScore = GetScore(curve, conScore);
 
@@ -160,9 +164,23 @@ public sealed partial class NPCUtilitySystem : EntitySystem
             if (score <= 0f)
                 continue;
 
+            if (blockingField is { } fallback)
+            {
+                if (score > bestFieldScore)
+                {
+                    bestField = fallback;
+                    bestFieldScore = score;
+                }
+
+                continue;
+            }
+
             highestScore = MathF.Max(score, highestScore);
             results.Add(ent, score);
         }
+
+        if (results.Count == 0 && bestField.IsValid())
+            results.Add(bestField, bestFieldScore);
 
         var result = new UtilityResult(results);
         blackboard.Remove<EntityUid>(NPCBlackboard.UtilityTarget);
@@ -187,8 +205,9 @@ public sealed partial class NPCUtilitySystem : EntitySystem
         }
     }
 
-    private float GetScore(NPCBlackboard blackboard, EntityUid targetUid, UtilityConsideration consideration)
+    private float GetScore(NPCBlackboard blackboard, EntityUid targetUid, UtilityConsideration consideration, out EntityUid? blockingField)
     {
+        blockingField = null;
         var owner = blackboard.GetValue<EntityUid>(NPCBlackboard.Owner);
         switch (consideration)
         {
@@ -385,7 +404,9 @@ public sealed partial class NPCUtilitySystem : EntitySystem
                 var radius = blackboard.GetValueOrDefault<float>(blackboard.GetVisionRadiusKey(EntityManager), EntityManager);
                 const float bufferRange = 0.5f;
 
-                return _npcCombat.InRangeGoodTarget((gunUid, gunUid.Comp), owner, targetUid, radius + bufferRange, con.ShootThroughThreshold) ? 1f : 0f;
+                var inRange = _npcCombat.InRangeGoodTarget((gunUid, gunUid.Comp), owner, targetUid,
+                    radius + bufferRange, con.ShootThroughThreshold, out blockingField);
+                return inRange || blockingField != null ? 1f : 0f;
             }
             case TargetIsAliveCon:
             {

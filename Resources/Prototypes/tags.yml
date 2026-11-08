@@ -705,6 +705,9 @@
   id: HolofanProjector
 
 - type: Tag
+  id: HolographicForceField
+
+- type: Tag
   id: HolosignProjector
 
 - type: Tag
