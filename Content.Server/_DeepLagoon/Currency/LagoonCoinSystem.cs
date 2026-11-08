@@ -110,6 +110,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             SaveParticipation();
             _ready.Clear();
             _spawned.Clear();
+            _pendingTransfers.Clear();
         });
         _players.PlayerStatusChanged += OnStatusChanged;
     }
@@ -152,6 +153,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     {
         SaveParticipation();
         _roundEnded = true;
+        _pendingTransfers.Clear();
         foreach (var data in _participation.Values) data.Active = false;
         var query = EntityQueryEnumerator<MindComponent>();
         while (query.MoveNext(out var mindId, out var mind))
@@ -238,6 +240,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         if (_participation.Remove(ev.Session, out var data)) Flush(ev.Session, data);
         _requests.Remove(ev.Session.UserId);
         _ready.Remove(ev.Session.UserId);
+        _pendingTransfers.Remove(ev.Session.UserId);
     }
 
     private void OnAfk(ref AFKEvent ev)

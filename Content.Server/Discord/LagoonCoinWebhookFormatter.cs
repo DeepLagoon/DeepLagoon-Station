@@ -11,8 +11,16 @@ public static class LagoonCoinWebhookFormatter
     {
         var purchase = operation.OperationId.StartsWith("purchase:", StringComparison.Ordinal);
         var spending = operation.Amount < 0 && operation.OperationId.StartsWith("spend:", StringComparison.Ordinal);
-        var title = spending ? "Трата Lagoon Coin" : operation.Amount < 0 ? "Снятие Lagoon Coin" : purchase ? "Покупка Lagoon Coin" : "Начисление Lagoon Coin";
-        var source = spending ? "Магазин / покупка за LC" : purchase ? "Подтверждённый платёж" : operation.Reason switch
+        var transfer = operation.OperationId.StartsWith(AccountCurrencyOperations.TransferOperationPrefix, StringComparison.Ordinal);
+        var title = transfer ? "Перевод Lagoon Coin"
+            : spending ? "Трата Lagoon Coin"
+            : operation.Amount < 0 ? "Снятие Lagoon Coin"
+            : purchase ? "Покупка Lagoon Coin"
+            : "Начисление Lagoon Coin";
+        var source = transfer ? "Перевод между игроками"
+            : spending ? "Магазин / покупка за LC"
+            : purchase ? "Подтверждённый платёж"
+            : operation.Reason switch
         {
             "ready" => "Старт раунда через Ready",
             "playtime" => "Игровое время",

@@ -129,7 +129,9 @@ public sealed class CurrencyDatabaseTests
     [Test]
     public async Task UpgradeDoesNotReplayPreWebhookHistory()
     {
-        await using var db = new SqliteServerDbContext(_options);
+        var options = new DbContextOptionsBuilder<SqliteServerDbContext>().UseSqlite("Data Source=:memory:").Options;
+        await using var db = new SqliteServerDbContext(options);
+        await db.Database.OpenConnectionAsync();
         await db.GetService<IMigrator>().MigrateAsync("20261009210957_LagoonCoinWallet");
         await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO lagoon_coin_operations(user_id,operation_id,amount,played_ticks,subscriber_ticks,reason,created_at) VALUES ({_user}, 'old', 5, 0, 0, 'admin', {DateTime.UtcNow})");
         await db.Database.MigrateAsync();
@@ -173,6 +175,88 @@ public sealed class CurrencyDatabaseTests
         Assert.That((await Task.WhenAll(Deduct("one"), Deduct("two"))).Count(v => v), Is.EqualTo(1));
         await using var check = new SqliteServerDbContext(_options);
         Assert.That((await check.Preference.SingleAsync(p => p.UserId == _user)).LagoonCoins, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task LagoonCoinTransferRecordsBothSidesAndCanBeRetried()
+    {
+        var id = Guid.NewGuid();
+        await using (var db = new SqliteServerDbContext(_options))
+        {
+            await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "seed", 10, "admin");
+            var result = await AccountCurrencyOperations.TransferLagoonCoins(db, _user, _recipient, id, 7, "sent", "received");
+            Assert.That(result, Is.EqualTo(new LagoonCoinTransfer(3, 7, true)));
+        }
+
+        await using var read = new SqliteServerDbContext(_options);
+        var retry = await AccountCurrencyOperations.TransferLagoonCoins(read, _user, _recipient, id, 7, "sent", "received");
+        Assert.That(retry, Is.EqualTo(new LagoonCoinTransfer(3, 7, false)));
+        Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AccountCurrencyOperations.TransferLagoonCoins(read, _user, _recipient, id, 6, "sent", "received"));
+        var debit = (await AccountCurrencyOperations.GetLagoonCoinHistory(read, _user, 1)).Single(row => row.Amount < 0);
+        var credit = (await AccountCurrencyOperations.GetLagoonCoinHistory(read, _recipient, 1)).Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(debit.OperationId, Is.EqualTo(credit.OperationId));
+            Assert.That((debit.Amount, debit.BalanceAfter, debit.ActorId, debit.WebhookDelivered),
+                Is.EqualTo((-7L, 3L, (Guid?)_user, false)));
+            Assert.That((credit.Amount, credit.BalanceAfter, credit.ActorId, credit.WebhookDelivered),
+                Is.EqualTo((7L, 7L, (Guid?)_user, false)));
+        });
+    }
+
+    [Test]
+    public async Task LagoonCoinTransferAndConcurrentDebitCannotOverdraw()
+    {
+        await using (var db = new SqliteServerDbContext(_options))
+            await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "seed", 10, "admin");
+
+        async Task<bool> TryDebit(bool transfer)
+        {
+            await using var db = new SqliteServerDbContext(_options);
+            try
+            {
+                if (transfer)
+                    await AccountCurrencyOperations.TransferLagoonCoins(db, _user, _recipient, Guid.NewGuid(), 7, "sent", "received");
+                else
+                    await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "spend:concurrent", -7, "purchase");
+
+                return true;
+            }
+            catch (InsufficientLagoonCoinsException)
+            {
+                return false;
+            }
+        }
+
+        var results = await Task.WhenAll(Task.Run(() => TryDebit(true)), Task.Run(() => TryDebit(false)));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That(results.Count(success => success), Is.EqualTo(1));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).LagoonCoins, Is.EqualTo(3));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _recipient)).LagoonCoins, Is.EqualTo(results[0] ? 7 : 0));
+    }
+
+    [Test]
+    public async Task RejectedLagoonCoinTransfersLeaveBothWalletsAndHistoryUntouched()
+    {
+        await using var db = new SqliteServerDbContext(_options);
+        await AccountCurrencyOperations.AwardLagoonCoins(db, _user, "seed", 10, "admin");
+        await AccountCurrencyOperations.AwardLagoonCoins(db, _recipient, "seed", long.MaxValue, "admin");
+
+        Task<LagoonCoinTransfer> Transfer(Guid recipient, long amount) =>
+            AccountCurrencyOperations.TransferLagoonCoins(db, _user, recipient, Guid.NewGuid(), amount, "sent", "received");
+
+        Assert.ThrowsAsync<ArgumentException>(() => Transfer(_user, 1));
+        Assert.ThrowsAsync<ArgumentException>(() => Transfer(_recipient, 0));
+        Assert.ThrowsAsync<ArgumentException>(() => Transfer(_recipient, -1));
+        Assert.ThrowsAsync<InsufficientLagoonCoinsException>(() => Transfer(_recipient, 11));
+        Assert.ThrowsAsync<OverflowException>(() => Transfer(_recipient, 1));
+        Assert.ThrowsAsync<InvalidOperationException>(() => Transfer(Guid.NewGuid(), 1));
+
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).LagoonCoins, Is.EqualTo(10));
+        Assert.That((await read.Preference.SingleAsync(p => p.UserId == _recipient)).LagoonCoins, Is.EqualTo(long.MaxValue));
+        Assert.That(await read.LagoonCoinOperations.CountAsync(), Is.EqualTo(2));
     }
 
     [Test]

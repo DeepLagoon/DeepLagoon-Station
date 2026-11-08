@@ -19,6 +19,8 @@ public sealed class LagoonCoinWebhookTests
     [TestCase("purchase:order-1", 100, "Покупка Lagoon Coin")]
     [TestCase("discord:1", -5, "Снятие Lagoon Coin")]
     [TestCase("spend:order-1", -5, "Трата Lagoon Coin")]
+    [TestCase("transfer:1", -5, "Перевод Lagoon Coin")]
+    [TestCase("transfer:1", 5, "Перевод Lagoon Coin")]
     public void FormatsOperationWithExactBalanceAndNoMentions(string key, long amount, string title)
     {
         var row = new LagoonCoinOperation { UserId = Guid.NewGuid(), OperationId = key,
