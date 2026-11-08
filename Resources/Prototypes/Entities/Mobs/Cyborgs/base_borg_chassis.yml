@@ -171,6 +171,7 @@
   - type: Speech
     speechVerb: Robotic
     speechSounds: Borg
+    barkVoice: bottalk2
     allowedEmotes: # Goobstation - Cyborg emote sounds
     - Laugh
     - Sigh

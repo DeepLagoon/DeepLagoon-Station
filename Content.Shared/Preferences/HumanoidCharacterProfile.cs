@@ -239,6 +239,7 @@ namespace Content.Shared.Preferences
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
             CustomSpeciesName = other.CustomSpeciesName;
+            SpeechBarks = other.SpeechBarks.Sanitize();
         }
 
         /// <summary>Copy constructor</summary>
@@ -266,6 +267,7 @@ namespace Content.Shared.Preferences
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
             CustomSpeciesName = other.CustomSpeciesName;
+            SpeechBarks = other.SpeechBarks.Sanitize();
         }
 
         /// <summary>
@@ -550,7 +552,7 @@ namespace Content.Shared.Preferences
             if (!Flags.SequenceEqual(other.Flags)) return false; // Mono
             if (!Components.SequenceEqual(other.Components)) return false; // Mono
             if (!Items.SequenceEqual(other.Items)) return false; // Mono
-            if (!InteractionPanelPreferencesEqual(other)) return false;
+            if (!InteractionPanelPreferencesEqual(other) || SpeechBarks != other.SpeechBarks) return false;
             if (!_jobPriorities.SequenceEqual(other._jobPriorities)) return false;
             if (!_antagPreferences.SequenceEqual(other._antagPreferences)) return false;
             if (!_traitPreferences.SequenceEqual(other._traitPreferences)) return false;
@@ -576,8 +578,16 @@ namespace Content.Shared.Preferences
         public void EnsureValid(ICommonSession session, IDependencyCollection collection)
         {
             ValidateInteractionPanelPreferences();
+            SpeechBarks = SpeechBarks.Sanitize();
             var configManager = collection.Resolve<IConfigurationManager>();
             var prototypeManager = collection.Resolve<IPrototypeManager>();
+            if (SpeechBarks.Voice.Length != 0)
+            {
+                if (!prototypeManager.TryIndex<Content.Shared._DeepLagoon.Speech.SpeechBarkVoicePrototype>(SpeechBarks.Voice, out var voice) || voice.Hidden)
+                    SpeechBarks.Voice = "";
+                else
+                    SpeechBarks = SpeechBarks.ForVoice(voice);
+            }
 
             if (!prototypeManager.TryIndex(Species, out var speciesPrototype) || speciesPrototype.RoundStart == false)
             {

@@ -311,10 +311,53 @@ namespace Content.Server.Database
                     item.Sticky))) // Mono end
                 .WithOocNotes(profile.OocNotes)
                 .WithCustomSpeciesName(profile.CustomSpeciesName)
+                .WithSpeechBarks(ReadSpeechBarks(profile.SpeechBarkSettingsJson))
                 .WithArousalPreferences(JsonSerializer.Deserialize<BlueMoonPreferences>(profile.ArousalPreferencesJson) ?? new())
                 .WithInteractionPanelConsent(InteractionPanelCategory.Erotic, (InteractionPanelConsent)profile.ERPConsent)
                 .WithInteractionPanelConsent(InteractionPanelCategory.NonCon, (InteractionPanelConsent)profile.NonConConsent)
                 .WithInteractionPanelConsent(InteractionPanelCategory.Vore, (InteractionPanelConsent)profile.VoreConsent).WithHeadshotId(profile.HeadshotId);
+        }
+
+        private static Content.Shared._DeepLagoon.Speech.SpeechBarkSettings ReadSpeechBarks(string json)
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(json);
+                var data = document.RootElement;
+                if (data.ValueKind != JsonValueKind.Object)
+                    return new();
+
+                if (!data.TryGetProperty("Timbre", out _))
+                    return data.Deserialize<Content.Shared._DeepLagoon.Speech.SpeechBarkSettings>() ?? new();
+
+                var legacy = data.Deserialize<LegacySpeechBarks>() ?? new();
+                return new Content.Shared._DeepLagoon.Speech.SpeechBarkSettings
+                {
+                    Voice = legacy.Timbre switch
+                    {
+                        1 => "mutedc3", 2 => "mutedc2", 3 => "mutedc4", 4 => "synth",
+                        5 => "bottalk1", 6 => "bottalk2", 7 => "moff", 8 => "bark", 9 => "chirp",
+                        _ => "",
+                    },
+                    Speed = (int) MathF.Round(400f / Math.Clamp(legacy.Tempo, 65, 150)),
+                    PitchPercent = (int) MathF.Round(100f * MathF.Pow(2f, Math.Clamp(legacy.Pitch, -8, 8) / 12f)),
+                    VariancePercent = Math.Clamp(legacy.Intonation, 0, 300) / 5,
+                    Pause = legacy.Pause,
+                };
+            }
+            catch (JsonException)
+            {
+                return new();
+            }
+        }
+
+        private sealed class LegacySpeechBarks
+        {
+            public int Timbre { get; set; }
+            public int Pitch { get; set; }
+            public int Tempo { get; set; } = 100;
+            public int Pause { get; set; } = 100;
+            public int Intonation { get; set; } = 100;
         }
 
         private static Profile ConvertProfiles(HumanoidCharacterProfile humanoid, int slot, Profile? profile = null)
@@ -334,6 +377,7 @@ namespace Content.Server.Database
             profile.HeadshotId = humanoid.HeadshotId;
             profile.Species = humanoid.Species;
             profile.CustomSpeciesName = humanoid.CustomSpeciesName;
+            profile.SpeechBarkSettingsJson = JsonSerializer.Serialize(humanoid.SpeechBarks.Sanitize());
             profile.Age = humanoid.Age;
             profile.Sex = humanoid.Sex.ToString();
             profile.Gender = humanoid.Gender.ToString();

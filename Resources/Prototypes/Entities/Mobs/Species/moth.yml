@@ -32,6 +32,7 @@
     accent: zombieMoth
   - type: Speech
     speechVerb: Moth
+    barkVoice: moff
     allowedEmotes: ['Chitter', 'Squeak']
   - type: LanguageKnowledge # Einstein Engines - Languages
     speaks:

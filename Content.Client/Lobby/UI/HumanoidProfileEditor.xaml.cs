@@ -613,6 +613,7 @@ namespace Content.Client.Lobby.UI
             UpdateCompanyControls();
             UpdateInteractionPanelPreferences();
             IsDirty = false;
+            InitializeSpeechBarkEditor();
             InitializeTguiEditor();
         }
 
@@ -902,6 +903,7 @@ namespace Content.Client.Lobby.UI
                 _previewGenitalAroused = false;
             }
             if (slot != CharacterSlot || profile == null) CloseHeadshotLibrary();
+            StopSpeechBarkPreview();
             Profile = profile?.Clone();
             if (Profile != null)
                 Profile.Appearance.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.SanitizeForEditor(Profile.Appearance.BodyFeatures);
@@ -928,6 +930,7 @@ namespace Content.Client.Lobby.UI
             UpdateCMarkingsFacialHair();
             UpdateCompanyControls();
             UpdateInteractionPanelPreferences();
+            UpdateSpeechBarkControls();
 
             RefreshAntags();
             RefreshJobs();
@@ -1313,6 +1316,7 @@ namespace Content.Client.Lobby.UI
 
         protected override void ExitedTree()
         {
+            StopSpeechBarkPreview();
             CloseCatalog();
             CloseColorPicker();
             base.ExitedTree();

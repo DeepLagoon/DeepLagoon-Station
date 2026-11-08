@@ -31,6 +31,7 @@
   &--identity { padding: 4px; .Section { margin: 5px 0; } }
   &__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 8px; margin-bottom: 15px; }
   &__field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; min-width: 0; }
+  &__voiceSlider { width: 100%; }
   &__rangeValue { text-align: center; }
   &__hair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 8px; margin: 15px 0;
     > .Section { min-width: 0; }

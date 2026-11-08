@@ -1,0 +1,547 @@
+# Asset provenance. BlueMoon's repository-wide notice gives CC BY-SA 3.0 as the default.
+# Individual rights for third-party samples are not established by this import.
+# https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/README.md
+- files: ["mutedc2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/synthesis_samples/guitar/crisis_muted/C2.ogg"
+  copyright: "Muted String (Low). Source: sound/instruments/synthesis_samples/guitar/crisis_muted/C2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["mutedc3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/synthesis_samples/guitar/crisis_muted/C3.ogg"
+  copyright: "Muted String (Medium). Source: sound/instruments/synthesis_samples/guitar/crisis_muted/C3.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["mutedc4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/synthesis_samples/guitar/crisis_muted/C4.ogg"
+  copyright: "Muted String (High). Source: sound/instruments/synthesis_samples/guitar/crisis_muted/C4.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["banjoc3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/banjo/Cn3.ogg"
+  copyright: "Banjo (Medium). Source: sound/instruments/banjo/Cn3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["banjoc4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/banjo/Cn4.ogg"
+  copyright: "Banjo (High). Source: sound/instruments/banjo/Cn4.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["squeak.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/items/toysqueak1.ogg"
+  copyright: "Squeaky. Source: sound/items/toysqueak1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["beep.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/machines/terminal_select.ogg"
+  copyright: "Beepy. Source: sound/machines/terminal_select.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["chitter.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/voice/barks/chitter.ogg"
+  copyright: "Chittery. Source: sound/voice/barks/chitter.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["synthgrunt.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/misc/bloop.ogg"
+  copyright: "Synthetic (Grunt). Source: sound/misc/bloop.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["synth.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/machines/uplinkerror.ogg"
+  copyright: "Synthetic (Normal). Source: sound/machines/uplinkerror.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bullet.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/bullet.ogg"
+  copyright: "Bullet. Source: modular_bluemoon/sound/voice/barks/bullet.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["coggers.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/machines/clockcult/integration_cog_install.ogg"
+  copyright: "Brassy. Source: sound/machines/clockcult/integration_cog_install.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["horn.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/instruments/bikehorn/Cn4.ogg"
+  copyright: "Bikehorn. Source: sound/instruments/bikehorn/Cn4.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bwoink.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/effects/adminhelp.ogg"
+  copyright: "Bwoink. Source: sound/effects/adminhelp.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["merp.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/merp.ogg"
+  copyright: "Merp. Source: modular_citadel/sound/voice/merp.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["bark.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/bark1.ogg"
+  copyright: "Bark. Source: modular_citadel/sound/voice/bark1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["nya.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/nya.ogg"
+  copyright: "Nya. Source: modular_citadel/sound/voice/nya.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["moff.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/mothsqueak.ogg"
+  copyright: "Moff. Source: modular_citadel/sound/voice/mothsqueak.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["weh.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/weh.ogg"
+  copyright: "Weh. Source: modular_citadel/sound/voice/weh.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["honk.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/goose1.ogg"
+  copyright: "Annoying Honk. Source: sound/creatures/goose1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["pig_1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/emotes/oink1.ogg"
+  copyright: "Pig (First). Source: modular_bluemoon/sound/emotes/oink1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["pig_2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/emotes/oink2.ogg"
+  copyright: "Pig (Second). Source: modular_bluemoon/sound/emotes/oink2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["pig_3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/emotes/oink3.ogg"
+  copyright: "Pig (Third). Source: modular_bluemoon/sound/emotes/oink3.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["oink.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/oink.ogg"
+  copyright: "Oink. Source: modular_bluemoon/sound/voice/barks/oink.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["bagel.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/bagel.ogg"
+  copyright: "Bagel. Source: modular_bluemoon/sound/voice/barks/bagel.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bump.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/bump.ogg"
+  copyright: "Bump. Source: modular_bluemoon/sound/voice/barks/bump.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["motor.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/motor.ogg"
+  copyright: "Motor. Source: modular_bluemoon/sound/voice/barks/motor.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["impact.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/impact.ogg"
+  copyright: "Impact. Source: modular_bluemoon/sound/voice/barks/impact.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["ber.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/ber.ogg"
+  copyright: "Deltarune (Ber). Source: modular_bluemoon/sound/voice/barks/ber.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["jok.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/jok.ogg"
+  copyright: "Deltarune (Jok). Source: modular_bluemoon/sound/voice/barks/jok.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["noe.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/noe.ogg"
+  copyright: "Deltarune (Noe). Source: modular_bluemoon/sound/voice/barks/noe.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["lan.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/lan.ogg"
+  copyright: "Deltarune (Lan). Source: modular_bluemoon/sound/voice/barks/lan.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["q.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/q.ogg"
+  copyright: "Deltarune (Q). Source: modular_bluemoon/sound/voice/barks/q.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["rud.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/rud.ogg"
+  copyright: "Deltarune (Rud). Source: modular_bluemoon/sound/voice/barks/rud.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["RX.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/rx1.ogg"
+  copyright: "Deltarune (Rx). Source: modular_bluemoon/sound/voice/barks/rx1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ultraswing.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/ultraswing.ogg"
+  copyright: "Ultraswing. Source: modular_bluemoon/sound/voice/barks/ultraswing.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["oldtalk.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/oldtalk.ogg"
+  copyright: "Old Talk. Source: modular_bluemoon/sound/voice/barks/oldtalk.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["note.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/note.ogg"
+  copyright: "Note. Source: modular_bluemoon/sound/voice/barks/note.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["badnote.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/badnote.ogg"
+  copyright: "Bad Note. Source: modular_bluemoon/sound/voice/barks/badnote.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["catsalad.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/catsalad.ogg"
+  copyright: "Cat Salad. Source: modular_bluemoon/sound/voice/barks/catsalad.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["monkey.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/monkey.ogg"
+  copyright: "Monkey. Source: modular_bluemoon/sound/voice/barks/monkey.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph1.ogg"
+  copyright: "Xenomorph 1. Source: modular_bluemoon/sound/voice/barks/xenomorph1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph2.ogg"
+  copyright: "Xenomorph 2. Source: modular_bluemoon/sound/voice/barks/xenomorph2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph3.ogg"
+  copyright: "Xenomorph 3. Source: modular_bluemoon/sound/voice/barks/xenomorph3.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph4.ogg"
+  copyright: "Xenomorph 4. Source: modular_bluemoon/sound/voice/barks/xenomorph4.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph5.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph5.ogg"
+  copyright: "Xenomorph 5. Source: modular_bluemoon/sound/voice/barks/xenomorph5.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["xenomorph6.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/xenomorph6.ogg"
+  copyright: "Xenomorph 6. Source: modular_bluemoon/sound/voice/barks/xenomorph6.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_1.ogg"
+  copyright: "Spider 1. Source: sound/creatures/terrorspiders/speech_1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_2.ogg"
+  copyright: "Spider 2. Source: sound/creatures/terrorspiders/speech_2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_3.ogg"
+  copyright: "Spider 3. Source: sound/creatures/terrorspiders/speech_3.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_4.ogg"
+  copyright: "Spider 4. Source: sound/creatures/terrorspiders/speech_4.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider5.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_5.ogg"
+  copyright: "Spider 5. Source: sound/creatures/terrorspiders/speech_5.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["spider6.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/sound/creatures/terrorspiders/speech_6.ogg"
+  copyright: "Spider 6. Source: sound/creatures/terrorspiders/speech_6.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["centipede_click.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/centipede_click.ogg"
+  copyright: "Centipede (Click). Source: modular_bluemoon/sound/voice/barks/centipede_click.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["centipede_chitter.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_bluemoon/sound/voice/barks/centipede_chitter.ogg"
+  copyright: "Centipede (Chitter). Source: modular_bluemoon/sound/voice/barks/centipede_chitter.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["moffsqueak.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/mothsqueak.ogg"
+  copyright: "Moff squeak. Source: modular_splurt/sound/voice/barks/mothsqueak.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["meow.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_citadel/sound/voice/meow1.ogg"
+  copyright: "Meow. Source: modular_citadel/sound/voice/meow1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["chirp.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/chirp.ogg"
+  copyright: "Chirp. Source: modular_splurt/sound/voice/chirp.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["caw.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/caw.ogg"
+  copyright: "Caw. Source: modular_splurt/sound/voice/caw.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bleat.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/bleat_bark.ogg"
+  copyright: "Bleat. Source: modular_splurt/sound/voice/barks/bleat_bark.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["alphys.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_alphys.ogg"
+  copyright: "Alphys. Source: modular_splurt/sound/voice/barks/undertale/voice_alphys.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["asgore.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_asgore.ogg"
+  copyright: "Asgore. Source: modular_splurt/sound/voice/barks/undertale/voice_asgore.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["flowey1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_flowey_1.ogg"
+  copyright: "Flowey (normal). Source: modular_splurt/sound/voice/barks/undertale/voice_flowey_1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["flowey2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_flowey_2.ogg"
+  copyright: "Flowey (evil). Source: modular_splurt/sound/voice/barks/undertale/voice_flowey_2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["papyrus.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_papyrus.ogg"
+  copyright: "Papyrus. Source: modular_splurt/sound/voice/barks/undertale/voice_papyrus.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["ralsei.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_ralsei.ogg"
+  copyright: "Ralsei. Source: modular_splurt/sound/voice/barks/undertale/voice_ralsei.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["sans.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_sans.ogg"
+  copyright: "Sans. Source: modular_splurt/sound/voice/barks/undertale/voice_sans.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["toriel.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_toriel.ogg"
+  copyright: "Toriel. Source: modular_splurt/sound/voice/barks/undertale/voice_toriel.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["undyne.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_undyne.ogg"
+  copyright: "Undyne. Source: modular_splurt/sound/voice/barks/undertale/voice_undyne.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["temmie.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_temmie.ogg"
+  copyright: "Temmie. Source: modular_splurt/sound/voice/barks/undertale/voice_temmie.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["susie.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_susie.ogg"
+  copyright: "Susie. Source: modular_splurt/sound/voice/barks/undertale/voice_susie.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["gaster.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_gaster_1.ogg"
+  copyright: "Gaster. Source: modular_splurt/sound/voice/barks/undertale/voice_gaster_1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["mettaton.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_metta_1.ogg"
+  copyright: "Mettaton. Source: modular_splurt/sound/voice/barks/undertale/voice_metta_1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["gen_monster_1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_monster1.ogg"
+  copyright: "Generic Monster 1. Source: modular_splurt/sound/voice/barks/undertale/voice_monster1.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["gen_monster_2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/undertale/voice_monster2.ogg"
+  copyright: "Generic Monster 2. Source: modular_splurt/sound/voice/barks/undertale/voice_monster2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["wilson.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/dont_starve/wilson_bark.ogg"
+  copyright: "Wilson. Source: modular_splurt/sound/voice/barks/dont_starve/wilson_bark.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["wolfgang.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/dont_starve/wolfgang_bark.ogg"
+  copyright: "Wolfgang. Source: modular_splurt/sound/voice/barks/dont_starve/wolfgang_bark.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["woodie.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/dont_starve/woodie_bark.ogg"
+  copyright: "Woodie. Source: modular_splurt/sound/voice/barks/dont_starve/woodie_bark.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["wurt.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/dont_starve/wurt_bark.ogg"
+  copyright: "Wurt. Source: modular_splurt/sound/voice/barks/dont_starve/wurt_bark.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["wx78.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/dont_starve/wx78_bark.ogg"
+  copyright: "wx78. Source: modular_splurt/sound/voice/barks/dont_starve/wx78_bark.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["blub.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/blub.ogg"
+  copyright: "Blub. Source: modular_splurt/sound/voice/barks/goon/blub.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bottalk1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/bottalk_1.ogg"
+  copyright: "Bottalk 1. Source: modular_splurt/sound/voice/barks/goon/bottalk_1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bottalk2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/bottalk_2.ogg"
+  copyright: "Bottalk 2. Source: modular_splurt/sound/voice/barks/goon/bottalk_2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bottalk3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/bottalk_3.ogg"
+  copyright: "Bottalk 3. Source: modular_splurt/sound/voice/barks/goon/bottalk_3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["bottalk4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/bottalk_4.ogg"
+  copyright: "Bottalk 4. Source: modular_splurt/sound/voice/barks/goon/bottalk_4.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["buwoo.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/buwoo.ogg"
+  copyright: "Buwoo. Source: modular_splurt/sound/voice/barks/goon/buwoo.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["cow.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/cow.ogg"
+  copyright: "Cow. Source: modular_splurt/sound/voice/barks/goon/cow.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["lizard.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/lizard.ogg"
+  copyright: "Lizard. Source: modular_splurt/sound/voice/barks/goon/lizard.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["pug.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/pug.ogg"
+  copyright: "Pug. Source: modular_splurt/sound/voice/barks/goon/pug.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["pugg.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/pugg.ogg"
+  copyright: "Pugg. Source: modular_splurt/sound/voice/barks/goon/pugg.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["radio1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/radio.ogg"
+  copyright: "Radio 1. Source: modular_splurt/sound/voice/barks/goon/radio.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["radio2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/radio2.ogg"
+  copyright: "Radio 2. Source: modular_splurt/sound/voice/barks/goon/radio2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["radio_ai.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/radio_ai.ogg"
+  copyright: "Radio (AI). Source: modular_splurt/sound/voice/barks/goon/radio_ai.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["roach.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/roach.ogg"
+  copyright: "Roach. Source: modular_splurt/sound/voice/barks/goon/roach.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["skelly.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/skelly.ogg"
+  copyright: "Skelly. Source: modular_splurt/sound/voice/barks/goon/skelly.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["speak1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/speak_1.ogg"
+  copyright: "Speak 1. Source: modular_splurt/sound/voice/barks/goon/speak_1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["speak2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/speak_2.ogg"
+  copyright: "Speak 2. Source: modular_splurt/sound/voice/barks/goon/speak_2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["speak3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/speak_3.ogg"
+  copyright: "Speak 3. Source: modular_splurt/sound/voice/barks/goon/speak_3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["speak4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/goon/speak_4.ogg"
+  copyright: "Speak 4. Source: modular_splurt/sound/voice/barks/goon/speak_4.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["chitter2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/moth/mothchitter2.ogg"
+  copyright: "Chittery Alt. Source: modular_splurt/sound/voice/moth/mothchitter2.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["whistle1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/birdwhistle.ogg"
+  copyright: "Whistle 1. Source: modular_splurt/sound/voice/barks/kazooie/birdwhistle.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["whistle2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/birdwhistle2.ogg"
+  copyright: "Whistle 2. Source: modular_splurt/sound/voice/barks/kazooie/birdwhistle2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["caw2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/caw.ogg"
+  copyright: "Caw 2. Source: modular_splurt/sound/voice/barks/kazooie/caw.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["caw3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/caw2.ogg"
+  copyright: "Caw 3. Source: modular_splurt/sound/voice/barks/kazooie/caw2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["caw4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/caw3.ogg"
+  copyright: "Caw 4. Source: modular_splurt/sound/voice/barks/kazooie/caw3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ehh1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ehh.ogg"
+  copyright: "Ehh 1. Source: modular_splurt/sound/voice/barks/kazooie/ehh.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ehh2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ehh2.ogg"
+  copyright: "Ehh 2. Source: modular_splurt/sound/voice/barks/kazooie/ehh2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ehh3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ehh3.ogg"
+  copyright: "Ehh 3. Source: modular_splurt/sound/voice/barks/kazooie/ehh3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ehh4.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ehh4.ogg"
+  copyright: "Ehh 4. Source: modular_splurt/sound/voice/barks/kazooie/ehh4.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ehh5.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ehh5.ogg"
+  copyright: "Ehh 5. Source: modular_splurt/sound/voice/barks/kazooie/ehh5.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["eugh.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/eugh.ogg"
+  copyright: "Eugh. Source: modular_splurt/sound/voice/barks/kazooie/eugh.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["faucet1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/faucet.ogg"
+  copyright: "Faucet 1. Source: modular_splurt/sound/voice/barks/kazooie/faucet.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["faucet2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/faucet2.ogg"
+  copyright: "Faucet 2. Source: modular_splurt/sound/voice/barks/kazooie/faucet2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["haha.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/haha.ogg"
+  copyright: "Haha. Source: modular_splurt/sound/voice/barks/kazooie/haha.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ribbit.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ribbit.ogg"
+  copyright: "Ribbit. Source: modular_splurt/sound/voice/barks/kazooie/ribbit.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["hoot.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/hoot.ogg"
+  copyright: "Hoot. Source: modular_splurt/sound/voice/barks/kazooie/hoot.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["tweet.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/tweet.ogg"
+  copyright: "Tweet. Source: modular_splurt/sound/voice/barks/kazooie/tweet.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["ahuh.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/ahuh.ogg"
+  copyright: "Ahuh. Source: modular_splurt/sound/voice/barks/kazooie/ahuh.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["cry.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/cry.ogg"
+  copyright: "Cry. Source: modular_splurt/sound/voice/barks/kazooie/cry.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["dwoop.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/dwoop.ogg"
+  copyright: "Dwoop. Source: modular_splurt/sound/voice/barks/kazooie/dwoop.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["growl1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/growl.ogg"
+  copyright: "Growl 1. Source: modular_splurt/sound/voice/barks/kazooie/growl.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["growl2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/growl2.ogg"
+  copyright: "Growl 2. Source: modular_splurt/sound/voice/barks/kazooie/growl2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["moan1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/moan1.ogg"
+  copyright: "Moan 1. Source: modular_splurt/sound/voice/barks/kazooie/moan1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["moan2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/moan2.ogg"
+  copyright: "Moan 2. Source: modular_splurt/sound/voice/barks/kazooie/moan2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["moan3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/moan3.ogg"
+  copyright: "Moan 3. Source: modular_splurt/sound/voice/barks/kazooie/moan3.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["raah1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/raah1.ogg"
+  copyright: "Raah 1. Source: modular_splurt/sound/voice/barks/kazooie/raah1.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["raah2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/raah2.ogg"
+  copyright: "Raah 2. Source: modular_splurt/sound/voice/barks/kazooie/raah2.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["slurp.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/slurp.ogg"
+  copyright: "Slurp. Source: modular_splurt/sound/voice/barks/kazooie/slurp.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["uhm.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/uhm.ogg"
+  copyright: "Uhm. Source: modular_splurt/sound/voice/barks/kazooie/uhm.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["zap.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/kazooie/zap.ogg"
+  copyright: "Zap. Source: modular_splurt/sound/voice/barks/kazooie/zap.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["poyo.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/poyo.ogg"
+  copyright: "Belial. Source: modular_splurt/sound/voice/barks/poyo.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["acetalk1.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/ace_attorney/aa_blip.ogg"
+  copyright: "Ace Talk 1. Source: modular_splurt/sound/voice/barks/ace_attorney/aa_blip.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["acetalk2.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/ace_attorney/aa_dd_blip.ogg"
+  copyright: "Ace Talk 2. Source: modular_splurt/sound/voice/barks/ace_attorney/aa_dd_blip.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."
+- files: ["acetalk3.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/ace_attorney/aa_tgaa_blip.ogg"
+  copyright: "Ace Talk 3. Source: modular_splurt/sound/voice/barks/ace_attorney/aa_tgaa_blip.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["acewrite.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/ace_attorney/aa_blip_typewriter.ogg"
+  copyright: "Ace Typewriter. Source: modular_splurt/sound/voice/barks/ace_attorney/aa_blip_typewriter.ogg. Copied without changes. See source repository and original rights holders."
+- files: ["nomi.ogg"]
+  license: Custom
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/e1b994d073514db0d716a342fee533668eea1eb4/modular_splurt/sound/voice/barks/nomi.ogg"
+  copyright: "Nomi. Source: modular_splurt/sound/voice/barks/nomi.ogg. Converted to mono Ogg Vorbis for positional audio. See source repository and original rights holders."

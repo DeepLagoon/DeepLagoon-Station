@@ -248,6 +248,7 @@
     sprite: Objects/Misc/ensnare.rsi
   - type: Speech
     speechSounds: Pai
+    barkVoice: synth
   - type: Vocal
     wilhelm: "/Audio/_EinsteinEngines/Voice/IPC/wilhelm.ogg"
     sounds:

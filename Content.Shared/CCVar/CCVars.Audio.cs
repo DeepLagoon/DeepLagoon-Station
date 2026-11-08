@@ -70,4 +70,10 @@ public sealed partial class CCVars
         public static readonly CVarDef<float> InterfaceVolume =
             CVarDef.Create("audio.interface_volume", 0.50f, CVar.ARCHIVE | CVar.CLIENTONLY);
 
+        /// <summary>
+        ///     Volume of the positional speech barks.
+        /// </summary>
+        public static readonly CVarDef<float> SpeechBarkVolume =
+            CVarDef.Create("audio.speech_bark_volume", 0.65f, CVar.ARCHIVE | CVar.CLIENTONLY);
+
 }

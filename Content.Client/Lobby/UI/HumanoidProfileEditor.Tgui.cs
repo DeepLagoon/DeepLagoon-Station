@@ -216,6 +216,7 @@ public sealed partial class HumanoidProfileEditor
     {
         var child = TabContainer.GetChild(tab);
         if (child == _editorSettingsTab) return "settings";
+        if (child == _speechBarkTab) return "voice";
         if (child == _personalLoadoutEditor) return "equipment";
         if (child == _savedItemsTab) return "saved";
         if (child == _flavorText) return "flavor";
@@ -306,6 +307,7 @@ public sealed partial class HumanoidProfileEditor
             .Bool("canRedoAppearance", !_tattooFileBusy && _appearanceRedo != null
                 && (!SameAppearanceSelection(p.Appearance, _appearanceRedo) || !_combineMarkings.SetEquals(_appearanceRedoCombine)));
         if (mode == "appearance") data.Array("bodyFeatures", BodyCustomizationData());
+        if (mode == "voice") data.Object("speechBarks", BuildSpeechBarkData()).Array("speechBarkVoices", SpeechBarkOptions());
         data.Bool("canUsePlantigradeLegs", _prototypeManager.Index(p.Species).PlantigradeSprites != null)
             .Bool("plantigradeLegs", p.Appearance.PlantigradeLegs);
         data.Array("previewSlots", _personalLoadoutEditor.CreateTguiSlots(PreviewDummy));
@@ -591,6 +593,24 @@ public sealed partial class HumanoidProfileEditor
                 if (!bool.TryParse(value, out var straightLegs) || !SetPlantigradeLegs(straightLegs)) return false;
                 break;
             case "body-feature": return HandleBodyCustomizationAction(args);
+            case "speech-bark-select":
+                if (_tguiMode != "voice" || args.String("value") is not { } barkVoice || !ChangeSpeechBarkVoice(barkVoice))
+                    return false;
+                break;
+            case "speech-bark-random":
+                if (_tguiMode != "voice") return false;
+                RandomizeSpeechBarkVoice(); break;
+            case "speech-bark-change":
+                if (_tguiMode != "voice" || args.String("field") is not { } barkField ||
+                    !args.TryInt("value", out var barkValue) || !ChangeSpeechBark(barkField, barkValue))
+                    return false;
+                break;
+            case "speech-bark-preview":
+                if (_tguiMode != "voice") return false;
+                PreviewSpeechBarks(); break;
+            case "speech-bark-reset":
+                if (_tguiMode != "voice") return false;
+                ResetSpeechBarks(); break;
             case "headshot-library":
                 ToggleHeadshotLibrary(); break;
             case "headshot-library-close":

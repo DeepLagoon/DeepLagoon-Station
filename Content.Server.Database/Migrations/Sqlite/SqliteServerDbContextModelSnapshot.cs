@@ -1065,6 +1065,11 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("custom_species_name");
 
+                    b.Property<string>("SpeechBarkSettingsJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("speech_bark_settings_json");
+
                     b.Property<int>("PreferenceId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("preference_id");

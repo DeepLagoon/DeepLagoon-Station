@@ -468,6 +468,7 @@ namespace Content.Server.Database
         public string Gender { get; set; } = null!;
         public string Species { get; set; } = null!;
         public string CustomSpeciesName { get; set; } = string.Empty;
+        public string SpeechBarkSettingsJson { get; set; } = "{}";
         [Column(TypeName = "jsonb")] public JsonDocument? Markings { get; set; } = null!;
         public string HairName { get; set; } = null!;
         public string HairColor { get; set; } = null!;
