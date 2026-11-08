@@ -36,11 +36,12 @@ public sealed partial class ShuttleSystem
             _flightDockedGrids.Clear();
             GetAllDockedShuttlesIgnoringFTLLock(uid, _flightDockedGrids);
             _flightDockedGrids.Add(uid);
-            var maximum = ShuttleFlightLimits.GridMaxSpeed(shuttle);
+            var maximum = ShuttleFlightLimits.GridMaxSpeed(shuttle, body.FixturesMass);
             foreach (var docked in _flightDockedGrids)
             {
-                if (TryComp<ShuttleComponent>(docked, out var other) && other.Enabled)
-                    maximum = MathF.Max(maximum, ShuttleFlightLimits.GridMaxSpeed(other));
+                if (docked != uid && TryComp<ShuttleComponent>(docked, out var other) && other.Enabled &&
+                    TryComp<PhysicsComponent>(docked, out var dockedBody))
+                    maximum = MathF.Max(maximum, ShuttleFlightLimits.GridMaxSpeed(other, dockedBody.FixturesMass));
             }
 
             foreach (var docked in _flightDockedGrids)

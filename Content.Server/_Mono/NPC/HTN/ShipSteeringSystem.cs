@@ -272,8 +272,10 @@ public sealed partial class ShipSteeringSystem : EntitySystem
     {
         // check our brake thrust
         var brakeVec = GetGoodThrustVector((-ctx.ShipNorthAngle).RotateVec(-ctx.ShipBody.LinearVelocity), ctx.Shuttle);
-        var brakeAccelVec = _mover.GetDirectionAccel(brakeVec, ctx.Shuttle, ctx.ShipBody, ctx.ShipXform);
-        var brakeAccel = brakeAccelVec.Length() * (ShuttleComponent.BrakeCoefficient + 1f); // + 1 since we can layer brake and normal thrust
+        var brakeAccelVec = _mover.GetDirectionAccel(brakeVec, ctx.Shuttle, ctx.ShipBody, ctx.ShipXform, braking: true);
+        // Counterthrust can be applied alongside the brake.
+        var counterThrustAccel = _mover.GetDirectionAccel(brakeVec, ctx.Shuttle, ctx.ShipBody, ctx.ShipXform);
+        var brakeAccel = brakeAccelVec.Length() * ShuttleComponent.BrakeCoefficient + counterThrustAccel.Length();
 
         var linVelLenSq = ctx.ShipBody.LinearVelocity.LengthSquared();
 

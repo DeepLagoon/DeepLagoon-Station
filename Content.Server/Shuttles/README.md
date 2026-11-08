@@ -6,21 +6,26 @@ rating is recovered from the native serialized thrust multiplier, including old
 maps containing upgraded engines. One small upgraded engine cannot set the whole
 bank to its own tier.
 
-| Tier | Maximum speed | Minimum 0-to-maximum time |
-| --- | --- | --- |
-| T1 | 35 | 20 s |
-| T2 | 45 | 15 s |
-| T3 | 55 | 10 s |
-| T4 | 65 | 8 s |
-| T5 | 75 | 6.4 s |
-| T6 | 85 | 5.12 s |
+| Tier | Full acceleration below | 80% acceleration below | Maximum speed |
+| --- | --- | --- | --- |
+| T1 | 20 | 30 | 45 |
+| T2 | 30 | 40 | 55 |
+| T3 | 40 | 50 | 65 |
+| T4 | 50 | 60 | 75 |
+| T5+ | 50 | 60 | 175 |
 
-Further tiers add 10 speed units each. Above T4 the acceleration time is
-`max(2, 8 * 0.8^(tier - 4))` seconds. Insufficient thrust or damping can make
-acceleration slower. Pilot boosts and engine count cannot exceed the acceleration
-ceiling. Brakes retain their existing multiplier. The pilot's speed setting can
-lower the envelope, including zero, and diagonal thrust uses a vector speed limit.
-The old exponential speed resistance is replaced by this envelope.
+The table applies to light and medium shuttles with a physics mass of 50 to 300.
+Above the second threshold, acceleration is 60% of the takeoff rate. Engines
+above T4 contribute T4 thrust and rating to acceleration. Their additional
+rating only raises the speed limit for this profile. Mixed tiers interpolate
+between the listed limits.
+
+Microshuttles at mass 20 or below use the 35 to 85 speed range. Heavy shuttles
+at mass 350 or above use the 70 to 130 range. The light and medium profile
+blends in from 20 to 50 and out from 300 to 350. The existing mass-based thrust
+bonus peaks at 50% between mass 50 and 100. Insufficient thrust or damping can
+make acceleration slower. The pilot's speed setting can lower the envelope,
+including zero, and diagonal thrust uses a vector speed limit.
 
 A server-side cap also covers drift without a pilot and engine loss. Docked grids
 share the highest member envelope so an unpowered towed grid cannot slow a powered

@@ -417,7 +417,7 @@ public sealed partial class MoverController : SharedMoverController
     /// Get shuttle thrust force in a given direction.
     /// Takes local direction.
     /// </summary>
-    public Vector2 GetDirectionThrust(Vector2 dir, ShuttleComponent shuttle, PhysicsComponent body, TransformComponent xform)
+    public Vector2 GetDirectionThrust(Vector2 dir, ShuttleComponent shuttle, PhysicsComponent body, TransformComponent xform, bool braking = false)
     {
         if (dir.Length() == 0f)
             return Vector2.Zero;
@@ -426,25 +426,26 @@ public sealed partial class MoverController : SharedMoverController
 
         var horizIndex = dir.X > 0 ? 1 : 3; // east else west
         var vertIndex = dir.Y > 0 ? 2 : 0; // north else south
-        var horizThrust = shuttle.LinearThrust[horizIndex];
-        var vertThrust = shuttle.LinearThrust[vertIndex];
+        var profileWeight = braking ? 0f : ShuttleFlightLimits.AccelerationProfileWeight(body.Mass);
+        var horizThrust = float.Lerp(shuttle.LinearThrust[horizIndex], shuttle.AccelerationLinearThrust[horizIndex], profileWeight);
+        var vertThrust = float.Lerp(shuttle.LinearThrust[vertIndex], shuttle.AccelerationLinearThrust[vertIndex], profileWeight);
 
         var horizScale = MathF.Abs(horizThrust / dir.X);
         var vertScale = MathF.Abs(vertThrust / dir.Y);
         // prevent NaNs
         dir *= dir.X == 0 ? vertScale : dir.Y == 0 ? horizScale : MathF.Min(horizScale, vertScale);
 
-        var tier = ShuttleFlightLimits.DirectionTier(shuttle, dir);
-        return ShuttleFlightLimits.LimitAcceleration(dir * shuttle.AccelerationMultiplier, body.Mass, tier);
+        var tier = ShuttleFlightLimits.DirectionTier(shuttle, dir, profileWeight);
+        return ShuttleFlightLimits.GetFlightThrust(dir * shuttle.AccelerationMultiplier, body.Mass, tier, body.LinearVelocity.Length(), braking);
     }
 
     /// <summary>
     /// Get shuttle acceleration in a given direction.
     /// Takes local direction.
     /// </summary>
-    public Vector2 GetDirectionAccel(Vector2 dir, ShuttleComponent shuttle, PhysicsComponent body, TransformComponent xform)
+    public Vector2 GetDirectionAccel(Vector2 dir, ShuttleComponent shuttle, PhysicsComponent body, TransformComponent xform, bool braking = false)
     {
-        return GetDirectionThrust(dir, shuttle, body, xform) * body.InvMass;
+        return GetDirectionThrust(dir, shuttle, body, xform, braking) * body.InvMass;
     }
 
     /// <summary>
@@ -547,7 +548,7 @@ public sealed partial class MoverController : SharedMoverController
 
                     // Get velocity relative to the shuttle so we know which thrusters to fire
                     var shuttleVelocity = (-shuttleNorthAngle).RotateVec(body.LinearVelocity);
-                    var force = GetDirectionThrust(-shuttleVelocity, shuttle, body, xform);
+                    var force = GetDirectionThrust(-shuttleVelocity, shuttle, body, xform, braking: true);
 
                     if (force.X < 0f)
                     {
@@ -655,7 +656,7 @@ public sealed partial class MoverController : SharedMoverController
                 }
 
                 var localVel = (-shuttleNorthAngle).RotateVec(body.LinearVelocity);
-                var speedLimit = ShuttleFlightLimits.MaxSpeed(ShuttleFlightLimits.DirectionTier(shuttle, linearInput));
+                var speedLimit = ShuttleFlightLimits.MaxSpeed(ShuttleFlightLimits.DirectionTier(shuttle, linearInput), body.FixturesMass);
                 if (setMaxVel is { } speed && float.IsFinite(speed))
                     speedLimit = MathF.Min(speedLimit, MathF.Max(0f, speed));
                 totalForce = ShuttleFlightLimits.LimitThrust(localVel, totalForce, body.Mass, frameTime, speedLimit);
