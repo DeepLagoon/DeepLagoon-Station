@@ -2,12 +2,14 @@ using System.Linq;
 using Content.Server.DeviceNetwork;
 using Content.Server.DeviceNetwork.Systems;
 using Content.Server.PowerCell;
+using Content.Server.Salvage.Expeditions;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DeviceNetwork.Events;
 using Content.Shared.Medical.CrewMonitoring;
 using Content.Shared.Medical.SuitSensor;
 using Content.Shared.Pinpointer;
 using Robust.Server.GameObjects;
+using Robust.Shared.Map;
 
 namespace Content.Server.Medical.CrewMonitoring;
 
@@ -70,7 +72,47 @@ public sealed partial class CrewMonitoringConsoleSystem : EntitySystem
             EnsureComp<NavMapComponent>(xform.GridUid.Value);
 
         // Update all sensors info
-        var allSensors = component.ConnectedSensors.Values.ToList();
+        var allSensors = component.ConnectedSensors.Values
+            .Select(status => GetSensorForMap(status, xform.MapID))
+            .ToList();
         _uiSystem.SetUiState(uid, CrewMonitoringUIKey.Key, new CrewMonitoringState(allSensors));
+    }
+
+    private SuitSensorStatus GetSensorForMap(SuitSensorStatus status, MapId monitorMap)
+    {
+        if (status.Coordinates is not { } coordinates)
+            return status;
+
+        TryGetEntity(status.SuitSensorUid, out var sensor);
+        TryComp<TransformComponent>(sensor, out var sensorTransform);
+
+        // The sensor and the reference of its last GPS fix can be on different maps after a jump.
+        if (monitorMap != MapId.Nullspace &&
+            sensorTransform?.MapID == monitorMap &&
+            TryGetEntity(coordinates.NetEntity, out var reference) &&
+            TryComp<TransformComponent>(reference, out var referenceTransform) &&
+            referenceTransform.MapID == monitorMap)
+        {
+            return status;
+        }
+
+        var location = status.LocationName;
+        if (sensorTransform != null && sensorTransform.MapID != monitorMap &&
+            HasComp<SalvageExpeditionComponent>(sensorTransform.MapUid))
+        {
+            location = sensorTransform.GridUid != sensorTransform.MapUid &&
+                       TryComp<MetaDataComponent>(sensorTransform.GridUid, out var grid)
+                ? Loc.GetString("crew-monitoring-location-expedition-shuttle", ("shuttle", grid.EntityName))
+                : Loc.GetString("suit-sensor-location-expedition");
+        }
+
+        // Other consoles may still need the original GPS fix.
+        return new SuitSensorStatus(status.SuitSensorUid, status.Name, status.Job, status.JobIcon, status.JobDepartments, location)
+        {
+            Timestamp = status.Timestamp,
+            IsAlive = status.IsAlive,
+            TotalDamage = status.TotalDamage,
+            TotalDamageThreshold = status.TotalDamageThreshold,
+        };
     }
 }
