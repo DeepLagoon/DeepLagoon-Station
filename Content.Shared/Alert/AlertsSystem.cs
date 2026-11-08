@@ -193,38 +193,25 @@ public abstract partial class AlertsSystem : EntitySystem
         SubscribeLocalEvent<AlertsComponent, ComponentShutdown>(HandleComponentShutdown);
         SubscribeLocalEvent<AlertsComponent, PlayerAttachedEvent>(OnPlayerAttached);
 
-        SubscribeLocalEvent<AlertAutoRemoveComponent, EntityUnpausedEvent>(OnAutoRemoveUnPaused);
+        SubscribeLocalEvent<AlertsComponent, EntityUnpausedEvent>(OnUnpaused);
 
         SubscribeAllEvent<ClickAlertEvent>(HandleClickAlert);
         SubscribeLocalEvent<PrototypesReloadedEventArgs>(HandlePrototypesReloaded);
         LoadPrototypes();
     }
 
-    private void OnAutoRemoveUnPaused(EntityUid uid, AlertAutoRemoveComponent comp, EntityUnpausedEvent args)
+    private void OnUnpaused(EntityUid uid, AlertsComponent comp, ref EntityUnpausedEvent args)
     {
-        if (!TryComp<AlertsComponent>(uid, out var alertComp))
-        {
-            return;
-        }
-
         var dirty = false;
 
-        foreach (var alert in alertComp.Alerts)
+        foreach (var (key, alert) in comp.Alerts)
         {
-            if (alert.Value.Cooldown is null)
+            if (alert.Cooldown is not { } cooldown)
                 continue;
 
-            var cooldown = (alert.Value.Cooldown.Value.Item1, alert.Value.Cooldown.Value.Item2 + args.PausedTime);
-
-            var state = new AlertState
-            {
-                Severity = alert.Value.Severity,
-                Cooldown = cooldown,
-                ShowCooldown = alert.Value.ShowCooldown,
-                AutoRemove = alert.Value.AutoRemove,
-                Type = alert.Value.Type
-            };
-            alertComp.Alerts[alert.Key] = state;
+            var state = alert;
+            state.Cooldown = (cooldown.Item1 + args.PausedTime, cooldown.Item2 + args.PausedTime);
+            comp.Alerts[key] = state;
             dirty = true;
         }
 

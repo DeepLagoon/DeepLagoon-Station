@@ -6,7 +6,7 @@ using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Server.Abilities.Chitinid;
 
-[RegisterComponent]
+[RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class ChitinidComponent : Component
 {
     [DataField]
@@ -36,6 +36,6 @@ public sealed partial class ChitinidComponent : Component
     [DataField]
     public TimeSpan UpdateInterval = TimeSpan.FromSeconds(1);
 
-    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
     public TimeSpan NextUpdate;
 }

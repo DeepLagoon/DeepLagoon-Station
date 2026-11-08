@@ -57,7 +57,8 @@ public sealed partial class CryoSleepSystem
         if (Deleted(body))
             return ReturnToBodyStatus.BodyMissing;
 
-        if (!Exists(cryopod) || Deleted(cryopod) || !TryComp<CryoSleepComponent>(cryopod, out var cryoComp))
+        if (TerminatingOrDeleted(cryopod) || !TryComp<CryoSleepComponent>(cryopod, out var cryoComp) ||
+            MetaData(cryopod).EntityPaused)
         {
             var fallbackQuery = EntityQueryEnumerator<CryoSleepFallbackComponent, CryoSleepComponent>();
             bool foundFallback = false;
@@ -76,7 +77,7 @@ public sealed partial class CryoSleepSystem
         }
         else
         {
-            // NOTE: if the pod is occupied but still exists, do not let the user teleport.
+            // If the original pod is active but occupied, wait for it to become available.
             if (IsOccupied(cryoComp!) || !_container.Insert(body, cryoComp!.BodyContainer))
                 return ReturnToBodyStatus.Occupied;
         }

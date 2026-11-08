@@ -3,19 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Content.Client._NF.CryoSleep;
+using Content.Server.Body.Systems;
 using Content.Server.GameTicking;
 using Content.Server.Ghost;
 using Content.Server.Mind;
 using Content.Shared._NF.CCVar;
+using Content.Shared.Alert;
 using Content.Shared.GameTicking;
 using Content.Shared.Inventory;
 using Content.Shared.Mind;
+using Content.Shared.Nutrition.Components;
+using Content.Shared.Nutrition.EntitySystems;
 using Content.Shared.Preferences;
+using Content.Shared.StatusEffect;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Server.Containers;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Timing;
 using ServerCryoSystem = Content.Server._NF.CryoSleep.CryoSleepSystem;
 using Content.Server._NF.CryoSleep;
 using static Content.Shared._NF.CryoSleep.SharedCryoSleepSystem;
@@ -94,6 +100,13 @@ public sealed class CryoSleepTests
         EntityUid pod = default;
         EntityUid backpack = default;
         EntityUid item = default;
+        float hungerBefore = default;
+        float thirstBefore = default;
+        float bloodBefore = default;
+        var timing = pair.Server.ResolveDependency<IGameTiming>();
+        var tickRate = timing.TickRate;
+        var effectDuration = TimeSpan.FromSeconds(2.5);
+        const string statusEffect = "Muted";
         await pair.Server.WaitAssertion(() =>
         {
             pair.Server.CfgMan.SetCVar(NFCCVars.CryoExpirationTime, 0.1f);
@@ -114,17 +127,29 @@ public sealed class CryoSleepTests
             await pair.Server.WaitAssertion(() =>
             {
                 var cryo = entities.System<ServerCryoSystem>();
+                var blood = entities.System<BloodstreamSystem>();
+                var hunger = entities.System<HungerSystem>();
+                hunger.SetHunger(body, 120f);
+                hungerBefore = hunger.GetHunger(entities.GetComponent<HungerComponent>(body));
+                thirstBefore = entities.GetComponent<ThirstComponent>(body).CurrentThirst;
+                Assert.That(blood.TryModifyBleedAmount(body, 3f), Is.True);
+                bloodBefore = blood.GetBloodLevelPercentage(body);
+                Assert.That(entities.System<StatusEffectsSystem>().TryAddStatusEffect(body, statusEffect,
+                    effectDuration, true), Is.True);
                 Assert.That(cryo.InsertBody(body, entities.GetComponent<CryoSleepComponent>(pod), false), Is.True);
                 cryo.AcceptCryoSleep(body, pod);
                 Assert.That(entities.GetComponent<MetaDataComponent>(body).EntityPaused, Is.True);
                 Assert.That(entities.GetComponent<MetaDataComponent>(backpack).EntityPaused, Is.True);
                 Assert.That(entities.GetComponent<MetaDataComponent>(item).EntityPaused, Is.True);
+                Assert.That(entities.System<BodySystem>().GetBodyOrgans(body), Is.Not.Empty);
+                foreach (var (organ, _) in entities.System<BodySystem>().GetBodyOrgans(body))
+                    Assert.That(entities.GetComponent<MetaDataComponent>(organ).EntityPaused, Is.True);
                 var session = pair.Server.PlayerMan.Sessions.Single();
                 entities.EventBus.RaiseEvent(EventSource.Local, new PlayerJoinedLobbyEvent(session));
                 entities.EventBus.RaiseEvent(EventSource.Local, new PlayerBeforeSpawnEvent(session,
                     HumanoidCharacterProfile.DefaultWithSpecies("Human"), null, true, map.MapUid));
             });
-            await pair.RunTicksSync(60);
+            await pair.RunTicksSync(4 * tickRate);
             await pair.Server.WaitAssertion(() =>
             {
                 var cryo = entities.System<ServerCryoSystem>();
@@ -146,14 +171,51 @@ public sealed class CryoSleepTests
                 Assert.That(entities.System<ContainerSystem>().Insert(blocker, container), Is.True);
                 Assert.That(cryo.TryReturnToBody(mind), Is.EqualTo(cycle == 0 ? ReturnToBodyStatus.Occupied : ReturnToBodyStatus.NoCryopodAvailable));
                 Assert.That(cryo.HasCryosleepingBody(session.UserId), Is.True);
+                Assert.That(entities.GetComponent<MetaDataComponent>(body).EntityPaused, Is.True);
+                Assert.That(entities.System<HungerSystem>().GetHunger(entities.GetComponent<HungerComponent>(body)),
+                    Is.EqualTo(hungerBefore));
+                Assert.That(entities.GetComponent<ThirstComponent>(body).CurrentThirst, Is.EqualTo(thirstBefore));
+                Assert.That(entities.System<BloodstreamSystem>().GetBloodLevelPercentage(body), Is.EqualTo(bloodBefore));
+                var effects = entities.System<StatusEffectsSystem>();
+                Assert.That(effects.TryGetTime(body, statusEffect, out var cooldown), Is.True);
+                Assert.That(cooldown.Value.Item2 - timing.CurTime, Is.EqualTo(effectDuration));
                 entities.DeleteEntity(blocker);
+                var maps = entities.System<SharedMapSystem>();
+                maps.SetPaused(map.MapUid, true);
+                Assert.That(cryo.TryReturnToBody(mind), Is.EqualTo(ReturnToBodyStatus.NoCryopodAvailable));
+                Assert.That(cryo.HasCryosleepingBody(session.UserId), Is.True);
+                maps.SetPaused(map.MapUid, false);
                 Assert.That(cryo.TryReturnToBody(mind), Is.EqualTo(ReturnToBodyStatus.Success));
                 Assert.That(session.AttachedEntity, Is.EqualTo(body));
                 Assert.That(cryo.HasCryosleepingBody(session.UserId), Is.False);
+                Assert.That(entities.GetComponent<MetaDataComponent>(body).EntityPaused, Is.False);
+                Assert.That(entities.GetComponent<TransformComponent>(body).MapUid, Is.EqualTo(map.MapUid));
+                Assert.That(entities.System<HungerSystem>().GetHunger(entities.GetComponent<HungerComponent>(body)),
+                    Is.EqualTo(hungerBefore), "Hunger must not catch up when returning from cryosleep.");
+                var alerts = entities.System<AlertsSystem>();
+                Assert.That(alerts.TryGet(statusEffect, out var alert), Is.True);
+                Assert.That(alerts.TryGetAlertState(body, alert.AlertKey, out var state), Is.True);
+                Assert.That(state.Cooldown, Is.EqualTo(cooldown));
+                foreach (var (organ, _) in entities.System<BodySystem>().GetBodyOrgans(body))
+                    Assert.That(entities.GetComponent<MetaDataComponent>(organ).EntityPaused, Is.False);
                 Assert.That(entities.GetComponent<TransformComponent>(backpack).ParentUid, Is.EqualTo(body));
                 Assert.That(entities.GetComponent<TransformComponent>(item).ParentUid, Is.EqualTo(backpack));
                 Assert.That(entities.GetComponent<MetaDataComponent>(item).EntityPaused, Is.False);
                 Assert.That(cryo.EjectBody(pod), Is.True);
+            });
+            await pair.RunTicksSync(2 * tickRate);
+            await pair.Server.WaitAssertion(() =>
+            {
+                Assert.That(entities.System<HungerSystem>().GetHunger(entities.GetComponent<HungerComponent>(body)),
+                    Is.LessThan(hungerBefore));
+                Assert.That(entities.GetComponent<ThirstComponent>(body).CurrentThirst, Is.LessThan(thirstBefore));
+                Assert.That(entities.System<StatusEffectsSystem>().HasStatusEffect(body, statusEffect), Is.True);
+            });
+            await pair.RunTicksSync(2 * tickRate);
+            await pair.Server.WaitAssertion(() =>
+            {
+                Assert.That(entities.System<BloodstreamSystem>().GetBloodLevelPercentage(body), Is.LessThan(bloodBefore));
+                Assert.That(entities.System<StatusEffectsSystem>().HasStatusEffect(body, statusEffect), Is.False);
             });
         }
         await pair.Server.WaitAssertion(() =>
