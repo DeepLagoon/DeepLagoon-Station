@@ -1,3 +1,4 @@
+using System.Numerics;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared._DeepLagoon.ShuttleParking;
@@ -58,6 +59,7 @@ public sealed class ParkingUpdate : BoundUserInterfaceMessage
     public List<string> Excluded = [];
     public List<ParkingPlace> Places = [];
     public List<ParkingDock> Docks = [];
+    public ParkingRecallMap? RecallMap;
 }
 
 [Serializable, NetSerializable]
@@ -65,3 +67,13 @@ public sealed record ParkingPlace(Guid Id, int Category, string ShipName, string
 
 [Serializable, NetSerializable]
 public sealed record ParkingDock(NetEntity Entity, string Name);
+
+[Serializable, NetSerializable]
+public sealed record ParkingRecallMap(List<Vector2[]> StationHull, List<Vector2[]> ShuttleHull, List<ParkingRecallPort> Ports);
+
+[Serializable, NetSerializable]
+public sealed record ParkingRecallPort(NetEntity Entity, string Name, Vector2 Position, ParkingPortStatus Status,
+    Vector2? ShipOrigin, Angle ShipAngle);
+
+[Serializable, NetSerializable]
+public enum ParkingPortStatus : byte { Fits, Blocked, Occupied }

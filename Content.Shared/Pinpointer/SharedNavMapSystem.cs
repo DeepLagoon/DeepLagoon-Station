@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using Content.Shared.Tag;
 using Robust.Shared.GameStates;
 using Robust.Shared.Network;
+using Robust.Shared.Physics;
+using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 
@@ -11,6 +13,25 @@ namespace Content.Shared.Pinpointer;
 
 public abstract partial class SharedNavMapSystem : EntitySystem
 {
+    /// <summary>Grid-local floor geometry used by station maps, including maps shown remotely.</summary>
+    public static IEnumerable<Vector2[]> GetFloorPolygons(FixturesComponent fixtures, bool roundVertices = false)
+    {
+        foreach (var fixture in fixtures.Fixtures.Values)
+        {
+            if (fixture.Shape is not PolygonShape polygon)
+                continue;
+
+            var vertices = new Vector2[polygon.VertexCount];
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var vertex = polygon.Vertices[i];
+                vertices[i] = roundVertices ? new Vector2(MathF.Round(vertex.X), MathF.Round(vertex.Y)) : vertex;
+            }
+
+            yield return vertices;
+        }
+    }
+
     public const int Categories = 3;
     public const int Directions = 4; // Not directly tied to number of atmos directions
 

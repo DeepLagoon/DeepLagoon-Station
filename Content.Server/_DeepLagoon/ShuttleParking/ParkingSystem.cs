@@ -216,6 +216,8 @@ public sealed partial class ParkingSystem : EntitySystem
             {
                 state.HasShip = true; state.ShipName = Name(grid); state.OwnerName = Comp<ParkingShuttleComponent>(grid).OwnerName;
                 state.Category = GetCategory(grid); state.Parked = Comp<ParkingShuttleComponent>(grid).Parked;
+                if (state.Parked)
+                    state.RecallMap = BuildRecallMap(console, grid);
             }
             foreach (var slot in _store.Slots(user))
                 state.Places.Add(new(slot.Id, slot.Category, slot.Ship?.Name ?? "", slot.Ship?.OwnerName ?? "", slot.Ship?.Category ?? -1,
@@ -372,11 +374,13 @@ public sealed partial class ParkingSystem : EntitySystem
                 result.Add(new(GetNetEntity(uid), Name(uid) + " · " + GetNetEntity(uid)));
         return result;
     }
-    private DockingConfig? SelectedDockConfig(EntityUid grid, EntityUid target, EntityUid dock)
+    private DockingConfig? SelectedDockConfig(EntityUid grid, EntityUid target, EntityUid dock,
+        List<Entity<DockingComponent>>? shipDocks = null, HashSet<EntityUid>? obstructions = null)
     {
         if (!TryComp<DockingComponent>(dock, out var targetDock) || targetDock.DockedWith != null) return null;
-        foreach (var candidate in _docking.GetDocks(grid))
-            if (candidate.Comp.DockedWith == null && _docking.GetDockingConfig(grid, target, candidate.Owner, candidate.Comp, dock, targetDock) is { } config)
+        foreach (var candidate in shipDocks ?? _docking.GetDocks(grid))
+            if (candidate.Comp.DockedWith == null && _docking.GetDockingConfig(grid, target, candidate.Owner,
+                    candidate.Comp, dock, targetDock, preciseHull: true, obstructions: obstructions) is { } config)
                 return config;
         return null;
     }
