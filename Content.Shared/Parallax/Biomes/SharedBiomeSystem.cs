@@ -116,6 +116,9 @@ public abstract partial class SharedBiomeSystem : EntitySystem
         for (var i = layers.Count - 1; i >= 0; i--)
         {
             var layer = layers[i];
+            if (layer is not (BiomeTileLayer or BiomeMetaLayer))
+                continue;
+
             var noiseCopy = GetNoise(layer.Noise, seed);
 
             var invert = layer.Invert;
@@ -139,10 +142,8 @@ public abstract partial class SharedBiomeSystem : EntitySystem
             if (layer is not BiomeTileLayer tileLayer)
                 continue;
 
-            if (TryGetTile(indices, noiseCopy, tileLayer.Invert, tileLayer.Threshold, ProtoManager.Index(tileLayer.Tile), tileLayer.Variants, out tile))
-            {
-                return true;
-            }
+            tile = GetTileVariant(indices, noiseCopy, ProtoManager.Index(tileLayer.Tile), tileLayer.Variants);
+            return true;
         }
 
         tile = null;
@@ -161,17 +162,8 @@ public abstract partial class SharedBiomeSystem : EntitySystem
     /// <summary>
     /// Gets the underlying biome tile, ignoring any existing tile that may be there.
     /// </summary>
-    private bool TryGetTile(Vector2i indices, FastNoiseLite noise, bool invert, float threshold, ContentTileDefinition tileDef, List<byte>? variants, [NotNullWhen(true)] out Tile? tile)
+    private Tile GetTileVariant(Vector2i indices, FastNoiseLite noise, ContentTileDefinition tileDef, List<byte>? variants)
     {
-        var found = noise.GetNoise(indices.X, indices.Y);
-        found = invert ? found * -1 : found;
-
-        if (found < threshold)
-        {
-            tile = null;
-            return false;
-        }
-
         byte variant = 0;
         var variantCount = variants?.Count ?? tileDef.Variants;
 
@@ -182,8 +174,7 @@ public abstract partial class SharedBiomeSystem : EntitySystem
             variant = _tile.PickVariant(tileDef, (int)variantValue);
         }
 
-        tile = new Tile(tileDef.TileId, variant);
-        return true;
+        return new Tile(tileDef.TileId, variant);
     }
 
     /// <summary>
@@ -374,7 +365,7 @@ public abstract partial class SharedBiomeSystem : EntitySystem
         return TryGetDecals(indices, layers, seed, grid == null ? null : (grid.Owner, grid), out decals);
     }
 
-    private FastNoiseLite GetNoise(FastNoiseLite seedNoise, int seed)
+    protected virtual FastNoiseLite GetNoise(FastNoiseLite seedNoise, int seed)
     {
         var noiseCopy = new FastNoiseLite();
         _serManager.CopyTo(seedNoise, ref noiseCopy, notNullableOverride: true);

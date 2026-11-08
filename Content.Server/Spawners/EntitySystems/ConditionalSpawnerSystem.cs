@@ -6,6 +6,7 @@ using Content.Shared.EntityTable;
 using Content.Shared.GameTicking.Components;
 using JetBrains.Annotations;
 using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 
 namespace Content.Server.Spawners.EntitySystems
@@ -16,6 +17,7 @@ namespace Content.Server.Spawners.EntitySystems
         [Dependency] private IRobustRandom _robustRandom = default!;
         [Dependency] private GameTicker _ticker = default!;
         [Dependency] private EntityTableSystem _entityTable = default!;
+        [Dependency] private IPrototypeManager _prototypes = default!;
         [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
 
         public override void Initialize()
@@ -45,6 +47,21 @@ namespace Content.Server.Spawners.EntitySystems
             Spawn(ent);
             if (ent.Comp.DeleteSpawnerAfterSpawn && !TerminatingOrDeleted(ent) && Exists(ent))
                 QueueDel(ent);
+        }
+
+        public EntProtoId? ResolveBiomeTerrain(EntProtoId prototype, int seed)
+        {
+            if (_prototypes.TryIndex(prototype, out var entity) &&
+                entity.TryComp(out EntityTableSpawnerComponent? spawner, EntityManager.ComponentFactory) &&
+                spawner.BiomeTerrain)
+            {
+                foreach (var terrain in _entityTable.GetSpawns(spawner.Table, new Random(seed)))
+                    return terrain;
+
+                return null;
+            }
+
+            return prototype;
         }
 
         private void OnRuleStarted(ref GameRuleStartedEvent args)
