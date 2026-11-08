@@ -10,6 +10,11 @@ namespace Content.Server._NF.Shipyard.Systems;
 
 public sealed partial class ShipyardSystem
 {
+    public int AppraiseParkedShuttle(EntityUid grid)
+    {
+        return (int) Math.Clamp(_pricing.AppraiseGrid(grid) * _baseSaleRate, 0, int.MaxValue);
+    }
+
     /// <summary>Replace every reference to transient card/grid IDs when restoring a persistent vessel.</summary>
     public void BindParkingDeed(EntityUid grid, EntityUid card, string name, string owner)
     {

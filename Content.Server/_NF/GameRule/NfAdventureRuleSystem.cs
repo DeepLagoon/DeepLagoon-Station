@@ -12,6 +12,7 @@ using Content.Server.Cargo.Components;
 using Content.Server.GameTicking;
 using Content.Server.GameTicking.Presets;
 using Content.Server.GameTicking.Rules;
+using Content.Server.Preferences.Managers;
 using Content.Shared._NF.Bank;
 using Content.Shared._NF.CCVar;
 using Content.Shared.GameTicking;
@@ -36,6 +37,7 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
     [Dependency] private IPlayerManager _player = default!;
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private BankSystem _bank = default!;
+    [Dependency] private IServerPreferencesManager _preferences = default!;
     [Dependency] private GameTicker _ticker = default!;
     [Dependency] private PointOfInterestSystem _poi = default!;
     [Dependency] private IBaseServer _baseServer = default!;
@@ -68,13 +70,15 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
         // User ID: used to validate incoming information.
         // If, for whatever reason, another player takes over this character, their initial balance is inaccurate.
         public NetUserId UserId;
+        public int Character;
 
-        public PlayerRoundBankInformation(int startBalance, string name, NetUserId userId)
+        public PlayerRoundBankInformation(int startBalance, string name, NetUserId userId, int character)
         {
             StartBalance = startBalance;
             EndBalance = -1;
             Name = name;
             UserId = userId;
+            Character = character;
         }
     }
 
@@ -218,7 +222,10 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
 
             // Store player info with the bank balance - we have it directly, and BankSystem won't have a cache yet.
             if (!_players.ContainsKey(mobUid))
-                _players[mobUid] = new PlayerRoundBankInformation(ev.Profile.BankBalance, MetaData(mobUid).EntityName, ev.Player.UserId);
+            {
+                var character = _preferences.GetPreferencesOrNull(ev.Player.UserId)?.SelectedCharacterIndex ?? -1;
+                _players[mobUid] = new PlayerRoundBankInformation(ev.Profile.BankBalance, MetaData(mobUid).EntityName, ev.Player.UserId, character);
+            }
         }
     }
 
@@ -263,6 +270,13 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
     private void OnRoundRestart(RoundRestartCleanupEvent ev)
     {
         _players.Clear();
+    }
+
+    public void RecordParkingBalance(NetUserId user, int character, int balance)
+    {
+        foreach (var info in _players.Values)
+            if (info.UserId == user && info.Character == character)
+                info.EndBalance = balance;
     }
 
     /// <summary>

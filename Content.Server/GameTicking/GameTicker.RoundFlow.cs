@@ -1,4 +1,5 @@
 using Content.Server._DeepLagoon.Mapping;
+using Content.Server._DeepLagoon.ShuttleParking;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -500,6 +501,15 @@ namespace Content.Server.GameTicking
             _sawmill.Info("Ending round!");
 
             RunLevel = GameRunLevel.PostRound;
+
+            try
+            {
+                EntityManager.System<ParkingSystem>().SellParkedShuttles();
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Error while settling shuttle parking: {e}");
+            }
 
             try
             {

@@ -6,6 +6,7 @@ using Content.Server._DeepLagoon.Currency;
 using Content.Server._NF.Bank;
 using Content.Server._NF.Shipyard.Systems;
 using Content.Server.Database;
+using Content.Server.GameTicking;
 using Content.Server.Preferences.Managers;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles;
@@ -65,6 +66,7 @@ public sealed partial class ParkingSystem : EntitySystem
     [Dependency] private BankSystem _bank = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private FollowerSystem _follower = default!;
+    [Dependency] private GameTicker _ticker = default!;
     private ParkingStore _store = default!;
     private readonly HashSet<Guid> _busy = [];
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _viewers = [];
@@ -111,6 +113,8 @@ public sealed partial class ParkingSystem : EntitySystem
         if (!TryComp<ActorComponent>(ev.Purchaser, out var actor) || !TryComp<VesselComponent>(ev.Shuttle, out var vessel)
             || !_prototypes.TryIndex(vessel.VesselId, out var prototype)) return;
         RegisterPurchasedShip(ev.Shuttle, actor.PlayerSession.UserId.UserId, prototype.Price, prototype.ID, Name(ev.Purchaser));
+        if (_preferences.TryGetCachedPreferences(actor.PlayerSession.UserId, out var prefs))
+            Comp<ParkingShuttleComponent>(ev.Shuttle).ParkingCharacter = prefs.SelectedCharacterIndex;
     }
     public void RegisterPurchasedShip(EntityUid grid, Guid owner, int price, string vessel, string ownerName)
     {
@@ -214,6 +218,8 @@ public sealed partial class ParkingSystem : EntitySystem
             _refreshAfter[ev.Actor] = _timing.RealTime + TimeSpan.FromSeconds(1);
             await Publish(uid, ev.Actor); return;
         }
+        if (_ticker.RunLevel == GameRunLevel.PostRound)
+            return;
         var context = GetContext(uid, ev.Actor);
         if (context == null) { await Publish(uid, ev.Actor, "Нужна ваша ID-карта и доступ к консоли."); return; }
         var user = context.Session.UserId.UserId;
@@ -223,13 +229,13 @@ public sealed partial class ParkingSystem : EntitySystem
         {
             switch (ev.Action)
             {
-                case "park": Park(uid, OwnedShip(context) ?? throw new InvalidOperationException("На карте нет вашего шаттла.")); message = "Шаттл заморожен на бесплатной парковке."; break;
+                case "park": Park(uid, OwnedShip(context) ?? throw new InvalidOperationException("На карте нет вашего шаттла."), context.Character); message = "Шаттл заморожен на бесплатной парковке."; break;
                 case "recall":
                     var grid = OwnedShip(context) ?? throw new InvalidOperationException("На карте нет вашего шаттла.");
                     if (!Comp<ParkingShuttleComponent>(grid).Parked) throw new InvalidOperationException("Шаттл не находится на парковке.");
                     Deliver(context, grid, ev.Dock); message = "Шаттл возвращён бесплатно."; break;
                 case "preview": PrepareReview(context, ev.Slot); message = "Проверьте список исключаемых предметов перед сохранением."; break;
-                case "save": Save(context, ev.Slot, ev.Token); message = "Шаттл сохранён. Исключённые предметы оставлены у консоли."; break;
+                case "save": message = Save(context, ev.Slot, ev.Token); break;
                 case "cancel": _reviews.Remove(user); break;
                 case "buy":
                     var purchase = _store.BeginPurchase(user, ev.Token, ev.Category);
@@ -295,7 +301,7 @@ public sealed partial class ParkingSystem : EntitySystem
         if (!_docking.GetDocks(grid).Any(d => d.Comp.DockedWith is { } other && _stations.GetOwningStation(other) == station))
             throw new InvalidOperationException("Сначала пристыкуйте шаттл к станции с этой консолью.");
     }
-    public void Park(EntityUid console, EntityUid grid)
+    public void Park(EntityUid console, EntityUid grid, int character = -1)
     {
         var ship = Comp<ParkingShuttleComponent>(grid);
         if (ship.Parked) throw new InvalidOperationException("Шаттл уже припаркован.");
@@ -316,6 +322,7 @@ public sealed partial class ParkingSystem : EntitySystem
                 _physics.SetLinearVelocity(grid, Vector2.Zero, body: body); _physics.SetAngularVelocity(grid, 0, body: body);
             }
             _transform.SetCoordinates(grid, new EntityCoordinates(map, Vector2.Zero));
+            ship.ParkingCharacter = character;
             ship.Parked = true; _parkingMaps[grid] = map;
         }
         catch
@@ -352,6 +359,7 @@ public sealed partial class ParkingSystem : EntitySystem
         _shuttles.FTLDock((grid, Transform(grid)), config);
         var ship = Comp<ParkingShuttleComponent>(grid);
         ship.Parked = false;
+        ship.ParkingCharacter = context.Character;
         if (ship.ReturnStation is { } former && Exists(former) && HasComp<StationDataComponent>(former))
             _stations.AddGridToStation(former, grid);
         else
@@ -389,7 +397,8 @@ public sealed partial class ParkingSystem : EntitySystem
                     await _preferences.SetProfile(context.Session.UserId, context.Character, profile.WithBankBalance(balance), persist: false);
                 if (Exists(context.Actor)) _bank.SetConfirmedBankBalance(context.Actor, balance);
             }
-            if (epoch != _epoch || GetContext(context.Console, context.Actor)?.Card != context.Card || OwnedShip(context) != null || !Exists(grid))
+            if (epoch != _epoch || _ticker.RunLevel == GameRunLevel.PostRound
+                || GetContext(context.Console, context.Actor)?.Card != context.Card || OwnedShip(context) != null || !Exists(grid))
                 throw new InvalidOperationException("Условия изменились. Оплата учтена; повторите выкуп тем же персонажем.");
             restored.OwnerName = Name(context.Actor);
             _shipyard.BindParkingDeed(grid, context.Card, snapshot.Name, restored.OwnerName);

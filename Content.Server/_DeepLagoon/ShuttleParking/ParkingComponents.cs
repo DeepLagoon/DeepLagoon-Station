@@ -22,6 +22,7 @@ public sealed partial class ParkingShuttleComponent : Component
     [DataField] public Dictionary<Guid, EntityUid> OriginalItems = [];
     // Same-round membership is deliberately not serialized into a persistent snapshot.
     public EntityUid? ReturnStation;
+    public int ParkingCharacter = -1;
 }
 
 [RegisterComponent]

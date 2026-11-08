@@ -1,13 +1,46 @@
 using Content.Server.Database;
 using Content.Shared._Mono.Traits.Physical;
 using Content.Shared._NF.Bank.Events;
+using Content.Shared._NF.Bank.Components;
 using Content.Shared.Preferences;
+using Robust.Shared.Network;
 using Robust.Shared.Player;
 
 namespace Content.Server._NF.Bank;
 
 public sealed partial class BankSystem
 {
+    public ParkingCredit? CreditParkingSale(NetUserId user, int character, int amount, Guid operation)
+    {
+        if (!_bankPayments.Add(user))
+            return null;
+
+        try
+        {
+            var task = _db.CreditParkingAsync(user, character, amount, operation);
+            _tasks.BlockWaitOnTask(task);
+            var credit = task.GetAwaiter().GetResult();
+            if (_prefsManager.TryGetCachedPreferences(user, out var prefs)
+                && prefs.Characters.TryGetValue(credit.Character, out var selected) && selected is HumanoidCharacterProfile profile)
+            {
+                _prefsManager.SetProfile(user, credit.Character, profile.WithBankBalance(credit.Balance), persist: false)
+                    .GetAwaiter().GetResult();
+                if (prefs.SelectedCharacterIndex == credit.Character && _playerManager.TryGetSessionById(user, out var session))
+                {
+                    if (session.AttachedEntity is { } actor && HasComp<BankAccountComponent>(actor))
+                        SetConfirmedBankBalance(actor, credit.Balance);
+                    RaiseLocalEvent(new BalanceChangedEvent(session, credit.Balance));
+                }
+            }
+
+            return credit;
+        }
+        finally
+        {
+            _bankPayments.Remove(user);
+        }
+    }
+
     public bool TryTransfer(ICommonSession sender, ICommonSession recipient, int amount, out BankTransfer result)
     {
         result = default;

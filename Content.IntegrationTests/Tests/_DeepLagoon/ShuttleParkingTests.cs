@@ -3,9 +3,11 @@ using System.IO;
 using System.Numerics;
 using Content.Server._DeepLagoon.ShuttleParking;
 using Content.Server._NF.Shipyard.Systems;
+using Content.Server.Database;
 using Content.Server.Decals;
 using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Paper;
+using Content.Shared.Preferences;
 using Content.Shared.Shuttles.Components;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
@@ -17,6 +19,8 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
+using Robust.Shared.Asynchronous;
+using Robust.Shared.Network;
 using Content.Client._DeepLagoon.WebUI;
 using Robust.Client.UserInterface;
 using Button = Robust.Client.UserInterface.Controls.Button;
@@ -56,8 +60,10 @@ public sealed class ShuttleParkingTests
             Assert.That(containers.Insert(body,containers.EnsureContainer<Container>(bag,"passenger")),Is.True);
             var session = pair.Server.PlayerMan.Sessions.Single();
             var parking = entities.System<ParkingSystem>(); parking.RegisterPurchasedShip(ship.Owner,session.UserId.UserId,1,"","Капитан");
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
             Assert.Throws<InvalidOperationException>(()=>parking.Park(console,ship.Owner));
             Assert.That(entities.GetComponent<TransformComponent>(ship.Owner).MapID,Is.EqualTo(id));
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
             parking.Park(console,ship.Owner);
             Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship.Owner).Parked,Is.True);
@@ -89,6 +95,26 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<StationMemberComponent>(ship.Owner).Station,Is.EqualTo(ownerStation));
             Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.EqualTo(second));
             pair.Server.PlayerMan.SetAttachedEntity(session,null);
+
+            var database = pair.Server.ResolveDependency<IServerDbManager>();
+            var tasks = pair.Server.ResolveDependency<ITaskManager>();
+            var owner = new NetUserId(Guid.NewGuid());
+            var setup = database.InitPrefsAsync(owner, new HumanoidCharacterProfile().WithBankBalance(2000), default);
+            tasks.BlockWaitOnTask(setup);
+            var initial = ((HumanoidCharacterProfile) setup.GetAwaiter().GetResult().SelectedCharacter).BankBalance;
+            parking.RegisterPurchasedShip(ship.Owner, owner.UserId, 1, "", "Капитан");
+            parking.Park(console, ship.Owner, 0);
+            var appraisal = entities.System<ShipyardSystem>().AppraiseParkedShuttle(ship.Owner);
+            Assert.That(appraisal, Is.Positive);
+
+            parking.SellParkedShuttles();
+            parking.SellParkedShuttles();
+            Assert.That(entities.EntityExists(ship.Owner), Is.False);
+            Assert.That(entities.HasComponent<ShuttleDeedComponent>(card), Is.False);
+            var saved = database.GetPlayerPreferencesAsync(owner, default);
+            tasks.BlockWaitOnTask(saved);
+            var balance = ((HumanoidCharacterProfile) saved.GetAwaiter().GetResult()!.SelectedCharacter).BankBalance;
+            Assert.That(balance, Is.EqualTo(initial + appraisal));
         });
         await pair.CleanReturnAsync();
     }
