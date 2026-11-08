@@ -226,7 +226,7 @@ public sealed partial class ParkingSystem : EntitySystem
             if (_reviews.TryGetValue(user, out var review) && review.Expires > _timing.RealTime && Exists(review.Grid))
             {
                 state.ReviewToken = review.Token; state.ReviewSlot = review.Slot;
-                state.Excluded = ExcludedEntities(review.Grid).Select(entity => Name(entity)).Take(500).ToList();
+                state.Excluded = ExclusionPreview(review.Grid);
             }
             try { state.Coins = await _database.GetLagoonCoinsAsync(context.Session.UserId); }
             catch (Exception e) { Log.Warning($"Parking balance unavailable: {e.GetType().Name}"); }

@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Numerics;
@@ -89,8 +91,9 @@ public sealed class ShuttleParkingTests
         await pair.CleanReturnAsync();
     }
 
-    [Test]
-    public async Task ParkingRejectsNestedPassengerAndPausesWholeShipOnPrivateMap()
+    [TestCase(false, TestName = "ParkingRejectsNestedPassengerPausesShipAndPaysOfflineOwnerAtRoundEnd")]
+    [TestCase(true, TestName = "RecalledShuttleWithMoreThan500ExcludedItemsCanUseMatchingStorageSlot")]
+    public async Task ParkingRoundTrip(bool saveToStorage)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         await pair.Server.WaitAssertion(() =>
@@ -100,6 +103,11 @@ public sealed class ShuttleParkingTests
             entities.EnsureComponent<ShuttleComponent>(ship.Owner);
             var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
             for (var x=0;x<3;x++) for(var y=0;y<3;y++) { maps.SetTile(stationGrid,new Vector2i(x,y),floor); maps.SetTile(ship,new Vector2i(x,y),floor); }
+            if (saveToStorage)
+            {
+                for (var x = 3; x < 33; x++)
+                    maps.SetTile(ship, new Vector2i(x, 1), floor);
+            }
             var station = entities.SpawnEntity(null, MapCoordinates.Nullspace);
             entities.EnsureComponent<StationDataComponent>(station);
             entities.System<StationSystem>().AddGridToStation(station,stationGrid.Owner);
@@ -175,6 +183,13 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.EqualTo(second));
             Assert.That(transforms.GetWorldPosition(ship.Owner), Is.EqualTo(transforms.GetWorldPosition(stationGrid.Owner) + compatible.ShipOrigin!.Value));
             Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
+            if (saveToStorage)
+            {
+                SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, session.UserId.UserId);
+                pair.Server.PlayerMan.SetAttachedEntity(session, null);
+                return;
+            }
+
             pair.Server.PlayerMan.SetAttachedEntity(session,null);
 
             var database = pair.Server.ResolveDependency<IServerDbManager>();
@@ -199,6 +214,40 @@ public sealed class ShuttleParkingTests
         });
         await pair.CleanReturnAsync();
     }
+
+    private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
+        EntityUid actor, Guid owner)
+    {
+        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+        const int category = 2;
+        const int excludedCount = 543;
+        Assert.That(parking.GetCategory(ship), Is.EqualTo(category));
+        var store = (ParkingStore) typeof(ParkingSystem).GetField("_store", flags)!.GetValue(parking)!;
+        store.GrantPurchase(owner, store.BeginPurchase(owner, Guid.NewGuid(), category));
+        var slot = store.Slots(owner).Single();
+
+        for (var i = 0; i < excludedCount; i++)
+            entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f, 0.5f)));
+
+        Assert.That(parking.ExcludedEntities(ship), Has.Count.EqualTo(excludedCount));
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("preview", slot.Id) { Actor = actor, UiKey = ParkingUiKey.Key });
+        var reviews = (IDictionary) typeof(ParkingSystem).GetField("_reviews", flags)!.GetValue(parking)!;
+        var review = reviews[owner];
+        Assert.That(review, Is.Not.Null);
+        var token = (Guid) review!.GetType().GetProperty("Token")!.GetValue(review)!;
+        var preview = (List<string>) typeof(ParkingSystem).GetMethod("ExclusionPreview", flags)!.Invoke(parking, [ship])!;
+        Assert.That(preview.Single(), Does.Contain($"× {excludedCount} (конфискация)"));
+
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
+        var saved = store.Slot(owner, slot.Id);
+        Assert.That(saved.Phase, Is.EqualTo("stored"));
+        Assert.That(saved.Ship?.Category, Is.EqualTo(category));
+        Assert.That(entities.EntityExists(ship), Is.False);
+        var restored = parking.LoadSnapshot(saved.Ship!.Grid);
+        Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
+        Assert.That(parking.ExcludedEntities(restored), Is.Empty);
+    }
+
     [Test]
     public async Task SuppliedCapitalMapCanRoundTripThroughPersistentSerializer()
     {
