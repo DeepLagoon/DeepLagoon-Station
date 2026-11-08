@@ -44,8 +44,9 @@
         text: payload.slice(index * 2000, (index + 1) * 2000) }));
     }
   };
+  const encodePayload = payload => JSON.stringify({ ...payload, _sequence: sequence++, _page: page });
   const send = message => {
-    const payload = JSON.stringify({ ...message.payload, _sequence: sequence++, _page: page });
+    const payload = encodePayload(message.payload);
     if (payload.length > (message.type === 'panel/state_set' ? 32768 : 8192)) {
       console.error('DeepLagoon bridge payload exceeds limit:', message.type);
       if (message.type !== 'log') sendLog('warn', 'bridge', 'dropped ' + message.type + ': too long');
@@ -164,7 +165,8 @@
         if (!inputFocused) send({ type: 'chat-input-focus', payload: { active: false } });
       },
       ping: () => {
-        if (window.__tguiAppBooted__ && !window.__deeplagoonPageFailed) send({ type: 'health/pong', payload: {} });
+        // Bypass the action queue, but use a fresh URL so the image bridge cannot reuse a cached reply.
+        if (window.__tguiAppBooted__ && !window.__deeplagoonPageFailed) transmit('health/pong', encodePayload({})).catch(() => {});
       },
     };
   }
