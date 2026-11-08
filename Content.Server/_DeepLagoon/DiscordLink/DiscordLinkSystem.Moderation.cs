@@ -12,6 +12,7 @@ using Content.Shared.Database;
 using Content.Shared.CCVar;
 using Content.Shared.Roles;
 using Robust.Server.ServerStatus;
+using Robust.Shared.Enums;
 using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
 using DbAdmin = Content.Server.Database.Admin;
@@ -82,7 +83,8 @@ public sealed partial class DiscordLinkSystem
         {
             "ban" or "job_ban" or "unban" or "job_unban" or "bans" or "jobs" => "BAN",
             "notes" => "VIEWNOTES",
-            "note_add" or "note_edit" or "note_remove" => "EDITNOTES",
+            "note_add" or "note_edit" or "note_remove" or "watchlist_add" => "EDITNOTES",
+            "player_info" => "VIEWNOTES",
             "staff_add" or "staff_remove" when request.Kind == "mapper" => "MAPPING",
             "staff_status" when request.Kind == "mapper" => "MAPPING",
             "staff_add" or "staff_remove" or "staff_status" or "admin_flags" or "staff_flags" => "PERMISSIONS",
@@ -94,6 +96,12 @@ public sealed partial class DiscordLinkSystem
         var staffClaim = request.ActorStaffRole != null && request.Operation is ("staff_add" or "staff_remove" or "staff_status");
         if (staffClaim ? !staffAuthority : !DiscordApiAuthority.Has(actingAdmin, permission))
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
+        if (request.Operation == "player_info")
+        {
+            if (!DiscordApiAuthority.Has(actingAdmin, "BAN"))
+                return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
+            return await GetDiscordPlayerInfo(uid);
+        }
         if (request.Operation is "apartment_catalog" or "apartment_grant")
             return await DiscordApartments(request, uid, actor);
         var admin = await _database.GetAdminDataForAsync(uid);
@@ -140,12 +148,12 @@ public sealed partial class DiscordLinkSystem
         if (!Enum.TryParse<NoteSeverity>(severityName, true, out var severity) || !Enum.IsDefined(severity) ||
             request.Minutes > 5256000) return ModerationError("invalid_request");
         var message = request.Message?.Trim() ?? "";
-        if (request.Operation is "ban" or "job_ban" or "note_add" or "note_edit" &&
+        if (request.Operation is "ban" or "job_ban" or "note_add" or "note_edit" or "watchlist_add" &&
             (message.Length == 0 || message.Length > 2000)) return ModerationError("invalid_request");
         var expiry = request.Minutes > 0 ? DateTime.UtcNow.AddMinutes(request.Minutes) : (DateTime?) null;
         if (request.Operation is "ban" or "job_ban" && _store?.ReserveApiCooldown("ban", 600) != true)
             return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "ban_cooldown" });
-        if (request.Operation is "unban" or "job_unban" or "note_add" or "note_edit" or "note_remove" &&
+        if (request.Operation is "unban" or "job_unban" or "note_add" or "note_edit" or "note_remove" or "watchlist_add" &&
             _store?.ReserveApiCooldown("moderation-write", 5) != true)
             return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
         switch (request.Operation)
@@ -177,6 +185,9 @@ public sealed partial class DiscordLinkSystem
             case "note_add":
                 await _notes.AddAdminRemark(actor, author.LastSeenUserName, uid.UserId, NoteType.Note, message, severity, request.Secret, expiry);
                 break;
+            case "watchlist_add":
+                await _notes.AddAdminRemark(actor, author.LastSeenUserName, uid.UserId, NoteType.Watchlist, message, null, true, expiry);
+                break;
             case "note_edit":
             case "note_remove":
                 var note = await _database.GetAdminNote(request.Id);
@@ -190,6 +201,23 @@ public sealed partial class DiscordLinkSystem
         }
         Log.Info($"Discord moderation: {request.Operation} target={uid} actor={actor} record={request.Id}");
         return new ApiResult(HttpStatusCode.OK, new { ok = true, uid = uid.ToString() });
+    }
+
+    private async Task<ApiResult> GetDiscordPlayerInfo(NetUserId uid)
+    {
+        var activeBan = await _database.GetServerBanAsync(null, uid, null, null);
+        var bans = await _database.GetServerBansAsync(null, uid, null, null, includeUnbanned: true);
+        var watchlists = await _notes.GetActiveWatchlists(uid.UserId);
+        var online = _players.TryGetSessionById(uid, out var session) &&
+                     session.Status is SessionStatus.Connected or SessionStatus.InGame;
+        return new ApiResult(HttpStatusCode.OK, new {
+            uid = uid.ToString(),
+            status = activeBan != null ? "banned" : online ? "online" : "offline",
+            bans = bans.OrderByDescending(b => b.BanTime).ThenByDescending(b => b.Id).Take(5)
+                .Select(b => new { created = b.BanTime, expires = b.ExpirationTime, reason = b.Reason }).ToArray(),
+            watchlists = watchlists.OrderByDescending(w => w.CreatedAt).ThenByDescending(w => w.Id)
+                .Select(w => w.Message).ToArray(),
+        });
     }
 
     private string? ManagedKind(DbAdmin? admin)
