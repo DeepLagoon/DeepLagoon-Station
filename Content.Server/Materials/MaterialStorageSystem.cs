@@ -56,7 +56,7 @@ public sealed partial class MaterialStorageSystem : SharedMaterialStorageSystem
         if (!ent.Comp.DropOnDestroy)
             return;
 
-        DropAll(ent);
+        SpillOnDestruction(ent);
     }
 
     // Mono
@@ -253,11 +253,9 @@ public sealed partial class MaterialStorageSystem : SharedMaterialStorageSystem
         if (amount <= 0 || materialProto.StackEntity == null)
             return new List<EntityUid>();
 
-        var entProto = _prototypeManager.Index<EntityPrototype>(materialProto.StackEntity);
-        if (!entProto.TryComp<PhysicalCompositionComponent>(out var composition, EntityManager.ComponentFactory))
+        if (!TryGetMaterialPerSheet(materialProto, out var materialPerStack))
             return new List<EntityUid>();
 
-        var materialPerStack = composition.MaterialComposition[materialProto.ID];
         var amountToSpawn = amount / materialPerStack;
         overflowMaterial = amount - amountToSpawn * materialPerStack;
 
@@ -265,6 +263,15 @@ public sealed partial class MaterialStorageSystem : SharedMaterialStorageSystem
             return new List<EntityUid>();
 
         return _stackSystem.SpawnMultiple(materialProto.StackEntity, amountToSpawn, coordinates);
+    }
+
+    private bool TryGetMaterialPerSheet(MaterialPrototype material, out int volume)
+    {
+        volume = 0;
+        return material.StackEntity is { } stack
+               && _prototypeManager.Index(stack).TryComp<PhysicalCompositionComponent>(out var composition, EntityManager.ComponentFactory)
+               && composition.MaterialComposition.TryGetValue(material.ID, out volume)
+               && volume > 0;
     }
 
     /// <summary>

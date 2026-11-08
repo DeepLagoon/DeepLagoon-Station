@@ -4,6 +4,7 @@ using Content.Server.Radiation.Events;
 using Content.Shared.Radiation.Components;
 using Content.Shared.Radiation.Systems;
 using Robust.Shared.Collections;
+using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -14,6 +15,9 @@ namespace Content.Server.Radiation.Systems;
 public partial class RadiationSystem
 {
     private List<Entity<MapGridComponent>> _grids = new();
+    private readonly Dictionary<ReceiverPosition, float> _radiationByPosition = new();
+
+    private readonly record struct ReceiverPosition(MapId Map, EntityUid? Grid, Vector2 World, Vector2? GridLocal);
 
     private readonly record struct SourceData(
         float Intensity,
@@ -60,6 +64,10 @@ public partial class RadiationSystem
 
         var debugRays = debug ? new List<DebugRadiationRay>() : null;
         var receiversTotalRads = new ValueList<(Entity<RadiationReceiverComponent>, float)>();
+        // A destroyed silo can leave thousands of radioactive stacks at the exact same position.
+        // Their incoming rays are identical. Keep per-entity ambient radiation and shielding separate.
+        var cachePositions = !debug && _sources.Count >= 32;
+        _radiationByPosition.Clear();
 
         // TODO RADIATION Parallelize
         // Would need to give receiversTotalRads a fixed size.
@@ -70,30 +78,19 @@ public partial class RadiationSystem
         {
             var destWorld = _transform.GetWorldPosition(destTrs);
 
-            var rads = 0f;
-            foreach (var source in _sources)
+            float rads;
+            if (cachePositions)
             {
-                // send ray towards destination entity
-                if (Irradiate(source, destUid, destTrs, destWorld, debug) is not { } ray)
-                    continue;
-
-                // add rads to total rad exposure
-                if (ray.ReachedDestination)
-                    rads += ray.Rads;
-
-                if (!debug)
-                    continue;
-
-                debugRays!.Add(new DebugRadiationRay(
-                    ray.MapId,
-                    GetNetEntity(ray.SourceUid),
-                    ray.Source,
-                    GetNetEntity(ray.DestinationUid),
-                    ray.Destination,
-                    ray.Rads,
-                    ray.Blockers ?? new())
-                );
+                var position = new ReceiverPosition(destTrs.MapID, destTrs.GridUid, destWorld,
+                    destTrs.GridUid == destTrs.ParentUid ? destTrs.LocalPosition : null);
+                if (!_radiationByPosition.TryGetValue(position, out rads))
+                {
+                    rads = SumIncomingRadiation(destUid, destTrs, destWorld, null);
+                    _radiationByPosition.Add(position, rads);
+                }
             }
+            else
+                rads = SumIncomingRadiation(destUid, destTrs, destWorld, debugRays);
 
             var ambient = new GetAmbientRadiationEvent();
             RaiseLocalEvent(destUid, ref ambient);
@@ -125,6 +122,31 @@ public partial class RadiationSystem
 
         // raise broadcast event that radiation system has updated
         RaiseLocalEvent(new RadiationSystemUpdatedEvent());
+    }
+
+    private float SumIncomingRadiation(EntityUid destUid, TransformComponent destTrs, Vector2 destWorld,
+        List<DebugRadiationRay>? debugRays)
+    {
+        var rads = 0f;
+        foreach (var source in _sources)
+        {
+            if (Irradiate(source, destUid, destTrs, destWorld, debugRays != null) is not { } ray)
+                continue;
+
+            if (ray.ReachedDestination)
+                rads += ray.Rads;
+
+            debugRays?.Add(new DebugRadiationRay(
+                ray.MapId,
+                GetNetEntity(ray.SourceUid),
+                ray.Source,
+                GetNetEntity(ray.DestinationUid),
+                ray.Destination,
+                ray.Rads,
+                ray.Blockers ?? new()));
+        }
+
+        return rads;
     }
 
     private RadiationRay? Irradiate(SourceData source,

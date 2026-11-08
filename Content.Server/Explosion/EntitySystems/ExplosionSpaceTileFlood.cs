@@ -13,7 +13,9 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
     ///     about what grid (which could be more than one), and in what directions the space-based explosion is allowed
     ///     to propagate from this tile.
     /// </summary>
-    private Dictionary<Vector2i, BlockedSpaceTile> _gridBlockMap;
+    private readonly Dictionary<Vector2i, BlockedSpaceTile> _gridBlockMap;
+    private readonly Vector2i _blockerMin;
+    private readonly Vector2i _blockerMax;
 
     /// <summary>
     ///     After every iteration, this data set will store all the grid-tiles that were reached as a result of the
@@ -27,6 +29,13 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
     {
         (_gridBlockMap, TileSize) = system.TransformGridEdges(epicentre, referenceGrid, localGrids, maxDistance);
         system.GetUnblockedDirections(_gridBlockMap, TileSize);
+        _blockerMin = new Vector2i(int.MaxValue, int.MaxValue);
+        _blockerMax = new Vector2i(int.MinValue, int.MinValue);
+        foreach (var tile in _gridBlockMap.Keys)
+        {
+            _blockerMin = new Vector2i(Math.Min(_blockerMin.X, tile.X), Math.Min(_blockerMin.Y, tile.Y));
+            _blockerMax = new Vector2i(Math.Max(_blockerMax.X, tile.X), Math.Max(_blockerMax.Y, tile.Y));
+        }
     }
 
     public int AddNewTiles(int iteration, HashSet<Vector2i> inputSpaceTiles)
@@ -116,7 +125,7 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
 
     protected override void ProcessNewTile(int iteration, Vector2i tile, AtmosDirection entryDirection)
     {
-        if (!_gridBlockMap.TryGetValue(tile, out var blocker))
+        if (!MayIntersectGrid(tile) || !_gridBlockMap.TryGetValue(tile, out var blocker))
         {
             // this tile does not intersect any grids. Add it (if its new) and continue.
             if (ProcessedTiles.Add(tile))
@@ -158,6 +167,13 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
 
     protected override AtmosDirection GetUnblockedDirectionOrAll(Vector2i tile)
     {
-        return _gridBlockMap.TryGetValue(tile, out var blocker) ? blocker.UnblockedDirections : AtmosDirection.All;
+        return MayIntersectGrid(tile) && _gridBlockMap.TryGetValue(tile, out var blocker)
+            ? blocker.UnblockedDirections
+            : AtmosDirection.All;
     }
+
+    // Most tiles of a large blast in space are far outside every grid.
+    private bool MayIntersectGrid(Vector2i tile) =>
+        tile.X >= _blockerMin.X && tile.X <= _blockerMax.X &&
+        tile.Y >= _blockerMin.Y && tile.Y <= _blockerMax.Y;
 }

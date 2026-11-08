@@ -112,13 +112,16 @@ namespace Content.Server.Stack
 
             var spawnedEnts = new List<EntityUid>();
             foreach (var count in spawns)
-            {
-                var entity = SpawnAtPosition(entityPrototype, spawnPosition);
-                spawnedEnts.Add(entity);
-                SetCount(entity, count);
-            }
+                spawnedEnts.Add(SpawnStackAtPosition(entityPrototype, count, spawnPosition));
 
             return spawnedEnts;
+        }
+
+        internal EntityUid SpawnStackAtPosition(EntProtoId prototype, int count, EntityCoordinates position)
+        {
+            var entity = SpawnAtPosition(prototype, position);
+            SetCount(entity, count);
+            return entity;
         }
 
         /// <inheritdoc cref="SpawnMultiple(string,int,EntityCoordinates)"/>
