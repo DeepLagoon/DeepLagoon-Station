@@ -23,6 +23,8 @@ namespace Content.Server._DeepLagoon.ShuttleParking;
 
 public sealed partial class ParkingSystem
 {
+    private const int ExclusionPreviewLimit = 500;
+
     [Dependency] private IDependencyCollection _dependencies = default!;
     [Dependency] private IComponentFactory _components = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
@@ -85,9 +87,33 @@ public sealed partial class ParkingSystem
     private string ReviewHash(EntityUid grid)
     {
         var excluded = ExcludedEntities(grid);
-        if (excluded.Count > 500) throw new InvalidOperationException("Слишком много исключаемых предметов. Сначала разгрузите шаттл.");
         return ParkingStore.Hash(GetCategory(grid) + ":" + string.Join('|', excluded.OrderBy(e => e.ToString()).Select(e => e + ":" + Name(e))));
     }
+
+    private List<string> ExclusionPreview(EntityUid grid)
+    {
+        var excluded = ExcludedEntities(grid);
+        var confiscated = ConfiscatedEntities(grid, excluded);
+        var groups = excluded
+            .GroupBy(entity => (Name: Name(entity), Confiscated: confiscated.Contains(entity)))
+            .ToList();
+        var preview = groups.Take(ExclusionPreviewLimit).Select(group =>
+        {
+            var (name, confiscation) = group.Key;
+            var count = group.Count();
+            var label = count > 1 ? $"{name} × {count}" : name;
+            return confiscation ? $"{label} (конфискация)" : label;
+        }).ToList();
+        if (groups.Count > ExclusionPreviewLimit)
+        {
+            var remaining = groups.Skip(ExclusionPreviewLimit).ToList();
+            var confiscatedCount = remaining.Where(group => group.Key.Confiscated).Sum(group => group.Count());
+            var returnedCount = remaining.Sum(group => group.Count()) - confiscatedCount;
+            preview.Add($"Остальные предметы: {confiscatedCount} к конфискации, {returnedCount} к выдаче у консоли.");
+        }
+        return preview;
+    }
+
     private void ValidateStorage(Context context, EntityUid grid, Guid slot)
     {
         CheckEmpty(grid);

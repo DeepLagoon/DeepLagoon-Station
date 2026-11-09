@@ -53,7 +53,53 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
             .Array("categories", Enumerable.Range(0, 5).Select(category => new TguiData().Number("id", category).String("name", ParkingRules.CategoryName(category))
                 .Number("count", state.Places.Count(place => place.Category == category)).Number("first", ParkingRules.SlotPrice(category, false))
                 .Number("extra", ParkingRules.SlotPrice(category, true))));
+        if (state.RecallMap is { } recall)
+            data.Object("recallMap", BuildRecallData(recall));
         _window.Panel.SetState("ShuttleParking", data.ToString(), "Парковка шаттлов");
+    }
+
+    private static TguiData BuildRecallData(ParkingRecallMap map)
+    {
+        var min = new Vector2(float.PositiveInfinity);
+        var max = new Vector2(float.NegativeInfinity);
+        void Include(Vector2 point)
+        {
+            min = Vector2.Min(min, point);
+            max = Vector2.Max(max, point);
+        }
+
+        foreach (var polygon in map.StationHull)
+            foreach (var vertex in polygon)
+                Include(vertex);
+
+        var shipVertices = map.ShuttleHull.SelectMany(polygon => polygon).ToArray();
+        foreach (var port in map.Ports)
+        {
+            Include(port.Position);
+            if (port.ShipOrigin is not { } origin)
+                continue;
+
+            foreach (var vertex in shipVertices)
+                Include(origin + port.ShipAngle.RotateVec(vertex));
+        }
+
+        if (!float.IsFinite(min.X))
+            min = max = Vector2.Zero;
+
+        var padding = new Vector2(4);
+        var size = max - min + 2 * padding;
+        static TguiData Point(Vector2 vertex) => new TguiData().Number("x", vertex.X).Number("y", vertex.Y);
+        static TguiData Polygon(Vector2[] vertices) => new TguiData().Array("points", vertices.Select(Point));
+        return new TguiData().Number("x", min.X - padding.X).Number("y", min.Y - padding.Y)
+            .Number("width", size.X).Number("height", size.Y)
+            .Array("station", map.StationHull.Select(Polygon))
+            .Array("ship", map.ShuttleHull.Select(Polygon))
+            .Array("ports", map.Ports.Select(port => Point(port.Position)
+                .String("id", port.Entity.ToString()).String("name", port.Name)
+                .String("status", port.Status.ToString().ToLowerInvariant())
+                .Bool("hasPose", port.ShipOrigin.HasValue)
+                .Number("shipX", port.ShipOrigin?.X ?? 0).Number("shipY", port.ShipOrigin?.Y ?? 0)
+                .Number("shipAngle", (float)port.ShipAngle.Theta)));
     }
     private void Action(string action, string payload)
     {

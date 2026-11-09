@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Numerics;
@@ -5,6 +7,7 @@ using Content.Server._DeepLagoon.ShuttleParking;
 using Content.Server._NF.Shipyard.Systems;
 using Content.Server.Database;
 using Content.Server.Decals;
+using Content.Shared._DeepLagoon.ShuttleParking;
 using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Paper;
 using Content.Shared.Preferences;
@@ -21,6 +24,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
 using Robust.Shared.Asynchronous;
 using Robust.Shared.Network;
+using Robust.Shared.Serialization;
 using Content.Client._DeepLagoon.WebUI;
 using Robust.Client.UserInterface;
 using Button = Robust.Client.UserInterface.Controls.Button;
@@ -32,7 +36,64 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ShuttleParkingTests
 {
     [Test]
-    public async Task ParkingRejectsNestedPassengerAndPausesWholeShipOnPrivateMap()
+    public async Task RecallUsesShuttleHullAndShowsRealObstructions()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var transforms = entities.System<SharedTransformSystem>();
+            var map = maps.CreateMap(out var mapId);
+            maps.CreateMap(out var parkingMap);
+            var stationGrid = maps.CreateGridEntity(mapId);
+            var ship = maps.CreateGridEntity(parkingMap);
+            var blocker = maps.CreateGridEntity(mapId);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            for (var x = 0; x < 3; x++)
+                for (var y = 0; y < 3; y++)
+                    maps.SetTile(stationGrid, new Vector2i(x, y), floor);
+            for (var y = 0; y < 3; y++)
+                maps.SetTile(ship, new Vector2i(0, y), floor);
+            for (var x = 1; x < 4; x++)
+                maps.SetTile(ship, new Vector2i(x, 0), floor);
+            maps.SetTile(blocker, Vector2i.Zero, floor);
+            transforms.SetCoordinates(blocker.Owner, new EntityCoordinates(map, new Vector2(5, 2)));
+
+            var station = entities.SpawnEntity(null, MapCoordinates.Nullspace);
+            entities.EnsureComponent<StationDataComponent>(station);
+            entities.System<StationSystem>().AddGridToStation(station, stationGrid.Owner);
+            var console = entities.SpawnEntity("ComputerShuttleParking", new EntityCoordinates(stationGrid.Owner, new Vector2(.5f)));
+            var stationPort = entities.SpawnEntity("AirlockShuttle", new EntityCoordinates(stationGrid.Owner, new Vector2(2.5f, 1.5f)));
+            var shipPort = entities.SpawnEntity("AirlockShuttle", new EntityCoordinates(ship.Owner, new Vector2(.5f, 1.5f)));
+            transforms.SetLocalRotation(stationPort, Angle.FromDegrees(90));
+            transforms.SetLocalRotation(shipPort, Angle.FromDegrees(270));
+
+            var docking = entities.System<DockingSystem>();
+            var shipDock = entities.GetComponent<DockingComponent>(shipPort);
+            var stationDock = entities.GetComponent<DockingComponent>(stationPort);
+            Assert.That(docking.GetDockingConfig(ship.Owner, stationGrid.Owner, shipPort, shipDock, stationPort, stationDock), Is.Null,
+                "The obstruction lies inside the old bounding rectangle");
+            var parking = entities.System<ParkingSystem>();
+            var buildMap = typeof(ParkingSystem).GetMethod("BuildRecallMap", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            ParkingRecallMap GetRecallMap() => (ParkingRecallMap) buildMap.Invoke(parking, [console, ship.Owner])!;
+
+            var clear = GetRecallMap();
+            Assert.That(clear.Ports.Single().Status, Is.EqualTo(ParkingPortStatus.Fits));
+
+            transforms.SetCoordinates(blocker.Owner, new EntityCoordinates(map, new Vector2(5, 0)));
+            var obstructed = GetRecallMap();
+            Assert.That(obstructed.Ports.Single().Status, Is.EqualTo(ParkingPortStatus.Blocked));
+            Assert.That(obstructed.StationHull.Count, Is.EqualTo(clear.StationHull.Count + 1),
+                "A non-station grid intersecting the hull should be visible in the preview");
+            Assert.That(obstructed.StationHull.Last().All(point => point.X is > 5 and < 6 && point.Y is > 0 and < 1), Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase(false, TestName = "ParkingRejectsNestedPassengerPausesShipAndPaysOfflineOwnerAtRoundEnd")]
+    [TestCase(true, TestName = "RecalledShuttleWithMoreThan500ExcludedItemsCanUseMatchingStorageSlot")]
+    public async Task ParkingRoundTrip(bool saveToStorage)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         await pair.Server.WaitAssertion(() =>
@@ -42,6 +103,11 @@ public sealed class ShuttleParkingTests
             entities.EnsureComponent<ShuttleComponent>(ship.Owner);
             var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
             for (var x=0;x<3;x++) for(var y=0;y<3;y++) { maps.SetTile(stationGrid,new Vector2i(x,y),floor); maps.SetTile(ship,new Vector2i(x,y),floor); }
+            if (saveToStorage)
+            {
+                for (var x = 3; x < 33; x++)
+                    maps.SetTile(ship, new Vector2i(x, 1), floor);
+            }
             var station = entities.SpawnEntity(null, MapCoordinates.Nullspace);
             entities.EnsureComponent<StationDataComponent>(station);
             entities.System<StationSystem>().AddGridToStation(station,stationGrid.Owner);
@@ -72,6 +138,27 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<MetaDataComponent>(bag).EntityPaused,Is.True);
             Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.Null);
             Assert.That(entities.HasComponent<StationMemberComponent>(ship.Owner), Is.False, "Parked ships cannot remain late-join targets");
+            var blockedPort = entities.SpawnEntity("AirlockShuttle", new EntityCoordinates(stationGrid.Owner, new Vector2(1.5f, 1.5f)));
+            var transforms = entities.System<SharedTransformSystem>();
+            transforms.SetLocalRotation(blockedPort, Angle.FromDegrees(90));
+            var recallMap = (ParkingRecallMap) typeof(ParkingSystem).GetMethod("BuildRecallMap", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .Invoke(parking, [console, ship.Owner])!;
+            Assert.That(recallMap.StationHull, Is.Not.Empty);
+            Assert.That(recallMap.ShuttleHull, Is.Not.Empty);
+            var compatible = recallMap.Ports.Single(port => port.Entity == entities.GetNetEntity(first));
+            var incompatible = recallMap.Ports.Single(port => port.Entity == entities.GetNetEntity(blockedPort));
+            Assert.That(compatible.Status, Is.EqualTo(ParkingPortStatus.Fits));
+            Assert.That(incompatible.Status, Is.EqualTo(ParkingPortStatus.Blocked));
+            Assert.That(incompatible.ShipOrigin, Is.Not.Null, "A rejected berth still has a preview pose");
+            using (var stream = new MemoryStream())
+            {
+                var serializer = pair.Server.ResolveDependency<IRobustSerializer>();
+                serializer.SerializeDirect(stream, new ParkingUpdate { RecallMap = recallMap });
+                stream.Position = 0;
+                serializer.DeserializeDirect<ParkingUpdate>(stream, out var decoded);
+                Assert.That(decoded.RecallMap!.Ports, Is.EqualTo(recallMap.Ports));
+                Assert.That(decoded.RecallMap.ShuttleHull, Is.EqualTo(recallMap.ShuttleHull));
+            }
             var privateMap = entities.GetComponent<TransformComponent>(ship.Owner).MapUid!.Value;
             Assert.That(entities.HasComponent<FTLDestinationComponent>(privateMap), Is.False);
             Assert.That(entities.System<Content.Shared._DeepLagoon.Apartments.ApartmentTeleportSystem>().CanTeleport(console, new EntityCoordinates(ship.Owner, Vector2.Zero)), Is.False);
@@ -94,6 +181,15 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<MetaDataComponent>(bag).EntityPaused,Is.False);
             Assert.That(entities.GetComponent<StationMemberComponent>(ship.Owner).Station,Is.EqualTo(ownerStation));
             Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.EqualTo(second));
+            Assert.That(transforms.GetWorldPosition(ship.Owner), Is.EqualTo(transforms.GetWorldPosition(stationGrid.Owner) + compatible.ShipOrigin!.Value));
+            Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
+            if (saveToStorage)
+            {
+                SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, session.UserId.UserId);
+                pair.Server.PlayerMan.SetAttachedEntity(session, null);
+                return;
+            }
+
             pair.Server.PlayerMan.SetAttachedEntity(session,null);
 
             var database = pair.Server.ResolveDependency<IServerDbManager>();
@@ -118,6 +214,40 @@ public sealed class ShuttleParkingTests
         });
         await pair.CleanReturnAsync();
     }
+
+    private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
+        EntityUid actor, Guid owner)
+    {
+        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+        const int category = 2;
+        const int excludedCount = 543;
+        Assert.That(parking.GetCategory(ship), Is.EqualTo(category));
+        var store = (ParkingStore) typeof(ParkingSystem).GetField("_store", flags)!.GetValue(parking)!;
+        store.GrantPurchase(owner, store.BeginPurchase(owner, Guid.NewGuid(), category));
+        var slot = store.Slots(owner).Single();
+
+        for (var i = 0; i < excludedCount; i++)
+            entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f, 0.5f)));
+
+        Assert.That(parking.ExcludedEntities(ship), Has.Count.EqualTo(excludedCount));
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("preview", slot.Id) { Actor = actor, UiKey = ParkingUiKey.Key });
+        var reviews = (IDictionary) typeof(ParkingSystem).GetField("_reviews", flags)!.GetValue(parking)!;
+        var review = reviews[owner];
+        Assert.That(review, Is.Not.Null);
+        var token = (Guid) review!.GetType().GetProperty("Token")!.GetValue(review)!;
+        var preview = (List<string>) typeof(ParkingSystem).GetMethod("ExclusionPreview", flags)!.Invoke(parking, [ship])!;
+        Assert.That(preview.Single(), Does.Contain($"× {excludedCount} (конфискация)"));
+
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
+        var saved = store.Slot(owner, slot.Id);
+        Assert.That(saved.Phase, Is.EqualTo("stored"));
+        Assert.That(saved.Ship?.Category, Is.EqualTo(category));
+        Assert.That(entities.EntityExists(ship), Is.False);
+        var restored = parking.LoadSnapshot(saved.Ship!.Grid);
+        Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
+        Assert.That(parking.ExcludedEntities(restored), Is.Empty);
+    }
+
     [Test]
     public async Task SuppliedCapitalMapCanRoundTripThroughPersistentSerializer()
     {
