@@ -19,6 +19,12 @@ namespace Content.Shared.Construction.Components
         public bool Snap { get; private set; } = true;
 
         /// <summary>
+        /// Requires the entity to be released onto an exposed subfloor before it can be anchored.
+        /// </summary>
+        [DataField]
+        public bool RequireExposedSubfloor { get; private set; }
+
+        /// <summary>
         /// Base delay to use for anchoring.
         /// </summary>
         [ViewVariables(VVAccess.ReadWrite)]
