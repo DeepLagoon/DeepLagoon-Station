@@ -17,6 +17,72 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class DiscordModerationTests
 {
     [Test]
+    public async Task PlayerInfoUsesRealWatchlistsAndDistinguishesActiveFromPardonedBans()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var server = pair.Server;
+        var database = server.ResolveDependency<IServerDbManager>();
+        var system = server.EntMan.System<DiscordLinkSystem>();
+        var player = new NetUserId(Guid.NewGuid());
+        var admin = new NetUserId(Guid.NewGuid());
+        var viewer = new NetUserId(Guid.NewGuid());
+        using var store = new DiscordLinkStore(Path.Combine(Path.GetTempPath(), "discord-player-info-" + Guid.NewGuid(), "links.db"));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enabled = typeof(DiscordLinkSystem).GetField("_enabled", flags)!;
+        var storeField = typeof(DiscordLinkSystem).GetField("_store", flags)!;
+        var requestType = typeof(DiscordLinkSystem).GetNestedType("ModerationRequest", BindingFlags.NonPublic)!;
+        var moderate = typeof(DiscordLinkSystem).GetMethod("Moderate", flags)!;
+        try
+        {
+            await server.WaitPost(() => { enabled.SetValue(system, true); storeField.SetValue(system, store); });
+            await PoolManager.WaitUntil(server, async () =>
+            {
+                await database.UpdatePlayerRecordAsync(player, "WatchlistedPlayer", IPAddress.Loopback, null);
+                await database.UpdatePlayerRecordAsync(admin, "ApprovingAdmin", IPAddress.Loopback, null);
+                await database.AddAdminAsync(new DbAdmin { UserId = admin.UserId, Flags = new() {
+                    new AdminFlag { Flag = "BAN" }, new AdminFlag { Flag = "VIEWNOTES" }, new AdminFlag { Flag = "EDITNOTES" } } });
+                await database.AddAdminAsync(new DbAdmin { UserId = viewer.UserId, Flags = new() { new AdminFlag { Flag = "VIEWNOTES" } } });
+                return true;
+            });
+
+            async Task<JsonElement> Call(string operation, NetUserId actor, string? message = null, int id = 0)
+            {
+                var request = JsonSerializer.Deserialize(JsonSerializer.Serialize(new {
+                    Operation = operation, Uid = player.ToString(), ActorUid = actor.ToString(), Message = message, Id = id,
+                }), requestType)!;
+                Task task = null!;
+                await server.WaitPost(() => task = (Task) moderate.Invoke(system, new[] { request, (object) player, actor })!);
+                await PoolManager.WaitUntil(server, () => task.IsCompleted);
+                await task;
+                var result = task.GetType().GetProperty("Result")!.GetValue(task)!;
+                return JsonSerializer.SerializeToElement(result.GetType().GetProperty("Body")!.GetValue(result));
+            }
+
+            Assert.That((await Call("player_info", viewer)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            Assert.That((await Call("watchlist_add", viewer, "denied")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            Assert.That((await Call("watchlist_add", admin, "Watch the first rounds")).GetProperty("ok").GetBoolean(), Is.True);
+            var watchlist = (await database.GetActiveWatchlists(player.UserId)).Single();
+            Assert.That(watchlist.CreatedBy!.UserId, Is.EqualTo(admin));
+
+            var card = await Call("player_info", admin);
+            Assert.That(card.GetProperty("status").GetString(), Is.EqualTo("offline"));
+            Assert.That(card.GetProperty("watchlists")[0].GetString(), Is.EqualTo("Watch the first rounds"));
+            Assert.That((await Call("ban", admin, "Test ban")).GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That((await Call("player_info", admin)).GetProperty("status").GetString(), Is.EqualTo("banned"));
+            var ban = (await database.GetServerBansAsync(null, player, null, null)).Single();
+            await database.AddServerUnbanAsync(new ServerUnbanDef(ban.Id!.Value, admin, DateTimeOffset.UtcNow));
+            card = await Call("player_info", admin);
+            Assert.That(card.GetProperty("status").GetString(), Is.EqualTo("offline"));
+            Assert.That(card.GetProperty("bans")[0].GetProperty("reason").GetString(), Is.EqualTo("Test ban"));
+        }
+        finally
+        {
+            await server.WaitPost(() => { enabled.SetValue(system, false); storeField.SetValue(system, null); });
+        }
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ModerationPersistsBansNotesAndRanksWithOfflineAuthor()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
