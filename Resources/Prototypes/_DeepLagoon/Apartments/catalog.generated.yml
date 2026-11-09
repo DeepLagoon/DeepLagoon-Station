@@ -1934,7 +1934,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/red_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/red_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -1964,7 +1969,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/black_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/black_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -1994,7 +2004,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/pink_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/pink_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2024,7 +2039,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/blue_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/blue_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2054,7 +2074,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/green_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/green_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2084,7 +2109,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/orange_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/orange_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2114,7 +2144,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/skyblue_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/skyblue_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2144,7 +2179,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/purple_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/purple_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2174,7 +2214,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/cyan_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/cyan_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static
@@ -2204,7 +2249,12 @@
     - type: Sprite
       drawdepth: FloorTiles
       sprite: Structures/Furniture/Carpets/white_carpet.rsi
+    - type: Icon
       state: full
+      sprite: Structures/Furniture/Carpets/white_carpet.rsi
+    - type: IconSmooth
+      key: full
+      base: carpet_
     - type: NoDeconstruct
     - type: Physics
       bodyType: Static

@@ -6,8 +6,10 @@ using System.Numerics;
 using System.Reflection;
 using Content.Client._DeepLagoon.Apartments;
 using Content.Client._DeepLagoon.WebUI;
+using Content.Client.IconSmoothing;
 using Content.Server._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Apartments;
+using Robust.Client.GameObjects;
 using Robust.Shared.Configuration;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
@@ -19,6 +21,51 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ApartmentRoomSceneTests
 {
+    [Test]
+    public async Task PaidCarpetsConnectAndRefreshWhenSeparated()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var map = await pair.CreateTestMap();
+        const string whiteCarpet = "DLAptDecor068Entity";
+        EntityUid right = default;
+        NetEntity leftNet = default, rightNet = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            entities.System<SharedMapSystem>().SetTile(map.Grid, new Vector2i(1, 0), map.Tile.Tile);
+            var leftCoords = new EntityCoordinates(map.Grid, .5f, .5f);
+            var observer = entities.SpawnEntity("MobObserver", leftCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), observer);
+            var left = entities.SpawnEntity(whiteCarpet, leftCoords);
+            right = entities.SpawnEntity(whiteCarpet, new EntityCoordinates(map.Grid, 1.5f, .5f));
+            leftNet = entities.GetNetEntity(left);
+            rightNet = entities.GetNetEntity(right);
+        });
+
+        var client = pair.Client.EntMan;
+        IEnumerable<string> CornerStates(NetEntity entity) => client.GetComponent<SpriteComponent>(client.GetEntity(entity))
+            .AllLayers.Select(layer => layer.RsiState.Name);
+
+        await pair.RunTicksSync(20);
+        await pair.Client.WaitAssertion(() =>
+        {
+            client.System<IconSmoothSystem>().FrameUpdate(0);
+            var connected = new[] { "carpet_0", "carpet_0", "carpet_1", "carpet_4" };
+            Assert.That(CornerStates(leftNet), Is.EquivalentTo(connected));
+            Assert.That(CornerStates(rightNet), Is.EquivalentTo(connected));
+        });
+
+        await pair.Server.WaitPost(() => pair.Server.EntMan.DeleteEntity(right));
+        await pair.RunTicksSync(20);
+        await pair.Client.WaitAssertion(() =>
+        {
+            client.System<IconSmoothSystem>().FrameUpdate(0);
+            Assert.That(CornerStates(leftNet), Is.EquivalentTo(Enumerable.Repeat("carpet_0", 4)));
+        });
+        await pair.Server.WaitPost(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task TerminalShowsItsActualMapAndValidatesAgainstLiveFixtures()
     {
