@@ -11,7 +11,6 @@ using Robust.Shared.Input;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics;
-using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Timing;
 using System.Numerics;
@@ -480,21 +479,8 @@ public partial class NavMapControl : MapGridControl
         if (_fixtures == null)
             return;
 
-        var verts = new Vector2[8];
-
-        foreach (var fixture in _fixtures.Fixtures.Values)
-        {
-            if (fixture.Shape is not PolygonShape poly)
-                continue;
-
-            for (var i = 0; i < poly.VertexCount; i++)
-            {
-                var vert = poly.Vertices[i];
-                verts[i] = new Vector2(MathF.Round(vert.X), MathF.Round(vert.Y));
-            }
-
-            TilePolygons.Add((verts[..poly.VertexCount], TileColor));
-        }
+        foreach (var polygon in SharedNavMapSystem.GetFloorPolygons(_fixtures, roundVertices: true))
+            TilePolygons.Add((polygon, TileColor));
     }
 
     private void UpdateNavMapWallLines()

@@ -10,6 +10,7 @@ namespace Content.Server._DeepLagoon.ShuttleParking;
 public sealed record StoredShuttle(Guid Identity, string Name, string OwnerName, int Category, int OriginalPrice, string Grid, string Checksum, int Version = 1);
 public sealed record ParkingSlot(Guid Id, int Category, StoredShuttle? Ship, string Phase, Guid Redemption, int Character, bool Paid);
 public sealed record ParkingPurchase(Guid Id, int Category, int Cost, bool Completed);
+public sealed record ParkingPayout(Guid Id, Guid Owner, int Character, int Amount);
 
 /// <summary>Snapshots and their state transitions commit together to a durable SQLite journal.</summary>
 public sealed class ParkingStore : IDisposable
@@ -33,6 +34,8 @@ public sealed class ParkingStore : IDisposable
             CREATE TABLE IF NOT EXISTS parking_purchases(
               id TEXT PRIMARY KEY, owner TEXT NOT NULL, category INTEGER NOT NULL, cost INTEGER NOT NULL, completed INTEGER NOT NULL DEFAULT 0);
             CREATE UNIQUE INDEX IF NOT EXISTS parking_pending_purchase ON parking_purchases(owner) WHERE completed=0;
+            CREATE TABLE IF NOT EXISTS parking_payouts(
+              id TEXT PRIMARY KEY, owner TEXT NOT NULL, character INTEGER NOT NULL, amount INTEGER NOT NULL);
             """);
         // World entities from an interrupted process no longer exist. Finish committed saves.
         Execute("UPDATE parking_slots SET phase='stored' WHERE phase='saving'");
@@ -93,16 +96,40 @@ public sealed class ParkingStore : IDisposable
         catch { Execute("ROLLBACK"); throw; }
     }
     public void CancelPurchase(Guid owner, Guid id) => Execute("DELETE FROM parking_purchases WHERE id=$id AND owner=$owner AND completed=0", ("$id", id.ToString()), ("$owner", owner.ToString()));
-    public void Save(Guid owner, Guid slot, StoredShuttle ship)
+    public void Save(Guid owner, Guid slot, StoredShuttle ship, ParkingPayout? payout = null)
     {
         if (ship.Version != 1 || ship.Identity == Guid.Empty || ship.Grid.Length > 32_000_000 || ship.Checksum != Hash(ship.Grid)) throw new InvalidDataException("Некорректный снимок шаттла.");
         var target = Slot(owner, slot);
         if (target.Ship != null || target.Phase != "empty" || target.Category < ship.Category) throw new InvalidOperationException("Шаттл не помещается в свободное место.");
         ParkingRules.RedemptionPrice(ship.OriginalPrice);
-        using var cmd = Command("UPDATE parking_slots SET ship=$ship,phase='saving' WHERE id=$id AND owner=$owner AND phase='empty' AND ship IS NULL",
-            ("$ship", JsonSerializer.Serialize(ship)), ("$id", slot.ToString()), ("$owner", owner.ToString()));
-        if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Место уже занято.");
+        Execute("BEGIN IMMEDIATE");
+        try
+        {
+            using var cmd = Command("UPDATE parking_slots SET ship=$ship,phase='saving' WHERE id=$id AND owner=$owner AND phase='empty' AND ship IS NULL",
+                ("$ship", JsonSerializer.Serialize(ship)), ("$id", slot.ToString()), ("$owner", owner.ToString()));
+            if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Место уже занято.");
+            if (payout != null)
+                QueuePayout(payout);
+            Execute("COMMIT");
+        }
+        catch { Execute("ROLLBACK"); throw; }
     }
+
+    public void QueuePayout(ParkingPayout payout) =>
+        Execute("INSERT INTO parking_payouts(id,owner,character,amount) VALUES($id,$owner,$character,$amount) ON CONFLICT(id) DO NOTHING",
+            ("$id", payout.Id.ToString()), ("$owner", payout.Owner.ToString()), ("$character", payout.Character), ("$amount", payout.Amount));
+
+    public List<ParkingPayout> PendingPayouts()
+    {
+        using var cmd = Command("SELECT id,owner,character,amount FROM parking_payouts ORDER BY rowid");
+        using var reader = cmd.ExecuteReader();
+        var payouts = new List<ParkingPayout>();
+        while (reader.Read())
+            payouts.Add(new(Guid.Parse(reader.GetString(0)), Guid.Parse(reader.GetString(1)), reader.GetInt32(2), reader.GetInt32(3)));
+        return payouts;
+    }
+
+    public void FinishPayout(Guid id) => Execute("DELETE FROM parking_payouts WHERE id=$id", ("$id", id.ToString()));
     public void FinishSave(Guid owner, Guid slot) => Execute("UPDATE parking_slots SET phase='stored' WHERE owner=$owner AND id=$id AND phase='saving'", ("$owner", owner.ToString()), ("$id", slot.ToString()));
     public ParkingSlot BeginRedeem(Guid owner, Guid slot, int character)
     {

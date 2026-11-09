@@ -16,6 +16,18 @@
   section { border: 1px solid #425368; padding: 12px; margin: 12px 0; background: #222d3b; }
   &__actions > button { flex: 1; min-width: 130px; }
   &__warning { color: #ffd19a; }
+  &__map { display: block; width: 100%; height: clamp(240px, 54vh, 420px); background: #101922; border: 1px solid #425368; cursor: grab; touch-action: none; user-select: none; }
+  &__map:active, &__map:active &__port { cursor: grabbing; }
+  &__station { fill: #516b7c; }
+  &__ship { fill: currentColor; fill-opacity: .55; stroke: currentColor; vector-effect: non-scaling-stroke; pointer-events: none; }
+  &__port { fill: currentColor; stroke: #101922; stroke-width: 2px; vector-effect: non-scaling-stroke; cursor: pointer; }
+  &__port[aria-pressed=true], &__port:focus-visible { stroke: #fff; stroke-width: 3px; outline: none; }
+  &__port[aria-disabled=true] { cursor: default; }
+  &__port--fits { color: #69ddb5; }
+  &__port--blocked { color: #ff626e; }
+  &__port--occupied { color: #e9b85f; }
+  &__legend { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  &__legend > span::before { content: '● '; }
   &__shop-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(130px,190px); gap: 12px; align-items: center; }
   &__confirm > button { width: 100%; } &__confirm section { margin-bottom: 0; }
   &__check { display: flex; gap: 8px; align-items: center; }
