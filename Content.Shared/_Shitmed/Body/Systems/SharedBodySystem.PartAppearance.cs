@@ -75,7 +75,10 @@ public partial class SharedBodySystem
         {
             var category = MarkingCategoriesConversion.FromHumanoidVisualLayers(layer);
             if (bodyAppearance.MarkingSet.Markings.TryGetValue(category, out var markingList))
-                markingsByLayer[layer] = markingList.Select(m => new Marking(m.MarkingId, m.MarkingColors.ToList())).ToList();
+                markingsByLayer[layer] = markingList
+                    .Where(marking => category is not (MarkingCategories.Arms or MarkingCategories.Legs) ||
+                        _markingManager.TryGetMarking(marking, out var prototype) && prototype.BodyPart == layer)
+                    .Select(marking => new Marking(marking)).ToList();
         }
 
         component.Markings = markingsByLayer;
@@ -166,8 +169,20 @@ public partial class SharedBodySystem
         if (!HasComp<BodyPartAppearanceComponent>(args.Part))
             EnsureComp<BodyPartAppearanceComponent>(args.Part);
 
-        if (TryComp<BodyPartAppearanceComponent>(args.Part, out var partAppearance))
-            RemoveAppearance(uid, partAppearance, args.Part);
+        if (!TryComp<BodyPartAppearanceComponent>(args.Part, out var partAppearance))
+            return;
+
+        if (partAppearance.Type is HumanoidVisualLayers.LArm or HumanoidVisualLayers.RArm or
+            HumanoidVisualLayers.LHand or HumanoidVisualLayers.RHand or
+            HumanoidVisualLayers.LLeg or HumanoidVisualLayers.RLeg or
+            HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot)
+        {
+            foreach (var layer in HumanoidVisualLayersExtension.Sublayers(partAppearance.Type))
+                if (_humanoid.GetLimbShell(bodyAppearance, layer) is { } shell)
+                    bodyAppearance.ProstheticAnatomy[layer] = shell.ID;
+        }
+
+        RemoveAppearance(uid, partAppearance, args.Part);
     }
 
     protected void UpdateAppearance(EntityUid target,

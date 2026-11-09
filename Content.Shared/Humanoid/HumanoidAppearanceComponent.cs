@@ -65,6 +65,12 @@ public sealed partial class HumanoidAppearanceComponent : Component
     public Dictionary<HumanoidVisualLayers, CustomBaseLayerInfo> CustomBaseLayers = new();
 
     /// <summary>
+    /// Shell geometry for limbs whose visible shell markings were removed by amputation.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public Dictionary<HumanoidVisualLayers, ProtoId<MarkingPrototype>> ProstheticAnatomy = new();
+
+    /// <summary>
     ///     Current species. Dictates things like base body sprites,
     ///     base humanoid to spawn, etc.
     /// </summary>

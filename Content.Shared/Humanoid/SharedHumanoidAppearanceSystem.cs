@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using Content.Shared.CCVar;
 using Content.Shared.Decals;
+using Content.Shared.DetailExaminable;
 using Content.Shared.Examine;
 using Content.Shared.Humanoid.Markings;
 using Content.Shared.Sprite;
@@ -22,6 +23,8 @@ using Robust.Shared.Serialization.Markdown;
 using Robust.Shared.Utility;
 using YamlDotNet.RepresentationModel;
 
+
+using Content.Shared.Speech;
 
 namespace Content.Shared.Humanoid;
 
@@ -169,11 +172,14 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         targetHumanoid.Width = sourceHumanoid.Width;
         SetSex(target, sourceHumanoid.Sex, false, targetHumanoid);
         targetHumanoid.CustomBaseLayers = new(sourceHumanoid.CustomBaseLayers);
+        targetHumanoid.ProstheticAnatomy = new(sourceHumanoid.ProstheticAnatomy);
         targetHumanoid.MarkingSet = new(sourceHumanoid.MarkingSet);
         targetHumanoid.Tattoos = Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(sourceHumanoid.Tattoos);
         targetHumanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(sourceHumanoid.BodyFeatures);
         targetHumanoid.GenitalAroused = sourceHumanoid.GenitalAroused;
         targetHumanoid.PlantigradeLegs = sourceHumanoid.PlantigradeLegs;
+        if (TryComp<SpeechComponent>(source, out var sourceSpeech) && TryComp<SpeechComponent>(target, out var targetSpeech))
+            targetSpeech.BarkSettings = sourceSpeech.BarkSettings.Sanitize();
 
         targetHumanoid.Gender = sourceHumanoid.Gender;
         if (TryComp<GrammarComponent>(target, out var grammar))
@@ -279,6 +285,9 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         {
             return;
         }
+
+        if (humanoid.Species.Id != species)
+            humanoid.ProstheticAnatomy.Clear();
 
         humanoid.Species = species;
         humanoid.MarkingSet.EnsureSpecies(species, humanoid.SkinColor, _markingManager, ignoreSpecies: humanoid.UnrestrictedMarkings);
@@ -410,10 +419,13 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         humanoid.Tattoos = Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(profile.Appearance.Tattoos);
         humanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(profile.Appearance.BodyFeatures);
         humanoid.PlantigradeLegs = profile.Appearance.PlantigradeLegs && _proto.Index(profile.Species).PlantigradeSprites != null;
+        if (TryComp<SpeechComponent>(uid, out var speech))
+            speech.BarkSettings = profile.SpeechBarks.Sanitize();
 
         SetSkinColor(uid, profile.Appearance.SkinColor, false);
 
         humanoid.MarkingSet.Clear();
+        humanoid.ProstheticAnatomy.Clear();
 
         // Add markings that doesn't need coloring. We store them until we add all other markings that doesn't need it.
         var markingFColored = new Dictionary<Marking, MarkingPrototype>();
@@ -525,6 +537,23 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
 
         if (sync)
             Dirty(uid, humanoid);
+    }
+
+    public MarkingPrototype? GetLimbShell(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer)
+    {
+        var category = MarkingCategoriesConversion.FromHumanoidVisualLayers(layer);
+        if (!humanoid.MarkingSet.Markings.TryGetValue(category, out var markings))
+            return null;
+
+        foreach (var marking in markings.OrderByDescending(marking => marking.DrawOrder))
+        {
+            if (marking.Visible && _markingManager.TryGetMarking(marking, out var shell) &&
+                shell.BodyPart == layer && shell.IsBodyReplacement &&
+                shell.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi)
+                return shell;
+        }
+
+        return null;
     }
 
     private void EnsureDefaultMarkings(EntityUid uid, HumanoidAppearanceComponent? humanoid)

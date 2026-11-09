@@ -17,6 +17,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
     [Dependency] private IPrototypeManager _prototypeManager = default!;
     [Dependency] private MarkingManager _markingManager = default!;
     [Dependency] private IResourceCache _resources = default!;
+    [Dependency] private ProstheticSpriteCache _prosthetics = default!;
 
     public override void Initialize()
     {
@@ -81,7 +82,8 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         {
             oldLayers.Remove(key);
             // Shitmed Change: For whatever reason these weren't actually ignoring the skin color as advertised.
-            SetLayerData(component, sprite, key, info.Id, sexMorph: false, color: info.Color, overrideSkin: true);
+            var nativeId = legSprites?.Sprites.GetValueOrDefault(key) ?? baseSprites.Sprites.GetValueOrDefault(key);
+            SetLayerData(component, sprite, key, info.Id, color: info.Color, overrideSkin: true, nativeId: nativeId);
         }
 
         // hide old layers
@@ -100,7 +102,8 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         string? protoId,
         bool sexMorph = false,
         Color? color = null,
-        bool overrideSkin = false) // Shitmed Change
+        bool overrideSkin = false, // Shitmed Change
+        string? nativeId = null)
     {
         var layerIndex = sprite.LayerMapReserveBlank(key);
         var layer = sprite[layerIndex];
@@ -122,11 +125,56 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         if (proto.MatchSkin && !overrideSkin) // Shitmed Change
             layer.Color = component.SkinColor.WithAlpha(proto.LayerAlpha);
 
-        if (proto.BaseSprite != null)
-            sprite.LayerSetSprite(layerIndex, proto.BaseSprite);
+        var spec = proto.BaseSprite;
+        if (proto.FitToBody && spec is SpriteSpecifier.Rsi prosthetic)
+        {
+            layer.Color = color ?? Color.White;
+            if (GetLimbAnatomy(component, key, nativeId) is { } anatomy)
+                spec = _prosthetics.Fit(prosthetic, anatomy);
+        }
+
+        if (spec != null)
+            sprite.LayerSetSprite(layerIndex, spec);
         else
             EntityManager.System<SpriteSystem>().LayerSetTexture((sprite.Owner, sprite), layerIndex,
                 (Robust.Client.Graphics.Texture?) null);
+    }
+
+    private SpriteSpecifier.Rsi? GetLimbAnatomy(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer,
+        string? nativeId)
+    {
+        var species = _prototypeManager.Index(humanoid.Species);
+        var category = MarkingCategoriesConversion.FromHumanoidVisualLayers(layer);
+
+        // A selected shell can define anatomy even after its marking was removed with the limb.
+        if (GetLimbShell(humanoid, layer)?.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi shellSprite)
+            return shellSprite;
+
+        if (humanoid.ProstheticAnatomy.TryGetValue(layer, out var shellId) &&
+            _prototypeManager.TryIndex(shellId, out var removedShell) &&
+            removedShell.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi removedShellSprite)
+            return removedShellSprite;
+
+        if (nativeId != null &&
+            _prototypeManager.TryIndex<HumanoidSpeciesSpriteLayer>(
+                HumanoidVisualLayersExtension.GetSexMorph(layer, humanoid.Sex, nativeId), out var native) &&
+            native.BaseSprite is SpriteSpecifier.Rsi nativeSprite)
+            return nativeSprite;
+
+        // IPCs and bodies with a missing shell marking still have anatomy in the default marking set.
+        var defaults = _prototypeManager.Index<MarkingPointsPrototype>(species.MarkingPoints)
+            .Points.GetValueOrDefault(category)?.DefaultMarkings;
+        if (defaults != null)
+        {
+            foreach (var id in defaults)
+            {
+                if (_prototypeManager.TryIndex(id, out var shell) && shell.BodyPart == layer &&
+                    shell.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi defaultShellSprite)
+                    return defaultShellSprite;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -224,6 +272,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         humanoid.PermanentlyHidden = new HashSet<HumanoidVisualLayers>();
         humanoid.HiddenLayers = new Dictionary<HumanoidVisualLayers, SlotFlags>();
         humanoid.CustomBaseLayers = customBaseLayers;
+        humanoid.ProstheticAnatomy.Clear();
         humanoid.Sex = profile.Sex;
         humanoid.Gender = profile.Gender;
         humanoid.Age = profile.Age;
@@ -315,7 +364,8 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         HumanoidAppearanceComponent humanoid,
         SpriteComponent sprite, bool unshaded = false)
     {
-        var markingAnchor = markingPrototype.GetLayerAnchor(_prototypeManager.Index(humanoid.Species));
+        var species = _prototypeManager.Index(humanoid.Species);
+        var markingAnchor = markingPrototype.GetLayerAnchor(species);
         if (!sprite.LayerMapTryGet(markingAnchor, out int targetLayer))
         {
             if (!humanoid.UnrestrictedMarkings) return;
@@ -323,8 +373,14 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         }
 
         visible &= !IsHidden(humanoid, markingPrototype.BodyPart);
-        visible &= humanoid.UnrestrictedMarkings || humanoid.BaseLayers.TryGetValue(markingPrototype.BodyPart, out var setting)
-           && setting.AllowsMarkings;
+        var setting = humanoid.BaseLayers.GetValueOrDefault(markingPrototype.BodyPart);
+        visible &= humanoid.UnrestrictedMarkings || setting?.AllowsMarkings == true;
+        if (setting?.FitToBody == true)
+        {
+            var defaults = _prototypeManager.Index<MarkingPointsPrototype>(species.MarkingPoints).Points
+                .GetValueOrDefault(markingPrototype.MarkingCategory)?.DefaultMarkings;
+            visible &= !markingPrototype.IsBodyReplacement && defaults?.Contains(markingPrototype.ID) != true;
+        }
 
         for (var j = 0; j < markingPrototype.Sprites.Count; j++)
         {
@@ -446,6 +502,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
     }
 
     private bool HasBodyReplacement(HumanoidAppearanceComponent humanoid, HumanoidVisualLayers layer) =>
+        humanoid.BaseLayers.GetValueOrDefault(layer)?.FitToBody != true &&
         humanoid.MarkingSet.Markings.Values.SelectMany(markings => markings).Any(marking => marking.Visible
             && _markingManager.TryGetMarking(marking, out var prototype) && prototype.IsBodyReplacement && prototype.BodyPart == layer
             && (humanoid.UnrestrictedMarkings || humanoid.BaseLayers.TryGetValue(layer, out var setting) && setting.AllowsMarkings));
