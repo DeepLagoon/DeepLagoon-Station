@@ -1,6 +1,8 @@
 #nullable enable
 using System.Collections.Generic;
-using Content.IntegrationTests.Tests.Interaction;
+using Content.Server.Fluids.EntitySystems;
+using Content.Shared.Chemistry.Components;
+using Content.Shared.Mood;
 using Content.Shared.Movement.Components;
 using Content.Shared.Slippery;
 using Content.Shared.Stunnable;
@@ -57,6 +59,48 @@ public sealed class SlippingTest : MovementTest
         await SetKey(EngineKeyFunctions.Walk, BoundKeyState.Up);
         await Move(DirectionFlag.West, 1f);
         Assert.That(sys.Slipped, Does.Contain(SEntMan.GetEntity(Player)));
+        AssertComp<KnockedDownComponent>(true, Player);
+    }
+
+    [TestCase("TrashBananaPeel")]
+    [TestCase("Soap")]
+    [TestCase("ClownPDA")]
+    [TestCase("Puddle")]
+    public async Task SlowedSprintStillSlips(string prototype)
+    {
+        await Server.WaitAssertion(() =>
+            SEntMan.EventBus.RaiseLocalEvent(SPlayer, new MoodEffectEvent("SurgeryPain")));
+
+        if (prototype == "Puddle")
+        {
+            await Server.WaitAssertion(() =>
+            {
+                var puddles = SEntMan.System<PuddleSystem>();
+                var coordinates = Transform.WithEntityId(SEntMan.GetCoordinates(TargetCoords), MapData.Grid.Owner);
+                Assert.That(puddles.TrySpillAt(coordinates,
+                    new Solution("Water", 20), out var puddle), Is.True);
+                Target = SEntMan.GetNetEntity(puddle);
+            });
+            await RunTicks(5);
+        }
+        else
+        {
+            await SpawnTarget(prototype);
+        }
+
+        var speed = Comp<MovementSpeedModifierComponent>(Player);
+        Assert.That(speed.CurrentSprintSpeed, Is.LessThan(3.5f), "The character must be slowed below the normal slip threshold.");
+        Assert.That(speed.CurrentSprintSpeed, Is.GreaterThan(speed.CurrentWalkSpeed));
+
+        await SetKey(EngineKeyFunctions.Walk, BoundKeyState.Down);
+        await RunTicks(1);
+        await Move(DirectionFlag.East, 1f);
+        Assert.That(Delta(), Is.LessThan(0), "The character must cross the slippery entity while walking.");
+        AssertComp<KnockedDownComponent>(false, Player);
+
+        await SetKey(EngineKeyFunctions.Walk, BoundKeyState.Up);
+        await RunTicks(1);
+        await Move(DirectionFlag.West, 1f);
         AssertComp<KnockedDownComponent>(true, Player);
     }
 }

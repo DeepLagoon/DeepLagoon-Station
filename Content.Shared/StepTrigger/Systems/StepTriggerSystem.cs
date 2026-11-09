@@ -1,3 +1,5 @@
+using Content.Shared.Movement.Components;
+using Content.Shared.Slippery;
 using Content.Shared.Traits.Assorted.Components;
 using Content.Shared.DeviceLinking; //Mono
 using Content.Shared.Gravity;
@@ -113,6 +115,23 @@ public sealed partial class StepTriggerSystem : EntitySystem
         var triggerSpeed = component.RequiredTriggeredSpeed;
         if (TryComp<TraitSpeedModifierComponent>(otherUid, out var modifier))
             triggerSpeed *= modifier.RequiredTriggeredSpeedModifier;
+
+        // Keep sprint-only slips reachable when movement is slowed, while preserving their position
+        // between walking and sprinting. Hazards with thresholds outside that range keep their own rules.
+        const float walkSpeed = MovementSpeedModifierComponent.DefaultBaseWalkSpeed;
+        const float sprintSpeed = MovementSpeedModifierComponent.DefaultBaseSprintSpeed;
+        if (component.RequiredTriggeredSpeed is > walkSpeed and < sprintSpeed
+            && HasComp<SlipperyComponent>(uid)
+            && TryComp<InputMoverComponent>(otherUid, out var mover)
+            && mover.Sprinting
+            && TryComp<MovementSpeedModifierComponent>(otherUid, out var movement)
+            && movement.CurrentSprintSpeed > movement.CurrentWalkSpeed)
+        {
+            var sprintFraction = (component.RequiredTriggeredSpeed - walkSpeed) / (sprintSpeed - walkSpeed);
+            var adjustedSpeed = float.Lerp(movement.CurrentWalkSpeed, movement.CurrentSprintSpeed, sprintFraction);
+            triggerSpeed = MathF.Min(triggerSpeed, adjustedSpeed);
+        }
+
         if (otherPhysics.LinearVelocity.Length() < triggerSpeed
             || component.CurrentlySteppedOn.Contains(otherUid)
             || ratio < component.IntersectRatio
