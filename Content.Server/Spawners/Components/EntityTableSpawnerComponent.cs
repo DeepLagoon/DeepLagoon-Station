@@ -26,5 +26,11 @@ public sealed partial class EntityTableSpawnerComponent : Component
     /// </summary>
     [DataField]
     public bool DeleteSpawnerAfterSpawn = true;
+
+    /// <summary>
+    /// A single terrain result can be spawned directly by the biome from a position-based seed.
+    /// </summary>
+    [DataField]
+    public bool BiomeTerrain;
 }
 

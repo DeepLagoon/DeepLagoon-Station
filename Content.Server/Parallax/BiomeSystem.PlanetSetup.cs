@@ -108,6 +108,12 @@ public sealed partial class BiomeSystem
 
     private void OnBiomeMapInit(EntityUid uid, BiomeComponent component, MapInitEvent args)
     {
+        foreach (var entities in component.LoadedEntities.Values)
+        {
+            foreach (var (ent, tile) in entities)
+                _generatedEntityTiles.TryAdd(ent, (component, tile));
+        }
+
         if (component.Seed == -1)
         {
             SetSeed(uid, component, _random.Next());

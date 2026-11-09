@@ -14,6 +14,7 @@ public sealed partial class BiomeSystem
 
     private void ProtoReload(PrototypesReloadedEventArgs obj)
     {
+        _sceneryDefaults.Clear();
         if (!obj.ByType.TryGetValue(typeof(BiomeTemplatePrototype), out var reloads))
             return;
 
@@ -46,6 +47,7 @@ public sealed partial class BiomeSystem
 
     public void SetSeed(EntityUid uid, BiomeComponent component, int seed, bool dirty = true)
     {
+        CancelMarkerScan(component);
         component.Seed = seed;
 
         if (dirty)
@@ -54,6 +56,7 @@ public sealed partial class BiomeSystem
 
     public void ClearTemplate(EntityUid uid, BiomeComponent component, bool dirty = true)
     {
+        CancelMarkerScan(component);
         component.Layers.Clear();
         component.Template = null;
 
@@ -66,6 +69,7 @@ public sealed partial class BiomeSystem
     /// </summary>
     public void SetTemplate(EntityUid uid, BiomeComponent component, BiomeTemplatePrototype template, bool dirty = true)
     {
+        CancelMarkerScan(component);
         component.Layers.Clear();
         component.Template = template.ID;
 
@@ -91,6 +95,7 @@ public sealed partial class BiomeSystem
                 continue;
 
             addedLayer.Noise.SetSeed(addedLayer.Noise.GetSeed() + seedOffset);
+            CancelMarkerScan(component);
             component.Layers.Insert(i, addedLayer);
             break;
         }
@@ -116,6 +121,7 @@ public sealed partial class BiomeSystem
             if (layer is not BiomeDummyLayer dummy || dummy.ID != id)
                 continue;
 
+            CancelMarkerScan(component);
             for (var j = template.Layers.Count - 1; j >= 0; j--)
             {
                 var addedLayer = template.Layers[j];

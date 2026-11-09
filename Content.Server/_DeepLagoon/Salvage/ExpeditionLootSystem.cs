@@ -8,6 +8,7 @@ using Content.Shared.Climbing.Components;
 using Content.Shared.Body.Systems;
 using Content.Shared.Clothing;
 using Content.Shared.Clothing.Components;
+using Content.Shared.Item;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Roles;
@@ -17,6 +18,7 @@ using Content.Shared.Storage;
 using Content.Shared.Storage.Components;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.VendingMachines;
+using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
@@ -38,6 +40,7 @@ public sealed class ExpeditionLootSystem : EntitySystem
         "SpawnDungeonLootGunT", "SpawnDungeonLootMeleeT", "SpawnDungeonLootExplosivesT",
     };
     private ExpeditionLootOriginComponent? _spawnOrigin;
+    private EntityUid? _biomeEntity;
 
     private ExpeditionLootPrototype Profile => _prototypes.Index<ExpeditionLootPrototype>("DeepLagoonExpeditionLoot");
 
@@ -123,6 +126,9 @@ public sealed class ExpeditionLootSystem : EntitySystem
 
     private void OnInitialized(Entity<MetaDataComponent> entity)
     {
+        if (_biomeEntity == entity.Owner && IsBiomeScenery(entity))
+            return;
+
         if (!TryGetOrigin(entity, out var origin))
             return;
         BindOrigin(entity, origin);
@@ -131,6 +137,31 @@ public sealed class ExpeditionLootSystem : EntitySystem
             npc.Blackboard.SetValue(NPCBlackboard.NavClimb, true);
             EnsureComp<ClimbingComponent>(entity).CanClimb = true;
         }
+    }
+
+    public EntityUid SpawnBiomeEntity(EntProtoId prototype, EntityCoordinates coordinates)
+    {
+        var entity = EntityManager.CreateEntityUninitialized(prototype, coordinates);
+        var previous = _biomeEntity;
+        _biomeEntity = entity;
+        try
+        {
+            EntityManager.InitializeAndStartEntity(entity);
+            return entity;
+        }
+        finally
+        {
+            _biomeEntity = previous;
+        }
+    }
+
+    public bool IsBiomeScenery(EntityUid uid)
+    {
+        return !HasComp<MobStateComponent>(uid) && !HasComp<HTNComponent>(uid) && !HasComp<ItemComponent>(uid) &&
+               !HasComp<ContainerManagerComponent>(uid) && !HasComp<SpawnItemsOnUseComponent>(uid) &&
+               !HasComp<StorageFillComponent>(uid) && !HasComp<ConditionalSpawnerComponent>(uid) &&
+               !HasComp<RandomSpawnerComponent>(uid) &&
+               !HasComp<EntityTableSpawnerComponent>(uid) && !HasComp<VendingMachineComponent>(uid);
     }
 
     private void BindOrigin(EntityUid uid, ExpeditionLootOriginComponent origin)

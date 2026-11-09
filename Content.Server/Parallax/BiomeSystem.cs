@@ -1,5 +1,7 @@
 // Mono - Refactored into smaller subsystems
+using System.Diagnostics;
 using System.Numerics;
+using Content.Server._DeepLagoon.Salvage;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Decals;
 using Content.Server.Shuttles.Events;
@@ -18,7 +20,6 @@ using Robust.Shared.Physics;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
-using Robust.Shared.Threading;
 using Robust.Shared.Utility;
 
 namespace Content.Server.Parallax;
@@ -28,13 +29,14 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     [Dependency] private IConfigurationManager _configManager = default!;
     [Dependency] private IConsoleHost _console = default!;
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
-    [Dependency] private IParallelManager _parallel = default!;
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private AtmosphereSystem _atmos = default!;
     [Dependency] private DecalSystem _decals = default!;
-    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    [Dependency] private SharedMapSystem _mapSystem = default!;
+    [Dependency] private EntityLookupSystem _lookup = default!;
+    [Dependency] private ExpeditionLootSystem _expeditionLoot = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private ShuttleSystem _shuttles = default!;
@@ -45,7 +47,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     private EntityQuery<GhostComponent> _ghostQuery;
     private EntityQuery<TransformComponent> _xformQuery;
 
-    private readonly HashSet<EntityUid> _handledEntities = new();
+    private readonly HashSet<(EntityUid Viewer, int Priority)> _handledEntities = new();
     private const float DefaultLoadRange = 16f;
     private float _loadRange = DefaultLoadRange;
     private static readonly ProtoId<TagPrototype> AllowBiomeLoadingTag = "AllowBiomeLoading";
@@ -53,11 +55,8 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     private ObjectPool<HashSet<Vector2i>> _tilePool =
         new DefaultObjectPool<HashSet<Vector2i>>(new SetPolicy<Vector2i>(), 256);
 
-    private float _updateTimer = 0f;
+    private float _updateTimer = UpdateInterval;
     private const float UpdateInterval = 1f / 10f;
-
-    private float _unloadTimer = 0f;
-    private const float UnloadInterval = 10f;
 
     /// <summary>
     /// Load area for chunks containing tiles, decals etc.
@@ -65,9 +64,22 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     private Box2 _loadArea = new(-DefaultLoadRange, -DefaultLoadRange, DefaultLoadRange, DefaultLoadRange);
 
     /// <summary>
-    /// Stores the chunks active for this tick temporarily.
+    /// Chunks near an observer, including a one-chunk buffer to avoid churn at the edge.
     /// </summary>
-    private readonly Dictionary<BiomeComponent, HashSet<Vector2i>> _activeChunks = new();
+    private readonly Dictionary<BiomeComponent, HashSet<Vector2i>> _retainedChunks = new();
+    private readonly Dictionary<ChunkRequest, (int ObserverPriority, float Distance)> _requestedChunks = new();
+    private readonly PriorityQueue<ChunkRequest, (int ObserverPriority, float Distance)> _loadRequests = new();
+    private readonly List<(ChunkRequest Request, (int ObserverPriority, float Distance) Priority)> _waitingForMarkers = new();
+    private readonly Queue<ChunkRequest> _unloadRequests = new();
+    private readonly Dictionary<EntityUid, (BiomeComponent Biome, Vector2i Tile)> _generatedEntityTiles = new();
+
+    private const int LoadsPerTick = 4;
+    private const int UnloadsPerTick = 8;
+    private const int ObserverUnloadBacklog = 16;
+    private static readonly TimeSpan LoadTimePerTick = TimeSpan.FromMilliseconds(2);
+    private static readonly TimeSpan UnloadTimePerTick = TimeSpan.FromMilliseconds(1);
+
+    private readonly record struct ChunkRequest(EntityUid GridUid, BiomeComponent Biome, MapGridComponent Grid, Vector2i Chunk);
 
     private readonly Dictionary<BiomeComponent,
         Dictionary<string, HashSet<Vector2i>>> _markerChunks = new();
@@ -81,13 +93,12 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         _ghostQuery = GetEntityQuery<GhostComponent>();
         _xformQuery = GetEntityQuery<TransformComponent>();
         SubscribeLocalEvent<BiomeComponent, MapInitEvent>(OnBiomeMapInit);
+        SubscribeLocalEvent<BiomeComponent, ComponentShutdown>(OnBiomeShutdown);
         SubscribeLocalEvent<FTLStartedEvent>(OnFTLStarted);
         SubscribeLocalEvent<ShuttleFlattenEvent>(OnShuttleFlatten);
         SubscribeLocalEvent<EntityTerminatingEvent>(OnEntityTerminating);
         Subs.CVar(_configManager, CVars.NetMaxUpdateRange, SetLoadRange, true);
         InitializeChunkLoader();
-        InitializeMarkerProcessor();
-        InitializePlayerTracker();
         InitializeConfigManager();
         InitializePlanetSetup();
         InitializeCommands();
@@ -109,33 +120,30 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
 
     private void OnEntityTerminating(ref EntityTerminatingEvent ev)
     {
-        var uid = ev.Entity.Owner;
-
-        if (!_xformQuery.TryGetComponent(uid, out var xform) ||
-            xform.GridUid is not { } gridUid ||
-            !_biomeQuery.TryGetComponent(gridUid, out var biome) ||
-            !TryComp<MapGridComponent>(gridUid, out var grid))
-        {
+        if (!_generatedEntityTiles.Remove(ev.Entity.Owner, out var generated))
             return;
-        }
 
-        var tile = _mapSystem.LocalToTile(gridUid, grid, xform.Coordinates);
+        _scenerySpriteDefaults.Remove(ev.Entity.Owner);
+        var (biome, tile) = generated;
         var chunk = SharedMapSystem.GetChunkIndices(tile, ChunkSize) * ChunkSize;
-
-        if (biome.LoadedEntities.TryGetValue(chunk, out var loaded) && loaded.Remove(uid))
-        {
+        if (biome.LoadedEntities.TryGetValue(chunk, out var entities) && entities.Remove(ev.Entity.Owner))
             biome.ModifiedTiles.GetOrNew(chunk).Add(tile);
-            return;
-        }
+    }
 
-        foreach (var (chunkOrigin, entities) in biome.LoadedEntities)
+    private void OnBiomeShutdown(EntityUid uid, BiomeComponent biome, ComponentShutdown args)
+    {
+        foreach (var entities in biome.LoadedEntities.Values)
         {
-            if (!entities.Remove(uid, out var storedTile))
-                continue;
-
-            biome.ModifiedTiles.GetOrNew(chunkOrigin).Add(storedTile);
-            return;
+            foreach (var ent in entities.Keys)
+            {
+                _generatedEntityTiles.Remove(ent);
+                _scenerySpriteDefaults.Remove(ent);
+            }
         }
+
+        _markerChunks.Remove(biome);
+        _sceneryDefaults.Remove(biome);
+        CancelMarkerScan(biome);
     }
 
     private void OnShuttleFlatten(ref ShuttleFlattenEvent ev)
@@ -175,97 +183,121 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     {
         base.Update(frameTime);
 
-        // Rate limit according to update interval instead of every frame
         _updateTimer += frameTime;
-        if (_updateTimer < UpdateInterval)
-            return;
-        _updateTimer = 0f;
-
-        var biomes = AllEntityQuery<BiomeComponent>();
-
-        while (biomes.MoveNext(out var biome))
+        if (_updateTimer >= UpdateInterval)
         {
-            if (biome.LifeStage < ComponentLifeStage.Running)
-                continue;
-
-            _activeChunks.Add(biome, _tilePool.Get());
-            _markerChunks.GetOrNew(biome);
+            _updateTimer = 0f;
+            RefreshChunkRequests();
         }
 
-        ProcessPlayerChunkRequests();
-
-        // Early exit if no players around chunk
-        if (_handledEntities.Count == 0)
+        _useStreamNoise = true;
+        try
         {
-            CleanupUpdateCycle();
-            return;
+            ProcessChunkRequests();
         }
-
-        var loadBiomes = AllEntityQuery<BiomeComponent, MapGridComponent>();
-
-        _unloadTimer += frameTime;
-        var shouldUnload = _unloadTimer > UnloadInterval;
-
-        while (loadBiomes.MoveNext(out var gridUid, out var biome, out var grid))
+        finally
         {
-            // If not MapInit don't run it.
-            if (biome.LifeStage < ComponentLifeStage.Running)
-                continue;
-
-            if (!biome.Enabled)
-                continue;
-
-            // Only process biomes with active chunks
-            if (!_activeChunks.ContainsKey(biome))
-                continue;
-
-            LoadChunks(biome, gridUid, grid, biome.Seed);
-
-            if (shouldUnload)
-                UnloadChunks(biome, gridUid, grid, biome.Seed);
+            _useStreamNoise = false;
+            _streamNoise.Clear();
         }
-
-        if (shouldUnload)
-            _unloadTimer = 0f;
-
-        CleanupUpdateCycle();
     }
 
-    private void CleanupUpdateCycle()
+    private void RefreshChunkRequests()
     {
+        _loadRequests.Clear();
+        _unloadRequests.Clear();
+        ProcessPlayerChunkRequests();
+        QueueMarkerPreloads();
+
+        foreach (var (request, priority) in _requestedChunks)
+            _loadRequests.Enqueue(request, priority);
+
+        _requestedChunks.Clear();
         _handledEntities.Clear();
 
-        foreach (var tiles in _activeChunks.Values)
+        var biomes = AllEntityQuery<BiomeComponent, MapGridComponent>();
+        while (biomes.MoveNext(out var gridUid, out var biome, out var grid))
         {
-            _tilePool.Return(tiles);
-        }
-
-        _activeChunks.Clear();
-        _markerChunks.Clear();
-    }
-
-    /// <summary>
-    /// Loads all of the chunks for a particular biome, as well as handle any marker chunks.
-    /// </summary>
-    private void LoadChunks(
-        BiomeComponent component,
-        EntityUid gridUid,
-        MapGridComponent grid,
-        int seed)
-    {
-        BuildMarkerChunks(component, gridUid, grid, seed);
-
-        var active = _activeChunks[component];
-
-        foreach (var chunk in active)
-        {
-            LoadChunkMarkers(component, gridUid, grid, chunk, seed);
-
-            if (!component.LoadedChunks.Add(chunk))
+            if (!biome.Enabled || !biome.Running)
                 continue;
 
-            // Load NOW!
-            LoadChunk(component, gridUid, grid, chunk, seed);
+            _retainedChunks.TryGetValue(biome, out var retained);
+            foreach (var chunk in biome.LoadedChunks)
+            {
+                if (retained == null || !retained.Contains(chunk))
+                    _unloadRequests.Enqueue(new ChunkRequest(gridUid, biome, grid, chunk));
+            }
         }
+
+        foreach (var retained in _retainedChunks.Values)
+            _tilePool.Return(retained);
+
+        _retainedChunks.Clear();
+    }
+
+    private void ProcessChunkRequests()
+    {
+        var unloaded = ProcessChunkUnloads();
+        // Once the trail starts to accumulate, ghost streaming cannot add more chunks than we can remove.
+        var ghostLoadsRemaining = _unloadRequests.Count > ObserverUnloadBacklog ? unloaded : LoadsPerTick;
+        var start = Stopwatch.GetTimestamp();
+        ProcessMarkerScan();
+        var loaded = 0;
+        for (var attempt = 0; attempt < 32 && loaded < LoadsPerTick &&
+             (attempt == 0 || Stopwatch.GetElapsedTime(start) < LoadTimePerTick) &&
+             _loadRequests.TryDequeue(out var request, out var priority); attempt++)
+        {
+            if (priority.ObserverPriority != 0 && ghostLoadsRemaining <= 0)
+            {
+                _loadRequests.Enqueue(request, priority);
+                break;
+            }
+
+            var (gridUid, biome, grid, chunk) = request;
+            if (biome.Enabled && biome.Running && !grid.Deleted && !TerminatingOrDeleted(gridUid))
+            {
+                var alreadyLoaded = biome.LoadedChunks.Contains(chunk);
+                if (!alreadyLoaded && !PrepareChunkMarkers(biome, chunk))
+                {
+                    _waitingForMarkers.Add((request, priority));
+                    continue;
+                }
+
+                LoadChunkMarkers(biome, gridUid, grid, chunk, biome.Seed);
+                if (!alreadyLoaded)
+                {
+                    LoadChunk(biome, gridUid, grid, chunk, biome.Seed);
+                    biome.LoadedChunks.Add(chunk);
+                }
+
+                loaded++;
+                if (priority.ObserverPriority != 0)
+                    ghostLoadsRemaining--;
+            }
+        }
+
+        foreach (var (request, priority) in _waitingForMarkers)
+            _loadRequests.Enqueue(request, priority);
+        _waitingForMarkers.Clear();
+    }
+
+    private int ProcessChunkUnloads()
+    {
+        var unloaded = 0;
+        var start = Stopwatch.GetTimestamp();
+        for (var i = 0; i < UnloadsPerTick && _unloadRequests.TryDequeue(out var request); i++)
+        {
+            var (gridUid, biome, grid, chunk) = request;
+            if (biome.Enabled && biome.Running && !grid.Deleted && !TerminatingOrDeleted(gridUid))
+            {
+                UnloadChunk(biome, gridUid, grid, chunk, biome.Seed, _chunkLoaderTiles);
+                unloaded++;
+            }
+
+            if (Stopwatch.GetElapsedTime(start) >= UnloadTimePerTick)
+                break;
+        }
+
+        return unloaded;
     }
 }

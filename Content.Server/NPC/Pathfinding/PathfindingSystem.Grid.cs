@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Shared.NPC;
+using Content.Shared.Parallax.Biomes;
 using Content.Shared.Physics;
 using Robust.Shared.Collections;
 using Robust.Shared.Map;
@@ -17,6 +19,8 @@ namespace Content.Server.NPC.Pathfinding;
 public sealed partial class PathfindingSystem
 {
     private static readonly TimeSpan UpdateCooldown = TimeSpan.FromSeconds(0.45);
+    private const int BiomeNavChunksPerTick = 8;
+    private static readonly TimeSpan BiomeNavTimePerTick = TimeSpan.FromMilliseconds(2);
 
     // What relevant collision groups we track for pathfinding.
     // Stuff like chairs have collision but aren't relevant for mobs.
@@ -85,6 +89,7 @@ public sealed partial class PathfindingSystem
         var updateCount = 0;
 #endif
         _stopwatch.Restart();
+        var biomeChunksRemaining = BiomeNavChunksPerTick;
 
         // We defer chunk updates because rebuilding a navmesh is hella costly
         // Still run even when paused.
@@ -104,17 +109,29 @@ public sealed partial class PathfindingSystem
             var dirtyPortals = comp.DirtyPortals;
             dirtyPortals.Clear();
 
-            // TODO: Often we invalidate the entire chunk when it might be something as simple as an airlock change
-            // Would be better to handle that though this was safer and max it's taking is like 1-2ms every half-second.
-            var dirt = new GridPathfindingChunk[comp.DirtyChunks.Count];
-            var idx = 0;
-
-            foreach (var origin in comp.DirtyChunks)
+            var biome = TryComp<BiomeComponent>(uid, out var terrain) && terrain.Enabled;
+            var count = comp.DirtyChunks.Count;
+            if (biome)
             {
-                var chunk = GetChunk(origin, uid, pathfinding);
-                dirt[idx] = chunk;
-                idx++;
+                if (biomeChunksRemaining == 0 ||
+                    biomeChunksRemaining < BiomeNavChunksPerTick && _stopwatch.Elapsed >= BiomeNavTimePerTick)
+                    continue;
+
+                count = Math.Min(count, biomeChunksRemaining);
+                biomeChunksRemaining -= count;
             }
+
+            var origins = comp.DirtyChunks.Take(count).ToArray();
+            var dirt = new List<GridPathfindingChunk>(count);
+            foreach (var origin in origins)
+            {
+                if (!biome || mapGridComp.TileSize != 1 || !DropEmptyBiomeNavChunk(uid, mapGridComp, comp, origin))
+                    dirt.Add(GetChunk(origin, uid, pathfinding));
+            }
+
+            comp.DirtyChunks.ExceptWith(origins);
+            if (dirt.Count == 0)
+                continue;
 
             // We force clear portals in a single-threaded context to be safe
             // as they may not be thread-safe to touch.
@@ -137,7 +154,7 @@ public sealed partial class PathfindingSystem
             // This is for map <> grid pathfinding
 
             // Without parallel this is roughly 3x slower on my desktop.
-            Parallel.For(0, dirt.Length, options, i =>
+            Parallel.For(0, dirt.Count, options, i =>
             {
                 BuildBreadcrumbs(dirt[i], (uid, mapGridComp));
             });
@@ -156,7 +173,7 @@ public sealed partial class PathfindingSystem
             {
                 var it1 = it;
 
-                Parallel.For(0, dirt.Length, options, j =>
+                Parallel.For(0, dirt.Count, options, j =>
                 {
                     var chunk = dirt[j];
                     // Check if the chunk is safe on this iteration.
@@ -176,7 +193,7 @@ public sealed partial class PathfindingSystem
             {
                 var it1 = it;
 
-                Parallel.For(0, dirt.Length, options, j =>
+                Parallel.For(0, dirt.Count, options, j =>
                 {
                     var chunk = dirt[j];
                     // Check if the chunk is safe on this iteration.
@@ -214,8 +231,35 @@ public sealed partial class PathfindingSystem
                 AddNeighbors(polyA, polyB);
             }
 
-            comp.DirtyChunks.Clear();
         }
+    }
+
+    private bool DropEmptyBiomeNavChunk(EntityUid uid, MapGridComponent grid, GridPathfindingComponent pathfinding,
+        Vector2i origin)
+    {
+        if (pathfinding.Chunks.TryGetValue(origin, out var chunk) &&
+            (chunk.Portals.Count != 0 || chunk.PortalPolys.Count != 0))
+            return false;
+
+        var start = origin * ChunkSize;
+        for (var x = 0; x < ChunkSize; x++)
+        {
+            for (var y = 0; y < ChunkSize; y++)
+            {
+                if (!_maps.GetTileRef(uid, grid, start + new Vector2i(x, y)).Tile.IsEmpty)
+                    return false;
+            }
+        }
+
+        if (chunk != null)
+        {
+            foreach (var polys in chunk.Polygons)
+                ClearTilePolys(polys);
+
+            pathfinding.Chunks.Remove(origin);
+        }
+
+        return true;
     }
 
     private bool IsBodyRelevant(FixturesComponent fixtures)
@@ -326,7 +370,8 @@ public sealed partial class PathfindingSystem
 
         var currentTime = _timing.CurTime;
 
-        if (comp.NextUpdate < currentTime && !MetaData(gridUid).EntityPaused)
+        if (comp.NextUpdate < currentTime && !MetaData(gridUid).EntityPaused &&
+            (comp.DirtyChunks.Count == 0 || !HasComp<BiomeComponent>(gridUid)))
             comp.NextUpdate = currentTime + UpdateCooldown;
 
         var chunks = comp.DirtyChunks;
@@ -341,7 +386,7 @@ public sealed partial class PathfindingSystem
 
         var currentTime = _timing.CurTime;
 
-        if (comp.NextUpdate < currentTime)
+        if (comp.NextUpdate < currentTime && (comp.DirtyChunks.Count == 0 || !HasComp<BiomeComponent>(gridUid)))
             comp.NextUpdate = currentTime + UpdateCooldown;
 
         var chunks = comp.DirtyChunks;

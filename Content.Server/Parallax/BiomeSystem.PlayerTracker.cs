@@ -2,6 +2,7 @@
 using System.Numerics;
 using Content.Shared.Parallax.Biomes;
 using Content.Shared.Parallax.Biomes.Markers;
+using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 using ChunkIndicesEnumerator = Robust.Shared.Map.Enumerators.ChunkIndicesEnumerator;
@@ -10,70 +11,71 @@ namespace Content.Server.Parallax;
 
 public sealed partial class BiomeSystem
 {
-    private void InitializePlayerTracker()
-    {
-        // PlayerTracker methods are now part of this partial class
-    }
-
     /// <summary>
     /// Processes all players and viewers to determine which chunks need to be loaded.
     /// </summary>
     private void ProcessPlayerChunkRequests()
     {
-        // Get chunks in range
         foreach (var pSession in Filter.GetAllPlayers(_playerManager))
         {
-            if (_xformQuery.TryGetComponent(pSession.AttachedEntity, out var xform) &&
-                _handledEntities.Add(pSession.AttachedEntity.Value) &&
-                 _biomeQuery.TryGetComponent(xform.MapUid, out var biome) &&
-                biome.Enabled &&
-                CanLoad(pSession.AttachedEntity.Value))
-            {
-                var worldPos = _transform.GetWorldPosition(xform);
-                AddChunksInRange(biome, worldPos);
-
-                foreach (var layer in biome.MarkerLayers)
-                {
-                    var layerProto = ProtoManager.Index(layer);
-                    AddMarkerChunksInRange(biome, worldPos, layerProto);
-                }
-            }
+            var ghost = _ghostQuery.HasComp(pSession.AttachedEntity);
+            if (pSession.AttachedEntity is { } attached)
+                RequestChunksForViewer(attached, ghost);
 
             foreach (var viewer in pSession.ViewSubscriptions)
-            {
-                if (!_handledEntities.Add(viewer) ||
-                    !_xformQuery.TryGetComponent(viewer, out xform) ||
-                    !_biomeQuery.TryGetComponent(xform.MapUid, out biome) ||
-                    !biome.Enabled ||
-                    !CanLoad(viewer))
-                {
-                    continue;
-                }
-
-                var worldPos = _transform.GetWorldPosition(xform);
-                AddChunksInRange(biome, worldPos);
-
-                foreach (var layer in biome.MarkerLayers)
-                {
-                    var layerProto = ProtoManager.Index(layer);
-                    AddMarkerChunksInRange(biome, worldPos, layerProto);
-                }
-            }
+                RequestChunksForViewer(viewer, ghost);
         }
     }
 
-    private bool CanLoad(EntityUid uid)
+    private void RequestChunksForViewer(EntityUid viewer, bool ghostSession)
     {
-        return !_ghostQuery.HasComp(uid) || _tags.HasTag(uid, AllowBiomeLoadingTag);
+        if (!_xformQuery.TryGetComponent(viewer, out var xform) ||
+            xform.MapUid is not { } mapUid ||
+            !_biomeQuery.TryGetComponent(mapUid, out var biome) ||
+            !biome.Enabled || !biome.Running ||
+            !TryComp<MapGridComponent>(mapUid, out var grid))
+        {
+            return;
+        }
+
+        var ghost = _ghostQuery.HasComp(viewer);
+        if (ghost && !_tags.HasTag(viewer, AllowBiomeLoadingTag))
+            return;
+
+        var priority = ghostSession || ghost ? 1 : 0;
+        if (!_handledEntities.Add((viewer, priority)))
+            return;
+
+        var position = _transform.GetWorldPosition(xform);
+        AddChunksInRange(mapUid, biome, grid, position, priority);
+        foreach (var layer in biome.ForcedMarkerLayers)
+            AddMarkerChunksInRange(biome, position, ProtoManager.Index<BiomeMarkerLayerPrototype>(layer));
     }
 
-    private void AddChunksInRange(BiomeComponent biome, Vector2 worldPos)
+    private void AddChunksInRange(EntityUid mapUid, BiomeComponent biome, MapGridComponent grid, Vector2 position, int observerPriority)
     {
-        var enumerator = new ChunkIndicesEnumerator(_loadArea.Translated(worldPos), ChunkSize);
+        if (!_retainedChunks.TryGetValue(biome, out var retained))
+        {
+            retained = _tilePool.Get();
+            _retainedChunks.Add(biome, retained);
+        }
 
+        var area = _loadArea.Translated(position);
+        var retainedChunks = new ChunkIndicesEnumerator(area.Enlarged(ChunkSize), ChunkSize);
+        while (retainedChunks.MoveNext(out var retainedChunk))
+            retained.Add(retainedChunk.Value * ChunkSize);
+
+        var enumerator = new ChunkIndicesEnumerator(area, ChunkSize);
         while (enumerator.MoveNext(out var chunkOrigin))
         {
-            _activeChunks[biome].Add(chunkOrigin.Value * ChunkSize);
+            var chunk = chunkOrigin.Value * ChunkSize;
+            if (biome.LoadedChunks.Contains(chunk) && !biome.PendingMarkers.ContainsKey(chunk))
+                continue;
+
+            var request = new ChunkRequest(mapUid, biome, grid, chunk);
+            var priority = (observerPriority, Vector2.DistanceSquared(position, chunk + new Vector2(ChunkSize / 2f)));
+            if (!_requestedChunks.TryGetValue(request, out var current) || priority.CompareTo(current) < 0)
+                _requestedChunks[request] = priority;
         }
     }
 
@@ -87,7 +89,7 @@ public sealed partial class BiomeSystem
 
         while (enumerator.MoveNext(out var chunkOrigin))
         {
-            var lay = _markerChunks[biome].GetOrNew(layer.ID);
+            var lay = _markerChunks.GetOrNew(biome).GetOrNew(layer.ID);
             lay.Add(chunkOrigin.Value * layer.Size);
         }
     }
