@@ -292,6 +292,9 @@
   query:
   - !type:NearbyNpcTargetsQuery
     range: 8000
+    blacklist:
+      tags:
+      - ShuttleAIIgnore
 
 - type: htnCompound
   id: DroneCompoundQuake

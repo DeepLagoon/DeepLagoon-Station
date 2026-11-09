@@ -69,14 +69,15 @@ export const GridEditorSelection = memo(({ active = true, items, area, layers, v
           (area.y+area.height-b.bottom-(offset?.dy||0))*cellSize>=view.top&&
           (area.y+area.height-b.top-(offset?.dy||0))*cellSize<=view.top+view.height;
       });
-      const urls=new Set(visible.flatMap(item=>(visuals?.get(`${item.kind}:${item.prototype}`)?.images||[]).map(image=>image.url)).filter(Boolean));
+      const spriteEntries = visible.map(item => ({ item, layers: spriteLayers(item, visuals?.get(`${item.kind}:${item.prototype}`)) }));
+      const urls = new Set(spriteEntries.flatMap(entry => entry.layers.map(layer => layer.image.url)).filter(Boolean));
       const images=new Map(await Promise.all([...urls].map(async url=>[url,await highlightImage(url)])));
       if(cancelled || !canvas.current)return;
       const context=canvas.current.getContext('2d');context.clearRect(0,0,view.width,view.height);
       context.imageSmoothingEnabled=false;context.globalAlpha=.6;context.shadowColor='#53ff82';context.shadowBlur=2;
-      for(const item of visible){
+      for(const {item, layers: resolvedLayers} of spriteEntries){
         const visual=visuals?.get(`${item.kind}:${item.prototype}`);
-        for(const layer of spriteLayers(item,visual)){
+        for(const layer of resolvedLayers){
           const image=images.get(layer.image.url);if(!image)continue;
           const x=(layer.x+(offset?.dx||0)-area.x)*cellSize-view.left;
           const y=(area.y+area.height-layer.y-(offset?.dy||0))*cellSize-view.top;

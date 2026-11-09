@@ -1,5 +1,6 @@
 using Content.Server._Mono.FireControl;
 using Content.Server._Mono.Projectiles.TargetSeeking;
+using Content.Shared.Tag;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Systems;
@@ -8,6 +9,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Spawners;
+using Robust.Shared.Prototypes;
 using System.Numerics;
 
 namespace Content.Server._Mono.NPC.HTN;
@@ -20,6 +22,9 @@ public sealed partial class ShipTargetingSystem : EntitySystem
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private TargetSeekingSystem _seeking = default!;
+    [Dependency] private TagSystem _tags = default!;
+
+    public static readonly ProtoId<TagPrototype> IgnoreGridTag = "ShuttleAIIgnore";
 
     [Dependency] private EntityQuery<GunComponent> _gunQuery;
     [Dependency] private EntityQuery<PhysicsComponent> _physQuery;
@@ -60,6 +65,8 @@ public sealed partial class ShipTargetingSystem : EntitySystem
                 continue;
 
             var targetGrid = Transform(targetUid).GridUid;
+            if (targetGrid is { } grid && _tags.HasTag(grid, IgnoreGridTag))
+                continue;
 
             var shipXform = Transform(shipUid.Value);
 

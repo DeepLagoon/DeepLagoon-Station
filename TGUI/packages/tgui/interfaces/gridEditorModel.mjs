@@ -1,5 +1,11 @@
 import { spriteLayers, spriteBounds } from './gridEditorSprites.mjs';
-export const editableItem = (item, layers) => !!layers[item.kind] &&
+import { routeProfile } from './gridEditorRouting.mjs';
+
+export const visibleItem = (item, layers, visual) => !!layers[item.kind] &&
+  (item.kind !== 'entity' || (layers[visual?.visibilityLayer] !== false &&
+    (layers.networks !== false || !routeProfile(item))));
+
+export const editableItem = (item, layers, visual) => visibleItem(item, layers, visual) &&
   (layers.decalZ === undefined || item.kind === 'decal' && (item.z || 0) === layers.decalZ);
 
 export function scopeDecalChanges(previous, next, z) {
@@ -46,16 +52,18 @@ export function stamp(items, cells, brush, options, nextId) {
     return !(options.replace && brush.category === 'wall' && item.kind === 'entity' && options.isWall(item.prototype));
   });
   const placementKey = item => `${item.kind}:${item.prototype}:${Math.floor(item.x)}:${Math.floor(item.y)}` +
-    (item.kind === 'decal' ? `:${item.z || 0}:${item.color}:${item.rotation}:${!!item.cleanable}` : '');
+    (item.kind === 'decal' ? `:${item.z || 0}:${item.color}:${item.rotation}:${!!item.cleanable}` :
+      item.kind === 'entity' ? `:${item.pipeLayer ?? -1}` : '');
   const occupied = new Set(result.map(placementKey));
   for (const cell of cells) {
-    const key = placementKey({ kind, prototype: brush.id, x: cell.x, y: cell.y, ...options });
+    const key = placementKey({ kind, prototype: brush.id, x: cell.x, y: cell.y, pipeLayer: brush.pipeLayer, ...options });
     if (occupied.has(key)) continue;
     occupied.add(key);
     result.push({ id: kind === 'tile' ? tileId(cell.x, cell.y) : nextId(), kind, prototype: brush.id,
       x: cell.x + (kind === 'entity' ? .5 : 0), y: cell.y + (kind === 'entity' ? .5 : 0),
       rotation: kind === 'tile' ? 0 : options.rotation, color: options.color, z: options.z,
-      cleanable: options.cleanable, anchored: !!brush.anchored, variant: 0, flags: 0, mirror: 0 });
+      cleanable: options.cleanable, anchored: !!brush.anchored, variant: 0, flags: 0, mirror: 0,
+      ...(kind === 'entity' && brush.pipeLayer >= 0 ? { pipeLayer: brush.pipeLayer } : {}) });
   }
   return result;
 }
@@ -146,9 +154,9 @@ export function ensureWallFloors(items, isWall, original = [], isDiagonal = () =
 
 export const cellRectangle = (a, b) => ({ x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), width: Math.abs(a.x - b.x) + 1, height: Math.abs(a.y - b.y) + 1 });
 
-export function eraseRectangle(items, rectangle, layers, mirror = null) {
+export function eraseRectangle(items, rectangle, layers, mirror = null, visual) {
   const reflected = mirror?.enabled ? { ...rectangle, [mirror.axis]: 2 * mirror.center - rectangle[mirror.axis] - rectangle[mirror.axis === 'x' ? 'width' : 'height'] } : null;
-  return items.filter(item => !editableItem(item, layers) || !inside(cellOf(item), rectangle) && !(reflected && inside(cellOf(item), reflected)));
+  return items.filter(item => !editableItem(item, layers, visual?.(item)) || !inside(cellOf(item), rectangle) && !(reflected && inside(cellOf(item), reflected)));
 }
 
 export function moveSelection(items, ids, dx, dy, area) {
@@ -300,7 +308,7 @@ export function expansionRects(bounds, expansion) {
 
 export function itemsAtPoint(items, point, layers, visual, opaque = () => true) {
   return items.map((item, index) => ({ item, index })).filter(({ item }) => {
-    if (!editableItem(item, layers)) return false;
+    if (!editableItem(item, layers, visual(item))) return false;
     if(item.kind==='decal' || item.kind==='entity' && visual(item)?.images?.some(image=>image.native)){
       return spriteLayers(item,visual(item)).some(layer=>{
         const x=point.x-layer.x,y=point.y-layer.y,det=layer.a*layer.d-layer.b*layer.c;

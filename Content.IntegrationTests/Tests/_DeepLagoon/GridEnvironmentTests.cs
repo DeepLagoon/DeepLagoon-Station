@@ -21,6 +21,7 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
+using Robust.Shared.Player;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
@@ -157,8 +158,9 @@ public sealed class GridEnvironmentTests
             pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
             Assert.That(editor.Open(player, testMap.Grid), Does.Contain("открыт"));
             var drafts = (IDictionary)typeof(GridEditorSystem).GetField("_drafts", flags)!.GetValue(editor)!;
-            var draft = drafts[player]!;
-            var token = (Guid)draft.GetType().GetField("Token")!.GetValue(draft)!;
+            Guid CurrentToken() => drafts.Keys.Cast<(ICommonSession Player, Guid Token)>()
+                .Single(key => key.Player == player).Token;
+            var token = CurrentToken();
             Request(Guid.NewGuid(), "gravity", true);
             Assert.That(entities.HasComponent<GridEnvironmentComponent>(testMap.Grid), Is.False);
             var microwave = entities.SpawnEntity("KitchenMicrowave", testMap.GridCoords);
@@ -193,8 +195,7 @@ public sealed class GridEnvironmentTests
             Assert.That(priorZone.ImmuneRoles, Is.Empty);
             Assert.That(priorZone.ImmunePlaytime, Is.Null);
             Assert.That(editor.Open(player, testMap.Grid), Does.Contain("открыт"));
-            var protectedDraft = drafts[player]!;
-            var protectedToken = (Guid)protectedDraft.GetType().GetField("Token")!.GetValue(protectedDraft)!;
+            var protectedToken = CurrentToken();
             typeof(GridEditorSystem).GetMethod("Apply", flags)!.Invoke(editor, new object[]
             {
                 new GridEditorApplyEvent(protectedToken, new List<GridEditorItem>

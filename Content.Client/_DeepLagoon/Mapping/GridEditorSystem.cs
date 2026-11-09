@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
+using Content.Shared.Atmos.Components;
 using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Decals;
 using Content.Shared.Maps;
@@ -127,13 +128,12 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (_window?.Panel.Web.IsReady != true || _tab.State is not { } ev) return;
         var visuals = ev.Items.Concat(_tab.RecoveryEdits.Values).Where(i => i.Kind != "remove").Select(i => (i.Kind, i.Prototype))
             .Append(("tile", "Plating")).Distinct().Select(i => Visual(i.Item1, i.Item2));
-        var header = new TguiData().String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
-            .String("gridName", _tab.EnvironmentState?.GridName ?? "").Number("gridNameMaxLength", GridEditorNameRequest.MaxLength)
+        var header = EnvironmentData(_tab.EnvironmentState)
+            .String("grid", ev.Grid.ToString()).String("token", ev.Token.ToString()).String("sourcePath", ev.SourcePath)
+            .Number("gridNameMaxLength", GridEditorNameRequest.MaxLength)
             .String("gridNameError", "").Number("gridNameResultVersion", _nameResultVersion)
             .Number("x", ev.X).Number("y", ev.Y).Number("width", ev.Width).Number("height", ev.Height)
             .Number("gridX", ev.GridX).Number("gridY", ev.GridY).Number("gridWidth", ev.GridWidth).Number("gridHeight", ev.GridHeight)
-            .Bool("alwaysPowered", _tab.EnvironmentState?.AlwaysPowered ?? false).Bool("forceGravity", _tab.EnvironmentState?.ForceGravity ?? false)
-            .Bool("safeAtmosphere", _tab.EnvironmentState?.SafeAtmosphere ?? false).Bool("apartmentProtected", _tab.EnvironmentState?.ApartmentProtected ?? false)
             .Array("exportIssues", Array.Empty<TguiData>())
             .Number("previewGeneration", _tab.PreviewGeneration).Number("snapshotPatchVersion", _tab.PatchVersion)
             .Number("lastAppliedVersion", _tab.LastAppliedVersion).Bool("initialized", ev.Initialized).Bool("copySupported", true)
@@ -149,10 +149,15 @@ public sealed partial class GridEditorSystem : EntitySystem
     {
         if (_tab.State == null || _tab.State.Token != state.Token) return;
         _tab.EnvironmentState = state;
-        SendTabUpdate(new TguiData().Object("data", new TguiData()
-            .String("gridName", state.GridName).Bool("alwaysPowered", state.AlwaysPowered).Bool("forceGravity", state.ForceGravity)
-            .Bool("safeAtmosphere", state.SafeAtmosphere).Bool("apartmentProtected", state.ApartmentProtected)).ToString());
+        SendTabUpdate(new TguiData().Object("data", EnvironmentData(state)).ToString());
     }
+
+    private static TguiData EnvironmentData(GridEditorEnvironmentState? state) => new TguiData()
+        .String("gridName", state?.GridName ?? "").Bool("alwaysPowered", state?.AlwaysPowered ?? false)
+        .Bool("forceGravity", state?.ForceGravity ?? false).Bool("safeAtmosphere", state?.SafeAtmosphere ?? false)
+        .Bool("apartmentProtected", state?.ApartmentProtected ?? false).Bool("expeditions", state?.Expeditions ?? false)
+        .Bool("ignoredByShuttleAi", state?.IgnoredByShuttleAi ?? false).Bool("forceAnchored", state?.ForceAnchored ?? false)
+        .String("radarColor", state?.RadarColor ?? "").Bool("hiddenOnIff", state?.HiddenOnIff ?? false);
 
     private int _atmosVersion;
     private int _nameResultVersion;
@@ -216,9 +221,15 @@ public sealed partial class GridEditorSystem : EntitySystem
         if (kind == "entity")
         {
             if (!_prototypes.TryIndex<EntityPrototype>(id, out var proto)) return data.String("name", id).Array("images", Array.Empty<TguiData>());
-            return data.Array("images", _images.MapItem(id)).Bool("noRotation", proto.TryGetComponent<SpriteComponent>(out var mappedSprite) && mappedSprite.NoRotation).String("name", proto.Name)
+            proto.TryComp<SpriteComponent>(out var sprite, EntityManager.ComponentFactory);
+            proto.TryComp<AtmosPipeLayersComponent>(out var pipe, EntityManager.ComponentFactory);
+            return data.Array("images", sprite != null ? _images.GridEditorItemImages(proto, sprite) : _images.Item(id))
+                .Bool("noRotation", sprite?.NoRotation == true).Bool("snapCardinals", sprite?.SnapCardinals == true)
+                .Number("pipeLayer", pipe != null ? (int) pipe.CurrentPipeLayer : -1)
+                .Number("directionBias", (float) (SpriteComponent.DirectionBias * 180 / Math.PI)).String("name", proto.Name)
                 .Bool("pipeColor", proto.Components.ContainsKey("AtmosPipeColor"))
-                .Number("drawDepth", proto.TryGetComponent<SpriteComponent>(out var sprite) ? sprite.DrawDepth : 0)
+                .String("visibilityLayer", VisibilityLayer(proto))
+                .Number("drawDepth", sprite?.DrawDepth ?? 0)
                 .Bool("exclusive", GridEditorPlacement.IsExclusive(proto, _tags)).Bool("diagonal", GridEditorPlacement.HasTag(proto, "Diagonal", _tags))
                 .String("category", GridEditorPlacement.IsWall(proto, _tags) ? "wall" : "entity");
         }
@@ -229,6 +240,51 @@ public sealed partial class GridEditorSystem : EntitySystem
             .Array("images", spec == null ? Array.Empty<TguiData>() :
             new[] { new TguiData().String("url", kind == "tile" && spec is SpriteSpecifier.Texture texture ?
                 _images.TileFrame(texture.TexturePath) : _images.Frame(spec)).String("color", "#ffffff").Number("width", size.X).Number("height", size.Y) });
+    }
+
+    private string VisibilityLayer(EntityPrototype prototype)
+    {
+        if (prototype.Components.ContainsKey("CableVisualizer"))
+            return "wire";
+        if (prototype.Components.ContainsKey("AtmosPipeLayers") || prototype.Components.ContainsKey("PipeAppearance"))
+            return "gas";
+
+        // Server-only components may be present only in the declaring prototype's YAML on the client.
+        foreach (var (id, _) in _prototypes.EnumerateAllParents<EntityPrototype>(prototype.ID, includeSelf: true))
+        {
+            if (id == "DisposalPipeBase")
+                return "disposal";
+            if (!_prototypes.TryGetMapping<EntityPrototype>(id, out var mapping) ||
+                !mapping.TryGet<SequenceDataNode>("components", out var components))
+                continue;
+
+            foreach (var component in components)
+            {
+                if (component is not MappingDataNode entry || !entry.TryGet<ValueDataNode>("type", out var type))
+                    continue;
+
+                switch (type.Value)
+                {
+                    case "DisposalTube":
+                        return "disposal";
+                    case "SpawnPoint":
+                    case "AntagSpawner":
+                    case "GhostRoleAntagSpawner":
+                    case "GhostRoleMobSpawner":
+                    case "ConditionalSpawner":
+                    case "CountSpawner":
+                    case "EntityTableSpawner":
+                    case "GridSpawner":
+                    case "RandomDecalSpawner":
+                    case "RandomHumanoidSpawner":
+                    case "RandomSpawner":
+                    case "TimedSpawner":
+                        return "spawn";
+                }
+            }
+        }
+
+        return "";
     }
 
     private static TguiData ItemData(GridEditorItem i)
@@ -292,10 +348,10 @@ public sealed partial class GridEditorSystem : EntitySystem
                     _tab.PendingPatches.RemoveAll(entry => entry.Version <= version);
                 return;
             }
-            if (action is "setGridPower" or "setGridGravity")
+            if (action == "setGridEnvironment")
             {
-                RaiseNetworkEvent(new GridEditorEnvironmentRequest(_tab.State.Token,
-                    action == "setGridPower" ? "power" : "gravity", Field(root, "enabled") == "true"));
+                RaiseNetworkEvent(new GridEditorEnvironmentRequest(_tab.State.Token, Field(root, "setting"),
+                    Field(root, "enabled") == "true", Field(root, "value")));
                 return;
             }
             if (action == "setGridName")

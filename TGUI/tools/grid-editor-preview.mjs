@@ -28,7 +28,7 @@ const catalog = [
 for (let i = 0; i < 1000; i++) catalog.push({ ...catalog[0], id: 'FixtureFloor' + i, name: 'Проверочный пол ' + i });
 catalog.push({ id: 'FixtureTable', name: 'Проверочный стол', kind: 'entity', category: 'entity', drawDepth: 2, exclusive: true, images: [{url: svg('<rect x="2" y="2" width="28" height="28" fill="brown"/>')}] },
   { id: 'FixtureCup', name: 'Проверочная чашка', kind: 'entity', category: 'entity', drawDepth: 10, images: [{url: svg('<rect x="13" y="13" width="6" height="6" fill="white"/>')}] });
-for(const profile of routeProfiles)for(const id of routePrototypes(profile))catalog.push({id,name:id,kind:'entity',category:'entity',anchored:true,images:[{url:decal}]});
+for(const profile of routeProfiles)for(const id of routePrototypes(profile))catalog.push({id,name:id,kind:'entity',category:'entity',visibilityLayer:profile.kind,anchored:true,images:[{url:decal}]});
 const defaults = { rotation: 0, color: '#ffffff', z: 0, cleanable: false, anchored: false, variant: 0, flags: 0, mirror: 0 };
 const large = new URLSearchParams(location.search).has('large');
 const fail = new URLSearchParams(location.search).has('fail');
@@ -46,9 +46,15 @@ for (let x = -5; x <= 6; x++) for (let y = -3; y <= 5; y++) {
 }
 items.push({ ...defaults, id: 'e:chair', kind: 'entity', prototype: 'ChairWood', x: .5, y: .5 });
 items.push({ ...defaults, id: 'e:table', kind: 'entity', prototype: 'FixtureTable', x: 2.5, y: 1.5 }, { ...defaults, id: 'e:cup', kind: 'entity', prototype: 'FixtureCup', x: 2.5, y: 1.5 });
+if (new URLSearchParams(location.search).has('visibility')) {
+  for (const [id, visibilityLayer] of [['GasPipeManifold', 'gas'], ['DisposalTagger', 'disposal'], ['SpawnPointCaptain', 'spawn']])
+    catalog.push({ id, name: id, kind: 'entity', category: 'entity', visibilityLayer, anchored: true, images: [{ url: decal }] });
+  ['CableHV', 'GasPipeStraightAlt2', 'DisposalPipe', 'SpawnPointCaptain', 'ChairWood', 'GasPipeManifold', 'DisposalTagger']
+    .forEach((prototype, index) => items.push({ ...defaults, id: 'visibility:' + index, kind: 'entity', prototype, x: index - 2.5, y: 2.5 }));
+}
 if (large) { items.length = 0; for (let x=0; x<250; x++) for(let y=0; y<250; y++) items.push({ ...defaults, id: 't:'+x+':'+y, kind:'tile', prototype:'Plating', x,y }); }
 function App() {
-  const [data, setData] = useState({ grid: '142', token: 'fixture', sourcePath:new URLSearchParams(location.search).has('source')?'Resources/Maps/Test/empty.yml':'', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], initialized: false });
+  const [data, setData] = useState({ grid: '142', token: 'fixture', sourcePath:new URLSearchParams(location.search).has('source')?'Resources/Maps/Test/empty.yml':'', x: -8, y: -6, width: 20, height: 16, gridX: -5, gridY: -3, gridWidth: 12, gridHeight: 9, ...(large ? { x:-4, y:-4, width:258, height:258, gridX:0, gridY:0, gridWidth:250, gridHeight:250 } : {}), items, visuals: catalog, catalog: catalog.filter(i => i.kind === 'tile'), catalogCount: 2, catalogPage: 0, favorites: [], templates: [], radarColor: '#FFD700', initialized: false });
   window.fixtureGetData = () => data; window.fixtureSetData = setData;
   useEffect(() => {
     const receive = ({data:message}) => {
@@ -66,6 +72,7 @@ function App() {
   },[]);
   const act = (action, payload) => {
     window.fixtureActions ||= []; window.fixtureActions.push({action,payload});
+    if (action === 'setGridEnvironment' && payload.setting === 'radarColor') setData(d=>({...d,radarColor:payload.value}));
     if (action === 'setGridName') setData(d=>({...d,gridName:payload.name,gridNameError:'',gridNameResultVersion:(d.gridNameResultVersion||0)+1}));
     if (action === 'referenceImport') { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.onchange=()=>{const reader=new FileReader();reader.onload=()=>setData(d=>({...d,referenceImage:reader.result,referenceVersion:Date.now()}));reader.readAsDataURL(input.files[0]);}; input.click(); }
 
@@ -105,6 +112,7 @@ await build({ entryPoints: [path.join(output, 'fixture.jsx')], outfile: path.joi
     build.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({ contents: `import { useContext } from 'react'; import { Context } from ${JSON.stringify(path.join(output, 'fixture.jsx'))}; export const useBackend = () => useContext(Context);`, resolveDir: root }));
     build.onLoad({ filter: /\.scss$/ }, () => ({ contents: '', loader: 'css' }));
   } }] });
-const css = sass.compile(path.join(root, 'packages/tgui/styles/reset.scss')).css + sass.compile(path.join(root, 'packages/tgui/interfaces/GridEditor.scss')).css;
+const css = ['styles/reset.scss', 'components/PlayerColorPicker.scss', 'interfaces/GridEditor.scss']
+  .map(file => sass.compile(path.join(root, 'packages/tgui', file)).css).join('\n');
 fs.writeFileSync(path.join(output, 'index.html'), `<html><meta charset="utf-8"><title>Редактор grid — проверка интерфейса</title><style>html,body,#root{height:100%;margin:0;font-family:Arial,sans-serif}*{box-sizing:border-box}${css}</style><div id="root"></div><script src="/preview.js"></script></html>`);
 http.createServer((req, res) => { const file = req.url === '/preview.js' ? 'preview.js' : 'index.html'; res.setHeader('Content-Type', file.endsWith('.js') ? 'text/javascript' : 'text/html'); res.end(fs.readFileSync(path.join(output, file))); }).listen(5179, '127.0.0.1', () => console.log('Grid editor fixture: http://127.0.0.1:5179'));

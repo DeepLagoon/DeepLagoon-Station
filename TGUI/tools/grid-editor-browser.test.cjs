@@ -41,7 +41,8 @@ GridSceneCache.prototype.prepare = async function(...args) {
       return {contents,loader:'jsx',resolveDir:root+'/packages/tgui/interfaces'};
     });
   }}] });
-  const css = sass.compile(root+'/packages/tgui/styles/reset.scss').css+sass.compile(root+'/packages/tgui/interfaces/GridEditor.scss').css;
+  const css = ['styles/reset.scss', 'components/PlayerColorPicker.scss', 'interfaces/GridEditor.scss']
+    .map(file => sass.compile(root+'/packages/tgui/'+file).css).join('\n');
   const server=http.createServer((req,res)=>{if(req.url.endsWith('.js')){res.setHeader('Content-Type','text/javascript');res.end(fs.readFileSync(path.join(output,req.url.includes('old')?'old.js':'new.js')));}else{res.setHeader('Content-Type','text/html');res.end(`<html><meta charset="utf-8"><style>html,body,#root{height:100%;margin:0;font-family:Arial,sans-serif}*{box-sizing:border-box}${css}</style><div id="root"></div><script src="/${req.url.includes('legacy')?'old':'new'}.js"></script></html>`);}});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -117,6 +118,90 @@ GridSceneCache.prototype.prepare = async function(...args) {
     assert.equal(await network.isDisabled(),true);
     await openPanel(page,'Зеркало');assert.equal(await axis.isDisabled(),true);
     report.dropdowns={mouse:true,keyboard:true,nativeKeys:true,noMapPan:true,outsideClick:true,escape:true,tab:true,narrowViewport:true,disabled:true};
+    await page.goto(url+'/');
+    await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
+    await openPanel(page,'Грид');
+    const radarSwatch=page.getByRole('button',{name:'Цвет на радаре',exact:true});
+    const saveColor=page.getByRole('button',{name:'Сохранить цвет',exact:true});
+    const colorViewport=await page.locator('.GridEditor__viewport').boundingBox();
+    await radarSwatch.click();
+    assert.equal(await radarSwatch.getAttribute('aria-expanded'),'true');
+    assert.equal(await page.locator('.GridEditor input[type="color"]').count(),0,'Color controls must render inside the WebView');
+    const wheel=page.getByRole('slider',{name:'Цветовой круг',exact:true});
+    await wheel.click({position:{x:35,y:55}});
+    await saveColor.click({trial:true});
+    const colorCamera=await camera();
+    await wheel.press('ArrowRight');
+    assert.equal(await page.evaluate(()=>window.fixtureActions.filter(a=>a.action==='editing').at(-1)?.payload.active),true);
+    assert.deepEqual(await camera(),colorCamera,'Palette arrows must not pan the map');
+    assert.deepEqual(await page.locator('.GridEditor__viewport').boundingBox(),colorViewport,'Opening and using the palette must preserve the map');
+    const setPaletteHex=async value=>{
+      const hex=page.getByRole('textbox',{name:'HEX',exact:true});
+      await hex.fill(value);
+      await hex.press('Tab');
+      await page.locator('.ColorSquare__popover:visible').getByRole('button',{name:'Закрыть',exact:true}).click();
+    };
+    await setPaletteHex('#2080A0');
+    assert.equal(await page.evaluate(()=>window.fixtureActions.some(a=>a.action==='setGridEnvironment')),false);
+    await saveColor.click();
+    await page.waitForFunction(()=>window.fixtureGetData().radarColor==='#2080a0');
+    assert.ok(await page.evaluate(()=>window.fixtureActions.some(a=>a.action==='setGridEnvironment'&&a.payload.setting==='radarColor'&&a.payload.value==='#2080a0')));
+    assert.equal(await saveColor.isDisabled(),true);
+    report.radarColor={embedded:true,keepsMapVisible:true,savesOnlyOnRequest:true};
+
+    await page.goto(url+'/?visibility');
+    const waitForVisibility = async expected => page.waitForFunction(expected => {
+      const cache = window.sceneCaches[0];
+      if (!cache?.prepared || window.preparingScenes) return false;
+      const items = new Set([...cache.chunks.values()].flatMap(chunk => chunk.items.map(item => item.id)));
+      return expected.every((visible, index) => items.has('visibility:' + index) === visible);
+    }, expected);
+    const visible = Array(7).fill(true);
+    await waitForVisibility(visible);
+    const visibilityPoint = index => page.locator('.GridEditor__canvas').evaluate((canvas, index) => {
+      const rect = canvas.getBoundingClientRect(), {x, y, height, width} = window.fixtureGetData();
+      const size = rect.width / width;
+      return { x: rect.left + (index - 2.5 - x) * size, y: rect.top + (y + height - 2.5) * size };
+    }, index);
+    const overlayAlpha = async index => page.locator('.GridEditor__networks').evaluate((canvas, { point, index }) => {
+      const rect = canvas.getBoundingClientRect();
+      const offset = index === 1 ? 7 / 32 * document.querySelector('.GridEditor__canvas').getBoundingClientRect().width / window.fixtureGetData().width : 0;
+      return canvas.getContext('2d').getImageData(Math.floor(point.x - rect.left - offset), Math.floor(point.y - rect.top + offset), 1, 1).data[3];
+    }, { point: await visibilityPoint(index), index });
+    await openPanel(page, 'Слои');
+    const groups = [['Провода', [0]], ['Газовые трубы', [1, 5]], ['Трубы мусоросброса', [2, 6]], ['Спавн-маркеры', [3]]];
+    for (const [name, indices] of groups) {
+      if (indices[0] < 3) assert.ok(await overlayAlpha(indices[0]));
+      await page.getByRole('checkbox', { name, exact: true }).uncheck();
+      for (const index of indices) visible[index] = false;
+      await waitForVisibility(visible);
+      if (indices[0] < 3) assert.equal(await overlayAlpha(indices[0]), 0);
+    }
+    await page.getByRole('checkbox', { name: 'Полы', exact: true }).uncheck();
+    await page.getByRole('button', { name: 'Закрыть панель', exact: true }).click();
+    const first = await visibilityPoint(0), last = await visibilityPoint(6);
+    await page.mouse.click(first.x, first.y, { button: 'right' });
+    assert.match(await page.getByRole('dialog', { name: 'Меню клетки' }).innerText(), /Пустая клетка/);
+    await page.keyboard.press('Escape');
+    await page.keyboard.down('s');
+    await page.mouse.move(first.x, first.y);
+    await page.mouse.down();
+    await page.mouse.move(last.x, last.y, { steps: 8 });
+    await page.mouse.up();
+    await page.keyboard.up('s');
+    assert.match(await page.locator('.GridEditor__properties').textContent(), /Выбрано: 1/);
+    await page.keyboard.press('d');
+    visible[4] = false;
+    await waitForVisibility(visible);
+    await openPanel(page, 'Слои');
+    for (const [name, indices] of groups) {
+      await page.getByRole('checkbox', { name, exact: true }).check();
+      for (const index of indices) visible[index] = true;
+    }
+    await waitForVisibility(visible);
+    assert.match(await page.locator('header').innerText(), /1 изменений/);
+    report.visibilityLayers = { independent: true, networkOverlay: true, hiddenItemsProtected: true };
+
     await page.goto(url+'/');
     await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
     if(process.env.GRID_EDITOR_SELECT_ONLY){assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'select-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;}
@@ -300,13 +385,33 @@ GridSceneCache.prototype.prepare = async function(...args) {
       }
       check(nativeSpriteDifferences<10,'Native sprite origin/size differs from engine coordinates: '+nativeSpriteDifferences);
 
+      const svg = fill => 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect x="3" y="3" width="8" height="8" fill="' + fill + '"/></svg>');
+      const red = svg('#ff0000'), green = svg('#00ff00'), blue = svg('#0000ff');
+      const directionCache = new GridSceneCache(()=>{});
+      const pipe = {id:'pipe',kind:'entity',prototype:'Pipe',x:.5,y:.5,rotation:90,pipeLayer:0};
+      const pipeVisuals = new Map([['entity:Pipe',{images:[{...lampVisual.images[0],width:32,height:32,m32:0,
+        url:red,frames:[{url:green},{url:red},{url:red}],pipeFrames:[{layer:1,width:32,height:32,url:red,frames:[{url:blue},{url:red},{url:red}]}]}]}]]);
+      const pipeIndex = model.indexItems([pipe]);
+      await directionCache.prepare(pipeIndex,layers,pipeVisuals,()=>{},()=>false);
+      const pipePixel = async () => {
+        const chunk = directionCache.chunks.get('0:0');
+        const canvas = document.createElement('canvas');canvas.width=canvas.height=512;
+        const texture = await createImageBitmap(chunk.blob);
+        const context = canvas.getContext('2d');context.drawImage(texture,0,0);texture.close();
+        return [...context.getImageData(5,485,1,1).data].join(',');
+      };
+      check(await pipePixel() === '0,255,0,255','Map rotated the south frame instead of drawing the authored east frame');
+      await directionCache.prepare(model.updateItemIndex(pipeIndex,[{...pipe,pipeLayer:1}]),layers,pipeVisuals,()=>{},()=>false);
+      check(await pipePixel() === '0,0,255,255','Changing only the pipe layer did not refresh its sprite');
+      directionCache.dispose();
+
       await cache.prepare(model.indexItems(removal),{...layers,tile:false},visuals,onProgress,()=>false);
       check(cache.chunks.size===0,'Hidden layers retained chunks');
       const before=cache.stats.rasterized;
       await cache.prepare(model.indexItems(small),layers,visuals,onProgress,()=>true);
       check(cache.stats.rasterized===before,'Cancelled preparation rasterized map');
       cache.dispose();check(cache.chunks.size===0&&cache.details.size===0,'Cache not released');
-      return {initialChunks:count,changedChunks:2,progressUpdates:progress,rotatedBoundaryChunks:crossings.length,pixelDifferences,nativeSpriteDifferences,cancelledAndDisposed:true};
+      return {initialChunks:count,changedChunks:2,progressUpdates:progress,rotatedBoundaryChunks:crossings.length,pixelDifferences,nativeSpriteDifferences,directionalPipeFrames:true,cancelledAndDisposed:true};
     });
     await page.goto(url+'/');
     await page.waitForSelector('.GridEditor__loading',{state:'hidden',timeout:60000});
@@ -425,6 +530,13 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await page.getByRole('button',{name:'Трассу в черновик · Enter',exact:true}).click();
     await page.getByRole('button',{name:'Применить',exact:true}).click();
     await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='GasPipeBend'));
+    const gasPoint=await point(2,0);
+    await page.mouse.click(gasPoint.x,gasPoint.y);
+    await page.getByRole('button',{name:'Цвет pipenet',exact:true}).click();
+    await setPaletteHex('#205080');
+    await page.getByRole('button',{name:'Покрасить pipenet в черновике',exact:true}).click();
+    await page.getByRole('button',{name:'Применить',exact:true}).click();
+    await page.waitForFunction(()=>window.fixtureGetData().items.some(i=>i.prototype==='GasPipeBend'&&i.color==='#205080ff'));
     await selectOption('Режим трассы','Мусоросброс');
     for(const [x,y]of [[-3,-1],[-1,1]]){const p=await point(x,y);await page.mouse.click(p.x,p.y);}
     assert.equal(await page.getByRole('button',{name:/Точка трассы/}).count(),5);
@@ -593,7 +705,8 @@ GridSceneCache.prototype.prepare = async function(...args) {
     await openCatalog(page);await page.getByRole('button',{name:'Декали',exact:true}).click();await openPanel(page,'Слои');
     await page.getByRole('button',{name:'Выделить слой',exact:true}).click();
     assert.match(await page.locator('.GridEditor__properties').textContent(),/Выбрано: 1/);
-    await page.getByLabel('Цвет декали',{exact:true}).fill('#2080a0');
+    await page.getByRole('button',{name:'Цвет декали',exact:true}).click();
+    await setPaletteHex('#2080a0');
     await page.getByRole('button',{name:'Применить',exact:true}).click();
     await page.waitForFunction(()=>window.fixtureGetData().items.find(item=>item.id==='d:layer0')?.color==='#2080a080');
     assert.deepEqual(await page.evaluate(()=>window.fixtureGetData().items.filter(item=>item.kind!=='decal')),originalWorld);

@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { ColorSquare } from '../components/PlayerColorPicker';
 import { GridEditorSelect } from './GridEditorSelect';
 import { buildRoute, deleteRoutePoint, insertRoutePoint, installRouteDevice, moveRoutePoint, pipePorts, readRoute, routeCells, routeProfile, routeProfiles, routePrototypes } from './gridEditorRouting.mjs';
 
@@ -114,7 +115,7 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     </>}
     {(!!graph.nodes.length||!!graph.source.length)&&<>
       {profile.kind==='gas'&&!!graph.source.length&&<>
-        <label>Цвет pipenet <input type="color" aria-label="Цвет pipenet" value={networkColor} disabled={locked} onChange={e=>setNetworkColor(e.target.value)}/></label>
+        <ColorSquare label="Цвет pipenet" value={networkColor} disabled={locked} onChange={setNetworkColor} />
         <button disabled={locked} onClick={paintNetwork}>Покрасить pipenet в черновике</button>
       </>}
       <span>Точек: {cells.length} · клеток: {cells.length}</span>
@@ -127,10 +128,10 @@ export function useGridEditorRoutes({token, act, items, area, nextId, commit, fa
     capped,previewItems:makeId=>buildRoute(items,graph,profile,graph.source,makeId,capped),canUndo:!!history.length,canRedo:!!future.length,editing:!!graph.nodes.length||!!graph.source.length,dragging:()=>!!drag.current};
 }
 
-export const GridEditorNetworks=memo(({items,area,view,cellSize})=>{
+export const GridEditorNetworks=memo(({items,layers,area,view,cellSize})=>{
   const canvas=useRef(null);
   const networks=useMemo(()=>{
-    const entries=items.map(item=>({item,profile:routeProfile(item)})).filter(e=>e.profile);
+    const entries=items.map(item=>({item,profile:routeProfile(item)})).filter(({profile})=>profile && layers[profile.kind] !== false);
     const keys=new Set(entries.map(({item,profile})=>`${profile.id}:${Math.floor(item.x)}:${Math.floor(item.y)}`));
     return entries.map(({item,profile})=>{
       let mask=pipePorts(item,profile);
@@ -138,11 +139,12 @@ export const GridEditorNetworks=memo(({items,area,view,cellSize})=>{
         if(keys.has(`${profile.id}:${Math.floor(item.x)+dx}:${Math.floor(item.y)+dy}`))mask|=bit;}
       return {item,profile,mask};
     });
-  },[items]);
+  },[items,layers]);
   useEffect(()=>{
     const ctx=canvas.current.getContext('2d');ctx.clearRect(0,0,view.width,view.height);
     for(const {item,profile,mask} of networks){
-      const x=(item.x-area.x)*cellSize-view.left,y=(area.y+area.height-item.y)*cellSize-view.top;
+      const pipeOffset = (profile.pipeOffset || 0) * cellSize;
+      const x=(item.x-area.x)*cellSize-view.left+pipeOffset,y=(area.y+area.height-item.y)*cellSize-view.top-pipeOffset;
       if(x< -cellSize||y< -cellSize||x>view.width+cellSize||y>view.height+cellSize)continue;
       const offset=(profile.id==='mv'?-1:profile.id==='lv'?1:0)*Math.min(4,cellSize/8);
       const color=profile.kind==='gas'&&item.color&&!/^#ffffff(ff)?$/i.test(item.color)?item.color:profile.color;
@@ -160,7 +162,8 @@ export const GridEditorNetworks=memo(({items,area,view,cellSize})=>{
 
 export function GridEditorRouteHandles({route,area,view,cellSize,locked}) {
   const canvas=useRef(null);
-  const position=p=>({x:(p.x+.5-area.x)*cellSize-view.left,y:(area.y+area.height-p.y-.5)*cellSize-view.top});
+  const pipeOffset = (route.profile.pipeOffset || 0) * cellSize;
+  const position=p=>({x:(p.x+.5-area.x)*cellSize-view.left+pipeOffset,y:(area.y+area.height-p.y-.5)*cellSize-view.top-pipeOffset});
   const nodes=useMemo(()=>new Map(route.graph.nodes.map(node=>[`${node.x}:${node.y}`,node])),[route.graph.nodes]);
   const cells=useMemo(()=>new Map(route.cells.map(cell=>[`${cell.x}:${cell.y}`,cell])),[route.cells]);
   useEffect(()=>{
@@ -171,7 +174,7 @@ export function GridEditorRouteHandles({route,area,view,cellSize,locked}) {
       ctx.beginPath();for(const [dx,dy,bit]of [[0,-1,1],[0,1,2],[-1,0,4],[1,0,8]])if(cell.mask&bit){ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+dx*cellSize/2,p.y+dy*cellSize/2);}ctx.stroke();
       ctx.beginPath();ctx.arc(p.x,p.y,Math.max(1,Math.min(4,cellSize/6)),0,Math.PI*2);ctx.fill();
     }
-  },[route.cells,route.profile.color,area,view,cellSize]);
+  },[route.cells,route.profile.color,pipeOffset,area,view,cellSize]);
   const hit=event=>{
     const rect=event.currentTarget.getBoundingClientRect();
     const cell={x:Math.floor(area.x+(view.left+event.clientX-rect.left)/cellSize),y:Math.floor(area.y+area.height-(view.top+event.clientY-rect.top)/cellSize)};

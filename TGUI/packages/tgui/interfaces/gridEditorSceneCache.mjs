@@ -1,6 +1,6 @@
 import { tintSprite } from './gridEditorTint.mjs';
 import { spriteBounds, spriteLayers } from './gridEditorSprites.mjs';
-import { drawOrder } from './gridEditorModel.mjs';
+import { drawOrder, visibleItem } from './gridEditorModel.mjs';
 
 export const CHUNK_CELLS = 16;
 const PIXELS = 32;
@@ -11,7 +11,7 @@ const surface = size => {
   return canvas;
 };
 const visualKey = item => `${item.kind}:${item.prototype}`;
-const fields = ['id', 'kind', 'prototype', 'x', 'y', 'rotation', 'mirror', 'variant', 'flags', 'color', 'z'];
+const fields = ['id', 'kind', 'prototype', 'x', 'y', 'rotation', 'mirror', 'variant', 'flags', 'color', 'z', 'pipeLayer'];
 const sameItems = (a, b) => a.length === b.length && a.every((item, i) =>
   item === b[i] || fields.every(field => item[field] === b[i][field]));
 const release = chunk => {
@@ -106,22 +106,24 @@ export class GridSceneCache {
       if (!stopped()) { this.clearTints(); this.prepared = { index, layers, visuals }; progress(null); this.invalidate(); }
       return;
     }
-    const groups = new Map(), definitions = new Map();
+    const groups = new Map(), definitions = new Map(), urls = new Set();
     let processed = 0, deadline = performance.now() + 6;
     progress({ label: 'Подготовка элементов', done: 0, total: index.order.size });
     await yieldFrame();
     for (const bucket of index.values()) for (const item of bucket) {
       if (stopped()) return;
-      if (layers[item.kind]) {
-        const key = visualKey(item);
+      const key = visualKey(item);
+      const visual = visuals.get(key);
+      if (visibleItem(item, layers, visual)) {
         if (!definitions.has(key)) {
-          const visual = visuals.get(key);
-          const signature = JSON.stringify([visual?.drawDepth, visual?.allowRotationMirror, visual?.noRotation, visual?.images]);
+          const signature = JSON.stringify([visual?.drawDepth, visual?.allowRotationMirror, visual?.noRotation,
+            visual?.snapCardinals, visual?.directionBias, visual?.pipeColor, visual?.images]);
           if (this.definitions.get(key)?.signature !== signature)
             this.definitions.set(key, { signature, revision: ++this.revision });
           definitions.set(key, this.definitions.get(key).revision);
         }
-        for (const [x, y] of itemChunks(item,visuals.get(visualKey(item)))) {
+        for (const { image } of spriteLayers(item, visual)) if (image.url) urls.add(image.url);
+        for (const [x, y] of itemChunks(item, visual)) {
           const key = `${x}:${y}`;
           if (!groups.has(key)) groups.set(key, { x, y, items: [] });
           groups.get(key).items.push(item);
@@ -136,8 +138,6 @@ export class GridSceneCache {
     // Include the mip pyramid in the 32 MiB overview budget. Empty space costs no textures.
     let overview = 8;
     while (overview > 1 && groups.size * (CHUNK_CELLS * overview) ** 2 * 4 * 4 / 3 > 32 * 1024 * 1024) overview /= 2;
-    const urls = new Set();
-    for (const key of definitions.keys()) for (const { url } of visuals.get(key)?.images || []) if (url) urls.add(url);
     const sources = new Map(); let loaded = 0;
     progress({ label: 'Загрузка спрайтов', done: 0, total: urls.size });
     const queue = [...urls];
@@ -192,7 +192,8 @@ export class GridSceneCache {
   async prepareChanged(index, layers, visuals, progress, stopped) {
     const dirty = new Map();
     for (const { old, item } of index.changed) {
-      if (!layers[item.kind] && !layers[old.kind]) continue;
+      if (!visibleItem(item, layers, visuals.get(visualKey(item))) &&
+          !visibleItem(old, layers, visuals.get(visualKey(old)))) continue;
       if (!this.definitions.has(visualKey(item))) return false;
       for (const value of [old, item]) for (const [x, y] of itemChunks(value, visuals.get(visualKey(value))))
         dirty.set(`${x}:${y}`, { x, y, items: [] });
@@ -205,14 +206,16 @@ export class GridSceneCache {
       const radius = index.radius || 2;
       for (let x = group.x * CHUNK_CELLS - radius; x < (group.x + 1) * CHUNK_CELLS + radius; x++)
         for (let y = group.y * CHUNK_CELLS - radius; y < (group.y + 1) * CHUNK_CELLS + radius; y++)
-          for (const item of index.get(`${x}:${y}`) || [])
-            if (layers[item.kind] && itemChunks(item, visuals.get(visualKey(item))).some(([cx, cy]) => cx === group.x && cy === group.y)) group.items.push(item);
+          for (const item of index.get(`${x}:${y}`) || []) {
+            const visual = visuals.get(visualKey(item));
+            if (visibleItem(item, layers, visual) && itemChunks(item, visual).some(([cx, cy]) => cx === group.x && cy === group.y)) group.items.push(item);
+          }
       group.items.sort((a, b) => drawOrder(a, visuals.get(visualKey(a))) - drawOrder(b, visuals.get(visualKey(b))) || index.order.get(a.id) - index.order.get(b.id));
       const previous = this.chunks.get(key);
       if (previous && sameItems(previous.items, group.items)) continue;
       const sources = new Map();
-      for (const item of group.items) for (const { url } of visuals.get(visualKey(item))?.images || [])
-        if (url && !sources.has(url)) sources.set(url, await this.load(url));
+      for (const item of group.items) for (const { image } of spriteLayers(item, visuals.get(visualKey(item))))
+        if (image.url && !sources.has(image.url)) sources.set(image.url, await this.load(image.url));
       if (stopped()) return true;
       const chunk = group.items.length ? await this.bake(group, visuals, sources, overview, stopped) : null;
       if (stopped()) { if (chunk) release(chunk); return true; }

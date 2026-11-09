@@ -181,10 +181,10 @@ public sealed partial class SalvageSystem
         while (query.MoveNext(out var uid, out var comp))
         {
             // Update offers
-            if (comp.NextOffer > currentTime || comp.Claimed)
+            if (!comp.Enabled || comp.NextOffer > currentTime || comp.Claimed)
                 continue;
 
-            if (!HasComp<FTLComponent>(_station.GetLargestGrid((uid, Comp<StationDataComponent>(uid))))) // Frontier
+            if (!HasComp<FTLComponent>(GetExpeditionDepartureGrid(uid))) // Frontier
                 comp.Cooldown = false;
             //comp.NextOffer += TimeSpan.FromSeconds(_cooldown); // Frontier
             comp.NextOffer = currentTime + TimeSpan.FromSeconds(_cooldown); // Frontier
@@ -315,6 +315,9 @@ public sealed partial class SalvageSystem
 
     private SalvageExpeditionConsoleState GetState(SalvageExpeditionDataComponent component)
     {
+        if (!component.Enabled)
+            return new SalvageExpeditionConsoleState(TimeSpan.Zero, false, true, false, 0, []);
+
         var missions = component.Missions.Values.ToList();
         //return new SalvageExpeditionConsoleState(component.NextOffer, component.Claimed, component.Cooldown, component.ActiveMission, missions);
         return new SalvageExpeditionConsoleState(component.NextOffer, component.Claimed, component.Cooldown, component.CanFinish, component.ActiveMission, missions); // Frontier
@@ -334,7 +337,6 @@ public sealed partial class SalvageSystem
             _weather,
             _dungeon,
             _shuttle,
-            _station,
             _metaData,
             this,
             _transform,
