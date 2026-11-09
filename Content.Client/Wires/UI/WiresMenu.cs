@@ -426,35 +426,25 @@ namespace Content.Client.Wires.UI
                     var colorValue = _color.ColorValue();
                     var tex = _resourceCache.GetTexture(_isCut ? TextureCut[_type] : TextureNormal[_type]);
 
-                    var l = 0f;
-                    var r = tex.Width + l;
-                    var t = 0f;
-                    var b = tex.Height + t;
-
-                    if (_flip)
+                    var rect = UIBox2.FromDimensions(0, 0, tex.Width * UIScale, tex.Height * UIScale);
+                    var transform = handle.GetTransform();
+                    // UIBox2 clamps reversed edges. Reflect the draw transform around the wire instead.
+                    var reflection = Matrix3x2.CreateScale(_mirror ? -1f : 1f, _flip ? -1f : 1f, rect.Center);
+                    handle.SetTransform(reflection * transform);
+                    try
                     {
-                        (t, b) = (b, t);
-                    }
+                        if (_isCut)
+                        {
+                            var copperTex = _resourceCache.GetTexture(TextureCopper[_type]);
+                            handle.DrawTextureRect(copperTex, rect, Color.Orange);
+                        }
 
-                    if (_mirror)
+                        handle.DrawTextureRect(tex, rect, colorValue);
+                    }
+                    finally
                     {
-                        (l, r) = (r, l);
+                        handle.SetTransform(transform);
                     }
-
-                    l *= UIScale;
-                    r *= UIScale;
-                    t *= UIScale;
-                    b *= UIScale;
-
-                    var rect = new UIBox2(l, t, r, b);
-                    if (_isCut)
-                    {
-                        var copper = Color.Orange;
-                        var copperTex = _resourceCache.GetTexture(TextureCopper[_type]);
-                        handle.DrawTextureRect(copperTex, rect, copper);
-                    }
-
-                    handle.DrawTextureRect(tex, rect, colorValue);
                 }
             }
         }
