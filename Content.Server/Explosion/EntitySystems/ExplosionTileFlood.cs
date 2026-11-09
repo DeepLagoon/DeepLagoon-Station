@@ -128,16 +128,17 @@ public abstract class ExplosionTileFlood
 /// </remarks>
 public sealed class UniqueVector2iSet
 {
-    private const int ChunkSize = 32; // # of bits in an integer.
+    private const int ChunkShift = 5;
+    private const int ChunkSize = 1 << ChunkShift; // # of bits in an integer.
+    private const int ChunkMask = ChunkSize - 1;
 
     private Dictionary<Vector2i, VectorChunk> _chunks = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2i ToChunkIndices(Vector2i indices)
     {
-        var x = (int) Math.Floor(indices.X / (float) ChunkSize);
-        var y = (int) Math.Floor(indices.Y / (float) ChunkSize);
-        return new Vector2i(x, y);
+        // Signed shifts round down, including for negative tile coordinates.
+        return new Vector2i(indices.X >> ChunkShift, indices.Y >> ChunkShift);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -174,8 +175,8 @@ public sealed class UniqueVector2iSet
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Add(Vector2i index)
         {
-            var x = MathHelper.Mod(index.X, ChunkSize);
-            var y = MathHelper.Mod(index.Y, ChunkSize);
+            var x = index.X & ChunkMask;
+            var y = index.Y & ChunkMask;
 
             var oldFlags = _tiles[x];
             var newFlags = oldFlags | (1 << y);
@@ -190,8 +191,8 @@ public sealed class UniqueVector2iSet
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(Vector2i index)
         {
-            var x = MathHelper.Mod(index.X, ChunkSize);
-            var y = MathHelper.Mod(index.Y, ChunkSize);
+            var x = index.X & ChunkMask;
+            var y = index.Y & ChunkMask;
             return (_tiles[x] & (1 << y)) != 0;
         }
     }

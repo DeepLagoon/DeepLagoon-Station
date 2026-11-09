@@ -1,4 +1,6 @@
 #nullable enable
+using Content.Server.Destructible;
+using Content.Server.Materials;
 using Content.Server.Stack;
 using Content.Shared.Stacks;
 using Content.Shared.Materials;
@@ -16,6 +18,60 @@ namespace Content.IntegrationTests.Tests.Materials
     [TestOf(typeof(MaterialPrototype))]
     public sealed class MaterialPrototypeSpawnsStackMaterialTest
     {
+        [Test]
+        public async Task DestructionSpillsMaterialsAcrossTicksAfterGridDeletion()
+        {
+            await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+            var server = pair.Server;
+            var em = server.EntMan;
+            var testMap = await pair.CreateTestMap();
+            var transform = server.System<SharedTransformSystem>();
+            var materials = server.System<MaterialStorageSystem>();
+            var destructible = server.System<DestructibleSystem>();
+            var prototypes = server.ResolveDependency<IPrototypeManager>();
+            const string materialId = "Steel";
+            var material = prototypes.Index<MaterialPrototype>(materialId);
+            var prototype = material.StackEntity!.Value;
+            var stackLimit = server.System<StackSystem>().GetMaxCount(prototype);
+            Assert.That(prototypes.Index(prototype).TryComp<PhysicalCompositionComponent>(out var composition, em.ComponentFactory), Is.True);
+            var perSheet = composition!.MaterialComposition[materialId];
+            var sheets = stackLimit * 72 + 3;
+
+            (int Stacks, int Sheets) CountSpill()
+            {
+                var stacks = 0;
+                var total = 0;
+                var query = em.EntityQueryEnumerator<StackComponent, MetaDataComponent, TransformComponent>();
+                while (query.MoveNext(out _, out var stack, out var meta, out var xform))
+                {
+                    if (meta.EntityPrototype?.ID != prototype.Id || xform.MapID != testMap.MapId)
+                        continue;
+
+                    Assert.That(stack.Count, Is.InRange(1, stackLimit));
+                    total += stack.Count;
+                    stacks++;
+                }
+
+                return (stacks, total);
+            }
+
+            await server.WaitAssertion(() =>
+            {
+                var silo = em.SpawnEntity("MachineMaterialSilo", testMap.GridCoords);
+                Assert.That(materials.TryChangeMaterialAmount(silo, materialId, sheets * perSheet, localOnly: true), Is.True);
+                Assert.That(transform.GetMapCoordinates(silo).MapId, Is.EqualTo(testMap.MapId));
+                destructible.DestroyEntity(silo);
+                Assert.That(CountSpill(), Is.EqualTo((0, 0)));
+                em.DeleteEntity(testMap.Grid.Owner);
+            });
+
+            await server.WaitRunTicks(1);
+            await server.WaitAssertion(() => Assert.That(CountSpill().Stacks, Is.InRange(1, 64)));
+            await server.WaitRunTicks(90);
+            await server.WaitAssertion(() => Assert.That(CountSpill(), Is.EqualTo((73, sheets))));
+            await pair.CleanReturnAsync();
+        }
+
         [Test]
         public async Task MaterialPrototypeSpawnsStackMaterial()
         {
