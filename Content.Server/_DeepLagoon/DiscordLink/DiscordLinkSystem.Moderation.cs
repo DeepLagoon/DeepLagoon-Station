@@ -45,8 +45,11 @@ public sealed partial class DiscordLinkSystem
             request = count > 32768 ? null : JsonSerializer.Deserialize<ModerationRequest>(buffer.AsSpan(0, count));
         }
         catch (JsonException) { request = null; }
-        if (request == null || !Guid.TryParse(request.Uid, out var uid) ||
-            !Guid.TryParse(request.ActorUid, out var actorUid) || uid == Guid.Empty || actorUid == Guid.Empty)
+        var banSync = request?.Operation is "permanent_bans" or "permanent_ban_links";
+        var uid = Guid.Empty;
+        var actorUid = Guid.Empty;
+        if (request == null || !banSync && (!Guid.TryParse(request.Uid, out uid) ||
+            !Guid.TryParse(request.ActorUid, out actorUid) || uid == Guid.Empty || actorUid == Guid.Empty))
         {
             await context.RespondJsonAsync(new { error = "invalid_request" }, HttpStatusCode.BadRequest);
             return true;
@@ -58,7 +61,9 @@ public sealed partial class DiscordLinkSystem
         }
         try
         {
-            var result = await OnMainThread(() => Moderate(request, new NetUserId(uid), new NetUserId(actorUid)));
+            var result = await OnMainThread(() => banSync
+                ? ReadPermanentBanState(request)
+                : Moderate(request, new NetUserId(uid), new NetUserId(actorUid)));
             await context.RespondJsonAsync(result.Body, result.Status);
         }
         catch (Exception e)
@@ -72,6 +77,30 @@ public sealed partial class DiscordLinkSystem
 
     private static ApiResult ModerationError(string error)
         => new(HttpStatusCode.Conflict, new { error });
+
+    // Machine reads under the loopback moderation key. Only account IDs and
+    // their current Discord links are needed to reconcile roles.
+    private async Task<ApiResult> ReadPermanentBanState(ModerationRequest request)
+    {
+        if (!_enabled || _store == null)
+            return new ApiResult(HttpStatusCode.ServiceUnavailable, new { error = "unavailable" });
+
+        if (request.Operation == "permanent_bans")
+            return new ApiResult(HttpStatusCode.OK, new { uids = await _database.GetActivePermanentBanUsersAsync() });
+
+        if (request.Uids is not { Length: > 0 and <= 100 } uids)
+            return new ApiResult(HttpStatusCode.BadRequest, new { error = "invalid_request" });
+
+        var links = new Dictionary<Guid, string>();
+        foreach (var value in uids)
+        {
+            if (!Guid.TryParseExact(value, "D", out var uid) || uid == Guid.Empty)
+                return new ApiResult(HttpStatusCode.BadRequest, new { error = "invalid_request" });
+            if (_store.FindDiscordId(uid) is {} discordId)
+                links[uid] = discordId;
+        }
+        return new ApiResult(HttpStatusCode.OK, new { links });
+    }
 
     private async Task<ApiResult> Moderate(ModerationRequest request, NetUserId uid, NetUserId actor)
     {
@@ -338,5 +367,5 @@ public sealed partial class DiscordLinkSystem
         string? Message = null, uint Minutes = 0, string Severity = "Medium", string? Job = null,
         int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null,
         string? Flag = null, string? Mode = null, string? Template = null,
-        string? ActorStaffRole = null, string? StaffApplicationId = null);
+        string? ActorStaffRole = null, string? StaffApplicationId = null, string[]? Uids = null);
 }
