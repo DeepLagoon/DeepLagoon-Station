@@ -25014,4 +25014,100 @@ Entries:
     id: 2843
     time: '2026-11-09T05:09:37.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/43
-GeneratedThrough: '2026-11-09T05:09:37.000Z'
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Замедленные персонажи снова скользят при беге по скользким предметам и лужам.
+    id: 2844
+    time: '2026-11-09T05:09:50.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/42
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          В крио сохраняются сытость и оставшееся время эффектов. После возвращения симуляция
+          возобновляется.
+    id: 2845
+    time: '2026-11-09T05:09:58.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/41
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Админское лечение Rejuvenate полностью пробуждает персонажа и восстанавливает управление.
+    id: 2846
+    time: '2026-11-09T05:10:12.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/40
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Ящики получают приоритет при наведении и клике в зоне пересечения со спрайтом персонажа.
+    id: 2847
+    time: '2026-11-09T05:10:22.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/39
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Восстановлено отображение эффекта невидимости после обновления движка.
+    id: 2848
+    time: '2026-11-09T05:10:29.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/38
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Речь и шёпот персонажей получили позиционное озвучивание барками. В редакторе персонажа
+          можно выбрать и настроить голос из каталога.
+    id: 2849
+    time: '2026-11-09T05:10:38.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/37
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Station добавляет защищённые операции просмотра статуса, банов и вотчлистов игрока и
+          записи одобренного вотчлиста через Discord-бота.
+    id: 2850
+    time: '2026-11-09T05:10:49.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/36
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Station передаёт Discord-боту данные о действующих бессрочных банах для синхронизации
+          ролей.
+    id: 2851
+    time: '2026-11-09T05:10:52.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/35
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Инфоэкран экспедиции показывает ожидаемую награду и сообщает о фактической выдаче спесо
+          или телекристаллов.
+    id: 2852
+    time: '2026-11-09T05:11:22.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/29
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: >-
+          Разгон и предельная скорость шаттлов зависят от массы и тира двигателей. У лёгких и
+          средних шаттлов двигатели T5+ повышают предел скорости без дальнейшего роста разгона.
+    id: 2853
+    time: '2026-11-09T05:11:34.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/28
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Космические обломки видны на ближнем радаре и не отображаются на общей карте сектора.
+    id: 2854
+    time: '2026-11-09T05:11:44.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/27
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: Телепортация через Orbit доступна только активным администраторам.
+    id: 2855
+    time: '2026-11-09T05:11:54.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/26
+GeneratedThrough: '2026-11-09T05:11:54.000Z'
