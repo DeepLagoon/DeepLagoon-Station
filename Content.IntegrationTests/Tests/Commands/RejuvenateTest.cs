@@ -1,10 +1,15 @@
 ﻿using Content.Server.Administration.Commands;
 using Content.Server.Administration.Systems;
+using Content.Shared.ActionBlocker;
+using Content.Shared.Bed.Sleep;
+using Content.Shared.Buckle;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.FixedPoint;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
+using Content.Shared.StatusEffect;
+using Content.Shared.Stunnable;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
@@ -31,6 +36,67 @@ namespace Content.IntegrationTests.Tests.Commands
       0: Alive
       200: Dead
 ";
+
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public async Task RejuvenateSleepingTest(bool forced, bool inBed)
+        {
+            await using var pair = await PoolManager.GetServerClient();
+            var map = await pair.CreateTestMap();
+            var server = pair.Server;
+            var entities = server.EntMan;
+            var sleeping = entities.System<SleepingSystem>();
+            var buckle = entities.System<SharedBuckleSystem>();
+            var blocker = entities.System<ActionBlockerSystem>();
+            var human = EntityUid.Invalid;
+
+            await server.WaitAssertion(() =>
+            {
+                human = entities.SpawnEntity("MobHuman", map.GridCoords);
+                if (inBed)
+                {
+                    var bed = entities.SpawnEntity("Bed", map.GridCoords);
+                    Assert.That(buckle.TryBuckle(human, human, bed), Is.True);
+                }
+            });
+
+            if (inBed)
+                await pair.RunTicksSync(30);
+
+            await server.WaitAssertion(() =>
+            {
+                if (forced)
+                {
+                    var status = entities.System<StatusEffectsSystem>();
+                    Assert.That(status.TryAddStatusEffect<ForcedSleepingComponent>(
+                        human, "ForcedSleep", TimeSpan.FromMinutes(1), false), Is.True);
+                }
+                else
+                {
+                    Assert.That(sleeping.TrySleeping(human), Is.True);
+                }
+
+                Assert.That(entities.HasComponent<SleepingComponent>(human), Is.True);
+                Assert.That(blocker.CanMove(human), Is.False);
+
+                entities.System<RejuvenateSystem>().PerformRejuvenate(human);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(entities.HasComponent<SleepingComponent>(human), Is.False);
+                    Assert.That(entities.HasComponent<ForcedSleepingComponent>(human), Is.False);
+                    Assert.That(entities.HasComponent<KnockedDownComponent>(human), Is.False);
+                });
+
+                if (inBed)
+                    Assert.That(buckle.TryUnbuckle(human, human), Is.True);
+
+                Assert.That(blocker.CanMove(human), Is.True);
+            });
+
+            await pair.CleanReturnAsync();
+        }
 
         [Test]
         public async Task RejuvenateDeadTest()
