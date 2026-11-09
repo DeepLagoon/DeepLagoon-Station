@@ -17,6 +17,7 @@ namespace Content.Shared.Nutrition.EntitySystems;
 public sealed partial class HungerSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private AlertsSystem _alerts = default!;
@@ -75,7 +76,7 @@ public sealed partial class HungerSystem : EntitySystem
     /// </summary>
     public float GetHunger(HungerComponent component)
     {
-        var dt = _timing.CurTime - component.LastAuthoritativeHungerChangeTime;
+        var dt = _timing.CurTime - _metadata.GetPauseTime(component.Owner) - component.LastAuthoritativeHungerChangeTime;
         var value = component.LastAuthoritativeHungerValue - (float)dt.TotalSeconds * component.ActualDecayRate;
         return ClampHungerWithinThresholds(component, value);
     }
@@ -117,7 +118,7 @@ public sealed partial class HungerSystem : EntitySystem
     /// <param name="value">The value to set the entity's hunger to.</param>
     private void SetAuthoritativeHungerValue(Entity<HungerComponent> entity, float value)
     {
-        entity.Comp.LastAuthoritativeHungerChangeTime = _timing.CurTime;
+        entity.Comp.LastAuthoritativeHungerChangeTime = _timing.CurTime - _metadata.GetPauseTime(entity.Owner);
         entity.Comp.LastAuthoritativeHungerValue = ClampHungerWithinThresholds(entity.Comp, value);
         DirtyField(entity.Owner, entity.Comp, nameof(HungerComponent.LastAuthoritativeHungerChangeTime));
     }

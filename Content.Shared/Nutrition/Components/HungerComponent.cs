@@ -26,7 +26,7 @@ public sealed partial class HungerComponent : Component
     /// The time at which <see cref="LastAuthoritativeHungerValue"/> was last updated.
     /// </summary>
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), ViewVariables(VVAccess.ReadWrite)]
-    [AutoNetworkedField]
+    [AutoNetworkedField, AutoPausedField]
     public TimeSpan LastAuthoritativeHungerChangeTime;
 
     /// <summary>

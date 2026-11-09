@@ -12,6 +12,7 @@ namespace Content.Shared.StatusEffect
     {
         [Dependency] private IPrototypeManager _prototypeManager = default!;
         [Dependency] private IGameTiming _gameTiming = default!;
+        [Dependency] private MetaDataSystem _metadata = default!;
         [Dependency] private AlertsSystem _alertsSystem = default!;
         private List<EntityUid> _toRemove = new();
 
@@ -24,6 +25,7 @@ namespace Content.Shared.StatusEffect
             SubscribeLocalEvent<StatusEffectsComponent, ComponentGetState>(OnGetState);
             SubscribeLocalEvent<StatusEffectsComponent, ComponentHandleState>(OnHandleState);
             SubscribeLocalEvent<StatusEffectsComponent, RejuvenateEvent>(OnRejuvenate);
+            SubscribeLocalEvent<StatusEffectsComponent, EntityUnpausedEvent>(OnUnpaused);
         }
 
         public override void Update(float frameTime)
@@ -92,6 +94,20 @@ namespace Content.Shared.StatusEffect
         private void OnRejuvenate(EntityUid uid, StatusEffectsComponent component, RejuvenateEvent args)
         {
             TryRemoveAllStatusEffects(uid, component);
+        }
+
+        private void OnUnpaused(Entity<StatusEffectsComponent> ent, ref EntityUnpausedEvent args)
+        {
+            if (ent.Comp.ActiveEffects.Count == 0)
+                return;
+
+            foreach (var effect in ent.Comp.ActiveEffects.Values)
+            {
+                var (start, end) = effect.Cooldown;
+                effect.Cooldown = (start + args.PausedTime, end + args.PausedTime);
+            }
+
+            Dirty(ent);
         }
 
         /// <summary>
@@ -178,7 +194,9 @@ namespace Content.Shared.StatusEffect
             // is fine
             var proto = _prototypeManager.Index<StatusEffectPrototype>(key);
 
-            var start = startTime ?? _gameTiming.CurTime;
+            var pauseTime = _metadata.GetPauseTime(uid);
+            var now = _gameTiming.CurTime;
+            var start = (startTime ?? now) - pauseTime;
             (TimeSpan, TimeSpan) cooldown = (start, start + time);
 
             if (HasStatusEffect(uid, key, status))
@@ -187,7 +205,7 @@ namespace Content.Shared.StatusEffect
                 if (refresh)
                 {
                     //Making sure we don't reset a longer cooldown by applying a shorter one.
-                    if ((status.ActiveEffects[key].Cooldown.Item2 - _gameTiming.CurTime) < time)
+                    if (status.ActiveEffects[key].Cooldown.Item2 - (now - pauseTime) < time)
                     {
                         //Refresh cooldown time.
                         status.ActiveEffects[key].Cooldown = cooldown;
@@ -439,7 +457,8 @@ namespace Content.Shared.StatusEffect
             if (!HasStatusEffect(uid, key, status))
                 return false;
 
-            status.ActiveEffects[key].Cooldown = (_gameTiming.CurTime, _gameTiming.CurTime + time);
+            var now = _gameTiming.CurTime - _metadata.GetPauseTime(uid);
+            status.ActiveEffects[key].Cooldown = (now, now + time);
 
             Dirty(uid, status);
             return true;
@@ -463,7 +482,9 @@ namespace Content.Shared.StatusEffect
                 return false;
             }
 
-            time = status.ActiveEffects[key].Cooldown;
+            var (start, end) = status.ActiveEffects[key].Cooldown;
+            var pauseTime = _metadata.GetPauseTime(uid);
+            time = (start + pauseTime, end + pauseTime);
             return true;
         }
     }
