@@ -237,6 +237,21 @@
       tags:
       - FactionStaticUplinkTsf
 
+- type: listing
+  id: UplinkSecurityAltairVoucher
+  name:  uplink-security-t3-altair-voucher-name
+  description: uplink-security-t3-altair-voucher-desc
+  productEntity: ShipVoucherAltair
+  cost:
+    FederationMilitaryCredit: 200
+  categories:
+  - UplinkSecurityVouchers
+  conditions:
+  - !type:StoreWhitelistCondition
+    whitelist:
+      tags:
+      - FactionStaticUplinkTsf
+
 # Misc
 
 - type: listing
