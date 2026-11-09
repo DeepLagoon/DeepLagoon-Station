@@ -1378,7 +1378,9 @@ public sealed partial class ShuttleSystem
     /// <summary>
     /// Tries to FTL to the target coordinates; will move nearby if not possible.
     /// </summary>
-    public bool TryFTLProximity(Entity<TransformComponent?> shuttle, EntityCoordinates targetCoordinates)
+    /// <param name="canArrive">Optional check of the final grid center after collision avoidance.</param>
+    public bool TryFTLProximity(Entity<TransformComponent?> shuttle, EntityCoordinates targetCoordinates,
+        Predicate<MapCoordinates>? canArrive = null)
     {
         if (!Resolve(shuttle.Owner, ref shuttle.Comp) ||
             _transform.GetMap(targetCoordinates)?.IsValid() != true)
@@ -1388,6 +1390,13 @@ public sealed partial class ShuttleSystem
 
         if (!TryGetFTLProximity(shuttle, targetCoordinates, out var coords, out var angle))
             return false;
+
+        if (canArrive != null)
+        {
+            var center = angle.RotateVec(Comp<MapGridComponent>(shuttle).LocalAABB.Center);
+            if (!canArrive(_transform.ToMapCoordinates(coords.Offset(center))))
+                return false;
+        }
 
         _transform.SetCoordinates(shuttle, shuttle.Comp, coords, rotation: angle);
         return true;

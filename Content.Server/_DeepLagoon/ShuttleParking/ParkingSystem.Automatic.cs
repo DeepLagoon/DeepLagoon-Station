@@ -26,7 +26,7 @@ public sealed partial class ParkingSystem
     [Dependency] private SharedMindSystem _mind = default!;
     [Dependency] private StationJobsSystem _stationJobs = default!;
 
-    private static readonly TimeSpan AutoParkingDelay = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan AutoParkingDelay = TimeSpan.FromMinutes(15);
     private readonly Dictionary<EntityUid, AutoParkingState> _autoParking = [];
     private TimeSpan _nextAutoParkingCheck;
 

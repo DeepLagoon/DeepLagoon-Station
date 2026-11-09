@@ -134,13 +134,21 @@
 
 - type: technology
   id: Flail
-  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-flail
   entityIcon: AFFlail
   discipline: MechaEngineering
   tier: 3
   cost: 100000
   recipeUnlocks:
+  - FlailHarness
+  - FlailHead
+  - FlailLArm
+  - FlailLLeg
+  - FlailRArm
+  - FlailRLeg
+  - FlailCentralElectronics
+  - FlailPeripheralsElectronics
+  - FlailTargetingElectronics
   - HeavyMechRPG
   - HeavyMechCannon
   - HeavyMechProjector
@@ -150,13 +158,14 @@
 
 - type: technology
   id: FlailSubtypes
-  hidden: true # DeepLagoon: unavailable through research.
   name: research-technology-flail-subtypes
   entityIcon: AFFlailE
   discipline: MechaEngineering
   tier: 3
   cost: 60000
   recipeUnlocks:
+  - MaceHarness
+  - SpyglassHarness
   - EWACMechaFlares
   - EWACMechaJammer
   technologyPrerequisites:

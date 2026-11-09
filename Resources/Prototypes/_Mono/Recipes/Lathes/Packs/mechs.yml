@@ -87,6 +87,14 @@
   - BroadswordRArm
   - BroadswordRLeg
   - HalberdHarness
+  - FlailHarness
+  - FlailHead
+  - FlailLArm
+  - FlailRArm
+  - FlailLLeg
+  - FlailRLeg
+  - SpyglassHarness
+  - MaceHarness
   - PowerCageMech
 
 - type: latheRecipePack
@@ -95,6 +103,9 @@
   - BroadswordCentralElectronics
   - BroadswordPeripheralsElectronics
   - BroadswordTargetingElectronics
+  - FlailCentralElectronics
+  - FlailPeripheralsElectronics
+  - FlailTargetingElectronics
 
 - type: latheRecipePack
   id: SpaceMechaWeapons

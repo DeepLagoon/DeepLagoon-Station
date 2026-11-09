@@ -1,9 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Content.Server._DeepLagoon.SpaceEnvironment;
+using Content.Server._NF.StationEvents.Components;
+using Content.Server.GameTicking;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Systems;
 using Content.Shared._Mono.ShipGuns;
 using Content.Shared._Mono.Ships.Components;
+using Content.Shared.GameTicking.Components;
 using Content.Shared.Projectiles;
 using Content.Shared.Maps;
 using Content.Shared.Shuttles.Components;
@@ -12,6 +17,7 @@ using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
 
@@ -20,6 +26,80 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class GreenZoneTests
 {
+    [TestPrototypes]
+    private const string Prototypes = """
+        - type: dungeonConfig
+          id: GreenZoneTestDungeon
+          layers:
+          - !type:NoiseDunGen
+            tileCap: 4
+            capStd: 0
+            iterations: 1
+            layers:
+            - tile: Plating
+              threshold: -2
+              noise: {}
+
+        - type: entity
+          id: GreenZoneTestDungeonEvent
+          parent: BaseGameRule
+          components:
+          - type: BluespaceErrorRule
+            extendIfPopulated: false
+            groups:
+              dungeon: !type:DungeonSpawnGroup
+                minimumDistance: 1000
+                maximumDistance: 2000
+                protos: [GreenZoneTestDungeon]
+        """;
+
+    [Test]
+    public async Task BluespaceEventsSpawnAtLeastFourKilometersFromGreenZoneCenter()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true, Dirty = true });
+        var server = pair.Server;
+        var entities = server.EntMan;
+        var ticker = server.System<GameTicker>();
+        var maps = server.System<SharedMapSystem>();
+        var transforms = server.System<SharedTransformSystem>();
+        var eventGrids = new List<Entity<TransformComponent>>();
+        var center = new Vector2(1500f, 300f);
+
+        await server.WaitAssertion(() =>
+        {
+            ticker.SetGamePreset("sandbox");
+            ticker.StartRound(force: true);
+            var zone = maps.CreateGridEntity(ticker.DefaultMap);
+            transforms.SetCoordinates(zone.Owner, transforms.ToCoordinates(new MapCoordinates(center, ticker.DefaultMap)));
+            entities.AddComponent<GreenZoneComponent>(zone);
+
+            foreach (var (id, count) in new[] { ("BluespaceCacheError", 1), ("BluespaceSalvage", 3), ("GreenZoneTestDungeonEvent", 1) })
+            {
+                var rule = ticker.AddGameRule(id);
+                entities.GetComponent<GameRuleComponent>(rule).Delay = null;
+                Assert.That(ticker.StartGameRule(rule), Is.True, id);
+                var grids = entities.GetComponent<BluespaceErrorRuleComponent>(rule).GridsUid;
+                Assert.That(grids, Has.Count.EqualTo(count), id);
+                foreach (var grid in grids)
+                    eventGrids.Add((grid, entities.GetComponent<TransformComponent>(grid)));
+            }
+        });
+
+        await PoolManager.WaitUntil(server, () => eventGrids.All(grid => grid.Comp.MapID == ticker.DefaultMap), tickStep: 10);
+
+        await server.WaitAssertion(() =>
+        {
+            foreach (var (uid, _) in eventGrids)
+            {
+                var grid = entities.GetComponent<MapGridComponent>(uid);
+                var position = transforms.ToMapCoordinates(new EntityCoordinates(uid, grid.LocalAABB.Center));
+                Assert.That(position.MapId, Is.EqualTo(ticker.DefaultMap));
+                Assert.That(Vector2.Distance(position.Position, center), Is.GreaterThanOrEqualTo(4000f));
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task ZetaNodeZoneAppearsInNavigationAndFtlStates()
     {

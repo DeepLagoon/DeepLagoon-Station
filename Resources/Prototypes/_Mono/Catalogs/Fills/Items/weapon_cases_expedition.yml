@@ -1,4 +1,4 @@
-# DeepLagoon: former research unlocks are found on expeditions.
+# DeepLagoon: mech weapon cases for expedition loot.
 - type: entity
   parent: WeaponCaseHeavy
   id: WeaponCaseHeavySolarisExpedition

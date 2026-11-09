@@ -195,14 +195,14 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
     /// <summary>
     /// Generates a dungeon in the background with the specified config.
     /// </summary>
-    /// <param name="coordinates">Coordinates to move the dungeon to afterwards. Will delete the original map</param>
+    /// <param name="placeGrid">Moves the finished dungeon to another map. The generation map is then deleted.</param>
     public void GenerateDungeon(DungeonConfig gen,
         string genID, // Frontier
         EntityUid gridUid,
         MapGridComponent grid,
         Vector2i position,
         int seed,
-        EntityCoordinates? coordinates = null)
+        Predicate<EntityUid>? placeGrid = null)
     {
         var cancelToken = new CancellationTokenSource();
         var job = new DungeonJob.DungeonJob(
@@ -224,7 +224,7 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
             seed,
             position,
             genID, // Frontier
-            coordinates,
+            placeGrid,
             cancelToken.Token);
 
         _dungeonJobs.Add(job, cancelToken);

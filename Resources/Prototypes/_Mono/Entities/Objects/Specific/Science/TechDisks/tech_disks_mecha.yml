@@ -167,7 +167,17 @@
     - state: protect
     - state: sec
   - type: TechnologyDisk
-    recipes: [] # DeepLagoon: no alternate unlock for S2/S4 mechs.
+    recipes:
+    - FlailHarness
+    - FlailHead
+    - FlailLArm
+    - FlailLLeg
+    - FlailRArm
+    - FlailRLeg
+    - FlailCentralElectronics
+    - FlailPeripheralsElectronics
+    - FlailTargetingElectronics
+    - PowerCageMech
 
 - type: entity
   parent: TechDiskBase
@@ -184,7 +194,9 @@
     - state: protect
     - state: sec
   - type: TechnologyDisk
-    recipes: [] # DeepLagoon: no alternate unlock for S2/S4 mechs.
+    recipes:
+    - SpyglassHarness
+    - MaceHarness
 
 - type: entity
   parent: TechDiskBase
@@ -201,7 +213,17 @@
     - state: protect
     - state: sec
   - type: TechnologyDisk
-    recipes: [] # DeepLagoon: no alternate unlock for S2/S4 mechs.
+    recipes:
+    - BroadswordHarness
+    - BroadswordHead
+    - BroadswordLArm
+    - BroadswordLLeg
+    - BroadswordRArm
+    - BroadswordRLeg
+    - BroadswordCentralElectronics
+    - BroadswordPeripheralsElectronics
+    - BroadswordTargetingElectronics
+    - PowerCageMech
 
 - type: entity
   parent: TechDiskBase
@@ -218,7 +240,8 @@
     - state: protect
     - state: sec
   - type: TechnologyDisk
-    recipes: [] # DeepLagoon: no alternate unlock for S2/S4 mechs.
+    recipes:
+    - HalberdHarness
 
 - type: entity
   parent: TechDiskBase

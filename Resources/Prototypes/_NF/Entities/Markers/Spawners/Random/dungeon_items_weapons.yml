@@ -336,7 +336,7 @@
     - WeaponCaseLongAk
     - WeaponCaseLongEnforcerExpedition
     - WeaponCaseLongLaserCannonExpedition
-    - WeaponCaseHeavySolarisExpedition # DeepLagoon: expedition loot instead of research.
+    - WeaponCaseHeavySolarisExpedition # DeepLagoon
     - WeaponCaseDP29
     - WeaponCaseMla34
     - WeaponCaseAbielle # Mono
@@ -421,7 +421,7 @@
     - WeaponCaseLongLightMachineGunL6
     - WeaponCaseHeavyAsmgtExpeditions
     - WeaponCaseLongXrayCannonExpedition
-    - WeaponCaseHeavyImmolationExpedition # DeepLagoon: expedition loot instead of research.
+    - WeaponCaseHeavyImmolationExpedition # DeepLagoon
     - WeaponCaseLongJackdaw
     - WeaponCaseLongHristovExpedition
     - WeaponCaseMr8c # Mono

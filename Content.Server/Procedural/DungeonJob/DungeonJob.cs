@@ -4,7 +4,6 @@ using Content.Server.Decals;
 using Content.Server.NPC.Components;
 using Content.Server.NPC.HTN;
 using Content.Server.NPC.Systems;
-using Content.Server.Shuttles.Systems;
 using Content.Shared.Construction.EntitySystems;
 using Content.Shared.Maps;
 using Content.Shared.Procedural;
@@ -53,7 +52,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
     private readonly EntityUid _gridUid;
     private readonly MapGridComponent _grid;
 
-    private readonly EntityCoordinates? _targetCoordinates;
+    private readonly Predicate<EntityUid>? _placeGrid;
 
     private readonly ISawmill _sawmill;
     private readonly string _genId; // Frontier: add ID
@@ -77,7 +76,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         int seed,
         Vector2i position,
         string genID, // Frontier
-        EntityCoordinates? targetCoordinates = null,
+        Predicate<EntityUid>? placeGrid = null,
         CancellationToken cancellation = default) : base(maxTime, cancellation)
     {
         _sawmill = sawmill;
@@ -103,7 +102,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         _gridUid = gridUid;
         _seed = seed;
         _position = position;
-        _targetCoordinates = targetCoordinates;
+        _placeGrid = placeGrid;
         _genId = genID; // Frontier
     }
 
@@ -159,14 +158,19 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         var reservedTiles = new HashSet<Vector2i>();
 
         var dungeons = await GetDungeons(position, _gen, _gen.Data, _gen.Layers, reservedTiles, _seed, random);
+        if (!ValidateResume())
+            return dungeons;
+
         // To make it slightly more deterministic treat this RNG as separate ig.
 
         // Post-processing after finishing loading.
-        if (_targetCoordinates != null)
+        if (_placeGrid != null)
         {
             var oldMap = _xformQuery.Comp(_gridUid).MapUid;
-            _entManager.System<ShuttleSystem>().TryFTLProximity(_gridUid, _targetCoordinates.Value);
+            var placed = _placeGrid(_gridUid);
             _entManager.DeleteEntity(oldMap);
+            if (!placed)
+                return dungeons;
         }
 
         // Defer splitting so they don't get spammed and so we don't have to worry about tracking the grid along the way.

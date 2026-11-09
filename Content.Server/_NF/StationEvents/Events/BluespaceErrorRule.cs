@@ -1,8 +1,10 @@
 using Content.Server._DeepLagoon.Mapping;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using System.Numerics;
 using Content.Server.Cargo.Systems;
 using Robust.Server.GameObjects;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Server.StationEvents.Components;
@@ -30,6 +32,9 @@ namespace Content.Server._NF.StationEvents.Events;
 
 public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErrorRuleComponent>
 {
+    private const float MinimumGreenZoneDistance = 4000f;
+    private const int PlacementAttempts = 10;
+
     NanotrasenNameGenerator _nameGenerator = new();
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private MapSystem _map = default!;
@@ -61,7 +66,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         if (!_map.TryGetMap(GameTicker.DefaultMap, out var mapUid))
             return;
 
-        var spawnCoords = new EntityCoordinates(mapUid.Value, Vector2.Zero);
+        var mapOrigin = new EntityCoordinates(mapUid.Value, Vector2.Zero);
 
         // Spawn on a dummy map and try to FTL if possible, otherwise dump it.
         _map.CreateMap(out var mapId);
@@ -74,20 +79,15 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
             {
                 EntityUid spawned;
 
-                if (group.MinimumDistance > 0f)
-                {
-                    spawnCoords = spawnCoords.WithPosition(_random.NextVector2(group.MinimumDistance, group.MaximumDistance));
-                }
-
                 switch (group)
                 {
                     case BluespaceDungeonSpawnGroup dungeon:
-                        if (!TryDungeonSpawn(spawnCoords, component, ref dungeon, i, out spawned))
+                        if (!TryDungeonSpawn(mapOrigin, uid, component, dungeon, i, out spawned))
                             continue;
 
                         break;
                     case BluespaceGridSpawnGroup grid:
-                        if (!TryGridSpawn(spawnCoords, uid, mapId, ref grid, i, out spawned))
+                        if (!TryGridSpawn(mapOrigin, uid, mapId, grid, i, out spawned))
                             continue;
 
                         break;
@@ -131,7 +131,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                 component.GridsUid.Add(spawned);
                 component.StartingValue += _pricing.AppraiseGrid(spawned);
 
-                if (component.ExtendIfPopulated)
+                if (component.ExtendIfPopulated && group is BluespaceGridSpawnGroup)
                     _autoExtend.AutoExtend(uid, spawned);
             }
         }
@@ -139,7 +139,63 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         _map.DeleteMap(mapId);
     }
 
-    private bool TryDungeonSpawn(EntityCoordinates spawnCoords, BluespaceErrorRuleComponent component, ref BluespaceDungeonSpawnGroup group, int i, out EntityUid spawned)
+    private bool TryPlaceGrid(EntityUid grid, EntityCoordinates mapOrigin, IBluespaceSpawnGroup group)
+    {
+        if (!Exists(mapOrigin.EntityId))
+            return false;
+
+        var mapId = _transform.GetMapId(mapOrigin);
+        var zoneCenters = new List<Vector2>();
+        var zones = AllEntityQuery<GreenZoneComponent, MapGridComponent, TransformComponent>();
+        while (zones.MoveNext(out var uid, out var zone, out var zoneGrid, out var transform))
+        {
+            if (transform.MapID != mapId || zone.Radius <= 0f || TerminatingOrDeleted(uid))
+                continue;
+
+            var center = _transform.ToMapCoordinates(new EntityCoordinates(uid, zoneGrid.LocalAABB.Center));
+            zoneCenters.Add(center.Position);
+        }
+
+        if (zoneCenters.Count == 0)
+        {
+            var offset = group.MinimumDistance > 0f
+                ? _random.NextVector2(group.MinimumDistance, group.MaximumDistance)
+                : Vector2.Zero;
+            return _shuttle.TryFTLProximity(grid, mapOrigin.Offset(offset));
+        }
+
+        var minimum = MathF.Max(group.MinimumDistance, MinimumGreenZoneDistance);
+        var maximum = group.MaximumDistance;
+        // Shift short ranges outward when the new minimum would leave no room to scatter.
+        if (maximum <= minimum)
+            maximum = minimum + MathF.Max(1f, group.MaximumDistance - group.MinimumDistance);
+
+        var origin = _transform.ToCoordinates(new MapCoordinates(zoneCenters[0], mapId));
+
+        bool HasClearance(MapCoordinates point)
+        {
+            foreach (var center in zoneCenters)
+            {
+                if (Vector2.DistanceSquared(point.Position, center) < MinimumGreenZoneDistance * MinimumGreenZoneDistance)
+                    return false;
+            }
+
+            return true;
+        }
+
+        for (var i = 0; i < PlacementAttempts; i++)
+        {
+            var target = origin.Offset(_random.NextVector2(minimum, maximum));
+            if (_shuttle.TryFTLProximity(grid, target, HasClearance))
+                return true;
+        }
+
+        Log.Warning($"Could not place bluespace event grid {ToPrettyString(grid)} clear of the Green Zone.");
+        return false;
+    }
+
+    private bool TryDungeonSpawn(EntityCoordinates mapOrigin, EntityUid ruleUid, BluespaceErrorRuleComponent component,
+        BluespaceDungeonSpawnGroup group, int i, out EntityUid spawned)
     {
         spawned = EntityUid.Invalid;
 
@@ -165,14 +221,26 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         var spawnedGrid = _mapManager.CreateGridEntity(mapId);
 
         _transform.SetMapCoordinates(spawnedGrid, new MapCoordinates(Vector2.Zero, mapId));
-        _dungeon.GenerateDungeon(dungeonProto, dungeonProto.ID, spawnedGrid.Owner, spawnedGrid.Comp, Vector2i.Zero, _random.Next(), spawnCoords); // Frontier: add dungeonProto.ID
+        _dungeon.GenerateDungeon(dungeonProto, dungeonProto.ID, spawnedGrid.Owner, spawnedGrid.Comp, Vector2i.Zero, _random.Next(), grid =>
+        {
+            if (TryPlaceGrid(grid, mapOrigin, group))
+            {
+                if (component.ExtendIfPopulated)
+                    _autoExtend.AutoExtend(ruleUid, grid);
+
+                return true;
+            }
+
+            component.GridsUid.Remove(grid);
+            return false;
+        });
 
         spawned = spawnedGrid.Owner;
         component.MapsUid.Add(mapId);
         return true;
     }
 
-    private bool TryGridSpawn(EntityCoordinates spawnCoords, EntityUid stationUid, MapId mapId, ref BluespaceGridSpawnGroup group, int i, out EntityUid spawned)
+    private bool TryGridSpawn(EntityCoordinates mapOrigin, EntityUid stationUid, MapId mapId, BluespaceGridSpawnGroup group, int i, out EntityUid spawned)
     {
         spawned = EntityUid.Invalid;
 
@@ -193,10 +261,8 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         // Do we support maps with multiple grids?
         if (_loader.TryLoadGridTracked(mapId, path, out var ent))
         {
-            if (HasComp<ShuttleComponent>(ent.Value))
-            {
-                _shuttle.TryFTLProximity(ent.Value.Owner, spawnCoords);
-            }
+            if (!HasComp<ShuttleComponent>(ent.Value) || !TryPlaceGrid(ent.Value.Owner, mapOrigin, group))
+                return false;
 
             if (group.NameGrid)
             {
