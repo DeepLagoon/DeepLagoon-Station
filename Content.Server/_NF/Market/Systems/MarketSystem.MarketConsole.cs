@@ -200,7 +200,8 @@ public sealed partial class MarketSystem
 
 
             // Increase the count in the MarketData for this material
-            marketDataComponent.MarketDataList.Upsert(entProto.ID, amountToSpawn, price, material.StackEntity);
+            entProto.TryComp<StackComponent>(out var stack, EntityManager.ComponentFactory);
+            marketDataComponent.MarketDataList.Upsert(entProto.ID, amountToSpawn, price, stack?.StackTypeId.Id);
         }
     }
 
@@ -215,18 +216,10 @@ public sealed partial class MarketSystem
 
         foreach (var data in marketDataList)
         {
-            if (data.StackPrototype != null && _prototypeManager.TryIndex(data.StackPrototype, out var stackPrototype))
-            {
-                var maxStackCount = stackPrototype.MaxCount;
-                if (maxStackCount != null)
-                    count += (int)Math.Ceiling((double)data.Quantity / int.Max(1, maxStackCount.Value)); // Ensure denominator is positive
-                else
-                    count += 1;
-            }
+            if (GetMarketStack(data)?.MaxCount is { } maxCount)
+                count += (int)Math.Ceiling((double)data.Quantity / int.Max(1, maxCount));
             else
-            {
                 count += 1;
-            }
         }
 
         return count;
@@ -239,18 +232,24 @@ public sealed partial class MarketSystem
     /// <returns>The number of items that can fit within an entity's worth of space. Null if infinite.</returns>
     public int? GetAmountPerEntitySpace(MarketData data)
     {
-        if (data.StackPrototype != null && _prototypeManager.TryIndex(data.StackPrototype, out var stackPrototype))
-        {
-            var maxStackCount = stackPrototype.MaxCount;
-            if (maxStackCount != null)
-                return int.Max(1, maxStackCount.Value); // Ensure amount is positive.
-            else
-                return null; // Infinity.
-        }
-        else
-        {
+        var stack = GetMarketStack(data);
+        if (stack == null)
             return 1;
+
+        return stack.MaxCount is { } maxCount ? int.Max(1, maxCount) : null;
+    }
+
+    private StackPrototype? GetMarketStack(MarketData data)
+    {
+        // Older material listings stored the entity ID in the stack prototype field.
+        if (_prototypeManager.TryIndex(data.Prototype, out var entity) &&
+            entity.TryComp<StackComponent>(out var stack, EntityManager.ComponentFactory) &&
+            _prototypeManager.TryIndex(stack.StackTypeId, out var stackPrototype))
+        {
+            return stackPrototype;
         }
+
+        return null;
     }
 
     /// <summary>

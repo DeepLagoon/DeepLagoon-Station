@@ -284,6 +284,7 @@
   - type: PhysicalComposition
     materialComposition:
       RawBananium: 100
+  - type: IgnoreSolutionPrice # Splitting a stack creates a fresh grinding solution for each item.
   - type: PointLight
     radius: 1.2
     energy: 1

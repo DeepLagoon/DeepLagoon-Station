@@ -92,7 +92,7 @@ public sealed partial class MarketSystem
         var coordinates = Transform(targetCrate).Coordinates;
         foreach (var data in spawnList)
         {
-            if (data.StackPrototype != null && _prototypeManager.TryIndex(data.StackPrototype, out var stackPrototype))
+            if (GetMarketStack(data) is { } stackPrototype)
             {
                 var entityList = _stackSystem.SpawnMultiple(stackPrototype.Spawn, data.Quantity, coordinates);
                 foreach (var entity in entityList)

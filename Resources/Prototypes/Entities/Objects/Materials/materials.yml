@@ -539,6 +539,7 @@
   - type: PhysicalComposition
     materialComposition:
       Bananium: 150
+  - type: IgnoreSolutionPrice # Splitting a stack creates a fresh food solution for each item.
   - type: Sprite
     state: bananium_1
     layers:
