@@ -7,6 +7,14 @@ namespace Content.Server.Database;
 
 public sealed partial class ServerDbManager
 {
+    public Task<LagoonCoinTransfer> TransferLagoonCoinsAsync(NetUserId sender, NetUserId recipient, Guid transferId,
+        long amount, string debitReason, string creditReason, CancellationToken cancel = default)
+    {
+        DbWriteOpsMetric.Inc();
+        return RunDbCommand(() => _db.TransferLagoonCoinsAsync(sender, recipient, transferId, amount,
+            debitReason, creditReason, cancel));
+    }
+
     public Task RetryLagoonCoinWebhookAsync(Guid user, string key, Guid owner, DateTime retryAt, CancellationToken cancel = default)
     {
         DbWriteOpsMetric.Inc();

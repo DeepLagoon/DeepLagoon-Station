@@ -7,8 +7,22 @@ using Robust.Shared.Network;
 
 namespace Content.Server.Database;
 
+public partial interface IServerDbManager
+{
+    Task<LagoonCoinTransfer> TransferLagoonCoinsAsync(NetUserId sender, NetUserId recipient, Guid transferId,
+        long amount, string debitReason, string creditReason, CancellationToken cancel = default);
+}
+
 public abstract partial class ServerDbBase
 {
+    public async Task<LagoonCoinTransfer> TransferLagoonCoinsAsync(NetUserId sender, NetUserId recipient, Guid transferId,
+        long amount, string debitReason, string creditReason, CancellationToken cancel = default)
+    {
+        await using var db = await GetDb(cancel);
+        return await AccountCurrencyOperations.TransferLagoonCoins(db.DbContext, sender.UserId, recipient.UserId,
+            transferId, amount, debitReason, creditReason, cancel);
+    }
+
     public async Task RetryLagoonCoinWebhookAsync(Guid user, string key, Guid owner, DateTime retryAt, CancellationToken cancel = default)
     {
         await using var db = await GetDb(cancel);

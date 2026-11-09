@@ -8,6 +8,7 @@ namespace Content.Server.Database;
 
 public readonly record struct BankTransfer(int SenderBalance, int RecipientBalance);
 public readonly record struct LagoonCoinResult(long Balance, long Awarded, bool Applied);
+public readonly record struct LagoonCoinTransfer(long SenderBalance, long RecipientBalance, bool Applied);
 
 public sealed class InsufficientLagoonCoinsException : InvalidOperationException
 {
@@ -17,6 +18,8 @@ public sealed class InsufficientLagoonCoinsException : InvalidOperationException
 /// <summary>All writers lock the preference row before reading it. Works across server processes.</summary>
 public static class AccountCurrencyOperations
 {
+    public const string TransferOperationPrefix = "transfer:";
+
     public static async Task<LagoonCoinOperation?> ClaimLagoonCoinWebhook(ServerDbContext db, Guid owner,
         CancellationToken cancel = default)
     {
@@ -166,5 +169,60 @@ public static class AccountCurrencyOperations
         beforeCommit?.Invoke();
         await transaction.CommitAsync(cancel);
         return new LagoonCoinResult(row.LagoonCoins, amount, true);
+    }
+
+    public static async Task<LagoonCoinTransfer> TransferLagoonCoins(ServerDbContext db, Guid sender, Guid recipient,
+        Guid transferId, long amount, string debitReason, string creditReason, CancellationToken cancel = default)
+    {
+        if (sender == recipient || transferId == Guid.Empty || amount <= 0 ||
+            string.IsNullOrWhiteSpace(debitReason) || debitReason.Length > 500 ||
+            string.IsNullOrWhiteSpace(creditReason) || creditReason.Length > 500)
+            throw new ArgumentException("Invalid Lagoon Coin transfer.");
+
+        var key = $"{TransferOperationPrefix}{transferId:N}";
+        await using var transaction = await db.Database.BeginTransactionAsync(cancel);
+        // Use the same lock order as other operations involving two accounts.
+        var senderFirst = sender.CompareTo(recipient) < 0;
+        await LockAccount(db, senderFirst ? sender : recipient, cancel);
+        await LockAccount(db, senderFirst ? recipient : sender, cancel);
+
+        var from = await db.Preference.SingleAsync(p => p.UserId == sender, cancel);
+        var to = await db.Preference.SingleAsync(p => p.UserId == recipient, cancel);
+        var journal = await db.LagoonCoinOperations.AsNoTracking()
+            .Where(p => p.OperationId == key && (p.UserId == sender || p.UserId == recipient))
+            .ToDictionaryAsync(p => p.UserId, cancel);
+        if (journal.Count != 0)
+        {
+            if (!journal.TryGetValue(sender, out var debit) || debit.Amount != -amount || debit.ActorId != sender ||
+                !journal.TryGetValue(recipient, out var credit) || credit.Amount != amount || credit.ActorId != sender)
+                throw new InvalidOperationException("Lagoon Coin transfer key was reused with different data.");
+
+            return new LagoonCoinTransfer(from.LagoonCoins, to.LagoonCoins, false);
+        }
+
+        if (from.LagoonCoins < amount)
+            throw new InsufficientLagoonCoinsException();
+
+        to.LagoonCoins = checked(to.LagoonCoins + amount);
+        from.LagoonCoins -= amount;
+        var createdAt = DateTime.UtcNow;
+        foreach (var (wallet, delta, reason) in new[] { (from, -amount, debitReason), (to, amount, creditReason) })
+        {
+            db.LagoonCoinOperations.Add(new LagoonCoinOperation
+            {
+                UserId = wallet.UserId,
+                OperationId = key,
+                Amount = delta,
+                Reason = reason,
+                ActorId = sender,
+                CreatedAt = createdAt,
+                BalanceAfter = wallet.LagoonCoins,
+                WebhookDelivered = false,
+            });
+        }
+
+        await db.SaveChangesAsync(cancel);
+        await transaction.CommitAsync(cancel);
+        return new LagoonCoinTransfer(from.LagoonCoins, to.LagoonCoins, true);
     }
 }
