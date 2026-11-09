@@ -6,6 +6,7 @@ using Content.Server.Shuttles.Components;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.Systems;
+using Robust.Server.GameStates;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Audio.Components;
 using Robust.Shared.Map;
@@ -28,6 +29,14 @@ public sealed partial class SpaceDerelictComponent : Component
 
 public sealed partial class OrbitalDebrisSystem
 {
+    [Dependency] private PvsOverrideSystem _pvsOverrides = default!;
+
+    private void LimitDebrisVisibility(EntityUid grid)
+    {
+        // Grids are force-sent by default. Ambient grids only need the normal spatial PVS.
+        _pvsOverrides.RemoveForceSend(grid);
+        EntityManager.System<SharedShuttleSystem>().AddIFFFlag(grid, IFFFlags.LocalRadarOnly);
+    }
     private sealed class DerelictField
     {
         public int Used;
@@ -140,9 +149,10 @@ public sealed partial class OrbitalDebrisSystem
     private void SetEncounterIdentity(EntityUid grid, bool blue, bool derelict, uint seed)
     {
         if (blue) AddComp<SpaceBlueWreckComponent>(grid);
+        LimitDebrisVisibility(grid);
+        var shuttles = EntityManager.System<SharedShuttleSystem>();
         if (blue || derelict)
         {
-            var shuttles = EntityManager.System<SharedShuttleSystem>();
             shuttles.SetIFFColor(grid, Color.FromHex(derelict ? "#AAAAAA" : "#88b0d1")); // Native salvage colours.
             shuttles.AddIFFFlag(grid, IFFFlags.AlwaysShowColor | (derelict ? IFFFlags.None : IFFFlags.HideLabel | IFFFlags.HideLabelAlways));
         }
