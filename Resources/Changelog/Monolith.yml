@@ -24918,4 +24918,100 @@ Entries:
     time: '2026-10-29T08:31:14.000Z'
     url: >-
       https://github.com/DeepLagoon/DeepLagoon-Station/commit/f23dd3fdb4343e7dfab1760836fb14347daf1518
-GeneratedThrough: '2026-11-04T08:53:22.000Z'
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: >-
+          Для переписки в КПК нужно добавить номер, видимый при осмотре чужого устройства. Контакты
+          сохраняются между раундами отдельно для каждого слота персонажа.
+    id: 2832
+    time: '2026-11-09T05:07:33.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/32
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Одноразовый нарушитель аутентификации «Мэйё» расходует единственный заряд при успешном
+          взломе.
+    id: 2833
+    time: '2026-11-09T05:07:57.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/54
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: TGUI-чат больше не переключается на обычный чат из-за кэширования ответов проверки связи.
+    id: 2834
+    time: '2026-11-09T05:08:08.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/53
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Соседние секции платных ковров в квартирах соединяются в сплошное покрытие.
+    id: 2835
+    time: '2026-11-09T05:08:17.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/51
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: Вдвое снижены цены на термоядерное топливо, обогащённый и обеднённый уран и плутоний.
+    id: 2836
+    time: '2026-11-09T05:08:28.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/50
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Устранено размножение блюспейс-кристаллов через покупку и продажу. Деление стаков
+          бананиума и его руды больше не увеличивает общую стоимость.
+    id: 2837
+    time: '2026-11-09T05:08:45.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/49
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Разворачиваемое поле R&D блокирует лазеры. НПС могут атаковать поле, если оно перекрывает
+          доступ к цели.
+    id: 2838
+    time: '2026-11-09T05:08:53.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/48
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: При осмотре кастомное название расы полностью заменяет стандартное, если поле заполнено.
+    id: 2839
+    time: '2026-11-09T05:09:02.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/47
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Спрайты протезов подгоняются под форму конечностей расы и выбранной оболочки синтетика.
+    id: 2840
+    time: '2026-11-09T05:09:11.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/46
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Монитор экипажа показывает статус и пометку об экспедиции без ложных координат в основном
+          секторе.
+    id: 2841
+    time: '2026-11-09T05:09:19.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/45
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: Зеркальные провода снова видны в техпанелях шлюзов и других устройств.
+    id: 2842
+    time: '2026-11-09T05:09:26.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/44
+  - author: iamasay
+    changes:
+      - type: Fix
+        message: >-
+          Ключ и дрель кладутся в блюспейс-сумку на спине или в руке. Прикрутить сумку можно на
+          открытой обшивке, когда её никто не держит и не тащит.
+    id: 2843
+    time: '2026-11-09T05:09:37.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/43
+GeneratedThrough: '2026-11-09T05:09:37.000Z'
