@@ -60,10 +60,8 @@ namespace Content.Server.Shuttles.Systems
 
         public void UndockDocks(EntityUid gridUid)
         {
-            _dockingSet.Clear();
-            _lookup.GetChildEntities(gridUid, _dockingSet);
-
-            foreach (var dock in _dockingSet)
+            // Undock events can query the docks again while this loop is running.
+            foreach (var dock in GetDocks(gridUid))
             {
                 Undock(dock);
             }

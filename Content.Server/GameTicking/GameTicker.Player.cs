@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.ShuttleParking;
 using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Content.Shared.GameTicking;
@@ -215,6 +216,7 @@ namespace Content.Server.GameTicking
             }
 
             RaiseNetworkEvent(new TickerJoinGameEvent(), session.Channel);
+            EntityManager.System<ParkingSystem>().NotifyAutoParkedOwner(session);
         }
 
         private void PlayerJoinLobby(ICommonSession session)

@@ -68,7 +68,18 @@ public sealed partial class DockingSystem
             return false;
         // End Frontier
 
-        // First, get the station dock's position relative to the shuttle, this is where we rotate it around
+        (matty, gridRotation) = GetDockingPose(shuttleDockXform, gridDockXform);
+        if (!ValidSpawn(gridEntity, matty, gridRotation, shuttleFixtures, isMap))
+            return false;
+
+        shuttleDockedAABB = matty.TransformBox(shuttleAABB);
+        gridRotation = gridRotation.Reduced();
+        return true;
+    }
+
+    /// <summary>Aligns a pair of ports in target-grid coordinates without checking whether the ship fits.</summary>
+    internal static (Matrix3x2 Transform, Angle Angle) GetDockingPose(TransformComponent shuttleDockXform, TransformComponent gridDockXform)
+    {
         var stationDockPos = shuttleDockXform.LocalPosition +
                              shuttleDockXform.LocalRotation.RotateVec(new Vector2(0f, -1f));
 
@@ -79,14 +90,7 @@ public sealed partial class DockingSystem
 
         var stationDockMatrix = Matrix3Helpers.CreateInverseTransform(stationDockPos, shuttleDockAngle);
         var gridXformMatrix = Matrix3Helpers.CreateTransform(gridDockXform.LocalPosition, gridDockAngle);
-        matty = Matrix3x2.Multiply(stationDockMatrix, gridXformMatrix);
-
-        if (!ValidSpawn(gridEntity, matty, offsetAngle, shuttleFixtures, isMap))
-            return false;
-
-        shuttleDockedAABB = matty.TransformBox(shuttleAABB);
-        gridRotation = offsetAngle.Reduced();
-        return true;
+        return (stationDockMatrix * gridXformMatrix, offsetAngle);
     }
 
     /// <summary>
@@ -98,7 +102,9 @@ public sealed partial class DockingSystem
         EntityUid shuttleDockUid,
         DockingComponent shuttleDock,
         EntityUid gridDockUid,
-        DockingComponent gridDock)
+        DockingComponent gridDock,
+        bool preciseHull = false,
+        HashSet<EntityUid>? obstructions = null)
     {
         var shuttleDocks = new List<Entity<DockingComponent>>(1)
        {
@@ -110,7 +116,8 @@ public sealed partial class DockingSystem
            (gridDockUid, gridDock)
        };
 
-        return GetDockingConfigPrivate(shuttleUid, targetGrid, shuttleDocks, gridDocks);
+        return GetDockingConfigPrivate(shuttleUid, targetGrid, shuttleDocks, gridDocks,
+            preciseHull: preciseHull, obstructions: obstructions);
     }
 
     /// <summary>
@@ -164,7 +171,9 @@ public sealed partial class DockingSystem
         EntityUid targetGrid,
         List<Entity<DockingComponent>> shuttleDocks,
         List<Entity<DockingComponent>> gridDocks,
-        DockType dockType) // Frontier: add dockType
+        DockType dockType, // Frontier: add dockType
+        bool preciseHull = false,
+        HashSet<EntityUid>? obstructions = null)
     {
         var validDockConfigs = new List<DockingConfig>();
 
@@ -220,7 +229,6 @@ public sealed partial class DockingSystem
                     var gridPosition = new EntityCoordinates(targetGrid, Vector2.Transform(Vector2.Zero, matty));
                     var spawnPosition = new EntityCoordinates(targetGridXform.MapUid!.Value, _transform.ToMapCoordinates(gridPosition).Position);
 
-                    // TODO: use tight bounds
                     var targetWorldAngle = (targetGridAngle + targetAngle).Reduced(); // Frontier
                     var dockedBounds = new Box2Rotated(shuttleAABB.Translated(spawnPosition.Position), targetWorldAngle, spawnPosition.Position); // Frontier: targetAngle<targetWorldAngle
 
@@ -229,7 +237,16 @@ public sealed partial class DockingSystem
                     _mapManager.FindGridsIntersecting(targetGridXform.MapID, dockedBounds, ref grids, includeMap: false);
                     if (grids.Any(o => o.Owner != targetGrid && o.Owner != targetGridXform.MapUid))
                     {
-                        continue;
+                        if (!preciseHull)
+                            continue;
+
+                        // The outline of the hull can leave empty corners inside the broad-phase box.
+                        var pose = new Transform(spawnPosition.Position, targetWorldAngle);
+                        if (FindDockingObstruction(shuttleUid, targetGrid, targetGridXform.MapID, pose, shuttleFixturesComp) is { } obstruction)
+                        {
+                            obstructions?.Add(obstruction);
+                            continue;
+                        }
                     }
 
                     // Alright well the spawn is valid now to check how many we can connect
@@ -313,9 +330,11 @@ public sealed partial class DockingSystem
         List<Entity<DockingComponent>> shuttleDocks,
         List<Entity<DockingComponent>> gridDocks,
         string? priorityTag = null,
-        DockType dockType = DockType.Airlock) // Frontier
+        DockType dockType = DockType.Airlock, // Frontier
+        bool preciseHull = false,
+        HashSet<EntityUid>? obstructions = null)
     {
-        var validDockConfigs = GetDockingConfigs(shuttleUid, targetGrid, shuttleDocks, gridDocks, dockType); // Frontier: add dockType
+        var validDockConfigs = GetDockingConfigs(shuttleUid, targetGrid, shuttleDocks, gridDocks, dockType, preciseHull, obstructions);
 
         if (validDockConfigs.Count <= 0)
             return null;
@@ -340,6 +359,30 @@ public sealed partial class DockingSystem
         return config.Docks.Any(docks =>
             TryComp<PriorityDockComponent>(docks.DockBUid, out var priority)
             && priority.Tag?.Equals(priorityTag) == true);
+    }
+
+    private EntityUid? FindDockingObstruction(EntityUid shuttle, EntityUid target, MapId map, Transform pose, FixturesComponent fixtures)
+    {
+        var state = (Shuttle: shuttle, Target: target, Obstruction: (EntityUid?) null);
+        foreach (var fixture in fixtures.Fixtures.Values)
+        {
+            if (!fixture.Hard)
+                continue;
+
+            _mapManager.FindGridsIntersecting(map, fixture.Shape, pose, ref state,
+                static (EntityUid grid, MapGridComponent _, ref (EntityUid Shuttle, EntityUid Target, EntityUid? Obstruction) state) =>
+                {
+                    if (grid == state.Shuttle || grid == state.Target)
+                        return true;
+
+                    state.Obstruction = grid;
+                    return false;
+                }, includeMap: false);
+            if (state.Obstruction != null)
+                return state.Obstruction;
+        }
+
+        return null;
     }
 
     /// <summary>

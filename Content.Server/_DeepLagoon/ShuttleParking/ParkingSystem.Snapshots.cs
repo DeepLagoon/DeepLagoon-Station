@@ -23,6 +23,8 @@ namespace Content.Server._DeepLagoon.ShuttleParking;
 
 public sealed partial class ParkingSystem
 {
+    private const int ExclusionPreviewLimit = 500;
+
     [Dependency] private IDependencyCollection _dependencies = default!;
     [Dependency] private IComponentFactory _components = default!;
     [Dependency] private MapLoaderSystem _loader = default!;
@@ -85,9 +87,33 @@ public sealed partial class ParkingSystem
     private string ReviewHash(EntityUid grid)
     {
         var excluded = ExcludedEntities(grid);
-        if (excluded.Count > 500) throw new InvalidOperationException("Слишком много исключаемых предметов. Сначала разгрузите шаттл.");
         return ParkingStore.Hash(GetCategory(grid) + ":" + string.Join('|', excluded.OrderBy(e => e.ToString()).Select(e => e + ":" + Name(e))));
     }
+
+    private List<string> ExclusionPreview(EntityUid grid)
+    {
+        var excluded = ExcludedEntities(grid);
+        var confiscated = ConfiscatedEntities(grid, excluded);
+        var groups = excluded
+            .GroupBy(entity => (Name: Name(entity), Confiscated: confiscated.Contains(entity)))
+            .ToList();
+        var preview = groups.Take(ExclusionPreviewLimit).Select(group =>
+        {
+            var (name, confiscation) = group.Key;
+            var count = group.Count();
+            var label = count > 1 ? $"{name} × {count}" : name;
+            return confiscation ? $"{label} (конфискация)" : label;
+        }).ToList();
+        if (groups.Count > ExclusionPreviewLimit)
+        {
+            var remaining = groups.Skip(ExclusionPreviewLimit).ToList();
+            var confiscatedCount = remaining.Where(group => group.Key.Confiscated).Sum(group => group.Count());
+            var returnedCount = remaining.Sum(group => group.Count()) - confiscatedCount;
+            preview.Add($"Остальные предметы: {confiscatedCount} к конфискации, {returnedCount} к выдаче у консоли.");
+        }
+        return preview;
+    }
+
     private void ValidateStorage(Context context, EntityUid grid, Guid slot)
     {
         CheckEmpty(grid);
@@ -157,6 +183,12 @@ public sealed partial class ParkingSystem
             if (excluded.Contains(parent)) return true;
         return false;
     }
+
+    private HashSet<EntityUid> ConfiscatedEntities(EntityUid grid, IEnumerable<EntityUid> excluded)
+    {
+        var prohibited = excluded.Where(Prohibited).ToHashSet();
+        return excluded.Where(entity => prohibited.Contains(entity) || HasExcludedParent(entity, prohibited, grid)).ToHashSet();
+    }
     private void DetachOriginalSurvivors(EntityUid grid, HashSet<EntityUid> excluded)
     {
         foreach (var entity in Descendants(grid).ToArray())
@@ -195,7 +227,7 @@ public sealed partial class ParkingSystem
         }
         finally { Del(clone); }
     }
-    private void Save(Context context, Guid slot, Guid token)
+    private string Save(Context context, Guid slot, Guid token)
     {
         var user = context.Session.UserId.UserId;
         if (!_reviews.TryGetValue(user, out var review) || review.Token != token || review.Slot != slot || review.Expires < _timing.RealTime
@@ -205,18 +237,41 @@ public sealed partial class ParkingSystem
         if (ReviewHash(grid) != review.Hash) { _reviews.Remove(user); throw new InvalidOperationException("Состав исключаемых предметов или размер изменился. Проверьте список заново."); }
         // Undock before serialization so joints and docking references to the live station cannot enter the file.
         // A failed save leaves the intact source ship safely parked and freely recallable.
-        if (!Comp<ParkingShuttleComponent>(grid).Parked) Park(context.Console, grid);
+        if (!Comp<ParkingShuttleComponent>(grid).Parked) Park(context.Console, grid, context.Character);
         var snapshot = FilteredSnapshot(grid);
         var ship = Comp<ParkingShuttleComponent>(grid);
         var excluded = ExcludedEntities(grid).ToHashSet();
+        var confiscated = ConfiscatedEntities(grid, excluded);
+        var price = (int) Math.Clamp(confiscated
+            .Where(entity => MetaData(entity).EntityPrototype is not { MapSavable: false })
+            .Sum(entity => _pricing.GetPriceWithVendingDiscount(entity, grid, includeContents: false)), 0, int.MaxValue);
+        var payout = price > 0 ? new ParkingPayout(Guid.NewGuid(), user, context.Character, price) : null;
         // FULL synchronous SQLite commit precedes all irreversible world mutations.
-        _store.Save(user, slot, new(ship.Identity, Name(grid), ship.OwnerName, GetCategory(grid), ship.OriginalPrice, snapshot, ParkingStore.Hash(snapshot)));
+        _store.Save(user, slot, new(ship.Identity, Name(grid), ship.OwnerName, GetCategory(grid), ship.OriginalPrice, snapshot, ParkingStore.Hash(snapshot)), payout);
         DetachOriginalSurvivors(grid, excluded);
+        // Remove contents before their containers can eject them during deletion.
+        foreach (var entity in Descendants(grid).Where(confiscated.Contains).Reverse().ToArray())
+            Del(entity);
+        excluded.ExceptWith(confiscated);
         foreach (var entity in excluded.Where(e => !HasExcludedParent(e, excluded, grid)).ToArray())
         {
             _containers.TryRemoveFromContainer(entity);
             _transform.DropNextTo(entity, context.Console);
         }
+
+        RemoveParkedShip(grid, ship);
+        _store.FinishSave(user, slot);
+        _reviews.Remove(user);
+        if (payout == null)
+            return "Шаттл сохранён. Разрешённые исключённые предметы оставлены у консоли.";
+
+        return PaySale(payout)
+            ? $"Шаттл сохранён. За конфискат зачислено {price} кредитов. Остальные исключённые предметы оставлены у консоли."
+            : "Шаттл сохранён. Выплата за конфискат ожидает зачисления.";
+    }
+
+    private void RemoveParkedShip(EntityUid grid, ParkingShuttleComponent ship)
+    {
         var deeds = AllEntityQuery<Content.Shared._NF.Shipyard.Components.ShuttleDeedComponent>();
         var cards = new List<EntityUid>();
         while (deeds.MoveNext(out var entity, out var deed)) if (entity != grid && deed.ShuttleUid == grid) cards.Add(entity);
@@ -227,6 +282,5 @@ public sealed partial class ParkingSystem
         if (ship.ReturnStation is { } former && Exists(former) && TryComp<Content.Shared.Station.Components.StationDataComponent>(former, out var formerData) && formerData.Grids.Count == 0)
             _stations.DeleteStation(former, formerData);
         if (_parkingMaps.Remove(grid, out var parking) && Exists(parking)) Del(parking);
-        _store.FinishSave(user, slot); _reviews.Remove(user);
     }
 }

@@ -61,6 +61,24 @@ public sealed class ParkingBankTests
         Assert.That(await read.LagoonEconomyRecords.CountAsync(p => p.Id.StartsWith("parking-credit:")), Is.EqualTo(1));
     }
     [Test]
+    public async Task SaleCreditIsIdempotentAndUsesTheSelectedSlotForLegacyParking()
+    {
+        var key = Guid.NewGuid();
+        async Task<ParkingCredit> Credit()
+        {
+            await using var db = new SqliteServerDbContext(_options);
+            return await ParkingBankOperations.Credit(db, _user, -1, 12345, key);
+        }
+
+        var credits = await Task.WhenAll(Task.Run(Credit), Task.Run(Credit));
+        Assert.That(credits.Select(credit => credit.Character), Is.All.EqualTo(0));
+        Assert.That(credits.Select(credit => credit.Balance), Is.All.EqualTo(812345));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(812345));
+        Assert.That(await read.LagoonEconomyRecords.CountAsync(p => p.Id.StartsWith("parking-sale:")), Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task ReceiptRejectsChangedPaymentAndInsufficientBalanceLeavesNoReceipt()
     {
         var key = Guid.NewGuid();

@@ -131,6 +131,8 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
         {
             foreach (var (comp, mover) in EntityQuery<NPCSteeringComponent, InputMoverComponent>())
             {
+                if (comp.Walk)
+                    mover.CurTickWalkMovement = Vector2.Zero;
                 mover.CurTickSprintMovement = Vector2.Zero;
                 comp.PathfindToken?.Cancel();
                 comp.PathfindToken = null;
@@ -221,6 +223,8 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
 
         if (TryComp(uid, out InputMoverComponent? controller))
         {
+            if (component.Walk)
+                controller.CurTickWalkMovement = Vector2.Zero;
             controller.CurTickSprintMovement = Vector2.Zero;
 
             var ev = new SpriteMoveEvent(false);
@@ -275,13 +279,18 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
             return;
 
         // Not every mob has the modifier component so do it as a separate query.
-        var npcs = new (EntityUid, NPCSteeringComponent, InputMoverComponent, TransformComponent)[Count<ActiveNPCComponent>()];
+        var npcs = new (EntityUid, NPCSteeringComponent, InputMoverComponent, TransformComponent)[Count<NPCSteeringComponent>()];
 
-        var query = EntityQueryEnumerator<ActiveNPCComponent, NPCSteeringComponent, InputMoverComponent, TransformComponent>();
+        var query = EntityQueryEnumerator<NPCSteeringComponent, InputMoverComponent, TransformComponent>();
+        var active = GetEntityQuery<ActiveNPCComponent>();
+        var actors = GetEntityQuery<ActorComponent>();
         var index = 0;
 
-        while (query.MoveNext(out var uid, out _, out var steering, out var mover, out var xform))
+        while (query.MoveNext(out var uid, out var steering, out var mover, out var xform))
         {
+            if (steering.Walk ? actors.HasComp(uid) : !active.HasComp(uid))
+                continue;
+
             npcs[index] = (uid, steering, mover, xform);
             index++;
         }
@@ -335,7 +344,15 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
             Array.Clear(steering.Danger);
         }
 
-        component.CurTickSprintMovement = value;
+        if (steering.Walk)
+        {
+            component.CurTickWalkMovement = value;
+            component.CurTickSprintMovement = Vector2.Zero;
+        }
+        else
+        {
+            component.CurTickSprintMovement = value;
+        }
         component.LastInputTick = _timing.CurTick;
         component.LastInputSubTick = ushort.MaxValue;
 
@@ -397,7 +414,9 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
 
         // Monolith - early port of wizden#38846
         var weightless = _gravity.IsWeightless(uid);
-        var moveSpeed = GetSprintSpeed(uid, modifier);
+        var moveSpeed = steering.Walk
+            ? modifier?.CurrentWalkSpeed ?? MovementSpeedModifierComponent.DefaultBaseWalkSpeed
+            : GetSprintSpeed(uid, modifier);
         var acceleration = GetAcceleration((uid, modifier), weightless);
         var friction = GetFriction((uid, modifier), weightless);
 
@@ -505,7 +524,7 @@ public sealed partial class NPCSteeringSystem : SharedNPCSteeringSystem
 
         steering.PathfindToken = new CancellationTokenSource();
 
-        var flags = _pathfindingSystem.GetFlags(uid);
+        var flags = steering.Walk ? steering.Flags : _pathfindingSystem.GetFlags(uid);
 
         var result = await _pathfindingSystem.GetPathSafe(
             uid,

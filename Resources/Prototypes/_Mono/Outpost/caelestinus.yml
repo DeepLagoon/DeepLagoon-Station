@@ -26,6 +26,7 @@
       components:
         - type: ApartmentLatejoinSpawn
         - type: StationPublicShipyardPurchaseAnnouncements
+        - type: StationAutomaticShuttleParking
         - type: StationNameSetup
           mapNameTemplate: 'Caelestinus Central'
         - type: StationDeadDrop
