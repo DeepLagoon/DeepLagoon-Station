@@ -99,6 +99,7 @@
         - FullTileMask
         layer:
         - GlassLayer
+        - Opaque
   - type: TimedDespawn
     lifetime: 180
   - type: PointLight
@@ -106,6 +107,9 @@
     radius: 3
     color: blue
   - type: Clickable
+  - type: Tag
+    tags:
+    - HolographicForceField
   - type: ContainmentField
     throwForce: 0
   - type: Destructible

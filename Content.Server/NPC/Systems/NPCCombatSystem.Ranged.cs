@@ -7,11 +7,15 @@ using Content.Shared.Damage.Components;
 using Content.Shared.Interaction;
 using Content.Shared.NPC.Components; // Mono
 using Content.Shared.Physics;
+using Content.Shared.Tag;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Events;
 using Content.Shared.Wieldable.Components;
 using Robust.Shared.Map;
+using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.NPC.Systems;
 
@@ -21,6 +25,10 @@ public sealed partial class NPCCombatSystem
     [Dependency] private RotateToFaceSystem _rotate = default!;
     [Dependency] private SharedLaserPointerSystem _pointer = default!; // Goobstation
     [Dependency] private DestructibleSystem _destructible = default!;
+    [Dependency] private SharedPhysicsSystem _rangedPhysics = default!;
+    [Dependency] private TagSystem _tags = default!;
+
+    private static readonly ProtoId<TagPrototype> HolographicForceFieldTag = "HolographicForceField";
 
     private EntityQuery<CombatModeComponent> _combatQuery;
     private EntityQuery<NPCSteeringComponent> _steeringQuery;
@@ -272,8 +280,9 @@ public sealed partial class NPCCombatSystem
     }
 
     // Mono
-    public bool InRangeGoodTarget(Entity<GunComponent?> gun, EntityUid source, EntityUid target, float distance, float shotsThreshold, CollisionGroup obstructedMask = CollisionGroup.Opaque, CollisionGroup bulletMask = CollisionGroup.Impassable | CollisionGroup.BulletImpassable)
+    public bool InRangeGoodTarget(Entity<GunComponent?> gun, EntityUid source, EntityUid target, float distance, float shotsThreshold, out EntityUid? blockingField, CollisionGroup obstructedMask = CollisionGroup.Opaque, CollisionGroup bulletMask = CollisionGroup.Impassable | CollisionGroup.BulletImpassable)
     {
+        blockingField = null;
         if (!Resolve(gun, ref gun.Comp, false))
             return false;
 
@@ -281,8 +290,9 @@ public sealed partial class NPCCombatSystem
         var destroyAccum = 0f;
         var firerate = gun.Comp.FireRateModified;
         var threshold = shotsThreshold;
+        var hitForceField = false;
         // For consistency with NPC steering.                                                  // Mono
-        return _interaction.InRangeUnobstructed(source, target, distance + 0.1f, obstructedMask,
+        var inRange = _interaction.InRangeUnobstructed(source, target, distance + 0.1f, obstructedMask,
             predicate: (EntityUid uid) => {
                 if (_physicsQuery.TryGetComponent(uid, out var physics)
                     && (physics.CollisionLayer & (int)bulletMask) == 0
@@ -291,6 +301,12 @@ public sealed partial class NPCCombatSystem
 
                 if (_requireTargetQuery.HasComponent(uid)) // requires targeting so it won't collide
                     return true;
+
+                if (_tags.HasTag(uid, HolographicForceFieldTag))
+                {
+                    hitForceField = true;
+                    return false;
+                }
 
                 // do not consider living things for shoot-through
                 if (!_factionQuery.HasComp(uid)
@@ -302,5 +318,40 @@ public sealed partial class NPCCombatSystem
                 }
                 return false;
             });
+
+        if (!inRange && hitForceField && dmg > 0f)
+            blockingField = GetBlockingForceField(source, target, obstructedMask | bulletMask);
+
+        return inRange;
+    }
+
+    private EntityUid? GetBlockingForceField(EntityUid source, EntityUid target, CollisionGroup mask)
+    {
+        var origin = _transform.GetMapCoordinates(source);
+        var delta = _transform.GetWorldPosition(target) - origin.Position;
+        var distance = delta.Length();
+        if (distance <= 0f)
+            return null;
+
+        var ray = new CollisionRay(origin.Position, delta / distance, (int) mask);
+        foreach (var hit in _rangedPhysics.IntersectRay(origin.MapId, ray, distance, source, returnOnFirstHit: false))
+        {
+            if (hit.HitEntity == target)
+                break;
+
+            if (_requireTargetQuery.TryComp(hit.HitEntity, out var requiresTarget) && requiresTarget.Active)
+                continue;
+
+            // Only attack a field that can be hit from here.
+            if (_tags.HasTag(hit.HitEntity, HolographicForceFieldTag) &&
+                _interaction.InRangeUnobstructed(source, hit.HitEntity, distance, mask))
+            {
+                return hit.HitEntity;
+            }
+
+            break;
+        }
+
+        return null;
     }
 }
