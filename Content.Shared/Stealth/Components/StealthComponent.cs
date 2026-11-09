@@ -11,7 +11,7 @@ namespace Content.Shared.Stealth.Components;
 /// </summary>
 [RegisterComponent, NetworkedComponent]
 [Access(typeof(SharedStealthSystem))]
-[AutoGenerateComponentState] // Goobstation
+[AutoGenerateComponentState(raiseAfterAutoHandleState: true)] // Goobstation
 public sealed partial class StealthComponent : Component
 {
     /// <summary>

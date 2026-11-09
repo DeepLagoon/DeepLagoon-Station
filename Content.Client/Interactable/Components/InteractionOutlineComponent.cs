@@ -36,7 +36,7 @@ namespace Content.Client.Interactable.Components
         {
             if (_entMan.TryGetComponent(uid, out SpriteComponent? sprite))
             {
-                if (sprite.PostShader == _shader)
+                if (_shader != null && sprite.PostShader == _shader)
                     sprite.PostShader = null;
                 sprite.RenderOrder = 0;
             }

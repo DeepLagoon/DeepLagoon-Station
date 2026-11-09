@@ -1,9 +1,10 @@
+using System.Numerics;
 using Content.Client.Interactable.Components;
-using Content.Client.StatusIcon;
 using Content.Shared.Stealth;
 using Content.Shared.Stealth.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
+using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client.Stealth;
@@ -11,18 +12,22 @@ namespace Content.Client.Stealth;
 public sealed partial class StealthSystem : SharedStealthSystem
 {
     [Dependency] private IPrototypeManager _protoMan = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
     [Dependency] private TransformSystem _transformSystem = default!;
 
+    private const string StealthPass = "stealth";
+    private static readonly ProtoId<ShaderPrototype> StealthShader = "Stealth";
     private ShaderInstance _shader = default!;
 
     public override void Initialize()
     {
         base.Initialize();
 
-        _shader = _protoMan.Index<ShaderPrototype>("Stealth").InstanceUnique();
+        _shader = _protoMan.Index(StealthShader).InstanceUnique();
 
         SubscribeLocalEvent<StealthComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<StealthComponent, ComponentStartup>(OnStartup);
+        SubscribeLocalEvent<StealthComponent, AfterAutoHandleStateEvent>(OnAfterState);
         SubscribeLocalEvent<StealthComponent, BeforePostShaderRenderEvent>(OnShaderRender);
     }
 
@@ -35,18 +40,16 @@ public sealed partial class StealthSystem : SharedStealthSystem
         SetShader(uid, value, component);
     }
 
-    private void SetShader(EntityUid uid, bool enabled, StealthComponent? component = null, SpriteComponent? sprite = null)
+    private void SetShader(EntityUid uid, bool enabled, StealthComponent component)
     {
-        if (!Resolve(uid, ref component, ref sprite, false))
+        if (!TryComp(uid, out SpriteComponent? sprite) || _sprites.HasPostShader(sprite, StealthPass) == enabled)
             return;
 
-        sprite.Color = Color.White;
-        sprite.PostShader = enabled ? _shader : null;
-        sprite.GetScreenTexture = enabled;
-        sprite.RaiseShaderEvent = enabled;
+        _sprites.SetColor((uid, sprite), Color.White);
 
         if (!enabled)
         {
+            _sprites.RemovePostShader(sprite, StealthPass);
             if (component.HadOutline && !TerminatingOrDeleted(uid))
                 EnsureComp<InteractionOutlineComponent>(uid);
             return;
@@ -54,9 +57,16 @@ public sealed partial class StealthSystem : SharedStealthSystem
 
         if (TryComp(uid, out InteractionOutlineComponent? outline))
         {
+            outline.OnMouseLeave(uid);
             RemCompDeferred(uid, outline);
             component.HadOutline = true;
         }
+
+        _sprites.SetPostShader(sprite, new SpriteComponent.PostShaderArgs(StealthPass, _shader)
+        {
+            GetScreenTexture = true,
+            RaiseShaderEvent = true,
+        });
     }
 
     private void OnStartup(EntityUid uid, StealthComponent component, ComponentStartup args)
@@ -70,30 +80,32 @@ public sealed partial class StealthSystem : SharedStealthSystem
             SetShader(uid, false, component);
     }
 
-    private void OnShaderRender(EntityUid uid, StealthComponent component, BeforePostShaderRenderEvent args)
+    private void OnAfterState(EntityUid uid, StealthComponent component, ref AfterAutoHandleStateEvent args)
     {
-        // Distortion effect uses screen coordinates. If a player moves, the entities appear to move on screen. this
-        // makes the distortion very noticeable.
+        SetShader(uid, component.Enabled, component);
+    }
 
-        // So we need to use relative screen coordinates. The reference frame we use is the parent's position on screen.
-        // this ensures that if the Stealth is not moving relative to the parent, its relative screen position remains
-        // unchanged.
+    private void OnShaderRender(EntityUid uid, StealthComponent component, ref BeforePostShaderRenderEvent args)
+    {
+        if (args.Id != StealthPass)
+            return;
+
+        // Anchor the distortion to the parent's screen position so camera movement doesn't shift the pattern.
         var parent = Transform(uid).ParentUid;
-        if (!parent.IsValid())
-            return; // should never happen, but lets not kill the client.
-        var parentXform = Transform(parent);
-        var reference = args.Viewport.WorldToLocal(_transformSystem.GetRenderWorldPosition((parentXform.Owner, parentXform)));
-        reference.X = -reference.X;
-        var visibility = GetVisibility(uid, component);
+        var reference = Vector2.Zero;
+        if (parent.IsValid())
+        {
+            reference = args.Viewport.WorldToLocal(_transformSystem.GetRenderWorldPosition(parent));
+            reference.X = -reference.X;
+        }
 
-        // Goobstation - Proper invisibility: changes -1 to -1.5
-        // actual visual visibility effect is limited to -1.5 to 1.
-        visibility = Math.Clamp(visibility, -1.5f, 1f);
-
-        _shader.SetParameter("reference", reference);
-        _shader.SetParameter("visibility", visibility);
+        var visibility = Math.Clamp(GetVisibility(uid, component), -1.5f, 1f);
+        var size = args.Viewport.Size;
+        args.Shader.SetParameter("viewport_pixel_size", new Vector2(1f / size.X, 1f / size.Y));
+        args.Shader.SetParameter("reference", reference);
+        args.Shader.SetParameter("visibility", visibility);
 
         visibility = MathF.Max(0, visibility);
-        args.Sprite.Color = new Color(visibility, visibility, 1, 1);
+        _sprites.SetColor((uid, args.Sprite), new Color(visibility, visibility, 1, 1));
     }
 }

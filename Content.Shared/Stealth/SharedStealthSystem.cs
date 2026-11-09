@@ -62,19 +62,13 @@ public abstract partial class SharedStealthSystem : EntitySystem
 
     private void OnMobStateChanged(EntityUid uid, StealthComponent component, MobStateChangedEvent args)// Goobstation - Stealth change
     {
-        if (args.NewMobState == MobState.Dead || args.NewMobState == MobState.Critical)
+        var enabled = args.NewMobState switch
         {
-            if (args.NewMobState == MobState.Dead)
-                component.Enabled = component.EnabledOnDeath;
-            else
-                component.Enabled = component.EnabledOnCrit;
-        }
-        else
-        {
-            component.Enabled = true;
-        }
-        SetEnabled(uid, component.Enabled, component);// to update the sprite;
-        Dirty(uid, component);
+            MobState.Dead => component.EnabledOnDeath,
+            MobState.Critical => component.EnabledOnCrit,
+            _ => true,
+        };
+        SetEnabled(uid, enabled, component);
     }
 
     private void OnPaused(EntityUid uid, StealthComponent component, ref EntityPausedEvent args)
