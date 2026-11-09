@@ -1,30 +1,38 @@
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Content.Server.Administration.Logs;
 using Content.Server.Chat.Managers;
+using Content.Server.Database;
+using Content.Server.Examine;
+using Content.Server.Preferences.Managers;
 using Content.Shared._DeepLagoon.DiscordLink;
 using Content.Shared._DeepLagoon.PdaMessenger;
 using Content.Shared.Chat;
 using Content.Shared.Database;
+using Content.Shared.Examine;
 using Content.Shared.GameTicking;
 using Content.Shared.Ghost;
-using Content.Shared.IdentityManagement;
+using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Inventory;
+using Content.Shared.Mind;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.PDA;
 using Content.Shared.Players;
 using Robust.Server.Player;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
+using Robust.Shared.ContentPack;
 using Robust.Shared.Timing;
-using Robust.Shared.Utility;
+using Microsoft.Data.Sqlite;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 
 namespace Content.Server._DeepLagoon.PdaMessenger;
 
-public sealed class PdaMessengerSystem : EntitySystem
+public sealed partial class PdaMessengerSystem : EntitySystem
 {
     [Dependency] private IPlayerManager _players = default!;
     [Dependency] private IGameTiming _timing = default!;
@@ -33,31 +41,48 @@ public sealed class PdaMessengerSystem : EntitySystem
     [Dependency] private MobStateSystem _mobState = default!;
     [Dependency] private IChatManager _chat = default!;
     [Dependency] private IAdminLogManager _logs = default!;
+    [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private IServerDbManager _database = default!;
+    [Dependency] private IServerPreferencesManager _preferences = default!;
+    [Dependency] private SharedMindSystem _mind = default!;
+    [Dependency] private ExamineSystem _examine = default!;
+    [Dependency] private SharedHandsSystem _hands = default!;
+    [Dependency] private InventorySystem _inventory = default!;
 
-    private sealed record Address(int Id, EntityUid Mind, NetUserId User)
+    private const int ContactLimit = 64;
+    private const float ReadNumberRange = 3f;
+    private sealed class Address(int id, EntityUid mind, NetUserId user, HashSet<int> contacts)
     {
-        public string Name = "";
+        public readonly int Id = id;
+        public readonly EntityUid Mind = mind;
+        public readonly NetUserId User = user;
+        public readonly HashSet<int> Contacts = contacts;
         public readonly HashSet<int> Unread = new();
+        public TimeSpan NextSend;
+        public TimeSpan NextContactChange;
     }
     private sealed record Message(int Id, int From, int To, string Text, byte[]? Image);
-    private sealed record View(EntityUid Pda)
+    private sealed class View(EntityUid pda, Address address)
     {
+        public readonly EntityUid Pda = pda;
+        public readonly Address Address = address;
         public int Peer;
-        public bool Closed;
         public TimeSpan NextRead;
-        public TimeSpan NextSend;
     }
     private sealed record Upload(View View, Address Sender, Address Recipient, string Text, byte[] Bytes, TimeSpan Expires)
     {
         public int Offset;
     }
 
-    private readonly Dictionary<EntityUid, Address> _addresses = new();
-    private readonly Dictionary<int, Address> _directory = new();
+    private readonly Dictionary<(EntityUid Mind, NetUserId User), Address> _addresses = new();
+    private readonly Dictionary<int, Address> _roundNumbers = new();
+    private readonly HashSet<EntityUid> _registering = new();
     private readonly Dictionary<NetUserId, View> _views = new();
     private readonly Dictionary<NetUserId, Upload> _uploads = new();
     private readonly List<Message> _messages = new();
-    private int _nextAddress;
+    private PdaMessengerStore? _store;
+    private PdaMessengerStore Store => _store ??= new PdaMessengerStore(_resources.UserData.RootDir is { } root
+        ? Path.Combine(root, "pda-messenger.db") : ":memory:");
     private int _nextMessage;
     private int _imageBytes;
     private int _imageJobs;
@@ -68,22 +93,123 @@ public sealed class PdaMessengerSystem : EntitySystem
         SubscribeNetworkEvent<PdaMessengerRequest>(OnRequest);
         SubscribeNetworkEvent<PdaMessengerUploadChunk>(OnUpload);
         SubscribeLocalEvent<PlayerDetachedEvent>(OnDetach);
-        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ =>
-        {
-            _addresses.Clear();
-            _directory.Clear();
-            _views.Clear();
-            _uploads.Clear();
-            _messages.Clear();
-            _imageBytes = 0;
-            _generation++;
-        });
+        SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnSpawn);
+        SubscribeLocalEvent<PdaComponent, ExaminedEvent>(OnExamine);
+        SubscribeLocalEvent<PdaComponent, BoundUIClosedEvent>(OnPdaClosed);
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => ResetRound());
     }
 
-    private void OnDetach(PlayerDetachedEvent args)
+    private void ResetRound()
     {
-        _views.Remove(args.Player.UserId);
-        _uploads.Remove(args.Player.UserId);
+        _addresses.Clear();
+        _roundNumbers.Clear();
+        _registering.Clear();
+        _views.Clear();
+        _uploads.Clear();
+        _messages.Clear();
+        _imageBytes = 0;
+        _generation++;
+    }
+
+    public override void Shutdown()
+    {
+        ResetRound();
+        _store?.Dispose();
+        base.Shutdown();
+    }
+
+    private async void OnSpawn(PlayerSpawnCompleteEvent args)
+    {
+        var player = args.Player;
+        if (player.ContentData()?.Mind is not { } mind ||
+            !ServerPreferencesManager.ShouldStorePrefs(player.Channel.AuthType) ||
+            !_preferences.TryGetCachedPreferences(player.UserId, out var preferences))
+            return;
+
+        // Resolve the spawned profile now. Lobby selection can change while the player is in the round.
+        var slot = preferences.Characters.FirstOrDefault(pair => ReferenceEquals(pair.Value, args.Profile));
+        if (slot.Value == null || !_registering.Add(mind))
+            return;
+
+        var generation = _generation;
+        try
+        {
+            var profile = await _database.GetCharacterProfileIdAsync(player.UserId, slot.Key);
+            if (generation != _generation || !Exists(mind) || profile is not { } id)
+                return;
+
+            var number = Store.GetOrCreateNumber(player.UserId, id);
+            var address = new Address(number, mind, player.UserId, Store.LoadContacts(number));
+            _addresses[(mind, player.UserId)] = address;
+            _roundNumbers[number] = address;
+        }
+        catch (Exception exception)
+        {
+            Log.Error($"Failed to register PDA messenger line: {exception}");
+        }
+        finally
+        {
+            if (generation == _generation)
+                _registering.Remove(mind);
+        }
+    }
+
+    private void OnExamine(EntityUid uid, PdaComponent pda, ExaminedEvent args)
+    {
+        var holder = Transform(uid).ParentUid;
+        // Inventory containers hide examine details even when a PDA is held out or worn.
+        if (!args.IsInDetailsRange &&
+            (!(_hands.IsHolding(holder, uid) || _inventory.TryGetSlotEntity(holder, "id", out var equipped) && equipped == uid)
+             || !_examine.InRangeUnOccluded(args.Examiner, uid, ReadNumberRange)))
+            return;
+
+        int number;
+        if (_mind.TryGetMind(holder, out _, out _))
+        {
+            number = GetExamineAddress(holder)?.Id ?? 0;
+        }
+        else if (_roundNumbers.ContainsKey(pda.MessengerNumber))
+        {
+            number = pda.MessengerNumber;
+        }
+        else
+        {
+            number = pda.PdaOwner is { } owner ? GetExamineAddress(owner)?.Id ?? 0 : 0;
+        }
+
+        if (number != 0)
+            pda.MessengerNumber = number;
+        args.PushMarkup(number == 0
+            ? Loc.GetString("dl-messenger-examine-unassigned")
+            : Loc.GetString("dl-messenger-number-line", ("number", number.ToString())));
+    }
+
+    private Address? GetExamineAddress(EntityUid body)
+    {
+        if (!_mind.TryGetMind(body, out var mindId, out var mind) || mind.OwnedEntity != body)
+            return null;
+
+        if (TryComp<ActorComponent>(body, out var actor) &&
+            TryGetCharacter(actor.PlayerSession, out _, out var activeMind) && activeMind == mindId)
+            return GetAddress(actor.PlayerSession, mindId);
+
+        var user = mind.UserId ?? mind.OriginalOwnerUserId;
+        return user is { } id ? _addresses.GetValueOrDefault((mindId, id)) : null;
+    }
+
+    private void OnPdaClosed(EntityUid uid, PdaComponent pda, BoundUIClosedEvent args)
+    {
+        if (args.UiKey is PdaUiKey.Key && TryComp<ActorComponent>(args.Actor, out var actor) &&
+            _views.TryGetValue(actor.PlayerSession.UserId, out var view) && view.Pda == uid)
+            OnDetach(actor.PlayerSession.UserId);
+    }
+
+    private void OnDetach(PlayerDetachedEvent args) => OnDetach(args.Player.UserId);
+
+    private void OnDetach(NetUserId user)
+    {
+        _views.Remove(user);
+        _uploads.Remove(user);
     }
 
     private bool TryGetCharacter(ICommonSession player, out EntityUid actor, out EntityUid mind)
@@ -91,7 +217,9 @@ public sealed class PdaMessengerSystem : EntitySystem
         actor = default;
         mind = default;
         if (player.AttachedEntity is not { } entity || player.ContentData()?.Mind is not { } character ||
-            HasComp<GhostComponent>(entity) || _mobState.IsDead(entity))
+            HasComp<GhostComponent>(entity) || _mobState.IsDead(entity) ||
+            !TryComp<MindComponent>(character, out var playerMind) ||
+            playerMind.OwnedEntity != entity || playerMind.UserId != player.UserId)
             return false;
 
         actor = entity;
@@ -100,7 +228,7 @@ public sealed class PdaMessengerSystem : EntitySystem
     }
 
     private bool CarriesPda(EntityUid actor, EntityUid pda) =>
-        HasComp<PdaComponent>(pda) && TryComp<TransformComponent>(pda, out var transform) && transform.ParentUid == actor;
+        HasComp<PdaComponent>(pda) && Transform(pda).ParentUid == actor;
 
     private bool HasPda(EntityUid actor)
     {
@@ -113,15 +241,22 @@ public sealed class PdaMessengerSystem : EntitySystem
         return false;
     }
 
-    private Address GetAddress(ICommonSession session, EntityUid actor, EntityUid mind)
+    private Address? GetAddress(ICommonSession session, EntityUid mind)
     {
-        if (!_addresses.TryGetValue(mind, out var address))
+        if (_addresses.TryGetValue((mind, session.UserId), out var address))
+            return address;
+        if (_registering.Contains(mind))
+            return null;
+
+        // Guests and bodies without a saved character profile use a round-only line.
+        int number;
+        do
         {
-            address = new Address(++_nextAddress, mind, session.UserId);
-            _addresses.Add(mind, address);
-            _directory.Add(address.Id, address);
-        }
-        address.Name = Name(Identity.Entity(actor, EntityManager));
+            number = RandomNumberGenerator.GetInt32(PdaMessengerLimits.FirstTemporaryNumber, PdaMessengerLimits.LastNumber + 1);
+        } while (_roundNumbers.ContainsKey(number));
+        address = new Address(number, mind, session.UserId, []);
+        _addresses.Add((mind, session.UserId), address);
+        _roundNumbers.Add(number, address);
         return address;
     }
 
@@ -141,39 +276,41 @@ public sealed class PdaMessengerSystem : EntitySystem
     {
         var session = args.SenderSession;
         if (!TryGetCharacter(session, out var actor, out var mind) || !TryGetEntity(request.Pda, out var pda) ||
-            pda is not { } device || !CarriesPda(actor, device))
+            pda is not { } device || !CarriesPda(actor, device) || !_ui.IsUiOpen(device, PdaUiKey.Key, actor))
             return;
 
         if (request.Action == PdaMessengerAction.Open)
         {
-            if (!_ui.IsUiOpen(device, PdaUiKey.Key, actor))
+            if (GetAddress(session, mind) is not { } address)
                 return;
-            if (_views.TryGetValue(session.UserId, out var current) && current.NextRead > _timing.RealTime)
-                return;
-
-            _views[session.UserId] = new View(device)
+            Comp<PdaComponent>(device).MessengerNumber = address.Id;
+            if (_views.TryGetValue(session.UserId, out var current) && current.Pda == device && current.Address == address)
             {
-                NextRead = _timing.RealTime + TimeSpan.FromSeconds(0.25),
-                NextSend = current?.NextSend ?? TimeSpan.Zero,
-            };
+                if (current.NextRead <= _timing.RealTime)
+                {
+                    current.NextRead = _timing.RealTime + TimeSpan.FromSeconds(0.25);
+                    Publish(session, address, current);
+                }
+                return;
+            }
+
+            var opened = new View(device, address);
+            _views[session.UserId] = opened;
             _uploads.Remove(session.UserId);
-            Publish(session, GetAddress(session, actor, mind), _views[session.UserId]);
+            Publish(session, address, opened);
             return;
         }
 
         if (!_views.TryGetValue(session.UserId, out var view) || view.Pda != device ||
-            !_addresses.TryGetValue(mind, out var sender))
+            view.Address.Mind != mind)
             return;
 
+        var sender = view.Address;
         if (request.Action == PdaMessengerAction.Close)
         {
-            view.Closed = true;
-            _uploads.Remove(session.UserId);
+            OnDetach(session.UserId);
             return;
         }
-
-        if (view.Closed)
-            return;
 
         if (request.Action == PdaMessengerAction.Send)
         {
@@ -191,9 +328,15 @@ public sealed class PdaMessengerSystem : EntitySystem
             return;
         }
 
+        if (request.Action is PdaMessengerAction.AddContact or PdaMessengerAction.RemoveContact)
+        {
+            ChangeContact(session, view, sender, request);
+            return;
+        }
+
         if (request.Action == PdaMessengerAction.Select && request.Target != sender.Id &&
-            (_directory.TryGetValue(request.Target, out var peer) && TryGetOnline(peer, out _) ||
-             _messages.Any(message => InConversation(message, sender.Id, request.Target))))
+            (sender.Contacts.Contains(request.Target) ||
+             _messages.Any(message => message.From == request.Target && message.To == sender.Id)))
         {
             view.Peer = request.Target;
             sender.Unread.Remove(request.Target);
@@ -203,13 +346,82 @@ public sealed class PdaMessengerSystem : EntitySystem
             Publish(session, sender, view);
     }
 
+    private void ChangeContact(ICommonSession session, View view, Address sender, PdaMessengerRequest request)
+    {
+        if (sender.NextContactChange > _timing.RealTime)
+            return;
+        sender.NextContactChange = _timing.RealTime + TimeSpan.FromSeconds(0.5);
+
+        var adding = request.Action == PdaMessengerAction.AddContact;
+        var peer = request.Target;
+        if (adding && !PdaMessengerLimits.TryParseNumber(request.Text, out peer))
+        {
+            Publish(session, sender, view, "dl-messenger-invalid-number");
+            return;
+        }
+        if (peer == sender.Id)
+        {
+            Publish(session, sender, view, "dl-messenger-own-contact");
+            return;
+        }
+        if (sender.Contacts.Contains(peer) == adding)
+        {
+            if (adding)
+                Publish(session, sender, view, "dl-messenger-duplicate-contact");
+            return;
+        }
+        if (adding && sender.Contacts.Count >= ContactLimit)
+        {
+            Publish(session, sender, view, "dl-messenger-contact-limit");
+            return;
+        }
+
+        var temporary = sender.Id >= PdaMessengerLimits.FirstTemporaryNumber || peer >= PdaMessengerLimits.FirstTemporaryNumber;
+        if (adding && peer >= PdaMessengerLimits.FirstTemporaryNumber && !_roundNumbers.ContainsKey(peer))
+        {
+            Publish(session, sender, view, "dl-messenger-unknown-temporary-number");
+            return;
+        }
+        if (!temporary)
+        {
+            try
+            {
+                Store.SetContact(sender.Id, peer, adding);
+            }
+            catch (SqliteException exception)
+            {
+                Log.Error($"Failed to save PDA messenger contact: {exception}");
+                Publish(session, sender, view, "dl-messenger-save-error");
+                return;
+            }
+        }
+
+        if (adding)
+        {
+            sender.Contacts.Add(peer);
+            sender.Unread.Remove(peer);
+            view.Peer = peer;
+        }
+        else
+        {
+            sender.Contacts.Remove(peer);
+            if (view.Peer == peer)
+                view.Peer = 0;
+        }
+        var status = adding
+            ? temporary ? "dl-messenger-temporary-contact-added" : "dl-messenger-contact-added"
+            : "dl-messenger-contact-removed";
+        Publish(session, sender, view, status);
+    }
+
     private void Send(ICommonSession session, View view, Address sender, PdaMessengerRequest request)
     {
-        if (view.NextSend > _timing.RealTime)
+        if (sender.NextSend > _timing.RealTime)
             return;
-        view.NextSend = _timing.RealTime + TimeSpan.FromSeconds(1);
+        sender.NextSend = _timing.RealTime + TimeSpan.FromSeconds(1);
 
-        if (request.Target != view.Peer || !_directory.TryGetValue(view.Peer, out var recipient) ||
+        if (request.Target != view.Peer || !sender.Contacts.Contains(view.Peer) ||
+            !_roundNumbers.TryGetValue(view.Peer, out var recipient) ||
             !TryGetOnline(recipient, out _))
         {
             Publish(session, sender, view, "dl-messenger-offline");
@@ -236,7 +448,7 @@ public sealed class PdaMessengerSystem : EntitySystem
             return;
         }
 
-        view.NextSend = _timing.RealTime + TimeSpan.FromSeconds(4);
+        sender.NextSend = _timing.RealTime + TimeSpan.FromSeconds(4);
         _uploads[session.UserId] = new Upload(view, sender, recipient, text,
             new byte[request.UploadLength], _timing.RealTime + TimeSpan.FromSeconds(20));
     }
@@ -276,7 +488,9 @@ public sealed class PdaMessengerSystem : EntitySystem
             if (generation != _generation || !session.Channel.IsConnected ||
                 !TryGetCharacter(session, out var actor, out var mind) || mind != upload.Sender.Mind ||
                 !CarriesPda(actor, upload.View.Pda) || !CanAttach(session) ||
-                !_views.TryGetValue(session.UserId, out var current) || !ReferenceEquals(current, upload.View) || current.Closed)
+                !_ui.IsUiOpen(upload.View.Pda, PdaUiKey.Key, actor) ||
+                !_views.TryGetValue(session.UserId, out var current) || current != upload.View ||
+                !upload.Sender.Contacts.Contains(upload.Recipient.Id))
                 return;
 
             if (image == null || _imageBytes + image.Length > 12 * 1024 * 1024 || !TryGetOnline(upload.Recipient, out _))
@@ -339,14 +553,15 @@ public sealed class PdaMessengerSystem : EntitySystem
             return;
 
         recipient.Unread.Add(sender.Id);
-        if (_views.TryGetValue(listener.UserId, out var recipientView) && !recipientView.Closed && CarriesPda(target, recipientView.Pda))
+        if (_views.TryGetValue(listener.UserId, out var recipientView) && recipientView.Address == recipient &&
+            CarriesPda(target, recipientView.Pda) && _ui.IsUiOpen(recipientView.Pda, PdaUiKey.Key, target))
         {
             if (recipientView.Peer == sender.Id)
                 recipient.Unread.Remove(sender.Id);
             Publish(listener, recipient, recipientView);
         }
 
-        var notice = Loc.GetString("dl-messenger-notification", ("name", FormattedMessage.EscapeText(sender.Name)));
+        var notice = Loc.GetString("dl-messenger-notification", ("number", sender.Id.ToString()));
         _chat.ChatMessageToOne(ChatChannel.Notifications, "", notice, EntityUid.Invalid, false, listener.Channel);
     }
 
@@ -355,33 +570,23 @@ public sealed class PdaMessengerSystem : EntitySystem
 
     private void Publish(ICommonSession session, Address address, View view, string status = "")
     {
-        if (view.Closed || !session.Channel.IsConnected || !TryGetCharacter(session, out var actor, out var mind) ||
-            mind != address.Mind || !CarriesPda(actor, view.Pda) ||
+        if (!session.Channel.IsConnected || !TryGetCharacter(session, out var actor, out var mind) ||
+            mind != address.Mind || !CarriesPda(actor, view.Pda) || !_ui.IsUiOpen(view.Pda, PdaUiKey.Key, actor) ||
             !_views.TryGetValue(session.UserId, out var current) || current != view)
             return;
 
-        var contacts = new Dictionary<int, PdaMessengerContact>();
-        foreach (var other in _players.Sessions)
-        {
-            if (other == session || !TryGetCharacter(other, out var target, out var targetMind) || !HasPda(target))
-                continue;
-
-            var peer = GetAddress(other, target, targetMind);
-            contacts[peer.Id] = new PdaMessengerContact(peer.Id, peer.Name, true, address.Unread.Contains(peer.Id));
-        }
-        foreach (var message in _messages)
-        {
-            var peerId = message.From == address.Id ? message.To : message.To == address.Id ? message.From : 0;
-            if (peerId != 0 && !contacts.ContainsKey(peerId) && _directory.TryGetValue(peerId, out var peer))
-                contacts.Add(peerId, new PdaMessengerContact(peerId, peer.Name, false, address.Unread.Contains(peerId)));
-        }
+        var incoming = _messages.Where(message => message.To == address.Id).Select(message => message.From);
+        var contacts = address.Contacts.Union(incoming).Select(id => new PdaMessengerContact(id,
+            address.Contacts.Contains(id), _roundNumbers.TryGetValue(id, out var peer) && TryGetOnline(peer, out _),
+            address.Unread.Contains(id)));
 
         var history = _messages.Where(message => InConversation(message, address.Id, view.Peer)).TakeLast(40)
             .Select(message => new PdaMessengerMessage(message.Id, message.From == address.Id, message.Text, message.Image != null))
             .ToArray();
-        var directory = contacts.Values.OrderByDescending(contact => contact.Unread).ThenBy(contact => contact.Name).ToArray();
-        RaiseNetworkEvent(new PdaMessengerSnapshot(GetNetEntity(view.Pda), view.Peer, CanAttach(session), directory, history,
-            status.Length == 0 ? "" : Loc.GetString(status), status == "dl-messenger-sent"), session);
+        var directory = contacts.OrderByDescending(contact => contact.Unread).ThenBy(contact => contact.Id).ToArray();
+        RaiseNetworkEvent(new PdaMessengerSnapshot(GetNetEntity(view.Pda), address.Id, view.Peer, CanAttach(session), directory, history,
+            status.Length == 0 ? "" : Loc.GetString(status), status == "dl-messenger-sent",
+            status is "dl-messenger-contact-added" or "dl-messenger-temporary-contact-added"), session);
     }
 
     private void SendImage(ICommonSession session, View view, Address address, int messageId)

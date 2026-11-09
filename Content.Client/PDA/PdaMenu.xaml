@@ -106,6 +106,8 @@
                       Name="ProgramView"
                       Access="Public">
         </BoxContainer>
+        <BoxContainer Name="MessengerView" Access="Public" Orientation="Vertical" Margin="8"
+                      SeparationOverride="6" HorizontalExpand="True" VerticalExpand="True"/>
     </BoxContainer>
     <BoxContainer Name="ContentFooter" HorizontalExpand="True" SetHeight="28" Margin="1 0 2 1">
         <controls:StripeBack HasBottomEdge="False" HasMargins="False" HorizontalExpand="True">

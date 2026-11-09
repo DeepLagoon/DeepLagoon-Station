@@ -1,0 +1,95 @@
+.PdaMessenger {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__headerActions, &__refresh { flex-shrink: 0; }
+  &__headerActions { display: flex; align-items: center; gap: 10px; }
+
+  &__bar, &__toolbar, &__send, &__preview {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  &__bar {
+    justify-content: space-between;
+    flex-shrink: 0;
+    strong { color: var(--pda-accent); font-family: 'Courier New', monospace; }
+  }
+  &__number { flex-shrink: 0; }
+  &__columns {
+    min-height: 55px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(115px, 30%) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 10px;
+    &--chat { min-height: 140px; }
+  }
+  aside, section, form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    gap: 6px;
+  }
+  &__contacts, &__history {
+    overflow: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  &__history {
+    flex: 1;
+    background: var(--pda-screen);
+    border: 1px solid var(--pda-line);
+    padding: 7px;
+  }
+  &__contacts button {
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  &__contacts button[aria-pressed='true'] { box-shadow: inset 3px 0 var(--pda-accent); }
+  &__contacts small { display: block; }
+  small, &__contacts p { color: var(--pda-muted); }
+  &__unread { color: var(--pda-accent); }
+  &__history article {
+    align-self: flex-start;
+    background: var(--pda-panel);
+    border: 1px solid var(--pda-line);
+    border-radius: 3px;
+    padding: 5px 8px;
+    max-width: 85%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  &__history &__outgoing {
+    align-self: flex-end;
+    border-color: var(--pda-accent);
+  }
+  img { display: block; max-width: 100%; max-height: 180px; }
+  &__preview img { max-width: 80px; max-height: 50px; }
+  &__toolbar { flex-wrap: wrap; }
+  &__send input { flex: 1; min-width: 0; }
+  button, input, &__refresh {
+    padding: 4px 7px;
+    border: 1px solid var(--pda-line);
+    border-radius: 3px;
+    background: var(--pda-panel);
+    font: inherit;
+    color: inherit;
+  }
+  input:focus-visible { outline: 2px solid var(--pda-accent); outline-offset: -2px; }
+  input::placeholder { color: var(--pda-muted); }
+}
+
+@media (max-height: 540px) {
+  .Pda:has(.PdaMessenger) {
+    .Pda__bezel { min-height: 36px; margin-bottom: 8px; }
+    .Pda__screenHead { padding-block: 8px; }
+    .PdaMessenger { padding-block: 8px; }
+    .Pda__dock, .Pda__screenFoot { padding-block: 5px; }
+    .Pda__hardware { padding-top: 8px; }
+  }
+}

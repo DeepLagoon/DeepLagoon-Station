@@ -25,6 +25,7 @@ namespace Content.Client.PDA
         public const int ProgramListView = 1;
         public const int SettingsView = 2;
         public const int ProgramContentView = 3;
+        public const int MessengerScreen = 4;
 
 
         private string _pdaOwner = Loc.GetString("comp-pda-ui-unknown");
@@ -44,6 +45,9 @@ namespace Content.Client.PDA
         public event Action<EntityUid>? OnProgramItemPressed;
         public event Action<EntityUid>? OnUninstallButtonPressed;
         public event Action<EntityUid>? OnInstallButtonPressed;
+        public event Action<bool>? OnMessengerViewChanged;
+        public event Action? OnMessengerNativeShown;
+        public event Action<string, string>? OnMessengerAction;
         public PdaMenu()
         {
             IoCManager.InjectDependencies(this);
@@ -61,37 +65,11 @@ namespace Content.Client.PDA
 
 
             HomeButton.OnPressed += _ => ToHomeScreen();
+            MessengerButton.OnPressed += _ => ChangeView(MessengerScreen);
 
-            ProgramListButton.OnPressed += _ =>
-            {
-                HomeButton.IsCurrent = false;
-                ProgramListButton.IsCurrent = true;
-                SettingsButton.IsCurrent = false;
-                ProgramTitle.IsCurrent = false;
-
-                ChangeView(ProgramListView);
-            };
-
-
-            SettingsButton.OnPressed += _ =>
-            {
-                HomeButton.IsCurrent = false;
-                ProgramListButton.IsCurrent = false;
-                SettingsButton.IsCurrent = true;
-                ProgramTitle.IsCurrent = false;
-
-                ChangeView(SettingsView);
-            };
-
-            ProgramTitle.OnPressed += _ =>
-            {
-                HomeButton.IsCurrent = false;
-                ProgramListButton.IsCurrent = false;
-                SettingsButton.IsCurrent = false;
-                ProgramTitle.IsCurrent = true;
-
-                ChangeView(ProgramContentView);
-            };
+            ProgramListButton.OnPressed += _ => ChangeView(ProgramListView);
+            SettingsButton.OnPressed += _ => ChangeView(SettingsView);
+            ProgramTitle.OnPressed += _ => ChangeView(ProgramContentView);
 
             ProgramCloseButton.OnPressed += _ =>
             {
@@ -320,15 +298,7 @@ namespace Content.Client.PDA
         /// <summary>
         /// Changes the current view to the home screen (view 0) and sets the tabs `IsCurrent` flag accordingly
         /// </summary>
-        public void ToHomeScreen()
-        {
-            HomeButton.IsCurrent = true;
-            ProgramListButton.IsCurrent = false;
-            SettingsButton.IsCurrent = false;
-            ProgramTitle.IsCurrent = false;
-
-            ChangeView(HomeView);
-        }
+        public void ToHomeScreen() => ChangeView(HomeView);
 
         /// <summary>
         /// Hides the program title and close button.
@@ -348,11 +318,6 @@ namespace Content.Client.PDA
         /// </summary>
         public void ToProgramView(string title)
         {
-            HomeButton.IsCurrent = false;
-            ProgramListButton.IsCurrent = false;
-            SettingsButton.IsCurrent = false;
-            ProgramTitle.IsCurrent = false;
-            ProgramTitle.IsCurrent = true;
             ProgramTitle.Visible = true;
             ProgramCloseButton.Visible = true;
             ProgramListButton.Visible = false;
@@ -369,18 +334,25 @@ namespace Content.Client.PDA
         /// </summary>
         public void ChangeView(int view)
         {
-            if (OrbitalActive)
+            var previous = _currentView;
+            if (!OrbitalActive)
             {
-                _currentView = view;
-                PublishOrbital();
-                return;
+                // ProgramView is restored to its original index when switching back from TGUI.
+                ViewContainer.GetChild(previous).Visible = false;
+                ViewContainer.GetChild(view).Visible = true;
             }
-            if (ViewContainer.ChildCount <= view)
-                return;
 
-            ViewContainer.GetChild(_currentView).Visible = false;
-            ViewContainer.GetChild(view).Visible = true;
             _currentView = view;
+            HomeButton.IsCurrent = view == HomeView;
+            ProgramListButton.IsCurrent = view == ProgramListView;
+            SettingsButton.IsCurrent = view == SettingsView;
+            ProgramTitle.IsCurrent = view == ProgramContentView;
+            MessengerButton.IsCurrent = view == MessengerScreen;
+
+            if (view != previous && (view == MessengerScreen || previous == MessengerScreen))
+                OnMessengerViewChanged?.Invoke(view == MessengerScreen);
+
+            PublishOrbital();
         }
 
         private static BoxContainer CreateProgramListRow()

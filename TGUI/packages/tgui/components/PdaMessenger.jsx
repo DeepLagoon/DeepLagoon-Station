@@ -1,29 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
-import { useBackend } from '../backend';
 import './PdaMessenger.scss';
 
 const maxBytes = 256 * 1024;
 const emoji = ['🙂', '👍', '👋', '❤️', '✅', '⚠️'];
 
-export const PdaMessenger = () => {
-  const { data, act } = useBackend();
+export const PdaMessenger = ({ data, act }) => {
   const t = key => data.labels?.[key] || '';
   const [draft, setDraft] = useState('');
-  const [search, setSearch] = useState('');
+  const [number, setNumber] = useState('');
   const [error, setError] = useState('');
   const [pasting, setPasting] = useState(false);
   const log = useRef(null);
   const upload = useRef(0);
-  const peer = data.contacts?.find(contact => contact.id === data.peer);
+  const contacts = data.contacts || [];
+  const saved = contacts.filter(contact => contact.saved);
+  const incoming = contacts.filter(contact => !contact.saved);
+  const peer = contacts.find(contact => contact.id === data.peer);
+  const canSend = peer?.saved && peer.available;
 
   useEffect(() => { setDraft(''); setError(''); upload.current++; setPasting(false); }, [data.peer, data.sentRevision]);
-  useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [data.messages?.length, data.peer]);
+  useEffect(() => { setNumber(''); }, [data.contactRevision]);
+  useEffect(() => () => { upload.current++; }, []);
+  useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [data.messages?.at(-1)?.id, data.peer]);
 
   const paste = async event => {
     const file = Array.from(event.clipboardData?.files || []).find(item => item.type.startsWith('image/'));
     if (!file) return;
     event.preventDefault();
-    if (!data.attachments || !peer?.available || pasting) return;
+    if (!data.attachments || !canSend || pasting) return;
     if (file.size > 8 * 1024 * 1024) { setError(t('file-error')); return; }
 
     const id = ++upload.current;
@@ -62,29 +66,53 @@ export const PdaMessenger = () => {
 
   const send = event => {
     event.preventDefault();
-    if (peer?.available && (draft.trim() || data.attachment) && !pasting)
+    if (canSend && (draft.trim() || data.attachment) && !pasting)
       act('send', { text: draft });
   };
 
+  const add = event => {
+    event.preventDefault();
+    if (number.trim())
+      act('add', { number });
+  };
+
+  const contactButton = contact => (
+    <button type="button" key={contact.id} aria-pressed={contact.id === data.peer}
+      onClick={() => act('select', { id: contact.id })}>
+      {contact.unread && <span className="PdaMessenger__unread" aria-hidden="true">● </span>}{contact.id}
+      {!contact.available && <small>{t('offline-label')}</small>}
+    </button>
+  );
+
   return (
-    <div className="PdaMessenger" onPaste={paste}>
-      <header><strong>{t('title')}</strong><button type="button" onClick={() => act('refresh')}>{t('refresh')}</button></header>
-      {!data.ready ? <p>{t('waiting')}</p> : <main>
+    <main className="PdaMessenger Pda__content" onPaste={paste}>
+      {!data.ready ? <p role="status">{t('waiting')}</p> : <>
+        <form className="PdaMessenger__number" onSubmit={add}>
+          <div className="PdaMessenger__send">
+            <input value={number} inputMode="numeric" maxLength={16} onChange={event => setNumber(event.target.value)}
+              placeholder={t('number-input')} aria-label={t('number-input')}
+              aria-describedby={saved.length ? undefined : 'pda-messenger-number-help'} />
+            <button type="submit" disabled={!number.trim()}>{t('add-contact')}</button>
+          </div>
+          {!saved.length && <small id="pda-messenger-number-help">{t('number-help')}</small>}
+        </form>
+        {(error || data.status) && <small role="status">{error || data.status}</small>}
+        <div className={'PdaMessenger__columns' + (peer ? ' PdaMessenger__columns--chat' : '')}>
         <aside aria-label={t('contacts')}>
-          <input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('contacts')} aria-label={t('contacts')} />
           <div className="PdaMessenger__contacts">
-            {(data.contacts || []).filter(contact => contact.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map(contact =>
-              <button type="button" key={contact.id} aria-pressed={contact.id === data.peer}
-                onClick={() => act('select', { id: contact.id })}>
-                {contact.unread && <span className="PdaMessenger__unread" aria-hidden="true">● </span>}{contact.name}
-                {!contact.available && <small>{t('offline-label')}</small>}
-              </button>
-            )}
+            <div className="Pda__eyebrow">{t('contacts')}</div>
+            {!saved.length && <p>{t('empty-contacts')}</p>}
+            {saved.map(contactButton)}
+            {!!incoming.length && <div className="Pda__eyebrow">{t('incoming')}</div>}
+            {incoming.map(contactButton)}
           </div>
         </aside>
         <section>
           {peer ? <>
-            <strong className="PdaMessenger__peer">{peer.name}</strong>
+            <div className="PdaMessenger__bar">
+              <strong>{peer.id}</strong>
+              {peer.saved && <button type="button" onClick={() => act('remove', { id: peer.id })}>{t('remove-contact')}</button>}
+            </div>
             <div ref={log} className="PdaMessenger__history" role="log" aria-live="polite">
               {!data.messages?.length && <p>{t('empty')}</p>}
               {(data.messages || []).map(message => (
@@ -96,10 +124,13 @@ export const PdaMessenger = () => {
                 </article>
               ))}
             </div>
-            <form onSubmit={send}>
+            {!peer.saved ? <div className="PdaMessenger__bar">
+              <p>{t('save-to-reply')}</p>
+              <button type="button" onClick={() => act('add', { number: String(peer.id) })}>{t('add-contact')}</button>
+            </div> : <form onSubmit={send}>
               <div className="PdaMessenger__toolbar">
-                {emoji.map(symbol => <button key={symbol} type="button" onClick={() => setDraft(value => (value + symbol).slice(0, 500))}>{symbol}</button>)}
-                {data.attachments && <button type="button" title={t('paste')} disabled={!peer.available || pasting}
+                {emoji.map(symbol => <button key={symbol} type="button" disabled={!canSend} onClick={() => setDraft(value => (value + symbol).slice(0, 500))}>{symbol}</button>)}
+                {data.attachments && <button type="button" title={t('paste')} disabled={!canSend || pasting}
                   onClick={() => act('file')}>{t('file')}</button>}
               </div>
               {!!data.attachment && <div className="PdaMessenger__preview">
@@ -107,15 +138,15 @@ export const PdaMessenger = () => {
                 <button type="button" onClick={() => act('detach')}>{t('remove')}</button>
               </div>}
               <div className="PdaMessenger__send">
-                <input value={draft} maxLength={500} placeholder={t('write')} aria-label={t('write')}
+                <input value={draft} maxLength={500} placeholder={t('write')} aria-label={t('write')} disabled={!canSend}
                   onChange={event => setDraft(event.target.value)} />
-                <button type="submit" disabled={!peer.available || pasting || (!draft.trim() && !data.attachment)}>{t('send')}</button>
+                <button type="submit" disabled={!canSend || pasting || (!draft.trim() && !data.attachment)}>{t('send')}</button>
               </div>
-            </form>
+            </form>}
           </> : <p>{t('select')}</p>}
-          {(error || data.status) && <small role="status">{error || data.status}</small>}
         </section>
-      </main>}
-    </div>
+        </div>
+      </>}
+    </main>
   );
 };
