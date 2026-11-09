@@ -1,3 +1,4 @@
+using Content.Shared._DeepLagoon.Speech;
 using Content.Shared.Chat.Prototypes;
 using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
@@ -19,6 +20,9 @@ namespace Content.Shared.Speech
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField]
         public ProtoId<SpeechSoundsPrototype>? SpeechSounds;
+
+        [DataField, ViewVariables(VVAccess.ReadWrite)] public ProtoId<SpeechBarkVoicePrototype>? BarkVoice;
+        [DataField] public SpeechBarkSettings BarkSettings = new();
 
         /// <summary>
         ///     What speech verb prototype should be used by default for displaying this entity's messages?

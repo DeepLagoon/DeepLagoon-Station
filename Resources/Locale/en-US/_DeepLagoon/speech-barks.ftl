@@ -1,0 +1,15 @@
+ui-options-speech-bark-volume = Speech barks:
+dl-character-editor-tab-voice = Voice
+speech-bark-description = Pitch, speed, and variance have limits specific to each voice. A smaller speech interval makes barks play more often.
+speech-bark-timbre = Timbre
+speech-bark-timbre-automatic = Automatic
+speech-bark-search = Search voices
+speech-bark-speed = Speech interval
+speech-bark-pitch = Pitch
+speech-bark-pause = Pauses
+speech-bark-variance = Pitch variance
+speech-bark-percent = { $value }%
+speech-bark-preview = Preview voice
+speech-bark-random = Random voice
+speech-bark-reset = Reset voice
+speech-bark-preview-phrase = Captain, can you hear me?

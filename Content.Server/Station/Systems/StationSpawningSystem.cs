@@ -15,6 +15,7 @@ using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.PDA;
 using Content.Shared.Preferences;
+using Content.Shared.Speech;
 using Content.Shared.Preferences.Loadouts;
 using Content.Shared.Random;
 using Content.Shared.Random.Helpers;
@@ -150,6 +151,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             DebugTools.Assert(entity is null);
             var jobEntity = Spawn(prototype.JobEntity, coordinates);
             MakeSentientCommand.MakeSentient(jobEntity, EntityManager);
+            if (profile != null && TryComp<SpeechComponent>(jobEntity, out var speech))
+                speech.BarkSettings = profile.SpeechBarks.Sanitize();
 
             // Make sure custom names get handled, what is gameticker control flow whoopy.
             if (loadout != null)

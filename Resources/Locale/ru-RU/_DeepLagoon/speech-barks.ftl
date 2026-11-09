@@ -1,0 +1,15 @@
+ui-options-speech-bark-volume = Громкость барков речи:
+dl-character-editor-tab-voice = Голос
+speech-bark-description = Темп, высота и разброс зависят от выбранного голоса. Чем меньше шаг речи, тем чаще звучат барки.
+speech-bark-timbre = Тембр
+speech-bark-timbre-automatic = Автоматический
+speech-bark-search = Поиск голоса
+speech-bark-speed = Шаг речи
+speech-bark-pitch = Высота
+speech-bark-pause = Паузы
+speech-bark-variance = Разброс высоты
+speech-bark-percent = { $value }%
+speech-bark-preview = Прослушать голос
+speech-bark-random = Случайный голос
+speech-bark-reset = Сбросить голос
+speech-bark-preview-phrase = Капитан, вы слышите стук?

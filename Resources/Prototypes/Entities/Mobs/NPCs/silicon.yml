@@ -106,6 +106,7 @@
   - type: Speech
     speechVerb: Robotic
     speechSounds: Pai #couldn't decide if this should be borg or pai sounds so I flipped a coin.
+    barkVoice: bottalk1
   - type: TypingIndicator
     proto: robot
   - type: ZombieImmune
@@ -232,6 +233,7 @@
       launchForwardsMultiplier: 2
   - type: Speech
     speechVerb: Cluwne
+    barkVoice: null
   - type: StepTrigger
     intersectRatio: 0.2
   - type: Fixtures

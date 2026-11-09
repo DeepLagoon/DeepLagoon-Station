@@ -62,6 +62,7 @@
   - type: Speech # Frontier
     allowedEmotes: ['Belch', 'Beep', 'Ping', 'Buzz'] # Frontier + Protogen stuff
     speechSounds: Pai
+    barkVoice: synth
   - type: Vocal # Mono
     wilhelm: "/Audio/_EinsteinEngines/Voice/IPC/wilhelm.ogg"
     sounds:

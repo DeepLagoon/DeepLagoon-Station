@@ -30,7 +30,8 @@ const DraftInput = ({ label, value, onCommit, type = 'text', min, max, maxLength
     onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /></Field>;
 };
 const ColorEditor = ColorSquare;
-const SizeSlider = ({ label, value, onChange, vertical = false }) => {
+const SizeSlider = ({ label, value, onChange, vertical = false, min = 0.8,
+  max = 1.2, step = 0.01, className = 'CharacterEditor__sizeSlider' }) => {
   const [local, setLocal] = useState(value);
   const dragging = useRef(false);
   const [send, flush] = useThrottledChange(onChange);
@@ -46,10 +47,34 @@ const SizeSlider = ({ label, value, onChange, vertical = false }) => {
       window.removeEventListener('blur', end);
     };
   }, [flush]);
-  return <input className="CharacterEditor__sizeSlider" aria-label={label} aria-orientation={vertical ? 'vertical' : 'horizontal'}
-      type="range" min="0.8" max="1.2" step="0.01" value={local}
+  return <input className={className} aria-label={label} aria-orientation={vertical ? 'vertical' : 'horizontal'}
+      type="range" min={min} max={max} step={step} value={local}
       onPointerDown={() => { dragging.current = true; }} onBlur={flush}
       onChange={event => { const next = Number(event.target.value); setLocal(next); send(next); }} />;
+};
+const SpeechBarkEditor = ({ settings, voices, act }) => {
+  const [query, setQuery] = useState('');
+  const filterText = query.trim().toLowerCase();
+  const options = voices.filter(voice => voice.id === settings.voice
+    || (voice.name + ' ' + voice.id).toLowerCase().includes(filterText));
+  const change = (field, value) => act('speech-bark-change', { field, value: Number(value) });
+  return <Section title={settings.title}>
+    <p>{settings.description}</p>
+    <Field label={settings.search}><input aria-label={settings.search} value={query}
+      onChange={event => setQuery(event.target.value)} /></Field>
+    <Select label={settings.timbreLabel} value={settings.voice} options={options}
+      onChange={value => act('speech-bark-select', { value })} />
+    {settings.parameters.map(parameter => <Field key={parameter.id}
+      label={parameter.label + ' · ' + parameter.display}>
+      <SizeSlider label={parameter.label} value={parameter.value} min={parameter.min} max={parameter.max}
+        step={1} className="CharacterEditor__voiceSlider" onChange={value => change(parameter.id, value)} />
+    </Field>)}
+    <div className="CharacterEditor__buttons">
+      <Button icon="play" onClick={() => act('speech-bark-preview')}>{settings.preview}</Button>
+      <Button onClick={() => act('speech-bark-random')}>{settings.random}</Button>
+      <Button onClick={() => act('speech-bark-reset')}>{settings.reset}</Button>
+    </div>
+  </Section>;
 };
 const consentOptions = [{ id: '0', name: 'Запрещено' }, { id: '1', name: 'Спросить' }, { id: '2', name: 'Разрешено' }];
 const priorities = [{ id: '0', name: 'Никогда' }, { id: '1', name: 'Низкий' }, { id: '2', name: 'Средний' }, { id: '3', name: 'Высокий' }];
@@ -278,6 +303,7 @@ export const CharacterEditor = () => {
       <Button onClick={()=>act('import')}>Импорт</Button><Button onClick={()=>act('export')}>Экспорт</Button>
     </div>}
     {data.mode === 'settings' && <CharacterEditorSettings settings={appearance} act={act} />}
+    {data.mode === 'voice' && data.speechBarks && <SpeechBarkEditor settings={data.speechBarks} voices={data.speechBarkVoices || []} act={act} />}
     {data.mode === 'identity' && <>
       <Button fluid selected={data.showClothes} onClick={() => act('clothes')}>Показывать одежду</Button>
       <Section fitted>

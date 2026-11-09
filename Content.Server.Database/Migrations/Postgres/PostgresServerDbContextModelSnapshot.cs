@@ -1113,6 +1113,11 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("custom_species_name");
 
+                    b.Property<string>("SpeechBarkSettingsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("speech_bark_settings_json");
+
                     b.Property<int>("PreferenceId")
                         .HasColumnType("integer")
                         .HasColumnName("preference_id");
