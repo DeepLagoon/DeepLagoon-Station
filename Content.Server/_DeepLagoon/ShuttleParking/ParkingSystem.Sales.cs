@@ -1,6 +1,7 @@
 using System.Linq;
 using Content.Server._NF.GameRule;
 using Content.Server.Cargo.Systems;
+using Content.Server.GameTicking;
 using Robust.Shared.Network;
 
 namespace Content.Server._DeepLagoon.ShuttleParking;
@@ -13,6 +14,10 @@ public sealed partial class ParkingSystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        if (_ticker.RunLevel == GameRunLevel.InRound)
+            UpdateAutoParking(_timing.CurTime);
+        else if (_autoParking.Count > 0)
+            ClearAutoParking();
 
         if (_timing.RealTime < _nextPayoutRetry)
             return;

@@ -9,6 +9,7 @@ using Content.Server.Database;
 using Content.Server.GameTicking;
 using Content.Server.Preferences.Managers;
 using Content.Server.Shuttles.Components;
+using Content.Server.Shuttles.Events;
 using Content.Server.Shuttles;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Systems;
@@ -91,13 +92,31 @@ public sealed partial class ParkingSystem : EntitySystem
         SubscribeLocalEvent<ParkingConsoleComponent, EntInsertedIntoContainerMessage>((uid, _, _) => RefreshViewers(uid));
         SubscribeLocalEvent<ParkingConsoleComponent, EntRemovedFromContainerMessage>((uid, _, _) => RefreshViewers(uid));
         SubscribeLocalEvent<ShipyardShuttlePurchaseEvent>(OnPurchased);
+        SubscribeLocalEvent<UndockEvent>(OnAutoParkingUndock);
+        SubscribeLocalEvent<PlayerAttachedEvent>(OnAutoParkingPlayerAttached);
+        _players.PlayerStatusChanged += OnAutoParkingPlayerStatus;
         SubscribeLocalEvent<ParkingShuttleComponent, EntityTerminatingEvent>((Entity<ParkingShuttleComponent> entity, ref EntityTerminatingEvent ev) =>
         {
             if (_activeShips.TryGetValue(entity.Comp.Identity, out var active) && active == entity.Owner) _activeShips.Remove(entity.Comp.Identity);
         });
-        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => { _epoch++; _parkingMaps.Clear(); _viewers.Clear(); _reviews.Clear(); _activeShips.Clear(); _refreshAfter.Clear(); _staging = null; });
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ =>
+        {
+            _epoch++;
+            _parkingMaps.Clear();
+            _viewers.Clear();
+            _reviews.Clear();
+            _activeShips.Clear();
+            _refreshAfter.Clear();
+            ClearAutoParking();
+            _staging = null;
+        });
     }
-    public override void Shutdown() { _store.Dispose(); base.Shutdown(); }
+    public override void Shutdown()
+    {
+        _players.PlayerStatusChanged -= OnAutoParkingPlayerStatus;
+        _store.Dispose();
+        base.Shutdown();
+    }
     private IEnumerable<EntityUid> Descendants(EntityUid root)
     {
         var pending = new Stack<EntityUid>(); pending.Push(root);
@@ -146,17 +165,22 @@ public sealed partial class ParkingSystem : EntitySystem
     {
         if (!TryComp<ShuttleDeedComponent>(context.Card, out var deed) || deed.ShuttleUid is not { } grid || !Exists(grid)
             || !HasComp<MapGridComponent>(grid) || !HasComp<ShuttleComponent>(grid)) return null;
-        if (!TryComp<ParkingShuttleComponent>(grid, out var ship))
-        {
-            // Legacy ships have no trustworthy original-item provenance. Do not bless their current cargo.
-            if (!TryComp<ShipOwnershipComponent>(grid, out var ownership) || ownership.OwnerUserId != context.Session.UserId
-                || !TryComp<VesselComponent>(grid, out var vessel) || !_prototypes.TryIndex(vessel.VesselId, out var prototype)) return null;
-            ship = EnsureComp<ParkingShuttleComponent>(grid);
-            ship.Identity = Guid.NewGuid(); ship.OwnerAccount = context.Session.UserId.UserId; ship.OriginalPrice = prototype.Price;
-            ship.Vessel = prototype.ID; ship.OwnerName = Name(context.Actor);
-            _activeShips[ship.Identity] = grid;
-        }
-        return ship.OwnerAccount == context.Session.UserId.UserId && _activeShips.TryGetValue(ship.Identity, out var active) && active == grid ? grid : null;
+        return ResolveOwnedShip(grid, context.Session.UserId, Name(context.Actor)) != null ? grid : null;
+    }
+
+    private ParkingShuttleComponent? ResolveOwnedShip(EntityUid grid, NetUserId owner, string ownerName)
+    {
+        if (TryComp<ParkingShuttleComponent>(grid, out var ship))
+            return ship.OwnerAccount == owner.UserId && _activeShips.GetValueOrDefault(ship.Identity) == grid ? ship : null;
+
+        // Legacy ships have no trustworthy original-item provenance.
+        if (!TryComp<ShipOwnershipComponent>(grid, out var ownership) || ownership.OwnerUserId != owner
+            || !TryComp<VesselComponent>(grid, out var vessel) || !_prototypes.TryIndex(vessel.VesselId, out var prototype)) return null;
+        ship = EnsureComp<ParkingShuttleComponent>(grid);
+        ship.Identity = Guid.NewGuid(); ship.OwnerAccount = owner.UserId; ship.OriginalPrice = prototype.Price;
+        ship.Vessel = prototype.ID; ship.OwnerName = ownerName;
+        _activeShips[ship.Identity] = grid;
+        return ship;
     }
     private void OnOpen(EntityUid uid, ParkingConsoleComponent comp, BoundUIOpenedEvent ev)
     {
@@ -192,6 +216,8 @@ public sealed partial class ParkingSystem : EntitySystem
             {
                 state.HasShip = true; state.ShipName = Name(grid); state.OwnerName = Comp<ParkingShuttleComponent>(grid).OwnerName;
                 state.Category = GetCategory(grid); state.Parked = Comp<ParkingShuttleComponent>(grid).Parked;
+                if (state.Parked)
+                    state.RecallMap = BuildRecallMap(console, grid);
             }
             foreach (var slot in _store.Slots(user))
                 state.Places.Add(new(slot.Id, slot.Category, slot.Ship?.Name ?? "", slot.Ship?.OwnerName ?? "", slot.Ship?.Category ?? -1,
@@ -200,7 +226,7 @@ public sealed partial class ParkingSystem : EntitySystem
             if (_reviews.TryGetValue(user, out var review) && review.Expires > _timing.RealTime && Exists(review.Grid))
             {
                 state.ReviewToken = review.Token; state.ReviewSlot = review.Slot;
-                state.Excluded = ExcludedEntities(review.Grid).Select(entity => Name(entity)).Take(500).ToList();
+                state.Excluded = ExclusionPreview(review.Grid);
             }
             try { state.Coins = await _database.GetLagoonCoinsAsync(context.Session.UserId); }
             catch (Exception e) { Log.Warning($"Parking balance unavailable: {e.GetType().Name}"); }
@@ -303,9 +329,15 @@ public sealed partial class ParkingSystem : EntitySystem
     }
     public void Park(EntityUid console, EntityUid grid, int character = -1)
     {
+        CheckDocked(console, grid);
+        ParkShuttle(grid, character);
+    }
+
+    private void ParkShuttle(EntityUid grid, int character)
+    {
         var ship = Comp<ParkingShuttleComponent>(grid);
         if (ship.Parked) throw new InvalidOperationException("Шаттл уже припаркован.");
-        CheckEmpty(grid); CheckDocked(console, grid);
+        CheckEmpty(grid);
         var map = _map.CreateMap(out var id); _map.SetPaused(id, true);
         EnsureComp<ApartmentIsolationComponent>(map);
         var previousCoordinates = Transform(grid).Coordinates;
@@ -342,11 +374,13 @@ public sealed partial class ParkingSystem : EntitySystem
                 result.Add(new(GetNetEntity(uid), Name(uid) + " · " + GetNetEntity(uid)));
         return result;
     }
-    private DockingConfig? SelectedDockConfig(EntityUid grid, EntityUid target, EntityUid dock)
+    private DockingConfig? SelectedDockConfig(EntityUid grid, EntityUid target, EntityUid dock,
+        List<Entity<DockingComponent>>? shipDocks = null, HashSet<EntityUid>? obstructions = null)
     {
         if (!TryComp<DockingComponent>(dock, out var targetDock) || targetDock.DockedWith != null) return null;
-        foreach (var candidate in _docking.GetDocks(grid))
-            if (candidate.Comp.DockedWith == null && _docking.GetDockingConfig(grid, target, candidate.Owner, candidate.Comp, dock, targetDock) is { } config)
+        foreach (var candidate in shipDocks ?? _docking.GetDocks(grid))
+            if (candidate.Comp.DockedWith == null && _docking.GetDockingConfig(grid, target, candidate.Owner,
+                    candidate.Comp, dock, targetDock, preciseHull: true, obstructions: obstructions) is { } config)
                 return config;
         return null;
     }
@@ -359,6 +393,7 @@ public sealed partial class ParkingSystem : EntitySystem
         _shuttles.FTLDock((grid, Transform(grid)), config);
         var ship = Comp<ParkingShuttleComponent>(grid);
         ship.Parked = false;
+        ship.AutoParkingNoticePending = false;
         ship.ParkingCharacter = context.Character;
         if (ship.ReturnStation is { } former && Exists(former) && HasComp<StationDataComponent>(former))
             _stations.AddGridToStation(former, grid);
@@ -367,6 +402,8 @@ public sealed partial class ParkingSystem : EntitySystem
         ship.ReturnStation = null;
         _ownership.RegisterShipOwnership(grid, context.Session);
         if (_parkingMaps.Remove(grid, out var parking) && Exists(parking)) Del(parking);
+        if (AutoParkingDebugEnabled)
+            Log.Info($"Shuttle {ToPrettyString(grid)} recalled through the parking console at {ToPrettyString(_stations.GetOwningStation(context.Console))}.");
     }
     private async Task Redeem(Context context, Guid slotId, NetEntity? dock)
     {

@@ -9,6 +9,10 @@ public sealed partial class ParkingConsoleComponent : Component
     [DataField] public ItemSlot Card = new();
 }
 
+/// <summary>Enables automatic parking for player shuttles docked directly to this station.</summary>
+[RegisterComponent]
+public sealed partial class StationAutomaticShuttleParkingComponent : Component;
+
 /// <summary>Authoritative identity, never inferred from names or serialized runtime entity IDs.</summary>
 [RegisterComponent]
 public sealed partial class ParkingShuttleComponent : Component
@@ -23,6 +27,7 @@ public sealed partial class ParkingShuttleComponent : Component
     // Same-round membership is deliberately not serialized into a persistent snapshot.
     public EntityUid? ReturnStation;
     public int ParkingCharacter = -1;
+    public bool AutoParkingNoticePending;
 }
 
 [RegisterComponent]
