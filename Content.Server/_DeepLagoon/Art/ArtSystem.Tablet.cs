@@ -123,7 +123,8 @@ public sealed partial class ArtSystem
             "tgui.bundle.js" => (path, "application/javascript"),
             "tgui.bundle.css" => (path, "text/css"),
             "font-awesome/css/all.min.css" => (path, "text/css"),
-            "font-awesome/webfonts/fa-solid-900.woff2" or "font-awesome/webfonts/fa-regular-400.woff2" => (path, "font/woff2"),
+            "font-awesome/webfonts/fa-solid-900.ttf" or "font-awesome/webfonts/fa-regular-400.ttf"
+                or "font-awesome/webfonts/fa-v4compatibility.ttf" => (path, "font/ttf"),
             _ => ("", ""),
         };
         if (context.RequestMethod == HttpMethod.Get && file.Item1.Length != 0)

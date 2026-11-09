@@ -90,11 +90,13 @@ public sealed class ArtTabletTests
             Assert.That(entities.GetComponent<ArtCanvasComponent>(canvas).Document, Is.EqualTo(ArtLimits.EmptyDocument), "Handoff must not commit or archive the draft");
         });
         var handle = typeof(ArtSystem).GetMethod("HandleTabletHttp", Private)!;
-        async Task<(HttpStatusCode Status, JsonElement Body)> Request(string action, string token = "", string body = "", int revision = -1, string origin = "http://localhost", HttpMethod method = null,
+        async Task<(HttpStatusCode Status, JsonElement Body, byte[] Bytes, string ContentType)> Request(string action, string token = "", string body = "", int revision = -1, string origin = "http://localhost", HttpMethod method = null,
             string writer = "", int sequence = 0, int epoch = 0, int version = 0)
         {
             var status = HttpStatusCode.OK;
             var response = JsonSerializer.SerializeToElement(new { });
+            var bytes = Array.Empty<byte>();
+            var contentType = "";
             var context = new Mock<IStatusHandlerContext>();
             context.SetupGet(c => c.Url).Returns(new Uri("http://localhost/art-tablet/" + action));
             context.SetupGet(c => c.RequestMethod).Returns(method ?? (action is "session" or "ping" ? HttpMethod.Get : HttpMethod.Post));
@@ -109,6 +111,14 @@ public sealed class ArtTabletTests
             context.Setup(c => c.RespondJsonAsync(It.IsAny<object>(), It.IsAny<HttpStatusCode>())).Returns((object value, HttpStatusCode code) => {
                 status = code; response = JsonSerializer.SerializeToElement(value); return Task.CompletedTask;
             });
+            context.Setup(c => c.RespondAsync(It.IsAny<byte[]>(), It.IsAny<HttpStatusCode>(), It.IsAny<string>()))
+                .Returns((byte[] data, HttpStatusCode code, string type) =>
+                {
+                    bytes = data;
+                    status = code;
+                    contentType = type;
+                    return Task.CompletedTask;
+                });
             var task = (Task<bool>)handle.Invoke(system, new object[] { context.Object })!;
             for (var i = 0; i < 600 && !task.IsCompleted; i++) { await pair.RunTicksSync(5); await Task.Delay(2); }
             Assert.That(task.IsCompleted, Is.True);
@@ -116,7 +126,20 @@ public sealed class ArtTabletTests
             Assert.That(headers["Cache-Control"], Is.EqualTo("no-store"));
             Assert.That(headers["Referrer-Policy"], Is.EqualTo("no-referrer"));
             Assert.That(headers.ContainsKey("Access-Control-Allow-Origin"), Is.False);
-            return (status, response);
+            return (status, response, bytes, contentType);
+        }
+        var css = await Request("font-awesome/css/all.min.css", method: HttpMethod.Get);
+        Assert.That(css.Status, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(css.ContentType, Is.EqualTo("text/css"));
+        var fontPaths = System.Text.RegularExpressions.Regex.Matches(Encoding.UTF8.GetString(css.Bytes), @"url\(\.\./(webfonts/[^)]+)\)")
+            .Select(match => match.Groups[1].Value).Distinct().ToArray();
+        Assert.That(fontPaths, Is.Not.Empty);
+        foreach (var path in fontPaths)
+        {
+            var font = await Request("font-awesome/" + path, method: HttpMethod.Get);
+            Assert.That(font.Status, Is.EqualTo(HttpStatusCode.OK), path);
+            Assert.That(font.ContentType, Is.EqualTo("font/ttf"));
+            Assert.That(font.Bytes, Is.Not.Empty);
         }
         Assert.That((await Request("session")).Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That((await Request("claim", new string('0', 64))).Status, Is.EqualTo(HttpStatusCode.Gone));

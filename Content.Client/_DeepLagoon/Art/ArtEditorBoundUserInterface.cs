@@ -65,7 +65,7 @@ public sealed class ArtEditorBoundUserInterface(EntityUid owner, Enum uiKey) : B
         var labels = new TguiData();
         foreach (var key in ArtTabletLabels.Keys)
             labels.String(key, Loc.GetString("dl-art-ui-" + key));
-        _window.Panel.SetState("ArtStudio", new TguiData().String("document", _state.Document).String("savedDocument", _state.SavedDocument).Bool("hasDraft", _state.HasDraft)
+        _window.Panel.SetIncrementalState("ArtStudio", new TguiData().String("document", _state.Document).String("savedDocument", _state.SavedDocument).Bool("hasDraft", _state.HasDraft)
             .String("recoveryKey", _state.RecoveryKey).Number("draftEpoch", _state.DraftEpoch).Number("draftVersion", _state.DraftVersion)
             .String("draftWriter", _state.DraftWriter).Number("draftSequence", _state.DraftSequence)
             .Number("revision", _state.Revision).String("tool", _state.Tool).String("color", _state.Color).Number("result", _state.Result)
@@ -73,7 +73,7 @@ public sealed class ArtEditorBoundUserInterface(EntityUid owner, Enum uiKey) : B
             .Number("closeRequest", _closeRequest).Number("maxLayers", ArtLimits.MaxLayers)
             .Number("maxDocument", ArtLimits.MaxDocumentChars).Number("chunkSize", ArtLimits.ChunkChars)
             .Bool("tabletAvailable", _state.TabletAvailable).Bool("tabletActive", _state.TabletActive).Number("tabletRevision", _state.TabletRevision)
-            .Object("labels", labels).ToString(), Loc.GetString("dl-art-ui-editor"));
+            .Object("labels", labels), Loc.GetString("dl-art-ui-editor"));
     }
     private void RequestClose() { _closeRequest++; Push(); }
     private void Action(string action, string payload)

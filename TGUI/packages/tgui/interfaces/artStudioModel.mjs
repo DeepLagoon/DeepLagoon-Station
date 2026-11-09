@@ -29,24 +29,49 @@ export function addMask(state) {
   if (!l.mask) { checkpoint(state); l.mask = surface(); const c = l.mask.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, SIZE, SIZE); }
   state.target = 'mask';
 }
-export function compose(layers, paper = false) {
-  const c = surface(), ctx = c.getContext('2d');
-  if (paper) { ctx.fillStyle = '#f7f0dd'; ctx.fillRect(0, 0, SIZE, SIZE); }
+const maskAlpha = new WeakMap();
+let maskedInk;
+
+function updateMaskAlpha(mask, alpha, x, y, width, height) {
+  const ctx = alpha.getContext('2d', { willReadFrequently: true });
+  ctx.clearRect(x, y, width, height);
+  ctx.drawImage(mask, x, y, width, height, x, y, width, height);
+  const pixels = ctx.getImageData(x, y, width, height);
+  for (let i = 0; i < pixels.data.length; i += 4) pixels.data[i + 3] = pixels.data[i];
+  ctx.putImageData(pixels, x, y);
+}
+
+export function compose(layers, ctx) {
+  ctx.fillStyle = '#f7f0dd';
+  ctx.fillRect(0, 0, SIZE, SIZE);
   layers.forEach(l => {
     if (!l.visible) return;
     let ink = l.ink;
     if (l.mask) {
-      ink = copySurface(l.ink); const ic = ink.getContext('2d'), mask = copySurface(l.mask), mc = mask.getContext('2d');
-      const pixels = mc.getImageData(0, 0, SIZE, SIZE);
-      for (let i = 0; i < pixels.data.length; i += 4) pixels.data[i + 3] = pixels.data[i];
-      mc.putImageData(pixels, 0, 0); ic.globalCompositeOperation = 'destination-in'; ic.drawImage(mask, 0, 0);
+      let alpha = maskAlpha.get(l.mask);
+      if (!alpha) {
+        alpha = surface();
+        updateMaskAlpha(l.mask, alpha, 0, 0, SIZE, SIZE);
+        maskAlpha.set(l.mask, alpha);
+      }
+      ink = maskedInk ||= surface();
+      const ic = ink.getContext('2d');
+      ic.globalCompositeOperation = 'copy';
+      ic.drawImage(l.ink, 0, 0);
+      ic.globalCompositeOperation = 'destination-in';
+      ic.drawImage(alpha, 0, 0);
     }
     ctx.globalAlpha = l.opacity; ctx.drawImage(ink, 0, 0);
   });
-  ctx.globalAlpha = 1; return c;
+  ctx.globalAlpha = 1;
 }
 export const encode = canvas => canvas.toDataURL('image/png').split(',')[1];
-export const serialize = state => JSON.stringify({ version: 1, title: state.title, layers: state.layers.map(l => ({ name: l.name, visible: l.visible, opacity: l.opacity, png: encode(l.ink), mask: l.mask ? encode(l.mask) : '' })) });
+const encodedSurfaces = new WeakMap();
+function encodeLayer(canvas) {
+  if (!encodedSurfaces.has(canvas)) encodedSurfaces.set(canvas, encode(canvas));
+  return encodedSurfaces.get(canvas);
+}
+export const serialize = state => JSON.stringify({ version: 1, title: state.title, layers: state.layers.map(l => ({ name: l.name, visible: l.visible, opacity: l.opacity, png: encodeLayer(l.ink), mask: l.mask ? encodeLayer(l.mask) : '' })) });
 export async function loadProject(text) {
   const p = JSON.parse(text);
   if (p.version !== 1 || !Array.isArray(p.layers) || !p.layers.length || p.layers.length > MAX_LAYERS) throw new Error('invalid');
@@ -87,11 +112,14 @@ export function brushSegment(ctx, a, b, options) {
 }
 
 // Keep coverage for a complete gesture. Overlapping segments must not compound opacity.
-export const beginStroke = ctx => ({ ctx, base: copySurface(ctx.canvas), paint: surface(), scratch: surface() });
+export const beginStroke = (ctx, base) => ({ ctx, base, paint: surface(), scratch: surface() });
 export function extendStroke(stroke, a, b, options, fromPressure = 1, toPressure = 1) {
-  const { size, flow, shape, erase, mask } = options;
+  const { size, flow, shape, erase, mask, pressureSize, pressureOpacity } = options;
   const color = mask ? erase ? '#ffffff' : '#000000' : options.color;
-  const radius = Math.max(1, size * Math.max(fromPressure, toPressure)) / 2;
+  const ra = Math.max(1, size * (pressureSize ? fromPressure : 1)) / 2;
+  const rb = Math.max(1, size * (pressureSize ? toPressure : 1)) / 2;
+  const fromAlpha = pressureOpacity ? fromPressure : 1, toAlpha = pressureOpacity ? toPressure : 1;
+  const radius = Math.max(ra, rb);
   const x = Math.max(0, Math.floor(Math.min(a.x, b.x) - radius - 2)), y = Math.max(0, Math.floor(Math.min(a.y, b.y) - radius - 2));
   const right = Math.min(SIZE, Math.ceil(Math.max(a.x, b.x) + radius + 2)), bottom = Math.min(SIZE, Math.ceil(Math.max(a.y, b.y) + radius + 2));
   const width = right - x, height = bottom - y;
@@ -100,14 +128,13 @@ export function extendStroke(stroke, a, b, options, fromPressure = 1, toPressure
   scratch.clearRect(x, y, width, height);
   if (shape === 'round') {
     const dx = b.x - a.x, dy = b.y - a.y, distance = Math.hypot(dx, dy);
-    const ra = Math.max(1, size * fromPressure) / 2, rb = Math.max(1, size * toPressure) / 2;
     const rgb = [1, 3, 5].map(n => parseInt(color.slice(n, n + 2), 16));
-    if (distance > .01) {
+    if (distance > .01 && fromAlpha !== toAlpha) {
       const gradient = scratch.createLinearGradient(a.x, a.y, b.x, b.y);
-      gradient.addColorStop(0, `rgba(${rgb.join(',')},${fromPressure})`);
-      gradient.addColorStop(1, `rgba(${rgb.join(',')},${toPressure})`);
+      gradient.addColorStop(0, `rgba(${rgb.join(',')},${fromAlpha})`);
+      gradient.addColorStop(1, `rgba(${rgb.join(',')},${toAlpha})`);
       scratch.fillStyle = gradient;
-    } else scratch.fillStyle = `rgba(${rgb.join(',')},${toPressure})`;
+    } else scratch.fillStyle = `rgba(${rgb.join(',')},${toAlpha})`;
     scratch.beginPath();
     if (distance > .01) {
       const nx = -dy / distance, ny = dx / distance;
@@ -117,7 +144,7 @@ export function extendStroke(stroke, a, b, options, fromPressure = 1, toPressure
     scratch.moveTo(a.x + ra, a.y); scratch.arc(a.x, a.y, ra, 0, Math.PI * 2);
     scratch.moveTo(b.x + rb, b.y); scratch.arc(b.x, b.y, rb, 0, Math.PI * 2);
     scratch.fill();
-  } else brushSegment(scratch, a, b, { ...options, color, mask: false, erase: false, size: Math.max(1, size * toPressure), flow: toPressure });
+  } else brushSegment(scratch, a, b, { ...options, color, mask: false, erase: false, size: rb * 2, flow: toAlpha });
   const paint = stroke.paint.getContext('2d', { willReadFrequently: true });
   const previous = paint.getImageData(x, y, width, height), next = scratch.getImageData(x, y, width, height);
   for (let i = 0; i < previous.data.length; i += 4) {
@@ -128,7 +155,12 @@ export function extendStroke(stroke, a, b, options, fromPressure = 1, toPressure
   paint.putImageData(previous, x, y);
   const ctx = stroke.ctx;
   ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  ctx.clearRect(0, 0, SIZE, SIZE); ctx.drawImage(stroke.base, 0, 0);
+  ctx.clearRect(x, y, width, height);
+  ctx.drawImage(stroke.base, x, y, width, height, x, y, width, height);
   ctx.globalCompositeOperation = erase && !mask ? 'destination-out' : 'source-over'; ctx.globalAlpha = flow;
-  ctx.drawImage(stroke.paint, 0, 0); ctx.restore();
+  ctx.drawImage(stroke.paint, x, y, width, height, x, y, width, height);
+  ctx.restore();
+  encodedSurfaces.delete(ctx.canvas);
+  const alpha = maskAlpha.get(ctx.canvas);
+  if (alpha) updateMaskAlpha(ctx.canvas, alpha, x, y, width, height);
 }

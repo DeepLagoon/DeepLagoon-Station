@@ -33,18 +33,25 @@ const state = { document: JSON.stringify({ version:1, title:'Тихая лагу
           const [type,payload]=url.split('?')[1].split('&');
           const message={type:decodeURIComponent(type),payload:JSON.parse(decodeURIComponent(payload))};
           window.__sent.push(message);
-          if(message.type==='act/draft' && message.payload.index+1===message.payload.count) {
+          if(message.type==='act/draft' && !window.__dropDraftAck && message.payload.index+1===message.payload.count) {
             setTimeout(()=>window.update(JSON.stringify({type:'art/draft',payload:{...message.payload,success:true}})),50);
           }
-          queueMicrotask(()=>this.onload?.(new Event('load')));
+          if(message.type==='act/blocked-for-test') window.__finishBlockedAction=()=>this.onload?.(new Event('load'));
+          else queueMicrotask(()=>this.onload?.(new Event('load')));
         }
       };
     });
     const publish=()=>page.evaluate(data=>window.update(JSON.stringify({type:'update',payload:{replaceData:true,
       config:{interface:'ArtStudio',status:2,window:{key:'deeplagoon',fancy:false}},data}})),state);
+    const publishClose=()=>page.evaluate(closeRequest=>window.update(JSON.stringify({type:'update',payload:{data:{closeRequest}}})),++state.closeRequest);
     const settled=()=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     const boot=async()=>{ await page.goto(`http://127.0.0.1:${server.address().port}/interface.html`); await page.waitForFunction(()=>window.__tguiAppBooted__); await publish(); await page.waitForFunction(()=>!document.querySelector('.ArtStudio__tools button:nth-child(3)').disabled); await settled(); };
     await boot();
+    await page.evaluate(()=>window.Byond.topic({type:'act/blocked-for-test'}));
+    await page.waitForFunction(()=>window.__finishBlockedAction);
+    await page.evaluate(()=>window.DeepLagoonHealth.ping());
+    await page.waitForFunction(()=>window.__sent.some(m=>m.type==='health/pong'));
+    await page.evaluate(()=>window.__finishBlockedAction());
     const image=()=>page.locator('.ArtStudio canvas').evaluate(c=>c.toDataURL());
     assert.equal(await page.locator('.ArtStudio__color').evaluate(c=>c.style.backgroundColor),'rgb(208, 64, 32)','Brush starts with the held tool color');
     await page.getByRole('button',{name:labels.color,exact:true}).click();
@@ -98,6 +105,8 @@ const state = { document: JSON.stringify({ version:1, title:'Тихая лагу
     assert.deepEqual(uniform.outside,[247,240,221,255],'Round stroke has a clean outer edge');
     await page.screenshot({path:path.join(output,'translucent-stroke.png')});
     await boot();await page.getByRole('slider',{name:labels.size,exact:true}).fill('80');
+    await page.getByRole('combobox',{name:labels['pen-pressure'],exact:true}).click();
+    await page.getByRole('option',{name:labels['pressure-both'],exact:true}).click();
     r=await page.locator('.ArtStudio canvas').boundingBox();
     for(const [y,force] of [[.35,.2],[.7,.8]]){
       await cdp.send('Input.dispatchMouseEvent',{type:'mousePressed',x:r.x+r.width*.25,y:r.y+r.height*y,button:'left',buttons:1,clickCount:1,pointerType:'pen',force});
@@ -164,12 +173,15 @@ const state = { document: JSON.stringify({ version:1, title:'Тихая лагу
     await page.screenshot({path:path.join(output,'save-dialog.png')});
     await page.getByRole('dialog').getByRole('button',{name:labels.save,exact:true}).click();
     await page.waitForFunction(count=>{const a=window.__sent.filter(m=>m.type==='act/save');return a.length===count*2&&a.at(-1).payload.index+1===a.at(-1).payload.count;},chunks.length);
+    await publishClose();
+    await settled();
+    assert.equal(await page.evaluate(()=>window.__sent.some(m=>m.type==='act/close')),false,'Close waits for the running save');
     state.document=JSON.stringify(project);state.revision++;state.result=2;state.status='Сохранено на холсте; библиотека недоступна';await publish();
     await page.waitForFunction(()=>document.querySelector('.ArtStudio footer').textContent==='Сохранено на холсте; библиотека недоступна');
     const localSaveImage=await image();
-    await page.keyboard.press('Escape');await settled();
+    await page.waitForFunction(()=>window.__sent.some(m=>m.type==='act/close'));
+    state.closeRequest=0;
     assert.equal(await page.getByRole('dialog').count(),0,'A validated local save must not be treated as a discarded draft when the archive fails');
-    assert.ok(await page.evaluate(()=>window.__sent.some(m=>m.type==='act/close')));
     await boot();
     assert.equal(await image(),localSaveImage,'A locally saved canvas survives closing and reopening after archive failure');
     await page.locator('.ArtStudio__header .ArtStudio__save').click();
@@ -182,15 +194,23 @@ const state = { document: JSON.stringify({ version:1, title:'Тихая лагу
     assert.ok(previews.every(m=>m.payload.text.length<=5000),'World previews use bounded chunks');
     await page.getByRole('button',{name:project.layers[0].name,exact:true}).click();
     await page.getByRole('button',{name:labels['remove-mask'],exact:true}).click();
+    await page.getByRole('slider',{name:labels.size,exact:true}).fill('61');
+    await settled();
+    const unsavedImage=await image();
+    await page.evaluate(()=>{window.__dropDraftAck=true;});
     const beforeClose=await page.evaluate(()=>window.__sent.length);
-    state.recoveryKey='native-canvas:account';state.closeRequest++;await publish();
-    await page.waitForFunction(start=>window.__sent.slice(start).some(m=>m.type==='act/close'),beforeClose);
+    state.recoveryKey='native-canvas:account';await publish();await publishClose();
+    await page.waitForFunction(start=>window.__sent.slice(start).some(m=>m.type==='act/close'),beforeClose,{timeout:6000});
     state.closeRequest=0;
     assert.equal(await page.getByRole('dialog').count(),0,'Closing retains the draft without requiring library publication');
     const closeMessages=await page.evaluate(start=>window.__sent.slice(start),beforeClose);
     assert.ok(closeMessages.some(m=>m.type==='act/draft'&&m.payload.index+1===m.payload.count));
     assert.ok(closeMessages.every(m=>!['act/save','act/discard'].includes(m.type)));
     assert.equal(await page.locator('.ArtStudio__mask').count(),0,'Close preserves the current draft rather than restoring the saved mask');
+    await boot();
+    await page.waitForFunction(expected=>document.querySelector('.ArtStudio canvas').toDataURL()===expected,unsavedImage);
+    assert.equal(await page.getByRole('slider',{name:labels.size,exact:true}).inputValue(),'61','A new document retains the brush size');
+    assert.equal(await page.locator('.ArtStudio__mask').count(),0,'Reopening recovers the locally committed draft when the close acknowledgment was lost');
     await page.getByRole('button',{name:labels.discard,exact:true}).click();
     await page.getByRole('dialog').getByRole('button',{name:labels.discard,exact:true}).click();
     assert.equal(await page.locator('.ArtStudio__mask').count(),1,'Discard restores the saved mask');

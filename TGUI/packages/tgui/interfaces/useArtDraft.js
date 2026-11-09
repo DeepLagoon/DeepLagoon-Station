@@ -7,7 +7,7 @@ export function useArtDraft(options) {
   const [status, setStatus] = useState('');
   const state = useRef(null);
   if (!state.current) state.current = { key: options.data.recoveryKey, epoch: options.data.draftEpoch || 0,
-    version: options.data.draftVersion || 0, writer: writerId(), sequence: 0, serial: 0, dirty: false, destroyed: false, confirmed: 0 };
+    version: options.data.draftVersion || 0, writer: writerId(), sequence: 0, serial: 0, destroyed: false, confirmed: 0 };
   const c = state.current;
   const label = key => current.current.data.labels?.[key] || key;
   const show = key => { if (!c.destroyed) setStatus(key ? label(key) : ''); };
@@ -18,7 +18,7 @@ export function useArtDraft(options) {
   function reset(data = current.current.data, remove = true) {
     cancel(); if (remove && c.key) deleteArtDraft(c.key, c).catch(() => {});
     c.key = data.recoveryKey; c.epoch = data.draftEpoch || 0; c.version = data.draftVersion || 0;
-    c.writer = writerId(); c.sequence = 0; c.confirmed = 0; c.pending = null; c.last = null; c.dirty = false; show('');
+    c.writer = writerId(); c.sequence = 0; c.confirmed = 0; c.pending = null; c.last = null; c.backup = null; show('');
   }
   function retry() {
     clearTimeout(c.timer);
@@ -46,38 +46,46 @@ export function useArtDraft(options) {
         if (current.current.blocked()) { c.flight = null; c.pending ||= entry; retry(); return; }
         await current.current.act('draft', { writer: c.writer, sequence: entry.sequence, epoch: c.epoch, version: c.version,
           text: entry.document.slice(index * chunk, (index + 1) * chunk), index, count });
-        if (index + 1 < count) await new Promise(resolve => setTimeout(resolve, 25));
+        if (!current.current.data.external && index + 1 < count) await new Promise(resolve => setTimeout(resolve, 25));
       }
       if (c.flight === flight) c.timeout = setTimeout(() => acknowledge({ writer: c.writer, sequence: entry.sequence, epoch: c.epoch, version: c.version, success: false }), 120000);
     } catch { if (c.flight === flight) acknowledge({ writer: c.writer, sequence: entry.sequence, epoch: c.epoch, version: c.version, success: false }); }
   }
-  function capture(force = false) {
+  function capture() {
     if (!c.key || c.destroyed || current.current.localBlocked()) return false;
-    if (!force && Date.now() - (c.captured || 0) < 250) { progress(); return; }
     clearTimeout(c.progress); c.progress = null;
     const document = current.current.document(); if (!document) return false;
     if (document.length > current.current.data.maxDocument) { show('too-large'); return false; }
-    c.captured = Date.now(); c.dirty = true;
     if (c.last?.document === document) return true;
     const entry = { key: c.key, epoch: c.epoch, baseVersion: c.version, writer: c.writer, sequence: ++c.sequence, document, updated: Date.now() };
     c.last = entry; c.pending = entry;
-    writeArtDraft(entry).catch(() => { if (!c.destroyed && c.pending) show('draft-failed'); });
+    c.backup = writeArtDraft(entry).then(() => true, () => {
+      if (!c.destroyed && c.pending) show('draft-failed');
+      return false;
+    });
     show('draft-saving');
     if (!c.timer && !c.flight) c.timer = setTimeout(send, 750);
     return true;
   }
-  async function flush() {
-    if (!capture(true) || current.current.data.draftDisabled) return false;
-    const sequence = c.sequence, serial = c.serial, deadline = Date.now() + 120000;
+  async function flush(localFallback) {
+    if (!capture() || current.current.data.draftDisabled) return false;
+    const sequence = c.sequence, serial = c.serial, started = Date.now();
+    let backedUp = false;
+    if (localFallback) c.backup?.then(success => { backedUp = success; });
     clearTimeout(c.timer); c.timer = null; send();
     while (!c.destroyed && c.serial === serial && !current.current.data.draftDisabled) {
       if (c.confirmed >= sequence) return true;
-      if (Date.now() >= deadline) break;
+      // The same canvas can recover a committed IndexedDB copy on its next open.
+      const elapsed = Date.now() - started;
+      if (backedUp && elapsed >= 1500) return true;
+      if (elapsed >= 120000) break;
       await new Promise(resolve => setTimeout(resolve, 50));
     }
     return false;
   }
-  function progress() { if (!c.progress && !c.destroyed) c.progress = setTimeout(() => { c.progress = null; capture(true); }, 800); }
+  function progress() {
+    if (!c.progress && !c.destroyed) c.progress = setTimeout(() => { c.progress = null; capture(); }, 750);
+  }
   async function recover(data) {
     if (!c.key) return { document: data.document, local: false };
     try {
@@ -93,7 +101,7 @@ export function useArtDraft(options) {
   useEffect(() => {
     c.destroyed = false;
     const ack = e => acknowledge(e.detail);
-    const flush = () => { if (c.dirty) capture(true); };
+    const flush = () => { if (current.current.dirty()) capture(); };
     window.addEventListener('art-draft', ack); window.addEventListener('pagehide', flush);
     return () => {
       flush(); c.destroyed = true; cancel();
@@ -102,8 +110,8 @@ export function useArtDraft(options) {
   }, []);
   useEffect(() => {
     if (c.key !== options.data.recoveryKey || c.epoch !== (options.data.draftEpoch || 0)) {
-      const dirty = c.dirty; reset(); c.dirty = dirty;
-      setTimeout(() => { if (!c.destroyed && current.current.dirty()) capture(true); }, 0);
+      reset();
+      setTimeout(() => { if (!c.destroyed && current.current.dirty()) capture(); }, 0);
     }
   }, [options.data.recoveryKey, options.data.draftEpoch]);
   return { status, recover, capture, progress, flush, metadata: () => ({ writer: c.writer, sequence: c.sequence, epoch: c.epoch, version: c.version }),
