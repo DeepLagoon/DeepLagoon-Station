@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using Content.Client.Eye;
 using Content.Server.Construction;
+using Content.Server.Physics.Controllers;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Shared.Movement.Components;
@@ -26,22 +27,33 @@ public sealed class ShuttleMotionRegressionTests
   id: DLFlightLimitThrusterProbe
   components:
   - type: Thruster
-    baseThrust: 100000
-    thrust: 100000
+    baseThrust: 100
+    thrust: 100
     requireSpace: false
     burnShape: []
 ";
 
-    [TestCase(1)]
-    [TestCase(4)]
-    [TestCase(6)]
-    public async Task InstalledPartsAndEngineRemovalUpdateDriftLimit(int tier)
+    [TestCase(1, false, 35f, 35f)]
+    [TestCase(6, false, 85f, 35f)]
+    [TestCase(4, true, 75f, 45f)]
+    [TestCase(8, true, 175f, 45f)]
+    public async Task InstalledPartsAndEngineRemovalUpdateDriftLimit(int tier, bool expandHull, float speedLimit, float fallbackSpeed)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
         var map = await pair.CreateTestMap();
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
+            if (expandHull)
+            {
+                var maps = entities.System<SharedMapSystem>();
+                var tiles = new List<(Vector2i, Tile)>();
+                for (var x = 0; x < 12; x++)
+                for (var y = 0; y < 10; y++)
+                    tiles.Add((new Vector2i(x, y), map.Tile.Tile));
+                maps.SetTiles(map.Grid, tiles);
+            }
+
             var transforms = entities.System<SharedTransformSystem>();
             var thrusters = entities.System<ThrusterSystem>();
             var physics = entities.System<SharedPhysicsSystem>();
@@ -52,20 +64,38 @@ public sealed class ShuttleMotionRegressionTests
             var refresh = new RefreshPartsEvent { PartRatings = { ["Capacitor"] = tier } };
             entities.EventBus.RaiseLocalEvent(uid, refresh);
             Assert.That(thruster.IsOn, Is.True);
-            Assert.That(ShuttleFlightLimits.GridMaxSpeed(shuttle), Is.EqualTo(35 + 10 * (tier - 1)).Within(0.001));
+            var body = entities.GetComponent<PhysicsComponent>(map.Grid);
+            Assert.That(ShuttleFlightLimits.GridMaxSpeed(shuttle, body.FixturesMass), Is.EqualTo(speedLimit).Within(0.001));
             foreach (var center in shuttle.CenterOfThrust)
                 Assert.That(float.IsFinite(center.X) && float.IsFinite(center.Y), Is.True, "Empty thrust directions must have finite centers");
-            var body = entities.GetComponent<PhysicsComponent>(map.Grid);
+
+            if (expandHull)
+            {
+                var mover = entities.System<MoverController>();
+                var xform = entities.GetComponent<TransformComponent>(map.Grid);
+                var initialAcceleration = 100f * MathF.Pow(1.25f, 3f) * 1.5f / body.Mass;
+                Assert.That(mover.GetDirectionAccel(-Vector2.UnitY, shuttle, body, xform).Length(),
+                    Is.EqualTo(initialAcceleration).Within(0.001));
+                physics.SetLinearVelocity(map.Grid, -Vector2.UnitY * 55f, body: body);
+                Assert.That(mover.GetDirectionAccel(-Vector2.UnitY, shuttle, body, xform).Length(),
+                    Is.EqualTo(initialAcceleration * 0.8f).Within(0.001));
+                physics.SetLinearVelocity(map.Grid, -Vector2.UnitY * 65f, body: body);
+                Assert.That(mover.GetDirectionAccel(-Vector2.UnitY, shuttle, body, xform).Length(),
+                    Is.EqualTo(initialAcceleration * 0.6f).Within(0.001));
+            }
+
             // Cooldown is normal flight and must not be a way to evade the limit.
             entities.EnsureComponent<FTLComponent>(map.Grid).State = FTLState.Cooldown;
             physics.SetLinearVelocity(map.Grid, new Vector2(200, 200), body: body);
             physics.Update(1f / 30);
-            Assert.That(body.LinearVelocity.Length(), Is.LessThanOrEqualTo(ShuttleFlightLimits.GridMaxSpeed(shuttle) + 0.001));
+            Assert.That(body.LinearVelocity.Length(), Is.InRange(speedLimit - 0.5f, speedLimit + 0.001f));
             thrusters.DisableThruster(uid, thruster);
             physics.SetLinearVelocity(map.Grid, new Vector2(100, 100), body: body);
             physics.Update(1f / 30);
-            Assert.That(body.LinearVelocity.Length(), Is.LessThanOrEqualTo(35.001f));
+            Assert.That(body.LinearVelocity.Length(), Is.InRange(fallbackSpeed - 0.5f, fallbackSpeed + 0.001f));
             Assert.That(shuttle.RatedBaseLinearThrust, Is.All.EqualTo(0).Within(0.01));
+            Assert.That(shuttle.AccelerationLinearThrust, Is.All.EqualTo(0).Within(0.01));
+            Assert.That(shuttle.AccelerationRatedBaseLinearThrust, Is.All.EqualTo(0).Within(0.01));
         });
         await pair.CleanReturnAsync();
     }

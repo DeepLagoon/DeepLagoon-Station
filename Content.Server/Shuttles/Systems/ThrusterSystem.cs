@@ -250,15 +250,11 @@ public sealed partial class ThrusterSystem : EntitySystem
 
         if (component.Type == ThrusterType.Linear)
         {
-            oldShuttleComponent.LinearThrust[oldDirection] -= component.Thrust;
-            oldShuttleComponent.BaseLinearThrust[oldDirection] -= component.BaseThrust;
-            oldShuttleComponent.RatedBaseLinearThrust[oldDirection] -= RatedThrust(component);
+            AdjustLinearThrust(oldShuttleComponent, oldDirection, component, -1f);
             DebugTools.Assert(oldShuttleComponent.LinearThrusters[oldDirection].Contains(uid));
             oldShuttleComponent.LinearThrusters[oldDirection].Remove(uid);
 
-            shuttleComponent.LinearThrust[direction] += component.Thrust;
-            shuttleComponent.BaseLinearThrust[direction] += component.BaseThrust;
-            shuttleComponent.RatedBaseLinearThrust[direction] += RatedThrust(component);
+            AdjustLinearThrust(shuttleComponent, direction, component, 1f);
             DebugTools.Assert(!shuttleComponent.LinearThrusters[direction].Contains(uid));
             shuttleComponent.LinearThrusters[direction].Add(uid);
             RefreshCenter(uid, oldShuttleComponent);
@@ -346,9 +342,7 @@ public sealed partial class ThrusterSystem : EntitySystem
             case ThrusterType.Linear:
                 var direction = (int)xform.LocalRotation.GetCardinalDir() / 2;
 
-                shuttleComponent.LinearThrust[direction] += component.Thrust;
-                shuttleComponent.BaseLinearThrust[direction] += component.BaseThrust;
-                shuttleComponent.RatedBaseLinearThrust[direction] += RatedThrust(component);
+                AdjustLinearThrust(shuttleComponent, direction, component, 1f);
                 DebugTools.Assert(!shuttleComponent.LinearThrusters[direction].Contains(uid));
                 shuttleComponent.LinearThrusters[direction].Add(uid);
 
@@ -445,9 +439,7 @@ public sealed partial class ThrusterSystem : EntitySystem
                 angle ??= xform.LocalRotation;
                 var direction = (int)angle.Value.GetCardinalDir() / 2;
 
-                shuttleComponent.LinearThrust[direction] -= component.Thrust;
-                shuttleComponent.BaseLinearThrust[direction] -= component.BaseThrust;
-                shuttleComponent.RatedBaseLinearThrust[direction] -= RatedThrust(component);
+                AdjustLinearThrust(shuttleComponent, direction, component, -1f);
                 DebugTools.Assert(shuttleComponent.LinearThrusters[direction].Contains(uid));
                 shuttleComponent.LinearThrusters[direction].Remove(uid);
                 break;
@@ -660,10 +652,19 @@ public sealed partial class ThrusterSystem : EntitySystem
             EnableThruster(uid, component);
     }
 
-    private static float RatedThrust(ThrusterComponent component)
+    private static void AdjustLinearThrust(ShuttleComponent shuttle, int direction, ThrusterComponent thruster, float sign)
     {
-        return component.BaseThrust * ShuttleFlightLimits.PartTier(component.BaseThrust,
-            component.Thrust, component.PartRatingThrustMultiplier);
+        var tier = ShuttleFlightLimits.PartTier(thruster.BaseThrust, thruster.Thrust, thruster.PartRatingThrustMultiplier);
+        var accelerationTier = MathF.Min(tier, ShuttleFlightLimits.MaximumAccelerationTier);
+        var accelerationThrust = tier > accelerationTier
+            ? thruster.BaseThrust * MathF.Pow(thruster.PartRatingThrustMultiplier, accelerationTier - 1f)
+            : thruster.Thrust;
+
+        shuttle.LinearThrust[direction] += sign * thruster.Thrust;
+        shuttle.BaseLinearThrust[direction] += sign * thruster.BaseThrust;
+        shuttle.RatedBaseLinearThrust[direction] += sign * thruster.BaseThrust * tier;
+        shuttle.AccelerationLinearThrust[direction] += sign * accelerationThrust;
+        shuttle.AccelerationRatedBaseLinearThrust[direction] += sign * thruster.BaseThrust * accelerationTier;
     }
 
     private void OnUpgradeExamine(EntityUid uid, ThrusterComponent component, UpgradeExamineEvent args)

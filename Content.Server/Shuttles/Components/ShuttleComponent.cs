@@ -35,6 +35,14 @@ namespace Content.Server.Shuttles.Components
         [ViewVariables]
         public readonly float[] RatedBaseLinearThrust = new float[4];
 
+        /// <summary>Available thrust for the light and medium flight profile, with each engine capped at T4.</summary>
+        [ViewVariables]
+        public readonly float[] AccelerationLinearThrust = new float[4];
+
+        /// <summary>Base thrust weighted by the acceleration tier of each engine.</summary>
+        [ViewVariables]
+        public readonly float[] AccelerationRatedBaseLinearThrust = new float[4];
+
         /// <summary>
         /// The thrusters contributing to each direction for impulse.
         /// </summary>
