@@ -1,10 +1,9 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { GridEditorScene } from './GridEditorScene';
-import { indexItems, peerPreview, previewPatch } from './gridEditorModel.mjs';
+import { indexItems, peerPreview, previewPatch, visibleItem } from './gridEditorModel.mjs';
 import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 
 const ignoreProgress = () => {};
-const previewLayers = { tile: true, entity: true, decal: true };
 const noPeers = [];
 
 export function useGridEditorPeers({ data, act, edits, visuals, expansion }) {
@@ -54,7 +53,7 @@ export function useGridEditorPeers({ data, act, edits, visuals, expansion }) {
   return { peers, ...foreign };
 }
 
-export const GridEditorPeers = memo(({ items, removed, area, view, cellSize, visuals }) => {
+export const GridEditorPeers = memo(({ items, removed, area, view, cellSize, visuals, layers }) => {
   const index = useMemo(() => indexItems(items), [items]);
   const canvas = useRef(null);
   useEffect(() => {
@@ -62,6 +61,7 @@ export const GridEditorPeers = memo(({ items, removed, area, view, cellSize, vis
     context.clearRect(0, 0, view.width, view.height);
     context.strokeStyle = '#ff6677'; context.lineWidth = Math.max(1, Math.min(3, cellSize / 8));
     for (const item of removed) {
+      if (!visibleItem(item, layers, visuals.get(`${item.kind}:${item.prototype}`))) continue;
       const offset = item.kind === 'entity' ? .5 : 0;
       const x = (item.x - offset - area.x) * cellSize - view.left;
       const y = (area.y + area.height - item.y + offset - 1) * cellSize - view.top;
@@ -70,9 +70,9 @@ export const GridEditorPeers = memo(({ items, removed, area, view, cellSize, vis
       context.moveTo(x, y); context.lineTo(x + cellSize, y + cellSize);
       context.moveTo(x + cellSize, y); context.lineTo(x, y + cellSize); context.stroke();
     }
-  }, [removed, area, view, cellSize]);
+  }, [removed, area, view, cellSize, visuals, layers]);
   return <div className="GridEditor__peerLayer">
-    {!!items.length && <GridEditorScene index={index} area={area} layers={previewLayers}
+    {!!items.length && <GridEditorScene index={index} area={area} layers={layers}
       visuals={visuals} view={view} cellSize={cellSize} onProgress={ignoreProgress} />}
     <canvas ref={canvas} className="GridEditor__scene" width={Math.max(1, view.width)} height={Math.max(1, view.height)}
       style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />

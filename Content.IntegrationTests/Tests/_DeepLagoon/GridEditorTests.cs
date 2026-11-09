@@ -800,6 +800,50 @@ public sealed class GridEditorTests
     }
 
     [Test]
+    public async Task MapperImagesUseNativeDirectionalFramesAndRuntimePipeLayers()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var images = new Content.Client._DeepLagoon.WebUI.TguiSpriteImages();
+            JsonDocument Read(string id)
+            {
+                var proto = prototypes.Index<EntityPrototype>(id);
+                Assert.That(proto.TryGetComponent<Robust.Client.GameObjects.SpriteComponent>(out var sprite), Is.True);
+                return JsonDocument.Parse(new Content.Client._DeepLagoon.WebUI.TguiData()
+                    .Array("images", images.GridEditorItemImages(proto, sprite!)).ToString());
+            }
+
+            using var chair = Read("Chair");
+            var chairImage = chair.RootElement.GetProperty("images")[0];
+            Assert.That(chairImage.GetProperty("frames").GetArrayLength(), Is.EqualTo(3));
+            var chairFrames = chairImage.GetProperty("frames").EnumerateArray().Select(frame => frame.GetProperty("url").GetString()).ToArray();
+            Assert.That(chairFrames, Has.All.StartsWith("data:image/png;base64,"));
+            Assert.That(chairFrames[0], Is.Not.EqualTo(chairImage.GetProperty("url").GetString()));
+
+            using var pipe = Read("GasPipeStraight");
+            var pipeImage = pipe.RootElement.GetProperty("images")[0];
+            using var secondary = Read("GasPipeStraightAlt1");
+            var secondaryImage = secondary.RootElement.GetProperty("images")[0];
+            var alternatives = pipeImage.GetProperty("pipeFrames").EnumerateArray().ToDictionary(variant => variant.GetProperty("layer").GetInt32());
+            Assert.That(alternatives.Keys, Is.EquivalentTo(new[] { 1, 2 }));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Does.StartWith("data:image/png;base64,"));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Is.EqualTo(secondaryImage.GetProperty("url").GetString()));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Is.Not.EqualTo(pipeImage.GetProperty("url").GetString()));
+            Assert.That(alternatives[2].GetProperty("frames")[0].GetProperty("url").GetString(),
+                Is.Not.EqualTo(alternatives[1].GetProperty("frames")[0].GetProperty("url").GetString()));
+
+            using var pump = Read("GasPressurePump");
+            var pumpImages = pump.RootElement.GetProperty("images");
+            Assert.That(pumpImages.GetArrayLength(), Is.GreaterThanOrEqualTo(2));
+            Assert.That(pumpImages[0].GetProperty("pipeFrames").GetArrayLength(), Is.EqualTo(2));
+            Assert.That(pumpImages[1].GetProperty("pipeFrames").GetArrayLength(), Is.EqualTo(2));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task LiveGridAndForeignDraftsSyncAcrossEditorsWhileLocalApplyAlwaysWins()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
