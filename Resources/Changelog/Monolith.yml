@@ -25137,4 +25137,29 @@ Entries:
     id: 2858
     time: '2026-11-09T05:13:04.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/20
-GeneratedThrough: '2026-11-09T05:13:04.000Z'
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Авантюристы получают 5 000 спесо на банковский счёт за час игрового времени,
+          засчитываемого для спонсорства.
+    id: 2859
+    time: '2026-11-09T13:19:21.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/33
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: >-
+          ArtStudio поддерживает настройку нажима пера, запоминает параметры кисти и сохраняет
+          черновик при закрытии. Улучшена отзывчивость при работе со слоями.
+    id: 2860
+    time: '2026-11-09T13:19:56.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/52
+  - author: iamasay
+    changes:
+      - type: Add
+        message: Игроки могут переводить Lagoon Coin друг другу в раунде через /lc:pay с подтверждением.
+    id: 2861
+    time: '2026-11-09T13:20:45.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/34
+GeneratedThrough: '2026-11-09T13:20:45.000Z'
