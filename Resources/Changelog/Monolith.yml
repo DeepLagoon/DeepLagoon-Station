@@ -25110,4 +25110,31 @@ Entries:
     id: 2855
     time: '2026-11-09T05:11:54.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/26
-GeneratedThrough: '2026-11-09T05:11:54.000Z'
+  - author: iamasay
+    changes:
+      - type: Add
+        message: >-
+          Шаттлы с бесплатной парковки продаются в конце раунда. Выручка за шаттл и конфискованные
+          при сохранении предметы поступает владельцу.
+    id: 2856
+    time: '2026-11-09T05:12:34.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/22
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: >-
+          Генерация и выгрузка поверхности экспедиций ограничены бюджетом на тик. При подгрузке
+          игроки получают приоритет перед призраками.
+    id: 2857
+    time: '2026-11-09T05:12:47.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/21
+  - author: iamasay
+    changes:
+      - type: Tweak
+        message: >-
+          Разрушенные силосы выгружают ресурсы порциями. Снижена нагрузка от взрывов и радиации при
+          массовых разрушениях.
+    id: 2858
+    time: '2026-11-09T05:13:04.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/20
+GeneratedThrough: '2026-11-09T05:13:04.000Z'
