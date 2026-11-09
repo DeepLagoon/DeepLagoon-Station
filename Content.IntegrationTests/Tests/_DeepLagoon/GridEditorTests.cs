@@ -10,6 +10,15 @@ using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using Content.Server.Administration.Managers;
+using Content.Server._Mono.NPC.HTN;
+using Content.Server._NF.Shuttles.Components;
+using Content.Server.Salvage;
+using Content.Server.Shuttles.Systems;
+using Content.Shared.Salvage.Expeditions;
+using Content.Shared.Shuttles.Components;
+using Content.Shared.Tag;
+using Robust.Shared.Physics;
+using Robust.Shared.Physics.Components;
 using Content.Server.Decals;
 using Content.Server.Atmos.Components;
 using Content.Server.Atmos.EntitySystems;
@@ -553,6 +562,103 @@ public sealed class GridEditorTests
     }
 
     [Test]
+    public async Task GridSettingsPersistAndEnableOnboardExpeditionConsole()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        EntityUid grid = default;
+        EntityUid console = default;
+        Guid token = default;
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>();
+            map.CreateMap(out var mapId);
+            var ship = map.CreateGridEntity(mapId);
+            grid = ship.Owner;
+            entities.AddComponent<ForceAnchorPostFTLComponent>(grid);
+            map.SetTile(ship, Vector2i.Zero, new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId));
+            console = entities.SpawnEntity("ComputerSalvageExpedition", new EntityCoordinates(grid, new Vector2(.5f, .5f)));
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            pair.Server.ResolveDependency<IAdminManager>().PromoteHost(player);
+            Assert.That(entities.System<ServerEditor>().Open(player, grid), Does.Contain("открыт"));
+        });
+        await pair.RunTicksSync(25);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = pair.Client.EntMan.System<ClientEditor>();
+            token = editor.State!.Token;
+            void Set(string setting, bool enabled = true, string value = "") =>
+                typeof(ClientEditor).GetMethod("TabAction", flags)!.Invoke(editor,
+                    new object[] { "setGridEnvironment", JsonSerializer.Serialize(new { tabToken = token, setting, enabled, value }) });
+            Set("expeditions");
+            Set("ignoreAi");
+            Set("anchor");
+            Set("radarColor", value: "#4281C0");
+            Set("hideIff");
+        });
+        await pair.RunTicksSync(25);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var state = (GridEditorEnvironmentState) new TabField("EnvironmentState").GetValue(pair.Client.EntMan.System<ClientEditor>())!;
+            Assert.Multiple(() =>
+            {
+                Assert.That(state.Expeditions, Is.True);
+                Assert.That(state.IgnoredByShuttleAi, Is.True);
+                Assert.That(state.ForceAnchored, Is.True);
+                Assert.That(state.RadarColor, Is.EqualTo("#4281C0"));
+                Assert.That(state.HiddenOnIff, Is.True);
+            });
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var player = pair.Server.PlayerMan.Sessions.Single();
+            var editor = entities.System<ServerEditor>();
+            var shuttles = entities.System<ShuttleSystem>();
+            var salvage = entities.System<SalvageSystem>();
+            var data = entities.GetComponent<SalvageExpeditionDataComponent>(grid);
+            var claim = new ClaimSalvageMessage { Index = data.Missions.Keys.First() };
+            Assert.That(salvage.GetExpeditionDepartureGrid(grid), Is.EqualTo(grid));
+            Assert.That(entities.GetComponent<PhysicsComponent>(grid).BodyType, Is.EqualTo(BodyType.Static));
+            Assert.That(shuttles.CanDraw(grid), Is.False);
+            Assert.That(shuttles.CanFTL(grid, out _), Is.False);
+            entities.EventBus.RaiseLocalEvent(console, claim);
+            Assert.That(data.Claimed, Is.False);
+
+            var yaml = editor.Export(player, token, false, out var error);
+            Assert.That(yaml, Is.Not.Null, error);
+            using var reader = new System.IO.StringReader(yaml!);
+            Assert.That(entities.System<MapLoaderSystem>().TryLoadGeneric(reader, "grid-settings", out var loaded), Is.True);
+            var loadedGrid = loaded!.Grids.Single().Owner;
+            Assert.That(salvage.GridExpeditionsEnabled(loadedGrid), Is.True);
+            Assert.That(entities.System<TagSystem>().HasTag(loadedGrid, ShipTargetingSystem.IgnoreGridTag), Is.True);
+            Assert.That(shuttles.GetIFFColor(loadedGrid), Is.EqualTo(Color.FromHex("#4281C0")));
+            Assert.That(shuttles.CanDraw(loadedGrid), Is.False);
+            Assert.That(entities.HasComponent<ForceAnchorComponent>(loadedGrid), Is.True);
+
+            void Set(string setting, bool enabled) => typeof(ServerEditor).GetMethod("Environment", flags)!.Invoke(editor,
+                new object[] { new GridEditorEnvironmentRequest(token, setting, enabled), new EntitySessionEventArgs(player) });
+            Set("anchor", false);
+            Assert.That(entities.HasComponent<PreventGridAnchorChangesComponent>(grid), Is.False);
+            Set("hideIff", false);
+            Set("ignoreAi", false);
+            Set("expeditions", false);
+            Assert.That(entities.GetComponent<PhysicsComponent>(grid).BodyType, Is.EqualTo(BodyType.Dynamic));
+            Assert.That(shuttles.CanDraw(grid), Is.True);
+            Assert.That(entities.System<TagSystem>().HasTag(grid, ShipTargetingSystem.IgnoreGridTag), Is.False);
+            entities.EventBus.RaiseLocalEvent(console, claim);
+            Assert.That(data.Claimed, Is.False);
+
+            Set("expeditions", true);
+            entities.EventBus.RaiseLocalEvent(console, claim);
+            Assert.That(data.Claimed, Is.True);
+            Assert.That(salvage.SetGridExpeditions(grid, false), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ComplexMoveCreatesDecalStorageAndRestoresDeletedDraftEntity()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
@@ -689,6 +795,50 @@ public sealed class GridEditorTests
                 }
             }
             foreach (var cable in new[] { "CableHV", "CableMV", "CableApcExtension" }) Assert.That(prototypes.HasIndex<EntityPrototype>(cable), Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task MapperImagesUseNativeDirectionalFramesAndRuntimePipeLayers()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var images = new Content.Client._DeepLagoon.WebUI.TguiSpriteImages();
+            JsonDocument Read(string id)
+            {
+                var proto = prototypes.Index<EntityPrototype>(id);
+                Assert.That(proto.TryGetComponent<Robust.Client.GameObjects.SpriteComponent>(out var sprite), Is.True);
+                return JsonDocument.Parse(new Content.Client._DeepLagoon.WebUI.TguiData()
+                    .Array("images", images.GridEditorItemImages(proto, sprite!)).ToString());
+            }
+
+            using var chair = Read("Chair");
+            var chairImage = chair.RootElement.GetProperty("images")[0];
+            Assert.That(chairImage.GetProperty("frames").GetArrayLength(), Is.EqualTo(3));
+            var chairFrames = chairImage.GetProperty("frames").EnumerateArray().Select(frame => frame.GetProperty("url").GetString()).ToArray();
+            Assert.That(chairFrames, Has.All.StartsWith("data:image/png;base64,"));
+            Assert.That(chairFrames[0], Is.Not.EqualTo(chairImage.GetProperty("url").GetString()));
+
+            using var pipe = Read("GasPipeStraight");
+            var pipeImage = pipe.RootElement.GetProperty("images")[0];
+            using var secondary = Read("GasPipeStraightAlt1");
+            var secondaryImage = secondary.RootElement.GetProperty("images")[0];
+            var alternatives = pipeImage.GetProperty("pipeFrames").EnumerateArray().ToDictionary(variant => variant.GetProperty("layer").GetInt32());
+            Assert.That(alternatives.Keys, Is.EquivalentTo(new[] { 1, 2 }));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Does.StartWith("data:image/png;base64,"));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Is.EqualTo(secondaryImage.GetProperty("url").GetString()));
+            Assert.That(alternatives[1].GetProperty("url").GetString(), Is.Not.EqualTo(pipeImage.GetProperty("url").GetString()));
+            Assert.That(alternatives[2].GetProperty("frames")[0].GetProperty("url").GetString(),
+                Is.Not.EqualTo(alternatives[1].GetProperty("frames")[0].GetProperty("url").GetString()));
+
+            using var pump = Read("GasPressurePump");
+            var pumpImages = pump.RootElement.GetProperty("images");
+            Assert.That(pumpImages.GetArrayLength(), Is.GreaterThanOrEqualTo(2));
+            Assert.That(pumpImages[0].GetProperty("pipeFrames").GetArrayLength(), Is.EqualTo(2));
+            Assert.That(pumpImages[1].GetProperty("pipeFrames").GetArrayLength(), Is.EqualTo(2));
         });
         await pair.CleanReturnAsync();
     }

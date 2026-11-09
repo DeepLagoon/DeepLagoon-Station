@@ -7,6 +7,7 @@ using Content.Server.Salvage.Expeditions;
 using Content.Server.Salvage.Expeditions.Structure;
 using Content.Shared.CCVar;
 using Content.Shared._NF.CCVar; // Frontier
+using Content.Shared.Cargo.Components;
 using Content.Shared.Examine;
 using Content.Shared.Random.Helpers;
 using Content.Shared.Salvage.Expeditions;
@@ -27,6 +28,9 @@ using Robust.Shared.Map;
 using Content.Shared.Shuttles.Components; // Frontier
 using Robust.Shared.Configuration; // Frontier
 using Content.Server.Stack;
+using Content.Shared.Stacks;
+using Robust.Shared.Player;
+using Robust.Shared.Map.Components;
 
 namespace Content.Server.Salvage;
 
@@ -75,7 +79,9 @@ public sealed partial class SalvageSystem
             Stage = component.Stage,
             EndTime = component.EndTime,
             ObjectivesTotal = component.ObjectivesTotal,
-            ObjectivesCompleted = component.ObjectivesCompleted
+            ObjectivesCompleted = component.ObjectivesCompleted,
+            RewardAmount = GetExpeditionRewardAmount(component),
+            DispatchedFromOutpost = component.DispatchedFromOutpost,
         };
     }
 
@@ -175,10 +181,10 @@ public sealed partial class SalvageSystem
         while (query.MoveNext(out var uid, out var comp))
         {
             // Update offers
-            if (comp.NextOffer > currentTime || comp.Claimed)
+            if (!comp.Enabled || comp.NextOffer > currentTime || comp.Claimed)
                 continue;
 
-            if (!HasComp<FTLComponent>(_station.GetLargestGrid((uid, Comp<StationDataComponent>(uid))))) // Frontier
+            if (!HasComp<FTLComponent>(GetExpeditionDepartureGrid(uid))) // Frontier
                 comp.Cooldown = false;
             //comp.NextOffer += TimeSpan.FromSeconds(_cooldown); // Frontier
             comp.NextOffer = currentTime + TimeSpan.FromSeconds(_cooldown); // Frontier
@@ -309,12 +315,15 @@ public sealed partial class SalvageSystem
 
     private SalvageExpeditionConsoleState GetState(SalvageExpeditionDataComponent component)
     {
+        if (!component.Enabled)
+            return new SalvageExpeditionConsoleState(TimeSpan.Zero, false, true, false, 0, []);
+
         var missions = component.Missions.Values.ToList();
         //return new SalvageExpeditionConsoleState(component.NextOffer, component.Claimed, component.Cooldown, component.ActiveMission, missions);
         return new SalvageExpeditionConsoleState(component.NextOffer, component.Claimed, component.Cooldown, component.CanFinish, component.ActiveMission, missions); // Frontier
     }
 
-    private void SpawnMission(SalvageMissionParams missionParams, EntityUid station, EntityUid? coordinatesDisk)
+    private void SpawnMission(SalvageMissionParams missionParams, EntityUid station, EntityUid dispatchConsole, EntityUid? coordinatesDisk)
     {
         var cancelToken = new CancellationTokenSource();
         var job = new SpawnSalvageMissionJob(
@@ -328,12 +337,12 @@ public sealed partial class SalvageSystem
             _weather,
             _dungeon,
             _shuttle,
-            _station,
             _metaData,
             this,
             _transform,
             _mapSystem,
             station,
+            dispatchConsole,
             coordinatesDisk,
             missionParams,
             cancelToken.Token);
@@ -347,41 +356,83 @@ public sealed partial class SalvageSystem
         args.PushMarkup(Loc.GetString("salvage-expedition-structure-examine"));
     }
 
-    private void GiveRewards(EntityUid expedition, SalvageExpeditionComponent comp)
+    private int GetExpeditionRewardAmount(SalvageExpeditionComponent expedition)
     {
-        var palletList = new List<EntityUid>();
-        var pallets = EntityQueryEnumerator<SalvageExpeditionConsoleComponent>(); // Frontier CargoPalletComponent<SalvageExpeditionConsoleComponent
-        while (pallets.MoveNext(out var pallet, out var palletComp))
+        if (expedition.DispatchedFromOutpost)
         {
-            if (_station.GetOwningStation(pallet) == comp.Station &&
-                (!comp.DispatchedFromOutpost || palletComp.DispatchByDisk))
-            {
-                palletList.Add(pallet);
-            }
-        }
-
-        if (!(palletList.Count > 0))
-            return;
-
-        var destination = Transform(_random.Pick(palletList)).Coordinates;
-        EntityManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().GiveCompletionReward(expedition, destination);
-        if (comp.DispatchedFromOutpost)
-        {
-            var telecrystals = comp.Difficulty switch
+            return expedition.Difficulty switch
             {
                 DifficultyRating.Extreme => 15,
                 DifficultyRating.Hazardous => 10,
-                _ => 5
+                _ => 5,
             };
-            EntityManager.System<StackSystem>().SetCount(Spawn("Telecrystal", destination), telecrystals);
-            return;
         }
 
-        if (_cfgManager.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
+        var amount = 0;
+        foreach (var reward in expedition.Rewards)
+        {
+            if (_prototypeManager.Index(reward).TryGetComponent<StaticPriceComponent>(out var price))
+                amount += (int) price.Price;
+        }
+        return amount;
+    }
+
+    private EntityUid? FindRewardConsole(SalvageExpeditionComponent expedition)
+    {
+        bool Matches(EntityUid uid, SalvageExpeditionConsoleComponent console) =>
+            !TerminatingOrDeleted(uid) &&
+            (!expedition.DispatchedFromOutpost || console.DispatchByDisk) &&
+            GetExpeditionSource(uid, console) == expedition.Station &&
+            Transform(uid).MapUid is { } map && !TerminatingOrDeleted(map);
+
+        if (expedition.DispatchConsole is { } dispatch && TryComp<SalvageExpeditionConsoleComponent>(dispatch, out var console)
+            && Matches(dispatch, console))
+            return dispatch;
+
+        var consoles = AllEntityQuery<SalvageExpeditionConsoleComponent>();
+        while (consoles.MoveNext(out var uid, out var candidate))
+        {
+            if (Matches(uid, candidate))
+                return uid;
+        }
+        return null;
+    }
+
+    private void GiveRewards(EntityUid expedition, SalvageExpeditionComponent comp)
+    {
+        if (FindRewardConsole(comp) is not { } console)
+            return;
+
+        var destination = Transform(console).Coordinates;
+        var issued = 0;
+        if (comp.DispatchedFromOutpost)
+        {
+            var crystal = Spawn("Telecrystal", destination);
+            var stack = Comp<StackComponent>(crystal);
+            EntityManager.System<StackSystem>().SetCount(crystal, GetExpeditionRewardAmount(comp), stack);
+            issued = stack.Count;
+        }
+        else if (_cfgManager.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
         {
             foreach (var reward in comp.Rewards)
-                Spawn(reward, destination);
+            {
+                var spawned = Spawn(reward, destination);
+                if (TryComp<StaticPriceComponent>(spawned, out var price))
+                    issued += (int) price.Price;
+            }
         }
+
+        if (issued > 0)
+        {
+            // The last shuttle has usually already entered hyperspace when the expedition map shuts down.
+            var recipients = Filter.BroadcastMap(Comp<MapComponent>(expedition).MapId).SendReliably();
+            foreach (var shuttle in comp.ReturnLocations.Keys)
+                recipients.AddInGrid(shuttle);
+
+            RaiseNetworkEvent(new SalvageExpeditionRewardIssuedEvent(issued, comp.DispatchedFromOutpost), recipients);
+        }
+
+        EntityManager.System<Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem>().GiveCompletionReward(expedition, destination);
     }
 
     // Frontier: handle exped spawn job failures gracefully - reset the console

@@ -1,8 +1,10 @@
+using Content.Shared._NF.CCVar;
 using Content.Shared.Salvage.Expeditions;
 using Robust.Client.Player;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.Configuration;
 using Robust.Shared.Timing;
 
 namespace Content.Client.Salvage.UI;
@@ -12,8 +14,11 @@ public sealed class SalvageExpeditionStatus : UIWidget
     [Dependency] private IEntityManager _entities = default!;
     [Dependency] private IPlayerManager _players = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IConfigurationManager _config = default!;
 
     private readonly Label _label = new() { HorizontalAlignment = HAlignment.Center };
+    private readonly Label _reward = new() { HorizontalAlignment = HAlignment.Center };
+    private readonly Label _receipt = new() { HorizontalAlignment = HAlignment.Center };
     private readonly PanelContainer _panel;
 
     public SalvageExpeditionStatus()
@@ -31,18 +36,27 @@ public sealed class SalvageExpeditionStatus : UIWidget
                 ContentMarginBottomOverride = 5,
             },
         };
-        _panel.AddChild(_label);
+        _panel.AddChild(new BoxContainer
+        {
+            Orientation = BoxContainer.LayoutOrientation.Vertical,
+            MouseFilter = MouseFilterMode.Ignore,
+            Children = { _label, _reward, _receipt },
+        });
         AddChild(_panel);
     }
 
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
+        _receipt.Text = _entities.System<SalvageSystem>().ExpeditionRewardNotice;
+        _receipt.Visible = _receipt.Text != null;
         if (!_entities.TryGetComponent<TransformComponent>(_players.LocalEntity, out var xform) ||
             !_entities.TryGetComponent<SalvageExpeditionComponent>(xform.MapUid, out var expedition) ||
             expedition.Stage == ExpeditionStage.Added)
         {
-            _panel.Visible = false;
+            _label.Visible = false;
+            _reward.Visible = false;
+            _panel.Visible = _receipt.Visible;
             return;
         }
 
@@ -50,6 +64,17 @@ public sealed class SalvageExpeditionStatus : UIWidget
         _label.Text = Loc.GetString("salvage-expedition-status",
             ("time", $"{seconds / 60:00}:{seconds % 60:00}"),
             ("completed", expedition.ObjectivesCompleted), ("total", expedition.ObjectivesTotal));
+        _label.Visible = true;
+        _reward.Visible = expedition.RewardAmount > 0;
+        if (_reward.Visible)
+        {
+            if (!expedition.DispatchedFromOutpost && !_config.GetCVar(NFCCVars.SalvageExpeditionRewardsEnabled))
+                _reward.Text = Loc.GetString("salvage-expedition-reward-disabled");
+            else
+                _reward.Text = Loc.GetString(expedition.DispatchedFromOutpost
+                    ? "salvage-expedition-reward-expected-outpost"
+                    : "salvage-expedition-reward-expected-cash", ("amount", expedition.RewardAmount));
+        }
         _panel.Visible = true;
     }
 }

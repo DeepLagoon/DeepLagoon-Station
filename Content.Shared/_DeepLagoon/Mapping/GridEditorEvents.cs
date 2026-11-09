@@ -194,19 +194,24 @@ public sealed class GridEditorDraftsEvent(Guid token, List<GridEditorPeerDraft> 
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorEnvironmentRequest(Guid token, string setting, bool enabled) : EntityEventArgs
+public sealed class GridEditorEnvironmentRequest(Guid token, string setting, bool enabled, string value = "") : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly string Setting = setting;
     public readonly bool Enabled = enabled;
+    public readonly string Value = value;
 }
 
 [Serializable, NetSerializable]
-public sealed class GridEditorEnvironmentState(Guid token, bool alwaysPowered, bool forceGravity, bool safeAtmosphere, bool apartmentProtected, string gridName = "") : EntityEventArgs
+public sealed class GridEditorEnvironmentState(Guid token, bool alwaysPowered, bool forceGravity, bool safeAtmosphere, bool apartmentProtected,
+    string gridName = "", bool expeditions = false, bool ignoredByShuttleAi = false, bool forceAnchored = false,
+    string radarColor = "", bool hiddenOnIff = false) : EntityEventArgs
 {
     public readonly Guid Token = token;
     public readonly bool AlwaysPowered = alwaysPowered, ForceGravity = forceGravity, SafeAtmosphere = safeAtmosphere, ApartmentProtected = apartmentProtected;
     public readonly string GridName = gridName;
+    public readonly bool Expeditions = expeditions, IgnoredByShuttleAi = ignoredByShuttleAi, ForceAnchored = forceAnchored, HiddenOnIff = hiddenOnIff;
+    public readonly string RadarColor = radarColor;
 }
 
 [Serializable, NetSerializable]

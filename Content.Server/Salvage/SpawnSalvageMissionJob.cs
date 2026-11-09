@@ -14,7 +14,7 @@ using Content.Server.Salvage.Expeditions;
 using Content.Server.Salvage.Expeditions.Structure;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
-using Content.Server.Station.Systems;
+using Content.Server._NF.Shuttles.Components;
 using Content.Shared.Atmos;
 using Content.Shared.Construction.EntitySystems;
 using Content.Shared.Dataset;
@@ -27,7 +27,6 @@ using Content.Shared.Salvage;
 using Content.Shared.Salvage.Expeditions;
 using Content.Shared.Salvage.Expeditions.Modifiers;
 using Content.Shared.Shuttles.Components;
-using Content.Shared.Station.Components;
 using Content.Shared.Storage;
 using Content.Server.Weather;
 using Content.Shared.Weather;
@@ -54,13 +53,13 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
     private readonly DungeonSystem _dungeon;
     private readonly MetaDataSystem _metaData;
     private readonly ShuttleSystem _shuttle;
-    private readonly StationSystem _stationSystem;
     private readonly SalvageSystem _salvage;
     private readonly SharedTransformSystem _xforms;
     private readonly SharedMapSystem _map;
 
     public readonly EntityUid Station;
     public readonly EntityUid? CoordinatesDisk;
+    private readonly EntityUid _dispatchConsole;
     private readonly SalvageMissionParams _missionParams;
 
     // Frontier: Used for saving state between async job
@@ -87,12 +86,12 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         WeatherSystem weather,
         DungeonSystem dungeon,
         ShuttleSystem shuttle,
-        StationSystem stationSystem,
         MetaDataSystem metaData,
         SalvageSystem salvage,
         SharedTransformSystem xform,
         SharedMapSystem map,
         EntityUid station,
+        EntityUid dispatchConsole,
         EntityUid? coordinatesDisk,
         SalvageMissionParams missionParams,
         CancellationToken cancellation = default) : base(maxTime, cancellation)
@@ -106,12 +105,12 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         _weather = weather;
         _dungeon = dungeon;
         _shuttle = shuttle;
-        _stationSystem = stationSystem;
         _metaData = metaData;
         _salvage = salvage;
         _xforms = xform;
         _map = map;
         Station = station;
+        _dispatchConsole = dispatchConsole;
         CoordinatesDisk = coordinatesDisk;
         _missionParams = missionParams;
     }
@@ -222,6 +221,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         // Setup expedition
         var expedition = _entManager.AddComponent<SalvageExpeditionComponent>(mapUid);
         expedition.Station = Station;
+        expedition.DispatchConsole = _dispatchConsole;
         expedition.EndTime = _timing.CurTime + mission.Duration;
         expedition.MissionParams = _missionParams;
         expedition.Difficulty = _missionParams.Difficulty;
@@ -287,10 +287,7 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
             dungeonBox = dungeonBox.ExtendToContain(tile);
         }
 
-        var stationData = _entManager.GetComponent<StationDataComponent>(Station);
-
-        // Frontier: get ship bounding box relative to largest grid coords
-        var shuttleUid = CoordinatesDisk.HasValue ? null : _stationSystem.GetLargestGrid((Station, stationData));
+        var shuttleUid = CoordinatesDisk.HasValue ? null : _salvage.GetExpeditionDepartureGrid(Station);
         Box2 shuttleBox = new Box2();
 
         if (shuttleUid is { Valid: true } vesselUid &&
@@ -306,15 +303,18 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
         coords = coords.Rounded(); // Ensure grid is aligned to map coords
 
         // Frontier: delay ship FTL
-        if (shuttleUid is { Valid: true })
+        if (!CoordinatesDisk.HasValue)
         {
-            // Generation yields; the ship may have docked after claiming the mission.
-            if (_salvage.IsExpeditionShuttleDocked(shuttleUid.Value))
-                throw new InvalidOperationException("Expedition shuttle must undock before departure.");
+            // Generation yields; recheck that the departure is still possible.
+            if (shuttleUid is not { Valid: true } ship ||
+                !_entManager.TryGetComponent<ShuttleComponent>(ship, out var shuttle) ||
+                _entManager.HasComponent<ForceAnchorComponent>(ship) ||
+                _entManager.HasComponent<FTLComponent>(ship) ||
+                _salvage.IsExpeditionShuttleDocked(ship))
+                throw new InvalidOperationException("Expedition shuttle is unavailable, anchored or docked.");
 
-            var shuttle = _entManager.GetComponent<ShuttleComponent>(shuttleUid.Value);
-            MassAdjustFTLExpedStartup(shuttleUid, out var massStartupTime);
-            _shuttle.FTLToCoordinates(shuttleUid.Value, shuttle, new EntityCoordinates(mapUid, coords), 0f, massStartupTime, HyperSpaceTime);
+            MassAdjustFTLExpedStartup(ship, out var massStartupTime);
+            _shuttle.FTLToCoordinates(ship, shuttle, new EntityCoordinates(mapUid, coords), 0f, massStartupTime, HyperSpaceTime);
         }
 
         List<Vector2i> reservedTiles = new();

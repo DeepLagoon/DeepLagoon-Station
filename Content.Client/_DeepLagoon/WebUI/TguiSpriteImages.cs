@@ -29,6 +29,7 @@ public sealed partial class TguiSpriteImages
     {
         _frames.Clear();
         _items.Clear();
+        _gridEditorItems.Clear();
         _tileFrames.Clear();
         _directionalFrames.Clear();
         ReleaseSheets();

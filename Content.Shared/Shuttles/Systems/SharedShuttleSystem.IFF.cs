@@ -84,11 +84,11 @@ public abstract partial class SharedShuttleSystem
     /// Sets the color for this grid to appear as on radar.
     /// </summary>
     [PublicAPI]
-    public void SetIFFColor(EntityUid gridUid, Color color, IFFComponent? component = null)
+    public void SetIFFColor(EntityUid gridUid, Color color, IFFComponent? component = null, bool force = false)
     {
         component ??= EnsureComp<IFFComponent>(gridUid);
 
-        if (component.ReadOnly) // Frontier: POI IFF protection
+        if (component.ReadOnly && !force) // Frontier: POI IFF protection
             return; // Frontier: POI IFF protection
 
         if (component.Color.Equals(color))
@@ -100,11 +100,11 @@ public abstract partial class SharedShuttleSystem
     }
 
     [PublicAPI]
-    public void AddIFFFlag(EntityUid gridUid, IFFFlags flags, IFFComponent? component = null)
+    public void AddIFFFlag(EntityUid gridUid, IFFFlags flags, IFFComponent? component = null, bool force = false)
     {
         component ??= EnsureComp<IFFComponent>(gridUid);
 
-        if (component.ReadOnly) // Frontier: POI IFF protection
+        if (component.ReadOnly && !force) // Frontier: POI IFF protection
             return; // Frontier: POI IFF protection
 
         if ((component.Flags & flags) == flags)
@@ -116,12 +116,12 @@ public abstract partial class SharedShuttleSystem
     }
 
     [PublicAPI]
-    public void RemoveIFFFlag(EntityUid gridUid, IFFFlags flags, IFFComponent? component = null)
+    public void RemoveIFFFlag(EntityUid gridUid, IFFFlags flags, IFFComponent? component = null, bool force = false)
     {
         if (!Resolve(gridUid, ref component, false))
             return;
 
-        if (component.ReadOnly) // Frontier: POI IFF protection
+        if (component.ReadOnly && !force) // Frontier: POI IFF protection
             return; // Frontier: POI IFF protection
 
         if ((component.Flags & flags) == 0x0)
