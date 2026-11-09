@@ -326,19 +326,16 @@ namespace Content.Server.Ghost
                 return;
             }
 
-            // Frontier: get admin status for entity.
-            bool isAdmin = _admin.IsAdmin(entity);
-
-            // Only include admin ghosts if the requester is an admin
-            var warps = GetPlayerWarps(entity)
-                .Concat(GetLocationWarps(isAdmin));
-
-            if (isAdmin)
+            if (!_admin.IsAdmin(entity))
             {
-                // Add admin ghosts and regular ghosts to the warp list for admin users
-                warps = warps.Concat(GetAdminGhostWarps(entity))
-                            .Concat(GetRegularGhostWarps(entity));
+                RaiseNetworkEvent(new GhostWarpsResponseEvent([]), args.SenderSession.Channel);
+                return;
             }
+
+            var warps = GetPlayerWarps(entity)
+                .Concat(GetLocationWarps())
+                .Concat(GetAdminGhostWarps(entity))
+                .Concat(GetRegularGhostWarps(entity));
 
             var response = new GhostWarpsResponseEvent(warps.ToList());
             RaiseNetworkEvent(response, args.SenderSession.Channel);
@@ -353,6 +350,9 @@ namespace Content.Server.Ghost
                 return;
             }
 
+            if (!_admin.IsAdmin(attached))
+                return;
+
             var target = GetEntity(msg.Target);
 
             if (!Exists(target))
@@ -360,17 +360,6 @@ namespace Content.Server.Ghost
                 Log.Warning($"User {args.SenderSession.Name} tried to warp to an invalid entity id: {msg.Target}");
                 return;
             }
-
-            // Frontier: check admin status when warping to admin-only warp points
-            if (!_admin.IsAdmin(attached) &&
-                TryComp<WarpPointComponent>(target, out var warpPoint) &&
-                warpPoint.AdminOnly)
-            {
-                Log.Warning($"User {args.SenderSession.Name} tried to warp to an admin-only warp point: {msg.Target}");
-                _adminLog.Add(LogType.Action, LogImpact.Medium, $"{ToPrettyString(attached):player} tried to warp to admin warp point {ToPrettyString(msg.Target)}");
-                return;
-            }
-            // End Frontier
 
             WarpTo(attached, target);
         }
@@ -384,7 +373,7 @@ namespace Content.Server.Ghost
                 return;
             }
 
-            if (_followerSystem.GetMostGhostFollowed() is not {} target)
+            if (!_admin.IsAdmin(uid) || _followerSystem.GetMostGhostFollowed() is not {} target)
                 return;
 
             WarpTo(uid, target);
@@ -407,15 +396,12 @@ namespace Content.Server.Ghost
                 _physics.SetLinearVelocity(uid, Vector2.Zero, body: physics);
         }
 
-        private IEnumerable<GhostWarp> GetLocationWarps(bool isAdmin) // Frontier: add isAdmin
+        private IEnumerable<GhostWarp> GetLocationWarps()
         {
             var allQuery = AllEntityQuery<WarpPointComponent>();
 
             while (allQuery.MoveNext(out var uid, out var warp))
             {
-                if (warp.AdminOnly && !isAdmin) // Frontier: skip admin-only warp points if not an admin
-                    continue; // Frontier
-
                 yield return new GhostWarp(GetNetEntity(uid), warp.Location ?? Name(uid), true);
             }
         }
