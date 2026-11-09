@@ -145,7 +145,7 @@ book-text-cargo-depot-trademall = MANIFEST
       - MED. SUPPLIES : $2500
       - CHEM. SUPPLIES : $5000
       - VOL. CHEM. SUPPLIES : $6000
-      - FUS. FUEL : $12000
+      - FUS. FUEL : $6000
       - SCRAP : $4000
       - COMPONENTS : $4000
       - FERTILIZER : $4500
@@ -163,7 +163,7 @@ book-text-cargo-depot-camelot = MANIFEST
       - WEAPON PARTS : $10000
       - LUXURIES : $14000
       - EQUIPMENT : $3500
-      - FUS. FUEL : $12000
+      - FUS. FUEL : $6000
       - SHIP COMPONENTS : $6000
       - FERTILIZER : $7000
       - FABRIC : $4000
@@ -181,7 +181,7 @@ book-text-cargo-depot-halcyon = MANIFEST
       - VOL. CHEM. SUPPLIES : $8000
       - WEAPON PARTS : $9000
       - EQUIPMENT : $3000
-      - FUS. FUEL : $12000
+      - FUS. FUEL : $6000
       - SHIP COMPONENTS : $6000
       - FERTILIZER : $7000
       - FABRIC : $2500
@@ -200,7 +200,7 @@ book-text-cargo-depot-helios = MANIFEST
       - WEAPON PARTS : $12000
       - SCRAP : $6000
       - EQUIPMENT : $4500
-      - FUS. FUEL : $14000
+      - FUS. FUEL : $7000
       - COMPONENTS : $5000
       - SHIP COMPONENTS : $6000
       - FABRIC : $2500
