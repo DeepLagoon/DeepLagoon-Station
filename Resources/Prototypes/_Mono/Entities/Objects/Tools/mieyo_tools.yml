@@ -113,8 +113,8 @@
   - type: Item
     sprite: _Mono/Objects/Tools/mieyo_access_breaker.rsi
   - type: LimitedCharges
-    maxCharges: 15 # more than normal but it doesnt recharge
-    charges: 15
+    maxCharges: 1
+    charges: 1
   - type: UseDelay
     delay: 1.0
   - type: StaticPrice
