@@ -24,14 +24,12 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
         SubscribeLocalEvent<ActiveJetpackComponent, ComponentShutdown>(OnJetpackDeactivated);
     }
 
-    // Exodus-begin: fuel permits enabling; the shared system separately decides when to fly.
-    protected override bool CanEnable(Entity<JetpackComponent> ent, EntityUid user)
+    protected override bool CanEnable(EntityUid uid, EntityUid user, JetpackComponent component)
     {
-        return base.CanEnable(ent, user) &&
-               TryComp<GasTankComponent>(ent, out var gasTank) &&
-               gasTank.Air.TotalMoles >= ent.Comp.MoleUsage;
+        return base.CanEnable(uid, user, component) &&
+               TryComp<GasTankComponent>(uid, out var gasTank) &&
+               !(gasTank.Air.TotalMoles < component.MoleUsage);
     }
-    // Exodus-end
 
     /// <summary>
     /// Adds radar blip to jetpacks when they are activated - Mono
@@ -65,7 +63,7 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
 
         while (query.MoveNext(out var uid, out var active, out var comp, out var gasTankComp))
         {
-            if (!active.Running || _timing.CurTime < active.TargetTime) // Exodus: deferred pause stops fuel use immediately.
+            if (_timing.CurTime < active.TargetTime)
                 continue;
 
             var gasTank = (uid, gasTankComp);
@@ -88,7 +86,7 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
 
         foreach (var (uid, comp) in toDisable)
         {
-            SetEnabled((uid, comp), false); // Exodus: use the remembered owner, including while paused.
+            SetEnabled(uid, comp, false);
         }
     }
 }

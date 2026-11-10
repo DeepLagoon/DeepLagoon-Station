@@ -8,20 +8,62 @@ using Content.Server._NF.Market.Systems;
 using Content.Server.Cargo.Systems;
 using Content.Server.Preferences.Managers;
 using Content.Server.Stack;
+using Content.Server.Station.Systems;
 using Content.Server.Storage.Components;
 using Content.Shared._NF.Bank.Components;
 using Content.Shared._NF.Market.Events;
+using Content.Shared.Cargo.Events;
+using Content.Shared.Maps;
 using Content.Shared.Materials;
 using Content.Shared.Preferences;
 using Content.Shared.Stacks;
 using Content.Shared.Station.Components;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture]
 public sealed class CargoMarketTests
 {
+    [TestCase("CrateTradeSecureNormal", 750, 5750)]
+    [TestCase("CrateTradeSecureHigh", 1500, 9000)]
+    public async Task CaelestinusCentralPaysDestinationRateForIncomingTradeCrates(
+        string cratePrototype, int elsewherePrice, int destinationPrice)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var stationConfig = prototypes.Index(new ProtoId<GameMapPrototype>("Frontier")).Stations["Frontier"];
+            entities.System<StationSystem>().InitializeNewStation(stationConfig, [map.Grid.Owner], "Caelestinus Central");
+
+            var pallet = entities.SpawnEntity("CargoPalletSell", map.GridCoords);
+            var palletTransform = entities.GetComponent<TransformComponent>(pallet);
+            var console = entities.SpawnEntity("ComputerPalletConsoleNFHighMarket", map.GridCoords);
+            var pricing = entities.System<PricingSystem>();
+
+            var localCrate = entities.SpawnEntity(cratePrototype, palletTransform.Coordinates);
+            Assert.That(pricing.GetPriceWithVendingDiscount(localCrate, map.Grid), Is.EqualTo(elsewherePrice),
+                "A crate ordered locally must not receive the destination rate when there is no other destination.");
+            entities.DeleteEntity(localCrate);
+
+            var crate = entities.SpawnEntity(cratePrototype, new EntityCoordinates(map.MapUid, 10, 10));
+            entities.System<SharedTransformSystem>().SetCoordinates(crate, palletTransform.Coordinates);
+            entities.EventBus.RaiseLocalEvent(console, new CargoPalletSellMessage());
+
+            Assert.That(entities.EntityExists(crate), Is.False);
+            var payout = entities.EntityQuery<StackComponent, TransformComponent>()
+                .Where(entry => entry.Item1.StackTypeId == "Credit" && entry.Item2.GridUid == map.Grid.Owner)
+                .Sum(entry => entry.Item1.Count);
+            Assert.That(payout, Is.EqualTo(destinationPrice));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("MaterialBananium", 30)]
     [TestCase("BananiumOre", 20)]
     public async Task SplittingBananiumDoesNotIncreaseItsSalePrice(string prototypeId, int unitPrice)

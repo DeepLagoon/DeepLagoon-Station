@@ -241,19 +241,8 @@ public sealed partial class FancyResearchConsoleMenu : FancyWindow
             _draggin = false;
     }
 
-    // Exodus-Start
-    // protected override DragMode GetDragModeFor(Vector2 relativeMousePos)
-    //     => _draggin ? DragMode.None : base.GetDragModeFor(relativeMousePos);
     protected override DragMode GetDragModeFor(Vector2 relativeMousePos)
-    {
-        // So we don't drag the window alongside the technology tree.
-        var treeBounds = UIBox2.FromDimensions(ResearchesContainer.GlobalPosition - GlobalPosition, ResearchesContainer.Size);
-        if (treeBounds.Contains(relativeMousePos))
-            return DragMode.None;
-
-        return _draggin ? DragMode.None : base.GetDragModeFor(relativeMousePos);
-    }
-    // Exodus-End
+        => _draggin ? DragMode.None : base.GetDragModeFor(relativeMousePos);
     #endregion
 
     /// <summary>

@@ -93,7 +93,6 @@
   name: card
   categories: [ HideSpawnMenu ]
   components:
-  - type: CleanupImmune # Exodus-add
   - type: EmitSoundOnLand
     sound:
       collection: cardShove

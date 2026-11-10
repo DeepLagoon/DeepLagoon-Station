@@ -1,5 +1,4 @@
 using Content.Server._NF.Construction.Components;
-using Content.Server._Exodus.Visuals; // Exodus - generic entity link visuals
 using Content.Server.Construction;
 using Content.Server.Construction.Components;
 using Content.Server.Stack;
@@ -7,7 +6,6 @@ using Content.Server.Storage.EntitySystems;
 using Content.Shared.DoAfter;
 using Content.Shared.Construction.Components;
 using Content.Shared.Exchanger;
-using Content.Shared.Examine; // Exodus - bluespace RPED
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.Storage;
@@ -32,16 +30,12 @@ public sealed partial class PartExchangerSystem : EntitySystem
     [Dependency] private StorageSystem _storage = default!;
     [Dependency] private StackSystem _stack = default!;
     [Dependency] private EntityManager _entity = default!;
-    [Dependency] private EntityLinkVisualSystem _linkVisual = default!; // Exodus - generic entity link visuals
-    [Dependency] private SharedInteractionSystem _interaction = default!; // Exodus - bluespace RPED
-    [Dependency] private ExamineSystemShared _examine = default!; // Exodus - bluespace RPED
 
     /// <inheritdoc/>
     public override void Initialize()
     {
         SubscribeLocalEvent<PartExchangerComponent, AfterInteractEvent>(OnAfterInteract);
         SubscribeLocalEvent<PartExchangerComponent, ExchangerDoAfterEvent>(OnDoAfter);
-        SubscribeLocalEvent<PartExchangerComponent, DoAfterAttemptEvent<ExchangerDoAfterEvent>>(OnDoAfterAttempt); // Exodus - bluespace RPED
     }
 
     private struct UpgradePartState
@@ -51,42 +45,19 @@ public sealed partial class PartExchangerSystem : EntitySystem
         public bool InContainer;
     }
 
-    // Exodus-begin - bluespace RPED
-    private void OnDoAfterAttempt(Entity<PartExchangerComponent> ent, ref DoAfterAttemptEvent<ExchangerDoAfterEvent> args)
-    {
-        var target = GetEntity(args.Event.ExchangeTarget);
-        if (!CanExchange(ent, args.DoAfter.Args.User, target))
-            args.Cancel();
-    }
-
-    private void OnDoAfter(Entity<PartExchangerComponent> ent, ref ExchangerDoAfterEvent args)
+    private void OnDoAfter(EntityUid uid, PartExchangerComponent component, DoAfterEvent args)
     {
         if (args.Cancelled)
         {
-            ent.Comp.AudioStream = _audio.Stop(ent.Comp.AudioStream);
+            component.AudioStream = _audio.Stop(component.AudioStream);
             return;
         }
 
-        if (args.Handled)
+        if (args.Handled || args.Args.Target == null)
             return;
 
-        var target = GetEntity(args.ExchangeTarget);
-        if (!CanExchange(ent, args.User, target))
-        {
-            ent.Comp.AudioStream = _audio.Stop(ent.Comp.AudioStream);
+        if (!TryComp<StorageComponent>(uid, out var storage) || storage.Container == null)
             return;
-        }
-
-        if (TryExchangeParts(ent, target))
-            ShowExchangeVisual(ent, args.User, target);
-
-        args.Handled = true;
-    }
-
-    private bool TryExchangeParts(Entity<PartExchangerComponent> ent, EntityUid target)
-    {
-        if (!TryComp<StorageComponent>(ent, out var storage) || storage.Container == null)
-            return false;
 
         var partsByType = new Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid, UpgradePartState)>>();
 
@@ -109,28 +80,20 @@ public sealed partial class PartExchangerSystem : EntitySystem
         }
 
         // Exchange machine parts with the machine or frame.
-        var exchanged = false;
-        if (TryComp<MachineComponent>(target, out var machine))
-            exchanged = TryExchangeMachineParts(machine, target, ent, partsByType);
-        else if (TryComp<MachineFrameComponent>(target, out var machineFrame))
-            exchanged = TryConstructMachineParts(machineFrame, target, ent, partsByType);
+        if (TryComp<MachineComponent>(args.Args.Target.Value, out var machine))
+            TryExchangeMachineParts(machine, args.Args.Target.Value, uid, partsByType);
+        else if (TryComp<MachineFrameComponent>(args.Args.Target.Value, out var machineFrame))
+            TryConstructMachineParts(machineFrame, args.Args.Target.Value, uid, partsByType);
 
-        return exchanged;
+        args.Handled = true;
     }
 
-    private void ShowExchangeVisual(Entity<PartExchangerComponent> ent, EntityUid user, EntityUid target)
-    {
-        if (ent.Comp.ExchangeVisualStyle is { } style)
-            _linkVisual.TryShowTemporaryLink(user, target, style, ent.Comp.ExchangeVisualDuration);
-    }
-    // Exodus-end
-
-    private bool TryExchangeMachineParts(MachineComponent machine, EntityUid uid, EntityUid storageUid, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType) // Exodus - report successful exchange
+    private void TryExchangeMachineParts(MachineComponent machine, EntityUid uid, EntityUid storageUid, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType)
     {
         var board = machine.BoardContainer.ContainedEntities.FirstOrNull();
 
         if (board == null || !TryComp<MachineBoardComponent>(board, out var macBoardComp))
-            return false;
+            return;
 
         // Add all components in the machine to form a complete set of available components.
         foreach (var item in new ValueList<EntityUid>(machine.PartContainer.ContainedEntities)) //clone so don't modify during enumeration
@@ -233,15 +196,14 @@ public sealed partial class PartExchangerSystem : EntitySystem
             }
         }
         _construction.RefreshParts(uid, machine);
-        return true; // Exodus - report successful exchange
     }
 
-    private bool TryConstructMachineParts(MachineFrameComponent machine, EntityUid uid, EntityUid storageEnt, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType) // Exodus - report successful exchange
+    private void TryConstructMachineParts(MachineFrameComponent machine, EntityUid uid, EntityUid storageEnt, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType)
     {
         var board = machine.BoardContainer.ContainedEntities.FirstOrNull();
 
         if (!machine.HasBoard || !TryComp<MachineBoardComponent>(board, out var macBoardComp))
-            return false;
+            return;
 
         // Add all components in the machine to form a complete set of available components.
         foreach (var item in new ValueList<EntityUid>(machine.PartContainer.ContainedEntities)) //clone so don't modify during enumeration
@@ -347,91 +309,39 @@ public sealed partial class PartExchangerSystem : EntitySystem
             foreach (var partState in partSet)
             {
                 if (!partState.state.InContainer)
-                    _storage.Insert(storageEnt, partState.part, out _, playSound: false); // Exodus - return unused frame parts to the RPED
+                    _storage.Insert(uid, partState.part, out _, playSound: false);
             }
         }
-        return true; // Exodus - report successful exchange
     }
 
-    // Exodus-begin - configurable exchanger range
-    private void OnAfterInteract(Entity<PartExchangerComponent> ent, ref AfterInteractEvent args)
+    private void OnAfterInteract(EntityUid uid, PartExchangerComponent component, AfterInteractEvent args)
     {
-        if (args.Target is not { } target)
+        if (component.DoDistanceCheck && !args.CanReach)
             return;
 
-        if (!HasComp<MachineComponent>(target) && !HasComp<MachineFrameComponent>(target))
+        if (args.Target == null)
             return;
 
-        var (uid, component) = ent;
-
-        if (!CanReachExchangeTarget(ent, args.User, target))
+        if (!HasComp<MachineComponent>(args.Target) && !HasComp<MachineFrameComponent>(args.Target))
             return;
 
-        if (!component.IgnorePanel &&
-            TryComp<WiresPanelComponent>(target, out var panel) &&
-            !panel.Open)
+        if (TryComp<WiresPanelComponent>(args.Target, out var panel) && !panel.Open)
         {
             _popup.PopupEntity(Loc.GetString("construction-step-condition-wire-panel-open"),
-                target);
+                args.Target.Value);
             return;
         }
-
-        if (component.InstantExchange)
-        {
-            ShowExchangeVisual(ent, args.User, target);
-            TryExchangeParts(ent, target);
-            _audio.PlayPvs(component.ExchangeSound, uid);
-            args.Handled = true;
-            return;
-        }
-
-        var doAfterArgs = new DoAfterArgs(EntityManager,
-            args.User,
-            component.ExchangeDuration,
-            new ExchangerDoAfterEvent(GetNetEntity(target)),
-            uid,
-            used: uid)
-        {
-            BreakOnDamage = true,
-            BreakOnMove = true,
-            AttemptFrequency = AttemptFrequency.EveryTick
-        };
-
-        if (!_doAfter.TryStartDoAfter(doAfterArgs))
-            return;
-
-        args.Handled = true;
 
         var audioStream = _audio.PlayPvs(component.ExchangeSound, uid);
         if (audioStream != null)
+        {
             component.AudioStream = audioStream.Value.Entity;
+        }
+
+        _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, component.ExchangeDuration, new ExchangerDoAfterEvent(), uid, target: args.Target, used: uid)
+        {
+            BreakOnDamage = true,
+            BreakOnMove = true
+        });
     }
-
-    private bool CanExchange(Entity<PartExchangerComponent> ent, EntityUid user, EntityUid target)
-    {
-        return CanReachExchangeTarget(ent, user, target) &&
-               (ent.Comp.IgnorePanel ||
-                !TryComp<WiresPanelComponent>(target, out var panel) ||
-                panel.Open);
-    }
-
-    private bool CanReachExchangeTarget(Entity<PartExchangerComponent> ent, EntityUid user, EntityUid target)
-    {
-        if (Deleted(user) || Deleted(target))
-            return false;
-
-        if (!HasComp<MachineComponent>(target) && !HasComp<MachineFrameComponent>(target))
-            return false;
-
-        if (!ent.Comp.DoDistanceCheck)
-            return true;
-
-        if (ent.Comp.ExchangeRange <= 0f)
-            return false;
-
-        return ent.Comp.UseLineOfSight
-            ? _examine.InRangeUnOccluded(user, target, ent.Comp.ExchangeRange)
-            : _interaction.InRangeUnobstructed(user, target, ent.Comp.ExchangeRange);
-    }
-    // Exodus-end
 }

@@ -15,8 +15,6 @@
         readOnly: true # mono
       - type: StationCargoOrderDatabase
         capacity: 240 # has to be large to compensate for playerbase
-      - type: TradeCrateDestination
-        destinationProto: Trade
       - type: VesselMusic
         ambientMusicPrototype: ColossusCentralMusic
       - type: VesselInfo
@@ -29,6 +27,8 @@
         - type: StationAutomaticShuttleParking
         - type: StationNameSetup
           mapNameTemplate: 'Caelestinus Central'
+        - type: TradeCrateDestination
+          destinationProto: Trade
         - type: StationDeadDrop
           maxDeadDrops: 2
         - type: ExtraStationInformation

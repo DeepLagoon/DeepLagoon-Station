@@ -46,12 +46,10 @@ public sealed class PortedConfigurationTests(UnitTestProject project) : RobustUn
             Assert.That(config.GetCVar(EXCVars.ParallelMoverUpdate), Is.True);
             Assert.That(config.GetCVar(EXCVars.ParallelProjectileRaycasts), Is.True);
             Assert.That(config.IsCVarRegistered(EXCVars.DecalFavoriteColors.Name), Is.False);
-            Assert.That(config.IsCVarRegistered(EXCVars.RadarGridRebuildInterval.Name), Is.False);
         }
         else
         {
             Assert.That(config.GetCVar(EXCVars.DecalFavoriteColors), Is.Empty);
-            Assert.That(config.GetCVar(EXCVars.RadarGridRebuildInterval), Is.EqualTo(0.1f));
             Assert.That(config.IsCVarRegistered(EXCVars.ParallelMoverUpdate.Name), Is.False);
             Assert.That(config.IsCVarRegistered(EXCVars.ParallelProjectileRaycasts.Name), Is.False);
         }

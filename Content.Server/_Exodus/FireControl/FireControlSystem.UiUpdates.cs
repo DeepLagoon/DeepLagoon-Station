@@ -1,4 +1,3 @@
-using Content.Server._Crescent.ShipShields;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Events;
 using Content.Shared._Mono.FireControl;
@@ -47,7 +46,6 @@ public sealed partial class FireControlSystem
         SubscribeLocalEvent<DockingComponent, EntParentChangedMessage>(OnDockingPortParentChanged);
         SubscribeLocalEvent<DockingComponent, EntityRenamedEvent>(OnDockingPortRenamed);
 
-        SubscribeLocalEvent<ShipShieldStateChangedEvent>(OnShieldStateChanged);
         SubscribeLocalEvent<DockEvent>(OnDockChanged);
         SubscribeLocalEvent<UndockEvent>(OnUndockChanged);
     }
@@ -159,11 +157,6 @@ public sealed partial class FireControlSystem
     private void OnDockingPortRenamed(Entity<DockingComponent> ent, ref EntityRenamedEvent args)
     {
         QueueAllConsoleUiUpdates();
-    }
-
-    private void OnShieldStateChanged(ref ShipShieldStateChangedEvent args)
-    {
-        QueueGridConsoleUiUpdates(args.Grid);
     }
 
     private void OnDockChanged(DockEvent args)

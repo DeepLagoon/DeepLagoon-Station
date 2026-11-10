@@ -1,9 +1,8 @@
 ﻿<DefaultWindow xmlns="https://spacestation14.io"
             xmlns:cc="clr-namespace:Content.Client.Administration.UI.Bwoink"
-            MinSize="900 500"
+            SetSize="900 500"
             HeaderClass="windowHeaderAlert"
             TitleClass="windowTitleAlert"
             Title="{Loc 'bwoink-user-title'}" >
-                <!-- Exodus-minsize-windows-fix -->
     <cc:BwoinkControl Name="Bwoink" Access="Public"/>
 </DefaultWindow>

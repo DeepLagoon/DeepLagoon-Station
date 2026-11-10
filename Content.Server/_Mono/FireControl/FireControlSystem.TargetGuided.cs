@@ -1,6 +1,5 @@
 using System.Linq;
 using Content.Server._Mono.Projectiles.TargetGuided;
-using Content.Shared._Exodus.FireControl; // Exodus fire-control cursor optimization
 using Content.Shared._Mono.FireControl;
 using Content.Shared.Projectiles;
 using Content.Shared.Weapons.Ranged.Components;
@@ -36,18 +35,15 @@ public sealed partial class FireControlSystem
     {
         SubscribeLocalEvent<GunComponent, AmmoShotEvent>(OnTargetGuidedShot);
         SubscribeLocalEvent<TargetGuidedComponent, ComponentShutdown>(OnGuidedMissileShutdown);
-        SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleCursorPositionEvent>(OnConsoleCursorPosition); // Exodus fire-control cursor optimization
     }
 
     /// <summary>
-    /// Track console cursor events to update guided projectile targets.
+    /// Track cursor updates for consoles with guided projectiles in flight.
     /// </summary>
-    private void OnConsoleCursorPosition(Entity<FireControlConsoleComponent> ent, ref FireControlConsoleCursorPositionEvent args) // Exodus fire-control cursor optimization
+    private void TrackConsoleCursor(EntityUid console, EntityCoordinates coordinates)
     {
-        if (!_consoleMousePositions.ContainsKey(ent))
-            return;
-
-        _consoleMousePositions[ent] = args.Coordinates;
+        if (_consoleMousePositions.ContainsKey(console))
+            _consoleMousePositions[console] = coordinates;
     }
 
     /// <summary>

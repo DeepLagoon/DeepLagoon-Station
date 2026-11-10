@@ -1,4 +1,3 @@
-using Content.Client._Exodus.FireControl;
 // Copyright Rane (elijahrane@gmail.com) 2025
 // All rights reserved. Relicensed under AGPL with permission
 
@@ -303,13 +302,11 @@ public sealed partial class FireControlPanel : BoxContainer
             {
                 toRemove.Remove(controllable.NetEntity);
                 UpdateWeaponButtonText(existingButton, controllable);
-                if (existingButton is ReloadProgressButton progress) progress.NextFire = controllable.NextFire;
             }
             else
             {
-                var button = new ReloadProgressButton
+                var button = new Button
                 {
-                    NextFire = controllable.NextFire,
                     ToggleMode = true,
                     Text = controllable.Name,
                     StyleClasses = { "ButtonSquare OpenRight" },

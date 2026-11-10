@@ -49,7 +49,6 @@
 #    pocket2: Magazine45_ACPPistolFMJ
   storage:
     back:
-    - BaseSecurityUplinkRadioTsfEngineer # Exodus: TSF engineer uplink
     - RadioHandheldNF
     - NanolaminateFoamGrenade
     - NanolaminateFoamGrenade

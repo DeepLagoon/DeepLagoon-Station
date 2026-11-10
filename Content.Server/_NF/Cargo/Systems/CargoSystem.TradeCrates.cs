@@ -15,7 +15,7 @@ public sealed partial class CargoSystem
     private void InitializeTradeCrates()
     {
         SubscribeLocalEvent<TradeCrateComponent, PriceCalculationEvent>(OnTradeCrateGetPriceEvent);
-        SubscribeLocalEvent<TradeCrateComponent, ComponentInit>(OnTradeCrateInit);
+        SubscribeLocalEvent<TradeCrateComponent, ComponentStartup>(OnTradeCrateStartup);
         SubscribeLocalEvent<TradeCrateComponent, ComponentRemove>(OnTradeCrateRemove);
         SubscribeLocalEvent<TradeCrateComponent, ExaminedEvent>(OnTradeCrateExamined);
 
@@ -48,14 +48,14 @@ public sealed partial class CargoSystem
         ev.Price = double.Max(0.0, ev.Price); // Ensure non-negative values.
     }
 
-    private void OnTradeCrateInit(Entity<TradeCrateComponent> ent, ref ComponentInit ev)
+    private void OnTradeCrateStartup(Entity<TradeCrateComponent> ent, ref ComponentStartup ev)
     {
-        // If there are no available destinations, tough luck.
-        if (_destinations.Count > 0)
+        // Resolve the origin after the transform has initialized its grid.
+        var origin = _station.GetOwningStation(ent);
+        if (_destinations.Count > 0 && (_destinations.Count > 1 || _destinations[0] != origin))
         {
             var randomIndex = _random.Next(_destinations.Count);
-            // Better have more than one destination.
-            if (_station.GetOwningStation(ent) == _destinations[randomIndex])
+            if (_destinations[randomIndex] == origin)
             {
                 randomIndex = (randomIndex + 1 + _random.Next(_destinations.Count - 1)) % _destinations.Count;
             }

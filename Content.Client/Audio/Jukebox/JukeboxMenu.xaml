@@ -12,7 +12,7 @@
         <!-- Exodus-begin Volume slider to jukebox  -->
         <BoxContainer Orientation="Vertical" HorizontalExpand="True"
                       VerticalExpand="False" SizeFlagsStretchRatio="1">
-            <Label Name="Volume" Text="{Loc 'jukebox-menu-volume'}" />
+            <Label Name="Volume" Text="{Loc 'dl-jukebox-volume'}" />
             <Slider Name="VolumeSlider" MinValue="0" Value="0.75" MaxValue="1" HorizontalExpand="True" />
         </BoxContainer>
         <!-- Exodus-end -->

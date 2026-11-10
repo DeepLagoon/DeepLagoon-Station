@@ -1,11 +1,21 @@
 using Content.Server.Power.Components;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared.Exodus.ShipShields;
+using Robust.Shared.Map.Components;
 
 namespace Content.Server._Crescent.ShipShields;
 
 public sealed partial class ShipShieldsSystem
 {
+    private void RaiseShieldStateChanged(EntityUid? grid)
+    {
+        if (grid is not { } uid || TerminatingOrDeleted(uid) || !HasComp<MapGridComponent>(uid))
+            return;
+
+        var changed = new ShieldStatusDirtyEvent();
+        RaiseLocalEvent(uid, ref changed);
+    }
+
     public ShipShieldState? GetShieldState(EntityUid grid)
     {
         ShipShieldState? result = null;
@@ -33,3 +43,6 @@ public sealed partial class ShipShieldsSystem
         return result;
     }
 }
+
+[ByRefEvent]
+internal readonly record struct ShieldStatusDirtyEvent;

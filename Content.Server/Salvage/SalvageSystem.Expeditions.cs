@@ -371,7 +371,9 @@ public sealed partial class SalvageSystem
         var amount = 0;
         foreach (var reward in expedition.Rewards)
         {
-            if (_prototypeManager.Index(reward).TryGetComponent<StaticPriceComponent>(out var price))
+            // PVS gathers component states on worker threads without an IoC context.
+            if (_prototypeManager.TryIndex(reward, out var prototype) &&
+                prototype.TryComp<StaticPriceComponent>(out var price, Factory))
                 amount += (int) price.Price;
         }
         return amount;

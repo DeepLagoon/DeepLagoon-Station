@@ -9,12 +9,8 @@ namespace Content.Server.Carrying
         ///     Number of free hands required
         ///     to carry the entity
         /// </summary>
-        // Exodus-begin: multi-carry
-        public const int DefaultFreeHandsRequired = 2;
-
         [DataField]
-        public int FreeHandsRequired = DefaultFreeHandsRequired;
-        // Exodus-end
+        public int FreeHandsRequired = 2;
 
         public CancellationTokenSource? CancelToken;
 

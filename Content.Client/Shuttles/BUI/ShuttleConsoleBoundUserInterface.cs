@@ -1,4 +1,3 @@
-using Content.Shared._Exodus.FireControl;
 using Content.Client.Shuttles.UI;
 using Content.Shared.Shuttles.BUIStates;
 using Content.Shared.Shuttles.Events;
@@ -45,10 +44,7 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
             var selected = _window.CombatRadar.IsMouseDown()
                 ? _window.CombatPanel.WeaponsList.Where(entry => entry.Value.Pressed).Select(entry => entry.Key).ToList()
                 : new List<NetEntity>();
-            if (selected.Count == 0)
-                SendMessage(new FireControlConsoleCursorPositionMessage(EntMan.GetNetCoordinates(coordinates)));
-            else
-                SendMessage(new FireControlConsoleFireMessage(selected, EntMan.GetNetCoordinates(coordinates)));
+            SendMessage(new FireControlConsoleFireMessage(selected, EntMan.GetNetCoordinates(coordinates)));
         };
         NfOpen(); // Frontier
     }
@@ -132,8 +128,6 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
         base.ReceiveMessage(message);
         if (message is ShuttleHullStateMessage hull)
             _window?.UpdateHullState(hull.State);
-        if (message is Content.Shared.Exodus.ShipShields.ShuttleShieldStateMessage shield)
-            _window?.UpdateShieldState(shield.State);
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)

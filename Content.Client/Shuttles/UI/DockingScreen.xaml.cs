@@ -176,15 +176,10 @@ public sealed partial class DockingScreen : BoxContainer
 
     public void UpdateState(EntityUid? shuttle, DockingInterfaceState state)
     {
-        // Exodus-begin: autopilot mode changes must not recreate unchanged dock controls.
-        if (!DockStateMatches(shuttle, state))
-        {
-            Docks = state.Docks;
-            DockingControl.DockState = state;
-            DockingControl.GridEntity = shuttle;
-            BuildDocks(shuttle);
-        }
-        // Exodus-end
+        Docks = state.Docks;
+        DockingControl.DockState = state;
+        DockingControl.GridEntity = shuttle;
+        BuildDocks(shuttle);
 
         // Enable the undock all button only if there are docked ports
         var hasDockedPorts = false;

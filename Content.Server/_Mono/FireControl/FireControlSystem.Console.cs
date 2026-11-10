@@ -1,4 +1,3 @@
-using Content.Shared._Exodus.FireControl;
 // Copyright Rane (elijahrane@gmail.com) 2025
 // All rights reserved. Relicensed under AGPL with permission
 
@@ -43,7 +42,6 @@ public sealed partial class FireControlSystem : EntitySystem
         SubscribeLocalEvent<FireControlConsoleComponent, ComponentShutdown>(OnComponentShutdown);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleRefreshServerMessage>(OnRefreshServer);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleFireMessage>(OnFire);
-        SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleCursorPositionMessage>(OnCursorPosition); // Exodus fire-control cursor optimization
         SubscribeLocalEvent<FireControlConsoleComponent, BoundUIOpenedEvent>(OnUIOpened);
         SubscribeLocalEvent<FireControlConsoleComponent, ActivatableUIOpenAttemptEvent>(OnConsoleUIOpenAttempt);
     }
@@ -114,7 +112,7 @@ public sealed partial class FireControlSystem : EntitySystem
             return;
         if (args.Selected.Count == 0)
         {
-            RaiseCursorPosition(uid, coordinates);
+            TrackConsoleCursor(uid, coordinates);
             return;
         }
 
@@ -142,40 +140,8 @@ public sealed partial class FireControlSystem : EntitySystem
             component.NextLog = _timing.CurTime + component.LogSpacing;
         }
 
-        // Exodus-begin fire-control cursor optimization
-        RaiseCursorPosition(uid, coordinates);
-        // Exodus-end
+        TrackConsoleCursor(uid, coordinates);
     }
-
-    // Exodus-begin fire-control cursor optimization
-    private void OnCursorPosition(Entity<FireControlConsoleComponent> ent, ref FireControlConsoleCursorPositionMessage args)
-    {
-        if (!_consoleMousePositions.ContainsKey(ent))
-            return;
-
-        var grid = Transform(ent).GridUid;
-        if (grid == null
-            || ent.Comp.ConnectedServer == null
-            || !TryComp<FireControlServerComponent>(ent.Comp.ConnectedServer, out var server)
-            || !server.Consoles.Contains(ent)
-            || server.ConnectedGrid != grid)
-        {
-            return;
-        }
-
-        var coordinates = GetCoordinates(args.Coordinates);
-        if (!coordinates.IsValid(EntityManager))
-            return;
-
-        RaiseCursorPosition(ent, coordinates);
-    }
-
-    private void RaiseCursorPosition(EntityUid console, EntityCoordinates coordinates)
-    {
-        var cursorEvent = new FireControlConsoleCursorPositionEvent(coordinates);
-        RaiseLocalEvent(console, ref cursorEvent);
-    }
-    // Exodus-end
 
     public void OnUIOpened(EntityUid uid, FireControlConsoleComponent component, BoundUIOpenedEvent args)
     {
