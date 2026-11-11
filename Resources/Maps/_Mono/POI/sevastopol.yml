@@ -56,6 +56,8 @@ entities:
     components:
     - type: MetaData
       name: Sevastopol Data Storage Center
+    - type: PoiPowerRestriction
+      nativeSources: [2204, 2205, 2206, 2207, 2208, 2209, 2210]
     - type: Transform
       pos: 0.5,0.5
       parent: invalid
@@ -10586,7 +10588,7 @@ entities:
       rot: 3.141592653589793 rad
       pos: 21.5,-10.5
       parent: 1
-- proto: DatafarmResearchFaction200
+- proto: DatafarmResearchSevastopol
   entities:
   - uid: 356
     components:

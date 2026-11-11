@@ -1,5 +1,6 @@
 using System; // Mono
 using System.Linq;
+using Content.Server._DeepLagoon.Power;
 using Content.Server.NodeContainer.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Power.NodeGroups;
@@ -26,6 +27,7 @@ namespace Content.Server.Power.EntitySystems
         [Dependency] private IConfigurationManager _cfg = default!;
         [Dependency] private IParallelManager _parMan = default!;
         [Dependency] private BatterySystem _battery = default!;
+        [Dependency] private PoiPowerRestrictionSystem _poiPowerRestriction = default!;
 
         private readonly PowerState _powerState = new();
         private readonly HashSet<PowerNet> _powerNetReconnectQueue = new();
@@ -291,6 +293,7 @@ namespace Content.Server.Power.EntitySystems
 
             // Mono - replace frameTime with update interval
             // Run power solver.
+            _poiPowerRestriction.UpdateSuppliers();
             _solver.Tick((float)_updateInterval.TotalSeconds, _powerState, _parMan);
 
             // Synchronize batteries, the other way around.

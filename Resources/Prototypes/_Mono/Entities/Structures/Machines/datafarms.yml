@@ -96,7 +96,7 @@
     guides:
     - Science
   - type: ResearchPointSource
-    pointsPerSecond: 20
+    pointsPerSecond: 2
     active: true
 
 - type: entity
@@ -128,10 +128,19 @@
     powerLoad: 10000
 
 - type: entity
+  id: DatafarmResearchSevastopol
+  parent: DatafarmResearchFaction200
+  suffix: 20 PPS, Sevastopol
+  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates research points at a rate of 20 per second. It seems to be bolted to the floor.
+  components:
+  - type: ResearchPointSource
+    pointsPerSecond: 20
+
+- type: entity
   id: DatafarmResearch
   parent: [BaseDataFarmResearch, ConstructibleMachine]
   name: data farm (Research)
-  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates research points at a rate of 20 per second.
+  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates research points at a rate of 2 per second.
   components:
   - type: PointLight
     radius: 1.1

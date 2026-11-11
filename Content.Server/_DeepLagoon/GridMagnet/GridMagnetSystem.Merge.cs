@@ -1,6 +1,7 @@
 using System.Numerics;
 using Content.Server.Atmos.Components;
 using Content.Shared._DeepLagoon.GridMagnet;
+using Content.Server._DeepLagoon.Power;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Database;
@@ -13,6 +14,8 @@ namespace Content.Server._DeepLagoon.GridMagnet;
 
 public sealed partial class GridMagnetSystem
 {
+    [Dependency] private PoiPowerRestrictionSystem _poiPowerRestriction = default!;
+
     /// <summary>
     /// Gas from the merged-away grid that is waiting for the kept grid's atmosphere to create its tiles.
     /// </summary>
@@ -92,6 +95,7 @@ public sealed partial class GridMagnetSystem
         var gas = SnapshotGas(plan);
         var decals = SnapshotDecals(plan.PulledGrid);
         var anchored = SnapshotAnchored(pulledXform);
+        TryComp<PoiPowerRestrictionComponent>(plan.PulledGrid, out var pulledPowerRestriction);
 
         try
         {
@@ -104,6 +108,8 @@ public sealed partial class GridMagnetSystem
             Log.Error($"Grid magnet merge of {pulledName} into {keeperName} failed: {e}");
             return false;
         }
+
+        _poiPowerRestriction.TransferAfterMerge(plan.KeeperGrid, pulledPowerRestriction);
 
         // Entities that went with the tiles have the kept grid as parent now. Tell the systems that wait for it.
         foreach (var uid in anchored)

@@ -74,7 +74,7 @@
   - type: Anchorable
     flags: None # 1984
   - type: ItemMiner
-    interval: 1 # previously 20
+    interval: 11.5 # Approximately 100k spesos of ore per hour from both Drillsite drills.
   - type: PowerConsumer
     voltage: High
     drawRate: 150000

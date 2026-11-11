@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Server._DeepLagoon.Power;
 using Content.Server.Power.Components;
 using Content.Server._NF.Solar.Components;
 using Content.Shared.GameTicking;
@@ -28,6 +29,7 @@ internal sealed partial class NFPowerSolarSystem : EntitySystem
     [Dependency] private SharedRoofSystem _roof = default!; // Mono
     [Dependency] private SharedTransformSystem _transformSystem = default!;
     [Dependency] private IGameTiming _gameTiming = default!; // Frontier
+    [Dependency] private PoiPowerRestrictionSystem _poiPowerRestriction = default!;
     private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>(); // Mono
 
     /// <summary>
@@ -111,7 +113,7 @@ internal sealed partial class NFPowerSolarSystem : EntitySystem
             var query = EntityQueryEnumerator<NFSolarPanelComponent, TransformComponent>();
             while (query.MoveNext(out var uid, out var panel, out var xform))
             {
-                if (xform.GridUid == null)
+                if (xform.GridUid == null || _poiPowerRestriction.IsBlocked(uid, xform.GridUid))
                     continue;
 
                 var poweredGridComp = EnsureComp<SolarPoweredGridComponent>(xform.GridUid.Value);
@@ -153,6 +155,8 @@ internal sealed partial class NFPowerSolarSystem : EntitySystem
     {
         var entity = panel.Owner;
         var xform = Comp<TransformComponent>(entity);
+        if (_poiPowerRestriction.IsBlocked(entity, xform.GridUid))
+            return;
 
         // So apparently, and yes, I *did* only find this out later,
         // this is just a really fancy way of saying "Lambert's law of cosines".

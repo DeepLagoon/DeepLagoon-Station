@@ -7,6 +7,9 @@ namespace Content.Server.Power.Components
     [RegisterComponent]
     public sealed partial class PowerSupplierComponent : BaseNetConnectorComponent<IBasePowerNet>
     {
+        private bool _enabled = true;
+        private bool _locationBlocked;
+
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField("supplyRate")]
         [GuidebookData]
@@ -40,8 +43,18 @@ namespace Content.Server.Power.Components
         [DataField("enabled")]
         public bool Enabled
         {
-            get => NetworkSupply.Enabled;
-            set => NetworkSupply.Enabled = value;
+            get => _enabled;
+            set
+            {
+                _enabled = value;
+                NetworkSupply.Enabled = _enabled && !_locationBlocked;
+            }
+        }
+
+        internal void SetLocationBlocked(bool blocked)
+        {
+            _locationBlocked = blocked;
+            NetworkSupply.Enabled = _enabled && !_locationBlocked;
         }
 
         [ViewVariables] public float CurrentSupply => NetworkSupply.CurrentSupply;

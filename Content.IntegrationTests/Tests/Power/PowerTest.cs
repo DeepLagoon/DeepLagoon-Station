@@ -1,4 +1,5 @@
 #nullable enable
+using Content.Server._DeepLagoon.Power;
 using Content.Server.NodeContainer.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
@@ -156,6 +157,72 @@ namespace Content.IntegrationTests.Tests.Power
   - type: Transform
     anchored: true
 ";
+        [Test]
+        public async Task RestrictedPoiGridIgnoresExternalRtgAndSolarPower()
+        {
+            await using var pair = await PoolManager.GetServerClient();
+            var server = pair.Server;
+            var entities = server.EntMan;
+            PowerSupplierComponent native = default!;
+            PowerSupplierComponent foreign = default!;
+            PowerSupplierComponent solar = default!;
+            PowerConsumerComponent load = default!;
+            PoiPowerRestrictionComponent restriction = default!;
+
+            await server.WaitAssertion(() =>
+            {
+                var maps = entities.System<SharedMapSystem>();
+                maps.CreateMap(out var mapId);
+                var grid = maps.CreateGridEntity(mapId);
+                maps.SetTile(grid, Vector2i.Zero, new Tile(1));
+                var coordinates = grid.Owner.ToCoordinates();
+                restriction = entities.AddComponent<PoiPowerRestrictionComponent>(grid);
+                entities.SpawnEntity("CableHV", coordinates);
+
+                var nativeUid = entities.SpawnEntity("GeneratorRTG", coordinates);
+                restriction.NativeSources.Add(nativeUid);
+                native = entities.GetComponent<PowerSupplierComponent>(nativeUid);
+                foreign = entities.GetComponent<PowerSupplierComponent>(
+                    entities.SpawnEntity("GeneratorRTGDamaged", coordinates));
+                solar = entities.GetComponent<PowerSupplierComponent>(
+                    entities.SpawnEntity("SolarPanelPlasma", coordinates));
+                solar.MaxSupply = 2000;
+                load = entities.GetComponent<PowerConsumerComponent>(
+                    entities.SpawnEntity("ConsumerDummy", coordinates));
+                load.DrawRate = 200;
+            });
+
+            server.RunTicks(30);
+            await server.WaitAssertion(() =>
+            {
+                Assert.That(native.CurrentSupply, Is.EqualTo(200).Within(0.1));
+                Assert.That(foreign.CurrentSupply, Is.Zero);
+                Assert.That(solar.CurrentSupply, Is.Zero);
+                Assert.That(solar.MaxSupply, Is.EqualTo(2000));
+
+                native.Enabled = false;
+            });
+
+            server.RunTicks(30);
+            await server.WaitAssertion(() =>
+            {
+                Assert.That(load.ReceivedPower, Is.Zero);
+                Assert.That(foreign.Enabled, Is.True);
+
+                entities.RemoveComponent<PoiPowerRestrictionComponent>(restriction.Owner);
+            });
+
+            server.RunTicks(30);
+            await server.WaitAssertion(() =>
+            {
+                Assert.That(load.ReceivedPower, Is.EqualTo(200).Within(0.1));
+                Assert.That(foreign.CurrentSupply, Is.Positive);
+                Assert.That(native.CurrentSupply, Is.Zero);
+            });
+
+            await pair.CleanReturnAsync();
+        }
+
         /// <summary>
         ///     Test small power net with a simple surplus of power over the loads.
         /// </summary>

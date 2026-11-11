@@ -253,6 +253,7 @@
   description: A Radioisotope Thermoelectric Generator for long term power.
   suffix: 40kW # Mono 10kW -> 40kW
   components:
+  - type: PoiRestrictedPowerSource
   - type: PowerSupplier
     supplyRate: 40000 # Mono
     heatSignatureRatio: 16 # Mono

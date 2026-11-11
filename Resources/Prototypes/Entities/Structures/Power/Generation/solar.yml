@@ -5,6 +5,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: PoiRestrictedPowerSource
   - type: MeleeSound
     soundGroups:
       Brute:

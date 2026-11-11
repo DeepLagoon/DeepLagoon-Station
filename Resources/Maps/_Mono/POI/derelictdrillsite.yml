@@ -47,6 +47,8 @@ entities:
     components:
     - type: MetaData
       name: grid
+    - type: PoiPowerRestriction
+      nativeSources: [2113]
     - type: Transform
       pos: -0.453125,0.46875
       parent: invalid
