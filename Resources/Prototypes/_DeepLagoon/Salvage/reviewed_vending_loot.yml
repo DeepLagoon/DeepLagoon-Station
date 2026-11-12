@@ -32,6 +32,7 @@
     - id: WeaponProtoKineticAccelerator
     - id: WeaponRifleGestio
     - id: WeaponSubMachineGunAK220
+    - id: WeaponSubMachineGunKnallstock
 
 - type: entity
   parent: MarkerBasePlaceFree
@@ -53,6 +54,8 @@
     - id: WeaponEnergyRevolver
     - id: WeaponHeavyMiningLaser
     - id: WeaponLaserCarbine
+    - id: WeaponRiflePrometheus
+    - id: WeaponShotgunHelepolis
 
 - type: entity
   parent: MarkerBasePlaceFree

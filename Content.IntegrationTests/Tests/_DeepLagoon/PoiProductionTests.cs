@@ -1,11 +1,16 @@
 using System;
+using System.Numerics;
 using Content.Server._DeepLagoon.Mapping;
 using Content.Server._DeepLagoon.Power;
+using Content.Server.Atmos.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Server.Research.Components;
 using Content.Shared._Goobstation.ItemMiner;
+using Content.Shared.Atmos;
+using Content.Shared.Research.Components;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
@@ -49,15 +54,53 @@ public sealed class PoiProductionTests
                 if (file == "derelictdrillsite")
                     Assert.That(entities.GetComponent<ItemMinerComponent>(uid).Interval, Is.EqualTo(TimeSpan.FromSeconds(11.5)));
                 else
-                    Assert.That(entities.GetComponent<ResearchPointSourceComponent>(uid).PointsPerSecond, Is.EqualTo(20));
+                    Assert.That(entities.GetComponent<ResearchPointSourceComponent>(uid).PointsPerSecond, Is.EqualTo(5));
             }
 
             Assert.That(machines, Is.EqualTo(2));
             var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
             var farm = prototypes.Index(PlayerDataFarm);
             Assert.That(farm.TryComp<ResearchPointSourceComponent>(out var pointSource, entities.ComponentFactory), Is.True);
-            Assert.That(pointSource!.PointsPerSecond, Is.EqualTo(2));
+            Assert.That(pointSource!.PointsPerSecond, Is.EqualTo(5));
 
+            entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase("DatafarmResearch")]
+    [TestCase("DatafarmResearchSevastopol")]
+    public async Task DataFarmScalesWithAmbientCoolingAndRequiresPower(string prototype)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>().CreateMap(out _);
+            var atmosphere = entities.System<AtmosphereSystem>();
+            var farm = entities.SpawnEntity(new EntProtoId(prototype), new EntityCoordinates(map, Vector2.Zero));
+            var power = entities.GetComponent<ApcPowerReceiverComponent>(farm);
+            power.Powered = true;
+
+            int Production()
+            {
+                var ev = new ResearchServerGetPointsPerSecondEvent(EntityUid.Invalid, 0);
+                entities.EventBus.RaiseLocalEvent(farm, ref ev);
+                return ev.Points;
+            }
+
+            foreach (var (celsius, expected) in new[] { (30, 5), (20, 5), (-90, 12), (-199, 19), (-200, 20), (-220, 20) })
+            {
+                var air = new GasMixture(Atmospherics.CellVolume) { Temperature = Atmospherics.T0C + celsius };
+                air.SetMoles(Gas.Nitrogen, 80f);
+                atmosphere.SetMapAtmosphere(map, false, air);
+                Assert.That(Production(), Is.EqualTo(expected), $"{celsius} °C");
+            }
+
+            atmosphere.SetMapAtmosphere(map, true, GasMixture.SpaceGas);
+            Assert.That(Production(), Is.EqualTo(5));
+            power.Powered = false;
+            Assert.That(Production(), Is.Zero);
             entities.DeleteEntity(map);
         });
         await pair.CleanReturnAsync();

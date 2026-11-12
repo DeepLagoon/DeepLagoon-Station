@@ -96,7 +96,8 @@
     guides:
     - Science
   - type: ResearchPointSource
-    pointsPerSecond: 2
+    pointsPerSecond: 5
+    coldBonusPointsPerSecond: 15
     active: true
 
 - type: entity
@@ -130,17 +131,18 @@
 - type: entity
   id: DatafarmResearchSevastopol
   parent: DatafarmResearchFaction200
-  suffix: 20 PPS, Sevastopol
-  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates research points at a rate of 20 per second. It seems to be bolted to the floor.
+  suffix: Sevastopol
+  description: A bolted server that generates 5 research points per second at room temperature. Cooling the surrounding air increases production to 20 points per second at -200 °C.
   components:
   - type: ResearchPointSource
-    pointsPerSecond: 20
+    pointsPerSecond: 5
+    coldBonusPointsPerSecond: 15
 
 - type: entity
   id: DatafarmResearch
   parent: [BaseDataFarmResearch, ConstructibleMachine]
   name: data farm (Research)
-  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates research points at a rate of 2 per second.
+  description: A power-hungry server that generates 5 research points per second at room temperature. Cooling the surrounding air increases production to 20 points per second at -200 °C.
   components:
   - type: PointLight
     radius: 1.1

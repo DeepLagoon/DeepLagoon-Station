@@ -6,7 +6,7 @@
   entityIcon: ClothingNeckViperGroupMantle
   discipline: ViperGroup
   tier: 1
-  cost: 5000
+  cost: 4250
   recipeUnlocks:
   - ClothingNeckViperGroupMantle
   - ClothingUniformJumpsuitViperGroupUniform

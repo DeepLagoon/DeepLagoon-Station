@@ -159,6 +159,7 @@
     - WeaponShotgunKammererExpedition
     - WeaponSniperRepeaterExpedition
     - WeaponSubMachineGunAK220
+    - WeaponSubMachineGunKnallstock
     - WeaponSubMachineGunTypewriter
     - WeaponSubMachineGunTypewriterExpedition
     - WelderExperimental
@@ -346,10 +347,12 @@
     - WeaponRevolverMatebaExpedition
     - WeaponRifleIroh
     - WeaponRifleLecter
+    - WeaponRiflePrometheus
     - WeaponRifleM90
     - WeaponRifleNtsfLtr
     - WeaponRifleVulcan
     - WeaponRifleVulcanExpedition
+    - WeaponShotgunHelepolis
     - WeaponSubMachineGunC20r
     - WeaponSubMachineGunDrozd
     - WeaponSubMachineGunDrozdExpedition

@@ -6,7 +6,7 @@
   entityIcon: hydroponicsTray
   discipline: CivilianServices
   tier: 1
-  cost: 10000
+  cost: 8500
   recipeUnlocks:
   - BorgModuleGardening
   - BorgModuleHarvesting
@@ -34,7 +34,7 @@
   entityIcon: MechHamtrBattery
   discipline: CivilianServices
   tier: 1
-  cost: 10000
+  cost: 8500
   recipeUnlocks:
   - HamtrHarness
   - HamtrLArm
@@ -55,7 +55,7 @@
   entityIcon: ComputerTelevision # Mono
   discipline: CivilianServices
   tier: 1
-  cost: 15000 # Mono
+  cost: 12750 # Mono
   recipeUnlocks:
   - SurveillanceCameraRouterCircuitboard
   #  - SurveillanceCameraWirelessRouterCircuitboard # Frontier - Removal of range limits made it useless to build
@@ -212,7 +212,7 @@
   entityIcon: AdvMopItem
   discipline: CivilianServices
   tier: 2
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - AdvMopItem
   - MegaSprayBottle

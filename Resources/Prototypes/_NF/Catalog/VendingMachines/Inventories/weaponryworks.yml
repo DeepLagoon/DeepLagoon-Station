@@ -61,7 +61,6 @@
     WeaponRifleLeeEnfield: 4294967295
 # Rifles
     WeaponRifleVulcanFCMC: 4294967295
-    WeaponRiflePrometheus: 4294967295
     WeaponRifleNovaliteC1: 4294967295
     WeaponRifleGestio: 4294967295
     # WeaponSubMachineGunC20rPMC: 4294967295
@@ -72,14 +71,11 @@
     # WeaponSubMachineGunWt550PMC: 4294967295
     # WeaponRifleLecterPMC: 4294967295
     # WeaponSubMachineGunDrozdPMC: 4294967295
-    WeaponSubMachineGunKnallstock: 4294967295
     WeaponSubMachineGunTypewriterPMC: 4294967295
-    WeaponSubMachineGunAK220: 4294967295
 # Shotguns
     # WeaponShotgunBigJohnny: 4294967295
     # WeaponShotgunEnforcerPMC: 4294967295
     WeaponShotgunKammererPMC: 4294967295
-    WeaponShotgunHelepolis: 4294967295
 # Energy
     # WeaponLaserCannonPMC: 4294967295
     WeaponDisablerSMGPMC: 4294967295
@@ -88,7 +84,6 @@
     WeaponRevolverArgenti: 4294967295
     WeaponPistolViperPMC: 4294967295
     WeaponPistolMk58: 4294967295
-    WeaponPistolPollock: 4294967295
     WeaponPistolMk32: 4294967295
 # Melee
     Machete: 4294967295

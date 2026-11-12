@@ -92,7 +92,8 @@ public static partial class AccountEconomyOperations
     }
     public static async Task<LagoonCoinResult> Activity(ServerDbContext db, Guid user, LagoonActivity activity, DateTime now, CancellationToken cancel = default, Action? beforeCommit = null)
     {
-        if (activity.Ticks <= 0 || activity.Ticks > TimeSpan.FromHours(1).Ticks || activity.Rate is < 2 or > 6 ||
+        if (activity.Ticks <= 0 || activity.Ticks > TimeSpan.FromHours(1).Ticks ||
+            activity.Rate is < LagoonEconomyRules.BaseHourlyRate or > LagoonEconomyRules.MaximumHourlyRate ||
             !DateTime.TryParseExact(activity.Day, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
                 System.Globalization.DateTimeStyles.None, out var day) || activity.Round.Length > 80)
             throw new ArgumentException("Invalid activity.");

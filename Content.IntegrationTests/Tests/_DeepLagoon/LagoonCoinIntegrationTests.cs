@@ -10,6 +10,7 @@ using Content.Server.Database;
 using Content.Server.GameTicking;
 using Content.Server.Mind;
 using Content.Server.Objectives.Components;
+using Content.Server.Preferences.Managers;
 using Content.Shared.GameTicking;
 using Content.Shared._DeepLagoon.Currency;
 using Content.Shared.Mind;
@@ -29,6 +30,73 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class LagoonCoinIntegrationTests
 {
+    [Test]
+    public async Task FactionRolesAddTwoCoinsToTheSupporterRateAndPersistIt()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings
+        {
+            Connected = true,
+            Destructive = true,
+            DummyTicker = false,
+        });
+        var map = await pair.CreateTestMap();
+        var server = pair.Server;
+        var session = pair.Player!;
+        var ticker = server.System<GameTicker>();
+        var preferences = server.ResolveDependency<IServerPreferencesManager>();
+        await PoolManager.WaitUntil(server, () => ticker.UserHasJoinedGame(session) &&
+            preferences.TryGetCachedPreferences(session.UserId, out _), 600);
+
+        await server.WaitAssertion(() =>
+        {
+            var entities = server.EntMan;
+            var body = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var minds = server.System<SharedMindSystem>();
+            var mind = minds.CreateMind(session.UserId);
+            minds.TransferTo(mind, body);
+            var roles = server.System<SharedRoleSystem>();
+            var wallet = server.System<ServerWallet>();
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var participation = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
+
+            int RateFor(string job)
+            {
+                roles.MindAddJobRole(mind, silent: true, jobPrototype: job);
+                wallet.Update(0);
+                var data = participation[session]!;
+                Assert.That(data.GetType().GetField("Active")!.GetValue(data), Is.True);
+                return (int) data.GetType().GetField("Rate")!.GetValue(data)!;
+            }
+
+            Assert.That(RateFor("Contractor"), Is.EqualTo(2));
+            Assert.That(RateFor("Deputy"), Is.EqualTo(4));
+            Assert.That(RateFor("Pirate"), Is.EqualTo(4));
+            Assert.That(RateFor("MMCEmployee"), Is.EqualTo(4));
+
+            server.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().Remember(session,
+                new LagoonEconomySnapshot(0, new LagoonEconomyState
+                {
+                    PassTier = 4,
+                    PassTicks = TimeSpan.FromDays(1).Ticks,
+                }));
+            Assert.That(RateFor("Contractor"), Is.EqualTo(6));
+            var factionRate = RateFor("MMCEmployee");
+            Assert.That(factionRate, Is.EqualTo(8));
+
+            SeedActivity(wallet, session, TimeSpan.TicksPerHour, factionRate, "faction-test", false);
+            typeof(ServerWallet).GetMethod("SaveParticipation", flags)!.Invoke(wallet, null);
+            wallet.Update(0);
+            var tasks = server.ResolveDependency<ITaskManager>();
+            AwaitRewards(tasks, wallet);
+            var database = server.ResolveDependency<IServerDbManager>();
+            var history = database.GetLagoonCoinHistoryAsync(session.UserId, 1);
+            tasks.BlockWaitOnTask(history);
+            Assert.That(history.GetAwaiter().GetResult().Any(entry => entry.Reason == "playtime" && entry.Amount == 8), Is.True);
+        });
+
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task WalletOperationsPublishOnceToOnlineOwnerAndNeverChangeCharacterBank()
     {

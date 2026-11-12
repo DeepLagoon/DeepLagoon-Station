@@ -64,8 +64,21 @@ public sealed class VendingWeaponReviewTests
             }
             Assert.That(prototypes.Index<VendingMachineInventoryPrototype>("NonLethalVendInventory")
                 .StartingInventory.ContainsKey("WeaponLaserCarbinePractice"), Is.True);
-            Assert.That(prototypes.Index<VendingMachineInventoryPrototype>("WeaponryWorksVendPOIMercInventory")
-                .StartingInventory.ContainsKey("WeaponRifleVulcanFCMC"), Is.True);
+            var mercenaryInventory = prototypes.Index<VendingMachineInventoryPrototype>("WeaponryWorksVendPOIMercInventory").StartingInventory;
+            Assert.That(mercenaryInventory.ContainsKey("WeaponRifleVulcanFCMC"), Is.True);
+            Assert.That(mercenaryInventory.ContainsKey("Magazine556x45mmFMJ"), Is.True);
+            foreach (var (weapon, tier) in new[]
+            {
+                ("WeaponPistolPollock", 1),
+                ("WeaponSubMachineGunAK220", 2),
+                ("WeaponSubMachineGunKnallstock", 2),
+                ("WeaponRiflePrometheus", 3),
+                ("WeaponShotgunHelepolis", 3),
+            })
+            {
+                Assert.That(mercenaryInventory.ContainsKey(weapon), Is.False, weapon);
+                Assert.That(loot.GetTier(weapon), Is.EqualTo(tier), weapon);
+            }
             var tables = entities.System<EntityTableSystem>();
             var random = new Random(20261030);
             foreach (var tier in new[] { 1, 2, 3 })

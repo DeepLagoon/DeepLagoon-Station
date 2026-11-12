@@ -9,12 +9,14 @@ using Content.Server.GameTicking.Events;
 using Content.Server.Objectives;
 using Content.Shared._DeepLagoon.Currency;
 using Content.Shared._DeepLagoon.DiscordLink;
+using Content.Shared.Database;
 using Content.Shared.GameTicking;
 using Content.Shared.Ghost;
 using Content.Shared.Mind;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Roles;
+using Content.Shared.Roles.Jobs;
 using Content.Shared.Players;
 using System.Threading;
 using Robust.Server.Player;
@@ -38,6 +40,8 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     [Dependency] private IAfkManager _afk = default!;
     [Dependency] private GameTicker _ticker = default!;
     [Dependency] private SharedDiscordBoostSystem _supporters = default!;
+    [Dependency] private SharedMindSystem _minds = default!;
+    [Dependency] private SharedJobSystem _jobs = default!;
     [Dependency] private SharedRoleSystem _roles = default!;
     [Dependency] private ObjectivesSystem _objectives = default!;
     [Dependency] private Content.Server.Chat.Managers.IChatManager _chat = default!;
@@ -67,7 +71,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         public bool Subscribed;
         public long Played;
         public long Bonus;
-        public int Rate = 2;
+        public int Rate = LagoonEconomyRules.BaseHourlyRate;
         public readonly Dictionary<ActivityBucket, long> Buckets = new();
     }
 
@@ -197,7 +201,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             {
                 var boundary = start.AddHours(3).Date.AddDays(1).AddHours(-3);
                 var ticks = Math.Min(elapsed, Math.Max(1, (boundary - start).Ticks));
-                var bucket = new ActivityBucket(Content.Shared.Database.LagoonEconomyRules.MoscowDay(start), data.Rate, _rewardRound, _readyCandidates.Contains(session.UserId));
+                var bucket = new ActivityBucket(LagoonEconomyRules.MoscowDay(start), data.Rate, _rewardRound, _readyCandidates.Contains(session.UserId));
                 data.Buckets[bucket] = checked(data.Buckets.GetValueOrDefault(bucket) + ticks);
                 start = start.AddTicks(ticks);
                 elapsed -= ticks;
@@ -210,7 +214,11 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             HasComp<GhostComponent>(attached) || HasComp<Content.Shared._DeepLagoon.Apartments.ApartmentResidentComponent>(attached),
             TryComp<MobStateComponent>(attached, out var mob) && mob.CurrentState is MobState.Alive or MobState.Critical,
             _afk.IsAfk(session));
-        data.Rate = Content.Shared.Database.LagoonEconomyRules.HourlyRate(_supporters.GetProductTier(session));
+        data.Rate = LagoonEconomyRules.HourlyRate(_supporters.GetProductTier(session));
+        if (data.Active && _minds.TryGetMind(session, out var mind, out _) &&
+            _jobs.MindTryGetJob(mind, out var job) &&
+            job.AssignedCompany.Id is "TSF" or "TSFCivilian" or "PDV" or "PDVCivilian" or "MMC")
+            data.Rate += LagoonEconomyRules.FactionHourlyBonus;
     }
 
     private void SaveParticipation()

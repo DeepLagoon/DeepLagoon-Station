@@ -70,7 +70,7 @@
   entityIcon: MachineFlatpacker
   discipline: Industrial
   tier: 2
-  cost: 25000
+  cost: 21250
   recipeUnlocks:
   - FlatpackerMachineCircuitboard
   - RPED
@@ -86,7 +86,7 @@
   entityIcon: IndustrialPressEconomyElectronics
   discipline: Industrial
   tier: 1
-  cost: 45000
+  cost: 38250
   recipeUnlocks:
   # Begin DeltaV Removals - replaced by upgrade kits + departmental techfabs
   #- AutolatheHyperConvectionMachineCircuitboard
@@ -120,7 +120,7 @@
   entityIcon: PortableGeneratorPacman
   discipline: Industrial
   tier: 1
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - PortableGeneratorPacmanMachineCircuitboard
   - PortableGeneratorSuperPacmanMachineCircuitboard
@@ -147,7 +147,7 @@
   entityIcon: GasThermoMachineFreezerEnabled
   discipline: Industrial
   tier: 1
-  cost: 17000
+  cost: 14450
   recipeUnlocks:
   - ThermomachineFreezerMachineCircuitBoard
   - GasRecyclerMachineCircuitboard
@@ -185,7 +185,7 @@
   entityIcon: GasThermoMachineHellfireFreezer
   discipline: Industrial
   tier: 2
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - HellfireFreezerMachineCircuitBoard
   - PortableScrubberMachineCircuitBoard
@@ -296,7 +296,7 @@
   entityIcon: MachineMaterialSilo
   discipline: Industrial
   tier: 3
-  cost: 100000
+  cost: 85000
   recipeUnlocks:
   - MaterialSiloMachineCircuitboard
   technologyPrerequisites:

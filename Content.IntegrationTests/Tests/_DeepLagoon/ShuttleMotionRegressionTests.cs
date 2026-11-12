@@ -1,7 +1,9 @@
+using System;
 using System.Numerics;
 using System.Collections.Generic;
 using Content.Client.Eye;
 using Content.Server.Construction;
+using Content.Server.Mech.Systems;
 using Content.Server.Physics.Controllers;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
@@ -15,6 +17,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
@@ -32,6 +35,60 @@ public sealed class ShuttleMotionRegressionTests
     requireSpace: false
     burnShape: []
 ";
+
+    [Test]
+    public async Task S2AndS4WeightlessSprintSpeedsFitTheLightShuttleLimit()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false });
+        var spawned = new List<(EntityUid Mech, float TargetSpeed)>();
+        EntityUid space = default;
+        var shuttleLimit = ShuttleFlightLimits.MaxSpeed(1f, 50f);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var mechs = entities.System<MechSystem>();
+            var mover = entities.System<MoverController>();
+            space = entities.System<SharedMapSystem>().CreateMap(out _);
+            foreach (var (model, sprintSpeed) in new[]
+            {
+                ("AFInterceptor", 39.9f),
+                ("AFInterceptorM", 33.25f),
+                ("AFFlail", 25f),
+                ("AFFlailE", 18f),
+                ("AFMace", 45f),
+            })
+            {
+                foreach (var suffix in new[] { "", "TSF", "PDV" })
+                {
+                    var prototype = prototypes.Index(new EntProtoId(model + suffix));
+                    Assert.That(prototype.TryComp<MovementSpeedModifierComponent>(out var movement, entities.ComponentFactory), Is.True);
+                    Assert.That(movement!.BaseSprintSpeed * movement.BaseWeightlessModifier,
+                        Is.EqualTo(sprintSpeed).Within(0.001f), prototype.ID);
+                }
+
+                var position = new EntityCoordinates(space, spawned.Count * 10f, 0f);
+                var mech = entities.SpawnEntity(new EntProtoId(model), position);
+                mechs.InsertBattery(mech, entities.SpawnEntity("PowerCageHigh", position));
+                Assert.That(mechs.TryInsert(mech, entities.SpawnEntity("MobHuman", position)), Is.True, model);
+                mover.SetVelocityDirection((mech, entities.GetComponent<InputMoverComponent>(mech)), Direction.North, 0, true);
+                spawned.Add((mech, sprintSpeed));
+            }
+        });
+        await pair.RunTicksSync(300);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            foreach (var (mech, targetSpeed) in spawned)
+            {
+                var actual = entities.GetComponent<PhysicsComponent>(mech).LinearVelocity.Length();
+                var id = entities.GetComponent<MetaDataComponent>(mech).EntityPrototype!.ID;
+                Assert.That(actual, Is.InRange(targetSpeed * 0.95f, MathF.Min(targetSpeed, shuttleLimit) + 0.001f), id);
+            }
+            entities.DeleteEntity(space);
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [TestCase(1, false, 35f, 35f)]
     [TestCase(6, false, 85f, 35f)]

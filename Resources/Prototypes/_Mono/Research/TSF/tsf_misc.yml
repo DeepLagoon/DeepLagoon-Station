@@ -4,7 +4,7 @@
   entityIcon: ForensicScanner
   discipline: TsfmcGear
   tier: 1
-  cost: 10000
+  cost: 8500
   recipeUnlocks:
   - ForensicsScannerTSF
   - DemagTSF
@@ -92,7 +92,7 @@
   entityIcon: NanolaminateFoamGrenade
   discipline: TsfmcGear
   tier: 2
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - NanolaminateFoamGrenadeTSF
   technologyPrerequisites:
@@ -105,7 +105,7 @@
   entityIcon: PortableRecharger
   discipline: TsfmcGear
   tier: 1
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
     - PortableRecharger
   technologyPrerequisites:

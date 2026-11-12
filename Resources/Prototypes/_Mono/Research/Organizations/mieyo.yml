@@ -21,7 +21,7 @@
   entityIcon: IndustrialPressEconomyElectronicsMMC
   discipline: Mieyo
   tier: 1
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - IndustrialPressEconomyElectronicsMMCMachineCircuitboard
   - IndustrialPressEconomyPlatesMMCMachineCircuitboard
@@ -35,7 +35,7 @@
   entityIcon: TradeGoodFissionFuel
   discipline: Mieyo
   tier: 1
-  cost: 10000
+  cost: 8500
   recipeUnlocks:
   - TradeGoodLuxuriesAlt
   - TradeGoodFissionFuel

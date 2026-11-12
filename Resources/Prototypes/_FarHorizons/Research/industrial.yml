@@ -4,7 +4,7 @@
   entityIcon: NuclearReactorSmall # Mono
   discipline: Industrial
   tier: 1
-  cost: 15000
+  cost: 12750
   recipeUnlocks:
   - NuclearFabricatorMachineCircuitboard
   - NuclearReactorMonitorComputerCircuitboard
@@ -34,7 +34,7 @@
   entityIcon: NuclearCentrifuge # Mono
   discipline: Industrial
   tier: 2
-  cost: 25000
+  cost: 21250
   recipeUnlocks:
   - NuclearCentrifugeMachineCircuitboard
   - PlutoniumReactorFuelRod

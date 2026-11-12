@@ -23,7 +23,7 @@
   entityIcon: SuperCapacitorStockPart
   discipline: Experimental
   tier: 3
-  cost: 50000
+  cost: 42500
   recipeUnlocks:
   - SuperCapacitorStockPart
   - SuperMatterBinStockPart
@@ -41,7 +41,7 @@
   entityIcon: ClothingShoesBootsMagAdv
   discipline: Experimental
   tier: 3
-  cost: 30000
+  cost: 25500
   recipeUnlocks:
   - ClothingShoesBootsMagAdv
   - NFBlueprintClothingShoesBootsMagAdv

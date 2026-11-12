@@ -7,5 +7,8 @@ public sealed partial class ResearchPointSourceComponent : Component
     public int PointsPerSecond;
 
     [DataField]
+    public int ColdBonusPointsPerSecond;
+
+    [DataField]
     public bool Active = true;
 }

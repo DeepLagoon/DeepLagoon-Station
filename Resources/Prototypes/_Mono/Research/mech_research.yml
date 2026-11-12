@@ -4,7 +4,7 @@
   entityIcon: MechRipleyBattery
   discipline: MechaEngineering
   tier: 1
-  cost: 24000
+  cost: 20400
   recipeUnlocks:
   - RipleyHarness
   - RipleyLArm
