@@ -293,6 +293,7 @@ namespace Content.Server.Construction
             }
 
             // We attempt to set the pathfinding target.
+            _pricing.MarkCraftedProduct(newEntity);
             SetPathfindingTarget(newEntity, targetNode.Name, construction);
 
             // We preserve the containers...

@@ -248,12 +248,13 @@ public sealed partial class PricingSystem : EntitySystem
     /// </remarks>
     public double GetPrice(EntityUid uid, bool includeContents = true)
     {
+        var limit = GetCraftedPriceLimit(uid);
         var ev = new PriceCalculationEvent();
         ev.Price = 0; // Structs doesnt initialize doubles when called by constructor.
         RaiseLocalEvent(uid, ref ev);
 
         if (ev.Handled)
-            return ev.Price;
+            return Math.Min(ev.Price, limit);
 
         var price = ev.Price;
         //TODO: Add an OpaqueToAppraisal component or similar for blocking the recursive descent into containers, or preventing material pricing.
@@ -269,6 +270,8 @@ public sealed partial class PricingSystem : EntitySystem
         {
             price += GetStaticPrice(uid);
         }
+
+        price = Math.Min(price, limit);
 
         if (includeContents && TryComp<ContainerManagerComponent>(uid, out var containers))
         {
@@ -294,12 +297,21 @@ public sealed partial class PricingSystem : EntitySystem
     /// <returns>The price with vending machine discount applied if applicable</returns>
     public double GetPriceWithVendingDiscount(EntityUid uid, EntityUid currentGrid, bool includeContents = true)
     {
+        return GetPalletPrice(uid, currentGrid, 1, out _, includeContents);
+    }
+
+    internal double GetPalletPrice(EntityUid uid, EntityUid currentGrid, double multiplier, out double basePrice, bool includeContents = true)
+    {
+        var limit = GetCraftedPriceLimit(uid);
         var ev = new PriceCalculationEvent();
         ev.Price = 0;
         RaiseLocalEvent(uid, ref ev);
 
         if (ev.Handled)
-            return ev.Price;
+        {
+            basePrice = Math.Min(ev.Price, limit);
+            return Math.Min(basePrice * multiplier, limit);
+        }
 
         var price = ev.Price;
         price += GetMaterialsPrice(uid);
@@ -315,13 +327,17 @@ public sealed partial class PricingSystem : EntitySystem
             price += GetStaticPriceWithVendingDiscount(uid, currentGrid);
         }
 
+        basePrice = Math.Min(price, limit);
+        price = Math.Min(basePrice * multiplier, limit);
+
         if (includeContents && TryComp<ContainerManagerComponent>(uid, out var containers))
         {
             foreach (var container in containers.Containers.Values)
             {
                 foreach (var ent in container.ContainedEntities)
                 {
-                    price += GetPriceWithVendingDiscount(ent, currentGrid);
+                    price += GetPalletPrice(ent, currentGrid, multiplier, out var childBasePrice);
+                    basePrice += childBasePrice;
                 }
             }
         }

@@ -1,3 +1,4 @@
+using Content.Server.Cargo.Systems;
 using Content.Server.Construction.Components;
 using Content.Server.Stack;
 using Content.Shared.Construction;
@@ -20,6 +21,7 @@ namespace Content.Server.Construction
         [Dependency] private SharedDoAfterSystem _doAfterSystem = default!;
         [Dependency] private ContainerSystem _container = default!;
         [Dependency] private StackSystem _stackSystem = default!;
+        [Dependency] private PricingSystem _pricing = default!;
         [Dependency] private SharedToolSystem _toolSystem = default!;
 
         public override void Initialize()
@@ -36,6 +38,12 @@ namespace Content.Server.Construction
 
             SubscribeLocalEvent<ConstructionComponent, ComponentInit>(OnConstructionInit);
             SubscribeLocalEvent<ConstructionComponent, ComponentStartup>(OnConstructionStartup);
+            SubscribeLocalEvent<ConstructionProductCreatedEvent>(OnConstructionProductCreated);
+        }
+
+        private void OnConstructionProductCreated(ref ConstructionProductCreatedEvent args)
+        {
+            _pricing.MarkCraftedProduct(args.Product);
         }
 
         private void OnConstructionInit(Entity<ConstructionComponent> ent, ref ComponentInit args)

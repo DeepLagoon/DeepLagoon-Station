@@ -69,7 +69,8 @@ public sealed partial class GunSystem : SharedGunSystem
 
     private void OnBallisticPrice(EntityUid uid, BallisticAmmoProviderComponent component, ref PriceCalculationEvent args)
     {
-        if (string.IsNullOrEmpty(component.Proto) || component.UnspawnedCount == 0 || component.InfiniteUnspawned) // Mono
+        if (string.IsNullOrEmpty(component.Proto) || component.UnspawnedCount == 0 || component.InfiniteUnspawned ||
+            _pricing.GetCraftedUnitLimit(uid) != null)
             return;
 
         if (!ProtoManager.TryIndex<EntityPrototype>(component.Proto, out var proto))
@@ -81,6 +82,12 @@ public sealed partial class GunSystem : SharedGunSystem
         // Probably good enough for most.
         var price = _pricing.GetEstimatedPrice(proto);
         args.Price += price * component.UnspawnedCount;
+    }
+
+    protected override void OnBallisticAmmoSpawned(EntityUid provider, EntityUid ammo)
+    {
+        if (_pricing.GetCraftedUnitLimit(provider) != null)
+            _pricing.MarkCraftedProduct(ammo, 0);
     }
 
     public override void Shoot(EntityUid gunUid, GunComponent gun, List<(EntityUid? Entity, IShootable Shootable)> ammo,

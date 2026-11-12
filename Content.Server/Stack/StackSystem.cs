@@ -1,3 +1,4 @@
+using Content.Server.Cargo.Systems;
 using Content.Shared.Popups;
 using Content.Shared.Stacks;
 using Content.Shared.Verbs;
@@ -15,6 +16,7 @@ namespace Content.Server.Stack
     public sealed partial class StackSystem : SharedStackSystem
     {
         [Dependency] private IPrototypeManager _prototypeManager = default!;
+        [Dependency] private PricingSystem _pricing = default!;
         [Dependency] private SharedUserInterfaceSystem _ui = default!; // Cherry-picked from space-station-14#32938 courtesy of Ilya246
 
         public static readonly int[] DefaultSplitAmounts = { 1, 5, 10, 20, 50, 100, 500, 1000, 5000, 10000 };
@@ -66,10 +68,18 @@ namespace Content.Server.Stack
                 stackComp.Unlimited = false;
             }
 
+            if (_pricing.GetCraftedUnitLimit(uid) is { } unitLimit)
+                _pricing.MarkCraftedProduct(entity, unitLimit);
+
             var ev = new StackSplitEvent(entity);
             RaiseLocalEvent(uid, ref ev);
 
             return entity;
+        }
+
+        protected override bool CanCombineStacks(EntityUid donor, EntityUid recipient)
+        {
+            return _pricing.GetCraftedUnitLimit(donor) == _pricing.GetCraftedUnitLimit(recipient);
         }
 
         /// <summary>

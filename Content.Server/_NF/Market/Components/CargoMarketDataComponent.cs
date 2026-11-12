@@ -1,5 +1,4 @@
 using Content.Server._NF.Market.Systems;
-using Content.Shared._NF.Market;
 using Content.Shared.Whitelist;
 
 namespace Content.Server._NF.Market.Components;
@@ -12,7 +11,7 @@ namespace Content.Server._NF.Market.Components;
 public sealed partial class CargoMarketDataComponent : Component
 {
     [DataField]
-    public List<MarketData> MarketDataList = [];
+    public List<MarketLot> MarketDataList = [];
 
     /// <summary>
     /// Sold items must match this whitelist to enter into this data set.

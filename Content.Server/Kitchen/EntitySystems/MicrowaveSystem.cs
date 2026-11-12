@@ -52,6 +52,7 @@ namespace Content.Server.Kitchen.EntitySystems
 {
     public sealed partial class MicrowaveSystem : EntitySystem // Frontier: add partial
     {
+        [Dependency] private Content.Server.Cargo.Systems.PricingSystem _craftPricing = default!;
         [Dependency] private AtmosphereSystem _atmosphereSystem = default!; // Mono
         [Dependency] private BodySystem _bodySystem = default!;
         [Dependency] private DeviceLinkSystem _deviceLink = default!;
@@ -754,7 +755,8 @@ namespace Content.Server.Kitchen.EntitySystems
                         // Frontier: ResultCount - support multiple results per recipe
                         for (var r = 0; r < active.PortionedRecipe.Item1.ResultCount; r++)
                         {
-                            Spawn(active.PortionedRecipe.Item1.Result, coords);
+                            var product = Spawn(active.PortionedRecipe.Item1.Result, coords);
+                            _craftPricing.MarkCraftedProduct(product);
                         }
                         // End Frontier
                     }

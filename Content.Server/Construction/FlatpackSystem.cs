@@ -1,4 +1,5 @@
 using Content.Server.Audio;
+using Content.Server.Cargo.Systems;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
 using Content.Shared.Construction;
@@ -16,6 +17,7 @@ public sealed partial class FlatpackSystem : SharedFlatpackSystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private AmbientSoundSystem _ambientSound = default!;
     [Dependency] private ItemSlotsSystem _itemSlots = default!;
+    [Dependency] private PricingSystem _pricing = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -103,7 +105,14 @@ public sealed partial class FlatpackSystem : SharedFlatpackSystem
 
         var flatpack = Spawn(comp.BaseFlatpackPrototype, Transform(ent).Coordinates);
         SetupFlatpack(flatpack, proto, board);
+        _pricing.MarkCraftedProduct(flatpack);
         Del(board);
+    }
+
+    protected override void OnFlatpackUnpacked(EntityUid flatpack, EntityUid product)
+    {
+        if (_pricing.GetCraftedUnitLimit(flatpack) != null)
+            _pricing.MarkCraftedProduct(product);
     }
 
     public override void Update(float frameTime)

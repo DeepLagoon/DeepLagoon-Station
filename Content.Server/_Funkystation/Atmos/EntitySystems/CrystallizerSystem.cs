@@ -22,6 +22,7 @@ namespace Content.Server._Funkystation.Atmos.Systems
 {
     public sealed partial class CrystallizerSystem : EntitySystem
     {
+        [Dependency] private Content.Server.Cargo.Systems.PricingSystem _craftPricing = default!;
         [Dependency] private UserInterfaceSystem _userInterfaceSystem = default!;
         [Dependency] private PowerReceiverSystem _power = default!;
         [Dependency] private AtmosphereSystem _atmos = default!;
@@ -292,6 +293,7 @@ namespace Content.Server._Funkystation.Atmos.Systems
                         for (int i = 0; i < amount; i++)
                         {
                             var entity = Spawn(productId, coords);
+                            _craftPricing.MarkCraftedProduct(entity);
                         }
                     }
                 }

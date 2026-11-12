@@ -1,3 +1,4 @@
+using Content.Server.Cargo.Systems;
 using Content.Server.Mech.Systems;
 using Content.Shared.Construction;
 using Content.Shared.Mech.Components;
@@ -57,6 +58,9 @@ public sealed partial class BuildMech : IGraphAction
 
         var transform = entityManager.GetComponent<TransformComponent>(uid);
         var mech = entityManager.SpawnEntity(MechPrototype, transform.Coordinates);
+        var pricing = entityManager.System<PricingSystem>();
+        if (userUid != null || pricing.GetCraftedUnitLimit(uid) != null)
+            pricing.MarkCraftedProduct(mech);
 
         if (entityManager.TryGetComponent<MechComponent>(mech, out var mechComp) && mechComp.BatterySlot.ContainedEntity == null)
         {

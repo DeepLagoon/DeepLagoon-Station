@@ -562,6 +562,8 @@ public partial class RCDSystem : EntitySystem
 
             case RcdMode.ConstructObject:
                 var ent = Spawn(component.CachedPrototype.Prototype, _mapSystem.GridTileToLocal(mapGridData.GridUid, mapGridData.Component, mapGridData.Position));
+                var product = new ConstructionProductCreatedEvent(ent);
+                RaiseLocalEvent(ref product);
 
                 switch (component.CachedPrototype.Rotation)
                 {

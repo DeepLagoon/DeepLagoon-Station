@@ -303,8 +303,7 @@ public sealed partial class CargoSystem
         if (toSell.Count == 0)
             return false;
 
-        var ev = new EntitySoldEvent(toSell, gridUid); // Frontier: add gridUid
-        RaiseLocalEvent(ref ev);
+        NotifyEntitiesSold(toSell, gridUid);
 
         // Collect all container entities and their contained entities recursively
         var allEntsToDelete = new HashSet<EntityUid>(toSell);
@@ -462,19 +461,14 @@ public sealed partial class CargoSystem
                 if (_blacklistQuery.HasComponent(ent))
                     continue;
 
-                // Mono: Use vending machine discount pricing for cargo sales
-                var price = _pricing.GetPriceWithVendingDiscount(ent, gridUid);
-                if (price == 0)
-                    continue;
-                toSell.Add(ent);
-
                 var station = _station.GetOwningStation(ent);
+                var ignoresMultiplier = HasComp<IgnoreMarketModifierComponent>(ent);
                 double multiplier = 1;
 
                 if (station != null
                     && !HasComp<TradeCrateWildcardDestinationComponent>(station)
                     && TryComp<MarketModifierComponent>(consoleUid, out var marketModifier)
-                    && !HasComp<IgnoreMarketModifierComponent>(ent)
+                    && !ignoresMultiplier
                     && !marketModifier.Buy
                     && !HasComp<TradeCrateComponent>(ent))
                 {
@@ -488,11 +482,15 @@ public sealed partial class CargoSystem
                     multiplier = wildcard.ValueMultiplier;
                 }
 
-                // Frontier: check for items that are immune to market modifiers
-                if (HasComp<IgnoreMarketModifierComponent>(ent))
+                var payout = _pricing.GetPalletPrice(ent, gridUid, ignoresMultiplier ? 1 : multiplier, out var price);
+                if (price == 0)
+                    continue;
+                toSell.Add(ent);
+
+                if (ignoresMultiplier)
                     noMultiplierAmount += price;
                 else
-                    amount += price * multiplier;
+                    amount += payout;
 
 
                 // End Frontier: check for items that are immune to market modifiers
@@ -636,8 +634,7 @@ public sealed partial class CargoSystem
 }
 
 /// <summary>
-/// Event broadcast raised by-ref before it is sold and
-/// deleted but after the price has been calculated.
+/// Ordinary goods sold to cargo, after bounty fulfillment and before the goods are deleted.
 /// </summary>
 [ByRefEvent]
 public readonly record struct EntitySoldEvent(HashSet<EntityUid> Sold, EntityUid Grid);

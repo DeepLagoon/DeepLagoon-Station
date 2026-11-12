@@ -311,6 +311,7 @@ public abstract partial class SharedGunSystem
                     DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.UnspawnedCount));
                 }
                 entity = Spawn(component.Proto, args.Coordinates);
+                OnBallisticAmmoSpawned(uid, entity);
                 args.Ammo.Add((entity, EnsureShootable(entity)));
 
                 // Goobstation - put spent ammo back in the gun if it doesn't autocycle
@@ -328,6 +329,10 @@ public abstract partial class SharedGunSystem
     }
 
     // Mono
+    protected virtual void OnBallisticAmmoSpawned(EntityUid provider, EntityUid ammo)
+    {
+    }
+
     private void OnBallisticCheckProto(Entity<BallisticAmmoProviderComponent> ent, ref CheckShootPrototypeEvent args)
     {
         if (ent.Comp.Entities.Count > 0)

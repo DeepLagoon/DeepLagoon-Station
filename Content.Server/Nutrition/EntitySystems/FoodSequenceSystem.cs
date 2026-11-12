@@ -18,6 +18,7 @@ namespace Content.Server.Nutrition.EntitySystems;
 
 public sealed partial class FoodSequenceSystem : SharedFoodSequenceSystem
 {
+    [Dependency] private Content.Server.Cargo.Systems.PricingSystem _craftPricing = default!;
     [Dependency] private SharedSolutionContainerSystem _solutionContainer = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
@@ -88,6 +89,7 @@ public sealed partial class FoodSequenceSystem : SharedFoodSequenceSystem
     private void Metamorf(Entity<FoodSequenceStartPointComponent> start, MetamorphRecipePrototype recipe)
     {
         var result = SpawnAtPosition(recipe.Result, Transform(start).Coordinates);
+        _craftPricing.MarkCraftedProduct(result);
 
         //Try putting in container
         _transform.DropNextTo(result, (start, Transform(start)));

@@ -1,7 +1,7 @@
 ﻿using Content.Server._NF.Market.Systems;
-using Content.Shared._NF.Market;
 using Content.Shared.Whitelist;
 using Robust.Shared.Audio;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server._NF.Market.Components;
 
@@ -15,7 +15,8 @@ public sealed partial class MarketConsoleComponent : Component
     [DataField]
     public int MaxCrateMachineDistance = 8;
 
-    public List<MarketData> CartDataList = [];
+    public List<MarketLot> CartDataList = [];
+    public Dictionary<EntProtoId, MarketLot> DisplayedLots = new();
 
     /// <summary>
     /// The cost of one transaction.

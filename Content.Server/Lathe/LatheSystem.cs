@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Content.Server.Administration.Logs;
 using Content.Server.Atmos.EntitySystems;
+using Content.Server.Cargo.Systems;
 using Content.Server.Construction; // Frontier
 using Content.Server.Fluids.EntitySystems;
 using Content.Server.Lathe.Components;
@@ -61,6 +62,7 @@ namespace Content.Server.Lathe
         [Dependency] private SharedSolutionContainerSystem _solution = default!;
         [Dependency] private StackSystem _stack = default!;
         [Dependency] private ContrabandTurnInSystem _contraband = default!; // Mono
+        [Dependency] private PricingSystem _pricing = default!;
         [Dependency] private TransformSystem _transform = default!;
         [Dependency] private DeviceLinkSystem _deviceLink = default!; // Mono
 
@@ -364,7 +366,16 @@ namespace Content.Server.Lathe
             {
                 if (comp.CurrentRecipe.Result is { } resultProto)
                 {
-                    for (var i = 0; i < comp.CurrentRecipe.ResultCount; i++) // mono
+                    var recipe = comp.CurrentRecipe;
+                    var budget = PricingSystem.MaxCraftedItemPrice;
+                    var materialOnly = recipe.Entities.Count == 0 && recipe.Reagents.Count == 0;
+                    if (materialOnly)
+                    {
+                        budget = recipe.Materials.Sum(ingredient => ingredient.Value * _proto.Index(ingredient.Key).Price) /
+                            Math.Max(1, recipe.ResultCount);
+                    }
+
+                    for (var i = 0; i < recipe.ResultCount; i++) // mono
                     {
                         var result = Spawn(resultProto, Transform(uid).Coordinates);
 
@@ -372,6 +383,9 @@ namespace Content.Server.Lathe
                         if (result.Valid)
                         {
                             ModifyPrintedEntityPrice(uid, comp, result);
+                            var unitLimit = Math.Min(PricingSystem.MaxCraftedItemPrice,
+                                materialOnly ? budget / Math.Max(1, _stack.GetCount(result)) : budget);
+                            _pricing.MarkCraftedProduct(result, unitLimit);
                             // End Frontier
 
                             // Mono: Handle printable contraband

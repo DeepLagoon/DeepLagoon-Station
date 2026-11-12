@@ -44,7 +44,6 @@ public sealed partial class CargoSystem
         SubscribeLocalEvent<CargoBountyConsoleComponent, BountyPrintLabelMessage>(OnPrintLabelMessage);
         SubscribeLocalEvent<CargoBountyConsoleComponent, BountySkipMessage>(OnSkipBountyMessage);
         // SubscribeLocalEvent<CargoBountyLabelComponent, PriceCalculationEvent>(OnGetBountyPrice); // Mono - Changed how bounty payout works. Not added to payout anymore.
-        SubscribeLocalEvent<EntitySoldEvent>(OnSold);
         SubscribeLocalEvent<StationCargoBountyDatabaseComponent, MapInitEvent>(OnMapInit);
 
         _stackQuery = GetEntityQuery<StackComponent>();
@@ -166,31 +165,37 @@ public sealed partial class CargoSystem
         component.Calculating = false;
     }
 
-    private void OnSold(ref EntitySoldEvent args)
+    internal void NotifyEntitiesSold(HashSet<EntityUid> soldEntities, EntityUid grid)
     {
-        foreach (var sold in args.Sold)
+        var marketGoods = new HashSet<EntityUid>();
+        foreach (var sold in soldEntities)
         {
-            if (!TryGetBountyLabel(sold, out _, out var component))
-                continue;
-
-            if (component.AssociatedStationId is not { } station || !TryGetBountyFromId(station, component.Id, out var bounty))
-            {
-                continue;
-            }
-
-            if (!IsBountyComplete(sold, bounty.Value) || !_protoMan.TryIndex(bounty.Value.Bounty, out var bountyPrototype)) // Mono
-            {
-                continue;
-            }
-
-            // Mono
-            if(bountyPrototype.Reward > 0)
-                _stack.SpawnMultiple(bountyPrototype.RewardProto, bountyPrototype.Reward, sold.ToCoordinates()); // It spawns it on the coordinates of the bounty instead of the console because idgaf. Maybe if someone bothered putting console coordinates in I would do it properly.
-
-            TryRemoveBounty(station, bounty.Value, false);
-            FillBountyDatabase(station);
-            _adminLogger.Add(LogType.Action, LogImpact.Low, $"Bounty \"{bounty.Value.Bounty}\" (id:{bounty.Value.Id}) was fulfilled");
+            if (!TryFulfillSoldBounty(sold))
+                marketGoods.Add(sold);
         }
+
+        var sale = new EntitySoldEvent(marketGoods, grid);
+        RaiseLocalEvent(ref sale);
+    }
+
+    private bool TryFulfillSoldBounty(EntityUid sold)
+    {
+        if (!TryGetBountyLabel(sold, out _, out var label) ||
+            label.AssociatedStationId is not { } station ||
+            !TryGetBountyFromId(station, label.Id, out var bounty) ||
+            !_protoMan.TryIndex(bounty.Value.Bounty, out var prototype) ||
+            !IsBountyComplete(sold, prototype) ||
+            !TryRemoveBounty(station, bounty.Value, false))
+        {
+            return false;
+        }
+
+        if (prototype.Reward > 0)
+            _stack.SpawnMultiple(prototype.RewardProto, prototype.Reward, sold.ToCoordinates());
+
+        FillBountyDatabase(station);
+        _adminLogger.Add(LogType.Action, LogImpact.Low, $"Bounty \"{bounty.Value.Bounty}\" (id:{bounty.Value.Id}) was fulfilled");
+        return true;
     }
 
     private bool TryGetBountyLabel(EntityUid uid,

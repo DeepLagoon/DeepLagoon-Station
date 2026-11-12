@@ -99,6 +99,7 @@ public abstract partial class SharedFlatpackSystem : EntitySystem
         if (_net.IsServer)
         {
             var spawn = Spawn(flatpackEntity, _map.GridTileToLocal(grid, gridComp, buildPos));
+            OnFlatpackUnpacked(uid, spawn);
             if (TryComp(spawn, out TransformComponent? spawnXform)) // Frontier: rotatable flatpacks
                 spawnXform.LocalRotation = xform.LocalRotation.GetCardinalDir().ToAngle(); // Frontier: rotatable flatpacks
             _adminLogger.Add(LogType.Construction,
@@ -108,6 +109,10 @@ public abstract partial class SharedFlatpackSystem : EntitySystem
         }
 
         _audio.PlayPredicted(comp.UnpackSound, args.Used, args.User);
+    }
+
+    protected virtual void OnFlatpackUnpacked(EntityUid flatpack, EntityUid product)
+    {
     }
 
     private void OnFlatpackExamined(Entity<FlatpackComponent> ent, ref ExaminedEvent args)

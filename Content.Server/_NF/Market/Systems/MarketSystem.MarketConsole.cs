@@ -76,7 +76,7 @@ public sealed partial class MarketSystem
 
         var count = 1;
         var entityPrototype = metaDataComponent.EntityPrototype;
-        string? stackPrototypeId = null;
+        ProtoId<StackPrototype>? stackPrototypeId = null;
 
         // Get amount of items in the stack if it's a stackable item.
         // If it's a stackable item, get the singular item id instead.
@@ -97,11 +97,17 @@ public sealed partial class MarketSystem
             _whitelistSystem.IsBlacklistFailOrNull(marketDataComponent.Blacklist, sold) ||
             _whitelistSystem.IsWhitelistPassOrNull(marketDataComponent.WhitelistOverride, sold))
         {
-            var estimatedPrice = _pricingSystem.GetPrice(sold) / count;
+            if (count <= 0)
+                return;
 
-            // Increase the count in the MarketData for this entity
-            // Assuming the quantity to increase is 1 for each sold entity
-            marketDataComponent.MarketDataList.Upsert(entityPrototype.ID, count, estimatedPrice, stackPrototypeId);
+            marketDataComponent.MarketDataList.Restock(new MarketLot
+            {
+                Prototype = entityPrototype.ID,
+                Quantity = count,
+                Price = _pricingSystem.GetPrice(sold) / count,
+                StackPrototype = stackPrototypeId,
+                CraftedUnitLimit = _pricingSystem.GetCraftedUnitLimit(sold),
+            });
         }
     }
 
@@ -201,7 +207,13 @@ public sealed partial class MarketSystem
 
             // Increase the count in the MarketData for this material
             entProto.TryComp<StackComponent>(out var stack, EntityManager.ComponentFactory);
-            marketDataComponent.MarketDataList.Upsert(entProto.ID, amountToSpawn, price, stack?.StackTypeId.Id);
+            marketDataComponent.MarketDataList.Restock(new MarketLot
+            {
+                Prototype = entProto.ID,
+                Quantity = amountToSpawn,
+                Price = price,
+                StackPrototype = stack?.StackTypeId,
+            });
         }
     }
 
@@ -210,7 +222,7 @@ public sealed partial class MarketSystem
     /// </summary>
     /// <param name="marketDataList">The list of market data to calculate the total entity count from.</param>
     /// <returns>The total number of entities in the market data list.</returns>
-    public int CalculateEntityAmount(List<MarketData> marketDataList)
+    public int CalculateEntityAmount(List<MarketLot> marketDataList)
     {
         var count = 0;
 
@@ -219,7 +231,7 @@ public sealed partial class MarketSystem
             if (GetMarketStack(data)?.MaxCount is { } maxCount)
                 count += (int)Math.Ceiling((double)data.Quantity / int.Max(1, maxCount));
             else
-                count += 1;
+                count += data.Quantity;
         }
 
         return count;
@@ -230,7 +242,7 @@ public sealed partial class MarketSystem
     /// </summary>
     /// <param name="data">The item type to calculate.</param>
     /// <returns>The number of items that can fit within an entity's worth of space. Null if infinite.</returns>
-    public int? GetAmountPerEntitySpace(MarketData data)
+    public int? GetAmountPerEntitySpace(MarketLot data)
     {
         var stack = GetMarketStack(data);
         if (stack == null)
@@ -239,7 +251,7 @@ public sealed partial class MarketSystem
         return stack.MaxCount is { } maxCount ? int.Max(1, maxCount) : null;
     }
 
-    private StackPrototype? GetMarketStack(MarketData data)
+    private StackPrototype? GetMarketStack(MarketLot data)
     {
         // Older material listings stored the entity ID in the stack prototype field.
         if (_prototypeManager.TryIndex(data.Prototype, out var entity) &&
@@ -287,49 +299,19 @@ public sealed partial class MarketSystem
         if (!TryComp<CargoMarketDataComponent>(stationUid, out var market))
             return;
 
-        var marketData = market.MarketDataList;
+        var stock = market.MarketDataList;
+        var cart = consoleComponent.CartDataList;
         if (args.RemoveFromCart)
         {
-            consoleComponent.CartDataList.Move(marketData, prototype.ID);
+            foreach (var returned in cart.Where(lot => lot.Prototype == prototype.ID).ToArray())
+            {
+                cart.Remove(returned);
+                stock.Restock(returned);
+            }
         }
         else
         {
-            var maxQuantityToWithdraw = marketData.GetMaxQuantityToWithdraw(prototype);
-            var toWithdraw = MathHelper.Clamp(args.Amount, 1, maxQuantityToWithdraw);
-
-            var existing = FindMarketDataByPrototype(marketData, args.ItemPrototype!);
-            if (existing == null)
-                return;
-
-            // Calculate maximum we can fit.
-            var entityAmount = CalculateEntityAmount(consoleComponent.CartDataList);
-            var amountPerEntity = GetAmountPerEntitySpace(existing);
-            int amountLeft;
-            if (amountPerEntity == null)
-            {
-                amountLeft = int.MaxValue; // Infinite stack, infinite space.
-            }
-            else
-            {
-                amountLeft = (30 - entityAmount) * amountPerEntity.Value;
-
-                var existingCart = FindMarketDataByPrototype(consoleComponent.CartDataList, args.ItemPrototype!);
-                if (existingCart != null)
-                {
-                    // Find if there's a partially filled entity in the cart.
-                    var quantityMod = existingCart.Quantity % amountPerEntity.Value;
-                    if (quantityMod != 0)
-                    {
-                        amountLeft += amountPerEntity.Value - quantityMod;
-                    }
-                }
-                amountLeft = int.Max(0, amountLeft); // If we're over the limit as-is, don't move anything.
-            }
-
-            toWithdraw = int.Min(toWithdraw, amountLeft);
-
-            marketData.Upsert(existing.Prototype, -toWithdraw, existing.Price, existing.StackPrototype);
-            consoleComponent.CartDataList.Upsert(existing.Prototype, toWithdraw, existing.Price, existing.StackPrototype);
+            AddToCart(consoleComponent, stock, prototype.ID, args.Amount);
         }
 
         RefreshState(
@@ -340,22 +322,30 @@ public sealed partial class MarketSystem
         );
     }
 
-    /// <summary>
-    /// Finds a MarketData item in the list that has the same prototype.
-    /// </summary>
-    /// <param name="marketDataList">The list of market data to search in.</param>
-    /// <param name="prototypeId">The prototype ID to search for.</param>
-    /// <returns>The MarketData item with the matching prototype, or null if not found.</returns>
-    public MarketData? FindMarketDataByPrototype(List<MarketData> marketDataList, string prototypeId)
+    private void AddToCart(MarketConsoleComponent console, List<MarketLot> stock, EntProtoId prototype, int requested)
     {
-        foreach (var marketData in marketDataList)
+        var lot = stock.FirstOrDefault(item => item.Prototype == prototype && item.Quantity > 0);
+        if (lot == null || console.DisplayedLots.TryGetValue(prototype, out var displayed) && !ReferenceEquals(lot, displayed))
+            return;
+
+        var amountLeft = int.MaxValue;
+        if (GetAmountPerEntitySpace(lot) is { } perEntity)
         {
-            if (marketData.Prototype == prototypeId)
-            {
-                return marketData;
-            }
+            var spaces = 30 - CalculateEntityAmount(console.CartDataList);
+            var existingCart = console.CartDataList.FirstOrDefault(item =>
+                item.Prototype == lot.Prototype && item.CraftedUnitLimit == lot.CraftedUnitLimit);
+            var partial = (existingCart?.Quantity ?? 0) % perEntity;
+            amountLeft = (int)Math.Clamp((long)spaces * perEntity + (partial == 0 ? 0 : perEntity - partial), 0, int.MaxValue);
         }
-        return null;
+
+        var quantity = Math.Min(Math.Clamp(requested, 1, lot.Quantity), amountLeft);
+        if (quantity == 0)
+            return;
+
+        lot.Quantity -= quantity;
+        if (lot.Quantity == 0)
+            stock.Remove(lot);
+        console.CartDataList.Restock(lot with { Quantity = quantity });
     }
 
     private void OnConsoleUiOpened(EntityUid uid, MarketConsoleComponent component, BoundUIOpenedEvent args)
@@ -393,20 +383,34 @@ public sealed partial class MarketSystem
         // Get the market data for this grid.
         var cartData = component.CartDataList;
         var marketData = new List<MarketData>();
+        component.DisplayedLots.Clear();
 
         // Get station and the market data attached to it.
         var consoleStationUid = _station.GetOwningStation(consoleUid);
         if (TryComp<CargoMarketDataComponent>(consoleStationUid, out var market))
         {
-            marketData = market.MarketDataList;
+            foreach (var lot in market.MarketDataList)
+            {
+                if (lot.Quantity > 0 && component.DisplayedLots.TryAdd(lot.Prototype, lot))
+                    marketData.Add(lot.ToMarketData());
+            }
         }
         var cartBalance = MarketDataExtensions.GetMarketValue(cartData, marketMultiplier);
+
+        var cartRows = cartData.GroupBy(lot => lot.Prototype).Select(group =>
+        {
+            var quantity = group.Sum(lot => lot.Quantity);
+            var price = marketMultiplier == 0
+                ? 0
+                : MarketDataExtensions.GetMarketValue(group, marketMultiplier) / (quantity * (double)marketMultiplier);
+            return new MarketData(group.Key, group.First().StackPrototype, quantity, price);
+        }).ToList();
 
         var newState = new MarketConsoleInterfaceState(
             balance,
             marketMultiplier,
             marketData,
-            cartData,
+            cartRows,
             cartBalance,
             true, // TODO add enable/disable functionality
             component.TransactionCost,

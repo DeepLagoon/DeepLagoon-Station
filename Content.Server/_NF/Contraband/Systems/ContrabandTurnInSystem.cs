@@ -26,6 +26,7 @@ public sealed partial class ContrabandTurnInSystem : SharedContrabandTurnInSyste
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private StackSystem _stack = default!;
     [Dependency] private StationSystem _station = default!;
+    [Dependency] private CargoSystem _cargo = default!;
     [Dependency] private UserInterfaceSystem _uiSystem = default!;
 
     private EntityQuery<MobStateComponent> _mobQuery;
@@ -116,10 +117,7 @@ public sealed partial class ContrabandTurnInSystem : SharedContrabandTurnInSyste
         Log.Debug($"{component.Faction} sold {toSell.Count} contraband items for {amount}");
 
         if (station != null)
-        {
-            var ev = new EntitySoldEvent(toSell, gridUid);
-            RaiseLocalEvent(ref ev);
-        }
+            _cargo.NotifyEntitiesSold(toSell, gridUid);
 
         foreach (var ent in toSell)
         {

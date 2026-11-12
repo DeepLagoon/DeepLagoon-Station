@@ -406,6 +406,8 @@ namespace Content.Server.Construction
             }
 
             EntityManager.InitializeAndStartEntity(newUid);
+            if (userUid != null || _pricing.GetCraftedUnitLimit(uid) != null)
+                _pricing.MarkCraftedProduct(newUid, retainedContainers: construction.Containers);
 
             QueueDel(uid);
 

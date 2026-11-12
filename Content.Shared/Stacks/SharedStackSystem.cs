@@ -123,6 +123,9 @@ namespace Content.Shared.Stacks
             if (string.IsNullOrEmpty(recipientStack.StackTypeId) || !recipientStack.StackTypeId.Equals(donorStack.StackTypeId))
                 return false;
 
+            if (!CanCombineStacks(donor, recipient))
+                return false;
+
             transferred = Math.Min(donorStack.Count, GetAvailableSpace(recipientStack));
             SetCount(donor, donorStack.Count - transferred, donorStack);
             SetCount(recipient, recipientStack.Count + transferred, recipientStack);
@@ -355,6 +358,9 @@ namespace Content.Shared.Stacks
             if (insertStack.StackTypeId != targetStack.StackTypeId)
                 return false;
 
+            if (!CanCombineStacks(insertEnt, targetEnt))
+                return false;
+
             var available = GetAvailableSpace(targetStack);
 
             if (available <= 0)
@@ -366,6 +372,8 @@ namespace Content.Shared.Stacks
             SetCount(insertEnt, insertStack.Count - change, insertStack);
             return true;
         }
+
+        protected virtual bool CanCombineStacks(EntityUid donor, EntityUid recipient) => true;
 
         private void OnStackStarted(EntityUid uid, StackComponent component, ComponentStartup args)
         {

@@ -65,7 +65,9 @@ public sealed partial class MarketSystem
         float marketMod,
         BankAccountComponent playerBank)
     {
-        if (!TryComp<MarketItemSpawnerComponent>(crateMachineUid, out var itemSpawner))
+        if (!HasComp<MarketItemSpawnerComponent>(crateMachineUid) ||
+            HasComp<MarketPendingShipmentComponent>(crateMachineUid) ||
+            consoleComponent.CartDataList.Count == 0)
             return;
 
         var cartBalance = MarketDataExtensions.GetMarketValue(consoleComponent.CartDataList, marketMod);
@@ -82,12 +84,13 @@ public sealed partial class MarketSystem
         }
         _audio.PlayPredicted(consoleComponent.SuccessSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
 
-        itemSpawner.ItemsToSpawn = consoleComponent.CartDataList;
+        EnsureComp<MarketPendingShipmentComponent>(crateMachineUid).Items = consoleComponent.CartDataList;
         consoleComponent.CartDataList = [];
         _crateMachine.OpenFor(crateMachineUid, component);
+        RefreshState(consoleUid, playerBank.Balance, marketMod, consoleComponent);
     }
 
-    private void SpawnCrateItems(List<MarketData> spawnList, EntityUid targetCrate)
+    private void SpawnCrateItems(List<MarketLot> spawnList, EntityUid targetCrate)
     {
         var coordinates = Transform(targetCrate).Coordinates;
         foreach (var data in spawnList)
@@ -97,7 +100,7 @@ public sealed partial class MarketSystem
                 var entityList = _stackSystem.SpawnMultiple(stackPrototype.Spawn, data.Quantity, coordinates);
                 foreach (var entity in entityList)
                 {
-                    _crateMachine.InsertIntoCrate(entity, targetCrate);
+                    InsertPurchasedItem(entity, targetCrate, data.CraftedUnitLimit);
                 }
             }
             else
@@ -106,19 +109,28 @@ public sealed partial class MarketSystem
                 for (int i = 0; i < data.Quantity; i++)
                 {
                     var spawn = Spawn(data.Prototype, coordinates);
-                    _crateMachine.InsertIntoCrate(spawn, targetCrate);
+                    InsertPurchasedItem(spawn, targetCrate, data.CraftedUnitLimit);
                 }
             }
         }
     }
 
+    private void InsertPurchasedItem(EntityUid item, EntityUid crate, double? unitLimit)
+    {
+        if (unitLimit is { } limit)
+            _pricingSystem.MarkCraftedProduct(item, limit);
+
+        _crateMachine.InsertIntoCrate(item, crate);
+    }
+
     private void OnCrateMachineOpened(EntityUid uid, CrateMachineComponent component, CrateMachineOpenedEvent args)
     {
-        if (!TryComp<MarketItemSpawnerComponent>(uid, out var itemSpawner))
+        if (!TryComp<MarketPendingShipmentComponent>(uid, out var shipment))
             return;
 
+        var items = shipment.Items;
+        RemComp<MarketPendingShipmentComponent>(uid);
         var targetCrate = _crateMachine.SpawnCrate(uid, component);
-        SpawnCrateItems(itemSpawner.ItemsToSpawn, targetCrate);
-        itemSpawner.ItemsToSpawn = [];
+        SpawnCrateItems(items, targetCrate);
     }
 }
