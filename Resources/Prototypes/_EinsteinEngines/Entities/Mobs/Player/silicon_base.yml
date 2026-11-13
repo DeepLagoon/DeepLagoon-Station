@@ -76,7 +76,7 @@
       types:
         Heat: 3 #per second, scales with temperature & other constants
     atmosTemperatureTransferEfficiency: 0.05
-  - type: KillOnOverheat # GoobStation
+  - type: KillOnOverheat # Legacy component name for overheat slowdown
   - type: Deathgasp
     prototype: SiliconDeathgasp
     needsCritical: true # Mono
@@ -178,7 +178,7 @@
     canResistFire: true
     damage:
       types:
-        Heat: 0 # GoobStation: Replaced fire damage with overheating shutdown
+        Heat: 0 # Fire heats up the chassis, which slows down when overheated.
   # - type: Barotrauma # Not particularly modifiable. In the future, some response to pressure changes would be nice.
   #   damage:
   #     types:

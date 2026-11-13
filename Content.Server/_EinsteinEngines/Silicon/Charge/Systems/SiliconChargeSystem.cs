@@ -186,7 +186,7 @@ public sealed partial class SiliconChargeSystem : EntitySystem
             if (!_random.Prob(Math.Clamp(temperComp.CurrentTemperature / (upperThresh * 5), 0.001f, 0.9f)))
                 return hotTempMulti;
 
-            // Goobstation: Replaced by KillOnOverheatSystem
+            // Overheating slows the chassis via SlowOnOverheatSystem.
             //_flammable.AdjustFireStacks(silicon, Math.Clamp(siliconComp.FireStackMultiplier, -10, 10), flamComp);
             //_flammable.Ignite(silicon, silicon, flamComp);
             return hotTempMulti;

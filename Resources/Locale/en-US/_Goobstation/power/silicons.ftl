@@ -1,1 +1,1 @@
-ipc-overheat-popup = {$name}'s circuits shut down from overheating!
+ipc-overheat-popup = {$name} slows down as their circuits overheat!

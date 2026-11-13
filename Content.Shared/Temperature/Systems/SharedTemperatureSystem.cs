@@ -25,6 +25,12 @@ public sealed partial class SharedTemperatureSystem : EntitySystem
 
         SubscribeLocalEvent<TemperatureSpeedComponent, OnTemperatureChangeEvent>(OnTemperatureChanged);
         SubscribeLocalEvent<TemperatureSpeedComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshMovementSpeedModifiers);
+        SubscribeLocalEvent<OverheatSlowdownComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshOverheatSpeed);
+    }
+
+    private static void OnRefreshOverheatSpeed(Entity<OverheatSlowdownComponent> ent, ref RefreshMovementSpeedModifiersEvent args)
+    {
+        args.ModifySpeed(0.5f);
     }
 
     private void OnTemperatureChanged(Entity<TemperatureSpeedComponent> ent, ref OnTemperatureChangeEvent args)
