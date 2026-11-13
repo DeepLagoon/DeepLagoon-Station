@@ -128,6 +128,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -152,6 +153,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -171,6 +173,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -221,6 +224,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -334,6 +338,7 @@
     values:
     - Harpy
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -355,6 +360,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   name: trait-name-AnomalousPositronics
   description: trait-description-AnomalousPositronics
   priority: -100
@@ -381,6 +387,7 @@
       inverted: true
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - AnomalousPositronics
@@ -419,6 +426,7 @@
       inverted: true
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - AnomalousPositronics
@@ -460,6 +468,7 @@
       inverted: true
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - AnomalousPositronics
@@ -471,9 +480,11 @@
   category: Psionics
   points: -10
   functions:
-  - !type:TraitAddComponent
+  - !type:TraitReplaceComponent
     components:
     - type: PsionicInsulation
+  - !type:TraitAddComponent
+    components:
     - type: Mindbroken
   requirements:
   - kind: Group
@@ -497,6 +508,7 @@
       inverted: true
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - AnomalousPositronics
@@ -547,6 +559,7 @@
       inverted: true
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - AnomalousPositronics
@@ -1147,6 +1160,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   functions:
   - !type:TraitReplaceComponent
     components:
@@ -1208,6 +1222,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1236,6 +1251,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1269,6 +1285,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1306,6 +1323,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1347,6 +1365,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1374,6 +1393,7 @@
   - kind: Species
     values:
     - IPC
+    - Synth
   - kind: Trait
     inverted: true
     values:
@@ -1510,6 +1530,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -1529,6 +1550,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell
@@ -1554,6 +1576,7 @@
     - kind: Species
       values:
       - IPC
+      - Synth
     - kind: Trait
       values:
       - Shell

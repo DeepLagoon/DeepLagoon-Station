@@ -67,7 +67,7 @@ trait-name-LyreBird = Лирохвост
 trait-description-LyreBird = Позволяет воспроизводить любые MIDI-инструменты, включая ударные. Нельзя петь, когда невозможно говорить.
 
 trait-name-AnomalousPositronics = Аномальная позитроника
-trait-description-AnomalousPositronics = Убирает врождённую псионическую изоляцию IPC, позволяя выбирать псионические черты.
+trait-description-AnomalousPositronics = Убирает врождённую псионическую изоляцию СПУ и синтетиков, позволяя выбирать псионические черты.
 
 trait-name-HighPotential = Высокий потенциал
 trait-description-HighPotential = Повышает накопление потенции при последующих попытках получения сил в 1,5 раза.

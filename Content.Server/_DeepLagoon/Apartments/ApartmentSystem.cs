@@ -11,6 +11,7 @@ using Content.Server.Chat.Managers;
 using Content.Server.Construction.Components;
 using Content.Server.GameTicking.Events;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared._Goobstation.EatToGrow;
 using Content.Shared.Atmos;
 using Content.Shared.Buckle.Components;
 using Content.Shared.Damage;
@@ -119,6 +120,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        SubscribeLocalEvent<ApartmentResidentComponent, AfterEatingEvent>(OnBitrunPillEaten);
         SubscribeNetworkEvent<ApartmentApplyEvent>(OnApply);
         SubscribeNetworkEvent<ApartmentCommerceRequest>(OnCommerceRequest);
         SubscribeNetworkEvent<ApartmentFurniturePurchaseEvent>(OnFurniturePurchase);
@@ -296,7 +298,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         var saved = ignoreSaved ? null : SelectedLayout(owner);
         var template = _prototypes.Index<ApartmentTemplatePrototype>(saved?.Template ?? templateId);
-        if (!ignoreSaved && template.ExistingOnly && !OwnsTemplate(owner, template))
+        if (!ignoreSaved && (template.ExistingOnly || template.GrantOnly) && !OwnsTemplate(owner, template))
             throw new InvalidOperationException("Apartment template is restricted to existing owners.");
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);

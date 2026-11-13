@@ -12,7 +12,9 @@ using Content.Shared.PowerCell.Components;
 using Content.Shared.Weapons.Melee;
 using System.Linq;
 using Content.Server.Traits;
+using Content.Server.Traits.Assorted;
 using Content.Server.Instruments;
+using Content.Shared._EinsteinEngines.Silicon.Components;
 using Content.Shared.Abilities.Psionics;
 using Content.Shared.CCVar;
 using Content.Shared.Preferences;
@@ -187,6 +189,77 @@ public sealed class TraitMigrationTests
         {
             Assert.That(pair.Server.EntMan.HasComponent<ScentTrackerComponent>(vulp), Is.False);
             pair.Server.EntMan.DeleteEntity(vulp);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SynthCanSelectAndUseIpcTraits()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        EntityUid synth = default;
+        EntityUid insulatedSynth = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var config = pair.Server.CfgMan;
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
+            var human = HumanoidCharacterProfile.DefaultWithSpecies("Human");
+            var ipcTraits = new[]
+            {
+                "IPCInefficientCogitator", "IPCBrittleBoneDisease", "IPCFragileCircuits", "IPCFaultyWaterproofing",
+                "LyreBird", "AnomalousPositronics", "NaniteAutoRepairBots", "SecurityEyesModule", "MedicalEyesModule",
+                "DiagnosticEyesModule", "OmniEyesModule", "LightAmplificationModule", "ThermographicVisionModule",
+                "SuperiorRadiationShielding", "G2Chassis", "HardenedCircuits",
+            };
+
+            foreach (var id in ipcTraits)
+            {
+                Assert.That(TraitSelection.Evaluate(profile.WithTraitPreference(id, prototypes), prototypes, config, "Sheriff").Valid,
+                    Is.True, id);
+                Assert.That(TraitSelection.Evaluate(human.WithTraitPreference(id, prototypes), prototypes, config, "Sheriff").Valid,
+                    Is.False, id);
+            }
+
+            var securityEyes = profile.WithTraitPreference("SecurityEyesModule", prototypes);
+            Assert.That(TraitSelection.Evaluate(securityEyes, prototypes, config, "Passenger").Valid, Is.False);
+            var incompatibleCircuits = profile.WithTraitPreference("HardenedCircuits", prototypes)
+                .WithTraitPreference("IPCFaultyWaterproofing", prototypes);
+            Assert.That(TraitSelection.Evaluate(incompatibleCircuits, prototypes, config, "Sheriff").Valid, Is.False);
+
+            synth = entities.SpawnEntity("MobSynth", map.GridCoords);
+            Assert.That(entities.HasComponent<PsionicInsulationComponent>(synth), Is.True);
+            var psychic = profile.WithTraitPreference("PsychoHistorian", prototypes)
+                .WithTraitPreference("IPCInefficientCogitator", prototypes);
+            Assert.That(TraitSelection.Evaluate(psychic, prototypes, config, "Sheriff").Valid, Is.False);
+
+            var unlocked = psychic.WithTraitPreference("AnomalousPositronics", prototypes)
+                .WithTraitPreference("IPCBrittleBoneDisease", prototypes)
+                .WithTraitPreference("HighPotential", prototypes);
+            Assert.That(TraitSelection.Evaluate(unlocked, prototypes, config, "Sheriff").Valid, Is.True);
+            entities.System<TraitSystem>().ApplyTraits(synth, "Sheriff", unlocked);
+            Assert.That(entities.GetComponent<SiliconComponent>(synth).DrainPerSecond, Is.EqualTo(2f));
+            Assert.That(entities.GetComponent<PsionicComponent>(synth).ActivePowers.Select(p => p.ID), Does.Contain("TelepathyPower"));
+            Assert.That(entities.GetComponent<PotentiaModifierComponent>(synth).PotentiaMultiplier, Is.EqualTo(1.5f));
+
+            insulatedSynth = entities.SpawnEntity("MobSynth", map.GridCoords);
+            var insulated = profile.WithTraitPreference("AnomalousPositronics", prototypes)
+                .WithTraitPreference("IPCBrittleBoneDisease", prototypes)
+                .WithTraitPreference("PsionicInsulation", prototypes);
+            Assert.That(TraitSelection.Evaluate(insulated, prototypes, config, "Sheriff").Valid, Is.True);
+            entities.System<TraitSystem>().ApplyTraits(insulatedSynth, "Sheriff", insulated);
+        });
+        await pair.Server.WaitRunTicks(1);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.HasComponent<PsionicInsulationComponent>(synth), Is.False);
+            Assert.That(entities.HasComponent<PsionicInsulationComponent>(insulatedSynth), Is.True);
+            Assert.That(entities.HasComponent<MindbrokenComponent>(insulatedSynth), Is.True);
+            entities.DeleteEntity(synth);
+            entities.DeleteEntity(insulatedSynth);
         });
         await pair.CleanReturnAsync();
     }

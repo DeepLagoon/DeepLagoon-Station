@@ -27,7 +27,7 @@ public sealed partial class ApartmentSystem
         _economy.Cached(owner)?.State.Apartments.Contains(template.ID) == true ||
         template.ExistingOnly && Store.HasLayout(owner.UserId, template.ID);
     private bool CanSelectTemplate(NetUserId owner, ApartmentTemplatePrototype template) =>
-        Available(template) && (!template.ExistingOnly || OwnsTemplate(owner, template));
+        Available(template) && (!(template.ExistingOnly || template.GrantOnly) || OwnsTemplate(owner, template));
     private ApartmentDelta? SelectedLayout(NetUserId owner)
     {
         var saved = Store.Load(owner.UserId);
@@ -39,7 +39,7 @@ public sealed partial class ApartmentSystem
         if (saved != null && (!_prototypes.TryIndex<ApartmentTemplatePrototype>(saved.Template, out var previous) || !CanSelectTemplate(owner, previous)))
         {
             var fallback = _prototypes.Index<ApartmentTemplatePrototype>(_config.GetCVar(ApartmentCVars.DefaultTemplate));
-            if (!Available(fallback) || fallback.ExistingOnly || fallback.Price != 0) throw new InvalidOperationException("Default apartment must be available and free.");
+            if (!Available(fallback) || fallback.ExistingOnly || fallback.GrantOnly || fallback.Price != 0) throw new InvalidOperationException("Default apartment must be available and free.");
             saved = Store.Select(owner.UserId, fallback);
             _numbers.Rotate(owner.UserId);
         }

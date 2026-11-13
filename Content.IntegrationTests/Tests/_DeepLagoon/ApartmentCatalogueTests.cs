@@ -5,7 +5,13 @@ using System.Numerics;
 using System.Reflection;
 using ApartmentShopSystem = Content.Client._DeepLagoon.Apartments.ApartmentShopSystem;
 using Content.Server._DeepLagoon.Apartments;
+using Content.Server.NPC.HTN;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared._DeepLagoon.Bitrunning;
+using Content.Shared.Buckle.Components;
+using Content.Shared.NPC.Components;
+using Content.Shared.Weapons.Melee;
+using Content.Shared.Weapons.Ranged.Components;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Network;
@@ -60,6 +66,83 @@ public sealed class ApartmentCatalogueTests
                 entities.DeleteEntity(body);
                 entities.DeleteEntity(home.Grid);
             }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task BitrunRewardApartmentLoadsAndRequiresAGrant()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            var entities = pair.Server.EntMan;
+            var system = entities.System<ApartmentSystem>();
+            var elevator = entities.System<ApartmentElevatorSystem>();
+            var owner = new NetUserId(Guid.NewGuid());
+            const string id = "DLApartmentBitrun";
+            var template = pair.Server.ResolveDependency<IPrototypeManager>().Index<ApartmentTemplatePrototype>(id);
+            var canSelect = typeof(ApartmentSystem).GetMethod("CanSelectTemplate", Private)!;
+            Assert.That(canSelect.Invoke(system, new object[] { owner, template }), Is.False);
+            Assert.That(system.GrantTemplate(owner, id, out var owned), Is.Null);
+            Assert.That(owned, Is.False);
+            Assert.That(canSelect.Invoke(system, new object[] { owner, template }), Is.True);
+            Assert.That(system.GrantTemplate(owner, id, out owned), Is.Null);
+            Assert.That(owned, Is.True);
+
+            var home = (ApartmentSystem.Instance) typeof(ApartmentSystem).GetMethod("CreateFresh", Private)!
+                .Invoke(system, new object[] { owner, id, false })!;
+            var panel = (EntityUid) typeof(ApartmentElevatorSystem).GetMethod("PanelOn", Private)!.Invoke(elevator, new object[] { home.Grid })!;
+            var arrival = new EntityCoordinates(home.Grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + .5f));
+            var body = entities.SpawnEntity("MobHuman", arrival);
+            Assert.That(typeof(ApartmentElevatorSystem).GetMethod("Inside", Private)!.Invoke(elevator, new object[] { body, panel }), Is.True);
+            Assert.That(typeof(ApartmentElevatorSystem).GetMethod("CabinDoors", Private)!.Invoke(elevator, new object[] { panel }), Is.Not.Null);
+
+            var windows = 0;
+            var beds = 0;
+            var hierophants = 0;
+            var innerWalls = 0;
+            var outerWalls = 0;
+            var children = entities.GetComponent<TransformComponent>(home.Grid).ChildEnumerator;
+            while (children.MoveNext(out var uid))
+            {
+                switch (entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID)
+                {
+                    case "ReinforcedWindow":
+                    case "ReinforcedWindowDiagonal":
+                        Assert.That(entities.GetComponent<TransformComponent>(uid).Anchored, Is.True);
+                        windows++;
+                        break;
+                    case "DLApartmentBitrunInteriorWall":
+                        Assert.That(entities.GetComponent<OccluderComponent>(uid).Enabled, Is.False);
+                        innerWalls++;
+                        break;
+                    case "BitrunVirtualWall":
+                        Assert.That(entities.GetComponent<OccluderComponent>(uid).Enabled, Is.True);
+                        outerWalls++;
+                        break;
+                    case "DLApartmentBitrunBed":
+                        Assert.That(entities.HasComponent<StrapComponent>(uid), Is.True);
+                        Assert.That(entities.HasComponent<BitrunPodComponent>(uid), Is.False);
+                        beds++;
+                        break;
+                    case "DLApartmentBitrunHierophant":
+                        Assert.That(entities.HasComponent<GunComponent>(uid), Is.False);
+                        Assert.That(entities.HasComponent<MeleeWeaponComponent>(uid), Is.False);
+                        Assert.That(entities.HasComponent<HTNComponent>(uid), Is.False);
+                        Assert.That(entities.GetComponent<NpcFactionMemberComponent>(uid).Factions.Select(f => f.Id), Is.EqualTo(new[] { "Passive" }));
+                        hierophants++;
+                        break;
+                }
+            }
+            Assert.That(windows, Is.EqualTo(28));
+            Assert.That(beds, Is.EqualTo(2));
+            Assert.That(hierophants, Is.EqualTo(2));
+            Assert.That(innerWalls, Is.EqualTo(62));
+            Assert.That(outerWalls, Is.EqualTo(59));
+            entities.DeleteEntity(body);
+            entities.DeleteEntity(home.Grid);
         });
         await pair.CleanReturnAsync();
     }

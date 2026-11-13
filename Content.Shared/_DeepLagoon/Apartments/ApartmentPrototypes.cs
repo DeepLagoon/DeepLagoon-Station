@@ -47,6 +47,7 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
     [DataField] public string? Map;
     [DataField] public bool Available = true;
     [DataField] public bool ExistingOnly;
+    [DataField] public bool GrantOnly;
     [DataField] public long Price;
     [DataField] public List<Vector2i> ReservedCells = new();
     [DataField] public int Width = 10;

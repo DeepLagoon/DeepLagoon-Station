@@ -67,3 +67,7 @@ dl-apartment-snowcabin-description = Apartment description 5.
 
 dl-apartment-strip = Apartment 6
 dl-apartment-strip-description = Apartment description 6.
+dl-apartment-bitrun = Bitrun Safehouse
+dl-apartment-bitrun-description = Everything here feels almost like home. On the table, someone left two ways to find out what “almost” means.
+dl-apartment-bitrun-no-bed = It seems there's nowhere to sleep here tonight.
+dl-apartment-bitrun-elevator-unavailable = The elevator is unavailable right now.

@@ -5,6 +5,7 @@
   description: A synthetic humanoid with a customizable outer shell.
   save: false
   components:
+  - type: PsionicInsulation
   - type: Sprite
     noRot: true
     drawdepth: Mobs

@@ -1,0 +1,133 @@
+- type: apartmentTemplate
+  id: DLApartmentBitrun
+  name: dl-apartment-bitrun
+  description: dl-apartment-bitrun-description
+  category: Квартиры
+  grantOnly: true
+  map: /Maps/_DeepLagoon/Apartments/bitrun.yml
+  width: 17
+  height: 16
+  arrival: "8,12"
+  reservedCells: ["7,11", "8,11", "9,11", "7,12", "8,12", "9,12", "7,13", "8,13", "9,13", "8,10", "8,9"]
+  maxFurniture: 400
+  maxVisitors: 4
+  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere, DLAptTrash]
+
+- type: entity
+  id: DLApartmentBitrunInteriorWall
+  parent: BaseWall
+  name: translucent binary wall
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/walls.rsi
+    state: binary
+    color: "#FFFFFF70"
+  - type: Icon
+    sprite: _DeepLagoon/Bitrunning/walls.rsi
+    state: binary
+  - type: Occluder
+    enabled: false
+
+- type: entity
+  id: DLApartmentBitrunBed
+  parent: Bed
+  name: netpod bed
+  description: A bed with a netpod shell and a mattress inside.
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    state: netpod
+  - type: NoDeconstruct
+
+- type: entity
+  id: DLApartmentBitrunFloorPanel
+  name: animated binary panel
+  categories: [HideSpawnMenu]
+  components:
+  - type: Transform
+    anchored: true
+  - type: SyncSprite
+  - type: Sprite
+    drawdepth: FloorObjects
+    sprite: _DeepLagoon/Bitrunning/floors.rsi
+    state: bitrunning
+
+- type: entity
+  id: DLApartmentBitrunDisplay
+  parent: BaseStructure
+  name: simulation display
+  description: A looping animation of a virtual domain.
+  categories: [HideSpawnMenu]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    layers:
+    - state: vendor_off
+    - state: vendor
+
+- type: entity
+  id: DLApartmentBitrunRedPill
+  parent: Pill
+  name: red pill
+  description: The fine print on the blister pack reads “One way only.”
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    state: pill4
+  - type: Pill
+    pillType: 4
+  - type: BitrunApartmentPill
+    returnToStop: true
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 1
+        reagents:
+        - ReagentId: Water
+          Quantity: 1
+
+- type: entity
+  id: DLApartmentBitrunBluePill
+  parent: Pill
+  name: blue pill
+  description: The fine print on the blister pack reads “Sleep on it.”
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    state: pill3
+  - type: Pill
+    pillType: 3
+  - type: BitrunApartmentPill
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 1
+        reagents:
+        - ReagentId: Water
+          Quantity: 1
+
+- type: entity
+  id: DLApartmentBitrunHierophant
+  parent: [BaseMob, MobDamageable, MobAtmosExposed]
+  name: peaceful hierophant
+  description: A virtual construct behind the display glass.
+  categories: [HideSpawnMenu]
+  save: true
+  components:
+  - type: Body
+    prototype: Animal
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/hierophant.rsi
+    noRot: true
+    state: hierophant
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      350: Dead
+  - type: NpcFactionMember
+    factions: [Passive]
