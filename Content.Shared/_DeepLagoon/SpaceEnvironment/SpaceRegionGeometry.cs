@@ -18,6 +18,15 @@ public static class SpaceRegionGeometry
 
     public static bool Contains(SpaceRegion region, Vector2 position) => Local(region, position).LengthSquared() <= 1f;
 
+    public static Vector2 World(SpaceRegion region, Vector2 local)
+    {
+        var x = local.X * region.Radius;
+        var y = local.Y * region.Radius * region.Aspect;
+        var c = MathF.Cos(region.Rotation);
+        var s = MathF.Sin(region.Rotation);
+        return new Vector2(region.X + x * c - y * s, region.Y + x * s + y * c);
+    }
+
     public static bool Intersects(SpaceRegion region, Vector2 start, Vector2 end)
     {
         var a = Local(region, start);
@@ -30,11 +39,7 @@ public static class SpaceRegionGeometry
     public static Vector2 ContourPoint(SpaceRegion region, int index)
     {
         var angle = index * MathF.Tau / ContourSegments;
-        var x = MathF.Cos(angle) * region.Radius;
-        var y = MathF.Sin(angle) * region.Radius * region.Aspect;
-        var c = MathF.Cos(region.Rotation);
-        var s = MathF.Sin(region.Rotation);
-        return new Vector2(region.X + x * c - y * s, region.Y + x * s + y * c);
+        return World(region, new Vector2(MathF.Cos(angle), MathF.Sin(angle)));
     }
 
     public static Color Color(SpaceRegionKind kind) => kind switch

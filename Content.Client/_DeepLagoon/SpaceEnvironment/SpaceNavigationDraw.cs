@@ -56,7 +56,7 @@ public static class SpaceNavigationDraw
 
     public static void Regions(DrawingHandleScreen handle, Font font, SpaceEnvironmentComponent environment,
         Matrix3x2 transform, Vector2 size, float uiScale, Vector2[][] contours, DrawVertexUV2DColor[][] fills,
-        DrawVertexUV2DColor[] vertices)
+        DrawVertexUV2DColor[] vertices, double seconds)
     {
         var scale = MathF.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12);
         var modulation = Color.FromSrgb(handle.Modulate);
@@ -69,11 +69,13 @@ public static class SpaceNavigationDraw
             if (radius < 2f || center.X + radius < 0 || center.Y + radius < 0
                 || center.X - radius > size.X || center.Y - radius > size.Y) continue;
             var fill = fills[regionIndex];
+            var pulse = Pulse(environment.Definition.Seed, region, seconds);
             for (var i = 0; i < fill.Length; i++)
             {
                 vertices[i] = fill[i];
                 vertices[i].Position = Vector2.Transform(fill[i].Position, transform);
                 vertices[i].Color *= modulation;
+                vertices[i].Color.A *= pulse;
             }
             handle.DrawPrimitives(DrawPrimitiveTopology.TriangleList, Texture.White, vertices);
         }
@@ -85,18 +87,28 @@ public static class SpaceNavigationDraw
             var radius = region.Radius * scale;
             if (center.X + radius < 0 || center.Y + radius < 0 || center.X - radius > size.X || center.Y - radius > size.Y) continue;
             var color = SpaceRegionGeometry.Color(region.Kind);
+            var pulse = Pulse(environment.Definition.Seed, region, seconds);
             var previous = Vector2.Transform(points[^1], transform);
             for (var i = 0; i < SpaceRegionGeometry.ContourSegments; i++)
             {
                 var point = Vector2.Transform(points[i], transform);
-                handle.DrawLine(previous, point, color.WithAlpha(0.7f));
+                handle.DrawLine(previous, point, color.WithAlpha(0.7f * pulse));
                 previous = point;
             }
-            handle.DrawCircle(center, 3f * uiScale, color);
+            handle.DrawCircle(center, 3f * uiScale, color.WithAlpha(pulse));
             if (radius < 18f || center.X < 0 || center.Y < 0 || center.X > size.X || center.Y > size.Y) continue;
             var text = Loc.GetString("space-environment-kind-" + region.Kind.ToString().ToLowerInvariant());
             if (environment.Surveyed.Contains(region.Id)) text += " " + Loc.GetString("space-environment-charted");
             handle.DrawString(font, center + new Vector2(6f, 0), text, uiScale * 0.8f, color);
         }
+    }
+
+    private static float Pulse(uint sectorSeed, SpaceRegion region, double seconds)
+    {
+        if (region.Kind != SpaceRegionKind.Plasma)
+            return 1;
+
+        var strength = PlasmaWeather.Strength(PlasmaWeather.Seed(sectorSeed, region.Id), seconds);
+        return strength < 0.2f ? 0.38f : 0.62f + (strength - 0.8f) * 1.9f;
     }
 }

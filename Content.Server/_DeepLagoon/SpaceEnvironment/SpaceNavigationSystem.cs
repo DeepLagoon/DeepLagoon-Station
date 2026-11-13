@@ -52,10 +52,11 @@ public sealed class SpaceNavigationSystem : EntitySystem
     public SpaceNavigationSitesComponent Sites(EntityUid map, SpaceEnvironmentComponent environment)
     {
         var cache = EnsureComp<SpaceNavigationSitesComponent>(map);
-        if (ReferenceEquals(cache.Definition, environment.Definition) && cache.Campaign == environment.Campaign) return cache;
-        cache.Definition = environment.Definition;
+        var baseline = _sectors.Baseline(map, environment);
+        if (ReferenceEquals(cache.Definition, baseline) && cache.Campaign == environment.Campaign) return cache;
+        cache.Definition = baseline;
         cache.Campaign = environment.Campaign;
-        cache.Sites = NavigationSiteCatalog.Generate(environment.Definition);
+        cache.Sites = NavigationSiteCatalog.Generate(baseline);
         cache.Completed = string.IsNullOrEmpty(environment.Campaign) ? new() : _sectors.Store.Encounters(environment.Campaign, environment.Definition.Id);
         return cache;
     }
@@ -107,7 +108,7 @@ public sealed class SpaceNavigationSystem : EntitySystem
             }
         }
         if (site.Kind == NavigationSiteKind.Capacitor)
-            hint += " " + Loc.GetString("space-navigation-window", ("seconds", NavigationSiteCatalog.QuietIn(site.Seed, _timing.CurTime.TotalSeconds)));
+            hint += " " + Loc.GetString("space-navigation-window", ("seconds", PlasmaWeather.QuietIn(site.Seed, _timing.CurTime.TotalSeconds)));
         _popup.PopupEntity(Loc.GetString("space-navigation-signal", ("name", SiteName(site)), ("x", (int) site.Position.X),
             ("y", (int) site.Position.Y), ("distance", range), ("risk", (int) (site.Intensity * 100)),
             ("quality", 60 + site.Seed % 36)) + "\n" + hint, console, user);
@@ -123,7 +124,7 @@ public sealed class SpaceNavigationSystem : EntitySystem
         if (_timing.CurTime < cooldown.RecoverReady) { Say(console, user, "space-navigation-busy"); return false; }
         if (TryComp<PhysicsComponent>(grid, out var body) && body.LinearVelocity.Length() > (cargo ? 4f : 2f))
         { Say(console, user, "space-navigation-slow"); return false; }
-        if (site.Kind == NavigationSiteKind.Capacitor && !NavigationSiteCatalog.PlasmaQuiet(site.Seed, _timing.CurTime.TotalSeconds))
+        if (site.Kind == NavigationSiteKind.Capacitor && !PlasmaWeather.Quiet(site.Seed, _timing.CurTime.TotalSeconds))
         { Say(console, user, "space-navigation-wait"); return false; }
         EntityUid? cable = null;
         if (site.Kind == NavigationSiteKind.Satellite && !cargo)

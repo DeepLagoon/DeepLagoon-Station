@@ -42,10 +42,10 @@ public sealed class NavigationSiteTests
         var quiet = 0;
         for (var second = 0; second < 90; second++)
         {
-            if (NavigationSiteCatalog.PlasmaQuiet(seed, second)) quiet++;
-            var wait = NavigationSiteCatalog.QuietIn(seed, second);
-            Assert.That(NavigationSiteCatalog.PlasmaQuiet(seed, second + wait), Is.True);
-            Assert.That(NavigationSiteCatalog.PlasmaQuiet(seed, second + 90), Is.EqualTo(wait == 0));
+            if (PlasmaWeather.Quiet(seed, second)) quiet++;
+            var wait = PlasmaWeather.QuietIn(seed, second);
+            Assert.That(PlasmaWeather.Quiet(seed, second + wait), Is.True);
+            Assert.That(PlasmaWeather.Quiet(seed, second + 90), Is.EqualTo(wait == 0));
         }
         Assert.That(quiet, Is.EqualTo(20));
     }

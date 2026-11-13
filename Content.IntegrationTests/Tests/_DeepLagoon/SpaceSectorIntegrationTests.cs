@@ -3,9 +3,12 @@ using System.Linq;
 using System.Numerics;
 using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server.GameTicking.Events;
+using Content.Server.Projectiles;
 using Content.Server.Power.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Shared.Access.Components;
+using Content.Shared.Damage;
+using Content.Shared.Projectiles;
 using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Maps;
@@ -20,6 +23,7 @@ using Robust.Client.Graphics;
 using Robust.Shared.Map;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
+using Robust.Shared.Physics.Components;
 using Robust.Shared.Prototypes;
 using StarMapSystem = Content.Server._FarHorizons.StarSystem.StarSystemMapSystem;
 
@@ -154,11 +158,48 @@ public sealed class SpaceSectorIntegrationTests
             Assert.That(scan.Scan(first, actor), Is.True);
             Assert.That(scan.Scan(second, actor), Is.False, "Another console must not bypass the ship cooldown");
             Assert.That(entities.GetComponent<SpaceEnvironmentComponent>(map).Surveyed, Is.EquivalentTo(new[] { "signal" }));
-            Assert.That(sectors.Store.Surveys(sectors.Campaign, sectors.SurveyRound, sector.Id), Is.EquivalentTo(new[] { "signal" }));
-            entities.EventBus.RaiseEvent(EventSource.Local, new RoundStartingEvent(sectors.SurveyRound + 1));
-            Assert.That(entities.GetComponent<SpaceEnvironmentComponent>(map).Surveyed, Is.Empty);
-            Assert.That(sectors.Survey(map, "signal"), Is.True);
+            Assert.That(sectors.Store.Surveys(sectors.Campaign, sector.Id, DateTimeOffset.UtcNow, out _), Is.EquivalentTo(new[] { "signal" }));
+            entities.EventBus.RaiseEvent(EventSource.Local, new RoundStartingEvent(1));
+            Assert.That(entities.GetComponent<SpaceEnvironmentComponent>(map).Surveyed, Is.EquivalentTo(new[] { "signal" }));
             Assert.That(sectors.Survey(map, "signal"), Is.False);
+            entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SpaceDustOnlyDamagesPlainWindowsInsideItsOwnCloud()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var map = maps.CreateMap(out _);
+            var environment = entities.EnsureComponent<SpaceEnvironmentComponent>(map);
+            environment.Definition = new SectorDefinition { Regions = new()
+            {
+                new SpaceRegion { Id = "dust", Kind = SpaceRegionKind.Dust, Radius = 500 },
+                new SpaceRegion { Id = "other-dust", Kind = SpaceRegionKind.Dust, X = 510, Radius = 100 },
+            } };
+            var projectiles = entities.System<ProjectileSystem>();
+            foreach (var (prototype, x, expectedDamage) in new[]
+                {
+                    ("Window", 25, true), ("WallWood", 30, false), ("ReinforcedWindow", 35, false), ("Window", 505, false),
+                })
+            {
+                var target = entities.SpawnEntity(prototype, new EntityCoordinates(map, new Vector2(x, 0)));
+                var particle = entities.SpawnEntity("DeepLagoonSpaceDustProjectile", new EntityCoordinates(map, new Vector2(x - 10, 0)));
+                var weather = entities.GetComponent<SpaceDustProjectileComponent>(particle);
+                weather.Map = map;
+                weather.Region = "dust";
+                var projectile = entities.GetComponent<ProjectileComponent>(particle);
+                var body = entities.GetComponent<PhysicsComponent>(particle);
+                projectiles.ProjectileCollide((particle, projectile, body), target);
+                var damage = entities.GetComponent<DamageableComponent>(target).TotalDamage.Float();
+                Assert.That(projectile.ProjectileSpent, Is.True, prototype);
+                Assert.That(damage, expectedDamage ? Is.InRange(0.1f, 2f) : Is.Zero, prototype);
+            }
             entities.DeleteEntity(map);
         });
         await pair.CleanReturnAsync();

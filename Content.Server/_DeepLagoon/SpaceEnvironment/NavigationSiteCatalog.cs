@@ -23,7 +23,7 @@ public static class NavigationSiteCatalog
                 _ => (NavigationSiteKind?) null,
             };
             if (kind == null) continue;
-            var seed = SectorRandom.Derive(sector.Seed, "sites-v1/region/" + region.Id);
+            var seed = PlasmaWeather.Seed(sector.Seed, region.Id);
             // The dust sampler lies in the central corridor, the cache in its shielded pocket.
             var position = RegionPoint(region, new Vector2(0.4f, 0));
             sites.Add(new NavigationSite("v1/region/" + region.Id, kind.Value, position, seed, region.Intensity));
@@ -51,14 +51,7 @@ public static class NavigationSiteCatalog
             || !sector.Regions.Exists(r => SpaceRegionGeometry.Contains(r, site.Position))
             && !sector.Planets.Exists(p => Vector2.DistanceSquared(site.Position, new Vector2(p.X, p.Y)) < 2000f * 2000f);
 
-    public static Vector2 RegionPoint(SpaceRegion region, Vector2 local)
-    {
-        var x = local.X * region.Radius;
-        var y = local.Y * region.Radius * region.Aspect;
-        var c = MathF.Cos(region.Rotation);
-        var s = MathF.Sin(region.Rotation);
-        return new Vector2(region.X + x * c - y * s, region.Y + x * s + y * c);
-    }
+    public static Vector2 RegionPoint(SpaceRegion region, Vector2 local) => SpaceRegionGeometry.World(region, local);
 
     public static bool InDustCorridor(SpaceRegion region, Vector2 start, Vector2 end)
         => MathF.Abs(SpaceRegionGeometry.Local(region, start).Y) <= 0.12f
@@ -66,9 +59,4 @@ public static class NavigationSiteCatalog
 
     public static bool InRadiationPocket(SpaceRegion region, Vector2 position)
         => Vector2.DistanceSquared(SpaceRegionGeometry.Local(region, position), new Vector2(0.4f, 0)) <= 0.18f * 0.18f;
-
-    // Shared by exposure and interaction: a 20-second quiet window in each 90-second cycle.
-    public static double PlasmaPhase(uint seed, double seconds) => (seconds + seed % 90) % 90;
-    public static bool PlasmaQuiet(uint seed, double seconds) => PlasmaPhase(seed, seconds) >= 70;
-    public static int QuietIn(uint seed, double seconds) => PlasmaQuiet(seed, seconds) ? 0 : (int) Math.Ceiling(70 - PlasmaPhase(seed, seconds));
 }

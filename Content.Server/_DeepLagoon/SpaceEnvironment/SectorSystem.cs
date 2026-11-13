@@ -1,6 +1,5 @@
 using System.IO;
 using System.Numerics;
-using Content.Server.GameTicking.Events;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
 using Content.Shared._FarHorizons.StarSystem;
 using Content.Shared._FarHorizons.StarSystem.Prototypes;
@@ -12,6 +11,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Content.Shared.Station.Components;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 using StarMapSystem = Content.Server._FarHorizons.StarSystem.StarSystemMapSystem;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
@@ -23,11 +23,21 @@ public sealed class SectorSystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly MapSystem _maps = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
     private SectorStore? _store;
     private readonly Dictionary<(string Campaign, string Id), EntityUid> _loaded = new();
+    private readonly Dictionary<EntityUid, WeatherState> _weather = new();
+    private TimeSpan _nextWeatherUpdate;
+
+    private sealed class WeatherState(SectorDefinition baseline, long epoch)
+    {
+        public readonly SectorDefinition Baseline = baseline;
+        public readonly long Epoch = epoch;
+        public long Sample;
+        public long NextSurveyExpiry;
+    }
     public int LoadedCount => _loaded.Count;
     public string Campaign => _cfg.GetCVar(SpaceEnvironmentCVars.Campaign);
-    public int SurveyRound { get; private set; }
     public bool Enabled => _cfg.GetCVar(SpaceEnvironmentCVars.Enabled);
     public SectorStore Store => _store ??= new SectorStore(_resources.UserData.RootDir is { } root
         ? Path.Combine(root, "space-sectors.db") : ":memory:");
@@ -37,12 +47,12 @@ public sealed class SectorSystem : EntitySystem
         base.Initialize();
         SubscribeLocalEvent<StarSystemAssignedEvent>(OnSystemAssigned);
         SubscribeLocalEvent<SpaceEnvironmentComponent, ComponentShutdown>(OnSectorShutdown);
-        SubscribeLocalEvent<RoundStartingEvent>(OnRoundStarting);
     }
 
     public override void Shutdown()
     {
         _loaded.Clear();
+        _weather.Clear();
         _store?.Dispose();
         _store = null;
         base.Shutdown();
@@ -99,9 +109,14 @@ public sealed class SectorSystem : EntitySystem
         var environment = EnsureComp<SpaceEnvironmentComponent>(map);
         if (environment.Campaign.Length > 0) _loaded.Remove((environment.Campaign, environment.Definition.Id));
         environment.Campaign = Campaign;
-        environment.Definition = definition;
         _loaded[(Campaign, definition.Id)] = map;
-        environment.Surveyed = Store.Surveys(Campaign, SurveyRound, definition.Id);
+        var now = DateTimeOffset.UtcNow;
+        var seconds = now.ToUnixTimeSeconds();
+        var state = new WeatherState(definition, Store.WeatherEpoch(Campaign, definition.Id, seconds));
+        state.Sample = SectorWeather.Sample(seconds - state.Epoch);
+        _weather[map] = state;
+        environment.Definition = SectorWeather.At(definition, state.Sample);
+        RefreshSurveys(environment, state, now);
         Dirty(map, environment);
         var star = EnsureComp<StarSystemMapComponent>(map);
         star.Definition = definition;
@@ -128,12 +143,26 @@ public sealed class SectorSystem : EntitySystem
 
     public bool Survey(EntityUid map, string region)
     {
+        var now = DateTimeOffset.UtcNow;
         if (!TryComp<SpaceEnvironmentComponent>(map, out var environment)
-            || !Store.TrySurvey(environment.Campaign, SurveyRound, environment.Definition.Id, region)) return false;
-        environment.Surveyed = Store.Surveys(environment.Campaign, SurveyRound, environment.Definition.Id);
+            || !_weather.TryGetValue(map, out var state)
+            || !Store.TrySurvey(environment.Campaign, environment.Definition.Id, region, now)) return false;
+        RefreshSurveys(environment, state, now);
         Dirty(map, environment);
         return true;
     }
+
+    public void RefreshExpiredSurveys(EntityUid map, SpaceEnvironmentComponent environment, DateTimeOffset now)
+    {
+        if (!_weather.TryGetValue(map, out var state) || now.ToUnixTimeMilliseconds() < state.NextSurveyExpiry)
+            return;
+
+        RefreshSurveys(environment, state, now);
+        Dirty(map, environment);
+    }
+
+    public SectorDefinition Baseline(EntityUid map, SpaceEnvironmentComponent environment)
+        => _weather.TryGetValue(map, out var state) ? state.Baseline : environment.Definition;
 
     /// <summary>Unbounded logical coordinates; only requested sectors are materialized.</summary>
     public SectorDefinition GetOrCreateAt(long x, long y, string profile)
@@ -143,23 +172,41 @@ public sealed class SectorSystem : EntitySystem
         return GetOrCreate(id, seed, profile);
     }
 
-    private void OnRoundStarting(RoundStartingEvent ev)
+    public override void Update(float frameTime)
     {
-        SurveyRound = ev.Id;
-        // Sectors can be bound before the round starts, while loading the map.
-        foreach (var map in _loaded.Values)
+        if (_timing.CurTime < _nextWeatherUpdate || !Enabled)
+            return;
+
+        _nextWeatherUpdate = _timing.CurTime + TimeSpan.FromSeconds(2);
+        var now = DateTimeOffset.UtcNow;
+        var seconds = now.ToUnixTimeSeconds();
+        foreach (var (map, state) in _weather)
         {
             if (!TryComp<SpaceEnvironmentComponent>(map, out var environment))
                 continue;
 
-            environment.Surveyed = Store.Surveys(environment.Campaign, SurveyRound, environment.Definition.Id);
+            RefreshExpiredSurveys(map, environment, now);
+            var sample = SectorWeather.Sample(seconds - state.Epoch);
+            if (sample == state.Sample)
+                continue;
+
+            state.Sample = sample;
+            environment.Definition = SectorWeather.At(state.Baseline, sample);
+            EntityManager.System<SpaceEnvironmentSystem>().Invalidate(map);
             Dirty(map, environment);
         }
+    }
+
+    private void RefreshSurveys(SpaceEnvironmentComponent environment, WeatherState state, DateTimeOffset now)
+    {
+        environment.Surveyed = Store.Surveys(environment.Campaign, environment.Definition.Id, now, out var nextExpiry);
+        state.NextSurveyExpiry = nextExpiry;
     }
 
     private void OnSectorShutdown(EntityUid uid, SpaceEnvironmentComponent component, ComponentShutdown args)
     {
         _loaded.Remove((component.Campaign, component.Definition.Id));
+        _weather.Remove(uid);
         EntityManager.System<SpaceEnvironmentSystem>().RemoveSector(uid);
         EntityManager.System<OrbitalDebrisSystem>().ForgetMap(uid);
     }

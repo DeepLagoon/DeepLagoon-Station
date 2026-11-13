@@ -7,6 +7,7 @@ using Content.Shared.Shuttles.Components;
 using Robust.Client.Graphics;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Timing;
 
 namespace Content.Client.Shuttles.UI;
 
@@ -14,6 +15,7 @@ public partial class ShuttleNavControl
 {
     private readonly List<BlipData> _beaconBlips = new();
     private readonly DrawVertexUV2DColor[] _spaceFillVertices = new DrawVertexUV2DColor[SpaceRegionRadarMesh.VertexCount];
+    private readonly IGameTiming _spaceWeatherTiming = IoCManager.Resolve<IGameTiming>();
 
     private void DrawStarSystem(DrawingHandleScreen handle, Matrix3x2 worldToShuttle, Matrix3x2 shuttleToView, EntityUid? mapUid)
     {
@@ -27,7 +29,8 @@ public partial class ShuttleNavControl
         if (EntManager.TryGetComponent<SpaceEnvironmentComponent>(mapUid, out var environment))
             SpaceNavigationDraw.Regions(handle, Font, environment, worldToView, PixelSize, UIScale,
                 EntManager.System<SpaceEnvironmentOverlaySystem>().Contours(mapUid!.Value, environment.Definition),
-                EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(mapUid!.Value, environment.Definition), _spaceFillVertices);
+                EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(mapUid!.Value, environment.Definition), _spaceFillVertices,
+                _spaceWeatherTiming.CurTime.TotalSeconds);
         var system = starSystem.StarSystem;
         SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
             Star.NAV_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, origin, UIScale, true);

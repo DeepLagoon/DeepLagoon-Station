@@ -74,6 +74,7 @@ public sealed class SpaceSurveySystem : EntitySystem
             return false;
         }
         cooldown.ReadyAt = _timing.CurTime + TimeSpan.FromSeconds(20);
+        _sectors.RefreshExpiredSurveys(map, environment, DateTimeOffset.UtcNow);
         var position = _transform.GetWorldPosition(console);
         SpaceRegion? nearest = null;
         var distance = 1800f;
@@ -109,7 +110,7 @@ public sealed class SpaceSurveySystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("space-environment-survey-recorded"), console, user);
             return false;
         }
-        // The first-discovery claim for this round must succeed before delivering any reward.
+        // Claim the survey window before delivering any reward.
         var rewardMessage = AwardResearch(console, grid, user, points);
         _popup.PopupEntity(Loc.GetString("space-environment-survey-complete", ("kind", kind)) + "\n" + rewardMessage, console, user);
         return true;

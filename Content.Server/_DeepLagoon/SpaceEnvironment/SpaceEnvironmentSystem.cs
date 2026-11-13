@@ -1,5 +1,7 @@
 using System.Numerics;
 using Content.Server.Radio;
+using Content.Server._NF.Shuttles.Components;
+using Content.Server.Projectiles;
 using Content.Server.Radiation.Components;
 using Content.Server.Radiation.Events;
 using Content.Server.Shuttles.Components;
@@ -9,6 +11,7 @@ using Content.Shared.Damage;
 using Content.Shared._Crescent.ShipShields;
 using Content.Server.Power.Components;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.Projectiles;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
@@ -16,7 +19,7 @@ using Robust.Shared.Timing;
 
 namespace Content.Server._DeepLagoon.SpaceEnvironment;
 
-public sealed class SpaceEnvironmentSystem : EntitySystem
+public sealed partial class SpaceEnvironmentSystem : EntitySystem
 {
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
@@ -36,18 +39,22 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
     {
         public EntityUid Map;
         public Vector2 Position;
-        public TimeSpan Entered;
+        public TimeSpan? HullDustEntered;
         public TimeSpan NextImpact;
+        public TimeSpan NextDust;
+        public TimeSpan NextEmp;
     }
 
     public override void Initialize()
     {
         base.Initialize();
+        UpdatesBefore.Add(typeof(ProjectileSystem));
         SubscribeLocalEvent<ConsoleFTLAttemptEvent>(OnFtlAttempt);
         SubscribeLocalEvent<ShipShieldedComponent, SpaceEnvironmentHitEvent>(OnShieldHit);
         SubscribeLocalEvent<RadioSendAttemptEvent>(OnRadioSend);
         SubscribeLocalEvent<RadioReceiveAttemptEvent>(OnRadioReceive);
         SubscribeLocalEvent<RadiationReceiverComponent, GetAmbientRadiationEvent>(OnAmbientRadiation);
+        SubscribeLocalEvent<SpaceDustProjectileComponent, ProjectileHitEvent>(OnDustHit);
     }
 
     public void Invalidate(EntityUid map) => _indexes.Remove(map);
@@ -71,11 +78,15 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        KeepDustInRegion(frameTime);
         if (_timing.CurTime < _nextUpdate) return;
         _nextUpdate = _timing.CurTime + TimeSpan.FromSeconds(1);
         _seen.Clear();
         if (_sectors.Enabled)
         {
+            CollectOccupiedShuttles();
+            _dustBudget = 24;
+            _empBudget = 2;
             var ships = EntityQueryEnumerator<ShuttleComponent, TransformComponent>();
             while (ships.MoveNext(out var uid, out _, out var xform))
             {
@@ -95,26 +106,36 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
     {
         var position = _transform.GetWorldPosition(xform);
         var first = !_ships.TryGetValue(uid, out var state) || state.Map != map;
-        if (first) _ships[uid] = state = new ShipState { Map = map, Position = position, Entered = _timing.CurTime };
+        if (first) _ships[uid] = state = new ShipState { Map = map, Position = position,
+            NextEmp = _timing.CurTime + TimeSpan.FromSeconds(_random.NextFloat(100, 220)) };
         Index(map, environment).Query(state!.Position, position, _candidates);
         var dust = 0f;
+        var hullDust = 0f;
         var plasma = 0f;
         var radiation = 0f;
+        SpaceRegion? dustCloud = null;
+        var plasmaAtShip = false;
         foreach (var region in _candidates)
         {
             if (!SpaceRegionGeometry.Intersects(region, state.Position, position)) continue;
             switch (region.Kind)
             {
                 case SpaceRegionKind.Plasma:
-                    var seed = SectorRandom.Derive(environment.Definition.Seed, "sites-v1/region/" + region.Id);
-                    plasma = MathF.Max(plasma, region.Intensity * (NavigationSiteCatalog.PlasmaQuiet(seed, _timing.CurTime.TotalSeconds) ? 0.15f : 1f));
+                    var seed = PlasmaWeather.Seed(environment.Definition.Seed, region.Id);
+                    plasma = MathF.Max(plasma, region.Intensity * PlasmaWeather.Strength(seed, _timing.CurTime.TotalSeconds));
+                    plasmaAtShip |= SpaceRegionGeometry.Contains(region, position);
                     break;
                 case SpaceRegionKind.Radiation:
                     radiation = MathF.Max(radiation, region.Intensity * (NavigationSiteCatalog.InRadiationPocket(region, position) ? 0.2f : 1f));
                     break;
-                default:
-                    var corridor = region.Kind == SpaceRegionKind.Dust && NavigationSiteCatalog.InDustCorridor(region, state.Position, position);
+                case SpaceRegionKind.Dust:
+                    var corridor = NavigationSiteCatalog.InDustCorridor(region, state.Position, position);
                     dust = MathF.Max(dust, region.Intensity * (corridor ? 0.15f : 1f));
+                    if (SpaceRegionGeometry.Contains(region, position) && (dustCloud == null || region.Intensity > dustCloud.Intensity))
+                        dustCloud = region;
+                    break;
+                default:
+                    hullDust = MathF.Max(hullDust, region.Intensity);
                     break;
             }
         }
@@ -122,12 +143,22 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
         if (TryComp<SpaceEnvironmentProtectionComponent>(uid, out var protection))
         {
             dust *= Math.Clamp(protection.DustMultiplier, 0, 1);
+            hullDust *= Math.Clamp(protection.DustMultiplier, 0, 1);
             plasma *= Math.Clamp(protection.PlasmaMultiplier, 0, 1);
             radiation *= Math.Clamp(protection.RadiationMultiplier, 0, 1);
         }
+        dust = MathF.Max(dust, hullDust);
+        if (_occupiedShuttles.Contains(uid) && !HasComp<SpaceJunkExclusionComponent>(uid)
+            && !HasComp<ForceAnchorComponent>(uid) && !HasComp<GreenZoneComponent>(uid))
+        {
+            if (dustCloud != null && protection?.DustMultiplier != 0)
+                TrySpawnDust(uid, map, xform, state, dustCloud);
+            if (plasmaAtShip && plasma >= 0.75f)
+                TryPlasmaEmp(uid, environment, state);
+        }
+        state.HullDustEntered = hullDust > 0 ? state.HullDustEntered ?? _timing.CurTime : null;
         if (dust == 0 && plasma == 0 && radiation == 0)
         {
-            state.Entered = _timing.CurTime;
             if (HasComp<SpaceExposureComponent>(uid)) RemComp<SpaceExposureComponent>(uid);
             return;
         }
@@ -139,12 +170,12 @@ public sealed class SpaceEnvironmentSystem : EntitySystem
             exposure.Radiation = radiation;
             Dirty(uid, exposure);
         }
-        if (dust <= 0 || _timing.CurTime - state.Entered < Grace || _timing.CurTime < state.NextImpact
+        if (state.HullDustEntered is not { } entered || _timing.CurTime - entered < Grace || _timing.CurTime < state.NextImpact
             || !TryComp<PhysicsComponent>(uid, out var body) || body.LinearVelocity.Length() <= SafeDustSpeed) return;
         state.NextImpact = _timing.CurTime + ImpactInterval;
-        var hit = new SpaceEnvironmentHitEvent(dust * 40f);
+        var hit = new SpaceEnvironmentHitEvent(hullDust * 40f);
         RaiseLocalEvent(uid, ref hit);
-        if (!hit.Absorbed) DamageHull(uid, dust, body.LinearVelocity.Length());
+        if (!hit.Absorbed) DamageHull(uid, hullDust, body.LinearVelocity.Length());
     }
 
     private void DamageHull(EntityUid grid, float intensity, float speed)

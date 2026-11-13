@@ -9,6 +9,43 @@
   heatCapacity: 10000
   mass: 10
 
+- type: entity
+  id: DeepLagoonSpaceDustProjectile
+  name: space dust particle
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SpaceDustProjectile
+  - type: Sprite
+    noRot: false
+    scale: 0.25, 0.25
+    sprite: _Mono/Objects/SpaceArtillery/50_armorpiercing_machinegun_casing.rsi
+    layers:
+    - state: base-projectile
+      shader: unshaded
+      color: "#a6dcff"
+  - type: Physics
+    bodyType: Dynamic
+    linearDamping: 0
+  - type: Fixtures
+    fixtures:
+      projectile:
+        shape: !type:PhysShapeCircle
+          radius: 0.05
+        hard: false
+        mask:
+        - Impassable
+        - BulletImpassable
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 1
+  - type: Tracer
+    length: 1.25
+    lifetime: 2.5
+    color: "#96d2ff99"
+  - type: TimedDespawn
+    lifetime: 2.5
+
 # A small subset of the native blue NFBaseWreckDebris loot. Maximum two table results per pile.
 - type: entityTable
   id: DeepLagoonSpaceJunkLoot

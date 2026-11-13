@@ -24,7 +24,8 @@ public sealed partial class ShuttleMapControl
         {
             SpaceNavigationDraw.Regions(handle, Font, environment, worldToView, PixelSize, UIScale,
                 EntManager.System<SpaceEnvironmentOverlaySystem>().Contours(map, environment.Definition),
-                EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(map, environment.Definition), _spaceFillVertices);
+                EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(map, environment.Definition), _spaceFillVertices,
+                _timing.CurTime.TotalSeconds);
             if (_shuttleEntity is { } ship && EntManager.TryGetComponent<TransformComponent>(ship, out var shipTransform)
                 && shipTransform.MapUid == map && PixelSizeBox.Contains(GetLocalPosition(_inputs.MouseScreenPosition).Floored()))
             {

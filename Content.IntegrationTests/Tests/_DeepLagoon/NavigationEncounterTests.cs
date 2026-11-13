@@ -133,7 +133,7 @@ public sealed class NavigationEncounterTests
                     new SpaceRegion { Id = "capacitor", Kind = SpaceRegionKind.Plasma, X = 40000, Radius = 500 },
                 } };
             var now = pair.Server.ResolveDependency<IGameTiming>().CurTime.TotalSeconds;
-            while (!NavigationSiteCatalog.PlasmaQuiet(NavigationSiteCatalog.Generate(definition).Single(s => s.Kind == NavigationSiteKind.Capacitor).Seed, now)) definition.Seed++;
+            while (!PlasmaWeather.Quiet(NavigationSiteCatalog.Generate(definition).Single(s => s.Kind == NavigationSiteKind.Capacitor).Seed, now)) definition.Seed++;
             var environment = entities.EnsureComponent<SpaceEnvironmentComponent>(map);
             environment.Campaign = "navigation-integration";
             environment.Definition = definition;
