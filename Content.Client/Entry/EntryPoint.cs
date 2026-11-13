@@ -26,17 +26,21 @@ using Content.Shared.Ame.Components;
 using Content.Shared.Gravity;
 using Content.Shared.Localizations;
 using Robust.Client;
+using Robust.Client.Console;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.Replays.Loading;
 using Robust.Client.State;
 using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.Controls;
+using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Replays;
 using Robust.Shared.Timing;
+using System.Linq;
 using Content.Client._NF.Emp.Overlays; // Frontier
 using Content.Client._Mono.Company; // Mono
 
@@ -77,6 +81,8 @@ namespace Content.Client.Entry
         [Dependency] private TitleWindowManager _titleWindowManager = default!;
         [Dependency] private IEntitySystemManager _entitySystemManager = default!;
         [Dependency] private CompanyManager _companyManager = default!; // Mono
+        [Dependency] private IClientConsoleHost _consoleHost = default!;
+        private DebugConsoleLogFilter? _consoleLogFilter;
 
         public override void Init()
         {
@@ -153,6 +159,8 @@ namespace Content.Client.Entry
 
         public override void Shutdown()
         {
+            _consoleLogFilter?.Dispose();
+
             // Content shutdown runs before the stock engine stops CEF. Detach
             // our browsers here so later entity/UI teardown cannot close twice.
             Content.Client._DeepLagoon.WebUI.WebViewLifetime.Shutdown();
@@ -163,6 +171,12 @@ namespace Content.Client.Entry
         public override void PostInit()
         {
             base.PostInit();
+
+            if (_userInterfaceManager.RootControl.Children.OfType<DropDownDebugConsole>().FirstOrDefault() is { } console)
+            {
+                var output = console.FindControl<DebugConsole>("MainControl").FindControl<OutputPanel>("Output");
+                _consoleLogFilter = new DebugConsoleLogFilter(_consoleHost, output, _configManager);
+            }
 
             _stylesheetManager.Initialize();
 
@@ -234,6 +248,9 @@ namespace Content.Client.Entry
 
         public override void Update(ModUpdateLevel level, FrameEventArgs frameEventArgs)
         {
+            if (level == ModUpdateLevel.FramePostEngine)
+                _consoleLogFilter?.FilterOutput();
+
             if (level == ModUpdateLevel.FramePreEngine)
             {
                 _debugMonitorManager.FrameUpdate();
