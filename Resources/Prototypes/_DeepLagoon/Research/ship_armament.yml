@@ -34,6 +34,8 @@
   cost: 10000
   allowRecipeDisks: false
   position: 5, 2
+  technologyPrerequisites:
+  - UniversalMaterialResearchT2
   recipeUnlocks:
   - DLShipAssemblyHardpointBallisticSuperlight
   - DLShipAssemblyHardpointEnergySuperlight
@@ -111,7 +113,7 @@
   id: DLShipArmamentSyndicateLight
   name: research-technology-dl-ship-armament-syndicate-light
   entityIcon: WeaponTurretAdderScattercannon
-  discipline: DLShipArmament
+  discipline: RogueShipyard
   tier: 1
   cost: 15000
   allowRecipeDisks: false
@@ -144,7 +146,7 @@
   id: DLShipArmamentTsfmcStandard
   name: research-technology-dl-ship-armament-tsfmc-standard
   entityIcon: WeaponTurretType54
-  discipline: DLShipArmament
+  discipline: TsfmcShipyard
   tier: 2
   cost: 35000
   allowRecipeDisks: false
@@ -159,7 +161,7 @@
   id: DLShipArmamentSyndicateMissile
   name: research-technology-dl-ship-armament-syndicate-missile
   entityIcon: WeaponTurretSerpentMissile
-  discipline: DLShipArmament
+  discipline: RogueShipyard
   tier: 2
   cost: 35000
   allowRecipeDisks: false
@@ -188,7 +190,7 @@
   id: DLShipArmamentSyndicateHeavy
   name: research-technology-dl-ship-armament-syndicate-heavy
   entityIcon: WeaponTurretFang
-  discipline: DLShipArmament
+  discipline: RogueShipyard
   tier: 3
   cost: 60000
   allowRecipeDisks: false
@@ -202,7 +204,7 @@
   id: DLShipArmamentSyndicateCruiser
   name: research-technology-dl-ship-armament-syndicate-cruiser
   entityIcon: WeaponTurretHydra
-  discipline: DLShipArmament
+  discipline: RogueShipyard
   tier: 4
   cost: 85000
   allowRecipeDisks: false
@@ -216,7 +218,7 @@
   id: DLShipArmamentTsfmcCruiser
   name: research-technology-dl-ship-armament-tsfmc-cruiser
   entityIcon: WeaponTurretDymere
-  discipline: DLShipArmament
+  discipline: TsfmcShipyard
   tier: 4
   cost: 100000
   allowRecipeDisks: false

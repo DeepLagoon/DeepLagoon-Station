@@ -34,17 +34,18 @@ public sealed class ShipArmamentTests
             var press = entities.SpawnEntity("IndustrialPressEconomyPlates", map.GridCoords);
             var actor = entities.SpawnEntity(null, map.GridCoords);
 
-            var serverTypes = new (string Id, bool Faction)[]
+            var serverTypes = new (string Id, bool Faction, bool Phaethon, bool Tsfmc)[]
             {
-                ("ResearchAndDevelopmentServer", false),
-                ("ResearchAndDevelopmentServerMerc", true),
-                ("ResearchAndDevelopmentServerRogues", true),
-                ("ResearchAndDevelopmentServerTSFMC", true),
-                ("ResearchAndDevelopmentServerMMC", true),
-                ("ResearchAndDevelopmentServerUssp", true),
+                ("ResearchAndDevelopmentServer", false, false, false),
+                ("ResearchAndDevelopmentServerMerc", true, false, false),
+                ("ResearchAndDevelopmentServerRogues", true, true, false),
+                ("ResearchAndDevelopmentServerTSFMC", true, false, true),
+                ("ResearchAndDevelopmentServerMMC", true, false, false),
+                ("ResearchAndDevelopmentServerUssp", true, false, false),
+                ("ResearchAndDevelopmentServerDebug", true, true, true),
             };
 
-            foreach (var (serverId, faction) in serverTypes)
+            foreach (var (serverId, faction, phaethon, tsfmc) in serverTypes)
             {
                 var rdServer = entities.SpawnEntity(serverId, map.GridCoords);
                 entities.GetComponent<ResearchServerComponent>(rdServer).Points = 1_000_000;
@@ -53,32 +54,58 @@ public sealed class ShipArmamentTests
                 var database = entities.GetComponent<TechnologyDatabaseComponent>(console);
 
                 bool Unlock(string technology) => research.UnlockTechnology(console, technology, actor);
+                bool Visible(TechnologyPrototype technology) =>
+                    technology.GetAllDisciplines().Any(database.SupportedDisciplines.Contains);
+
                 var medium = server.ProtoMan.Index<TechnologyPrototype>("DLShipArmamentMedium");
                 var heavy = server.ProtoMan.Index<TechnologyPrototype>("DLShipArmamentHeavy");
 
-                Assert.That(medium.GetAllDisciplines().Any(database.SupportedDisciplines.Contains), Is.EqualTo(faction), serverId);
-                Assert.That(heavy.GetAllDisciplines().Any(database.SupportedDisciplines.Contains), Is.EqualTo(faction), serverId);
+                Assert.That(Visible(medium), Is.EqualTo(faction), serverId);
+                Assert.That(Visible(heavy), Is.EqualTo(faction), serverId);
                 Assert.That(Unlock(medium.ID), Is.False, serverId);
                 Assert.That(Unlock(heavy.ID), Is.False, serverId);
                 Assert.That(Unlock("DLShipMountsAdvanced"), Is.False, serverId);
+                Assert.That(Unlock("DLShipMountsBasic"), Is.False, serverId);
+                Assert.That(Unlock("UniversalMaterialResearchT1"), Is.True, serverId);
+                Assert.That(Unlock("DLShipMountsBasic"), Is.False, serverId);
+                Assert.That(Unlock("UniversalMaterialResearchT2"), Is.True, serverId);
 
                 Assert.That(Unlock("DLShipMountsBasic"), Is.True, serverId);
+                Assert.That(Unlock("DLShipArmamentLight"), Is.True, serverId);
                 Assert.That(Unlock("DLShipMountsAdvanced"), Is.True, serverId);
                 Assert.That(Unlock("DLShipMountsMassive"), Is.True, serverId);
                 Assert.That(Unlock(medium.ID), Is.EqualTo(faction), serverId);
                 Assert.That(Unlock(heavy.ID), Is.EqualTo(faction), serverId);
-                Assert.That(Unlock("DLShipArmamentTsfmcStandard"), Is.EqualTo(faction), serverId);
-                Assert.That(Unlock("DLShipArmamentSyndicateMissile"), Is.EqualTo(faction), serverId);
-                Assert.That(Unlock("DLShipArmamentSyndicateHeavy"), Is.EqualTo(faction), serverId);
-
+                Assert.That(Unlock("DLShipArmamentSyndicateCruiser"), Is.False, serverId);
+                Assert.That(Unlock("DLShipArmamentTsfmcCruiser"), Is.False, serverId);
                 Assert.That(Unlock("DLShipMountsCapital"), Is.True, serverId);
-                Assert.That(Unlock("DLShipArmamentSyndicateCruiser"), Is.True, serverId);
-                Assert.That(Unlock("DLShipArmamentTsfmcCruiser"), Is.True, serverId);
+
+                var factionTechnologies = new (string Id, bool Accessible)[]
+                {
+                    ("DLShipArmamentSyndicateLight", phaethon),
+                    ("DLShipArmamentSyndicateMissile", phaethon),
+                    ("DLShipArmamentSyndicateHeavy", phaethon),
+                    ("DLShipArmamentSyndicateCruiser", phaethon),
+                    ("DLShipArmamentTsfmcStandard", tsfmc),
+                    ("DLShipArmamentTsfmcCruiser", tsfmc),
+                };
+                foreach (var (id, accessible) in factionTechnologies)
+                {
+                    var technology = server.ProtoMan.Index<TechnologyPrototype>(id);
+                    Assert.That(Visible(technology), Is.EqualTo(accessible), $"{serverId}: {id}");
+                    Assert.That(Unlock(id), Is.EqualTo(accessible), $"{serverId}: {id}");
+                }
+
                 Assert.That(lathe.TryGetAvailableRecipes(press, out var recipes), Is.True);
                 Assert.That(recipes!.Contains("DLShipAssemblyWeaponTurretAK570"), Is.EqualTo(faction), serverId);
                 Assert.That(recipes.Contains("DLShipAssemblyWeaponTurretCerberus"), Is.EqualTo(faction), serverId);
-                Assert.That(recipes.Contains("DLShipAssemblyWeaponTurretHydra"), Is.True, serverId);
                 Assert.That(recipes.Contains("DLShipAssemblyHardpointEnergySuperheavy"), Is.True, serverId);
+                foreach (var (id, accessible) in factionTechnologies)
+                {
+                    var technology = server.ProtoMan.Index<TechnologyPrototype>(id);
+                    foreach (var recipe in technology.RecipeUnlocks)
+                        Assert.That(recipes.Contains(recipe), Is.EqualTo(accessible), $"{serverId}: {recipe}");
+                }
             }
         });
 
