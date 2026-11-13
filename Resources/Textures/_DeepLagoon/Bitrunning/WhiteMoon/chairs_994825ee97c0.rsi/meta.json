@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/chairs.dmi.",
+  "states": [
+    {
+      "name": "bamboo_stool",
+      "directions": 4
+    },
+    {
+      "name": "bar",
+      "directions": 4
+    },
+    {
+      "name": "carp_chair",
+      "directions": 4
+    },
+    {
+      "name": "chair",
+      "directions": 4
+    },
+    {
+      "name": "chair_toppled",
+      "directions": 4
+    },
+    {
+      "name": "comfychair",
+      "directions": 4
+    },
+    {
+      "name": "officechair_dark",
+      "directions": 4
+    },
+    {
+      "name": "officechair_white",
+      "directions": 4
+    },
+    {
+      "name": "plastic_chair",
+      "directions": 4
+    },
+    {
+      "name": "shuttle_chair",
+      "directions": 4
+    },
+    {
+      "name": "stool",
+      "directions": 4
+    },
+    {
+      "name": "wooden_chair",
+      "directions": 4
+    }
+  ]
+}

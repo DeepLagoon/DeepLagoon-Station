@@ -99,6 +99,11 @@
   - ArtifactAnalyzerMachineCircuitboard
   - ArtifactCrusherMachineCircuitboard
   - DataFarmResearchCircuitboard
+  - BitrunQuantumConsoleCircuitboard
+  - BitrunQuantumServerCircuitboard
+  - BitrunNetpodCircuitboard
+  - BitrunByteforgeCircuitboard
+  - BitrunOrderConsoleCircuitboard
 
 - type: latheRecipePack
   id: CameraBoards

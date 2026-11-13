@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 40,
+    "y": 40
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/cliff/icerock_cliff.dmi.",
+  "states": [
+    {
+      "name": "icerock_wall-0"
+    },
+    {
+      "name": "icerock_wall-1"
+    },
+    {
+      "name": "icerock_wall-10"
+    },
+    {
+      "name": "icerock_wall-11"
+    },
+    {
+      "name": "icerock_wall-12"
+    },
+    {
+      "name": "icerock_wall-13"
+    },
+    {
+      "name": "icerock_wall-14"
+    },
+    {
+      "name": "icerock_wall-15"
+    },
+    {
+      "name": "icerock_wall-2"
+    },
+    {
+      "name": "icerock_wall-3"
+    },
+    {
+      "name": "icerock_wall-4"
+    },
+    {
+      "name": "icerock_wall-5"
+    },
+    {
+      "name": "icerock_wall-6"
+    },
+    {
+      "name": "icerock_wall-7"
+    },
+    {
+      "name": "icerock_wall-8"
+    },
+    {
+      "name": "icerock_wall-9"
+    }
+  ]
+}

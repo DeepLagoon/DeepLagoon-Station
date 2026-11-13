@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/poster.dmi.",
+  "states": [
+    {
+      "name": "ambrosia_vulgaris"
+    },
+    {
+      "name": "aspev_hardhat"
+    },
+    {
+      "name": "aspev_piping"
+    },
+    {
+      "name": "atmosia_independence"
+    },
+    {
+      "name": "ayy_no"
+    },
+    {
+      "name": "ayy_over_tizira"
+    },
+    {
+      "name": "ayy_recruitment"
+    },
+    {
+      "name": "ayyce_cops"
+    },
+    {
+      "name": "blasto_detergent"
+    },
+    {
+      "name": "bless_this_spess"
+    },
+    {
+      "name": "blood_geometer"
+    },
+    {
+      "name": "boombox"
+    },
+    {
+      "name": "busty_backdoor_xeno_babes_6"
+    },
+    {
+      "name": "calada_jelly"
+    },
+    {
+      "name": "cc64k_ad"
+    },
+    {
+      "name": "cleanliness"
+    },
+    {
+      "name": "clown"
+    },
+    {
+      "name": "cohiba_robusto_ad"
+    },
+    {
+      "name": "corporate_perks_vacation"
+    },
+    {
+      "name": "download_gun"
+    },
+    {
+      "name": "free_drone"
+    },
+    {
+      "name": "free_key"
+    },
+    {
+      "name": "fruit_bowl"
+    },
+    {
+      "name": "hacking_guide"
+    },
+    {
+      "name": "have_a_puff"
+    },
+    {
+      "name": "here_for_your_safety"
+    },
+    {
+      "name": "high_class_martini"
+    },
+    {
+      "name": "ion_rifle"
+    },
+    {
+      "name": "kss13"
+    },
+    {
+      "name": "missing_gloves"
+    },
+    {
+      "name": "moffuchis_pizza"
+    },
+    {
+      "name": "nanomichi_ad"
+    },
+    {
+      "name": "no_erp"
+    },
+    {
+      "name": "pda_ad"
+    },
+    {
+      "name": "poster_ripped"
+    },
+    {
+      "name": "principles"
+    },
+    {
+      "name": "pwr_game"
+    },
+    {
+      "name": "red_rum"
+    },
+    {
+      "name": "report_crimes"
+    },
+    {
+      "name": "rolled_abductor"
+    },
+    {
+      "name": "rolled_legit"
+    },
+    {
+      "name": "safety_eye_protection"
+    },
+    {
+      "name": "safety_internals"
+    },
+    {
+      "name": "shamblers_juice"
+    },
+    {
+      "name": "soft_cap_pop_art"
+    },
+    {
+      "name": "soviet_propaganda"
+    },
+    {
+      "name": "space_cola"
+    },
+    {
+      "name": "space_cops"
+    },
+    {
+      "name": "space_cube"
+    },
+    {
+      "name": "space_up"
+    },
+    {
+      "name": "starkist"
+    },
+    {
+      "name": "state_laws"
+    },
+    {
+      "name": "tactical_game_cards"
+    },
+    {
+      "name": "the_big_gas_giant_truth"
+    },
+    {
+      "name": "the_griffin"
+    },
+    {
+      "name": "the_owl"
+    },
+    {
+      "name": "thunderdrome"
+    },
+    {
+      "name": "tools"
+    }
+  ]
+}

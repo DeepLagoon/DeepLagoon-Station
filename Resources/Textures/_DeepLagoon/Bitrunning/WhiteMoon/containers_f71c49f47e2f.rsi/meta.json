@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/food/containers.dmi.",
+  "states": [
+    {
+      "name": "arabica_beans"
+    },
+    {
+      "name": "bbqsauce"
+    },
+    {
+      "name": "coconut_milk"
+    },
+    {
+      "name": "enzyme"
+    },
+    {
+      "name": "flour"
+    },
+    {
+      "name": "hotsauce"
+    },
+    {
+      "name": "ketchup"
+    },
+    {
+      "name": "mayonnaise"
+    },
+    {
+      "name": "milk"
+    },
+    {
+      "name": "peppermillsmall"
+    },
+    {
+      "name": "pizzabox"
+    },
+    {
+      "name": "rice"
+    },
+    {
+      "name": "saltshakersmall"
+    },
+    {
+      "name": "soysauce"
+    },
+    {
+      "name": "tray"
+    }
+  ]
+}

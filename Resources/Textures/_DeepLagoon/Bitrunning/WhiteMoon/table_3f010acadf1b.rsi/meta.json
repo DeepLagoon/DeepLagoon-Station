@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/table.dmi.",
+  "states": [
+    {
+      "name": "table-0"
+    },
+    {
+      "name": "table-1"
+    },
+    {
+      "name": "table-10"
+    },
+    {
+      "name": "table-11"
+    },
+    {
+      "name": "table-12"
+    },
+    {
+      "name": "table-13"
+    },
+    {
+      "name": "table-14"
+    },
+    {
+      "name": "table-15"
+    },
+    {
+      "name": "table-2"
+    },
+    {
+      "name": "table-3"
+    },
+    {
+      "name": "table-4"
+    },
+    {
+      "name": "table-5"
+    },
+    {
+      "name": "table-6"
+    },
+    {
+      "name": "table-7"
+    },
+    {
+      "name": "table-8"
+    },
+    {
+      "name": "table-9"
+    }
+  ]
+}

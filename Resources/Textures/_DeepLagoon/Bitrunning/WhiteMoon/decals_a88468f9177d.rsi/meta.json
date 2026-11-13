@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/decals.dmi.",
+  "states": [
+    {
+      "name": "L1"
+    },
+    {
+      "name": "L10"
+    },
+    {
+      "name": "L12"
+    },
+    {
+      "name": "L13"
+    },
+    {
+      "name": "L14"
+    },
+    {
+      "name": "L2"
+    },
+    {
+      "name": "L3"
+    },
+    {
+      "name": "L4"
+    },
+    {
+      "name": "L5"
+    },
+    {
+      "name": "L6"
+    },
+    {
+      "name": "L7"
+    },
+    {
+      "name": "L8"
+    },
+    {
+      "name": "L9"
+    },
+    {
+      "name": "ashyfloor"
+    },
+    {
+      "name": "bot"
+    },
+    {
+      "name": "bot_left_white"
+    },
+    {
+      "name": "bot_red"
+    },
+    {
+      "name": "bot_right_white"
+    },
+    {
+      "name": "bot_white"
+    },
+    {
+      "name": "box_corners",
+      "directions": 4
+    },
+    {
+      "name": "caution",
+      "directions": 4
+    },
+    {
+      "name": "caution_red",
+      "directions": 4
+    },
+    {
+      "name": "delivery"
+    },
+    {
+      "name": "sandyfloor"
+    },
+    {
+      "name": "sandyplating"
+    },
+    {
+      "name": "stand_clear",
+      "directions": 4
+    },
+    {
+      "name": "trimline_box"
+    }
+  ]
+}

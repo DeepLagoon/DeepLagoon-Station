@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/aesthetics/plants/plants.dmi.",
+  "states": [
+    {
+      "name": "applebush"
+    },
+    {
+      "name": "plant-01"
+    },
+    {
+      "name": "plant-05"
+    },
+    {
+      "name": "plant-08"
+    },
+    {
+      "name": "plant-09"
+    },
+    {
+      "name": "plant-12"
+    },
+    {
+      "name": "plant-16"
+    },
+    {
+      "name": "plant-17"
+    },
+    {
+      "name": "plant-19"
+    },
+    {
+      "name": "plant-21"
+    },
+    {
+      "name": "plant-24"
+    },
+    {
+      "name": "plant-25"
+    },
+    {
+      "name": "plant-26"
+    }
+  ]
+}

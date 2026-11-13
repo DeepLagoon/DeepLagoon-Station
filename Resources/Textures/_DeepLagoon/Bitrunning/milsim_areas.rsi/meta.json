@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/area/areas_away_missions.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "unknown"
+    },
+    {
+      "name": "awaycontent1"
+    },
+    {
+      "name": "awaycontent2"
+    },
+    {
+      "name": "awaycontent3"
+    },
+    {
+      "name": "awaycontent4"
+    },
+    {
+      "name": "awaycontent5"
+    },
+    {
+      "name": "awaycontent7"
+    },
+    {
+      "name": "awaycontent8"
+    },
+    {
+      "name": "awaycontent9"
+    },
+    {
+      "name": "awaycontent10"
+    },
+    {
+      "name": "awaycontent11"
+    },
+    {
+      "name": "awaycontent12"
+    },
+    {
+      "name": "awaycontent13"
+    },
+    {
+      "name": "awaycontent14"
+    },
+    {
+      "name": "awaycontent15"
+    },
+    {
+      "name": "awaycontent16"
+    },
+    {
+      "name": "awaycontent17"
+    }
+  ]
+}

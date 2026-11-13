@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/plastitanium_window.dmi.",
+  "states": [
+    {
+      "name": "plastitanium_window-0"
+    },
+    {
+      "name": "plastitanium_window-1"
+    },
+    {
+      "name": "plastitanium_window-10"
+    },
+    {
+      "name": "plastitanium_window-11"
+    },
+    {
+      "name": "plastitanium_window-12"
+    },
+    {
+      "name": "plastitanium_window-13"
+    },
+    {
+      "name": "plastitanium_window-14"
+    },
+    {
+      "name": "plastitanium_window-15"
+    },
+    {
+      "name": "plastitanium_window-2"
+    },
+    {
+      "name": "plastitanium_window-3"
+    },
+    {
+      "name": "plastitanium_window-4"
+    },
+    {
+      "name": "plastitanium_window-5"
+    },
+    {
+      "name": "plastitanium_window-6"
+    },
+    {
+      "name": "plastitanium_window-7"
+    },
+    {
+      "name": "plastitanium_window-8"
+    },
+    {
+      "name": "plastitanium_window-9"
+    }
+  ]
+}

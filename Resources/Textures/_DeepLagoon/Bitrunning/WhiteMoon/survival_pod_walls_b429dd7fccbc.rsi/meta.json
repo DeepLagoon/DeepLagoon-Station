@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/walls/survival_pod_walls.dmi.",
+  "states": [
+    {
+      "name": "survival_pod_walls-0"
+    },
+    {
+      "name": "survival_pod_walls-1"
+    },
+    {
+      "name": "survival_pod_walls-10"
+    },
+    {
+      "name": "survival_pod_walls-11"
+    },
+    {
+      "name": "survival_pod_walls-12"
+    },
+    {
+      "name": "survival_pod_walls-13"
+    },
+    {
+      "name": "survival_pod_walls-14"
+    },
+    {
+      "name": "survival_pod_walls-15"
+    },
+    {
+      "name": "survival_pod_walls-2"
+    },
+    {
+      "name": "survival_pod_walls-3"
+    },
+    {
+      "name": "survival_pod_walls-4"
+    },
+    {
+      "name": "survival_pod_walls-5"
+    },
+    {
+      "name": "survival_pod_walls-6"
+    },
+    {
+      "name": "survival_pod_walls-7"
+    },
+    {
+      "name": "survival_pod_walls-8"
+    },
+    {
+      "name": "survival_pod_walls-9"
+    }
+  ]
+}

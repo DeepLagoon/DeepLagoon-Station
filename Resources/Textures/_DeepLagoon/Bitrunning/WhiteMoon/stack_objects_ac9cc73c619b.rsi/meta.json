@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/stack_objects.dmi.",
+  "states": [
+    {
+      "name": "arcade-ticket"
+    },
+    {
+      "name": "cannonballs"
+    },
+    {
+      "name": "coil"
+    },
+    {
+      "name": "coil2"
+    },
+    {
+      "name": "deliveryPaper"
+    },
+    {
+      "name": "rods"
+    },
+    {
+      "name": "sandbags"
+    },
+    {
+      "name": "sheet-diamond"
+    },
+    {
+      "name": "sheet-glass"
+    },
+    {
+      "name": "sheet-gold"
+    },
+    {
+      "name": "sheet-metal"
+    },
+    {
+      "name": "sheet-plasteel"
+    },
+    {
+      "name": "sheet-plastitanium"
+    },
+    {
+      "name": "sheet-rglass"
+    },
+    {
+      "name": "sheet-sandstone"
+    },
+    {
+      "name": "sheet-silver"
+    },
+    {
+      "name": "sheet-titanium"
+    },
+    {
+      "name": "sheet-uranium"
+    },
+    {
+      "name": "sheet-wood"
+    }
+  ]
+}

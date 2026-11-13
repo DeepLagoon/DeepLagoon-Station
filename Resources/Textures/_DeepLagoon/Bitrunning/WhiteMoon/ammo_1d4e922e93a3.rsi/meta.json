@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/weapons/guns/ammo.dmi.",
+  "states": [
+    {
+      "name": ".50mag"
+    },
+    {
+      "name": "310_strip"
+    },
+    {
+      "name": "38"
+    },
+    {
+      "name": "46x30mmt-20"
+    },
+    {
+      "name": "9mmaps-15"
+    },
+    {
+      "name": "9mmbox"
+    },
+    {
+      "name": "c20r45"
+    },
+    {
+      "name": "lionhunter_strip"
+    },
+    {
+      "name": "srm-8"
+    }
+  ]
+}

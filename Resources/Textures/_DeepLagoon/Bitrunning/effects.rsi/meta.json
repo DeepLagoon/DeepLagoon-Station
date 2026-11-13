@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Jeremiah and tgstation contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/effects/bitrunning.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "crate"
+    },
+    {
+      "name": "goal"
+    },
+    {
+      "name": "hololadder"
+    },
+    {
+      "name": "safehouse"
+    },
+    {
+      "name": "glitch",
+      "delays": [
+        [
+          0.15,
+          0.1,
+          0.05,
+          0.15,
+          0.1,
+          0.05,
+          0.15,
+          0.1,
+          0.05
+        ]
+      ]
+    },
+    {
+      "name": "redshift"
+    },
+    {
+      "name": "mob_segment"
+    },
+    {
+      "name": "perm_exit"
+    }
+  ]
+}

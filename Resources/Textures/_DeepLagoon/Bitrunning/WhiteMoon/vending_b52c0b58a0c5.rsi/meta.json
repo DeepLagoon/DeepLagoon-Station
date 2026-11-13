@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/machines/vending.dmi.",
+  "states": [
+    {
+      "name": "Cola_Machine",
+      "delays": [
+        [
+          3.0,
+          0.1,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "bardrobe",
+      "delays": [
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "boozeomat",
+      "delays": [
+        [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ]
+      ]
+    },
+    {
+      "name": "cart",
+      "delays": [
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "cigs",
+      "delays": [
+        [
+          3.6,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "clothes",
+      "delays": [
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "coffee",
+      "delays": [
+        [
+          2.5,
+          0.1,
+          0.2,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "dinnerware",
+      "delays": [
+        [
+          1.2,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "drug",
+      "delays": [
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "games",
+      "delays": [
+        [
+          1.7,
+          0.1,
+          0.2,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "janidrobe",
+      "delays": [
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "med",
+      "delays": [
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "nutri",
+      "delays": [
+        [
+          1.1,
+          0.1,
+          0.4,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "pwr_game",
+      "delays": [
+        [
+          1.4,
+          0.1,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "red_cola",
+      "delays": [
+        [
+          1.6,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "snack",
+      "delays": [
+        [
+          1.0,
+          0.1,
+          0.4,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "sovietsoda",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.2,
+          0.1,
+          0.3,
+          0.1,
+          0.2
+        ]
+      ]
+    },
+    {
+      "name": "theater",
+      "delays": [
+        [
+          4.5,
+          0.1,
+          0.4,
+          0.1
+        ]
+      ]
+    }
+  ]
+}

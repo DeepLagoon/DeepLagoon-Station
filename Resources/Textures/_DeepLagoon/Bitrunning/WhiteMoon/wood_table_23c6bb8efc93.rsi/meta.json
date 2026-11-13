@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/wood_table.dmi.",
+  "states": [
+    {
+      "name": "wood_table-0"
+    },
+    {
+      "name": "wood_table-1"
+    },
+    {
+      "name": "wood_table-10"
+    },
+    {
+      "name": "wood_table-11"
+    },
+    {
+      "name": "wood_table-12"
+    },
+    {
+      "name": "wood_table-13"
+    },
+    {
+      "name": "wood_table-14"
+    },
+    {
+      "name": "wood_table-15"
+    },
+    {
+      "name": "wood_table-2"
+    },
+    {
+      "name": "wood_table-3"
+    },
+    {
+      "name": "wood_table-4"
+    },
+    {
+      "name": "wood_table-5"
+    },
+    {
+      "name": "wood_table-6"
+    },
+    {
+      "name": "wood_table-7"
+    },
+    {
+      "name": "wood_table-8"
+    },
+    {
+      "name": "wood_table-9"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 34
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/fancy_table.dmi.",
+  "states": [
+    {
+      "name": "fancy_table-0"
+    },
+    {
+      "name": "fancy_table-1"
+    },
+    {
+      "name": "fancy_table-10"
+    },
+    {
+      "name": "fancy_table-11"
+    },
+    {
+      "name": "fancy_table-12"
+    },
+    {
+      "name": "fancy_table-13"
+    },
+    {
+      "name": "fancy_table-14"
+    },
+    {
+      "name": "fancy_table-15"
+    },
+    {
+      "name": "fancy_table-2"
+    },
+    {
+      "name": "fancy_table-3"
+    },
+    {
+      "name": "fancy_table-4"
+    },
+    {
+      "name": "fancy_table-5"
+    },
+    {
+      "name": "fancy_table-6"
+    },
+    {
+      "name": "fancy_table-7"
+    },
+    {
+      "name": "fancy_table-8"
+    },
+    {
+      "name": "fancy_table-9"
+    }
+  ]
+}

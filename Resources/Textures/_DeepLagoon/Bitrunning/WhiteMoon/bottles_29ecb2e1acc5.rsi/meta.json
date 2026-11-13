@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/drinks/bottles.dmi.",
+  "states": [
+    {
+      "name": "beer"
+    },
+    {
+      "name": "champagne_bottle"
+    },
+    {
+      "name": "cognacbottle"
+    },
+    {
+      "name": "flask_gold"
+    },
+    {
+      "name": "golden_cup"
+    },
+    {
+      "name": "goldschlagerbottle"
+    },
+    {
+      "name": "litebeer"
+    },
+    {
+      "name": "rumbottle"
+    },
+    {
+      "name": "shaker"
+    },
+    {
+      "name": "silver_cup"
+    },
+    {
+      "name": "twotime"
+    },
+    {
+      "name": "winebottle"
+    }
+  ]
+}

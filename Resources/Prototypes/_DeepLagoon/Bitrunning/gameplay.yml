@@ -1,0 +1,322 @@
+- type: entity
+  parent: MarkerBase
+  id: BitrunAvatarSpawn
+  name: bitrun avatar spawn
+  components:
+  - type: BitrunAvatarSpawn
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    state: safehouse
+
+- type: entity
+  parent: MarkerBase
+  id: BitrunCacheSpawn
+  name: bitrun cache spawn
+  components:
+  - type: BitrunCacheSpawn
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    state: crate
+
+- type: entity
+  id: BitrunAmbientLight
+  name: virtual ambient light
+  categories: [HideSpawnMenu]
+  components:
+  - type: Transform
+    anchored: true
+  - type: PointLight
+    radius: 8
+    energy: 1
+
+- type: entity
+  id: BitrunCacheGoal
+  name: cache upload point
+  description: Drag the encrypted cache onto this tile to transfer it to the byteforge.
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Transform
+    anchored: true
+  - type: BitrunCacheGoal
+  - type: SyncSprite
+  - type: Sprite
+    drawdepth: FloorObjects
+    sprite: _DeepLagoon/Bitrunning/floors.rsi
+    state: bitrunning
+  - type: Clickable
+  - type: InteractionOutline
+
+- type: entity
+  id: BitrunExit
+  name: hololadder
+  description: Use it to disconnect and wake up in your netpod.
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Transform
+    anchored: true
+  - type: BitrunExit
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hololadder.rsi
+    state: ladder11
+  - type: Clickable
+  - type: InteractionOutline
+
+- type: entity
+  parent: MarkerBase
+  id: BitrunScenarioMarker
+  name: bitrun scenario marker
+  components:
+  - type: BitrunScenarioMarker
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    state: mob_segment
+
+- type: entity
+  parent: CrateGenericSteel
+  id: BitrunDecryptedCache
+  name: decrypted cache
+  description: Supplies materialized by a byteforge.
+  components:
+  - type: Icon
+    sprite: _DeepLagoon/Bitrunning/crate.rsi
+    state: bitrunning
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/crate.rsi
+    layers:
+    - state: bitrunning
+      map: [enum.StorageVisualLayers.Base]
+  - type: GenericVisualizer
+    visuals:
+      enum.StorageVisuals.Open:
+        enum.StorageVisualLayers.Base:
+          True: {state: bitrunningopen}
+          False: {state: bitrunning}
+  - type: StaticPrice
+    price: 0
+
+- type: entity
+  parent: BitrunDecryptedCache
+  id: BitrunEncryptedCache
+  name: encrypted cache
+  description: Move it to the cache upload point in this domain.
+  components:
+  - type: BitrunCache
+  - type: EntityStorage
+    capacity: 0
+
+- type: entity
+  parent: BitrunEncryptedCache
+  id: BitrunEncryptedCuriosity
+  name: encrypted curiosity
+  description: An optional cache that can be transferred at the upload point.
+
+- type: entity
+  parent: BitrunDecryptedCache
+  id: BitrunDecryptedCuriosity
+  name: decrypted curiosity
+  components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage:
+        id: PlushieBee
+
+- type: entity
+  id: ActionBitrunDisconnect
+  name: Disconnect avatar
+  description: Return to your body in the netpod.
+  components:
+  - type: InstantAction
+    icon:
+      sprite: _DeepLagoon/Bitrunning/effects.rsi
+      state: hololadder
+    event: !type:BitrunDisconnectEvent
+
+- type: entity
+  parent: BaseItem
+  id: BitrunProgramDisk
+  abstract: true
+  name: bitrun program disk
+  description: Use it on a netpod to prepare this program for a compatible virtual domain.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/disks.rsi
+    state: datadisk0
+  - type: Item
+    size: Tiny
+  - type: BitrunProgramDisk
+
+- type: entity
+  parent: BitrunProgramDisk
+  id: BitrunDiskMedical
+  name: bitrun medical disk
+  components:
+  - type: Sprite
+    state: datadisk1
+  - type: BitrunProgramDisk
+    item: MedkitFilled
+
+- type: entity
+  parent: BitrunProgramDisk
+  id: BitrunDiskKinetic
+  name: bitrun kinetic disk
+  components:
+  - type: Sprite
+    state: datadisk2
+  - type: BitrunProgramDisk
+    item: WeaponProtoKineticAccelerator
+
+- type: entity
+  parent: BitrunProgramDisk
+  id: BitrunDiskBlink
+  name: bitrun blink disk
+  components:
+  - type: Sprite
+    state: datadisk3
+  - type: BitrunProgramDisk
+    action: ActionBlink
+
+- type: entity
+  parent: BitrunProgramDisk
+  id: BitrunDiskForceWall
+  name: bitrun force wall disk
+  components:
+  - type: Sprite
+    state: datadisk4
+  - type: BitrunProgramDisk
+    action: ActionForceWall
+
+- type: bitrunShop
+  id: medical
+  product: BitrunDiskMedical
+  price: 300
+
+- type: bitrunShop
+  id: kinetic
+  product: BitrunDiskKinetic
+  price: 500
+
+- type: bitrunShop
+  id: blink
+  product: BitrunDiskBlink
+  price: 750
+
+- type: bitrunShop
+  id: wall
+  product: BitrunDiskForceWall
+  price: 900
+
+- type: bitrunShop
+  id: plushie
+  product: PlushieBee
+  price: 200
+
+- type: entity
+  parent: ClothingEyesBase
+  id: BitrunEchoVisor
+  name: echolocation blindfold
+  description: Displays the surroundings of your virtual avatar in the dark.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/echo_blindfold.rsi
+    state: blindfold
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/echo_blindfold_left.rsi
+        state: blindfold
+      right:
+      - sprite: _DeepLagoon/Bitrunning/echo_blindfold_right.rsi
+        state: blindfold
+  - type: Clothing
+    clothingVisuals:
+      eyes:
+      - sprite: _DeepLagoon/Bitrunning/echo_blindfold_equipped.rsi
+        state: blindfold
+  - type: PointLight
+    enabled: true
+    radius: 3.5
+    energy: 1
+    color: "#7eaac6"
+
+- type: entity
+  parent: ClothingUniformJumpsuitSalvageSpecialist
+  id: BitrunExplorerUniform
+  name: bitrunner's jumpsuit
+  description: A leather jumpsuit worn by a bitrunner.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+  - type: Clothing
+    clothingVisuals:
+      jumpsuit:
+      - sprite: _DeepLagoon/Bitrunning/bitrunner_uniform_equipped.rsi
+        state: bitrunner
+
+- type: startingGear
+  id: BitrunExplorerGear
+  equipment:
+    jumpsuit: BitrunExplorerUniform
+    shoes: ClothingShoesBootsWork
+    back: ClothingBackpackSatchelSalvage
+    pocket1: FlashlightLantern
+    pocket2: Crowbar
+  inhand:
+  - WeaponProtoKineticAccelerator
+
+- type: startingGear
+  id: BitrunMedicGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitMedicalDoctor
+    shoes: ClothingShoesBootsWork
+    back: ClothingBackpackSatchelMedical
+    pocket1: FlashlightLantern
+    pocket2: Crowbar
+  inhand:
+  - MedkitFilled
+
+- type: startingGear
+  id: BitrunSecurityGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitSec
+    shoes: ClothingShoesBootsWork
+    back: ClothingBackpackSatchelSecurity
+    pocket1: FlashlightLantern
+    pocket2: Crowbar
+  inhand:
+  - WeaponProtoKineticAccelerator
+
+- type: entity
+  parent: TechDiskBase
+  id: BitrunResearchDesignDisk
+  name: bitrun design disk
+  description: A recovered design disk containing recipes from the research catalogue.
+  suffix: ""
+  components:
+  - type: TechnologyDisk
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/disks.rsi
+    layers:
+    - state: rndmajordisk
+
+- type: entity
+  parent: MobHuman
+  id: BitrunIslandCombatant
+  name: island combatant
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: BitrunIslandCombatant
+  - type: Loadout
+    prototypes: [ BitrunIslandGear ]
+
+- type: startingGear
+  id: BitrunIslandGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitSec
+    shoes: ClothingShoesBootsWork
+    pocket1: FlashlightLantern
+  inhand:
+  - WeaponProtoKineticAccelerator

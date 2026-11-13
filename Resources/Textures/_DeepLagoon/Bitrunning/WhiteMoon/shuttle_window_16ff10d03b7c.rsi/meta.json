@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/shuttle_window.dmi.",
+  "states": [
+    {
+      "name": "shuttle_window-0"
+    },
+    {
+      "name": "shuttle_window-1"
+    },
+    {
+      "name": "shuttle_window-10"
+    },
+    {
+      "name": "shuttle_window-11"
+    },
+    {
+      "name": "shuttle_window-12"
+    },
+    {
+      "name": "shuttle_window-13"
+    },
+    {
+      "name": "shuttle_window-14"
+    },
+    {
+      "name": "shuttle_window-15"
+    },
+    {
+      "name": "shuttle_window-2"
+    },
+    {
+      "name": "shuttle_window-3"
+    },
+    {
+      "name": "shuttle_window-4"
+    },
+    {
+      "name": "shuttle_window-5"
+    },
+    {
+      "name": "shuttle_window-6"
+    },
+    {
+      "name": "shuttle_window-7"
+    },
+    {
+      "name": "shuttle_window-8"
+    },
+    {
+      "name": "shuttle_window-9"
+    }
+  ]
+}

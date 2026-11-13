@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/carpet_cyan.dmi.",
+  "states": [
+    {
+      "name": "carpet_cyan-0"
+    },
+    {
+      "name": "carpet_cyan-1"
+    },
+    {
+      "name": "carpet_cyan-10"
+    },
+    {
+      "name": "carpet_cyan-11"
+    },
+    {
+      "name": "carpet_cyan-12"
+    },
+    {
+      "name": "carpet_cyan-13"
+    },
+    {
+      "name": "carpet_cyan-14"
+    },
+    {
+      "name": "carpet_cyan-15"
+    },
+    {
+      "name": "carpet_cyan-2"
+    },
+    {
+      "name": "carpet_cyan-255"
+    },
+    {
+      "name": "carpet_cyan-3"
+    },
+    {
+      "name": "carpet_cyan-4"
+    },
+    {
+      "name": "carpet_cyan-5"
+    },
+    {
+      "name": "carpet_cyan-6"
+    },
+    {
+      "name": "carpet_cyan-7"
+    },
+    {
+      "name": "carpet_cyan-8"
+    },
+    {
+      "name": "carpet_cyan-9"
+    }
+  ]
+}

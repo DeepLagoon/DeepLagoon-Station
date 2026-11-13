@@ -1,0 +1,309 @@
+meta:
+  format: 7
+  category: Grid
+  entityCount: 51
+maps: []
+grids: [1]
+orphans: [1]
+nullspace: []
+tilemap:
+  "0": Space
+  "1": BitrunTile1f1c16a414c0
+  "2": BitrunTile9d77d56719ee
+  "3": FloorXeno
+entities:
+  - proto: ""
+    entities:
+      - uid: 1
+        components:
+          - type: MetaData
+            name: "abductor"
+          - type: Transform
+            parent: invalid
+            pos: 0,0
+          - type: MapGrid
+            canSplit: false
+            chunks:
+              0,0:
+                ind: 0,0
+                tiles: AQAAAAAAAAMAAAAAAAADAAAAAAAAAQAAAAAAAAMAAAAAAAADAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAgAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAIAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAIAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAACAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAwAAAAAAAAMAAAAAAAABAAAAAAAAAwAAAAAAAAMAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+                version: 7
+          - type: Broadphase
+          - type: Physics
+            bodyType: Static
+          - type: Fixtures
+            fixtures: {}
+          - type: ImplicitRoof
+            color: '#FFFFFFFF'
+          - type: GridEnvironment
+            forceGravity: true
+            alwaysPowered: true
+            safeAtmosphere: true
+  - proto: AirlockXenoBitrunArt05cd4b3ea2bc
+    entities:
+      - uid: 6
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,0.5
+      - uid: 40
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunAnimatedTile31bee6a4c5a9
+    entities:
+      - uid: 2
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,0.5
+      - uid: 5
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,0.5
+      - uid: 9
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,0.5
+      - uid: 11
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+      - uid: 12
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,1.5
+      - uid: 13
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,1.5
+      - uid: 14
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,1.5
+      - uid: 15
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,1.5
+      - uid: 18
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,2.5
+      - uid: 19
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+      - uid: 20
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,2.5
+      - uid: 23
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,3.5
+      - uid: 24
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,3.5
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,3.5
+      - uid: 28
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+      - uid: 30
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,4.5
+      - uid: 31
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,4.5
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,4.5
+      - uid: 33
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,4.5
+      - uid: 36
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,5.5
+      - uid: 39
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+      - uid: 43
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,5.5
+  - proto: BitrunArt2141f4b8d7d5
+    entities:
+      - uid: 29
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+          - type: MetaData
+            desc: "A funky looking disc, built into the floor."
+  - proto: BitrunArtcc5895b4a070
+    entities:
+      - uid: 34
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,4.5
+  - proto: BitrunAvatarSpawn
+    entities:
+      - uid: 44
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+      - uid: 45
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,2.5
+      - uid: 46
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,3.5
+  - proto: BitrunCacheGoal
+    entities:
+      - uid: 47
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,2.5
+      - uid: 48
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,3.5
+  - proto: BitrunExit
+    entities:
+      - uid: 49
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+      - uid: 50
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,2.5
+      - uid: 51
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,3.5
+  - proto: WallSolidChitinBitrunArtf1915bf9d29f
+    entities:
+      - uid: 3
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,0.5
+      - uid: 4
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,0.5
+      - uid: 7
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,0.5
+      - uid: 8
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,0.5
+      - uid: 10
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,1.5
+      - uid: 16
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,1.5
+      - uid: 17
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,2.5
+      - uid: 21
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,2.5
+      - uid: 22
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,3.5
+      - uid: 26
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,3.5
+      - uid: 27
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,4.5
+      - uid: 35
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,4.5
+      - uid: 37
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,5.5
+      - uid: 38
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,5.5
+      - uid: 41
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,5.5
+      - uid: 42
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,5.5

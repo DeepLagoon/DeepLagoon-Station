@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/pod_window.dmi.",
+  "states": [
+    {
+      "name": "pod_window-0"
+    },
+    {
+      "name": "pod_window-1"
+    },
+    {
+      "name": "pod_window-10"
+    },
+    {
+      "name": "pod_window-11"
+    },
+    {
+      "name": "pod_window-12"
+    },
+    {
+      "name": "pod_window-13"
+    },
+    {
+      "name": "pod_window-14"
+    },
+    {
+      "name": "pod_window-15"
+    },
+    {
+      "name": "pod_window-2"
+    },
+    {
+      "name": "pod_window-3"
+    },
+    {
+      "name": "pod_window-4"
+    },
+    {
+      "name": "pod_window-5"
+    },
+    {
+      "name": "pod_window-6"
+    },
+    {
+      "name": "pod_window-7"
+    },
+    {
+      "name": "pod_window-8"
+    },
+    {
+      "name": "pod_window-9"
+    }
+  ]
+}

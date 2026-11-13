@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/service/janitor.dmi.",
+  "states": [
+    {
+      "name": "4no_raisins"
+    },
+    {
+      "name": "boritosgreen"
+    },
+    {
+      "name": "boritospurple"
+    },
+    {
+      "name": "boritosred"
+    },
+    {
+      "name": "bucket"
+    },
+    {
+      "name": "candy"
+    },
+    {
+      "name": "cart",
+      "directions": 4
+    },
+    {
+      "name": "cheesie_honkers"
+    },
+    {
+      "name": "chips"
+    },
+    {
+      "name": "cleaner"
+    },
+    {
+      "name": "cola"
+    },
+    {
+      "name": "cone"
+    },
+    {
+      "name": "empty_caramel_popcorn"
+    },
+    {
+      "name": "energybar"
+    },
+    {
+      "name": "mop"
+    },
+    {
+      "name": "moth_ration"
+    },
+    {
+      "name": "peanuts"
+    },
+    {
+      "name": "pistachios_pack"
+    },
+    {
+      "name": "popcorn"
+    },
+    {
+      "name": "ready_donk"
+    },
+    {
+      "name": "shrimp_chips"
+    },
+    {
+      "name": "sunseeds"
+    },
+    {
+      "name": "tray"
+    },
+    {
+      "name": "woodbucket"
+    }
+  ]
+}

@@ -1,0 +1,323 @@
+- type: entity
+  parent: BaseComputer
+  id: BitrunQuantumConsole
+  name: bitrun quantum console
+  description: Deploys virtual domains and links a bitrunning complex to a research server.
+  components:
+  - type: BitrunConsole
+  - type: ResearchClient
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/console.rsi
+    layers:
+    - state: computer
+      map: [computerLayerBody]
+    - state: mining_key_off
+      map: [computerLayerKeyboard]
+    - state: bitrunning
+      map: [computerLayerScreen]
+      visible: false
+    - state: mining_key
+      map: [computerLayerKeys]
+    - sprite: Structures/Machines/computers.rsi
+      state: generic_panel_open
+      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+  - type: GenericVisualizer
+    visuals:
+      enum.ComputerVisuals.Powered:
+        computerLayerKeyboard:
+          True: {visible: false}
+          False: {visible: true}
+        computerLayerScreen:
+          True: {visible: true, shader: unshaded}
+          False: {visible: false}
+        computerLayerKeys:
+          True: {visible: true}
+          False: {visible: false}
+      enum.WiresVisuals.MaintenancePanelState:
+        enum.WiresVisualLayers.MaintenancePanel:
+          True: {visible: true}
+          False: {visible: false}
+  - type: Computer
+    board: BitrunQuantumConsoleCircuitboard
+  - type: ActivatableUI
+    key: enum.BitrunUiKey.Key
+    blockSpectators: true
+  - type: UserInterface
+    interfaces:
+      enum.BitrunUiKey.Key:
+        type: BitrunBoundUserInterface
+      enum.WiresUiKey.Key:
+        type: WiresBoundUserInterface
+
+- type: entity
+  parent: [BaseMachinePowered, ConstructibleMachine]
+  id: BitrunQuantumServer
+  name: bitrun quantum server
+  description: Hosts the virtual domain and connects nearby netpods to it.
+  components:
+  - type: BitrunServer
+  - type: Machine
+    board: BitrunQuantumServerCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 600
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    layers:
+    - state: qserver
+      map: [server]
+    - state: qserver_panel
+      map: [maintenance]
+      visible: false
+  - type: WiresPanel
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.BitrunMachineVisuals.Active:
+        server:
+          True: {state: qserver_on}
+          False: {state: qserver}
+      enum.WiresVisuals.MaintenancePanelState:
+        maintenance:
+          True: {visible: true}
+          False: {visible: false}
+
+- type: entity
+  parent: [BaseMachinePowered, ConstructibleMachine]
+  id: BitrunNetpod
+  name: netpod
+  description: Houses a bitrunner's body while they control an avatar in a virtual domain.
+  components:
+  - type: BitrunPod
+  - type: Machine
+    board: BitrunNetpodCircuitboard
+  - type: ContainerContainer
+    containers:
+      machine_board: !type:Container
+      machine_parts: !type:Container
+      body: !type:ContainerSlot
+  - type: EmptyOnMachineDeconstruct
+    containers: [body]
+  - type: ApcPowerReceiver
+    powerLoad: 350
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    layers:
+    - state: netpod
+      map: [pod]
+  - type: WiresPanel
+  - type: Appearance
+  - type: ActivatableUIRequiresPower
+  - type: ActivatableUI
+    key: enum.BitrunUiKey.Key
+    verbOnly: true
+    blockSpectators: true
+    verbText: bitrun-ui-outfits
+  - type: UserInterface
+    interfaces:
+      enum.BitrunUiKey.Key:
+        type: BitrunBoundUserInterface
+
+- type: entity
+  parent: [BaseMachinePowered, ConstructibleMachine]
+  id: BitrunByteforge
+  name: byteforge
+  description: Materializes recovered virtual loot after a successful bitrun.
+  components:
+  - type: BitrunForge
+  - type: Machine
+    board: BitrunByteforgeCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 300
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    layers:
+    - state: byteforge
+    - state: on_particles
+      map: [particles]
+      visible: false
+      shader: unshaded
+    - state: byteforge_panel
+      map: [maintenance]
+      visible: false
+  - type: WiresPanel
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.PowerDeviceVisuals.Powered:
+        particles:
+          True: {visible: true}
+          False: {visible: false}
+      enum.WiresVisuals.MaintenancePanelState:
+        maintenance:
+          True: {visible: true}
+          False: {visible: false}
+
+- type: entity
+  parent: BaseComputer
+  id: BitrunOrderConsole
+  name: bitrunning supplies console
+  description: Exchanges personal bitrunning credits for supplies and avatar upgrades.
+  components:
+  - type: BitrunVendor
+  - type: Computer
+    board: BitrunOrderConsoleCircuitboard
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/machines.rsi
+    layers:
+    - state: vendor_off
+      map: [computerLayerBody]
+    - state: vendor
+      map: [computerLayerScreen]
+      visible: false
+    - sprite: Structures/Machines/computers.rsi
+      state: generic_panel_open
+      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+  - type: GenericVisualizer
+    visuals:
+      enum.ComputerVisuals.Powered:
+        computerLayerScreen:
+          True: {visible: true}
+          False: {visible: false}
+      enum.WiresVisuals.MaintenancePanelState:
+        enum.WiresVisualLayers.MaintenancePanel:
+          True: {visible: true}
+          False: {visible: false}
+  - type: ActivatableUI
+    key: enum.BitrunUiKey.Key
+    blockSpectators: true
+  - type: UserInterface
+    interfaces:
+      enum.BitrunUiKey.Key:
+        type: BitrunBoundUserInterface
+      enum.WiresUiKey.Key:
+        type: WiresBoundUserInterface
+
+- type: entity
+  parent: BaseComputerCircuitboard
+  id: BitrunQuantumConsoleCircuitboard
+  name: bitrun quantum console board
+  description: A printed circuit board for a bitrun quantum console.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/circuitboard.rsi
+    layers:
+    - state: circuit_board
+      color: "#C47749"
+    - state: circuit_chip
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_left.rsi
+        state: electronic
+      right:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_right.rsi
+        state: electronic
+  - type: ComputerBoard
+    prototype: BitrunQuantumConsole
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: BitrunQuantumServerCircuitboard
+  name: bitrun quantum server board
+  description: A printed circuit board for a bitrun quantum server.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/circuitboard.rsi
+    layers:
+    - state: circuit_board
+      color: "#C47749"
+    - state: circuit_chip
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_left.rsi
+        state: electronic
+      right:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_right.rsi
+        state: electronic
+  - type: MachineBoard
+    prototype: BitrunQuantumServer
+    requirements:
+      Capacitor: 2
+    stackRequirements:
+      Cable: 5
+      Plasma: 3
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: BitrunNetpodCircuitboard
+  name: netpod board
+  description: A printed circuit board for a netpod.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/circuitboard.rsi
+    layers:
+    - state: circuit_board
+      color: "#C47749"
+    - state: circuit_chip
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_left.rsi
+        state: electronic
+      right:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_right.rsi
+        state: electronic
+  - type: MachineBoard
+    prototype: BitrunNetpod
+    requirements:
+      Capacitor: 1
+    stackRequirements:
+      Glass: 5
+      Cable: 2
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: BitrunByteforgeCircuitboard
+  name: byteforge board
+  description: A printed circuit board for a byteforge.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/circuitboard.rsi
+    layers:
+    - state: circuit_board
+      color: "#C47749"
+    - state: circuit_chip
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_left.rsi
+        state: electronic
+      right:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_right.rsi
+        state: electronic
+  - type: MachineBoard
+    prototype: BitrunByteforge
+    requirements:
+      Capacitor: 2
+    stackRequirements:
+      Cable: 4
+      Plasma: 3
+
+- type: entity
+  parent: BaseComputerCircuitboard
+  id: BitrunOrderConsoleCircuitboard
+  name: bitrunning supplies console board
+  description: A printed circuit board for a bitrunning supplies console.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/circuitboard.rsi
+    layers:
+    - state: circuit_board
+      color: "#92DCBA"
+    - state: circuit_chip
+  - type: Item
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_left.rsi
+        state: electronic
+      right:
+      - sprite: _DeepLagoon/Bitrunning/device_inhand_right.rsi
+        state: electronic
+  - type: ComputerBoard
+    prototype: BitrunOrderConsole

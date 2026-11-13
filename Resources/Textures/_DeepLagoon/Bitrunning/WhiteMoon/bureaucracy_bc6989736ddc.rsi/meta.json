@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/service/bureaucracy.dmi.",
+  "states": [
+    {
+      "name": "desk_bell"
+    },
+    {
+      "name": "filingcabinet"
+    },
+    {
+      "name": "folder"
+    },
+    {
+      "name": "folder_blue"
+    },
+    {
+      "name": "folder_red"
+    },
+    {
+      "name": "folder_white"
+    },
+    {
+      "name": "folder_yellow"
+    },
+    {
+      "name": "newspaper"
+    },
+    {
+      "name": "paper"
+    },
+    {
+      "name": "paper_bin0"
+    },
+    {
+      "name": "paper_bin_carbon0"
+    },
+    {
+      "name": "papercutter"
+    },
+    {
+      "name": "paperslip"
+    },
+    {
+      "name": "pen"
+    },
+    {
+      "name": "pen-fountain"
+    },
+    {
+      "name": "pen_4color"
+    },
+    {
+      "name": "pen_blue"
+    },
+    {
+      "name": "scrap"
+    },
+    {
+      "name": "scrap_bloodied"
+    },
+    {
+      "name": "stamp-hop"
+    },
+    {
+      "name": "ticketmachine"
+    }
+  ]
+}

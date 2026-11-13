@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/catwalk.dmi.",
+  "states": [
+    {
+      "name": "catwalk-0"
+    },
+    {
+      "name": "catwalk-1"
+    },
+    {
+      "name": "catwalk-10"
+    },
+    {
+      "name": "catwalk-11"
+    },
+    {
+      "name": "catwalk-12"
+    },
+    {
+      "name": "catwalk-13"
+    },
+    {
+      "name": "catwalk-14"
+    },
+    {
+      "name": "catwalk-15"
+    },
+    {
+      "name": "catwalk-2"
+    },
+    {
+      "name": "catwalk-3"
+    },
+    {
+      "name": "catwalk-4"
+    },
+    {
+      "name": "catwalk-5"
+    },
+    {
+      "name": "catwalk-6"
+    },
+    {
+      "name": "catwalk-7"
+    },
+    {
+      "name": "catwalk-8"
+    },
+    {
+      "name": "catwalk-9"
+    }
+  ]
+}

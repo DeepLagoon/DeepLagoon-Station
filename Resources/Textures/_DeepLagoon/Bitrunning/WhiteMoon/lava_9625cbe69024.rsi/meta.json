@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/lava.dmi.",
+  "states": [
+    {
+      "name": "lava-0",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-1",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-10",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-11",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-12",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-13",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-14",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-15",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-2",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-255",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-3",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-4",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-5",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-6",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-7",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-8",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "lava-9",
+      "delays": [
+        [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      ]
+    }
+  ]
+}

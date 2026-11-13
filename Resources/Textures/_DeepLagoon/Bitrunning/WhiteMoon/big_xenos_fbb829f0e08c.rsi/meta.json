@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "size": {
+    "x": 64,
+    "y": 64
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/xenos_skyrat_redo/icons/big_xenos.dmi.",
+  "states": [
+    {
+      "name": "aliendrone",
+      "directions": 4
+    },
+    {
+      "name": "alienqueen",
+      "directions": 4
+    }
+  ]
+}

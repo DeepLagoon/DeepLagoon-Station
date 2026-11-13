@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/walls/meat_wall.dmi.",
+  "states": [
+    {
+      "name": "meat_wall-0"
+    },
+    {
+      "name": "meat_wall-1"
+    },
+    {
+      "name": "meat_wall-10"
+    },
+    {
+      "name": "meat_wall-11"
+    },
+    {
+      "name": "meat_wall-12"
+    },
+    {
+      "name": "meat_wall-13"
+    },
+    {
+      "name": "meat_wall-14"
+    },
+    {
+      "name": "meat_wall-15"
+    },
+    {
+      "name": "meat_wall-2"
+    },
+    {
+      "name": "meat_wall-3"
+    },
+    {
+      "name": "meat_wall-4"
+    },
+    {
+      "name": "meat_wall-5"
+    },
+    {
+      "name": "meat_wall-6"
+    },
+    {
+      "name": "meat_wall-7"
+    },
+    {
+      "name": "meat_wall-8"
+    },
+    {
+      "name": "meat_wall-9"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/debris.dmi.",
+  "states": [
+    {
+      "name": "ants",
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "ash"
+    },
+    {
+      "name": "big_ash"
+    },
+    {
+      "name": "fire_ants",
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "garbage",
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "large"
+    },
+    {
+      "name": "medium"
+    },
+    {
+      "name": "paper_shreds"
+    },
+    {
+      "name": "plasmalarge"
+    },
+    {
+      "name": "plastitaniumlarge"
+    },
+    {
+      "name": "plastitaniumtiny",
+      "directions": 4
+    },
+    {
+      "name": "shards"
+    },
+    {
+      "name": "tiny",
+      "directions": 4
+    },
+    {
+      "name": "titaniumlarge"
+    }
+  ]
+}

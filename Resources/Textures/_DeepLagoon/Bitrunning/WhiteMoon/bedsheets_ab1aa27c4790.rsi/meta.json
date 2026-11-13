@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/bedsheets.dmi.",
+  "states": [
+    {
+      "name": "double_sheethop",
+      "directions": 4
+    },
+    {
+      "name": "double_sheethos",
+      "directions": 4
+    },
+    {
+      "name": "double_sheetrainbow",
+      "directions": 4
+    },
+    {
+      "name": "sheetpirate",
+      "directions": 4
+    }
+  ]
+}

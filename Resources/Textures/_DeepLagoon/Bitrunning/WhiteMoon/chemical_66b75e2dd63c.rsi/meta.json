@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/medical/chemical.dmi.",
+  "states": [
+    {
+      "name": "bandaid_both"
+    },
+    {
+      "name": "beaker"
+    },
+    {
+      "name": "beakerlarge"
+    },
+    {
+      "name": "booze_dispenser",
+      "directions": 4
+    },
+    {
+      "name": "bottle"
+    },
+    {
+      "name": "clownflower"
+    },
+    {
+      "name": "condimaster"
+    },
+    {
+      "name": "pill12"
+    },
+    {
+      "name": "pill14"
+    },
+    {
+      "name": "pill19"
+    },
+    {
+      "name": "pill22"
+    },
+    {
+      "name": "pill7"
+    },
+    {
+      "name": "pill8"
+    },
+    {
+      "name": "pill_happy"
+    },
+    {
+      "name": "rack"
+    },
+    {
+      "name": "separator"
+    },
+    {
+      "name": "soda_dispenser",
+      "directions": 4
+    }
+  ]
+}

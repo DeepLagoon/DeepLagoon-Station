@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/walls/shuttle_wall.dmi.",
+  "states": [
+    {
+      "name": "shuttle_wall-0"
+    },
+    {
+      "name": "shuttle_wall-1"
+    },
+    {
+      "name": "shuttle_wall-10"
+    },
+    {
+      "name": "shuttle_wall-11"
+    },
+    {
+      "name": "shuttle_wall-12"
+    },
+    {
+      "name": "shuttle_wall-13"
+    },
+    {
+      "name": "shuttle_wall-14"
+    },
+    {
+      "name": "shuttle_wall-15"
+    },
+    {
+      "name": "shuttle_wall-2"
+    },
+    {
+      "name": "shuttle_wall-3"
+    },
+    {
+      "name": "shuttle_wall-4"
+    },
+    {
+      "name": "shuttle_wall-5"
+    },
+    {
+      "name": "shuttle_wall-6"
+    },
+    {
+      "name": "shuttle_wall-7"
+    },
+    {
+      "name": "shuttle_wall-8"
+    },
+    {
+      "name": "shuttle_wall-9"
+    }
+  ]
+}

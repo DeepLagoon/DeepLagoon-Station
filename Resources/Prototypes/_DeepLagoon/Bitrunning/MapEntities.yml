@@ -1,0 +1,443 @@
+- type: entity
+  id: BitrunVirtualWall
+  name: binary wall
+  parent: BaseWall
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/walls.rsi
+    state: binary
+  - type: Icon
+    sprite: _DeepLagoon/Bitrunning/walls.rsi
+    state: binary
+
+- type: entity
+  id: BitrunReinforcedWall
+  parent: WallReinforced
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunAlienWall
+  parent: WallSolidChitin
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunFleshWall
+  parent: WallMeat
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunStoneWall
+  parent: WallRockBasalt
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunIceWall
+  parent: WallRockSnow
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunObservationWindow
+  parent: ReinforcedWindow
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds: []
+
+- type: entity
+  id: BitrunFakeDoor
+  name: sealed bulkhead
+  parent: BaseWall
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Structures/Doors/Shutters/blastdoor.rsi
+    state: closed
+  - type: Icon
+    sprite: Structures/Doors/Shutters/blastdoor.rsi
+    state: closed
+
+- type: entity
+  id: BitrunMilsimFog
+  name: fog of war
+  parent: BaseWall
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/fog.rsi
+    state: pyroclastic
+  - type: Icon
+    sprite: _DeepLagoon/Bitrunning/fog.rsi
+    state: pyroclastic
+
+- type: entity
+  id: BitrunPlasmaLake
+  name: liquid plasma
+  parent: FloorLavaEntity
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: TileEmission
+    color: "#B461FF"
+  - type: Sprite
+    color: "#B461FF"
+
+- type: entity
+  id: BitrunHealthStation
+  name: virtual health station
+  parent: MedicalBed
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/health_station.rsi
+    state: health_station
+
+- type: entity
+  id: BitrunMilsimMine
+  name: simulation land mine
+  parent: LandMineExplosive
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/mine.rsi
+
+- type: entity
+  id: BitrunMilsimLog
+  name: military exercise log
+  parent: BaseItem
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/milsim_tape.rsi
+    state: tape_blue
+
+- type: entity
+  id: BitrunStageButton
+  name: exercise entry control
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Sprite
+    drawdepth: WallMountedItems
+    sprite: Structures/Wallmounts/switch.rsi
+    layers:
+    - state: base
+    - state: button
+    - state: button-unshaded
+      shader: unshaded
+  - type: BitrunScenarioMarker
+
+- type: entity
+  id: BitrunFishingRod
+  name: virtual fishing rod
+  description: Cast from the marked spot at Breeze Bay.
+  parent: BaseItem
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/fishing_rod.rsi
+    state: fishing_rod
+  - type: Item
+    size: Large
+    inhandVisuals:
+      left:
+      - sprite: _DeepLagoon/Bitrunning/fishing_rod_inhand_left.rsi
+        state: rod
+      right:
+      - sprite: _DeepLagoon/Bitrunning/fishing_rod_inhand_right.rsi
+        state: rod
+
+- type: entity
+  id: BitrunFishingSpot
+  name: fishing spot
+  description: The fish are biting here.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Sprite
+    drawdepth: FloorObjects
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    state: goal
+  - type: BitrunScenarioMarker
+
+- type: entity
+  id: BitrunHuntAnimal
+  name: virtual deer
+  parent: MobGoat
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base"]
+      sprite: _DeepLagoon/Bitrunning/deer.rsi
+      state: deer-doe
+  - type: DamageStateVisuals
+    states:
+      Alive: { Base: deer-doe }
+      Critical: { Base: deer-doe-dead }
+      Dead: { Base: deer-doe-dead }
+
+- type: entity
+  id: BitrunGondola
+  name: virtual gondola
+  parent: MobSloth
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/gondola.rsi
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base"]
+      state: gondola
+  - type: DamageStateVisuals
+    states:
+      Alive: { Base: gondola }
+      Critical: { Base: gondola_2_dead }
+      Dead: { Base: gondola_2_dead }
+
+- type: entity
+  id: BitrunRitualCrew
+  name: virtual crew member
+  parent: MobHuman
+  categories: [ HideSpawnMenu ]
+
+- type: entity
+  id: BitrunGhostRoleBase
+  abstract: true
+  parent: MarkerBase
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: GhostRole
+    rules: ghost-role-information-freeagent-rules
+    mindRoles:
+    - MindRoleGhostRoleFreeAgent
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    layers:
+    - state: mob_segment
+
+- type: entity
+  id: BitrunGhostSkeleton
+  name: virtual beach skeleton
+  parent: BitrunGhostRoleBase
+  components:
+  - type: GhostRole
+    name: bitrun-ghost-beach-name
+    description: bitrun-ghost-beach-desc
+  - type: GhostRoleMobSpawner
+    prototype: MobSkeletonPerson
+
+- type: entity
+  id: BitrunGhostIslander
+  name: virtual islander
+  parent: BitrunGhostRoleBase
+  components:
+  - type: GhostRole
+    name: bitrun-ghost-islander-name
+    description: bitrun-ghost-islander-desc
+  - type: GhostRoleMobSpawner
+    prototype: BitrunIslandCombatant
+
+- type: entity
+  id: BitrunGhostPirate
+  name: virtual pirate
+  parent: BitrunGhostRoleBase
+  components:
+  - type: GhostRole
+    name: bitrun-ghost-pirate-name
+    description: bitrun-ghost-pirate-desc
+  - type: GhostRoleMobSpawner
+    prototype: MobSkeletonPirate
+
+- type: entity
+  id: BitrunGhostSoldier
+  name: virtual soldier
+  parent: BitrunGhostRoleBase
+  components:
+  - type: GhostRole
+    name: bitrun-ghost-soldier-name
+    description: bitrun-ghost-soldier-desc
+  - type: GhostRoleMobSpawner
+    prototype: MobHumanSyndicateAgent
+
+- type: entity
+  id: BitrunRitualAltar
+  name: virtual ritual altar
+  parent: TableStone
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: BitrunScenarioMarker
+
+- type: entity
+  id: BitrunAlienGrowth
+  name: virtual alien growth
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    drawdepth: FloorObjects
+    sprite: Objects/Misc/kudzu.rsi
+    state: kudzu_11
+
+- type: entity
+  id: BitrunSeashell
+  name: virtual seashell
+  parent: BaseItem
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/beach.rsi
+    state: shell1
+
+
+- type: entity
+  id: BitrunResinWall
+  name: virtual resin wall
+  parent: WallSolidChitin
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 85
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [Destruction]
+
+- type: entity
+  id: BitrunClownPortal
+  name: bluespace banana peel
+  description: A very strange peel that connects the staging area and the arena.
+  parent: PortalBlue
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Portal
+    randomTeleport: false
+
+- type: entity
+  id: BitrunMilsimInfantry
+  name: virtual CIN infantry
+  parent: MobSyndicateFootsoldier
+  categories: [ HideSpawnMenu ]
+
+- type: entity
+  id: BitrunMilsimRifleman
+  name: virtual CIN rifleman
+  parent: MobSyndicateFootsoldierPilot
+  categories: [ HideSpawnMenu ]
+
+
+- type: accessLevel
+  id: BitrunYellowAccess
+  name: bitrun-access-yellow
+
+- type: accessLevel
+  id: BitrunBlueAccess
+  name: bitrun-access-blue
+
+- type: entity
+  id: BitrunYellowKeycard
+  name: yellow exercise keycard
+  description: It opens yellow access doors in the virtual compound.
+  parent: IDCardStandard
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    layers:
+    - state: default
+      color: "#f0da12"
+  - type: Access
+    tags: [BitrunYellowAccess]
+
+- type: entity
+  id: BitrunBlueKeycard
+  name: blue exercise keycard
+  description: It opens blue access doors in the virtual compound.
+  parent: IDCardStandard
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    layers:
+    - state: default
+      color: "#3bbbdb"
+  - type: Access
+    tags: [BitrunBlueAccess]
+
+- type: entity
+  id: BitrunYellowDoorElectronics
+  parent: DoorElectronics
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [[BitrunYellowAccess]]
+
+- type: entity
+  id: BitrunBlueDoorElectronics
+  parent: DoorElectronics
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [[BitrunBlueAccess]]
+
+- type: entity
+  id: BitrunYellowLockedDoor
+  name: yellow exercise airlock
+  description: It requires the yellow exercise keycard.
+  parent: Airlock
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    color: "#f0da12"
+  - type: ContainerFill
+    containers:
+      board: [BitrunYellowDoorElectronics]
+
+- type: entity
+  id: BitrunBlueLockedDoor
+  name: blue exercise airlock
+  description: It requires the blue exercise keycard.
+  parent: Airlock
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    color: "#3bbbdb"
+  - type: ContainerFill
+    containers:
+      board: [BitrunBlueDoorElectronics]
+
+- type: entity
+  id: BitrunWeaponSupplyBox
+  name: mystery weapons crate
+  description: A supply crate left for runners in the dark.
+  parent: CrateWood
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ContainerFill
+    containers:
+      entity_storage:
+      - WeaponPistolMk58
+      - Magazine45_ACPPistolFMJ
+      - Magazine45_ACPPistolFMJ
+      - WeaponRevolverInspector
+      - SpeedLoaderMagnum

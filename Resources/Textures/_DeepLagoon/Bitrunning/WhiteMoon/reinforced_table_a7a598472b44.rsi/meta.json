@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/reinforced_table.dmi.",
+  "states": [
+    {
+      "name": "reinforced_table-0"
+    },
+    {
+      "name": "reinforced_table-1"
+    },
+    {
+      "name": "reinforced_table-10"
+    },
+    {
+      "name": "reinforced_table-11"
+    },
+    {
+      "name": "reinforced_table-12"
+    },
+    {
+      "name": "reinforced_table-13"
+    },
+    {
+      "name": "reinforced_table-14"
+    },
+    {
+      "name": "reinforced_table-15"
+    },
+    {
+      "name": "reinforced_table-2"
+    },
+    {
+      "name": "reinforced_table-3"
+    },
+    {
+      "name": "reinforced_table-4"
+    },
+    {
+      "name": "reinforced_table-5"
+    },
+    {
+      "name": "reinforced_table-6"
+    },
+    {
+      "name": "reinforced_table-7"
+    },
+    {
+      "name": "reinforced_table-8"
+    },
+    {
+      "name": "reinforced_table-9"
+    }
+  ]
+}

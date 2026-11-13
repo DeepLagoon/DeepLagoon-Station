@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/effects/blood.dmi.",
+  "states": [
+    {
+      "name": "drip5"
+    },
+    {
+      "name": "floor1"
+    },
+    {
+      "name": "floor3"
+    },
+    {
+      "name": "floor4"
+    },
+    {
+      "name": "floor5"
+    },
+    {
+      "name": "floor6"
+    },
+    {
+      "name": "floor7"
+    },
+    {
+      "name": "gib1"
+    },
+    {
+      "name": "gibbl1"
+    },
+    {
+      "name": "gibdown1"
+    },
+    {
+      "name": "gibmid1"
+    },
+    {
+      "name": "gibup1"
+    },
+    {
+      "name": "remains"
+    },
+    {
+      "name": "remainslarva"
+    },
+    {
+      "name": "remainsplasma"
+    },
+    {
+      "name": "remainsxeno"
+    },
+    {
+      "name": "vomit_1"
+    },
+    {
+      "name": "vomittox_1"
+    },
+    {
+      "name": "xgibdown1"
+    },
+    {
+      "name": "xgibmid1"
+    },
+    {
+      "name": "xgibup1"
+    }
+  ]
+}

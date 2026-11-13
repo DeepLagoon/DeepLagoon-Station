@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/walls/hierophant_wall_temp.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "hierophant_wall_temp-0"
+    },
+    {
+      "name": "hierophant_wall_temp-1"
+    },
+    {
+      "name": "hierophant_wall_temp-2"
+    },
+    {
+      "name": "hierophant_wall_temp-3"
+    },
+    {
+      "name": "hierophant_wall_temp-4"
+    },
+    {
+      "name": "hierophant_wall_temp-5"
+    },
+    {
+      "name": "hierophant_wall_temp-6"
+    },
+    {
+      "name": "hierophant_wall_temp-7"
+    },
+    {
+      "name": "hierophant_wall_temp-8"
+    },
+    {
+      "name": "hierophant_wall_temp-9"
+    },
+    {
+      "name": "hierophant_wall_temp-10"
+    },
+    {
+      "name": "hierophant_wall_temp-11"
+    },
+    {
+      "name": "hierophant_wall_temp-12"
+    },
+    {
+      "name": "hierophant_wall_temp-13"
+    },
+    {
+      "name": "hierophant_wall_temp-14"
+    },
+    {
+      "name": "hierophant_wall_temp-15"
+    },
+    {
+      "name": "hierophant_wall_temp-21"
+    },
+    {
+      "name": "hierophant_wall_temp-23"
+    },
+    {
+      "name": "hierophant_wall_temp-29"
+    },
+    {
+      "name": "hierophant_wall_temp-31"
+    },
+    {
+      "name": "hierophant_wall_temp-38"
+    },
+    {
+      "name": "hierophant_wall_temp-39"
+    },
+    {
+      "name": "hierophant_wall_temp-46"
+    },
+    {
+      "name": "hierophant_wall_temp-47"
+    },
+    {
+      "name": "hierophant_wall_temp-55"
+    },
+    {
+      "name": "hierophant_wall_temp-63"
+    },
+    {
+      "name": "hierophant_wall_temp-74"
+    },
+    {
+      "name": "hierophant_wall_temp-75"
+    },
+    {
+      "name": "hierophant_wall_temp-78"
+    },
+    {
+      "name": "hierophant_wall_temp-79"
+    },
+    {
+      "name": "hierophant_wall_temp-95"
+    },
+    {
+      "name": "hierophant_wall_temp-110"
+    },
+    {
+      "name": "hierophant_wall_temp-111"
+    },
+    {
+      "name": "hierophant_wall_temp-127"
+    },
+    {
+      "name": "hierophant_wall_temp-137"
+    },
+    {
+      "name": "hierophant_wall_temp-139"
+    },
+    {
+      "name": "hierophant_wall_temp-141"
+    },
+    {
+      "name": "hierophant_wall_temp-143"
+    },
+    {
+      "name": "hierophant_wall_temp-157"
+    },
+    {
+      "name": "hierophant_wall_temp-159"
+    },
+    {
+      "name": "hierophant_wall_temp-175"
+    },
+    {
+      "name": "hierophant_wall_temp-191"
+    },
+    {
+      "name": "hierophant_wall_temp-203"
+    },
+    {
+      "name": "hierophant_wall_temp-207"
+    },
+    {
+      "name": "hierophant_wall_temp-223"
+    },
+    {
+      "name": "hierophant_wall_temp-239"
+    },
+    {
+      "name": "hierophant_wall_temp-255"
+    }
+  ]
+}

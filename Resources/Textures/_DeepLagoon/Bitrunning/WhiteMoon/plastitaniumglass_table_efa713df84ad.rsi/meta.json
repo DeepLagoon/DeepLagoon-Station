@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/plastitaniumglass_table.dmi.",
+  "states": [
+    {
+      "name": "plastitaniumglass_table-0"
+    },
+    {
+      "name": "plastitaniumglass_table-1"
+    },
+    {
+      "name": "plastitaniumglass_table-10"
+    },
+    {
+      "name": "plastitaniumglass_table-11"
+    },
+    {
+      "name": "plastitaniumglass_table-12"
+    },
+    {
+      "name": "plastitaniumglass_table-13"
+    },
+    {
+      "name": "plastitaniumglass_table-14"
+    },
+    {
+      "name": "plastitaniumglass_table-15"
+    },
+    {
+      "name": "plastitaniumglass_table-2"
+    },
+    {
+      "name": "plastitaniumglass_table-3"
+    },
+    {
+      "name": "plastitaniumglass_table-4"
+    },
+    {
+      "name": "plastitaniumglass_table-5"
+    },
+    {
+      "name": "plastitaniumglass_table-6"
+    },
+    {
+      "name": "plastitaniumglass_table-7"
+    },
+    {
+      "name": "plastitaniumglass_table-8"
+    },
+    {
+      "name": "plastitaniumglass_table-9"
+    }
+  ]
+}

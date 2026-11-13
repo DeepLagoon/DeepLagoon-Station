@@ -1,0 +1,1914 @@
+{
+  "revision": "634692776c7b38f998c12907bdbabe3aae46df65",
+  "atlases": [
+    {
+      "source": "icons/obj/machines/bitrunning.dmi",
+      "sha256": "8c0d69d41c09c4ef6c8e1ab4076c7eaec0ad2b79a1241fda52196e0b230073a3",
+      "rsi": "machines.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "qserver",
+          "rsi": "qserver",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "qserver_on",
+          "rsi": "qserver_on",
+          "directions": 1,
+          "frames": 12
+        },
+        {
+          "dmi": "qserver_off",
+          "rsi": "qserver_off",
+          "directions": 1,
+          "frames": 13
+        },
+        {
+          "dmi": "netpod",
+          "rsi": "netpod",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "netpod_closed_active",
+          "rsi": "netpod_closed_active",
+          "directions": 1,
+          "frames": 8
+        },
+        {
+          "dmi": "netpod_closed",
+          "rsi": "netpod_closed",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "netpod_closing",
+          "rsi": "netpod_closing",
+          "directions": 1,
+          "frames": 17
+        },
+        {
+          "dmi": "netpod_open_active",
+          "rsi": "netpod_open_active",
+          "directions": 1,
+          "frames": 6
+        },
+        {
+          "dmi": "netpod_opening",
+          "rsi": "netpod_opening",
+          "directions": 1,
+          "frames": 17
+        },
+        {
+          "dmi": "netpod_panel",
+          "rsi": "netpod_panel",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "qserver_panel",
+          "rsi": "qserver_panel",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "vendor",
+          "rsi": "vendor",
+          "directions": 4,
+          "frames": 12
+        },
+        {
+          "dmi": "vendor_off",
+          "rsi": "vendor_off",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "byteforge",
+          "rsi": "byteforge",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "byteforge_panel",
+          "rsi": "byteforge_panel",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "on_overlay",
+          "rsi": "on_overlay",
+          "directions": 1,
+          "frames": 7,
+          "loop": 1
+        },
+        {
+          "dmi": "on_particles",
+          "rsi": "on_particles",
+          "directions": 1,
+          "frames": 7
+        },
+        {
+          "dmi": "on_particles_angry",
+          "rsi": "on_particles_angry",
+          "directions": 1,
+          "frames": 7
+        },
+        {
+          "dmi": "on_overlay_angry",
+          "rsi": "on_overlay_angry",
+          "directions": 1,
+          "frames": 7,
+          "loop": 1
+        },
+        {
+          "dmi": "emag_overlay",
+          "rsi": "emag_overlay",
+          "directions": 1,
+          "frames": 12
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/bitrunning.dmi",
+      "sha256": "85cea50bfc404c0fa7cb900be32623ae8ae8c84c96d51f45dbf0ba565272697c",
+      "rsi": "effects.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "crate",
+          "rsi": "crate",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "goal",
+          "rsi": "goal",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hololadder",
+          "rsi": "hololadder",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "safehouse",
+          "rsi": "safehouse",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "glitch",
+          "rsi": "glitch",
+          "directions": 1,
+          "frames": 9
+        },
+        {
+          "dmi": "redshift",
+          "rsi": "redshift",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "mob_segment",
+          "rsi": "mob_segment",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "perm_exit",
+          "rsi": "perm_exit",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/bitrunning_48.dmi",
+      "sha256": "b1091b7a17329a623ae53b15db12d5a6fca03b8107309bd30d5fc3275bcd9bd3",
+      "rsi": "effects_48.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "glitch",
+          "rsi": "glitch",
+          "directions": 1,
+          "frames": 9
+        },
+        {
+          "dmi": "redshift",
+          "rsi": "redshift",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/bitrunning_64.dmi",
+      "sha256": "63c903df25fd22569f2f82ccf53b533887584ae5b9a4cceb5cdccea2c120d9b1",
+      "rsi": "effects_64.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "glitch",
+          "rsi": "glitch",
+          "directions": 1,
+          "frames": 9
+        },
+        {
+          "dmi": "redshift",
+          "rsi": "redshift",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/nonhuman-player/netguardian.dmi",
+      "sha256": "de384fcb0de1584f4dbcd69a39bfee9b06132ec17a7cd21aa4ea71392db8b430",
+      "rsi": "netguardian.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "netguardian",
+          "rsi": "netguardian",
+          "directions": 4,
+          "frames": 11
+        },
+        {
+          "dmi": "crash",
+          "rsi": "crash",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "rockets",
+          "rsi": "rockets",
+          "directions": 4,
+          "frames": 6,
+          "loop": 1
+        },
+        {
+          "dmi": "scan",
+          "rsi": "scan",
+          "directions": 4,
+          "frames": 13
+        },
+        {
+          "dmi": "netguardian_emissive",
+          "rsi": "netguardian_emissive",
+          "directions": 4,
+          "frames": 11,
+          "surplus_delay_deciseconds": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "source": "modular_skyrat/modules/bitrunning/icons/health_station.dmi",
+      "sha256": "1581d9e9e94b5f961cc647fe6830bc7484e9e2409c3ffc51a9809355c7f040df",
+      "rsi": "health_station.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "health_station",
+          "rsi": "health_station",
+          "directions": 1,
+          "frames": 6
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/machines/computer.dmi",
+      "sha256": "f06584e97f2896edc2804a3675fdce5ddc002e9bb50bb44dca615ed8b3d2051a",
+      "rsi": "console.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "computer_broken",
+          "rsi": "computer_broken",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "mining",
+          "rsi": "mining",
+          "directions": 4,
+          "frames": 8
+        },
+        {
+          "dmi": "mining_key",
+          "rsi": "mining_key",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "mining_key_off",
+          "rsi": "mining_key_off",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "computer",
+          "rsi": "computer",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "bitrunning",
+          "rsi": "bitrunning",
+          "directions": 4,
+          "frames": 14
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/storage/crates.dmi",
+      "sha256": "7d37db84df2313da3b8c40a95fcd076dbaa874f57cbd671f8f0644fb33d42c8a",
+      "rsi": "crate.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bitrunning",
+          "rsi": "bitrunning",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "bitrunningopen",
+          "rsi": "bitrunningopen",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/devices/circuitry_n_data.dmi",
+      "sha256": "b8af7bc792c37f6d4012ba5c471cc19e8e09004a13cc180b00572d221b2d6db2",
+      "rsi": "circuitboard.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "circuit_chip",
+          "rsi": "circuit_chip",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "circuit_board",
+          "rsi": "circuit_board",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/devices/circuitry_n_data.dmi",
+      "sha256": "b8af7bc792c37f6d4012ba5c471cc19e8e09004a13cc180b00572d221b2d6db2",
+      "rsi": "disks.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "datadisk0",
+          "rsi": "datadisk0",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk1",
+          "rsi": "datadisk1",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk2",
+          "rsi": "datadisk2",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk3",
+          "rsi": "datadisk3",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk4",
+          "rsi": "datadisk4",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk5",
+          "rsi": "datadisk5",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk6",
+          "rsi": "datadisk6",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "datadisk7",
+          "rsi": "datadisk7",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "rndmajordisk",
+          "rsi": "rndmajordisk",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/structures.dmi",
+      "sha256": "3a9e362518274200520e7745782bfaf37e9fff73872b5287faddb2039df79f28",
+      "rsi": "hololadder.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "ladder11",
+          "rsi": "ladder11",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/turf/floors.dmi",
+      "sha256": "67ab5497bc9ce9232b011819e3fa4e997f957c83683fc5acfb3e2e327cef22a8",
+      "rsi": "floors.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bitrunning",
+          "rsi": "bitrunning",
+          "directions": 1,
+          "frames": 4
+        }
+      ]
+    },
+    {
+      "source": "icons/turf/floors.dmi",
+      "sha256": "67ab5497bc9ce9232b011819e3fa4e997f957c83683fc5acfb3e2e327cef22a8",
+      "rsi": "walls.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "binary",
+          "rsi": "binary",
+          "directions": 1,
+          "frames": 17
+        }
+      ]
+    },
+    {
+      "source": "icons/area/areas_station.dmi",
+      "sha256": "ac291c593e617e6ef5fc881234b40eb98475d9e8c34bf43c8522dcf34b2b8419",
+      "rsi": "areas.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bit_safe",
+          "rsi": "bit_safe",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "bit_den",
+          "rsi": "bit_den",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "bit_ruin",
+          "rsi": "bit_ruin",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "bit_ice",
+          "rsi": "bit_ice",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "bit_space",
+          "rsi": "bit_space",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/area/areas_away_missions.dmi",
+      "sha256": "0360b11e5439b3164166eac08a5c2f1065e6b73d787bc20c75ebc6fcf93f19e3",
+      "rsi": "milsim_areas.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "unknown",
+          "rsi": "unknown",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent1",
+          "rsi": "awaycontent1",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent2",
+          "rsi": "awaycontent2",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent3",
+          "rsi": "awaycontent3",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent4",
+          "rsi": "awaycontent4",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent5",
+          "rsi": "awaycontent5",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent7",
+          "rsi": "awaycontent7",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent8",
+          "rsi": "awaycontent8",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent9",
+          "rsi": "awaycontent9",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent10",
+          "rsi": "awaycontent10",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent11",
+          "rsi": "awaycontent11",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent12",
+          "rsi": "awaycontent12",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent13",
+          "rsi": "awaycontent13",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent14",
+          "rsi": "awaycontent14",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent15",
+          "rsi": "awaycontent15",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent16",
+          "rsi": "awaycontent16",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "awaycontent17",
+          "rsi": "awaycontent17",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/anomalies.dmi",
+      "sha256": "33e3abdc39325e11f6281798fe451d12a3140c57937f6f32ceda0977d9ba03d3",
+      "rsi": "fog.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "pyroclastic",
+          "rsi": "pyroclastic",
+          "directions": 4,
+          "frames": 4
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/blood.dmi",
+      "sha256": "2721d3dfd635d464395cb7d93d34f0485c2dd53d54360a3304aae51bb2a73fae",
+      "rsi": "remains.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "remains",
+          "rsi": "remains",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/devices/scanner.dmi",
+      "sha256": "6cd68434d7ddcb2d6f24cba3a934dae7c741611759e07c56428ce61d83ed9496",
+      "rsi": "host_monitor.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "host_monitor",
+          "rsi": "host_monitor",
+          "directions": 1,
+          "frames": 8
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/items/devices_lefthand.dmi",
+      "sha256": "e4a04daecfd0205ff38792ba32b26e817d1177896876c395dbabe6464db08274",
+      "rsi": "device_inhand_left.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "electronic",
+          "rsi": "electronic",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/items/devices_righthand.dmi",
+      "sha256": "4ba309dd46c3ee3a4917b3ea890b565174c0a173dde432fa372b1a26e6bad199",
+      "rsi": "device_inhand_right.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "electronic",
+          "rsi": "electronic",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/belt.dmi",
+      "sha256": "4b3a6222adc8fcb59d1c392acc3d7ad0e4b379c71e20533164353c7fdda1c9ed",
+      "rsi": "device_belt.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "electronic",
+          "rsi": "electronic",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/machines/sleeper.dmi",
+      "sha256": "933cc67cce36aa37989d2b16dbf8c553634188f8210eb81bd4715f1c1f484a54",
+      "rsi": "sleeper.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "sleeper_s",
+          "rsi": "sleeper_s",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "psykerpod",
+          "rsi": "psykerpod",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/simple_human.dmi",
+      "sha256": "8aa861268347708d294907170de0454779ea647df0e42b1b61df51fb9f73409a",
+      "rsi": "human.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "",
+          "rsi": "base",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/weapons/grenade.dmi",
+      "sha256": "49bbaf923a567732aeddada7a93ee52729c15f9e1b2046b533d332a9efdb60ae",
+      "rsi": "mine.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "landmine-inactive",
+          "rsi": "landmine-inactive",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "landmine",
+          "rsi": "landmine",
+          "directions": 1,
+          "frames": 3
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/weapons/guns/ammo.dmi",
+      "sha256": "740f6ea6983c737ec6b483794a911f7d23b9984f2e9e1beaccac6db93ad640b0",
+      "rsi": "rocketbundle.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "rocketbundle",
+          "rsi": "rocketbundle",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "modular_skyrat/master_files/icons/obj/card.dmi",
+      "sha256": "18f8a57498165f2e261ab6f6eebd1671963c6858471b5dfa87bb68dca48c339f",
+      "rsi": "milsim_id.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "trim_terragov",
+          "rsi": "trim_terragov",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "modular_skyrat/modules/advanced_shuttles/icons/computer.dmi",
+      "sha256": "cc7528cc748c25d66943a1db68eaf50d4df374cf6b078a00404d0fef523f4c35",
+      "rsi": "milsim_console.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "intercom",
+          "rsi": "intercom",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/lavaland/96x96megafauna.dmi",
+      "sha256": "be8f40412c80a0187587df5022f2e0f7b1eca3cb4f3767cbf2cb8c0922a768d0",
+      "rsi": "ash_drake.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "dragon",
+          "rsi": "dragon",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "dragon_shadow",
+          "rsi": "dragon_shadow",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "dragon_dead",
+          "rsi": "dragon_dead",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "dragon_swoop",
+          "rsi": "dragon_swoop",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/lavaland/96x96megafauna.dmi",
+      "sha256": "be8f40412c80a0187587df5022f2e0f7b1eca3cb4f3767cbf2cb8c0922a768d0",
+      "rsi": "colossus.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "eva",
+          "rsi": "eva",
+          "directions": 4,
+          "frames": 3
+        },
+        {
+          "dmi": "eva_attack",
+          "rsi": "eva_attack",
+          "directions": 1,
+          "frames": 9
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/lavaland/96x96megafauna.dmi",
+      "sha256": "be8f40412c80a0187587df5022f2e0f7b1eca3cb4f3767cbf2cb8c0922a768d0",
+      "rsi": "bubblegum.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bubblegum",
+          "rsi": "bubblegum",
+          "directions": 4,
+          "frames": 6
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/lavaland/hierophant_new.dmi",
+      "sha256": "2c7cb2b79c686dd8035dfe9fcd5a25456561b6cc0a282cd91d50f8213f2d9607",
+      "rsi": "hierophant.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hierophant",
+          "rsi": "hierophant",
+          "directions": 1,
+          "frames": 9
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/icemoon/64x64megafauna.dmi",
+      "sha256": "c8203753b76155f8fd5b08246d0438f1e02acb1c8fee5576ca075e7ef687ad31",
+      "rsi": "wendigo.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "wendigo_noblood",
+          "rsi": "wendigo_noblood",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "wendigo",
+          "rsi": "wendigo",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "wendigo_dead",
+          "rsi": "wendigo_dead",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/broadMobs.dmi",
+      "sha256": "d07e11dedd5976e8fd049aec588f07eb40b1c6c1b55ae0956e6f5d31e76d45e7",
+      "rsi": "blood_drunk_miner.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "miner",
+          "rsi": "miner",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "miner_transformed",
+          "rsi": "miner_transformed",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/weapons/guns/projectiles.dmi",
+      "sha256": "d5aad41ec36561c64ed83a7bea2c3706338b6795a01e42b7cb63bf4919010ad4",
+      "rsi": "boss_projectile.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "chronobolt",
+          "rsi": "chronobolt",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/fire.dmi",
+      "sha256": "e67f8c40ef9edfb20af29d0bba0b52a539b24a2a365432e8e914f5aa9391b012",
+      "rsi": "drake_flame.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "light",
+          "rsi": "light",
+          "directions": 4,
+          "frames": 6
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/service/hand_of_god_structures.dmi",
+      "sha256": "e415089124750a184f198f71e396950c1c28d5e9a832903d5362c2f089d1be22",
+      "rsi": "drake_safe_ground.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "trap-earth",
+          "rsi": "trap-earth",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/magic.dmi",
+      "sha256": "5ee547a1ca04ac1408eaf0d707024277663a42a2ead8f2849721a57ecddf08f1",
+      "rsi": "drake_fireball.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "fireball",
+          "rsi": "fireball",
+          "directions": 4,
+          "frames": 2
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/actions/actions_items.dmi",
+      "sha256": "0ada86a31fd73a993d5e5ef334d8331956e92ea07228ffda95f345fc4ac09ae3",
+      "rsi": "boss_target.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "sniper_zoom",
+          "rsi": "sniper_zoom",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/bubblegum.dmi",
+      "sha256": "5108ec92ad5168c7e6730235c76eea848cb5607329f859ff4a720198bc4fa2b7",
+      "rsi": "bubblegum_effects.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "thumb",
+          "rsi": "thumb",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "paw",
+          "rsi": "paw",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "smack ya one",
+          "rsi": "smack ya one",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "rightthumbgrab",
+          "rsi": "rightthumbgrab",
+          "directions": 1,
+          "frames": 17,
+          "loop": 1
+        },
+        {
+          "dmi": "rightpawgrab",
+          "rsi": "rightpawgrab",
+          "directions": 1,
+          "frames": 17,
+          "loop": 1
+        },
+        {
+          "dmi": "leftthumbgrab",
+          "rsi": "leftthumbgrab",
+          "directions": 1,
+          "frames": 17,
+          "loop": 1
+        },
+        {
+          "dmi": "leftpawgrab",
+          "rsi": "leftpawgrab",
+          "directions": 1,
+          "frames": 17,
+          "loop": 1
+        },
+        {
+          "dmi": "leftsmack",
+          "rsi": "leftsmack",
+          "directions": 1,
+          "frames": 14,
+          "loop": 1
+        },
+        {
+          "dmi": "rightsmack",
+          "rsi": "rightsmack",
+          "directions": 1,
+          "frames": 14,
+          "loop": 1
+        },
+        {
+          "dmi": "nothing",
+          "rsi": "nothing",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/effects.dmi",
+      "sha256": "22ad91f6eb04193a7ff12643447f92db73ecc6908c2d6626c236a09755f6eb0d",
+      "rsi": "colossus_shield.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "at_shield2",
+          "rsi": "at_shield2",
+          "directions": 1,
+          "frames": 7
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/effects.dmi",
+      "sha256": "22ad91f6eb04193a7ff12643447f92db73ecc6908c2d6626c236a09755f6eb0d",
+      "rsi": "hierophant_effects.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hierophant_blast",
+          "rsi": "hierophant_blast",
+          "directions": 4,
+          "frames": 14,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_squares",
+          "rsi": "hierophant_squares",
+          "directions": 4,
+          "frames": 5,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_squares_indefinite",
+          "rsi": "hierophant_squares_indefinite",
+          "directions": 4,
+          "frames": 5
+        },
+        {
+          "dmi": "hierophant_blast_indefinite",
+          "rsi": "hierophant_blast_indefinite",
+          "directions": 4,
+          "frames": 14
+        }
+      ]
+    },
+    {
+      "source": "icons/turf/walls/hierophant_wall_temp.dmi",
+      "sha256": "f0a0190869ae819d999683397f1b057e6f6babbc56197bd5804091acbb00356a",
+      "rsi": "hierophant_wall.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "hierophant_wall_temp-0",
+          "rsi": "hierophant_wall_temp-0",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-1",
+          "rsi": "hierophant_wall_temp-1",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-2",
+          "rsi": "hierophant_wall_temp-2",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-3",
+          "rsi": "hierophant_wall_temp-3",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-4",
+          "rsi": "hierophant_wall_temp-4",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-5",
+          "rsi": "hierophant_wall_temp-5",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-6",
+          "rsi": "hierophant_wall_temp-6",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-7",
+          "rsi": "hierophant_wall_temp-7",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-8",
+          "rsi": "hierophant_wall_temp-8",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-9",
+          "rsi": "hierophant_wall_temp-9",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-10",
+          "rsi": "hierophant_wall_temp-10",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-11",
+          "rsi": "hierophant_wall_temp-11",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-12",
+          "rsi": "hierophant_wall_temp-12",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-13",
+          "rsi": "hierophant_wall_temp-13",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-14",
+          "rsi": "hierophant_wall_temp-14",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-15",
+          "rsi": "hierophant_wall_temp-15",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-21",
+          "rsi": "hierophant_wall_temp-21",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-23",
+          "rsi": "hierophant_wall_temp-23",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-29",
+          "rsi": "hierophant_wall_temp-29",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-31",
+          "rsi": "hierophant_wall_temp-31",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-38",
+          "rsi": "hierophant_wall_temp-38",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-39",
+          "rsi": "hierophant_wall_temp-39",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-46",
+          "rsi": "hierophant_wall_temp-46",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-47",
+          "rsi": "hierophant_wall_temp-47",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-55",
+          "rsi": "hierophant_wall_temp-55",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-63",
+          "rsi": "hierophant_wall_temp-63",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-74",
+          "rsi": "hierophant_wall_temp-74",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-75",
+          "rsi": "hierophant_wall_temp-75",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-78",
+          "rsi": "hierophant_wall_temp-78",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-79",
+          "rsi": "hierophant_wall_temp-79",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-95",
+          "rsi": "hierophant_wall_temp-95",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-110",
+          "rsi": "hierophant_wall_temp-110",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-111",
+          "rsi": "hierophant_wall_temp-111",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-127",
+          "rsi": "hierophant_wall_temp-127",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-137",
+          "rsi": "hierophant_wall_temp-137",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-139",
+          "rsi": "hierophant_wall_temp-139",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-141",
+          "rsi": "hierophant_wall_temp-141",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-143",
+          "rsi": "hierophant_wall_temp-143",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-157",
+          "rsi": "hierophant_wall_temp-157",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-159",
+          "rsi": "hierophant_wall_temp-159",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-175",
+          "rsi": "hierophant_wall_temp-175",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-191",
+          "rsi": "hierophant_wall_temp-191",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-203",
+          "rsi": "hierophant_wall_temp-203",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-207",
+          "rsi": "hierophant_wall_temp-207",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-223",
+          "rsi": "hierophant_wall_temp-223",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-239",
+          "rsi": "hierophant_wall_temp-239",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hierophant_wall_temp-255",
+          "rsi": "hierophant_wall_temp-255",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/96x96.dmi",
+      "sha256": "aae33b94539dcd303c31fe52ff59ccf6a3377752d9058f35d870c52828f86c53",
+      "rsi": "hierophant_telegraph.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hierophant_telegraph_cardinal",
+          "rsi": "hierophant_telegraph_cardinal",
+          "directions": 1,
+          "frames": 7,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_telegraph_diagonal",
+          "rsi": "hierophant_telegraph_diagonal",
+          "directions": 1,
+          "frames": 7,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_telegraph_edge",
+          "rsi": "hierophant_telegraph_edge",
+          "directions": 1,
+          "frames": 30,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_telegraph",
+          "rsi": "hierophant_telegraph",
+          "directions": 1,
+          "frames": 7,
+          "loop": 1
+        },
+        {
+          "dmi": "hierophant_telegraph_teleport",
+          "rsi": "hierophant_telegraph_teleport",
+          "directions": 1,
+          "frames": 14,
+          "loop": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/mining_zones/artefacts.dmi",
+      "sha256": "8fd2dca7686f073d4c7be64662cfd7a368308a6199c8ec1526296b72fa3cba51",
+      "rsi": "hierophant_beacon.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hierophant_club_ready_beacon",
+          "rsi": "hierophant_club_ready_beacon",
+          "directions": 1,
+          "frames": 4
+        },
+        {
+          "dmi": "hierophant_tele_off",
+          "rsi": "hierophant_tele_off",
+          "directions": 1,
+          "frames": 8,
+          "rewind": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/glasses.dmi",
+      "sha256": "a2d21816854491596d5e14d1032e3766d6d91805066cbf85e4e0ef10bcae7edb",
+      "rsi": "oval_glasses.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "jensenshades",
+          "rsi": "jensenshades",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/glasses.dmi",
+      "sha256": "a2d21816854491596d5e14d1032e3766d6d91805066cbf85e4e0ef10bcae7edb",
+      "rsi": "echo_blindfold.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "blindfold",
+          "rsi": "blindfold",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/eyes.dmi",
+      "sha256": "47b0a9e85d96c113f5c102ab65db7de14e92137d0350d747d462fd599136f25a",
+      "rsi": "echo_blindfold_equipped.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "blindfold",
+          "rsi": "blindfold",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/clothing/glasses_lefthand.dmi",
+      "sha256": "4bf4987cb72947fe7bd1a7a77efe1d118da6519a8740f0a48a1b5e9bca608b10",
+      "rsi": "echo_blindfold_left.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "blindfold",
+          "rsi": "blindfold",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/clothing/glasses_righthand.dmi",
+      "sha256": "b908607340b6d9f8dfaa4a24bb0a61f3873643e43b23d1c10d2c4bc6a55bb6f6",
+      "rsi": "echo_blindfold_right.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "blindfold",
+          "rsi": "blindfold",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/eyes.dmi",
+      "sha256": "47b0a9e85d96c113f5c102ab65db7de14e92137d0350d747d462fd599136f25a",
+      "rsi": "oval_glasses_equipped.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "jensenshades",
+          "rsi": "jensenshades",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/suits/jacket.dmi",
+      "sha256": "ca8154a55427f7c2c6073c1ef9176907aa45d4b8ba09c3051d7261100aacf9fd",
+      "rsi": "leather_trenchcoat.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "leather_trenchcoat",
+          "rsi": "leather_trenchcoat",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/suits/jacket.dmi",
+      "sha256": "25ac85b36d5d261a5fc63336f162b59637114b597caad39c2f07bc893fd0d81f",
+      "rsi": "leather_trenchcoat_equipped.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "leather_trenchcoat",
+          "rsi": "leather_trenchcoat",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/under/cargo.dmi",
+      "sha256": "ecbcf0002b64f6e656a82b9cb3e497847f940fd958f45f2d4a500dc482ef1050",
+      "rsi": "bitrunner_uniform.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bitrunner",
+          "rsi": "bitrunner",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/under/cargo.dmi",
+      "sha256": "2746933d07a4acc1aee5b539e2141ce816e0dea44350f5005baae7f8ba5e6aed",
+      "rsi": "bitrunner_uniform_equipped.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "bitrunner",
+          "rsi": "bitrunner",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "bitrunner_d",
+          "rsi": "bitrunner_d",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/devices/circuitry_n_data.dmi",
+      "sha256": "b8af7bc792c37f6d4012ba5c471cc19e8e09004a13cc180b00572d221b2d6db2",
+      "rsi": "milsim_tape.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "tape_blue",
+          "rsi": "tape_blue",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "tape_blue_reverse",
+          "rsi": "tape_blue_reverse",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/equipment/tools_lefthand.dmi",
+      "sha256": "c03dc32aefda4139409f9a2b24832f4fa3867f773e68297c62f1f211f5670063",
+      "rsi": "milsim_tape_inhand_left.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "analyzer",
+          "rsi": "analyzer",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/equipment/tools_righthand.dmi",
+      "sha256": "15a36d9dbe129695b08cc90bc23f9750249df4ae54f7e9a2cc9c06338e5a752a",
+      "rsi": "milsim_tape_inhand_right.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "analyzer",
+          "rsi": "analyzer",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/hud/actions.dmi",
+      "sha256": "2e27d1d8b4ddad9e808a6c637c0551f44f7e5ab07e8592f1cb1bd557e00ff8fa",
+      "rsi": "actions.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "round_end",
+          "rsi": "round_end",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/hud/screen_alert.dmi",
+      "sha256": "48feaa0ad4afca75e8d8d628a2973585f584e5a0d7738e44333b17acf867c8ad",
+      "rsi": "alert.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "netpod_stasis",
+          "rsi": "netpod_stasis",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "template",
+          "rsi": "template",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/fishing.dmi",
+      "sha256": "43a2cec79ffb0e8b1613a704927f50d8a2776cde6def1f54e7dd82fd5d470233",
+      "rsi": "fishing_rod.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hook_overlay",
+          "rsi": "hook_overlay",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "fishing_rod",
+          "rsi": "fishing_rod",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "reel_overlay",
+          "rsi": "reel_overlay",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "line_overlay",
+          "rsi": "line_overlay",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/equipment/fishing_rod_lefthand.dmi",
+      "sha256": "c0e65897546f42c5b0961a9421ef083f97819b832665589fd910ad44bfa2699d",
+      "rsi": "fishing_rod_inhand_left.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "rod",
+          "rsi": "rod",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "reel_overlay",
+          "rsi": "reel_overlay",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "hook_overlay",
+          "rsi": "hook_overlay",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "line_overlay",
+          "rsi": "line_overlay",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/equipment/fishing_rod_righthand.dmi",
+      "sha256": "438ee00d68c4e390d48a5017470f6ebb0cb77533be8af197b2ae5b53ac7a692a",
+      "rsi": "fishing_rod_inhand_right.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "rod",
+          "rsi": "rod",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "reel_overlay",
+          "rsi": "reel_overlay",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "hook_overlay",
+          "rsi": "hook_overlay",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "line_overlay",
+          "rsi": "line_overlay",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/fluff/beach.dmi",
+      "sha256": "b8db885d5a4ccf544053bedad787e7b762ed4129bc9388658c9f7600a83e1044",
+      "rsi": "beach.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "shell1",
+          "rsi": "shell1",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "shell2",
+          "rsi": "shell2",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "shell3",
+          "rsi": "shell3",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/gondolas.dmi",
+      "sha256": "2a5ee300b3005fdb3c2c1498aac23ef728a04c6c6441e7cd2ad3240143b97a22",
+      "rsi": "gondola.rsi",
+      "scope": "all",
+      "states": [
+        {
+          "dmi": "gondola",
+          "rsi": "gondola",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_2_dead",
+          "rsi": "gondola_2_dead",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_body_long",
+          "rsi": "gondola_body_long",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_body_medium",
+          "rsi": "gondola_body_medium",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_body_short",
+          "rsi": "gondola_body_short",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_eyes_far",
+          "rsi": "gondola_eyes_far",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_eyes_dead",
+          "rsi": "gondola_eyes_dead",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_eyes_close",
+          "rsi": "gondola_eyes_close",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_moustache_large",
+          "rsi": "gondola_moustache_large",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "gondola_moustache_small",
+          "rsi": "gondola_moustache_small",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/simple/animal.dmi",
+      "sha256": "cb45bb0a1ad3b66351f7550df9a5cc33a5632d02029c0f0365d470e3eec17f9d",
+      "rsi": "deer.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "deer-doe",
+          "rsi": "deer-doe",
+          "directions": 4,
+          "frames": 4
+        },
+        {
+          "dmi": "deer-doe-dead",
+          "rsi": "deer-doe-dead",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    }
+  ]
+}

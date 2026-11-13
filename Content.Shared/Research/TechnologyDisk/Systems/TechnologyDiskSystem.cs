@@ -50,6 +50,7 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
             techs.UnionWith(tech.RecipeUnlocks);
         }
 
+        techs.ExceptWith(GetResearchOnlyRecipes());
         if (techs.Count == 0)
             return;
 
@@ -72,23 +73,27 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
         if (!HasComp<ResearchServerComponent>(target) || !TryComp<TechnologyDatabaseComponent>(target, out var database))
             return false;
 
+        ProtoId<LatheRecipePrototype>[] allowedRecipes = [];
+        if (ent.Comp.Recipes is { Count: > 0 } recipes)
+        {
+            var restrictedRecipes = GetResearchOnlyRecipes();
+            allowedRecipes = recipes.Where(recipe => !restrictedRecipes.Contains(recipe)).ToArray();
+            if (allowedRecipes.Length == 0)
+            {
+                if (user is not { } rejectedUser)
+                    return false;
+
+                _popup.PopupClient(Loc.GetString("tech-disk-locked-recipe"), target, rejectedUser);
+                return true;
+            }
+        }
+
         // Claim the disk before adding recipes. A manual upload and two nearby magnets can race in one tick.
         if (_net.IsServer && (TerminatingOrDeleted(target) || !TryQueueDel(ent)))
             return false;
 
-        if (ent.Comp.Recipes is { Count: > 0 } recipes)
-        {
-            var restrictedRecipes = _protoMan.EnumeratePrototypes<TechnologyPrototype>()
-                .Where(tech => !tech.AllowRecipeDisks)
-                .SelectMany(tech => tech.RecipeUnlocks)
-                .ToHashSet();
-
-            foreach (var recipe in recipes)
-            {
-                if (!restrictedRecipes.Contains(recipe))
-                    _research.AddLatheRecipe(target, recipe, database);
-            }
-        }
+        foreach (var recipe in allowedRecipes)
+            _research.AddLatheRecipe(target, recipe, database);
         if (user is { } uid)
             _popup.PopupClient(Loc.GetString("tech-disk-inserted"), target, uid);
         else if (_net.IsServer)
@@ -98,6 +103,12 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
             PredictedQueueDel(ent);
         return true;
     }
+
+    private HashSet<ProtoId<LatheRecipePrototype>> GetResearchOnlyRecipes() =>
+        _protoMan.EnumeratePrototypes<TechnologyPrototype>()
+            .Where(tech => !tech.AllowRecipeDisks)
+            .SelectMany(tech => tech.RecipeUnlocks)
+            .ToHashSet();
 
     private void OnExamine(Entity<TechnologyDiskComponent> ent, ref ExaminedEvent args)
     {

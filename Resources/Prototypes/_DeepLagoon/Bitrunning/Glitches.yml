@@ -1,0 +1,230 @@
+- type: entity
+  id: BitrunGlitchSpawnerBase
+  abstract: true
+  categories: [ HideSpawnMenu ]
+  name: unstable code
+  components:
+  - type: BitrunGlitchSpawner
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects.rsi
+    drawdepth: Effects
+    state: glitch
+  - type: TimedDespawn
+    lifetime: 90
+  - type: GhostRole
+    allowMovement: true
+    allowSpeech: true
+    rules: bitrun-glitch-role-rules
+    mindRoles:
+    - MindRoleGhostRoleSoloAntagonist
+    raffle:
+      settings: short
+
+- type: entity
+  id: BitrunGhostCyberPolice
+  parent: BitrunGlitchSpawnerBase
+  components:
+  - type: GhostRole
+    name: bitrun-glitch-police-name
+    description: bitrun-glitch-police-desc
+  - type: GhostRoleMobSpawner
+    prototype: BitrunCyberPolice
+
+- type: entity
+  id: BitrunGhostCyberTac
+  parent: BitrunGlitchSpawnerBase
+  components:
+  - type: GhostRole
+    name: bitrun-glitch-tac-name
+    description: bitrun-glitch-tac-desc
+  - type: GhostRoleMobSpawner
+    prototype: BitrunCyberTac
+
+- type: entity
+  id: BitrunGhostNetguardian
+  parent: BitrunGlitchSpawnerBase
+  components:
+  - type: GhostRole
+    name: bitrun-glitch-netguardian-name
+    description: bitrun-glitch-netguardian-desc
+  - type: GhostRoleMobSpawner
+    prototype: BitrunNetguardian
+
+- type: entity
+  id: BitrunGlitchBurst
+  categories: [ HideSpawnMenu ]
+  name: digital distortion
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/effects_48.rsi
+    state: glitch
+    drawdepth: Effects
+  - type: PointLight
+    color: "#b662ec"
+    radius: 1.6
+    energy: 1
+  - type: TimedDespawn
+    lifetime: 0.9
+
+- type: entity
+  id: BitrunCyberPolice
+  parent: MobHuman
+  categories: [ HideSpawnMenu ]
+  name: cyber police officer
+  description: A virtual officer assigned to intercept domain intruders.
+  components:
+  - type: BitrunGlitch
+  - type: Loadout
+    prototypes: [ BitrunCyberPoliceGear ]
+  - type: TraitMartialArtist
+    modifiers:
+      coefficients:
+        Blunt: 1.8
+
+- type: startingGear
+  id: BitrunCyberPoliceGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitLawyerBlack
+    eyes: ClothingEyesGlassesSunglasses
+    hands: ClothingHandsGlovesColorBlack
+    shoes: ClothingShoesBootsLaceup
+
+- type: entity
+  id: BitrunCyberTac
+  parent: MobHuman
+  categories: [ HideSpawnMenu ]
+  name: cyber tactical officer
+  description: A virtual tactical officer sent to reinforce a compromised domain.
+  components:
+  - type: BitrunGlitch
+  - type: Loadout
+    prototypes: [ BitrunCyberTacGear ]
+
+- type: startingGear
+  id: BitrunCyberTacGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitLawyerBlack
+    eyes: ClothingEyesGlassesSunglasses
+    hands: ClothingHandsGlovesColorBlack
+    shoes: ClothingShoesBootsLaceup
+    outerClothing: ClothingOuterHardsuitSyndie
+    back: ClothingBackpackSyndicate
+    pocket1: Magazine46x30mmSubMachineGunTopMountedFMJ
+    pocket2: Magazine46x30mmSubMachineGunTopMountedFMJ
+  inhand:
+  - WeaponSubMachineGunWt550
+
+- type: entity
+  id: BitrunNetguardian
+  name: Netguardian Prime
+  description: A heavy virtual security drone sent to shut down intruders.
+  parent: [SimpleSpaceMobBase, FlyingMobBase]
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: BitrunGlitch
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/netguardian.rsi
+    noRot: true
+    offset: 0, 0.25
+    layers:
+    - state: netguardian
+      map: [ "enum.DamageStateVisualLayers.Base" ]
+    - state: netguardian_emissive
+      shader: unshaded
+      map: [ "enum.DamageStateVisualLayers.BaseUnshaded" ]
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: netguardian
+        BaseUnshaded: netguardian_emissive
+      Dead:
+        Base: crash
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeCircle
+          radius: 0.40
+        density: 130
+        mask:
+        - FlyingMobMask
+        layer:
+        - FlyingMobLayer
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 4
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      300: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      200: 0.75
+  - type: MeleeWeapon
+    attackRate: 0.8
+    animation: WeaponArcPunch
+    soundHit:
+      path: /Audio/Weapons/smash.ogg
+    damage:
+      types:
+        Blunt: 22
+        Piercing: 12
+  - type: ActionGun
+    action: ActionBitrunNetguardianRockets
+    gunProto: BitrunNetguardianLauncher
+
+- type: entity
+  id: ActionBitrunNetguardianRockets
+  name: Rocket salvo
+  description: Fire a spread of three rockets.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: WorldTargetAction
+    icon:
+      sprite: _DeepLagoon/Bitrunning/rocketbundle.rsi
+      state: rocketbundle
+    event: !type:ActionGunShootEvent
+    range: 0
+    checkCanAccess: false
+    useDelay: 30
+
+- type: entity
+  id: BitrunNetguardianLauncher
+  name: netguardian rocket launcher
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: RechargeBasicEntityAmmo
+    rechargeCooldown: 30
+  - type: BasicEntityAmmoProvider
+    proto: BitrunNetguardianRocketVolley
+    capacity: 1
+    count: 1
+  - type: Gun
+    projectileSpeed: 12
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/rocket_launcher.ogg
+    soundEmpty: null
+
+- type: entity
+  id: BitrunNetguardianRocket
+  parent: BulletWeakRocket
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Explosive
+    totalIntensity: 28
+    maxIntensity: 8
+    maxTileBreak: 0
+    canCreateVacuum: false
+
+- type: entity
+  id: BitrunNetguardianRocketVolley
+  parent: BitrunNetguardianRocket
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ProjectileSpread
+    proto: BitrunNetguardianRocket
+    count: 3
+    spread: 25

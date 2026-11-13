@@ -1,0 +1,53 @@
+<controls:FancyWindow xmlns="https://spacestation14.io"
+                      xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                      Title="{Loc bitrun-ui-title}"
+                      MinSize="460 220">
+    <BoxContainer Orientation="Vertical" SeparationOverride="9" Margin="12">
+        <RichTextLabel Name="StatusText" HorizontalExpand="True" />
+
+        <BoxContainer Name="ConsolePanel" Orientation="Vertical" SeparationOverride="7" Visible="False">
+            <Label Name="RunStats" StyleClasses="LabelSubText" />
+            <BoxContainer Orientation="Horizontal" SeparationOverride="8">
+                <Label Text="{Loc bitrun-ui-research-server}" />
+                <OptionButton Name="ResearchChoice" HorizontalExpand="True" />
+            </BoxContainer>
+            <OptionButton Name="DomainChoice" HorizontalExpand="True" />
+            <RichTextLabel Name="DomainDetails" HorizontalExpand="True" MinHeight="55" />
+            <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+                <Button Name="StartButton" Text="{Loc bitrun-ui-start}" HorizontalExpand="True" />
+                <Button Name="RandomButton" Text="{Loc bitrun-ui-random}" HorizontalExpand="True" />
+                <controls:ConfirmButton Name="StopButton" Text="{Loc bitrun-ui-stop}"
+                                        ConfirmationText="{Loc bitrun-ui-confirm-stop}" />
+            </BoxContainer>
+        </BoxContainer>
+
+        <BoxContainer Name="PodPanel" Orientation="Vertical" SeparationOverride="7" Visible="False">
+            <BoxContainer Orientation="Horizontal" SeparationOverride="8">
+                <Label Text="{Loc bitrun-ui-session}" />
+                <OptionButton Name="SessionChoice" HorizontalExpand="True" />
+            </BoxContainer>
+            <BoxContainer Orientation="Horizontal" SeparationOverride="8">
+                <Label Text="{Loc bitrun-ui-side}" />
+                <OptionButton Name="SideChoice" HorizontalExpand="True" />
+            </BoxContainer>
+            <BoxContainer Orientation="Horizontal" SeparationOverride="8">
+                <Label Text="{Loc bitrun-ui-avatar-loadout}" />
+                <OptionButton Name="LoadoutChoice" HorizontalExpand="True" />
+            </BoxContainer>
+            <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+                <Button Name="EnterButton" Text="{Loc bitrun-ui-enter}" HorizontalExpand="True" />
+                <Button Name="EjectButton" Text="{Loc bitrun-ui-eject}" HorizontalExpand="True" />
+            </BoxContainer>
+        </BoxContainer>
+
+        <BoxContainer Name="VendorPanel" Orientation="Vertical" SeparationOverride="7" Visible="False">
+            <Label Name="PersonalBalance" />
+            <Label Name="PersonalResearchPoints" />
+            <OptionButton Name="ShopChoice" HorizontalExpand="True" />
+            <Button Name="BuyButton" Text="{Loc bitrun-ui-buy}" HorizontalExpand="True" />
+        </BoxContainer>
+
+        <Label Name="SessionStats" StyleClasses="LabelSubText" Visible="False" />
+        <Label Name="SessionTimer" StyleClasses="LabelSubText" Visible="False" />
+    </BoxContainer>
+</controls:FancyWindow>

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/carpet_orange.dmi.",
+  "states": [
+    {
+      "name": "carpet_orange-0"
+    },
+    {
+      "name": "carpet_orange-1"
+    },
+    {
+      "name": "carpet_orange-10"
+    },
+    {
+      "name": "carpet_orange-11"
+    },
+    {
+      "name": "carpet_orange-12"
+    },
+    {
+      "name": "carpet_orange-13"
+    },
+    {
+      "name": "carpet_orange-14"
+    },
+    {
+      "name": "carpet_orange-15"
+    },
+    {
+      "name": "carpet_orange-2"
+    },
+    {
+      "name": "carpet_orange-255"
+    },
+    {
+      "name": "carpet_orange-3"
+    },
+    {
+      "name": "carpet_orange-4"
+    },
+    {
+      "name": "carpet_orange-5"
+    },
+    {
+      "name": "carpet_orange-6"
+    },
+    {
+      "name": "carpet_orange-7"
+    },
+    {
+      "name": "carpet_orange-8"
+    },
+    {
+      "name": "carpet_orange-9"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+- type: technology
+  id: Bitrunning
+  name: research-technology-bitrunning
+  entityIcon: BitrunNetpod
+  discipline: Experimental
+  tier: 1
+  cost: 30000
+  position: 1, -3
+  technologyPrerequisites:
+  - BasicParts
+  allowRecipeDisks: false
+  recipeUnlocks:
+  - BitrunQuantumConsoleCircuitboard
+  - BitrunQuantumServerCircuitboard
+  - BitrunNetpodCircuitboard
+  - BitrunByteforgeCircuitboard
+  - BitrunOrderConsoleCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: BitrunQuantumConsoleCircuitboard
+  result: BitrunQuantumConsoleCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: BitrunQuantumServerCircuitboard
+  result: BitrunQuantumServerCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: BitrunNetpodCircuitboard
+  result: BitrunNetpodCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: BitrunByteforgeCircuitboard
+  result: BitrunByteforgeCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: BitrunOrderConsoleCircuitboard
+  result: BitrunOrderConsoleCircuitboard

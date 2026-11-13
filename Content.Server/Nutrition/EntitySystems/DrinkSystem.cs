@@ -334,6 +334,8 @@ public sealed partial class DrinkSystem : SharedDrinkSystem
         _reaction.DoEntityReaction(args.Target.Value, solution, ReactionMethod.Ingestion);
         _stomach.TryTransferSolution(firstStomach.Value.Owner, drained, firstStomach.Value.Comp1);
 
+        RaiseLocalEvent(args.Target.Value, new DrinkConsumedEvent(entity.Owner));
+
         var speechEvent = new SpeechTriggerEvent(SpeechTrigger.Drinking);
         RaiseLocalEvent(args.Target.Value, ref speechEvent);
 
@@ -374,4 +376,10 @@ public sealed partial class DrinkSystem : SharedDrinkSystem
 
         ev.Verbs.Add(verb);
     }
+}
+
+/// <summary>Raised on a mob after successfully swallowing a drink.</summary>
+public sealed class DrinkConsumedEvent(EntityUid drink) : EntityEventArgs
+{
+    public readonly EntityUid Drink = drink;
 }

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/mining.dmi.",
+  "states": [
+    {
+      "name": "crusher"
+    },
+    {
+      "name": "marker"
+    },
+    {
+      "name": "markerbronze-on"
+    },
+    {
+      "name": "markerburgundy-on"
+    },
+    {
+      "name": "markercerulean-on"
+    },
+    {
+      "name": "markerfuchsia-on"
+    },
+    {
+      "name": "markerindigo-on"
+    },
+    {
+      "name": "markerjade-on"
+    },
+    {
+      "name": "markerlime-on"
+    },
+    {
+      "name": "markerolive-on"
+    },
+    {
+      "name": "markerpurple-on"
+    },
+    {
+      "name": "markerteal-on"
+    },
+    {
+      "name": "markerviolet-on"
+    },
+    {
+      "name": "markeryellow-on"
+    },
+    {
+      "name": "minipick"
+    },
+    {
+      "name": "modkit"
+    },
+    {
+      "name": "pickaxe"
+    },
+    {
+      "name": "shovel"
+    },
+    {
+      "name": "spade"
+    }
+  ]
+}

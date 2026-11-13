@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/signs.dmi.",
+  "states": [
+    {
+      "name": "aiupload"
+    },
+    {
+      "name": "bio"
+    },
+    {
+      "name": "bluecross"
+    },
+    {
+      "name": "bluecross2"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "cargo"
+    },
+    {
+      "name": "chemdiamond"
+    },
+    {
+      "name": "clock"
+    },
+    {
+      "name": "commission_nt"
+    },
+    {
+      "name": "court"
+    },
+    {
+      "name": "custodian1"
+    },
+    {
+      "name": "direction_dorms",
+      "directions": 8
+    },
+    {
+      "name": "direction_eng",
+      "directions": 8
+    },
+    {
+      "name": "direction_evac",
+      "directions": 8
+    },
+    {
+      "name": "direction_med",
+      "directions": 8
+    },
+    {
+      "name": "direction_sci",
+      "directions": 8
+    },
+    {
+      "name": "direction_sec",
+      "directions": 8
+    },
+    {
+      "name": "doors"
+    },
+    {
+      "name": "frame-overlay"
+    },
+    {
+      "name": "gasmask"
+    },
+    {
+      "name": "hydro1"
+    },
+    {
+      "name": "kiddieplaque"
+    },
+    {
+      "name": "map-left-MS"
+    },
+    {
+      "name": "map-right-MS"
+    },
+    {
+      "name": "nosmoking"
+    },
+    {
+      "name": "pods"
+    },
+    {
+      "name": "restroom"
+    },
+    {
+      "name": "science1"
+    },
+    {
+      "name": "science2"
+    },
+    {
+      "name": "securearea"
+    },
+    {
+      "name": "shock"
+    },
+    {
+      "name": "space"
+    }
+  ]
+}

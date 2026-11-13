@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/machines/recycling.dmi.",
+  "states": [
+    {
+      "name": "conveyor_map",
+      "directions": 8
+    },
+    {
+      "name": "conveyor_map_inverted",
+      "directions": 8
+    },
+    {
+      "name": "conveyor_switch_oneway",
+      "directions": 4
+    },
+    {
+      "name": "grinder-o0",
+      "directions": 4
+    }
+  ]
+}

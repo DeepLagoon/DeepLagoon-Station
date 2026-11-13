@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/map_icons/objects.dmi.",
+  "states": [
+    {
+      "name": "state_0f8f1456fabd",
+      "directions": 4
+    },
+    {
+      "name": "state_2b1ecebccaf7",
+      "directions": 4
+    },
+    {
+      "name": "state_4fcd4533deea"
+    },
+    {
+      "name": "state_608fa4441c21"
+    },
+    {
+      "name": "state_702aaf4c465c"
+    },
+    {
+      "name": "state_a36d37e78ca5"
+    },
+    {
+      "name": "state_c81c1ab3fe86",
+      "directions": 4
+    },
+    {
+      "name": "state_cc00dc66adec",
+      "directions": 4
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+- type: entity
+  id: BitrunMobBossBase
+  abstract: true
+  parent: BaseMobAsteroid
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: NpcFactionMember
+    factions:
+    - SimpleHostile
+  - type: HTN
+    rootTask:
+      task: SimpleHostileCompound
+    blackboard:
+      VisionRadius: !type:Single
+        8
+      AggroVisionRadius: !type:Single
+        14
+  - type: DamageStateVisuals
+  - type: NoSlip
+  - type: MeleeWeapon
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    animation: WeaponArcClaw
+    damage:
+      types:
+        Slash: 16
+        Structural: 20
+
+- type: entity
+  id: BitrunMobRangedBossBase
+  abstract: true
+  parent: BitrunMobBossBase
+  components:
+  - type: HTN
+    rootTask:
+      task: SimpleRangedHostileCompound
+  - type: Battery
+    maxCharge: 1000
+    startingCharge: 1000
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 200
+  - type: Gun
+    useKey: false
+    showExamineText: false
+    soundEmpty: null
+
+- type: entity
+  id: BitrunMobAshDrake
+  name: ash drake
+  description: A guardian of the necropolis that fills its arena with fire.
+  parent: [BitrunMobRangedBossBase, FlyingMobBase]
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/ash_drake.rsi
+    offset: 0, 1
+    noRot: true
+    layers:
+    - state: dragon
+      map: [ "enum.DamageStateVisualLayers.Base" ]
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: dragon
+      Dead:
+        Base: dragon_dead
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeCircle
+          radius: 0.40
+        density: 100
+        mask:
+        - FlyingMobMask
+        layer:
+        - FlyingMobLayer
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      460: Dead
+  - type: Temperature
+    heatDamageThreshold: 800
+  - type: ProjectileBatteryAmmoProvider
+    proto: ProjectileDragonsBreath
+    fireCost: 100
+  - type: Gun
+    fireRate: 0.35
+    projectileSpeed: 5
+    soundGunshot:
+      path: /Audio/Animals/space_dragon_roar.ogg
+
+- type: entity
+  id: BitrunMobColossus
+  name: colossus
+  description: Heavy shielding protects a creature that sweeps its surroundings with volleys.
+  parent: BitrunMobRangedBossBase
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/colossus.rsi
+    offset: 0, 1
+    noRot: true
+    state: eva
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      380: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 1.6
+    baseSprintSpeed: 2
+  - type: Reflect
+    reflectProb: 0.2
+    reflects:
+    - Energy
+  - type: ProjectileBatteryAmmoProvider
+    proto: BitrunColossusVolley
+    fireCost: 100
+  - type: Gun
+    fireRate: 0.5
+    selectedMode: Burst
+    availableModes:
+    - Burst
+    burstCooldown: 5
+    burstFireRate: 4
+    shotsPerBurst: 3
+    projectileSpeed: 8
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/laser3.ogg
+
+- type: entity
+  id: BitrunColossusBolt
+  parent: BulletLaser
+  name: death bolt
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/boss_projectile.rsi
+    layers:
+    - state: chronobolt
+      shader: unshaded
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 12
+
+- type: entity
+  id: BitrunColossusVolley
+  parent: BitrunColossusBolt
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ProjectileSpread
+    proto: BitrunColossusBolt
+    count: 3
+    spread: 32
+
+- type: entity
+  id: BitrunMobBubblegum
+  name: Bubblegum
+  description: The largest of the slaughter demons. Watch the ground around you.
+  parent: MobGoliath
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/bubblegum.rsi
+    offset: 0, 1
+    noRot: true
+    layers:
+    - state: bubblegum
+      map: [ "enum.DamageStateVisualLayers.Base" ]
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: bubblegum
+      Dead:
+        Base: bubblegum
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      500: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.8
+    baseSprintSpeed: 3.5
+  - type: MeleeWeapon
+    attackRate: 1.5
+    damage:
+      types:
+        Slash: 20
+        Piercing: 10
+        Structural: 40
+
+- type: entity
+  id: BitrunMobHierophant
+  name: hierophant
+  description: An ancient construct that fires bursts of energy in a steady rhythm.
+  parent: BitrunMobRangedBossBase
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/hierophant.rsi
+    noRot: true
+    state: hierophant
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      350: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2
+    baseSprintSpeed: 2
+  - type: ProjectileBatteryAmmoProvider
+    proto: BulletLaser
+    fireCost: 100
+  - type: Gun
+    fireRate: 0.6
+    selectedMode: Burst
+    availableModes:
+    - Burst
+    burstCooldown: 4
+    burstFireRate: 3
+    shotsPerBurst: 4
+    projectileSpeed: 7
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/laser3.ogg
+
+- type: entity
+  id: BitrunMobWendigo
+  name: wendigo
+  description: A fast cave predator that slows its prey with freezing bolts.
+  parent: BitrunMobRangedBossBase
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/wendigo.rsi
+    offset: 0, 0.5
+    noRot: true
+    layers:
+    - state: wendigo
+      map: [ "enum.DamageStateVisualLayers.Base" ]
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: wendigo
+      Dead:
+        Base: wendigo_dead
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      330: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3.6
+    baseSprintSpeed: 4.5
+  - type: ProjectileBatteryAmmoProvider
+    proto: BitrunWendigoBolt
+    fireCost: 100
+  - type: Gun
+    fireRate: 0.7
+    projectileSpeed: 9
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/taser2.ogg
+
+- type: entity
+  id: BitrunWendigoBolt
+  parent: WatcherBolt
+  name: freezing bolt
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/boss_projectile.rsi
+    layers:
+    - state: chronobolt
+      shader: unshaded
+      color: "#9be9ff"
+  - type: Projectile
+    damage:
+      types:
+        Cold: 12
+
+- type: entity
+  id: BitrunMobBloodDrunkMiner
+  name: blood-drunk miner
+  description: A miner still carrying an accelerator and a blade for the endless hunt.
+  parent: BitrunMobRangedBossBase
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _DeepLagoon/Bitrunning/blood_drunk_miner.rsi
+    offset: 0, 0.5
+    noRot: true
+    state: miner
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      280: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3.2
+    baseSprintSpeed: 4
+  - type: MeleeWeapon
+    animation: WeaponArcSlash
+    attackRate: 1.75
+    damage:
+      types:
+        Slash: 16
+        Structural: 20
+  - type: ProjectileBatteryAmmoProvider
+    proto: BulletKinetic
+    fireCost: 100
+  - type: Gun
+    fireRate: 0.65
+    projectileSpeed: 15
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/kinetic_accel.ogg

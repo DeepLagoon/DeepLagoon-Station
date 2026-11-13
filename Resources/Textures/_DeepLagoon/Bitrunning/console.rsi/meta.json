@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/machines/computer.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "computer_broken",
+      "directions": 4
+    },
+    {
+      "name": "mining",
+      "directions": 4,
+      "delays": [
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ],
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ],
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ],
+        [
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1,
+          1.0,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "mining_key",
+      "directions": 4
+    },
+    {
+      "name": "mining_key_off",
+      "directions": 4
+    },
+    {
+      "name": "computer",
+      "directions": 4
+    },
+    {
+      "name": "bitrunning",
+      "directions": 4,
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    }
+  ]
+}

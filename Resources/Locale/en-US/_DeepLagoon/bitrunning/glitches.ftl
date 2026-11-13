@@ -1,0 +1,20 @@
+bitrun-glitch-police-name = Glitch — Cyber police
+bitrun-glitch-police-desc = A close-quarters security program. Stop the bitrunners before they extract their cache.
+bitrun-glitch-tac-name = Glitch — Cyber tactical unit
+bitrun-glitch-tac-desc = An armed security program. Stop the bitrunners before they extract their cache.
+bitrun-glitch-netguardian-name = Glitch — Netguardian Prime
+bitrun-glitch-netguardian-desc = A flying security drone with a rocket launcher. Stop the bitrunners before they extract their cache.
+bitrun-glitch-role-rules = You are an antagonist inside this virtual domain. Target the bitrunners. Your role ends when the domain shuts down.
+bitrun-glitch-detected = Hostile code detected in the domain. Threat identified as { $role }.
+
+ent-BitrunGlitchSpawnerBase = unstable code
+ent-BitrunGlitchBurst = digital distortion
+ent-BitrunCyberPolice = cyber police officer
+    .desc = A virtual officer assigned to intercept domain intruders.
+ent-BitrunCyberTac = cyber tactical officer
+    .desc = A virtual tactical officer sent to reinforce a compromised domain.
+ent-BitrunNetguardian = Netguardian Prime
+    .desc = A heavy virtual security drone sent to shut down intruders.
+ent-ActionBitrunNetguardianRockets = Rocket salvo
+    .desc = Fire a spread of three rockets.
+bitrun-glitch-upload-hint = If the quantum server has been sabotaged, use the upload point to materialize at the byteforge.

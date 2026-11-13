@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "size": {
+    "x": 96,
+    "y": 96
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/effects/96x96.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "hierophant_telegraph_cardinal",
+      "delays": [
+        [
+          0.04,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.04,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_telegraph_diagonal",
+      "delays": [
+        [
+          0.04,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.04,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_telegraph_edge",
+      "delays": [
+        [
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125,
+          0.125
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_telegraph",
+      "delays": [
+        [
+          0.04,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.04,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_telegraph_teleport",
+      "delays": [
+        [
+          0.1,
+          0.08,
+          0.06,
+          0.04,
+          0.02,
+          0.125,
+          0.175,
+          0.15,
+          0.1,
+          0.025,
+          0.05,
+          0.075,
+          0.1,
+          0.1
+        ]
+      ]
+    }
+  ]
+}

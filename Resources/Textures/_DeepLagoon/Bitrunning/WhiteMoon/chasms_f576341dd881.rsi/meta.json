@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/chasms.dmi.",
+  "states": [
+    {
+      "name": "chasms-0"
+    },
+    {
+      "name": "chasms-1"
+    },
+    {
+      "name": "chasms-10"
+    },
+    {
+      "name": "chasms-11"
+    },
+    {
+      "name": "chasms-12"
+    },
+    {
+      "name": "chasms-13"
+    },
+    {
+      "name": "chasms-14"
+    },
+    {
+      "name": "chasms-15"
+    },
+    {
+      "name": "chasms-2"
+    },
+    {
+      "name": "chasms-255"
+    },
+    {
+      "name": "chasms-3"
+    },
+    {
+      "name": "chasms-4"
+    },
+    {
+      "name": "chasms-5"
+    },
+    {
+      "name": "chasms-6"
+    },
+    {
+      "name": "chasms-7"
+    },
+    {
+      "name": "chasms-8"
+    },
+    {
+      "name": "chasms-9"
+    }
+  ]
+}

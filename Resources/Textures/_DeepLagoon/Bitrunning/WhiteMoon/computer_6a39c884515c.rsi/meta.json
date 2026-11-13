@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/machines/computer.dmi.",
+  "states": [
+    {
+      "name": "atmos_key",
+      "directions": 4
+    },
+    {
+      "name": "atmos_key_off",
+      "directions": 4
+    },
+    {
+      "name": "computer",
+      "directions": 4
+    },
+    {
+      "name": "state_fa85a8230f20",
+      "directions": 4
+    }
+  ]
+}

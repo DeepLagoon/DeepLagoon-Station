@@ -1,0 +1,1612 @@
+meta:
+  format: 7
+  category: Grid
+  entityCount: 262
+maps: []
+grids: [1]
+orphans: [1]
+nullspace: []
+tilemap:
+  "0": Space
+  "1": BitrunTile010e681be03e
+  "2": BitrunTile0c9b02979800
+  "3": BitrunTile26ebfa9d6600
+  "4": BitrunTile49c12d5ddc55
+  "5": BitrunTile737fdf53c76b
+  "6": BitrunTile7963ce65be47
+  "7": BitrunTile7e13274f00ac
+  "8": BitrunTilea29b99831272
+  "9": BitrunTileb9648054dd9d
+  "10": BitrunTilec3945115e197
+  "11": BitrunTiled7fdf5f7ae5d
+  "12": BitrunTilee1e088f9d253
+  "13": BitrunTilef615184a562c
+  "14": FloorGreenCircuit
+  "15": FloorHull
+  "16": FloorRiverbed
+  "17": Plating
+  "18": PlatingDamaged
+entities:
+  - proto: ""
+    entities:
+      - uid: 1
+        components:
+          - type: MetaData
+            name: "vaporwave"
+          - type: Transform
+            parent: invalid
+            pos: 0,0
+          - type: MapGrid
+            canSplit: false
+            chunks:
+              0,0:
+                ind: 0,0
+                tiles: DgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAAAADwAAAAAAAAUAAAAAAAAPAAAAAAAABQAAAAAAAA8AAAAAAAAPAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAIAAAAAAAACAAAAAAAADAAAAAAAAAwAAAAAAAAMAAAAAAAADwAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAMAAAAAAAADAAAAAAAAAwAAAAAAAAMAAAAAAAADAAAAAAAAAUAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAADAAAAAAAAAwAAAAAAAAMAAAAAAAADAAAAAAAAAwAAAAAAAAFAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAwAAAAAAAAMAAAAAAAADAAAAAAAAAwAAAAAAAAMAAAAAAAADwAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAAAAAAFAAAAAAAADwAAAAAAAAcAAAAAAAAPAAAAAAAABQAAAAAAAA8AAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAAMAAAAAAAADAAAAAAAAAUAAAAAAAABAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAUAAAAAAAAMAAAAAAAADAAAAAAAAAwAAAAAAAAFAAAAAAAAAQAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAAMAAAAAAAABgAAAAAAAAMAAAAAAAAKAAAAAAAADAAAAAAAAAEAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAABQAAAAAAAAUAAAAAAAAFAAAAAAAABQAAAAAAAA0AAAAAAAAMAAAAAAAADQAAAAAAAAUAAAAAAAAFAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAAAABIAAAAAAAARAAAAAAAAEQAAAAAAABEAAAAAAAARAAAAAAAABAAAAAAAABEAAAAAAAASAAAAAAAAEQAAAAAAAA==
+                version: 7
+              0,1:
+                ind: 0,1
+                tiles: DgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAABQAAAAAAABEAAAAAAAAQAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAASAAAAAAAACQAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAEgAAAAAAAAsAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAABQAAAAAAABIAAAAAAAALAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAARAAAAAAAACwAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAIAAAAAAAACAAAAAAAAAgAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAAEQAAAAAAABEAAAAAAAASAAAAAAAAEQAAAAAAABEAAAAAAAARAAAAAAAAEgAAAAAAABIAAAAAAAARAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAABQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAABQAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+                version: 7
+              1,0:
+                ind: 1,0
+                tiles: DgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAABQAAAAAAAAEAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEgAAAAAAABIAAAAAAAABAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+                version: 7
+              1,1:
+                ind: 1,1
+                tiles: EAAAAAAAABIAAAAAAAAFAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAASAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAAAEQAAAAAAAAEAAAAAAAABAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAABIAAAAAAAAFAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAAAAAARAAAAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAEQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAOAAAAAAAADgAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+                version: 7
+          - type: Broadphase
+          - type: Physics
+            bodyType: Static
+          - type: Fixtures
+            fixtures: {}
+          - type: ImplicitRoof
+            color: '#FFFFFFFF'
+          - type: GridEnvironment
+            forceGravity: true
+            alwaysPowered: true
+            safeAtmosphere: true
+          - type: DecalGrid
+            chunkCollection:
+              version: 2
+              nodes:
+              - node:
+                  id: BitrunDecal00fbb4ffe948
+                decals:
+                  "15": 11,4
+              - node:
+                  id: BitrunDecal0d2658f34df4
+                decals:
+                  "40": 13,6
+              - node:
+                  id: BitrunDecal0f35afb81a42
+                decals:
+                  "47": 12,11
+                  "48": 12,11
+                  "49": 13,11
+                  "50": 13,11
+                  "51": 14,11
+                  "53": 10,12
+                  "55": 11,12
+                  "56": 11,12
+                  "57": 12,12
+                  "58": 13,12
+                  "59": 14,12
+                  "61": 10,13
+                  "62": 10,13
+                  "63": 11,13
+                  "64": 12,13
+                  "65": 13,13
+                  "66": 14,13
+                  "67": 14,13
+                  "68": 7,14
+                  "73": 11,14
+                  "74": 12,14
+                  "75": 13,14
+                  "80": 17,14
+              - node:
+                  id: BitrunDecal37831117fcc1
+                decals:
+                  "52": 14,11
+                  "54": 10,12
+                  "60": 14,12
+                  "69": 7,14
+                  "70": 8,14
+                  "71": 9,14
+                  "72": 10,14
+                  "76": 14,14
+                  "78": 15,14
+                  "79": 16,14
+                  "81": 17,14
+              - node:
+                  id: BitrunDecala3852a93cf03
+                decals:
+                  "33": 10,6
+                  "46": 12,7
+              - node:
+                  id: BitrunDecalde3e3f0d6787
+                decals:
+                  "3": 11,3
+                  "10": 14,3
+                  "12": 10,4
+                  "16": 11,4
+                  "28": 13,5
+                  "36": 11,6
+                  "43": 14,6
+              - node:
+                  id: DirtLight
+                decals:
+                  "1": 9,3
+                  "2": 10,3
+                  "4": 11,3
+                  "5": 12,3
+                  "6": 13,3
+                  "7": 13,3
+                  "8": 14,3
+                  "9": 14,3
+                  "11": 10,4
+                  "13": 11,4
+                  "14": 11,4
+                  "17": 12,4
+                  "18": 12,4
+                  "19": 13,4
+                  "20": 13,4
+                  "21": 14,4
+                  "22": 14,4
+                  "23": 10,5
+                  "24": 10,5
+                  "25": 11,5
+                  "26": 12,5
+                  "27": 13,5
+                  "29": 14,5
+                  "30": 14,5
+                  "31": 9,6
+                  "32": 10,6
+                  "34": 11,6
+                  "35": 11,6
+                  "37": 12,6
+                  "38": 13,6
+                  "39": 13,6
+                  "41": 14,6
+                  "42": 14,6
+                  "44": 12,7
+                  "45": 12,7
+                  "77": 15,14
+  - proto: AirlockBitrunArt7c330bf4fec2
+    entities:
+      - uid: 85
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,7.5
+  - proto: AirlockBitrunArt8259584ad10e
+    entities:
+      - uid: 121
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,15.5
+  - proto: BitrunAnimatedTile17bd33979c3f
+    entities:
+      - uid: 146
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,17.5
+      - uid: 151
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,17.5
+  - proto: BitrunAnimatedTile267768989d95
+    entities:
+      - uid: 109
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,14.5
+      - uid: 110
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,14.5
+  - proto: BitrunArt2ec2b67bbf71
+    entities:
+      - uid: 170
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,19.5
+          - type: MetaData
+            name: "aesthetic sunglasses"
+  - proto: BitrunArt35de4320332f
+    entities:
+      - uid: 108
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,14.5
+            rot: -90
+          - type: MetaData
+            desc: "Ugh, this is merely an ugly amateurish replica of the other statue! The letters RIPGOAT are scribbled onto the base."
+      - uid: 111
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,14.5
+            rot: 90
+  - proto: BitrunArt450b04b0d236
+    entities:
+      - uid: 173
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,19.5
+  - proto: BitrunArt525fc44dce4c
+    entities:
+      - uid: 148
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,17.5
+  - proto: BitrunArt52b63f7ea0d0
+    entities:
+      - uid: 86
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,7.5
+      - uid: 120
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,15.5
+  - proto: BitrunArta83e2bb1b69c
+    entities:
+      - uid: 44
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+  - proto: BitrunArtac04b5b5bbaePlacement42ae6e72884d
+    entities:
+      - uid: 181
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,21.5
+  - proto: BitrunArtc0f08759d920
+    entities:
+      - uid: 140
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,16.5
+  - proto: BitrunAvatarSpawn
+    entities:
+      - uid: 254
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 255
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 256
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: BitrunCacheGoal
+    entities:
+      - uid: 258
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,3.5
+      - uid: 259
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,3.5
+  - proto: BitrunCacheSpawn
+    entities:
+      - uid: 257
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,20.5
+  - proto: BitrunExit
+    entities:
+      - uid: 260
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 261
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 262
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: BitrunVirtualWall
+    entities:
+      - uid: 2
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,0.5
+      - uid: 3
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,0.5
+      - uid: 4
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,0.5
+      - uid: 5
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,0.5
+      - uid: 6
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,0.5
+      - uid: 7
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,0.5
+      - uid: 8
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,0.5
+      - uid: 9
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,0.5
+      - uid: 10
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,0.5
+      - uid: 11
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,0.5
+      - uid: 12
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,0.5
+      - uid: 13
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,0.5
+      - uid: 14
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,0.5
+      - uid: 15
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,0.5
+      - uid: 16
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,0.5
+      - uid: 17
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,0.5
+      - uid: 18
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,0.5
+      - uid: 19
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,0.5
+      - uid: 20
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,0.5
+      - uid: 21
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,0.5
+      - uid: 22
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,0.5
+      - uid: 23
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,0.5
+      - uid: 24
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,0.5
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,0.5
+      - uid: 26
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,0.5
+      - uid: 27
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,1.5
+      - uid: 28
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,1.5
+      - uid: 29
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,2.5
+      - uid: 39
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,2.5
+      - uid: 40
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,3.5
+      - uid: 50
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,3.5
+      - uid: 51
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,4.5
+      - uid: 60
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,4.5
+      - uid: 61
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,5.5
+      - uid: 69
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,5.5
+      - uid: 70
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,6.5
+      - uid: 79
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,6.5
+      - uid: 80
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,7.5
+      - uid: 91
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,7.5
+      - uid: 92
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,8.5
+      - uid: 93
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,8.5
+      - uid: 94
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,9.5
+      - uid: 95
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,9.5
+      - uid: 96
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,10.5
+      - uid: 97
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,10.5
+      - uid: 98
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,11.5
+      - uid: 99
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,11.5
+      - uid: 100
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,12.5
+      - uid: 101
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,12.5
+      - uid: 102
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,13.5
+      - uid: 105
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,13.5
+      - uid: 106
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,14.5
+      - uid: 113
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,14.5
+      - uid: 114
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,15.5
+      - uid: 127
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,15.5
+      - uid: 128
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,16.5
+      - uid: 143
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,16.5
+      - uid: 144
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,17.5
+      - uid: 154
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,17.5
+      - uid: 155
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,18.5
+      - uid: 164
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,18.5
+      - uid: 165
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,19.5
+      - uid: 175
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,19.5
+      - uid: 176
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,20.5
+      - uid: 189
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,20.5
+      - uid: 190
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,21.5
+      - uid: 202
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,21.5
+      - uid: 203
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,22.5
+      - uid: 205
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,22.5
+      - uid: 206
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,23.5
+      - uid: 207
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,23.5
+      - uid: 208
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,24.5
+      - uid: 209
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,24.5
+      - uid: 210
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,25.5
+      - uid: 211
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,25.5
+      - uid: 212
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,26.5
+      - uid: 213
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,26.5
+      - uid: 214
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,27.5
+      - uid: 215
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,27.5
+      - uid: 216
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,27.5
+      - uid: 217
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,27.5
+      - uid: 218
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,27.5
+      - uid: 219
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,27.5
+      - uid: 220
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,27.5
+      - uid: 221
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,27.5
+      - uid: 222
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,27.5
+      - uid: 223
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,27.5
+      - uid: 224
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,27.5
+      - uid: 225
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,27.5
+      - uid: 226
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,27.5
+      - uid: 227
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,27.5
+      - uid: 228
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,27.5
+      - uid: 229
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,27.5
+      - uid: 230
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,27.5
+      - uid: 231
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,27.5
+      - uid: 232
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,27.5
+      - uid: 233
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,27.5
+      - uid: 234
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,27.5
+      - uid: 235
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,27.5
+      - uid: 236
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,27.5
+      - uid: 237
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,27.5
+      - uid: 238
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,27.5
+  - proto: BoozeDispenserBitrunArt2ee1132fc83b
+    entities:
+      - uid: 137
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,16.5
+  - proto: ChairBitrunArt2f65eab2e5fcPlacement42ae6e72884d
+    entities:
+      - uid: 180
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,20.5
+            rot: -90
+  - proto: ClothingHeadHelmetHardsuitBasic
+    entities:
+      - uid: 240
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 245
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 250
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: ClothingMaskGas
+    entities:
+      - uid: 242
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 247
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 252
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: ClothingMaskGasBitrunArt430e0aab4367
+    entities:
+      - uid: 57
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,4.5
+  - proto: ClothingOuterHardsuitBasic
+    entities:
+      - uid: 239
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 244
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 249
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: ComfyChairBitrunArt0c2d93b7ea55
+    entities:
+      - uid: 168
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,19.5
+            rot: 90
+      - uid: 171
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,19.5
+            rot: -90
+      - uid: 182
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,20.5
+            rot: 90
+      - uid: 185
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,20.5
+            rot: -90
+  - proto: ComfyChairBitrunArtabcf3ff781d5
+    entities:
+      - uid: 65
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,5.5
+            rot: 90
+  - proto: ComputerTabletopCommsBitrunArtb2a50941dd3f
+    entities:
+      - uid: 66
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,5.5
+            rot: -90
+          - type: MetaData
+            name: "shuttle console"
+  - proto: CrateGenericSteelBitrunArta18a0badb2d7
+    entities:
+      - uid: 153
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,17.5
+      - uid: 204
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,22.5
+  - proto: DrinkGlassBitrunArte63dfde28ea0
+    entities:
+      - uid: 134
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,16.5
+  - proto: DrinkGlassBitrunArte63dfde28ea0Placement7485a909848f
+    entities:
+      - uid: 135
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,16.5
+  - proto: DrinkGlassBitrunArte63dfde28ea0Placementd5f31ab6bfef
+    entities:
+      - uid: 133
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,16.5
+  - proto: EmergencyOxygenTankFilled
+    entities:
+      - uid: 243
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 248
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 253
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: EmergencyOxygenTankFilledBitrunArt5b709669a52a
+    entities:
+      - uid: 45
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+      - uid: 46
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+      - uid: 47
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: EmergencyOxygenTankFilledBitrunArt5b709669a52aPlacementf155e8889a72
+    entities:
+      - uid: 56
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,4.5
+  - proto: FloorWaterDecorativeEntityBitrunArtd0d15b518b43
+    entities:
+      - uid: 130
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,16.5
+      - uid: 141
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,16.5
+  - proto: FloraTreeBitrunArt264c2656e5bePlacement42ae6e72884d
+    entities:
+      - uid: 103
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,13.5
+      - uid: 104
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,13.5
+      - uid: 157
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,18.5
+      - uid: 161
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,18.5
+      - uid: 178
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,20.5
+      - uid: 187
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,20.5
+  - proto: GrilleBitrunArt55b67fc37f21
+    entities:
+      - uid: 33
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,2.5
+      - uid: 36
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,2.5
+      - uid: 53
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,4.5
+      - uid: 59
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,4.5
+      - uid: 63
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,5.5
+      - uid: 68
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,5.5
+      - uid: 83
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,7.5
+      - uid: 89
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,7.5
+  - proto: JetpackBlueFilled
+    entities:
+      - uid: 241
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,3.5
+      - uid: 246
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,3.5
+      - uid: 251
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+  - proto: MobButterflyBitrunArt7b1b8403aba8
+    entities:
+      - uid: 149
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,17.5
+  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+    entities:
+      - uid: 43
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,3.5
+            rot: 180
+      - uid: 48
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+            rot: 180
+      - uid: 74
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,6.5
+      - uid: 75
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,6.5
+      - uid: 107
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,14.5
+      - uid: 112
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,14.5
+      - uid: 183
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,20.5
+  - proto: PoweredlightBitrunArtc99cdcd3ba4ePlacement42ae6e72884d
+    entities:
+      - uid: 158
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,18.5
+            rot: 90
+      - uid: 162
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,18.5
+            rot: 270
+  - proto: ShuttleWindowBitrunArte9f2fbbfb4dc
+    entities:
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,2.5
+      - uid: 35
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,2.5
+      - uid: 52
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,4.5
+      - uid: 58
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,4.5
+      - uid: 62
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,5.5
+      - uid: 67
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,5.5
+      - uid: 82
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,7.5
+      - uid: 88
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,7.5
+  - proto: SuitStorageBaseBitrunArt064d20bdb027
+    entities:
+      - uid: 54
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,4.5
+      - uid: 64
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,5.5
+      - uid: 73
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,6.5
+  - proto: TableReinforcedBitrunArt234d0deab64b
+    entities:
+      - uid: 55
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,4.5
+      - uid: 76
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,6.5
+      - uid: 132
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,16.5
+      - uid: 136
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,16.5
+      - uid: 139
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,16.5
+      - uid: 169
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,19.5
+      - uid: 184
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,20.5
+  - proto: ThrusterBitrunArt6ebba51689a8
+    entities:
+      - uid: 41
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,3.5
+            rot: -90
+      - uid: 71
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,6.5
+            rot: -90
+  - proto: ToolboxMechanicalBitrunArta0ce2b9344fe
+    entities:
+      - uid: 77
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,6.5
+  - proto: WallShuttleBitrunArteaee919965c1
+    entities:
+      - uid: 30
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,2.5
+      - uid: 31
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,2.5
+      - uid: 34
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,2.5
+      - uid: 37
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,2.5
+      - uid: 38
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,2.5
+      - uid: 49
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,3.5
+      - uid: 78
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,6.5
+      - uid: 81
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,7.5
+      - uid: 84
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,7.5
+      - uid: 87
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,7.5
+      - uid: 90
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,7.5
+  - proto: WallSolidBitrunArt7007f3a1737a
+    entities:
+      - uid: 116
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,15.5
+      - uid: 117
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,15.5
+      - uid: 118
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,15.5
+      - uid: 119
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,15.5
+      - uid: 122
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,15.5
+      - uid: 124
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,15.5
+      - uid: 129
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,16.5
+      - uid: 163
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,18.5
+      - uid: 177
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,20.5
+      - uid: 188
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,20.5
+      - uid: 191
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,21.5
+      - uid: 192
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,21.5
+      - uid: 194
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,21.5
+      - uid: 195
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,21.5
+      - uid: 196
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,21.5
+      - uid: 199
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,21.5
+      - uid: 201
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,21.5
+  - proto: WallSolidRustBitrunArta9d053e10a9d
+    entities:
+      - uid: 115
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,15.5
+      - uid: 123
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,15.5
+      - uid: 125
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,15.5
+      - uid: 126
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,15.5
+      - uid: 142
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,16.5
+      - uid: 145
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,17.5
+      - uid: 152
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,17.5
+      - uid: 156
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,18.5
+      - uid: 166
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,19.5
+      - uid: 174
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,19.5
+      - uid: 193
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,21.5
+      - uid: 197
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,21.5
+      - uid: 198
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,21.5
+      - uid: 200
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,21.5
+  - proto: WindowDirectionalBitrunArt5e4c394ce85cPlacement42ae6e72884d
+    entities:
+      - uid: 131
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,16.5
+            rot: -90
+      - uid: 138
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,16.5
+            rot: 90
+      - uid: 147
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,17.5
+            rot: -90
+      - uid: 150
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,17.5
+            rot: 90
+      - uid: 159
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,18.5
+            rot: -90
+      - uid: 160
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,18.5
+            rot: 90
+      - uid: 167
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,19.5
+            rot: -90
+      - uid: 172
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,19.5
+            rot: 90
+      - uid: 179
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,20.5
+            rot: -90
+      - uid: 186
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,20.5
+            rot: 90
+  - proto: WindowReinforcedDirectionalBitrunArt681de416b197Placement42ae6e72884d
+    entities:
+      - uid: 42
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,3.5
+            rot: 90
+      - uid: 72
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,6.5
+            rot: 90

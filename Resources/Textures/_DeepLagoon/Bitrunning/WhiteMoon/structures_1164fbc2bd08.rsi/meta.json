@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/structures.dmi.",
+  "states": [
+    {
+      "name": "alien_frame"
+    },
+    {
+      "name": "barrel"
+    },
+    {
+      "name": "barrier1",
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.5
+        ]
+      ]
+    },
+    {
+      "name": "brokengrille"
+    },
+    {
+      "name": "dispenser"
+    },
+    {
+      "name": "floorsafe"
+    },
+    {
+      "name": "glassbox"
+    },
+    {
+      "name": "grille"
+    },
+    {
+      "name": "headpike-bone"
+    },
+    {
+      "name": "linenbin-full"
+    },
+    {
+      "name": "plankbarricade"
+    },
+    {
+      "name": "plankbarricade_snow"
+    },
+    {
+      "name": "safe"
+    },
+    {
+      "name": "steam_vent"
+    },
+    {
+      "name": "table_frame"
+    },
+    {
+      "name": "wood_frame"
+    },
+    {
+      "name": "woodenbarricade"
+    },
+    {
+      "name": "woodenbarricade_snow"
+    }
+  ]
+}

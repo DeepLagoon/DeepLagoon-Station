@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 48
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/storage/crates.dmi.",
+  "states": [
+    {
+      "name": "cardboard"
+    },
+    {
+      "name": "cardboard_moth"
+    },
+    {
+      "name": "cargo"
+    },
+    {
+      "name": "crate"
+    },
+    {
+      "name": "crateopen"
+    },
+    {
+      "name": "freezer"
+    },
+    {
+      "name": "gold"
+    },
+    {
+      "name": "grave"
+    },
+    {
+      "name": "hydrocrate"
+    },
+    {
+      "name": "laundry"
+    },
+    {
+      "name": "o2crate"
+    },
+    {
+      "name": "secgearcrate"
+    },
+    {
+      "name": "securecrate"
+    },
+    {
+      "name": "syndicrate"
+    },
+    {
+      "name": "trashbin",
+      "delays": [
+        [
+          0.05,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "trashcart"
+    },
+    {
+      "name": "weaponcrate"
+    },
+    {
+      "name": "wooden"
+    }
+  ]
+}

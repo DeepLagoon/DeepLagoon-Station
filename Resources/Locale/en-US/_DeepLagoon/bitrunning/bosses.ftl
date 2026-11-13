@@ -1,0 +1,14 @@
+ent-BitrunMobAshDrake = ash drake
+    .desc = A guardian of the necropolis that fills its arena with fire.
+ent-BitrunMobColossus = colossus
+    .desc = Heavy shielding protects a creature that sweeps its surroundings with volleys.
+ent-BitrunMobBubblegum = Bubblegum
+    .desc = The largest of the slaughter demons. Watch the ground around you.
+ent-BitrunMobHierophant = hierophant
+    .desc = An ancient construct that fires bursts of energy in a steady rhythm.
+ent-BitrunMobWendigo = wendigo
+    .desc = A fast cave predator that slows its prey with freezing bolts.
+ent-BitrunWendigoBolt = freezing bolt
+ent-BitrunMobBloodDrunkMiner = blood-drunk miner
+    .desc = A miner still carrying an accelerator and a blade for the endless hunt.
+ent-BitrunColossusBolt = death bolt

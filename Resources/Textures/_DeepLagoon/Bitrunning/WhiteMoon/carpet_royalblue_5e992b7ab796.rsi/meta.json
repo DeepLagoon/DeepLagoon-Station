@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/carpet_royalblue.dmi.",
+  "states": [
+    {
+      "name": "carpet_royalblue-0"
+    },
+    {
+      "name": "carpet_royalblue-1"
+    },
+    {
+      "name": "carpet_royalblue-10"
+    },
+    {
+      "name": "carpet_royalblue-11"
+    },
+    {
+      "name": "carpet_royalblue-110"
+    },
+    {
+      "name": "carpet_royalblue-12"
+    },
+    {
+      "name": "carpet_royalblue-13"
+    },
+    {
+      "name": "carpet_royalblue-137"
+    },
+    {
+      "name": "carpet_royalblue-14"
+    },
+    {
+      "name": "carpet_royalblue-15"
+    },
+    {
+      "name": "carpet_royalblue-157"
+    },
+    {
+      "name": "carpet_royalblue-2"
+    },
+    {
+      "name": "carpet_royalblue-203"
+    },
+    {
+      "name": "carpet_royalblue-207"
+    },
+    {
+      "name": "carpet_royalblue-21"
+    },
+    {
+      "name": "carpet_royalblue-255"
+    },
+    {
+      "name": "carpet_royalblue-3"
+    },
+    {
+      "name": "carpet_royalblue-38"
+    },
+    {
+      "name": "carpet_royalblue-4"
+    },
+    {
+      "name": "carpet_royalblue-5"
+    },
+    {
+      "name": "carpet_royalblue-55"
+    },
+    {
+      "name": "carpet_royalblue-6"
+    },
+    {
+      "name": "carpet_royalblue-63"
+    },
+    {
+      "name": "carpet_royalblue-7"
+    },
+    {
+      "name": "carpet_royalblue-74"
+    },
+    {
+      "name": "carpet_royalblue-8"
+    },
+    {
+      "name": "carpet_royalblue-9"
+    }
+  ]
+}

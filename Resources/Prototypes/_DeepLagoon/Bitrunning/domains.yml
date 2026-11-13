@@ -1,0 +1,403 @@
+- type: bitrunDomain
+  id: abductor_ship
+  name: bitrun-domain-abductor_ship
+  description: bitrun-domain-abductor_ship-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/abductor_ship.yml
+  difficulty: 2
+  cost: 2
+  credits: 5
+  reward: 75000
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: ash_drake
+  name: bitrun-domain-ash_drake
+  description: bitrun-domain-ash_drake-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/ash_drake.yml
+  difficulty: 2
+  cost: 2
+  credits: 5
+  reward: 75000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: beach_bar
+  name: bitrun-domain-beach_bar
+  description: bitrun-domain-beach_bar-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/beach_bar.yml
+  difficulty: 0
+  cost: 0
+  credits: 1
+  reward: 5000
+  objective: Drinks
+  objectiveCount: 20
+  loot:
+  - SheetSteel
+
+- type: bitrunDomain
+  id: blood_drunk_miner
+  name: bitrun-domain-blood_drunk_miner
+  description: bitrun-domain-blood_drunk_miner-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/blood_drunk_miner.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: breeze_bay
+  name: bitrun-domain-breeze_bay
+  description: bitrun-domain-breeze_bay-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/breeze_bay.yml
+  difficulty: 0
+  cost: 0
+  credits: 3
+  reward: 5000
+  objective: Fishing
+  objectiveCount: 5
+  loot:
+  - SheetSteel
+
+- type: bitrunDomain
+  id: bubblegum
+  name: bitrun-domain-bubblegum
+  description: bitrun-domain-bubblegum-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/bubblegum.yml
+  difficulty: 2
+  cost: 2
+  credits: 5
+  reward: 75000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: clown_planet
+  name: bitrun-domain-clown_planet
+  description: bitrun-domain-clown_planet-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/clown_planet.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  gear: ClownGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: colossus
+  name: bitrun-domain-colossus
+  description: bitrun-domain-colossus-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/colossus.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: fredingtonfastingbear
+  name: bitrun-domain-fredingtonfastingbear
+  description: bitrun-domain-fredingtonfastingbear-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/fredingtonfastingbear.yml
+  difficulty: 2
+  cost: 2
+  credits: 5
+  reward: 75000
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: gondola_asteroid
+  name: bitrun-domain-gondola_asteroid
+  description: bitrun-domain-gondola_asteroid-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/gondola_asteroid.yml
+  difficulty: 0
+  cost: 0
+  credits: 1
+  reward: 5000
+  loot:
+  - SheetSteel
+
+- type: bitrunDomain
+  id: grasslands_hunt
+  name: bitrun-domain-grasslands_hunt
+  description: bitrun-domain-grasslands_hunt-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/grasslands_hunt.yml
+  difficulty: 0
+  cost: 0
+  credits: 1
+  reward: 5000
+  objective: Hunt
+  objectiveCount: 3
+  loot:
+  - SheetSteel
+
+- type: bitrunDomain
+  id: heretic_hunt
+  name: bitrun-domain-heretic_hunt
+  description: bitrun-domain-heretic_hunt-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/heretic_hunt.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  objective: Ritual
+  objectiveCount: 10
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: hierophant
+  name: bitrun-domain-hierophant
+  description: bitrun-domain-hierophant-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/hierophant.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: island_brawl
+  name: bitrun-domain-island_brawl
+  description: bitrun-domain-island_brawl-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/island_brawl.yml
+  difficulty: 3
+  cost: 3
+  credits: 10
+  reward: 100000
+  objective: Island
+  objectiveCount: 10
+  gear: BitrunSecurityGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetPlasma
+  - IngotSilver
+  - IngotGold
+
+- type: bitrunDomain
+  id: meta_central
+  name: bitrun-domain-meta_central
+  description: bitrun-domain-meta_central-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/meta_central.yml
+  difficulty: 3
+  cost: 3
+  credits: 10
+  reward: 100000
+  gear: BitrunSecurityGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetPlasma
+  - IngotSilver
+  - IngotGold
+
+- type: bitrunDomain
+  id: pipedream
+  name: bitrun-domain-pipedream
+  description: bitrun-domain-pipedream-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/pipedream.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: pirates
+  name: bitrun-domain-pirates
+  description: bitrun-domain-pirates-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/pirates.yml
+  difficulty: 2
+  cost: 2
+  credits: 5
+  reward: 75000
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: psyker_shuffle
+  name: bitrun-domain-psyker_shuffle
+  description: bitrun-domain-psyker_shuffle-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/psyker_shuffle.yml
+  difficulty: 2
+  cost: 1
+  credits: 10
+  reward: 75000
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  echoVision: true
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: psyker_zombies
+  name: bitrun-domain-psyker_zombies
+  description: bitrun-domain-psyker_zombies-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/psyker_zombies.yml
+  difficulty: 2
+  cost: 2
+  credits: 10
+  reward: 75000
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  echoVision: true
+  loot:
+  - SheetSteel
+  - IngotSilver
+  - SheetPlasma
+
+- type: bitrunDomain
+  id: ancient_milsim
+  name: bitrun-domain-ancient_milsim
+  description: bitrun-domain-ancient_milsim-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/skyrat_ancientmilsim.yml
+  difficulty: 4
+  cost: 3
+  credits: 50
+  reward: 150000
+  objective: Stages
+  objectiveCount: 1
+  gear: BitrunSecurityGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetPlasma
+  - IngotSilver
+  - IngotGold
+  - ClothingShoesBootsMag
+
+- type: bitrunDomain
+  id: stairs_and_cliffs
+  name: bitrun-domain-stairs_and_cliffs
+  description: bitrun-domain-stairs_and_cliffs-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/stairs_and_cliffs.yml
+  difficulty: 1
+  cost: 1
+  credits: 5
+  reward: 25000
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: syndicate_assault
+  name: bitrun-domain-syndicate_assault
+  description: bitrun-domain-syndicate_assault-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/syndicate_assault.yml
+  difficulty: 3
+  cost: 3
+  credits: 10
+  reward: 100000
+  loot:
+  - SheetSteel
+  - SheetPlasma
+  - IngotSilver
+  - IngotGold
+
+- type: bitrunDomain
+  id: vaporwave
+  name: bitrun-domain-vaporwave
+  description: bitrun-domain-vaporwave-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/vaporwave.yml
+  difficulty: 0
+  cost: 20
+  credits: 20
+  reward: 5000
+  loot:
+  - SheetSteel
+
+- type: bitrunDomain
+  id: wendigo
+  name: bitrun-domain-wendigo
+  description: bitrun-domain-wendigo-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/wendigo.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  objective: Boss
+  objectiveCount: 1
+  gear: BitrunExplorerGear
+  restrictLoadout: true
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: xeno_nest
+  name: bitrun-domain-xeno_nest
+  description: bitrun-domain-xeno_nest-desc
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/xeno_nest.yml
+  difficulty: 1
+  cost: 1
+  credits: 3
+  reward: 25000
+  loot:
+  - SheetSteel
+  - SheetGlass
+
+- type: bitrunDomain
+  id: test_only
+  name: bitrun-domain-test
+  description: bitrun-domain-test
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/test_only.yml
+  cost: 0
+  testOnly: true
+
+- type: bitrunDomain
+  id: test_only_expensive
+  name: bitrun-domain-test
+  description: bitrun-domain-test
+  map: /Maps/_DeepLagoon/Bitrunning/Domains/test_only.yml
+  cost: 3
+  testOnly: true

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/poker_table.dmi.",
+  "states": [
+    {
+      "name": "poker_table-0"
+    },
+    {
+      "name": "poker_table-1"
+    },
+    {
+      "name": "poker_table-10"
+    },
+    {
+      "name": "poker_table-11"
+    },
+    {
+      "name": "poker_table-12"
+    },
+    {
+      "name": "poker_table-13"
+    },
+    {
+      "name": "poker_table-14"
+    },
+    {
+      "name": "poker_table-15"
+    },
+    {
+      "name": "poker_table-2"
+    },
+    {
+      "name": "poker_table-3"
+    },
+    {
+      "name": "poker_table-4"
+    },
+    {
+      "name": "poker_table-5"
+    },
+    {
+      "name": "poker_table-6"
+    },
+    {
+      "name": "poker_table-7"
+    },
+    {
+      "name": "poker_table-8"
+    },
+    {
+      "name": "poker_table-9"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/smooth_structures/rice_window.dmi.",
+  "states": [
+    {
+      "name": "rice_window-0"
+    },
+    {
+      "name": "rice_window-1"
+    },
+    {
+      "name": "rice_window-10"
+    },
+    {
+      "name": "rice_window-11"
+    },
+    {
+      "name": "rice_window-12"
+    },
+    {
+      "name": "rice_window-13"
+    },
+    {
+      "name": "rice_window-14"
+    },
+    {
+      "name": "rice_window-15"
+    },
+    {
+      "name": "rice_window-2"
+    },
+    {
+      "name": "rice_window-3"
+    },
+    {
+      "name": "rice_window-4"
+    },
+    {
+      "name": "rice_window-5"
+    },
+    {
+      "name": "rice_window-6"
+    },
+    {
+      "name": "rice_window-7"
+    },
+    {
+      "name": "rice_window-8"
+    },
+    {
+      "name": "rice_window-9"
+    }
+  ]
+}
