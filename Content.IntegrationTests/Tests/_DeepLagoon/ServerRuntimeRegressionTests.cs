@@ -8,6 +8,7 @@ using Content.Server.DeviceNetwork.Systems;
 using Content.Server.Examine;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Shuttles.Components;
+using Content.Shared._Crescent.Hardpoints;
 using Content.Shared._Mono.VendingMachine;
 using Content.Shared.CombatMode.Pacification;
 using Content.Shared.Damage;
@@ -24,6 +25,7 @@ using Content.Shared.Weapons.Ranged.Events;
 using Content.Shared.Weapons.Ranged.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.GameStates;
+using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
@@ -47,6 +49,8 @@ public sealed class ServerRuntimeRegressionTests
             projectile.Shooter = source;
             projectile.Weapon = source;
             projectile.IgnoreShooter = false;
+            var targeted = entities.AddComponent<TargetedProjectileComponent>(uid);
+            targeted.Target = source;
             var purchase = entities.AddComponent<VendingMachinePurchaseComponent>(uid);
             purchase.PurchaseGrid = source;
             purchase.OriginalPurchasePrice = 125;
@@ -67,7 +71,13 @@ public sealed class ServerRuntimeRegressionTests
             Assert.That(ProjectileState().Shooter, Is.EqualTo(sourceNet));
             Assert.That(ProjectileState().Weapon, Is.EqualTo(sourceNet));
             Assert.That(PurchaseState().PurchaseGrid, Is.EqualTo(sourceNet));
+            TargetedProjectileComponent.TargetedProjectileComponent_AutoState TargetedState() =>
+                (TargetedProjectileComponent.TargetedProjectileComponent_AutoState)
+                entities.GetComponentState(entities.EventBus, targeted, null, GameTick.Zero)!;
+            Assert.That(TargetedState().Target, Is.EqualTo(sourceNet));
             entities.DeleteEntity(source);
+            Assert.That(TargetedState().Target, Is.EqualTo(NetEntity.Invalid));
+            Assert.That(targeted.Target, Is.EqualTo(source));
             var state = ProjectileState();
             Assert.That(state.Shooter, Is.Null);
             Assert.That(state.Weapon, Is.Null);
@@ -85,6 +95,67 @@ public sealed class ServerRuntimeRegressionTests
             entities.EventBus.RaiseComponentEvent(uid, purchase, ref purchaseHandle);
             Assert.That(purchase.PurchaseGrid, Is.EqualTo(EntityUid.Invalid));
             Assert.That(purchase.OriginalPurchasePrice, Is.EqualTo(125));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task BallisticProviderSkipsDeletedAmmoAndKeepsLoadOrder(bool fireInLoadOrder)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var provider = entities.SpawnEntity(null, map.GridCoords);
+            var component = entities.AddComponent<BallisticAmmoProviderComponent>(provider);
+            component.FireInLoadOrder = fireInLoadOrder;
+            var stale = entities.SpawnEntity(null, map.GridCoords);
+            var first = entities.SpawnEntity(null, map.GridCoords);
+            var second = entities.SpawnEntity(null, map.GridCoords);
+            var containers = entities.System<SharedContainerSystem>();
+            Assert.That(containers.Insert(stale, component.Container), Is.True);
+            component.Entities.Add(stale);
+            entities.DeleteEntity(stale);
+            Assert.That(component.Entities, Is.Empty);
+
+            Assert.That(containers.Insert(first, component.Container), Is.True);
+            Assert.That(containers.Insert(second, component.Container), Is.True);
+            component.Entities.Add(first);
+            component.Entities.Add(second);
+            component.Entities.Insert(fireInLoadOrder ? 0 : component.Entities.Count, stale);
+            var take = new TakeAmmoEvent(1, new(), map.GridCoords, null);
+            entities.EventBus.RaiseLocalEvent(provider, take);
+            Assert.That(take.Ammo, Has.Count.EqualTo(1));
+            Assert.That(take.Ammo[0].Entity, Is.EqualTo(fireInLoadOrder ? first : second));
+            Assert.That(component.Entities, Is.EqualTo(new[] { fireInLoadOrder ? second : first }));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task DeletedWeaponDoesNotBlockItsHardpoint()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var mount = entities.SpawnEntity(null, map.GridCoords);
+            var hardpoint = entities.AddComponent<HardpointComponent>(mount);
+            var weapon = entities.SpawnEntity(null, map.GridCoords);
+            var weaponMount = entities.AddComponent<HardpointAnchorableOnlyComponent>(weapon);
+            hardpoint.anchoring = weapon;
+            weaponMount.anchoredTo = mount;
+
+            entities.DeleteEntity(weapon);
+            Assert.That(hardpoint.anchoring, Is.Null);
+
+            hardpoint.anchoring = weapon; // A stale reference from an existing grid.
+            var changed = new AnchorStateChangedEvent(mount, entities.GetComponent<TransformComponent>(mount));
+            entities.EventBus.RaiseLocalEvent(mount, ref changed);
+            Assert.That(hardpoint.anchoring, Is.Null);
         });
         await pair.CleanReturnAsync();
     }

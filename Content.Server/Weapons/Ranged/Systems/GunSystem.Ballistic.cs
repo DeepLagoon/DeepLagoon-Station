@@ -11,7 +11,7 @@ public sealed partial class GunSystem
     /// </summary>
     public void AddBallisticAmmo(Entity<BallisticAmmoProviderComponent?> ent, EntityUid ammoEntity)
     {
-        if (!Resolve(ent, ref ent.Comp))
+        if (!Resolve(ent, ref ent.Comp) || !ent.Comp.Container.Contains(ammoEntity))
             return;
         ent.Comp.Entities.Add(ammoEntity);
         DirtyField(ent, ent.Comp, nameof(BallisticAmmoProviderComponent.Entities));
@@ -22,10 +22,8 @@ public sealed partial class GunSystem
         EntityUid? ent = null;
 
         // TODO: Combine with TakeAmmo
-        if (component.Entities.Count > 0)
+        if (TryGetBallisticAmmo(uid, component, out var existing, out var index))
         {
-            var index = component.FireInLoadOrder ? 0 : component.Entities.Count - 1;
-            var existing = component.Entities[index];
             component.Entities.RemoveAt(index);
             DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.Entities));
 

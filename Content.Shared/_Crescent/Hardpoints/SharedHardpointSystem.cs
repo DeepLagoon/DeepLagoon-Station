@@ -31,6 +31,7 @@ public partial class SharedHardpointSystem : EntitySystem
         SubscribeLocalEvent<HardpointAnchorableOnlyComponent, MapInitEvent>(OnMapLoad);
         SubscribeLocalEvent<HardpointComponent, AnchorStateChangedEvent>(OnHardpointAnchor);
         SubscribeLocalEvent<HardpointAnchorableOnlyComponent, ComponentRemove>(OnShipgunRemove);
+        SubscribeLocalEvent<HardpointComponent, ComponentRemove>(OnHardpointRemove);
         SubscribeLocalEvent<HardpointAnchorableOnlyComponent, ExaminedEvent>(OnExamined);
         // TODO: ACCOUNT FOR REMOVING IT IN ADMIN MODE
         _sawmill = IoCManager.Resolve<ILogManager>().GetSawmill("crescent.hardpoints");
@@ -83,69 +84,62 @@ public partial class SharedHardpointSystem : EntitySystem
             return;
         }
 
-        var gridUid = Transform(component.anchoredTo.Value).GridUid;
-        if (gridUid is null)
-            return;
-
-        Deanchor(uid, component.anchoredTo.Value, gridUid.Value, component); //otherwise, kick that shit out
-        _transformSystem.Unanchor(uid);
-
+        Deanchor(uid, component.anchoredTo.Value, args.Transform.GridUid, component);
     }
 
     public void OnHardpointAnchor(EntityUid target, HardpointComponent comp, ref AnchorStateChangedEvent args)
     {
-        if (args.Anchored || comp.anchoring is null || TerminatingOrDeleted(target))
+        if (args.Anchored || comp.anchoring is not { } weapon || TerminatingOrDeleted(target))
             return;
-        _transformSystem.Unanchor(comp.anchoring.Value);
-    }
 
-    public void Deanchor(EntityUid target, EntityUid anchor, EntityUid grid, HardpointAnchorableOnlyComponent component)
-    {
-        //_sawmill.Debug("DEANCHOR RAN");
-        if (component.anchoredTo is null)
+        if (!TryComp<HardpointAnchorableOnlyComponent>(weapon, out var mounted) || mounted.anchoredTo != target)
         {
-            //_sawmill.Debug($"SharedHardpointSystem had a anchored entity that wasn't attached to a hardpoint!");
+            ClearHardpoint(target, comp, weapon, args.Transform.GridUid);
             return;
         }
-        var hardpointComp = Comp<HardpointComponent>(component.anchoredTo.Value);
-        var hardpointUid = component.anchoredTo.Value;
-        hardpointComp.anchoring = null;
-        HardpointCannonDeanchoredEvent arg = new();
-        arg.CannonUid = target;
-        arg.gridUid = grid;
-        RaiseLocalEvent(hardpointUid, arg);
-        component.anchoredTo = null;
-        DirtyEntity(target);
-        DirtyEntity(anchor);
-        //Dirty(arg.CannonUid, component);
+
+        Deanchor(weapon, target, args.Transform.GridUid, mounted);
+        if (!TerminatingOrDeleted(weapon) && TryComp(weapon, out TransformComponent? weaponTransform))
+            _transformSystem.Unanchor(weapon, weaponTransform);
     }
 
-    /// <summary>
-    /// this is used for when shipguns are destroyed, but this ALSO runs when the grid is deleted.
-    /// </summary>
-    /// <param name="uid"></param>
-    /// <param name="component"></param>
-    /// <param name="args"></param>
-    public void OnShipgunRemove(EntityUid uid, HardpointAnchorableOnlyComponent component, ComponentRemove args)
+    private void Deanchor(EntityUid target, EntityUid anchor, EntityUid? grid, HardpointAnchorableOnlyComponent component)
     {
-        if (component.anchoredTo is null || TerminatingOrDeleted(uid))
-        {
-            return;
-        }
-        var gridUid = Transform(component.anchoredTo.Value).GridUid;
-        if (gridUid is null)
-            return;
-        var hardpointComp = Comp<HardpointComponent>(component.anchoredTo.Value);
-        var hardpointUid = component.anchoredTo.Value;
-        hardpointComp.anchoring = null;
-        HardpointCannonDeanchoredEvent arg = new();
-        arg.CannonUid = uid;
-        arg.gridUid = gridUid.Value;
-        RaiseLocalEvent(hardpointUid, arg);
         component.anchoredTo = null;
-        DirtyEntity(uid);
-        DirtyEntity(hardpointUid);
-        //Dirty(arg.CannonUid, component);
+        if (!TerminatingOrDeleted(target) && component.Running)
+            Dirty(target, component);
+
+        if (TryComp<HardpointComponent>(anchor, out var hardpoint) && hardpoint.anchoring == target)
+            ClearHardpoint(anchor, hardpoint, target, grid);
+    }
+
+    private void ClearHardpoint(EntityUid anchor, HardpointComponent hardpoint, EntityUid weapon, EntityUid? grid)
+    {
+        hardpoint.anchoring = null;
+        if (TerminatingOrDeleted(anchor))
+            return;
+
+        if (hardpoint.Running)
+            Dirty(anchor, hardpoint);
+        if (grid is { } gridUid)
+            RaiseLocalEvent(anchor, new HardpointCannonDeanchoredEvent { CannonUid = weapon, gridUid = gridUid });
+    }
+
+    private void OnShipgunRemove(EntityUid uid, HardpointAnchorableOnlyComponent component, ComponentRemove args)
+    {
+        if (component.anchoredTo is { } hardpoint)
+            Deanchor(uid, hardpoint, CompOrNull<TransformComponent>(hardpoint)?.GridUid, component);
+    }
+
+    private void OnHardpointRemove(EntityUid uid, HardpointComponent component, ComponentRemove args)
+    {
+        if (component.anchoring is not { } weapon ||
+            !TryComp<HardpointAnchorableOnlyComponent>(weapon, out var mounted) || mounted.anchoredTo != uid)
+            return;
+
+        Deanchor(weapon, uid, CompOrNull<TransformComponent>(uid)?.GridUid, mounted);
+        if (!TerminatingOrDeleted(weapon) && TryComp(weapon, out TransformComponent? weaponTransform))
+            _transformSystem.Unanchor(weapon, weaponTransform);
     }
 
 

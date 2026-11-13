@@ -4,6 +4,7 @@ using Content.Server.NPC.Components;
 using Content.Server.NPC.Pathfinding;
 using Content.Shared.Climbing.Components;
 using Content.Shared.DoAfter;
+using Robust.Shared.Map;
 
 namespace Content.Server.NPC.Systems;
 
@@ -18,9 +19,12 @@ public sealed partial class NPCSteeringSystem
             return true;
         if (climbing.IsClimbing || !steering.Coordinates.IsValid(EntityManager))
             return false;
-        var target = _transform.ToMapCoordinates(GetTargetCoordinates(steering));
+        var targetCoordinates = GetTargetCoordinates(steering);
+        if (!targetCoordinates.IsValid(EntityManager) || !xform.Coordinates.IsValid(EntityManager))
+            return false;
+        var target = _transform.ToMapCoordinates(targetCoordinates);
         var current = _transform.ToMapCoordinates(xform.Coordinates);
-        if (target.MapId != current.MapId)
+        if (target.MapId == MapId.Nullspace || target.MapId != current.MapId)
             return false;
         var direction = target.Position - current.Position;
         if (direction.LengthSquared() < 0.01f)

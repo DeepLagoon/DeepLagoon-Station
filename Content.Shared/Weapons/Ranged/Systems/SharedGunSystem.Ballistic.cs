@@ -32,6 +32,18 @@ public abstract partial class SharedGunSystem
         SubscribeLocalEvent<BallisticAmmoProviderComponent, AfterInteractEvent>(OnBallisticAfterInteract);
         SubscribeLocalEvent<BallisticAmmoProviderComponent, AmmoFillDoAfterEvent>(OnBallisticAmmoFillDoAfter);
         SubscribeLocalEvent<BallisticAmmoProviderComponent, UseInHandEvent>(OnBallisticUse);
+        SubscribeLocalEvent<BallisticAmmoProviderComponent, EntRemovedFromContainerMessage>(OnBallisticAmmoRemoved);
+    }
+
+    private void OnBallisticAmmoRemoved(EntityUid uid, BallisticAmmoProviderComponent component, EntRemovedFromContainerMessage args)
+    {
+        if (!_netManager.IsServer || args.Container != component.Container || TerminatingOrDeleted(uid) ||
+            !component.Entities.Remove(args.Entity))
+            return;
+
+        DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.Entities));
+        UpdateBallisticAppearance(uid, component);
+        UpdateAmmoCount(uid);
     }
 
     private void OnBallisticUse(EntityUid uid, BallisticAmmoProviderComponent component, UseInHandEvent args)
@@ -54,8 +66,9 @@ public abstract partial class SharedGunSystem
         if (GetBallisticShots(component) >= component.Capacity)
             return;
 
+        if (!Containers.Insert(args.Used, component.Container))
+            return;
         component.Entities.Add(args.Used);
-        Containers.Insert(args.Used, component.Container);
         // Not predicted so
         Audio.PlayPredicted(component.SoundInsert, uid, args.User);
         args.Handled = true;
@@ -288,11 +301,8 @@ public abstract partial class SharedGunSystem
         {
             EntityUid entity;
 
-            if (component.Entities.Count > 0)
+            if (TryGetBallisticAmmo(uid, component, out entity, out var index))
             {
-                var index = component.FireInLoadOrder ? 0 : component.Entities.Count - 1;
-                entity = component.Entities[index];
-
                 args.Ammo.Add((entity, EnsureShootable(entity)));
 
                 if (!component.AutoCycle) //  Goobstation - do not remove spent ammo from the gun it doesn't autocycle
@@ -302,8 +312,7 @@ public abstract partial class SharedGunSystem
                 DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.Entities));
                 Containers.Remove(entity, component.Container);
             }
-            else if (component.UnspawnedCount > 0
-                || component.InfiniteUnspawned) // Mono
+            else if (component.Entities.Count == 0 && (component.UnspawnedCount > 0 || component.InfiniteUnspawned))
             {
                 if (!component.InfiniteUnspawned) // Mono
                 {
@@ -315,10 +324,9 @@ public abstract partial class SharedGunSystem
                 args.Ammo.Add((entity, EnsureShootable(entity)));
 
                 // Goobstation - put spent ammo back in the gun if it doesn't autocycle
-                if (!component.AutoCycle)
+                if (!component.AutoCycle && Containers.Insert(entity, component.Container))
                 {
                     component.Entities.Add(entity);
-                    Containers.Insert(entity, component.Container);
                     DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.Entities));
                 }
                 // Goobstation - end
@@ -333,13 +341,35 @@ public abstract partial class SharedGunSystem
     {
     }
 
+    protected bool TryGetBallisticAmmo(EntityUid uid, BallisticAmmoProviderComponent component, out EntityUid ammo, out int index)
+    {
+        while (component.Entities.Count > 0)
+        {
+            index = component.FireInLoadOrder ? 0 : component.Entities.Count - 1;
+            ammo = component.Entities[index];
+            if (!TerminatingOrDeleted(ammo))
+                return true;
+
+            // Client entries can be unresolved until their entity state arrives.
+            if (!_netManager.IsServer)
+                break;
+
+            component.Entities.RemoveAt(index);
+            DirtyField(uid, component, nameof(BallisticAmmoProviderComponent.Entities));
+        }
+
+        ammo = default;
+        index = -1;
+        return false;
+    }
+
     private void OnBallisticCheckProto(Entity<BallisticAmmoProviderComponent> ent, ref CheckShootPrototypeEvent args)
     {
         if (ent.Comp.Entities.Count > 0)
         {
             var index = ent.Comp.FireInLoadOrder ? 0 : ent.Comp.Entities.Count - 1;
             var ammo = ent.Comp.Entities[index];
-            args.ShootPrototype = MetaData(ammo).EntityPrototype;
+            args.ShootPrototype = CompOrNull<MetaDataComponent>(ammo)?.EntityPrototype;
         }
         else if (ent.Comp.UnspawnedCount > 0 || ent.Comp.InfiniteUnspawned)
         {

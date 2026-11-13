@@ -67,6 +67,9 @@ REVIEWED_ENGINE_PATHS = frozenset({
     # Reject entity messages until the server session is ready and after it is replaced.
     "Robust.Server/GameObjects/ServerEntityManager.cs",
     "Robust.Server.IntegrationTests/GameObjects/ServerEntityNetworkManagerTest.cs",
+    # Deduplicate grid deletions in the existing delta format.
+    "Robust.Shared/GameObjects/Systems/SharedMapSystem.Grid.cs",
+    "Robust.Shared.IntegrationTests/Map/GridSplit_Tests.cs",
     # Test-only transport-pressure injection; not part of shipped client/server modules.
     "Robust.UnitTesting/RobustIntegrationTest.NetManager.cs",
     # Return temporary lone-island collections to their existing pools.

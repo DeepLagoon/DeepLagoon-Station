@@ -44,7 +44,8 @@ public sealed partial class AutoExtendRuleSystem : EntitySystem
             foreach (var entUid in extendRule.Entities)
             {
                 // this is copypasted and modified from NPCSystem
-                var xform = Transform(entUid);
+                if (!TryComp<TransformComponent>(entUid, out var xform) || TerminatingOrDeleted(entUid))
+                    continue;
                 var ourCoords = xform.Coordinates;
                 // extend our check radius if we're a grid
                 var checkRadius = extendRule.PlayerCheckRadius;
@@ -62,10 +63,11 @@ public sealed partial class AutoExtendRuleSystem : EntitySystem
                     if (!exists || session == null
                         || session.AttachedEntity is not { Valid: true } playerEnt
                         || HasComp<GhostComponent>(playerEnt)
-                        || _mobState.IsDead(playerEnt))
+                        || _mobState.IsDead(playerEnt)
+                        || !TryComp<TransformComponent>(playerEnt, out var playerXform))
                         continue;
 
-                    var playerCoords = Transform(playerEnt).Coordinates;
+                    var playerCoords = playerXform.Coordinates;
 
                     if (ourCoords.TryDistance(EntityManager, playerCoords, out var distance) &&
                         distance <= checkRadius)

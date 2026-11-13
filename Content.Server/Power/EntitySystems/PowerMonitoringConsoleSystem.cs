@@ -754,24 +754,32 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
             node.ReachableNodes.Count == 0)
         {
             // Make a child the new master of the collection if necessary
-            if (device.ChildDevices.TryFirstOrNull(out var kvp))
+            PowerMonitoringDeviceComponent? newMasterDevice = null;
+            EntityUid newMaster = default;
+            foreach (var child in device.ChildDevices.Keys)
             {
-                var newMaster = kvp.Value.Key;
-                var newMasterDevice = kvp.Value.Value;
+                if (child == uid || TerminatingOrDeleted(child) || !TryComp<PowerMonitoringDeviceComponent>(child, out var childDevice) ||
+                    !TryComp<TransformComponent>(child, out var childXform) ||
+                    childXform.GridUid != xform.GridUid || !childXform.Anchored)
+                    continue;
 
-                newMasterDevice.CollectionMaster = newMaster;
-                newMasterDevice.ChildDevices.Clear();
-
-                foreach ((var child, var childDevice) in device.ChildDevices)
+                if (newMasterDevice == null)
+                {
+                    newMaster = child;
+                    newMasterDevice = childDevice;
+                    childDevice.ChildDevices.Clear();
+                }
+                else
                 {
                     newMasterDevice.ChildDevices.Add(child, childDevice);
-
-                    childDevice.CollectionMaster = newMaster;
-                    UpdateCollectionChildMetaData(child, newMaster);
                 }
 
-                UpdateCollectionMasterMetaData(newMaster, newMasterDevice.ChildDevices.Count);
+                childDevice.CollectionMaster = newMaster;
+                UpdateCollectionChildMetaData(child, newMaster);
             }
+
+            if (newMasterDevice != null)
+                UpdateCollectionMasterMetaData(newMaster, newMasterDevice.ChildDevices.Count);
 
             device.CollectionMaster = uid;
             device.ChildDevices.Clear();
@@ -801,7 +809,7 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
             if (ent == uid)
                 continue;
 
-            if (entXform.GridUid != xform.GridUid)
+            if (entXform.GridUid != xform.GridUid || !entXform.Anchored || TerminatingOrDeleted(ent))
                 continue;
 
             if (!DevicesHaveMatchingNodes(nodeContainer, entNodeContainer))
@@ -832,8 +840,9 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
 
     private void UpdateCollectionChildMetaData(EntityUid child, EntityUid master)
     {
+        if (!TryComp<TransformComponent>(child, out var xform) || TerminatingOrDeleted(child))
+            return;
         var netEntity = GetNetEntity(child);
-        var xform = Transform(child);
 
         var query = AllEntityQuery<PowerMonitoringConsoleComponent, TransformComponent>();
         while (query.MoveNext(out var ent, out var entConsole, out var entXform))

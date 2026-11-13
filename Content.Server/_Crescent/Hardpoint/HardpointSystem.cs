@@ -81,9 +81,6 @@ public partial class HardpointSystem : SharedHardpointSystem
 
     public void OnCannonDeanchor(EntityUid uid, HardpointComponent comp, ref HardpointCannonDeanchoredEvent args)
     {
-        // This is just for turret-cannons!
-        if (!TryComp<FireControllableComponent>(args.CannonUid, out var compx))
-            return;
         QueueHardpointRefresh(args.gridUid);
     }
 
@@ -103,14 +100,8 @@ public partial class HardpointSystem : SharedHardpointSystem
         InternalTimer = 0;
         foreach(var grid in QueuedGrids)
         {
-            if (TerminatingOrDeleted(grid))
-            {
-                QueuedGrids.Remove(grid);
+            if (TerminatingOrDeleted(grid) || !HasComp<FireControlGridComponent>(grid))
                 continue;
-            }
-            HashSet<Entity<HardpointComponent>> lookupList = new();
-            if (!TryComp<FireControlGridComponent>(grid, out var gridFireControlComp))
-                return;
             _fcsSystem.RefreshControllables(grid);
         }
         QueuedGrids.Clear();
