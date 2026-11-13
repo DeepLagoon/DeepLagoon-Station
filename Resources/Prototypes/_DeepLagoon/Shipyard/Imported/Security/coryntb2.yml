@@ -1,0 +1,36 @@
+- type: vessel
+  id: coryntb2
+  parent: BaseVesselIFFDisabled
+  name: TSF-BS «Корунт Б2»
+  description: Средний боевой шаттл ТСФ.
+  price: 200000 # 373 price fix
+  category: Medium
+  purchasable: false # voucher only - T2
+  group: Security
+  access: Security
+  shuttlePath: /SharedMaps/_DeepLagoon/Shuttles/Imported/Forge_TSF/Forge-Station__coryntb2.yml
+  guidebookPage: Null
+  class:
+  - Fighter
+  - Patrol
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: coryntb2
+  mapName: TSF-BS Корунт Б2
+  mapPath: /SharedMaps/_DeepLagoon/Shuttles/Imported/Forge_TSF/Forge-Station__coryntb2.yml
+  minPlayers: 0
+  stations:
+    coryntb2:
+      stationProto: StandardFrontierSecurityVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'TSF-BS Корунт Б2 TSF{1}'
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Deputy: [ 0, 0 ]
+          TsfBorg: [ 0, 0 ]
