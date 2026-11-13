@@ -443,7 +443,8 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
         // really only affects forks with lots of grids.
         foreach (var (color, sendVerts) in _verts)
         {
-            handle.DrawPrimitives(DrawPrimitiveTopology.TriangleList, sendVerts, color.WithAlpha(0.05f));
+            DrawPrimitiveBatches(handle, DrawPrimitiveTopology.TriangleList,
+                System.Runtime.InteropServices.CollectionsMarshal.AsSpan(sendVerts), color.WithAlpha(0.05f));
         }
 
         foreach (var (color, sendEdges) in _edges)

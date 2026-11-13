@@ -1,0 +1,103 @@
+- type: entity
+  id: BluespaceRPED
+  parent: RPED
+  name: bluespace RPED
+  description: Exchanges machine parts from across the room, even with the maintenance panel closed.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Tools/phase_rped.rsi
+    state: icon
+  - type: Item
+    sprite: _DeepLagoon/Objects/Tools/phase_rped.rsi
+  - type: PartExchanger
+    remoteRange: 14
+  - type: Storage
+    grid:
+    - 0,0,7,7
+
+- type: entity
+  id: PartExchangeTrail
+  name: part exchange trail
+  categories: [ HideSpawnMenu ]
+  save: false
+  components:
+  - type: ExchangeTrail
+
+- type: entity
+  id: BorgModuleBluespaceRPED
+  parent: [ BaseBorgModuleEngineering, BaseProviderBorgModule ]
+  name: bluespace RPED module
+  description: Gives an engineering cyborg a remote machine part exchanger.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Tools/phase_rped.rsi
+    layers:
+    - state: borg
+  - type: BorgModuleIcon
+    icon: { sprite: _DeepLagoon/Objects/Tools/phase_rped.rsi, state: borg }
+  - type: ItemBorgModule
+    moduleId: BluespaceRPED
+    items: [ BluespaceRPED ]
+
+- type: latheRecipe
+  id: BluespaceRPED
+  parent: NFBaseToolsRecipe
+  result: BluespaceRPED
+  completetime: 10
+  materials:
+    Steel: 5000
+    Plasteel: 2000
+    Plastitanium: 2000
+    Bluespace: 500
+    Diamond: 100
+    Plutonium: 100
+
+- type: latheRecipe
+  id: BorgModuleBluespaceRPED
+  parent: BaseRoboticsRecipe
+  result: BorgModuleBluespaceRPED
+  completetime: 10
+  materials:
+    Steel: 5000
+    Plasteel: 2000
+    Plastitanium: 2000
+    Bluespace: 500
+    Diamond: 100
+    Plutonium: 100
+
+- type: technology
+  id: BluespaceRapidPartExchange
+  name: dl-research-remote-parts
+  entityIcon: BluespaceRPED
+  discipline: Industrial
+  tier: 3
+  cost: 42500
+  recipeUnlocks: [ BluespaceRPED, BorgModuleBluespaceRPED ]
+  technologyPrerequisites: [ ConstructionBags ]
+  position: -3, 18
+
+- type: Tag
+  id: TsfEngineerUplink
+
+- type: entity
+  id: BaseSecurityUplinkRadioTsfEngineer
+  parent: BaseSecurityUplinkRadioDeputy
+  suffix: TSF engineering
+  components:
+  - type: Tag
+    tags: [ SecurityUplink, TsfEngineerUplink ]
+
+- type: listing
+  id: UplinkSecurityBluespaceRped
+  productEntity: BluespaceRPED
+  name: dl-uplink-remote-parts
+  description: dl-uplink-remote-parts-desc
+  cost:
+    FederationMilitaryCredit: 125
+  categories: [ UplinkSecurityUtility ]
+  conditions:
+  - !type:ListingLimitedStockCondition
+    stock: 1
+  - !type:StoreWhitelistCondition
+    whitelist:
+      tags: [ TsfEngineerUplink ]

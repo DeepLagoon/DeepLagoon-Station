@@ -100292,6 +100292,39 @@ entities:
         purchaseAmount: 0
         productUpgradeId: null
         productEvent: null
+        productEntity: BluespaceRPED
+        productActionEntity: null
+        productAction: null
+        priority: 0
+        originalCost:
+          FederationMilitaryCredit: 125
+        name: dl-uplink-remote-parts
+        id: UplinkSecurityBluespaceRped
+        icon: null
+        discountDownTo: {}
+        discountCategory: null
+        disableRefund: False
+        description: dl-uplink-remote-parts-desc
+        conditions:
+        - !type:StoreWhitelistCondition
+          whitelist:
+            tags:
+            - TsfEngineerUplink
+            sizes: null
+            requireAll: False
+            mindRoles: null
+            components: null
+          blacklist: null
+        - !type:ListingLimitedStockCondition
+          stock: 1
+        categories:
+        - UplinkSecurityUtility
+      - costModifiersBySourceId: {}
+        restockTime: 0
+        raiseProductEventOnUser: False
+        purchaseAmount: 0
+        productUpgradeId: null
+        productEvent: null
         productEntity: BreachingCharge
         productActionEntity: null
         productAction: null

@@ -12,7 +12,7 @@ public sealed partial class FireControlPanel
         .String("status", ShieldStatusLabel.Text).Number("health", ShieldHealthBar.Value)
         .String("load", ShieldLoadLabel.Text);
 
-    private void UpdateShieldState(ShipShieldState? state)
+    internal void UpdateShieldState(ShipShieldState? state)
     {
         ShieldContainer.Visible = state.HasValue;
         if (state is not { } shield)

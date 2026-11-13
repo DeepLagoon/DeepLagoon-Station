@@ -28,7 +28,7 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
     {
         return base.CanEnable(uid, user, component) &&
                TryComp<GasTankComponent>(uid, out var gasTank) &&
-               !(gasTank.Air.TotalMoles < component.MoleUsage);
+               gasTank.Air is { } air && air.TotalMoles > 0 && air.TotalMoles >= component.MoleUsage;
     }
 
     /// <summary>
@@ -70,13 +70,8 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
             active.TargetTime = _timing.CurTime + TimeSpan.FromSeconds(active.EffectCooldown);
             var usedAir = _gasTank.RemoveAir(gasTank, comp.MoleUsage);
 
-            if (usedAir == null)
-                continue;
-
-            var usedEnoughAir =
-                MathHelper.CloseTo(usedAir.TotalMoles, comp.MoleUsage, comp.MoleUsage/100);
-
-            if (!usedEnoughAir)
+            if (usedAir == null || gasTankComp.Air is not { TotalMoles: > 0 } ||
+                !MathHelper.CloseTo(usedAir.TotalMoles, comp.MoleUsage, comp.MoleUsage / 100))
             {
                 toDisable.Add((uid, comp));
             }

@@ -20,7 +20,8 @@
     size: Small
   - type: Storage
     grid:
-    - 0,0,3,1
+    - 0,0,8,1
+    maxItemSize: Tiny
     whitelist:
       tags:
       - Dice

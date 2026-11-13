@@ -3,14 +3,15 @@
     xmlns:cc="clr-namespace:Content.Client.Administration.UI.CustomControls">
     <PanelContainer StyleClasses="BackgroundDark">
         <SplitContainer Orientation="Horizontal" VerticalExpand="True">
-            <cc:PlayerListControl Access="Public" Name="ChannelSelector" HorizontalExpand="True" SizeFlagsStretchRatio="1" />
+            <cc:PlayerListControl Access="Public" Name="ChannelSelector" MinWidth="100"
+                                  HorizontalExpand="True" SizeFlagsStretchRatio="1" />
             <BoxContainer Orientation="Vertical" HorizontalExpand="True" SizeFlagsStretchRatio="2">
                 <BoxContainer Access="Public" Name="BwoinkArea" VerticalExpand="True" />
                 <BoxContainer Orientation="Horizontal" HorizontalExpand="True">
                     <CheckBox Name="AdminOnly" Access="Public" Text="{Loc 'admin-ahelp-admin-only'}" ToolTip="{Loc 'admin-ahelp-admin-only-tooltip'}" />
-                    <Control HorizontalExpand="True" MinWidth="5" />
                     <CheckBox Name="PlaySound" Access="Public" Text="{Loc 'admin-bwoink-play-sound'}" Pressed="True" />
-                    <Control HorizontalExpand="True" MinWidth="5" />
+                </BoxContainer>
+                <BoxContainer Orientation="Horizontal">
                     <Button Visible="True" Name="PopOut" Access="Public" Text="{Loc 'admin-logs-pop-out'}" StyleClasses="OpenBoth" HorizontalAlignment="Left" />
                     <Control HorizontalExpand="True" />
                     <Button Visible="False" Name="Bans" Text="{Loc 'admin-player-actions-bans'}" StyleClasses="OpenRight" />

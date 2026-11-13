@@ -10,6 +10,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Log;
+using Robust.Shared.Map;
 using Robust.Shared.Utility;
 
 namespace Content.Client.Shuttles.UI;
@@ -176,10 +177,13 @@ public sealed partial class DockingScreen : BoxContainer
 
     public void UpdateState(EntityUid? shuttle, DockingInterfaceState state)
     {
-        Docks = state.Docks;
-        DockingControl.DockState = state;
-        DockingControl.GridEntity = shuttle;
-        BuildDocks(shuttle);
+        if (DockingControl.DockState == null || DockingControl.GridEntity != shuttle || !SamePorts(state))
+        {
+            Docks = state.Docks;
+            DockingControl.DockState = state;
+            DockingControl.GridEntity = shuttle;
+            BuildDocks(shuttle);
+        }
 
         // Enable the undock all button only if there are docked ports
         var hasDockedPorts = false;
@@ -200,6 +204,31 @@ public sealed partial class DockingScreen : BoxContainer
         // Update lock status indicators on all dock buttons
         UpdateDockLockIndicators(shuttle);
     }
+
+    private bool SamePorts(DockingInterfaceState state)
+    {
+        if (Docks.Count != state.Docks.Count)
+            return false;
+
+        foreach (var (grid, ports) in state.Docks)
+        {
+            if (!Docks.TryGetValue(grid, out var existing) || ports.Count != existing.Count)
+                return false;
+
+            for (var i = 0; i < ports.Count; i++)
+            {
+                if (!DisplayProperties(ports[i]).Equals(DisplayProperties(existing[i])))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static (NetEntity, NetCoordinates, Angle, NetEntity?, string, string?, Color, Color, bool, DockType)
+        DisplayProperties(DockingPortState port)
+        => (port.Entity, port.Coordinates, port.Angle, port.GridDockedWith, port.Name, port.LabelName,
+            port.RadarColor, port.HighlightedRadarColor, port.ReceiveOnly, port.DockType);
 
     private void UpdateFTLLockButton(EntityUid? shuttle)
     {

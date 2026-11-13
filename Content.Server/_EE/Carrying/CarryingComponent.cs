@@ -6,6 +6,6 @@ namespace Content.Server.Carrying
     [RegisterComponent]
     public sealed partial class CarryingComponent : Component
     {
-        public EntityUid Carried = default!;
+        public readonly HashSet<EntityUid> Loads = new();
     }
 }

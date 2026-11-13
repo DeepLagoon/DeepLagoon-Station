@@ -14,4 +14,7 @@ public sealed partial class ConveyedComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public bool Conveying;
+
+    public readonly HashSet<EntityUid> ContactingBelts = new();
+    public bool ContactsKnown;
 }

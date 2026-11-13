@@ -12,15 +12,13 @@ public sealed partial class PartExchangerComponent : Component
     public float ExchangeDuration = 3;
 
     /// <summary>
-    /// Whether or not the distance check is needed.
-    /// Good for BRPED.
+    /// Whether the standard delayed exchange requires normal interaction range.
     /// </summary>
-    /// <remarks>
-    /// I fucking hate BRPED and if you ever add it
-    /// i will personally kill your dog.
-    /// </remarks>
     [DataField("doDistanceCheck")]
     public bool DoDistanceCheck = true;
+
+    /// <summary>Range of the instantaneous, sight-based exchange. Zero uses normal interaction.</summary>
+    [DataField] public float RemoteRange;
 
     [DataField("exchangeSound")]
     public SoundSpecifier ExchangeSound = new SoundPathSpecifier("/Audio/Items/rped.ogg");

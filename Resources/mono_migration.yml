@@ -107,8 +107,3 @@ BalorCarrierComputer: null
 # 25/09/2026 - Bounty rework
 ComputerPirateBountyRedemption: BaseComputer # no longer has a purpose
 ComputerPirateBountyRedemptionTabletop: ComputerTabletopFrame # ditto
-
-# Replacements for the removed bluespace RPED equipment.
-BluespaceRPED: RPED
-BorgModuleBluespaceRPED: BorgModuleAdvancedTool
-BaseSecurityUplinkRadioTsfEngineer: BaseSecurityUplinkRadioDeputy

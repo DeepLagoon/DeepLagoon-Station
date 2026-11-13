@@ -61,6 +61,7 @@
   recipes:
   - BorgModuleAdvancedCleaning
   - BorgModuleAdvancedTool
+  - BorgModuleBluespaceRPED
   - BorgModuleGPS
   - BorgModuleArtifact
   - BorgModuleAnomaly

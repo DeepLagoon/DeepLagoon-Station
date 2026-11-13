@@ -302,10 +302,12 @@ public sealed partial class FireControlPanel : BoxContainer
             {
                 toRemove.Remove(controllable.NetEntity);
                 UpdateWeaponButtonText(existingButton, controllable);
+                if (existingButton is WeaponCooldownButton weapon)
+                    weapon.UpdateCooldown(controllable.NextFire);
             }
             else
             {
-                var button = new Button
+                var button = new WeaponCooldownButton
                 {
                     ToggleMode = true,
                     Text = controllable.Name,
@@ -313,6 +315,7 @@ public sealed partial class FireControlPanel : BoxContainer
                     HorizontalExpand = true,
                     Margin = new Thickness(4, 1)
                 };
+                button.UpdateCooldown(controllable.NextFire);
 
                 button.OnToggled += _ =>
                 {

@@ -242,7 +242,13 @@ public sealed partial class FancyResearchConsoleMenu : FancyWindow
     }
 
     protected override DragMode GetDragModeFor(Vector2 relativeMousePos)
-        => _draggin ? DragMode.None : base.GetDragModeFor(relativeMousePos);
+    {
+        var cursor = GlobalPosition + relativeMousePos - ResearchesContainer.GlobalPosition;
+        if (_draggin || UIBox2.FromDimensions(Vector2.Zero, ResearchesContainer.Size).Contains(cursor))
+            return DragMode.None;
+
+        return base.GetDragModeFor(relativeMousePos);
+    }
     #endregion
 
     /// <summary>

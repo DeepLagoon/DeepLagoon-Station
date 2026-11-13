@@ -16,6 +16,7 @@
   - type: Fixtures
   - type: GasDeposit
   - type: RandomGasDeposit
+  - type: RequiresTile
   - type: Sprite
     drawdepth: FloorTiles
     sprite: _NF/Objects/Specific/Atmospherics/deposit.rsi

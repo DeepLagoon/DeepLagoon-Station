@@ -2,6 +2,7 @@
 // All rights reserved. Relicensed under AGPL with permission
 
 using Content.Shared._Mono.FireControl;
+using Content.Shared.Shuttles.BUIStates;
 using JetBrains.Annotations;
 using Robust.Client.UserInterface;
 using Robust.Shared.Map;
@@ -29,8 +30,6 @@ public sealed class FireControlConsoleBoundUserInterface : BoundUserInterface
         {
             var netCoords = EntMan.GetNetCoordinates(coords);
 
-            // Send empty list of weapons for cursor tracking only when not clicking
-            // This allows guided missiles to follow the cursor without firing weapons
             if (!_window.Radar.IsMouseDown())
             {
                 SendCursorUpdateMessage(netCoords);
@@ -86,7 +85,14 @@ public sealed class FireControlConsoleBoundUserInterface : BoundUserInterface
 
     private void SendCursorUpdateMessage(NetCoordinates coordinates)
     {
-        SendMessage(new FireControlConsoleFireMessage([], coordinates));
+        SendMessage(new FireControlAimMessage(coordinates));
+    }
+
+    protected override void ReceiveMessage(BoundUserInterfaceMessage message)
+    {
+        base.ReceiveMessage(message);
+        if (message is ShieldReadoutMessage shield)
+            _window?.UpdateShieldReadout(shield.Readout);
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)

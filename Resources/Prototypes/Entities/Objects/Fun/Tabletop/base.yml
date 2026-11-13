@@ -20,6 +20,7 @@
   abstract: true
   components:
   - type: TabletopDraggable
+  - type: CleanupImmune
   - type: Sprite
     noRot: true
   - type: Appearance

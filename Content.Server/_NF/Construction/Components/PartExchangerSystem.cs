@@ -6,6 +6,7 @@ using Content.Server.Storage.EntitySystems;
 using Content.Shared.DoAfter;
 using Content.Shared.Construction.Components;
 using Content.Shared.Exchanger;
+using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.Storage;
@@ -13,7 +14,6 @@ using Robust.Shared.Containers;
 using Robust.Shared.Utility;
 using Content.Shared.Wires;
 using Robust.Shared.Audio.Systems;
-using Robust.Shared.Collections;
 using Robust.Shared.Prototypes;
 using Content.Shared.Stacks;
 using Content.Shared.Construction.Prototypes;
@@ -23,325 +23,276 @@ namespace Content.Server._NF.Construction;
 public sealed partial class PartExchangerSystem : EntitySystem
 {
     [Dependency] private ConstructionSystem _construction = default!;
+    [Dependency] private MachineFrameSystem _frames = default!;
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private StorageSystem _storage = default!;
     [Dependency] private StackSystem _stack = default!;
-    [Dependency] private EntityManager _entity = default!;
+    [Dependency] private ExamineSystemShared _examine = default!;
+    [Dependency] private SharedInteractionSystem _interaction = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private ExchangeTrailSystem _trails = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
     {
         SubscribeLocalEvent<PartExchangerComponent, AfterInteractEvent>(OnAfterInteract);
         SubscribeLocalEvent<PartExchangerComponent, ExchangerDoAfterEvent>(OnDoAfter);
+        SubscribeLocalEvent<PartExchangerComponent, DoAfterAttemptEvent<ExchangerDoAfterEvent>>(OnExchangeAttempt);
     }
 
-    private struct UpgradePartState
+    private readonly record struct ExchangePart(EntityUid Item, int Rating, StackComponent? Stack, bool Installed)
     {
-        public MachinePartComponent Part;
-        public StackComponent? Stack;
-        public bool InContainer;
+        public int Quantity => Stack?.Count ?? 1;
     }
 
     private void OnDoAfter(EntityUid uid, PartExchangerComponent component, DoAfterEvent args)
     {
-        if (args.Cancelled)
+        if (args.Cancelled || args.Args.Target is not { } target || !CanService(component, args.User, target))
         {
             component.AudioStream = _audio.Stop(component.AudioStream);
             return;
         }
 
-        if (args.Handled || args.Args.Target == null)
-            return;
+        if (!args.Handled)
+            args.Handled = Exchange(uid, target);
+    }
 
-        if (!TryComp<StorageComponent>(uid, out var storage) || storage.Container == null)
-            return;
+    private void OnExchangeAttempt(EntityUid uid, PartExchangerComponent component, DoAfterAttemptEvent<ExchangerDoAfterEvent> args)
+    {
+        if (args.DoAfter.Args.Target is not { } target || !CanService(component, args.DoAfter.Args.User, target))
+            args.Cancel();
+    }
 
-        var partsByType = new Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid, UpgradePartState)>>();
+    private bool Exchange(EntityUid tool, EntityUid target)
+    {
+        if (!TryComp<StorageComponent>(tool, out var storage) || storage.Container == null)
+            return false;
 
-        // Insert the contained parts into a dictionary for indexing.
-        // Note: these parts remain in the starting container.
+        if (TryComp<MachineComponent>(target, out var machine) &&
+            TryComp<MachineBoardComponent>(machine.BoardContainer.ContainedEntities.FirstOrNull(), out var board))
+        {
+            var upgraded = InstallParts(tool, storage, machine.PartContainer, board.Requirements);
+            if (upgraded && !TerminatingOrDeleted(target))
+                _construction.RefreshParts(target, machine);
+
+            return upgraded;
+        }
+
+        if (!TryComp<MachineFrameComponent>(target, out var frame) ||
+            !TryComp<MachineBoardComponent>(frame.BoardContainer.ContainedEntities.FirstOrNull(), out board))
+        {
+            return false;
+        }
+
+        var completed = InstallParts(tool, storage, frame.PartContainer, board.Requirements);
+        if (completed && !TerminatingOrDeleted(target))
+            _frames.RegenerateProgress(frame);
+
+        return completed;
+    }
+
+    private bool InstallParts(EntityUid tool, StorageComponent storage, BaseContainer destination,
+        Dictionary<ProtoId<MachinePartPrototype>, int> requirements)
+    {
+        var byType = new Dictionary<ProtoId<MachinePartPrototype>, List<ExchangePart>>();
         foreach (var item in storage.Container.ContainedEntities)
         {
-            if (_construction.GetMachinePartState(item, out var partState))
+            if (TerminatingOrDeleted(item) || !_construction.GetMachinePartState(item, out var part) ||
+                !requirements.ContainsKey(part.Part.PartType))
             {
-                UpgradePartState upgrade;
-                upgrade.Part = partState.Part;
-                upgrade.Stack = partState.Stack;
-                upgrade.InContainer = true;
+                continue;
+            }
 
-                var partType = upgrade.Part.PartType;
-                if (!partsByType.ContainsKey(partType))
-                    partsByType[partType] = new List<(EntityUid, UpgradePartState)>();
-                partsByType[partType].Add((item, upgrade));
+            if (!byType.TryGetValue(part.Part.PartType, out var candidates))
+                byType[part.Part.PartType] = candidates = new List<ExchangePart>();
+
+            candidates.Add(new ExchangePart(item, part.Part.Rating, part.Stack, Installed: false));
+        }
+
+        if (byType.Count == 0)
+            return false;
+
+        foreach (var item in destination.ContainedEntities)
+        {
+            if (!TerminatingOrDeleted(item) && _construction.GetMachinePartState(item, out var part) &&
+                byType.TryGetValue(part.Part.PartType, out var candidates))
+            {
+                candidates.Add(new ExchangePart(item, part.Part.Rating, part.Stack, Installed: true));
             }
         }
 
-        // Exchange machine parts with the machine or frame.
-        if (TryComp<MachineComponent>(args.Args.Target.Value, out var machine))
-            TryExchangeMachineParts(machine, args.Args.Target.Value, uid, partsByType);
-        else if (TryComp<MachineFrameComponent>(args.Args.Target.Value, out var machineFrame))
-            TryConstructMachineParts(machineFrame, args.Args.Target.Value, uid, partsByType);
+        var upgraded = false;
+        var removed = new List<EntityUid>();
+        foreach (var (type, candidates) in byType)
+        {
+            candidates.Sort(static (a, b) => a.Rating == b.Rating
+                ? b.Installed.CompareTo(a.Installed)
+                : b.Rating.CompareTo(a.Rating));
 
-        args.Handled = true;
+            var capacity = requirements[type];
+            if (!WouldInstallNewPart(candidates, capacity))
+                continue;
+
+            if (TerminatingOrDeleted(destination.Owner))
+                break;
+
+            removed.Clear();
+            var canExchange = true;
+            foreach (var candidate in candidates)
+            {
+                if (!candidate.Installed)
+                    continue;
+
+                if (TerminatingOrDeleted(destination.Owner) || !_container.Remove(candidate.Item, destination))
+                {
+                    canExchange = false;
+                    break;
+                }
+
+                removed.Add(candidate.Item);
+            }
+
+            if (!canExchange)
+            {
+                // Restore the machine before touching any inventory when removal is blocked.
+                foreach (var item in removed)
+                {
+                    if (!TerminatingOrDeleted(destination.Owner) && !TerminatingOrDeleted(item))
+                        _container.Insert(item, destination, force: true);
+                }
+
+                continue;
+            }
+
+            foreach (var candidate in candidates)
+            {
+                if (capacity <= 0 || TerminatingOrDeleted(destination.Owner))
+                    break;
+
+                var inserted = InstallPart(candidate, capacity, destination);
+                capacity -= inserted;
+                upgraded |= inserted > 0 && !candidate.Installed;
+            }
+
+            foreach (var item in removed)
+            {
+                // The old part is already at the machine if the RPED has no room to take it.
+                if (!destination.Contains(item) && !TerminatingOrDeleted(tool) && !TerminatingOrDeleted(item))
+                    _storage.Insert(tool, item, out _, playSound: false);
+            }
+        }
+
+        return upgraded;
     }
 
-    private void TryExchangeMachineParts(MachineComponent machine, EntityUid uid, EntityUid storageUid, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType)
+    private static bool WouldInstallNewPart(List<ExchangePart> candidates, int capacity)
     {
-        var board = machine.BoardContainer.ContainedEntities.FirstOrNull();
-
-        if (board == null || !TryComp<MachineBoardComponent>(board, out var macBoardComp))
-            return;
-
-        // Add all components in the machine to form a complete set of available components.
-        foreach (var item in new ValueList<EntityUid>(machine.PartContainer.ContainedEntities)) //clone so don't modify during enumeration
+        foreach (var candidate in candidates)
         {
-            if (_construction.GetMachinePartState(item, out var partState))
-            {
-                UpgradePartState upgrade;
-                upgrade.Part = partState.Part;
-                upgrade.Stack = partState.Stack;
-                upgrade.InContainer = false;
+            if (capacity <= 0)
+                break;
 
-                var partType = upgrade.Part.PartType;
-                if (!partsByType.ContainsKey(partType))
-                    partsByType[partType] = new List<(EntityUid, UpgradePartState)>();
-                partsByType[partType].Add((item, upgrade));
+            if (candidate.Quantity <= 0)
+                continue;
 
-                _container.RemoveEntity(uid, item);
-            }
+            if (!candidate.Installed)
+                return true;
+
+            capacity -= candidate.Quantity;
         }
 
-        // Sort by rating in descending order (highest rated parts first)
-        foreach (var (partKey, partList) in partsByType)
-            partList.Sort((x, y) => y.state.Part.Rating.CompareTo(x.state.Part.Rating));
-
-        var updatedParts = new List<(EntityUid id, MachinePartState state, int index)>();
-        foreach (var (type, amount) in macBoardComp.Requirements)
-        {
-            if (partsByType.ContainsKey(type))
-            {
-                var partsNeeded = amount;
-                int index = 0;
-                foreach ((var part, var state) in partsByType[type])
-                {
-                    // No more space for components
-                    if (partsNeeded <= 0)
-                        break;
-
-                    if (state.Stack is not null)
-                    {
-                        var count = state.Stack.Count;
-                        // Entire stack is needed, add it to the things to bring over.
-                        if (count <= partsNeeded)
-                        {
-                            MachinePartState partState;
-                            partState.Part = state.Part;
-                            partState.Stack = state.Stack;
-
-                            updatedParts.Add((part, partState, index));
-                            partsNeeded -= count;
-                        }
-                        else
-                        {
-                            // Partial stack is needed, split off what we need, ensure the new entry is moved.
-                            EntityUid splitStack = _stack.Split(part, partsNeeded, Transform(uid).Coordinates, state.Stack) ?? EntityUid.Invalid;
-
-                            if (splitStack == EntityUid.Invalid)
-                                continue;
-
-                            // Create a new MachinePartState out of our new entity
-                            if (_construction.GetMachinePartState(splitStack, out var splitState))
-                            {
-                                updatedParts.Add((splitStack, splitState, -1)); // Use -1 for index, nothing to remove
-                                partsNeeded = 0;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Not a stack, move the single part.
-                        MachinePartState partState;
-                        partState.Part = state.Part;
-                        partState.Stack = state.Stack;
-
-                        updatedParts.Add((part, partState, index));
-                        partsNeeded--;
-                    }
-                    // Adjust the index for parts being removed from the container.
-                    index++;
-                }
-            }
-        }
-
-        // Move selected parts to the machine, removing them from the dictionary of contained parts.
-        // Iterate through list backwards, remove later entries first (maintain validity of earlier indices).
-        for (int i = updatedParts.Count - 1; i >= 0; i--)
-        {
-            var part = updatedParts[i];
-            bool inserted = _container.Insert(part.id, machine.PartContainer);
-            if (part.index >= 0)
-                partsByType[part.state.Part.PartType].RemoveAt(part.index);
-        }
-
-        //Put the unused parts back into the container (if they aren't already there)
-        foreach (var (partType, partSet) in partsByType)
-        {
-            foreach (var partState in partSet)
-            {
-                if (!partState.state.InContainer)
-                    _storage.Insert(storageUid, partState.part, out _, playSound: false);
-            }
-        }
-        _construction.RefreshParts(uid, machine);
+        return false;
     }
 
-    private void TryConstructMachineParts(MachineFrameComponent machine, EntityUid uid, EntityUid storageEnt, Dictionary<ProtoId<MachinePartPrototype>, List<(EntityUid part, UpgradePartState state)>> partsByType)
+    private int InstallPart(ExchangePart candidate, int capacity, BaseContainer destination)
     {
-        var board = machine.BoardContainer.ContainedEntities.FirstOrNull();
+        var count = candidate.Quantity;
+        if (count <= 0 || TerminatingOrDeleted(candidate.Item))
+            return 0;
 
-        if (!machine.HasBoard || !TryComp<MachineBoardComponent>(board, out var macBoardComp))
-            return;
+        if (count <= capacity)
+            return _container.Insert(candidate.Item, destination, force: candidate.Installed) ? count : 0;
 
-        // Add all components in the machine to form a complete set of available components.
-        foreach (var item in new ValueList<EntityUid>(machine.PartContainer.ContainedEntities)) //clone so don't modify during enumeration
+        var split = _stack.Split(candidate.Item, capacity, Transform(destination.Owner).Coordinates, candidate.Stack);
+        if (split is not { } item)
+            return 0;
+
+        if (!TerminatingOrDeleted(destination.Owner) && _container.Insert(item, destination, force: candidate.Installed))
+            return capacity;
+
+        if (!TerminatingOrDeleted(candidate.Item) && !TerminatingOrDeleted(item) && candidate.Stack != null)
         {
-            if (_construction.GetMachinePartState(item, out var partState))
-            {
-                // Construct our entry
-                UpgradePartState upgrade;
-                upgrade.Part = partState.Part;
-                upgrade.Stack = partState.Stack;
-                upgrade.InContainer = false;
-
-                // Add it to the table
-                var partType = upgrade.Part.PartType;
-                if (!partsByType.ContainsKey(partType))
-                    partsByType[partType] = new List<(EntityUid, UpgradePartState)>();
-                partsByType[partType].Add((item, upgrade));
-
-                // Make sure the construction status is consistent with the removed parts.
-                machine.Progress[partType] -= partState.Quantity();
-                machine.Progress[partType] = int.Max(0, machine.Progress[partType]); // Ensure progress isn't negative.
-
-                _container.RemoveEntity(uid, item);
-            }
+            _stack.SetCount(candidate.Item, count, candidate.Stack);
+            QueueDel(item);
         }
 
-        // Sort parts in descending order of rating (highest rated parts first)
-        foreach (var partList in partsByType.Values)
-            partList.Sort((x, y) => y.state.Part.Rating.CompareTo(x.state.Part.Rating));
-
-        var updatedParts = new List<(EntityUid id, MachinePartState state, int index)>();
-        foreach (var (type, amount) in macBoardComp.Requirements)
-        {
-            if (partsByType.ContainsKey(type))
-            {
-                var partsNeeded = amount;
-                var index = 0;
-                foreach ((var part, var state) in partsByType[type])
-                {
-                    // No more space for components
-                    if (partsNeeded <= 0)
-                        break;
-
-                    if (state.Stack is not null)
-                    {
-                        var count = state.Stack.Count;
-                        // Entire stack is needed, add it to the things to bring over.
-                        if (count <= partsNeeded)
-                        {
-                            MachinePartState partState;
-                            partState.Part = state.Part;
-                            partState.Stack = state.Stack;
-
-                            updatedParts.Add((part, partState, index));
-                            partsNeeded -= count;
-                        }
-                        else
-                        {
-                            // Partial stack is needed, split off what we need, ensure the new entry is moved.
-                            EntityUid splitStack = _stack.Split(part, partsNeeded, Transform(uid).Coordinates, state.Stack) ?? EntityUid.Invalid;
-
-                            if (splitStack == EntityUid.Invalid)
-                                continue;
-
-                            // Create a new MachinePartState out of our new entity
-                            if (_construction.GetMachinePartState(splitStack, out var splitState))
-                            {
-                                updatedParts.Add((splitStack, splitState, -1)); // New entity, nothing to remove, set index to -1 to flag this.
-                                partsNeeded = 0;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Not a stack, move the single part.
-                        MachinePartState partState;
-                        partState.Part = state.Part;
-                        partState.Stack = state.Stack;
-
-                        updatedParts.Add((part, partState, index));
-                        partsNeeded--;
-                    }
-                    // Adjust the index for parts being removed from the container.
-                    index++;
-                }
-            }
-        }
-
-        // Move selected parts to the machine, removing them from the dictionary of contained parts.
-        // Iterate through list backwards, remove later entries first (maintain validity of earlier indices).
-        for (int i = updatedParts.Count - 1; i >= 0; i--)
-        {
-            var part = updatedParts[i];
-            _container.Insert(part.id, machine.PartContainer, force: true);
-            if (part.index >= 0)
-                partsByType[part.state.Part.PartType].RemoveAt(part.index);
-            machine.Progress[part.state.Part.PartType] += part.state.Quantity();
-        }
-
-        //Put the unused parts back into the container (if they aren't already there)
-        foreach (var (partType, partSet) in partsByType)
-        {
-            foreach (var partState in partSet)
-            {
-                if (!partState.state.InContainer)
-                    _storage.Insert(uid, partState.part, out _, playSound: false);
-            }
-        }
+        return 0;
     }
 
     private void OnAfterInteract(EntityUid uid, PartExchangerComponent component, AfterInteractEvent args)
     {
+        if (args.Handled || args.Target is not { } target)
+            return;
+
+        if (!IsServiceable(target))
+            return;
+
+        if (component.RemoteRange > 0)
+        {
+            if (!CanService(component, args.User, target) || !Exchange(uid, target))
+                return;
+
+            _audio.PlayPvs(component.ExchangeSound, uid);
+            _trails.Show(args.User, target, TimeSpan.FromSeconds(1));
+            args.Handled = true;
+            return;
+        }
+
         if (component.DoDistanceCheck && !args.CanReach)
             return;
 
-        if (args.Target == null)
-            return;
-
-        if (!HasComp<MachineComponent>(args.Target) && !HasComp<MachineFrameComponent>(args.Target))
-            return;
-
-        if (TryComp<WiresPanelComponent>(args.Target, out var panel) && !panel.Open)
+        if (TryComp<WiresPanelComponent>(target, out var panel) && !panel.Open)
         {
             _popup.PopupEntity(Loc.GetString("construction-step-condition-wire-panel-open"),
                 args.Target.Value);
             return;
         }
 
-        var audioStream = _audio.PlayPvs(component.ExchangeSound, uid);
-        if (audioStream != null)
-        {
-            component.AudioStream = audioStream.Value.Entity;
-        }
-
-        _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, component.ExchangeDuration, new ExchangerDoAfterEvent(), uid, target: args.Target, used: uid)
+        if (!_doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, component.ExchangeDuration,
+                new ExchangerDoAfterEvent(), uid, target: target, used: uid)
         {
             BreakOnDamage = true,
-            BreakOnMove = true
-        });
+            BreakOnMove = true,
+            NeedHand = true,
+            AttemptFrequency = AttemptFrequency.EveryTick,
+        }))
+            return;
+
+        args.Handled = true;
+        component.AudioStream = _audio.PlayPvs(component.ExchangeSound, uid)?.Entity;
+    }
+
+    private bool CanService(PartExchangerComponent exchanger, EntityUid user, EntityUid target)
+    {
+        if (TerminatingOrDeleted(target) || TerminatingOrDeleted(user) || !IsServiceable(target))
+            return false;
+
+        if (exchanger.RemoteRange > 0)
+            return _examine.InRangeUnOccluded(user, _transform.GetMapCoordinates(target), exchanger.RemoteRange);
+
+        return (!exchanger.DoDistanceCheck || _interaction.InRangeUnobstructed(user, target))
+               && (!TryComp<WiresPanelComponent>(target, out var panel) || panel.Open);
+    }
+
+    private bool IsServiceable(EntityUid target)
+    {
+        if (TryComp<MachineComponent>(target, out var machine))
+            return HasComp<MachineBoardComponent>(machine.BoardContainer.ContainedEntities.FirstOrNull());
+
+        return TryComp<MachineFrameComponent>(target, out var frame) && frame.HasBoard &&
+               HasComp<MachineBoardComponent>(frame.BoardContainer.ContainedEntities.FirstOrNull());
     }
 }

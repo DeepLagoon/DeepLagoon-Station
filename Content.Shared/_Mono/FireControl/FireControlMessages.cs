@@ -51,6 +51,14 @@ public sealed class FireControlConsoleFireMessage : BoundUserInterfaceMessage
     }
 }
 
+[Serializable, NetSerializable]
+public sealed class FireControlAimMessage : BoundUserInterfaceMessage
+{
+    public readonly NetCoordinates Position;
+
+    public FireControlAimMessage(NetCoordinates position) => Position = position;
+}
+
 /// <summary>
 /// Event raised when a fire control console wants to fire weapons at specific coordinates.
 /// Used for tracking cursor position.

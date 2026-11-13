@@ -63,19 +63,31 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
         if (args.Handled || !args.CanReach || args.Target is not { } target)
             return;
 
-        if (!HasComp<ResearchServerComponent>(target) || !TryComp<TechnologyDatabaseComponent>(target, out var database))
-            return;
+        args.Handled = TryUpload(ent, target, args.User);
+    }
 
-        if (ent.Comp.Recipes != null)
+    public bool TryUpload(Entity<TechnologyDiskComponent> ent, EntityUid target, EntityUid? user)
+    {
+        if (!HasComp<ResearchServerComponent>(target) || !TryComp<TechnologyDatabaseComponent>(target, out var database))
+            return false;
+
+        // Claim the disk before adding recipes. A manual upload and two nearby magnets can race in one tick.
+        if (_net.IsServer && (TerminatingOrDeleted(target) || !TryQueueDel(ent)))
+            return false;
+
+        if (ent.Comp.Recipes is { Count: > 0 } recipes)
         {
-            foreach (var recipe in ent.Comp.Recipes)
-            {
+            foreach (var recipe in recipes)
                 _research.AddLatheRecipe(target, recipe, database);
-            }
         }
-        _popup.PopupClient(Loc.GetString("tech-disk-inserted"), target, args.User);
-        PredictedQueueDel(ent.Owner);
-        args.Handled = true;
+        if (user is { } uid)
+            _popup.PopupClient(Loc.GetString("tech-disk-inserted"), target, uid);
+        else if (_net.IsServer)
+            _popup.PopupEntity(Loc.GetString("tech-disk-inserted"), target);
+
+        if (_net.IsClient)
+            PredictedQueueDel(ent);
+        return true;
     }
 
     private void OnExamine(Entity<TechnologyDiskComponent> ent, ref ExaminedEvent args)

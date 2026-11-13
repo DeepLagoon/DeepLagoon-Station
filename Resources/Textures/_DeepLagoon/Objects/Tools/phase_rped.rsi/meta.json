@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Extracted from MOLOT-BlueMoon-Station at e47ef1de3245bfffab53caafcc33c7fb9ce62e30. Item and borg: icons/obj/storage.dmi, states BS_RPED and borg_BS_RPED. Inhands: icons/mob/inhands/misc/devices_lefthand.dmi and devices_righthand.dmi, state BS_RPED.",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "icon"
+    },
+    {
+      "name": "borg"
+    },
+    {
+      "name": "inhand-left",
+      "directions": 4
+    },
+    {
+      "name": "inhand-right",
+      "directions": 4
+    }
+  ]
+}

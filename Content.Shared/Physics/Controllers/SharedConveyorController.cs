@@ -21,7 +21,6 @@ public abstract partial class SharedConveyorController : VirtualController
     [Dependency] private   IParallelManager _parallel = default!;
     [Dependency] private   CollisionWakeSystem _wake = default!;
     [Dependency] protected EntityLookupSystem Lookup = default!;
-    [Dependency] private   FixtureSystem _fixtures = default!;
     [Dependency] private   SharedGravitySystem _gravity = default!;
     [Dependency] private   SharedMoverController _mover = default!;
 
@@ -51,6 +50,7 @@ public abstract partial class SharedConveyorController : VirtualController
         SubscribeLocalEvent<ConveyedComponent, ComponentShutdown>(OnConveyedShutdown);
 
         SubscribeLocalEvent<ConveyorComponent, StartCollideEvent>(OnConveyorStartCollide);
+        SubscribeLocalEvent<ConveyorComponent, EndCollideEvent>(OnConveyorEndCollide);
         SubscribeLocalEvent<ConveyorComponent, ComponentStartup>(OnConveyorStartup);
 
         base.Initialize();
@@ -96,9 +96,10 @@ public abstract partial class SharedConveyorController : VirtualController
         {
             var other = contact.OtherEnt(conveyorUid);
 
-            if (contact.OtherFixture(conveyorUid).Item2.Hard && contact.OtherBody(conveyorUid).BodyType != BodyType.Static)
+            if (contact.IsTouching && contact.OtherFixture(conveyorUid).Item2.Hard &&
+                contact.OtherBody(conveyorUid).BodyType != BodyType.Static)
             {
-                EnsureComp<ConveyedComponent>(other);
+                EnsureComp<ConveyedComponent>(other).ContactingBelts.Add(conveyorUid);
             }
 
             if (_conveyedQuery.HasComp(other))
@@ -115,7 +116,25 @@ public abstract partial class SharedConveyorController : VirtualController
         if (!args.OtherFixture.Hard || args.OtherBody.BodyType == BodyType.Static)
             return;
 
-        EnsureComp<ConveyedComponent>(otherUid);
+        EnsureComp<ConveyedComponent>(otherUid).ContactingBelts.Add(conveyor.Owner);
+    }
+
+    private void OnConveyorEndCollide(Entity<ConveyorComponent> conveyor, ref EndCollideEvent args)
+    {
+        if (!_conveyedQuery.TryComp(args.OtherEntity, out var conveyed) ||
+            !conveyed.ContactingBelts.Contains(conveyor))
+            return;
+
+        // A conveyor and cargo can be touching through more than one pair of fixtures.
+        var contacts = PhysicsSystem.GetContacts(args.OtherEntity);
+        while (contacts.MoveNext(out var contact))
+        {
+            if (contact.IsTouching && contact.OtherEnt(args.OtherEntity) == conveyor.Owner &&
+                contact.OtherFixture(conveyor).Item2.Hard)
+                return;
+        }
+
+        conveyed.ContactingBelts.Remove(conveyor);
     }
 
     public override void UpdateBeforeSolve(bool prediction, float frameTime)
@@ -129,6 +148,19 @@ public abstract partial class SharedConveyorController : VirtualController
 
         while (query.MoveNext(out var uid, out var comp, out var fixtures, out var physics, out var xform))
         {
+            if (!comp.ContactsKnown)
+            {
+                var contacts = PhysicsSystem.GetContacts((uid, fixtures));
+                while (contacts.MoveNext(out var contact))
+                {
+                    var belt = contact.OtherEnt(uid);
+                    if (contact.IsTouching && contact.OtherFixture(belt).Item2.Hard && _conveyorQuery.HasComp(belt))
+                        comp.ContactingBelts.Add(belt);
+                }
+
+                comp.ContactsKnown = true;
+            }
+
             _job.Conveyed.Add(((uid, comp, fixtures, physics, xform), Vector2.Zero, false));
         }
 
@@ -176,7 +208,7 @@ public abstract partial class SharedConveyorController : VirtualController
 
             PhysicsSystem.SetLinearVelocity(ent.Entity.Owner, velocity, wakeBody: false);
 
-            if (!IsConveyed((ent.Entity.Owner, ent.Entity.Comp2)))
+            if (!IsConveyed(ent.Entity.Comp1))
             {
                 RemComp<ConveyedComponent>(ent.Entity.Owner);
             }
@@ -223,42 +255,18 @@ public abstract partial class SharedConveyorController : VirtualController
 
         Entity<ConveyorComponent> bestConveyor = default;
         var bestSpeed = 0f;
-        var contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures));
         var transform = PhysicsSystem.GetPhysicsTransform(entity.Owner);
-        var anyConveyors = false;
-
-        while (contacts.MoveNext(out var contact))
+        foreach (var belt in entity.Comp1.ContactingBelts)
         {
-            if (!contact.IsTouching)
-                continue;
-
-            // Check if our center is over their fixture otherwise ignore it.
-            var other = contact.OtherEnt(entity.Owner);
-
-            // Check for blocked, if so then we can't convey at all and just try to sleep
-            // Otherwise we may just keep pushing it into the wall
-
-            if (!_conveyorQuery.TryComp(other, out var conveyor))
-                continue;
-
-            anyConveyors = true;
-            var otherFixture = contact.OtherFixture(entity.Owner);
-            var otherTransform = PhysicsSystem.GetPhysicsTransform(other);
-
-            // Check if our center is over the conveyor, otherwise ignore it.
-            if (!_fixtures.TestPoint(otherFixture.Item2.Shape, otherTransform, transform.Position))
+            if (!_conveyorQuery.TryComp(belt, out var conveyor))
                 continue;
 
             if (conveyor.Speed > bestSpeed && CanRun(conveyor))
             {
                 bestSpeed = conveyor.Speed;
-                bestConveyor = (other, conveyor);
+                bestConveyor = (belt, conveyor);
             }
         }
-
-        // If we have no touching contacts we shouldn't be using conveyed anyway so nuke it.
-        if (!anyConveyors)
-            return true;
 
         if (bestSpeed == 0f || bestConveyor == default)
             return true;
@@ -279,7 +287,7 @@ public abstract partial class SharedConveyorController : VirtualController
         direction = Convey(direction, bestSpeed, itemRelative);
 
         // Do a final check for hard contacts so if we're conveying into a wall then NOOP.
-        contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures));
+        var contacts = PhysicsSystem.GetContacts((entity.Owner, fixtures));
 
         while (contacts.MoveNext(out var contact))
         {
@@ -380,21 +388,11 @@ public abstract partial class SharedConveyorController : VirtualController
     /// <summary>
     /// Checks an entity's contacts to see if it's still being conveyed.
     /// </summary>
-    private bool IsConveyed(Entity<FixturesComponent?> ent)
+    private bool IsConveyed(ConveyedComponent cargo)
     {
-        if (!Resolve(ent.Owner, ref ent.Comp))
-            return false;
-
-        var contacts = PhysicsSystem.GetContacts(ent.Owner);
-
-        while (contacts.MoveNext(out var contact))
+        foreach (var belt in cargo.ContactingBelts)
         {
-            if (!contact.IsTouching)
-                continue;
-
-            var other = contact.OtherEnt(ent.Owner);
-
-            if (_conveyorQuery.TryComp(other, out var comp) && CanRun(comp))
+            if (_conveyorQuery.TryComp(belt, out var comp) && CanRun(comp))
                 return true;
         }
 

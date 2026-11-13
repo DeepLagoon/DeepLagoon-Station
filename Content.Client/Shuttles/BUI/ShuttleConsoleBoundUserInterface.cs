@@ -41,10 +41,15 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
         _window.CombatPanel.OnWeaponSelectionChanged += UpdateSelectedWeapons;
         _window.CombatRadar.OnRadarClick += coordinates =>
         {
-            var selected = _window.CombatRadar.IsMouseDown()
-                ? _window.CombatPanel.WeaponsList.Where(entry => entry.Value.Pressed).Select(entry => entry.Key).ToList()
-                : new List<NetEntity>();
-            SendMessage(new FireControlConsoleFireMessage(selected, EntMan.GetNetCoordinates(coordinates)));
+            var position = EntMan.GetNetCoordinates(coordinates);
+            if (_window.CombatRadar.IsMouseDown())
+            {
+                var selected = _window.CombatPanel.WeaponsList.Where(entry => entry.Value.Pressed).Select(entry => entry.Key).ToList();
+                if (selected.Count != 0)
+                    SendMessage(new FireControlConsoleFireMessage(selected, position));
+            }
+            else
+                SendMessage(new FireControlAimMessage(position));
         };
         NfOpen(); // Frontier
     }
@@ -128,6 +133,11 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
         base.ReceiveMessage(message);
         if (message is ShuttleHullStateMessage hull)
             _window?.UpdateHullState(hull.State);
+        else if (message is ShieldReadoutMessage shield && _window is { } window)
+        {
+            window.CombatPanel.UpdateShieldState(shield.Readout);
+            window.UpdateShieldState(shield.Readout);
+        }
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)

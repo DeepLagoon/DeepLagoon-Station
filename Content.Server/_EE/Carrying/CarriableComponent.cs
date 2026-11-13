@@ -1,5 +1,3 @@
-using System.Threading;
-
 namespace Content.Server.Carrying
 {
     [RegisterComponent]
@@ -12,7 +10,7 @@ namespace Content.Server.Carrying
         [DataField]
         public int FreeHandsRequired = 2;
 
-        public CancellationTokenSource? CancelToken;
+        public bool PickupPending;
 
         /// <summary>
         ///     The base duration (In Seconds) of how long it should take to pick up this entity

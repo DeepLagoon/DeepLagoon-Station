@@ -42,6 +42,7 @@ public sealed partial class FireControlSystem : EntitySystem
         SubscribeLocalEvent<FireControlConsoleComponent, ComponentShutdown>(OnComponentShutdown);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleRefreshServerMessage>(OnRefreshServer);
         SubscribeLocalEvent<FireControlConsoleComponent, FireControlConsoleFireMessage>(OnFire);
+        SubscribeLocalEvent<FireControlConsoleComponent, FireControlAimMessage>(OnAim);
         SubscribeLocalEvent<FireControlConsoleComponent, BoundUIOpenedEvent>(OnUIOpened);
         SubscribeLocalEvent<FireControlConsoleComponent, ActivatableUIOpenAttemptEvent>(OnConsoleUIOpenAttempt);
     }
@@ -141,6 +142,24 @@ public sealed partial class FireControlSystem : EntitySystem
         }
 
         TrackConsoleCursor(uid, coordinates);
+    }
+
+    private void OnAim(EntityUid console, FireControlConsoleComponent component, FireControlAimMessage args)
+    {
+        if (!_consoleMousePositions.ContainsKey(console) ||
+            !TryComp<FireControlServerComponent>(component.ConnectedServer, out var server) ||
+            !server.Consoles.Contains(console))
+        {
+            return;
+        }
+
+        var transform = Transform(console);
+        var position = GetCoordinates(args.Position);
+        if (transform.GridUid != null && transform.GridUid == server.ConnectedGrid &&
+            position.IsValid(EntityManager) && _transform.ToMapCoordinates(position).MapId == transform.MapID)
+        {
+            TrackConsoleCursor(console, position);
+        }
     }
 
     public void OnUIOpened(EntityUid uid, FireControlConsoleComponent component, BoundUIOpenedEvent args)

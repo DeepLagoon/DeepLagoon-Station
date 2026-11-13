@@ -28,13 +28,21 @@ namespace Content.Server.Research.Disk
             if (!TryComp<ResearchServerComponent>(args.Target, out var server))
                 return;
 
-            // Claim the disk before crediting points, including repeated interactions in this tick.
-            if (!TryQueueDel(uid))
-                return;
+            args.Handled = TryUpload((uid, component), (args.Target.Value, server), args.User);
+        }
 
-            _research.ModifyServerPoints(args.Target.Value, component.Points, server);
-            _popupSystem.PopupEntity(Loc.GetString("research-disk-inserted", ("points", component.Points)), args.Target.Value, args.User);
-            args.Handled = true;
+        public bool TryUpload(Entity<ResearchDiskComponent> disk, Entity<ResearchServerComponent> server, EntityUid? user)
+        {
+            if (TerminatingOrDeleted(server) || !TryQueueDel(disk))
+                return false;
+
+            _research.ModifyServerPoints(server, disk.Comp.Points, server.Comp);
+            var message = Loc.GetString("research-disk-inserted", ("points", disk.Comp.Points));
+            if (user is { } uid)
+                _popupSystem.PopupEntity(message, server, uid);
+            else
+                _popupSystem.PopupEntity(message, server);
+            return true;
         }
 
         private void OnMapInit(EntityUid uid, ResearchDiskComponent component, MapInitEvent args)

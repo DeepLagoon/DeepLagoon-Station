@@ -48,4 +48,10 @@ public sealed class FireControlWindow : FancyWindow
         _panel.UpdateStatus(state);
         ConsoleHost?.Publish();
     }
+
+    internal void UpdateShieldReadout(Content.Shared.Exodus.ShipShields.ShipShieldState? state)
+    {
+        _panel.UpdateShieldState(state);
+        ConsoleHost?.Publish();
+    }
 }
