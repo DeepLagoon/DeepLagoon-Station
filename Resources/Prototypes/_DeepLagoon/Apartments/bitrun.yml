@@ -30,6 +30,34 @@
     enabled: false
 
 - type: entity
+  id: DLApartmentBitrunBarrier
+  name: force barrier
+  description: A blue field seals off the display.
+  categories: [HideSpawnMenu]
+  components:
+  - type: Transform
+    anchored: true
+  - type: Tag
+    tags: [Wall]
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        mask: [FullTileMask]
+        layer: [WallLayer]
+  - type: Airtight
+  - type: Sprite
+    sprite: Structures/Magic/forcewall.rsi
+    state: forcewall
+  - type: Icon
+    sprite: Structures/Magic/forcewall.rsi
+    state: forcewall
+
+- type: entity
   id: DLApartmentBitrunBed
   parent: Bed
   name: netpod bed

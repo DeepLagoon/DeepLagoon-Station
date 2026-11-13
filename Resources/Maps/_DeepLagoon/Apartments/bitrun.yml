@@ -92,6 +92,7 @@ entities:
     - type: RadiationGridResistance
     - type: ExplosionAirtightGrid
     - type: GridEnvironment
+      safeAtmosphere: True
       gravityCaptured: True
       forceGravity: True
       alwaysPowered: True
@@ -1285,7 +1286,7 @@ entities:
       needsPower: False
     - type: GridPowerOverride
       originalNeedsPower: True
-- proto: WallForce
+- proto: DLApartmentBitrunBarrier
   entities:
   - uid: 21
     components:

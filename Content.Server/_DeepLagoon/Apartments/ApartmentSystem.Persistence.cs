@@ -198,6 +198,8 @@ public sealed partial class ApartmentSystem
             EnsureComp<ApartmentAtmosphereSettingsComponent>(grid.Value.Owner).OxygenPercent = Math.Clamp(layout.OxygenPercent, 0, 100);
             var position = FindFreePosition(template);
             _transform.SetCoordinates(grid.Value.Owner, new EntityCoordinates(_activeMap, position));
+            if (template.ID == BitrunApartment)
+                RestoreBitrunEnvironment(grid.Value.Owner);
             var instance = new Instance { Owner = owner, Template = template, Grid = grid.Value.Owner, Position = position, Delta = layout,
                 Guests = _guestAccess.GetValueOrDefault(owner) ?? new ApartmentGuestAccess() };
             foreach (var mapped in snapshot.MapFurniture) instance.MapFurniture.Add(mapped.Baseline.Id, mapped);

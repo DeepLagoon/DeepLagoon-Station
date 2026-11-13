@@ -44,7 +44,8 @@ public sealed partial class ApartmentSystem
                 HasComp<Content.Shared.Mobs.Components.MobStateComponent>(uid) || IsApartmentShell(instance, uid, cell) ||
                 instance.Exterior.Contains(cell) || instance.Template.ReservedCells.Contains(cell) || cell == instance.Template.Arrival) continue;
             var metadata = MetaData(uid);
-            if (metadata.EntityPrototype is not { } prototype || prototype.Components.ContainsKey("TimedDespawn")) continue;
+            if (metadata.EntityPrototype is not { } prototype || prototype.ID == BitrunBarrier.Id ||
+                prototype.Components.ContainsKey("TimedDespawn")) continue;
             var id = "map_" + (TryComp<YamlUidComponent>(uid, out var yaml) ? yaml.Uid.ToString() : GetNetEntity(uid).ToString());
             if (instance.MapFurniture.ContainsKey(id)) id = "map_" + Guid.NewGuid().ToString("N");
             instance.MapFurniture.Add(id, new ApartmentMapFurniture

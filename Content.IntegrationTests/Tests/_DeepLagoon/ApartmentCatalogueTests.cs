@@ -5,18 +5,25 @@ using System.Numerics;
 using System.Reflection;
 using ApartmentShopSystem = Content.Client._DeepLagoon.Apartments.ApartmentShopSystem;
 using Content.Server._DeepLagoon.Apartments;
+using Content.Server.Atmos.EntitySystems;
 using Content.Server.NPC.HTN;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared._DeepLagoon.Bitrunning;
+using Content.Shared._DeepLagoon.Mapping;
+using Content.Shared.Atmos;
 using Content.Shared.Buckle.Components;
 using Content.Shared.NPC.Components;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Ranged.Components;
+using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
+using Robust.Shared.Maths;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Spawners;
+using Robust.Shared.Utility;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
@@ -93,6 +100,7 @@ public sealed class ApartmentCatalogueTests
 
             var home = (ApartmentSystem.Instance) typeof(ApartmentSystem).GetMethod("CreateFresh", Private)!
                 .Invoke(system, new object[] { owner, id, false })!;
+            AssertBitrunEnvironment(entities, home.Grid, 21);
             var panel = (EntityUid) typeof(ApartmentElevatorSystem).GetMethod("PanelOn", Private)!.Invoke(elevator, new object[] { home.Grid })!;
             var arrival = new EntityCoordinates(home.Grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + .5f));
             var body = entities.SpawnEntity("MobHuman", arrival);
@@ -145,6 +153,95 @@ public sealed class ApartmentCatalogueTests
             entities.DeleteEntity(home.Grid);
         });
         await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task BitrunBarriersAndAirSurviveManualLoadAndLegacySnapshotRestore()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var server = pair.Server;
+        EntityUid manual = default, restored = default;
+        await server.WaitAssertion(() =>
+        {
+            var entities = server.EntMan;
+            server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId, runMapInit: true);
+            var loader = entities.System<MapLoaderSystem>();
+            Assert.That(loader.TryLoadGrid(mapId, new ResPath("/Maps/_DeepLagoon/Apartments/bitrun.yml"), out var loaded), Is.True);
+            manual = loaded!.Value.Owner;
+            Assert.That(entities.HasComponent<ApartmentGridComponent>(manual), Is.False);
+            AssertBitrunEnvironment(entities, manual, 21);
+
+            var apartments = entities.System<ApartmentSystem>();
+            var owner = new NetUserId(Guid.NewGuid());
+            Assert.That(apartments.GrantTemplate(owner, "DLApartmentBitrun", out _), Is.Null);
+            var store = Store(apartments);
+            var template = server.ResolveDependency<IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBitrun");
+            store.Select(owner.UserId, template);
+            var legacy = (ApartmentSystem.Instance) typeof(ApartmentSystem).GetMethod("CreateFresh", Private)!
+                .Invoke(apartments, [owner, template.ID, false])!;
+            legacy.Delta.OxygenPercent = 35;
+            entities.GetComponent<GridEnvironmentComponent>(legacy.Grid).SafeAtmosphere = false;
+            var barriers = BitrunBarriers(entities, legacy.Grid);
+            var coords = entities.GetComponent<TransformComponent>(barriers[0]).Coordinates;
+            entities.DeleteEntity(barriers[0]);
+            entities.SpawnEntity("WallForce", coords);
+            entities.DeleteEntity(barriers[1]);
+            Assert.That(apartments.SaveApartment(legacy), Is.True);
+            entities.DeleteEntity(legacy.Grid);
+
+            var home = apartments.PrepareElevatorApartment(owner);
+            restored = home.Grid;
+            AssertBitrunEnvironment(entities, restored, 35);
+            Assert.That(home.MapFurniture.Values.Any(furniture => furniture.Prototype == "DLApartmentBitrunBarrier"), Is.False);
+        });
+
+        await server.WaitRunTicks(13 * server.Timing.TickRate);
+        await server.WaitAssertion(() =>
+        {
+            var entities = server.EntMan;
+            AssertBitrunEnvironment(entities, manual, 21);
+            AssertBitrunEnvironment(entities, restored, 35);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    private static EntityUid[] BitrunBarriers(IEntityManager entities, EntityUid grid)
+    {
+        var barriers = new List<EntityUid>();
+        var children = entities.GetComponent<TransformComponent>(grid).ChildEnumerator;
+        while (children.MoveNext(out var uid))
+        {
+            var prototype = entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID;
+            Assert.That(prototype, Is.Not.EqualTo("WallForce"));
+            if (prototype == "DLApartmentBitrunBarrier")
+                barriers.Add(uid);
+        }
+        return barriers.ToArray();
+    }
+
+    private static void AssertBitrunEnvironment(IEntityManager entities, EntityUid grid, int oxygenPercent)
+    {
+        var barriers = BitrunBarriers(entities, grid);
+        Assert.That(barriers, Has.Length.EqualTo(8));
+        foreach (var barrier in barriers)
+        {
+            Assert.That(entities.HasComponent<TimedDespawnComponent>(barrier), Is.False);
+            Assert.That(entities.GetComponent<TransformComponent>(barrier).Anchored, Is.True);
+        }
+
+        var atmosphere = entities.System<AtmosphereSystem>();
+        var map = entities.GetComponent<TransformComponent>(grid).MapUid;
+        foreach (var position in new[] { new Vector2i(8, 12), new Vector2i(9, 5), new Vector2i(8, 2) })
+        {
+            var air = atmosphere.GetTileMixture(grid, map, position)!;
+            Assert.That(air.Pressure, Is.EqualTo(Atmospherics.OneAtmosphere).Within(.01f));
+            Assert.That(air.GetMoles(Gas.Oxygen) / air.TotalMoles * 100f, Is.EqualTo(oxygenPercent).Within(.01f));
+        }
+        var outside = new Vector2i(-1, 5);
+        Assert.That(atmosphere.GetTileMixture(grid, map, outside)!.Pressure,
+            Is.EqualTo(atmosphere.GetTileMixture(null, map, outside)!.Pressure).Within(.01f));
     }
 
     [Test]

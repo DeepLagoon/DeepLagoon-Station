@@ -41,9 +41,10 @@ public sealed partial class ApartmentAtmosphereSystem : EntitySystem
 
     private bool HasController(EntityUid grid)
     {
-        var query = EntityQueryEnumerator<ApartmentAtmosphereComponent>();
-        while (query.MoveNext(out var uid, out _))
-            if (TryGetApartment(uid, out var parent) && parent == grid)
+        // Safe air is also refreshed while an empty apartment is paused.
+        var children = Transform(grid).ChildEnumerator;
+        while (children.MoveNext(out var uid))
+            if (HasComp<ApartmentAtmosphereComponent>(uid) && TryGetApartment(uid, out var parent) && parent == grid)
                 return true;
         return false;
     }

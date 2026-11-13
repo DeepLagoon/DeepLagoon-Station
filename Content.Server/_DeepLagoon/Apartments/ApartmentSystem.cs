@@ -375,6 +375,8 @@ public sealed partial class ApartmentSystem : EntitySystem
                 else instance.Furniture[item.Id] = SpawnFurniture(item, grid);
             foreach (var id in delta.Removed)
                 if (instance.Furniture.TryGetValue(id, out var removed) && Exists(removed)) StoreFurniture(instance, removed);
+            if (template.ID == BitrunApartment)
+                _atmos.SetSafeGridAtmosphere(grid);
             return instance;
         }
         catch { Del(grid); throw; }

@@ -75,6 +75,8 @@ dl-apartment-bitrun-no-bed = Кажется, сегодня здесь негд�
 dl-apartment-bitrun-elevator-unavailable = Лифт сейчас недоступен.
 
 ent-DLApartmentBitrunInteriorWall = полупрозрачная битран-стена
+ent-DLApartmentBitrunBarrier = силовой барьер
+    .desc = Синее поле отгораживает витрину.
 ent-DLApartmentBitrunBed = кровать-капсула
     .desc = Корпус битран-капсулы с обычным матрасом внутри.
 ent-DLApartmentBitrunFloorPanel = анимированная битран-панель
