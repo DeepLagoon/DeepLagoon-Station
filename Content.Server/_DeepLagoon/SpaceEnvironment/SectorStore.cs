@@ -19,15 +19,38 @@ public sealed class SectorStore : IDisposable
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
 #endif
         _connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Pooling = false }.ToString());
-        _connection.Open();
-        using var command = _connection.CreateCommand();
-        command.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; " +
-            "CREATE TABLE IF NOT EXISTS sector_manifests(campaign TEXT NOT NULL,id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(campaign,id)); " +
-            "CREATE TABLE IF NOT EXISTS sector_weather(campaign TEXT NOT NULL,sector TEXT NOT NULL,epoch INTEGER NOT NULL,PRIMARY KEY(campaign,sector)); " +
-            "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,expires INTEGER NOT NULL,PRIMARY KEY(campaign,sector,region)); " +
-            "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot)); " +
-            "CREATE TABLE IF NOT EXISTS sector_encounters(campaign TEXT NOT NULL,sector TEXT NOT NULL,site TEXT NOT NULL,choice TEXT NOT NULL,PRIMARY KEY(campaign,sector,site));";
-        command.ExecuteNonQuery();
+        try
+        {
+            _connection.Open();
+            using var command = _connection.CreateCommand();
+            command.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;";
+            command.ExecuteNonQuery();
+
+            using var transaction = _connection.BeginTransaction(deferred: false);
+            command.Transaction = transaction;
+            command.CommandText =
+                "CREATE TABLE IF NOT EXISTS sector_manifests(campaign TEXT NOT NULL,id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(campaign,id)); " +
+                "CREATE TABLE IF NOT EXISTS sector_weather(campaign TEXT NOT NULL,sector TEXT NOT NULL,epoch INTEGER NOT NULL,PRIMARY KEY(campaign,sector)); " +
+                "CREATE TABLE IF NOT EXISTS sector_surveys(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,expires INTEGER NOT NULL,PRIMARY KEY(campaign,sector,region)); " +
+                "CREATE TABLE IF NOT EXISTS sector_derelicts(campaign TEXT NOT NULL,sector TEXT NOT NULL,region TEXT NOT NULL,slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 2),PRIMARY KEY(campaign,sector,region,slot)); " +
+                "CREATE TABLE IF NOT EXISTS sector_encounters(campaign TEXT NOT NULL,sector TEXT NOT NULL,site TEXT NOT NULL,choice TEXT NOT NULL,PRIMARY KEY(campaign,sector,site));";
+            command.ExecuteNonQuery();
+
+            command.CommandText = "SELECT EXISTS(SELECT 1 FROM pragma_table_info('sector_surveys') WHERE name='expires')";
+            if ((long) command.ExecuteScalar()! == 0)
+            {
+                // Old surveys have no timestamps. Preserve their rows without making them active again.
+                command.CommandText = "ALTER TABLE sector_surveys ADD COLUMN expires INTEGER NOT NULL DEFAULT 0";
+                command.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            _connection.Dispose();
+            throw;
+        }
     }
 
     public SectorDefinition? Load(string campaign, string id)
@@ -118,7 +141,7 @@ public sealed class SectorStore : IDisposable
         var definition = Load(campaign, sector);
         if (definition == null || !definition.Regions.Any(r => r.Id == region)) return false;
         using var command = _connection.CreateCommand();
-        command.CommandText = "INSERT INTO sector_surveys VALUES($campaign,$sector,$region,$expires) " +
+        command.CommandText = "INSERT INTO sector_surveys(campaign,sector,region,expires) VALUES($campaign,$sector,$region,$expires) " +
             "ON CONFLICT(campaign,sector,region) DO UPDATE SET expires=excluded.expires WHERE sector_surveys.expires<=$now";
         command.Parameters.AddWithValue("$campaign", campaign);
         command.Parameters.AddWithValue("$sector", sector);

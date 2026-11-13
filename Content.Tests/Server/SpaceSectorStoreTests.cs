@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Shared._DeepLagoon.SpaceEnvironment;
+using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 
 namespace Content.Tests.Server;
@@ -81,6 +82,62 @@ public sealed class SpaceSectorStoreTests
             Assert.That(reopened.TrySurvey("crew-a", definition.Id, region, expires), Is.True);
             Assert.That(reopened.GetOrCreate("crew-b", changed).Seed, Is.EqualTo(123));
             Assert.That(reopened.Surveys("crew-b", definition.Id, now, out _), Is.Empty);
+        }
+        finally
+        {
+            foreach (var suffix in new[] { "", "-wal", "-shm" })
+                if (File.Exists(path + suffix)) File.Delete(path + suffix);
+        }
+    }
+
+    [Test]
+    public void LegacySurveysAreMigratedAsExpiredAndCanBeResurveyed()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"dl-sector-legacy-{Guid.NewGuid():N}.db");
+        try
+        {
+            var definition = SectorGenerator.Generate("legacy", 99, new SectorProfilePrototype());
+            var region = definition.Regions[0].Id;
+            var now = DateTimeOffset.UnixEpoch.AddDays(1);
+            var connectionString = new SqliteConnectionStringBuilder { DataSource = path, Pooling = false }.ToString();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = """
+                    CREATE TABLE sector_surveys (
+                        campaign TEXT NOT NULL, sector TEXT NOT NULL, region TEXT NOT NULL,
+                        PRIMARY KEY (campaign, sector, region)
+                    );
+                    CREATE TABLE sector_round_surveys (
+                        campaign TEXT NOT NULL, round_id INTEGER NOT NULL, sector TEXT NOT NULL, region TEXT NOT NULL,
+                        PRIMARY KEY (campaign, round_id, sector, region)
+                    );
+                    INSERT INTO sector_surveys VALUES ('crew', 'legacy', $region);
+                    INSERT INTO sector_round_surveys VALUES ('crew', 42, 'legacy', $region);
+                    """;
+                command.Parameters.AddWithValue("$region", region);
+                command.ExecuteNonQuery();
+            }
+
+            using (var store = new SectorStore(path))
+            {
+                store.GetOrCreate("crew", definition);
+                Assert.That(store.Surveys("crew", definition.Id, now, out _), Is.Empty);
+                using var connection = new SqliteConnection(connectionString);
+                connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT expires FROM sector_surveys";
+                Assert.That(command.ExecuteScalar(), Is.EqualTo(0L));
+                command.CommandText = "SELECT round_id FROM sector_round_surveys";
+                Assert.That(command.ExecuteScalar(), Is.EqualTo(42L));
+                Assert.That(store.TrySurvey("crew", definition.Id, region, now), Is.True);
+            }
+
+            using var reopened = new SectorStore(path);
+            Assert.That(reopened.Surveys("crew", definition.Id, now, out var expiry), Is.EqualTo(new[] { region }));
+            Assert.That(expiry, Is.EqualTo(now.AddHours(5).ToUnixTimeMilliseconds()));
         }
         finally
         {
