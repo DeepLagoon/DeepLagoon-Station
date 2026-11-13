@@ -10,10 +10,17 @@ public abstract partial class SharedMoverController
     protected readonly record struct MobMovementStep(EntityUid Uid, InputMoverComponent Mover,
         PhysicsComponent Physics, TransformComponent Transform, ContentTileDefinition? Tile,
         EntityUid? RelaySource, bool Weightless, Vector2 WishDir, Vector2 Velocity,
-        float MinimumFrictionSpeed, float FrameTime, float Friction, float Acceleration, bool CanAccelerate)
+        float MinimumFrictionSpeed, float FrameTime, float Friction, float Acceleration, bool CanAccelerate,
+        float PrecisionTileSize, Angle GridRotation)
     {
-        public Vector2 Calculate() => MovementVelocityMath.Calculate(Velocity, WishDir, MinimumFrictionSpeed,
-            FrameTime, Friction, Acceleration, CanAccelerate);
+        public Vector2 Calculate()
+        {
+            var velocity = MovementVelocityMath.Calculate(Velocity, WishDir, MinimumFrictionSpeed,
+                FrameTime, Friction, Acceleration, CanAccelerate);
+            return PrecisionTileSize > 0f
+                ? LimitPrecisionMovement(Transform.LocalPosition, velocity, GridRotation, PrecisionTileSize, FrameTime)
+                : velocity;
+        }
     }
 }
 

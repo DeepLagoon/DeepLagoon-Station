@@ -27,7 +27,7 @@ public abstract partial class SharedMoverController
     private Vector2 GetBoostedInputDirection(InputMoverComponent mover)
     {
         var direction = DirVecForButtons(mover.HeldMoveButtons);
-        if ((mover.HeldMoveButtons & MoveButtons.SpeedBoost) == 0)
+        if ((mover.HeldMoveButtons & (MoveButtons.SpeedBoost | MoveButtons.Precision)) != MoveButtons.SpeedBoost)
             return direction;
 
         // Multiply after normalizing diagonals, and before accumulating sub-tick input,
@@ -42,7 +42,7 @@ public abstract partial class SharedMoverController
     }
 
     private bool CanCharacterSpeedBoost(InputMoverComponent mover) =>
-        (mover.HeldMoveButtons & MoveButtons.SpeedBoost) != 0 &&
+        (mover.HeldMoveButtons & (MoveButtons.SpeedBoost | MoveButtons.Precision)) == MoveButtons.SpeedBoost &&
         MobMoverQuery.HasComp(mover.Owner) && !HasComp<GhostComponent>(mover.Owner) &&
         TryComp<StaminaComponent>(mover.Owner, out var stamina) && _boostStamina.CanSpeedBoost(stamina);
 

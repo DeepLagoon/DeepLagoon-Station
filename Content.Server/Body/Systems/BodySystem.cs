@@ -9,7 +9,6 @@ using Content.Shared.Humanoid;
 using Content.Shared.Mind;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Events;
-using Content.Shared.Movement.Systems;
 using Robust.Shared.Audio;
 using Robust.Shared.Timing;
 using System.Numerics;
@@ -41,8 +40,7 @@ public sealed partial class BodySystem : SharedBodySystem // Shitmed change: mad
     private void OnRelayMoveInput(Entity<BodyComponent> ent, ref MoveInputEvent args)
     {
         // If they haven't actually moved then ignore it.
-        if ((args.Entity.Comp.HeldMoveButtons &
-             (MoveButtons.Down | MoveButtons.Left | MoveButtons.Up | MoveButtons.Right)) == 0x0)
+        if (!args.HasDirectionalMovement)
         {
             return;
         }

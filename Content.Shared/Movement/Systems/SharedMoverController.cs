@@ -159,6 +159,9 @@ public abstract partial class SharedMoverController : VirtualController
         var uid = entity.Owner;
         var mover = entity.Comp;
 
+        if ((mover.HeldMoveButtons & TiltButtons) != 0)
+            UpdateCharacterTilt(entity);
+
         // If we're a relay then apply all of our data to the parent instead and go next.
         if (RelayQuery.TryComp(uid, out var relay))
         {
@@ -264,6 +267,7 @@ public abstract partial class SharedMoverController : VirtualController
 
         // Get current tile def for things like speed/friction mods
         ContentTileDefinition? tileDef = null;
+        var precisionTileSize = 0f;
 
         var touching = false;
         // Whether we use tilefriction or not
@@ -306,12 +310,25 @@ public abstract partial class SharedMoverController : VirtualController
             if (MapGridQuery.TryComp(xform.GridUid, out var gridComp)
                 && _mapSystem.TryGetTileRef(xform.GridUid.Value, gridComp, xform.Coordinates, out var tile)
                 && physicsComponent.BodyStatus == BodyStatus.OnGround)
+            {
                 tileDef = (ContentTileDefinition)_tileDefinitionManager[tile.Tile.TypeId];
+                if ((mover.HeldMoveButtons & MoveButtons.Precision) != 0 && gridRotation != null && !tile.Tile.IsEmpty)
+                    precisionTileSize = gridComp.TileSize;
+            }
 
             var walkSpeed = moveSpeedComponent?.CurrentWalkSpeed ?? MovementSpeedModifierComponent.DefaultBaseWalkSpeed;
             var sprintSpeed = moveSpeedComponent?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed;
 
-            wishDir = AssertValidWish(mover, walkSpeed, sprintSpeed);
+            if (precisionTileSize > 0f)
+            {
+                var speed = Math.Clamp(walkSpeed * 0.3f, 0f, 0.75f * precisionTileSize);
+                wishDir = LimitPrecisionMovement(xform.LocalPosition, AssertValidWish(mover, speed, speed),
+                    gridRotation!.Value, precisionTileSize, frameTime);
+            }
+            else
+            {
+                wishDir = AssertValidWish(mover, walkSpeed, sprintSpeed);
+            }
 
             if (wishDir != Vector2.Zero)
             {
@@ -337,7 +354,8 @@ public abstract partial class SharedMoverController : VirtualController
         SetWishDir((uid, mover), wishDir);
         UpdateSpeedBoostStamina(entity, frameTime, wishDir);
         var step = new MobMovementStep(uid, mover, physicsComponent, xform, tileDef, relaySource,
-            weightless, wishDir, velocity, minimumFrictionSpeed, frameTime, friction, accel, !weightless || touching);
+            weightless, wishDir, velocity, minimumFrictionSpeed, frameTime, friction, accel, !weightless || touching,
+            precisionTileSize, gridRotation.GetValueOrDefault());
         if (!QueueMobMovement(step))
             FinishMobMovement(step, step.Calculate());
     }

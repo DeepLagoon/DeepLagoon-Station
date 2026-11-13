@@ -1,3 +1,4 @@
+using Content.Shared.Buckle.Components;
 using Content.Shared.Rotation;
 using Robust.Client.Animations;
 using Robust.Client.GameObjects;
@@ -23,18 +24,18 @@ public sealed partial class RotationVisualizerSystem : SharedRotationVisualsSyst
         if (args.Sprite == null)
             return;
 
-        if (!_appearance.TryGetData<RotationState>(uid, RotationVisuals.RotationState, out var state, args.Component))
+        if (_appearance.TryGetData<bool>(uid, BuckleVisuals.Buckled, out var buckled, args.Component) && buckled)
             return;
 
-        switch (state)
-        {
-            case RotationState.Vertical:
-                AnimateSpriteRotation(uid, args.Sprite, component.VerticalRotation, component.AnimationTime);
-                break;
-            case RotationState.Horizontal:
-                AnimateSpriteRotation(uid, args.Sprite, component.HorizontalRotation, component.AnimationTime);
-                break;
-        }
+        var hasState = _appearance.TryGetData<RotationState>(uid, RotationVisuals.RotationState, out var state, args.Component);
+        var hasTilt = _appearance.TryGetData<int>(uid, RotationVisuals.Tilt, out var tilt, args.Component);
+        if (!hasState && !hasTilt)
+            return;
+
+        var rotation = state == RotationState.Horizontal
+            ? component.HorizontalRotation
+            : component.VerticalRotation + Angle.FromDegrees(tilt * 15);
+        AnimateSpriteRotation(uid, args.Sprite, rotation, component.AnimationTime);
     }
 
     /// <summary>
@@ -42,18 +43,14 @@ public sealed partial class RotationVisualizerSystem : SharedRotationVisualsSyst
     /// </summary>
     public void AnimateSpriteRotation(EntityUid uid, SpriteComponent spriteComp, Angle rotation, float animationTime)
     {
-        if (spriteComp.Rotation.Equals(rotation))
-        {
-            return;
-        }
-
-        var animationComp = EnsureComp<AnimationPlayerComponent>(uid);
         const string animationKey = "rotate";
-        // Stop the current rotate animation and then start a new one
-        if (_animation.HasRunningAnimation(animationComp, animationKey))
-        {
-            _animation.Stop(animationComp, animationKey);
-        }
+        if (TryComp<AnimationPlayerComponent>(uid, out var animationComp))
+            _animation.Stop((uid, animationComp), animationKey);
+
+        if (spriteComp.Rotation.Equals(rotation))
+            return;
+
+        animationComp ??= EnsureComp<AnimationPlayerComponent>(uid);
 
         var animation = new Animation
         {

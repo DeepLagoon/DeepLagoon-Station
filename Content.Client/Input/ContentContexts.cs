@@ -67,6 +67,9 @@ namespace Content.Client.Input
             human.AddFunction(EngineKeyFunctions.MoveRight);
             human.AddFunction(EngineKeyFunctions.Walk);
             human.AddFunction(ContentKeyFunctions.DeepLagoonSpeedBoost);
+            human.AddFunction(ContentKeyFunctions.DeepLagoonPrecisionMove);
+            human.AddFunction(ContentKeyFunctions.DeepLagoonTiltLeft);
+            human.AddFunction(ContentKeyFunctions.DeepLagoonTiltRight);
             human.AddFunction(ContentKeyFunctions.SwapHands);
             human.AddFunction(ContentKeyFunctions.SwapHandsPrevious); // Frontier
             human.AddFunction(ContentKeyFunctions.Drop);

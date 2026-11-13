@@ -167,6 +167,9 @@ namespace Content.Client.Options.UI.Tabs
             AddButton(EngineKeyFunctions.MoveRight);
             AddButton(EngineKeyFunctions.Walk);
             AddButton(ContentKeyFunctions.DeepLagoonSpeedBoost);
+            AddButton(ContentKeyFunctions.DeepLagoonPrecisionMove);
+            AddButton(ContentKeyFunctions.DeepLagoonTiltLeft);
+            AddButton(ContentKeyFunctions.DeepLagoonTiltRight);
             AddCheckBox("ui-options-hotkey-toggle-walk", _cfg.GetCVar(CCVars.ToggleWalk), HandleToggleWalk);
             AddButton(ContentKeyFunctions.ToggleStanding);
             AddCheckBox("ui-options-function-auto-get-up", _cfg.GetCVar(CCVars.AutoGetUp), HandleToggleAutoGetUp); // WD EDIT
@@ -471,7 +474,9 @@ namespace Content.Client.Options.UI.Tabs
                 CanFocus = key == Keyboard.Key.MouseLeft
                            || key == Keyboard.Key.MouseRight
                            || key == Keyboard.Key.MouseMiddle,
-                CanRepeat = false
+                CanRepeat = false,
+                AllowSubCombs = function == ContentKeyFunctions.DeepLagoonTiltLeft ||
+                                function == ContentKeyFunctions.DeepLagoonTiltRight,
             };
 
             _inputManager.RegisterBinding(registration);

@@ -6,6 +6,9 @@ namespace Content.Shared.Input
     public static class ContentKeyFunctions
     {
         public static readonly BoundKeyFunction DeepLagoonSpeedBoost = "DeepLagoonSpeedBoost";
+        public static readonly BoundKeyFunction DeepLagoonPrecisionMove = "DeepLagoonPrecisionMove";
+        public static readonly BoundKeyFunction DeepLagoonTiltLeft = "DeepLagoonTiltLeft";
+        public static readonly BoundKeyFunction DeepLagoonTiltRight = "DeepLagoonTiltRight";
         public static readonly BoundKeyFunction UseItemInHand = "ActivateItemInHand";
         public static readonly BoundKeyFunction AltUseItemInHand = "AltActivateItemInHand";
         public static readonly BoundKeyFunction ActivateItemInWorld = "ActivateItemInWorld";

@@ -73,12 +73,52 @@ binds:
 - function: MoveDown
   type: State
   key: S
+- function: MoveUp
+  type: State
+  key: Up
+- function: MoveLeft
+  type: State
+  key: Left
+- function: MoveRight
+  type: State
+  key: Right
+- function: MoveDown
+  type: State
+  key: Down
 - function: Walk
   type: State
   key: Shift
 - function: DeepLagoonSpeedBoost
   type: State
   key: Alt
+- function: DeepLagoonPrecisionMove
+  type: State
+  key: N
+# Keep the underlying modifiers and text selection available. Movement masks the tilt direction.
+- function: DeepLagoonTiltLeft
+  type: State
+  key: A
+  mod1: Alt
+  mod2: Shift
+  allowSubCombs: true
+- function: DeepLagoonTiltLeft
+  type: State
+  key: Left
+  mod1: Alt
+  mod2: Shift
+  allowSubCombs: true
+- function: DeepLagoonTiltRight
+  type: State
+  key: D
+  mod1: Alt
+  mod2: Shift
+  allowSubCombs: true
+- function: DeepLagoonTiltRight
+  type: State
+  key: Right
+  mod1: Alt
+  mod2: Shift
+  allowSubCombs: true
 - function: ToggleStanding
   type: State
   key: R

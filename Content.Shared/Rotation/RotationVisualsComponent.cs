@@ -25,7 +25,8 @@ public sealed partial class RotationVisualsComponent : Component
 [Serializable, NetSerializable]
 public enum RotationVisuals
 {
-    RotationState
+    RotationState,
+    Tilt,
 }
 
 [Serializable, NetSerializable]

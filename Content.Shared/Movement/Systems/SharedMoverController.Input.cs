@@ -40,6 +40,9 @@ namespace Content.Shared.Movement.Systems
                 .Bind(EngineKeyFunctions.MoveDown, moveDownCmdHandler)
                 .Bind(EngineKeyFunctions.Walk, new WalkInputCmdHandler(this))
                 .Bind(ContentKeyFunctions.DeepLagoonSpeedBoost, new SpeedBoostInputCmdHandler(this))
+                .Bind(ContentKeyFunctions.DeepLagoonPrecisionMove, new CharacterMoveInputCmdHandler(this, MoveButtons.Precision))
+                .Bind(ContentKeyFunctions.DeepLagoonTiltLeft, new CharacterMoveInputCmdHandler(this, MoveButtons.TiltLeft))
+                .Bind(ContentKeyFunctions.DeepLagoonTiltRight, new CharacterMoveInputCmdHandler(this, MoveButtons.TiltRight))
                 .Bind(EngineKeyFunctions.CameraRotateLeft, new CameraRotateInputCmdHandler(this, Direction.East))
                 .Bind(EngineKeyFunctions.CameraRotateRight, new CameraRotateInputCmdHandler(this, Direction.West))
                 .Bind(EngineKeyFunctions.CameraReset, new CameraResetInputCmdHandler(this))
@@ -72,7 +75,7 @@ namespace Content.Shared.Movement.Systems
         /// </summary>
         public static MoveButtons GetNormalizedMovement(MoveButtons buttons)
         {
-            var oldMovement = buttons;
+            var oldMovement = GetEffectiveMoveButtons(buttons);
 
             if ((oldMovement & (MoveButtons.Left | MoveButtons.Right)) == (MoveButtons.Left | MoveButtons.Right))
             {
@@ -94,15 +97,26 @@ namespace Content.Shared.Movement.Systems
             if (entity.Comp.HeldMoveButtons == buttons)
                 return;
 
-            // Relay the fact we had any movement event.
-            // TODO: Ideally we'd do these in a tick instead of out of sim.
-            var moveEvent = new MoveInputEvent(entity, entity.Comp.HeldMoveButtons);
+            var oldButtons = entity.Comp.HeldMoveButtons;
             entity.Comp.HeldMoveButtons = buttons;
-            RaiseLocalEvent(entity, ref moveEvent);
-            Dirty(entity, entity.Comp);
+            if (((oldButtons ^ buttons) & TiltButtons) != 0)
+                UpdateCharacterTilt(entity);
 
-            var ev = new SpriteMoveEvent((entity.Comp.HeldMoveButtons & MoveButtons.AnyDirection) != MoveButtons.None);
-            RaiseLocalEvent(entity, ref ev);
+            RaiseMoveInputEvents(entity, oldButtons);
+            Dirty(entity, entity.Comp);
+        }
+
+        private void RaiseMoveInputEvents(Entity<InputMoverComponent> entity, MoveButtons oldButtons)
+        {
+            var previous = GetEffectiveMoveButtons(oldButtons);
+            var current = GetEffectiveMoveButtons(entity.Comp.HeldMoveButtons);
+            if (previous == current)
+                return;
+
+            var moveEvent = new MoveInputEvent(entity, previous);
+            RaiseLocalEvent(entity, ref moveEvent);
+            var spriteEvent = new SpriteMoveEvent((current & MoveButtons.AnyDirection) != MoveButtons.None);
+            RaiseLocalEvent(entity, ref spriteEvent);
         }
 
         private void OnMoverHandleState(Entity<InputMoverComponent> entity, ref ComponentHandleState args)
@@ -124,12 +138,9 @@ namespace Content.Shared.Movement.Systems
 
             if (entity.Comp.HeldMoveButtons != state.HeldMoveButtons)
             {
-                var moveEvent = new MoveInputEvent(entity, entity.Comp.HeldMoveButtons);
+                var oldButtons = entity.Comp.HeldMoveButtons;
                 entity.Comp.HeldMoveButtons = state.HeldMoveButtons;
-                RaiseLocalEvent(entity.Owner, ref moveEvent);
-
-                var ev = new SpriteMoveEvent((entity.Comp.HeldMoveButtons & MoveButtons.AnyDirection) != MoveButtons.None);
-                RaiseLocalEvent(entity, ref ev);
+                RaiseMoveInputEvents(entity, oldButtons);
             }
         }
 
@@ -505,6 +516,7 @@ namespace Content.Shared.Movement.Systems
             // if the camera is moved, this needs to be changed
 
             var x = 0;
+            buttons = GetEffectiveMoveButtons(buttons);
             x -= HasFlag(buttons, MoveButtons.Left) ? 1 : 0;
             x += HasFlag(buttons, MoveButtons.Right) ? 1 : 0;
 
@@ -637,7 +649,7 @@ namespace Content.Shared.Movement.Systems
 
     [Flags]
     [Serializable, NetSerializable]
-    public enum MoveButtons : byte
+    public enum MoveButtons : ushort
     {
         None = 0,
         Up = 1,
@@ -646,6 +658,9 @@ namespace Content.Shared.Movement.Systems
         Right = 8,
         Walk = 16,
         SpeedBoost = 32,
+        Precision = 64,
+        TiltLeft = 128,
+        TiltRight = 256,
         AnyDirection = Up | Down | Left | Right,
     }
 
