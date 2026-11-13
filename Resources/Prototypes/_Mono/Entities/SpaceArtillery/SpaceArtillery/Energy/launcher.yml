@@ -190,14 +190,18 @@
  # M25
 
 - type: entity
-  id: WeaponTurretM25
+  id: BaseWeaponTurretM25
+  abstract: true
   name: M25 mining pulser
   parent:
   - BallisticArtillery
   - BallisticArtilleryTier1HP
-  - ConstructibleMachine #Could possibly create a ConstructibleTurret proto if more are added; comps currently do nothing upgrade wise
   description: Uses mechanisms to launch... something. Destroys rock easily. Limited range.
   components:
+  - type: Animateable
+  - type: FootstepModifier
+    footstepSoundCollection:
+      collection: FootstepHull
   - type: StaticPrice
     price: 1500
   - type: Sprite
@@ -236,12 +240,6 @@
   - type: ProjectileBatteryAmmoProvider
     proto: ShipM25Projectile
     fireCost: 100
-  - type: Machine
-    board: WeaponTurretM25Circuitboard
-  - type: ContainerContainer
-    containers:
-      machine_board: !type:Container
-      machine_parts: !type:Container
   - type: RadarBlip
     radarColor: "#C92BCC"
     scale: 1
@@ -262,6 +260,22 @@
   - type: HardpointAnchorableOnly
     class: Energy
     size: Light
+
+# Keep old guns and boards compatible with the machine-frame workflow.
+- type: entity
+  id: WeaponTurretM25
+  parent: [BaseWeaponTurretM25, ConstructibleMachine]
+  components:
+  - type: Machine
+    board: WeaponTurretM25Circuitboard
+  - type: ShipRepairable
+    repairTime: 10
+    repairCost: 20
+
+# A kit already paid for the gun's parts. Do not also spawn a stock machine board and parts.
+- type: entity
+  id: WeaponTurretM25Assembled
+  parent: BaseWeaponTurretM25
 
 # RUBICON
 

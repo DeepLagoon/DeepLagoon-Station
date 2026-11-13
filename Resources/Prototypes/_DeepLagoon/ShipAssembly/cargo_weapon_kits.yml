@@ -1,0 +1,39 @@
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLCargoShipWeaponKitCharon
+  name: M381 Charon
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretCharonReload
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLCargoShipWeaponKitBofors
+  name: Bofors
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretBofors
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLCargoShipWeaponKitLongbow
+  name: L65 Longbow
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretLongbow
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLCargoShipWeaponKitTovek
+  name: ADMX-23 Tovek
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretTovek
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLCargoShipWeaponKitCyrexa
+  name: Cyrexa
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretCyrexa

@@ -1,0 +1,228 @@
+- type: techDiscipline
+  id: DLShipArmament
+  name: research-discipline-dl-ship-armament
+  color: "#376e73"
+  icon:
+    sprite: Interface/Misc/research_disciplines.rsi
+    state: industrial
+  tierPrerequisites:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+  uiName: SHIP
+
+- type: techDiscipline
+  id: DLShipArmamentFaction
+  name: research-discipline-dl-ship-armament-faction
+  color: "#365c92"
+  icon:
+    sprite: Interface/Misc/research_disciplines.rsi
+    state: arsenal
+  tierPrerequisites:
+    1: 0
+    2: 0
+    3: 0
+  uiName: FLEET
+
+- type: technology
+  id: DLShipMountsBasic
+  name: research-technology-dl-ship-mounts-basic
+  entityIcon: HardpointBallisticLight
+  discipline: DLShipArmament
+  tier: 1
+  cost: 10000
+  allowRecipeDisks: false
+  position: 5, 2
+  recipeUnlocks:
+  - DLShipAssemblyHardpointBallisticSuperlight
+  - DLShipAssemblyHardpointEnergySuperlight
+  - DLShipAssemblyHardpointMissileSuperlight
+  - DLShipAssemblyHardpointBallisticLight
+  - DLShipAssemblyHardpointEnergyLight
+  - DLShipAssemblyHardpointMissileLight
+
+- type: technology
+  id: DLShipMountsAdvanced
+  name: research-technology-dl-ship-mounts-advanced
+  entityIcon: HardpointBallisticMedium
+  discipline: DLShipArmament
+  tier: 2
+  cost: 20000
+  allowRecipeDisks: false
+  position: 7, 2
+  technologyPrerequisites:
+  - DLShipMountsBasic
+  recipeUnlocks:
+  - DLShipAssemblyHardpointBallisticMedium
+  - DLShipAssemblyHardpointEnergyMedium
+  - DLShipAssemblyHardpointMissileMedium
+
+- type: technology
+  id: DLShipMountsMassive
+  name: research-technology-dl-ship-mounts-massive
+  entityIcon: HardpointBallisticHeavy
+  discipline: DLShipArmament
+  tier: 3
+  cost: 40000
+  allowRecipeDisks: false
+  position: 9, 2
+  technologyPrerequisites:
+  - DLShipMountsAdvanced
+  recipeUnlocks:
+  - DLShipAssemblyHardpointBallisticHeavy
+  - DLShipAssemblyHardpointEnergyHeavy
+  - DLShipAssemblyHardpointMissileHeavy
+
+- type: technology
+  id: DLShipMountsCapital
+  name: research-technology-dl-ship-mounts-capital
+  entityIcon: HardpointBallisticSuperheavy
+  discipline: DLShipArmament
+  tier: 4
+  cost: 80000
+  allowRecipeDisks: false
+  position: 11, 2
+  technologyPrerequisites:
+  - DLShipMountsMassive
+  recipeUnlocks:
+  - DLShipAssemblyHardpointBallisticSuperheavy
+  - DLShipAssemblyHardpointEnergySuperheavy
+  - DLShipAssemblyHardpointMissileSuperheavy
+
+- type: technology
+  id: DLShipArmamentLight
+  name: research-technology-dl-ship-armament-light
+  entityIcon: WeaponTurretL85Autocannon
+  discipline: DLShipArmament
+  tier: 1
+  cost: 15000
+  allowRecipeDisks: false
+  position: 5, 4
+  technologyPrerequisites:
+  - DLShipMountsBasic
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretFlare
+  - DLShipAssemblyWeaponTurretVanyk
+  - DLShipAssemblyWeaponTurretM25
+  - DLShipAssemblyWeaponTurretL85Autocannon
+
+- type: technology
+  id: DLShipArmamentSyndicateLight
+  name: research-technology-dl-ship-armament-syndicate-light
+  entityIcon: WeaponTurretAdderScattercannon
+  discipline: DLShipArmament
+  tier: 1
+  cost: 15000
+  allowRecipeDisks: false
+  position: 5, 6
+  technologyPrerequisites:
+  - DLShipArmamentLight
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretAdderScattercannon
+
+- type: technology
+  id: DLShipArmamentMedium
+  name: research-technology-dl-ship-armament-medium
+  entityIcon: WeaponTurretType35
+  discipline: DLShipArmamentFaction
+  tier: 2
+  cost: 30000
+  allowRecipeDisks: false
+  position: 7, 4
+  technologyPrerequisites:
+  - DLShipMountsAdvanced
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretType35
+  - DLShipAssemblyWeaponTurretAK570
+  - DLShipAssemblyWeaponTurretRAC30
+  - DLShipAssemblyWeaponTurretAC-35
+  - DLShipAssemblyWeaponTurretDravon
+  - DLShipAssemblyWeaponTurretVespera
+
+- type: technology
+  id: DLShipArmamentTsfmcStandard
+  name: research-technology-dl-ship-armament-tsfmc-standard
+  entityIcon: WeaponTurretType54
+  discipline: DLShipArmament
+  tier: 2
+  cost: 35000
+  allowRecipeDisks: false
+  position: 6, 6
+  technologyPrerequisites:
+  - DLShipArmamentMedium
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretTarnyxReload
+  - DLShipAssemblyWeaponTurretType54
+
+- type: technology
+  id: DLShipArmamentSyndicateMissile
+  name: research-technology-dl-ship-armament-syndicate-missile
+  entityIcon: WeaponTurretSerpentMissile
+  discipline: DLShipArmament
+  tier: 2
+  cost: 35000
+  allowRecipeDisks: false
+  position: 8, 6
+  technologyPrerequisites:
+  - DLShipArmamentMedium
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretSerpentMissile
+
+- type: technology
+  id: DLShipArmamentHeavy
+  name: research-technology-dl-ship-armament-heavy
+  entityIcon: WeaponTurretCerberus
+  discipline: DLShipArmamentFaction
+  tier: 3
+  cost: 55000
+  allowRecipeDisks: false
+  position: 9, 4
+  technologyPrerequisites:
+  - DLShipMountsMassive
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretPaladin
+  - DLShipAssemblyWeaponTurretCerberus
+
+- type: technology
+  id: DLShipArmamentSyndicateHeavy
+  name: research-technology-dl-ship-armament-syndicate-heavy
+  entityIcon: WeaponTurretFang
+  discipline: DLShipArmament
+  tier: 3
+  cost: 60000
+  allowRecipeDisks: false
+  position: 9, 6
+  technologyPrerequisites:
+  - DLShipArmamentHeavy
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretFang
+
+- type: technology
+  id: DLShipArmamentSyndicateCruiser
+  name: research-technology-dl-ship-armament-syndicate-cruiser
+  entityIcon: WeaponTurretHydra
+  discipline: DLShipArmament
+  tier: 4
+  cost: 85000
+  allowRecipeDisks: false
+  position: 10, 4
+  technologyPrerequisites:
+  - DLShipMountsCapital
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretHydra
+
+- type: technology
+  id: DLShipArmamentTsfmcCruiser
+  name: research-technology-dl-ship-armament-tsfmc-cruiser
+  entityIcon: WeaponTurretDymere
+  discipline: DLShipArmament
+  tier: 4
+  cost: 100000
+  allowRecipeDisks: false
+  position: 12, 4
+  technologyPrerequisites:
+  - DLShipMountsCapital
+  recipeUnlocks:
+  - DLShipAssemblyWeaponTurretDymere
+  - DLShipAssemblyWeaponTurretScylla

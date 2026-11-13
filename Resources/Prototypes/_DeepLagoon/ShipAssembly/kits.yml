@@ -1,0 +1,279 @@
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointBallisticSuperlight
+  name: assembly kit (superlight ballistic hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointBallisticSuperlight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointEnergySuperlight
+  name: assembly kit (superlight energy hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointEnergySuperlight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointMissileSuperlight
+  name: assembly kit (superlight missile hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointMissileSuperlight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointBallisticLight
+  name: assembly kit (light ballistic hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointBallisticLight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointEnergyLight
+  name: assembly kit (light energy hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointEnergyLight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointMissileLight
+  name: assembly kit (light missile hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointMissileLight
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointBallisticMedium
+  name: assembly kit (medium ballistic hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointBallisticMedium
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointEnergyMedium
+  name: assembly kit (medium energy hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointEnergyMedium
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointMissileMedium
+  name: assembly kit (medium missile hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointMissileMedium
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointBallisticHeavy
+  name: assembly kit (heavy ballistic hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointBallisticHeavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointEnergyHeavy
+  name: assembly kit (heavy energy hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointEnergyHeavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointMissileHeavy
+  name: assembly kit (heavy missile hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointMissileHeavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointBallisticSuperheavy
+  name: assembly kit (superheavy ballistic hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointBallisticSuperheavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointEnergySuperheavy
+  name: assembly kit (superheavy energy hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointEnergySuperheavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitHardpointMissileSuperheavy
+  name: assembly kit (superheavy missile hardpoint)
+  components:
+  - type: ShipAssemblyKit
+    prototype: HardpointMissileSuperheavy
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretFlare
+  name: assembly kit (GS-002 Sunny)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretFlare
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretVanyk
+  name: assembly kit (ASM-150 Vanyk)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretVanyk
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretM25
+  name: assembly kit (M25)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretM25Assembled
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretL85Autocannon
+  name: assembly kit (L85)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretL85Autocannon
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretAdderScattercannon
+  name: assembly kit (Adder)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretAdderScattercannon
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretType35
+  name: assembly kit (Type-35 Marauder)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretType35
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretAK570
+  name: assembly kit (AK570)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretAK570
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretRAC30
+  name: assembly kit (RAC-30 Draupnir)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretRAC30
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretAC-35
+  name: assembly kit (AC-35)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretAC-35
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretDravon
+  name: assembly kit (ADBP-7 Dravon)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretDravon
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretVespera
+  name: assembly kit (ADMP-50 Vespera)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretVespera
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretTarnyxReload
+  name: assembly kit (ADBX-31 Tarnyx)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretTarnyxReload
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretType54
+  name: assembly kit (Type-54C)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretType54
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretSerpentMissile
+  name: assembly kit (Serpent)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretSerpentMissile
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretPaladin
+  name: assembly kit (MLRS-382 Paladin)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretPaladin
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretCerberus
+  name: assembly kit (Cerberus)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretCerberus
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretFang
+  name: assembly kit (Fang)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretFang
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretHydra
+  name: assembly kit (Hydra)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretHydra
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretDymere
+  name: assembly kit (ADEX-9 Dymere)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretDymere
+
+- type: entity
+  parent: BaseShipAssemblyKit
+  id: DLShipAssemblyKitWeaponTurretScylla
+  name: assembly kit (Scylla)
+  components:
+  - type: ShipAssemblyKit
+    prototype: WeaponTurretScylla

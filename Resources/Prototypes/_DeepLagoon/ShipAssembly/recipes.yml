@@ -1,0 +1,474 @@
+- type: latheRecipe
+  id: DLShipAssemblyHardpointBallisticSuperlight
+  result: DLShipAssemblyKitHardpointBallisticSuperlight
+  completetime: 5
+  icon:
+    entity: HardpointBallisticSuperlight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 1
+    MicroprocessorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointEnergySuperlight
+  result: DLShipAssemblyKitHardpointEnergySuperlight
+  completetime: 5
+  icon:
+    entity: HardpointEnergySuperlight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 1
+    MicroprocessorEconomy1: 1
+    CapacitorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointMissileSuperlight
+  result: DLShipAssemblyKitHardpointMissileSuperlight
+  completetime: 5
+  icon:
+    entity: HardpointMissileSuperlight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 1
+    MicroprocessorEconomy1: 1
+    OpticsEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointBallisticLight
+  result: DLShipAssemblyKitHardpointBallisticLight
+  completetime: 8
+  icon:
+    entity: HardpointBallisticLight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointEnergyLight
+  result: DLShipAssemblyKitHardpointEnergyLight
+  completetime: 8
+  icon:
+    entity: HardpointEnergyLight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+    CapacitorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointMissileLight
+  result: DLShipAssemblyKitHardpointMissileLight
+  completetime: 8
+  icon:
+    entity: HardpointMissileLight
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+    OpticsEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointBallisticMedium
+  result: DLShipAssemblyKitHardpointBallisticMedium
+  completetime: 12
+  icon:
+    entity: HardpointBallisticMedium
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy2: 2
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointEnergyMedium
+  result: DLShipAssemblyKitHardpointEnergyMedium
+  completetime: 12
+  icon:
+    entity: HardpointEnergyMedium
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy2: 2
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 1
+    CapacitorEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointMissileMedium
+  result: DLShipAssemblyKitHardpointMissileMedium
+  completetime: 12
+  icon:
+    entity: HardpointMissileMedium
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy2: 2
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 1
+    OpticsEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointBallisticHeavy
+  result: DLShipAssemblyKitHardpointBallisticHeavy
+  completetime: 20
+  icon:
+    entity: HardpointBallisticHeavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy3: 3
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointEnergyHeavy
+  result: DLShipAssemblyKitHardpointEnergyHeavy
+  completetime: 20
+  icon:
+    entity: HardpointEnergyHeavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy3: 3
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 2
+    CapacitorEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointMissileHeavy
+  result: DLShipAssemblyKitHardpointMissileHeavy
+  completetime: 20
+  icon:
+    entity: HardpointMissileHeavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy3: 3
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 2
+    OpticsEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointBallisticSuperheavy
+  result: DLShipAssemblyKitHardpointBallisticSuperheavy
+  completetime: 30
+  icon:
+    entity: HardpointBallisticSuperheavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy4: 4
+    MicroprocessorEconomy3: 2
+    MotorEconomy1: 3
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointEnergySuperheavy
+  result: DLShipAssemblyKitHardpointEnergySuperheavy
+  completetime: 30
+  icon:
+    entity: HardpointEnergySuperheavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy4: 4
+    MicroprocessorEconomy3: 2
+    MotorEconomy1: 3
+    CapacitorEconomy3: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyHardpointMissileSuperheavy
+  result: DLShipAssemblyKitHardpointMissileSuperheavy
+  completetime: 30
+  icon:
+    entity: HardpointMissileSuperheavy
+  categories:
+  - DLShipHardpointKits
+  entities:
+    ArmorPlateEconomy4: 4
+    MicroprocessorEconomy3: 2
+    MotorEconomy1: 3
+    OpticsEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretFlare
+  result: DLShipAssemblyKitWeaponTurretFlare
+  completetime: 5
+  icon:
+    entity: WeaponTurretFlare
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 1
+    MicroprocessorEconomy1: 1
+    CapacitorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretVanyk
+  result: DLShipAssemblyKitWeaponTurretVanyk
+  completetime: 8
+  icon:
+    entity: WeaponTurretVanyk
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+    OpticsEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretM25
+  result: DLShipAssemblyKitWeaponTurretM25
+  completetime: 8
+  icon:
+    entity: WeaponTurretM25
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    ElectromagnetEconomy1: 1
+    CapacitorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretL85Autocannon
+  result: DLShipAssemblyKitWeaponTurretL85Autocannon
+  completetime: 8
+  icon:
+    entity: WeaponTurretL85Autocannon
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretAdderScattercannon
+  result: DLShipAssemblyKitWeaponTurretAdderScattercannon
+  completetime: 8
+  icon:
+    entity: WeaponTurretAdderScattercannon
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 3
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretType35
+  result: DLShipAssemblyKitWeaponTurretType35
+  completetime: 12
+  icon:
+    entity: WeaponTurretType35
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    ElectromagnetEconomy2: 1
+    CapacitorEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretAK570
+  result: DLShipAssemblyKitWeaponTurretAK570
+  completetime: 8
+  icon:
+    entity: WeaponTurretAK570
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy1: 2
+    MicroprocessorEconomy1: 1
+    MotorEconomy1: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretRAC30
+  result: DLShipAssemblyKitWeaponTurretRAC30
+  completetime: 12
+  icon:
+    entity: WeaponTurretRAC30
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 2
+    OpticsEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretAC-35
+  result: DLShipAssemblyKitWeaponTurretAC-35
+  completetime: 12
+  icon:
+    entity: WeaponTurretAC-35
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 3
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretDravon
+  result: DLShipAssemblyKitWeaponTurretDravon
+  completetime: 12
+  icon:
+    entity: WeaponTurretDravon
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 4
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretVespera
+  result: DLShipAssemblyKitWeaponTurretVespera
+  completetime: 12
+  icon:
+    entity: WeaponTurretVespera
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 2
+    OpticsEconomy2: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretTarnyxReload
+  result: DLShipAssemblyKitWeaponTurretTarnyxReload
+  completetime: 12
+  icon:
+    entity: WeaponTurretTarnyxReload
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    MotorEconomy1: 1
+    ElectromagnetEconomy2: 1
+    CapacitorEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretType54
+  result: DLShipAssemblyKitWeaponTurretType54
+  completetime: 12
+  icon:
+    entity: WeaponTurretType54
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 1
+    ElectromagnetEconomy2: 2
+    CapacitorEconomy2: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretSerpentMissile
+  result: DLShipAssemblyKitWeaponTurretSerpentMissile
+  completetime: 12
+  icon:
+    entity: WeaponTurretSerpentMissile
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy2: 3
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 2
+    OpticsEconomy2: 1
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretPaladin
+  result: DLShipAssemblyKitWeaponTurretPaladin
+  completetime: 20
+  icon:
+    entity: WeaponTurretPaladin
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy3: 4
+    MicroprocessorEconomy2: 3
+    MotorEconomy1: 3
+    OpticsEconomy2: 3
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretCerberus
+  result: DLShipAssemblyKitWeaponTurretCerberus
+  completetime: 20
+  icon:
+    entity: WeaponTurretCerberus
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy3: 4
+    MicroprocessorEconomy2: 2
+    ElectromagnetEconomy3: 2
+    CapacitorEconomy3: 2
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretFang
+  result: DLShipAssemblyKitWeaponTurretFang
+  completetime: 20
+  icon:
+    entity: WeaponTurretFang
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy3: 5
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 4
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretHydra
+  result: DLShipAssemblyKitWeaponTurretHydra
+  completetime: 20
+  icon:
+    entity: WeaponTurretHydra
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy3: 6
+    MicroprocessorEconomy2: 2
+    MotorEconomy1: 5
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretDymere
+  result: DLShipAssemblyKitWeaponTurretDymere
+  completetime: 30
+  icon:
+    entity: WeaponTurretDymere
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy4: 5
+    MicroprocessorEconomy3: 2
+    ElectromagnetEconomy3: 3
+    CapacitorEconomy3: 4
+
+- type: latheRecipe
+  id: DLShipAssemblyWeaponTurretScylla
+  result: DLShipAssemblyKitWeaponTurretScylla
+  completetime: 30
+  icon:
+    entity: WeaponTurretScylla
+  categories:
+  - DLShipWeaponKits
+  entities:
+    ArmorPlateEconomy4: 5
+    MicroprocessorEconomy3: 2
+    ElectromagnetEconomy3: 4
+    CapacitorEconomy3: 3

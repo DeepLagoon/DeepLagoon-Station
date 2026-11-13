@@ -21,6 +21,7 @@
     - CivilianServices
     - MechaEngineering
     - FactionUniversal
+    - DLShipArmament
   - type: ApcPowerReceiver
     powerLoad: 200
   - type: ExtensionCableReceiver

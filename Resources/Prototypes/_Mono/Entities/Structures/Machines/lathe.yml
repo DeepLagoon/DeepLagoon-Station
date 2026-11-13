@@ -459,7 +459,8 @@
     unlitRunningState: unlit-building
     staticPacks:
     - IndustrialPressEconomyPlates
-    # dynamicPacks:
+    dynamicPacks:
+    - DLShipAssemblyKits
   - type: MaterialStorage
     whitelist:
       tags:
@@ -500,7 +501,8 @@
     unlitRunningState: unlit-building
     staticPacks:
     - IndustrialPressEconomyPlates
-    # dynamicPacks:
+    dynamicPacks:
+    - DLShipAssemblyKits
   - type: MaterialStorage
     whitelist:
       tags:

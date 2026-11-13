@@ -1,0 +1,46 @@
+- type: latheCategory
+  id: DLShipHardpointKits
+  name: lathe-category-dl-ship-hardpoint-kits
+
+- type: latheCategory
+  id: DLShipWeaponKits
+  name: lathe-category-dl-ship-weapon-kits
+
+- type: latheRecipePack
+  id: DLShipAssemblyKits
+  recipes:
+  - DLShipAssemblyHardpointBallisticSuperlight
+  - DLShipAssemblyHardpointEnergySuperlight
+  - DLShipAssemblyHardpointMissileSuperlight
+  - DLShipAssemblyHardpointBallisticLight
+  - DLShipAssemblyHardpointEnergyLight
+  - DLShipAssemblyHardpointMissileLight
+  - DLShipAssemblyHardpointBallisticMedium
+  - DLShipAssemblyHardpointEnergyMedium
+  - DLShipAssemblyHardpointMissileMedium
+  - DLShipAssemblyHardpointBallisticHeavy
+  - DLShipAssemblyHardpointEnergyHeavy
+  - DLShipAssemblyHardpointMissileHeavy
+  - DLShipAssemblyHardpointBallisticSuperheavy
+  - DLShipAssemblyHardpointEnergySuperheavy
+  - DLShipAssemblyHardpointMissileSuperheavy
+  - DLShipAssemblyWeaponTurretFlare
+  - DLShipAssemblyWeaponTurretVanyk
+  - DLShipAssemblyWeaponTurretM25
+  - DLShipAssemblyWeaponTurretL85Autocannon
+  - DLShipAssemblyWeaponTurretAdderScattercannon
+  - DLShipAssemblyWeaponTurretType35
+  - DLShipAssemblyWeaponTurretAK570
+  - DLShipAssemblyWeaponTurretRAC30
+  - DLShipAssemblyWeaponTurretAC-35
+  - DLShipAssemblyWeaponTurretDravon
+  - DLShipAssemblyWeaponTurretVespera
+  - DLShipAssemblyWeaponTurretTarnyxReload
+  - DLShipAssemblyWeaponTurretType54
+  - DLShipAssemblyWeaponTurretSerpentMissile
+  - DLShipAssemblyWeaponTurretPaladin
+  - DLShipAssemblyWeaponTurretCerberus
+  - DLShipAssemblyWeaponTurretFang
+  - DLShipAssemblyWeaponTurretHydra
+  - DLShipAssemblyWeaponTurretDymere
+  - DLShipAssemblyWeaponTurretScylla

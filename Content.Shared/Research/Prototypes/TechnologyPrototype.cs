@@ -73,6 +73,12 @@ public sealed partial class TechnologyPrototype : IPrototype
     public List<ProtoId<LatheRecipePrototype>> RecipeUnlocks = new();
 
     /// <summary>
+    /// Whether technology disks can contain and grant recipes unlocked by this technology.
+    /// </summary>
+    [DataField]
+    public bool AllowRecipeDisks = true;
+
+    /// <summary>
     /// A list of non-standard effects that are done when this technology is unlocked.
     /// </summary>
     [DataField]

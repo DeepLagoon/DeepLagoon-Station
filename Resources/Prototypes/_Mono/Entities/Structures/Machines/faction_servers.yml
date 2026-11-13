@@ -24,6 +24,8 @@
     - Experimental
     - CivilianServices
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
   - type: ApcPowerReceiver
     powerLoad: 500
   - type: ExtensionCableReceiver
@@ -87,6 +89,8 @@
     - Experimental
     - CivilianServices
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
 
 - type: entity
   id: ResearchAndDevelopmentServerRogues
@@ -113,6 +117,8 @@
     - Experimental
     - CivilianServices
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
 
 - type: entity
   id: ResearchAndDevelopmentServerUssp
@@ -137,6 +143,8 @@
     - Experimental
     - CivilianServices
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
 
 - type: entity
   id: ResearchAndDevelopmentServerMMC
@@ -160,6 +168,8 @@
     - Experimental
     - CivilianServices
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
 
 - type: entity
   id: ResearchAndDevelopmentServerDebug
@@ -186,6 +196,8 @@
     - Mieyo
     - FactionUniversal
     - MechaEngineering
+    - DLShipArmament
+    - DLShipArmamentFaction
 
 - type: entity
   parent: ResearchAndDevelopmentServer
@@ -200,5 +212,15 @@
     - state: variant-merc
     - state: server_o
       map: ["enum.WiresVisualLayers.MaintenancePanel"]
+  - type: TechnologyDatabase
+    supportedDisciplines:
+    - Industrial
+    - Arsenal
+    - Experimental
+    - CivilianServices
+    - MechaEngineering
+    - FactionUniversal
+    - DLShipArmament
+    - DLShipArmamentFaction
   - type: StaticPrice
     price: 4000

@@ -18,7 +18,6 @@
   - MechEquipmentDrill # Goobstation
   - WeaponProtoKineticAccelerator
   - ShuttleGunKineticCircuitboard
-  - WeaponTurretM25Circuitboard # Mono
   # These are roundstart but not replenishable for salvage
   - WeaponCrusher
   - WeaponCrusherDagger

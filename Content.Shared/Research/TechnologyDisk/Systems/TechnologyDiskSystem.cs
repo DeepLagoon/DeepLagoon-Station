@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Lathe;
@@ -43,7 +44,7 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
         var techs = new HashSet<ProtoId<LatheRecipePrototype>>();
         foreach (var tech in _protoMan.EnumeratePrototypes<TechnologyPrototype>())
         {
-            if (tech.Tier != tier)
+            if (tech.Tier != tier || !tech.AllowRecipeDisks)
                 continue;
 
             techs.UnionWith(tech.RecipeUnlocks);
@@ -77,8 +78,16 @@ public sealed partial class TechnologyDiskSystem : EntitySystem
 
         if (ent.Comp.Recipes is { Count: > 0 } recipes)
         {
+            var restrictedRecipes = _protoMan.EnumeratePrototypes<TechnologyPrototype>()
+                .Where(tech => !tech.AllowRecipeDisks)
+                .SelectMany(tech => tech.RecipeUnlocks)
+                .ToHashSet();
+
             foreach (var recipe in recipes)
-                _research.AddLatheRecipe(target, recipe, database);
+            {
+                if (!restrictedRecipes.Contains(recipe))
+                    _research.AddLatheRecipe(target, recipe, database);
+            }
         }
         if (user is { } uid)
             _popup.PopupClient(Loc.GetString("tech-disk-inserted"), target, uid);

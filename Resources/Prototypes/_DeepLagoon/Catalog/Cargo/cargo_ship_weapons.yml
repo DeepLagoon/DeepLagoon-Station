@@ -1,0 +1,49 @@
+- type: cargoProduct
+  id: DLShipWeaponCharon
+  icon:
+    sprite: _Mono/Objects/ShuttleWeapons/charon.rsi
+    state: space_artillery
+  product: DLCargoShipWeaponKitCharon
+  cost: 2500000
+  category: cargoproduct-category-name-ship-weapons
+  group: market
+
+- type: cargoProduct
+  id: DLShipWeaponBofors
+  icon:
+    sprite: _Mono/Objects/ShuttleWeapons/bofors.rsi
+    state: space_artillery
+  product: DLCargoShipWeaponKitBofors
+  cost: 1750000
+  category: cargoproduct-category-name-ship-weapons
+  group: market
+
+- type: cargoProduct
+  id: DLShipWeaponLongbow
+  icon:
+    sprite: _Mono/Objects/ShuttleWeapons/longbow.rsi
+    state: space_artillery
+  product: DLCargoShipWeaponKitLongbow
+  cost: 1550000
+  category: cargoproduct-category-name-ship-weapons
+  group: market
+
+- type: cargoProduct
+  id: DLShipWeaponTovek
+  icon:
+    sprite: _Mono/Objects/ShuttleWeapons/tovek.rsi
+    state: space_artillery
+  product: DLCargoShipWeaponKitTovek
+  cost: 1430000
+  category: cargoproduct-category-name-ship-weapons
+  group: market
+
+- type: cargoProduct
+  id: DLShipWeaponCyrexa
+  icon:
+    sprite: _Mono/Objects/ShuttleWeapons/cyrexa.rsi
+    state: space_artillery
+  product: DLCargoShipWeaponKitCyrexa
+  cost: 1820000
+  category: cargoproduct-category-name-ship-weapons
+  group: market

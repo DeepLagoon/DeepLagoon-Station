@@ -1,0 +1,17 @@
+- type: entity
+  id: BaseShipAssemblyKit
+  parent: BaseItem
+  abstract: true
+  name: ship assembly kit
+  description: A set of industrial parts for installing ship equipment.
+  components:
+  - type: Item
+    size: Normal
+    sprite: Objects/Devices/flatpack.rsi
+  - type: Sprite
+    sprite: Objects/Devices/flatpack.rsi
+    layers:
+    - state: base
+    - state: overlay
+      color: "#8aabb0"
+    - state: icon-default
