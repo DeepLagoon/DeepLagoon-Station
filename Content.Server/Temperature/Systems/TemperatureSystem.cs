@@ -120,6 +120,7 @@ public sealed partial class TemperatureSystem : EntitySystem
             return;
 
         float lastTemp = temperature.CurrentTemperature;
+        temp = LimitTemperatureIncrease(uid, lastTemp, temp);
         float delta = temperature.CurrentTemperature - temp;
         temperature.CurrentTemperature = temp;
         RaiseLocalEvent(uid, new OnTemperatureChangeEvent(temperature.CurrentTemperature, lastTemp, delta),
@@ -144,10 +145,21 @@ public sealed partial class TemperatureSystem : EntitySystem
         }
 
         float lastTemp = temperature.CurrentTemperature;
-        temperature.CurrentTemperature += heatAmount / GetHeatCapacity(uid, temperature);
+        var newTemperature = lastTemp + heatAmount / GetHeatCapacity(uid, temperature);
+        temperature.CurrentTemperature = LimitTemperatureIncrease(uid, lastTemp, newTemperature);
         float delta = temperature.CurrentTemperature - lastTemp;
 
         RaiseLocalEvent(uid, new OnTemperatureChangeEvent(temperature.CurrentTemperature, lastTemp, delta), true);
+    }
+
+    private float LimitTemperatureIncrease(EntityUid uid, float current, float proposed)
+    {
+        if (proposed <= current)
+            return proposed;
+
+        var ev = new LimitTemperatureIncreaseEvent(proposed);
+        RaiseLocalEvent(uid, ref ev);
+        return ev.Temperature;
     }
 
     private void OnAtmosExposedUpdate(EntityUid uid, TemperatureComponent temperature,

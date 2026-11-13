@@ -28,6 +28,7 @@
   - AnomalyLocatorWide
   - HoloprojectorField
   - SignallerAdvanced
+  - DLHydrakinUniformCooling # DeepLagoon
   # - DeviceQuantumSpinInverter # Frontier
 
 - type: latheRecipePack

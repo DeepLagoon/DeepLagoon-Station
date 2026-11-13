@@ -1,0 +1,12 @@
+- type: technology
+  id: DLUniformCooling
+  name: research-technology-uniform-cooling
+  entityIcon: DLHydrakinUniformCooling
+  discipline: CivilianServices
+  tier: 1
+  cost: 8500
+  recipeUnlocks:
+  - DLHydrakinUniformCooling
+  technologyPrerequisites:
+  - BasicParts
+  position: 3, -4

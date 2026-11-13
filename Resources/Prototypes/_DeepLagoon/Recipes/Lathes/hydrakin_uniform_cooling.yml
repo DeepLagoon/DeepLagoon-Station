@@ -1,0 +1,10 @@
+- type: latheRecipe
+  id: DLHydrakinUniformCooling
+  result: DLHydrakinUniformCooling
+  categories:
+  - Tools
+  completetime: 5
+  materials:
+    Steel: 300
+    Plastic: 200
+    Glass: 100

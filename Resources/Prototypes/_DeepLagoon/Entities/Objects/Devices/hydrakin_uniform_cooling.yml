@@ -1,0 +1,27 @@
+- type: entity
+  id: DLHydrakinUniformCooling
+  parent: BaseItem
+  name: internal uniform cooling system
+  description: A thermostat that automatically cools hydrakins, synthetics and IPCs wearing the uniform. While powered, it protects synthetics and IPCs from overheating. Insert a power cell and use the module on a uniform to install it. A full charge lasts 20 minutes. Self-recharging cells can run it continuously. Remove the module via the uniform's context menu.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: abductor_mod
+  - type: Item
+    size: Small
+  - type: HydrakinUniformCooling
+  - type: PowerCellSlot
+    cellSlotId: cell_slot
+  - type: ContainerContainer
+    containers:
+      cell_slot: !type:ContainerSlot {}
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default
+        whitelist:
+          components:
+          - PowerCell
+        blacklist:
+          tags:
+          - PowerCage
