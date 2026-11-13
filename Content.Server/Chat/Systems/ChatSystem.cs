@@ -1282,6 +1282,7 @@ public sealed class EntitySpokeEvent : EntityEventArgs
     public readonly EntityUid Source;
     public readonly string Message;
     public readonly bool IsWhisper;
+    public readonly bool WasRadioSpeech;
     public readonly LanguagePrototype Language;
     internal bool SpeechBarks { get; init; }
 
@@ -1296,6 +1297,7 @@ public sealed class EntitySpokeEvent : EntityEventArgs
         Source = source;
         Message = message;
         Channel = channel;
+        WasRadioSpeech = channel != null;
         IsWhisper = isWhisper;
         Language = language;
     }

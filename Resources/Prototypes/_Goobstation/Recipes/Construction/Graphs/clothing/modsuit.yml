@@ -4,6 +4,8 @@
   graph:
   - node: start
     entity: ModsuitShell
+    actions:
+    - !type:AppearanceChange
     edges:
     - to: shell-core
       steps:
@@ -139,3 +141,14 @@
 
   - node: mercenary
     entity: ClothingModsuitMercenary
+  - node: civilian
+    entity: ClothingModsuitCivilian
+
+  - node: medical
+    entity: ClothingModsuitMedical
+
+  - node: mining
+    entity: ClothingModsuitMining
+
+  - node: cargo
+    entity: ClothingModsuitCargo

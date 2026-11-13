@@ -6,9 +6,9 @@
   abstract: true
   components:
   - type: Sprite
-    sprite: _Goobstation/Objects/Specific/Robotics/modsuit_parts.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/construction.rsi
   - type: Icon
-    sprite: _Goobstation/Objects/Specific/Robotics/modsuit_parts.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/construction.rsi
   - type: Item
     size: Normal
   - type: ContainerContainer
@@ -92,7 +92,9 @@
   components:
   - type: Appearance
   - type: Sprite
-    state: shell
+    layers:
+    - state: shell
+      map: [ "enum.ConstructionVisuals.Layer" ]
   - type: Icon
     state: shell
   - type: PhysicalComposition
@@ -114,6 +116,7 @@
     visuals:
       enum.ConstructionVisuals.Key:
         enum.ConstructionVisuals.Layer:
+          start: { state: shell }
           shell-core: { state: shell-core }
           shell-core-secured: { state: shell-core-secured }
           shell-helmet: { state: shell-helmet }
@@ -149,9 +152,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: rescue-plating
   - type: Icon
-    state: standard-plating
+    state: rescue-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -169,9 +172,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: engineering-plating
   - type: Icon
-    state: standard-plating
+    state: engineering-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -189,9 +192,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: security-plating
   - type: Icon
-    state: standard-plating
+    state: security-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -209,9 +212,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: safeguard-plating
   - type: Icon
-    state: standard-plating
+    state: safeguard-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -229,9 +232,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: magnate-plating
   - type: Icon
-    state: standard-plating
+    state: magnate-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -249,9 +252,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: research-plating
   - type: Icon
-    state: standard-plating
+    state: research-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -269,9 +272,9 @@
   description: A part used in MOD construction.
   components:
   - type: Sprite
-    state: standard-plating
+    state: atmospheric-plating
   - type: Icon
-    state: standard-plating
+    state: atmospheric-plating
   - type: PhysicalComposition
     materialComposition:
       Steel: 75
@@ -286,7 +289,7 @@
   id: ModsuitCoreStandard
   parent: PartModsuit
   name: MOD standard core
-  description: Growing in the most lush, fertile areas of the planet Sprout, there is a crystal known as the Heartbloom. These rare, organic piezoelectric crystals are of incredible cultural significance to the artist castes of the Ethereals, owing to their appearance; which is exactly similar to that of an Ethereal's heart. Which one you have in your suit is unclear, but either way, it's been repurposed to be an internal power source for a Modular Outerwear Device.
+  description: A replaceable regulator that routes battery power to the control unit and installed modules.
   components:
   - type: Sprite
     state: mod-core-standard

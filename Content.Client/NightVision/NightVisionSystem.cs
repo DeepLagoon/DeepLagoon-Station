@@ -15,6 +15,7 @@ public sealed partial class NightVisionSystem : SharedNightVisionSystem
     [Dependency] private IPlayerManager _player = default!;
 
     private NightVisionOverlay _overlay = default!;
+    private bool _needsRefresh;
 
     public override void Initialize()
     {
@@ -25,6 +26,7 @@ public sealed partial class NightVisionSystem : SharedNightVisionSystem
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttached);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
         SubscribeLocalEvent<NightVisionComponent, AfterAutoHandleStateEvent>(OnHandleState);
+        SubscribeLocalEvent<NightVisionComponent, ComponentShutdown>(OnShutdown);
         SubscribeNetworkEvent<RoundRestartCleanupEvent>(OnRoundRestart);
     }
 
@@ -40,7 +42,23 @@ public sealed partial class NightVisionSystem : SharedNightVisionSystem
 
     private void OnHandleState(Entity<NightVisionComponent> ent, ref AfterAutoHandleStateEvent args)
     {
-        RefreshOverlay(ent);
+        _needsRefresh = true;
+    }
+
+    private void OnShutdown(Entity<NightVisionComponent> ent, ref ComponentShutdown args)
+    {
+        _needsRefresh = true;
+    }
+
+    public override void Update(float frameTime)
+    {
+        if (!_needsRefresh)
+            return;
+
+        // Equipment and its components can arrive or be removed in the same game state.
+        _needsRefresh = false;
+        if (_player.LocalEntity is { } player)
+            RefreshOverlay(player);
     }
 
     private void OnRoundRestart(RoundRestartCleanupEvent args)

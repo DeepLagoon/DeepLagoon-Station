@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Sprites from MOLOT-BlueMoon-Station at 61c36414fe7, including BlueMoon and upstream /tg/station contributors. See ../module-sprite-sources.txt.",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "module",
+      "delays": [
+        [
+          0.3,
+          0.3,
+          0.3,
+          0.3
+        ]
+      ]
+    },
+    {
+      "name": "storage"
+    },
+    {
+      "name": "storage_large"
+    },
+    {
+      "name": "ore"
+    },
+    {
+      "name": "holster"
+    },
+    {
+      "name": "flashlight"
+    },
+    {
+      "name": "welding"
+    },
+    {
+      "name": "magnet"
+    },
+    {
+      "name": "noslip"
+    },
+    {
+      "name": "jetpack"
+    },
+    {
+      "name": "jetpack_advanced"
+    },
+    {
+      "name": "armor-bullet"
+    },
+    {
+      "name": "armor-laser"
+    },
+    {
+      "name": "armor-melee"
+    },
+    {
+      "name": "radshield"
+    },
+    {
+      "name": "armor-fire"
+    },
+    {
+      "name": "empshield"
+    },
+    {
+      "name": "regulator"
+    },
+    {
+      "name": "cloak"
+    },
+    {
+      "name": "medhud_visor"
+    },
+    {
+      "name": "sechud_visor"
+    },
+    {
+      "name": "diaghud_visor"
+    },
+    {
+      "name": "thermal_visor"
+    },
+    {
+      "name": "night_visor"
+    },
+    {
+      "name": "scanner"
+    },
+    {
+      "name": "gps"
+    },
+    {
+      "name": "tray"
+    },
+    {
+      "name": "health"
+    },
+    {
+      "name": "defibrillator"
+    },
+    {
+      "name": "injector"
+    },
+    {
+      "name": "drill"
+    },
+    {
+      "name": "tether"
+    },
+    {
+      "name": "constructor"
+    },
+    {
+      "name": "stamp"
+    },
+    {
+      "name": "mister"
+    },
+    {
+      "name": "bikehorn"
+    },
+    {
+      "name": "bad_energy_shield"
+    },
+    {
+      "name": "paper_maker"
+    },
+    {
+      "name": "organizer"
+    }
+  ]
+}

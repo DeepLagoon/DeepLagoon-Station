@@ -1,0 +1,1007 @@
+- type: entity
+  id: ModModuleBase
+  parent: BaseItem
+  name: MOD module
+  description: An interchangeable unit for the MOD control service bay.
+  abstract: true
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/modules.rsi
+    state: module
+  - type: Item
+    size: Small
+
+- type: entity
+  id: ModModuleStorage
+  parent: ModModuleBase
+  name: MOD storage module
+  description: Adds a small storage compartment to the suit.
+  components:
+  - type: Sprite
+    state: storage
+  - type: ModModule
+    mode: Storage
+    family: storage
+    complexity: 1
+    draw: 0
+    useCharge: 0
+  - type: Storage
+    grid:
+    - 0,0,3,2
+    maxItemSize: Normal
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+
+- type: entity
+  id: ModModuleStorageExtended
+  parent: ModModuleBase
+  name: MOD extended storage module
+  description: Adds a large compartment for equipment.
+  components:
+  - type: Sprite
+    state: storage_large
+  - type: ModModule
+    mode: Storage
+    family: storage
+    complexity: 3
+    draw: 0
+    useCharge: 0
+  - type: Storage
+    grid:
+    - 0,0,5,3
+    maxItemSize: Large
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+
+- type: entity
+  id: ModModuleOreBag
+  parent: ModModuleBase
+  name: MOD ore storage module
+  description: Adds a dedicated compartment for ores and artifact fragments.
+  components:
+  - type: Sprite
+    state: ore
+  - type: ModModule
+    mode: Storage
+    family: ore-storage
+    complexity: 1
+    draw: 0
+    useCharge: 0
+  - type: Storage
+    grid:
+    - 0,0,9,4
+    maxItemSize: Normal
+    whitelist:
+      tags:
+      - Ore
+      - ArtifactFragment
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+
+- type: entity
+  id: ModModuleHolster
+  parent: ModModuleBase
+  name: MOD holster module
+  description: A compartment for a sidearm.
+  components:
+  - type: Sprite
+    state: holster
+  - type: ModModule
+    mode: Storage
+    family: holster
+    complexity: 2
+    draw: 0
+    useCharge: 0
+  - type: Storage
+    grid:
+    - 0,0,2,1
+    maxItemSize: Normal
+    whitelist:
+      components:
+      - Gun
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+
+- type: entity
+  id: ModModuleOrganizer
+  parent: ModModuleBase
+  name: MOD medical organizer module
+  description: Adds a compartment for small medical supplies.
+  components:
+  - type: Sprite
+    state: organizer
+  - type: ModModule
+    mode: Storage
+    family: medical-organizer
+    complexity: 2
+    draw: 0
+    useCharge: 0
+  - type: Storage
+    grid:
+    - 0,0,4,2
+    maxItemSize: Small
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+
+- type: entity
+  id: ModModuleFlashlight
+  parent: ModModuleBase
+  name: MOD flashlight module
+  description: Illuminates the area around the wearer.
+  components:
+  - type: Sprite
+    state: flashlight
+  - type: ModModule
+    mode: Flashlight
+    family: light
+    complexity: 1
+    draw: 0.6
+    useCharge: 2
+
+- type: entity
+  id: ModModuleWelding
+  parent: ModModuleBase
+  name: MOD welding visor module
+  description: Protects the wearer against bright flashes.
+  components:
+  - type: Sprite
+    state: welding
+  - type: ModModule
+    mode: Toggle
+    family: welding
+    complexity: 1
+    draw: 0.1
+    useCharge: 2
+    slot: head
+    effects:
+    - type: FlashImmunity
+
+- type: entity
+  id: ModModuleNoSlip
+  parent: ModModuleBase
+  name: MOD anti-slip module
+  description: Keeps the wearer from slipping.
+  components:
+  - type: Sprite
+    state: noslip
+  - type: ModModule
+    mode: Passive
+    family: traction
+    complexity: 1
+    draw: 0.15
+    useCharge: 2
+    slot: shoes
+    effects:
+    - type: NoSlip
+
+- type: entity
+  id: ModModuleMagboots
+  parent: ModModuleBase
+  name: MOD magnetic boots module
+  description: Activates magnetic anchoring in the suit boots.
+  components:
+  - type: Sprite
+    state: magnet
+  - type: ModModule
+    mode: Magboots
+    family: traction
+    complexity: 2
+    draw: 0.5
+    useCharge: 2
+    slot: shoes
+
+- type: entity
+  id: ModModuleJetpack
+  parent: ModModuleBase
+  name: MOD jetpack module
+  description: Provides powered movement in zero gravity.
+  components:
+  - type: Sprite
+    state: jetpack
+  - type: ModModule
+    mode: Jetpack
+    family: jetpack
+    complexity: 3
+    draw: 2.5
+    useCharge: 5
+
+- type: entity
+  id: ModModuleJetpackAdvanced
+  parent: ModModuleBase
+  name: MOD advanced jetpack module
+  description: An efficient zero-gravity thruster.
+  components:
+  - type: Sprite
+    state: jetpack_advanced
+  - type: ModModule
+    mode: Jetpack
+    family: jetpack
+    complexity: 3
+    draw: 1.2
+    useCharge: 5
+
+- type: entity
+  id: ModModuleEmpShield
+  parent: ModModuleBase
+  name: MOD EMP shield module
+  description: Uses suit power to protect its installed cell against electromagnetic pulses.
+  components:
+  - type: Sprite
+    state: empshield
+  - type: ModModule
+    mode: Passive
+    family: emp-shield
+    complexity: 1
+    draw: 0.3
+    useCharge: 2
+    effects:
+    - type: ModEmpShield
+
+- type: entity
+  id: ModModuleRadiationShield
+  parent: ModModuleBase
+  name: MOD radiation shield module
+  description: Attenuates radiation while the suit is powered.
+  components:
+  - type: Sprite
+    state: radshield
+  - type: ModModule
+    mode: Passive
+    family: radiation
+    complexity: 2
+    draw: 0.6
+    useCharge: 2
+    damageCoefficients:
+      Radiation: 0.55
+
+- type: entity
+  id: ModModuleBallisticArmor
+  parent: ModModuleBase
+  name: MOD ballistic armor module
+  description: Reinforces the suit against piercing damage.
+  components:
+  - type: Sprite
+    state: armor-bullet
+  - type: ModModule
+    mode: Passive
+    family: armor
+    complexity: 2
+    draw: 0.4
+    useCharge: 2
+    damageCoefficients:
+      Piercing: 0.85
+
+- type: entity
+  id: ModModuleLaserArmor
+  parent: ModModuleBase
+  name: MOD laser armor module
+  description: Reinforces the suit against energy weapon burns.
+  components:
+  - type: Sprite
+    state: armor-laser
+  - type: ModModule
+    mode: Passive
+    family: armor
+    complexity: 2
+    draw: 0.4
+    useCharge: 2
+    damageCoefficients:
+      Heat: 0.8
+
+- type: entity
+  id: ModModuleMeleeArmor
+  parent: ModModuleBase
+  name: MOD melee armor module
+  description: Reinforces the suit against blunt and slashing damage.
+  components:
+  - type: Sprite
+    state: armor-melee
+  - type: ModModule
+    mode: Passive
+    family: armor
+    complexity: 2
+    draw: 0.4
+    useCharge: 2
+    damageCoefficients:
+      Blunt: 0.8
+      Slash: 0.85
+
+- type: entity
+  id: ModModuleFireArmor
+  parent: ModModuleBase
+  name: MOD heat armor module
+  description: Reinforces the suit against heat damage.
+  components:
+  - type: Sprite
+    state: armor-fire
+  - type: ModModule
+    mode: Passive
+    family: armor
+    complexity: 2
+    draw: 0.4
+    useCharge: 2
+    effects:
+    - type: FireProtection
+      reduction: 0.2
+
+- type: entity
+  id: ModModuleThermalRegulator
+  parent: ModModuleBase
+  name: MOD thermal regulator module
+  description: Gently restores the wearer’s normal body temperature.
+  components:
+  - type: Sprite
+    state: regulator
+  - type: ModModule
+    mode: ThermalRegulator
+    family: thermal-regulator
+    complexity: 1
+    draw: 0.65
+    useCharge: 2
+    slot: outerClothing
+
+- type: entity
+  id: ModModuleCloak
+  parent: ModModuleBase
+  name: MOD prototype cloaking module
+  description: Uses the suit battery to conceal its wearer.
+  components:
+  - type: Sprite
+    state: cloak
+  - type: ModModule
+    mode: Cloak
+    family: cloak
+    complexity: 4
+    draw: 2.5
+    useCharge: 10
+    useDelay: 5
+
+- type: entity
+  id: ModModuleMedicalHud
+  parent: ModModuleBase
+  name: MOD medical visor module
+  description: Overlays health and injury indicators in the helmet visor.
+  components:
+  - type: Sprite
+    state: medhud_visor
+  - type: ModModule
+    mode: Toggle
+    family: visor
+    complexity: 1
+    draw: 0.5
+    useCharge: 2
+    slot: head
+    effects:
+    - type: ShowHealthBars
+    - type: ShowHealthIcons
+
+- type: entity
+  id: ModModuleSecurityHud
+  parent: ModModuleBase
+  name: MOD security visor module
+  description: Displays occupations, mindshield implants and wanted statuses.
+  components:
+  - type: Sprite
+    state: sechud_visor
+  - type: ModModule
+    mode: Toggle
+    family: visor
+    complexity: 1
+    draw: 0.5
+    useCharge: 2
+    slot: head
+    effects:
+    - type: ShowJobIcons
+    - type: ShowMindShieldIcons
+    - type: ShowCriminalRecordIcons
+
+- type: entity
+  id: ModModuleDiagnosticHud
+  parent: ModModuleBase
+  name: MOD diagnostic visor module
+  description: Overlays the integrity of robots and machinery.
+  components:
+  - type: Sprite
+    state: diaghud_visor
+  - type: ModModule
+    mode: Toggle
+    family: visor
+    complexity: 1
+    draw: 0.5
+    useCharge: 2
+    slot: head
+    effects:
+    - type: ShowHealthBars
+      damageContainers:
+      - Inorganic
+      - Silicon
+
+- type: entity
+  id: ModModuleNightVision
+  parent: ModModuleBase
+  name: MOD night vision visor module
+  description: Enhances vision in darkness.
+  components:
+  - type: Sprite
+    state: night_visor
+  - type: ModModule
+    mode: Toggle
+    family: visor
+    complexity: 2
+    draw: 1
+    useCharge: 2
+    slot: head
+    effects:
+    - type: NightVision
+      enabled: true
+      relayOverlay: true
+
+- type: entity
+  id: ModModuleThermalVision
+  parent: ModModuleBase
+  name: MOD thermal visor module
+  description: Highlights heat signatures near the wearer.
+  components:
+  - type: Sprite
+    state: thermal_visor
+  - type: ModModule
+    mode: Toggle
+    family: visor
+    complexity: 3
+    draw: 1.75
+    useCharge: 2
+    slot: head
+    effects:
+    - type: ThermalVision
+      isActive: true
+      isEquipment: true
+      toggleAction: null
+
+- type: entity
+  id: ModModuleReagentScanner
+  parent: ModModuleBase
+  name: MOD reagent scanner module
+  description: Identifies the contents of nearby reagent containers on examination.
+  components:
+  - type: Sprite
+    state: scanner
+  - type: ModModule
+    mode: Toggle
+    family: reagent
+    complexity: 1
+    draw: 0.4
+    useCharge: 2
+    slot: head
+    effects:
+    - type: SolutionScanner
+
+- type: entity
+  id: ModModuleGps
+  parent: ModModuleBase
+  name: MOD GPS module
+  description: Deploys a retractable navigation receiver.
+  components:
+  - type: Sprite
+    state: gps
+  - type: ModModule
+    mode: Tool
+    family: gps
+    complexity: 1
+    draw: 0.45
+    useCharge: 2
+    tool: ModToolGps
+
+- type: entity
+  id: ModToolGps
+  parent: HandheldGPSBasic
+  name: MOD GPS
+  description: Deploys a retractable navigation receiver.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: gps
+    layers:
+    - state: gps
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: gps-inhand-left
+      right:
+      - state: gps-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleTrayScanner
+  parent: ModModuleBase
+  name: MOD T-ray scanner module
+  description: Deploys a T-ray scanner to reveal wiring and piping beneath flooring.
+  components:
+  - type: Sprite
+    state: tray
+  - type: ModModule
+    mode: Tool
+    family: trayscanner
+    complexity: 1
+    draw: 0.45
+    useCharge: 2
+    slot: gloves
+    tool: ModToolTrayScanner
+
+- type: entity
+  id: ModToolTrayScanner
+  parent: trayScanner
+  name: MOD T-ray scanner
+  description: Deploys a T-ray scanner to reveal wiring and piping beneath flooring.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: tray
+    layers:
+    - state: tray
+      map:
+      - base
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: tray-inhand-left
+      right:
+      - state: tray-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+  - type: GenericVisualizer
+    visuals:
+      enum.TrayScannerVisual.Visual:
+        base:
+          'On':
+            state: tray
+            color: '#a6ffff'
+          'Off':
+            state: tray
+            color: '#ffffff'
+
+- type: entity
+  id: ModModuleHealthAnalyzer
+  parent: ModModuleBase
+  name: MOD health analyzer module
+  description: Deploys a handheld scanner for checking a patient’s vital signs.
+  components:
+  - type: Sprite
+    state: health
+  - type: ModModule
+    mode: Tool
+    family: healthanalyzer
+    complexity: 1
+    draw: 0.45
+    useCharge: 2
+    slot: gloves
+    tool: ModToolHealthAnalyzer
+
+- type: entity
+  id: ModToolHealthAnalyzer
+  parent: HandheldHealthAnalyzerUnpowered
+  name: MOD health analyzer
+  description: Deploys a handheld scanner for checking a patient’s vital signs.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: health
+    layers:
+    - state: health
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: health-inhand-left
+      right:
+      - state: health-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleDefibrillator
+  parent: ModModuleBase
+  name: MOD defibrillator module
+  description: Deploys compact defibrillator paddles.
+  components:
+  - type: Sprite
+    state: defibrillator
+  - type: ModModule
+    mode: Tool
+    family: defibrillator
+    complexity: 2
+    draw: 2
+    useCharge: 75
+    slot: gloves
+    tool: ModToolDefibrillator
+
+- type: entity
+  id: ModToolDefibrillator
+  parent: DefibrillatorOneHandedUnpowered
+  name: MOD defibrillator
+  description: Deploys compact defibrillator paddles.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: defibrillator
+    layers:
+    - state: defibrillator
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: defibrillator-inhand-left
+      right:
+      - state: defibrillator-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleInjector
+  parent: ModModuleBase
+  name: MOD injector module
+  description: Deploys a refillable injector for administering reagents to patients.
+  components:
+  - type: Sprite
+    state: injector
+  - type: ModModule
+    mode: Tool
+    family: injector
+    complexity: 1
+    draw: 0.45
+    useCharge: 2
+    slot: gloves
+    tool: ModToolInjector
+
+- type: entity
+  id: ModToolInjector
+  parent: BorgHypo
+  name: MOD injector
+  description: Deploys a refillable injector for administering reagents to patients.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: injector
+    layers:
+    - state: injector
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: injector-inhand-left
+      right:
+      - state: injector-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+  - type: Hypospray
+    onlyAffectsMobs: true
+  - type: SolutionContainerManager
+    solutions:
+      hypospray:
+        maxVol: 30
+
+- type: entity
+  id: ModModuleDrill
+  parent: ModModuleBase
+  name: MOD mining drill module
+  description: Deploys a drill to cut into rocks.
+  components:
+  - type: Sprite
+    state: drill
+  - type: ModModule
+    mode: Tool
+    family: drill
+    complexity: 1
+    draw: 1.5
+    useCharge: 2
+    slot: gloves
+    tool: ModToolDrill
+
+- type: entity
+  id: ModToolDrill
+  parent: MiningDrill
+  name: MOD mining drill
+  description: Deploys a drill to cut into rocks.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: drill
+    layers:
+    - state: drill
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: drill-inhand-left
+      right:
+      - state: drill-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleTether
+  parent: ModModuleBase
+  name: MOD tether module
+  description: Deploys a grapple that can pull the wearer toward an attachment point.
+  components:
+  - type: Sprite
+    state: tether
+  - type: ModModule
+    mode: Tool
+    family: tether
+    complexity: 2
+    draw: 0.45
+    useCharge: 10
+    slot: gloves
+    tool: ModToolTether
+
+- type: entity
+  id: ModToolTether
+  parent: WeaponGrapplingGun
+  name: MOD tether
+  description: Deploys a grapple that can pull the wearer toward an attachment point.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: tether
+    layers:
+    - state: tether
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: tether-inhand-left
+      right:
+      - state: tether-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleConstructor
+  parent: ModModuleBase
+  name: MOD constructor module
+  description: Deploys an RCD that uses compressed matter.
+  components:
+  - type: Sprite
+    state: constructor
+  - type: ModModule
+    mode: Tool
+    family: constructor
+    complexity: 2
+    draw: 0.45
+    useCharge: 2
+    slot: gloves
+    tool: ModToolConstructor
+
+- type: entity
+  id: ModToolConstructor
+  parent: RCDEmpty
+  name: MOD constructor
+  description: Deploys an RCD that uses compressed matter.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: constructor
+    layers:
+    - state: constructor
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: constructor-inhand-left
+      right:
+      - state: constructor-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleStamp
+  parent: ModModuleBase
+  name: MOD approval stamp module
+  description: Deploys a stamp that marks paperwork as approved.
+  components:
+  - type: Sprite
+    state: stamp
+  - type: ModModule
+    mode: Tool
+    family: stamp
+    complexity: 1
+    draw: 0.2
+    useCharge: 2
+    slot: gloves
+    tool: ModToolStamp
+
+- type: entity
+  id: ModToolStamp
+  parent: RubberStampApproved
+  name: MOD approval stamp
+  description: Deploys a stamp that marks paperwork as approved.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: stamp
+    layers:
+    - state: stamp
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: stamp-inhand-left
+      right:
+      - state: stamp-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleCleaner
+  parent: ModModuleBase
+  name: MOD cleaning mister module
+  description: Deploys a refillable cleaning sprayer.
+  components:
+  - type: Sprite
+    state: mister
+  - type: ModModule
+    mode: Tool
+    family: cleaner
+    complexity: 2
+    draw: 0.6
+    useCharge: 2
+    slot: gloves
+    tool: ModToolCleaner
+
+- type: entity
+  id: ModToolCleaner
+  parent: SprayBottleSpaceCleaner
+  name: MOD cleaning mister
+  description: Deploys a refillable cleaning sprayer.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: mister
+    layers:
+    - state: mister
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: mister-inhand-left
+      right:
+      - state: mister-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleBikeHorn
+  parent: ModModuleBase
+  name: MOD bike horn module
+  description: Deploys a retractable bike horn.
+  components:
+  - type: Sprite
+    state: bikehorn
+  - type: ModModule
+    mode: Tool
+    family: bikehorn
+    complexity: 1
+    draw: 0.15
+    useCharge: 2
+    slot: gloves
+    tool: ModToolBikeHorn
+
+- type: entity
+  id: ModToolBikeHorn
+  parent: BikeHorn
+  name: MOD bike horn
+  description: Deploys a retractable bike horn.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    state: bikehorn
+    layers:
+    - state: bikehorn
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/module_tools.rsi
+    inhandVisuals:
+      left:
+      - state: bikehorn-inhand-left
+      right:
+      - state: bikehorn-inhand-right
+    heldPrefix: null
+  - type: StaticPrice
+    price: 0
+    vendPrice: 0
+
+- type: entity
+  id: ModModuleEnergyShield
+  parent: ModModuleBase
+  name: MOD energy shield module
+  description: Projects a rechargeable energy field around the wearer at a high battery cost.
+  components:
+  - type: Sprite
+    state: bad_energy_shield
+  - type: ModModule
+    mode: Toggle
+    family: energy-shield
+    complexity: 3
+    draw: 6
+    useCharge: 60
+    effects:
+    - type: PersonalShield
+      shield:
+        requiredSlot: BACK
+        maxCharge: 35
+        regenRate: 1.4
+        spinupTime: 3
+        breakCooldown: 25
+        powerDraw: 0
+    useDelay: 25
+
+- type: entity
+  id: ModModulePaperDispenser
+  parent: ModModuleBase
+  name: MOD paper dispenser module
+  description: Prints a blank sheet of paper.
+  components:
+  - type: Sprite
+    state: paper_maker
+  - type: ModModule
+    mode: Dispense
+    family: paper
+    complexity: 1
+    draw: 0
+    useCharge: 30
+    useDelay: 6
+    dispense: Paper

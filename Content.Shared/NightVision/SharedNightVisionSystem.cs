@@ -55,7 +55,7 @@ public abstract partial class SharedNightVisionSystem : EntitySystem
             return;
 
         ent.Comp.Enabled = false; // mono
-        RefreshOverlay(ent);
+        RefreshOverlay(args.Equipee);
     }
     protected virtual void OnRefreshEquipmentHud(Entity<NightVisionComponent> ent, ref InventoryRelayedEvent<RefreshNightVisionEvent> args)
     {

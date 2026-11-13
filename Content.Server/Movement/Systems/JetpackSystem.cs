@@ -1,3 +1,4 @@
+using Content.Server._DeepLagoon.Modsuits;
 using Content.Server.Atmos.Components;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server._Mono.Radar;
@@ -27,8 +28,9 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
     protected override bool CanEnable(EntityUid uid, EntityUid user, JetpackComponent component)
     {
         return base.CanEnable(uid, user, component) &&
-               TryComp<GasTankComponent>(uid, out var gasTank) &&
-               gasTank.Air is { } air && air.TotalMoles > 0 && air.TotalMoles >= component.MoleUsage;
+               (HasComp<ModPoweredJetpackComponent>(uid) ||
+                TryComp<GasTankComponent>(uid, out var gasTank) &&
+                gasTank.Air is { } air && air.TotalMoles > 0 && air.TotalMoles >= component.MoleUsage);
     }
 
     /// <summary>

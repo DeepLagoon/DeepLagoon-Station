@@ -1,0 +1,8 @@
+- type: alert
+  id: ModLinkIncomingCall
+  icons:
+  - sprite: /Textures/_DeepLagoon/Modsuits/modlink_alert.rsi
+    state: called
+  clickEvent: !type:ModLinkIncomingCallEvent
+  name: mod-link-alert-name
+  description: mod-link-alert-description

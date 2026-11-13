@@ -1,0 +1,61 @@
+- type: entity
+  id: ModLinkTerminal
+  parent:
+  - ClothingNeckBase
+  - PowerCellSlotSmallItem
+  name: MODlink scryer
+  description: A wearable holographic terminal that calls powered MODlink devices on its frequency.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/modlink.rsi
+    state: icon
+  - type: Clothing
+    sprite: _DeepLagoon/Modsuits/modlink_worn.rsi
+  - type: Item
+    sprite: _DeepLagoon/Modsuits/modlink.rsi
+  - type: Appearance
+  - type: ModLinkTerminalVisuals
+  - type: ModLink
+    slot: neck
+  - type: UserInterface
+    interfaces:
+      enum.ModUiKey.Key:
+        type: ModBoundUserInterface
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default
+        startingItem: PowerCellSmall
+        whitelist:
+          components:
+          - PowerCell
+
+- type: entity
+  id: ModLinkHologram
+  name: MODlink hologram
+  description: A holographic projection transmitted by MODlink.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Modsuits/modlink_effect.rsi
+    noRot: true
+    drawdepth: Effects
+    layers:
+    - state: static_base
+      shader: unshaded
+    - state: modlink
+      shader: unshaded
+
+- type: entity
+  id: ActionModControl
+  name: MOD control
+  description: Open the control window for suit modules and MODlink.
+  categories:
+  - HideSpawnMenu
+  components:
+  - type: InstantAction
+    icon:
+      sprite: _DeepLagoon/Modsuits/modlink.rsi
+      state: icon
+    event: !type:OpenModControlEvent

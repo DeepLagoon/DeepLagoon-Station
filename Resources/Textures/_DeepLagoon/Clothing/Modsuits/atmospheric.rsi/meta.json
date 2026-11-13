@@ -1,0 +1,113 @@
+{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "MOD control, equipment, and worn artwork from MOLOT-BlueMoon-Station, BYOND DMI states converted to RSI: https://github.com/iamasay/MOLOT-BlueMoon-Station/tree/61c36414fe7/modular_bluemoon/icons",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "control"
+        },
+        {
+            "name": "equipped-BACKPACK",
+            "directions": 4
+        },
+        {
+            "name": "control-sealed",
+            "delays": [
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ]
+            ]
+        },
+        {
+            "name": "equipped-BACKPACK-sealed",
+            "directions": 4
+        },
+        {
+            "name": "helmet"
+        },
+        {
+            "name": "equipped-HEAD",
+            "directions": 4
+        },
+        {
+            "name": "equipped-HEAD-anthro",
+            "directions": 4
+        },
+        {
+            "name": "helmet-sealed"
+        },
+        {
+            "name": "equipped-HEAD-sealed",
+            "directions": 4
+        },
+        {
+            "name": "equipped-HEAD-sealed-anthro",
+            "directions": 4
+        },
+        {
+            "name": "gauntlets"
+        },
+        {
+            "name": "equipped-HAND",
+            "directions": 4
+        },
+        {
+            "name": "gauntlets-sealed"
+        },
+        {
+            "name": "equipped-HAND-sealed",
+            "directions": 4
+        },
+        {
+            "name": "chestplate"
+        },
+        {
+            "name": "equipped-OUTERCLOTHING",
+            "directions": 4
+        },
+        {
+            "name": "equipped-OUTERCLOTHING-anthro",
+            "directions": 4
+        },
+        {
+            "name": "chestplate-sealed"
+        },
+        {
+            "name": "equipped-OUTERCLOTHING-sealed",
+            "directions": 4
+        },
+        {
+            "name": "equipped-OUTERCLOTHING-sealed-anthro",
+            "directions": 4
+        },
+        {
+            "name": "boots"
+        },
+        {
+            "name": "equipped-FEET",
+            "directions": 4
+        },
+        {
+            "name": "equipped-FEET-anthro",
+            "directions": 4
+        },
+        {
+            "name": "boots-sealed"
+        },
+        {
+            "name": "equipped-FEET-sealed",
+            "directions": 4
+        },
+        {
+            "name": "equipped-FEET-sealed-anthro",
+            "directions": 4
+        }
+    ]
+}

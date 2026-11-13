@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Sprites from MOLOT-BlueMoon-Station at 61c36414fe7, including BlueMoon and upstream /tg/station contributors. See ../module-sprite-sources.txt.",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "gps"
+    },
+    {
+      "name": "gps-inhand-left"
+    },
+    {
+      "name": "gps-inhand-right"
+    },
+    {
+      "name": "tray"
+    },
+    {
+      "name": "tray-inhand-left"
+    },
+    {
+      "name": "tray-inhand-right"
+    },
+    {
+      "name": "health"
+    },
+    {
+      "name": "health-inhand-left"
+    },
+    {
+      "name": "health-inhand-right"
+    },
+    {
+      "name": "defibrillator"
+    },
+    {
+      "name": "defibrillator-inhand-left"
+    },
+    {
+      "name": "defibrillator-inhand-right"
+    },
+    {
+      "name": "injector"
+    },
+    {
+      "name": "injector-inhand-left"
+    },
+    {
+      "name": "injector-inhand-right"
+    },
+    {
+      "name": "drill"
+    },
+    {
+      "name": "drill-inhand-left"
+    },
+    {
+      "name": "drill-inhand-right"
+    },
+    {
+      "name": "tether"
+    },
+    {
+      "name": "tether-inhand-left"
+    },
+    {
+      "name": "tether-inhand-right"
+    },
+    {
+      "name": "constructor"
+    },
+    {
+      "name": "constructor-inhand-left"
+    },
+    {
+      "name": "constructor-inhand-right"
+    },
+    {
+      "name": "stamp"
+    },
+    {
+      "name": "stamp-inhand-left"
+    },
+    {
+      "name": "stamp-inhand-right"
+    },
+    {
+      "name": "mister"
+    },
+    {
+      "name": "mister-inhand-left"
+    },
+    {
+      "name": "mister-inhand-right"
+    },
+    {
+      "name": "bikehorn"
+    },
+    {
+      "name": "bikehorn-inhand-left"
+    },
+    {
+      "name": "bikehorn-inhand-right"
+    }
+  ]
+}

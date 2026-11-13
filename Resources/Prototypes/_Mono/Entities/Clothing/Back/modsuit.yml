@@ -1,5 +1,5 @@
 - type: entity
-  parent: ClothingModsuitBase
+  parent: ClothingModsuitLegacyStorageBase
   id: ClothingModsuitUSSPVaryag
   name: USSP Varyag Modsuit Core
   description: The power and life-support core of the Varyag modsuit.
@@ -26,9 +26,15 @@
         whitelist:
           components:
             - PowerCell
+      core-container:
+        name: mod-core-slot-name
+        startingItem: ModsuitCoreStandard
+        whitelist:
+          tags:
+          - ModsuitCore
 
 - type: entity
-  parent: ClothingModsuitBase
+  parent: ClothingModsuitLegacyStorageBase
   id: ClothingModsuitUSSPZastavnik
   name: USSP Zastavnik Modsuit Core
   description: The sealed backpack unit powering the Zastavnik suit’s life support and locking mechanisms.
@@ -55,9 +61,15 @@
         whitelist:
           components:
             - PowerCell
+      core-container:
+        name: mod-core-slot-name
+        startingItem: ModsuitCoreStandard
+        whitelist:
+          tags:
+          - ModsuitCore
 
 - type: entity
-  parent: ClothingModsuitBase
+  parent: ClothingModsuitLegacyStorageBase
   id: ClothingModsuitRogue
   name: RX-01 hardsuit control unit
   description: Core control unit for the RX-01. Survives power spikes, hull breaches, and black market ingenuity. Somehow. Also has built in experimental voidboots.
@@ -94,10 +106,16 @@
         whitelist:
           components:
             - PowerCell
+      core-container:
+        name: mod-core-slot-name
+        startingItem: ModsuitCoreStandard
+        whitelist:
+          tags:
+          - ModsuitCore
 
 # Volta
 - type: entity
-  parent: ClothingModsuitBase
+  parent: ClothingModsuitLegacyStorageBase
   id: ClothingModsuitVolta
   name: TSF Volta Experimental Modsuit
   description: A modified sidegrade of the sapper modsuit model for TSFMC, featuring improved ballistic plates and explosion deflecting systems.
@@ -138,11 +156,17 @@
         whitelist:
           components:
             - PowerCell
+      core-container:
+        name: mod-core-slot-name
+        startingItem: ModsuitCoreStandard
+        whitelist:
+          tags:
+          - ModsuitCore
 
 # Gallóglach
 
 - type: entity
-  parent: ClothingModsuitBase
+  parent: ClothingModsuitLegacyStorageBase
   id: ClothingModsuitMercenary
   name: mercenary gallóglach hardsuit control unit
   description: A modular hardsuit control module unit equipped with enhanced actuators in the legs to allow for rapid assault or retreat actions.
@@ -183,3 +207,9 @@
         whitelist:
           components:
             - PowerCell
+      core-container:
+        name: mod-core-slot-name
+        startingItem: ModsuitCoreStandard
+        whitelist:
+          tags:
+          - ModsuitCore

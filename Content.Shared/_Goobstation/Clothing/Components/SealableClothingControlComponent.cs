@@ -35,6 +35,9 @@ public sealed partial class SealableClothingControlComponent : Component
     [DataField, AutoNetworkedField]
     public bool IsInProcess = false;
 
+    [AutoNetworkedField]
+    public ushort? ActiveSealStep;
+
     /// <summary>
     ///     True if clothing is currently sealed and need to start unsealing process. False if opposite.
     /// </summary>

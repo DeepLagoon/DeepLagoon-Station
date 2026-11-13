@@ -8,6 +8,7 @@
     - category: Stamina
     - alertType: SuitPower
     - alertType: ModsuitPower # Goobstation - Modsuits
+    - alertType: ModLinkIncomingCall
     - category: Internals
     - alertType: Fire
     - alertType: Handcuffed

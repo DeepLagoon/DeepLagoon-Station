@@ -1,0 +1,428 @@
+- type: latheRecipe
+  id: ModModuleStorage
+  result: ModModuleStorage
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleStorageExtended
+  result: ModModuleStorageExtended
+  completetime: 3
+  materials:
+    Steel: 500
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleOreBag
+  result: ModModuleOreBag
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleHolster
+  result: ModModuleHolster
+  completetime: 3
+  materials:
+    Steel: 400
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleOrganizer
+  result: ModModuleOrganizer
+  completetime: 3
+  materials:
+    Steel: 400
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleFlashlight
+  result: ModModuleFlashlight
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleWelding
+  result: ModModuleWelding
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleNoSlip
+  result: ModModuleNoSlip
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleMagboots
+  result: ModModuleMagboots
+  completetime: 3
+  materials:
+    Steel: 400
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleJetpack
+  result: ModModuleJetpack
+  completetime: 3
+  materials:
+    Steel: 500
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleJetpackAdvanced
+  result: ModModuleJetpackAdvanced
+  completetime: 3
+  materials:
+    Steel: 500
+    Plasma: 450
+    Gold: 200
+
+- type: latheRecipe
+  id: ModModuleEmpShield
+  result: ModModuleEmpShield
+  completetime: 3
+  materials:
+    Steel: 350
+    Gold: 250
+
+- type: latheRecipe
+  id: ModModuleRadiationShield
+  result: ModModuleRadiationShield
+  completetime: 3
+  materials:
+    Steel: 400
+    Plasma: 200
+
+- type: latheRecipe
+  id: ModModuleBallisticArmor
+  result: ModModuleBallisticArmor
+  completetime: 3
+  materials:
+    Plasteel: 400
+    Steel: 250
+
+- type: latheRecipe
+  id: ModModuleLaserArmor
+  result: ModModuleLaserArmor
+  completetime: 3
+  materials:
+    Plasteel: 350
+    Glass: 250
+    Gold: 150
+
+- type: latheRecipe
+  id: ModModuleMeleeArmor
+  result: ModModuleMeleeArmor
+  completetime: 3
+  materials:
+    Plasteel: 400
+    Steel: 250
+
+- type: latheRecipe
+  id: ModModuleFireArmor
+  result: ModModuleFireArmor
+  completetime: 3
+  materials:
+    Plasteel: 300
+    Plasma: 150
+
+- type: latheRecipe
+  id: ModModuleThermalRegulator
+  result: ModModuleThermalRegulator
+  completetime: 3
+  materials:
+    Steel: 250
+    Glass: 300
+    Plasma: 150
+
+- type: latheRecipe
+  id: ModModuleCloak
+  result: ModModuleCloak
+  completetime: 3
+  materials:
+    Plasteel: 400
+    Plasma: 400
+    Gold: 250
+
+- type: latheRecipe
+  id: ModModuleMedicalHud
+  result: ModModuleMedicalHud
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleSecurityHud
+  result: ModModuleSecurityHud
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleDiagnosticHud
+  result: ModModuleDiagnosticHud
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleNightVision
+  result: ModModuleNightVision
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 300
+    Plasma: 200
+
+- type: latheRecipe
+  id: ModModuleThermalVision
+  result: ModModuleThermalVision
+  completetime: 3
+  materials:
+    Steel: 350
+    Glass: 350
+    Plasma: 350
+
+- type: latheRecipe
+  id: ModModuleReagentScanner
+  result: ModModuleReagentScanner
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleGps
+  result: ModModuleGps
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleTrayScanner
+  result: ModModuleTrayScanner
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleHealthAnalyzer
+  result: ModModuleHealthAnalyzer
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleDefibrillator
+  result: ModModuleDefibrillator
+  completetime: 3
+  materials:
+    Steel: 350
+    Glass: 250
+    Silver: 250
+
+- type: latheRecipe
+  id: ModModuleInjector
+  result: ModModuleInjector
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleDrill
+  result: ModModuleDrill
+  completetime: 3
+  materials:
+    Steel: 400
+    Plasteel: 200
+
+- type: latheRecipe
+  id: ModModuleTether
+  result: ModModuleTether
+  completetime: 3
+  materials:
+    Steel: 500
+    Plasteel: 200
+
+- type: latheRecipe
+  id: ModModuleConstructor
+  result: ModModuleConstructor
+  completetime: 3
+  materials:
+    Steel: 600
+    Glass: 200
+    Plasma: 200
+
+- type: latheRecipe
+  id: ModModuleStamp
+  result: ModModuleStamp
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleCleaner
+  result: ModModuleCleaner
+  completetime: 3
+  materials:
+    Steel: 400
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleBikeHorn
+  result: ModModuleBikeHorn
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModModuleEnergyShield
+  result: ModModuleEnergyShield
+  completetime: 3
+  materials:
+    Plasteel: 400
+    Plasma: 350
+    Gold: 200
+
+- type: latheRecipe
+  id: ModModulePaperDispenser
+  result: ModModulePaperDispenser
+  completetime: 3
+  materials:
+    Steel: 300
+    Glass: 150
+
+- type: latheRecipe
+  id: ModLinkTerminal
+  result: ModLinkTerminal
+  completetime: 2
+  materials:
+    Steel: 250
+    Glass: 250
+
+- type: latheRecipe
+  id: ModControlStandard
+  result: ClothingModsuitStandard
+  completetime: 15
+  materials:
+    Steel: 1200
+    Glass: 350
+    Plasma: 300
+
+- type: latheRecipe
+  id: ModControlCivilian
+  result: ClothingModsuitCivilian
+  completetime: 15
+  materials:
+    Steel: 1200
+    Glass: 350
+    Plasma: 300
+
+- type: latheRecipe
+  id: ModControlCargo
+  result: ClothingModsuitCargo
+  completetime: 15
+  materials:
+    Steel: 1450
+    Glass: 450
+    Plasma: 400
+
+- type: latheRecipe
+  id: ModControlEngineer
+  result: ClothingModsuitEngineer
+  completetime: 15
+  materials:
+    Steel: 1700
+    Glass: 450
+    Plasma: 550
+
+- type: latheRecipe
+  id: ModControlAtmostech
+  result: ClothingModsuitAtmostech
+  completetime: 15
+  materials:
+    Steel: 1800
+    Glass: 450
+    Plasma: 650
+
+- type: latheRecipe
+  id: ModControlMining
+  result: ClothingModsuitMining
+  completetime: 15
+  materials:
+    Steel: 1700
+    Glass: 450
+    Plasma: 500
+
+- type: latheRecipe
+  id: ModControlMedical
+  result: ClothingModsuitMedical
+  completetime: 15
+  materials:
+    Steel: 1550
+    Glass: 450
+    Plasma: 500
+
+- type: latheRecipe
+  id: ModControlParamedic
+  result: ClothingModsuitParamedic
+  completetime: 15
+  materials:
+    Steel: 1700
+    Glass: 500
+    Plasma: 550
+
+- type: latheRecipe
+  id: ModControlSecurity
+  result: ClothingModsuitSecurity
+  completetime: 15
+  materials:
+    Steel: 1900
+    Glass: 500
+    Plasma: 600
+
+- type: latheRecipe
+  id: ModControlResearchDirector
+  result: ClothingModsuitResearchDirector
+  completetime: 15
+  materials:
+    Steel: 2100
+    Glass: 600
+    Plasma: 750
+
+- type: latheRecipe
+  id: ModControlHeadOfSecurity
+  result: ClothingModsuitHeadOfSecurity
+  completetime: 15
+  materials:
+    Steel: 2800
+    Glass: 800
+    Plasma: 950
+
+- type: latheRecipe
+  id: ModControlCaptain
+  result: ClothingModsuitCaptain
+  completetime: 15
+  materials:
+    Steel: 3000
+    Glass: 900
+    Plasma: 1100

@@ -1,0 +1,21 @@
+The MOD module and MODlink sprites in this directory are licensed CC BY-SA 3.0.
+License: https://creativecommons.org/licenses/by-sa/3.0/
+Source: https://github.com/iamasay/MOLOT-BlueMoon-Station/tree/61c36414fe7
+Source license notice: .github/CONTRIBUTING.md in that revision.
+
+Source artwork is by the MODsuit sprite contributors of /tg/station, BlueMoon
+Station and MOLOT-BlueMoon-Station. The source history includes iamasay,
+Jerry Wester, KrissKr0ss, and Vlad0s.
+
+modules.rsi, module_tools.rsi:
+  icons/obj/clothing/modsuit/mod_modules.dmi
+  icons/obj/clothing/modsuit/mod_modules_whitemoon.dmi
+modlink.rsi: icons/obj/clothing/modsuit/modlink.dmi
+modlink_worn.rsi: icons/mob/clothing/modsuit/modlink.dmi
+modlink_alert.rsi: icons/mob/modlink_alert.dmi
+modlink_effect.rsi: icons/effects/modlink.dmi
+
+Changes: exported selected original DMI frames to PNG strips, preserved frame
+timings and direction order, and renamed states for the RSI format. The port
+reuses the original module frame for a deployed tool's hand layer where the
+source contains no separate hand sprite.

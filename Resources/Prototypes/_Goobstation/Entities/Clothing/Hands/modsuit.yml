@@ -43,6 +43,29 @@
   name: standard modsuit gauntlets
   description: Special modular suit gloves that protect wearer from electric shock.
   categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND-sealed
+      gloves-vox:
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -52,9 +75,10 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/security.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
     layers:
     - state: gauntlets
+      map: [ "unsealed" ]
     - state: gauntlets-sealed
       visible: false
       map: [ "sealed" ]
@@ -62,6 +86,12 @@
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ gloves ]
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: DamageOnInteractProtection
     damageProtection:
       flatReductions:
@@ -93,12 +123,12 @@
     sealUpPopup: sealable-clothing-seal-up-gauntlets
     sealDownPopup: sealable-clothing-seal-down-gauntlets
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -108,7 +138,13 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/paramedic.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: MeleeWeapon # Mono edit
     canWideSwing: false
     autoAttack: true
@@ -118,12 +154,19 @@
         Burn: -4
         Brute: -3
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -133,11 +176,23 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/headofsecurity.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ gloves ]
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: DamageOnInteractProtection
     damageProtection:
       flatReductions:
@@ -169,12 +224,12 @@
     sealUpPopup: sealable-clothing-seal-up-gauntlets
     sealDownPopup: sealable-clothing-seal-down-gauntlets
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -184,15 +239,27 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/engineer.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -202,15 +269,27 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/atmostech.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -220,15 +299,27 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/researchdirector.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed
 
 - type: entity
   parent: ClothingModsuitGauntletsBase
@@ -238,17 +329,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Hands/Modsuits/captain.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
     clothingVisuals:
-        hands:
-        - state: equipped-HAND
-        hands-vox:
-        - state: equipped-HAND-vox
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       gloves:
       - state: equipped-HAND-sealed
       gloves-vox:
-      - state: equipped-HAND-sealed-vox
+      - state: equipped-HAND-sealed

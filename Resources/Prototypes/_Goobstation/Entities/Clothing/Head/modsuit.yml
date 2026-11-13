@@ -96,14 +96,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/standard.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       head:
       - state: equipped-HEAD-sealed
       head-vox:
-      - state: equipped-HEAD-sealed-vox
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
   - type: Armor
     modifiers:
       coefficients:
@@ -112,38 +122,17 @@
         Piercing: 0.95
         Heat: 0.90
         Radiation: 0.75
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 3
-    energy: 2
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -153,20 +142,35 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
     clothingVisuals:
       head:
       - state: equipped-HEAD
       head-vox:
-      - state: equipped-HEAD-vox
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/security.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       head:
       - state: equipped-HEAD-sealed
       head-vox:
-      - state: equipped-HEAD-sealed-vox
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
   - type: Armor
     modifiers:
       coefficients:
@@ -175,38 +179,6 @@
         Piercing: 0.85
         Heat: 0.90
         Radiation: 0.75
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -216,20 +188,35 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
     clothingVisuals:
       head:
       - state: equipped-HEAD
       head-vox:
-      - state: equipped-HEAD-vox
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/headofsecurity.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       head:
       - state: equipped-HEAD-sealed
       head-vox:
-      - state: equipped-HEAD-sealed-vox
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
   - type: Armor
     modifiers:
       coefficients:
@@ -238,38 +225,6 @@
         Piercing: 0.85
         Heat: 0.90
         Radiation: 0.75
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
 
 - type: entity
   parent: BaseClothingModsuitHelmetHideIdentity
@@ -279,7 +234,13 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/paramedic.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Armor
     modifiers:
       coefficients:
@@ -288,38 +249,28 @@
         Piercing: 0.90
         Heat: 0.90
         Radiation: 0.75
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -329,7 +280,13 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/engineer.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Armor
     modifiers:
       coefficients:
@@ -338,38 +295,28 @@
         Piercing: 0.90
         Heat: 0.90
         Radiation: 0.5
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -379,20 +326,35 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/atmostech.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
     clothingVisuals:
       head:
       - state: equipped-HEAD
       head-vox:
-      - state: equipped-HEAD-vox
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       head:
       - state: equipped-HEAD-sealed
       head-vox:
-      - state: equipped-HEAD-sealed-vox
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
   - type: Armor
     modifiers:
       coefficients:
@@ -401,38 +363,6 @@
         Piercing: 0.90
         Heat: 0.8
         Radiation: 0.5
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -442,7 +372,13 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/researchdirector.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: Armor
     modifiers:
       coefficients:
@@ -451,38 +387,28 @@
         Piercing: 0.90
         Heat: 0.90
         Radiation: 0.5
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
 
 - type: entity
   parent: BaseClothingModsuitHelmet
@@ -492,22 +418,35 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
     clothingVisuals:
       head:
       - state: equipped-HEAD
       head-vox:
-      - state: equipped-HEAD-vox
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
   - type: Sprite
-    sprite: _Goobstation/Clothing/Head/Modsuits/captain.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       head:
       - state: equipped-HEAD-sealed
       head-vox:
-      - state: equipped-HEAD-sealed-vox
+      - state: equipped-HEAD-sealed-anthro
       head-vulpkanin:
-      - state: equipped-HEAD-sealed-vulpkanin
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
   - type: Armor
     modifiers:
       coefficients:
@@ -516,35 +455,3 @@
         Piercing: 0.85
         Heat: 0.8
         Radiation: 0.5
-  #THIS WILL BE REPLACED WITH MODULE ↓↓
-  - type: ToggleableVisuals
-    spriteLayer: light
-  - type: PointLight
-    enabled: false
-    radius: 5
-    energy: 3
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    netsync: false
-  - type: HandheldLight
-    addPrefix: true
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-  - type: ItemTogglePointLight
-  - type: LightBehaviour
-    behaviours:
-      - !type:FadeBehaviour
-        id: radiating
-        interpolate: Linear
-        maxDuration: 2.0
-        startValue: 3.0
-        endValue: 2.0
-        isLooped: true
-        reverseWhenFinished: true
-      - !type:PulseBehaviour
-        id: blinking
-        interpolate: Nearest
-        maxDuration: 1.0
-        minValue: 0.1
-        maxValue: 2.0
-        isLooped: true

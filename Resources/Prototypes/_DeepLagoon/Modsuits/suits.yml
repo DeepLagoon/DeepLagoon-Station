@@ -1,0 +1,730 @@
+- type: entity
+  parent: ClothingModsuitStandard
+  id: ClothingModsuitCivilian
+  name: civilian MODsuit control unit
+  description: A general-purpose modular pressure suit.
+  components:
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: ClothingModsuitHelmetCivilian
+      gloves: ClothingModsuitGauntletsCivilian
+      outerClothing: ClothingModsuitChestplateCivilian
+      shoes: ClothingModsuitBootsCivilian
+  - type: Construction
+    graph: Modsuit
+    node: civilian
+  - type: ModControl
+    capacity: 15
+    startingModules:
+    - ModModuleStorage
+    - ModModuleWelding
+    - ModModuleFlashlight
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    layers:
+    - state: control
+      map: [ "unsealed" ]
+    - state: control-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK
+      back-resomi:
+      - state: equipped-BACKPACK
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK-sealed
+      back-resomi:
+      - state: equipped-BACKPACK-sealed
+
+- type: entity
+  parent: ClothingModsuitHelmetStandard
+  id: ClothingModsuitHelmetCivilian
+  name: civilian MODsuit helmet
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitGauntletsStandard
+  id: ClothingModsuitGauntletsCivilian
+  name: civilian MODsuit gauntlets
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND-sealed
+      gloves-vox:
+      - state: equipped-HAND-sealed
+
+- type: entity
+  parent: ClothingModsuitChestplateStandard
+  id: ClothingModsuitChestplateCivilian
+  name: civilian MODsuit chestplate
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    layers:
+    - state: chestplate
+      map: [ "unsealed" ]
+    - state: chestplate-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING-sealed
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitBootsStandard
+  id: ClothingModsuitBootsCivilian
+  name: civilian MODsuit boots
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/civilian.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET-sealed
+      shoes-vox:
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitParamedic
+  id: ClothingModsuitMedical
+  name: medical MODsuit control unit
+  description: A modular pressure suit outfitted for medical work.
+  components:
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: ClothingModsuitHelmetMedical
+      gloves: ClothingModsuitGauntletsMedical
+      outerClothing: ClothingModsuitChestplateMedical
+      shoes: ClothingModsuitBootsMedical
+  - type: Construction
+    graph: Modsuit
+    node: medical
+  - type: ModControl
+    capacity: 15
+    startingModules:
+    - ModModuleStorage
+    - ModModuleFlashlight
+    - ModModuleHealthAnalyzer
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    layers:
+    - state: control
+      map: [ "unsealed" ]
+    - state: control-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK
+      back-resomi:
+      - state: equipped-BACKPACK
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK-sealed
+      back-resomi:
+      - state: equipped-BACKPACK-sealed
+
+- type: entity
+  parent: ClothingModsuitHelmetParamedic
+  id: ClothingModsuitHelmetMedical
+  name: medical MODsuit helmet
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitGauntletsParamedic
+  id: ClothingModsuitGauntletsMedical
+  name: medical MODsuit gauntlets
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND-sealed
+      gloves-vox:
+      - state: equipped-HAND-sealed
+
+- type: entity
+  parent: ClothingModsuitChestplateParamedic
+  id: ClothingModsuitChestplateMedical
+  name: medical MODsuit chestplate
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    layers:
+    - state: chestplate
+      map: [ "unsealed" ]
+    - state: chestplate-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING-sealed
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitBootsParamedic
+  id: ClothingModsuitBootsMedical
+  name: medical MODsuit boots
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/medical.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET-sealed
+      shoes-vox:
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitStandard
+  id: ClothingModsuitMining
+  name: mining MODsuit control unit
+  description: A reinforced modular pressure suit designed for asteroid mining.
+  components:
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: ClothingModsuitHelmetMining
+      gloves: ClothingModsuitGauntletsMining
+      outerClothing: ClothingModsuitChestplateMining
+      shoes: ClothingModsuitBootsMining
+  - type: Construction
+    graph: Modsuit
+    node: mining
+  - type: PowerCellDraw
+    drawRate: 0.2
+  - type: ModControl
+    capacity: 13
+    startingModules:
+    - ModModuleStorage
+    - ModModuleWelding
+    - ModModuleOreBag
+    - ModModuleFlashlight
+    - ModModuleMagboots
+    - ModModuleDrill
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    layers:
+    - state: control
+      map: [ "unsealed" ]
+    - state: control-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK
+      back-resomi:
+      - state: equipped-BACKPACK
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK-sealed
+      back-resomi:
+      - state: equipped-BACKPACK-sealed
+
+- type: entity
+  parent: ClothingModsuitHelmetStandard
+  id: ClothingModsuitHelmetMining
+  name: mining MODsuit helmet
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitGauntletsStandard
+  id: ClothingModsuitGauntletsMining
+  name: mining MODsuit gauntlets
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND-sealed
+      gloves-vox:
+      - state: equipped-HAND-sealed
+
+- type: entity
+  parent: ClothingModsuitChestplateStandard
+  id: ClothingModsuitChestplateMining
+  name: mining MODsuit chestplate
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    layers:
+    - state: chestplate
+      map: [ "unsealed" ]
+    - state: chestplate-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING-sealed
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitBootsStandard
+  id: ClothingModsuitBootsMining
+  name: mining MODsuit boots
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/mining.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET-sealed
+      shoes-vox:
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+
+- type: entity
+  parent: ClothingModsuitStandard
+  id: ClothingModsuitCargo
+  name: cargo loader MODsuit control unit
+  description: A powered modular frame designed for cargo handling. It is not airtight.
+  components:
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: ClothingModsuitHelmetCargo
+      gloves: ClothingModsuitGauntletsCargo
+      outerClothing: ClothingModsuitChestplateCargo
+      shoes: ClothingModsuitBootsCargo
+  - type: Construction
+    graph: Modsuit
+    node: cargo
+  - type: ModControl
+    capacity: 10
+    startingModules:
+    - ModModuleStorage
+    - ModModuleFlashlight
+    - ModModuleGps
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    layers:
+    - state: control
+      map: [ "unsealed" ]
+    - state: control-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK
+      back-resomi:
+      - state: equipped-BACKPACK
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK-sealed
+      back-resomi:
+      - state: equipped-BACKPACK-sealed
+
+- type: entity
+  parent: ClothingModsuitHelmetStandard
+  id: ClothingModsuitHelmetCargo
+  name: cargo loader MODsuit helmet
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    layers:
+    - state: helmet
+      map: [ "unsealed" ]
+    - state: helmet-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+      head-vox:
+      - state: equipped-HEAD-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-anthro
+    hidesUniform: false
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+      head-vox:
+      - state: equipped-HEAD-sealed-anthro
+      head-vulpkanin:
+      - state: equipped-HEAD-sealed-anthro
+      head-hydrakin:
+      - state: equipped-HEAD-sealed-anthro
+  - type: ComponentToggler
+    components: []
+
+- type: entity
+  parent: ClothingModsuitGauntletsStandard
+  id: ClothingModsuitGauntletsCargo
+  name: cargo loader MODsuit gauntlets
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    layers:
+    - state: gauntlets
+      map: [ "unsealed" ]
+    - state: gauntlets-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND
+      gloves-vox:
+      - state: equipped-HAND
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      gloves:
+      - state: equipped-HAND-sealed
+      gloves-vox:
+      - state: equipped-HAND-sealed
+
+- type: entity
+  parent: ClothingModsuitChestplateStandard
+  id: ClothingModsuitChestplateCargo
+  name: cargo loader MODsuit chestplate
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    layers:
+    - state: chestplate
+      map: [ "unsealed" ]
+    - state: chestplate-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
+    hidesUniform: false
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING-sealed
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+  - type: ComponentToggler
+    components: []
+
+- type: entity
+  parent: ClothingModsuitBootsStandard
+  id: ClothingModsuitBootsCargo
+  name: cargo loader MODsuit boots
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/loader.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET-sealed
+      shoes-vox:
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro

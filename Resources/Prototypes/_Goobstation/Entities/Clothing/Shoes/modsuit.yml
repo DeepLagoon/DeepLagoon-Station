@@ -2,7 +2,7 @@
 - type: entity
   abstract: true
   parent: ClothingShoesBase
-  id: ClothingModsuitBootsBase
+  id: ClothingModsuitModuleBootsBase
   name: modsuit boots
   description: A special modular suit boots designed for compact folding inside modular suit control.
   categories: [ HideSpawnMenu ]
@@ -30,8 +30,6 @@
   - type: ItemToggle
     onUse: false
     onActivate: false
-  - type: ToggleClothing
-    action: ActionToggleMagboots
   - type: ComponentToggler
     components:
     - type: NoSlip
@@ -44,51 +42,120 @@
       - state: equipped-FEET-sealed
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  abstract: true
+  parent: ClothingModsuitModuleBootsBase
+  id: ClothingModsuitBootsBase
+  components:
+  - type: ToggleClothing
+    action: ActionToggleMagboots
+
+- type: entity
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsStandard
   name: standard modsuit boots
   description: A special modular suit boots designed for compact folding inside modular suit control.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/standard.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
+  - type: SealableClothingVisuals
+    replaceBaseLayers: true
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET-sealed
+      shoes-vox:
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsSecurity
   name: soldat modsuit boots
   description: THE IRON BOOTS OF JUSTICE.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/security.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
   - type: ClothingSlowOnDamageModifier # Mono
     modifier: 0.75
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsHeadOfSecurity
   name: bulwark modsuit boots
   description: I call these my chimera stompers.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/headofsecurity.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
     layers:
     - state: boots
+      map: [ "unsealed" ]
     - state: boots-sealed
+      visible: false
       map: [ "sealed" ]
   - type: Clothing
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ feet ]
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
   - type: Tag
     tags:
     - WhitelistChameleon
@@ -101,9 +168,6 @@
   - type: ItemToggle
     onUse: false
     onActivate: false
-  - type: ToggleClothing
-    action: ActionToggleMagboots
-    mustEquip: false
   - type: ComponentToggler
     components:
     - type: NoSlip
@@ -118,98 +182,207 @@
     actions:
     - ActionGravityJump
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
   - type: ClothingSlowOnDamageModifier # Mono
     modifier: 0.75
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsParamedic
   name: sanitater modsuit boots
   description: Made to get bloody.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/paramedic.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsEngineer
   name: sapper modsuit boots
   description: Made to get oily.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/engineer.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsAtmostech
   name: aeolus modsuit boots
   description: Made to get burnt.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/atmostech.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsResearchDirector
   name: minerva modsuit boots
   description: Wont stop you slipping on your own blood when the holocarp gets to you.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/researchdirector.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro
 
 - type: entity
-  parent: ClothingModsuitBootsBase
+  parent: ClothingModsuitModuleBootsBase
   id: ClothingModsuitBootsCaptain
   name: magnate modsuit boots
   description: These boots were designed by THE Michael Jordan and crafted with ancient alloys, man.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/Shoes/Modsuits/captain.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
+    layers:
+    - state: boots
+      map: [ "unsealed" ]
+    - state: boots-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       shoes:
       - state: equipped-FEET-sealed
       shoes-vox:
-      - state: equipped-FEET-sealed-vox
+      - state: equipped-FEET-sealed-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-sealed-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-sealed-anthro
   - type: ClothingSlowOnDamageModifier # Mono
     modifier: 0.75
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
+    clothingVisuals:
+      shoes:
+      - state: equipped-FEET
+      shoes-vox:
+      - state: equipped-FEET-anthro
+      shoes-vulpkanin:
+      - state: equipped-FEET-anthro
+      shoes-hydrakin:
+      - state: equipped-FEET-anthro

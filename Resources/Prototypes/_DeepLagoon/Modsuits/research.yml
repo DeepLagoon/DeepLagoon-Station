@@ -1,0 +1,123 @@
+- type: technology
+  id: ModTechnologyBase
+  name: research-technology-mod-base
+  entityIcon: ClothingModsuitStandard
+  discipline: Industrial
+  tier: 2
+  cost: 18000
+  recipeUnlocks:
+  - ModModuleStorage
+  - ModModuleFlashlight
+  - ModModuleWelding
+  - ModLinkTerminal
+  - ModControlStandard
+  - ModControlCivilian
+  technologyPrerequisites:
+  - HardsuitsSpecialized
+  position: 2, 7
+
+- type: technology
+  id: ModTechnologyUtility
+  name: research-technology-mod-utility
+  entityIcon: ModModuleStorageExtended
+  discipline: Industrial
+  tier: 2
+  cost: 14000
+  recipeUnlocks:
+  - ModModuleStorageExtended
+  - ModModuleOreBag
+  - ModModuleNoSlip
+  - ModModuleDiagnosticHud
+  - ModModuleReagentScanner
+  - ModModuleGps
+  - ModModuleDrill
+  - ModModuleStamp
+  - ModModuleCleaner
+  - ModModuleBikeHorn
+  - ModModulePaperDispenser
+  - ModControlCargo
+  technologyPrerequisites:
+  - ModTechnologyBase
+  position: 2, 6
+
+- type: technology
+  id: ModTechnologyEngineering
+  name: research-technology-mod-engineering
+  entityIcon: ClothingModsuitEngineer
+  discipline: Industrial
+  tier: 2
+  cost: 22000
+  recipeUnlocks:
+  - ModModuleMagboots
+  - ModModuleJetpack
+  - ModModuleEmpShield
+  - ModModuleRadiationShield
+  - ModModuleFireArmor
+  - ModModuleThermalRegulator
+  - ModModuleTrayScanner
+  - ModModuleTether
+  - ModModuleConstructor
+  - ModControlEngineer
+  - ModControlAtmostech
+  - ModControlMining
+  technologyPrerequisites:
+  - ModTechnologyUtility
+  position: 2, 5
+
+- type: technology
+  id: ModTechnologyMedical
+  name: research-technology-mod-medical
+  entityIcon: ClothingModsuitMedical
+  discipline: Industrial
+  tier: 2
+  cost: 22000
+  recipeUnlocks:
+  - ModModuleOrganizer
+  - ModModuleMedicalHud
+  - ModModuleHealthAnalyzer
+  - ModModuleDefibrillator
+  - ModModuleInjector
+  - ModControlMedical
+  - ModControlParamedic
+  technologyPrerequisites:
+  - ModTechnologyUtility
+  position: 3, 6
+
+- type: technology
+  id: ModTechnologySecurity
+  name: research-technology-mod-security
+  entityIcon: ClothingModsuitSecurity
+  discipline: Industrial
+  tier: 3
+  cost: 75000
+  recipeUnlocks:
+  - ModModuleHolster
+  - ModModuleBallisticArmor
+  - ModModuleLaserArmor
+  - ModModuleMeleeArmor
+  - ModModuleCloak
+  - ModModuleSecurityHud
+  - ModControlSecurity
+  technologyPrerequisites:
+  - ModTechnologyBase
+  position: 4, 7
+
+- type: technology
+  id: ModTechnologyAdvanced
+  name: research-technology-mod-advanced
+  entityIcon: ModModuleJetpackAdvanced
+  discipline: Industrial
+  tier: 3
+  cost: 100000
+  recipeUnlocks:
+  - ModModuleJetpackAdvanced
+  - ModModuleNightVision
+  - ModModuleThermalVision
+  - ModModuleEnergyShield
+  - ModControlResearchDirector
+  - ModControlHeadOfSecurity
+  - ModControlCaptain
+  technologyPrerequisites:
+  - ModTechnologyEngineering
+  - ModTechnologySecurity
+  position: 3, 5

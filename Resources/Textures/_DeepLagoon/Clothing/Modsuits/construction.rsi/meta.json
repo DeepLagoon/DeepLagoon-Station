@@ -1,0 +1,98 @@
+{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "MOD shell, parts, plating, and core artwork from MOLOT-BlueMoon-Station, BYOND DMI states converted to RSI: https://github.com/iamasay/MOLOT-BlueMoon-Station/tree/61c36414fe7/modular_bluemoon/icons",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "shell"
+        },
+        {
+            "name": "shell-core",
+            "delays": [
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ]
+            ]
+        },
+        {
+            "name": "shell-core-secured",
+            "delays": [
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ]
+            ]
+        },
+        {
+            "name": "shell-helmet"
+        },
+        {
+            "name": "shell-chestplate"
+        },
+        {
+            "name": "shell-gauntlets"
+        },
+        {
+            "name": "shell-boots"
+        },
+        {
+            "name": "shell-secured"
+        },
+        {
+            "name": "helmet"
+        },
+        {
+            "name": "chestplate"
+        },
+        {
+            "name": "gauntlets"
+        },
+        {
+            "name": "boots"
+        },
+        {
+            "name": "mod-core-standard",
+            "delays": [
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ]
+            ]
+        },
+        {
+            "name": "standard-plating"
+        },
+        {
+            "name": "rescue-plating"
+        },
+        {
+            "name": "engineering-plating"
+        },
+        {
+            "name": "security-plating"
+        },
+        {
+            "name": "safeguard-plating"
+        },
+        {
+            "name": "magnate-plating"
+        },
+        {
+            "name": "research-plating"
+        },
+        {
+            "name": "atmospheric-plating"
+        }
+    ]
+}

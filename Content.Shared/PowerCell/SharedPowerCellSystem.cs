@@ -83,12 +83,20 @@ public abstract partial class SharedPowerCellSystem : EntitySystem
             ent.Comp.NextUpdateTime = Timing.CurTime;
     }
 
-    private void OnCellEmpAttempt(EntityUid uid, PowerCellComponent component, EmpAttemptEvent args)
+    private void OnCellEmpAttempt(EntityUid uid, PowerCellComponent component, ref EmpAttemptEvent args)
     {
         var parent = Transform(uid).ParentUid;
         // relay the attempt event to the slot so it can cancel it
-        if (HasComp<PowerCellSlotComponent>(parent))
-            RaiseLocalEvent(parent, ref args);
+        if (!HasComp<PowerCellSlotComponent>(parent))
+            return;
+
+        RaiseLocalEvent(parent, ref args);
+        if (args.Cancelled)
+            return;
+
+        var cellAttempt = new PowerCellEmpAttemptEvent(uid);
+        RaiseLocalEvent(parent, ref cellAttempt);
+        args.Cancelled = cellAttempt.Cancelled;
     }
 
     public void SetDrawEnabled(Entity<PowerCellDrawComponent?> ent, bool enabled)
@@ -123,3 +131,9 @@ public abstract partial class SharedPowerCellSystem : EntitySystem
         PowerCellSlotComponent? cell = null,
         EntityUid? user = null);
 }
+
+/// <summary>
+/// Raised on the item holding a cell before an EMP hits that cell.
+/// </summary>
+[ByRefEvent]
+public record struct PowerCellEmpAttemptEvent(EntityUid Cell, bool Cancelled = false);

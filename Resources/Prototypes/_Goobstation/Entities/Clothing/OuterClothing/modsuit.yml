@@ -51,14 +51,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/standard.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    layers:
+    - state: chestplate
+      map: [ "unsealed" ]
+    - state: chestplate-sealed
+      visible: false
+      map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 1
     sprintModifier: 1
@@ -72,6 +82,17 @@
         Piercing: 0.85
         Heat: 0.85
         Radiation: 0.6
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/standard.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -81,19 +102,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/security.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.87
     sprintModifier: 0.87
@@ -120,7 +146,17 @@
       heatingCoefficient: 0.4
   - type: FireProtection
     reduction: 0.5
-
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/security.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -130,19 +166,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/headofsecurity.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.90
     sprintModifier: 0.90
@@ -169,6 +210,17 @@
       heatingCoefficient: 0.4
   - type: FireProtection
     reduction: 0.5
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/safeguard.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -178,19 +230,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/paramedic.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 1.05
     sprintModifier: 1.05
@@ -208,6 +265,17 @@
         Poison: 0.6
   - type: StaminaDamageResistance
     coefficient: 0.9
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/rescue.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -217,19 +285,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/engineer.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.95 # Mono
     sprintModifier: 0.95 # Mono
@@ -247,6 +320,17 @@
         Radiation: 0.1 # Mono
   - type: StaminaDamageResistance
     coefficient: 0.7 # Mono
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/engineering.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -256,19 +340,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/atmostech.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.95
     sprintModifier: 0.95
@@ -286,6 +375,17 @@
     coefficient: 0.9
   - type: FireProtection
     reduction: 0.0
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/atmospheric.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -295,19 +395,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/researchdirector.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.85
     sprintModifier: 0.85
@@ -325,6 +430,17 @@
         Radiation: 0.1
   - type: StaminaDamageResistance
     coefficient: 0.9
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/research.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro
 
 - type: entity
   parent: ClothingModsuitChestplateBase
@@ -334,19 +450,24 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: _Goobstation/Clothing/OuterClothing/Modsuits/captain.rsi
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
     layers:
     - state: chestplate
+      map: [ "unsealed" ]
     - state: chestplate-sealed
       visible: false
       map: [ "sealed" ]
   - type: SealableClothingVisuals
-    spriteLayer: sealed
+    replaceBaseLayers: true
     clothingVisuals:
       outerClothing:
       - state: equipped-OUTERCLOTHING-sealed
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-sealed-anthro
   - type: ClothingSpeedModifier
     walkModifier: 0.90
     sprintModifier: 0.90
@@ -362,3 +483,14 @@
         Radiation: 0.4
   - type: StaminaDamageResistance
     coefficient: 0.7
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Modsuits/magnate.rsi
+    clothingVisuals:
+      outerClothing:
+      - state: equipped-OUTERCLOTHING
+      outerClothing-vox:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-vulpkanin:
+      - state: equipped-OUTERCLOTHING-anthro
+      outerClothing-hydrakin:
+      - state: equipped-OUTERCLOTHING-anthro

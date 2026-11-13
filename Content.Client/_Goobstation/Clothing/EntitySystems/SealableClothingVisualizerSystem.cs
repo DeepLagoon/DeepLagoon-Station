@@ -27,6 +27,8 @@ public sealed partial class SealableClothingVisualizerSystem : VisualizerSystem<
         if (args.Sprite != null && component.SpriteLayer != null && args.Sprite.LayerMapTryGet(component.SpriteLayer, out var layer))
         {
             args.Sprite.LayerSetVisible(layer, isSealed);
+            if (component.ReplaceBaseLayers && args.Sprite.LayerMapTryGet("unsealed", out var unsealed))
+                args.Sprite.LayerSetVisible(unsealed, !isSealed);
         }
 
         _itemSystem.VisualsChanged(uid);
@@ -48,6 +50,9 @@ public sealed partial class SealableClothingVisualizerSystem : VisualizerSystem<
             inventory.SpeciesId != null &&
             comp.ClothingVisuals.TryGetValue($"{args.Slot}-{inventory.SpeciesId}", out var speciesLayers))
             layers = speciesLayers;
+
+        if (comp.ReplaceBaseLayers)
+            args.Layers.Clear();
 
         var i = 0;
         foreach (var layer in layers)

@@ -381,6 +381,29 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
         }
     }
 
+    public bool SetAllPartsDeployed(EntityUid user, Entity<ToggleableClothingComponent> toggleable, bool deployed)
+    {
+        var comp = toggleable.Comp;
+        if (!_inventorySystem.InSlotWithFlags(toggleable.Owner, comp.RequiredFlags) ||
+            Transform(toggleable.Owner).ParentUid != user ||
+            !CanToggleClothing(user, toggleable))
+            return false;
+
+        foreach (var (part, slot) in comp.ClothingUids)
+        {
+            if (comp.Container!.Contains(part) != deployed)
+                continue;
+
+            if (deployed)
+                EquipClothing(user, toggleable, part, slot);
+            else if (_inventorySystem.TryGetSlotEntity(user, slot, out var equipped) && equipped == part)
+                UnequipClothing(user, toggleable, part, slot);
+        }
+
+        var expected = deployed ? ToggleableClothingAttachedStatus.AllToggled : ToggleableClothingAttachedStatus.NoneToggled;
+        return GetAttachedToggleStatus(toggleable) == expected;
+    }
+
     private bool CanToggleClothing(EntityUid user, Entity<ToggleableClothingComponent> toggleable)
     {
         var comp = toggleable.Comp;
