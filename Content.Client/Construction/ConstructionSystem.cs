@@ -9,6 +9,8 @@ using Content.Shared.Interaction;
 using Content.Shared.Wall;
 using JetBrains.Annotations;
 using Robust.Client.GameObjects;
+using Robust.Client.Input;
+using Robust.Client.Placement;
 using Robust.Client.Player;
 using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
@@ -29,9 +31,12 @@ namespace Content.Client.Construction
         [Dependency] private ExamineSystemShared _examineSystem = default!;
         [Dependency] private SharedTransformSystem _transformSystem = default!;
         [Dependency] private PopupSystem _popupSystem = default!;
+        [Dependency] private IInputManager _inputManager = default!;
+        [Dependency] private IPlacementManager _placementManager = default!;
 
         private readonly Dictionary<int, EntityUid> _ghosts = new();
         private readonly Dictionary<string, ConstructionGuide> _guideCache = new();
+        private ConstructionPlacementMode? _pressedPlacement;
 
         public bool CraftingEnabled { get; private set; }
 
@@ -41,6 +46,7 @@ namespace Content.Client.Construction
             base.Initialize();
 
             UpdatesOutsidePrediction = true;
+            UpdatesAfter.Add(typeof(EyeSystem));
             SubscribeLocalEvent<LocalPlayerAttachedEvent>(HandlePlayerAttached);
             SubscribeNetworkEvent<AckStructureConstructionMessage>(HandleAckStructure);
             SubscribeNetworkEvent<ResponseConstructionGuide>(OnConstructionGuideReceived);
@@ -50,6 +56,9 @@ namespace Content.Client.Construction
                     new PointerInputCmdHandler(HandleOpenCraftingMenu, outsidePrediction: true))
                 .Bind(EngineKeyFunctions.Use,
                     new PointerInputCmdHandler(HandleUse, outsidePrediction: true))
+                .BindBefore(EngineKeyFunctions.EditorPlaceObject,
+                    new PointerInputCmdHandler(HandlePlacement, ignoreUp: false, outsidePrediction: true),
+                    typeof(PlacementManager))
                 .Bind(ContentKeyFunctions.EditorFlipObject,
                     new PointerInputCmdHandler(HandleFlip, outsidePrediction: true))
                 .Register<ConstructionSystem>();
@@ -75,6 +84,38 @@ namespace Content.Client.Construction
             base.Shutdown();
 
             CommandBinds.Unregister<ConstructionSystem>();
+        }
+
+        public override void FrameUpdate(float frameTime)
+        {
+            base.FrameUpdate(frameTime);
+
+            if (_placementManager.IsActive && _placementManager.CurrentMode is ConstructionPlacementMode mode)
+                mode.UpdatePreview(_inputManager.MouseScreenPosition);
+            else
+                _pressedPlacement = null;
+        }
+
+        private bool HandlePlacement(in PointerInputCmdHandler.PointerInputCmdArgs args)
+        {
+            if (!_placementManager.IsActive || _placementManager.CurrentMode is not ConstructionPlacementMode mode)
+            {
+                _pressedPlacement = null;
+                return false;
+            }
+
+            if (args.State == BoundKeyState.Down)
+            {
+                _pressedPlacement = mode;
+                return true;
+            }
+
+            var pressed = _pressedPlacement;
+            _pressedPlacement = null;
+            if (pressed == mode)
+                mode.Place(args.ScreenCoordinates);
+
+            return true;
         }
 
         public ConstructionGuide? GetGuide(ConstructionPrototype prototype)

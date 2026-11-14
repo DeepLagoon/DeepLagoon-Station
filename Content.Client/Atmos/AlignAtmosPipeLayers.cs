@@ -1,4 +1,4 @@
-using Content.Client.Construction;
+using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Atmos.EntitySystems;
 using Content.Shared.Construction.Prototypes;
@@ -7,7 +7,6 @@ using Robust.Client.Graphics;
 using Robust.Client.Placement;
 using Robust.Client.Placement.Modes;
 using Robust.Client.Utility;
-using Robust.Shared.Enums;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
@@ -66,15 +65,22 @@ public sealed partial class AlignAtmosPipeLayers : SnapgridCenter
         {
             var gridRotation = _transformSystem.GetWorldRotation(gridUid.Value);
             var worldPosition = _mapSystem.LocalToWorld(gridUid.Value, Grid, MouseCoords.Position);
-            var direction = (_eyeManager.CurrentEye.Rotation + gridRotation + Math.PI / 2).GetCardinalDir();
-            var multi = (direction == Direction.North || direction == Direction.South) ? -1f : 1f;
-
-            args.WorldHandle.DrawCircle(worldPosition, GuideRadius, _guideColor);
-            args.WorldHandle.DrawCircle(worldPosition + gridRotation.RotateVec(new Vector2(multi * GuideOffset, GuideOffset)), GuideRadius, _guideColor);
-            args.WorldHandle.DrawCircle(worldPosition - gridRotation.RotateVec(new Vector2(multi * GuideOffset, GuideOffset)), GuideRadius, _guideColor);
+            DrawLayerGuides(args, worldPosition, gridRotation);
         }
 
         base.Render(args);
+    }
+
+    internal void DrawLayerGuides(in OverlayDrawArgs args, Vector2 worldPosition, Angle gridRotation)
+    {
+        var eyeRotation = args.Viewport.Eye?.Rotation ?? _eyeManager.CurrentEye.Rotation;
+        var direction = (eyeRotation + gridRotation + Math.PI / 2).GetCardinalDir();
+        var multi = direction is Direction.North or Direction.South ? -1f : 1f;
+        var offset = gridRotation.RotateVec(new Vector2(multi * GuideOffset, GuideOffset));
+
+        args.WorldHandle.DrawCircle(worldPosition, GuideRadius, _guideColor);
+        args.WorldHandle.DrawCircle(worldPosition + offset, GuideRadius, _guideColor);
+        args.WorldHandle.DrawCircle(worldPosition - offset, GuideRadius, _guideColor);
     }
 
     /// <inheritdoc/>
@@ -104,60 +110,27 @@ public sealed partial class AlignAtmosPipeLayers : SnapgridCenter
             CurrentTile.Y + tileSize / 2 + pManager.PlacementOffset.Y));
 
         // Calculate the position of the mouse cursor with respect to the center of the tile to determine which layer to use
-        var mouseCoordsDiff = _unalignedMouseCoords.Position - MouseCoords.Position;
-        var layer = AtmosPipeLayer.Primary;
-
-        if (mouseCoordsDiff.Length() > MouseDeadzoneRadius)
-        {
-            // Determine the direction of the mouse is relative to the center of the tile, adjusting for the player eye and grid rotation
-            var direction = (new Angle(mouseCoordsDiff) + _eyeManager.CurrentEye.Rotation + gridRotation + Math.PI / 2).GetCardinalDir();
-            layer = (direction == Direction.North || direction == Direction.East) ? AtmosPipeLayer.Secondary : AtmosPipeLayer.Tertiary;
-        }
-
-        // Update the construction menu placer
-        if (pManager.Hijack != null)
-            UpdateHijackedPlacer(layer, mouseScreen);
-
-        // Otherwise update the debug placer
-        else
-            UpdatePlacer(layer);
+        var layer = GetLayer(_unalignedMouseCoords.Position - MouseCoords.Position,
+            _eyeManager.CurrentEye.Rotation + gridRotation);
+        UpdatePlacer(layer);
     }
 
-    private void UpdateHijackedPlacer(AtmosPipeLayer layer, ScreenCoordinates mouseScreen)
+    internal static AtmosPipeLayer GetLayer(Vector2 offset, Angle gridRotationOnScreen)
     {
-        // Try to get alternative prototypes from the construction prototype
-        var constructionSystem = (pManager.Hijack as ConstructionPlacementHijack)?.CurrentConstructionSystem;
-        var altPrototypes = (pManager.Hijack as ConstructionPlacementHijack)?.CurrentPrototype?.AlternativePrototypes;
+        if (offset.LengthSquared() <= MouseDeadzoneRadius * MouseDeadzoneRadius)
+            return AtmosPipeLayer.Primary;
 
-        if (constructionSystem == null || altPrototypes == null || (int)layer >= altPrototypes.Length)
-            return;
+        var direction = (new Angle(offset) + gridRotationOnScreen + Math.PI / 2).GetCardinalDir();
+        return direction is Direction.North or Direction.East ? AtmosPipeLayer.Secondary : AtmosPipeLayer.Tertiary;
+    }
 
-        var newProtoId = altPrototypes[(int)layer];
-
-        if (!_protoManager.TryIndex(newProtoId, out var newProto))
-            return;
-
-        if (newProto.Type != ConstructionType.Structure)
-        {
-            pManager.Clear();
-            return;
-        }
-
-        if (newProto.ID == (pManager.Hijack as ConstructionPlacementHijack)?.CurrentPrototype?.ID)
-            return;
-
-        // Start placing
-        pManager.BeginPlacing(new PlacementInformation()
-        {
-            IsTile = false,
-            PlacementOption = newProto.PlacementMode,
-        }, new ConstructionPlacementHijack(constructionSystem, newProto));
-
-        if (pManager.CurrentMode is AlignAtmosPipeLayers { } newMode)
-            newMode.RefreshGrid(mouseScreen);
-
-        // Update construction guide
-        constructionSystem.GetGuide(newProto);
+    internal bool TryGetConstructionLayer(ConstructionPrototype? current, AtmosPipeLayer layer,
+        [NotNullWhen(true)] out ConstructionPrototype? prototype)
+    {
+        prototype = null;
+        return current != null && (int) layer < current.AlternativePrototypes.Length &&
+               _protoManager.TryIndex(current.AlternativePrototypes[(int) layer], out prototype) &&
+               prototype.Type == ConstructionType.Structure;
     }
 
     private void UpdatePlacer(AtmosPipeLayer layer)
@@ -194,10 +167,5 @@ public sealed partial class AlignAtmosPipeLayers : SnapgridCenter
                 pManager.CurrentTextures = textures;
             }
         }
-    }
-
-    private void RefreshGrid(ScreenCoordinates mouseScreen)
-    {
-        base.AlignPlacementMode(mouseScreen);
     }
 }

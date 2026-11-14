@@ -3,6 +3,8 @@
   id: constructionghost
   categories: [ HideSpawnMenu ]
   components:
+  - type: Transform
+    gridTraversal: false
   - type: Sprite
     color: '#3F38'
   - type: ConstructionGhost
