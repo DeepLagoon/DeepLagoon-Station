@@ -188,6 +188,32 @@
   let dragging = false;
   let suppressClick = false;
   let previousSelection = '';
+  let previousTextClick = null;
+  const wordSegmenter = typeof Intl.Segmenter === 'function'
+    ? new Intl.Segmenter(undefined, { granularity: 'word' }) : null;
+  const selectWordOnRepeatedClick = event => {
+    // The stock WebView sends two single clicks to CEF. Leave native double-clicks and drag selections alone.
+    const previous = previousTextClick;
+    previousTextClick = null;
+    const field = event.target;
+    if (!wordSegmenter || !event.isTrusted || event.detail !== 1 || event.button !== 0 ||
+        (event.pointerType && event.pointerType !== 'mouse') ||
+        event.shiftKey || event.ctrlKey || event.altKey || event.metaKey ||
+        field !== document.activeElement || !field.matches?.('textarea, input:not([type=password])')) return;
+
+    const caret = field.selectionStart;
+    if (caret === null || caret !== field.selectionEnd) return;
+    if (previous?.target !== field || event.timeStamp - previous.timeStamp > 500 ||
+        Math.hypot(event.clientX - previous.clientX, event.clientY - previous.clientY) > 5) {
+      previousTextClick = event;
+      return;
+    }
+
+    const segments = wordSegmenter.segment(field.value);
+    const atCaret = segments.containing(caret);
+    const word = atCaret?.isWordLike ? atCaret : segments.containing(caret - 1);
+    if (word?.isWordLike) field.setSelectionRange(word.index, word.index + word.segment.length);
+  };
   window.addEventListener('deeplagoon/window-drag', event => {
     dragging = event.detail === true;
     if (dragging) {
@@ -200,14 +226,20 @@
     }
   });
   document.addEventListener('mousedown', () => { if (!dragging) suppressClick = false; }, true);
-  document.addEventListener('keydown', () => { if (!dragging) suppressClick = false; }, true);
+  document.addEventListener('keydown', () => {
+    previousTextClick = null;
+    if (!dragging) suppressClick = false;
+  }, true);
+  window.addEventListener('blur', () => { previousTextClick = null; });
   document.addEventListener('click', event => {
     if (suppressClick) {
+      previousTextClick = null;
       event.preventDefault();
       event.stopImmediatePropagation();
       suppressClick = false;
       return;
     }
+    selectWordOnRepeatedClick(event);
     const link = event.target.closest?.('a');
     if (link && link.href && !link.href.startsWith(root)) event.preventDefault();
   }, true);

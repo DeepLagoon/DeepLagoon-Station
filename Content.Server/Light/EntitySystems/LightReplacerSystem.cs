@@ -6,6 +6,7 @@ using Content.Shared.Light.EntitySystems;
 using Content.Shared.Light.Components;
 using Content.Shared.Popups;
 using Content.Shared.Storage;
+using Content.Shared.Storage.EntitySystems;
 using JetBrains.Annotations;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
@@ -20,6 +21,7 @@ public sealed partial class LightReplacerSystem : SharedLightReplacerSystem
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private SharedPopupSystem _popupSystem = default!;
+    [Dependency] private QuickPickupSystem _quickPickup = default!;
 
     public override void Initialize()
     {
@@ -92,8 +94,32 @@ public sealed partial class LightReplacerSystem : SharedLightReplacerSystem
                 eventArgs.Handled = TryReplaceBulb(uid, targetUid, eventArgs.User, component, fixture);
             // add new bulb to light replacer container?
             else if (TryComp<LightBulbComponent>(targetUid, out var bulb))
-                eventArgs.Handled = TryInsertBulb(uid, targetUid, eventArgs.User, true, component, bulb);
+                eventArgs.Handled = TryInsertBulbsFromTile(uid, targetUid, eventArgs.User, component, bulb);
         }
+    }
+
+    private bool TryInsertBulbsFromTile(EntityUid uid, EntityUid target, EntityUid user,
+        LightReplacerComponent replacer, LightBulbComponent bulb)
+    {
+        if (bulb.State != LightBulbState.Normal)
+            return TryInsertBulb(uid, target, user, true, replacer, bulb);
+
+        var matchingItems = _quickPickup.FindMatchingItems(target, user);
+        if (!TryInsertBulb(uid, target, replacer: replacer, bulb: bulb))
+            return false;
+
+        var additional = false;
+        foreach (var item in matchingItems)
+        {
+            if (TryComp<LightBulbComponent>(item, out var otherBulb))
+                additional |= TryInsertBulb(uid, item, replacer: replacer, bulb: otherBulb);
+        }
+
+        var message = additional
+            ? Loc.GetString("comp-light-replacer-refill-from-storage", ("light-replacer", uid))
+            : Loc.GetString("comp-light-replacer-insert-light", ("light-replacer", uid), ("bulb", target));
+        _popupSystem.PopupEntity(message, uid, user, PopupType.Medium);
+        return true;
     }
 
     private void HandleInteract(EntityUid uid, LightReplacerComponent component, InteractUsingEvent eventArgs)

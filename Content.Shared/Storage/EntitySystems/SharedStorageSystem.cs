@@ -63,6 +63,7 @@ public abstract partial class SharedStorageSystem : EntitySystem
     [Dependency] private   SharedInteractionSystem _interactionSystem = default!;
     [Dependency] protected SharedItemSystem ItemSystem = default!;
     [Dependency] private   SharedPopupSystem _popupSystem = default!;
+    [Dependency] private   QuickPickupSystem _quickPickup = default!;
     [Dependency] private   SharedHandsSystem _sharedHandsSystem = default!;
     [Dependency] private   SharedStackSystem _stack = default!;
     [Dependency] protected SharedTransformSystem TransformSystem = default!;
@@ -569,38 +570,52 @@ public abstract partial class SharedStorageSystem : EntitySystem
             return;
         }
 
-        // Pick up the clicked entity
-        if (storageComp.QuickInsert)
+        if (!storageComp.QuickInsert || args.Target is not { Valid: true } target || target == args.User ||
+            !_itemQuery.HasComponent(target) || ContainerSystem.IsEntityInContainer(target))
+            return;
+
+        args.Handled = true;
+        QuickInsertAtTarget((uid, storageComp), args.User, target);
+    }
+
+    private void QuickInsertAtTarget(Entity<StorageComponent> storage, EntityUid user, EntityUid target)
+    {
+        if (!CanInsert(storage, target, out _, storage.Comp))
         {
-            if (args.Target is not { Valid: true } target)
-                return;
-
-            if (ContainerSystem.IsEntityInContainer(target)
-                || target == args.User
-                || !_itemQuery.HasComponent(target))
-            {
-                return;
-            }
-
-            if (TryComp(uid, out TransformComponent? transformOwner) && TryComp(target, out TransformComponent? transformEnt))
-            {
-                var parent = transformOwner.ParentUid;
-
-                var position = TransformSystem.ToCoordinates(
-                    parent.IsValid() ? parent : uid,
-                    TransformSystem.GetMapCoordinates(transformEnt)
-                );
-
-                args.Handled = true;
-                if (PlayerInsertEntityInWorld((uid, storageComp), args.User, target))
-                {
-                    EntityManager.RaiseSharedEvent(new AnimateInsertingEntitiesEvent(GetNetEntity(uid),
-                        new List<NetEntity> { GetNetEntity(target) },
-                        new List<NetCoordinates> { GetNetCoordinates(position) },
-                        new List<Angle> { transformOwner.LocalRotation }), args.User);
-                }
-            }
+            _popupSystem.PopupClient(Loc.GetString("comp-storage-cant-insert"), storage, user);
+            return;
         }
+
+        var xform = Transform(storage);
+        var parent = xform.ParentUid.IsValid() ? xform.ParentUid : storage.Owner;
+        var rotation = xform.LocalRotation;
+        var matchingItems = _quickPickup.FindMatchingItems(target, user);
+        var position = GetPickupPosition(target);
+        if (!PlayerInsertEntityInWorld((storage, storage.Comp), user, target))
+            return;
+
+        var inserted = new List<NetEntity> { GetNetEntity(target) };
+        var positions = new List<NetCoordinates> { position };
+        var angles = new List<Angle> { rotation };
+        foreach (var item in matchingItems)
+        {
+            if (!CanInsert(storage, item, out _, storage.Comp))
+                continue;
+
+            position = GetPickupPosition(item);
+            if (!Insert(storage, item, out _, user, storage.Comp, playSound: false))
+                continue;
+
+            inserted.Add(GetNetEntity(item));
+            positions.Add(position);
+            angles.Add(rotation);
+        }
+
+        EntityManager.RaiseSharedEvent(new AnimateInsertingEntitiesEvent(GetNetEntity(storage), inserted, positions, angles), user);
+        return;
+
+        NetCoordinates GetPickupPosition(EntityUid item) =>
+            GetNetCoordinates(TransformSystem.ToCoordinates(parent, TransformSystem.GetMapCoordinates(item)));
     }
 
     private void OnDoAfter(EntityUid uid, StorageComponent component, AreaPickupDoAfterEvent args)

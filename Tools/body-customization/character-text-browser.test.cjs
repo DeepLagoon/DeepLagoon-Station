@@ -92,7 +92,31 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
     await input.evaluate(e => e.setSelectionRange(6, 7));
     await page.keyboard.press('Shift+Enter');
     assert.equal(await input.inputValue(), 'Другой\nперсонаж', 'A newline can replace the selected text at the length limit');
+
+    const checkWordSelection = async field => {
+      await field.scrollIntoViewIfNeeded();
+      const { x, y } = await field.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return { x: bounds.left + element.clientLeft + parseFloat(style.paddingLeft) + 12,
+          y: bounds.top + element.clientTop + parseFloat(style.paddingTop) + 8 };
+      });
+      const selectedText = () => field.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd));
+      // The stock WebView sends clickCount: 1 to CEF for each press, even on a double-click.
+      await page.mouse.click(x, y);
+      assert.equal(await selectedText(), '', 'One click places the caret');
+      await page.mouse.click(x, y);
+      assert.equal(await selectedText(), 'Другой', 'Two nearby single clicks select the whole word');
+      await page.mouse.dblclick(x, y);
+      assert.equal((await selectedText()).trimEnd(), 'Другой', 'A browser double-click still selects the whole word');
+      await page.mouse.click(x, y);
+      await page.mouse.click(x + 12, y);
+      assert.equal(await selectedText(), '', 'Clicks at different positions place the caret');
+    };
+    await checkWordSelection(input);
+    await publish({ mode: 'appearance', name: otherCharacter });
+    await checkWordSelection(page.getByRole('textbox', { name: 'Имя персонажа', exact: true }));
     assert.deepEqual(errors, []);
-    console.log('PASS: delayed acknowledgements, caret, Enter and Shift+Enter, first button click after editing, white and custom text colors, character switch.');
+    console.log('PASS: delayed acknowledgements, caret, Enter and Shift+Enter, first button click after editing, white and custom text colors, character switch, double-click word selection.');
   } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
