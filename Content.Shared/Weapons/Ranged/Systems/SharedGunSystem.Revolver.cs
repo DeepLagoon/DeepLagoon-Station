@@ -200,11 +200,33 @@ public partial class SharedGunSystem
 
     private void OnRevolverGetState(EntityUid uid, RevolverAmmoProviderComponent component, ref ComponentGetState args)
     {
+        var ammoSlots = new List<NetEntity?>(component.AmmoSlots.Count);
+        bool?[]? correctedChambers = null;
+        for (var i = 0; i < component.AmmoSlots.Count; i++)
+        {
+            var slot = component.AmmoSlots[i];
+            if (slot == null)
+            {
+                ammoSlots.Add(null);
+            }
+            else if (TryGetNetEntity(slot.Value, out var ammo) && ammo != NetEntity.Invalid)
+            {
+                ammoSlots.Add(ammo);
+            }
+            else
+            {
+                // PVS can read this state in parallel. Only clear the serialized copy.
+                correctedChambers ??= (bool?[]) component.Chambers.Clone();
+                correctedChambers[i] = null;
+                ammoSlots.Add(null);
+            }
+        }
+
         args.State = new RevolverAmmoProviderComponentState
         {
             CurrentIndex = component.CurrentIndex,
-            AmmoSlots = GetNetEntityList(component.AmmoSlots),
-            Chambers = component.Chambers,
+            AmmoSlots = ammoSlots,
+            Chambers = correctedChambers ?? component.Chambers,
         };
     }
 
@@ -213,7 +235,7 @@ public partial class SharedGunSystem
         if (args.Current is not RevolverAmmoProviderComponentState state)
             return;
 
-        var oldIndex = component.CurrentIndex;
+        var refreshCounter = component.CurrentIndex != state.CurrentIndex || !component.Chambers.SequenceEqual(state.Chambers);
         component.CurrentIndex = state.CurrentIndex;
         component.Chambers = new bool?[state.Chambers.Length];
 
@@ -224,8 +246,7 @@ public partial class SharedGunSystem
             component.Chambers[i] = state.Chambers[i];
         }
 
-        // Handle spins
-        if (oldIndex != state.CurrentIndex)
+        if (refreshCounter)
         {
             UpdateAmmoCount(uid, prediction: false);
         }
@@ -467,7 +488,7 @@ public partial class SharedGunSystem
         }
     }
 
-    private void UpdateRevolverAppearance(EntityUid uid, RevolverAmmoProviderComponent component)
+    protected void UpdateRevolverAppearance(EntityUid uid, RevolverAmmoProviderComponent component)
     {
         if (!TryComp<AppearanceComponent>(uid, out var appearance))
             return;
@@ -598,9 +619,9 @@ public partial class SharedGunSystem
 
                     // Add the cartridge to our set and remove the bullet from the gun.
                     args.Ammo.Add((ent.Value, EnsureComp<AmmoComponent>(ent.Value)));
-                    Containers.Remove(ent.Value, component.AmmoContainer);
                     component.AmmoSlots[index] = null;
                     component.Chambers[index] = null;
+                    Containers.Remove(ent.Value, component.AmmoContainer);
                     removedShots++;
                 }
             }
