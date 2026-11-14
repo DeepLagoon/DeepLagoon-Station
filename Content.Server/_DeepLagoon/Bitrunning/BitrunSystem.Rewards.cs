@@ -1,7 +1,9 @@
 using System.Linq;
 using Content.Shared._DeepLagoon.Bitrunning;
+using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Movement.Pulling.Events;
 using Content.Shared.Research.Components;
+using Robust.Shared.Map.Components;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -12,6 +14,7 @@ namespace Content.Server._DeepLagoon.Bitrunning;
 public sealed partial class BitrunCacheComponent : Component
 {
     public EntityUid? LastPuller;
+    public bool DeliveryQueued;
 }
 
 public sealed partial class BitrunSystem
@@ -27,6 +30,7 @@ public sealed partial class BitrunSystem
     private void InitializeRewards()
     {
         SubscribeLocalEvent<BitrunCacheComponent, PullStartedMessage>(OnCachePulled);
+        SubscribeLocalEvent<BitrunCacheComponent, MoveEvent>(OnCacheMoved);
     }
 
     private static void OnCachePulled(EntityUid uid, BitrunCacheComponent component, PullStartedMessage args)
@@ -35,20 +39,44 @@ public sealed partial class BitrunSystem
             component.LastPuller = args.PullerUid;
     }
 
-    private void TryComplete(Run run, EntityUid cache)
+    private void OnCacheMoved(Entity<BitrunCacheComponent> cache, ref MoveEvent args)
     {
-        if (run.Completed || run.Cache != cache ||
-            !TryComp<BitrunCacheComponent>(cache, out var tracked) || tracked.LastPuller is not { } puller ||
-            !run.Avatars.Contains(puller) ||
-            !TryComp<BitrunAvatarComponent>(puller, out var avatar) || avatar.Side != BitrunSide.Attackers ||
-            !IsNearby(cache, puller, 2f) ||
-            FindEquipment<BitrunForgeComponent>(run.Server, EquipmentRange) is not { } forge)
-            return;
-
-        CompleteRun(run, BitrunSide.Attackers, forge: forge);
+        if (!args.OnlyRotation && args.Component.MapUid is { } map && _domains.TryGetValue(map, out var run))
+            CheckCacheDelivery(run, cache, args.Component);
     }
 
-    private void CompleteRun(Run run, BitrunSide winner, bool elimination = false, EntityUid? forge = null)
+    private void CheckCacheDelivery(Run run, Entity<BitrunCacheComponent> cache, TransformComponent xform)
+    {
+        if (run.Completed || run.StopAt != null || run.Cache != cache.Owner || cache.Comp.DeliveryQueued ||
+            xform.MapUid != run.Map || xform.GridUid is not { } gridUid ||
+            !TryComp<MapGridComponent>(gridUid, out var grid) ||
+            _containers.IsEntityInContainer(cache) || cache.Comp.LastPuller is not { } puller ||
+            !run.Avatars.Contains(puller) || !TryComp<BitrunAvatarComponent>(puller, out var avatar) ||
+            avatar.Side != BitrunSide.Attackers || Transform(puller).GridUid != gridUid)
+            return;
+
+        var activelyPulling = TryComp<PullerComponent>(puller, out var pulling) && pulling.Pulling == cache.Owner;
+        if (!activelyPulling && !IsNearby(cache, puller, 2f))
+            return;
+
+        var tile = _maps.CoordinatesToTile(gridUid, grid, xform.Coordinates);
+        foreach (var goal in run.Goals)
+        {
+            if (TerminatingOrDeleted(goal))
+                continue;
+
+            var goalTransform = Transform(goal);
+            if (goalTransform.GridUid != gridUid ||
+                _maps.CoordinatesToTile(gridUid, grid, goalTransform.Coordinates) != tile)
+                continue;
+
+            // Record the arrival during movement and finish the run outside physics.
+            cache.Comp.DeliveryQueued = true;
+            return;
+        }
+    }
+
+    private void CompleteRun(Run run, BitrunSide winner, bool elimination = false)
     {
         if (run.Completed)
             return;
@@ -85,7 +113,7 @@ public sealed partial class BitrunSystem
         var grade = GradeRun(run, time);
         IncreaseGlitchThreat(run, grade);
         EntProtoId[] loot = elimination ? [] : GetRewardLoot(run, grade);
-        var payout = new Payout(run, winner, forge, points, grade, (int) time.TotalSeconds, loot);
+        var payout = new Payout(run, winner, points, grade, (int) time.TotalSeconds, loot);
         _payouts.Add(run.Id, payout);
         ProcessPayout(payout);
     }
@@ -136,18 +164,12 @@ public sealed partial class BitrunSystem
             Log.Warning($"Bitrun {payout.Id} ({payout.Domain.ID}) could not pay {payout.Points}: R&D {payout.Receiver} was removed");
         }
 
-        if (!payout.LootPaid && IsOnline(payout.Server))
+        if (!payout.LootPaid && IsOnline(payout.Server) &&
+            FindEquipment<BitrunForgeComponent>(payout.Server, EquipmentRange) is { } forge)
         {
-            var forge = payout.Forge is { } original && IsOnline(original) && IsNearby(payout.Server, original, EquipmentRange)
-                ? original
-                : FindEquipment<BitrunForgeComponent>(payout.Server, EquipmentRange);
-
-            if (forge is { } liveForge)
-            {
-                var output = Spawn("BitrunDecryptedCache", Transform(liveForge).Coordinates);
-                FillReward(output, payout.Loot);
-                payout.LootPaid = true;
-            }
+            var output = Spawn("BitrunDecryptedCache", Transform(forge).Coordinates);
+            FillReward(output, payout.Loot);
+            payout.LootPaid = true;
         }
 
         var status = payout.PointsPaid ? "bitrun-payment-paid"
@@ -168,12 +190,11 @@ public sealed partial class BitrunSystem
             _payouts.Remove(payout.Id);
     }
 
-    private sealed class Payout(Run run, BitrunSide winner, EntityUid? forge, int points, string grade, int seconds, EntProtoId[] loot)
+    private sealed class Payout(Run run, BitrunSide winner, int points, string grade, int seconds, EntProtoId[] loot)
     {
         public readonly Guid Id = run.Id;
         public readonly EntityUid Server = run.Server;
         public readonly EntityUid Receiver = run.Receiver;
-        public readonly EntityUid? Forge = forge;
         public readonly BitrunSide Winner = winner;
         public readonly BitrunDomainPrototype Domain = run.Domain;
         public readonly int Points = points;

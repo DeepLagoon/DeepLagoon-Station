@@ -168,10 +168,7 @@ public sealed partial class BitrunSystem
             return Loc.GetString("bitrun-stop-warning");
 
         if (run.Cache != null)
-        {
-            var forge = FindEquipment<BitrunForgeComponent>(run.Server, EquipmentRange);
-            return Loc.GetString(forge == null ? "bitrun-no-forge" : "bitrun-find-cache");
-        }
+            return Loc.GetString("bitrun-find-cache");
 
         return Loc.GetString("bitrun-objective-progress", ("progress", run.ObjectiveProgress),
             ("required", run.Domain.ObjectiveCount));

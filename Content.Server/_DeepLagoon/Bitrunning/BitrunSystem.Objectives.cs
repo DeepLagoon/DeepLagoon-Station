@@ -127,8 +127,8 @@ public sealed partial class BitrunSystem
     private void OnDrinkConsumed(EntityUid uid, BitrunAvatarComponent link, DrinkConsumedEvent args)
     {
         if (link.Side == BitrunSide.Attackers && _runs.TryGetValue(link.Server, out var run) &&
-            run.Domain.Objective == BitrunObjective.Drinks &&
-            MetaData(args.Drink).EntityPrototype?.ID == "DrinkPinaColadaGlass")
+            run.Domain.Objective == BitrunObjective.Drinks && Transform(uid).MapUid == run.Map &&
+            args.PrimaryReagent?.Id == "PinaColada")
             AdvanceObjective(run, 1);
     }
 

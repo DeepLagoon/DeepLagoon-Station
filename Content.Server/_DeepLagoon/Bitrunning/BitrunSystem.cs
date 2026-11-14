@@ -257,20 +257,12 @@ public sealed partial class BitrunSystem : EntitySystem
             SpawnCache(run);
         }
 
-        if (run.Cache is not { } cache || Transform(cache).MapUid != run.Map)
+        if (run.Cache is not { } cache || !TryComp<BitrunCacheComponent>(cache, out var delivery))
             return;
 
-        var coordinates = Transform(cache).Coordinates;
-        foreach (var goal in run.Goals)
-        {
-            if (!TerminatingOrDeleted(goal) &&
-                coordinates.TryDistance(EntityManager, Transform(goal).Coordinates, out var distance) &&
-                distance <= GoalRange)
-            {
-                TryComplete(run, cache);
-                return;
-            }
-        }
+        CheckCacheDelivery(run, (cache, delivery), Transform(cache));
+        if (delivery.DeliveryQueued)
+            CompleteRun(run, BitrunSide.Attackers);
     }
 
     private void SpawnCache(Run run, EntityCoordinates? coordinates = null)

@@ -332,9 +332,8 @@ public sealed partial class DrinkSystem : SharedDrinkSystem
         _audio.PlayPvs(entity.Comp.UseSound, args.Target.Value, AudioParams.Default.WithVolume(-2f).WithVariation(0.25f));
 
         _reaction.DoEntityReaction(args.Target.Value, solution, ReactionMethod.Ingestion);
-        _stomach.TryTransferSolution(firstStomach.Value.Owner, drained, firstStomach.Value.Comp1);
-
-        RaiseLocalEvent(args.Target.Value, new DrinkConsumedEvent(entity.Owner));
+        if (_stomach.TryTransferSolution(firstStomach.Value.Owner, drained, firstStomach.Value.Comp1))
+            RaiseLocalEvent(args.Target.Value, new DrinkConsumedEvent(drained.GetPrimaryReagentId()?.Prototype));
 
         var speechEvent = new SpeechTriggerEvent(SpeechTrigger.Drinking);
         RaiseLocalEvent(args.Target.Value, ref speechEvent);
@@ -379,7 +378,7 @@ public sealed partial class DrinkSystem : SharedDrinkSystem
 }
 
 /// <summary>Raised on a mob after successfully swallowing a drink.</summary>
-public sealed class DrinkConsumedEvent(EntityUid drink) : EntityEventArgs
+public sealed class DrinkConsumedEvent(ProtoId<ReagentPrototype>? primaryReagent) : EntityEventArgs
 {
-    public readonly EntityUid Drink = drink;
+    public readonly ProtoId<ReagentPrototype>? PrimaryReagent = primaryReagent;
 }
