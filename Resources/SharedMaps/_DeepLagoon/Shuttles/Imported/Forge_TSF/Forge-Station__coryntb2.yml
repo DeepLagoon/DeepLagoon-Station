@@ -5427,6 +5427,73 @@ entities:
     - type: Transform
       pos: -0.5,11.5
       parent: 1
+- proto: HardpointBallisticHeavy
+  entities:
+  - uid: 1340
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 6.5,17.5
+      parent: 1
+  - uid: 1341
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -5.5,17.5
+      parent: 1
+  - uid: 1342
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 6.5,11.5
+      parent: 1
+  - uid: 1343
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -5.5,11.5
+      parent: 1
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 1344
+    components:
+    - type: Transform
+      pos: -6.5,-7.5
+      parent: 1
+  - uid: 1345
+    components:
+    - type: Transform
+      pos: 7.5,-7.5
+      parent: 1
+- proto: HardpointBallisticMedium
+  entities:
+  - uid: 1346
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -1.5,22.5
+      parent: 1
+  - uid: 1347
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: 2.5,22.5
+      parent: 1
+- proto: HardpointBallisticSuperheavy
+  entities:
+  - uid: 1348
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -6.5,0.5
+      parent: 1
+  - uid: 1349
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 7.5,0.5
+      parent: 1
+
 - proto: JetpackNfsdFilled
   entities:
   - uid: 707

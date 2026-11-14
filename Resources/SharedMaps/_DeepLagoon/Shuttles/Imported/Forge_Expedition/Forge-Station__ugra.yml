@@ -16482,6 +16482,79 @@ entities:
       rot: -1.5707963267948966 rad
       pos: -1.5,-7.5
       parent: 1
+- proto: HardpointBallisticHeavy
+  entities:
+  - uid: 3804
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -4.5,41.5
+      parent: 1
+  - uid: 3805
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 5.5,41.5
+      parent: 1
+  - uid: 3806
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 10.5,-3.5
+      parent: 1
+  - uid: 3807
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -9.5,-3.5
+      parent: 1
+- proto: HardpointBallisticLight
+  entities:
+  - uid: 3808
+    components:
+    - type: Transform
+      pos: 3.5,-17.5
+      parent: 1
+  - uid: 3809
+    components:
+    - type: Transform
+      pos: -2.5,-17.5
+      parent: 1
+  - uid: 3810
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -12.5,18.5
+      parent: 1
+  - uid: 3811
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 13.5,18.5
+      parent: 1
+- proto: HardpointBallisticMedium
+  entities:
+  - uid: 3812
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -16.5,10.5
+      parent: 1
+  - uid: 3813
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: 17.5,10.5
+      parent: 1
+- proto: HardpointEnergyHeavy
+  entities:
+  - uid: 3814
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: 0.5,50.5
+      parent: 1
+
 - proto: HospitalCurtains
   entities:
   - uid: 2214
