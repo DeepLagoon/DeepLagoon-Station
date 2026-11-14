@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Numerics;
 using Content.Client._DeepLagoon.BodyCustomization;
 using Content.Client._DeepLagoon.Tattoos;
 using Content.Client.Humanoid;
@@ -29,6 +30,59 @@ public sealed class ClothingFaceFitIntegrationTests
           - type: Inventory
             speciesId: vulpkanin
         """;
+
+    [TestCase(Sex.Male)]
+    [TestCase(Sex.Female)]
+    public async Task SmallTajaranKeepsOriginalLayerScaleWithBreathAndWeldingMasks(Sex sex)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var uid = entities.SpawnEntity("MobTajaranDummy", MapCoordinates.Nullspace);
+            var mask = entities.SpawnEntity("ClothingMaskBreath", MapCoordinates.Nullspace);
+            var welding = entities.SpawnEntity("ClothingHeadHatWelding", MapCoordinates.Nullspace);
+            try
+            {
+                const float minimumSize = 0.8f;
+                var profile = HumanoidCharacterProfile.DefaultWithSpecies("Tajaran").WithSex(sex);
+                profile.Appearance.BodyFeatures.Clear();
+                profile.Appearance.Markings.Clear();
+                profile = profile.WithCharacterAppearance(profile.Appearance.WithWidth(minimumSize).WithHeight(minimumSize));
+                entities.System<HumanoidAppearanceSystem>().LoadProfile(uid, profile);
+
+                var inventory = entities.System<InventorySystem>();
+                Assert.That(inventory.TryEquip(uid, mask, "mask", force: true), Is.True);
+                Assert.That(inventory.TryEquip(uid, welding, "head", force: true), Is.True);
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                Assert.That(sprite.Scale, Is.EqualTo(new Vector2(minimumSize)));
+
+                void CheckLayer(string slot, bool fitted)
+                {
+                    var layer = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(slot + "-0")];
+                    Assert.That(layer.Scale, Is.EqualTo(Vector2.One), slot);
+                    Assert.That(sprite.LayerMapTryGet(slot + "-0-body-fit-source", out _), Is.EqualTo(fitted), slot);
+                }
+
+                CheckLayer("mask", true);
+                CheckLayer("head", true);
+                var masks = entities.System<MaskSystem>();
+                masks.SetToggled(mask, true);
+                CheckLayer("mask", false);
+                CheckLayer("head", true);
+                masks.SetToggled(mask, false);
+                CheckLayer("mask", true);
+                CheckLayer("head", true);
+            }
+            finally
+            {
+                entities.DeleteEntity(uid);
+                entities.DeleteEntity(mask);
+                entities.DeleteEntity(welding);
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [TestCase("Vox")]
     [TestCase("Resomi")]

@@ -20,7 +20,7 @@ public static class ClothingBodyFitMap
     public static Image<Rgba32>? Build(Image<Rgba32> body,
         IReadOnlyList<Anatomy> anatomy,
         Image<Rgba32> garment, Image<Rgba32>? displacement, int padding, bool force = false,
-        Image<Rgba32>? hands = null, IReadOnlyList<Contour>? contours = null)
+        Image<Rgba32>? hands = null, IReadOnlyList<Contour>? contours = null, bool preserveRows = false)
     {
         var width = body.Width;
         var height = body.Height;
@@ -264,7 +264,7 @@ public static class ClothingBodyFitMap
         }
         return result;
 
-        float SourceY(float y) => targetBottom > bodyBottom && y > anchorY
+        float SourceY(float y) => !preserveRows && targetBottom > bodyBottom && y > anchorY
             ? anchorY + (y - anchorY) * (bodyBottom + 1 - anchorY) / (targetBottom + 1 - anchorY)
             : y;
     }

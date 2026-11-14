@@ -271,8 +271,8 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                 region.Right / backing.Width, 1 - region.Top / backing.Height));
         }
         shader.SetParameter("directionBounds", bounds);
-        // A non-drawing copy supplies the current frame's exact atlas bounds and dirties uniforms before
-        // EVERY draw (also in multiple preview viewports). This avoids stale sampler bindings in Clyde.
+        // A non-drawing copy supplies the frame's atlas extent and dirties the sampler binding.
+        // Its origin can change between queued draws; the shader reads the origin from each quad.
         var helper = new SpriteComponent.Layer(layer, sprite)
         {
             CopyToShaderParameters = new SpriteComponent.CopyToShaderParameters(key) { ParameterUV = "sourceUV" },
@@ -302,7 +302,10 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         var state = garment.ActualState!;
         var width = state.Size.X;
         var height = state.Size.Y;
-        var padding = Math.Max(width, height) / 2;
+        var face = parts.FirstOrDefault(p => p.Kind == "face");
+        // The face silhouette is sampled inside the original RSI frame. Keep that frame's
+        // draw quad for masks and headwear to avoid scaling their underlying sprite.
+        var padding = face == null ? Math.Max(width, height) / 2 : 0;
         var directions = state.Icons.Length;
         using var atlas = new Image<Rgba32>(width + padding * 2, (height + padding * 2) * directions);
         var frames = new Dictionary<(RSI.State, int, int), Image<Rgba32>>();
@@ -316,7 +319,6 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                     if ((int) ((RsiDirection) d).OffsetRsiDir(garment.DirOffset) == direction) worldDirection = d;
                 garment.GetLayerDrawMatrix((RsiDirection) worldDirection, out var garmentMatrix);
                 using var skin = new Image<Rgba32>(width, height);
-                var face = parts.FirstOrDefault(p => p.Kind == "face");
                 foreach (var layer in body)
                     Composite(skin, layer, face?.Anchors[0] ?? layer.ActualState!, worldDirection, garmentMatrix);
                 using var handMask = new Image<Rgba32>(width, height);

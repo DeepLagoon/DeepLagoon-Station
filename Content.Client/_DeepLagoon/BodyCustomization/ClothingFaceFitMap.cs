@@ -70,10 +70,10 @@ public static class ClothingFaceFitMap
             // still supplies the material to stretch, even if most of the jaw is uncovered.
             else if (coversMouth && coverage[index] < 128) anchorPixels[index] = default;
         }
-        // The shared builder checks coverage at the attachment. A cap, raised visor or small
-        // mouth-held accessory cannot stretch merely because its slot is named head or mask.
+        // Fit each row independently. A lower chin can receive more fabric below, but must
+        // not pull the entire lower half of the mask down with it.
         var result = ClothingBodyFitMap.Build(reference, [new(shape, anchor, StretchVertically: false)],
-            garment, displacement, padding);
+            garment, displacement, padding, preserveRows: true);
         if (result == null) return null;
 
         var resultPixels = result.GetPixelSpan();

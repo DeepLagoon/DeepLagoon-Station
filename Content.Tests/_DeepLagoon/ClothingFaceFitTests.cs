@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using Content.Client._DeepLagoon.BodyCustomization;
 using NUnit.Framework;
 using SixLabors.ImageSharp;
@@ -75,6 +76,35 @@ public sealed class ClothingFaceFitTests
             using var garment = Read(path, direction);
             using var map = ClothingFaceFitMap.Build(reference, face, garment, null, 16);
             Assert.That(map, Is.Null, $"{path}/{direction} leaves the mouth uncovered.");
+        }
+    }
+
+    [TestCase("Clothing/Mask/gas.rsi/equipped-MASK.png", true)]
+    [TestCase("Clothing/Mask/breath.rsi/equipped-MASK.png", true)]
+    [TestCase("Clothing/Head/Welding/welding.rsi/equipped-HELMET.png", false)]
+    public void TajaranChinDoesNotPullMaskFabricDown(string path, bool coversMouth)
+    {
+        foreach (var sex in new[] { "m", "f" })
+        {
+            using var reference = Read($"Mobs/Species/Human/parts.rsi/head_{sex}.png", 0);
+            using var face = Read($"_Goobstation/Mobs/Species/Tajaran/parts.rsi/head_{sex}.png", 0);
+            using var garment = Read(path, 0);
+            using var map = ClothingFaceFitMap.Build(reference, face, garment, null, 0, coversMouth);
+            Assert.That(map, Is.Not.Null, $"{path}/{sex} must still fit the Tajaran face.");
+            Assert.That(map.Size, Is.EqualTo(garment.Size));
+
+            var bottom = 31;
+            while (!Enumerable.Range(0, 32).Any(x => garment[x, bottom].A >= 128))
+                bottom--;
+            for (var y = bottom; y < 32; y++)
+            for (var x = 0; x < 32; x++)
+            {
+                var sample = map[x, y];
+                var alpha = garment[sample.R, sample.G].A * sample.A / 255;
+                Assert.That(alpha, Is.EqualTo(garment[x, y].A), $"{path}/{sex}: changed mask hem at {x},{y}.");
+                if (alpha > 0)
+                    Assert.That(sample.G, Is.EqualTo(y), $"{path}/{sex}: pulled upper fabric down.");
+            }
         }
     }
 

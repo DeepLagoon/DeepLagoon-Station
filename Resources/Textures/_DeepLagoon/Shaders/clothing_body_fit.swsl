@@ -5,13 +5,14 @@ uniform highp int frameCount;
 uniform highp int directionCount;
 uniform highp vec4[64] directionBounds;
 varying highp vec2 fitUV;
+varying highp vec2 frameOrigin;
 
 void vertex() {
-    fitUV = tCoord2;
-}
-
-void fragment() {
-    highp vec2 center = (sourceUV.xy + sourceUV.zw) * 0.5;
+    // The helper uniform belongs to the last queued draw. Only its size is
+    // stable across directions. Use this quad's own UVs to locate its frame.
+    highp vec2 frameExtent = sourceUV.zw - sourceUV.xy;
+    frameOrigin = mix(modifyUV.xy, modifyUV.zw, tCoord) - tCoord2 * frameExtent;
+    highp vec2 center = frameOrigin + frameExtent * 0.5;
     int direction = 0;
     for (int i = 0; i < 64; i++) {
         if (i >= frameCount * directionCount) break;
@@ -21,11 +22,14 @@ void fragment() {
             break;
         }
     }
-    highp vec2 mapUV = vec2(fitUV.x, (fitUV.y + float(directionCount - 1 - direction)) / float(directionCount));
-    highp vec4 point = texture2D(fitMap, mapUV);
+    fitUV = vec2(tCoord2.x, (tCoord2.y + float(directionCount - 1 - direction)) / float(directionCount));
+}
+
+void fragment() {
+    highp vec4 point = texture2D(fitMap, fitUV);
     highp vec2 pixel = floor(point.rg * 255.0 + 0.5) + vec2(0.5);
     highp vec2 uv = vec2(pixel.x / frameSize.x, 1.0 - pixel.y / frameSize.y);
-    COLOR = zTexture(mix(sourceUV.xy, sourceUV.zw, uv));
+    COLOR = zTexture(frameOrigin + uv * (sourceUV.zw - sourceUV.xy));
     COLOR.rgb *= point.b * (255.0 / 128.0);
     COLOR.a *= point.a;
 }
