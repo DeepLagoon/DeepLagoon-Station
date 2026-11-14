@@ -54,6 +54,60 @@ GridSceneCache.prototype.prepare = async function(...args) {
     page.on('pageerror',e=>errors.push(e.message));
     const url='http://127.0.0.1:'+server.address().port;
     const report={};
+    report.areaSelection = {};
+    for (const legacy of modes) {
+      await page.goto(url + '/?large' + (legacy ? '&legacy' : ''));
+      await page.waitForFunction(() => window.fixtureGetData?.().items.length === 62500);
+      await page.getByRole('button', { name: 'Кисть · 2', exact: true }).click({ trial: true, timeout: 60000 });
+      await page.waitForSelector('.GridEditor__loading', { state: 'hidden', timeout: 60000 });
+      await page.getByRole('button', { name: 'Вписать', exact: true }).click();
+      const frame = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await frame();
+      const [start, end] = await page.locator('.GridEditor__canvas').evaluate(canvas => {
+        const rect = canvas.getBoundingClientRect();
+        const data = window.fixtureGetData();
+        const size = rect.width / data.width;
+        return [10, 239].map(cell => ({ x: rect.left + (cell - data.x + .5) * size,
+          y: rect.top + (data.y + data.height - cell - .5) * size }));
+      });
+      const props = page.locator('.GridEditor__properties');
+      const band = page.locator('.GridEditor__rubberband');
+      await page.mouse.move(start.x, start.y);
+      await page.keyboard.down('s');
+      await page.mouse.down();
+      await frame();
+      await page.evaluate(() => {
+        window.selectionDraws = 0;
+        const draw = CanvasRenderingContext2D.prototype.drawImage;
+        CanvasRenderingContext2D.prototype.drawImage = function (...args) {
+          if (this.canvas.classList.contains('GridEditor__selection')) window.selectionDraws++;
+          return draw.apply(this, args);
+        };
+      });
+      const started = performance.now();
+      await page.mouse.move(end.x, end.y, { steps: 20 });
+      await frame();
+      const dragMs = Math.round(performance.now() - started);
+      const spriteDraws = await page.evaluate(() => window.selectionDraws);
+      assert.ok(await band.isVisible(), `Missing selection rectangle in the ${legacy ? 'baseline' : 'updated'} editor`);
+      if (!legacy) {
+        assert.equal(spriteDraws, 0, 'Dragging the rectangle must not repaint the selected sprites');
+        assert.doesNotMatch(await props.textContent(), /Выбрано: 52900/);
+      }
+      const released = performance.now();
+      await page.mouse.up();
+      await page.keyboard.up('s');
+      await frame();
+      const releaseMs = Math.round(performance.now() - released);
+      assert.equal(await band.count(), 0);
+      assert.match(await props.textContent(), /Выбрано: 52900/);
+      report.areaSelection[legacy ? 'before' : 'after'] = { dragMs, releaseMs, spriteDraws, selected: 52900 };
+    }
+    if (process.env.GRID_EDITOR_SELECTION_ONLY) {
+      assert.deepEqual(errors, []);
+      console.log(JSON.stringify(report.areaSelection, null, 2));
+      return;
+    }
     const openCatalog=async target=>{if(!await target.locator('.GridEditor__catalog').isVisible())await target.getByRole('button',{name:'Каталог',exact:true}).click();};
     const openPanel=async(target,name)=>{const button=target.locator('.GridEditor__sections').getByRole('button',{name,exact:true});if(await button.getAttribute('aria-expanded')!=='true')await button.click();};
     await page.goto(url+'/');

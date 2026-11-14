@@ -4,6 +4,7 @@ using Content.Server.Temperature.Systems;
 using Content.Shared.Atmos;
 using Content.Shared.Clothing;
 using Content.Shared.Damage;
+using Content.Shared.Interaction;
 using Content.Shared.Inventory;
 using Content.Shared.Item.ItemToggle;
 using Content.Shared.Movement.Components;
@@ -18,6 +19,7 @@ namespace Content.Server._DeepLagoon.Modsuits;
 public sealed partial class ModSystem
 {
     private const string StowedToolSlot = "mod-stowed-tool";
+    private const string GeneralStorageFamily = "storage";
 
     [Dependency] private SharedStorageSystem _storage = default!;
     [Dependency] private SharedPointLightSystem _light = default!;
@@ -130,6 +132,39 @@ public sealed partial class ModSystem
     private void OpenModuleStorage(EntityUid module, EntityUid user)
     {
         _storage.OpenStorageUI(module, user, silent: false);
+    }
+
+    private void OnActivateStorage(Entity<ModControlComponent> suit, ActivateInWorldEvent args)
+    {
+        // Suits with built-in storage already handle activation through StorageSystem.
+        if (args.Handled || !args.Complex || HasComp<StorageComponent>(suit) || !CanUse(suit, args.User))
+            return;
+
+        EntityUid? storageModule = null;
+        foreach (var item in suit.Comp.Modules.ContainedEntities)
+        {
+            if (!TryComp<ModModuleComponent>(item, out var module) || module.Mode != ModModuleMode.Storage ||
+                !TryComp<StorageComponent>(item, out var storage) || !storage.OpenOnActivate)
+                continue;
+
+            if (module.Family == GeneralStorageFamily)
+            {
+                storageModule = item;
+                break;
+            }
+
+            storageModule ??= item;
+        }
+
+        if (storageModule is not { } target)
+            return;
+
+        if (_ui.IsUiOpen(target, StorageComponent.StorageUiKey.Key, args.User))
+            _ui.CloseUi(target, StorageComponent.StorageUiKey.Key, args.User);
+        else
+            OpenModuleStorage(target, args.User);
+
+        args.Handled = true;
     }
 
     private bool Dispense(Entity<ModModuleComponent> module, EntityUid user)

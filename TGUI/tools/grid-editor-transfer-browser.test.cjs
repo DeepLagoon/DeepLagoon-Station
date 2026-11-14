@@ -43,7 +43,39 @@ function App(){const[data,setData]=useState(initial);window.data=()=>data;const 
   await page.locator('.GridEditor__canvas').waitFor();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const point=async(x,y)=>page.locator('.GridEditor__canvas').evaluate((element,{x,y})=>{const b=element.getBoundingClientRect();return{x:b.left+(x+.5)*b.width/8,y:b.top+(8-y-.5)*b.height/8};},{x,y});
   const click=async(x,y,button='left')=>{const p=await point(x,y);await page.mouse.click(p.x,p.y,{button});};
-  await click(1,5);await page.keyboard.press('Control+c');await page.waitForFunction(()=>window.data().copyVersion);
+  const selectKey = down => page.evaluate(down => window.dispatchEvent(new CustomEvent('grid-editor-key', {
+    detail: { code: 'KeyS', key: 'ы', down },
+  })), down);
+  const start = await point(1, 5), end = await point(2, 4);
+  const properties = page.locator('.GridEditor__properties');
+  await page.mouse.move(start.x, start.y);
+  await selectKey(true);
+  await page.mouse.down();
+  await page.mouse.move(end.x, end.y, { steps: 5 });
+  await page.locator('.GridEditor__rubberband').waitFor();
+  await selectKey(false);
+  await page.mouse.up();
+  assert.match(await properties.textContent(), /Выбрано: 5/);
+  assert.equal(await page.evaluate(() => window.actions.some(action => action.purpose === 'copy')), false,
+    'Starting an area on a live entity must not begin a native-state copy');
+  await page.keyboard.down('Shift');
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(end.x, end.y, { steps: 5 });
+  await page.locator('.GridEditor__rubberband').waitFor();
+  await page.locator('.GridEditor__canvas').dispatchEvent('pointercancel', { pointerId: 1, bubbles: true });
+  await page.mouse.up();
+  await page.keyboard.up('Shift');
+  assert.match(await properties.textContent(), /Выбрано: 5/);
+  assert.equal(await page.locator('.GridEditor__rubberband').count(), 0);
+  await page.mouse.move(start.x, start.y);
+  await selectKey(true);
+  await selectKey(false);
+  await page.waitForFunction(() => window.data().copyVersion);
+  assert.match(await properties.textContent(), /ChairWood/);
+  const copiedOnTap = await page.evaluate(() => window.data().copyVersion);
+  await page.keyboard.press('Control+c');
+  await page.waitForFunction(previous => window.data().copyVersion !== previous, copiedOnTap);
   await page.mouse.move((await point(1,4)).x,(await point(1,4)).y);await page.locator('.GridEditor__canvas').focus();
   await page.evaluate(()=>window.dispatchEvent(new CustomEvent('grid-editor-key',{detail:{code:'KeyV',ctrlKey:true,down:true}})));
   await page.getByRole('button',{name:'Применить',exact:true}).click();await page.waitForFunction(()=>window.submissions.length===1);

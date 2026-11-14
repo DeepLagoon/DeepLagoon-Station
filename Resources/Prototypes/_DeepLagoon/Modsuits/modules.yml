@@ -15,7 +15,7 @@
   id: ModModuleStorage
   parent: ModModuleBase
   name: MOD storage module
-  description: Adds a small storage compartment to the suit.
+  description: Adds a backpack-sized storage compartment to the suit.
   components:
   - type: Sprite
     state: storage
@@ -27,8 +27,8 @@
     useCharge: 0
   - type: Storage
     grid:
-    - 0,0,3,2
-    maxItemSize: Normal
+    - 0,0,6,3
+    maxItemSize: Large
   - type: UserInterface
     interfaces:
       enum.StorageUiKey.Key:
@@ -50,8 +50,8 @@
     useCharge: 0
   - type: Storage
     grid:
-    - 0,0,5,3
-    maxItemSize: Large
+    - 0,0,7,4
+    maxItemSize: Huge
   - type: UserInterface
     interfaces:
       enum.StorageUiKey.Key:

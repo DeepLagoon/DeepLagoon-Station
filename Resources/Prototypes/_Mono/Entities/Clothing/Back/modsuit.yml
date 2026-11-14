@@ -76,10 +76,6 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Back/Modsuits/rogue.rsi
-  - type: Storage # Extra space - Mono
-    grid:
-    - 0,0,7,3
-    maxItemSize: Huge
   - type: ToggleableClothing
     clothingPrototypes:
       head: ClothingModsuitHelmetRogue
@@ -122,10 +118,6 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Back/Modsuits/tsfmc-volta.rsi
-  - type: Storage # Extra space - Mono
-    grid:
-    - 0,0,7,3
-    maxItemSize: Huge
   - type: ToggleableClothing
     clothingPrototypes:
       head: ClothingModsuitHelmetVolta
@@ -173,10 +165,6 @@
   components:
   - type: Sprite
     sprite: _Mono/Clothing/Back/Modsuits/mercenary.rsi
-  - type: Storage # Extra space - Mono
-    grid:
-    - 0,0,7,3
-    maxItemSize: Huge
   - type: ToggleableClothing
     clothingPrototypes:
       head: ClothingModsuitHelmetMercenary

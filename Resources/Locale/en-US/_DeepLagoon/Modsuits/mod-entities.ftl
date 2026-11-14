@@ -2,7 +2,7 @@ ent-ModModuleBase = MOD module
     .desc = An interchangeable unit for the MOD control service bay.
 
 ent-ModModuleStorage = MOD storage module
-    .desc = Adds a small storage compartment to the suit.
+    .desc = Adds a backpack-sized storage compartment to the suit.
 
 ent-ModModuleStorageExtended = MOD extended storage module
     .desc = Adds a large compartment for equipment.

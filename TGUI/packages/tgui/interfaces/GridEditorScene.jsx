@@ -56,7 +56,7 @@ const highlightImage=url=>{
   return highlightImages.get(url);
 };
 export const GridEditorSelection = memo(({ active = true, items, area, layers, view, cellSize, offset, visuals }) => {
-  const canvas = useRef(null);
+  const canvas = useRef(null), mask = useRef(null);
   useEffect(() => {
     if (!active) return;
     let cancelled=false;
@@ -73,8 +73,16 @@ export const GridEditorSelection = memo(({ active = true, items, area, layers, v
       const urls = new Set(spriteEntries.flatMap(entry => entry.layers.map(layer => layer.image.url)).filter(Boolean));
       const images=new Map(await Promise.all([...urls].map(async url=>[url,await highlightImage(url)])));
       if(cancelled || !canvas.current)return;
-      const context=canvas.current.getContext('2d');context.clearRect(0,0,view.width,view.height);
-      context.imageSmoothingEnabled=false;context.globalAlpha=.6;context.shadowColor='#53ff82';context.shadowBlur=2;
+      const output = canvas.current.getContext('2d');
+      output.clearRect(0, 0, view.width, view.height);
+      if (!images.size) return;
+      const buffer = mask.current ??= document.createElement('canvas');
+      if (buffer.width !== view.width) buffer.width = view.width;
+      if (buffer.height !== view.height) buffer.height = view.height;
+      const context = buffer.getContext('2d');
+      context.clearRect(0, 0, view.width, view.height);
+      context.imageSmoothingEnabled = false;
+      context.globalAlpha = .6;
       for(const {item, layers: resolvedLayers} of spriteEntries){
         const visual=visuals?.get(`${item.kind}:${item.prototype}`);
         for(const layer of resolvedLayers){
@@ -89,9 +97,14 @@ export const GridEditorSelection = memo(({ active = true, items, area, layers, v
           context.drawImage(image,-width/2,-height/2,width,height);context.restore();
         }
       }
+      // Blur the combined silhouette once instead of blurring every selected sprite.
+      output.shadowColor = '#53ff82';
+      output.shadowBlur = 2;
+      output.drawImage(buffer, 0, 0);
     };
     draw();return()=>{cancelled=true;};
   }, [active, items, area, layers, view, cellSize, offset, visuals]);
+  useEffect(() => { if (!active) mask.current = null; }, [active]);
   return <canvas ref={canvas} className="GridEditor__scene GridEditor__selection" width={active ? Math.max(1, view.width) : 1} height={active ? Math.max(1, view.height) : 1}
     style={{ left: view.left, top: view.top, width: view.width, height: view.height }} aria-hidden="true" />;
 });

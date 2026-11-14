@@ -22,14 +22,15 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class ModSuitTests
 {
-    [TestCase(true)]
-    [TestCase(false)]
-    public async Task PlayerCanInsertAnItemThroughInstalledStorageUi(bool worn)
+    [TestCase("ClothingModsuitMining", true)]
+    [TestCase("ClothingModsuitCaptainPowerCell", false)]
+    public async Task PlayerCanInsertAnItemThroughInstalledStorageUi(string suitPrototype, bool worn)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Destructive = true });
         var map = await pair.CreateTestMap();
         var em = pair.Server.EntMan;
         var ui = em.System<SharedUserInterfaceSystem>();
+        var interaction = em.System<SharedInteractionSystem>();
         const StorageComponent.StorageUiKey key = StorageComponent.StorageUiKey.Key;
         EntityUid player = default, module = default, item = default;
         NetEntity netModule = default, netItem = default;
@@ -39,11 +40,12 @@ public sealed class ModSuitTests
         {
             player = em.SpawnEntity("MobHuman", map.GridCoords);
             pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), player);
-            var suit = em.SpawnEntity("ClothingModsuitStandartPowerCell", map.GridCoords);
+            var suit = em.SpawnEntity(suitPrototype, map.GridCoords);
             if (worn)
                 Assert.That(em.System<InventorySystem>().TryEquip(player, suit, "back", silent: true, force: true), Is.True);
 
-            module = em.GetComponent<ModControlComponent>(suit).Modules.ContainedEntities.Single(em.HasComponent<StorageComponent>);
+            module = em.GetComponent<ModControlComponent>(suit).Modules.ContainedEntities.Single(uid =>
+                em.GetComponent<ModModuleComponent>(uid).Family == "storage");
             item = em.SpawnEntity("Crowbar", map.GridCoords);
             Assert.That(em.System<SharedHandsSystem>().TryPickupAnyHand(player, item), Is.True);
             Assert.That(em.System<SharedStorageSystem>().TryGetAvailableGridSpace(module, item, out var available), Is.True);
@@ -51,8 +53,11 @@ public sealed class ModSuitTests
             netModule = em.GetNetEntity(module);
             netItem = em.GetNetEntity(item);
 
-            var open = new ModUiMessage(ModOperation.ToggleModule, netModule) { Actor = player, UiKey = ModUiKey.Key };
-            em.EventBus.RaiseLocalEvent(suit, open);
+            Assert.That(interaction.InteractionActivate(player, suit), Is.True);
+            Assert.That(ui.IsUiOpen(module, key, player), Is.True);
+            Assert.That(interaction.InteractionActivate(player, suit, checkUseDelay: false), Is.True);
+            Assert.That(ui.IsUiOpen(module, key, player), Is.False);
+            Assert.That(interaction.InteractionActivate(player, suit, checkUseDelay: false), Is.True);
             Assert.That(ui.IsUiOpen(module, key, player), Is.True);
         });
 

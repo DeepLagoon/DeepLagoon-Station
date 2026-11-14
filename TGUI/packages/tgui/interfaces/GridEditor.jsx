@@ -7,7 +7,7 @@ import { gridEditorTabEntries } from './gridEditorTabs.mjs';
 import { gridEditorTransfer } from './gridEditorTransfer.mjs';
 import { useBackend } from '../backend';
 import { ColorSquare } from '../components/PlayerColorPicker';
-import { visibleItem, editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
+import { visibleItem, editableItem, scopeDecalChanges, decalTemplate, collaborativeDraft, discardSuperseded, cellsBetween, trackLocalEdits, rebaseExpansion, resizeExpansion, copyItems, inside, stamp, draftIssues, makeTemplate, projectTemplate, insertTemplate, makePatch, itemsAtPoint, editorKey, indexItems, nearbyItems, ensureWallFloors, cellOf, cellRectangle, eraseRectangle, moveSelection, drawOrder, replaceConflicts, mirrorChanges, reflectSelection } from './gridEditorModel.mjs';
 import './GridEditor.scss';
 import { useGridEditorReference } from './GridEditorReference';
 import { GridEditorDecalSprite } from './GridEditorDecalSprite';
@@ -160,7 +160,16 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const [z, setZ] = sharedField('z'), [cleanable, setCleanable] = sharedField('cleanable');
   const decalMode = category === 'decal';
   const [emptyDecalLayers, setEmptyDecalLayers] = useState([0]);
-  const decalLayers = [...new Set([...emptyDecalLayers, z, ...draft.filter(item => item.kind === 'decal').map(item => item.z || 0)])].sort((a, b) => a - b);
+  const decalCounts = useMemo(() => {
+    const counts = new Map();
+    if (decalMode) for (const item of draft) {
+      if (item.kind !== 'decal') continue;
+      const layer = item.z || 0;
+      counts.set(layer, (counts.get(layer) || 0) + 1);
+    }
+    return counts;
+  }, [draft, decalMode]);
+  const decalLayers = [...new Set([...emptyDecalLayers, z, ...decalCounts.keys()])].sort((a, b) => a - b);
   const chooseLayer = value => {
     setZ(value); setSelected([]); selectionRegion.current = null; setContextMenu(null);
     gesture.current = null; setMovePreview(null); setRubberband(null); setPreviewCells([]);
@@ -249,6 +258,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   const space = useRef(false);
   const deleteHold = useRef(false), [deleteHeld, setDeleteHeld] = useState(false);
   const selectHold = useRef(false), [selectHeld, setSelectHeld] = useState(false);
+  const selectShortcutItem = useRef(null);
   const activeTool = selectHeld || gesture.current?.selectArea || gesture.current?.ids ? 'select' : tool;
   const keyboardPan = useRef({ keys: new Set(), shift: false, frame: null, time: 0 });
   const stopKeyboardPan = () => {
@@ -622,13 +632,12 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       return;
     }
     if (mode === 'select') {
-      if(selectHold.current && item) copySelection([item]);
-      selectionRegion.current = null;
+      selectShortcutItem.current = null;
       const ids = item ? heldShift ? selected.includes(item.id) ? selected.filter(id => id !== item.id) : [...selected, item.id] : [item.id] : heldShift ? selected : [];
       setSelected(ids);
       if (item?.kind === 'decal') { setColor(item.color || '#ffffffff'); setZ(item.z); setCleanable(item.cleanable); }
       gesture.current = { selectArea: true, start: cell, px: event.clientX, py: event.clientY,
-        originalSelected: selected, additive: heldShift ? selected : [] };
+        originalSelected: selected, additive: heldShift ? selected : [], copyItem: selectHold.current ? item : null };
       return;
     }
     if (templateBrush && tool === 'brush') {
@@ -642,6 +651,11 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (tool === 'brush') setRubberband(cellRectangle(cell, cell));
     if (tool === 'line') setPreviewCells([cell]);
   };
+  const updatePointer = (event, cell) => {
+    setHover(previous => inside(cell, area) ? previous?.x === cell.x && previous?.y === cell.y ? previous : cell : null);
+    const point = pointAt(event);
+    lastPointer.current = point; setPointer(point);
+  };
   const move = (event) => {
     const active = gesture.current;
     if (active?.pan) {
@@ -649,8 +663,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       viewport.current.scrollTop = active.top - (event.clientY - active.py); return;
     }
     const cell = at(event);
-    setHover(previous => inside(cell, area) ? previous?.x === cell.x && previous?.y === cell.y ? previous : cell : null);
-    const point=pointAt(event);lastPointer.current=point;setPointer(point);
+    if (!active?.selectArea) updatePointer(event, cell);
     if (locked || !active) return;
     if (active.context) {
       if (Math.hypot(event.clientX - active.px, event.clientY - active.py) < 6) return;
@@ -672,10 +685,8 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     if (active.erasing) {
       active.last = bounded; setRubberband(cellRectangle(active.start, bounded));
     } else if (active.selectArea) {
-      const rectangle = cellRectangle(active.start, bounded);
-      setRubberband(rectangle);
-      setSelected([...new Set([...active.additive, ...current.current.filter((item) => editable(item) &&
-        inside({ x: Math.floor(item.x), y: Math.floor(item.y) }, rectangle)).map((item) => item.id)])]);
+      // Commit the selection once on release. Only the rectangle follows the mouse.
+      setRubberband(cellRectangle(active.start, bounded));
     } else if (active.ids) {
       // Preview the offset only. Rebuilding/validating a large draft on every
       // mouse movement defeats the scene cache; commit once on pointer release.
@@ -700,10 +711,14 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
       if (cancel) setSelected(active.originalSelected);
       else {
         move(event);
-        if (active.selecting && !active.additive.length) {
+        updatePointer(event, at(event));
+        selectionRegion.current = null;
+        if (active.selecting) {
           const rectangle = cellRectangle(active.start, active.lastMove || active.start);
-          selectionRegion.current = { rectangle, ids: current.current.filter(item => editable(item) && inside({x:Math.floor(item.x),y:Math.floor(item.y)},rectangle)).map(item=>item.id) };
-        }
+          const ids = current.current.filter(item => inside(cellOf(item), rectangle) && editable(item)).map(item => item.id);
+          if (!active.additive.length) selectionRegion.current = { rectangle, ids };
+          setSelected(active.additive.length ? [...new Set([...active.additive, ...ids])] : ids);
+        } else if (active.copyItem && !locked) copySelection([active.copyItem]);
       }
     } else if (!active.pan) {
       if (cancel) { update(active.original, true); if (active.ids) setSelected(active.ids); }
@@ -832,11 +847,13 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         return;
       }
       if (event.code === 'KeyS' && !event.ctrlKey && !event.altKey && !event.metaKey) {
-        event.preventDefault();if(!editingLocked.current&&!gesture.current&&!event.repeat){
-          selectHold.current=true;setSelectHeld(true);setTool('select');
-          const location=lastPointer.current;const item=location&&inside(location,area)?underPointer(location)[0]:null;
-          if(item){setSelected([item.id]);selectionRegion.current=null;copySelection([item]);}
-        }return;
+        event.preventDefault();
+        if (!editingLocked.current && !gesture.current && !event.repeat) {
+          selectHold.current = true; setSelectHeld(true); setTool('select');
+          const location = lastPointer.current;
+          selectShortcutItem.current = location && inside(location, area) ? underPointer(location)[0] : null;
+        }
+        return;
       }
       if (event.code === 'Space') { event.preventDefault(); space.current = true; setPanning(true); return; }
       if (editorKey(event) === 'shift') { keyboardPan.current.shift = true; shiftHeld.current = true; setShift(true); }
@@ -857,8 +874,23 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         if (shortcuts[key]) { event.preventDefault(); setTool(shortcuts[key]); }
       }
     };
-    const release = event => { if (event.code === 'KeyS') { selectHold.current = false; setSelectHeld(false); } if (event.code === 'KeyD') { deleteHold.current = false; setDeleteHeld(false); } keyboardPan.current.keys.delete(event.code || event.key); if (!keyboardPan.current.keys.size) stopKeyboardPan(); if (event.code === 'Space') { space.current = false; setPanning(false); } if (editorKey(event) === 'shift') { keyboardPan.current.shift = false; shiftHeld.current = false; setShift(false); } };
-    const blur = () => { selectHold.current = false; setSelectHeld(false); deleteHold.current = false; setDeleteHeld(false); stopKeyboardPan(); keyboardPan.current.shift = false; space.current = false; shiftHeld.current = false; setPanning(false); setShift(false); };
+    const release = event => {
+      if (event.code === 'KeyS') {
+        const item = selectShortcutItem.current;
+        selectShortcutItem.current = null;
+        selectHold.current = false; setSelectHeld(false);
+        // A tap copies the hovered object. Dragging must not start a copy transfer.
+        if (item && !gesture.current && !editingLocked.current) {
+          setSelected([item.id]); selectionRegion.current = null; copySelection([item]);
+        }
+      }
+      if (event.code === 'KeyD') { deleteHold.current = false; setDeleteHeld(false); }
+      keyboardPan.current.keys.delete(event.code || event.key);
+      if (!keyboardPan.current.keys.size) stopKeyboardPan();
+      if (event.code === 'Space') { space.current = false; setPanning(false); }
+      if (editorKey(event) === 'shift') { keyboardPan.current.shift = false; shiftHeld.current = false; setShift(false); }
+    };
+    const blur = () => { selectShortcutItem.current = null; selectHold.current = false; setSelectHeld(false); deleteHold.current = false; setDeleteHeld(false); stopKeyboardPan(); keyboardPan.current.shift = false; space.current = false; shiftHeld.current = false; setPanning(false); setShift(false); };
     const nativeKey = event => { const input = { ...event.detail, nativeBridge: true, target: document.activeElement, preventDefault() {} }; if (input.down) key(input); else release(input); };
     document.addEventListener('keydown', key, true); document.addEventListener('keyup', release, true); window.addEventListener('blur', blur); window.addEventListener('grid-editor-key', nativeKey);
     return () => { document.removeEventListener('keydown', key, true); document.removeEventListener('keyup', release, true); window.removeEventListener('blur', blur); window.removeEventListener('grid-editor-key', nativeKey); };
@@ -867,6 +899,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
   useEffect(() => {
     if (active) return;
     stopKeyboardPan(); keyboardPan.current.shift = false;
+    selectShortcutItem.current = null;
     space.current = shiftHeld.current = selectHold.current = deleteHold.current = false;
     setPanning(false); setShift(false); setSelectHeld(false); setDeleteHeld(false);
     gesture.current = null; setMovePreview(null); setRubberband(null); setPreviewCells([]); setContextMenu(null);
@@ -924,7 +957,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
     return () => view.removeEventListener('wheel', wheel);
   }, [zoom]);
   const pointedItems = useMemo(() => pointer ? underPointer(pointer) : [], [pointer, spatialIndex, editLayers, visuals]);
-  const hoveredItem = (shift || ['pick', 'select'].includes(activeTool)) ? pointedItems[0] : null;
+  const hoveredItem = !gesture.current?.selecting && (shift || ['pick', 'select'].includes(activeTool)) ? pointedItems[0] : null;
   const selectedItems = useMemo(() => {
     const ids = new Set(selected);
     return displayed.filter(item => ids.has(item.id) && visibleItem(item, sceneLayers, visual(item)));
@@ -1078,7 +1111,7 @@ const GridEditorWorkspace = ({ data, sendAct, active, shared, setShared, clipboa
         {decalMode && <section className="GridEditor__decalLayers" aria-label="Слои декалей">
           <strong>Режим декалирования</strong>
           {decalLayers.map(layer => <button key={layer} className={z === layer ? 'active' : ''} disabled={locked} onClick={() => chooseLayer(layer)}>
-            Слой {layer} · {draft.filter(item => item.kind === 'decal' && (item.z || 0) === layer).length}</button>)}
+            Слой {layer} · {decalCounts.get(layer) || 0}</button>)}
           <button disabled={locked || decalLayers.length >= 201} onClick={() => {
             const value = Array.from({ length: 201 }, (_, i) => i <= 100 ? i : 100 - i).find(value => !decalLayers.includes(value));
             if (value !== undefined) { setEmptyDecalLayers(values => [...values, value]); chooseLayer(value); }

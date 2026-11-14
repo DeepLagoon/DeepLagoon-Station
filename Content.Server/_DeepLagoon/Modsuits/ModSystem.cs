@@ -48,6 +48,7 @@ public sealed partial class ModSystem : EntitySystem
         SubscribeLocalEvent<ModControlComponent, MapInitEvent>(OnControlMapInit);
         SubscribeLocalEvent<ModControlComponent, InventoryRelayedEvent<DamageModifyEvent>>(OnDamageModify);
         SubscribeLocalEvent<ModControlComponent, InteractUsingEvent>(OnInstall, before: [typeof(StorageSystem)]);
+        SubscribeLocalEvent<ModControlComponent, ActivateInWorldEvent>(OnActivateStorage);
         SubscribeLocalEvent<ModControlComponent, GetVerbsEvent<ActivationVerb>>(OnStorageVerbs);
         SubscribeLocalEvent<ModControlComponent, ClothingSealAttemptEvent>(OnSealAttempt);
         SubscribeLocalEvent<ModControlComponent, ClothingControlSealCompleteEvent>(OnSealComplete);
