@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Numerics;
 using Content.Server._DeepLagoon.Modsuits;
 using Content.Server.Construction;
 using Content.Server.Power.EntitySystems;
@@ -10,6 +11,7 @@ using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction;
 using Content.Shared.Inventory;
 using Content.Shared.Storage;
+using Content.Shared.Storage.EntitySystems;
 using Content.Shared.Wires;
 using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
@@ -20,6 +22,63 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class ModSuitTests
 {
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task PlayerCanInsertAnItemThroughInstalledStorageUi(bool worn)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Destructive = true });
+        var map = await pair.CreateTestMap();
+        var em = pair.Server.EntMan;
+        var ui = em.System<SharedUserInterfaceSystem>();
+        const StorageComponent.StorageUiKey key = StorageComponent.StorageUiKey.Key;
+        EntityUid player = default, module = default, item = default;
+        NetEntity netModule = default, netItem = default;
+        ItemStorageLocation location = default;
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            player = em.SpawnEntity("MobHuman", map.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), player);
+            var suit = em.SpawnEntity("ClothingModsuitStandartPowerCell", map.GridCoords);
+            if (worn)
+                Assert.That(em.System<InventorySystem>().TryEquip(player, suit, "back", silent: true, force: true), Is.True);
+
+            module = em.GetComponent<ModControlComponent>(suit).Modules.ContainedEntities.Single(em.HasComponent<StorageComponent>);
+            item = em.SpawnEntity("Crowbar", map.GridCoords);
+            Assert.That(em.System<SharedHandsSystem>().TryPickupAnyHand(player, item), Is.True);
+            Assert.That(em.System<SharedStorageSystem>().TryGetAvailableGridSpace(module, item, out var available), Is.True);
+            location = available!.Value;
+            netModule = em.GetNetEntity(module);
+            netItem = em.GetNetEntity(item);
+
+            var open = new ModUiMessage(ModOperation.ToggleModule, netModule) { Actor = player, UiKey = ModUiKey.Key };
+            em.EventBus.RaiseLocalEvent(suit, open);
+            Assert.That(ui.IsUiOpen(module, key, player), Is.True);
+        });
+
+        await pair.RunTicksSync(10);
+        await pair.Server.WaitAssertion(() => Assert.That(ui.IsUiOpen(module, key, player), Is.True));
+        await pair.Client.WaitAssertion(() =>
+        {
+            var client = pair.Client.EntMan;
+            Assert.That(client.System<SharedUserInterfaceSystem>().IsUiOpen(client.GetEntity(netModule), key), Is.True);
+            client.RaisePredictiveEvent(new StorageInsertItemIntoLocationEvent(netItem, netModule, location));
+        });
+
+        await pair.RunTicksSync(10);
+        await pair.Server.WaitAssertion(() => Assert.That(em.GetComponent<StorageComponent>(module).Container.Contains(item), Is.True));
+
+        if (!worn)
+        {
+            await pair.Server.WaitPost(() => em.System<SharedTransformSystem>().SetCoordinates(player, map.GridCoords.Offset(new Vector2(5, 0))));
+            await pair.RunTicksSync(5);
+            await pair.Server.WaitAssertion(() => Assert.That(ui.IsUiOpen(module, key, player), Is.False));
+        }
+
+        await pair.Server.WaitPost(() => pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), null));
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task SuitServicesModulesAndUnsealsWhenItsBatteryRunsOut()
     {

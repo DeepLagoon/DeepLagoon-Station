@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Content.Shared._DeepLagoon.Modsuits;
 using Content.Shared._NF.LoggingExtensions;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Administration.Logs;
@@ -171,7 +172,7 @@ namespace Content.Shared.Interaction
             var range = _ui.GetUiRange(ev.Target, ev.UiKey);
 
             // As long as range>0, the UI frame updates should have auto-closed the UI if it is out of range.
-            DebugTools.Assert(range <= 0 || UiRangeCheck(ev.Actor, ev.Target, range));
+            DebugTools.Assert(range <= 0 || UiRangeCheck(ev.Actor, ev.Target, ev.UiKey, range));
 
             if (range <= 0 && !IsAccessible(ev.Actor, ev.Target))
             {
@@ -192,10 +193,23 @@ namespace Content.Shared.Interaction
                 ev.Cancel();
         }
 
-        private bool UiRangeCheck(Entity<TransformComponent?> user, Entity<TransformComponent?> target, float range)
+        private bool UiRangeCheck(Entity<TransformComponent?> user, Entity<TransformComponent?> target, Enum key, float range)
         {
             if (!Resolve(target, ref target.Comp))
                 return false;
+
+            // A MOD storage UI belongs to its installed module, but the user reaches it through the suit.
+            if (key is StorageComponent.StorageUiKey.Key &&
+                _containerSystem.TryGetContainer(target.Comp.ParentUid, ModSuitContainers.Modules, out var modules) &&
+                modules.Contains(target.Owner))
+            {
+                target = modules.Owner;
+                if (!Resolve(target, ref target.Comp))
+                    return false;
+
+                if (target.Comp.ParentUid != user.Owner && _containerSystem.IsEntityInContainer(target))
+                    return _ignoreUiRangeQuery.HasComp(user);
+            }
 
             if (user.Owner == target.Owner)
                 return true;
@@ -1444,7 +1458,7 @@ namespace Content.Shared.Interaction
             if (ev.Result == BoundUserInterfaceRangeResult.Fail)
                 return;
 
-            ev.Result = UiRangeCheck(ev.Actor!, ev.Target, ev.Data.InteractionRange)
+            ev.Result = UiRangeCheck(ev.Actor!, ev.Target, ev.UiKey, ev.Data.InteractionRange)
                     ? BoundUserInterfaceRangeResult.Pass
                     : BoundUserInterfaceRangeResult.Fail;
         }

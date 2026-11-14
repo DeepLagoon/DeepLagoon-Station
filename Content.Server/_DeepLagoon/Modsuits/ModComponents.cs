@@ -9,8 +9,6 @@ namespace Content.Server._DeepLagoon.Modsuits;
 public sealed partial class ModControlComponent : Component
 {
     public const string CoreSlot = "core-container";
-    public const string ModuleContainer = "mod-modules";
-
 
     [DataField]
     public int Capacity = 12;

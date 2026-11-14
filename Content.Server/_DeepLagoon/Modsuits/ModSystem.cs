@@ -65,7 +65,7 @@ public sealed partial class ModSystem : EntitySystem
 
     private void OnControlComponentInit(Entity<ModControlComponent> suit, ref ComponentInit args)
     {
-        suit.Comp.Modules = _containers.EnsureContainer<Container>(suit, ModControlComponent.ModuleContainer);
+        suit.Comp.Modules = _containers.EnsureContainer<Container>(suit, ModSuitContainers.Modules);
     }
 
     private void OnControlMapInit(Entity<ModControlComponent> suit, ref MapInitEvent args)
@@ -212,7 +212,7 @@ public sealed partial class ModSystem : EntitySystem
 
     private void OnContainerInserted(Entity<ModControlComponent> suit, ref EntInsertedIntoContainerMessage args)
     {
-        if (args.Container.ID == ModControlComponent.ModuleContainer && TryComp<ModModuleComponent>(args.Entity, out var module))
+        if (args.Container.ID == ModSuitContainers.Modules && TryComp<ModModuleComponent>(args.Entity, out var module))
             module.Host = suit;
     }
 
