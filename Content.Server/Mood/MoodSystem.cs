@@ -31,7 +31,6 @@ public sealed partial class MoodSystem : EntitySystem
     [Dependency] private MobThresholdSystem _mobThreshold = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private PopupSystem _popup = default!;
-    [Dependency] private SharedJetpackSystem _jetpack = default!;
 
     public override void Initialize()
     {
@@ -42,10 +41,11 @@ public sealed partial class MoodSystem : EntitySystem
         SubscribeLocalEvent<MoodComponent, MobStateChangedEvent>(OnMobStateChanged);
         SubscribeLocalEvent<MoodComponent, MoodEffectEvent>(OnMoodEffect);
         SubscribeLocalEvent<MoodComponent, DamageChangedEvent>(OnDamageChange);
-        SubscribeLocalEvent<MoodComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshMoveSpeed);
         SubscribeLocalEvent<MoodComponent, MoodRemoveEffectEvent>(OnRemoveEffect);
         SubscribeLocalEvent<MoodComponent, ShowMoodAlertEvent>(OnShowMoodAlert);
         Subs.CVar(_config, CCVars.MoodEnabled, OnEnabledChanged);
+        Subs.CVar(_config, CCVars.MoodIncreasesSpeed, _ => RefreshMoodSpeedModifiers());
+        Subs.CVar(_config, CCVars.MoodDecreasesSpeed, _ => RefreshMoodSpeedModifiers());
     }
 
     private void OnEnabledChanged(bool enabled)
@@ -133,16 +133,13 @@ public sealed partial class MoodSystem : EntitySystem
         }
     }
 
-    private void OnRefreshMoveSpeed(EntityUid uid, MoodComponent component, RefreshMovementSpeedModifiersEvent args)
+    private float GetSprintSpeedModifier(MoodComponent component, MoodThreshold threshold)
     {
-        if (!_config.GetCVar(CCVars.MoodEnabled)
-            || component.CurrentMoodThreshold is > MoodThreshold.Meh and < MoodThreshold.Good or MoodThreshold.Dead
-            || _jetpack.IsUserFlying(uid))
-            return;
+        if (threshold is > MoodThreshold.Meh and < MoodThreshold.Good or MoodThreshold.Dead)
+            return 1f;
 
         // This ridiculous math serves a purpose making high mood less impactful on movement speed than low mood
-        var modifier =
-            Math.Clamp(
+        return Math.Clamp(
                 (component.CurrentMoodLevel >= component.MoodThresholds[MoodThreshold.Neutral])
                     ? _config.GetCVar(CCVars.MoodIncreasesSpeed)
                         ? MathF.Pow(component.SpeedBonusGrowth, component.CurrentMoodLevel - component.MoodThresholds[MoodThreshold.Neutral])
@@ -152,8 +149,21 @@ public sealed partial class MoodSystem : EntitySystem
                         : 1,
                 component.MinimumSpeedModifier,
                 component.MaximumSpeedModifier);
+    }
 
-        args.ModifySpeed(1, modifier);
+    private void RefreshMoodSpeedModifiers()
+    {
+        var query = EntityQueryEnumerator<MoodComponent, NetMoodComponent>();
+        while (query.MoveNext(out var uid, out var mood, out var netMood))
+        {
+            var modifier = GetSprintSpeedModifier(mood, mood.CurrentMoodThreshold);
+            if (netMood.SprintSpeedModifier == modifier)
+                continue;
+
+            netMood.SprintSpeedModifier = modifier;
+            Dirty(uid, netMood);
+            _movementSpeedModifier.RefreshMovementSpeedModifiers(uid);
+        }
     }
 
     private void OnMoodEffect(EntityUid uid, MoodComponent component, MoodEffectEvent args)
@@ -351,29 +361,25 @@ public sealed partial class MoodSystem : EntitySystem
         }
 
         component.CurrentMoodLevel = newMoodLevel;
+        var threshold = GetMoodThreshold(component);
 
         if (TryComp<NetMoodComponent>(uid, out var mood))
         {
             mood.CurrentMoodLevel = component.CurrentMoodLevel;
             mood.NeutralMoodThreshold = component.MoodThresholds.GetValueOrDefault(MoodThreshold.Neutral);
+            var modifier = GetSprintSpeedModifier(component, threshold);
+            var speedChanged = mood.SprintSpeedModifier != modifier;
+            mood.SprintSpeedModifier = modifier;
             Dirty(uid, mood);
+            if (speedChanged)
+                _movementSpeedModifier.RefreshMovementSpeedModifiers(uid);
         }
 
         RefreshShaders(uid, component.CurrentMoodLevel);
-        UpdateCurrentThreshold(uid, component);
-    }
-
-    private void UpdateCurrentThreshold(EntityUid uid, MoodComponent? component = null)
-    {
-        if (!Resolve(uid, ref component))
+        if (threshold == component.CurrentMoodThreshold)
             return;
 
-        var calculatedThreshold = GetMoodThreshold(component);
-        if (calculatedThreshold == component.CurrentMoodThreshold)
-            return;
-
-        component.CurrentMoodThreshold = calculatedThreshold;
-
+        component.CurrentMoodThreshold = threshold;
         DoMoodThresholdsEffects(uid, component);
     }
 
@@ -387,10 +393,7 @@ public sealed partial class MoodSystem : EntitySystem
 
         // Modify mob stats
         if (modifier != GetMovementThreshold(component.LastThreshold))
-        {
-            _movementSpeedModifier.RefreshMovementSpeedModifiers(uid);
             SetCritThreshold(uid, component, modifier);
-        }
 
         // Modify interface
         if (component.MoodThresholdsAlerts.TryGetValue(component.CurrentMoodThreshold, out var alertId))

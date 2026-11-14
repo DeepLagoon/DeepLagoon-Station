@@ -41,7 +41,7 @@ public partial class MobStateSystem
         SubscribeLocalEvent<MobStateComponent, DropAttemptEvent>(CheckAct);
         SubscribeLocalEvent<MobStateComponent, PickupAttemptEvent>(CheckAct);
         SubscribeLocalEvent<MobStateComponent, StartPullAttemptEvent>(CheckAct);
-        SubscribeLocalEvent<MobStateComponent, UpdateCanMoveEvent>(CheckAct);
+        SubscribeLocalEvent<MobStateComponent, UpdateCanMoveEvent>(OnUpdateCanMove);
         SubscribeLocalEvent<MobStateComponent, StandAttemptEvent>(CheckAct);
         SubscribeLocalEvent<MobStateComponent, PointAttemptEvent>(CheckAct);
         SubscribeLocalEvent<MobStateComponent, TryingToSleepEvent>(OnSleepAttempt);
@@ -49,7 +49,28 @@ public partial class MobStateSystem
         SubscribeLocalEvent<MobStateComponent, AttemptPacifiedAttackEvent>(OnAttemptPacifiedAttack);
 
         SubscribeLocalEvent<MobStateComponent, UnbuckleAttemptEvent>(OnUnbuckleAttempt);
+
+        SubscribeLocalEvent<CriticalCrawlingComponent, DownedEvent>(OnCriticalCrawlingDowned);
+        SubscribeLocalEvent<CriticalCrawlingComponent, StoodEvent>(OnCriticalCrawlingStood);
     }
+
+    private void OnUpdateCanMove(EntityUid uid, MobStateComponent component, UpdateCanMoveEvent args)
+    {
+        if (component.CurrentState == MobState.Critical &&
+            TryComp<CriticalCrawlingComponent>(uid, out var crawling) && crawling.CanCrawl &&
+            _standing.IsDown(uid))
+        {
+            return;
+        }
+
+        CheckAct(uid, component, args);
+    }
+
+    private void OnCriticalCrawlingDowned(EntityUid uid, CriticalCrawlingComponent component, DownedEvent args)
+        => _blocker.UpdateCanMove(uid);
+
+    private void OnCriticalCrawlingStood(EntityUid uid, CriticalCrawlingComponent component, StoodEvent args)
+        => _blocker.UpdateCanMove(uid);
 
     private void OnUnbuckleAttempt(Entity<MobStateComponent> ent, ref UnbuckleAttemptEvent args)
     {

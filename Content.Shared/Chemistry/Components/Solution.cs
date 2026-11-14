@@ -15,7 +15,7 @@ namespace Content.Shared.Chemistry.Components
     /// </summary>
     [Serializable, NetSerializable]
     [DataDefinition]
-    public sealed partial class Solution : IEnumerable<ReagentQuantity>, ISerializationHooks
+    public sealed partial class Solution : IEnumerable<ReagentQuantity>, ISerializationHooks, IRobustCloneable<Solution>
     {
         // This is a list because it is actually faster to add and remove reagents from
         // a list than a dictionary, though contains-reagent checks are slightly slower,
@@ -173,13 +173,16 @@ namespace Content.Shared.Chemistry.Components
             Contents = solution.Contents.ShallowClone();
             Volume = solution.Volume;
             MaxVolume = solution.MaxVolume;
+            CanReact = solution.CanReact;
             Temperature = solution.Temperature;
+            Name = solution.Name;
             _heatCapacity = solution._heatCapacity;
             _heatCapacityDirty = solution._heatCapacityDirty;
             _heatCapacityUpdateCounter = solution._heatCapacityUpdateCounter;
             ValidateSolution();
         }
 
+        // Prediction must mutate a copy, since the client can replay from the same server state repeatedly.
         public Solution Clone()
         {
             return new Solution(this);

@@ -17,6 +17,7 @@ namespace Content.Shared.Nutrition.EntitySystems;
 public sealed partial class HungerSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private INetManager _net = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
     [Dependency] private IRobustRandom _random = default!;
@@ -57,7 +58,7 @@ public sealed partial class HungerSystem : EntitySystem
 
     private void OnRefreshMovespeed(EntityUid uid, HungerComponent component, RefreshMovementSpeedModifiersEvent args)
     {
-        if (component.CurrentThreshold > HungerThreshold.Starving)
+        if (!IsSlowedByHunger(component.CurrentThreshold))
             return;
 
         if (_jetpack.IsUserFlying(uid))
@@ -121,6 +122,7 @@ public sealed partial class HungerSystem : EntitySystem
         entity.Comp.LastAuthoritativeHungerChangeTime = _timing.CurTime - _metadata.GetPauseTime(entity.Owner);
         entity.Comp.LastAuthoritativeHungerValue = ClampHungerWithinThresholds(entity.Comp, value);
         DirtyField(entity.Owner, entity.Comp, nameof(HungerComponent.LastAuthoritativeHungerChangeTime));
+        DirtyField(entity.Owner, entity.Comp, nameof(HungerComponent.LastAuthoritativeHungerValue));
     }
 
     private void UpdateCurrentThreshold(EntityUid uid, HungerComponent? component = null)
@@ -133,6 +135,7 @@ public sealed partial class HungerSystem : EntitySystem
             return;
 
         component.CurrentThreshold = calculatedHungerThreshold;
+        DirtyField(uid, component, nameof(HungerComponent.CurrentThreshold));
         RaiseLocalEvent(uid, new Content.Shared.Mood.MoodEffectEvent("Hunger" + component.CurrentThreshold));
         DoHungerThresholdEffects(uid, component);
     }
@@ -145,7 +148,7 @@ public sealed partial class HungerSystem : EntitySystem
         if (component.CurrentThreshold == component.LastThreshold && !force)
             return;
 
-        if (GetMovementThreshold(component.CurrentThreshold) != GetMovementThreshold(component.LastThreshold))
+        if (IsSlowedByHunger(component.CurrentThreshold) != IsSlowedByHunger(component.LastThreshold))
         {
             _movementSpeedModifier.RefreshMovementSpeedModifiers(uid);
         }
@@ -163,10 +166,12 @@ public sealed partial class HungerSystem : EntitySystem
         {
             var hunger = GetHunger(component);
             component.ActualDecayRate = component.BaseDecayRate * modifier;
+            DirtyField(uid, component, nameof(HungerComponent.ActualDecayRate));
             SetAuthoritativeHungerValue((uid, component), hunger);
         }
 
         component.LastThreshold = component.CurrentThreshold;
+        DirtyField(uid, component, nameof(HungerComponent.LastThreshold));
     }
 
     private void DoContinuousHungerEffects(EntityUid uid, HungerComponent? component = null)
@@ -217,21 +222,7 @@ public sealed partial class HungerSystem : EntitySystem
         return GetHungerThreshold(comp, food) < threshold;
     }
 
-    private bool GetMovementThreshold(HungerThreshold threshold)
-    {
-        switch (threshold)
-        {
-            case HungerThreshold.Overfed:
-            case HungerThreshold.Okay:
-                return true;
-            case HungerThreshold.Peckish:
-            case HungerThreshold.Starving:
-            case HungerThreshold.Dead:
-                return false;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(threshold), threshold, null);
-        }
-    }
+    private static bool IsSlowedByHunger(HungerThreshold threshold) => threshold <= HungerThreshold.Starving;
 
     public bool TryGetStatusIconPrototype(HungerComponent component, [NotNullWhen(true)] out SatiationIconPrototype? prototype)
     {
@@ -264,6 +255,9 @@ public sealed partial class HungerSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        // Periodic threshold changes come from the server. Client-side speed refreshes use the replicated threshold.
+        if (_net.IsClient)
+            return;
 
         var query = EntityQueryEnumerator<HungerComponent>();
         while (query.MoveNext(out var uid, out var hunger))

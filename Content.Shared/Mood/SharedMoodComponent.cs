@@ -3,8 +3,7 @@ using Robust.Shared.GameStates;
 namespace Content.Shared.Mood;
 
 /// <summary>
-///     This component exists solely to network CurrentMoodLevel, so that clients can make use of its value for math Prediction.
-///     All mood logic is otherwise handled by the Server, and the client is not allowed to know the identity of its mood events.
+///     Replicates the mood values needed for prediction. Individual mood effects remain on the server.
 /// </summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class NetMoodComponent : Component
@@ -14,4 +13,7 @@ public sealed partial class NetMoodComponent : Component
 
     [DataField, AutoNetworkedField]
     public float NeutralMoodThreshold;
+
+    [AutoNetworkedField]
+    public float SprintSpeedModifier = 1f;
 }
