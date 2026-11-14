@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Content.Server.Body.Components;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
+using Content.Shared.Mind.Components;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Shuttles.Components;
@@ -34,6 +36,9 @@ public sealed partial class MoverController : SharedMoverController
     [Dependency] private EntityQuery<DroneConsoleComponent> _droneQuery = default!;
     [Dependency] private EntityQuery<ShuttleComponent> _shuttleQuery = default!;
     [Dependency] private EntityQuery<GhostComponent> _ghostQuery = default!;
+    [Dependency] private EntityQuery<BrainComponent> _brainQuery = default!;
+    [Dependency] private EntityQuery<ActorComponent> _actorQuery = default!;
+    [Dependency] private EntityQuery<MindContainerComponent> _mindQuery = default!;
 
     // Not needed for persistence; just used to save an alloc
     private readonly HashSet<EntityUid> _seenMovers = [];
@@ -207,6 +212,15 @@ public sealed partial class MoverController : SharedMoverController
         {
             if (IsPaused(uid) && !_ghostQuery.HasComp(uid)) // Frontier: Skip processing paused entities. Ghosts are excepted for mapping reasons
                 continue; // Frontier
+
+            // Brains can gain a mind or a movement relay during play. Keep the mover and recheck it on every pass.
+            if (!moverComp.CanMove && _brainQuery.HasComp(uid) &&
+                moverComp.HeldMoveButtons == MoveButtons.None && !moverComp.SpeedBoostActive &&
+                moverComp.GridVelocityRotation == null && activeComp.RelayedFrom == null &&
+                !_actorQuery.HasComp(uid) &&
+                !(_mindQuery.TryComp(uid, out var mind) && mind.HasMind) &&
+                !RelayQuery.HasComp(uid) && !RelayTargetQuery.HasComp(uid))
+                continue;
 
             _seenRelayMovers.Clear(); // O(1) if already empty
             QueueRelaySources(activeComp.RelayedFrom);
