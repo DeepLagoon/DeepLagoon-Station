@@ -220,7 +220,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         container.AddChild(scroll);
         var system = _entities.System<PersonalLoadoutSystem>();
         var sprites = _entities.System<SpriteSystem>();
-        AddJobCards(grid, category);
+        var selectedCount = AddJobCards(grid, category);
         foreach (var prototype in loadouts.OrderBy(x => _prototypes.Index(x.PersonalItems[0]).Name))
         {
             var usable = system.CanUse(prototype, _profile!, _job, _session, out var reason);
@@ -273,6 +273,8 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
                 footer.AddChild(customize);
             }
             grid.AddChild(card);
+            if (pressed)
+                card.SetPositionInParent(selectedCount++);
         }
         if (grid.ChildCount == 0)
             grid.AddChild(new Label { Text = Loc.GetString("dl-loadout-no-items") });

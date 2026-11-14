@@ -49,7 +49,7 @@ function createPage(name = 'chat.html', options = {}) {
   };
   vm.runInNewContext(bridge, {
     window, document, Image, location: { pathname: `/Web/DeepLagoon/${name}` }, queueMicrotask,
-    setTimeout: options.failFetch ? callback => queueMicrotask(callback) : setTimeout, console,
+    setTimeout: options.failFetch ? callback => queueMicrotask(callback) : setTimeout, clearTimeout, console,
   });
   return {
     messages,
@@ -64,15 +64,23 @@ function createPage(name = 'chat.html', options = {}) {
       await new Promise(resolve => setImmediate(resolve));
     },
     async click(node) {
-      document.activeElement = node;
-      for (const callback of listeners.mouseup ?? []) callback();
+      await this.pointerDown(node);
+      await this.pointerUp();
+    },
+    async pointerDown(node) {
+      for (const callback of listeners.pointerdown ?? []) callback();
+      await this.focus(node);
+    },
+    async pointerUp(onClick) {
+      for (const callback of listeners.pointerup ?? []) callback();
+      onClick?.();
+      await new Promise(resolve => setTimeout(resolve, 0));
       await new Promise(resolve => setImmediate(resolve));
     },
     async blurWindowAndClickSameInput() {
       for (const callback of windowListeners.blur ?? []) callback();
       await new Promise(resolve => setImmediate(resolve));
-      for (const callback of listeners.mouseup ?? []) callback();
-      await new Promise(resolve => setImmediate(resolve));
+      await this.click(document.activeElement);
     },
     async focus(node) {
       document.activeElement = node;
@@ -203,6 +211,17 @@ test('interface clicks return gameplay focus outside editable fields', async () 
   await page.focus(background);
   assert.deepEqual(page.messages.map(m => [m.type, m.active]), [
     ['chat-input-focus', true], ['chat-input-focus', false],
+  ]);
+});
+
+test('a click after editing keeps native input until the button action', async () => {
+  const page = createPage('interface.html');
+  await page.focus(input());
+  await page.pointerDown(background);
+  assert.deepEqual(page.messages.map(m => m.active), [true]);
+  await page.pointerUp(() => page.topic({ type: 'act/confirm' }));
+  assert.deepEqual(page.messages.map(m => [m.type, m.active]), [
+    ['chat-input-focus', true], ['act/confirm', undefined], ['chat-input-focus', false],
   ]);
 });
 

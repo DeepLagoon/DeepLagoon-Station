@@ -132,37 +132,50 @@
   {
     let inputFocused = false;
     let inputTextFocused = false;
-    const syncInputFocus = () => {
+    let pointerPressed = false;
+    let pointerReleaseTimer;
+    const syncInputFocus = (releaseInactive = false) => {
       const node = document.activeElement;
       const text = !!node && (node.isContentEditable ||
         (node.matches?.('input, textarea, select') && !node.disabled && !node.readOnly));
       const active = text || !!window.__deeplagoonCaptureKeys;
-      if (active === inputFocused && text === inputTextFocused) return;
+      if (pointerPressed && !active) return;
+      if (active === inputFocused && text === inputTextFocused && !(releaseInactive && !active)) return;
       inputFocused = active;
       inputTextFocused = text;
       send({ type: 'chat-input-focus', payload: { active, text } });
     };
-    // Read activeElement after the focus transition, including input-to-input clicks.
     document.addEventListener('focusin', () => queueMicrotask(syncInputFocus));
     document.addEventListener('focusout', () => queueMicrotask(syncInputFocus));
-    // CEF can lose native focus while activeElement still points at the input.
-    // A later click on that same field must reacquire keyboard focus.
-    document.addEventListener('mouseup', () => {
-      syncInputFocus();
-      // Stock Robust acquires native focus on every mouse click, even when DOM
-      // focus did not change. Return it to gameplay after a non-editable click.
-      if (!inputFocused) send({ type: 'chat-input-focus', payload: { active: false } });
-    });
+    // Stock WebView needs native keyboard focus to receive mouse-up. Moving DOM
+    // focus off an input on pointer-down must not interrupt the click.
+    document.addEventListener('pointerdown', () => {
+      clearTimeout(pointerReleaseTimer);
+      pointerPressed = true;
+    }, true);
+    const finishPointer = () => {
+      clearTimeout(pointerReleaseTimer);
+      pointerReleaseTimer = setTimeout(() => {
+        pointerPressed = false;
+        // Return the focus Robust grabbed for the click, even if DOM focus did not change.
+        syncInputFocus(true);
+      });
+    };
+    document.addEventListener('pointerup', finishPointer, true);
+    document.addEventListener('pointercancel', finishPointer, true);
     window.addEventListener('blur', () => {
+      clearTimeout(pointerReleaseTimer);
+      pointerPressed = false;
       if (!inputFocused) return;
       inputFocused = false;
+      inputTextFocused = false;
       send({ type: 'chat-input-focus', payload: { active: false } });
     });
     window.DeepLagoonHealth = {
       syncFocus: () => {
+        if (pointerPressed) return;
         inputFocused = false;
-        syncInputFocus();
-        if (!inputFocused) send({ type: 'chat-input-focus', payload: { active: false } });
+        syncInputFocus(true);
       },
       ping: () => {
         // Bypass the action queue, but use a fresh URL so the image bridge cannot reuse a cached reply.

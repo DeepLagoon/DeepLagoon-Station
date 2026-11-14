@@ -85,7 +85,7 @@ export const PlayerColorPicker = ({value='#ffffff', onChange, channels=false, mo
     </>}
   </div>;
 };
-export const ColorSquare = ({label,value,disabled,onChange,hint,lockReason}) => {
+export const ColorSquare = ({label,value,disabled,onChange,hint,lockReason,hideLabel}) => {
   const [open,setOpen]=useState(false);
   const transfer = useContext(ColorTransferContext);
   const dialog = useContext(ColorDialogContext);
@@ -106,7 +106,7 @@ export const ColorSquare = ({label,value,disabled,onChange,hint,lockReason}) => 
     } else if (dialog) dialog.open(id.current, label, value, next => change.current(next));
     else setOpen(!open);
   };
-  return <div className={'ColorSquare' + (picking || applying ? ' ColorSquare--transfer' : '')}><button type="button" disabled={disabled && !picking} aria-label={title} title={locked ? lockReason : title} aria-description={locked ? lockReason : undefined} aria-expanded={open} className={locked ? 'ColorSquare__locked' : undefined} style={{backgroundColor:locked ? '#60646c' : value}} onClick={click}>{locked && <i className="Icon fas fa-lock" aria-hidden="true" />}</button> <span>{label}</span>
+  return <div className={'ColorSquare' + (picking || applying ? ' ColorSquare--transfer' : '')}><button type="button" disabled={disabled && !picking} aria-label={title} title={locked ? lockReason : title} aria-description={locked ? lockReason : undefined} aria-expanded={open} className={locked ? 'ColorSquare__locked' : undefined} style={{backgroundColor:locked ? '#60646c' : value}} onClick={click}>{locked && <i className="Icon fas fa-lock" aria-hidden="true" />}</button>{!hideLabel && <> <span>{label}</span></>}
     {hint && <small>{hint}</small>}
     {open && !disabled && <div className="ColorSquare__popover"><PlayerColorPicker value={value} onChange={onChange} /><button type="button" onClick={()=>setOpen(false)}>Закрыть</button></div>}
   </div>;

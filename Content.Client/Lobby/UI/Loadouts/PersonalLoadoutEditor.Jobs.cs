@@ -108,10 +108,11 @@ public sealed partial class PersonalLoadoutEditor
             .Where(x => category == null || x.Category == category);
     }
 
-    private void AddJobCards(GridContainer grid, string? category)
+    private int AddJobCards(GridContainer grid, string? category)
     {
         if (_jobRole == null || _profile == null)
-            return;
+            return 0;
+        var selectedCount = 0;
         foreach (var entry in FilteredJobEntries(category).OrderBy(x => JobItemName(x.Item)))
         {
                 var role = _jobRole;
@@ -152,7 +153,10 @@ public sealed partial class PersonalLoadoutEditor
                     ProfileChanged?.Invoke(updated);
                 };
                 grid.AddChild(button);
+                if (selected)
+                    button.SetPositionInParent(selectedCount++);
         }
+        return selectedCount;
     }
 
     private string JobCategory(LoadoutPrototype item)

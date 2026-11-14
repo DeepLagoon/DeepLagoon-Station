@@ -34,8 +34,11 @@ export const EquipmentBrowser = memo(({data={},act}) => {
   const parent=categories.find(c=>c.root&&descendants(c.id).has(category));
   useEffect(()=>setVisibleCount(24),[category,unavailable,data.slot,data.job,query]);
   useEffect(()=>{if(category&&!hasItems(category))setCategory('');},[data,unavailable,category]);
-  const filtered=useMemo(()=>fuzzyFilter(catalog.filter(item=>!accepted||accepted.has(item.category)),query,
-    item => [item.name,item.customName,item.id].filter(Boolean).join(' ')),[catalog,category,data,query]);
+  const filtered = useMemo(() => {
+    const matches = fuzzyFilter(catalog.filter(item => !accepted || accepted.has(item.category)), query,
+      item => [item.name, item.customName, item.id].filter(Boolean).join(' '));
+    return matches.sort((a, b) => Number(!!b.selected) - Number(!!a.selected));
+  }, [catalog, category, data, query]);
   useEffect(()=>{const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))setVisibleCount(n=>n+24);});if(sentinel.current)observer.observe(sentinel.current);return()=>observer.disconnect();},[visibleCount,filtered.length]);
   const item=catalog.find(item=>item.id===modal?.id && !!item.jobItem===!!modal?.jobItem && item.group===modal?.group);
   return <div className="EquipmentBrowser">
