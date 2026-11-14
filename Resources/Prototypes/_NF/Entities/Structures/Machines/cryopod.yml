@@ -25,7 +25,11 @@
   - type: MaterialStorage
   - type: Appearance
   - type: Climbable
+    vaultable: false
   - type: CryoSleep
+  - type: DragInsertContainer
+    containerId: body_container
+    useVerbs: false
   - type: ContainerContainer
     containers:
       body_container: !type:ContainerSlot

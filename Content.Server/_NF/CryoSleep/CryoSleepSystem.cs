@@ -13,6 +13,7 @@ using Content.Server.Station.Systems;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Chat;
 using Content.Shared.Climbing.Systems;
+using Content.Shared.Containers;
 using Content.Shared._NF.CryoSleep;
 using Content.Shared.Destructible;
 using Content.Shared.DoAfter;
@@ -84,7 +85,8 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
         SubscribeLocalEvent<CryoSleepComponent, ExaminedEvent>(OnExamine);
         SubscribeLocalEvent<CryoSleepComponent, DestructionEventArgs>((e,c,_) => EjectBody(e, c));
         SubscribeLocalEvent<CryoSleepComponent, CryoStoreDoAfterEvent>(OnAutoCryoSleep);
-        SubscribeLocalEvent<CryoSleepComponent, DragDropTargetEvent>(OnEntityDragDropped);
+        SubscribeLocalEvent<CryoSleepComponent, DragDropTargetEvent>(OnEntityDragDropped,
+            before: [typeof(DragInsertContainerSystem)]);
         SubscribeLocalEvent<CryoSleepComponent, EntRemovedFromContainerMessage>(OnBodyRemoved); // Exodus
         SubscribeLocalEvent<RoundEndedEvent>(OnRoundEnded);
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawnComplete);
@@ -205,12 +207,14 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
         args.Handled = true;
     }
 
-    private void OnEntityDragDropped(EntityUid uid, CryoSleepComponent component, DragDropTargetEvent args)
+    private void OnEntityDragDropped(EntityUid uid, CryoSleepComponent component, ref DragDropTargetEvent args)
     {
-        if (InsertBody(args.Dragged, component, false))
-        {
-            args.Handled = true;
-        }
+        if (args.Handled)
+            return;
+
+        // Claim the drop even if insertion fails so the generic drag handler cannot bypass these checks.
+        args.Handled = true;
+        InsertBody(args.Dragged, component, false);
     }
 
     public bool InsertBody(EntityUid? toInsert, CryoSleepComponent component, bool force)

@@ -118,6 +118,7 @@
     doAfterDelay: 10
     allowSelfRepair: true
   - type: BorgChassis
+  - type: CanEnterCryostorage
   - type: LockingWhitelist
     blacklist:
       components:

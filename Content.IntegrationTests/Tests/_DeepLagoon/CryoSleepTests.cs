@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using Content.Client._NF.CryoSleep;
 using Content.Server.Body.Systems;
@@ -9,18 +10,23 @@ using Content.Server.Ghost;
 using Content.Server.Mind;
 using Content.Shared._NF.CCVar;
 using Content.Shared.Alert;
+using Content.Shared.Bed.Cryostorage;
+using Content.Shared.DragDrop;
 using Content.Shared.GameTicking;
+using Content.Shared.Ghost;
 using Content.Shared.Inventory;
 using Content.Shared.Mind;
 using Content.Shared.Nutrition.Components;
 using Content.Shared.Nutrition.EntitySystems;
 using Content.Shared.Preferences;
 using Content.Shared.StatusEffect;
+using Content.Shared.Verbs;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Server.Containers;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Localization;
 using Robust.Shared.Timing;
 using ServerCryoSystem = Content.Server._NF.CryoSleep.CryoSleepSystem;
 using Content.Server._NF.CryoSleep;
@@ -31,6 +37,77 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class CryoSleepTests
 {
+    [Test]
+    public async Task JobBorgCanLeaveThroughStandardCryostorage()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.EntMan;
+        EntityUid borg = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            borg = entities.SpawnEntity("PlayerBorgBattery", map.GridCoords.Offset(Vector2.UnitX));
+            var pod = entities.SpawnEntity("CryogenicSleepUnit", map.GridCoords);
+            entities.GetComponent<CryostorageComponent>(pod).GracePeriod = TimeSpan.Zero;
+            var minds = entities.System<MindSystem>();
+            var mind = minds.GetOrCreateMind(pair.Server.PlayerMan.Sessions.Single().UserId);
+            minds.TransferTo(mind.Owner, borg);
+            var verbs = entities.System<SharedVerbSystem>();
+            var enter = verbs.GetLocalVerbs(pod, borg, typeof(AlternativeVerb))
+                .Single(verb => verb.Text == Loc.GetString("container-verb-text-enter"));
+
+            verbs.ExecuteVerb(enter, borg, pod);
+
+            Assert.That(entities.GetComponent<CryostorageContainedComponent>(borg).Cryostorage, Is.EqualTo(pod));
+        });
+        await pair.RunTicksSync(2);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            Assert.That(entities.HasComponent<GhostComponent>(session.AttachedEntity!.Value), Is.True);
+            Assert.That(entities.GetComponent<MetaDataComponent>(borg).EntityPaused, Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task JobBorgCanDragIntoCryopodAndReturnFromSleep()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.EntMan;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var borg = entities.SpawnEntity("PlayerBorgBattery", map.GridCoords.Offset(Vector2.UnitX));
+            var pod = entities.SpawnEntity("MachineCryoSleepPod", map.GridCoords);
+            var chamber = entities.GetComponent<CryoSleepComponent>(pod).BodyContainer;
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var minds = entities.System<MindSystem>();
+            var mind = minds.GetOrCreateMind(session.UserId);
+            minds.TransferTo(mind.Owner, borg);
+
+            var item = entities.SpawnEntity("Crowbar", map.GridCoords);
+            var invalidDrop = new DragDropTargetEvent(borg, item);
+            entities.EventBus.RaiseLocalEvent(pod, ref invalidDrop);
+            Assert.That(chamber.ContainedEntity, Is.Null);
+
+            var canDrop = new CanDropTargetEvent(borg, borg);
+            entities.EventBus.RaiseLocalEvent(pod, ref canDrop);
+            Assert.That(canDrop.CanDrop, Is.True);
+            var drop = new DragDropTargetEvent(borg, borg);
+            entities.EventBus.RaiseLocalEvent(pod, ref drop);
+            Assert.That(chamber.ContainedEntity, Is.EqualTo(borg));
+
+            var cryo = entities.System<ServerCryoSystem>();
+            cryo.AcceptCryoSleep(borg, pod);
+            Assert.That(cryo.HasCryosleepingBody(session.UserId), Is.True);
+            Assert.That(entities.HasComponent<GhostComponent>(session.AttachedEntity!.Value), Is.True);
+            Assert.That(cryo.TryReturnToBody(mind.Comp), Is.EqualTo(ReturnToBodyStatus.Success));
+            Assert.That(session.AttachedEntity, Is.EqualTo(borg));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("close")]
     [TestCase("deny")]
     [TestCase("accept")]
