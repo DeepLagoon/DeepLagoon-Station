@@ -30,7 +30,19 @@ public sealed partial class ConstructionSystem
         RefreshParts(uid, component); // Frontier: get initial upgrade values
     }
 
-    private void CreateBoardAndStockParts(EntityUid uid, MachineComponent component)
+    internal void RestoreMachineParts(EntityUid uid)
+    {
+        if (TryComp<MachineComponent>(uid, out var machine))
+        {
+            CreateBoardAndStockParts(uid, machine, spawnStockParts: machine.PartContainer.ContainedEntities.Count == 0);
+            RefreshParts(uid, machine);
+        }
+
+        if (TryComp<ComputerComponent>(uid, out var computer))
+            CreateComputerBoard((uid, computer));
+    }
+
+    private void CreateBoardAndStockParts(EntityUid uid, MachineComponent component, bool spawnStockParts = true)
     {
         // Entity might not be initialized yet.
         var boardContainer = _container.EnsureContainer<Container>(uid, MachineFrameComponent.BoardContainerName);
@@ -53,6 +65,9 @@ public sealed partial class ConstructionSystem
         {
             throw new Exception($"Entity with prototype {component.Board} doesn't have a {nameof(MachineBoardComponent)}!");
         }
+
+        if (!spawnStockParts)
+            return;
 
         foreach (var (stackType, amount) in machineBoard.StackRequirements)
         {

@@ -105,6 +105,11 @@ namespace Content.Server.DeviceNetwork.Systems
         /// </summary>
         private void OnMapInit(EntityUid uid, DeviceNetworkComponent device, MapInitEvent args)
         {
+            RestoreDeviceConnection(uid, device);
+        }
+
+        internal void RestoreDeviceConnection(EntityUid uid, DeviceNetworkComponent device)
+        {
             if (device.ReceiveFrequency == null
                 && device.ReceiveFrequencyId != null
                 && _protoMan.TryIndex<DeviceFrequencyPrototype>(device.ReceiveFrequencyId, out var receive))
@@ -119,7 +124,7 @@ namespace Content.Server.DeviceNetwork.Systems
                 device.TransmitFrequency = xmit.Frequency;
             }
 
-            if (device.AutoConnect)
+            if (device.AutoConnect && !IsDeviceConnected(uid, device))
                 ConnectDevice(uid, device);
         }
 
@@ -147,7 +152,8 @@ namespace Content.Server.DeviceNetwork.Systems
                 _configurator.OnDeviceShutdown(list, (uid, component));
             }
 
-            GetNetwork(component.DeviceNetId).Remove(component);
+            if (IsDeviceConnected(uid, component))
+                GetNetwork(component.DeviceNetId).Remove(component);
         }
 
         /// <summary>

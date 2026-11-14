@@ -1,8 +1,21 @@
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Content.Server._Crescent.Hardpoint;
+using Content.Server._NF.Power.EntitySystems;
+using Content.Server.Construction;
+using Content.Server.Construction.Components;
+using Content.Server.DeviceLinking.Systems;
+using Content.Server.DeviceNetwork.Systems;
+using Content.Server.Power.Generator;
+using Content.Server.Research.Systems;
+using Content.Shared._Crescent.Hardpoints;
+using Content.Shared._Crescent.ShipShields;
 using Content.Shared._DeepLagoon.ShuttleParking;
+using Content.Shared.DeviceNetwork.Components;
 using Content.Shared.Item;
+using Content.Shared.Power.Generator;
+using Content.Shared.Research.Components;
 using Content.Shared.Storage;
 using Content.Shared.Whitelist;
 using Robust.Shared.Containers;
@@ -10,6 +23,7 @@ using Robust.Shared.EntitySerialization;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 using Robust.Shared.Map.Events;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
@@ -30,7 +44,18 @@ public sealed partial class ParkingSystem
     [Dependency] private MapLoaderSystem _loader = default!;
     [Dependency] private SharedContainerSystem _containers = default!;
     [Dependency] private EntityWhitelistSystem _whitelist = default!;
-    private static readonly HashSet<string> ExternalComponents = ["ShuttleDeed", "ShipGuestAccess", "ShipOwnership", "StationMember", "LinkedLifecycleGridParent", "LinkedLifecycleGridChild"];
+    [Dependency] private HardpointSystem _hardpoints = default!;
+    [Dependency] private ConstructionSystem _construction = default!;
+    [Dependency] private UpgradePowerSystem _upgradePower = default!;
+    [Dependency] private GeneratorSystem _generators = default!;
+    [Dependency] private DeviceLinkSystem _deviceLinks = default!;
+    [Dependency] private DeviceNetworkSystem _deviceNetwork = default!;
+    [Dependency] private ResearchSystem _research = default!;
+    private static readonly HashSet<string> TransientComponents =
+    [
+        "ShuttleDeed", "ShipGuestAccess", "ShipOwnership", "StationMember", "LinkedLifecycleGridParent",
+        "LinkedLifecycleGridChild", "ShipShielded", "FireControlGrid",
+    ];
     private static readonly HashSet<string> MeleeWeaponRoots =
     [
         "BaseKnife", "BaseSword", "BaseMeleeWeaponEnergy", "BaseWeaponCrusher", "Spear", "Sledgehammer",
@@ -44,10 +69,29 @@ public sealed partial class ParkingSystem
         return TryComp<ParkingOriginalComponent>(entity, out var original) && original.Shuttle == ship.Identity
             && ship.OriginalItems.TryGetValue(original.Identity, out var registered) && registered == entity;
     }
-    private bool Prohibited(EntityUid entity)
+    private bool IsSnapshotEntity(EntityUid entity) =>
+        MetaData(entity).EntityPrototype is not { MapSavable: false } && !HasComp<ShipShieldComponent>(entity);
+
+    private bool IsInstalledEquipment(EntityUid entity, EntityUid grid)
     {
-        if (HasNamed(entity, "Mech") || HasNamed(entity, "Gun") || HasNamed(entity, "Contraband")
-            || HasNamed(entity, "Store") || HasNamed(entity, "GhostRoleMobSpawner") || HasNamed(entity, "OverwatchConsole")) return true;
+        var transform = Transform(entity);
+        if (transform.ParentUid == grid && transform.Anchored &&
+            TryComp<HardpointAnchorableOnlyComponent>(entity, out var weapon) && weapon.anchoredTo is { } mount &&
+            TryComp<HardpointComponent>(mount, out var hardpoint) && hardpoint.anchoring == entity)
+            return Transform(mount).GridUid == grid && Transform(mount).Anchored;
+
+        // Machine boards are prohibited as loose cargo. Keep boards installed in their own devices.
+        var parent = transform.ParentUid;
+        return (TryComp<MachineComponent>(parent, out var machine) && machine.BoardContainer.Contains(entity)) ||
+               (HasComp<ComputerComponent>(parent) && _containers.TryGetContainer(parent, "board", out var board) && board.Contains(entity));
+    }
+
+    private bool Prohibited(EntityUid entity, EntityUid grid)
+    {
+        if (HasNamed(entity, "Mech") || HasNamed(entity, "Store") || HasNamed(entity, "GhostRoleMobSpawner") ||
+            HasNamed(entity, "OverwatchConsole")) return true;
+        if (IsInstalledEquipment(entity, grid)) return false;
+        if (HasNamed(entity, "Gun") || HasNamed(entity, "Contraband")) return true;
         if (!HasComp<ItemComponent>(entity)) return false;
         if (_prototypes.Index<EntityPrototype>("SafetyDepositBoxSmall").TryComp<StorageComponent>(out var safe, _components)
             && _whitelist.IsBlacklistPass(safe.Blacklist, entity)) return true;
@@ -65,6 +109,8 @@ public sealed partial class ParkingSystem
         var excluded = new HashSet<EntityUid>();
         foreach (var entity in Descendants(grid).Skip(1))
         {
+            if (HasComp<ShipShieldComponent>(entity))
+                continue;
             if (MetaData(entity).EntityPrototype is { MapSavable: false })
             {
                 excluded.Add(entity);
@@ -80,7 +126,7 @@ public sealed partial class ParkingSystem
                 if (HasNamed(parent, "Storage") || HasNamed(parent, "EntityStorage")) depth++;
                 parent = Transform(parent).ParentUid;
             }
-            if (inherited || depth >= 2 || Prohibited(entity)) excluded.Add(entity);
+            if (inherited || depth >= 2 || Prohibited(entity, grid)) excluded.Add(entity);
         }
         return excluded.ToList();
     }
@@ -130,33 +176,53 @@ public sealed partial class ParkingSystem
     }
     public string SerializeSnapshot(EntityUid grid)
     {
-        var inside = Descendants(grid).ToHashSet();
-        if (inside.Count > 100000) throw new InvalidOperationException("Слишком много объектов для сохранения шаттла.");
-        var skipped = new HashSet<EntityUid>();
-        foreach (var entity in Descendants(grid).Skip(1))
-            if (MetaData(entity).EntityPrototype is { MapSavable: false }) skipped.Add(entity);
+        var descendants = Descendants(grid).ToArray();
+        if (descendants.Length > 100000) throw new InvalidOperationException("Слишком много объектов для сохранения шаттла.");
+        var skipped = descendants.Where(entity => !IsSnapshotEntity(entity)).ToHashSet();
         if (skipped.Count != 0) DetachOriginalSurvivors(grid, skipped);
+        var inside = descendants.Where(entity => !skipped.Contains(entity) && !HasExcludedParent(entity, skipped, grid)).ToHashSet();
         HashSet<EntityUid> roots = [grid];
         RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(grid).MapID], FileCategory.Grid));
-        var serializer = new EntitySerializer(_dependencies, new SerializationOptions { Category = FileCategory.Grid, ExpectPreInit = false, MissingEntityBehaviour = MissingEntityBehaviour.IncludeNullspace });
-        // External runtime references are intentionally severed, never pulled into a ship save.
-        var outside = AllEntityQuery<TransformComponent>();
-        while (outside.MoveNext(out var entity, out _))
-            if (!inside.Contains(entity)) serializer.ErroringEntities.Add(entity);
+        var serializer = new EntitySerializer(_dependencies, new SerializationOptions
+        {
+            Category = FileCategory.Grid,
+            MissingEntityBehaviour = MissingEntityBehaviour.Ignore,
+            ErrorOnOrphan = false,
+        });
         serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= inside.Contains(entity.Owner);
         var ship = Comp<ParkingShuttleComponent>(grid);
         var originals = ship.OriginalItems;
-        // Items removed from the ship, or deleted since purchase, are not part of this snapshot.
-        ship.OriginalItems = originals.Where(pair => inside.Contains(pair.Value) && Exists(pair.Value)).ToDictionary();
-        try { serializer.SerializeEntityRecursive(roots); }
-        finally { ship.OriginalItems = originals; }
-        var data = serializer.Write();
+        try
+        {
+            // Items removed from the ship, or deleted since purchase, are not part of this snapshot.
+            ship.OriginalItems = originals.Where(pair => inside.Contains(pair.Value)).ToDictionary();
+            ship.ResearchConnections = inside.Where(HasComp<ResearchClientComponent>).ToDictionary(entity => entity,
+                entity => _research.TryGetClientServer(entity, out var server, out _) && inside.Contains(server.Value) ? server : null);
+            _deviceLinks.SerializeInternalLinks(inside, () => serializer.SerializeEntityRecursive(roots));
+        }
+        finally
+        {
+            ship.OriginalItems = originals;
+            ship.ResearchConnections = null;
+        }
         foreach (var entity in serializer.EntityData.Values)
         {
             if (!entity.Node.TryGet<SequenceDataNode>("components", out var components)) continue;
             foreach (var component in components.Cast<MappingDataNode>().ToArray())
-                if (ExternalComponents.Contains(component.Get<ValueDataNode>("type").Value)) components.Remove(component);
+            {
+                var type = component.Get<ValueDataNode>("type").Value;
+                if (TransientComponents.Contains(type))
+                    components.Remove(component);
+                else if (type == "ContainerContainer" && component.TryGet<MappingDataNode>("containers", out var containers))
+                {
+                    foreach (var container in containers.Values.Cast<MappingDataNode>())
+                        if (container.TryGet<SequenceDataNode>("ents", out var contents))
+                            foreach (var entry in contents.Cast<ValueDataNode>().Where(entry => entry.Value == "invalid").ToArray())
+                                contents.Remove(entry);
+                }
+            }
         }
+        var data = serializer.Write();
         RaiseLocalEvent(new AfterSerializationEvent(roots, data, FileCategory.Grid));
         using var writer = new StringWriter();
         new YamlStream { new YamlDocument(data.ToYaml()) }.Save(new YamlMappingFix(new Emitter(writer)), false);
@@ -164,7 +230,9 @@ public sealed partial class ParkingSystem
         if (result.Length > 32_000_000) throw new InvalidOperationException("Снимок шаттла превышает допустимый размер.");
         return result;
     }
-    public EntityUid LoadSnapshot(string snapshot)
+    public EntityUid LoadSnapshot(string snapshot) => LoadSnapshot(snapshot, connectDevices: true);
+
+    private EntityUid LoadSnapshot(string snapshot, bool connectDevices)
     {
         if (_staging == null || !Exists(_staging.Value))
         {
@@ -173,9 +241,67 @@ public sealed partial class ParkingSystem
             _map.SetPaused(id, true);
         }
         using var reader = new StringReader(snapshot);
-        if (!_loader.TryLoadGrid(Comp<Robust.Shared.Map.Components.MapComponent>(_staging.Value).MapId, reader, "stored shuttle", out var grid))
+        if (!_loader.TryLoadGrid(Comp<MapComponent>(_staging.Value).MapId, reader, "stored shuttle", out var grid,
+                new DeserializationOptions { LogInvalidEntities = false }))
             throw new InvalidDataException("Не удалось загрузить снимок шаттла.");
-        return grid.Value.Owner;
+        var restored = grid.Value.Owner;
+        try
+        {
+            RestoreSnapshotEquipment(restored, connectDevices);
+            return restored;
+        }
+        catch
+        {
+            Del(restored);
+            throw;
+        }
+    }
+
+    private void RestoreSnapshotEquipment(EntityUid grid, bool connectDevices)
+    {
+        var ship = Comp<ParkingShuttleComponent>(grid);
+        var objects = Descendants(grid).ToArray();
+        // Old snapshots could contain an active shield without its runtime references.
+        RemComp<ShipShieldedComponent>(grid);
+        foreach (var entity in objects)
+        {
+            if (HasComp<ShipShieldComponent>(entity))
+            {
+                if (TryComp<ParkingOriginalComponent>(entity, out var original))
+                    ship.OriginalItems.Remove(original.Identity);
+                Del(entity);
+                continue;
+            }
+
+            if (Transform(entity).Anchored &&
+                TryComp<HardpointAnchorableOnlyComponent>(entity, out var weapon) && weapon.anchoredTo == null)
+                _hardpoints.TryAnchorToHardpoint(entity, weapon);
+
+            _upgradePower.RestoreUpgradeBases(entity);
+            _construction.RestoreMachineParts(entity);
+
+            if (TryComp<FuelGeneratorComponent>(entity, out var generator))
+                _generators.SetFuelGeneratorOn(entity, generator.On, generator);
+
+            if (connectDevices && TryComp<DeviceNetworkComponent>(entity, out var device))
+                _deviceNetwork.RestoreDeviceConnection(entity, device);
+        }
+
+        if (ship.ResearchConnections is { } connections)
+        {
+            foreach (var (client, server) in connections)
+                if (server is { } target && _transform.GetGrid(client) == grid && _transform.GetGrid(target) == grid)
+                    _research.RegisterClient(client, target);
+            ship.ResearchConnections = null;
+        }
+        else
+        {
+            // Legacy snapshots did not store the selected server. Only reconnect when the choice is unambiguous.
+            var servers = objects.Where(HasComp<ResearchServerComponent>).Take(2).ToArray();
+            if (servers.Length == 1)
+                foreach (var client in objects.Where(HasComp<ResearchClientComponent>))
+                    _research.RegisterClient(client, servers[0]);
+        }
     }
     private bool HasExcludedParent(EntityUid entity, HashSet<EntityUid> excluded, EntityUid grid)
     {
@@ -186,7 +312,7 @@ public sealed partial class ParkingSystem
 
     private HashSet<EntityUid> ConfiscatedEntities(EntityUid grid, IEnumerable<EntityUid> excluded)
     {
-        var prohibited = excluded.Where(Prohibited).ToHashSet();
+        var prohibited = excluded.Where(entity => Prohibited(entity, grid)).ToHashSet();
         return excluded.Where(entity => prohibited.Contains(entity) || HasExcludedParent(entity, prohibited, grid)).ToHashSet();
     }
     private void DetachOriginalSurvivors(EntityUid grid, HashSet<EntityUid> excluded)
@@ -203,7 +329,7 @@ public sealed partial class ParkingSystem
     }
     public string FilteredSnapshot(EntityUid grid)
     {
-        var clone = LoadSnapshot(SerializeSnapshot(grid));
+        var clone = LoadSnapshot(SerializeSnapshot(grid), connectDevices: false);
         try
         {
             var excluded = ExcludedEntities(clone).ToHashSet();
@@ -212,11 +338,12 @@ public sealed partial class ParkingSystem
             Comp<ParkingShuttleComponent>(clone).Parked = false;
             var snapshot = SerializeSnapshot(clone);
             // Validate the actual load path before committing and removing anything from the live ship.
-            var check = LoadSnapshot(snapshot);
+            var check = LoadSnapshot(snapshot, connectDevices: false);
             try
             {
                 if (GetCategory(check) != GetCategory(grid) || ExcludedEntities(check).Count != 0) throw new InvalidDataException("Снимок не прошёл проверку загрузки.");
-                if (Descendants(check).Count(entity => Original(entity, check)) != Descendants(grid).Count(entity => Original(entity, grid)))
+                if (Descendants(check).Count(entity => Original(entity, check)) !=
+                    Descendants(grid).Count(entity => IsSnapshotEntity(entity) && Original(entity, grid)))
                     throw new InvalidDataException("Не всё штатное оборудование прошло проверку загрузки.");
                 if (!_map.GetAllTiles(grid, Comp<Robust.Shared.Map.Components.MapGridComponent>(grid)).Select(tile => (tile.GridIndices, tile.Tile)).ToHashSet()
                     .SetEquals(_map.GetAllTiles(check, Comp<Robust.Shared.Map.Components.MapGridComponent>(check)).Select(tile => (tile.GridIndices, tile.Tile))))
@@ -243,7 +370,7 @@ public sealed partial class ParkingSystem
         var excluded = ExcludedEntities(grid).ToHashSet();
         var confiscated = ConfiscatedEntities(grid, excluded);
         var price = (int) Math.Clamp(confiscated
-            .Where(entity => MetaData(entity).EntityPrototype is not { MapSavable: false })
+            .Where(IsSnapshotEntity)
             .Sum(entity => _pricing.GetPriceWithVendingDiscount(entity, grid, includeContents: false)), 0, int.MaxValue);
         var payout = price > 0 ? new ParkingPayout(Guid.NewGuid(), user, context.Character, price) : null;
         // FULL synchronous SQLite commit precedes all irreversible world mutations.

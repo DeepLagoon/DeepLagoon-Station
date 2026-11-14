@@ -2,6 +2,7 @@ using Content.Server.Construction;
 using Content.Server.Construction.Components;
 using Content.Server.Power.Components;
 using Content.Server._NF.Power.Components;
+using Content.Shared.Power.Generator;
 
 namespace Content.Server._NF.Power.EntitySystems;
 
@@ -9,8 +10,10 @@ namespace Content.Server._NF.Power.EntitySystems;
 /// This handles using upgraded machine parts
 /// to modify the power supply/generation of a machine.
 /// </summary>
-public sealed class UpgradePowerSystem : EntitySystem
+public sealed partial class UpgradePowerSystem : EntitySystem
 {
+    [Dependency] private IComponentFactory _componentFactory = default!;
+
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -33,6 +36,30 @@ public sealed class UpgradePowerSystem : EntitySystem
             component.BaseLoad = powa.DrawRate;
         else if (TryComp<ApcPowerReceiverComponent>(uid, out var powa2))
             component.BaseLoad = powa2.Load;
+    }
+
+    internal void RestoreUpgradeBases(EntityUid uid)
+    {
+        if (Prototype(uid) is not { } prototype)
+            return;
+
+        // The saved power components already contain the upgraded values. Start from the prototype
+        // before refreshing the installed parts so repeated parking cannot compound the upgrades.
+        if (TryComp<UpgradePowerDrawComponent>(uid, out var draw))
+        {
+            if (prototype.TryComp<PowerConsumerComponent>(out var consumer, _componentFactory))
+                draw.BaseLoad = consumer.DrawRate;
+            else if (prototype.TryComp<ApcPowerReceiverComponent>(out var receiver, _componentFactory))
+                draw.BaseLoad = receiver.Load;
+        }
+
+        if (TryComp<UpgradePowerSupplierComponent>(uid, out var supply) &&
+            prototype.TryComp<PowerSupplierComponent>(out var supplier, _componentFactory))
+            supply.BaseSupplyRate = supplier.MaxSupply;
+
+        if (TryComp<UpgradePowerSupplyRampingComponent>(uid, out var ramp) &&
+            prototype.TryComp<PowerNetworkBatteryComponent>(out var battery, _componentFactory))
+            ramp.BaseRampRate = battery.SupplyRampRate;
     }
 
     private void OnRefreshParts(EntityUid uid, UpgradePowerDrawComponent component, RefreshPartsEvent args)
@@ -76,26 +103,24 @@ public sealed class UpgradePowerSystem : EntitySystem
 
     private void OnSupplierRefreshParts(EntityUid uid, UpgradePowerSupplierComponent component, RefreshPartsEvent args)
     {
-        var supply = component.BaseSupplyRate;
         var rating = args.PartRatings[component.MachinePartPowerSupply];
         switch (component.Scaling)
         {
             case MachineUpgradeScalingType.Linear:
-                supply += component.PowerSupplyMultiplier * component.BaseSupplyRate * (rating - 1);
+                component.ActualScalar = 1f + component.PowerSupplyMultiplier * (rating - 1);
                 break;
             case MachineUpgradeScalingType.Exponential:
-                supply *= MathF.Pow(component.PowerSupplyMultiplier, rating - 1);
+                component.ActualScalar = MathF.Pow(component.PowerSupplyMultiplier, rating - 1);
                 break;
             default:
                 Log.Error($"invalid power scaling type for {ToPrettyString(uid)}.");
-                supply = component.BaseSupplyRate;
+                component.ActualScalar = 1f;
                 break;
         }
 
-        component.ActualScalar = supply / component.BaseSupplyRate;
-
-        if (TryComp<PowerSupplierComponent>(uid, out var powa))
-            powa.MaxSupply = supply;
+        // Fuel generators calculate their output from the target power and multiplier each tick.
+        if (!HasComp<FuelGeneratorComponent>(uid) && TryComp<PowerSupplierComponent>(uid, out var supplier))
+            supplier.MaxSupply = component.BaseSupplyRate * component.ActualScalar;
     }
 
     private void OnSupplierUpgradeExamine(EntityUid uid, UpgradePowerSupplierComponent component, UpgradeExamineEvent args)

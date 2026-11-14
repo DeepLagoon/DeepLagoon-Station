@@ -4,13 +4,24 @@ using System.Linq;
 using System.IO;
 using System.Numerics;
 using Content.Server._DeepLagoon.ShuttleParking;
+using Content.Server._Mono.FireControl;
 using Content.Server._NF.Shipyard.Systems;
+using Content.Server.Construction;
+using Content.Server.Construction.Components;
 using Content.Server.Database;
 using Content.Server.Decals;
+using Content.Server.DeviceLinking.Systems;
+using Content.Server.Power.Components;
+using Content.Server.Power.Generator;
+using Content.Server.Research.Systems;
+using Content.Shared._Crescent.Hardpoints;
+using Content.Shared._Crescent.ShipShields;
 using Content.Shared._DeepLagoon.ShuttleParking;
 using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Paper;
 using Content.Shared.Preferences;
+using Content.Shared.Power.Generator;
+using Content.Shared.Research.Components;
 using Content.Shared.Shuttles.Components;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
@@ -25,6 +36,8 @@ using Robust.Shared.Maths;
 using Robust.Shared.Asynchronous;
 using Robust.Shared.Network;
 using Robust.Shared.Serialization;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 using Content.Client._DeepLagoon.WebUI;
 using Robust.Client.UserInterface;
 using Button = Robust.Client.UserInterface.Controls.Button;
@@ -35,6 +48,167 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ShuttleParkingTests
 {
+    [Test]
+    public async Task LongTermParkingRestoresInstalledEquipmentAndItsConnections()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var entities = pair.Server.EntMan;
+        EntityUid grid = default;
+        EntityUid generator = default;
+        EntityUid emitter = default;
+        EntityUid source = default;
+        EntityUid weapon = default;
+        EntityUid mount = default;
+        EntityUid research = default;
+        EntityUid researchConsole = default;
+        EntityUid gunnery = default;
+        EntityUid pistol = default;
+        EntityUid outside = default;
+        EntityUid otherOutside = default;
+        MapId destination = default;
+        const string Weapon = "WeaponTurretL85Autocannon";
+        const string Mount = "HardpointBallisticLight";
+        const string Generator = "PortableGeneratorPacmanShuttle";
+        const string Emitter = "ShieldGeneratorSmall";
+        const string Switch = "SignalSwitch";
+        const string Research = "ResearchAndDevelopmentServer";
+        const string ResearchConsole = "ComputerResearchAndDevelopment";
+        const string Gunnery = "GunneryServerLow";
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out destination);
+            var map = maps.CreateMap(out var mapId);
+            var ship = maps.CreateGridEntity(mapId);
+            grid = ship.Owner;
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            for (var x = 0; x < 8; x++)
+                maps.SetTile(ship, new Vector2i(x, 0), floor);
+
+            EntityUid Spawn(string id, int x) => entities.SpawnEntity(id, new EntityCoordinates(grid, new Vector2(x + .5f, .5f)));
+            entities.System<ParkingSystem>().RegisterPurchasedShip(grid, Guid.NewGuid(), 1000, "", "Captain");
+            mount = Spawn(Mount, 0);
+            weapon = Spawn(Weapon, 0);
+            var transforms = entities.System<SharedTransformSystem>();
+            if (!entities.GetComponent<TransformComponent>(weapon).Anchored)
+                transforms.AnchorEntity(weapon, entities.GetComponent<TransformComponent>(weapon));
+
+            generator = Spawn(Generator, 1);
+            source = Spawn(Switch, 2);
+            emitter = Spawn(Emitter, 3);
+            research = Spawn(Research, 4);
+            researchConsole = Spawn(ResearchConsole, 5);
+            gunnery = Spawn(Gunnery, 6);
+            pistol = Spawn("WeaponPistolMk58", 7);
+            outside = entities.SpawnEntity(Generator, new EntityCoordinates(map, new Vector2(10, 0)));
+            otherOutside = entities.SpawnEntity(Generator, new EntityCoordinates(map, new Vector2(11, 0)));
+
+            // Power the gunnery server and emitter while testing the fuel generator separately.
+            foreach (var machine in new[] { gunnery, emitter })
+                entities.GetComponent<ApcPowerReceiverComponent>(machine).NeedsPower = false;
+
+            var construction = entities.System<ConstructionSystem>();
+            var machineParts = entities.GetComponent<MachineComponent>(generator).PartContainer;
+            var containers = entities.System<SharedContainerSystem>();
+            foreach (var part in construction.GetAllParts(generator).Where(part => part.Part.PartType == "Capacitor").ToArray())
+                entities.DeleteEntity(part.Part.Owner);
+            var upgrade = entities.SpawnEntity("SuperCapacitorStockPart", new EntityCoordinates(grid, Vector2.One));
+            Assert.That(containers.Insert(upgrade, machineParts), Is.True);
+            construction.RefreshParts(generator, entities.GetComponent<MachineComponent>(generator));
+
+            entities.System<ResearchSystem>().RegisterClient(researchConsole, research);
+            var links = entities.System<DeviceLinkSystem>();
+            foreach (var sink in new[] { generator, outside, otherOutside })
+                links.SaveLinks(null, source, sink, [("Off", "Off")]);
+        });
+
+        await pair.RunSeconds(2.5f);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var parking = entities.System<ParkingSystem>();
+            var links = entities.System<DeviceLinkSystem>();
+            Assert.That(entities.GetComponent<HardpointComponent>(mount).anchoring, Is.EqualTo(weapon));
+            Assert.That(entities.GetComponent<FireControlServerComponent>(gunnery).Controlled, Does.Contain(weapon));
+            Assert.That(entities.GetComponent<ShipShieldEmitterComponent>(emitter).Shield, Is.Not.Null);
+            Assert.That(links.GetLinks(source, generator), Has.Count.EqualTo(1));
+            var excluded = parking.ExcludedEntities(grid);
+            Assert.That(excluded, Does.Contain(pistol));
+            Assert.That(excluded, Does.Not.Contain(weapon));
+            Assert.That(excluded, Does.Not.Contain(generator));
+
+            var supply = entities.GetComponent<PowerSupplierComponent>(generator).MaxSupply;
+            Assert.That(supply, Is.GreaterThan(15000));
+            var transforms = entities.System<SharedTransformSystem>();
+            var maps = entities.System<SharedMapSystem>();
+            var parkedMap = maps.CreateMap(out var parkedId);
+            maps.SetPaused(parkedId, true);
+            transforms.SetCoordinates(grid, new EntityCoordinates(parkedMap, Vector2.Zero));
+            var snapshot = parking.FilteredSnapshot(grid);
+            Assert.That(links.GetLinks(source, outside), Has.Count.EqualTo(1));
+            Assert.That(links.GetLinks(source, otherOutside), Has.Count.EqualTo(1));
+            EntityUid Find(EntityUid restored, string id) => entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+                .Single(entry => entry.Item1.EntityPrototype?.ID == id && entry.Item2.GridUid == restored).Item1.Owner;
+
+            // Older snapshots omitted the selected research server and could contain stale shield state.
+            var legacy = new YamlStream();
+            legacy.Load(new StringReader(snapshot));
+            var data = (YamlMappingNode) legacy.Documents.Single().RootNode;
+            var groups = (YamlSequenceNode) data["entities"];
+            var gridId = ((YamlSequenceNode) data["grids"]).Children.Single();
+            var gridNode = groups.Children.Cast<YamlMappingNode>()
+                .SelectMany(group => ((YamlSequenceNode) group["entities"]).Children.Cast<YamlMappingNode>())
+                .Single(node => node["uid"].Equals(gridId));
+            var gridComponents = (YamlSequenceNode) gridNode["components"];
+            var savedShip = gridComponents.Children.Cast<YamlMappingNode>()
+                .Single(node => node["type"].ToString() == "ParkingShuttle");
+            Assert.That(savedShip.Children.Remove(new YamlScalarNode("researchConnections")), Is.True);
+            gridComponents.Add(new YamlMappingNode { { "type", "ShipShielded" } });
+            using var writer = new StringWriter();
+            legacy.Save(new YamlMappingFix(new Emitter(writer)), assignAnchors: false);
+            var legacyGrid = parking.LoadSnapshot(writer.ToString());
+            Assert.That(entities.HasComponent<ShipShieldedComponent>(legacyGrid), Is.False);
+            Assert.That(entities.GetComponent<ResearchClientComponent>(Find(legacyGrid, ResearchConsole)).Server,
+                Is.EqualTo(Find(legacyGrid, Research)));
+            entities.DeleteEntity(legacyGrid);
+
+            var restored = parking.LoadSnapshot(snapshot);
+            Assert.That(entities.HasComponent<ShipShieldedComponent>(restored), Is.False);
+            Assert.That(entities.EntityQuery<ShipShieldComponent, TransformComponent>(true)
+                .Any(entry => entry.Item2.GridUid == restored), Is.False);
+            mount = Find(restored, Mount);
+            weapon = Find(restored, Weapon);
+            generator = Find(restored, Generator);
+            source = Find(restored, Switch);
+            research = Find(restored, Research);
+            researchConsole = Find(restored, ResearchConsole);
+            gunnery = Find(restored, Gunnery);
+            emitter = Find(restored, Emitter);
+
+            Assert.That(entities.GetComponent<HardpointComponent>(mount).anchoring, Is.EqualTo(weapon));
+            Assert.That(entities.GetComponent<ResearchClientComponent>(researchConsole).Server, Is.EqualTo(research));
+            Assert.That(entities.GetComponent<MachineComponent>(generator).BoardContainer.ContainedEntities, Has.Count.EqualTo(1));
+            Assert.That(entities.GetComponent<PowerSupplierComponent>(generator).MaxSupply, Is.EqualTo(supply).Within(0.01f));
+            Assert.That(links.GetLinks(source, generator), Has.Count.EqualTo(1));
+            Assert.That(links.GetLinks(source, outside), Is.Empty);
+            Assert.That(links.GetLinks(source, otherOutside), Is.Empty);
+            transforms.SetCoordinates(restored, new EntityCoordinates(maps.GetMap(destination), Vector2.Zero));
+        });
+
+        await pair.RunSeconds(2.5f);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(entities.GetComponent<FireControlServerComponent>(gunnery).Controlled, Does.Contain(weapon));
+            Assert.That(entities.GetComponent<ShipShieldEmitterComponent>(emitter).Shield, Is.Not.Null);
+            Assert.That(entities.GetComponent<FuelGeneratorComponent>(generator).On, Is.True);
+            entities.System<DeviceLinkSystem>().InvokePort(source, "Off");
+        });
+        await pair.RunTicksSync(3);
+        await pair.Server.WaitAssertion(() =>
+            Assert.That(entities.GetComponent<FuelGeneratorComponent>(generator).On, Is.False));
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task RecallUsesShuttleHullAndShowsRealObstructions()
     {
@@ -185,7 +359,7 @@ public sealed class ShuttleParkingTests
             Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
             if (saveToStorage)
             {
-                SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, session.UserId.UserId);
+                SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId);
                 pair.Server.PlayerMan.SetAttachedEntity(session, null);
                 return;
             }
@@ -216,7 +390,7 @@ public sealed class ShuttleParkingTests
     }
 
     private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
-        EntityUid actor, Guid owner)
+        EntityUid actor, EntityUid dock, Guid owner)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         const int category = 2;
@@ -246,6 +420,17 @@ public sealed class ShuttleParkingTests
         var restored = parking.LoadSnapshot(saved.Ship!.Grid);
         Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
         Assert.That(parking.ExcludedEntities(restored), Is.Empty);
+        entities.DeleteEntity(restored);
+
+        store.BeginRedeem(owner, slot.Id, 0);
+        store.MarkPaid(owner, slot.Id);
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
+            { Actor = actor, UiKey = ParkingUiKey.Key });
+        Assert.That(store.Slot(owner, slot.Id).Phase, Is.EqualTo("empty"));
+        var card = entities.GetComponent<ParkingConsoleComponent>(console).Card.Item!.Value;
+        var delivered = entities.GetComponent<ShuttleDeedComponent>(card).ShuttleUid!.Value;
+        Assert.That(entities.GetComponent<MetaDataComponent>(delivered).EntityPaused, Is.False);
+        Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
     }
 
     [Test]

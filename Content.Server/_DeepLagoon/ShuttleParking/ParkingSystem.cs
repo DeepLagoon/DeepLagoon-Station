@@ -142,7 +142,7 @@ public sealed partial class ParkingSystem : EntitySystem
         data.OriginalItems.Clear();
         foreach (var entity in Descendants(grid))
         {
-            if (MetaData(entity).EntityPrototype is { MapSavable: false })
+            if (!IsSnapshotEntity(entity))
                 continue;
 
             var original = EnsureComp<ParkingOriginalComponent>(entity);

@@ -54,9 +54,8 @@ public sealed partial class GeneratorSystem : SharedGeneratorSystem
 
     private void OnAnchorStateChanged(EntityUid uid, FuelGeneratorComponent component, ref AnchorStateChangedEvent args)
     {
-        // Turn off generator if unanchored while running.
-
-        if (!component.On)
+        // Transform startup also raises this event for already anchored generators loaded from a save.
+        if (args.Anchored || !component.On)
             return;
 
         SetFuelGeneratorOn(uid, false, component);

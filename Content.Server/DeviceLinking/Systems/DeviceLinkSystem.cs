@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Server.DeviceLinking.Components;
 using Content.Server.DeviceNetwork.Systems;
 using Content.Shared.DeviceLinking;
@@ -5,6 +6,7 @@ using Content.Shared.DeviceLinking.Events;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DeviceNetwork.Events;
 using Content.Shared.DeviceNetwork.Components;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.DeviceLinking.Systems;
 
@@ -18,6 +20,32 @@ public sealed partial class DeviceLinkSystem : SharedDeviceLinkSystem
 
         SubscribeLocalEvent<DeviceLinkSinkComponent, DeviceNetworkPacketEvent>(OnPacketReceived);
         SubscribeLocalEvent<DeviceLinkSourceComponent, NewLinkEvent>(OnNewLink);
+    }
+
+    internal void SerializeInternalLinks(HashSet<EntityUid> entities, Action serialize)
+    {
+        // Multiple external entity keys would all serialize to the same invalid YAML key.
+        var originals = new Dictionary<DeviceLinkSourceComponent,
+            Dictionary<EntityUid, HashSet<(ProtoId<SourcePortPrototype>, ProtoId<SinkPortPrototype>)>>>();
+        try
+        {
+            foreach (var entity in entities)
+            {
+                if (!TryComp<DeviceLinkSourceComponent>(entity, out var source) ||
+                    source.LinkedPorts.Keys.All(entities.Contains))
+                    continue;
+
+                originals.Add(source, source.LinkedPorts);
+                source.LinkedPorts = source.LinkedPorts.Where(link => entities.Contains(link.Key)).ToDictionary();
+            }
+
+            serialize();
+        }
+        finally
+        {
+            foreach (var (source, links) in originals)
+                source.LinkedPorts = links;
+        }
     }
 
     #region Sending & Receiving
