@@ -12,6 +12,7 @@ using Content.Server.Connection;
 using Content.Server.EUI;
 using Content.Server.Players.JobWhitelist;
 using Content.Shared.CCVar;
+using Content.Shared.Database;
 using Robust.Server.Player;
 using Robust.Server.ServerStatus;
 using Robust.Shared.Asynchronous;
@@ -25,6 +26,9 @@ namespace Content.Server._DeepLagoon.DiscordLink;
 
 public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
 {
+    internal const int BoostStatusRefreshSeconds = 300;
+    private const int MaxClientBoostStatusSeconds = 900;
+
     [Dependency] private IPlayerManager _players = default!;
     [Dependency] private EuiManager _euis = default!;
     [Dependency] private IConfigurationManager _config = default!;
@@ -47,8 +51,35 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
            _enabled && (_store?.BoostRemaining(session.UserId.UserId) ?? 0) > 0;
 
     public override int GetBoostyTier(ICommonSession? session)
-        => session != null && session.Channel.AuthType == LoginType.LoggedIn && _enabled
-            ? Math.Max(_store?.BoostyStatus(session.UserId.UserId).Tier ?? 0, Content.Shared.Database.LagoonEconomyRules.GameTier(EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session))) : 0;
+        => session == null ? 0 : GetBoostyStatus(session, DateTimeOffset.UtcNow).Tier;
+
+    private (int Tier, long ExpiresAt) GetBoostyStatus(ICommonSession session, DateTimeOffset now)
+    {
+        if (session.Channel.AuthType != LoginType.LoggedIn || !_enabled)
+            return default;
+
+        var discord = _store?.BoostyStatus(session.UserId.UserId) ?? default;
+        var external = EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>()
+            .CachedExternalStatus(session, now.UtcDateTime);
+        return ResolveBoostyStatus(discord, external, now.ToUnixTimeSeconds());
+    }
+
+    internal static (int Tier, long ExpiresAt) ResolveBoostyStatus(
+        (int Tier, int Remaining) discord, (int Tier, DateTime? ExpiresAt) external, long now)
+    {
+        var externalTier = LagoonEconomyRules.GameTier(external.Tier);
+        var externalExpiry = external.ExpiresAt is { } expires
+            ? new DateTimeOffset(DateTime.SpecifyKind(expires, DateTimeKind.Utc)).ToUnixTimeSeconds()
+            : long.MaxValue;
+        if (externalTier == 0 || externalExpiry <= now || discord.Tier > externalTier)
+            return discord.Tier > 0 ? (discord.Tier, now + discord.Remaining) : default;
+
+        return (externalTier, discord.Tier == externalTier ? Math.Max(externalExpiry, now + discord.Remaining) : externalExpiry);
+    }
+
+    internal static int BoostyStatusSeconds(long expiresAt, long now)
+        // Cover the refresh interval while still expiring at the selected tier's actual deadline.
+        => (int) Math.Clamp(expiresAt - now, 0, MaxClientBoostStatusSeconds);
 
     public override bool HasSpark(ICommonSession? session) => session != null && session.Channel.AuthType == LoginType.LoggedIn && _enabled && ((_store?.HasSpark(session.UserId.UserId) ?? false) || EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session) >= 1);
     public int RawProductTier(ICommonSession session) => session.Channel.AuthType == LoginType.LoggedIn && _enabled
@@ -59,21 +90,21 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
     private void PublishBoosts()
     {
         var palette = _store?.SupporterColors();
-        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow;
+        var now = timestamp.ToUnixTimeSeconds();
         foreach (var session in _players.Sessions)
         {
             if (session.Status != SessionStatus.InGame)
                 continue;
             var remaining = HasActiveBoost(session) ? _store!.BoostRemaining(session.UserId.UserId) : 0;
-            var tier = GetBoostyTier(session);
+            var (tier, boostyExpiresAt) = GetBoostyStatus(session, timestamp);
             var spark = HasSpark(session);
             var purchased = EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().PurchasedStatus(session);
-            var boostyRemaining = tier > 0 ? Math.Max(_store?.BoostyStatus(session.UserId.UserId).Remaining ?? 0,
-                EntityManager.System<Content.Server._DeepLagoon.Currency.LagoonEconomySystem>().CachedExternalTier(session) > 1 ? 60 : 0) : 0;
+            var boostyRemaining = BoostyStatusSeconds(boostyExpiresAt, now);
             if (remaining == 0 && tier == 0 && !spark && purchased.Tier == 0 && palette == null && !_boostPublished.ContainsKey(session))
                 continue;
             var colors = palette ?? DefaultRoleColors;
-            var fingerprint = $"{now / 300}/{spark}/{purchased.Tier}/{purchased.Seconds}/{(remaining > 0 ? now + remaining : 0)}/{tier}/{(boostyRemaining > 0 ? now + boostyRemaining : 0)}/{string.Join(',', colors)}";
+            var fingerprint = $"{now / BoostStatusRefreshSeconds}/{spark}/{purchased.Tier}/{purchased.Seconds}/{(remaining > 0 ? now + remaining : 0)}/{tier}/{boostyExpiresAt}/{string.Join(',', colors)}";
             if (_boostPublished.TryGetValue(session, out var previous) && previous == fingerprint)
                 continue;
             _boostPublished[session] = fingerprint;

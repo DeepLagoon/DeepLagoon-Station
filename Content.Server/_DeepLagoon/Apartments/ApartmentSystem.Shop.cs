@@ -55,7 +55,7 @@ public sealed partial class ApartmentSystem
         if (Visitors(instance).Length > 0 || HasComp<ApartmentElevatorReservedComponent>(instance.Grid)) _retiring.Add(instance);
         else
         {
-            if (!SaveApartment(instance)) { _retiring.Add(instance); return; }
+            if (!SaveApartment(instance, ApartmentSaveReason.Unload)) { _retiring.Add(instance); return; }
             Del(instance.Grid);
         }
     }
@@ -125,8 +125,6 @@ public sealed partial class ApartmentSystem
             }
             if (!CanManage(session) || _shopTokens.GetValueOrDefault(session.UserId) != ev.Token) return;
             var before = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
-            if (_instances.TryGetValue(session.UserId, out var current) && !SaveApartment(current))
-                throw new InvalidOperationException("Cannot save the current apartment before switching templates.");
             Store.Select(session.UserId.UserId, template);
             _templates[session.UserId] = template.ID;
             if (before != template.ID) _numbers.Rotate(session.UserId.UserId);

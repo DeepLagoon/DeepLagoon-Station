@@ -46,7 +46,16 @@ public sealed partial class LagoonEconomySystem : EntitySystem
         _requests.Remove((ev.Session.UserId, false)); _requests.Remove((ev.Session.UserId, true));
     }
     public int ExternalTier(ICommonSession session) => EntityManager.System<Content.Server._DeepLagoon.DiscordLink.DiscordLinkSystem>().RawProductTier(session);
-    public int CachedExternalTier(ICommonSession? session) => session != null && _cache.TryGetValue(session.UserId, out var cached) && DateTime.UtcNow - cached.At < TimeSpan.FromMinutes(2) ? (cached.Snapshot.State.ExternalExpiresAt is not { } expires || expires > DateTime.UtcNow ? cached.Snapshot.State.ExternalTier : 0) : 0;
+    public int CachedExternalTier(ICommonSession? session) => CachedExternalStatus(session, DateTime.UtcNow).Tier;
+
+    internal (int Tier, DateTime? ExpiresAt) CachedExternalStatus(ICommonSession? session, DateTime now)
+    {
+        if (session == null || !_cache.TryGetValue(session.UserId, out var cached) || now - cached.At >= TimeSpan.FromMinutes(2))
+            return default;
+
+        var state = cached.Snapshot.State;
+        return state.ExternalExpiresAt <= now ? default : (state.ExternalTier, state.ExternalExpiresAt);
+    }
     public (int Tier, int Seconds) PurchasedStatus(ICommonSession? session)
     {
         if (session == null || !_cache.TryGetValue(session.UserId, out var cached) || DateTime.UtcNow - cached.At > TimeSpan.FromMinutes(2)) return (0, 0);

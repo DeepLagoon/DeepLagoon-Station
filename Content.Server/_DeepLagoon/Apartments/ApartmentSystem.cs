@@ -75,6 +75,8 @@ public sealed partial class ApartmentSystem : EntitySystem
         public required ApartmentGuestAccess Guests;
         public bool Frozen;
         public TimeSpan IdleSince;
+        internal TimeSpan NextCheckpoint;
+        internal TimeSpan RetrySaveAt;
     }
 
     private sealed class Visit
@@ -132,7 +134,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         SubscribeLocalEvent<ApartmentChameleonGearComponent, GridUidChangedEvent>(OnChameleonGridChanged);
         SubscribeLocalEvent<ApartmentGridComponent, MassDataChangedEvent>(OnGridMassChanged, after: new[] { typeof(AutomaticAtmosSystem) });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => Cleanup());
-        SubscribeLocalEvent<RoundEndedEvent>(_ => SaveApartments(true));
+        SubscribeLocalEvent<RoundEndedEvent>(_ => FinishApartmentRound());
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawnComplete, after: new[]
         {
             typeof(Content.Server._DeepLagoon.Loadouts.PersonalLoadoutSpawnSystem),
@@ -145,7 +147,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     public override void Shutdown()
     {
         _players.PlayerStatusChanged -= OnStatus;
-        SaveApartments(false);
+        SaveApartments(ApartmentSaveReason.Shutdown);
         _store?.Dispose();
         base.Shutdown();
     }
@@ -288,7 +290,12 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         var selected = SelectedLayout(owner);
         var retired = _retiring.FirstOrDefault(instance => instance.Owner == owner && instance.Template.ID == (selected?.Template ?? templateId));
-        if (retired == null) return CreateFresh(owner, templateId, false);
+        if (retired == null)
+        {
+            var instance = CreateFresh(owner, templateId, false);
+            instance.NextCheckpoint = _timing.RealTime + CheckpointInterval;
+            return instance;
+        }
         _retiring.Remove(retired);
         retired.Delta.Revision = selected?.Revision ?? retired.Delta.Revision;
         return retired;
@@ -303,7 +310,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (template.Width is < 5 or > 32 || template.Height is < 5 or > 32) throw new InvalidOperationException("Unsupported template bounds.");
         var delta = saved ?? ApartmentLayout.Diff(template, template.Furniture, 0);
         if (!ignoreSaved && Store.LoadSnapshot(owner.UserId, template.ID) is { } snapshot)
-            return RestoreApartment(owner, template, delta, snapshot);
+            return RestoreApartment(owner, template, saved, snapshot);
         var layout = template.Map == null ? ApartmentLayout.Resolve(template, delta) : new List<ApartmentPlacement>();
         if (template.Map == null && ApartmentLayout.Validate(template, layout, Catalog, validateStock: false) is { } error) throw new InvalidOperationException(error);
         Entity<MapGridComponent> grid;
@@ -665,7 +672,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             instance.Furniture[p.Id] = entity;
         }
         instance.Delta = delta;
-        if (!SaveApartment(instance)) return "Не удалось записать полный снимок. Обстановка находится в памяти; откройте редактор заново и повторите сохранение.";
+        if (!SaveApartment(instance, ApartmentSaveReason.Layout)) return "Не удалось записать полный снимок. Обстановка находится в памяти; откройте редактор заново и повторите сохранение.";
         return null;
     }
 
@@ -720,30 +727,49 @@ public sealed partial class ApartmentSystem : EntitySystem
         base.Update(frameTime);
         RemoveEscapedChameleonGear();
         ContainResidents();
-        if (_timing.RealTime < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0) return;
-        _nextUpdate = _timing.RealTime + TimeSpan.FromSeconds(1);
-        if (_timing.RealTime >= _nextCheckpoint)
-        {
-            SaveApartments(false);
-            _nextCheckpoint = _timing.RealTime + CheckpointInterval;
-        }
+        var now = _timing.RealTime;
+        if (now < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0) return;
+        _nextUpdate = now + TimeSpan.FromSeconds(1);
+        Instance? checkpoint = null;
+        Instance? unload = null;
+        var emptyTimeout = TimeSpan.FromSeconds(Math.Max(1, _config.GetCVar(ApartmentCVars.EmptyTimeout)));
         foreach (var instance in _instances.Values.Concat(_retiring).ToArray())
         {
-            if (_lobbyEditors.TryGetValue(instance.Owner, out var editing) && editing == instance && _editors.ContainsKey(instance.Owner) &&
-                _players.TryGetSessionById(instance.Owner, out var viewer) && InLobby(viewer)) continue;
-            RefreshActivity(instance);
-            if (HasComp<ApartmentElevatorReservedComponent>(instance.Grid) || !instance.Frozen || _visits.Values.Any(v => v.Apartment == instance) ||
-                _timing.RealTime - instance.IdleSince < TimeSpan.FromSeconds(Math.Max(1, _config.GetCVar(ApartmentCVars.EmptyTimeout)))) continue;
-            if (!SaveApartment(instance)) continue;
-            Del(instance.Grid);
-            if (_instances.GetValueOrDefault(instance.Owner) == instance) _instances.Remove(instance.Owner);
-            _retiring.Remove(instance);
+            var editingInLobby = _lobbyEditors.TryGetValue(instance.Owner, out var editing) && editing == instance &&
+                _editors.ContainsKey(instance.Owner) && _players.TryGetSessionById(instance.Owner, out var viewer) && InLobby(viewer);
+            if (!editingInLobby)
+                RefreshActivity(instance);
+            if (now < instance.RetrySaveAt)
+                continue;
+            if (!instance.Frozen)
+            {
+                if (now >= instance.NextCheckpoint && (checkpoint == null || instance.NextCheckpoint < checkpoint.NextCheckpoint))
+                    checkpoint = instance;
+                continue;
+            }
+            if (editingInLobby || now - instance.IdleSince < emptyTimeout || _visits.Values.Any(v => v.Apartment == instance))
+                continue;
+            if (unload == null || instance.IdleSince < unload.IdleSince)
+                unload = instance;
         }
+
+        // Serialize at most one grid per maintenance pass. Unloads take priority.
+        if (unload == null)
+        {
+            if (checkpoint != null)
+                SaveApartment(checkpoint, ApartmentSaveReason.Checkpoint);
+            return;
+        }
+        if (!SaveApartment(unload, ApartmentSaveReason.Unload)) return;
+        Del(unload.Grid);
+        if (_instances.GetValueOrDefault(unload.Owner) == unload) _instances.Remove(unload.Owner);
+        _retiring.Remove(unload);
     }
 
     private void Cleanup()
     {
-        SaveApartments(true);
+        FinishApartmentRound();
+        SaveApartments(ApartmentSaveReason.RoundCleanup);
         _numbers.Reset();
         foreach (var visit in _visits.Values)
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))

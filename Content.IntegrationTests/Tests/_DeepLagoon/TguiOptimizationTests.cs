@@ -25,6 +25,8 @@ public sealed class TguiOptimizationTests
             var cover = (Control) typeof(GameWebView).GetField("_presentationCover", Private)!.GetValue(web)!;
             var incoming = (ConcurrentQueue<string>) typeof(GameWebView).GetField("_incoming", Private)!.GetValue(web)!;
             var dispatch = typeof(GameWebView).GetMethod("DispatchIncoming", Private)!;
+            var healthWait = typeof(GameWebView).GetField("_healthWait", Private)!;
+            var healthTimeout = typeof(GameWebView).GetProperty("HealthTimeout", Private)!;
             void Acknowledge(int presentation)
             {
                 incoming.Enqueue("health%2Fpresented&" + Uri.EscapeDataString(new TguiData().Number("presentation", presentation).ToString()));
@@ -34,7 +36,13 @@ public sealed class TguiOptimizationTests
             Assert.That(cover.Visible, Is.True);
             Acknowledge(web.Presentation);
             Assert.That(cover.Visible, Is.True, "A document that is not ready cannot reveal its texture");
+            var startupTimeout = (float) healthTimeout.GetValue(web)!;
             typeof(GameWebView).GetField("_ready", Private)!.SetValue(web, true);
+            healthWait.SetValue(web, startupTimeout - 1);
+            incoming.Enqueue("health%2Fpong&%7B%7D");
+            dispatch.Invoke(web, null);
+            Assert.That(healthWait.GetValue(web), Is.EqualTo(startupTimeout - 1),
+                "A page that responds without rendering cannot leave the cover up indefinitely");
             var old = web.Presentation;
             web.InvalidatePresentation();
             Acknowledge(old);
@@ -45,6 +53,12 @@ public sealed class TguiOptimizationTests
             web.Visible = true;
             Acknowledge(web.Presentation);
             Assert.That(cover.Visible, Is.False);
+            Assert.That(healthWait.GetValue(web), Is.EqualTo(0f));
+            Assert.That(healthTimeout.GetValue(web), Is.LessThan(startupTimeout));
+            healthWait.SetValue(web, 1f);
+            incoming.Enqueue("health%2Fpong&%7B%7D");
+            dispatch.Invoke(web, null);
+            Assert.That(healthWait.GetValue(web), Is.EqualTo(0f));
             web.InvalidatePresentation();
             Assert.That(cover.Visible, Is.True, "Reopening must cover the previous frame again");
             web.Orphan();

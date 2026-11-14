@@ -18,6 +18,8 @@ namespace Content.Client._DeepLagoon.WebUI;
 public sealed class GameWebView : Control
 {
     private const string Root = "/Web/DeepLagoon/";
+    private const float FirstPresentationTimeout = 45;
+    private const float HeartbeatTimeout = 15;
     private TimeSpan _logWindow;
     private int _logCount;
     private static readonly byte[] BridgeAck = Convert.FromBase64String(
@@ -38,6 +40,7 @@ public sealed class GameWebView : Control
     private bool _explicitTextInput;
     private float _healthWait;
     private float _pingWait;
+    private bool _healthCheckPending;
     private bool _healthFailed;
     private bool _recovering;
     private bool _warmSuspended;
@@ -55,6 +58,8 @@ public sealed class GameWebView : Control
     }
     public bool BrowserActive => _view?.IsInsideTree == true;
     public bool IsReady => _ready;
+    private bool AwaitingPresentation => _presentationCover?.Visible == true;
+    private float HealthTimeout => !_ready || AwaitingPresentation ? FirstPresentationTimeout : HeartbeatTimeout;
     public event Action<string, string>? Message;
     public event Action? Ready;
     public event Action? Failed;
@@ -318,6 +323,17 @@ public sealed class GameWebView : Control
                 });
             }
         }
+        // Process a pending ready, heartbeat or presentation before acting on the timeout.
+        if (!_messageDispatchPending && !_incoming.IsEmpty)
+        {
+            _messageDispatchPending = true;
+            // Bridge handlers can add or remove windows after the UI traversal.
+            UserInterfaceManager.DeferAction(() =>
+            {
+                _messageDispatchPending = false;
+                DispatchIncoming();
+            });
+        }
         if (!_disposed && BrowserActive && VisibleInTree && !_healthFailed)
         {
             _healthWait += args.DeltaSeconds;
@@ -327,18 +343,18 @@ public sealed class GameWebView : Control
                 _pingWait = 0;
                 _view?.ExecuteJavaScript("window.DeepLagoonHealth?.ping();");
             }
-            if (_healthWait >= 15)
+            if (!_healthCheckPending && _healthWait >= HealthTimeout)
             {
+                _healthCheckPending = true;
                 UserInterfaceManager.DeferAction(() =>
                 {
-                    if (_disposed || !VisibleInTree || _healthWait < 15)
-                    {
-                        _healthFailed = false;
+                    _healthCheckPending = false;
+                    if (_disposed || _shuttingDown || !BrowserActive || !VisibleInTree || _healthWait < HealthTimeout)
                         return;
-                    }
                     if (!_recovering)
                     {
-                        Robust.Shared.Log.Logger.GetSawmill("tgui").Warning("TGUI health check timed out; reloading the page.");
+                        var pending = !_ready ? "document ready" : AwaitingPresentation ? "first presentation" : "heartbeat";
+                        Robust.Shared.Log.Logger.GetSawmill("tgui").Warning($"TGUI timed out waiting for {pending}; reloading the page.");
                         Reload();
                         _recovering = true;
                         return;
@@ -350,18 +366,8 @@ public sealed class GameWebView : Control
                     Robust.Shared.Log.Logger.GetSawmill("tgui").Error("TGUI recovery failed; using the native fallback or retry control.");
                     Failed?.Invoke();
                 });
-                _healthFailed = true;
             }
         }
-        if (_disposed || _messageDispatchPending || _incoming.IsEmpty) return;
-        _messageDispatchPending = true;
-        // Actions can add or remove windows (including this browser's owner).
-        // Never invoke them while an ancestor enumerates its child controls.
-        UserInterfaceManager.DeferAction(() =>
-        {
-            _messageDispatchPending = false;
-            DispatchIncoming();
-        });
     }
 
     private void DispatchIncoming()
@@ -405,9 +411,14 @@ public sealed class GameWebView : Control
                     if (_ready && VisibleInTree && TguiActionData.TryParse(payload, out var presented) &&
                         presented!.TryInt("presentation", out var presentation) && presentation == Presentation &&
                         _presentationCover != null)
+                    {
                         _presentationCover.Visible = false;
+                        _healthWait = 0;
+                        _recovering = false;
+                    }
                     break;
                 case "ready":
+                    if (_healthFailed) break;
                     // Vite may reload the document after an HTML/non-component edit.
                     // Keep the native window open and let its owner resend current state.
                     if (!WebViewCapabilities.NativeLifecycle)
@@ -427,12 +438,13 @@ public sealed class GameWebView : Control
                     Ready?.Invoke();
                     break;
                 case "health/pong":
+                    if (!_ready || AwaitingPresentation) break;
                     _healthWait = 0;
                     _recovering = false;
                     break;
                 case "health/error":
                     Robust.Shared.Log.Logger.GetSawmill("tgui").Error("Unhandled script error in packaged TGUI; scheduling recovery.");
-                    _healthWait = 15;
+                    _healthWait = HealthTimeout;
                     break;
                 case "log":
                     LogPage(payload);

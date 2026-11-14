@@ -18,7 +18,7 @@ public sealed partial class ApartmentSystem
     {
         var grid = Transform(target).GridUid;
         var instance = _instances.Values.FirstOrDefault(home => home.Grid == grid);
-        return instance != null && SaveApartment(instance);
+        return instance != null && SaveApartment(instance, ApartmentSaveReason.Decoration);
     }
 
     private List<ApartmentShopEntry> ShopItems() => _prototypes.EnumeratePrototypes<ApartmentItemPrototype>()
@@ -64,7 +64,7 @@ public sealed partial class ApartmentSystem
             return; // Persisted pending order remains available on reopening the shop.
         var entity = Spawn(product.Entity, new EntityCoordinates(instance.Grid,
             new System.Numerics.Vector2(instance.Template.Arrival.X + .5f, instance.Template.Arrival.Y + .5f)));
-        if (!SaveApartment(instance, delivery: order.Id))
+        if (!SaveApartment(instance, ApartmentSaveReason.Delivery, order.Id))
         {
             Del(entity);
             throw new InvalidOperationException("Оплата учтена, доставка ожидает сохранения. Нажмите «Завершить доставку»; повторного списания не будет.");

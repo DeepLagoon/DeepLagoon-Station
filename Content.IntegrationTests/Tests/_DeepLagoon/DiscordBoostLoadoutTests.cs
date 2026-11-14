@@ -56,6 +56,59 @@ public sealed class DiscordBoostLoadoutTests
         """;
 
     [Test]
+    public async Task PaidImpulseRemainsAvailableBetweenStatusUpdates()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var server = pair.Server;
+        var now = DateTimeOffset.UtcNow;
+        var unixTime = now.ToUnixTimeSeconds();
+        var (tier, expiresAt) = DiscordLinkSystem.ResolveBoostyStatus(default, (2, now.UtcDateTime.AddMonths(1)), unixTime);
+        var remaining = DiscordLinkSystem.BoostyStatusSeconds(expiresAt, unixTime);
+        Assert.That(tier, Is.EqualTo(1));
+        Assert.That(remaining, Is.GreaterThan(DiscordLinkSystem.BoostStatusRefreshSeconds));
+
+        var network = server.ResolveDependency<IEntityManager>().EntityNetManager!;
+        await server.WaitPost(() =>
+        {
+            var session = server.ResolveDependency<Robust.Server.Player.IPlayerManager>().Sessions.Single();
+            network.SendSystemNetworkMessage(new DiscordBoostStatusEvent(0, tier, remaining, spark: true), session.Channel);
+        });
+        await pair.RunTicksSync(5);
+
+        await pair.Client.WaitAssertion(() =>
+        {
+            var local = pair.Client.ResolveDependency<Robust.Client.Player.IPlayerManager>().LocalSession;
+            var supporters = pair.Client.ResolveDependency<IEntitySystemManager>().GetEntitySystem<SharedDiscordBoostSystem>();
+            Assert.That(supporters.GetProductTier(local), Is.EqualTo(2));
+
+            // Advance the received deadline without sleeping or delivering another server event.
+            var expiry = supporters.GetType().GetField("_boostyExpiresAt", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var receivedDeadline = (DateTime) expiry.GetValue(supporters)!;
+            expiry.SetValue(supporters, receivedDeadline.AddSeconds(-DiscordLinkSystem.BoostStatusRefreshSeconds));
+            Assert.That(supporters.GetProductTier(local), Is.EqualTo(2));
+            Assert.That(supporters.GetLoadoutPointBonus(local), Is.GreaterThanOrEqualTo(6));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public void BoostyStatusUsesTheExpiryOfTheEffectiveTier()
+    {
+        var now = DateTimeOffset.FromUnixTimeSeconds(1_800_000_000);
+        var unixTime = now.ToUnixTimeSeconds();
+        var paidUntil = now.UtcDateTime.AddSeconds(20);
+        var status = DiscordLinkSystem.ResolveBoostyStatus((1, 600), (3, paidUntil), unixTime);
+        Assert.That(status.Tier, Is.EqualTo(2));
+        Assert.That(DiscordLinkSystem.BoostyStatusSeconds(status.ExpiresAt, unixTime), Is.EqualTo(20));
+        Assert.That(DiscordLinkSystem.ResolveBoostyStatus((1, 600), (3, paidUntil), unixTime + 20),
+            Is.EqualTo((1, unixTime + 620)));
+        Assert.That(DiscordLinkSystem.ResolveBoostyStatus((1, 600), (2, paidUntil), unixTime),
+            Is.EqualTo((1, unixTime + 600)));
+        Assert.That(DiscordLinkSystem.ResolveBoostyStatus((2, 20), (2, now.UtcDateTime.AddMinutes(10)), unixTime),
+            Is.EqualTo((2, unixTime + 20)));
+    }
+
+    [Test]
     public async Task ServerRejectsSavedBoosterEquipmentAfterRevocation()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

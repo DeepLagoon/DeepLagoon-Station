@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Content.Shared._DeepLagoon.Apartments;
@@ -6,6 +7,7 @@ using Content.Shared.Mind.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.EntitySerialization;
 using Robust.Shared.IoC;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Map.Events;
@@ -23,8 +25,20 @@ public sealed partial class ApartmentSystem
 {
     [Dependency] private IDependencyCollection _snapshotDependencies = default!;
     [Dependency] private SharedContainerSystem _containers = default!;
-    private TimeSpan _nextCheckpoint;
-    private static readonly TimeSpan CheckpointInterval = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan CheckpointInterval = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan SaveRetryDelay = TimeSpan.FromMinutes(1);
+
+    public enum ApartmentSaveReason
+    {
+        Manual,
+        Checkpoint,
+        Unload,
+        RoundCleanup,
+        Shutdown,
+        Layout,
+        Decoration,
+        Delivery,
+    }
 
     private IApartmentLayoutStore OpenStore()
     {
@@ -57,7 +71,7 @@ public sealed partial class ApartmentSystem
         }
     }
 
-    private (string Current, string RoundEnd) SerializeApartment(Instance instance)
+    private (string Current, string RoundEnd, int EntityCount) SerializeApartment(Instance instance)
     {
         var excluded = new HashSet<EntityUid>();
         void Exclude(EntityUid uid)
@@ -122,7 +136,7 @@ public sealed partial class ApartmentSystem
             while (children.MoveNext(out var child)) CollectTrash(child);
         }
         foreach (var item in TrashContents(instance)) CollectTrash(item);
-        if (trash.Count == 0) return (current, current);
+        if (trash.Count == 0) return (current, current, serializer.EntityData.Count);
         var removedIds = trash.Where(serializer.YamlUidMap.ContainsKey).Select(uid => serializer.YamlUidMap[uid].ToString(System.Globalization.CultureInfo.InvariantCulture)).ToHashSet();
         // Derive the clean save from the complete one. Serializing excluded dictionary keys
         // directly would collapse several items into the same "invalid" EntityUid key.
@@ -153,7 +167,7 @@ public sealed partial class ApartmentSystem
                 }
             }
         }
-        return (current, WriteApartment(data));
+        return (current, WriteApartment(data), serializer.EntityData.Count);
     }
 
     private static string WriteApartment(MappingDataNode data)
@@ -163,29 +177,68 @@ public sealed partial class ApartmentSystem
         return writer.ToString();
     }
 
-    public bool SaveApartment(Instance instance, bool discardTrash = false, Guid delivery = default)
+    public bool SaveApartment(Instance instance, ApartmentSaveReason reason = ApartmentSaveReason.Manual, Guid delivery = default)
     {
-        if (!Exists(instance.Grid)) return false;
+        // The round reset and shutdown destroy the grids even if a snapshot fails.
+        // Give each grid one final opportunity to persist before it is destroyed.
+        var finalSave = reason is ApartmentSaveReason.RoundCleanup or ApartmentSaveReason.Shutdown;
+        if ((!finalSave && _timing.RealTime < instance.RetrySaveAt) || !Exists(instance.Grid))
+            return false;
+
+        var started = Stopwatch.GetTimestamp();
+        var layoutDone = started;
+        var serializationDone = started;
+        var stage = "layout";
+        int? entityCount = null;
+        int? yamlChars = null;
         try
         {
-            if (discardTrash)
-                foreach (var item in TrashContents(instance).ToArray()) if (Exists(item)) Del(item);
             var layout = ApartmentLayout.Diff(instance.Template, CurrentLayout(instance), instance.Delta.Revision, MapBaseline(instance));
             layout.OxygenPercent = instance.Delta.OxygenPercent;
-            var (current, clean) = SerializeApartment(instance);
+
+            stage = "serialization";
+            layoutDone = Stopwatch.GetTimestamp();
+            var (current, clean, count) = SerializeApartment(instance);
+            entityCount = count;
+            yamlChars = current.Length;
+
+            stage = "storage";
+            serializationDone = Stopwatch.GetTimestamp();
             var snapshot = new ApartmentSnapshot { Grid = current, Layout = layout, MapFurniture = instance.MapFurniture.Values.ToList() };
             var roundEnd = new ApartmentSnapshot { Grid = clean, Layout = layout, MapFurniture = snapshot.MapFurniture };
             Store.SaveSnapshot(instance.Owner.UserId, instance.Template.ID, snapshot, roundEnd, delivery);
-            return true;
         }
         catch (Exception exception)
         {
-            Log.Error($"Apartment snapshot failed for {instance.Owner}/{instance.Template.ID}; previous save retained: {exception}");
+            var firstFailure = instance.RetrySaveAt == TimeSpan.Zero;
+            instance.RetrySaveAt = _timing.RealTime + SaveRetryDelay;
+            Log.Log(LogLevel.Error, firstFailure ? exception : null,
+                "Apartment snapshot failed, previous save retained: reason={Reason} template={Template} grid={Grid} frozen={Frozen} stage={Stage} elapsed_ms={ElapsedMs:F1} entities={Entities} yaml_chars={YamlChars} retry_delay_s={RetrySeconds} error={ErrorType} detail={ErrorMessage}",
+                reason, instance.Template.ID, instance.Grid, instance.Frozen, stage, Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+                entityCount, yamlChars, SaveRetryDelay.TotalSeconds, exception.GetType().Name, exception.Message);
             return false;
         }
+
+        var completed = Stopwatch.GetTimestamp();
+        var recovered = instance.RetrySaveAt != TimeSpan.Zero;
+        instance.RetrySaveAt = TimeSpan.Zero;
+        instance.NextCheckpoint = _timing.RealTime + CheckpointInterval;
+        var elapsed = Stopwatch.GetElapsedTime(started, completed);
+        var level = elapsed >= _timing.TickPeriod ? LogLevel.Warning : recovered ? LogLevel.Info : LogLevel.Verbose;
+        if (Log.IsLogLevelEnabled(level))
+        {
+            Log.Log(level,
+                "Apartment snapshot saved: reason={Reason} template={Template} grid={Grid} frozen={Frozen} recovered={Recovered} elapsed_ms={ElapsedMs:F1} layout_ms={LayoutMs:F1} serialization_ms={SerializationMs:F1} storage_ms={StorageMs:F1} tick_budget_ms={TickBudgetMs:F1} entities={Entities} yaml_chars={YamlChars}",
+                reason, instance.Template.ID, instance.Grid, instance.Frozen, recovered, elapsed.TotalMilliseconds,
+                Stopwatch.GetElapsedTime(started, layoutDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(layoutDone, serializationDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(serializationDone, completed).TotalMilliseconds,
+                _timing.TickPeriod.TotalMilliseconds, entityCount, yamlChars);
+        }
+        return true;
     }
 
-    private Instance RestoreApartment(Robust.Shared.Network.NetUserId owner, ApartmentTemplatePrototype template, ApartmentDelta selected, ApartmentSnapshot snapshot)
+    private Instance RestoreApartment(Robust.Shared.Network.NetUserId owner, ApartmentTemplatePrototype template, ApartmentDelta? selected, ApartmentSnapshot snapshot)
     {
         using var reader = new StringReader(snapshot.Grid);
         if (!_mapLoader.TryLoadGrid(Comp<MapComponent>(_activeMap).MapId, reader, $"apartment {owner}/{template.ID}", out var grid,
@@ -194,7 +247,11 @@ public sealed partial class ApartmentSystem
         try
         {
             var layout = snapshot.Layout;
-            layout.Revision = selected.Revision;
+            if (selected != null)
+            {
+                layout.Revision = selected.Revision;
+                layout.OxygenPercent = selected.OxygenPercent;
+            }
             EnsureComp<ApartmentAtmosphereSettingsComponent>(grid.Value.Owner).OxygenPercent = Math.Clamp(layout.OxygenPercent, 0, 100);
             var position = FindFreePosition(template);
             _transform.SetCoordinates(grid.Value.Owner, new EntityCoordinates(_activeMap, position));
@@ -211,10 +268,18 @@ public sealed partial class ApartmentSystem
         catch { Del(grid.Value.Owner); throw; }
     }
 
-    private void SaveApartments(bool discardTrash)
+    private void SaveApartments(ApartmentSaveReason reason)
     {
-        foreach (var instance in _instances.Values.Concat(_retiring).Distinct().ToArray()) SaveApartment(instance, discardTrash);
-        if (discardTrash) Store.FinishRound();
+        foreach (var instance in _instances.Values.Concat(_retiring).ToArray())
+            SaveApartment(instance, reason);
+    }
+
+    private void FinishApartmentRound()
+    {
+        foreach (var instance in _instances.Values.Concat(_retiring).ToArray())
+        foreach (var item in TrashContents(instance).ToArray())
+            if (Exists(item)) Del(item);
+        _store?.FinishRound();
     }
 
     private void SpillFurnitureContents(EntityUid entity, EntityUid grid)

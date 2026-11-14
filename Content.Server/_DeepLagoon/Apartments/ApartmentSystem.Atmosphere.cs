@@ -37,7 +37,6 @@ public sealed partial class ApartmentSystem
         }
         instance.Delta = delta;
         EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = oxygenPercent;
-        SaveApartment(instance);
         return true;
     }
 }

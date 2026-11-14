@@ -10,7 +10,7 @@ namespace Content.Shared.MagicMirror;
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class MagicMirrorComponent : Component
 {
-    [DataField]
+    // An in-flight interaction belongs to the current session, not a saved grid.
     public DoAfterId? DoAfter;
 
     /// <summary>
