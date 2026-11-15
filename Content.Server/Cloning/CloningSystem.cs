@@ -22,7 +22,6 @@ using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Emag.Components;
 using Content.Shared.Emag.Systems;
 using Content.Shared.Examine;
-using Content.Shared.GameTicking;
 using Content.Shared.Humanoid;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
@@ -34,7 +33,9 @@ using Robust.Server.Player;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Configuration;
 using Robust.Shared.Containers;
+using Robust.Shared.Network;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 
@@ -74,7 +75,6 @@ namespace Content.Server.Cloning
         [Dependency] private EmagSystem _emag = default!;
         [Dependency] private ISerializationManager _serialization = default!; // Frontier
 
-        public readonly Dictionary<MindComponent, EntityUid> ClonesWaitingForMind = new();
         public const float EasyModeCloningCost = 0.7f;
 
         public override void Initialize()
@@ -84,7 +84,6 @@ namespace Content.Server.Cloning
             SubscribeLocalEvent<CloningPodComponent, ComponentInit>(OnComponentInit);
             SubscribeLocalEvent<CloningPodComponent, RefreshPartsEvent>(OnPartsRefreshed);
             SubscribeLocalEvent<CloningPodComponent, UpgradeExamineEvent>(OnUpgradeExamine);
-            SubscribeLocalEvent<RoundRestartCleanupEvent>(Reset);
             SubscribeLocalEvent<BeingClonedComponent, MindAddedMessage>(HandleMindAdded);
             SubscribeLocalEvent<CloningPodComponent, PortDisconnectedEvent>(OnPortDisconnected);
             SubscribeLocalEvent<CloningPodComponent, AnchorStateChangedEvent>(OnAnchor);
@@ -116,25 +115,15 @@ namespace Content.Server.Cloning
         }
         // End Frontier
 
-        internal void TransferMindToClone(EntityUid mindId, MindComponent mind)
+        internal void TransferMindToClone(EntityUid mindId, EntityUid clone, NetUserId userId)
         {
-            // find first mob this player is meant to use and doesn't already have a mind via alternate means
-            var query = EntityQueryEnumerator<BeingClonedComponent, MindContainerComponent>();
-            var found = false;
-            EntityUid mob;
-            while (query.MoveNext(out mob, out var cloned, out var mc))
-            {
-                if (cloned.Mind == mind && mc.Mind == null)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
+            if (!_mindSystem.TryGetMind(userId, out var currentMindId, out var mind) || currentMindId != mindId ||
+                TerminatingOrDeleted(clone) ||
+                !TryComp<MindContainerComponent>(clone, out var container) || container.HasMind ||
+                HasComp<ActorComponent>(clone) || _mobStateSystem.IsDead(clone))
                 return;
 
-            _mindSystem.TransferTo(mindId, mob, ghostCheckOverride: true, mind: mind);
+            _mindSystem.TransferTo(mindId, clone, ghostCheckOverride: true, mind: mind);
             _mindSystem.UnVisit(mindId, mind);
         }
 
@@ -186,17 +175,6 @@ namespace Content.Server.Cloning
                 return false;
 
             var mind = mindEnt.Comp;
-            // GoobStation: Remove this logic entirely, infinite clone army
-            /*if (ClonesWaitingForMind.TryGetValue(mind, out var clone))
-            {
-                if (EntityManager.EntityExists(clone) &&
-                    !_mobStateSystem.IsDead(clone) &&
-                    TryComp<MindContainerComponent>(clone, out var cloneMindComp) &&
-                    (cloneMindComp.Mind == null || cloneMindComp.Mind == mindEnt))
-                    return false; // Mind already has clone
-
-                ClonesWaitingForMind.Remove(mind);
-            }*/
 
             // GoobStation: Lets you clone living people
             //if (mind.OwnedEntity != null && !_mobStateSystem.IsDead(mind.OwnedEntity.Value))
@@ -297,13 +275,10 @@ namespace Content.Server.Cloning
             if (!ev.NameHandled)
                 _metaSystem.SetEntityName(mob, MetaData(bodyToClone).EntityName);
 
-            var cloneMindReturn = AddComp<BeingClonedComponent>(mob);
-            cloneMindReturn.Mind = mind;
-            cloneMindReturn.Parent = uid;
+            AddComp<BeingClonedComponent>(mob).Parent = uid;
             _containerSystem.Insert(mob, clonePod.BodyContainer);
-            //ClonesWaitingForMind.Add(mind, mob); // GoobStation: Use mindId
             UpdateStatus(uid, CloningPodStatus.NoMind, clonePod);
-            _euiManager.OpenEui(new AcceptCloningEui(mindEnt, mind, this), client);
+            _euiManager.OpenEui(new AcceptCloningEui(mindEnt, mob, this), client);
 
             AddComp<ActiveCloningPodComponent>(uid);
 
@@ -434,11 +409,6 @@ namespace Content.Server.Cloning
 
             clonePod.UsedBiomass = 0;
             RemCompDeferred<ActiveCloningPodComponent>(uid);
-        }
-
-        public void Reset(RoundRestartCleanupEvent ev)
-        {
-            ClonesWaitingForMind.Clear();
         }
     }
 }
