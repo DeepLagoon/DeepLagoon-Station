@@ -56,7 +56,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
     private List<ShuttleExclusionObject> _greenZones = new();
 
     // temporary buffers to avoid per-frame heap churn
-    private readonly List<BlipData> _tempBlipDataList = new();
     private readonly HashSet<EntityUid> _visibleGridsSet = new();
     private static readonly Vector2[] RadarPosVertsCache =
     [
@@ -467,6 +466,9 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
     protected override void KeyBindDown(GUIBoundKeyEventArgs args)
     {
+        if (TryPressSignatureGroup(args))
+            return;
+
         base.KeyBindDown(args);
 
         if (args.Function != EngineKeyFunctions.UIClick)
@@ -479,6 +481,9 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
     protected override void KeyBindUp(GUIBoundKeyEventArgs args)
     {
+        if (TryReleaseSignatureGroup(args))
+            return;
+
         base.KeyBindUp(args);
 
         if (args.Function != EngineKeyFunctions.UIClick)
@@ -493,6 +498,11 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
+
+        if (ShowIFF)
+            UpdateSignaturePopup();
+        else
+            _signaturePopup?.Close();
 
         _updateAccumulator += args.DeltaSeconds;
 
@@ -577,6 +587,10 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         base.Draw(handle);
 
         DrawBacking(handle);
+
+        _signatures.Clear();
+        _offscreenSignatures.Clear();
+        _signatureButtons.Clear();
 
         // No data
         if (_coordinates == null || _rotation == null)
@@ -684,9 +698,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
         handle.DrawPrimitives(DrawPrimitiveTopology.TriangleFan, radarPosVerts, Color.Lime);
 
-        // Mono edited: Frontier - collect blip location data outside foreach - more changes ahead
-        _tempBlipDataList.Clear();
-
         _visibleGridsSet.Clear();
 
         DrawGrids(_grids, handle, (ourGrid != null && ourGridId.HasValue) ? (ourGridId.Value, ourGrid) : null, false);
@@ -779,6 +790,8 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
             }
         }
         #endregion
+
+        DrawSignatures(handle);
     }
 
     private void DrawGrids(List<Entity<MapGridComponent>> _grids, DrawingHandleScreen handle, Entity<MapGridComponent>? ourGrid, bool renderFill)
@@ -851,9 +864,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
                 var hideColor = hideLabel && iff != null && (iff.Flags & IFFFlags.AlwaysShowColor) == 0x0;
                 var labelColor = hideColor ? blipOnly ? Color.Orange : Color.White : _shuttles.GetIFFColor(grid, self: false, iff);
-                var coordColor = new Color(labelColor.R * 0.8f, labelColor.G * 0.8f, labelColor.B * 0.8f, 0.5f);
 
-                var isPlayerShuttle = iff != null && (iff.Flags & IFFFlags.IsPlayerShuttle) != 0x0;
                 // Others default:
                 // Color.FromHex("#FFC000FF")
                 // Hostile default: Color.Firebrick
@@ -865,7 +876,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
                     : _shuttles.GetIFFLabel(grid, self: false, component: iff);
 
                 var shouldDrawIFF = ShowIFF && labelName != null;
-                var shouldDrawDetailedIFF = ShowIFFDetailed && shouldDrawIFF; // Mono
                 if (shouldDrawIFF)
                 {
                     if (IFFFilter != null)
@@ -882,156 +892,20 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
                     shouldDrawIFF = NfCheckShouldDrawIffRangeCondition(shouldDrawIFF, mapPos.Position - gridMapPos);
                 // End Frontier
 
-                // Mono
-                var gridUiPosition = Vector2.Transform(gridBody.LocalCenter, curGridToView) / UIScale;
-
                 if (shouldDrawIFF)
                 {
-                    //var gridCentre = Vector2.Transform(gridBody.LocalCenter, curGridToView);
-                    //gridCentre.Y = -gridCentre.Y;
-
-                    // Frontier: IFF drawing functions
-                    // The actual position in the UI. We offset the matrix position to render it off by half its width
-                    // plus by the offset.
-                    //var uiPosition = ScalePosition(gridCentre) / UIScale;
-                    var uiPosition = gridUiPosition; // Mono
-
-                    // Confines the UI position within the viewport.
-                    var uiXCentre = (int)Width / 2;
-                    var uiYCentre = (int)Height / 2;
-                    var uiXOffset = uiPosition.X - uiXCentre;
-                    var uiYOffset = uiPosition.Y - uiYCentre;
-                    var uiDistance = (int)Math.Sqrt(Math.Pow(uiXOffset, 2) + Math.Pow(uiYOffset, 2));
-                    var uiX = uiXCentre * uiXOffset / uiDistance;
-                    var uiY = uiYCentre * uiYOffset / uiDistance;
-
-                    var isOutsideRadarCircle = uiDistance > Math.Abs(uiX) && uiDistance > Math.Abs(uiY);
-                    if (isOutsideRadarCircle)
+                    var color = labelColor;
+                    if (!hideLabel && EntManager.TryGetComponent<CompanyComponent>(gUid, out var company) &&
+                        !string.IsNullOrEmpty(company.CompanyName) &&
+                        PrototypeManager.TryIndex<CompanyPrototype>(company.CompanyName, out var prototype))
                     {
-                        // 0.95f for offsetting the icons slightly away from edge of radar so it doesnt clip.
-                        uiX = uiXCentre * uiXOffset / uiDistance * 0.95f;
-                        uiY = uiYCentre * uiYOffset / uiDistance * 0.95f;
-                        uiPosition = new Vector2(
-                            x: uiX + uiXCentre,
-                            y: uiY + uiYCentre
-                        );
+                        color = prototype.Color;
                     }
 
-                    var scaledMousePosition = GetMouseCoordinatesFromCenter().Position * UIScale;
-                    var isMouseOver = Vector2.Distance(scaledMousePosition, uiPosition * UIScale) < 30f;
-
-                    // Distant stations that are not player controlled ships
-                    var isDistantPOI = iff != null || (iff == null || (iff.Flags & IFFFlags.IsPlayerShuttle) == 0x0);
-
-                    var distance = Vector2.Distance(gridMapPos, mapPos.Position);
-
-                    if (!isOutsideRadarCircle || isDistantPOI || isMouseOver)
-                    {
-                        // Shows decimal when distance is < 50m, otherwise pointless to show it.
-                        var displayedDistance = distance < 50f ? $"{distance:0.0}" : distance < 1000 ? $"{distance:0}" : $"{distance / 1000:0.0}k";
-                        var labelText = Loc.GetString("shuttle-console-iff-label", ("name", labelName)!, ("distance", displayedDistance));
-
-                        var coordsText = $"({gridMapPos.X:0.0}, {gridMapPos.Y:0.0})";
-                        var trackIdText = iff != null ? Loc.GetString("shuttle-console-track-label") + $"{iff.Address}" : Loc.GetString("shuttle-console-track-unknown-label");
-
-                        #region Mono
-
-                        // Why are the magic numbers 0.9 and 0.7 used? I have no fucking clue.
-                        var labelDimensions = handle.GetDimensions(Font, labelText, 0.9f);
-                        var blipSize = RadarBlipSize * 0.7f;
-
-                        // The center of the radar in UI space.
-                        var uiCenter = new Vector2(Width * 0.5f, Height * 0.5f);
-
-                        // Whether the blip is on the left side of the center of the radar.
-                        var isOnLeftSide = (uiPosition - uiCenter).X < 0;
-
-                        // The UI position of the bottom-left corner of the label, relative to the UI center of the radar, when the label is right-aligned.
-                        var labelPosition = uiPosition + new Vector2(-labelDimensions.X - blipSize, -labelDimensions.Y * 0.5f) - uiCenter;
-
-                        // The bounds corners of the label, relative to labelPosition.
-                        var labelCorners = new Vector2[] {
-                        labelPosition,
-                        labelPosition + new Vector2(labelDimensions.X, 0),
-                        labelPosition + new Vector2(0, labelDimensions.Y),
-                        labelPosition + labelDimensions
-                    };
-
-                        // The radius and squared radius of the radar, in virtual pixels.
-                        var radius = Width * 0.5f;
-                        var squaredRadius = radius * radius;
-
-
-                        // If true, flip the entire label to the right side of the blip and left-align it.
-                        // We default to the label being on the left side of the blip because it looked better to me in testing. (arbitrary)
-                        var flipLabel = true; // isOnLeftSide && labelCorners.Any(corner => corner.LengthSquared() > squaredRadius); // Mono - comment out, we dont want this teehee
-
-                        // Calculate unscaled offsets.
-                        var labelOffset = new Vector2()
-                        {
-                            X = flipLabel
-                                ? blipSize // Label on the right side of the blip, left-aligned text.
-                                : -labelDimensions.X - blipSize, // Label on the left side of the blip, right-aligned text.
-                            Y = -labelDimensions.Y * 0.5f
-                        };
-
-                        #endregion Mono
-
-                        // Get company color if entity has CompanyComponent
-                        var displayColor = labelColor;
-                        if (!hideLabel && EntManager.TryGetComponent(gUid, out Shared._Mono.Company.CompanyComponent? companyComp) &&
-                            !string.IsNullOrEmpty(companyComp.CompanyName))
-                        {
-                            var prototypeManager = IoCManager.Resolve<IPrototypeManager>();
-                            CompanyPrototype? prototype = null;
-                            if (prototypeManager.TryIndex(companyComp.CompanyName, out prototype) && prototype != null)
-                            {
-                                displayColor = prototype.Color;
-                            }
-                        }
-
-                        // Split label text into lines
-                        var lines = labelText.Split('\n');
-                        var mainLabel = lines[0];
-
-                        // Draw main ship label with company color if available
-                        handle.DrawString(Font, (uiPosition + labelOffset) * UIScale, mainLabel, UIScale * 0.9f, displayColor);
-
-                        // Mono start - draw main stack of info
-                        if (shouldDrawDetailedIFF)
-                        {
-                            // Get company label & draw
-                            var companyLabel = !hideLabel ? lines[1] : Loc.GetString("shuttle-console-company-unknown");
-                            var companyLabelOffset = new Vector2(
-                                labelOffset.X,
-                                labelOffset.Y + handle.GetDimensions(Font, mainLabel, 0.9f).Y
-                            );
-                            handle.DrawString(Font, (uiPosition + companyLabelOffset) * UIScale, companyLabel, UIScale * 0.7f, displayColor);
-
-                            // Draw coordinates
-                            var coordDimensions = handle.GetDimensions(Font, coordsText, 0.7f);
-                            var coordOffset = new Vector2(
-                                labelOffset.X,
-                                labelOffset.Y + handle.GetDimensions(Font, mainLabel, 0.9f).Y + handle.GetDimensions(Font, companyLabel, 0.7f).Y);
-                            handle.DrawString(Font, (uiPosition + coordOffset) * UIScale, coordsText, 0.7f * UIScale, displayColor);
-
-                            // Draw track ID (if it has one)
-                            var trackIdDimensions = handle.GetDimensions(Font, trackIdText, 0.7f);
-                            var trackIdOffset = new Vector2(
-                                labelOffset.X,
-                                labelOffset.Y + handle.GetDimensions(Font, mainLabel, 0.9f).Y + handle.GetDimensions(Font, companyLabel, 0.7f).Y + handle.GetDimensions(Font, coordsText, 0.7f).Y);
-                            if (iff != null)
-                                handle.DrawString(Font, (uiPosition + trackIdOffset) * UIScale, trackIdText, 0.7f * UIScale, displayColor);
-                        }
-                        // Mono end
-                    }
-
-                    NfAddBlipToList(_tempBlipDataList, isOutsideRadarCircle, uiPosition, uiXCentre, uiYCentre, labelColor, hideLabel ? default : gUid); // Frontier code
-                                                                                                                                                        // End Frontier: IFF drawing functions
+                    var screenPosition = Vector2.Transform(gridBody.LocalCenter, curGridToView);
+                    CollectSignature(handle, gUid, screenPosition, gridMapPos, Vector2.Distance(gridMapPos, mapPos.Position),
+                        labelName!, color, hideLabel, iff, beacon: false);
                 }
-
-                // Frontier Don't skip drawing blips if they're out of range.
-                NfDrawBlips(handle, _tempBlipDataList);
 
                 // Detailed view
                 var gridAABB = curGridToWorld.TransformBox(grid.Comp.LocalAABB);
@@ -1274,14 +1148,6 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         var coordEntRot = _transform.GetWorldRotation(cord.EntityId);
         var coords = cord.Offset((-coordEntRot).RotateVec(relativeWorldPos));
         return coords;
-    }
-
-    public class BlipData
-    {
-        public bool IsOutsideRadarCircle { get; set; }
-        public Vector2 UiPosition { get; set; }
-        public Vector2 VectorToPosition { get; set; }
-        public Color Color { get; set; }
     }
 
     private const int RadarBlipSize = 15;

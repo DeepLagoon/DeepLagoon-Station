@@ -158,7 +158,8 @@ public class FireControlNavControl : ShuttleNavControl
     protected override void KeyBindDown(GUIBoundKeyEventArgs args)
     {
         _weaponClick = false;
-        if (args.Function == EngineKeyFunctions.UIClick && TrySelectWeapon(args.RelativePosition))
+        if (args.Function == EngineKeyFunctions.UIClick && !IsSignatureGroupAt(args.RelativePosition) &&
+            TrySelectWeapon(args.RelativePosition))
         {
             _weaponClick = true;
             _isMouseDown = false;
