@@ -793,6 +793,68 @@ namespace Content.Server.Database.Migrations.Postgres
                     b.HasIndex("UserId");
                     b.ToTable("lagoon_economy_records", (string)null);
                 });
+            modelBuilder.Entity("Content.Server.Database.BankFinancialOperation", b =>
+                {
+                    b.Property<Guid>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("transaction_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Character")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("character");
+
+                    b.Property<int>("Balance")
+                        .HasColumnType("integer")
+                        .HasColumnName("balance");
+
+                    b.Property<Guid?>("RecipientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<string>("RecipientCharacter")
+                        .HasColumnType("text")
+                        .HasColumnName("recipient_character");
+
+                    b.Property<int?>("RecipientBalance")
+                        .HasColumnType("integer")
+                        .HasColumnName("recipient_balance");
+
+                    b.Property<string>("OriginJson")
+                        .HasColumnType("text")
+                        .HasColumnName("origin_json");
+
+                    b.Property<bool>("Delivered")
+                        .HasColumnType("boolean")
+                        .HasColumnName("delivered");
+
+                    b.HasKey("TransactionId")
+                        .HasName("PK_bank_financial_operations");
+
+                    b.HasIndex("Delivered", "CreatedAt")
+                        .HasDatabaseName("IX_bank_financial_operations_delivered_created_at");
+
+                    b.ToTable("bank_financial_operations");
+                });
+
             modelBuilder.Entity("Content.Server.Database.LagoonCoinOperation", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -847,6 +909,16 @@ namespace Content.Server.Database.Migrations.Postgres
                     b.Property<DateTime?>("WebhookLeaseUntil")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("webhook_lease_until");
+
+                    b.Property<bool>("FinanceDelivered")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("finance_delivered")
+                        .HasDefaultValue(false);
+
+                    b.HasIndex("FinanceDelivered", "CreatedAt")
+                        .HasDatabaseName("IX_lagoon_coin_operations_finance_delivered_created_at")
+                        .HasFilter("amount <> 0");
 
                     b.HasKey("UserId", "OperationId")
                         .HasName("PK_lagoon_coin_operations");

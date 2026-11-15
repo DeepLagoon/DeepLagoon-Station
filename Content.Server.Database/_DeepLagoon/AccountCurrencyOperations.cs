@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,6 +80,7 @@ public static class AccountCurrencyOperations
         if (profile.BankBalance != expectedBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the payment.");
         profile.BankBalance -= amount;
+        BankFinancialOperation.Record(db, user, profile, amount, "bank_withdrawal");
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return profile.BankBalance;
@@ -103,13 +105,15 @@ public static class AccountCurrencyOperations
         var balance = checked(to.BankBalance + amount);
         from.BankBalance -= amount;
         to.BankBalance = balance;
+        BankFinancialOperation.Record(db, sender, from, amount, "bank_transfer", recipientId: recipient, recipient: to);
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return new BankTransfer(from.BankBalance, to.BankBalance);
     }
 
     public static async Task<int> DepositBank(ServerDbContext db, Guid user, int profileSlot,
-        int expectedBankBalance, int amount, CancellationToken cancel = default)
+        int expectedBankBalance, int amount, CancellationToken cancel = default,
+        IReadOnlyList<SpawnedCashSource>? origins = null)
     {
         if (amount <= 0 || expectedBankBalance < 0)
             throw new ArgumentOutOfRangeException(nameof(amount));
@@ -119,6 +123,7 @@ public static class AccountCurrencyOperations
         if (profile.BankBalance != expectedBankBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the deposit.");
         profile.BankBalance = checked(profile.BankBalance + amount);
+        BankFinancialOperation.Record(db, user, profile, amount, "bank_deposit", origins);
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return profile.BankBalance;

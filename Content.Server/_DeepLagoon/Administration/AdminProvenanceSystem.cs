@@ -2,6 +2,7 @@ using System.Globalization;
 using Content.Server.Administration.Managers;
 using Content.Shared.Examine;
 using Content.Shared.Ghost;
+using Content.Shared.Stacks;
 using Robust.Server.Console;
 using Robust.Server.GameObjects;
 using Robust.Server.ViewVariables;
@@ -33,9 +34,27 @@ public sealed class AdminProvenanceSystem : EntitySystem
 
     private void OnPlacement(PlacementEntityEvent ev)
     {
-        if (ev.PlacementEventAction == PlacementEventAction.Create &&
-            _players.TryGetSessionById(ev.PlacerNetUserId, out var player))
-            RecordSpawn(ev.EditedEntity, player);
+        if (ev.PlacementEventAction != PlacementEventAction.Create ||
+            !_players.TryGetSessionById(ev.PlacerNetUserId, out var player) ||
+            !_admins.IsAdmin(player))
+            return;
+
+        var entity = ev.EditedEntity;
+        RecordSpawn(entity, player);
+
+        // A console spawn raises the same event inside its execution context.
+        if (_console.ExecutingSession == null &&
+            !TerminatingOrDeleted(entity) &&
+            TryComp<StackComponent>(entity, out var stack) &&
+            stack.StackTypeId.Id == "Credit" && stack.Count > 0)
+        {
+            EnsureComp<AdminCashProvenanceComponent>(entity).Portions.Add(new AdminCashPortion
+            {
+                Spawner = player.UserId,
+                Name = player.Name,
+                Units = stack.Count,
+            });
+        }
     }
 
     private void OnInitialized(Entity<MetaDataComponent> entity)

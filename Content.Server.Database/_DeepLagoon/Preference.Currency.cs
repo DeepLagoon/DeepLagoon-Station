@@ -22,6 +22,7 @@ public sealed class LagoonCoinOperation
     public DateTime CreatedAt { get; set; }
     public long BalanceAfter { get; set; }
     public bool WebhookDelivered { get; set; }
+    public bool FinanceDelivered { get; set; }
     public Guid? WebhookLeaseOwner { get; set; }
     public DateTime? WebhookLeaseUntil { get; set; }
 }

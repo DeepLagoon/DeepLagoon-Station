@@ -30,6 +30,7 @@ public static class ParkingBankOperations
         {
             if (profile.BankBalance < amount) throw new InvalidOperationException("Недостаточно кредитов для выкупа шаттла.");
             profile.BankBalance -= amount;
+            BankFinancialOperation.Record(db, user, profile, amount, "bank_parking_buy");
             db.LagoonEconomyRecords.Add(new LagoonEconomyRecord { Id = id, UserId = user, Data = JsonSerializer.Serialize(new Receipt(slot, amount)) });
             await db.SaveChangesAsync(cancel);
         }
@@ -61,6 +62,7 @@ public static class ParkingBankOperations
         if (receipt == null)
         {
             profile.BankBalance = checked(profile.BankBalance + amount);
+            BankFinancialOperation.Record(db, user, profile, amount, "bank_parking_sale");
             db.LagoonEconomyRecords.Add(new LagoonEconomyRecord
             {
                 Id = id,

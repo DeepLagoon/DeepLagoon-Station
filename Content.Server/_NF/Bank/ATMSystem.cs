@@ -3,7 +3,9 @@
  * Copyright (c) 2024 New Frontiers Contributors
  * See AGPLv3.txt for details.
  */
+using System.Linq;
 using Content.Server.Popups;
+using Content.Server.Database;
 using Content.Server.Stack;
 using Content.Shared._NF.Bank.BUI;
 using Content.Shared._NF.Bank.Components;
@@ -154,7 +156,11 @@ public sealed partial class BankSystem
         state.Enabled = true;
 
         // try to deposit the inserted cash into a player's bank acount. Validation happens on the banking system but we still indicate error.
-        if (!TryBankDeposit(player, deposit))
+        var origins = _stackSystem.CashOrigins(stackComponent.Owner, deposit)?
+            .GroupBy(part => part.Spawner)
+            .Select(group => new SpawnedCashSource(group.Key.UserId, group.First().Name, group.Sum(part => part.Units)))
+            .ToArray();
+        if (!TryBankDeposit(player, deposit, origins))
         {
             ConsolePopup(args.Actor, Loc.GetString("bank-atm-menu-transaction-denied"));
             PlayDenySound(uid, component);

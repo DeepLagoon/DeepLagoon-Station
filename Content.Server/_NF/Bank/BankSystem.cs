@@ -126,6 +126,9 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="amount">The amount of spesos to remove from the bank account</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
     public bool TryBankDeposit(EntityUid mobUid, int amount)
+        => TryBankDeposit(mobUid, amount, null);
+
+    private bool TryBankDeposit(EntityUid mobUid, int amount, IReadOnlyList<SpawnedCashSource>? origins)
     {
         // Mono start
         if (!_cfg.GetCVar(MonoCVars.DepositEnabled))
@@ -164,7 +167,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        if (TryBankDeposit(session, prefs, profile, amount, out var newBalance))
+        if (TryBankDeposit(session, prefs, profile, amount, out var newBalance, origins))
         {
             bank.Balance = newBalance.Value;
             Dirty(mobUid, bank);
@@ -233,6 +236,10 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="newBalance">The new value of the bank account.</param>
     /// <returns>true if the transaction was successful, false if it was not.  When successful, newBalance contains the character's new balance.</returns>
     public bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance)
+        => TryBankDeposit(session, prefs, profile, amount, out newBalance, null);
+
+    private bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount,
+        [NotNullWhen(true)] out int? newBalance, IReadOnlyList<SpawnedCashSource>? origins)
     {
         newBalance = null; // Default return
         if (amount <= 0)
@@ -253,7 +260,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         try
         {
-            var deposit = _db.DepositBankAsync(session.UserId, index, profile.BankBalance, amount);
+            var deposit = _db.DepositBankAsync(session.UserId, index, profile.BankBalance, amount, origins: origins);
             _tasks.BlockWaitOnTask(deposit);
             newBalance = deposit.GetAwaiter().GetResult();
             _prefsManager.SetProfile(session.UserId, index, profile.WithBankBalance(newBalance.Value), persist: false)

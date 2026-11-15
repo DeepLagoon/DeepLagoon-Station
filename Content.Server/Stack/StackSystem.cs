@@ -1,4 +1,5 @@
 using Content.Server.Cargo.Systems;
+using Content.Server._DeepLagoon.Administration;
 using Content.Shared.Popups;
 using Content.Shared.Stacks;
 using Content.Shared.Verbs;
@@ -33,7 +34,10 @@ namespace Content.Server.Stack
             if (!Resolve(uid, ref component, false))
                 return;
 
+            var oldCount = component.Count;
             base.SetCount(uid, amount, component);
+            if (component.Count < oldCount)
+                ConsumeCashOrigins(uid, oldCount - component.Count);
 
             // Queue delete stack if count reaches zero.
             if (component.Count <= 0 && !component.Lingering)
@@ -47,6 +51,10 @@ namespace Content.Server.Stack
         {
             if (!Resolve(uid, ref stack))
                 return null;
+
+            if (amount <= 0 || amount > stack.Count)
+                return null;
+            var cashOrigins = stack.Unlimited ? null : CashOrigins(uid, amount);
 
             // Try to remove the amount of things we want to split from the original stack...
             if (!Use(uid, amount, stack))
@@ -70,6 +78,7 @@ namespace Content.Server.Stack
 
             if (_pricing.GetCraftedUnitLimit(uid) is { } unitLimit)
                 _pricing.MarkCraftedProduct(entity, unitLimit);
+            AppendCashOrigins(entity, cashOrigins);
 
             var ev = new StackSplitEvent(entity);
             RaiseLocalEvent(uid, ref ev);
@@ -80,6 +89,58 @@ namespace Content.Server.Stack
         protected override bool CanCombineStacks(EntityUid donor, EntityUid recipient)
         {
             return _pricing.GetCraftedUnitLimit(donor) == _pricing.GetCraftedUnitLimit(recipient);
+        }
+
+        protected override void TransferUnits(EntityUid donor, StackComponent donorStack,
+            EntityUid recipient, StackComponent recipientStack, int amount)
+        {
+            var origins = CashOrigins(donor, amount);
+            base.TransferUnits(donor, donorStack, recipient, recipientStack, amount);
+            AppendCashOrigins(recipient, origins);
+        }
+
+        // Mixed stacks consume tracked units first, in insertion order.
+        internal List<AdminCashPortion>? CashOrigins(EntityUid uid, int amount)
+        {
+            if (amount <= 0 || !TryComp<AdminCashProvenanceComponent>(uid, out var provenance))
+                return null;
+            var result = new List<AdminCashPortion>();
+            foreach (var part in provenance.Portions)
+            {
+                var units = Math.Min(amount, part.Units);
+                result.Add(new AdminCashPortion { Spawner = part.Spawner, Name = part.Name, Units = units });
+                amount -= units;
+                if (amount == 0)
+                    break;
+            }
+            return result;
+        }
+
+        private void AppendCashOrigins(EntityUid uid, List<AdminCashPortion>? origins)
+        {
+            if (origins is { Count: > 0 })
+                EnsureComp<AdminCashProvenanceComponent>(uid).Portions.AddRange(origins);
+        }
+
+        private void ConsumeCashOrigins(EntityUid uid, int amount)
+        {
+            if (!TryComp<AdminCashProvenanceComponent>(uid, out var provenance))
+                return;
+            var portions = provenance.Portions;
+            var emptied = 0;
+            foreach (var part in portions)
+            {
+                var taken = Math.Min(amount, part.Units);
+                part.Units -= taken;
+                amount -= taken;
+                if (part.Units == 0)
+                    emptied++;
+                if (amount == 0)
+                    break;
+            }
+            portions.RemoveRange(0, emptied);
+            if (portions.Count == 0)
+                RemComp<AdminCashProvenanceComponent>(uid);
         }
 
         /// <summary>

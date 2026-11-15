@@ -53,7 +53,8 @@ namespace Content.Server.Database
 
         #region Currencies
         Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default);
-        Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default);
+        Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
+            IReadOnlyList<SpawnedCashSource>? origins = null);
         Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
             NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default);
         Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default);

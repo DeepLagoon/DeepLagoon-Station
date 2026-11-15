@@ -47,10 +47,11 @@ public abstract partial class ServerDbBase
         return await AccountCurrencyOperations.WithdrawBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel);
     }
 
-    public async Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default)
+    public async Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
+        IReadOnlyList<SpawnedCashSource>? origins = null)
     {
         await using var db = await GetDb(cancel);
-        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel);
+        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, origins);
     }
 
     public async Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,

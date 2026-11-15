@@ -756,6 +756,68 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.HasIndex("UserId");
                     b.ToTable("lagoon_economy_records", (string)null);
                 });
+            modelBuilder.Entity("Content.Server.Database.BankFinancialOperation", b =>
+                {
+                    b.Property<Guid>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("transaction_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("kind");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Character")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("character");
+
+                    b.Property<int>("Balance")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("balance");
+
+                    b.Property<Guid?>("RecipientId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<string>("RecipientCharacter")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("recipient_character");
+
+                    b.Property<int?>("RecipientBalance")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("recipient_balance");
+
+                    b.Property<string>("OriginJson")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("origin_json");
+
+                    b.Property<bool>("Delivered")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("delivered");
+
+                    b.HasKey("TransactionId")
+                        .HasName("PK_bank_financial_operations");
+
+                    b.HasIndex("Delivered", "CreatedAt")
+                        .HasDatabaseName("IX_bank_financial_operations_delivered_created_at");
+
+                    b.ToTable("bank_financial_operations");
+                });
+
             modelBuilder.Entity("Content.Server.Database.LagoonCoinOperation", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -810,6 +872,16 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.Property<DateTime?>("WebhookLeaseUntil")
                         .HasColumnType("TEXT")
                         .HasColumnName("webhook_lease_until");
+
+                    b.Property<bool>("FinanceDelivered")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("finance_delivered")
+                        .HasDefaultValue(false);
+
+                    b.HasIndex("FinanceDelivered", "CreatedAt")
+                        .HasDatabaseName("IX_lagoon_coin_operations_finance_delivered_created_at")
+                        .HasFilter("amount <> 0");
 
                     b.HasKey("UserId", "OperationId")
                         .HasName("PK_lagoon_coin_operations");

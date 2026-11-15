@@ -39,10 +39,11 @@ public sealed partial class ServerDbManager
         return RunDbCommand(() => _db.WithdrawBankAsync(user, slot, expectedBalance, amount, cancel));
     }
 
-    public Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default)
+    public Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
+        IReadOnlyList<SpawnedCashSource>? origins = null)
     {
         DbWriteOpsMetric.Inc();
-        return RunDbCommand(() => _db.DepositBankAsync(user, slot, expectedBalance, amount, cancel));
+        return RunDbCommand(() => _db.DepositBankAsync(user, slot, expectedBalance, amount, cancel, origins));
     }
 
     public Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,

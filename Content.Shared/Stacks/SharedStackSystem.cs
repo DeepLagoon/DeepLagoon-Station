@@ -127,8 +127,7 @@ namespace Content.Shared.Stacks
                 return false;
 
             transferred = Math.Min(donorStack.Count, GetAvailableSpace(recipientStack));
-            SetCount(donor, donorStack.Count - transferred, donorStack);
-            SetCount(recipient, recipientStack.Count + transferred, recipientStack);
+            TransferUnits(donor, donorStack, recipient, recipientStack, transferred);
             return transferred > 0;
         }
 
@@ -352,6 +351,9 @@ namespace Content.Shared.Stacks
         /// </summary>
         public bool TryAdd(EntityUid insertEnt, EntityUid targetEnt, int count, StackComponent? insertStack = null, StackComponent? targetStack = null)
         {
+            if (insertEnt == targetEnt)
+                return false;
+
             if (!Resolve(insertEnt, ref insertStack) || !Resolve(targetEnt, ref targetStack))
                 return false;
 
@@ -363,14 +365,19 @@ namespace Content.Shared.Stacks
 
             var available = GetAvailableSpace(targetStack);
 
-            if (available <= 0)
+            if (available <= 0 || count <= 0 || insertStack.Count <= 0)
                 return false;
 
-            var change = Math.Min(available, count);
-
-            SetCount(targetEnt, targetStack.Count + change, targetStack);
-            SetCount(insertEnt, insertStack.Count - change, insertStack);
+            var change = Math.Min(Math.Min(available, count), insertStack.Count);
+            TransferUnits(insertEnt, insertStack, targetEnt, targetStack, change);
             return true;
+        }
+
+        protected virtual void TransferUnits(EntityUid donor, StackComponent donorStack,
+            EntityUid recipient, StackComponent recipientStack, int amount)
+        {
+            SetCount(donor, donorStack.Count - amount, donorStack);
+            SetCount(recipient, recipientStack.Count + amount, recipientStack);
         }
 
         protected virtual bool CanCombineStacks(EntityUid donor, EntityUid recipient) => true;

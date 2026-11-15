@@ -23,6 +23,7 @@ namespace Content.Server.Database
         public DbSet<ArchivedArtwork> ArchivedArtworks { get; set; } = null!;
         public DbSet<LagoonCoinOperation> LagoonCoinOperations { get; set; } = null!;
         public DbSet<LagoonEconomyRecord> LagoonEconomyRecords { get; set; } = null!;
+        public DbSet<BankFinancialOperation> BankFinancialOperations { get; set; } = null!;
         public DbSet<Profile> Profile { get; set; } = null!;
         public DbSet<AssignedUserId> AssignedUserId { get; set; } = null!;
         public DbSet<Player> Player { get; set; } = default!;
@@ -64,6 +65,11 @@ namespace Content.Server.Database
             // Existing journal entries precede webhook logging; do not replay them on upgrade.
             modelBuilder.Entity<LagoonCoinOperation>().Property(p => p.WebhookDelivered).HasDefaultValue(true);
             modelBuilder.Entity<LagoonCoinOperation>().HasIndex(p => new { p.WebhookDelivered, p.WebhookLeaseUntil });
+            modelBuilder.Entity<LagoonCoinOperation>().Property(p => p.FinanceDelivered).HasDefaultValue(false);
+            modelBuilder.Entity<LagoonCoinOperation>().HasIndex(p => new { p.FinanceDelivered, p.CreatedAt })
+                .HasFilter("amount <> 0");
+            modelBuilder.Entity<BankFinancialOperation>().HasKey(tx => tx.TransactionId);
+            modelBuilder.Entity<BankFinancialOperation>().HasIndex(tx => new { tx.Delivered, tx.CreatedAt });
             modelBuilder.Entity<Preference>()
                 .HasIndex(p => p.UserId)
                 .IsUnique();
