@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Original MOD action and background sprites from MOLOT-BlueMoon-Station, including upstream /tg/station art, converted to RSI at source revision 61c36414fe7. https://github.com/iamasay/MOLOT-BlueMoon-Station/tree/61c36414fe7",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "deploy"
+    },
+    {
+      "name": "retract"
+    },
+    {
+      "name": "activate"
+    },
+    {
+      "name": "activate-ready"
+    },
+    {
+      "name": "panel"
+    },
+    {
+      "name": "module"
+    },
+    {
+      "name": "bg_tech_blue"
+    },
+    {
+      "name": "bg_tech_blue_on"
+    },
+    {
+      "name": "open"
+    },
+    {
+      "name": "reveal-all"
+    },
+    {
+      "name": "ears"
+    },
+    {
+      "name": "horns"
+    },
+    {
+      "name": "some_wings"
+    },
+    {
+      "name": "tail"
+    },
+    {
+      "name": "ipc_antenna"
+    },
+    {
+      "name": "spines"
+    },
+    {
+      "name": "snout"
+    },
+    {
+      "name": "taur"
+    },
+    {
+      "name": "color"
+    }
+  ]
+}

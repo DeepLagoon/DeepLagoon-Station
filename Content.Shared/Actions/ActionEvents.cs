@@ -82,12 +82,14 @@ public sealed class GetItemActionsEvent : EntityEventArgs
 public sealed class RequestPerformActionEvent : EntityEventArgs
 {
     public readonly NetEntity Action;
+    public readonly bool Alternate;
     public readonly NetEntity? EntityTarget;
     public readonly NetCoordinates? EntityCoordinatesTarget;
 
-    public RequestPerformActionEvent(NetEntity action)
+    public RequestPerformActionEvent(NetEntity action, bool alternate = false)
     {
         Action = action;
+        Alternate = alternate;
     }
 
     public RequestPerformActionEvent(NetEntity action, NetEntity entityTarget)
@@ -117,7 +119,10 @@ public sealed class RequestPerformActionEvent : EntityEventArgs
 /// <remarks>
 ///     To define a new action for some system, you need to create an event that inherits from this class.
 /// </remarks>
-public abstract partial class InstantActionEvent : BaseActionEvent { }
+public abstract partial class InstantActionEvent : BaseActionEvent
+{
+    public bool Alternate;
+}
 
 /// <summary>
 ///     This is the type of event that gets raised when an <see cref="EntityTargetAction"/> is performed. The <see

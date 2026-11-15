@@ -1,0 +1,141 @@
+- type: entity
+  id: ActionModSuitBase
+  abstract: true
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ModActionButton
+  - type: InstantAction
+    checkConsciousness: true
+    itemIconStyle: NoItem
+    backgroundOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: bg_tech_blue_on
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModDeploy
+  name: mod-action-deploy
+  description: mod-action-deploy-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 10
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: deploy
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: retract
+    event: !type:ModSuitActionEvent
+      kind: Deploy
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModActivate
+  name: mod-action-activate
+  description: mod-action-activate-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 11
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: activate
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: activate-ready
+    event: !type:ModSuitActionEvent
+      kind: Activate
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModModule
+  name: mod-action-module
+  description: mod-action-module-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 12
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: module
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: module
+    event: !type:ModSuitActionEvent
+      kind: Module
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModPanel
+  name: mod-action-panel
+  description: mod-action-panel-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 13
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: panel
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: panel
+    event: !type:OpenModControlEvent
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModHardlight
+  name: mod-action-hardlight
+  description: mod-action-hardlight-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 14
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: open
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: reveal-all
+    event: !type:ModSuitActionEvent
+      kind: Hardlight
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModHardlightStyle
+  name: mod-action-hardlight-style
+  description: mod-action-hardlight-style-desc
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    priority: 15
+    icon:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: color
+    iconOn:
+      sprite: _DeepLagoon/Modsuits/actions.rsi
+      state: color
+    event: !type:ModSuitActionEvent
+      kind: HardlightStyle
+
+- type: entity
+  parent: ActionModSuitBase
+  id: ActionModPinnedModule
+  name: MOD module
+  components:
+  - type: ModActionButton
+    alternate: true
+  - type: InstantAction
+    itemIconStyle: BigItem
+    event: !type:ModPinnedModuleEvent
+
+- type: shader
+  id: ModHardlight
+  kind: source
+  path: "/Textures/_DeepLagoon/Modsuits/hardlight/hardlight.swsl"

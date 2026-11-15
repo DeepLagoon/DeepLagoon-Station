@@ -3,6 +3,7 @@ using Content.Server.Temperature.Components;
 using Content.Server.Temperature.Systems;
 using Content.Shared.Atmos;
 using Content.Shared.Clothing;
+using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.Damage;
 using Content.Shared.Interaction;
 using Content.Shared.Inventory;
@@ -85,6 +86,10 @@ public sealed partial class ModSystem
     private bool TryGetEffectTarget(EntityUid suit, ModModuleComponent module, EntityUid user, out EntityUid target)
     {
         target = suit;
+        if (module.Mode == ModModuleMode.Cloak &&
+            _deployment.GetAttachedToggleStatus(suit) != ToggleableClothingAttachedStatus.AllToggled)
+            return false;
+
         if (module.Slot == null)
             return true;
 

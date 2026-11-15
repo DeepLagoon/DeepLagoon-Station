@@ -502,7 +502,11 @@ public abstract partial class SharedActionsSystem : EntitySystem
                 _adminLogger.Add(LogType.Action,
                     $"{ToPrettyString(user):user} is performing the {name:action} action provided by {ToPrettyString(action.Container ?? user):provider}.");
 
-                performEvent = instantAction.Event;
+                if (instantAction.Event is {} instantEvent)
+                {
+                    instantEvent.Alternate = ev.Alternate;
+                    performEvent = instantEvent;
+                }
                 break;
         }
 

@@ -1,0 +1,15 @@
+light_mode unshaded;
+
+uniform sampler2D pattern;
+uniform highp float frames;
+uniform highp float frame_rate;
+
+void fragment() {
+    highp vec4 shape = zTexture(UV);
+    highp vec2 pixel = UV2;
+    highp float frame = mod(floor(TIME * frame_rate), frames);
+    highp vec4 signal = zTextureSpec(pattern, vec2((pixel.x + frame) / frames, pixel.y));
+    highp float luminance = dot(shape.rgb, vec3(0.299, 0.587, 0.114));
+    highp float energy = mix(0.35, 0.84, luminance) + dot(signal.rgb, vec3(0.23)) * signal.a;
+    COLOR = vec4(vec3(min(1.0, energy)), shape.a * (0.72 + signal.a * 0.20));
+}

@@ -4,6 +4,7 @@ using Content.Client.Actions.UI;
 using Content.Client.Cooldown;
 using Content.Client.Stylesheets;
 using Content.Shared.Actions;
+using Content.Shared._DeepLagoon.Modsuits;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
@@ -300,7 +301,9 @@ public sealed class ActionButton : Control, IEntityControl
         else
         {
             SetActionIcon(_action.Icon != null ? _spriteSys.Frame0(_action.Icon) : null);
-            _buttonBackgroundTexture = Theme.ResolveTexture("SlotBackground");
+            _buttonBackgroundTexture = _entities.HasComponent<ModActionButtonComponent>(ActionId)
+                ? _spriteSys.Frame0(ModActionButtonComponent.Background)
+                : Theme.ResolveTexture("SlotBackground");
         }
     }
 

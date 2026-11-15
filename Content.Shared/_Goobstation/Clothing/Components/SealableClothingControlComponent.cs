@@ -18,10 +18,19 @@ public sealed partial class SealableClothingControlComponent : Component
     ///     Action that used to start sealing
     /// </summary>
     [DataField, AutoNetworkedField]
-    public EntProtoId SealAction = "ActionClothingSeal";
+    public EntProtoId? SealAction = "ActionClothingSeal";
 
     [DataField, AutoNetworkedField]
     public EntityUid? SealActionEntity;
+
+    [DataField, AutoNetworkedField]
+    public bool AllowPartialActivation;
+
+    [DataField]
+    public TimeSpan? PartSealingTime;
+
+    [DataField]
+    public TimeSpan FinalSealingTime;
 
     /// <summary>
     ///     Slot required for control to show action

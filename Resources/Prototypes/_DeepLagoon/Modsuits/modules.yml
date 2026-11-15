@@ -138,6 +138,7 @@
     state: flashlight
   - type: ModModule
     mode: Flashlight
+    slot: head
     family: light
     complexity: 1
     useCharge: 2

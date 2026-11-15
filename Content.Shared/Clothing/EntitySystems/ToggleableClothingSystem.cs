@@ -155,6 +155,9 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
             || toggleableComp.Container == null)
             return;
 
+        if (toggleableComp.Action == null)
+            return;
+
         // Get slot from dictionary of uid-slot
         if (!toggleableComp.ClothingUids.TryGetValue(attached.Owner, out var attachedSlot))
             return;
@@ -381,30 +384,32 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
         }
     }
 
-    public bool SetAllPartsDeployed(EntityUid user, Entity<ToggleableClothingComponent> toggleable, bool deployed)
+    public static bool TryGetAttachedSlot(ToggleableClothingComponent clothing, EntityUid part,
+        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? slot)
+    {
+        return clothing.ClothingUids.TryGetValue(part, out slot);
+    }
+
+    public bool SetPartDeployed(EntityUid user, Entity<ToggleableClothingComponent> toggleable, EntityUid part, bool deployed)
     {
         var comp = toggleable.Comp;
         if (!_inventorySystem.InSlotWithFlags(toggleable.Owner, comp.RequiredFlags) ||
             Transform(toggleable.Owner).ParentUid != user ||
-            !CanToggleClothing(user, toggleable))
+            !comp.ClothingUids.TryGetValue(part, out var slot) ||
+            !CanToggleClothing(user, toggleable, controlledDeployment: true))
             return false;
 
-        foreach (var (part, slot) in comp.ClothingUids)
-        {
-            if (comp.Container!.Contains(part) != deployed)
-                continue;
+        if (deployed && comp.Container!.Contains(part))
+            EquipClothing(user, toggleable, part, slot);
+        else if (!deployed && _inventorySystem.TryGetSlotEntity(user, slot, out var equipped) && equipped == part)
+            UnequipClothing(user, toggleable, part, slot);
 
-            if (deployed)
-                EquipClothing(user, toggleable, part, slot);
-            else if (_inventorySystem.TryGetSlotEntity(user, slot, out var equipped) && equipped == part)
-                UnequipClothing(user, toggleable, part, slot);
-        }
-
-        var expected = deployed ? ToggleableClothingAttachedStatus.AllToggled : ToggleableClothingAttachedStatus.NoneToggled;
-        return GetAttachedToggleStatus(toggleable) == expected;
+        return deployed
+            ? _inventorySystem.TryGetSlotEntity(user, slot, out var result) && result == part
+            : comp.Container!.Contains(part);
     }
 
-    private bool CanToggleClothing(EntityUid user, Entity<ToggleableClothingComponent> toggleable)
+    private bool CanToggleClothing(EntityUid user, Entity<ToggleableClothingComponent> toggleable, bool controlledDeployment = false)
     {
         var comp = toggleable.Comp;
         var attachedClothings = comp.ClothingUids;
@@ -413,7 +418,7 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
         if (container == null || attachedClothings.Count == 0)
             return false;
 
-        var ev = new ToggleClothingAttemptEvent(user, toggleable);
+        var ev = new ToggleClothingAttemptEvent(user, toggleable, controlledDeployment);
         RaiseLocalEvent(toggleable, ev);
 
         if (ev.Cancelled)
@@ -455,8 +460,15 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
             if (attachedComp.ClothingContainer == null || attachedComp.ClothingContainer.ContainedEntity != null)
                 return;
 
-            if (_inventorySystem.TryUnequip(user, parent, slot))
-                _containerSystem.Insert(currentClothing.Value, attachedComp.ClothingContainer);
+            if (!_inventorySystem.TryUnequip(user, parent, slot))
+                return;
+
+            if (_containerSystem.Insert(currentClothing.Value, attachedComp.ClothingContainer) &&
+                _inventorySystem.TryEquip(user, parent, clothing, slot))
+                return;
+
+            _inventorySystem.TryEquip(parent, currentClothing.Value, slot, force: true);
+            return;
         }
 
         _inventorySystem.TryEquip(user, parent, clothing, slot);
@@ -531,7 +543,8 @@ public sealed partial class ToggleableClothingSystem : EntitySystem
 
         Dirty(toggleable, comp);
 
-        if (_actionContainer.EnsureAction(toggleable, ref comp.ActionEntity, out var action, comp.Action))
+        if (comp.Action is {} prototypeId &&
+            _actionContainer.EnsureAction(toggleable, ref comp.ActionEntity, out var action, prototypeId))
             _actionsSystem.SetEntityIcon(comp.ActionEntity.Value, toggleable, action);
     }
 
@@ -598,10 +611,13 @@ public sealed class ToggleClothingAttemptEvent : CancellableEntityEventArgs
     public EntityUid User { get; }
     public EntityUid Target { get; }
 
-    public ToggleClothingAttemptEvent(EntityUid user, EntityUid target)
+    public bool ControlledDeployment { get; }
+
+    public ToggleClothingAttemptEvent(EntityUid user, EntityUid target, bool controlledDeployment = false)
     {
         User = user;
         Target = target;
+        ControlledDeployment = controlledDeployment;
     }
 }
 

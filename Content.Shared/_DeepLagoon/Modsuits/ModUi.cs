@@ -16,6 +16,8 @@ public enum ModOperation : byte
     RemoveModule,
     ToggleSuit,
     ConfigureModule,
+    PinModule,
+    OpenHardlightStyle,
     Call,
     Accept,
     End,
@@ -32,7 +34,14 @@ public sealed class ModUiMessage(ModOperation operation, NetEntity target = defa
 }
 
 [Serializable, NetSerializable]
-public sealed record ModModuleEntry(NetEntity Id, string Name, int Complexity, bool Active, bool Usable, bool RequiresPower, int? TargetTemperature);
+public sealed record ModModuleEntry(NetEntity Id, string Name, string Description, int Complexity, bool Active,
+    bool Usable, bool RequiresPower, bool Pinned, float UseCharge, int Cooldown, float UseDelay, int? TargetTemperature);
+
+[Serializable, NetSerializable]
+public sealed record ModHardwarePart(string Slot, string Name, bool Deployed);
+
+[Serializable, NetSerializable]
+public sealed record ModPanelDetails(string Name, string Wearer, string Cell, string SelectedModule, int? BodyTemperature);
 
 [Serializable, NetSerializable]
 public sealed record ModContact(NetEntity Id, string Name);
@@ -63,7 +72,9 @@ public sealed class ModUiState(
     bool canSetFrequency,
     ModContact[] contacts,
     ModCallState call,
-    string peer) : BoundUserInterfaceState
+    string peer,
+    ModHardwarePart[] parts,
+    ModPanelDetails details) : BoundUserInterfaceState
 {
     public readonly int Charge = charge;
     public readonly bool Control = control;
@@ -81,6 +92,8 @@ public sealed class ModUiState(
     public readonly ModContact[] Contacts = contacts;
     public readonly ModCallState Call = call;
     public readonly string Peer = peer;
+    public readonly ModHardwarePart[] Parts = parts;
+    public readonly ModPanelDetails Details = details;
 }
 
 public sealed partial class OpenModControlEvent : InstantActionEvent;

@@ -275,7 +275,7 @@ namespace Content.Client.Actions
             CommandBinds.Unregister<ActionsSystem>();
         }
 
-        public void TriggerAction(EntityUid actionId, BaseActionComponent action)
+        public void TriggerAction(EntityUid actionId, BaseActionComponent action, bool alternate = false)
         {
             if (_playerManager.LocalEntity is not { } user ||
                 !TryComp(user, out ActionsComponent? actions))
@@ -292,7 +292,7 @@ namespace Content.Client.Actions
             }
             else
             {
-                var request = new RequestPerformActionEvent(GetNetEntity(actionId));
+                var request = new RequestPerformActionEvent(GetNetEntity(actionId), alternate);
                 RaisePredictiveEvent(request);
             }
         }

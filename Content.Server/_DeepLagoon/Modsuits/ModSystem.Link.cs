@@ -75,7 +75,22 @@ public sealed partial class ModSystem
     private void OnUnequipLink(Entity<ModLinkComponent> device, ref ClothingGotUnequippedEvent args)
     {
         if (TryComp<ModControlComponent>(device, out var suit))
+        {
+            var step = suit.Deployment?.Step;
+            suit.Deployment = null;
+            if (step != null)
+                _modDoAfter.Cancel(step);
             StopModules((device.Owner, suit));
+            foreach (var item in suit.Modules.ContainedEntities)
+            {
+                if (TryComp<ModModuleComponent>(item, out var module))
+                    UnpinModule(module);
+            }
+
+            _ui.CloseUi(device.Owner, ModRadialKey.Key);
+            _ui.CloseUi(device.Owner, ModHardlightKey.Key);
+            RemComp<ModHardlightVisualComponent>(args.Wearer);
+        }
 
         EndCall(device);
         device.Comp.Wearer = null;
@@ -86,7 +101,12 @@ public sealed partial class ModSystem
     private void OnActions(Entity<ModLinkComponent> device, ref GetItemActionsEvent args)
     {
         var slot = device.Comp.Slot == "neck" ? SlotFlags.NECK : SlotFlags.BACK;
-        if (args.SlotFlags == slot)
+        if (args.SlotFlags != slot)
+            return;
+
+        if (TryComp<ModControlComponent>(device, out var control))
+            AddSuitActions(control, device.Comp, args);
+        else
             args.AddAction(ref device.Comp.Action, "ActionModControl");
     }
 

@@ -1,4 +1,6 @@
 using Content.Server.PowerCell;
+using Content.Server.Temperature.Components;
+using Content.Shared.Atmos;
 using Content.Server.Storage.EntitySystems;
 using Content.Shared._DeepLagoon.Modsuits;
 using Content.Shared._Goobstation.Clothing.Components;
@@ -62,6 +64,8 @@ public sealed partial class ModSystem : EntitySystem
         InitializeLink();
         InitializeEmp();
         InitializeCloak();
+        InitializeActions();
+        InitializeHardlight();
     }
 
     private void OnControlComponentInit(Entity<ModControlComponent> suit, ref ComponentInit args)
@@ -190,11 +194,20 @@ public sealed partial class ModSystem : EntitySystem
 
     private void OnSealAttempt(Entity<ModControlComponent> suit, ref ClothingSealAttemptEvent args)
     {
-        if (args.Cancelled || IsSealed(suit) || HasCore(suit))
+        if (args.Cancelled)
             return;
 
-        args.Cancel();
-        Notify(suit, args.User, "mod-core-missing");
+        if (suit.Comp.Deployment != null)
+        {
+            args.Cancel();
+            return;
+        }
+
+        if (!IsSealed(suit) && !HasCore(suit))
+        {
+            args.Cancel();
+            Notify(suit, args.User, "mod-core-missing");
+        }
     }
 
     private void OnSealComplete(Entity<ModControlComponent> suit, ref ClothingControlSealCompleteEvent args)
@@ -202,12 +215,15 @@ public sealed partial class ModSystem : EntitySystem
         if (!args.IsSealed)
         {
             StopModules(suit);
-            if (suit.Comp.StowOnUnseal && TryComp<ModLinkComponent>(suit, out var link) &&
-                link.Wearer is {} wearer && TryComp<ToggleableClothingComponent>(suit, out var deployment))
-                _deployment.SetAllPartsDeployed(wearer, (suit.Owner, deployment), false);
+            if (TryComp<ModLinkComponent>(suit, out var device))
+                EndCall((suit.Owner, device));
         }
 
-        suit.Comp.StowOnUnseal = false;
+        if (TryComp<ModLinkComponent>(suit, out var link) && link.Wearer is {} wearer)
+        {
+            RefreshHardlight(suit, wearer);
+            RefreshSuitActionIcons(suit);
+        }
         RefreshUi(suit);
     }
 
@@ -223,6 +239,9 @@ public sealed partial class ModSystem : EntitySystem
             return;
 
         StopModule((args.Entity, module));
+        UnpinModule(module);
+        if (suit.Comp.SelectedModule == args.Entity)
+            suit.Comp.SelectedModule = null;
         module.Host = null;
         _ui.CloseUi(args.Entity, StorageComponent.StorageUiKey.Key);
         RefreshUi(suit);
@@ -231,6 +250,7 @@ public sealed partial class ModSystem : EntitySystem
     private void OnModuleShutdown(Entity<ModModuleComponent> module, ref ComponentShutdown args)
     {
         StopModule(module);
+        UnpinModule(module.Comp);
     }
 
     private void Notify(EntityUid device, EntityUid user, LocId message)
@@ -256,7 +276,10 @@ public sealed partial class ModSystem : EntitySystem
         if (args.Operation == ModOperation.ToggleSuit && IsWorn(device, user) &&
             TryComp<ModControlComponent>(device, out var control))
             ToggleSuit((device.Owner, control), user);
-        else if (args.Operation is ModOperation.ToggleModule or ModOperation.RemoveModule or ModOperation.ConfigureModule)
+        else if (args.Operation == ModOperation.OpenHardlightStyle && IsWorn(device, user) &&
+                 TryComp<ModControlComponent>(device, out var styleControl))
+            OpenHardlightEditor((device.Owner, styleControl), user);
+        else if (args.Operation is ModOperation.ToggleModule or ModOperation.RemoveModule or ModOperation.ConfigureModule or ModOperation.PinModule)
         {
             if (!TryComp<ModControlComponent>(device, out var suit) ||
                 !TryGetEntity(args.Target, out var target) ||
@@ -285,11 +308,12 @@ public sealed partial class ModSystem : EntitySystem
                     temperature is >= 20 and <= 45)
                     module.TargetTemperature = temperature;
             }
-            else if (module.Mode == ModModuleMode.Storage)
+            else if (args.Operation == ModOperation.PinModule && IsWorn(device, user))
+                PinModule((target.Value, module), user);
+            else if (args.Operation == ModOperation.ToggleModule && IsWorn(device, user))
+                UseSelectedModule((device.Owner, suit), (target.Value, module), user);
+            else if (args.Operation == ModOperation.ToggleModule && module.Mode == ModModuleMode.Storage)
                 OpenModuleStorage(target.Value, user);
-            else if (IsWorn(device, user) && IsSealed(device) && HasCore(device) &&
-                     TryComp<SealableClothingControlComponent>(device, out var seal) && !seal.IsInProcess)
-                UseModule((device.Owner, suit), (target.Value, module), user);
         }
         else if (IsWorn(device, user))
             HandleLinkMessage(device, args);
@@ -299,31 +323,16 @@ public sealed partial class ModSystem : EntitySystem
 
     private void ToggleSuit(Entity<ModControlComponent> suit, EntityUid user)
     {
-        if (!TryComp<SealableClothingControlComponent>(suit, out var seal) || seal.IsInProcess ||
-            !TryComp<ToggleableClothingComponent>(suit, out var deployment))
+        if (IsSuitBusy(suit) || !TryComp<SealableClothingControlComponent>(suit, out var seal))
             return;
 
-        if (seal.IsCurrentlySealed)
+        if (!seal.IsCurrentlySealed && _deployment.GetAttachedToggleStatus(suit) == ToggleableClothingAttachedStatus.NoneToggled)
         {
-            suit.Comp.StowOnUnseal = _seal.TryStartSealToggleProcess((suit.Owner, seal), user);
+            Notify(suit, user, "mod-deploy-first");
             return;
         }
 
-        if (!HasCore(suit))
-        {
-            Notify(suit, user, "mod-core-missing");
-            return;
-        }
-
-        if (CanService(suit))
-        {
-            Notify(suit, user, "mod-close-panel");
-            return;
-        }
-
-        if (_power.HasActivatableCharge(suit, user: user) &&
-            _deployment.SetAllPartsDeployed(user, (suit.Owner, deployment), true))
-            _seal.TryStartSealToggleProcess((suit.Owner, seal), user);
+        _seal.TryStartSealToggleProcess((suit.Owner, seal), user);
     }
 
     public override void Update(float frameTime)
@@ -349,6 +358,8 @@ public sealed partial class ModSystem : EntitySystem
                     }
 
                     UpdateModules((uid, suit), user);
+                    RefreshHardlight((uid, suit), user);
+                    RefreshSuitActionIcons((uid, suit));
                 }
 
                 if (link.Peer != null)
@@ -365,20 +376,38 @@ public sealed partial class ModSystem : EntitySystem
         if (!_ui.IsUiOpen(uid, ModUiKey.Key) || !TryComp<ModLinkComponent>(uid, out var link))
             return;
 
-        var charge = _power.TryGetBatteryFromSlot(uid, out var battery) && battery.MaxCharge > 0
+        var charge = _power.TryGetBatteryFromSlot(uid, out var cell, out var battery) && battery.MaxCharge > 0
             ? (int) MathF.Round(100 * battery.CurrentCharge / battery.MaxCharge)
             : -1;
 
         var isSuit = TryComp<ModControlComponent>(uid, out var suit);
         var modules = new List<ModModuleEntry>();
+        var parts = new List<ModHardwarePart>();
+        int? bodyTemperature = null;
         if (isSuit)
         {
+            if (TryComp<ToggleableClothingComponent>(uid, out var clothing))
+            {
+                foreach (var part in GetSuitParts(clothing))
+                {
+                    if (Exists(part))
+                        parts.Add(new(clothing.ClothingUids[part], Name(part), link.Wearer is {} wearerId &&
+                            IsPartDeployed(clothing, wearerId, part)));
+                }
+            }
             foreach (var item in suit!.Modules.ContainedEntities)
             {
-                if (TryComp<ModModuleComponent>(item, out var module))
-                    modules.Add(new(GetNetEntity(item), Name(item), module.Complexity, module.Active,
-                        module.Mode != ModModuleMode.Passive, module.Mode != ModModuleMode.Storage,
-                        module.Mode == ModModuleMode.ThermalRegulator ? module.TargetTemperature : null));
+                if (!TryComp<ModModuleComponent>(item, out var module))
+                    continue;
+
+                modules.Add(new(GetNetEntity(item), Name(item), MetaData(item).EntityDescription, module.Complexity,
+                    module.Active, module.Mode != ModModuleMode.Passive, module.Mode != ModModuleMode.Storage,
+                    module.PinnedAction != null, module.UseCharge,
+                    (int) Math.Max(0, Math.Ceiling((module.NextUse - _timing.CurTime).TotalSeconds)), (float) module.UseDelay.TotalSeconds,
+                    module.Mode == ModModuleMode.ThermalRegulator ? module.TargetTemperature : null));
+                if (module.Mode == ModModuleMode.ThermalRegulator && module.Active &&
+                    TryComp<TemperatureComponent>(link.Wearer, out var temperature))
+                    bodyTemperature = (int) MathF.Round(temperature.CurrentTemperature - Atmospherics.T0C);
             }
         }
 
@@ -396,10 +425,15 @@ public sealed partial class ModSystem : EntitySystem
             frequencyTool = false;
         }
 
-        var busy = TryComp<SealableClothingControlComponent>(uid, out var seal) && seal.IsInProcess;
+        var busy = suit != null && IsSuitBusy((uid, suit));
+        var details = new ModPanelDetails(Name(uid),
+            link.Wearer is {} user ? Name(user) : string.Empty,
+            cell is {} cellUid ? Name(cellUid) : string.Empty,
+            suit?.SelectedModule is {} selected && Exists(selected) ? Name(selected) : string.Empty,
+            bodyTemperature);
         var state = new ModUiState(charge, isSuit, IsSealed(uid), busy, link.Wearer != null, CanService(uid), suit?.Capacity ?? 0,
             isSuit ? Complexity((uid, suit!)) : 0, modules.ToArray(), link.Number, link.Label, link.Frequency, frequencyTool,
-            contacts, call, peer);
+            contacts, call, peer, parts.ToArray(), details);
         SetUiIfChanged(uid, link, state);
     }
 
@@ -410,7 +444,8 @@ public sealed partial class ModSystem : EntitySystem
             old.Busy == state.Busy && old.WearableControls == state.WearableControls &&
             old.Capacity == state.Capacity && old.Complexity == state.Complexity && old.Number == state.Number &&
             old.Label == state.Label && old.Frequency == state.Frequency && old.CanSetFrequency == state.CanSetFrequency &&
-            old.Call == state.Call && old.Peer == state.Peer &&
+            old.Call == state.Call && old.Peer == state.Peer && old.Details == state.Details &&
+            old.Parts.AsSpan().SequenceEqual(state.Parts) &&
             old.Modules.AsSpan().SequenceEqual(state.Modules) && old.Contacts.AsSpan().SequenceEqual(state.Contacts))
             return;
 

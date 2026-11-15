@@ -141,10 +141,17 @@ public sealed class ModSuitTests
             Assert.That(containers.Remove(crowbar, pocket), Is.True);
 
             Assert.That(wires.TogglePanel(suit, panel, false, wearer), Is.True);
-            Send(ModOperation.ToggleSuit);
+            em.EventBus.RaiseLocalEvent(suit, new ModSuitActionEvent
+            {
+                Performer = wearer,
+                Kind = ModActionKind.Deploy,
+                Alternate = true,
+            });
         });
+        await pair.RunSeconds(4);
+        await pair.Server.WaitAssertion(() => Send(ModOperation.ToggleSuit));
 
-        await pair.RunTicksSync(200);
+        await pair.RunSeconds(5);
         await pair.Server.WaitAssertion(() =>
         {
             var seal = em.GetComponent<SealableClothingControlComponent>(suit);
@@ -220,10 +227,17 @@ public sealed class ModSuitTests
             em.System<SharedInteractionSystem>().InteractUsing(wearer, module, suit, map.GridCoords);
             Assert.That(em.GetComponent<ModModuleComponent>(module).Host, Is.EqualTo(suit));
             Assert.That(wires.TogglePanel(suit, panel, false, wearer), Is.True);
-            Send(ModOperation.ToggleSuit);
+            em.EventBus.RaiseLocalEvent(suit, new ModSuitActionEvent
+            {
+                Performer = wearer,
+                Kind = ModActionKind.Deploy,
+                Alternate = true,
+            });
         });
-
         await pair.RunSeconds(4);
+        await pair.Server.WaitAssertion(() => Send(ModOperation.ToggleSuit));
+
+        await pair.RunSeconds(5);
         await pair.Server.WaitAssertion(() =>
         {
             Send(ModOperation.ToggleModule, em.GetNetEntity(module));

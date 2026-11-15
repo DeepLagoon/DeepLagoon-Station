@@ -22,7 +22,7 @@ public sealed partial class ToggleableClothingComponent : Component
     ///     Action used to toggle the clothing on or off.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public EntProtoId Action = "ActionToggleSuitPiece";
+    public EntProtoId? Action = "ActionToggleSuitPiece";
 
     [DataField, AutoNetworkedField]
     public EntityUid? ActionEntity;

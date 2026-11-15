@@ -30,8 +30,10 @@
       core-container: !type:ContainerSlot
   - type: UserInterface
     interfaces:
-      enum.ToggleClothingUiKey.Key:
-        type: ToggleableClothingBoundUserInterface
+      enum.ModRadialKey.Key:
+        type: ModRadialBoundUserInterface
+      enum.ModHardlightKey.Key:
+        type: ModHardlightBoundUserInterface
       enum.ModUiKey.Key:
         type: ModBoundUserInterface
   - type: UseDelay
@@ -39,6 +41,7 @@
   - type: ExplosionResistance
     damageCoefficient: 0.9
   - type: ToggleableClothing
+    action: null
     requiredSlot: back
     blockUnequipWhenAttached: true
     replaceCurrentClothing: true
@@ -68,6 +71,10 @@
     fitsInCharger: false
   - type: DoAfter
   - type: SealableClothingControl
+    sealAction: null
+    allowPartialActivation: true
+    partSealingTime: 0.9
+    finalSealingTime: 0.9
   - type: SealableClothingRequiresPower
   - type: SealableClothingVisuals
     spriteLayer: sealed
@@ -103,8 +110,10 @@
     interfaces:
       enum.StorageUiKey.Key:
         type: StorageBoundUserInterface
-      enum.ToggleClothingUiKey.Key:
-        type: ToggleableClothingBoundUserInterface
+      enum.ModRadialKey.Key:
+        type: ModRadialBoundUserInterface
+      enum.ModHardlightKey.Key:
+        type: ModHardlightBoundUserInterface
       enum.ModUiKey.Key:
         type: ModBoundUserInterface
 

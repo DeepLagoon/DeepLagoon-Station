@@ -17,8 +17,23 @@ public sealed partial class ModControlComponent : Component
     public List<EntProtoId> StartingModules = new();
 
     public Container Modules = default!;
-    public bool StowOnUnseal;
+    public EntityUid? DeployAction;
+    public EntityUid? ActivateAction;
+    public EntityUid? ModuleAction;
+    public EntityUid? HardlightAction;
+    public EntityUid? HardlightStyleAction;
+    public EntityUid? SelectedModule;
+    public ModRadialMode RadialMode;
+    public ModDeployment? Deployment;
 
+    [DataField]
+    public ModHardlightParts HardlightParts;
+
+    [DataField]
+    public Color HardlightColor = Color.FromHex("#1AD1FF");
+
+    [DataField]
+    public ModHardlightEffect HardlightEffect;
 }
 
 [RegisterComponent]
@@ -55,6 +70,7 @@ public sealed partial class ModModuleComponent : Component
     public Dictionary<ProtoId<DamageTypePrototype>, float> DamageCoefficients = new();
 
     public EntityUid? Host;
+    public EntityUid? PinnedAction;
     public EntityUid? DeployedTool;
     public EntityUid? EffectTarget;
     public readonly List<IComponent> AppliedEffects = new();

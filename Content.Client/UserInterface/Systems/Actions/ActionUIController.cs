@@ -13,6 +13,7 @@ using Content.Client.UserInterface.Systems.Actions.Widgets;
 using Content.Client.UserInterface.Systems.Actions.Windows;
 using Content.Client.UserInterface.Systems.Gameplay;
 using Content.Shared.Actions;
+using Content.Shared._DeepLagoon.Modsuits;
 using Content.Shared.Input;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -657,7 +658,12 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
     {
         if (args.Function == EngineKeyFunctions.UIRightClick)
         {
-            SetAction(button, null);
+            if (button.ActionId is {} id && EntityManager.TryGetComponent<ModActionButtonComponent>(id, out var modAction)
+                && modAction.Alternate && _actionsSystem?.TryGetActionData(id, out var action) == true)
+                _actionsSystem.TriggerAction(id, action, alternate: true);
+            else if (button.ActionId is not {} panel || !EntityManager.HasComponent<ModActionButtonComponent>(panel))
+                SetAction(button, null);
+
             args.Handle();
             return;
         }
