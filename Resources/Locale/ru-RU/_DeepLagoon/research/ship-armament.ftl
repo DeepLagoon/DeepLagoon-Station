@@ -6,6 +6,10 @@ research-technology-dl-ship-mounts-advanced = Продвинутые кораб�
 research-technology-dl-ship-mounts-massive = Массивные корабельные крепления
 research-technology-dl-ship-mounts-capital = Капитальные корабельные крепления
 
+research-technology-dl-ship-gunnery-server-low = Оружейный сервер малой мощности
+research-technology-dl-ship-gunnery-server-medium = Оружейный сервер средней мощности
+research-technology-dl-ship-gunnery-server-high = Оружейный сервер высокой мощности
+
 research-technology-dl-ship-armament-light = Лёгкое корабельное вооружение
 research-technology-dl-ship-armament-syndicate-light = Лёгкое корабельное вооружение Синдиката
 research-technology-dl-ship-armament-medium = Среднее корабельное вооружение

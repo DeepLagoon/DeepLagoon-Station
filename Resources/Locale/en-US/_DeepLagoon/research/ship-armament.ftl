@@ -6,6 +6,10 @@ research-technology-dl-ship-mounts-advanced = Advanced ship mounts
 research-technology-dl-ship-mounts-massive = Massive ship mounts
 research-technology-dl-ship-mounts-capital = Capital ship mounts
 
+research-technology-dl-ship-gunnery-server-low = Low-power gunnery server
+research-technology-dl-ship-gunnery-server-medium = Medium-power gunnery server
+research-technology-dl-ship-gunnery-server-high = High-power gunnery server
+
 research-technology-dl-ship-armament-light = Light ship armament
 research-technology-dl-ship-armament-syndicate-light = Syndicate light ship armament
 research-technology-dl-ship-armament-medium = Medium ship armament

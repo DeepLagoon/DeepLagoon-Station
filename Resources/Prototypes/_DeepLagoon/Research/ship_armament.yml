@@ -93,6 +93,48 @@
   - DLShipAssemblyHardpointMissileSuperheavy
 
 - type: technology
+  id: DLShipGunneryServerLow
+  name: research-technology-dl-ship-gunnery-server-low
+  entityIcon: GunneryServerLow
+  discipline: DLShipArmament
+  tier: 1
+  cost: 10000
+  allowRecipeDisks: false
+  position: 5, 0
+  technologyPrerequisites:
+  - DLShipMountsBasic
+  recipeUnlocks:
+  - MachineGCSLowCircuitboard
+
+- type: technology
+  id: DLShipGunneryServerMedium
+  name: research-technology-dl-ship-gunnery-server-medium
+  entityIcon: GunneryServerMedium
+  discipline: DLShipArmament
+  tier: 2
+  cost: 20000
+  allowRecipeDisks: false
+  position: 7, 0
+  technologyPrerequisites:
+  - DLShipMountsAdvanced
+  recipeUnlocks:
+  - MachineGCSMediumCircuitboard
+
+- type: technology
+  id: DLShipGunneryServerHigh
+  name: research-technology-dl-ship-gunnery-server-high
+  entityIcon: GunneryServerHigh
+  discipline: DLShipArmament
+  tier: 3
+  cost: 40000
+  allowRecipeDisks: false
+  position: 9, 0
+  technologyPrerequisites:
+  - DLShipMountsMassive
+  recipeUnlocks:
+  - MachineGCSHighCircuitboard
+
+- type: technology
   id: DLShipArmamentLight
   name: research-technology-dl-ship-armament-light
   entityIcon: WeaponTurretL85Autocannon

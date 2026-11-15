@@ -113,6 +113,62 @@ public sealed class ShipArmamentTests
     }
 
     [Test]
+    public async Task GunneryServerBoardsRequireMatchingMountResearch()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var server = pair.Server;
+        var entities = server.EntMan;
+        var research = server.System<ResearchSystem>();
+        var lathe = server.System<LatheSystem>();
+
+        await server.WaitAssertion(() =>
+        {
+            var console = entities.SpawnEntity("ComputerResearchAndDevelopment", map.GridCoords);
+            var printer = entities.SpawnEntity("CircuitImprinter", map.GridCoords);
+            var rdServer = entities.SpawnEntity("ResearchAndDevelopmentServer", map.GridCoords);
+            var actor = entities.SpawnEntity(null, map.GridCoords);
+            entities.GetComponent<ResearchServerComponent>(rdServer).Points = 1_000_000;
+            research.RegisterClient(console, rdServer);
+            research.RegisterClient(printer, rdServer);
+
+            Assert.That(Unlock("UniversalMaterialResearchT1"), Is.True);
+            Assert.That(Unlock("UniversalMaterialResearchT2"), Is.True);
+
+            var technologies = server.ProtoMan.EnumeratePrototypes<TechnologyPrototype>().ToArray();
+            var servers = new[]
+            {
+                ("DLShipGunneryServerLow", "DLShipMountsBasic", "MachineGCSLowCircuitboard"),
+                ("DLShipGunneryServerMedium", "DLShipMountsAdvanced", "MachineGCSMediumCircuitboard"),
+                ("DLShipGunneryServerHigh", "DLShipMountsMassive", "MachineGCSHighCircuitboard"),
+            };
+
+            foreach (var (technology, mounts, board) in servers)
+            {
+                Assert.That(technologies.Where(tech => tech.RecipeUnlocks.Contains(board)).Select(tech => tech.ID),
+                    Is.EqualTo(new[] { technology }), board);
+                Assert.That(Unlock(technology), Is.False, technology);
+                Assert.That(Unlock(mounts), Is.True, mounts);
+                Assert.That(CanPrint(board), Is.False, board);
+                Assert.That(Unlock(technology), Is.True, technology);
+                Assert.That(CanPrint(board), Is.True, board);
+            }
+
+            Assert.That(Unlock("DLShipMountsCapital"), Is.True);
+            foreach (var board in new[] { "MachineGCSUltraCircuitboard", "MachineGCSStationCircuitboard" })
+            {
+                Assert.That(technologies.Any(tech => tech.RecipeUnlocks.Contains(board)), Is.False, board);
+                Assert.That(CanPrint(board), Is.False, board);
+            }
+
+            bool Unlock(string technology) => research.UnlockTechnology(console, technology, actor);
+            bool CanPrint(string board) => lathe.TryGetAvailableRecipes(printer, out var recipes) && recipes.Contains(board);
+        });
+
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ResearchedKitsUseFinishedPartsAndDeployOnCompatibleHardpoints()
     {
         await using var pair = await PoolManager.GetServerClient();

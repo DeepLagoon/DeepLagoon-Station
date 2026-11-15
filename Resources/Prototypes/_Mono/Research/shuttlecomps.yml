@@ -9,9 +9,6 @@
 #  - ShieldControlComputerCircuitboard
 #  - MachineShieldMS225Circuitboard
   - GunneryControlComputerCircuitboard
-  - MachineGCSLowCircuitboard
-  - MachineGCSMediumCircuitboard
-  - MachineGCSHighCircuitboard
   - AdvancedRadarConsoleCircuitboard
   - ComputerIFFCircuitboard
   - MachineDriveCTLA25Circuitboard
