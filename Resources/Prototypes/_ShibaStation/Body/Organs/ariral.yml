@@ -204,7 +204,9 @@
   name: heart
   description: "You have to work hard for an ariral to give this to you."
   components:
+  - type: Heart # Shitmed Change
   - type: Organ # Shitmed Change
+    slotId: heart
   - type: Sprite
     state: heart-on
   # The heart 'metabolizes' medicines and poisons that aren't filtered out by other organs.
@@ -274,7 +276,9 @@
   name: liver
   description: "Pairing suggestion: hazmat suit and a furnace."
   components:
+  - type: Liver # Shitmed Change
   - type: Organ # Shitmed Change
+    slotId: liver
   - type: Sprite
     state: liver
   - type: Item
