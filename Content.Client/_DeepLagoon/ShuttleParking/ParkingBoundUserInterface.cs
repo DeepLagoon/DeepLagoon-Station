@@ -1,10 +1,12 @@
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
 using Content.Shared._DeepLagoon.ShuttleParking;
 using Content.Shared.Containers.ItemSlots;
 using Robust.Client.UserInterface;
+using Timer = Robust.Shared.Timing.Timer;
 
 namespace Content.Client._DeepLagoon.ShuttleParking;
 
@@ -26,6 +28,7 @@ public sealed class ParkingWindow : FancyWindow
 public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : BoundUserInterface(owner, uiKey)
 {
     private ParkingWindow? _window;
+    private CancellationTokenSource? _returnRefresh;
     protected override void Open()
     {
         base.Open();
@@ -49,13 +52,39 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
             .Array("docks", state.Docks.Select(dock => new TguiData().String("id", dock.Entity.ToString()).String("name", dock.Name)))
             .Array("places", state.Places.Select(place => new TguiData().String("id", place.Id.ToString()).Number("category", place.Category)
                 .String("categoryName", ParkingRules.CategoryName(place.Category)).String("name", place.ShipName).String("owner", place.Owner)
-                .String("shipCategory", ParkingRules.CategoryName(place.ShipCategory)).Number("price", place.Price).Bool("recovering", place.Recovering).Bool("paid", place.Paid)))
+                .String("shipCategory", ParkingRules.CategoryName(place.ShipCategory)).Number("price", place.Price).Bool("recovering", place.Recovering)
+                .Bool("paid", place.Paid).Number("returnWaitSeconds", place.ReturnWaitSeconds)))
             .Array("categories", Enumerable.Range(0, 5).Select(category => new TguiData().Number("id", category).String("name", ParkingRules.CategoryName(category))
                 .Number("count", state.Places.Count(place => place.Category == category)).Number("first", ParkingRules.SlotPrice(category, false))
                 .Number("extra", ParkingRules.SlotPrice(category, true))));
         if (state.RecallMap is { } recall)
             data.Object("recallMap", BuildRecallData(recall));
         _window.Panel.SetState("ShuttleParking", data.ToString(), "Парковка шаттлов");
+        CancelReturnRefresh();
+        var nextReturn = state.Places.Where(place => place.ReturnWaitSeconds > 0).Select(place => place.ReturnWaitSeconds).DefaultIfEmpty().Min();
+        if (nextReturn > 0)
+        {
+            _returnRefresh = new CancellationTokenSource();
+            Timer.Spawn(TimeSpan.FromMilliseconds(nextReturn * 1000 + 250), () =>
+            {
+                if (IsOpened)
+                    SendMessage(new ParkingAction("refresh"));
+            }, _returnRefresh.Token);
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            CancelReturnRefresh();
+        base.Dispose(disposing);
+    }
+
+    private void CancelReturnRefresh()
+    {
+        _returnRefresh?.Cancel();
+        _returnRefresh?.Dispose();
+        _returnRefresh = null;
     }
 
     private static TguiData BuildRecallData(ParkingRecallMap map)

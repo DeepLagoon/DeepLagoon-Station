@@ -52,11 +52,18 @@ public sealed partial class AccountServiceTests
                     FacialHairName = "", FacialHairColor = "#000000", EyeColor = "#000000", SkinColor = "#000000",
                 });
             }
+            db.ConnectionLog.Add(new ConnectionLog
+            {
+                UserId = _user, UserName = "Player", Time = DateTime.UtcNow,
+                Address = IPAddress.Parse("192.0.2.1"), Server = new Server { Name = "Whitelist Test" },
+            });
             await db.SaveChangesAsync();
         }
         Links("""
             PRAGMA journal_mode=WAL;
             CREATE TABLE discord_links(discord_id TEXT PRIMARY KEY, ss14_uid TEXT UNIQUE, username TEXT);
+            CREATE TABLE discord_link_history(discord_id TEXT PRIMARY KEY, ss14_uid TEXT);
+            CREATE TABLE discord_launcher_enrollments(discord_id TEXT PRIMARY KEY, ss14_uid TEXT);
             CREATE TABLE discord_account_merge_pending(official_uid TEXT,canonical_uid TEXT,discord_id TEXT);
             CREATE TABLE discord_account_aliases(official_uid TEXT,canonical_uid TEXT,discord_id TEXT);
             """);

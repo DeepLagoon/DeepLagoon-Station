@@ -68,16 +68,24 @@ public sealed partial class AccountServiceTests
     [Test]
     public async Task WhitelistCapabilityCannotMakeUnboundedChanges()
     {
+        await using var db = _settings.OpenDatabase();
+        var server = new Server { Name = "Grant Budget Test" };
         for (var index = 0; index < 31; index++)
         {
             var discord = (1554164947804488000L + index).ToString();
-            Links("INSERT INTO discord_links VALUES($id,$uid,'Player')", ("$id", discord), ("$uid", Guid.NewGuid().ToString()));
+            var uid = Guid.NewGuid();
+            Links("INSERT INTO discord_links VALUES($id,$uid,'Player')", ("$id", discord), ("$uid", uid.ToString()));
+            db.ConnectionLog.Add(new ConnectionLog
+            {
+                UserId = uid, UserName = "Player", Address = IPAddress.Parse($"198.51.100.{index + 1}"),
+                Time = DateTime.UtcNow, Server = server,
+            });
+            await db.SaveChangesAsync();
             Assert.That((await Call("whitelist", new { discord_id = discord })).Status,
                 Is.EqualTo(index < 30 ? HttpStatusCode.OK : HttpStatusCode.TooManyRequests));
         }
         // A no-op retry is allowed even when the mutation budget is exhausted.
         Assert.That((await Call("whitelist", new { discord_id = "1554164947804488000" })).Status, Is.EqualTo(HttpStatusCode.OK));
-        await using var db = _settings.OpenDatabase();
         Assert.That(await db.Whitelist.CountAsync(), Is.EqualTo(30));
     }
 }

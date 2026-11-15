@@ -11,6 +11,8 @@ using Content.Shared.Buckle.Components;
 using Content.Shared.Doors.Components;
 using Content.Shared.Ghost;
 using Content.Shared.Maps;
+using Content.Shared.Mind.Components;
+using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Pulling.Components;
@@ -18,6 +20,7 @@ using Content.Shared.Movement.Pulling.Systems;
 using Content.Shared.Movement.Systems;
 using Content.Shared.NPC;
 using Content.Shared.Physics;
+using Content.Shared.Station.Components;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
@@ -53,6 +56,57 @@ public sealed partial class ParkingSystem
         public NPCSteeringComponent? Steering;
         public TimeSpan WalkDeadline;
         public bool TransferRequired;
+    }
+
+    private bool IsParkingOccupant(EntityUid entity) => !HasComp<GhostComponent>(entity)
+        && (HasComp<MobStateComponent>(entity) || HasComp<ActorComponent>(entity)
+            || TryComp<MindContainerComponent>(entity, out var mind) && mind.HasMind);
+
+    private IEnumerable<EntityUid> ConnectedStationDocks(EntityUid grid, EntityUid station)
+    {
+        foreach (var dock in _docking.GetDocks(grid))
+        {
+            if (dock.Comp.DockedWith is { } other && Exists(other) && _stations.GetOwningStation(other) == station)
+                yield return other;
+        }
+    }
+
+    private IEnumerable<EntityUid> NearbyStationDocks(EntityUid console)
+    {
+        var station = _stations.GetOwningStation(console) ?? throw new InvalidOperationException("Консоль не принадлежит станции.");
+        var position = _transform.GetWorldPosition(console);
+        var map = Transform(console).MapUid;
+        var docks = Comp<StationDataComponent>(station).Grids.SelectMany(grid => _docking.GetDocks(grid))
+            .Where(dock => Transform(dock.Owner).MapUid == map)
+            .OrderBy(dock => Vector2.DistanceSquared(position, _transform.GetWorldPosition(dock.Owner)));
+        foreach (var dock in docks)
+            yield return dock.Owner;
+    }
+
+    private void EvacuateParkingOccupants(EntityUid grid, IEnumerable<EntityUid> stationDocks)
+    {
+        var passengers = Descendants(grid).Skip(1).Where(IsParkingOccupant).ToArray();
+        if (passengers.Length == 0)
+            return;
+
+        var landing = stationDocks.Select(dock => FindParkingClearance(dock, minimumDistance: 1f))
+            .FirstOrDefault(coordinates => coordinates.HasValue)
+            ?? throw new InvalidOperationException("Рядом со стыковочным портом нет безопасного места для высадки.");
+
+        foreach (var passenger in passengers)
+        {
+            if (!TerminatingOrDeleted(passenger) && !ReleaseParkingPassenger(passenger))
+                throw new InvalidOperationException("Не удалось освободить пассажира для высадки: " + Name(passenger));
+        }
+
+        foreach (var passenger in passengers)
+        {
+            if (!TerminatingOrDeleted(passenger))
+                MoveParkingPassenger(passenger, landing);
+        }
+
+        if (Descendants(grid).Skip(1).Any(IsParkingOccupant))
+            throw new InvalidOperationException("На шаттле остались существа. Повторите попытку парковки.");
     }
 
     private void StartParkingEvacuation(EntityUid grid, AutoParkingState state, EntityUid passenger, TimeSpan now)
@@ -170,15 +224,19 @@ public sealed partial class ParkingSystem
         if (state.Evacuation != evacuation || !IsOfflineParkingPassenger(passenger))
             return;
 
+        MoveParkingPassenger(passenger, landing);
+        StopParkingEvacuation(state);
+        AutoParkingStage(grid, state, "walking unavailable; offline passenger transferred clear of the station port");
+    }
+
+    private void MoveParkingPassenger(EntityUid passenger, EntityCoordinates landing)
+    {
         _transform.SetCoordinates(passenger, landing);
         if (TryComp<PhysicsComponent>(passenger, out var body))
         {
             _physics.SetLinearVelocity(passenger, Vector2.Zero, body: body);
             _physics.SetAngularVelocity(passenger, 0, body: body);
         }
-
-        StopParkingEvacuation(state);
-        AutoParkingStage(grid, state, "walking unavailable; offline passenger transferred clear of the station port");
     }
 
     private bool TryStartParkingWalk(ParkingEvacuation evacuation)
@@ -271,7 +329,7 @@ public sealed partial class ParkingSystem
     private bool IsOpenParkingAirlock(EntityUid dock) =>
         TryComp<DoorComponent>(dock, out var door) && door.State == DoorState.Open;
 
-    private EntityCoordinates? FindParkingClearance(EntityUid dock)
+    private EntityCoordinates? FindParkingClearance(EntityUid dock, float minimumDistance = 3f)
     {
         var xform = Transform(dock);
         if (xform.GridUid is not { } grid || xform.MapUid is not { } map || !TryComp<MapGridComponent>(grid, out var gridComp))
@@ -288,7 +346,7 @@ public sealed partial class ParkingSystem
             var offset = center.Position - port;
             var distance = offset.LengthSquared();
             var score = Vector2.DistanceSquared(center.Position, preferred);
-            if (distance < 9f || distance > ParkingClearance * ParkingClearance || Vector2.Dot(inward, offset) < 1f
+            if (distance < minimumDistance * minimumDistance || distance > ParkingClearance * ParkingClearance || Vector2.Dot(inward, offset) < 1f
                 || score >= best || tile.Tile.IsEmpty || _turf.IsSpace(tile) || _turf.IsTileBlocked(tile, CollisionGroup.MobMask)
                 || !_atmosphere.IsTileMixtureProbablySafe(grid, (map, null), tile.GridIndices))
                 continue;

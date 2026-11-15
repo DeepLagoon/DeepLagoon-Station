@@ -100,6 +100,58 @@ public sealed class ParkingStoreTests
         Assert.Throws<Microsoft.Data.Sqlite.SqliteException>(() => store.Save(owner, another.Id, ship));
         Assert.That(store.Slot(owner, another.Id).Ship, Is.Null);
     }
+
+    [Test]
+    public void SameShiftReturnOpensAtFiveMinutesAndConsumesOnlyTheMatchingSnapshot()
+    {
+        using var store = new ParkingStore(":memory:");
+        var owner = Guid.NewGuid();
+        var shift = Guid.NewGuid();
+        var purchase = store.BeginPurchase(owner, Guid.NewGuid(), 1);
+        store.GrantPurchase(owner, purchase);
+        var deadline = TimeSpan.FromMinutes(5);
+        var ship = Ship(1) with { SavedShift = shift, FreeReturnAt = deadline };
+        store.Save(owner, purchase.Id, ship with { FreeReturnAt = null });
+        store.FinishSave(owner, purchase.Id, deadline);
+
+        Assert.Throws<InvalidOperationException>(() => store.BeginRedeem(owner, purchase.Id, 0, shift, deadline - TimeSpan.FromTicks(1)));
+        var ready = store.BeginRedeem(owner, purchase.Id, 0, shift, deadline);
+        Assert.That(ready.Phase, Is.EqualTo("stored"));
+        Assert.That(ready.Redemption, Is.EqualTo(Guid.Empty));
+        Assert.That(ready.Paid, Is.False);
+        Assert.Throws<InvalidOperationException>(() => store.CompleteRedeem(owner, purchase.Id));
+        Assert.Throws<InvalidOperationException>(() => store.CompleteFreeReturn(owner, purchase.Id, ship with { Identity = Guid.NewGuid() }, shift, deadline));
+        Assert.Throws<InvalidOperationException>(() => store.CompleteFreeReturn(owner, purchase.Id, ship, Guid.NewGuid(), deadline));
+        store.CompleteFreeReturn(owner, purchase.Id, ship, shift, deadline);
+        Assert.That(store.Slot(owner, purchase.Id).Ship, Is.Null);
+        Assert.Throws<InvalidOperationException>(() => store.CompleteFreeReturn(owner, purchase.Id, ship, shift, deadline));
+    }
+
+    [Test]
+    public void InterruptedFreeReturnDoesNotCarryPaymentOrCharacterLockIntoNextShift()
+    {
+        using var store = new ParkingStore(":memory:");
+        var owner = Guid.NewGuid();
+        var shift = Guid.NewGuid();
+        var purchase = store.BeginPurchase(owner, Guid.NewGuid(), 1);
+        store.GrantPurchase(owner, purchase);
+        var deadline = ParkingRules.FreeReturnDelay;
+        var ship = Ship(1) with { SavedShift = shift, FreeReturnAt = deadline };
+        store.Save(owner, purchase.Id, ship);
+        store.FinishSave(owner, purchase.Id);
+
+        store.BeginRedeem(owner, purchase.Id, 0, shift, deadline);
+        var later = store.BeginRedeem(owner, purchase.Id, 1, Guid.NewGuid(), TimeSpan.Zero);
+        Assert.That(later.Phase, Is.EqualTo("redeeming"));
+        Assert.That(later.Character, Is.EqualTo(1));
+        Assert.That(later.Paid, Is.False);
+        Assert.That(later.Redemption, Is.Not.EqualTo(Guid.Empty));
+        Assert.Throws<InvalidOperationException>(() => store.CompleteRedeem(owner, purchase.Id));
+        store.MarkPaid(owner, purchase.Id);
+        store.CompleteRedeem(owner, purchase.Id);
+        Assert.That(store.Slot(owner, purchase.Id).Phase, Is.EqualTo("empty"));
+    }
+
     [Test]
     public void RedemptionRoundsUpAndRejectsOverflow()
     {

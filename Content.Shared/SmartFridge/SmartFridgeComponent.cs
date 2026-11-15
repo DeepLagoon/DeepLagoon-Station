@@ -43,9 +43,9 @@ public sealed partial class SmartFridgeComponent : Component
     public List<SmartFridgeEntry> Entries = new();
 
     /// <summary>
-    /// A mapping of smart fridge entries to the actual contained contents
+    /// Runtime index of the inventory container for the UI. Rebuilt with current entity IDs on startup.
     /// </summary>
-    [DataField, AutoNetworkedField]
+    [AutoNetworkedField]
     [Access(typeof(SharedSmartFridgeSystem), Other = AccessPermissions.ReadExecute)]
     public Dictionary<SmartFridgeEntry, HashSet<NetEntity>> ContainedEntries = new();
 

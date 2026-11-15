@@ -52,7 +52,7 @@ public static class Program
                 return Results.Unauthorized();
             var token = action switch
             {
-                "whitelist" or "remove_whitelist" => settings.WhitelistToken,
+                "whitelist" or "remove_whitelist" or "whitelist_check" => settings.WhitelistToken,
                 "lc_add" or "lc_remove" or "lc_history" or "bug_report_reward" => settings.CoinToken,
                 "economy_supporter" => settings.SupporterToken,
                 "launcher_economy_state" or "launcher_economy_pass" or "launcher_economy_color" or "launcher_economy_referral" => settings.LauncherShopToken,
@@ -89,6 +89,8 @@ public static class Program
                 if (request == null) return Results.BadRequest(new { error = "invalid_request" });
                 return Results.Json(await operations.Execute(action, request, deadline.Token));
             }
+            catch (WhitelistReviewRequired e)
+            { return Results.Json(new { error = e.Code, review = e.Review }, statusCode: 409); }
             catch (AccountError e) { return Results.Json(new { error = e.Code }, statusCode: e.Status); }
             catch (InsufficientLagoonCoinsException)
             { return Results.Conflict(new { error = "insufficient_lc" }); }
@@ -152,7 +154,7 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
 
 public sealed record AccountRequest(string DiscordId, string? ActorDiscordId = null, string? RequestId = null,
     long Amount = 0, string? Reason = null, bool HostAuthorized = false, int Page = 1,
-    string? WorkChannel = null, string? Category = null);
+    string? WorkChannel = null, string? Category = null, bool AcceptSharedIp = false, Guid[]? KnownUids = null);
 
 public sealed class AccountError(string code, int status = 409) : Exception(code)
 {
@@ -279,7 +281,7 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
     public async Task<object> Execute(string action, AccountRequest request, CancellationToken cancel = default)
     {
         if (action == "bug_report_reward") return await RewardBugReport(request, cancel);
-        var whitelist = action is "whitelist" or "remove_whitelist";
+        var whitelist = action is "whitelist" or "remove_whitelist" or "whitelist_check";
         var history = action == "lc_history";
         if (!whitelist && !history && action is not ("lc_add" or "lc_remove")) throw new AccountError("not_found", 404);
         if (!DiscordId(request.DiscordId) || (!whitelist &&
@@ -291,7 +293,11 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
         AssertStableLink(request.DiscordId, target.Uid);
         await using var db = settings.OpenDatabase();
         IdentityLink? author = null;
-        if (!whitelist || action == "remove_whitelist" && request.HostAuthorized)
+        if (request.AcceptSharedIp && (action != "whitelist" || !request.HostAuthorized))
+            throw new AccountError("forbidden", 403);
+        if (request.KnownUids is { Length: > 50 } || request.KnownUids?.Contains(Guid.Empty) == true)
+            throw new AccountError("invalid_request", 400);
+        if (!whitelist || action == "remove_whitelist" && request.HostAuthorized || request.AcceptSharedIp)
         {
             if (!DiscordId(request.ActorDiscordId)) throw new AccountError("actor_not_linked", 403);
             author = FindLink(request.ActorDiscordId!) ?? throw new AccountError("actor_not_linked", 403);
@@ -301,10 +307,22 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
         if (whitelist)
         {
             await using var transaction = await db.Database.BeginTransactionAsync(cancel);
+            var review = action == "remove_whitelist" ? null : await CheckWhitelist(db, request.DiscordId, target.Uid, request.KnownUids, cancel);
+            if (action == "whitelist_check")
+            {
+                AssertStableLink(request.DiscordId, target.Uid);
+                return new { uid = target.Uid, username = target.Username, existing = false, review };
+            }
+            if (review is { ActiveBan: true })
+                throw new WhitelistReviewRequired("whitelist_active_ban", review);
+            if (review is { SharedAddressBan: true } && !request.AcceptSharedIp)
+                throw new WhitelistReviewRequired("whitelist_shared_ip_review", review);
             if (action == "remove_whitelist" && !request.HostAuthorized &&
                 await db.Admin.AnyAsync(a => a.UserId == target.Uid, cancel))
                 throw new AccountError("admin_protected", 403);
             var existing = await db.Whitelist.AnyAsync(w => w.UserId == target.Uid, cancel);
+            if (!existing && review is { HasConnection: false })
+                throw new AccountError("whitelist_connection_required");
             if (existing != (action == "whitelist"))
                 ReserveBudget("whitelist:" + Guid.NewGuid().ToString("N"), 1, staff: true, category: "whitelist");
             if (action == "whitelist")
@@ -313,7 +331,9 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
                 await db.Whitelist.Where(w => w.UserId == target.Uid).ExecuteDeleteAsync(cancel);
             AssertStableLink(request.DiscordId, target.Uid);
             await transaction.CommitAsync(cancel);
-            return new { uid = target.Uid, username = target.Username, existing };
+            if (review == null)
+                return new { uid = target.Uid, username = target.Username, existing };
+            return new { uid = target.Uid, username = target.Username, existing, review };
         }
         if (history)
         {

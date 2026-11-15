@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Numerics;
+using System.Text.Json;
 using Content.Server._DeepLagoon.ShuttleParking;
 using Content.Server._Mono.FireControl;
 using Content.Server._NF.Shipyard.Systems;
+using Content.Server.Atmos.EntitySystems;
 using Content.Server.Construction;
 using Content.Server.Construction.Components;
 using Content.Server.Database;
@@ -18,24 +20,35 @@ using Content.Shared._Crescent.Hardpoints;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared._DeepLagoon.ShuttleParking;
 using Content.Shared._NF.Shipyard.Components;
+using Content.Shared.Atmos;
+using Content.Shared._Mono.Traits.Physical;
+using Content.Shared.Clothing.Components;
 using Content.Shared.Paper;
 using Content.Shared.Preferences;
 using Content.Shared.Power.Generator;
 using Content.Shared.Research.Components;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.SmartFridge;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Systems;
 using Content.Shared.Station.Components;
+using Microsoft.Data.Sqlite;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Map.Events;
 using Robust.Shared.Maths;
 using Robust.Shared.Asynchronous;
+using Robust.Shared.Audio;
+using Robust.Shared.Audio.Components;
+using Robust.Shared.Audio.Systems;
 using Robust.Shared.Network;
 using Robust.Shared.Serialization;
+using Robust.Shared.Timing;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 using Content.Client._DeepLagoon.WebUI;
@@ -48,6 +61,150 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ShuttleParkingTests
 {
+    private sealed class ParkingMigrationTestSystem : EntitySystem
+    {
+        public string? DeletedPrototype;
+        public int LoadsBeforeDeletion;
+
+        public override void Initialize()
+        {
+            SubscribeLocalEvent<BeforeEntityReadEvent>(OnBeforeRead);
+        }
+
+        private void OnBeforeRead(BeforeEntityReadEvent ev)
+        {
+            if (DeletedPrototype == null)
+                return;
+            if (LoadsBeforeDeletion > 0)
+                LoadsBeforeDeletion--;
+            else
+                ev.DeletedPrototypes.Add(DeletedPrototype);
+        }
+    }
+
+    [Test]
+    public async Task ParkingSnapshotSurvivesUnserializableContentsAndDeletedPrototypes()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var map);
+            var grid = maps.CreateGridEntity(map);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            maps.SetTile(grid, Vector2i.Zero, floor);
+            var position = new EntityCoordinates(grid.Owner, new Vector2(.5f));
+            var bag = entities.SpawnEntity("ClothingBackpack", position);
+            var invalid = entities.SpawnEntity(null, position);
+            entities.AddComponent<GridEditorBrokenExportComponent>(invalid);
+            var child = entities.SpawnEntity(null, new EntityCoordinates(invalid, Vector2.Zero));
+            var healthy = entities.SpawnEntity("Crowbar", position);
+            var migrated = entities.SpawnEntity("ChairWood", position);
+            var containers = entities.System<SharedContainerSystem>();
+            var inventory = containers.EnsureContainer<Container>(bag, "test-inventory");
+            Assert.That(containers.Insert(invalid, inventory), Is.True);
+            Assert.That(containers.Insert(healthy, inventory), Is.True);
+
+            var parking = entities.System<ParkingSystem>();
+            parking.RegisterPurchasedShip(grid.Owner, Guid.NewGuid(), 1000, "", "Captain");
+            var migration = entities.System<ParkingMigrationTestSystem>();
+            var failureLevel = pair.ServerLogHandler.FailureLevel;
+
+            string snapshot;
+            try
+            {
+                migration.DeletedPrototype = "ChairWood";
+                pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
+                object?[] args = [grid.Owner, null, null];
+                var method = typeof(ParkingSystem).GetMethod("FilteredSnapshot", BindingFlags.NonPublic | BindingFlags.Instance)!;
+                snapshot = (string) method.Invoke(parking, args)!;
+                Assert.That(args[1], Is.EquivalentTo(new[] { invalid, child, migrated }));
+                Assert.That((HashSet<EntityUid>) args[2]!, Does.Contain(healthy));
+            }
+            finally
+            {
+                pair.ServerLogHandler.FailureLevel = failureLevel;
+                migration.DeletedPrototype = null;
+            }
+
+            Assert.That(entities.EntityExists(invalid) && entities.EntityExists(child) && entities.EntityExists(migrated), Is.True);
+            var restored = parking.LoadSnapshot(snapshot);
+            var restoredBag = entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+                .Single(entry => entry.Item2.GridUid == restored && entry.Item1.EntityPrototype?.ID == "ClothingBackpack").Item1.Owner;
+            var restoredItem = containers.GetContainer(restoredBag, "test-inventory").ContainedEntities.Single();
+            Assert.That(entities.GetComponent<MetaDataComponent>(restoredItem).EntityPrototype?.ID, Is.EqualTo("Crowbar"));
+            Assert.That(entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+                .Any(entry => entry.Item2.GridUid == restored && entry.Item1.EntityPrototype?.ID == "ChairWood"), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task OrionPBlueprintRoundTripsThroughLongTermParking()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = false });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            entities.System<SharedMapSystem>().CreateMap(out var map);
+            var path = new Robust.Shared.Utility.ResPath("/SharedMaps/_Mono/Shuttles/Imported/Expedition/orion-p.yml");
+            Assert.That(entities.System<MapLoaderSystem>().TryLoadGrid(map, path, out var loaded), Is.True);
+            var grid = loaded!.Value.Owner;
+            var parking = entities.System<ParkingSystem>();
+            parking.RegisterPurchasedShip(grid, Guid.NewGuid(), 237000, "Orion-P", "Captain");
+            Assert.That(parking.FilteredSnapshot(grid), Is.Not.Empty);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SmartArmoryRestoresInventoryIndexAfterParking()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var map);
+            var grid = maps.CreateGridEntity(map);
+            var floor = new Tile(pair.Server.ResolveDependency<ITileDefinitionManager>()["Plating"].TileId);
+            maps.SetTile(grid, Vector2i.Zero, floor);
+            var position = new EntityCoordinates(grid.Owner, new Vector2(.5f));
+            var armory = entities.SpawnEntity("SmartArmoryStorage", position);
+            var fridge = entities.GetComponent<SmartFridgeComponent>(armory);
+            var containers = entities.System<SharedContainerSystem>();
+            var inventory = containers.GetContainer(armory, fridge.Container);
+            var originalGun = entities.SpawnEntity("WeaponPistolMk58", position);
+            var removedSword = entities.SpawnEntity("Claymore", position);
+            var gunEntry = new SmartFridgeEntry(entities.GetComponent<MetaDataComponent>(originalGun).EntityName);
+            var emptyEntry = new SmartFridgeEntry(entities.GetComponent<MetaDataComponent>(removedSword).EntityName);
+            Assert.That(containers.Insert(originalGun, inventory), Is.True);
+            Assert.That(containers.Insert(removedSword, inventory), Is.True);
+            Assert.That(containers.TryRemoveFromContainer(removedSword), Is.True);
+            entities.DeleteEntity(removedSword);
+
+            var parking = entities.System<ParkingSystem>();
+            parking.RegisterPurchasedShip(grid.Owner, Guid.NewGuid(), 1000, "", "Captain");
+            var extraGun = entities.SpawnEntity("WeaponPistolMk58", position);
+            Assert.That(containers.Insert(extraGun, inventory), Is.True);
+            Assert.That(fridge.ContainedEntries[gunEntry], Has.Count.EqualTo(2));
+
+            var snapshot = parking.FilteredSnapshot(grid.Owner);
+            Assert.That(snapshot, Does.Not.Contain("containedEntries:"));
+            var restoredGrid = parking.LoadSnapshot(snapshot);
+            var restoredFridge = entities.EntityQuery<SmartFridgeComponent, TransformComponent>(true)
+                .Single(entry => entry.Item2.GridUid == restoredGrid).Item1;
+            var restoredGun = containers.GetContainer(restoredFridge.Owner, restoredFridge.Container).ContainedEntities.Single();
+            Assert.That(restoredFridge.Entries, Does.Contain(emptyEntry));
+            Assert.That(restoredFridge.ContainedEntries[emptyEntry], Is.Empty);
+            Assert.That(restoredFridge.ContainedEntries[gunEntry], Is.EquivalentTo(new[] { entities.GetNetEntity(restoredGun) }));
+            Assert.That(restoredGun, Is.Not.EqualTo(originalGun));
+        });
+
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task LongTermParkingRestoresInstalledEquipmentAndItsConnections()
     {
@@ -265,9 +422,10 @@ public sealed class ShuttleParkingTests
         await pair.CleanReturnAsync();
     }
 
-    [TestCase(false, TestName = "ParkingRejectsNestedPassengerPausesShipAndPaysOfflineOwnerAtRoundEnd")]
-    [TestCase(true, TestName = "RecalledShuttleWithMoreThan500ExcludedItemsCanUseMatchingStorageSlot")]
-    public async Task ParkingRoundTrip(bool saveToStorage)
+    [TestCase(false, false, TestName = "ParkingEvacuatesNestedPassengerPausesShipAndPaysOfflineOwnerAtRoundEnd")]
+    [TestCase(true, false, TestName = "RecalledShuttleWithMoreThan500ExcludedItemsCanUseMatchingStorageSlot")]
+    [TestCase(true, true, TestName = "FailedSlotWriteKeepsCargoOnRecalledShipAndRetryReturnsItemsOnce")]
+    public async Task ParkingRoundTrip(bool saveToStorage, bool failFirstWrites)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
         await pair.Server.WaitAssertion(() =>
@@ -296,16 +454,28 @@ public sealed class ShuttleParkingTests
             entities.System<DockingSystem>().Dock((first,entities.GetComponent<DockingComponent>(first)),(second,entities.GetComponent<DockingComponent>(second)));
             var bag = entities.SpawnEntity("ClothingBackpack",new EntityCoordinates(ship.Owner,Vector2.One));
             var body = entities.SpawnEntity("MobHuman",new EntityCoordinates(ship.Owner,Vector2.One));
+            var suit = saveToStorage
+                ? entities.SpawnEntity("ClothingOuterSuitRad", new EntityCoordinates(ship.Owner, new Vector2(1.5f)))
+                : EntityUid.Invalid;
             var containers = entities.System<SharedContainerSystem>();
             Assert.That(containers.Insert(body,containers.EnsureContainer<Container>(bag,"passenger")),Is.True);
             var session = pair.Server.PlayerMan.Sessions.Single();
             var parking = entities.System<ParkingSystem>(); parking.RegisterPurchasedShip(ship.Owner,session.UserId.UserId,1,"","Капитан");
             pair.Server.PlayerMan.SetAttachedEntity(session, body);
-            Assert.Throws<InvalidOperationException>(()=>parking.Park(console,ship.Owner));
+            Assert.Throws<InvalidOperationException>(() => parking.Park(console, ship.Owner), "The port has no breathable landing tile yet");
             Assert.That(entities.GetComponent<TransformComponent>(ship.Owner).MapID,Is.EqualTo(id));
+            Assert.That(entities.GetComponent<TransformComponent>(body).ParentUid, Is.EqualTo(bag));
+            var moles = new float[Atmospherics.AdjustedNumberOfGases];
+            moles[(int) Gas.Oxygen] = 21.82f;
+            moles[(int) Gas.Nitrogen] = 82.10f;
+            entities.System<AtmosphereSystem>().SetMapAtmosphere(map, false, new GasMixture(moles, Atmospherics.T20C));
+            parking.Park(console,ship.Owner);
+            var passengerPosition = entities.GetComponent<TransformComponent>(body).Coordinates;
+            Assert.That(passengerPosition.EntityId, Is.EqualTo(stationGrid.Owner));
+            Assert.That(Vector2.Distance(passengerPosition.Position, new Vector2(2.5f, 1.5f)), Is.InRange(1f, 4f));
+            Assert.That(entities.GetComponent<MetaDataComponent>(body).EntityPaused, Is.False);
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
             entities.DeleteEntity(body);
-            parking.Park(console,ship.Owner);
             Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship.Owner).Parked,Is.True);
             Assert.That(entities.GetComponent<TransformComponent>(ship.Owner).MapID,Is.Not.EqualTo(id));
             Assert.That(entities.GetComponent<MetaDataComponent>(ship.Owner).EntityPaused,Is.True);
@@ -359,7 +529,16 @@ public sealed class ShuttleParkingTests
             Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
             if (saveToStorage)
             {
-                SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId);
+                var failureLevel = pair.ServerLogHandler.FailureLevel;
+                try
+                {
+                    pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
+                    SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId, suit, failFirstWrites);
+                }
+                finally
+                {
+                    pair.ServerLogHandler.FailureLevel = failureLevel;
+                }
                 pair.Server.PlayerMan.SetAttachedEntity(session, null);
                 return;
             }
@@ -390,7 +569,7 @@ public sealed class ShuttleParkingTests
     }
 
     private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
-        EntityUid actor, EntityUid dock, Guid owner)
+        EntityUid actor, EntityUid dock, Guid owner, EntityUid suit, bool failFirstWrites)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         const int category = 2;
@@ -403,6 +582,15 @@ public sealed class ShuttleParkingTests
         for (var i = 0; i < excludedCount; i++)
             entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f, 0.5f)));
 
+        var containers = entities.System<SharedContainerSystem>();
+        var hood = containers.GetContainer(suit, ToggleableClothingComponent.DefaultClothingContainerId).ContainedEntities.Single();
+        entities.AddComponent<GridEditorBrokenExportComponent>(hood);
+        var migrated = entities.SpawnEntity("ChairWood", new EntityCoordinates(ship, new Vector2(1.5f)));
+        var cargo = entities.EntityQuery<TransformComponent>(true).Where(xform => xform.GridUid == ship && xform.Owner != ship)
+            .ToDictionary(xform => xform.Owner, xform => xform.ParentUid);
+        var mob = entities.SpawnEntity("MobHuman", new EntityCoordinates(ship, new Vector2(1.5f)));
+        var inventoryItem = entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f)));
+        Assert.That(containers.Insert(inventoryItem, containers.EnsureContainer<Container>(mob, "test-equipment")), Is.True);
         Assert.That(parking.ExcludedEntities(ship), Has.Count.EqualTo(excludedCount));
         entities.EventBus.RaiseLocalEvent(console, new ParkingAction("preview", slot.Id) { Actor = actor, UiKey = ParkingUiKey.Key });
         var reviews = (IDictionary) typeof(ParkingSystem).GetField("_reviews", flags)!.GetValue(parking)!;
@@ -411,19 +599,134 @@ public sealed class ShuttleParkingTests
         var token = (Guid) review!.GetType().GetProperty("Token")!.GetValue(review)!;
         var preview = (List<string>) typeof(ParkingSystem).GetMethod("ExclusionPreview", flags)!.Invoke(parking, [ship])!;
         Assert.That(preview.Single(), Does.Contain($"× {excludedCount} (конфискация)"));
+        Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(ship));
 
-        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
+        var sound = new SoundPathSpecifier("/Audio/_Goobstation/Ambience/ambilathe1.ogg");
+        var audio = entities.System<SharedAudioSystem>().PlayPvs(sound, ship);
+        Assert.That(audio, Is.Not.Null);
+        Assert.That(entities.GetComponent<TransformComponent>(audio!.Value.Entity).GridUid, Is.EqualTo(ship));
+        Assert.That(parking.ExcludedEntities(ship), Does.Not.Contain(audio.Value.Entity));
+
+        var migration = entities.System<ParkingMigrationTestSystem>();
+        var consoleGrid = entities.GetComponent<TransformComponent>(console).GridUid;
+        EntityUid[] ReturnedItems() => entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+            .Where(entry => entry.Item2.GridUid == consoleGrid && entry.Item1.EntityPrototype?.ID is "ClothingHeadHatHoodRad" or "ChairWood")
+            .Select(entry => entry.Item1.Owner).ToArray();
+
+        void SubmitSave()
+        {
+            try
+            {
+                migration.DeletedPrototype = "ChairWood";
+                migration.LoadsBeforeDeletion = 1;
+                entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
+            }
+            finally
+            {
+                migration.DeletedPrototype = null;
+                migration.LoadsBeforeDeletion = 0;
+            }
+        }
+
+        if (failFirstWrites)
+        {
+            var db = (SqliteConnection) typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
+            var rejectedWrites = 0;
+            db.CreateFunction("note_rejected_parking_write", () => ++rejectedWrites);
+            using var fault = db.CreateCommand();
+            fault.CommandText = """
+                CREATE TEMP TRIGGER reject_parking_slot_write AFTER UPDATE OF ship ON parking_slots
+                WHEN NEW.phase = 'saving' BEGIN
+                    SELECT note_rejected_parking_write();
+                    SELECT RAISE(ABORT, 'parking test slot write failure');
+                END;
+                """;
+            fault.ExecuteNonQuery();
+
+            void AssertCargoAboard()
+            {
+                var aboard = entities.EntityQuery<TransformComponent>(true).Where(xform => xform.GridUid == ship && cargo.ContainsKey(xform.Owner))
+                    .ToDictionary(xform => xform.Owner, xform => xform.ParentUid);
+                Assert.That(aboard, Is.EquivalentTo(cargo));
+                Assert.That(ReturnedItems(), Is.Empty);
+                Assert.That(entities.HasComponent<AttachedClothingComponent>(hood), Is.True);
+            }
+
+            var payoutsBeforeSave = store.PendingPayouts();
+            try
+            {
+                for (var attempt = 1; attempt <= 2; attempt++)
+                {
+                    SubmitSave();
+                    Assert.That(rejectedWrites, Is.EqualTo(attempt), "Each save must reach the SQLite slot update");
+                    Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(slot));
+                    Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsBeforeSave));
+                    Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.True);
+                    AssertCargoAboard();
+                }
+
+                entities.EventBus.RaiseLocalEvent(console, new ParkingAction("recall", dock: entities.GetNetEntity(dock))
+                    { Actor = actor, UiKey = ParkingUiKey.Key });
+                Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.False);
+                Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
+                Assert.That(entities.GetComponent<MetaDataComponent>(ship).EntityPaused, Is.False);
+                AssertCargoAboard();
+            }
+            finally
+            {
+                fault.CommandText = "DROP TRIGGER reject_parking_slot_write;";
+                fault.ExecuteNonQuery();
+            }
+        }
+
+        var timing = entities.EntitySysManager.DependencyCollection.Resolve<IGameTiming>();
+        var savedAfter = timing.RealTime;
+        SubmitSave();
         var saved = store.Slot(owner, slot.Id);
         Assert.That(saved.Phase, Is.EqualTo("stored"));
         Assert.That(saved.Ship?.Category, Is.EqualTo(category));
+        Assert.That(saved.Ship!.SavedShift, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(saved.Ship.FreeReturnAt, Is.InRange(savedAfter + ParkingRules.FreeReturnDelay, timing.RealTime + ParkingRules.FreeReturnDelay));
         Assert.That(entities.EntityExists(ship), Is.False);
+        Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(dock).GridUid));
+        Assert.That(entities.GetComponent<TransformComponent>(inventoryItem).ParentUid, Is.EqualTo(mob));
+        Assert.That(entities.GetComponent<TransformComponent>(hood).GridUid, Is.EqualTo(consoleGrid));
+        Assert.That(entities.GetComponent<TransformComponent>(migrated).GridUid, Is.EqualTo(consoleGrid));
+        Assert.That(entities.HasComponent<AttachedClothingComponent>(hood), Is.False);
+        Assert.That(entities.IsQueuedForDeletion(hood), Is.False);
+        if (failFirstWrites)
+        {
+            var payoutsAfterSave = store.PendingPayouts();
+            SubmitSave();
+            Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved));
+            Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsAfterSave));
+            Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
+        }
         var restored = parking.LoadSnapshot(saved.Ship!.Grid);
         Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
         Assert.That(parking.ExcludedEntities(restored), Is.Empty);
+        Assert.That(entities.EntityQuery<AudioComponent, TransformComponent>(true)
+            .Any(entry => entry.Item2.GridUid == restored), Is.False);
+        var restoredPrototypes = entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+            .Where(entry => entry.Item2.GridUid == restored).Select(entry => entry.Item1.EntityPrototype?.ID).ToHashSet();
+        Assert.That(restoredPrototypes, Does.Contain("ClothingOuterSuitRad"));
+        Assert.That(restoredPrototypes, Does.Not.Contain("ClothingHeadHatHoodRad").And.Not.Contain("ChairWood"));
         entities.DeleteEntity(restored);
 
-        store.BeginRedeem(owner, slot.Id, 0);
-        store.MarkPaid(owner, slot.Id);
+        entities.AddComponent<IronmanComponent>(actor);
+        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
+            { Actor = actor, UiKey = ParkingUiKey.Key });
+        Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved), "Early return must leave the slot untouched");
+
+        // Move only the stored deadline to exercise the real console return without waiting five minutes.
+        var connection = (SqliteConnection) typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
+        using var deadline = connection.CreateCommand();
+        deadline.CommandText = "UPDATE parking_slots SET ship=$ship WHERE id=$id AND owner=$owner";
+        deadline.Parameters.AddWithValue("$ship", JsonSerializer.Serialize(saved.Ship with { FreeReturnAt = timing.RealTime }));
+        deadline.Parameters.AddWithValue("$id", slot.Id.ToString());
+        deadline.Parameters.AddWithValue("$owner", owner.ToString());
+        Assert.That(deadline.ExecuteNonQuery(), Is.EqualTo(1));
+
         entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
             { Actor = actor, UiKey = ParkingUiKey.Key });
         Assert.That(store.Slot(owner, slot.Id).Phase, Is.EqualTo("empty"));
@@ -431,6 +734,7 @@ public sealed class ShuttleParkingTests
         var delivered = entities.GetComponent<ShuttleDeedComponent>(card).ShuttleUid!.Value;
         Assert.That(entities.GetComponent<MetaDataComponent>(delivered).EntityPaused, Is.False);
         Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
+        Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
     }
 
     [Test]

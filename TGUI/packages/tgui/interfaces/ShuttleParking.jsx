@@ -189,15 +189,21 @@ export const ShuttleParking = () => {
     </>}
     {tab === 'storage' && <><p>{data.description}</p>{dockControl}
       {places.length === 0 && <p>У вас пока нет мест долгосрочного хранения.</p>}
-      {places.map((place,i) => <section key={place.id}><div className="ShuttleParking__slot-title"><strong>{place.categoryName} · место {i+1}</strong><span>{place.name ? 'На диске' : 'Свободно'}</span></div>
-        {place.name ? <><h3>{place.name}</h3><p>Категория шаттла: {place.shipCategory} · Владелец: {place.owner}</p><p>Выкуп: <b>{place.price} кр.</b></p>
+      {places.map((place,i) => {
+        const freeReturn = place.price === 0;
+        const waiting = place.returnWaitSeconds > 0;
+        return <section key={place.id}><div className="ShuttleParking__slot-title"><strong>{place.categoryName} · место {i+1}</strong><span>{place.name ? 'На диске' : 'Свободно'}</span></div>
+        {place.name ? <><h3>{place.name}</h3><p>Категория шаттла: {place.shipCategory} · Владелец: {place.owner}</p>
+          <p>{waiting ? 'Бесплатный возврат откроется через 5 минут после сохранения.' : freeReturn ? 'Возврат бесплатный' : <>Выкуп: <b>{place.price} кр.</b></>}</p>
           {data.hasShip && <p className="ShuttleParking__warning">На карте уже есть действующий шаттл. Сначала сохраните его.</p>}
           {place.paid && <p>Оплата уже учтена. Повторного списания не будет.</p>}
-          <Confirm label={place.paid ? 'Получить оплаченный шаттл…' : place.recovering ? 'Завершить выкуп…' : 'Выкупить…'} question={place.paid ? 'Завершить оплаченный выкуп?' : `Выкупить за ${place.price} кр.? Управление будет привязано к вставленной ID-карте.`}
-            disabled={!usable || data.hasShip || !arrival} onConfirm={() => act('redeem', { slot:place.id, dock:arrival })} />
+          <Confirm label={place.paid ? 'Получить оплаченный шаттл…' : freeReturn ? 'Вернуть бесплатно…' : place.recovering ? 'Завершить выкуп…' : 'Выкупить…'}
+            question={place.paid ? 'Завершить оплаченный выкуп?' : freeReturn ? 'Вернуть шаттл бесплатно?' : `Выкупить за ${place.price} кр.? Управление будет привязано к вставленной ID-карте.`}
+            disabled={!usable || data.hasShip || !arrival || waiting} onConfirm={() => act('redeem', { slot:place.id, dock:arrival })} />
         </> : <><p>Можно сохранить шаттл своей или меньшей категории.</p><button disabled={!usable || !data.hasShip || data.shipCategory > place.category}
           onClick={() => act('preview', { slot:place.id })}>{data.shipCategory > place.category ? 'Шаттл слишком большой' : 'Сохранить текущий шаттл…'}</button></>}
-      </section>)}</>}
+        </section>;
+      })}</>}
     {tab === 'shop' && <><p>Место приобретается навсегда. В каждом месте хранится один шаттл своей или меньшей категории. Дополнительные места той же категории стоят 50% цены с округлением вверх.</p>
       {(data.categories || []).map(category => <section key={category.id} className="ShuttleParking__shop-row"><div><strong>{category.name}</strong><small>Куплено мест: {category.count}</small>
         <div>Первое: {category.first} LC · следующее: {category.extra} LC</div></div>
@@ -207,7 +213,7 @@ export const ShuttleParking = () => {
       </section>)}</>}
     {data.reviewToken && <section className="ShuttleParking__review"><h3>Проверка перед сохранением</h3><p>Эти предметы исключены из сохранения. Запрещённые будут проданы в вашу пользу, остальные останутся у консоли.</p>
       <ul>{(data.excluded || []).map((entry,i) => <li key={i}>{entry.name}</li>)}</ul>
-      <p>Штатное оборудование сохранится. Шаттл будет убран из мира.</p>
+      <p>Разрешённые предметы, которые не удастся сохранить, останутся у консоли. После сохранения шаттл будет убран из мира.</p>
       <label className="ShuttleParking__check"><input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} />Я проверил список</label>
       <div className="ShuttleParking__actions"><button disabled={!usable || !checked} onClick={() => { setChecked(false); act('save', { slot:data.reviewSlot, token:data.reviewToken }); }}>Сохранить шаттл</button><button onClick={() => act('cancel')}>Отмена</button></div>
     </section>}

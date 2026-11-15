@@ -145,7 +145,7 @@ public sealed partial class ParkingSystem
         _autoParking.Remove(grid);
         try
         {
-            ParkShuttle(grid, ship.ParkingCharacter);
+            ParkShuttle(grid, state.Station, ship.ParkingCharacter);
             ship.AutoParkingNoticePending = true;
             AutoParkingStage(grid, state, "parked; owner notice queued");
         }

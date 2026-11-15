@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -7,7 +8,11 @@ using Microsoft.Data.Sqlite;
 
 namespace Content.Server._DeepLagoon.ShuttleParking;
 
-public sealed record StoredShuttle(Guid Identity, string Name, string OwnerName, int Category, int OriginalPrice, string Grid, string Checksum, int Version = 1);
+public sealed record StoredShuttle(Guid Identity, string Name, string OwnerName, int Category, int OriginalPrice, string Grid, string Checksum,
+    int Version = 1, Guid SavedShift = default, TimeSpan? FreeReturnAt = null)
+{
+    public TimeSpan? FreeReturnDeadline(Guid shift) => shift != Guid.Empty && SavedShift == shift ? FreeReturnAt : null;
+}
 public sealed record ParkingSlot(Guid Id, int Category, StoredShuttle? Ship, string Phase, Guid Redemption, int Character, bool Paid);
 public sealed record ParkingPurchase(Guid Id, int Category, int Cost, bool Completed);
 public sealed record ParkingPayout(Guid Id, Guid Owner, int Character, int Amount);
@@ -130,8 +135,12 @@ public sealed class ParkingStore : IDisposable
     }
 
     public void FinishPayout(Guid id) => Execute("DELETE FROM parking_payouts WHERE id=$id", ("$id", id.ToString()));
-    public void FinishSave(Guid owner, Guid slot) => Execute("UPDATE parking_slots SET phase='stored' WHERE owner=$owner AND id=$id AND phase='saving'", ("$owner", owner.ToString()), ("$id", slot.ToString()));
-    public ParkingSlot BeginRedeem(Guid owner, Guid slot, int character)
+    public void FinishSave(Guid owner, Guid slot, TimeSpan? freeReturnAt = null) => Execute("""
+        UPDATE parking_slots SET phase='stored',
+            ship=CASE WHEN $deadline='' THEN ship ELSE json_set(ship,'$.FreeReturnAt',$deadline) END
+        WHERE owner=$owner AND id=$id AND phase='saving'
+        """, ("$owner", owner.ToString()), ("$id", slot.ToString()), ("$deadline", freeReturnAt?.ToString("c", CultureInfo.InvariantCulture) ?? ""));
+    public ParkingSlot BeginRedeem(Guid owner, Guid slot, int character, Guid shift = default, TimeSpan now = default)
     {
         var target = Slot(owner, slot);
         if (target.Ship == null || target.Phase is not ("stored" or "redeeming")) throw new InvalidOperationException("Шаттл недоступен.");
@@ -139,6 +148,13 @@ public sealed class ParkingStore : IDisposable
         if (target.Phase == "redeeming")
         {
             if (target.Character != character) throw new InvalidOperationException("Завершите выкуп тем же персонажем.");
+            return target;
+        }
+        if (target.Ship.FreeReturnDeadline(shift) is { } deadline)
+        {
+            if (now < deadline)
+                throw new InvalidOperationException($"Бесплатный возврат будет доступен через {Math.Ceiling((deadline - now).TotalSeconds):0} сек.");
+            // A failed free return leaves the slot stored without a pending payment or a character lock.
             return target;
         }
         var operation = Guid.NewGuid();
@@ -153,6 +169,19 @@ public sealed class ParkingStore : IDisposable
         using var cmd = Command("UPDATE parking_slots SET ship=NULL,phase='empty',operation='',character=-1,paid=0 WHERE id=$id AND owner=$owner AND phase='redeeming' AND paid=1",
             ("$owner", owner.ToString()), ("$id", slot.ToString()));
         if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Выкуп не оплачен.");
+    }
+
+    public void CompleteFreeReturn(Guid owner, Guid slot, StoredShuttle ship, Guid shift, TimeSpan now)
+    {
+        if (ship.FreeReturnDeadline(shift) is not { } deadline || now < deadline)
+            throw new InvalidOperationException("Бесплатный возврат недоступен.");
+        using var cmd = Command("""
+            UPDATE parking_slots SET ship=NULL,phase='empty',operation='',character=-1,paid=0
+            WHERE id=$id AND owner=$owner AND phase='stored'
+                AND json_extract(ship,'$.Identity')=$ship AND json_extract(ship,'$.SavedShift')=$shift AND json_extract(ship,'$.Checksum')=$checksum
+            """, ("$id", slot.ToString()), ("$owner", owner.ToString()), ("$ship", ship.Identity.ToString()),
+            ("$shift", shift.ToString()), ("$checksum", ship.Checksum));
+        if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Сохранение шаттла изменилось.");
     }
     private SqliteCommand Command(string sql, params (string Key, object Value)[] values)
     {

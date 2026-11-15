@@ -47,9 +47,15 @@ public sealed partial class NativeInterfacePanel
                 else
                 {
                     Text(_body, "Категория шаттла: " + place.String("shipCategory") + " · Владелец: " + place.String("owner"));
-                    Text(_body, "Выкуп: " + place.String("price") + " кр.");
+                    var freeReturn = place.Int("price") == 0;
+                    var waiting = place.Int("returnWaitSeconds") > 0;
+                    Text(_body, waiting ? "Бесплатный возврат откроется через 5 минут после сохранения."
+                        : freeReturn ? "Возврат бесплатный" : "Выкуп: " + place.String("price") + " кр.");
                     if (place.Bool("paid")) Text(_body, "Оплата уже учтена. Повторного списания не будет.");
-                    ConfirmParking(place.Bool("paid") ? "Получить оплаченный шаттл…" : "Выкупить…", place.Bool("paid") ? "Завершить оплаченный выкуп?" : "Выкупить за " + place.String("price") + " кр.?", () => Act("redeem", Fields()), usable && !data.Bool("hasShip"));
+                    var label = place.Bool("paid") ? "Получить оплаченный шаттл…" : freeReturn ? "Вернуть бесплатно…" : "Выкупить…";
+                    var question = place.Bool("paid") ? "Завершить оплаченный выкуп?"
+                        : freeReturn ? "Вернуть шаттл бесплатно?" : "Выкупить за " + place.String("price") + " кр.?";
+                    ConfirmParking(label, question, () => Act("redeem", Fields()), usable && !data.Bool("hasShip") && !waiting && _parkingDock.Length > 0);
                 }
             }
         }
@@ -71,7 +77,7 @@ public sealed partial class NativeInterfacePanel
         {
             Text(_body, "Следующие предметы исключены из сохранения. Запрещённые будут проданы в вашу пользу, остальные останутся у консоли.");
             foreach (var excluded in data.Array("excluded")) Text(_body, "• " + excluded.String("name"));
-            Text(_body, "Штатное оборудование сохранится. Шаттл будет убран из мира.");
+            Text(_body, "Разрешённые предметы, которые не удастся сохранить, останутся у консоли. После сохранения шаттл будет убран из мира.");
             var confirm = new CheckBox { Text = "Я проверил список" }; _body.AddChild(confirm);
             var save = Button(_body, "Сохранить шаттл", () => Act("save", new TguiData().String("slot", data.String("reviewSlot")).String("token", data.String("reviewToken"))), false);
             confirm.OnToggled += args => save.Disabled = !args.Pressed || !usable;

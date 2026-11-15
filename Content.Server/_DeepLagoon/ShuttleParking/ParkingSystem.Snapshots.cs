@@ -12,14 +12,18 @@ using Content.Server.Research.Systems;
 using Content.Shared._Crescent.Hardpoints;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared._DeepLagoon.ShuttleParking;
+using Content.Shared.Clothing.Components;
 using Content.Shared.DeviceNetwork.Components;
+using Content.Shared.Ghost;
 using Content.Shared.Item;
 using Content.Shared.Power.Generator;
 using Content.Shared.Research.Components;
 using Content.Shared.Storage;
 using Content.Shared.Whitelist;
+using Robust.Shared.Audio.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.EntitySerialization;
+using Robust.Shared.EntitySerialization.Components;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
@@ -69,8 +73,11 @@ public sealed partial class ParkingSystem
         return TryComp<ParkingOriginalComponent>(entity, out var original) && original.Shuttle == ship.Identity
             && ship.OriginalItems.TryGetValue(original.Identity, out var registered) && registered == entity;
     }
-    private bool IsSnapshotEntity(EntityUid entity) =>
-        MetaData(entity).EntityPrototype is not { MapSavable: false } && !HasComp<ShipShieldComponent>(entity);
+    private bool IsParkingAudio(EntityUid entity) => HasComp<AudioComponent>(entity)
+        || MetaData(entity).EntityPrototype?.ID == "Audio";
+
+    private bool IsSnapshotEntity(EntityUid entity) => !IsParkingAudio(entity)
+        && MetaData(entity).EntityPrototype is not { MapSavable: false } && !HasComp<ShipShieldComponent>(entity);
 
     private bool IsInstalledEquipment(EntityUid entity, EntityUid grid)
     {
@@ -107,10 +114,9 @@ public sealed partial class ParkingSystem
     public List<EntityUid> ExcludedEntities(EntityUid grid)
     {
         var excluded = new HashSet<EntityUid>();
-        foreach (var entity in Descendants(grid).Skip(1))
+        foreach (var entity in Descendants(grid, entity => IsParkingAudio(entity) || IsParkingOccupant(entity)
+                     || HasComp<GhostComponent>(entity) || HasComp<ShipShieldComponent>(entity)).Skip(1))
         {
-            if (HasComp<ShipShieldComponent>(entity))
-                continue;
             if (MetaData(entity).EntityPrototype is { MapSavable: false })
             {
                 excluded.Add(entity);
@@ -162,7 +168,7 @@ public sealed partial class ParkingSystem
 
     private void ValidateStorage(Context context, EntityUid grid, Guid slot)
     {
-        CheckEmpty(grid);
+        CheckNotInFtl(grid);
         if (!Comp<ParkingShuttleComponent>(grid).Parked) CheckDocked(context.Console, grid);
         var target = _store.Slot(context.Session.UserId.UserId, slot);
         if (target.Ship != null || target.Phase != "empty" || GetCategory(grid) > target.Category) throw new InvalidOperationException("Нужно свободное место подходящей категории.");
@@ -174,36 +180,55 @@ public sealed partial class ParkingSystem
         ValidateStorage(context, grid, slot);
         _reviews[context.Session.UserId.UserId] = new(Guid.NewGuid(), slot, grid, ReviewHash(grid), _timing.RealTime + TimeSpan.FromMinutes(2));
     }
-    public string SerializeSnapshot(EntityUid grid)
+    private sealed record SnapshotWrite(string Data, Dictionary<int, EntityUid> Written, HashSet<EntityUid> Omitted);
+
+    public string SerializeSnapshot(EntityUid grid) => SerializeSnapshot(grid, recover: false).Data;
+
+    private SnapshotWrite SerializeSnapshot(EntityUid grid, bool recover)
     {
-        var descendants = Descendants(grid).ToArray();
+        var descendants = Descendants(grid, IsParkingAudio).ToArray();
         if (descendants.Length > 100000) throw new InvalidOperationException("Слишком много объектов для сохранения шаттла.");
         var skipped = descendants.Where(entity => !IsSnapshotEntity(entity)).ToHashSet();
         if (skipped.Count != 0) DetachOriginalSurvivors(grid, skipped);
         var inside = descendants.Where(entity => !skipped.Contains(entity) && !HasExcludedParent(entity, skipped, grid)).ToHashSet();
         HashSet<EntityUid> roots = [grid];
         RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(grid).MapID], FileCategory.Grid));
-        var serializer = new EntitySerializer(_dependencies, new SerializationOptions
-        {
-            Category = FileCategory.Grid,
-            MissingEntityBehaviour = MissingEntityBehaviour.Ignore,
-            ErrorOnOrphan = false,
-        });
-        serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= inside.Contains(entity.Owner);
         var ship = Comp<ParkingShuttleComponent>(grid);
         var originals = ship.OriginalItems;
-        try
+        var omitted = new HashSet<EntityUid>();
+        EntitySerializer serializer;
+        while (true)
         {
-            // Items removed from the ship, or deleted since purchase, are not part of this snapshot.
-            ship.OriginalItems = originals.Where(pair => inside.Contains(pair.Value)).ToDictionary();
-            ship.ResearchConnections = inside.Where(HasComp<ResearchClientComponent>).ToDictionary(entity => entity,
-                entity => _research.TryGetClientServer(entity, out var server, out _) && inside.Contains(server.Value) ? server : null);
-            _deviceLinks.SerializeInternalLinks(inside, () => serializer.SerializeEntityRecursive(roots));
-        }
-        finally
-        {
-            ship.OriginalItems = originals;
-            ship.ResearchConnections = null;
+            serializer = new EntitySerializer(_dependencies, new SerializationOptions
+            {
+                Category = FileCategory.Grid,
+                MissingEntityBehaviour = MissingEntityBehaviour.Ignore,
+                ErrorOnOrphan = false,
+                EntityExceptionBehaviour = recover ? EntityExceptionBehaviour.IgnoreEntityAndChildren : EntityExceptionBehaviour.Rethrow,
+            });
+            serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= inside.Contains(entity.Owner);
+            try
+            {
+                // Items removed from the ship, or deleted since purchase, are not part of this snapshot.
+                ship.OriginalItems = originals.Where(pair => inside.Contains(pair.Value)).ToDictionary();
+                ship.ResearchConnections = inside.Where(HasComp<ResearchClientComponent>).ToDictionary(entity => entity,
+                    entity => _research.TryGetClientServer(entity, out var server, out _) && inside.Contains(server.Value) ? server : null);
+                _deviceLinks.SerializeInternalLinks(inside, () => serializer.SerializeEntityRecursive(roots));
+            }
+            finally
+            {
+                ship.OriginalItems = originals;
+                ship.ResearchConnections = null;
+            }
+
+            if (serializer.ErroringEntities.Count == 0)
+                break;
+            if (serializer.ErroringEntities.Contains(grid))
+                throw new InvalidDataException("Не удалось сохранить данные корпуса шаттла.");
+
+            // Reserve IDs again with the failing subtrees excluded so references and container contents are consistent.
+            omitted.UnionWith(serializer.ErroringEntities.Where(inside.Contains));
+            inside.ExceptWith(serializer.ErroringEntities);
         }
         foreach (var entity in serializer.EntityData.Values)
         {
@@ -228,11 +253,11 @@ public sealed partial class ParkingSystem
         new YamlStream { new YamlDocument(data.ToYaml()) }.Save(new YamlMappingFix(new Emitter(writer)), false);
         var result = writer.ToString();
         if (result.Length > 32_000_000) throw new InvalidOperationException("Снимок шаттла превышает допустимый размер.");
-        return result;
+        return new(result, recover ? serializer.EntityData.ToDictionary(pair => pair.Key, pair => pair.Value.Uid) : [], omitted);
     }
     public EntityUid LoadSnapshot(string snapshot) => LoadSnapshot(snapshot, connectDevices: true);
 
-    private EntityUid LoadSnapshot(string snapshot, bool connectDevices)
+    private EntityUid LoadSnapshot(string snapshot, bool connectDevices, bool trackEntities = false)
     {
         if (_staging == null || !Exists(_staging.Value))
         {
@@ -242,7 +267,7 @@ public sealed partial class ParkingSystem
         }
         using var reader = new StringReader(snapshot);
         if (!_loader.TryLoadGrid(Comp<MapComponent>(_staging.Value).MapId, reader, "stored shuttle", out var grid,
-                new DeserializationOptions { LogInvalidEntities = false }))
+                new DeserializationOptions { LogInvalidEntities = false, StoreYamlUids = trackEntities }))
             throw new InvalidDataException("Не удалось загрузить снимок шаттла.");
         var restored = grid.Value.Owner;
         try
@@ -327,30 +352,102 @@ public sealed partial class ParkingSystem
             _transform.SetLocalRotation(entity, rotation);
         }
     }
-    public string FilteredSnapshot(EntityUid grid)
+
+    private void ReportOriginalEquipmentMismatch(EntityUid source, EntityUid restored)
     {
-        var clone = LoadSnapshot(SerializeSnapshot(grid), connectDevices: false);
+        var expected = Descendants(source, IsParkingAudio)
+            .Where(entity => IsSnapshotEntity(entity) && Original(entity, source))
+            .ToDictionary(entity => Comp<ParkingOriginalComponent>(entity).Identity);
+        var actual = Descendants(restored)
+            .Where(entity => Original(entity, restored))
+            .Select(entity => Comp<ParkingOriginalComponent>(entity).Identity)
+            .ToHashSet();
+        if (actual.SetEquals(expected.Keys))
+            return;
+
+        var missing = expected.Where(pair => !actual.Contains(pair.Key)).Select(pair => pair.Value).ToArray();
+        var examples = string.Join(", ", missing.Take(12).Select(entity => ToPrettyString(entity).ToString()));
+        var unexpected = actual.Count - (expected.Count - missing.Length);
+        Log.Warning($"Не всё штатное оборудование прошло проверку загрузки. " +
+            $"Грид {ToPrettyString(source)}. Исходных: {expected.Count}, восстановлено: {actual.Count}, " +
+            $"пропало: {missing.Length}, лишних: {unexpected}. Пропавшее оборудование: {examples}");
+    }
+
+    private Dictionary<EntityUid, EntityUid> MatchSnapshotEntities(SnapshotWrite snapshot, EntityUid restored)
+    {
+        var matches = new Dictionary<EntityUid, EntityUid>();
+        foreach (var entity in Descendants(restored))
+        {
+            if (TryComp<YamlUidComponent>(entity, out var id) && snapshot.Written.TryGetValue(id.Uid, out var original))
+                matches.Add(entity, original);
+        }
+        return matches;
+    }
+
+    private EntityUid[] ReportSnapshotOmissions(EntityUid source, SnapshotWrite snapshot, Dictionary<EntityUid, EntityUid> matches)
+    {
+        var loaded = matches.Values.ToHashSet();
+        var missing = snapshot.Omitted.Concat(snapshot.Written.Values.Where(entity => !loaded.Contains(entity))).ToArray();
+        if (missing.Length != 0)
+        {
+            var examples = string.Join(", ", missing.Take(12).Select(entity => ToPrettyString(entity).ToString()));
+            Log.Warning($"Снимок шаттла {ToPrettyString(source)} восстановлен без {missing.Length} объектов: {examples}");
+        }
+        return missing;
+    }
+
+    public string FilteredSnapshot(EntityUid grid) => FilteredSnapshot(grid, out _, out _);
+
+    private string FilteredSnapshot(EntityUid grid, out HashSet<EntityUid> omitted, out HashSet<EntityUid> retained)
+    {
+        var initial = SerializeSnapshot(grid, recover: true);
+        var clone = LoadSnapshot(initial.Data, connectDevices: false, trackEntities: true);
         try
         {
+            var origins = MatchSnapshotEntities(initial, clone);
+            omitted = ReportSnapshotOmissions(grid, initial, origins).ToHashSet();
             var excluded = ExcludedEntities(clone).ToHashSet();
             DetachOriginalSurvivors(clone, excluded);
             foreach (var entity in excluded.Where(e => !HasExcludedParent(e, excluded, clone)).ToArray()) Del(entity);
             Comp<ParkingShuttleComponent>(clone).Parked = false;
-            var snapshot = SerializeSnapshot(clone);
-            // Validate the actual load path before committing and removing anything from the live ship.
-            var check = LoadSnapshot(snapshot, connectDevices: false);
-            try
+            while (true)
             {
-                if (GetCategory(check) != GetCategory(grid) || ExcludedEntities(check).Count != 0) throw new InvalidDataException("Снимок не прошёл проверку загрузки.");
-                if (Descendants(check).Count(entity => Original(entity, check)) !=
-                    Descendants(grid).Count(entity => IsSnapshotEntity(entity) && Original(entity, grid)))
-                    throw new InvalidDataException("Не всё штатное оборудование прошло проверку загрузки.");
-                if (!_map.GetAllTiles(grid, Comp<Robust.Shared.Map.Components.MapGridComponent>(grid)).Select(tile => (tile.GridIndices, tile.Tile)).ToHashSet()
-                    .SetEquals(_map.GetAllTiles(check, Comp<Robust.Shared.Map.Components.MapGridComponent>(check)).Select(tile => (tile.GridIndices, tile.Tile))))
-                    throw new InvalidDataException("Геометрия шаттла не прошла проверку загрузки.");
+                var snapshot = SerializeSnapshot(clone, recover: true);
+                // Validate the actual load path before committing and removing anything from the live ship.
+                var check = LoadSnapshot(snapshot.Data, connectDevices: false, trackEntities: true);
+                try
+                {
+                    if (GetCategory(check) != GetCategory(grid) || ExcludedEntities(check).Count != 0) throw new InvalidDataException("Снимок не прошёл проверку загрузки.");
+                    if (!_map.GetAllTiles(grid, Comp<MapGridComponent>(grid)).Select(tile => (tile.GridIndices, tile.Tile)).ToHashSet()
+                        .SetEquals(_map.GetAllTiles(check, Comp<MapGridComponent>(check)).Select(tile => (tile.GridIndices, tile.Tile))))
+                        throw new InvalidDataException("Геометрия шаттла не прошла проверку загрузки.");
+                    if (_docking.GetDocks(grid).Count != 0 && _docking.GetDocks(check).Count == 0)
+                        throw new InvalidDataException("После загрузки шаттл потерял все стыковочные порты и его нельзя вернуть с парковки.");
+
+                    var matches = MatchSnapshotEntities(snapshot, check);
+                    var lostDuringLoad = false;
+                    foreach (var missing in ReportSnapshotOmissions(grid, snapshot, matches))
+                    {
+                        if (!origins.TryGetValue(missing, out var original))
+                            continue;
+                        omitted.Add(original);
+                        lostDuringLoad |= !snapshot.Omitted.Contains(missing);
+                    }
+
+                    origins = matches.Where(pair => origins.ContainsKey(pair.Value))
+                        .ToDictionary(pair => pair.Key, pair => origins[pair.Value]);
+                    if (!lostDuringLoad)
+                    {
+                        retained = origins.Values.ToHashSet();
+                        ReportOriginalEquipmentMismatch(grid, check);
+                        return snapshot.Data;
+                    }
+
+                    // Re-save the loaded copy so items returned at the console cannot also reappear on redemption.
+                    (clone, check) = (check, clone);
+                }
+                finally { Del(check); }
             }
-            finally { Del(check); }
-            return snapshot;
         }
         finally { Del(clone); }
     }
@@ -364,37 +461,79 @@ public sealed partial class ParkingSystem
         if (ReviewHash(grid) != review.Hash) { _reviews.Remove(user); throw new InvalidOperationException("Состав исключаемых предметов или размер изменился. Проверьте список заново."); }
         // Undock before serialization so joints and docking references to the live station cannot enter the file.
         // A failed save leaves the intact source ship safely parked and freely recallable.
-        if (!Comp<ParkingShuttleComponent>(grid).Parked) Park(context.Console, grid, context.Character);
-        var snapshot = FilteredSnapshot(grid);
+        if (!Comp<ParkingShuttleComponent>(grid).Parked)
+            Park(context.Console, grid, context.Character);
+        else
+        {
+            // A ship parked before this release can still have NPCs aboard.
+            EvacuateParkingOccupants(grid, NearbyStationDocks(context.Console));
+            ReleaseGhosts(Descendants(grid).Where(HasComp<GhostComponent>).ToList());
+        }
+        var snapshot = FilteredSnapshot(grid, out var omitted, out var retained);
         var ship = Comp<ParkingShuttleComponent>(grid);
         var excluded = ExcludedEntities(grid).ToHashSet();
         var confiscated = ConfiscatedEntities(grid, excluded);
+        confiscated.ExceptWith(retained);
         var price = (int) Math.Clamp(confiscated
             .Where(IsSnapshotEntity)
             .Sum(entity => _pricing.GetPriceWithVendingDiscount(entity, grid, includeContents: false)), 0, int.MaxValue);
         var payout = price > 0 ? new ParkingPayout(Guid.NewGuid(), user, context.Character, price) : null;
         // FULL synchronous SQLite commit precedes all irreversible world mutations.
-        _store.Save(user, slot, new(ship.Identity, Name(grid), ship.OwnerName, GetCategory(grid), ship.OriginalPrice, snapshot, ParkingStore.Hash(snapshot)), payout);
-        DetachOriginalSurvivors(grid, excluded);
-        // Remove contents before their containers can eject them during deletion.
-        foreach (var entity in Descendants(grid).Where(confiscated.Contains).Reverse().ToArray())
-            Del(entity);
-        excluded.ExceptWith(confiscated);
-        foreach (var entity in excluded.Where(e => !HasExcludedParent(e, excluded, grid)).ToArray())
-        {
-            _containers.TryRemoveFromContainer(entity);
-            _transform.DropNextTo(entity, context.Console);
-        }
+        _store.Save(user, slot, new(ship.Identity, Name(grid), ship.OwnerName, GetCategory(grid), ship.OriginalPrice, snapshot,
+            ParkingStore.Hash(snapshot), SavedShift: _shift), payout);
+        excluded.UnionWith(omitted);
+        ReturnParkingItems(grid, context.Console, excluded, confiscated, retained);
 
         RemoveParkedShip(grid, ship);
-        _store.FinishSave(user, slot);
+        _store.FinishSave(user, slot, _timing.RealTime + ParkingRules.FreeReturnDelay);
         _reviews.Remove(user);
         if (payout == null)
             return "Шаттл сохранён. Разрешённые исключённые предметы оставлены у консоли.";
 
         return PaySale(payout)
             ? $"Шаттл сохранён. За конфискат зачислено {price} кредитов. Остальные исключённые предметы оставлены у консоли."
-            : "Шаттл сохранён. Выплата за конфискат ожидает зачисления.";
+            : "Шаттл сохранён. Остальные исключённые предметы оставлены у консоли. Выплата за конфискат ожидает зачисления.";
+    }
+
+    private void ReturnParkingItems(EntityUid grid, EntityUid console, HashSet<EntityUid> excluded,
+        HashSet<EntityUid> confiscated, HashSet<EntityUid> retained)
+    {
+        var entities = Descendants(grid).Skip(1).ToArray();
+        var returned = new HashSet<EntityUid>();
+        foreach (var entity in entities)
+        {
+            if (!retained.Contains(entity) && !confiscated.Contains(entity)
+                && (excluded.Contains(entity) || returned.Contains(Transform(entity).ParentUid)))
+                returned.Add(entity);
+        }
+
+        // The original suit can otherwise delete its former hood when the ship is removed.
+        foreach (var entity in returned)
+        {
+            if (TryComp<AttachedClothingComponent>(entity, out var attached) && !returned.Contains(attached.AttachedUid))
+                RemComp<AttachedClothingComponent>(entity);
+        }
+
+        // Split the contents by destination before moving or deleting their containers.
+        foreach (var entity in entities.Reverse())
+        {
+            if (TerminatingOrDeleted(entity))
+                continue;
+
+            var parentReturned = returned.Contains(Transform(entity).ParentUid);
+            if (confiscated.Contains(entity))
+                Del(entity);
+            else if (returned.Contains(entity) && !parentReturned)
+            {
+                _containers.TryRemoveFromContainer(entity, force: true);
+                _transform.DropNextTo(entity, console);
+            }
+            else if (parentReturned && retained.Contains(entity))
+            {
+                _containers.TryRemoveFromContainer(entity, force: true);
+                _transform.SetCoordinates(entity, new EntityCoordinates(grid, Vector2.Zero));
+            }
+        }
     }
 
     private void RemoveParkedShip(EntityUid grid, ParkingShuttleComponent ship)

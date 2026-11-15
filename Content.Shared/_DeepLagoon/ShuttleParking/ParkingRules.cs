@@ -5,7 +5,8 @@ namespace Content.Shared._DeepLagoon.ShuttleParking;
 
 public static class ParkingRules
 {
-    public const string StorageDescription = "Сохранённые на долгосрочном хранилище шаттлы доступны после повторного возвращения в сектор и начала новой смены. Выкуп - в 2,5 раза от исходной цены шаттла в кредитах.";
+    public const string StorageDescription = "В той же смене шаттл можно вернуть бесплатно через 5 минут после сохранения. Со следующей смены выкуп стоит 2,5 исходной цены шаттла в кредитах.";
+    public static readonly TimeSpan FreeReturnDelay = TimeSpan.FromMinutes(5);
     public static string CategoryName(int category) => category switch
     {
         0 => "Маленький", 1 => "Средний", 2 => "Большой", 3 => "Сверхмассивный", 4 => "Капитальный", _ => "Недопустимый размер",
@@ -63,7 +64,7 @@ public sealed class ParkingUpdate : BoundUserInterfaceMessage
 }
 
 [Serializable, NetSerializable]
-public sealed record ParkingPlace(Guid Id, int Category, string ShipName, string Owner, int ShipCategory, int Price, bool Recovering, bool Paid);
+public sealed record ParkingPlace(Guid Id, int Category, string ShipName, string Owner, int ShipCategory, int Price, bool Recovering, bool Paid, int ReturnWaitSeconds);
 
 [Serializable, NetSerializable]
 public sealed record ParkingDock(NetEntity Entity, string Name);
