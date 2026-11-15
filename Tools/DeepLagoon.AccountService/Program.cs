@@ -154,7 +154,8 @@ public sealed record ServiceSettings(string Engine, string Connection, string Li
 
 public sealed record AccountRequest(string DiscordId, string? ActorDiscordId = null, string? RequestId = null,
     long Amount = 0, string? Reason = null, bool HostAuthorized = false, int Page = 1,
-    string? WorkChannel = null, string? Category = null, bool AcceptSharedIp = false, Guid[]? KnownUids = null);
+    string? WorkChannel = null, string? Category = null, bool AcceptSharedIp = false, Guid[]? KnownUids = null,
+    bool IncludeAccounts = false);
 
 public sealed class AccountError(string code, int status = 409) : Exception(code)
 {
@@ -307,7 +308,8 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
         if (whitelist)
         {
             await using var transaction = await db.Database.BeginTransactionAsync(cancel);
-            var review = action == "remove_whitelist" ? null : await CheckWhitelist(db, request.DiscordId, target.Uid, request.KnownUids, cancel);
+            var review = action == "remove_whitelist" ? null : await CheckWhitelist(db, request.DiscordId,
+                target.Uid, request.KnownUids, action == "whitelist_check" && request.IncludeAccounts, cancel);
             if (action == "whitelist_check")
             {
                 AssertStableLink(request.DiscordId, target.Uid);

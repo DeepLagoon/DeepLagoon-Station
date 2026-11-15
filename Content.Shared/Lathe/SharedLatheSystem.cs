@@ -8,6 +8,7 @@ using Content.Shared.FixedPoint;
 using Content.Shared.Lathe.Prototypes;
 using Content.Shared.Localizations;
 using Content.Shared.Materials;
+using Content.Shared.Nutrition.Components;
 using Content.Shared.Research.Prototypes;
 using Content.Shared.Stacks;
 using Content.Shared.Storage.Components;
@@ -33,6 +34,7 @@ public abstract partial class SharedLatheSystem : EntitySystem
     [Dependency] protected EntityQuery<StackComponent> _stackQuery = default!;
 
     public readonly Dictionary<string, List<LatheRecipePrototype>> InverseRecipes = new();
+    private readonly Dictionary<string, Dictionary<ProtoId<MaterialPrototype>, int>> _recoverableMaterials = new();
 
     public override void Initialize()
     {
@@ -89,7 +91,7 @@ public abstract partial class SharedLatheSystem : EntitySystem
             var recipe = batch.Recipe;
             foreach (var (material, needed) in recipe.Materials)
             {
-                var adjustedAmount = AdjustMaterial(needed, recipe.MaterialDiscountScale, ent.Comp.FinalMaterialUseMultiplier);
+                var adjustedAmount = GetMaterialCost(recipe, material, needed, ent.Comp.FinalMaterialUseMultiplier);
                 currentMaterial.TryGetValue(material, out var stored);
                 currentMaterial[material] = stored - adjustedAmount * (batch.ItemsRequested - batch.ItemsPrinted);
             }
@@ -112,7 +114,7 @@ public abstract partial class SharedLatheSystem : EntitySystem
 
         foreach (var (material, needed) in recipe.Materials)
         {
-            var adjustedAmount = AdjustMaterial(needed, recipe.MaterialDiscountScale, ent.Comp.FinalMaterialUseMultiplier);
+            var adjustedAmount = GetMaterialCost(recipe, material, needed, ent.Comp.FinalMaterialUseMultiplier);
 
             if (endAmts.GetValueOrDefault(material) < adjustedAmount * amount)
                 return false;
@@ -129,7 +131,7 @@ public abstract partial class SharedLatheSystem : EntitySystem
 
         foreach (var (material, needed) in recipe.Materials)
         {
-            var adjustedAmount = AdjustMaterial(needed, recipe.MaterialDiscountScale, component.FinalMaterialUseMultiplier);
+            var adjustedAmount = GetMaterialCost(recipe, material, needed, component.FinalMaterialUseMultiplier);
 
             if (_materialStorage.GetMaterialAmount(uid, material) < adjustedAmount * amount)
                 return false;
@@ -180,6 +182,18 @@ public abstract partial class SharedLatheSystem : EntitySystem
     public static int AdjustMaterial(int original, float multScale, float multiplier)
         => (int) MathF.Ceiling(original * MathF.Pow(multiplier, multScale));
 
+    /// <summary>
+    /// Machine upgrades can discount a material down to the amount recoverable from the recipe's outputs.
+    /// </summary>
+    public int GetMaterialCost(LatheRecipePrototype recipe, ProtoId<MaterialPrototype> material, int amount, float multiplier)
+    {
+        var returned = recipe.MaterialResult.GetValueOrDefault(material);
+        if (recipe.Result is { } result && _recoverableMaterials.TryGetValue(result.Id, out var materials))
+            returned += materials.GetValueOrDefault(material) * recipe.ResultCount;
+
+        return Math.Max(returned, AdjustMaterial(amount, recipe.MaterialDiscountScale, multiplier));
+    }
+
     public int CountEntityIngredient(LatheRecipePrototype recipe, EntProtoId ingredient, IReadOnlyList<EntityUid> contents)
     {
         var stackType = GetIngredientStackType(recipe, ingredient);
@@ -214,7 +228,7 @@ public abstract partial class SharedLatheSystem : EntitySystem
 
     private void OnPrototypesReloaded(PrototypesReloadedEventArgs obj)
     {
-        if (!obj.WasModified<LatheRecipePrototype>())
+        if (!obj.WasModified<LatheRecipePrototype>() && !obj.WasModified<EntityPrototype>())
             return;
         BuildInverseRecipeDictionary();
     }
@@ -222,13 +236,72 @@ public abstract partial class SharedLatheSystem : EntitySystem
     private void BuildInverseRecipeDictionary()
     {
         InverseRecipes.Clear();
+        _recoverableMaterials.Clear();
         foreach (var latheRecipe in _proto.EnumeratePrototypes<LatheRecipePrototype>())
         {
             if (latheRecipe.Result is not {} result)
                 continue;
 
             InverseRecipes.GetOrNew(result).Add(latheRecipe);
+
+            if (!_recoverableMaterials.ContainsKey(result.Id) && _proto.TryIndex(result, out var prototype))
+                _recoverableMaterials.Add(result.Id, GetRecoverableMaterials(prototype));
         }
+    }
+
+    private Dictionary<ProtoId<MaterialPrototype>, int> GetRecoverableMaterials(EntityPrototype prototype)
+    {
+        var factory = EntityManager.ComponentFactory;
+        var recovered = new Dictionary<ProtoId<MaterialPrototype>, int>();
+        if (prototype.TryComp<PhysicalCompositionComponent>(out var composition, factory))
+        {
+            var count = 1;
+            if (prototype.TryComp<MaterialComponent>(out _, factory) &&
+                prototype.TryComp<StackComponent>(out var stack, factory))
+                count = stack.Count;
+
+            foreach (var (material, amount) in composition.MaterialComposition)
+                recovered[material] = count * amount;
+        }
+
+        if (!prototype.TryComp<ButcherableComponent>(out var butcherable, factory))
+            return recovered;
+
+        // Ungrouped entries can all drop. Each spawn group contributes at most one entry.
+        var butchered = new Dictionary<ProtoId<MaterialPrototype>, int>();
+        var groups = new Dictionary<string, Dictionary<ProtoId<MaterialPrototype>, int>>();
+        foreach (var entry in butcherable.SpawnedEntities)
+        {
+            if (entry.SpawnProbability <= 0 || entry.PrototypeId is not { } id ||
+                !_proto.TryIndex(id, out var output) ||
+                !output.TryComp<MaterialComponent>(out _, factory) ||
+                !output.TryComp<PhysicalCompositionComponent>(out var outputComposition, factory))
+                continue;
+
+            // EntitySpawnCollection chooses an amount below MaxAmount when it rolls a range.
+            var count = Math.Max(entry.Amount, entry.MaxAmount - 1);
+            if (output.TryComp<StackComponent>(out var stack, factory))
+                count *= stack.Count;
+
+            var grouped = !string.IsNullOrEmpty(entry.GroupId);
+            var amounts = grouped ? groups.GetOrNew(entry.GroupId!) : butchered;
+            foreach (var (material, amount) in outputComposition.MaterialComposition)
+            {
+                var previous = amounts.GetValueOrDefault(material);
+                var total = count * amount;
+                amounts[material] = grouped ? Math.Max(previous, total) : previous + total;
+            }
+        }
+
+        foreach (var amounts in groups.Values)
+            foreach (var (material, amount) in amounts)
+                butchered[material] = butchered.GetValueOrDefault(material) + amount;
+
+        // Recycling and cutting both consume the item.
+        foreach (var (material, amount) in butchered)
+            recovered[material] = Math.Max(recovered.GetValueOrDefault(material), amount);
+
+        return recovered;
     }
 
     public bool TryGetRecipesFromEntity(string prototype, [NotNullWhen(true)] out List<LatheRecipePrototype>? recipes)

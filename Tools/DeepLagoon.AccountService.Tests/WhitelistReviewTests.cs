@@ -13,14 +13,26 @@ public sealed partial class AccountServiceTests
     {
         await using var db = _settings.OpenDatabase();
         var ban = await RecordRelatedBan(db, sharedAddress: false, matchingHardwareType: true);
+        const string alternateDiscord = "1554164947804487999";
+        Links("INSERT INTO discord_links VALUES($id,$uid,'DifferentPlayer')",
+            ("$id", alternateDiscord), ("$uid", _other.ToString()));
         var review = await Call("whitelist_check", new { discord_id = Target });
         Assert.That(review.Status, Is.EqualTo(HttpStatusCode.OK), review.Body.ToString());
         var result = review.Body.GetProperty("review");
         Assert.That(result.GetProperty("hwid_match").GetBoolean(), Is.True);
         Assert.That(result.GetProperty("active_ban").GetBoolean(), Is.True);
         Assert.That(result.GetProperty("ip_match").GetBoolean(), Is.False);
+        Assert.That(result.TryGetProperty("related_accounts", out _), Is.False);
         Assert.That(result.ToString(), Does.Not.Contain("192.0.2.").And.Not.Contain("Private ban reason"));
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.False);
+        var withAccounts = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
+        Assert.That(withAccounts.Status, Is.EqualTo(HttpStatusCode.OK), withAccounts.Body.ToString());
+        var account = withAccounts.Body.GetProperty("review").GetProperty("related_accounts")[0];
+        Assert.That(account.GetProperty("uid").GetGuid(), Is.EqualTo(_other));
+        Assert.That(account.GetProperty("username").GetString(), Is.EqualTo("DifferentPlayer"));
+        Assert.That(account.GetProperty("discord_ids")[0].GetString(), Is.EqualTo(alternateDiscord));
+        Assert.That(account.GetProperty("hwid_match").GetBoolean(), Is.True);
+        Assert.That(account.GetProperty("ip_match").GetBoolean(), Is.False);
 
         var blocked = await Call("whitelist", new { discord_id = Target });
         Assert.That(blocked.Status, Is.EqualTo(HttpStatusCode.Conflict), blocked.Body.ToString());
@@ -61,6 +73,38 @@ public sealed partial class AccountServiceTests
         Assert.That((await Call("whitelist", new
             { discord_id = Target, accept_shared_ip = true, host_authorized = true, actor_discord_id = Actor })).Status,
             Is.EqualTo(HttpStatusCode.OK));
+    }
+
+    [Test]
+    public async Task WhitelistReviewReportsNetworkMatchTypesForEachAccount()
+    {
+        await using var db = _settings.OpenDatabase();
+        await RecordRelatedBan(db, sharedAddress: false, matchingHardwareType: true);
+        var applicant = await db.ConnectionLog.SingleAsync(c => c.UserId == _user);
+        var addressOnly = Guid.NewGuid();
+        db.ConnectionLog.Add(new ConnectionLog
+        {
+            UserId = addressOnly, UserName = "SameAddress", Address = applicant.Address,
+            Time = applicant.Time.AddDays(-1), ServerId = applicant.ServerId,
+        });
+        await db.SaveChangesAsync();
+        var report = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
+        Assert.That(report.Status, Is.EqualTo(HttpStatusCode.OK), report.Body.ToString());
+        var accounts = report.Body.GetProperty("review").GetProperty("related_accounts").EnumerateArray()
+            .ToDictionary(row => row.GetProperty("uid").GetGuid());
+        Assert.That(accounts[addressOnly].GetProperty("ip_match").GetBoolean(), Is.True);
+        Assert.That(accounts[addressOnly].GetProperty("hwid_match").GetBoolean(), Is.False);
+        Assert.That(accounts[_other].GetProperty("ip_match").GetBoolean(), Is.False);
+        Assert.That(accounts[_other].GetProperty("hwid_match").GetBoolean(), Is.True);
+
+        var other = await db.ConnectionLog.SingleAsync(c => c.UserId == _other);
+        other.Address = applicant.Address;
+        await db.SaveChangesAsync();
+        report = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
+        var both = report.Body.GetProperty("review").GetProperty("related_accounts").EnumerateArray()
+            .Single(row => row.GetProperty("uid").GetGuid() == _other);
+        Assert.That(both.GetProperty("ip_match").GetBoolean(), Is.True);
+        Assert.That(both.GetProperty("hwid_match").GetBoolean(), Is.True);
     }
 
     [Test]

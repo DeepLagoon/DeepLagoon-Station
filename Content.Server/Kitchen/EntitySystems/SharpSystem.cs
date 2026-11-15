@@ -92,25 +92,22 @@ public sealed partial class SharpSystem : EntitySystem
 
     private void OnDoAfter(EntityUid uid, SharpComponent component, DoAfterEvent args)
     {
-        if (args.Handled || !TryComp<ButcherableComponent>(args.Args.Target, out var butcher))
+        if (args.Handled || args.Args.Target is not { } target)
             return;
 
-        if (args.Cancelled)
-        {
-            component.Butchering.Remove(args.Args.Target.Value);
+        component.Butchering.Remove(target);
+        // Destruction is deferred, so another tool can finish before the target is deleted.
+        if (args.Cancelled || EntityManager.IsQueuedForDeletion(target) || !TryComp<ButcherableComponent>(target, out var butcher))
             return;
-        }
 
-        component.Butchering.Remove(args.Args.Target.Value);
-
-        if (_containerSystem.IsEntityInContainer(args.Args.Target.Value))
+        if (_containerSystem.IsEntityInContainer(target))
         {
             args.Handled = true;
             return;
         }
 
         var spawnEntities = EntitySpawnCollection.GetSpawns(butcher.SpawnedEntities, _robustRandom);
-        var coords = _transform.GetMapCoordinates(args.Args.Target.Value);
+        var coords = _transform.GetMapCoordinates(target);
         EntityUid popupEnt = default!;
         foreach (var proto in spawnEntities)
         {
@@ -118,20 +115,20 @@ public sealed partial class SharpSystem : EntitySystem
             popupEnt = Spawn(proto, coords.Offset(_robustRandom.NextVector2(0.25f)));
         }
 
-        var hasBody = TryComp<BodyComponent>(args.Args.Target.Value, out var body);
+        var hasBody = TryComp<BodyComponent>(target, out var body);
 
         // only show a big popup when butchering living things.
         var popupType = PopupType.Small;
         if (hasBody)
             popupType = PopupType.LargeCaution;
 
-        _popupSystem.PopupEntity(Loc.GetString("butcherable-knife-butchered-success", ("target", args.Args.Target.Value), ("knife", uid)),
+        _popupSystem.PopupEntity(Loc.GetString("butcherable-knife-butchered-success", ("target", target), ("knife", uid)),
             popupEnt, args.Args.User, popupType);
 
         if (hasBody)
-            _bodySystem.GibBody(args.Args.Target.Value, body: body);
+            _bodySystem.GibBody(target, body: body);
 
-        _destructibleSystem.DestroyEntity(args.Args.Target.Value);
+        _destructibleSystem.DestroyEntity(target);
 
         args.Handled = true;
 

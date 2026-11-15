@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Numerics;
 using System.Text.Json;
+using Content.Client._DeepLagoon.ShuttleParking;
 using Content.Server._DeepLagoon.ShuttleParking;
 using Content.Server._Mono.FireControl;
 using Content.Server._NF.Shipyard.Systems;
@@ -13,6 +14,7 @@ using Content.Server.Construction.Components;
 using Content.Server.Database;
 using Content.Server.Decals;
 using Content.Server.DeviceLinking.Systems;
+using Content.Server.Lathe;
 using Content.Server.Power.Components;
 using Content.Server.Power.Generator;
 using Content.Server.Research.Systems;
@@ -23,10 +25,12 @@ using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Atmos;
 using Content.Shared._Mono.Traits.Physical;
 using Content.Shared.Clothing.Components;
+using Content.Shared.Lathe;
 using Content.Shared.Paper;
 using Content.Shared.Preferences;
 using Content.Shared.Power.Generator;
 using Content.Shared.Research.Components;
+using Content.Shared.Research.Prototypes;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.SmartFridge;
 using Content.Server.Shuttles.Components;
@@ -34,6 +38,7 @@ using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Systems;
 using Content.Shared.Station.Components;
 using Microsoft.Data.Sqlite;
+using Moq;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
@@ -47,6 +52,7 @@ using Robust.Shared.Audio;
 using Robust.Shared.Audio.Components;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Network;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Timing;
 using YamlDotNet.Core;
@@ -80,6 +86,124 @@ public sealed class ShuttleParkingTests
             else
                 ev.DeletedPrototypes.Add(DeletedPrototype);
         }
+    }
+
+    [Test]
+    public async Task NativeParkingCountdownTracksDeadlineUntilServerEnablesReturn()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var panel = new NativeInterfacePanel((_, _) => { }, () => { });
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            typeof(NativeInterfacePanel).GetField("_parkingTab", flags)!.SetValue(panel, 1);
+            var readyAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 65_000;
+            var slot = Guid.NewGuid().ToString();
+            string State(int wait) => new TguiData().Bool("id", true)
+                .Array("docks", [new TguiData().String("id", "101").String("name", "Шлюз")])
+                .Array("places", [new TguiData().String("id", slot).String("name", "Orion-P").Number("price", 0)
+                    .Number("returnWaitSeconds", wait).Number("returnReadyAtMs", wait > 0 ? readyAtMs : 0)]).ToString();
+
+            static IEnumerable<Control> Descendants(Control control) => control.Children.SelectMany(child => Descendants(child).Prepend(child));
+            Button ReturnButton() => Descendants(panel).OfType<Button>().Single(button => button.Text == "Вернуть бесплатно…");
+
+            panel.UpdateState("ShuttleParking", State(65));
+            var countdown = Descendants(panel).OfType<Robust.Client.UserInterface.Controls.RichTextLabel>()
+                .Single(label => label.Text?.StartsWith("Бесплатный возврат через ", StringComparison.Ordinal) == true);
+            var update = countdown.GetType().GetMethod("UpdateCountdown", flags)!;
+            update.Invoke(countdown, [readyAtMs - 65_000]);
+            Assert.That(countdown.Text, Is.EqualTo("Бесплатный возврат через 1:05"));
+            update.Invoke(countdown, [readyAtMs - 4_001]);
+            Assert.That(countdown.Text, Is.EqualTo("Бесплатный возврат через 0:05"));
+            update.Invoke(countdown, [readyAtMs]);
+            Assert.That(countdown.Text, Is.EqualTo("Бесплатный возврат через 0:00"));
+            Assert.That(ReturnButton().Disabled, Is.True);
+
+            panel.UpdateState("ShuttleParking", State(0));
+            Assert.That(ReturnButton().Disabled, Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task ParkingCountdownResumesWhenConsoleReopens()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var map = await pair.CreateTestMap();
+        var server = pair.Server.EntMan;
+        var client = pair.Client.EntMan;
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        EntityUid console = default, actor = default;
+        NetEntity netConsole = default;
+        var now = TimeSpan.FromMinutes(1);
+        var slot = Guid.NewGuid();
+        var clock = new Mock<IGameTiming>();
+        clock.SetupGet(timing => timing.RealTime).Returns(() => now);
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            server.System<SharedMapSystem>().SetTile(map.Grid, new Vector2i(1, 0), map.Tile.Tile);
+            actor = server.SpawnEntity("MobHuman", map.GridCoords.Offset(new Vector2(1.5f, 0.5f)));
+            pair.Server.PlayerMan.SetAttachedEntity(session, actor);
+            console = server.SpawnEntity("ComputerShuttleParking", map.GridCoords.Offset(new Vector2(0.5f)));
+            netConsole = server.GetNetEntity(console);
+            server.RemoveComponent<ApcPowerReceiverComponent>(console);
+            var card = server.SpawnEntity("PassengerIDCard", map.GridCoords);
+            server.GetComponent<Content.Shared.Access.Components.IdCardComponent>(card).FullName =
+                server.GetComponent<MetaDataComponent>(actor).EntityName;
+            Assert.That(server.System<SharedContainerSystem>().Insert(card, server.GetComponent<ParkingConsoleComponent>(console).Card.ContainerSlot!), Is.True);
+
+            var parking = server.System<ParkingSystem>();
+            typeof(ParkingSystem).GetField("_timing", flags)!.SetValue(parking, clock.Object);
+            var shift = (Guid) typeof(ParkingSystem).GetField("_shift", flags)!.GetValue(parking)!;
+            var store = (ParkingStore) typeof(ParkingSystem).GetField("_store", flags)!.GetValue(parking)!;
+            var owner = session.UserId.UserId;
+            store.GrantPurchase(owner, store.BeginPurchase(owner, slot, 0));
+            store.Save(owner, slot, new StoredShuttle(Guid.NewGuid(), "Orion-P", "Капитан", 0, 1_000, "", ParkingStore.Hash(""), SavedShift: shift));
+            store.FinishSave(owner, slot, now + ParkingRules.FreeReturnDelay);
+        });
+        await pair.RunTicksSync(5);
+
+        async Task CheckOpening(int elapsed, int expectedWaitSeconds)
+        {
+            var openedAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            await pair.Server.WaitAssertion(() =>
+            {
+                now = TimeSpan.FromMinutes(1) + TimeSpan.FromSeconds(elapsed);
+                var parking = server.System<ParkingSystem>();
+                Assert.That(typeof(ParkingSystem).GetMethod("GetContext", flags)!.Invoke(parking, [console, actor]), Is.Not.Null);
+                server.System<Robust.Server.GameObjects.UserInterfaceSystem>().OpenUi(console, ParkingUiKey.Key, actor);
+            });
+            await pair.RunTicksSync(15);
+            await pair.Client.WaitAssertion(() =>
+            {
+                var ui = client.System<Robust.Client.GameObjects.UserInterfaceSystem>();
+                var entity = client.GetEntity(netConsole);
+                Assert.That(ui.TryGetOpenUi(entity, ParkingUiKey.Key, out var bui), Is.True);
+                var window = (ParkingWindow) typeof(ParkingBoundUserInterface).GetField("_window", flags)!.GetValue(bui)!;
+                var json = (string) typeof(TguiPanel).GetField("_data", flags)!.GetValue(window.Panel)!;
+                var data = NativeUiData.Parse(json);
+                Assert.That(data.Bool("id"), Is.True, json);
+                var place = data.Array("places").Single(place => place.String("id") == slot.ToString());
+                Assert.That(place.Int("returnWaitSeconds"), Is.EqualTo(expectedWaitSeconds));
+                Assert.That(place.Int("price"), Is.Zero);
+                var readyAtMs = long.Parse(place.String("returnReadyAtMs"));
+                var remainingMs = expectedWaitSeconds * 1000L;
+                Assert.That(readyAtMs, expectedWaitSeconds == 0 ? Is.Zero
+                    : Is.InRange(openedAtMs + remainingMs, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + remainingMs));
+                bui!.Close();
+            });
+            await pair.RunTicksSync(10);
+            await pair.Client.WaitAssertion(() =>
+                Assert.That(client.System<Robust.Client.GameObjects.UserInterfaceSystem>()
+                    .TryGetOpenUi(client.GetEntity(netConsole), ParkingUiKey.Key, out _), Is.False));
+        }
+
+        await CheckOpening(0, 300);
+        await CheckOpening(90, 210);
+        await CheckOpening(300, 0);
+        await pair.CleanReturnAsync();
     }
 
     [Test]
@@ -457,6 +581,9 @@ public sealed class ShuttleParkingTests
             var suit = saveToStorage
                 ? entities.SpawnEntity("ClothingOuterSuitRad", new EntityCoordinates(ship.Owner, new Vector2(1.5f)))
                 : EntityUid.Invalid;
+            var lathe = saveToStorage
+                ? entities.SpawnEntity("Autolathe", new EntityCoordinates(ship.Owner, new Vector2(2.5f)))
+                : EntityUid.Invalid;
             var containers = entities.System<SharedContainerSystem>();
             Assert.That(containers.Insert(body,containers.EnsureContainer<Container>(bag,"passenger")),Is.True);
             var session = pair.Server.PlayerMan.Sessions.Single();
@@ -533,7 +660,7 @@ public sealed class ShuttleParkingTests
                 try
                 {
                     pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
-                    SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId, suit, failFirstWrites);
+                    SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId, suit, lathe, failFirstWrites);
                 }
                 finally
                 {
@@ -569,7 +696,7 @@ public sealed class ShuttleParkingTests
     }
 
     private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
-        EntityUid actor, EntityUid dock, Guid owner, EntityUid suit, bool failFirstWrites)
+        EntityUid actor, EntityUid dock, Guid owner, EntityUid suit, EntityUid lathe, bool failFirstWrites)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         const int category = 2;
@@ -586,6 +713,16 @@ public sealed class ShuttleParkingTests
         var hood = containers.GetContainer(suit, ToggleableClothingComponent.DefaultClothingContainerId).ContainedEntities.Single();
         entities.AddComponent<GridEditorBrokenExportComponent>(hood);
         var migrated = entities.SpawnEntity("ChairWood", new EntityCoordinates(ship, new Vector2(1.5f)));
+        var lathePosition = entities.GetComponent<TransformComponent>(lathe).LocalPosition;
+        var latheComponent = entities.GetComponent<LatheComponent>(lathe);
+        latheComponent.Paused = true;
+        var prototypes = entities.EntitySysManager.DependencyCollection.Resolve<IPrototypeManager>();
+        var crowbar = prototypes.Index(new ProtoId<LatheRecipePrototype>("CrowbarGreen"));
+        var screwdriver = prototypes.Index(new ProtoId<LatheRecipePrototype>("Screwdriver"));
+        var lathes = entities.System<LatheSystem>();
+        Assert.That(lathes.TryAddToQueue(lathe, crowbar, 5, latheComponent, actor, canDebt: true), Is.True);
+        Assert.That(lathes.TryAddToQueue(lathe, screwdriver, 3, latheComponent, actor, canDebt: true), Is.True);
+        latheComponent.Queue[0].ItemsPrinted = 2;
         var cargo = entities.EntityQuery<TransformComponent>(true).Where(xform => xform.GridUid == ship && xform.Owner != ship)
             .ToDictionary(xform => xform.Owner, xform => xform.ParentUid);
         var mob = entities.SpawnEntity("MobHuman", new EntityCoordinates(ship, new Vector2(1.5f)));
@@ -735,6 +872,18 @@ public sealed class ShuttleParkingTests
         Assert.That(entities.GetComponent<MetaDataComponent>(delivered).EntityPaused, Is.False);
         Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
         Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
+
+        Assert.That(entities.EntityExists(lathe), Is.False);
+        var (returnedLathe, transform) = entities.EntityQuery<LatheComponent, TransformComponent>(true)
+            .Single(entry => entry.Item2.GridUid == delivered);
+        Assert.That(entities.GetComponent<MetaDataComponent>(returnedLathe.Owner).EntityPrototype?.ID, Is.EqualTo("Autolathe"));
+        Assert.That(transform.Coordinates, Is.EqualTo(new EntityCoordinates(delivered, lathePosition)));
+        Assert.That(returnedLathe.Paused, Is.True);
+        Assert.That(returnedLathe.Queue.Select(batch => (batch.Recipe, batch.ItemsPrinted, batch.ItemsRequested)),
+            Is.EqualTo(new[] { (crowbar, 2, 5), (screwdriver, 0, 3) }));
+        Assert.That(returnedLathe.Queue.Select(batch => batch.Actor), Is.All.Null);
+        Assert.That(lathes.TryAddToQueue(returnedLathe.Owner, crowbar, 1, returnedLathe, actor, canDebt: true), Is.True);
+        Assert.That(returnedLathe.Queue.Select(batch => batch.Index), Is.Unique);
     }
 
     [Test]

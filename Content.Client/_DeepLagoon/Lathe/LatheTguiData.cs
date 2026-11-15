@@ -192,7 +192,7 @@ public sealed class LatheTguiData
                 continue;
             foreach (var (material, needed) in batch.Recipe.Materials)
             {
-                var cost = SharedLatheSystem.AdjustMaterial(needed, batch.Recipe.MaterialDiscountScale, lathe.FinalMaterialUseMultiplier);
+                var cost = _lathe.GetMaterialCost(batch.Recipe, material, needed, lathe.FinalMaterialUseMultiplier);
                 reserved[material.Id] = reserved.GetValueOrDefault(material.Id) + cost * remaining;
             }
         }
@@ -277,7 +277,7 @@ public sealed class LatheTguiData
             .Number("count", recipe.ResultCount)
             .Array("mats", recipe.Materials.Select(pair => new TguiData()
                 .String("id", pair.Key)
-                .Number("n", SharedLatheSystem.AdjustMaterial(pair.Value, recipe.MaterialDiscountScale, materialUse))));
+                .Number("n", _lathe.GetMaterialCost(recipe, pair.Key, pair.Value, materialUse))));
 
         if (recipe.Entities.Count > 0)
         {

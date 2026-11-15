@@ -9,7 +9,7 @@ ent-CratePlastic = пластиковый ящик
 ent-CrateWood = деревянный ящик
     .desc = { ent-CrateBaseWeldable.desc }
 
-ent-CrateFreezer = холодильник
+ent-CrateFreezer = ящик-холодильник
     .desc = { ent-CratePlastic.desc }
 
 ent-CrateHydroponics = гидропонный ящик

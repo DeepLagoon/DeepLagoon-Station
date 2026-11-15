@@ -1,5 +1,7 @@
 using System.Linq;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.Client._DeepLagoon.WebUI;
 
@@ -49,8 +51,11 @@ public sealed partial class NativeInterfacePanel
                     Text(_body, "Категория шаттла: " + place.String("shipCategory") + " · Владелец: " + place.String("owner"));
                     var freeReturn = place.Int("price") == 0;
                     var waiting = place.Int("returnWaitSeconds") > 0;
-                    Text(_body, waiting ? "Бесплатный возврат откроется через 5 минут после сохранения."
-                        : freeReturn ? "Возврат бесплатный" : "Выкуп: " + place.String("price") + " кр.");
+                    if (waiting && long.TryParse(place.String("returnReadyAtMs"), out var readyAtMs) && readyAtMs > 0)
+                        _body.AddChild(new ParkingReturnCountdown(readyAtMs));
+                    else
+                        Text(_body, waiting ? "Бесплатный возврат пока недоступен."
+                            : freeReturn ? "Возврат бесплатный" : "Выкуп: " + place.String("price") + " кр.");
                     if (place.Bool("paid")) Text(_body, "Оплата уже учтена. Повторного списания не будет.");
                     var label = place.Bool("paid") ? "Получить оплаченный шаттл…" : freeReturn ? "Вернуть бесплатно…" : "Выкупить…";
                     var question = place.Bool("paid") ? "Завершить оплаченный выкуп?"
@@ -85,6 +90,35 @@ public sealed partial class NativeInterfacePanel
         }
         Text(_body, data.String("message"));
         Button(_body, "Обновить", () => Act("refresh"), !data.Bool("busy"));
+    }
+
+    private sealed class ParkingReturnCountdown : RichTextLabel
+    {
+        private readonly long _readyAtMs;
+        private int _seconds = -1;
+
+        public ParkingReturnCountdown(long readyAtMs)
+        {
+            _readyAtMs = readyAtMs;
+            UpdateCountdown(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+
+        protected override void FrameUpdate(FrameEventArgs args)
+        {
+            base.FrameUpdate(args);
+            if (_seconds != 0)
+                UpdateCountdown(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+
+        private void UpdateCountdown(long nowMs)
+        {
+            var seconds = (int)Math.Ceiling(Math.Max(0, _readyAtMs - nowMs) / 1000d);
+            if (seconds == _seconds)
+                return;
+
+            _seconds = seconds;
+            SetMessage(FormattedMessage.FromUnformatted($"Бесплатный возврат через {seconds / 60}:{seconds % 60:00}"));
+        }
     }
     private void DockSelector(NativeUiData data)
     {

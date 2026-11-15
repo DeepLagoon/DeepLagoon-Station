@@ -65,7 +65,7 @@ public sealed partial class AccountServiceTests
             CREATE TABLE discord_link_history(discord_id TEXT PRIMARY KEY, ss14_uid TEXT);
             CREATE TABLE discord_launcher_enrollments(discord_id TEXT PRIMARY KEY, ss14_uid TEXT);
             CREATE TABLE discord_account_merge_pending(official_uid TEXT,canonical_uid TEXT,discord_id TEXT);
-            CREATE TABLE discord_account_aliases(official_uid TEXT,canonical_uid TEXT,discord_id TEXT);
+            CREATE TABLE discord_account_aliases(official_uid TEXT,canonical_uid TEXT,discord_id TEXT,username TEXT);
             """);
         Links("INSERT INTO discord_links VALUES($id,$uid,'Player')", ("$id", Target), ("$uid", _user.ToString()));
         var reviewer = Guid.NewGuid();
@@ -262,7 +262,7 @@ public sealed partial class AccountServiceTests
     [Test]
     public async Task CompletedMergeAliasDoesNotPermanentlyBlockWhitelistOrWallet()
     {
-        Links("INSERT INTO discord_account_merge_pending VALUES($other,$uid,$discord); INSERT INTO discord_account_aliases VALUES($other,$uid,$discord)",
+        Links("INSERT INTO discord_account_merge_pending VALUES($other,$uid,$discord); INSERT INTO discord_account_aliases(official_uid,canonical_uid,discord_id) VALUES($other,$uid,$discord)",
             ("$other", _other.ToString()), ("$uid", _user.ToString()), ("$discord", Target));
         Assert.That((await Call("whitelist", new { discord_id = Target })).Status, Is.EqualTo(HttpStatusCode.OK));
         Assert.That((await Call("lc_add", Change())).Status, Is.EqualTo(HttpStatusCode.OK));

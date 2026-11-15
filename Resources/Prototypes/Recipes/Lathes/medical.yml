@@ -188,6 +188,7 @@
   id: Jug
   result: Jug
   completetime: 4
+  materialDiscountScale: 0 # Breaking the jug returns plastic.
   materials:
     Plastic: 200 # Frontier: 400<200
 

@@ -87,7 +87,8 @@ public sealed partial class LatheBoundUserInterface
     {
         base.OnProtoReload(args);
 
-        if (_tguiWindow == null || !args.WasModified<Content.Shared.Research.Prototypes.LatheRecipePrototype>())
+        if (_tguiWindow == null ||
+            !args.WasModified<Content.Shared.Research.Prototypes.LatheRecipePrototype>() && !args.WasModified<EntityPrototype>())
             return;
 
         LatheTguiData.ClearCache();

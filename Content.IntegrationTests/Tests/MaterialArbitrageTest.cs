@@ -58,8 +58,7 @@ public sealed class MaterialArbitrageTest
         // get the inverted lathe recipe dictionary
         var latheRecipes = latheSys.InverseRecipes;
 
-        // Lets assume the possible lathe for resource multipliers:
-        // TODO: each recipe can technically have its own cost multiplier associated with it, so this test needs redone to factor that in.
+        // Simulate a material discount on an upgraded lathe.
         var multiplier = MathF.Pow(0.85f, 3);
 
         // create construction dictionary
@@ -193,7 +192,7 @@ public sealed class MaterialArbitrageTest
                     {
                         foreach (var (matId, amount) in recipe.Materials)
                         {
-                            var actualAmount = SharedLatheSystem.AdjustMaterial(amount, recipe.MaterialDiscountScale, multiplier);
+                            var actualAmount = latheSys.GetMaterialCost(recipe, matId, amount, multiplier);
                             if (spawnedMats.TryGetValue(matId, out var numSpawned))
                                 Assert.That(numSpawned, Is.LessThanOrEqualTo(actualAmount), $"destroying a {id} spawns more {matId} than required to produce via an (upgraded) lathe.");
                         }
@@ -273,7 +272,7 @@ public sealed class MaterialArbitrageTest
                     {
                         foreach (var (matId, amount) in recipe.Materials)
                         {
-                            var actualAmount = SharedLatheSystem.AdjustMaterial(amount, recipe.MaterialDiscountScale, multiplier);
+                            var actualAmount = latheSys.GetMaterialCost(recipe, matId, amount, multiplier);
                             if (deconstructedMats.TryGetValue(matId, out var numSpawned))
                                 Assert.That(numSpawned, Is.LessThanOrEqualTo(actualAmount), $"deconstructing {id} spawns more {matId} than required to produce via an (upgraded) lathe.");
                         }
@@ -328,7 +327,7 @@ public sealed class MaterialArbitrageTest
                     {
                         foreach (var (matId, amount) in recipe.Materials)
                         {
-                            var actualAmount = SharedLatheSystem.AdjustMaterial(amount, recipe.MaterialDiscountScale, multiplier);
+                            var actualAmount = latheSys.GetMaterialCost(recipe, matId, amount, multiplier);
                             if (compositionComponent.MaterialComposition.TryGetValue(matId, out var numSpawned))
                                 Assert.That(numSpawned, Is.LessThanOrEqualTo(actualAmount), $"The physical composition of {id} has more {matId} than required to produce via an (upgraded) lathe.");
                         }

@@ -13,7 +13,20 @@ internal sealed record WhitelistReview(
     [property: JsonPropertyName("active_ban")] bool ActiveBan,
     [property: JsonPropertyName("shared_ip_ban")] bool SharedAddressBan,
     [property: JsonPropertyName("related_whitelist")] bool RelatedWhitelist,
-    [property: JsonPropertyName("related_uids")] Guid[] RelatedUsers);
+    [property: JsonPropertyName("related_uids")] Guid[] RelatedUsers)
+{
+    [JsonPropertyName("related_accounts")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public WhitelistAccount[]? Accounts { get; init; }
+}
+
+internal sealed record WhitelistAccount(
+    [property: JsonPropertyName("uid")] Guid Uid,
+    [property: JsonPropertyName("username")] string? Username,
+    [property: JsonPropertyName("discord_ids")] string[] DiscordIds,
+    [property: JsonPropertyName("ip_match")] bool AddressMatch,
+    [property: JsonPropertyName("hwid_match")] bool HardwareMatch,
+    [property: JsonPropertyName("discord_history")] bool DiscordHistory);
 
 internal sealed class WhitelistReviewRequired(string code, WhitelistReview review) : Exception(code)
 {
@@ -25,7 +38,8 @@ public sealed partial class AccountOperations
 {
     // UUIDs are returned only to the authenticated ticket bot so it can look up its own
     // ticket/whitelist audit. The database never returns addresses, HWIDs or ban reasons.
-    private async Task<WhitelistReview> CheckWhitelist(ServerDbContext db, string discord, Guid uid, Guid[]? knownUids, CancellationToken cancel)
+    private async Task<WhitelistReview> CheckWhitelist(ServerDbContext db, string discord, Guid uid, Guid[]? knownUids,
+        bool includeAccounts, CancellationToken cancel)
     {
         var (discordHistory, discordUsers) = GetWhitelistLinkHistory(discord, uid);
         var relatedDiscordUsers = discordUsers.Concat(knownUids ?? []).Where(id => id != uid).Distinct().ToArray();
@@ -65,6 +79,8 @@ public sealed partial class AccountOperations
             ), historical_lookup AS (
                 SELECT user_id FROM (SELECT user_id FROM hardware_users ORDER BY user_id LIMIT 100) hw
                 UNION SELECT user_id FROM (SELECT user_id FROM address_users ORDER BY user_id LIMIT 100) ip
+                UNION SELECT user_id FROM hardware_users WHERE user_id IN ({{linked}})
+                UNION SELECT user_id FROM address_users WHERE user_id IN ({{linked}})
             )
             SELECT EXISTS (SELECT 1 FROM target),
                    EXISTS (SELECT 1 FROM hardware_users),
@@ -76,22 +92,39 @@ public sealed partial class AccountOperations
                    EXISTS (SELECT 1 FROM whitelist w WHERE w.user_id<>@uid
                            AND (w.user_id IN ({{linked}}) OR w.user_id IN (SELECT user_id FROM hardware_users)
                                 OR w.user_id IN (SELECT user_id FROM address_users))),
-                   h.user_id
+                   h.user_id,
+                   EXISTS (SELECT 1 FROM address_users ip WHERE ip.user_id=h.user_id),
+                   EXISTS (SELECT 1 FROM hardware_users hw WHERE hw.user_id=h.user_id)
             FROM (SELECT 1) flags LEFT JOIN historical_lookup h ON TRUE
             """;
         // The limit above only bounds the bot's historical audit lookup. Ban and current
         // whitelist checks use all matches, including addresses shared by many accounts.
-        await using var rows = await command.ExecuteReaderAsync(cancel);
-        await rows.ReadAsync(cancel);
-        var findings = new WhitelistReview(rows.GetBoolean(0), discordHistory || relatedDiscordUsers.Length > 0,
-            rows.GetBoolean(1), rows.GetBoolean(2), rows.GetBoolean(3), rows.GetBoolean(4), rows.GetBoolean(5), []);
-        var related = relatedDiscordUsers.ToHashSet();
-        do
+        var matches = new Dictionary<Guid, (bool Address, bool Hardware)>();
+        WhitelistReview findings;
+        await using (var rows = await command.ExecuteReaderAsync(cancel))
         {
-            if (!rows.IsDBNull(6))
-                related.Add(rows.GetGuid(6));
-        } while (await rows.ReadAsync(cancel));
-        return findings with { RelatedUsers = related.ToArray() };
+            await rows.ReadAsync(cancel);
+            findings = new WhitelistReview(rows.GetBoolean(0), discordHistory || relatedDiscordUsers.Length > 0,
+                rows.GetBoolean(1), rows.GetBoolean(2), rows.GetBoolean(3), rows.GetBoolean(4), rows.GetBoolean(5), []);
+            do
+            {
+                if (!rows.IsDBNull(6))
+                    matches.Add(rows.GetGuid(6), (rows.GetBoolean(7), rows.GetBoolean(8)));
+            } while (await rows.ReadAsync(cancel));
+        }
+        var related = relatedDiscordUsers.Concat(matches.Keys).Distinct().ToArray();
+        findings = findings with { RelatedUsers = related };
+        if (!includeAccounts)
+            return findings;
+        var history = relatedDiscordUsers.ToHashSet();
+        if (discordHistory)
+            history.Add(uid);
+        var accounts = await GetWhitelistAccounts(db, related.Concat(history).Distinct().ToArray(), cancel);
+        return findings with { Accounts = accounts.Select(account =>
+        {
+            var (address, hardware) = matches.GetValueOrDefault(account.Uid);
+            return account with { AddressMatch = address, HardwareMatch = hardware, DiscordHistory = history.Contains(account.Uid) };
+        }).ToArray() };
     }
 
     private (bool Changed, Guid[] Related) GetWhitelistLinkHistory(string discord, Guid uid)
@@ -118,5 +151,45 @@ public sealed partial class AccountOperations
         }
 
         return (changed, related.ToArray());
+    }
+
+    private async Task<WhitelistAccount[]> GetWhitelistAccounts(ServerDbContext db, Guid[] ids, CancellationToken cancel)
+    {
+        if (ids.Length == 0)
+            return [];
+        var usernames = await db.Player.Where(p => ids.Contains(p.UserId))
+            .Select(p => new { p.UserId, p.LastSeenUserName })
+            .ToDictionaryAsync(p => p.UserId, p => p.LastSeenUserName, cancel);
+        var discordIds = ids.ToDictionary(id => id, _ => new HashSet<string>(StringComparer.Ordinal));
+        using var links = OpenLinks();
+        using var command = links.CreateCommand();
+        var parameters = ids.Select((id, index) =>
+        {
+            var name = "$uid" + index;
+            command.Parameters.AddWithValue(name, id.ToString());
+            return name;
+        });
+        var selected = string.Join(", ", parameters);
+        command.CommandText = $$"""
+            SELECT ss14_uid, discord_id, username FROM discord_links WHERE ss14_uid IN ({{selected}})
+            UNION ALL SELECT ss14_uid, discord_id, NULL FROM discord_link_history WHERE ss14_uid IN ({{selected}})
+            UNION ALL SELECT ss14_uid, discord_id, NULL FROM discord_launcher_enrollments WHERE ss14_uid IN ({{selected}})
+            UNION ALL SELECT official_uid, discord_id, username FROM discord_account_aliases WHERE official_uid IN ({{selected}})
+            UNION ALL SELECT canonical_uid, discord_id, username FROM discord_account_aliases WHERE canonical_uid IN ({{selected}})
+            """;
+        using var rows = command.ExecuteReader();
+        while (rows.Read())
+        {
+            var id = Guid.Parse(rows.GetString(0));
+            var discord = rows.GetString(1);
+            if (DiscordId(discord))
+                discordIds[id].Add(discord);
+            if (!rows.IsDBNull(2))
+                usernames.TryAdd(id, rows.GetString(2));
+        }
+        return ids.Select(id => new WhitelistAccount(id, usernames.GetValueOrDefault(id),
+                discordIds[id].Order(StringComparer.Ordinal).ToArray(), false, false, false))
+            .OrderBy(account => account.Username, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(account => account.Uid).ToArray();
     }
 }

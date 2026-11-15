@@ -42,6 +42,7 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
     {
         base.ReceiveMessage(message);
         if (message is not ParkingUpdate state || _window == null) return;
+        var receivedAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var data = new TguiData().Bool("id", state.IdPresent).Bool("hasShip", state.HasShip).Bool("parked", state.Parked).Bool("busy", state.Busy)
             .String("user", state.User).String("owner", state.OwnerName).String("shipName", state.ShipName).String("category", ParkingRules.CategoryName(state.Category))
             .Number("shipCategory", state.Category).Number("credits", state.Credits).String("coins", state.Coins < 0 ? "…" : state.Coins.ToString())
@@ -53,7 +54,8 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
             .Array("places", state.Places.Select(place => new TguiData().String("id", place.Id.ToString()).Number("category", place.Category)
                 .String("categoryName", ParkingRules.CategoryName(place.Category)).String("name", place.ShipName).String("owner", place.Owner)
                 .String("shipCategory", ParkingRules.CategoryName(place.ShipCategory)).Number("price", place.Price).Bool("recovering", place.Recovering)
-                .Bool("paid", place.Paid).Number("returnWaitSeconds", place.ReturnWaitSeconds)))
+                .Bool("paid", place.Paid).Number("returnWaitSeconds", place.ReturnWaitSeconds)
+                .Number("returnReadyAtMs", place.ReturnWaitSeconds > 0 ? receivedAtMs + place.ReturnWaitSeconds * 1000L : 0)))
             .Array("categories", Enumerable.Range(0, 5).Select(category => new TguiData().Number("id", category).String("name", ParkingRules.CategoryName(category))
                 .Number("count", state.Places.Count(place => place.Category == category)).Number("first", ParkingRules.SlotPrice(category, false))
                 .Number("extra", ParkingRules.SlotPrice(category, true))));

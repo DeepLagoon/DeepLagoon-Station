@@ -26,8 +26,8 @@ namespace Content.Shared.Lathe
         /// <summary>
         /// The lathe's construction queue
         /// </summary>
-        [DataField]
-        public List<LatheRecipeBatch> Queue = new(); // Frontier: LatheRecipePrototype<LatheRecipeBatch
+        [DataField(customTypeSerializer: typeof(LatheRecipeQueueSerializer))]
+        public List<LatheRecipeBatch> Queue = new();
 
         /// <summary>
         /// The sound that plays when the lathe is producing an item, if any

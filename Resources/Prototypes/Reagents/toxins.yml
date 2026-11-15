@@ -452,14 +452,20 @@
         conditions:
         - !type:OrganType
           type: Animal # Applying damage to the mobs with lower metabolism capabilities
+        - !type:SpeciesCondition # DeepLagoon: Tajaran tolerate chocolate and tea.
+          species: Tajaran
+          invert: true
         damage:
           types:
             Poison: 0.4
       - !type:ChemVomit
         probability: 0.04 #Scaled for time, not metabolismrate.
         conditions:
-          - !type:OrganType
-            type: Animal
+        - !type:OrganType
+          type: Animal
+        - !type:SpeciesCondition
+          species: Tajaran
+          invert: true
 
 - type: reagent
   id: Amatoxin

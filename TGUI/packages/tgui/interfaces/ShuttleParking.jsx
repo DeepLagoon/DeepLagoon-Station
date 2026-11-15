@@ -153,6 +153,23 @@ const Confirm = ({ label, question, disabled, onConfirm }) => {
   </div>;
 };
 
+const ReturnCountdown = ({ readyAtMs }) => {
+  const [seconds, setSeconds] = useState(() => Math.ceil(Math.max(0, readyAtMs - Date.now()) / 1000));
+  useEffect(() => {
+    let timer;
+    const update = () => {
+      const remaining = Math.max(0, readyAtMs - Date.now());
+      setSeconds(Math.ceil(remaining / 1000));
+      if (remaining > 0) {
+        timer = setTimeout(update, remaining % 1000 || 1000);
+      }
+    };
+    update();
+    return () => clearTimeout(timer);
+  }, [readyAtMs]);
+  return <>Бесплатный возврат через <b role="timer">{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</b></>;
+};
+
 export const ShuttleParking = () => {
   const { data, act } = useBackend();
   const [tab, setTab] = useState('parking');
@@ -194,7 +211,9 @@ export const ShuttleParking = () => {
         const waiting = place.returnWaitSeconds > 0;
         return <section key={place.id}><div className="ShuttleParking__slot-title"><strong>{place.categoryName} · место {i+1}</strong><span>{place.name ? 'На диске' : 'Свободно'}</span></div>
         {place.name ? <><h3>{place.name}</h3><p>Категория шаттла: {place.shipCategory} · Владелец: {place.owner}</p>
-          <p>{waiting ? 'Бесплатный возврат откроется через 5 минут после сохранения.' : freeReturn ? 'Возврат бесплатный' : <>Выкуп: <b>{place.price} кр.</b></>}</p>
+          <p>{waiting
+            ? (place.returnReadyAtMs > 0 ? <ReturnCountdown readyAtMs={place.returnReadyAtMs} /> : 'Бесплатный возврат пока недоступен.')
+            : freeReturn ? 'Возврат бесплатный' : <>Выкуп: <b>{place.price} кр.</b></>}</p>
           {data.hasShip && <p className="ShuttleParking__warning">На карте уже есть действующий шаттл. Сначала сохраните его.</p>}
           {place.paid && <p>Оплата уже учтена. Повторного списания не будет.</p>}
           <Confirm label={place.paid ? 'Получить оплаченный шаттл…' : freeReturn ? 'Вернуть бесплатно…' : place.recovering ? 'Завершить выкуп…' : 'Выкупить…'}

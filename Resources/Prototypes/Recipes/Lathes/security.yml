@@ -166,6 +166,7 @@
   id: RiotShield
   result: RiotShield
   completetime: 4
+  materialDiscountScale: 0 # Breaking the shield returns steel and glass.
   materials:
     Steel: 400
     Glass: 400

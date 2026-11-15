@@ -60,6 +60,12 @@ reagent-effect-condition-guidebook-organ-type =
        *[false] это не
     } { $name } орган
 
+reagent-effect-condition-guidebook-species =
+    цель { $invert ->
+        [true] не принадлежит
+       *[false] принадлежит
+    } к виду «{ $species }»
+
 reagent-effect-condition-guidebook-has-tag =
     цель { $invert ->
         [true] не имеет

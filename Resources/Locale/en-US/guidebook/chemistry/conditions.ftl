@@ -55,6 +55,12 @@ reagent-effect-condition-guidebook-organ-type =
                                 *[false] is not
                            } {INDEFINITE($name)} {$name} organ
 
+reagent-effect-condition-guidebook-species =
+    the target { $invert ->
+        [true] is not
+       *[false] is
+    } of the {$species} species
+
 reagent-effect-condition-guidebook-has-tag =
     the target { $invert ->
                  [true] does not have
