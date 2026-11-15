@@ -64,12 +64,48 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Server/GameStates/PvsSystem.Session.cs",
     "Robust.Server/GameStates/PvsSystem.ToSendSet.cs",
     "Robust.Server.IntegrationTests/GameStates/InitialStateBacklogTest.cs",
+    # Server-only tick/PVS timing; no client, wire format or scheduling changes.
+    "Robust.Server/BaseServer.cs",
+    "Robust.Server/GameStates/PvsSystem.cs",
+    "Robust.Server/GameStates/ServerGameStateManager.cs",
+    "Robust.Server/ServerIoC.cs",
+    "Robust.Server/ServerTickTiming.cs",
+    "Robust.Server.Testing/RobustServerSimulation.cs",
+    "Robust.Server.IntegrationTests/GameStates/ServerTickTimingTest.cs",
     # Reject entity messages until the server session is ready and after it is replaced.
     "Robust.Server/GameObjects/ServerEntityManager.cs",
     "Robust.Server.IntegrationTests/GameObjects/ServerEntityNetworkManagerTest.cs",
     # Deduplicate grid deletions in the existing delta format.
     "Robust.Shared/GameObjects/Systems/SharedMapSystem.Grid.cs",
     "Robust.Shared.IntegrationTests/Map/GridSplit_Tests.cs",
+    # Complete grid-split bookkeeping even when a server-side listener throws.
+    "Robust.Server/Physics/GridFixtureSystem.cs",
+    # Ordered ECS dispatch and prototype component copying keep their public contracts.
+    "Robust.Shared/GameObjects/EntityEventBus.Directed.cs",
+    "Robust.Shared/GameObjects/EntityEventBus.Ordering.cs",
+    "Robust.Shared/Serialization/Manager/SerializationManager.Copying.cs",
+    "Robust.Shared.IntegrationTests/GameObjects/EntityEventBusTests.OrderedEvents.cs",
+    "Robust.Shared.IntegrationTests/GameObjects/EntityManagerCopyTests.cs",
+    # Grid lookup, collision broadphase, and solver changes use the existing synchronized fields.
+    "Robust.Shared/GameObjects/Systems/EntityLookupSystem.PreparedFixtureMoves.cs",
+    "Robust.Shared/GameObjects/Systems/EntityLookupSystem.cs",
+    "Robust.Shared/GameObjects/Systems/SharedGridTraversalSystem.cs",
+    "Robust.Shared/GameObjects/Systems/SharedMapSystem.Grid.Queries.cs",
+    "Robust.Shared/GameObjects/Systems/SharedTransformSystem.Component.cs",
+    "Robust.Shared/Map/Components/GridTreeComponent.cs",
+    "Robust.Shared/Map/Components/MapGridComponent.cs",
+    "Robust.Shared/Physics/B2DynamicTree.cs",
+    "Robust.Shared/Physics/BroadPhase/DynamicTreeBroadPhase.cs",
+    "Robust.Shared/Physics/Components/PhysicsComponent.Physics.cs",
+    "Robust.Shared/Physics/Dynamics/Contacts/Contact.cs",
+    "Robust.Shared/Physics/Systems/SharedBroadphaseSystem.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Contacts.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.LocalSubsteps.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Solver.cs",
+    "Robust.Shared.IntegrationTests/Physics/Broadphase_Test.cs",
+    "Robust.Shared.IntegrationTests/Physics/PreparedBodyMoveTests.cs",
+    "Robust.Shared.IntegrationTests/TransformTests/GridTraversalTest.cs",
+    "Robust.Shared.Tests/Physics/B2DynamicTree_Test.cs",
     # Test-only transport-pressure injection; not part of shipped client/server modules.
     "Robust.UnitTesting/RobustIntegrationTest.NetManager.cs",
     # Return temporary lone-island collections to their existing pools.
