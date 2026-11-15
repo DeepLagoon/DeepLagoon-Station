@@ -328,6 +328,7 @@ public sealed partial class ModSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        UpdateCloakReveals();
         if (_timing.CurTime < _nextUpdate)
             return;
 

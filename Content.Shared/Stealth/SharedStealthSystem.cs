@@ -134,7 +134,7 @@ public abstract partial class SharedStealthSystem : EntitySystem
         if (TryComp<PhysicsComponent>(uid, out var phys))
             limit += Math.Min(component.MaxInvisibilityPenalty, phys.LinearVelocity.Length() * component.InvisibilityPenalty);
 
-        if (args.Stealth.LastVisibility > limit)
+        if (component.PassiveVisibilityRate > 0 || args.Stealth.LastVisibility > limit)
             args.FlatModifier += args.SecondsSinceUpdate * component.PassiveVisibilityRate;
     }
 

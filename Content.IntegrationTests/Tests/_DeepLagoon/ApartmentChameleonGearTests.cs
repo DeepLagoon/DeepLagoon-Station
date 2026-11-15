@@ -87,9 +87,11 @@ public sealed class ApartmentChameleonGearTests
             // Exercise cleanup independently of the storage capacity checks.
             var pocket = containers.EnsureContainer<Container>(backpack, "test-non-kit-pocket");
             Assert.That(containers.Insert(purchased, pocket), Is.True);
-            var snapshot = ((string Current, string RoundEnd)) typeof(ApartmentSystem)
-                .GetMethod("SerializeApartment", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(apartments, [home])!;
-            Assert.That(snapshot.Current, Does.Not.Contain("ClothingHeadHatChameleon").And.Not.Contain("ClothingEyesChameleon"),
+            Assert.That(apartments.SaveApartment(home), Is.True);
+            var store = (IApartmentLayoutStore) typeof(ApartmentSystem)
+                .GetProperty("Store", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(apartments)!;
+            var snapshot = store.LoadSnapshot(home.Owner.UserId, home.Template.ID)!;
+            Assert.That(snapshot.Grid, Does.Not.Contain("ClothingHeadHatChameleon").And.Not.Contain("ClothingEyesChameleon"),
                 "Temporary gear on the floor or in another visitor's bag must not persist.");
             Assert.That(apartments.Leave(sessions[0].UserId, out var leave), Is.True, leave);
             Assert.That(firstKit.All(item => !e.EntityExists(item)), Is.True);

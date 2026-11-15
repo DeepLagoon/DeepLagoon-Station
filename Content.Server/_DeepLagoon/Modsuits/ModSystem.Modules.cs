@@ -279,7 +279,7 @@ public sealed partial class ModSystem
         return true;
     }
 
-    private void StopModule(Entity<ModModuleComponent> module)
+    private void StopModule(Entity<ModModuleComponent> module, bool revealCloak = true)
     {
         var comp = module.Comp;
         if (!comp.Active)
@@ -311,7 +311,11 @@ public sealed partial class ModSystem
         }
 
         if (comp.Mode == ModModuleMode.Cloak && target is {} cloaked)
+        {
             RemComp<ModCloakedComponent>(cloaked);
+            if (revealCloak && !TerminatingOrDeleted(cloaked))
+                RevealCloak(cloaked, comp);
+        }
 
         if (target is {} attached && !TerminatingOrDeleted(attached))
         {

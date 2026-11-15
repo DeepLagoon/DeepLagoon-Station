@@ -19,6 +19,7 @@ using Content.Shared.Preferences;
 using Content.Shared.Database;
 using Content.Shared.Roles;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Asynchronous;
 using Robust.Shared.Network;
@@ -84,8 +85,18 @@ public sealed class LagoonCoinIntegrationTests
             Assert.That(factionRate, Is.EqualTo(8));
 
             SeedActivity(wallet, session, TimeSpan.TicksPerHour, factionRate, "faction-test", false);
-            typeof(ServerWallet).GetMethod("SaveParticipation", flags)!.Invoke(wallet, null);
-            wallet.Update(0);
+            var sawmill = server.ResolveDependency<ILogManager>().GetSawmill("system.lagoon_coin");
+            var originalLevel = sawmill.Level;
+            sawmill.Level = LogLevel.Verbose;
+            try
+            {
+                typeof(ServerWallet).GetField("_nextSave", flags)!.SetValue(wallet, TimeSpan.Zero);
+                wallet.Update(0);
+            }
+            finally
+            {
+                sawmill.Level = originalLevel;
+            }
             var tasks = server.ResolveDependency<ITaskManager>();
             AwaitRewards(tasks, wallet);
             var database = server.ResolveDependency<IServerDbManager>();

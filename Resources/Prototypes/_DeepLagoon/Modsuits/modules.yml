@@ -350,6 +350,7 @@
     - type: Stealth
       lastVisibility: 1
       minVisibility: -0.5
+      maxVisibility: 1
     - type: StealthOnMove
       passiveVisibilityRate: -0.75
       movementVisibilityRate: 0

@@ -121,7 +121,7 @@ public sealed partial class SpreaderSystem : EntitySystem
         }
     }
 
-    private void InitSpreaderGrid(EntityUid uid)
+    internal void InitSpreaderGrid(EntityUid uid)
     {
         if (!_mapGridQuery.TryComp(uid, out var mapGrid))
             return;

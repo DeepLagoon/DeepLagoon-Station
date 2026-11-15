@@ -23,9 +23,11 @@ using Robust.Server.Player;
 using Robust.Shared.Asynchronous;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Enums;
+using Robust.Shared.Log;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._DeepLagoon.Currency;
 
@@ -182,7 +184,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         if (_timing.RealTime >= _nextSave)
         {
             _nextSave = _timing.RealTime + TimeSpan.FromMinutes(1);
-            SaveParticipation();
+            FlushParticipation(measure: true);
         }
         if (!_draining && _pending.Count > 0 && _timing.RealTime >= _retryAt)
             _drainTask = Drain();
@@ -221,12 +223,44 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             data.Rate += LagoonEconomyRules.FactionHourlyBonus;
     }
 
-    private void SaveParticipation()
+    private void SaveParticipation() => FlushParticipation(measure: false);
+
+    private void FlushParticipation(bool measure)
     {
-        foreach (var (session, data) in _participation.ToArray())
+        var start = measure ? Stopwatch.GetTimestamp() : 0;
+        var sessions = _participation.ToArray();
+        var phaseStart = measure ? Stopwatch.GetTimestamp() : 0;
+        var collectTime = Stopwatch.GetElapsedTime(start, phaseStart);
+        var outboxTime = TimeSpan.Zero;
+        var buckets = 0;
+        foreach (var (session, data) in sessions)
         {
             Accumulate(session);
+            if (!measure)
+            {
+                Flush(session, data);
+                continue;
+            }
+
+            var outboxStart = Stopwatch.GetTimestamp();
+            collectTime += Stopwatch.GetElapsedTime(phaseStart, outboxStart);
+            buckets += data.Buckets.Count;
             Flush(session, data);
+            phaseStart = Stopwatch.GetTimestamp();
+            outboxTime += Stopwatch.GetElapsedTime(outboxStart, phaseStart);
+        }
+
+        if (!measure)
+            return;
+
+        var elapsed = Stopwatch.GetElapsedTime(start);
+        var level = elapsed >= _timing.TickPeriod ? LogLevel.Warning : LogLevel.Verbose;
+        if (Log.IsLogLevelEnabled(level))
+        {
+            Log.Log(level,
+                "Lagoon Coin playtime checkpoint: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} outbox_ms={OutboxMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets}",
+                elapsed.TotalMilliseconds, collectTime.TotalMilliseconds, outboxTime.TotalMilliseconds,
+                _timing.TickPeriod.TotalMilliseconds, sessions.Length, buckets);
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Content.Server.Spreader;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
@@ -25,8 +26,12 @@ public sealed partial class ApartmentSystem
 {
     [Dependency] private IDependencyCollection _snapshotDependencies = default!;
     [Dependency] private SharedContainerSystem _containers = default!;
+    [Dependency] private SpreaderSystem _spreader = default!;
     private static readonly TimeSpan CheckpointInterval = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan SaveRetryDelay = TimeSpan.FromMinutes(1);
+
+    private readonly record struct SnapshotSerializationTiming(
+        long EntityWalkDone, long SnapshotBuildDone, long YamlDone, long RoundEndBuildDone);
 
     public enum ApartmentSaveReason
     {
@@ -71,8 +76,10 @@ public sealed partial class ApartmentSystem
         }
     }
 
-    private (string Current, string RoundEnd, int EntityCount) SerializeApartment(Instance instance)
+    private (string Current, string RoundEnd, int EntityCount, SnapshotSerializationTiming Timing)
+        SerializeApartment(Instance instance, ref string stage)
     {
+        stage = "entity_walk";
         var excluded = new HashSet<EntityUid>();
         void Exclude(EntityUid uid)
         {
@@ -111,6 +118,9 @@ public sealed partial class ApartmentSystem
         foreach (var (id, entity) in instance.Furniture)
             if (Exists(entity)) EnsureComp<ApartmentFurnitureIdentityComponent>(entity).Id = id;
         serializer.SerializeEntityRecursive(roots);
+
+        var entityWalkDone = Stopwatch.GetTimestamp();
+        stage = "snapshot_build";
         var data = serializer.Write();
         foreach (var entity in serializer.EntityData.Values)
         {
@@ -127,7 +137,13 @@ public sealed partial class ApartmentSystem
             }
         }
         RaiseLocalEvent(new AfterSerializationEvent(roots, data, FileCategory.Grid));
+
+        var snapshotBuildDone = Stopwatch.GetTimestamp();
+        stage = "yaml";
         var current = WriteApartment(data);
+
+        var yamlDone = Stopwatch.GetTimestamp();
+        stage = "round_end_build";
         var trash = new HashSet<EntityUid>();
         void CollectTrash(EntityUid uid)
         {
@@ -136,7 +152,9 @@ public sealed partial class ApartmentSystem
             while (children.MoveNext(out var child)) CollectTrash(child);
         }
         foreach (var item in TrashContents(instance)) CollectTrash(item);
-        if (trash.Count == 0) return (current, current, serializer.EntityData.Count);
+        if (trash.Count == 0)
+            return (current, current, serializer.EntityData.Count, new(entityWalkDone, snapshotBuildDone, yamlDone, Stopwatch.GetTimestamp()));
+
         var removedIds = trash.Where(serializer.YamlUidMap.ContainsKey).Select(uid => serializer.YamlUidMap[uid].ToString(System.Globalization.CultureInfo.InvariantCulture)).ToHashSet();
         // Derive the clean save from the complete one. Serializing excluded dictionary keys
         // directly would collapse several items into the same "invalid" EntityUid key.
@@ -167,7 +185,9 @@ public sealed partial class ApartmentSystem
                 }
             }
         }
-        return (current, WriteApartment(data), serializer.EntityData.Count);
+        var roundEndBuildDone = Stopwatch.GetTimestamp();
+        stage = "round_end_yaml";
+        return (current, WriteApartment(data), serializer.EntityData.Count, new(entityWalkDone, snapshotBuildDone, yamlDone, roundEndBuildDone));
     }
 
     private static string WriteApartment(MappingDataNode data)
@@ -186,8 +206,9 @@ public sealed partial class ApartmentSystem
             return false;
 
         var started = Stopwatch.GetTimestamp();
-        var layoutDone = started;
-        var serializationDone = started;
+        long layoutDone;
+        long serializationDone;
+        SnapshotSerializationTiming timing;
         var stage = "layout";
         int? entityCount = null;
         int? yamlChars = null;
@@ -196,9 +217,9 @@ public sealed partial class ApartmentSystem
             var layout = ApartmentLayout.Diff(instance.Template, CurrentLayout(instance), instance.Delta.Revision, MapBaseline(instance));
             layout.OxygenPercent = instance.Delta.OxygenPercent;
 
-            stage = "serialization";
             layoutDone = Stopwatch.GetTimestamp();
-            var (current, clean, count) = SerializeApartment(instance);
+            var (current, clean, count, serializationTiming) = SerializeApartment(instance, ref stage);
+            timing = serializationTiming;
             entityCount = count;
             yamlChars = current.Length;
 
@@ -228,10 +249,15 @@ public sealed partial class ApartmentSystem
         if (Log.IsLogLevelEnabled(level))
         {
             Log.Log(level,
-                "Apartment snapshot saved: reason={Reason} template={Template} grid={Grid} frozen={Frozen} recovered={Recovered} elapsed_ms={ElapsedMs:F1} layout_ms={LayoutMs:F1} serialization_ms={SerializationMs:F1} storage_ms={StorageMs:F1} tick_budget_ms={TickBudgetMs:F1} entities={Entities} yaml_chars={YamlChars}",
+                "Apartment snapshot saved: reason={Reason} template={Template} grid={Grid} frozen={Frozen} recovered={Recovered} elapsed_ms={ElapsedMs:F1} layout_ms={LayoutMs:F1} serialization_ms={SerializationMs:F1} entity_walk_ms={EntityWalkMs:F1} snapshot_build_ms={SnapshotBuildMs:F1} yaml_ms={YamlMs:F1} round_end_build_ms={RoundEndBuildMs:F1} round_end_yaml_ms={RoundEndYamlMs:F1} storage_ms={StorageMs:F1} tick_budget_ms={TickBudgetMs:F1} entities={Entities} yaml_chars={YamlChars}",
                 reason, instance.Template.ID, instance.Grid, instance.Frozen, recovered, elapsed.TotalMilliseconds,
                 Stopwatch.GetElapsedTime(started, layoutDone).TotalMilliseconds,
                 Stopwatch.GetElapsedTime(layoutDone, serializationDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(layoutDone, timing.EntityWalkDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(timing.EntityWalkDone, timing.SnapshotBuildDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(timing.SnapshotBuildDone, timing.YamlDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(timing.YamlDone, timing.RoundEndBuildDone).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(timing.RoundEndBuildDone, serializationDone).TotalMilliseconds,
                 Stopwatch.GetElapsedTime(serializationDone, completed).TotalMilliseconds,
                 _timing.TickPeriod.TotalMilliseconds, entityCount, yamlChars);
         }
@@ -255,6 +281,8 @@ public sealed partial class ApartmentSystem
             EnsureComp<ApartmentAtmosphereSettingsComponent>(grid.Value.Owner).OxygenPercent = Math.Clamp(layout.OxygenPercent, 0, 100);
             var position = FindFreePosition(template);
             _transform.SetCoordinates(grid.Value.Owner, new EntityCoordinates(_activeMap, position));
+            // A saved grid starts before its children, and restored spreaders have already passed MapInit.
+            _spreader.InitSpreaderGrid(grid.Value.Owner);
             if (template.ID == BitrunApartment)
                 RestoreBitrunEnvironment(grid.Value.Owner);
             var instance = new Instance { Owner = owner, Template = template, Grid = grid.Value.Owner, Position = position, Delta = layout,

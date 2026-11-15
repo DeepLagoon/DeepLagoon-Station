@@ -246,16 +246,44 @@ public sealed class ModSuitTests
         await pair.Server.WaitAssertion(() =>
         {
             Send(ModOperation.ToggleModule, em.GetNetEntity(module));
-            Assert.That(em.HasComponent<StealthComponent>(wearer), Is.False);
-            Assert.That(em.HasComponent<StealthOnMoveComponent>(wearer), Is.False);
+            Assert.That(em.GetComponent<ModModuleComponent>(module).Active, Is.False);
+            Assert.That(serverStealth.GetVisibility(wearer), Is.EqualTo(-0.5f));
         });
 
-        await pair.RunTicksSync(15);
+        await pair.RunSeconds(1);
+        await pair.Server.WaitAssertion(() => Assert.That(serverStealth.GetVisibility(wearer), Is.InRange(0.15f, 0.4f)));
+        await pair.Client.WaitAssertion(() => Assert.That(GetClientVisibility(), Is.InRange(0.15f, 0.4f)));
+
+        await pair.RunSeconds(0.85f);
+        await pair.Server.WaitAssertion(() => Assert.That(serverStealth.GetVisibility(wearer), Is.InRange(0.82f, 0.98f)));
+        await pair.Client.WaitAssertion(() => Assert.That(GetClientVisibility(), Is.InRange(0.82f, 0.98f)));
+
+        await pair.RunSeconds(0.4f);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(em.HasComponent<StealthComponent>(wearer), Is.False);
+            Assert.That(em.HasComponent<StealthOnMoveComponent>(wearer), Is.False);
+            Assert.That(em.HasComponent<ModCloakRevealComponent>(wearer), Is.False);
+        });
         await pair.Client.WaitAssertion(() =>
         {
             var client = pair.Client.EntMan;
             Assert.That(client.HasComponent<StealthComponent>(client.GetEntity(wearerNet)), Is.False);
         });
+
+        await pair.RunSeconds(1);
+        await pair.Server.WaitAssertion(() => Send(ModOperation.ToggleModule, em.GetNetEntity(module)));
+        await pair.RunSeconds(0.5f);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var visibility = serverStealth.GetVisibility(wearer);
+            Assert.That(visibility, Is.InRange(0.4f, 0.85f));
+            Send(ModOperation.ToggleModule, em.GetNetEntity(module));
+            Assert.That(serverStealth.GetVisibility(wearer), Is.EqualTo(visibility));
+        });
+        await pair.RunSeconds(1);
+        await pair.Server.WaitAssertion(() => Assert.That(serverStealth.GetVisibility(wearer), Is.InRange(0.7f, 0.9f)));
+        await pair.Client.WaitAssertion(() => Assert.That(GetClientVisibility(), Is.InRange(0.7f, 0.9f)));
         await pair.CleanReturnAsync();
 
         float GetClientVisibility()

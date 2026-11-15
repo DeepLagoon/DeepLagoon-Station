@@ -4,8 +4,13 @@ using System.Numerics;
 using System.Reflection;
 using Content.Server._DeepLagoon.Apartments;
 using Content.Server.Decals;
+using Content.Server.Fluids.EntitySystems;
+using Content.Server.Spreader;
 using Content.Shared._DeepLagoon.Apartments;
+using Content.Shared.Chemistry.Components;
 using Content.Shared.DoAfter;
+using Content.Shared.FixedPoint;
+using Content.Shared.Fluids.Components;
 using Content.Shared.GameTicking;
 using Content.Shared.MagicMirror;
 using Content.Shared.Paper;
@@ -26,6 +31,60 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class ApartmentPersistenceTests
 {
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    [Test]
+    public async Task ActivePuddleSurvivesUnloadAndSpreadsAfterRestore()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var outside = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentSmall");
+            var entities = pair.Server.EntMan;
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var apartments = entities.System<ApartmentSystem>();
+            var puddles = entities.System<PuddleSystem>();
+            var body = entities.SpawnEntity("MobHuman", outside.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            Assert.That(apartments.Enter(session, session.UserId, out var message), Is.True, message);
+            var home = apartments.Instances[session.UserId];
+
+            var spreader = entities.GetComponent<SpreaderGridComponent>(home.Grid);
+            spreader.UpdateSpacing = 2;
+            var volume = FixedPoint2.New(100);
+            Assert.That(puddles.TrySpillAt(new EntityCoordinates(home.Grid, 2.5f, 7.5f), new Solution("Wine", volume),
+                out var puddle, sound: false), Is.True);
+            Assert.That(entities.HasComponent<ActiveEdgeSpreaderComponent>(puddle), Is.True);
+            Assert.That(spreader.SpreadQueues[new("Puddle")].Any(entry => entry.Owner == puddle), Is.True);
+
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            Unload(apartments, home);
+            Assert.That(entities.EntityExists(home.Grid), Is.False);
+            Assert.That(entities.EntityExists(puddle), Is.False);
+            var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", Private)!.GetValue(apartments)!;
+            Assert.That(store.LoadSnapshot(home.Owner.UserId, home.Template.ID)!.Grid, Does.Not.Contain("spreadQueues:"));
+
+            Assert.That(apartments.Enter(session, session.UserId, out message), Is.True, message);
+            var restored = apartments.Instances[session.UserId];
+            var restoredPuddle = entities.EntityQuery<PuddleComponent, TransformComponent>()
+                .Single(entry => entry.Item2.GridUid == restored.Grid).Item2.Owner;
+            Assert.That(puddles.CurrentVolume(restoredPuddle), Is.EqualTo(volume));
+            Assert.That(entities.HasComponent<ActiveEdgeSpreaderComponent>(restoredPuddle), Is.True);
+            var restoredSpreader = entities.GetComponent<SpreaderGridComponent>(restored.Grid);
+            Assert.That(restoredSpreader.UpdateSpacing, Is.EqualTo(2f));
+            Assert.That(restoredSpreader.SpreadQueues[new("Puddle")].Select(entry => entry.Owner), Is.EqualTo(new[] { restoredPuddle }));
+
+            entities.System<SpreaderSystem>().Update(restoredSpreader.UpdateSpacing);
+            Assert.That(puddles.CurrentVolume(restoredPuddle), Is.LessThan(volume));
+            Assert.That(entities.EntityQuery<PuddleComponent, TransformComponent>()
+                .Any(entry => entry.Item2.GridUid == restored.Grid && entry.Item2.Owner != restoredPuddle), Is.True);
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [Test]
     public async Task CheckpointsSkipFrozenApartmentsAndRestoreMirrorWithoutItsInteraction()
