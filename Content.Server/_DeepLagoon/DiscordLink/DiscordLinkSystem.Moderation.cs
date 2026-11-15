@@ -110,7 +110,7 @@ public sealed partial class DiscordLinkSystem
         var actingAdmin = await _database.GetAdminDataForAsync(actor);
         var permission = request.Operation switch
         {
-            "ban" or "job_ban" or "unban" or "job_unban" or "bans" or "jobs" => "BAN",
+            "ban" or "job_ban" or "unban" or "job_unban" or "bans" or "jobs" or "ban_permissions" => "BAN",
             "notes" => "VIEWNOTES",
             "note_add" or "note_edit" or "note_remove" or "watchlist_add" => "EDITNOTES",
             "player_info" => "VIEWNOTES",
@@ -125,6 +125,8 @@ public sealed partial class DiscordLinkSystem
         var staffClaim = request.ActorStaffRole != null && request.Operation is ("staff_add" or "staff_remove" or "staff_status");
         if (staffClaim ? !staffAuthority : !DiscordApiAuthority.Has(actingAdmin, permission))
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
+        if (request.Operation == "ban_permissions")
+            return new ApiResult(HttpStatusCode.OK, new { can_mass_ban = DiscordApiAuthority.Has(actingAdmin, "MASSBAN") });
         if (request.Operation == "player_info")
         {
             if (!DiscordApiAuthority.Has(actingAdmin, "BAN"))
@@ -180,7 +182,8 @@ public sealed partial class DiscordLinkSystem
         if (request.Operation is "ban" or "job_ban" or "note_add" or "note_edit" or "watchlist_add" &&
             (message.Length == 0 || message.Length > 2000)) return ModerationError("invalid_request");
         var expiry = request.Minutes > 0 ? DateTime.UtcNow.AddMinutes(request.Minutes) : (DateTime?) null;
-        if (request.Operation is "ban" or "job_ban" && _store?.ReserveApiCooldown("ban", 600) != true)
+        if (request.Operation is "ban" or "job_ban" &&
+            !DiscordApiAuthority.Has(actingAdmin, "MASSBAN") && _store?.ReserveApiCooldown("ban", 600) != true)
             return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "ban_cooldown" });
         if (request.Operation is "unban" or "job_unban" or "note_add" or "note_edit" or "note_remove" or "watchlist_add" &&
             _store?.ReserveApiCooldown("moderation-write", 5) != true)

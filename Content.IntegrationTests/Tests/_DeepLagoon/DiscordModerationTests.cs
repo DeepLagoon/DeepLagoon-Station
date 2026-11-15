@@ -41,7 +41,8 @@ public sealed class DiscordModerationTests
                 await database.UpdatePlayerRecordAsync(admin, "ApprovingAdmin", IPAddress.Loopback, null);
                 await database.AddAdminAsync(new DbAdmin { UserId = admin.UserId, Flags = new() {
                     new AdminFlag { Flag = "BAN" }, new AdminFlag { Flag = "VIEWNOTES" }, new AdminFlag { Flag = "EDITNOTES" } } });
-                await database.AddAdminAsync(new DbAdmin { UserId = viewer.UserId, Flags = new() { new AdminFlag { Flag = "VIEWNOTES" } } });
+                await database.AddAdminAsync(new DbAdmin { UserId = viewer.UserId, Flags = new() {
+                    new AdminFlag { Flag = "VIEWNOTES" }, new AdminFlag { Flag = "MASSBAN" } } });
                 return true;
             });
 
@@ -49,6 +50,7 @@ public sealed class DiscordModerationTests
             {
                 var request = JsonSerializer.Deserialize(JsonSerializer.Serialize(new {
                     Operation = operation, Uid = player.ToString(), ActorUid = actor.ToString(), Message = message, Id = id,
+                    Job = "Contractor",
                 }), requestType)!;
                 Task task = null!;
                 await server.WaitPost(() => task = (Task) moderate.Invoke(system, new[] { request, (object) player, actor })!);
@@ -60,6 +62,8 @@ public sealed class DiscordModerationTests
 
             Assert.That((await Call("player_info", viewer)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
             Assert.That((await Call("watchlist_add", viewer, "denied")).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            Assert.That((await Call("ban_permissions", viewer)).GetProperty("error").GetString(), Is.EqualTo("permissions_denied"));
+            Assert.That((await Call("ban_permissions", admin)).GetProperty("can_mass_ban").GetBoolean(), Is.False);
             Assert.That((await Call("watchlist_add", admin, "Watch the first rounds")).GetProperty("ok").GetBoolean(), Is.True);
             var watchlist = (await database.GetActiveWatchlists(player.UserId)).Single();
             Assert.That(watchlist.CreatedBy!.UserId, Is.EqualTo(admin));
@@ -74,6 +78,18 @@ public sealed class DiscordModerationTests
             card = await Call("player_info", admin);
             Assert.That(card.GetProperty("status").GetString(), Is.EqualTo("offline"));
             Assert.That(card.GetProperty("bans")[0].GetProperty("reason").GetString(), Is.EqualTo("Test ban"));
+
+            Assert.That((await Call("job_ban", admin, "Test job ban")).GetProperty("error").GetString(), Is.EqualTo("ban_cooldown"));
+            await PoolManager.WaitUntil(server, async () =>
+            {
+                var account = (await database.GetAdminDataForAsync(admin))!;
+                account.Flags.Add(new AdminFlag { Flag = "MASSBAN" });
+                await database.UpdateAdminAsync(account);
+                return true;
+            });
+            Assert.That((await Call("ban_permissions", admin)).GetProperty("can_mass_ban").GetBoolean(), Is.True);
+            Assert.That((await Call("job_ban", admin, "Test job ban")).GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That((await Call("ban", admin, "Second ban")).GetProperty("ok").GetBoolean(), Is.True);
         }
         finally
         {
