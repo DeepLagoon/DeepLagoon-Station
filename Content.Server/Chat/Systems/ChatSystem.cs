@@ -778,7 +778,7 @@ public sealed partial class ChatSystem : SharedChatSystem
 
             if (MessageRangeCheck(session, data, range) != MessageRangeCheckResult.Full ||
                 !recipients.Contains(listener) &&
-                !HasComp<GhostComponent>(listener))
+                !CanHearAllGhostChat(session, listener))
                 continue;
 
             var wrappedMessage = WrapWhisperMessage(source, "chat-manager-entity-whisper-wrap-message", name, perceivedMessage, language);
@@ -1159,10 +1159,8 @@ public sealed partial class ChatSystem : SharedChatSystem
     /// </summary>
     private Dictionary<ICommonSession, ICChatRecipientData> GetRecipients(EntityUid source, float voiceGetRange)
     {
-        // TODO proper speech occlusion
-
         var recipients = new Dictionary<ICommonSession, ICChatRecipientData>();
-        var ghostHearing = GetEntityQuery<GhostHearingComponent>();
+        var ghosts = GetEntityQuery<GhostComponent>();
         var xforms = GetEntityQuery<TransformComponent>();
 
         var transformSource = xforms.GetComponent(source);
@@ -1179,7 +1177,7 @@ public sealed partial class ChatSystem : SharedChatSystem
             if (transformEntity.MapID != sourceMapId)
                 continue;
 
-            var observer = ghostHearing.HasComponent(playerEntity);
+            var observer = ghosts.HasComp(playerEntity);
 
             // even if they are a ghost hearer, in some situations we still need the range
             if (sourceCoords.TryDistance(EntityManager, transformEntity.Coordinates, out var distance) && distance < voiceGetRange)
@@ -1188,11 +1186,33 @@ public sealed partial class ChatSystem : SharedChatSystem
                 continue;
             }
 
-            if (observer)
+            if (observer && CanHearAllGhostChat(player, playerEntity))
                 recipients.Add(player, new ICChatRecipientData(-1, true));
         }
 
         RaiseLocalEvent(new ExpandICChatRecipientsEvent(source, voiceGetRange, recipients));
+
+        // Relays can add recipients or supply a distance measured from a different entity.
+        // Ghosts without the admin override have to be able to see the speaker directly.
+        foreach (var (player, data) in recipients)
+        {
+            if (player.AttachedEntity is not { } listener || !ghosts.HasComp(listener))
+                continue;
+
+            var listenerTransform = xforms.GetComponent(listener);
+            if (listenerTransform.MapID == sourceMapId && CanHearAllGhostChat(player, listener))
+                continue;
+
+            if (!sourceCoords.TryDistance(EntityManager, listenerTransform.Coordinates, out var distance) ||
+                distance >= voiceGetRange || !CanSeeLocalGhostChat(listener, source, sourceCoords, voiceGetRange))
+            {
+                recipients.Remove(player);
+                continue;
+            }
+
+            recipients[player] = data with { Range = distance, Observer = true };
+        }
+
         return recipients;
     }
 

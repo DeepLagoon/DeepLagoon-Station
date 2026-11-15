@@ -32,6 +32,9 @@
       machine_board: !type:Container
       machine_parts: !type:Container
       smart_fridge_inventory: !type:Container
+  - type: EmptyOnMachineDeconstruct
+    containers:
+    - smart_fridge_inventory
   - type: LitOnPowered
   - type: ApcPowerReceiver
     powerLoad: 200

@@ -807,7 +807,6 @@
   - type: Machine
     board: SheetifierMachineCircuitboard
   - type: MaterialStorage
-    dropOnDeconstruct: false #should drop ores instead of ingots/sheets
     ignoreColor: true
     canEjectStoredMaterials: true # Frontier: false<true
     whitelist:

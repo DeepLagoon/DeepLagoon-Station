@@ -59,7 +59,7 @@ public sealed partial class ModSystem
         if (_timing.CurTime < comp.NextUse || !TryGetEffectTarget(suit, comp, user, out var target))
             return;
 
-        if (!_power.HasCharge(suit, Math.Max(comp.UseCharge, comp.Draw * TickInterval), user: user))
+        if (!_power.HasCharge(suit, comp.UseCharge, user: user))
             return;
 
         var activated = comp.Mode switch
@@ -134,14 +134,14 @@ public sealed partial class ModSystem
         _storage.OpenStorageUI(module, user, silent: false);
     }
 
-    private void OnActivateStorage(Entity<ModControlComponent> suit, ActivateInWorldEvent args)
+    private void OnActivateStorage(EntityUid suit, ModControlComponent control, ActivateInWorldEvent args)
     {
         // Suits with built-in storage already handle activation through StorageSystem.
         if (args.Handled || !args.Complex || HasComp<StorageComponent>(suit) || !CanUse(suit, args.User))
             return;
 
         EntityUid? storageModule = null;
-        foreach (var item in suit.Comp.Modules.ContainedEntities)
+        foreach (var item in control.Modules.ContainedEntities)
         {
             if (!TryComp<ModModuleComponent>(item, out var module) || module.Mode != ModModuleMode.Storage ||
                 !TryComp<StorageComponent>(item, out var storage) || !storage.OpenOnActivate)
@@ -365,12 +365,6 @@ public sealed partial class ModSystem
 
             if (!module.Active && module.Mode != ModModuleMode.Passive)
                 continue;
-
-            if (module.Draw > 0 && !_power.TryUseCharge(suit, module.Draw * TickInterval))
-            {
-                StopModule((uid, module));
-                continue;
-            }
 
             if (!module.Active)
                 EnableEffects(target, module, user);

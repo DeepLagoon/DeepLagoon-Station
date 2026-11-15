@@ -64,6 +64,9 @@
           - FitsInDispenser
   - type: Machine
     board: ReagentGrinderMachineCircuitboard
+  - type: EmptyOnMachineDeconstruct
+    containers:
+    - inputContainer
   - type: ContainerContainer
     containers:
       beakerSlot: !type:ContainerSlot

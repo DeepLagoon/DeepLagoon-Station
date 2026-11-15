@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using Content.Server.Storage.Components;
 using Content.Shared.Materials;
+using Content.Shared.Tag;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
@@ -9,6 +11,8 @@ public sealed partial class MaterialStorageSystem
 {
     [Dependency] private SharedTransformSystem _spillTransform = default!;
     [Dependency] private SharedMapSystem _spillMap = default!;
+    [Dependency] private TagSystem _tags = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
 
     private const int SpillStacksPerTick = 64;
     private const int SpillStacksPerStorage = 16;
@@ -16,7 +20,10 @@ public sealed partial class MaterialStorageSystem
 
     private readonly Queue<MaterialSpill> _spills = new();
 
-    private readonly record struct SpillStack(EntProtoId Prototype, int Count, int StackLimit);
+    private static readonly EntProtoId ResiduePrototype = "MaterialResidue";
+    private static readonly ProtoId<TagPrototype>[] MaterialTags = ["Ore", "Raw", "Wooden", "Sheet", "Metal", "Plastic", "Ingot"];
+
+    private readonly record struct SpillStack(EntProtoId Prototype, int Count, int StackLimit, MaterialPrototype? Residue = null);
 
     private sealed class MaterialSpill(EntityCoordinates coordinates, MapCoordinates lastPosition, Queue<SpillStack> stacks)
     {
@@ -26,7 +33,7 @@ public sealed partial class MaterialStorageSystem
         public int SpawnedFromCurrentStack;
     }
 
-    private void SpillOnDestruction(Entity<MaterialStorageComponent> storage)
+    private void QueueMaterialSpill(Entity<MaterialStorageComponent> storage)
     {
         if (storage.Comp.Storage.Count == 0)
             return;
@@ -43,28 +50,52 @@ public sealed partial class MaterialStorageSystem
                 continue;
             }
 
-            if (material.StackEntity is not { } prototype || !TryGetMaterialPerSheet(material, out var perSheet))
-                continue;
+            var remainder = amount;
+            if (material.StackEntity is { } prototype && TryGetMaterialPerSheet(material, out var perSheet))
+            {
+                var sheets = amount / perSheet;
+                var limit = _stackSystem.GetMaxCount(prototype);
+                if (sheets > 0 && limit > 0)
+                {
+                    stacks.Enqueue(new SpillStack(prototype, sheets, limit));
+                    remainder %= perSheet;
+                }
+            }
 
-            var sheets = amount / perSheet;
-            if (sheets == 0)
-                continue;
-
-            var stackLimit = _stackSystem.GetMaxCount(prototype);
-            if (stackLimit <= 0)
-                continue;
-
-            stacks.Enqueue(new SpillStack(prototype, sheets, stackLimit));
+            if (remainder > 0)
+                stacks.Enqueue(new SpillStack(ResiduePrototype, remainder, remainder, material));
         }
 
-        // The destroyed entity will be deleted this tick. Move ownership of the contents to the spill.
+        // Transfer the local stock to the spill and keep the old machine from collecting it this tick.
+        if (TryComp<MaterialStorageMagnetPickupComponent>(storage, out var magnet))
+            magnet.MagnetEnabled = false;
         storage.Comp.Storage.Clear();
+        Dirty(storage);
         if (stacks.Count == 0)
             return;
 
         var coordinates = Transform(storage).Coordinates;
         var spill = new MaterialSpill(coordinates, _spillTransform.ToMapCoordinates(coordinates), stacks);
         _spills.Enqueue(spill);
+    }
+
+    private void SpawnResidue(SpillStack drop, MaterialPrototype material, EntityCoordinates coordinates)
+    {
+        var residue = SpawnAtPosition(drop.Prototype, coordinates);
+        AddComp<PhysicalCompositionComponent>(residue).MaterialComposition.Add(material.ID, drop.Count);
+
+        if (material.StackEntity is { } stack && _prototypeManager.TryIndex(stack, out var prototype) &&
+            prototype.TryComp<TagComponent>(out var tags, EntityManager.ComponentFactory))
+        {
+            foreach (var tag in MaterialTags)
+            {
+                if (_tags.HasAllTags(tags, tag))
+                    _tags.AddTags(residue, tag);
+            }
+        }
+
+        _metadata.SetEntityName(residue, Loc.GetString("material-residue-name", ("material", Loc.GetString(material.Name))));
+        _metadata.SetEntityDescription(residue, Loc.GetString("material-residue-description", ("amount", drop.Count)));
     }
 
     public override void Update(float frameTime)
@@ -87,7 +118,10 @@ public sealed partial class MaterialStorageSystem
             for (var i = 0; i < SpillStacksPerStorage && spill.Stacks.TryPeek(out var stack); i++)
             {
                 var amount = Math.Min(stack.Count - spill.SpawnedFromCurrentStack, stack.StackLimit);
-                _stackSystem.SpawnStackAtPosition(stack.Prototype, amount, spill.Coordinates);
+                if (stack.Residue is { } material)
+                    SpawnResidue(stack, material, spill.Coordinates);
+                else
+                    _stackSystem.SpawnStackAtPosition(stack.Prototype, amount, spill.Coordinates);
                 spill.SpawnedFromCurrentStack += amount;
                 if (spill.SpawnedFromCurrentStack == stack.Count)
                 {

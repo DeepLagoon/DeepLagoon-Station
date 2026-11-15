@@ -47,7 +47,7 @@ public sealed partial class MaterialStorageSystem : SharedMaterialStorageSystem
         if (!component.DropOnDeconstruct)
             return;
 
-        DropAll((uid, component));
+        QueueMaterialSpill((uid, component));
     }
 
     // Mono
@@ -56,16 +56,7 @@ public sealed partial class MaterialStorageSystem : SharedMaterialStorageSystem
         if (!ent.Comp.DropOnDestroy)
             return;
 
-        SpillOnDestruction(ent);
-    }
-
-    // Mono
-    public void DropAll(Entity<MaterialStorageComponent> ent)
-    {
-        var coord = Transform(ent).Coordinates;
-
-        foreach (var (material, amount) in ent.Comp.Storage)
-            SpawnMultipleFromMaterial(amount, material, coord);
+        QueueMaterialSpill(ent);
     }
 
     // Start Frontier: add value of contents to appraisal price

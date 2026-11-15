@@ -20,7 +20,6 @@
     context: "aghost"
   - type: Ghost
     canInteract: true
-  - type: GhostHearing
   - type: Hands
   - type: ComplexInteraction
   - type: Puller

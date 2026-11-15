@@ -64,6 +64,9 @@
     keysExtractionMethod: Prying
     keySlots: 10
   - type: TelecomServer
+  - type: EmptyOnMachineDeconstruct
+    containers:
+    - key_slots
   - type: ContainerContainer
     containers:
       key_slots: !type:Container

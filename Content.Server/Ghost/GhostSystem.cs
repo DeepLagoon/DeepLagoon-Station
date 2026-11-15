@@ -105,7 +105,6 @@ namespace Content.Server.Ghost
             SubscribeNetworkEvent<GhostnadoRequestEvent>(OnGhostnadoRequest);
 
             SubscribeLocalEvent<GhostComponent, BooActionEvent>(OnActionPerform);
-            SubscribeLocalEvent<GhostComponent, ToggleGhostHearingActionEvent>(OnGhostHearingAction);
             SubscribeLocalEvent<GhostComponent, InsertIntoEntityStorageAttemptEvent>(OnEntityStorageInsertAttempt);
             SubscribeLocalEvent<GhostComponent, PriceCalculationEvent>(OnPriceCalculation); // Frontier
 
@@ -144,29 +143,6 @@ namespace Content.Server.Ghost
             {
                 args.VisibilityMask |= (int)VisibilityFlags.Ghost;
             }
-        }
-
-        private void OnGhostHearingAction(EntityUid uid, GhostComponent component, ToggleGhostHearingActionEvent args)
-        {
-            args.Handled = true;
-
-            if (HasComp<GhostHearingComponent>(uid))
-            {
-                RemComp<GhostHearingComponent>(uid);
-                _actions.SetToggled(component.ToggleGhostHearingActionEntity, true);
-            }
-            else
-            {
-                AddComp<GhostHearingComponent>(uid);
-                _actions.SetToggled(component.ToggleGhostHearingActionEntity, false);
-            }
-
-            var str = HasComp<GhostHearingComponent>(uid)
-                ? Loc.GetString("ghost-gui-toggle-hearing-popup-on")
-                : Loc.GetString("ghost-gui-toggle-hearing-popup-off");
-
-            Popup.PopupEntity(str, uid, uid);
-            Dirty(uid, component);
         }
 
         private void OnActionPerform(EntityUid uid, GhostComponent component, BooActionEvent args)
@@ -257,7 +233,6 @@ namespace Content.Server.Ghost
         private void OnMapInit(EntityUid uid, GhostComponent component, MapInitEvent args)
         {
             _actions.AddAction(uid, ref component.BooActionEntity, component.BooAction);
-            _actions.AddAction(uid, ref component.ToggleGhostHearingActionEntity, component.ToggleGhostHearingAction);
             _actions.AddAction(uid, ref component.ToggleLightingActionEntity, component.ToggleLightingAction);
             _actions.AddAction(uid, ref component.ToggleFoVActionEntity, component.ToggleFoVAction);
             _actions.AddAction(uid, ref component.ToggleGhostsActionEntity, component.ToggleGhostsAction);

@@ -1,0 +1,17 @@
+- type: entity
+  id: MaterialResidue
+  parent: BaseItem
+  name: material remnants
+  description: Material left over from manufacturing.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Materials/ore.rsi
+    state: scrapore
+  - type: Item
+    size: Tiny
+  - type: Tag
+    tags:
+    - Raw
+    - RawMaterial
+  - type: Material

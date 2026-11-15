@@ -1,5 +1,6 @@
 using Content.Shared.Construction;
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Storage;
 using JetBrains.Annotations;
 using Robust.Shared.Containers;
 
@@ -19,6 +20,12 @@ namespace Content.Server.Containers
 
             SubscribeLocalEvent<EmptyOnMachineDeconstructComponent, MachineDeconstructedEvent>(OnDeconstruct);
             SubscribeLocalEvent<ItemSlotsComponent, MachineDeconstructedEvent>(OnSlotsDeconstruct);
+            SubscribeLocalEvent<StorageComponent, MachineDeconstructedEvent>(OnStorageDeconstruct);
+        }
+
+        private void OnStorageDeconstruct(EntityUid uid, StorageComponent component, MachineDeconstructedEvent args)
+        {
+            _container.EmptyContainer(component.Container, true, Transform(uid).Coordinates);
         }
 
         // really this should be handled by ItemSlotsSystem, but for whatever reason MachineDeconstructedEvent is server-side? So eh.

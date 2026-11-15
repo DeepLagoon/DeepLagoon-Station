@@ -1,7 +1,6 @@
 using Content.Shared.Damage;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs.Components;
-using Content.Shared.Stealth;
 using Content.Shared.Stealth.Components;
 using Content.Shared.Weapons.Melee.Events;
 using Content.Shared.Weapons.Ranged.Events;
@@ -17,8 +16,6 @@ public sealed partial class ModCloakedComponent : Component
 
 public sealed partial class ModSystem
 {
-    [Dependency] private SharedStealthSystem _stealth = default!;
-
     private void InitializeCloak()
     {
         SubscribeLocalEvent<ModCloakedComponent, DamageChangedEvent>(OnCloakDamaged);
@@ -30,17 +27,12 @@ public sealed partial class ModSystem
 
     private bool EnableCloak(Entity<ModModuleComponent> module, EntityUid user)
     {
-        if (HasComp<StealthComponent>(user))
+        if (HasComp<StealthComponent>(user) || HasComp<StealthOnMoveComponent>(user))
             return false;
 
         var cloak = AddComp<ModCloakedComponent>(user);
         cloak.Module = module;
-        var stealth = AddComp<StealthComponent>(user);
-        _stealth.SetVisibility(user, -0.5f, stealth);
-        module.Comp.AppliedEffects.Add(stealth);
-        module.Comp.EffectTarget = user;
-        module.Comp.Active = true;
-        return true;
+        return EnableEffects(user, module.Comp, user);
     }
 
     private void OnCloakDamaged(Entity<ModCloakedComponent> wearer, ref DamageChangedEvent args)

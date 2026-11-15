@@ -31,9 +31,6 @@ public sealed partial class ModModuleComponent : Component
     public string Family = default!;
 
     [DataField]
-    public float Draw;
-
-    [DataField]
     public float UseCharge = 2;
 
     [DataField]

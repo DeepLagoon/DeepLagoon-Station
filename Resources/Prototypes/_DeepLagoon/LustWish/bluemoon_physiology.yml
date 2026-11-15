@@ -145,26 +145,38 @@
     DLHexacamphor: 1
 - type: interactionPanelSound
   id: final_m1
+  name: dl-interaction-panel-sound-final-m1
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_m1.ogg
   volume: -5
 - type: interactionPanelSound
   id: final_m2
+  name: dl-interaction-panel-sound-final-m2
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_m2.ogg
   volume: -5
 - type: interactionPanelSound
   id: final_m3
+  name: dl-interaction-panel-sound-final-m3
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_m3.ogg
   volume: -5
 - type: interactionPanelSound
   id: final_f1
+  name: dl-interaction-panel-sound-final-f1
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_f1.ogg
   volume: -5
 - type: interactionPanelSound
   id: final_f2
+  name: dl-interaction-panel-sound-final-f2
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_f2.ogg
   volume: -5
 - type: interactionPanelSound
   id: final_f3
+  name: dl-interaction-panel-sound-final-f3
+  category: dl-interaction-panel-sounds-lewd
   path: /Audio/_DeepLagoon/Interaction_Panel/final_f3.ogg
   volume: -5
 

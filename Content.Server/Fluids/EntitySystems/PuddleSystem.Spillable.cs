@@ -1,10 +1,12 @@
 using Content.Server.Chemistry.Containers.EntitySystems;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry;
 using Content.Shared.Clothing;
 using Content.Shared.CombatMode.Pacification;
+using Content.Shared.Construction;
 using Content.Shared.Database;
 using Content.Shared.FixedPoint;
 using Content.Shared.Fluids.Components;
@@ -30,6 +32,17 @@ public sealed partial class PuddleSystem
         SubscribeLocalEvent<SpillableComponent, SolutionContainerOverflowEvent>(OnOverflow);
         SubscribeLocalEvent<SpillableComponent, SpillDoAfterEvent>(OnDoAfter);
         SubscribeLocalEvent<SpillableComponent, AttemptPacifiedThrowEvent>(OnAttemptPacifiedThrow);
+        SubscribeLocalEvent<SolutionContainerManagerComponent, MachineDeconstructedEvent>(OnMachineDeconstructed);
+    }
+
+    private void OnMachineDeconstructed(EntityUid uid, SolutionContainerManagerComponent component, MachineDeconstructedEvent args)
+    {
+        foreach (var (_, solution) in _solutionContainerSystem.EnumerateSolutions((uid, component), includeSelf: false))
+        {
+            var volume = solution.Comp.Solution.Volume;
+            if (volume > 0)
+                TrySpillAt(uid, _solutionContainerSystem.SplitSolution(solution, volume), out _);
+        }
     }
 
     private void OnOverflow(Entity<SpillableComponent> entity, ref SolutionContainerOverflowEvent args)

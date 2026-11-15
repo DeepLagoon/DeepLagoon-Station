@@ -166,3 +166,11 @@ dl-interaction-panel-moan-chance = Moan chance
 dl-interaction-panel-moan-help = { "" }
 dl-interaction-panel-arousal-multiplier = Arousal gain
 dl-interaction-panel-arousal-multiplier-help = { "" }
+
+dl-interaction-panel-sounds-lewd = { dl-interaction-panel-category-erp }
+dl-interaction-panel-sound-final-m1 = Climax (male voice), variant 1
+dl-interaction-panel-sound-final-m2 = Climax (male voice), variant 2
+dl-interaction-panel-sound-final-m3 = Climax (male voice), variant 3
+dl-interaction-panel-sound-final-f1 = Climax (female voice), variant 1
+dl-interaction-panel-sound-final-f2 = Climax (female voice), variant 2
+dl-interaction-panel-sound-final-f3 = Climax (female voice), variant 3

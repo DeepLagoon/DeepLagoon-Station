@@ -117,6 +117,12 @@ dl-interaction-panel-sound-bite = Укусить
 
 dl-interaction-panel-sound-female-final = Кончить(женский)
 dl-interaction-panel-sound-female-final-m = Кончить(мужской)
+dl-interaction-panel-sound-final-m1 = Кульминация (мужской голос), вариант 1
+dl-interaction-panel-sound-final-m2 = Кульминация (мужской голос), вариант 2
+dl-interaction-panel-sound-final-m3 = Кульминация (мужской голос), вариант 3
+dl-interaction-panel-sound-final-f1 = Кульминация (женский голос), вариант 1
+dl-interaction-panel-sound-final-f2 = Кульминация (женский голос), вариант 2
+dl-interaction-panel-sound-final-f3 = Кульминация (женский голос), вариант 3
 
 dl-interaction-panel-ask-limited = Новый запрос пока недоступен. Между запросами — 60 с; после отказа/тайм-аута — 120 с. Получатель также может заблокировать запросы до конца раунда.
 dl-interaction-panel-ask-block = Не спрашивать меня до конца раунда

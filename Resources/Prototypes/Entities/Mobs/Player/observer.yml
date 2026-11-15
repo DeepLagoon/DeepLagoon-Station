@@ -97,7 +97,6 @@
       Poison: 1
       Asphyxiation: 1
     prefix: "ghost_"
-  - type: GhostHearing
   - type: ShowElectrocutionHUD
   - type: IntrinsicRadioReceiver
   - type: ActiveRadio

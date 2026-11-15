@@ -9840,7 +9840,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_abdomen_sides_wide_alt_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_abdomen_sides_wide_alt_chestfemale.rsi
     state: abdomen_sides_wide_alt_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoAbdomen_sidesNarrowChestMale
@@ -9880,7 +9880,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_abdoment_gradient_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_abdoment_gradient_chestmale.rsi
     state: upper_abdomen_gradient_light_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_abdoment_gradientChestFemale
@@ -9888,7 +9888,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_abdoment_gradient_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_abdoment_gradient_chestfemale.rsi
     state: upper_abdomen_gradient_light_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradientChestMale
@@ -9912,7 +9912,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_1_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_1_chestmale.rsi
     state: upper_chest_gradient_alt_1_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradient_alt_1ChestFemale
@@ -9920,7 +9920,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_1_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_1_chestfemale.rsi
     state: upper_chest_gradient_alt_1_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradient_alt_2ChestMale
@@ -9928,7 +9928,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_2_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_2_chestmale.rsi
     state: upper_chest_gradient_alt_2_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradient_alt_2ChestFemale
@@ -9936,7 +9936,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_2_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_2_chestfemale.rsi
     state: upper_chest_gradient_alt_2_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradient_alt_3ChestMale
@@ -9944,7 +9944,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_3_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_3_chestmale.rsi
     state: upper_chest_gradient_alt_3_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoUpper_chest_gradient_alt_3ChestFemale
@@ -9952,7 +9952,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_upper_chest_gradient_alt_3_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_upper_chest_gradient_alt_3_chestfemale.rsi
     state: upper_chest_gradient_alt_3_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoAbdominalsChestMale
@@ -10120,7 +10120,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_spine_wide_shoulders_alt_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_spine_wide_shoulders_alt_chestmale.rsi
     state: spine_wide_shoulders_alt_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoSpine_wide_shoulders_altChestFemale
@@ -10128,7 +10128,7 @@
   markingCategory: Chest
   sexRestriction: Female
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_torso_spine_wide_shoulders_alt_chestfemale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_torso_spine_wide_shoulders_alt_chestfemale.rsi
     state: spine_wide_shoulders_alt_chest_f_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTorsoSpine_wide_lowChestMale
@@ -10434,7 +10434,7 @@
   markingCategory: Chest
   sexRestriction: Male
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/mam_body_markings_plain_style_tattoo_upper_torso_lines_short_chestmale.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_tattoo_upper_torso_lines_short_chestmale.rsi
     state: tattoo_upper_torso_lines_short_chest_m_primary_0
 - type: marking
   id: BlueMoonMam_body_markingsPlain_styleTattooArms_linesLArm
@@ -20239,11 +20239,11 @@
   speciesRestriction:
   - Synth
   sprites:
-  - sprite: _DeepLagoon/Customization/BlueMoon/snouts_mam_snouts_synthliz_synthlizbarlessalt_tertunder_snout.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_snout_synthliz_barless_alt_tertunder.rsi
     state: m_snout_synthlizbarlessalt_tertunder_adj_primary_0
-  - sprite: _DeepLagoon/Customization/BlueMoon/snouts_mam_snouts_synthliz_synthlizbarlessalt_tertunder_snout.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_snout_synthliz_barless_alt_tertunder.rsi
     state: m_snout_synthlizbarlessalt_tertunder_adj_secondary_1
-  - sprite: _DeepLagoon/Customization/BlueMoon/snouts_mam_snouts_synthliz_synthlizbarlessalt_tertunder_snout.rsi
+  - sprite: _DeepLagoon/Customization/BlueMoon/mam_snout_synthliz_barless_alt_tertunder.rsi
     state: m_snout_synthlizbarlessalt_tertunder_adj_tertiary_2
 - type: marking
   id: BlueMoonSnoutsMam_snoutsSynthlizSynthlizaxonSnout

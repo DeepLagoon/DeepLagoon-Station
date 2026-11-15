@@ -6,7 +6,6 @@ using Content.Server.Cargo.Systems;
 using Content.Server.Chemistry.Containers.EntitySystems;
 using Content.Server.Construction;
 using Content.Server.DoAfter;
-using Content.Server.Fluids.EntitySystems;
 using Content.Server.Kitchen.Components;
 using Content.Server.Nutrition;
 using Content.Server.Nutrition.Components;
@@ -19,7 +18,6 @@ using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reagent;
-using Content.Shared.Construction;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.Database;
@@ -76,7 +74,6 @@ public sealed partial class DeepFryerSystem : SharedDeepfryerSystem
     [Dependency] private MobStateSystem _mobStateSystem = default!;
     [Dependency] private SolutionContainerSystem _solutionContainerSystem = default!;
     [Dependency] private SolutionTransferSystem _solutionTransferSystem = default!;
-    [Dependency] private PuddleSystem _puddleSystem = default!;
     [Dependency] private TemperatureSystem _temperature = default!;
     [Dependency] private UserInterfaceSystem _uiSystem = default!;
     [Dependency] private AmbientSoundSystem _ambientSoundSystem = default!;
@@ -105,7 +102,6 @@ public sealed partial class DeepFryerSystem : SharedDeepfryerSystem
         SubscribeLocalEvent<DeepFryerComponent, ComponentInit>(OnInitDeepFryer);
         SubscribeLocalEvent<DeepFryerComponent, PowerChangedEvent>(OnPowerChange);
         SubscribeLocalEvent<DeepFryerComponent, RefreshPartsEvent>(OnRefreshParts);
-        SubscribeLocalEvent<DeepFryerComponent, MachineDeconstructedEvent>(OnDeconstruct);
         SubscribeLocalEvent<DeepFryerComponent, DestructionEventArgs>(OnDestruction);
         SubscribeLocalEvent<DeepFryerComponent, ThrowHitByEvent>(OnThrowHitBy);
         SubscribeLocalEvent<DeepFryerComponent, SolutionChangedEvent>(OnSolutionChange);
@@ -484,12 +480,6 @@ public sealed partial class DeepFryerSystem : SharedDeepfryerSystem
         _appearanceSystem.SetData(uid, DeepFryerVisuals.Bubbling, args.Powered);
         UpdateNextFryTime(uid, component);
         UpdateAmbientSound(uid, component);
-    }
-
-    private void OnDeconstruct(EntityUid uid, DeepFryerComponent component, MachineDeconstructedEvent args)
-    {
-        // The EmptyOnMachineDeconstruct component handles the entity container for us.
-        _puddleSystem.TrySpillAt(uid, component.Solution, out var _);
     }
 
     private void OnDestruction(EntityUid uid, DeepFryerComponent component, DestructionEventArgs args)

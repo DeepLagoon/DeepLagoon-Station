@@ -23,7 +23,6 @@
     mode: Storage
     family: storage
     complexity: 1
-    draw: 0
     useCharge: 0
   - type: Storage
     grid:
@@ -46,7 +45,6 @@
     mode: Storage
     family: storage
     complexity: 3
-    draw: 0
     useCharge: 0
   - type: Storage
     grid:
@@ -69,7 +67,6 @@
     mode: Storage
     family: ore-storage
     complexity: 1
-    draw: 0
     useCharge: 0
   - type: Storage
     grid:
@@ -96,7 +93,6 @@
     mode: Storage
     family: holster
     complexity: 2
-    draw: 0
     useCharge: 0
   - type: Storage
     grid:
@@ -122,7 +118,6 @@
     mode: Storage
     family: medical-organizer
     complexity: 2
-    draw: 0
     useCharge: 0
   - type: Storage
     grid:
@@ -145,7 +140,6 @@
     mode: Flashlight
     family: light
     complexity: 1
-    draw: 0.6
     useCharge: 2
 
 - type: entity
@@ -160,7 +154,6 @@
     mode: Toggle
     family: welding
     complexity: 1
-    draw: 0.1
     useCharge: 2
     slot: head
     effects:
@@ -178,7 +171,6 @@
     mode: Passive
     family: traction
     complexity: 1
-    draw: 0.15
     useCharge: 2
     slot: shoes
     effects:
@@ -196,7 +188,6 @@
     mode: Magboots
     family: traction
     complexity: 2
-    draw: 0.5
     useCharge: 2
     slot: shoes
 
@@ -212,7 +203,6 @@
     mode: Jetpack
     family: jetpack
     complexity: 3
-    draw: 2.5
     useCharge: 5
 
 - type: entity
@@ -227,7 +217,6 @@
     mode: Jetpack
     family: jetpack
     complexity: 3
-    draw: 1.2
     useCharge: 5
 
 - type: entity
@@ -242,7 +231,6 @@
     mode: Passive
     family: emp-shield
     complexity: 1
-    draw: 0.3
     useCharge: 2
     effects:
     - type: ModEmpShield
@@ -259,7 +247,6 @@
     mode: Passive
     family: radiation
     complexity: 2
-    draw: 0.6
     useCharge: 2
     damageCoefficients:
       Radiation: 0.55
@@ -276,7 +263,6 @@
     mode: Passive
     family: armor
     complexity: 2
-    draw: 0.4
     useCharge: 2
     damageCoefficients:
       Piercing: 0.85
@@ -293,7 +279,6 @@
     mode: Passive
     family: armor
     complexity: 2
-    draw: 0.4
     useCharge: 2
     damageCoefficients:
       Heat: 0.8
@@ -310,7 +295,6 @@
     mode: Passive
     family: armor
     complexity: 2
-    draw: 0.4
     useCharge: 2
     damageCoefficients:
       Blunt: 0.8
@@ -328,7 +312,6 @@
     mode: Passive
     family: armor
     complexity: 2
-    draw: 0.4
     useCharge: 2
     effects:
     - type: FireProtection
@@ -346,7 +329,6 @@
     mode: ThermalRegulator
     family: thermal-regulator
     complexity: 1
-    draw: 0.65
     useCharge: 2
     slot: outerClothing
 
@@ -362,9 +344,16 @@
     mode: Cloak
     family: cloak
     complexity: 4
-    draw: 2.5
     useCharge: 10
     useDelay: 5
+    effects:
+    - type: Stealth
+      lastVisibility: 1
+      minVisibility: -0.5
+    - type: StealthOnMove
+      passiveVisibilityRate: -0.75
+      movementVisibilityRate: 0
+      invisibilityPenalty: 0
 
 - type: entity
   id: ModModuleMedicalHud
@@ -378,7 +367,6 @@
     mode: Toggle
     family: visor
     complexity: 1
-    draw: 0.5
     useCharge: 2
     slot: head
     effects:
@@ -397,7 +385,6 @@
     mode: Toggle
     family: visor
     complexity: 1
-    draw: 0.5
     useCharge: 2
     slot: head
     effects:
@@ -417,7 +404,6 @@
     mode: Toggle
     family: visor
     complexity: 1
-    draw: 0.5
     useCharge: 2
     slot: head
     effects:
@@ -438,7 +424,6 @@
     mode: Toggle
     family: visor
     complexity: 2
-    draw: 1
     useCharge: 2
     slot: head
     effects:
@@ -458,7 +443,6 @@
     mode: Toggle
     family: visor
     complexity: 3
-    draw: 1.75
     useCharge: 2
     slot: head
     effects:
@@ -479,7 +463,6 @@
     mode: Toggle
     family: reagent
     complexity: 1
-    draw: 0.4
     useCharge: 2
     slot: head
     effects:
@@ -497,7 +480,6 @@
     mode: Tool
     family: gps
     complexity: 1
-    draw: 0.45
     useCharge: 2
     tool: ModToolGps
 
@@ -538,7 +520,6 @@
     mode: Tool
     family: trayscanner
     complexity: 1
-    draw: 0.45
     useCharge: 2
     slot: gloves
     tool: ModToolTrayScanner
@@ -592,7 +573,6 @@
     mode: Tool
     family: healthanalyzer
     complexity: 1
-    draw: 0.45
     useCharge: 2
     slot: gloves
     tool: ModToolHealthAnalyzer
@@ -634,7 +614,6 @@
     mode: Tool
     family: defibrillator
     complexity: 2
-    draw: 2
     useCharge: 75
     slot: gloves
     tool: ModToolDefibrillator
@@ -676,7 +655,6 @@
     mode: Tool
     family: injector
     complexity: 1
-    draw: 0.45
     useCharge: 2
     slot: gloves
     tool: ModToolInjector
@@ -724,7 +702,6 @@
     mode: Tool
     family: drill
     complexity: 1
-    draw: 1.5
     useCharge: 2
     slot: gloves
     tool: ModToolDrill
@@ -766,7 +743,6 @@
     mode: Tool
     family: tether
     complexity: 2
-    draw: 0.45
     useCharge: 10
     slot: gloves
     tool: ModToolTether
@@ -808,7 +784,6 @@
     mode: Tool
     family: constructor
     complexity: 2
-    draw: 0.45
     useCharge: 2
     slot: gloves
     tool: ModToolConstructor
@@ -850,7 +825,6 @@
     mode: Tool
     family: stamp
     complexity: 1
-    draw: 0.2
     useCharge: 2
     slot: gloves
     tool: ModToolStamp
@@ -892,7 +866,6 @@
     mode: Tool
     family: cleaner
     complexity: 2
-    draw: 0.6
     useCharge: 2
     slot: gloves
     tool: ModToolCleaner
@@ -934,7 +907,6 @@
     mode: Tool
     family: bikehorn
     complexity: 1
-    draw: 0.15
     useCharge: 2
     slot: gloves
     tool: ModToolBikeHorn
@@ -976,7 +948,6 @@
     mode: Toggle
     family: energy-shield
     complexity: 3
-    draw: 6
     useCharge: 60
     effects:
     - type: PersonalShield
@@ -1001,7 +972,6 @@
     mode: Dispense
     family: paper
     complexity: 1
-    draw: 0
     useCharge: 30
     useDelay: 6
     dispense: Paper

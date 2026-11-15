@@ -10,6 +10,7 @@ using Content.Shared.Body.Systems;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Construction;
 using Content.Shared.Database;
 using Content.Shared.Destructible;
 using Content.Shared.Emag.Components;
@@ -52,6 +53,7 @@ public sealed partial class MaterialReclaimerSystem : SharedMaterialReclaimerSys
         SubscribeLocalEvent<MaterialReclaimerComponent, RefreshPartsEvent>(OnRefreshParts); // Frontier: machine components
         SubscribeLocalEvent<MaterialReclaimerComponent, UpgradeExamineEvent>(OnUpgradeExamine); // Frontier: machine components
         SubscribeLocalEvent<MaterialReclaimerComponent, PowerChangedEvent>(OnPowerChanged);
+        SubscribeLocalEvent<MaterialReclaimerComponent, MachineDeconstructedEvent>(OnDeconstructed);
         SubscribeLocalEvent<MaterialReclaimerComponent, InteractUsingEvent>(OnInteractUsing,
             before: [typeof(WiresSystem), typeof(SolutionTransferSystem)]);
         SubscribeLocalEvent<MaterialReclaimerComponent, SuicideByEnvironmentEvent>(OnSuicideByEnvironment);
@@ -59,6 +61,16 @@ public sealed partial class MaterialReclaimerSystem : SharedMaterialReclaimerSys
 
         SubscribeLocalEvent<MaterialReclaimerComponent, BreakageEventArgs>(OnBreakage);
         SubscribeLocalEvent<MaterialReclaimerComponent, RepairedEvent>(OnRepaired);
+    }
+
+    private void OnDeconstructed(EntityUid uid, MaterialReclaimerComponent component, MachineDeconstructedEvent args)
+    {
+        SetReclaimerEnabled(uid, false, component);
+        if (!TryComp<ActiveMaterialReclaimerComponent>(uid, out var active))
+            return;
+
+        Container.EmptyContainer(active.ReclaimingContainer, true, Transform(uid).Coordinates);
+        RemComp(uid, active);
     }
 
     private void OnUpgradeExamine(Entity<MaterialReclaimerComponent> entity, ref UpgradeExamineEvent args)
