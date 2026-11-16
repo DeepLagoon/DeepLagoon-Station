@@ -93,11 +93,15 @@ public sealed class RadarInterfaceLayoutTests
                         panel.SwitchToNative();
                         Assert.That(closeButton.VisibleInTree, Is.True, window.GetType().Name);
                         Assert.That(Descendants(window).OfType<ShuttleNavControl>().Single().VisibleInTree, Is.True);
+                        if (window == mass)
+                            Assert.That(Descendants(window).OfType<ShuttleNavControl.RadarModeButton>().Count(button => button.VisibleInTree), Is.EqualTo(3));
                         Assert.That(panel.SwitchToTgui(), Is.True);
                         Assert.That(panel.VisibleInTree, Is.True,
                             "TGUI must remain visible after switching: " + window.GetType().Name);
                         Assert.That(closeButton.VisibleInTree, Is.True,
                             "The shared window header must remain visible: " + window.GetType().Name);
+                        if (window == mass)
+                            Assert.That(Descendants(window).OfType<ShuttleNavControl.RadarModeButton>().Any(button => button.VisibleInTree), Is.False);
                     }
                     if (closeInNative) panel.SwitchToNative();
                     var closed = false;

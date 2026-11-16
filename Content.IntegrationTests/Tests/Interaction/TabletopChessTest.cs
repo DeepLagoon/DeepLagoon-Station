@@ -6,6 +6,7 @@ using Content.Client.Viewport;
 using Content.Shared._CE.ZLevels.Core.Components;
 using Content.Shared.Input;
 using Content.Shared.Tabletop.Components;
+using Content.Shared.Tabletop.Events;
 using Moq;
 using Robust.Client.ComponentTrees;
 using Robust.Client.Graphics;
@@ -15,20 +16,73 @@ using Robust.Shared.Input;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using ClientTabletop = Content.Client.Tabletop.TabletopSystem;
+using ServerTabletop = Content.Server.Tabletop.TabletopSystem;
+using ViewSubscriberSystem = Robust.Server.GameObjects.ViewSubscriberSystem;
 
 namespace Content.IntegrationTests.Tests.Interaction;
 
 public sealed class TabletopChessTest : InteractionTest
 {
     [Test]
+    public async Task OpensWhenCameraArrivesAfterPlayEvent()
+    {
+        var table = await SpawnChessBoard();
+        var receivedPlayEvent = false;
+        var camera = EntityUid.Invalid;
+        NetEntity netCamera = default;
+        var net = CEntMan.EntityNetManager;
+
+        void OnMessage(object sender, object message)
+        {
+            if (message is TabletopPlayEvent play && play.TableUid == table)
+                receivedPlayEvent = true;
+        }
+
+        await Client.WaitPost(() => net.ReceivedSystemMessage += OnMessage);
+        try
+        {
+            await Server.WaitPost(() =>
+            {
+                var existingViews = ServerSession.ViewSubscriptions.ToHashSet();
+                SEntMan.System<ServerTabletop>().OpenSessionFor(ServerSession, ToServer(table));
+                camera = ServerSession.ViewSubscriptions.Single(view => !existingViews.Contains(view));
+                netCamera = SEntMan.GetNetEntity(camera);
+                // Hold the camera out of PVS while the real server sends the play event.
+                SEntMan.System<ViewSubscriberSystem>().RemoveViewSubscriber(camera, ServerSession);
+            });
+            await Pair.ReallyBeIdle(12);
+            await Client.WaitAssertion(() =>
+            {
+                Assert.That(receivedPlayEvent, Is.True);
+                Assert.That(CEntMan.TryGetEntity(netCamera, out _), Is.False);
+                Assert.That(UiMan.WindowRoot.Children.OfType<TabletopWindow>(), Is.Empty);
+            });
+
+            await Server.WaitPost(() => SEntMan.System<ViewSubscriberSystem>().AddViewSubscriber(camera, ServerSession));
+            await Pair.ReallyBeIdle(12);
+            await Client.WaitAssertion(() =>
+            {
+                var window = UiMan.WindowRoot.Children.OfType<TabletopWindow>().Single();
+                var eye = window.FindControl<ScalingViewport>("ScalingVp").Eye!;
+                Assert.That(eye.Position.MapId, Is.EqualTo(CEntMan.GetComponent<TransformComponent>(ToClient(netCamera)).MapID));
+                Assert.That(eye.Position.MapId, Is.Not.EqualTo(Robust.Shared.Map.MapId.Nullspace));
+                window.Close();
+            });
+            await Pair.ReallyBeIdle(5);
+            await Server.WaitAssertion(() => Assert.That(SEntMan.EntityExists(camera), Is.False));
+        }
+        finally
+        {
+            await Client.WaitPost(() => net.ReceivedSystemMessage -= OnMessage);
+        }
+    }
+
+    [Test]
     public async Task RendersChessCameraAndDragsPawn()
     {
-        NetEntity table = default;
-        await Server.WaitPost(() => table = SEntMan.GetNetEntity(
-            SEntMan.SpawnEntity("ChessBoard", SEntMan.GetCoordinates(TargetCoords))));
-        await Pair.ReallyBeIdle(5);
+        var table = await SpawnChessBoard();
         await PressKey(ContentKeyFunctions.ActivateItemInWorld, cursorEntity: table);
-        await Pair.ReallyBeIdle(5);
+        await Pair.ReallyBeIdle(12);
 
         var input = new Mock<IInputManager>();
         var inputField = typeof(ClientTabletop).GetField("_inputManager", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -96,6 +150,18 @@ public sealed class TabletopChessTest : InteractionTest
                 window?.Close();
             });
         }
+    }
+
+    private async Task<NetEntity> SpawnChessBoard()
+    {
+        NetEntity table = default;
+        await Server.WaitPost(() =>
+        {
+            Server.CfgMan.SetCVar(Robust.Shared.CVars.NetPVS, true);
+            table = SEntMan.GetNetEntity(SEntMan.SpawnEntity("ChessBoard", SEntMan.GetCoordinates(TargetCoords)));
+        });
+        await Pair.ReallyBeIdle(12);
+        return table;
     }
 
     private void AssertChessCameraRenders(ScalingViewport viewport)

@@ -120,12 +120,12 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         Off,
     }
 
+    private bool _nativeRadarModeButtonsVisible = true;
     private BoxContainer? _radarModeButtons;
-    private RadarModeButton? _radarAzimuthButton;
-    private RadarModeButton? _radarRotationButton;
     private RadarModeButton? _radarAnchorButton;
-    private RadarModeButton? _radarResetButton;
     private RadarAzimuthMode _azimuthMode;
+
+    internal bool CanPanRadar => Draggable;
 
     public ShuttleNavControl() : this(64f, 256f, 256f) { } // Mono
 
@@ -217,17 +217,36 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         PanToEnt();
     }
 
+    internal void SetNativeRadarModeButtonsVisible(bool visible)
+    {
+        _nativeRadarModeButtonsVisible = visible;
+        if (_radarModeButtons != null)
+            _radarModeButtons.Visible = visible;
+        if (visible)
+        {
+            EnsureRadarModeButtons();
+            UpdatePanningControls();
+        }
+    }
+
     private void EnsureRadarModeButtons()
     {
-        if (_radarModeButtons != null)
+        if (!_nativeRadarModeButtonsVisible || Parent is not LayoutContainer parent)
             return;
 
-        if (Parent is not LayoutContainer parent)
+        if (_radarModeButtons?.Parent == parent)
             return;
-
         LayoutContainer.SetAnchorPreset(this, LayoutContainer.LayoutPreset.Wide);
 
-        _radarModeButtons = new BoxContainer
+        _radarModeButtons ??= CreateRadarModeButtons();
+        _radarModeButtons.Orphan();
+        parent.AddChild(_radarModeButtons);
+        LayoutContainer.SetAnchorAndMarginPreset(_radarModeButtons, LayoutContainer.LayoutPreset.BottomLeft, margin: 10);
+    }
+
+    private BoxContainer CreateRadarModeButtons()
+    {
+        var buttons = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Horizontal,
             SeparationOverride = 2,
@@ -236,71 +255,75 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
             MouseFilter = MouseFilterMode.Stop,
         };
 
-        _radarAzimuthButton = CreateRadarModeButton(RadarModeButtonIcon.Azimuth);
-        _radarAzimuthButton.ToolTip = Loc.GetString("shuttle-console-button-azimuth");
-        _radarAzimuthButton.OnPressed += _ =>
-        {
-            _azimuthMode = _azimuthMode switch
-            {
-                RadarAzimuthMode.Edge => RadarAzimuthMode.Ring,
-                RadarAzimuthMode.Ring => RadarAzimuthMode.Off,
-                _ => RadarAzimuthMode.Edge,
-            };
-        };
+        var azimuth = CreateRadarModeButton(RadarModeButtonIcon.Azimuth);
+        azimuth.ToolTip = Loc.GetString("shuttle-console-button-azimuth");
+        azimuth.OnPressed += _ => CycleRadarAzimuth();
+        buttons.AddChild(azimuth);
 
-        _radarRotationButton = CreateRadarModeButton(RadarModeButtonIcon.Rotation);
-        _radarRotationButton.ToolTip = Loc.GetString("shuttle-console-button-rotation");
-        _radarRotationButton.OnPressed += _ =>
-        {
-            PanToWorld();
-            _angleFollow ^= true;
-            PanToEnt();
-        };
+        var rotation = CreateRadarModeButton(RadarModeButtonIcon.Rotation);
+        rotation.ToolTip = Loc.GetString("shuttle-console-button-rotation");
+        rotation.OnPressed += _ => ToggleRadarRotation();
+        buttons.AddChild(rotation);
 
         _radarAnchorButton = CreateRadarModeButton(RadarModeButtonIcon.Anchor);
         _radarAnchorButton.ToolTip = Loc.GetString("shuttle-console-button-anchor");
-        _radarAnchorButton.OnPressed += _ =>
+        _radarAnchorButton.OnPressed += _ => ToggleRadarAnchor();
+        buttons.AddChild(_radarAnchorButton);
+
+        var reset = CreateRadarModeButton(RadarModeButtonIcon.Reset);
+        reset.ToolTip = Loc.GetString("shuttle-console-button-reset");
+        reset.OnPressed += _ => ResetRadarView();
+        buttons.AddChild(reset);
+        return buttons;
+    }
+
+    internal void CycleRadarAzimuth()
+    {
+        _azimuthMode = _azimuthMode switch
         {
-            if (!Draggable || _coordinates is not { } cord)
-                return;
-
-            // if we're anchored or not yet bound to map, just deanchor
-            if (_relativePanning || !EntManager.HasComponent<MapComponent>(cord.EntityId))
-            {
-                PanToWorld();
-                // we're deanchoring, so simply detach our view to the map
-                _coordinates = _transform.ToCoordinates(_transform.ToMapCoordinates(cord));
-                _relativePanning = false;
-                _wasPanned = true;
-                PanToEnt();
-            }
-            else
-            {
-                ReanchorView();
-            }
+            RadarAzimuthMode.Edge => RadarAzimuthMode.Ring,
+            RadarAzimuthMode.Ring => RadarAzimuthMode.Off,
+            _ => RadarAzimuthMode.Edge,
         };
+    }
 
-        _radarResetButton = CreateRadarModeButton(RadarModeButtonIcon.Reset);
-        _radarResetButton.ToolTip = Loc.GetString("shuttle-console-button-reset");
-        _radarResetButton.OnPressed += _ =>
+    internal void ToggleRadarRotation()
+    {
+        PanToWorld();
+        _angleFollow ^= true;
+        PanToEnt();
+    }
+
+    internal void ToggleRadarAnchor()
+    {
+        if (!Draggable || _coordinates is not { } cord)
+            return;
+
+        if (_relativePanning || !EntManager.HasComponent<MapComponent>(cord.EntityId))
         {
-            _radarModeDefaultsApplied = false;
-            ApplyRadarModeDefaults();
-            if (Draggable && EntManager.TryGetComponent<TransformComponent>(_consoleEntity, out var xform))
-            {
-                Offset = Vector2.Zero;
-                _coordinates = xform.Coordinates;
-                ReanchorView();
-            }
-        };
+            PanToWorld();
+            // Detach the view from the current grid and keep its map position.
+            _coordinates = _transform.ToCoordinates(_transform.ToMapCoordinates(cord));
+            _relativePanning = false;
+            _wasPanned = true;
+            PanToEnt();
+        }
+        else
+        {
+            ReanchorView();
+        }
+    }
 
-        _radarModeButtons.AddChild(_radarAzimuthButton);
-        _radarModeButtons.AddChild(_radarRotationButton);
-        _radarModeButtons.AddChild(_radarAnchorButton);
-        _radarModeButtons.AddChild(_radarResetButton);
-
-        parent.AddChild(_radarModeButtons);
-        LayoutContainer.SetAnchorAndMarginPreset(_radarModeButtons, LayoutContainer.LayoutPreset.BottomLeft, margin: 10);
+    internal void ResetRadarView()
+    {
+        _radarModeDefaultsApplied = false;
+        ApplyRadarModeDefaults();
+        if (Draggable && EntManager.TryGetComponent<TransformComponent>(_consoleEntity, out var xform))
+        {
+            Offset = Vector2.Zero;
+            _coordinates = xform.Coordinates;
+            ReanchorView();
+        }
     }
 
     private void UpdatePanningControls()

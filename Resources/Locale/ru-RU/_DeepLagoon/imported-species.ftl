@@ -170,10 +170,10 @@ ent-LeftFootDemon = левая ступня арканы
 ent-RightFootDemon = правая ступня арканы
     .desc = Правая ступня арканы.
 
-ent-MobDemon = Урист МакАркана
-    .desc = Урист МакАркана.
-ent-BaseMobDemon = Урисст МакАркана
-    .desc = Урист МакАркана.
+ent-MobDemon = Аркана
+    .desc = { "" }
+ent-BaseMobDemon = Аркана
+    .desc = { "" }
     .suffix = Аркана
 ent-MobDemonDummy = Манекен арканы
     .desc = Манекен арканы для настройки персонажа.

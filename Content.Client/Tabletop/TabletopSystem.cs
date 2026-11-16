@@ -14,6 +14,7 @@ using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Map;
+using Robust.Shared.Player;
 using Robust.Shared.Timing;
 using static Robust.Shared.Input.Binding.PointerInputCmdHandler;
 
@@ -31,7 +32,9 @@ namespace Content.Client.Tabletop
 
         // Time in seconds to wait until sending the location of a dragged entity to the server again
         private const float Delay = 1f / 10; // 10 Hz
+        private static readonly TimeSpan CameraTimeout = TimeSpan.FromSeconds(15);
 
+        private (TabletopPlayEvent Request, TimeSpan Deadline)? _pendingGame;
         private float _timePassed; // Time passed since last update sent to the server.
         private EntityUid? _draggedEntity; // Entity being dragged
         private ScalingViewport? _viewport; // Viewport currently being used
@@ -42,6 +45,7 @@ namespace Content.Client.Tabletop
         {
             base.Initialize();
             UpdatesOutsidePrediction = true;
+            UpdatesAfter.Add(typeof(EyeSystem));
 
             CommandBinds.Builder
                 .Bind(EngineKeyFunctions.Use, new PointerInputCmdHandler(OnUse, false, true))
@@ -49,6 +53,7 @@ namespace Content.Client.Tabletop
                 .Register<TabletopSystem>();
 
             SubscribeNetworkEvent<TabletopPlayEvent>(OnTabletopPlay);
+            SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
             SubscribeLocalEvent<TabletopDraggableComponent, ComponentRemove>(HandleDraggableRemoved);
             SubscribeLocalEvent<TabletopDraggableComponent, AppearanceChangeEvent>(OnAppearanceChange);
         }
@@ -61,11 +66,12 @@ namespace Content.Client.Tabletop
 
         public override void FrameUpdate(float frameTime)
         {
-            if (_window == null)
+            if (_playerManager.LocalEntity is not { } playerEntity)
                 return;
 
-            // If there is no player entity, return
-            if (_playerManager.LocalEntity is not { } playerEntity)
+            TryOpenPendingGame(playerEntity);
+
+            if (_window == null)
                 return;
 
             if (!CanSeeTable(playerEntity, _table))
@@ -118,31 +124,43 @@ namespace Content.Client.Tabletop
 
         /// <summary>
         /// Runs when the player presses the "Play Game" verb on a tabletop game.
-        /// Opens a viewport where they can then play the game.
+        /// The play event and the camera state can arrive on different ticks.
         /// </summary>
         private void OnTabletopPlay(TabletopPlayEvent msg)
         {
             // Close the currently opened window, if it exists
             _window?.Close();
+            _pendingGame = (msg, _gameTiming.RealTime + CameraTimeout);
+        }
 
-            _table = GetEntity(msg.TableUid);
+        private void TryOpenPendingGame(EntityUid player)
+        {
+            if (_pendingGame is not { } pending)
+                return;
 
-            // Get the camera entity that the server has created for us
-            var camera = GetEntity(msg.CameraUid);
+            var (request, deadline) = pending;
+            var hasTable = TryGetEntity(request.TableUid, out var table);
 
-            if (!TryComp<EyeComponent>(camera, out var eyeComponent))
+            if (_gameTiming.RealTime >= deadline || hasTable && !CanSeeTable(player, table))
             {
-                // If there is no eye, print error and do not open any window
-                Log.Error("Camera entity does not have eye component!");
+                _pendingGame = null;
+                RaiseNetworkEvent(new TabletopStopPlayingEvent(request.TableUid));
                 return;
             }
 
-            // Create a window to contain the viewport
-            _window = new TabletopWindow(eyeComponent.Eye, (msg.Size.X, msg.Size.Y))
+            if (!hasTable || !TryGetEntity(request.CameraUid, out var camera) ||
+                !TryComp<EyeComponent>(camera, out var eyeComponent) || eyeComponent.Eye.Position.MapId == MapId.Nullspace)
+            {
+                return;
+            }
+
+            _pendingGame = null;
+            _table = table;
+            _window = new TabletopWindow(eyeComponent.Eye, request.Size)
             {
                 MinWidth = 500,
                 MinHeight = 436,
-                Title = msg.Title
+                Title = request.Title
             };
 
             _window.OnClose += OnWindowClose;
@@ -150,13 +168,28 @@ namespace Content.Client.Tabletop
 
         private void OnWindowClose()
         {
+            StopDragging();
             if (_table != null)
             {
                 RaiseNetworkEvent(new TabletopStopPlayingEvent(GetNetEntity(_table.Value)));
             }
 
-            StopDragging();
             _window = null;
+            _table = null;
+        }
+
+        private void OnPlayerDetached(LocalPlayerDetachedEvent args)
+        {
+            _pendingGame = null;
+            if (_window is { } window)
+            {
+                window.OnClose -= OnWindowClose;
+                window.Close();
+            }
+
+            StopDragging(false);
+            _window = null;
+            _table = null;
         }
 
         private bool OnUse(in PointerInputCmdArgs args)

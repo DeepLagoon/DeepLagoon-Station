@@ -22,7 +22,7 @@ export const Context = createContext(null);
 window.actions = [];
 function App() {
  const [data, setData] = useState({ mode: 0,
-  nav: { name:'Пелагея', designation:'DL-014', position:'X: 124.8 / Y: −40.2', azimuth:'124.0°', velocity:'X: 18.5 / Y: 0.0', angular:'0.0°/s', search:'', range:3000, speed:'60', iff:true, docks:true, dampener:1,
+  nav: { name:'Пелагея', designation:'DL-014', position:'X: 124.8 / Y: −40.2', azimuth:'124.0°', velocity:'X: 18.5 / Y: 0.0', angular:'0.0°/s', search:'', range:3000, speed:'60', iff:true, details:true, docks:true, pannable:true, dampener:1,
     ports:Array.from({length:8},(_,i)=>({id:i+1,name:'Порт '+(i+1)})) },
   weapons:{status:'Сервер орудий подключён',hasWeapons:true,entries:Array.from({length:24},(_,i)=>({id:'gun'+i,name:(i%2?'Лазер':'Корабельная пушка')+' №'+(i+1)+' · '+(40-i)+' снарядов',selected:i<2}))},
   map:{status:'FTL готов',progress:.4,destinations:[{id:'target',name:'Станция DeepLagoon'}]},
@@ -32,6 +32,7 @@ function App() {
  window.detectWeapons = found => setData(d=>({...d,weapons:{...d.weapons,hasWeapons:found}}));
  window.previewWeaponCount = count => setData(d=>({...d,weapons:{...d.weapons,hasWeapons:count>0,entries:d.weapons.entries.slice(0,count)}}));
  window.previewConsole = kind => setData(d=>({...d,kind,online:true}));
+ window.previewPannable = pannable => setData(d=>({...d,nav:{...d.nav,pannable}}));
  return <Context.Provider value={{data,act:(action,payload)=>{window.actions.push({action,payload});if(action==='mode')setData(d=>({...d,mode:payload.value}));}}}>{data.kind ? <ShipRadarConsole/> : <ShuttleConsole/>}</Context.Provider>;
 }
 createRoot(document.getElementById('root')).render(<App/>);
@@ -338,6 +339,7 @@ try {
     console.log(`PASS ${width}x${height}: matte graphite, rectangular viewport, ports/actions; ${screenshot}`);
     // Standalone consoles must share the measured aperture without acquiring
     // shuttle-only controls or losing their existing command channels.
+    let gunneryBox;
     for (const kind of ['gunnery', 'mass', 'handheld']) {
       await page.evaluate(kind => window.previewConsole(kind), kind);
       await page.locator(`[data-kind="${kind}"]`).waitFor();
@@ -354,13 +356,36 @@ try {
         await page.screenshot({path:path.join(output, `${kind}-${width}.png`)});
         continue;
       }
-      await page.getByRole('button', {name:'IFF',exact:true}).click();
-      assert.ok(await page.evaluate(() => window.actions.some(a=>a.action==='radar'&&a.payload.id==='iff')));
       if (kind === 'gunnery') {
+        gunneryBox = box;
+        await page.getByRole('button', {name:'IFF',exact:true}).click();
+        assert.ok(await page.evaluate(() => window.actions.some(a=>a.action==='radar'&&a.payload.id==='iff')));
         await page.getByRole('button', {name:'Баллистика',exact:true}).click();
         await page.locator('.ShuttleConsole__weapons button').first().click();
         assert.ok(await page.evaluate(() => window.actions.some(a=>a.action==='weapon'&&a.payload.id==='gun0')));
-      } else assert.equal(await page.locator('.ShuttleConsole__weapons').count(), 0);
+      } else {
+        assert.equal(await page.locator('.ShuttleConsole__weapons, header').count(), 0);
+        assert.equal(await page.getByRole('button', {name:'Закрыть',exact:true}).count(), 0);
+        assert.equal(await page.getByText('3000 м', {exact:true}).count(), 1);
+        assert.ok(box.width > gunneryBox.width && box.height > gunneryBox.height, 'Mass scanner must give the map more space');
+
+        const sidebar = page.locator('aside');
+        assert.ok(await sidebar.evaluate(el => el.scrollHeight <= el.clientHeight), 'Scanner controls must fit in the sidebar');
+        await page.evaluate(() => { window.actions.length = 0; });
+        for (const name of ['IFF', 'Подробно', 'Азимут', 'Вращение', 'Привязка', 'Сброс']) {
+          const button = sidebar.getByRole('button', {name,exact:true});
+          assert.ok(await button.isVisible(), `Missing visible sidebar control: ${name}`);
+          await button.click();
+        }
+        assert.deepEqual(
+          await page.evaluate(() => window.actions.filter(a => a.action === 'radar').map(a => a.payload.id)),
+          ['iff', 'details', 'azimuth', 'rotation', 'anchor', 'reset']);
+        const anchor = sidebar.getByRole('button', {name:'Привязка',exact:true});
+        await page.evaluate(() => window.previewPannable(false));
+        await anchor.waitFor({state:'detached'});
+        await page.evaluate(() => window.previewPannable(true));
+        await anchor.waitFor();
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await page.screenshot({path:path.join(output, `${kind}-${width}.png`)});
       if (kind === 'gunnery' && width === 1060) {

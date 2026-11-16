@@ -11,7 +11,7 @@ namespace Content.Client._DeepLagoon.Shuttles;
 public sealed class ShipRadarConsoleHost : Control
 {
     public TguiPanel Tgui { get; }
-    private readonly BaseShuttleControl _radar;
+    private readonly ShuttleNavControl _radar;
     private readonly LayoutContainer _layer;
     private readonly ShuttleRadarGlassControl _glass;
     private readonly Func<TguiData> _state;
@@ -50,11 +50,13 @@ public sealed class ShipRadarConsoleHost : Control
         radar.FitViewport = true;
         radar.CircularRadar = kind == "handheld";
         radar.Visible = false;
+        if (kind == "mass") radar.SetNativeRadarModeButtonsVisible(false);
         Tgui = new TguiPanel(inheritChatAppearance: false) { InterfaceStyleKey = "ShipRadarConsole." + kind };
         AddChild(Tgui);
         _layer = new LayoutContainer { MouseFilter = MouseFilterMode.Ignore };
         AddChild(_layer);
         _layer.AddChild(radar);
+        LayoutContainer.SetAnchorPreset(radar, LayoutContainer.LayoutPreset.Wide);
         _glass = new ShuttleRadarGlassControl { Visible = false, ShowHardware = false };
         _layer.AddChild(_glass);
         Tgui.OnClose += close;
@@ -75,6 +77,7 @@ public sealed class ShipRadarConsoleHost : Control
             Visible = false;
             foreach (var (control, visible) in nativeSiblings) control.Visible = visible;
             restoreNative();
+            if (_kind != "gunnery") radar.SetNativeRadarModeButtonsVisible(true);
         });
         Tgui.SetTguiRestore(() =>
         {
@@ -84,6 +87,7 @@ public sealed class ShipRadarConsoleHost : Control
             radar.FitViewport = true;
             radar.CircularRadar = _kind == "handheld";
             _layer.AddChild(radar);
+            if (_kind != "gunnery") radar.SetNativeRadarModeButtonsVisible(_kind == "handheld");
             _glass.SetPositionLast();
             // The native radar and this host can share several ancestors, including
             // the container holding the window header. Keep that entire path visible.
@@ -117,6 +121,10 @@ public sealed class ShipRadarConsoleHost : Control
                     case "iff": radar.ShowIFF ^= true; break;
                     case "details": radar.ShowIFFDetailed ^= true; break;
                     case "docks" when _kind == "gunnery": radar.ShowDocks ^= true; break;
+                    case "azimuth" when _kind == "mass": radar.CycleRadarAzimuth(); break;
+                    case "rotation" when _kind == "mass": radar.ToggleRadarRotation(); break;
+                    case "anchor" when _kind == "mass": radar.ToggleRadarAnchor(); break;
+                    case "reset" when _kind == "mass": radar.ResetRadarView(); break;
                 }
             }
             Publish();
@@ -131,6 +139,7 @@ public sealed class ShipRadarConsoleHost : Control
         Tgui.InterfaceStyleKey = "ShipRadarConsole." + _kind;
         _glass.Visible = handheld && _viewport.Z > 0 && _viewport.W > 0;
         _radar.CircularRadar = handheld;
+        if (!Tgui.UsingNative) _radar.SetNativeRadarModeButtonsVisible(handheld);
         Publish();
     }
 
@@ -148,10 +157,9 @@ public sealed class ShipRadarConsoleHost : Control
     public void Publish()
     {
         if (Tgui.UsingNative) return;
-        var radar = (ShuttleNavControl)_radar;
         Tgui.SetIncrementalState("ShipRadarConsole", _state().String("kind", _kind)
-            .Object("nav", new TguiData().Bool("iff", radar.ShowIFF).Bool("details", radar.ShowIFFDetailed)
-                .Bool("docks", radar.ShowDocks).Number("range", radar.WorldRange)), _title);
+            .Object("nav", new TguiData().Bool("iff", _radar.ShowIFF).Bool("details", _radar.ShowIFFDetailed)
+                .Bool("docks", _radar.ShowDocks).Bool("pannable", _radar.CanPanRadar).Number("range", _radar.WorldRange)), _title);
     }
 
     protected override void FrameUpdate(FrameEventArgs args)

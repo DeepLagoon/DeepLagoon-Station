@@ -11,12 +11,11 @@ export const ShipRadarConsole = () => {
     <RadarScope compact />
   </div>;
   return <ShipConsoleFrame className="ShuttleConsole ShipRadarConsole" data-kind={data.kind}>
-    <header><span className="ShuttleConsole__sticker">{gunner ? 'Контроль орудий' : 'Сканер масс'}</span>
+    {gunner && <header><span className="ShuttleConsole__sticker">Контроль орудий</span>
       <nav><Key selected={nav.iff} onClick={() => send('radar', 'iff')}>IFF</Key>
         <Key selected={nav.details} onClick={() => send('radar', 'details')}>Подробно</Key>
-        {gunner ? <Key selected={nav.docks} onClick={() => send('radar', 'docks')}>Доки</Key> :
-          <span className="ShuttleConsole__status">{Math.round(nav.range || 0)} м</span>}</nav>
-      <Key aria-label="Закрыть" onClick={() => act('close')}>×</Key></header>
+        <Key selected={nav.docks} onClick={() => send('radar', 'docks')}>Доки</Key></nav>
+      <Key aria-label="Закрыть" onClick={() => act('close')}>×</Key></header>}
     <main><RadarScope title={gunner ? 'Тактический радар' : 'Сканер масс'}
       indicator={gunner ? 'FIRE CONTROL' : 'SCANNER'} active={gunner ? weapons.hasWeapons : data.online}
       statusLabel={gunner ? weapons.status : data.online ? 'Сканер подключён' : 'Ожидание данных сканера'}
@@ -38,9 +37,26 @@ export const ShipRadarConsole = () => {
               {weapon.name}{weapon.selected && <progress className="ShuttleConsole__reload" max="1" value={weapon.reload ?? 1}
                 aria-label={`Перезарядка: ${weapon.name}`} />}
             </Key>)}{!weapons.entries?.length && <p>Подключите сервер орудий.</p>}</div>
-        </section> : <section><Plate>Обозначения</Plate><div className="ShipRadarConsole__legend">
-          <span>Контуры — объекты сектора</span><span>IFF — подписи кораблей</span><span>Подробно — сведения IFF</span>
-        </div></section>}
+        </section> : <>
+          <section><Plate>Обозначения</Plate><div className="ShipRadarConsole__legend">
+            <span>Контуры — объекты сектора</span>
+            <span>IFF — подписи кораблей</span>
+            <span>Подробно — сведения IFF</span>
+          </div>
+            <div className="ShipRadarConsole__keys">
+              <Key selected={nav.iff} onClick={() => send('radar', 'iff')}>IFF</Key>
+              <Key selected={nav.details} onClick={() => send('radar', 'details')}>Подробно</Key>
+            </div>
+          </section>
+          <section><Plate>Вид карты</Plate>
+            <div className="ShipRadarConsole__keys">
+              <Key title="Переключить режим отображения азимута" onClick={() => send('radar', 'azimuth')}>Азимут</Key>
+              <Key title="Переключить вращение карты" onClick={() => send('radar', 'rotation')}>Вращение</Key>
+              {nav.pannable && <Key title="Переключить привязку вида" onClick={() => send('radar', 'anchor')}>Привязка</Key>}
+              <Key title="Сбросить вид карты" onClick={() => send('radar', 'reset')}>Сброс</Key>
+            </div>
+          </section>
+        </>}
         {shield.present && <section><Plate>Состояние щита</Plate><div className="ShuttleConsole__status">{shield.status}</div>
           <progress className="ShuttleConsole__progress" max="1" value={shield.health || 0} aria-label="Прочность щита" />
           <div>{Math.round((shield.health || 0) * 100)}% · {shield.load}</div>

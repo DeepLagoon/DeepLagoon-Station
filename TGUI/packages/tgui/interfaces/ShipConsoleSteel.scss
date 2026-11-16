@@ -68,7 +68,11 @@
   .ShuttleConsole__settings section { border: 0; background: transparent; padding: 4px; box-shadow: none; }
   .ShuttleConsole__progress, .ShuttleConsole__reload { accent-color: #829dAD; }
   .ShuttleConsole__weapons p { color: #98a4ad; }
-  .ShipRadarConsole__legend { display: grid; gap: 10px; color: #a9b7c0; padding: 5px 0; }
+  .ShipRadarConsole__legend { display: grid; gap: 5px; color: #a9b7c0; font-size: 11px; }
+  .ShipRadarConsole__keys {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 8px;
+    > button { padding-inline: 3px; white-space: nowrap; }
+  }
   footer { color: #85939d; font-size: 10px; }
   @media (max-width: 820px), (max-height: 560px) {
     padding: 8px;
@@ -77,6 +81,11 @@
     > header nav > button { font-size: 10px; padding: 5px; }
     main { grid-template-columns: minmax(0, 1fr) 250px; gap: 7px; padding-top: 7px; }
     .ShuttleConsole__indicator { font-size: 9px; }
+  }
+  &.ShipRadarConsole[data-kind='mass'] > main {
+    grid-template-columns: minmax(0, 1fr) minmax(196px, 24%);
+    height: 100%;
+    padding-top: 0;
   }
 }
 
