@@ -96,10 +96,10 @@ public sealed partial class ScalingViewport
     private ShaderInstance? _transitBlitShader;
     private ShaderInstance? _cloudShader;
 
-    private void RenderZLevels(IRenderHandle renderHandle, IClydeViewport viewport)
+    private bool TryRenderZLevels(IRenderHandle renderHandle, IClydeViewport viewport)
     {
         if (_eye is null)
-            return;
+            return false;
 
         _fallbackEye = _eye;
 
@@ -112,16 +112,16 @@ public sealed partial class ScalingViewport
         _mapSystem ??= _entityManager.System<SharedMapSystem>();
 
         if (_player.LocalEntity is null)
-            return;
+            return false;
 
         if (!_entityManager.TryGetComponent<CEZLevelViewerComponent>(_player.LocalEntity.Value, out var zLevelViewer))
-            return;
+            return false;
 
         if (!_xformQuery.Value.TryComp(_player.LocalEntity, out var playerXform))
-            return;
+            return false;
 
         if (playerXform.MapUid is null)
-            return;
+            return false;
 
         var playerMap = playerXform.MapUid.Value;
 
@@ -337,6 +337,7 @@ public sealed partial class ScalingViewport
         // Restore the Eye
         Eye = _fallbackEye;
         viewport.Eye = Eye;
+        return true;
     }
 
     private void RenderTransitOverhead(IRenderHandle renderHandle,

@@ -162,9 +162,9 @@ namespace Content.Client.Viewport
 
             DebugTools.AssertNotNull(_viewport);
 
-            RenderZLevels(handle, _viewport!); // CrystallEdge Process multi-Z rendering
-
-            //_viewport!.Render();
+            // Auxiliary viewports use their own camera, independent of the player's Z-levels.
+            if (!ReferenceEquals(_eyeManager.MainViewport, this) || !TryRenderZLevels(handle, _viewport!))
+                _viewport!.Render();
 
             if (_queuedScreenshots.Count != 0)
             {
