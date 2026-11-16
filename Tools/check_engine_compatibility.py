@@ -25,6 +25,11 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Client/Graphics/Clyde/Windowing/Sdl3.Event.cs",
     "Robust.Client/Graphics/Clyde/Windowing/Sdl3.RawEvent.cs",
     "Robust.UnitTesting/Client/Graphics/MouseButtonPositionTest.cs",
+    # Bound the client console queue and repeated missing-RSI diagnostics.
+    "Robust.Client/GameObjects/EntitySystems/SpriteSystem.Helpers.cs",
+    "Robust.Client/UserInterface/CustomControls/DebugConsole.xaml.cs",
+    "Robust.Client.IntegrationTests/Sprite/SpriteErrorLoggingTest.cs",
+    "Robust.Client.IntegrationTests/UserInterface/DebugConsoleTest.cs",
     "Robust.Shared/Prototypes/PrototypeManager.cs",
     "Robust.Shared.IntegrationTests/Prototypes/PrototypeReloadTests.cs",
     "Robust.Shared/Physics/Systems/FixtureSystem.cs",
