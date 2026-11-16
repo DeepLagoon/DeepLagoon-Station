@@ -31,6 +31,7 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Physics/Systems/FixtureSystem.Validation.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Components.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.cs",
+    "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Queries.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.GridSubsteps.cs",
     "Robust.Shared.IntegrationTests/Physics/GridMotionSubstepTests.cs",
     "Robust.Client/UserInterface/UserInterfaceManager.Scaling.cs",
