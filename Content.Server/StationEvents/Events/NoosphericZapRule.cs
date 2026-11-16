@@ -43,7 +43,9 @@ internal sealed partial class NoosphericZapRule : StationEventSystem<NoosphericZ
             }
             else
             {
-                _psionicsSystem.RollPsionics(psion, psionicComponent, true, component.PowerRerollMultiplier);
+                if (HasComp<LatentPsychicComponent>(psion))
+                    _psionicsSystem.RollPsionics(psion, psionicComponent, true, component.PowerRerollMultiplier);
+
                 _popupSystem.PopupEntity(Loc.GetString("noospheric-zap-seize"), psion, psion, Shared.Popups.PopupType.LargeCaution);
             }
         }

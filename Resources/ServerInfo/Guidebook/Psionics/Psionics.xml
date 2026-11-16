@@ -16,7 +16,7 @@ Many other creatures can have power scaling different from that of a human, and 
 five times as much Amplification as the baseline, causing their Pyromancy to be substantially more dangerous than that of a human Pyromancer.
 
 ## Psionic Potential
-Indivividuals who have the potential to become psionic are known as Latents; however, not all individuals show the required sensitivity to psionic phenomena. ((This is determined by the Latent Psionic trait that can be taken at character selection.)) Non-Latent individuals have never shown the ability to manifest psionic abilities.
+Individuals sensitive enough to awaken psionic powers spontaneously are known as Latents. ((Select the Latent Psychic trait during character creation.)) Hallucinogenic reagents can also awaken powers in other characters.
 
 While most active psions are at least moderately telepathic; it requires dedication and training to be able to truly create a telepathic 'voice' with which to communicate.
 
@@ -38,17 +38,15 @@ Worshippers of Oracle are granted great power in exchange for her service, and m
 
 ## Acquiring Psionics
 
-First, an individual must be a Latent Psychic. Without the Potential for powers, an individual can never in their life obtain psionic abilities. Each individual has an initial "D100 Roll" to generate a random amount of Potentia, which is added to their baseline.
-When the individual's Potentia exceeds a threshold given by Gunderaan's Second Law:
+The Latent Psychic trait gives a chance to awaken one power after spawning and allows further awakenings during noöspheric events.
+Hallucinogenic reagents and some noöspheric events add a random amount of Potentia. The amount required for a new power follows Gunderaan's Second Law:
 
 Potentia Threshold Y = 100 * 2^(total powers).
 
 Once this threshold is met by an individual, they will awaken a new psionic power and the Potentia used to generate such power is "spent". Notably, the scale for Potentia thresholds is an exponential one. Your first psionic power costs 100 Potentia. The second will cost 200.
 The third will cost 400, the fourth will cost 800, the fifth will cost 1600. There is no upper limit to how many powers an individual may have, only an exponentially increasing time and drugs requirement.
 
-All Latent Psychics start with a baseline 4 points of Potentia, plus some random amount between 0 and 100. Some particular individuals may have a higher baseline chance. After this initial chance, individuals may increase
-their psionic potential by consuming large quantities of hallucinogenic drugs. When this happens, the local Glimmer also acts as a way of increasing the chances of
-obtaining powers. Each individual has "One Free Reroll" of their powers, so use it wisely. There is also a small chance that psionic individuals may be given a seizure from noospheric activity, which will unlock a new opportunity to gain Potentia.
+Local Glimmer increases the chances of obtaining powers from hallucinogenic drugs. Each individual has one reagent attempt, which certain reagents or noöspheric activity can restore.
 
 The amount of Potentia gained via drug consumption is given by Gunderaan's Third Law:
 

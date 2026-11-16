@@ -445,6 +445,7 @@
   - !type:TraitAddComponent
     components:
     - type: Psionic
+    - type: LatentPsychic
   requirements:
   - kind: Group
     values:

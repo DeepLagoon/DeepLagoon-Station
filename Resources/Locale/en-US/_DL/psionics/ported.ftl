@@ -987,11 +987,8 @@ character-item-group-TraitsCasterType = Psicaster Type
 trait-name-LatentPsychic = Latent Psychic
 
 trait-description-LatentPsychic =
-    Your mind and soul are open to the noosphere, allowing for use of Telepathy.
-    Thus, you are eligible for potentially receiving psychic powers.
+    Your connection to the noosphere gives you a chance to awaken a psionic power after spawning or during noospheric events.
     It is possible that you may be hunted by otherworldly forces, so consider keeping your powers a secret.
-    Latent psychics have no special abilities, modifiers, or unique features compared to other psions.
-    However they can become more or less anything given time and resources.
 
 trait-name-PsionicInsulation = χ Waveform Misalignment
 

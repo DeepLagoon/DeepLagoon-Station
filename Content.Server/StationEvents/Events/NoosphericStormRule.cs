@@ -1,13 +1,11 @@
 using Robust.Shared.Random;
 using Content.Server.Abilities.Psionics;
 using Content.Shared.GameTicking.Components;
-using Content.Server.GameTicking.Rules.Components;
 using Content.Server.StationEvents.Components;
 using Content.Server.Psionics;
 using Content.Shared.Abilities.Psionics;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Psionics.Glimmer;
-using Content.Shared.Zombies;
 
 namespace Content.Server.StationEvents.Events;
 
@@ -25,13 +23,15 @@ internal sealed partial class NoosphericStormRule : StationEventSystem<Noospheri
         List<EntityUid> validList = new();
 
         var query = EntityQueryEnumerator<PsionicComponent>();
-        while (query.MoveNext(out var Psionic, out var PsionicComponent))
+        while (query.MoveNext(out var psion, out var psionic))
         {
-            if (_mobStateSystem.IsDead(Psionic)
-                || HasComp<PsionicInsulationComponent>(Psionic))
+            if (!HasComp<LatentPsychicComponent>(psion)
+                || !psionic.Roller
+                || _mobStateSystem.IsDead(psion)
+                || HasComp<PsionicInsulationComponent>(psion))
                 continue;
 
-            validList.Add(Psionic);
+            validList.Add(psion);
         }
 
         // Give some targets psionic abilities.

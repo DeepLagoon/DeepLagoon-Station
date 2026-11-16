@@ -1,7 +1,15 @@
 using Content.Server.Abilities.Psionics;
+using Content.Server.Chemistry.ReagentEffects;
+using Content.Server.GameTicking;
 using Content.Server.Mood;
+using Content.Server.Psionics;
+using Content.Server.Traits;
 using Content.Shared.Abilities.Psionics;
+using Content.Shared.Chemistry.Reagent;
+using Content.Shared.EntityEffects;
+using Content.Shared.GameTicking.Components;
 using Content.Shared.Mood;
+using Content.Shared.Preferences;
 using Content.Shared.Psionics;
 using Content.Shared.Inventory;
 using Robust.Shared.GameObjects;
@@ -60,7 +68,7 @@ public sealed class PsionicsMoodTests
     }
 
     [Test]
-    public async Task RoundstartChanceDoesNotRestrictLaterRerolls()
+    public async Task RoundstartRequiresLatentPsychicButReagentsDoNot()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
         var map = await pair.CreateTestMap();
@@ -68,37 +76,78 @@ public sealed class PsionicsMoodTests
         {
             var entities = pair.Server.EntMan;
             var config = pair.Server.ResolveDependency<IConfigurationManager>();
-            var system = entities.System<Content.Server.Psionics.PsionicsSystem>();
-            Assert.That(config.GetCVar(CCVars.PsionicRoundstartChance), Is.EqualTo(0.01f));
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var system = entities.System<PsionicsSystem>();
+            Assert.That(config.GetCVar(CCVars.PsionicRoundstartChance), Is.EqualTo(0.012f));
             var human = entities.SpawnEntity("MobHuman", map.GridCoords);
             var psionic = entities.GetComponent<PsionicComponent>(human);
+            var other = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var otherPsionic = entities.GetComponent<PsionicComponent>(other);
+            config.SetCVar(CCVars.PsionicRoundstartChance, 1f);
+            system.RollRoundstartPsionics(other, otherPsionic);
+            Assert.That(otherPsionic.ActivePowers, Is.Empty);
+
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithTraitPreference("LatentPsychic", prototypes);
+            entities.System<TraitSystem>().ApplyTraits(human, "Sheriff", profile);
             config.SetCVar(CCVars.PsionicRoundstartChance, 0f);
             system.RollRoundstartPsionics(human, psionic);
             Assert.That(psionic.ActivePowers, Is.Empty);
             Assert.That(psionic.Potentia, Is.Zero);
             Assert.That(psionic.CanReroll, Is.True);
             config.SetCVar(CCVars.PsionicRoundstartChance, 1f);
+            config.SetCVar(CCVars.PsionicRollsEnabled, false);
+            system.RollRoundstartPsionics(human, psionic);
+            Assert.That(psionic.ActivePowers, Is.Empty);
+            config.SetCVar(CCVars.PsionicRollsEnabled, true);
             system.RollRoundstartPsionics(human, psionic);
             Assert.That(psionic.ActivePowers.Count, Is.EqualTo(1));
             Assert.That(psionic.NextPowerCost, Is.EqualTo(psionic.BaselinePowerCost * MathF.Pow(2, psionic.PowerSlotsTaken)));
             Assert.That(psionic.Potentia, Is.Zero);
             Assert.That(psionic.CanReroll, Is.True);
-            var other = entities.SpawnEntity("MobHuman", map.GridCoords);
-            var otherPsionic = entities.GetComponent<PsionicComponent>(other);
-            config.SetCVar(CCVars.PsionicRollsEnabled, false);
-            system.RollRoundstartPsionics(other, otherPsionic);
-            Assert.That(otherPsionic.ActivePowers, Is.Empty);
-            config.SetCVar(CCVars.PsionicRollsEnabled, true);
             config.SetCVar(CCVars.PsionicRoundstartChance, 0f);
             otherPsionic.Potentia = otherPsionic.NextPowerCost;
-            system.RerollPsionics(other, otherPsionic);
-            Assert.That(otherPsionic.ActivePowers.Count, Is.EqualTo(1), "Later rolls must work even when roundstart is disabled");
+            var oil = prototypes.Index<ReagentPrototype>("LotophagoiOil");
+            var effect = oil.Metabolisms!["Narcotic"].Effects.OfType<ChemRerollPsionic>().Single();
+            effect.Effect(new EntityEffectReagentArgs(other, entities, null, null, 20, oil, null, 1));
+            Assert.That(otherPsionic.ActivePowers, Is.Not.Empty);
             Assert.That(otherPsionic.CanReroll, Is.False);
             var familiar = entities.SpawnEntity("MobBatRemilia", map.GridCoords);
             Assert.That(entities.GetComponent<PsionicComponent>(familiar).ActivePowers, Is.Not.Empty, "Innate powers must remain available");
             entities.DeleteEntity(familiar);
             entities.DeleteEntity(other);
             entities.DeleteEntity(human);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [TestCase("NoosphericStorm")]
+    [TestCase("NoosphericZap")]
+    public async Task NoosphericEventsAwakenOnlyLatentPsychics(string ruleId)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+            var human = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var latent = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithTraitPreference("LatentPsychic", prototypes);
+            entities.System<TraitSystem>().ApplyTraits(latent, "Sheriff", profile);
+            var humanPsionic = entities.GetComponent<PsionicComponent>(human);
+            var latentPsionic = entities.GetComponent<PsionicComponent>(latent);
+            humanPsionic.Potentia = humanPsionic.NextPowerCost;
+            latentPsionic.Potentia = latentPsionic.NextPowerCost;
+
+            var ticker = entities.System<GameTicker>();
+            var rule = ticker.AddGameRule(ruleId);
+            entities.GetComponent<GameRuleComponent>(rule).Delay = null;
+            Assert.That(ticker.StartGameRule(rule), Is.True);
+            Assert.That(humanPsionic.ActivePowers, Is.Empty);
+            Assert.That(latentPsionic.ActivePowers, Has.Count.EqualTo(1));
+            ticker.EndGameRule(rule);
+            entities.DeleteEntity(human);
+            entities.DeleteEntity(latent);
         });
         await pair.CleanReturnAsync();
     }

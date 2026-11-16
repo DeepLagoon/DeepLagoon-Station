@@ -122,7 +122,9 @@ public sealed partial class PsionicsSystem : EntitySystem
     /// </summary>
     public void RollRoundstartPsionics(EntityUid uid, PsionicComponent component)
     {
-        if (!Exists(uid) || !_cfg.GetCVar(CCVars.PsionicRollsEnabled) || !component.Roller)
+        if (!HasComp<LatentPsychicComponent>(uid)
+            || !_cfg.GetCVar(CCVars.PsionicRollsEnabled)
+            || !component.Roller)
             return;
 
         var chance = Math.Clamp(_cfg.GetCVar(CCVars.PsionicRoundstartChance), 0f, 1f);

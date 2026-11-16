@@ -76,7 +76,7 @@ trait-name-PowerOverwhelming = Переполняющая сила
 trait-description-PowerOverwhelming = Даёт псионическую способность «Переполняющая сила».
 
 trait-name-LatentPsychic = Скрытый псионик
-trait-description-LatentPsychic = Даёт псионический потенциал и доступ к дальнейшему развитию сил. Случайная стартовая сила по-прежнему имеет малый шанс.
+trait-description-LatentPsychic = Позволяет случайно пробудить псионическую способность после появления или во время ноосферных событий.
 
 trait-name-PsionicInsulation = Псионическая изоляция
 trait-description-PsionicInsulation = Даёт псионическую изоляцию и сломленный разум. Несовместимо с другими типами псионика.

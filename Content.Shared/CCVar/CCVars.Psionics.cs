@@ -31,11 +31,11 @@ public sealed partial class CCVars
         CVarDef.Create("psionics.rolls_enabled", true, CVar.SERVERONLY);
 
     /// <summary>
-    ///     Probability of gaining one random power on the initial spawn attempt (0 to 1).
+    ///     Probability of gaining one random power on spawn with the Latent Psychic trait (0 to 1).
     ///     Subsequent reagent and event rolls use the normal potentia rules.
     /// </summary>
     public static readonly CVarDef<float> PsionicRoundstartChance =
-        CVarDef.Create("psionics.roundstart_chance", 0.01f, CVar.SERVERONLY);
+        CVarDef.Create("psionics.roundstart_chance", 0.012f, CVar.SERVERONLY);
 
     /// <summary>
     ///     When mindbroken, permanently eject the player from their own body, and turn their character into an NPC.
