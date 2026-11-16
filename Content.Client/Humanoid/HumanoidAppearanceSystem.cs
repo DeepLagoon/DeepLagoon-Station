@@ -144,7 +144,6 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         string? nativeId)
     {
         var species = _prototypeManager.Index(humanoid.Species);
-        var category = MarkingCategoriesConversion.FromHumanoidVisualLayers(layer);
 
         // A selected shell can define anatomy even after its marking was removed with the limb.
         if (GetLimbShell(humanoid, layer)?.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi shellSprite)
@@ -163,15 +162,12 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
 
         // IPCs and bodies with a missing shell marking still have anatomy in the default marking set.
         var defaults = _prototypeManager.Index<MarkingPointsPrototype>(species.MarkingPoints)
-            .Points.GetValueOrDefault(category)?.DefaultMarkings;
-        if (defaults != null)
+            .Points.Values.SelectMany(points => points.DefaultMarkings);
+        foreach (var id in defaults)
         {
-            foreach (var id in defaults)
-            {
-                if (_prototypeManager.TryIndex(id, out var shell) && shell.BodyPart == layer &&
-                    shell.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi defaultShellSprite)
-                    return defaultShellSprite;
-            }
+            if (_prototypeManager.TryIndex(id, out var shell) && shell.BodyPart == layer &&
+                shell.Sprites.FirstOrDefault() is SpriteSpecifier.Rsi defaultShellSprite)
+                return defaultShellSprite;
         }
 
         return null;
@@ -377,9 +373,8 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         visible &= humanoid.UnrestrictedMarkings || setting?.AllowsMarkings == true;
         if (setting?.FitToBody == true)
         {
-            var defaults = _prototypeManager.Index<MarkingPointsPrototype>(species.MarkingPoints).Points
-                .GetValueOrDefault(markingPrototype.MarkingCategory)?.DefaultMarkings;
-            visible &= !markingPrototype.IsBodyReplacement && defaults?.Contains(markingPrototype.ID) != true;
+            var defaults = _prototypeManager.Index<MarkingPointsPrototype>(species.MarkingPoints).Points.Values;
+            visible &= !markingPrototype.IsBodyReplacement && !defaults.Any(points => points.DefaultMarkings.Contains(markingPrototype.ID));
         }
 
         for (var j = 0; j < markingPrototype.Sprites.Count; j++)

@@ -71,7 +71,7 @@ public sealed partial class MarkingSet
             return;
         }
 
-        InitializePoints(points, unrestricted);
+        InitializePoints(points, prototypeManager, unrestricted);
 
         foreach (var marking in markings)
         {
@@ -118,13 +118,13 @@ public sealed partial class MarkingSet
             return;
         }
 
-        InitializePoints(points, unrestricted);
+        InitializePoints(points, prototypeManager, unrestricted);
     }
 
     private static bool IsHeadAccessoryCategory(MarkingCategories category) =>
         category is MarkingCategories.HeadTop or MarkingCategories.HeadSide;
 
-    private void InitializePoints(MarkingPointsPrototype prototype, bool unrestricted)
+    private void InitializePoints(MarkingPointsPrototype prototype, IPrototypeManager prototypes, bool unrestricted)
     {
         Points = MarkingPoints.CloneMarkingPointDictionary(prototype.Points);
         // Each supported head slot can layer several accessories in the character editor.
@@ -135,9 +135,35 @@ public sealed partial class MarkingSet
                 points.Points = Math.Max(points.Points, headAccessoryMinimum);
         }
 
+        // Existing species presets share limits and defaults between a limb and its end.
+        SplitLimbPoints(MarkingCategories.Arms, MarkingCategories.Hands, prototypes);
+        SplitLimbPoints(MarkingCategories.Legs, MarkingCategories.Feet, prototypes);
+
         if (unrestricted)
             foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray())
                 Points.Remove(category);
+    }
+
+    private void SplitLimbPoints(MarkingCategories limb, MarkingCategories end, IPrototypeManager prototypes)
+    {
+        if (Points.TryGetValue(limb, out var limit))
+            Points.TryAdd(end, new MarkingPoints { Points = limit.Points > 0 ? Math.Max(2, limit.Points) : 0, Required = limit.Required });
+
+        foreach (var (category, points) in Points.ToArray())
+        {
+            if (category == end)
+                continue;
+            foreach (var id in points.DefaultMarkings.ToArray())
+            {
+                if (!prototypes.TryIndex(id, out var marking) || marking.MarkingCategory != end)
+                    continue;
+                if (!Points.TryGetValue(end, out var ends))
+                    Points[end] = ends = new MarkingPoints { Points = Math.Max(2, points.Points), Required = points.Required };
+                points.DefaultMarkings.Remove(id);
+                if (!ends.DefaultMarkings.Contains(id))
+                    ends.DefaultMarkings.Add(id);
+            }
+        }
     }
 
     /// <summary>

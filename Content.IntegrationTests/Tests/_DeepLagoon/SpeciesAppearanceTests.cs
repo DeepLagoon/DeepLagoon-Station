@@ -70,6 +70,39 @@ public sealed class SpeciesAppearanceTests
         client.ResolveDependency<CompanyManager>());
 
     [Test]
+    public async Task HandsAndFeetCanChangeWhileArmsAndLegsAreSelected()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            using var editor = Editor(pair.Client);
+            // Tajaran have two points each for arms and legs, enough for one left/right pair.
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Tajaran").WithTraitPreference("GeneticModification", prototypes);
+            editor.SetProfile(profile, 0);
+            Select("SynthHumanLArm");
+            Select("SynthHumanLLeg");
+            Select("SynthVulpkaninLHand");
+            Select("SynthVulpkaninLFoot");
+            Select("SynthHumanLHand");
+            Select("SynthHumanLFoot");
+
+            var updated = editor.Profile!;
+            var valid = HumanoidCharacterAppearance.EnsureValid(updated.Appearance, updated.Species, updated.Sex, updated.UnrestrictedMarkings);
+            Assert.That(valid.Markings.Select(marking => marking.MarkingId), Is.SupersetOf(new[]
+            {
+                "SynthHumanLArm", "SynthHumanRArm", "SynthHumanLLeg", "SynthHumanRLeg",
+                "SynthHumanLHand", "SynthHumanRHand", "SynthHumanLFoot", "SynthHumanRFoot",
+            }));
+            Assert.That(valid.Markings.Any(marking => marking.MarkingId.StartsWith("SynthVulpkanin", StringComparison.Ordinal)), Is.False);
+
+            void Select(string id) => Assert.That(
+                editor.HandleTguiProfileAction("marking-add", JsonSerializer.Serialize(new { value = id })), Is.True, id);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task SpeciesCataloguesTraitToggleAndExclusiveChoices()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });

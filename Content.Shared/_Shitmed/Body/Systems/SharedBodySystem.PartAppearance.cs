@@ -76,7 +76,7 @@ public partial class SharedBodySystem
             var category = MarkingCategoriesConversion.FromHumanoidVisualLayers(layer);
             if (bodyAppearance.MarkingSet.Markings.TryGetValue(category, out var markingList))
                 markingsByLayer[layer] = markingList
-                    .Where(marking => category is not (MarkingCategories.Arms or MarkingCategories.Legs) ||
+                    .Where(marking => category is not (MarkingCategories.Arms or MarkingCategories.Hands or MarkingCategories.Legs or MarkingCategories.Feet) ||
                         _markingManager.TryGetMarking(marking, out var prototype) && prototype.BodyPart == layer)
                     .Select(marking => new Marking(marking)).ToList();
         }

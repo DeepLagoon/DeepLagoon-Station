@@ -49,16 +49,19 @@ public sealed partial class PersonalLoadoutEditor
     {
         if (_profile == null || !_prototypes.TryIndex<JobPrototype>(_job, out var job))
             return new TguiData();
-        if (_backpackState != null && ReferenceEquals(_profile, _backpackPreviewProfile) && _job == _backpackPreviewJob)
-            return _backpackState;
+        if (!ReferenceEquals(_profile, _backpackPreviewProfile) || _job != _backpackPreviewJob)
+            BuildBackpackPreview(job, createPreview);
+        return _backpackState ??= BuildBackpackState();
+    }
 
+    private void BuildBackpackPreview(JobPrototype job, Func<EntityUid> createPreview)
+    {
         CloseBackpackPreview(keepContainer: true);
         _backpackPreviewProfile = _profile;
         _backpackPreviewJob = _job;
         PrepareJobCatalog();
-        var state = _backpackState = new TguiData();
         if (_jobRole == null)
-            return state;
+            return;
 
         var preview = createPreview();
         _backpackPreview = preview;
@@ -79,7 +82,7 @@ public sealed partial class PersonalLoadoutEditor
         if (_prototypes.TryIndex(job.StartingGear, out var jobGear))
             AddStartingGear(jobGear, null);
 
-        equipment.Apply(preview, _profile, _job, _session, preview: true, deferredStorage: _backpackDefaults);
+        equipment.Apply(preview, _profile!, _job, _session, preview: true, deferredStorage: _backpackDefaults);
         var containers = _entities.System<SharedContainerSystem>();
         foreach (var choice in PreviewHands(_jobRole, GetRole()).Values)
         {
@@ -96,9 +99,33 @@ public sealed partial class PersonalLoadoutEditor
             spawning.RegisterStartingContainer(item.Key, box, _backpackContents, preview: true);
         }
 
+        spawning.FinishStartingGearStorage(preview, _backpackDefaults, _jobRole.BackpackLayout, _backpackContents, preview: true, profile: _profile);
+
+        void AddStartingGear(IEquipmentLoadout gear, PersonalLoadoutCustomization? customization)
+        {
+            _backpackDefaults.AddRange(SharedStationSpawningSystem.GetStartingGearStorageItems(gear, customization)
+                .Where(item => item.Key != null));
+            if (_jobRole.UnequippedSlots.Contains("back") ||
+                !_entities.System<InventorySystem>().TryGetSlots(preview, out var slots) ||
+                !slots.Any(slot => slot.Name == "back") ||
+                _entities.System<InventorySystem>().TryGetSlotEntity(preview, "back", out _) ||
+                gear.GetGear("back") is not { Length: > 0 } backpackId)
+                return;
+
+            var bag = _entities.SpawnEntity(backpackId, MapCoordinates.Nullspace);
+            equipment.Customize(bag, customization);
+            if (!_entities.System<InventorySystem>().TryEquip(preview, bag, "back", silent: true, force: true))
+                _entities.DeleteEntity(bag);
+        }
+    }
+
+    private TguiData BuildBackpackState()
+    {
+        var state = new TguiData();
+        if (_jobRole == null)
+            return state;
         var layout = _jobRole.BackpackLayout;
-        spawning.FinishStartingGearStorage(preview, _backpackDefaults, layout, _backpackContents, preview: true, profile: _profile);
-        BuildBackpackCatalog(equipment, layout);
+        BuildBackpackCatalog(_entities.System<PersonalLoadoutEquipSystem>(), layout);
         state.Array("containers", _backpackContents.Containers
             .Where(entry => entry.Key.Length > 0 && _entities.EntityExists(entry.Value))
             .Select(entry => new TguiData().String("key", entry.Key)
@@ -130,23 +157,6 @@ public sealed partial class PersonalLoadoutEditor
                         _boxView != entry.Key && !_boxView.StartsWith(entry.Key + "/contents/", StringComparison.Ordinal))
                     .Select(entry => BackpackPreviewItem(entry.Key, entry.Value.Entity, default, false, false)
                         .Bool("canSelect", true).Bool("transfer", true).String("categoryName", "Переложить из другого контейнера"))));
-
-        void AddStartingGear(IEquipmentLoadout gear, PersonalLoadoutCustomization? customization)
-        {
-            _backpackDefaults.AddRange(SharedStationSpawningSystem.GetStartingGearStorageItems(gear, customization)
-                .Where(item => item.Key != null));
-            if (_jobRole.UnequippedSlots.Contains("back") ||
-                !_entities.System<InventorySystem>().TryGetSlots(preview, out var slots) ||
-                !slots.Any(slot => slot.Name == "back") ||
-                _entities.System<InventorySystem>().TryGetSlotEntity(preview, "back", out _) ||
-                gear.GetGear("back") is not { Length: > 0 } backpackId)
-                return;
-
-            var bag = _entities.SpawnEntity(backpackId, MapCoordinates.Nullspace);
-            equipment.Customize(bag, customization);
-            if (!_entities.System<InventorySystem>().TryEquip(preview, bag, "back", silent: true, force: true))
-                _entities.DeleteEntity(bag);
-        }
     }
 
     private static string TargetContainer(string key, string? origin, Dictionary<string, BackpackItemPlacement> layout) =>

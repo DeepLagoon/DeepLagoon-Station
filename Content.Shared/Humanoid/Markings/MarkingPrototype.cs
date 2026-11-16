@@ -25,7 +25,12 @@ namespace Content.Shared.Humanoid.Markings
         public HumanoidVisualLayers BodyPart { get; private set; } = default!;
 
         [DataField("markingCategory", required: true)]
-        public MarkingCategories MarkingCategory { get; private set; } = default!;
+        private MarkingCategories _markingCategory = default;
+
+        public MarkingCategories MarkingCategory => BodyPart is HumanoidVisualLayers.LHand or HumanoidVisualLayers.RHand or
+            HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot
+                ? MarkingCategoriesConversion.FromHumanoidVisualLayers(BodyPart)
+                : _markingCategory;
 
         [DataField]
         public bool EditorHidden { get; private set; }
@@ -49,7 +54,8 @@ namespace Content.Shared.Humanoid.Markings
         };
 
         public bool IsBodyReplacement => EditorExclusive && MarkingCategory is
-            MarkingCategories.Head or MarkingCategories.Chest or MarkingCategories.Arms or MarkingCategories.Legs && BodyPart is
+            MarkingCategories.Head or MarkingCategories.Chest or MarkingCategories.Arms or MarkingCategories.Legs or
+            MarkingCategories.Hands or MarkingCategories.Feet && BodyPart is
             HumanoidVisualLayers.Head or HumanoidVisualLayers.Chest or
             HumanoidVisualLayers.LArm or HumanoidVisualLayers.RArm or HumanoidVisualLayers.LHand or HumanoidVisualLayers.RHand or
             HumanoidVisualLayers.LLeg or HumanoidVisualLayers.RLeg or HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot;

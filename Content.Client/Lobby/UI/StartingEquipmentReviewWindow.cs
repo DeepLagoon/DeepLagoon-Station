@@ -65,6 +65,8 @@ public sealed class StartingEquipmentReviewWindow : DefaultWindow
             _equipment.Dispose();
             Dispose();
         };
+        _equipment.Refresh(_draft, _job.ID, _session);
+        _draft = _equipment.TransferBackpack(SharedGameTicker.PreferredEquipmentJob(profile), _createPreview);
         UpdateDraft(_draft);
     }
 

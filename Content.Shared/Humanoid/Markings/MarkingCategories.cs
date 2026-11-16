@@ -18,7 +18,9 @@ namespace Content.Shared.Humanoid.Markings
         Wings, // For IPC wings porting from SimpleStation
         Tail,
         TailExtras, // Starlight - Resomi Extra Tail Customisation
-        Overlay
+        Overlay,
+        Hands,
+        Feet,
     }
 
     public static class MarkingCategoriesConversion
@@ -37,12 +39,10 @@ namespace Content.Shared.Humanoid.Markings
                 HumanoidVisualLayers.Chest => MarkingCategories.Chest,
                 HumanoidVisualLayers.RArm => MarkingCategories.Arms,
                 HumanoidVisualLayers.LArm => MarkingCategories.Arms,
-                HumanoidVisualLayers.RHand => MarkingCategories.Arms,
-                HumanoidVisualLayers.LHand => MarkingCategories.Arms,
+                HumanoidVisualLayers.RHand or HumanoidVisualLayers.LHand => MarkingCategories.Hands,
                 HumanoidVisualLayers.LLeg => MarkingCategories.Legs,
                 HumanoidVisualLayers.RLeg => MarkingCategories.Legs,
-                HumanoidVisualLayers.LFoot => MarkingCategories.Legs,
-                HumanoidVisualLayers.RFoot => MarkingCategories.Legs,
+                HumanoidVisualLayers.LFoot or HumanoidVisualLayers.RFoot => MarkingCategories.Feet,
                 HumanoidVisualLayers.Wings => MarkingCategories.Wings, //For IPC wings porting from SimpleStation
                 HumanoidVisualLayers.TailExtras => MarkingCategories.TailExtras, // Starlight - Resomi Extra Tail Customisation
                 HumanoidVisualLayers.Tail => MarkingCategories.Tail,
