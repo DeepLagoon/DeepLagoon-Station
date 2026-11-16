@@ -80,6 +80,15 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
     private void OnAdminStatusUpdated()
     {
+        if (TicketMode)
+        {
+            if (_ticketWindow != null)
+            {
+                _ticketWindow.Dispose();
+                OpenTicketWindow();
+            }
+            return;
+        }
         if (UIHelper is not { IsOpen: true })
             return;
         EnsureUIHelper();
@@ -87,6 +96,11 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
     private void AHelpButtonPressed(BaseButton.ButtonEventArgs obj)
     {
+        if (TicketMode)
+        {
+            ToggleWindow();
+            return;
+        }
         EnsureUIHelper();
         UIHelper!.ToggleWindow();
     }
@@ -95,6 +109,7 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
     {
         _bwoinkSystem = system;
         _bwoinkSystem.OnBwoinkTextMessageRecieved += ReceivedBwoink;
+        _bwoinkSystem.TicketNotice += OnTicketNotice;
 
         CommandBinds.Builder
             .Bind(ContentKeyFunctions.OpenAHelp,
@@ -108,6 +123,9 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
         DebugTools.Assert(_bwoinkSystem != null);
         _bwoinkSystem!.OnBwoinkTextMessageRecieved -= ReceivedBwoink;
+        _bwoinkSystem.TicketNotice -= OnTicketNotice;
+        _ticketWindow?.Dispose();
+        _seenTicketNotices.Clear();
         _bwoinkSystem = null;
     }
 
@@ -186,6 +204,11 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
     public void Open()
     {
+        if (TicketMode)
+        {
+            OpenTicketWindow();
+            return;
+        }
         var localUser = _playerManager.LocalUser;
         if (localUser == null)
         {
@@ -199,6 +222,12 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
     public void Open(NetUserId userId)
     {
+        if (TicketMode)
+        {
+            if (_adminManager.HasFlag(AdminFlags.Adminhelp))
+                OpenTicketWindow(userId);
+            return;
+        }
         EnsureUIHelper();
         if (!UIHelper!.IsAdmin)
             return;
@@ -207,6 +236,14 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
 
     public void ToggleWindow()
     {
+        if (TicketMode)
+        {
+            if (_ticketWindow == null)
+                OpenTicketWindow();
+            else
+                _ticketWindow.Dispose();
+            return;
+        }
         EnsureUIHelper();
         UIHelper?.ToggleWindow();
     }
@@ -268,7 +305,7 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
         {
             GameAHelpButton.OnPressed -= AHelpButtonPressed;
             GameAHelpButton.OnPressed += AHelpButtonPressed;
-            GameAHelpButton.Pressed = UIHelper?.IsOpen ?? false;
+            GameAHelpButton.Pressed = _ticketWindow != null || (UIHelper?.IsOpen ?? false);
 
             if (_hasUnreadAHelp)
             {
@@ -293,7 +330,7 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
         {
             LobbyAHelpButton.OnPressed -= AHelpButtonPressed;
             LobbyAHelpButton.OnPressed += AHelpButtonPressed;
-            LobbyAHelpButton.Pressed = UIHelper?.IsOpen ?? false;
+            LobbyAHelpButton.Pressed = _ticketWindow != null || (UIHelper?.IsOpen ?? false);
 
             if (_hasUnreadAHelp)
             {

@@ -264,6 +264,8 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         _config.UnsubValueChanged(CCVars.DiscordLinkEnabled, UpdateEnabled);
         _store?.Dispose();
         _store = null;
+        _ahelpReadOnlyLinks?.Dispose();
+        _ahelpReadOnlyLinks = null;
         base.Shutdown();
     }
 

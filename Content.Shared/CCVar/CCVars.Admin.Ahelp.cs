@@ -4,6 +4,17 @@ namespace Content.Shared.CCVar;
 
 public sealed partial class CCVars
 {
+    public static readonly CVarDef<bool> AhelpTickets =
+        CVarDef.Create("ahelp.tickets", false, CVar.SERVER | CVar.REPLICATED);
+
+    public static readonly CVarDef<string> AhelpBotToken =
+        CVarDef.Create("ahelp.bot_token", "", CVar.SERVERONLY | CVar.CONFIDENTIAL);
+
+    public static readonly CVarDef<int> AhelpReminderSeconds =
+        CVarDef.Create("ahelp.reminder_seconds", 180, CVar.SERVERONLY);
+
+    public static readonly CVarDef<int> AhelpReminderRepeatSeconds =
+        CVarDef.Create("ahelp.reminder_repeat_seconds", 180, CVar.SERVERONLY);
     /// <summary>
     ///     Ahelp rate limit values are accounted in periods of this size (seconds).
     ///     After the period has passed, the count resets.

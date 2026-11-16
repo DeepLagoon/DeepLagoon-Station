@@ -90,6 +90,9 @@ namespace Content.Server.Administration.Systems
         {
             base.Initialize();
 
+            if (_config.GetCVar(CCVars.AhelpTickets))
+                return;
+
             Subs.CVar(_config, CCVars.DiscordOnCallWebhook, OnCallChanged, true);
 
             Subs.CVar(_config, CCVars.DiscordAHelpWebhook, OnWebhookChanged, true);
@@ -648,6 +651,9 @@ namespace Content.Server.Administration.Systems
         // Frontier: webhook text messages
         public void OnWebhookBwoinkTextMessage(BwoinkTextMessage message, ServerApi.BwoinkActionBody body)
         {
+            if (_config.GetCVar(CCVars.AhelpTickets))
+                return;
+
             // Note for forks:
             // Create admin data with Adminhelp flag so Discord messages are treated as admin messages
             AdminData webhookAdminData = new()
@@ -661,6 +667,9 @@ namespace Content.Server.Administration.Systems
 
         protected override void OnBwoinkTextMessage(BwoinkTextMessage message, EntitySessionEventArgs eventArgs)
         {
+            if (_config.GetCVar(CCVars.AhelpTickets))
+                return;
+
             base.OnBwoinkTextMessage(message, eventArgs);
 
             var senderSession = eventArgs.SenderSession;

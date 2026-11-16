@@ -404,6 +404,11 @@ public sealed partial class ServerApi : IPostInjectInit
 
     private async Task ActionSendBwoink(IStatusHandlerContext context)
     {
+        if (_config.GetCVar(CCVars.AhelpTickets))
+        {
+            await context.RespondErrorAsync(HttpStatusCode.Gone);
+            return;
+        }
         var body = await ReadJson<BwoinkActionBody>(context);
         if (body == null)
             return;

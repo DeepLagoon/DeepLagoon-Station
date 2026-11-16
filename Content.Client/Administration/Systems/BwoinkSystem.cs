@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Content.Shared.Administration;
+using Content.Shared._DeepLagoon.Ahelp;
 using JetBrains.Annotations;
 using Robust.Shared.Network;
 using Robust.Shared.Timing;
@@ -12,7 +13,21 @@ namespace Content.Client.Administration.Systems
         [Dependency] private IGameTiming _timing = default!;
 
         public event EventHandler<BwoinkTextMessage>? OnBwoinkTextMessageRecieved;
+        public event Action<AhelpNotice>? TicketNotice;
+        public event Action<AhelpSnapshot>? TicketSnapshot;
+        public event Action<AhelpDownload>? TicketDownload;
         private (TimeSpan Timestamp, bool Typing) _lastTypingUpdateSent;
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            SubscribeNetworkEvent<AhelpNotice>(notice => TicketNotice?.Invoke(notice));
+            SubscribeNetworkEvent<AhelpSnapshot>(snapshot => TicketSnapshot?.Invoke(snapshot));
+            SubscribeNetworkEvent<AhelpDownload>(download => TicketDownload?.Invoke(download));
+        }
+
+        public void SendTicket(AhelpRequest request) => RaiseNetworkEvent(request);
+        public void SendTicketChunk(AhelpUpload chunk) => RaiseNetworkEvent(chunk);
 
         protected override void OnBwoinkTextMessage(BwoinkTextMessage message, EntitySessionEventArgs eventArgs)
         {

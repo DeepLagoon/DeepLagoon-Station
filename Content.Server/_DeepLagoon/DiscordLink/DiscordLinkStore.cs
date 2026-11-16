@@ -26,15 +26,22 @@ public sealed class DiscordLinkStore : IDisposable
     private readonly Func<long> _now;
     private readonly Dictionary<Guid, (long BoostUntil, int Tier, long TierUntil)> _supporterCache = new();
 
-    public DiscordLinkStore(string path, Func<long>? now = null)
+    public DiscordLinkStore(string path, Func<long>? now = null, bool readOnly = false)
     {
         _now = now ?? (() => DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        if (!readOnly)
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 #if USE_SYSTEM_SQLITE
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
 #endif
-        _db = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path }.ToString());
+        _db = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = path,
+            Mode = readOnly ? SqliteOpenMode.ReadOnly : SqliteOpenMode.ReadWriteCreate
+        }.ToString());
         _db.Open();
+        if (readOnly)
+            return;
         Execute("""
             PRAGMA journal_mode=WAL;
             CREATE TABLE IF NOT EXISTS discord_api_cooldowns (bucket TEXT PRIMARY KEY, ready_at INTEGER NOT NULL);
