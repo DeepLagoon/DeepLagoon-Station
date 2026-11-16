@@ -11,6 +11,9 @@
   <Import Project="../MSBuild/Content.props" />
   <!-- CI's stock-client build uses the official engine without the server-only notification APIs.
        Production builds use the pinned server fork and include these systems. -->
+  <PropertyGroup Condition="'$(DeepLagoonStockValidation)' == 'true'">
+    <DefineConstants>$(DefineConstants);DEEPLAGOON_STOCK_ENGINE</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="'$(DeepLagoonStockValidation)' == 'true'">
     <Compile Remove="_DeepLagoon/Physics/InvalidPhysicsAlertSystem.cs" />
     <Compile Remove="_DeepLagoon/Administration/AdminProvenanceSystem.cs" />

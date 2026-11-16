@@ -227,6 +227,17 @@ public sealed class ExpeditionLootSystem : EntitySystem
         return SpawnScoped(origin, () => Spawn(ResolvePrototype(id.Value, origin.MaximumTier), coordinates));
     }
 
+#if !DEEPLAGOON_STOCK_ENGINE
+    public EntityUid SpawnLootTimed(EntityUid source, EntProtoId? id, EntityCoordinates coordinates, EntitySpawnTimings timings)
+    {
+        if (id == null || !TryGetOrigin(source, out var origin))
+            return EntityManager.SpawnAttachedToTimed(id, coordinates, timings);
+
+        return SpawnScoped(origin, () =>
+            EntityManager.SpawnAttachedToTimed(ResolvePrototype(id.Value, origin.MaximumTier), coordinates, timings));
+    }
+#endif
+
     public EntityUid SpawnLoot(EntityUid source, EntProtoId? id, MapCoordinates coordinates)
     {
         if (id == null || !TryGetOrigin(source, out var origin))

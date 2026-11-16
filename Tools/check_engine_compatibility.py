@@ -73,6 +73,13 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Server/ServerTickTiming.cs",
     "Robust.Server.Testing/RobustServerSimulation.cs",
     "Robust.Server.IntegrationTests/GameStates/ServerTickTimingTest.cs",
+    # Opt-in server diagnostics for YAML loads and procedural entity spawns.
+    "Robust.Shared/EntitySerialization/MapLoadTimings.cs",
+    "Robust.Shared/EntitySerialization/Options.cs",
+    "Robust.Shared/EntitySerialization/Systems/MapLoaderSystem.Load.cs",
+    "Robust.Shared/GameObjects/EntityManager.Spawn.cs",
+    "Robust.Shared/GameObjects/EntitySpawnTimings.cs",
+    "Robust.Shared/GameObjects/IEntityManager.Spawn.cs",
     # Reject entity messages until the server session is ready and after it is replaced.
     "Robust.Server/GameObjects/ServerEntityManager.cs",
     "Robust.Server.IntegrationTests/GameObjects/ServerEntityNetworkManagerTest.cs",

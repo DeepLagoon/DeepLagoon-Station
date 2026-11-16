@@ -22,11 +22,13 @@ using Content.Server.StationEvents.Events;
 using Content.Server._NF.Station.Systems;
 using Content.Server._NF.StationEvents.Components;
 using Robust.Shared.EntitySerialization.Systems;
+using Robust.Shared.EntitySerialization;
 using Content.Server._Mono.StationEvents;
 using Content.Server._Mono.GridClaimer;
 using Content.Server._Mono.Store.Components;
 using Content.Server._Mono.Store;
 using Newtonsoft.Json;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._NF.StationEvents.Events;
 
@@ -34,6 +36,8 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 {
     private const float MinimumGreenZoneDistance = 4000f;
     private const int PlacementAttempts = 10;
+
+    private ISawmill _performanceLog = default!;
 
     NanotrasenNameGenerator _nameGenerator = new();
     private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
@@ -57,6 +61,16 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
     public override void Initialize()
     {
         base.Initialize();
+        _performanceLog = Logger.GetSawmill("bluespace.performance");
+    }
+
+    private BluespaceEventTiming? GetEventTiming(EntityUid rule)
+    {
+        var id = MetaData(rule).EntityPrototype?.ID;
+        if (id is null || (id != "BluespaceSalvage" && !id.StartsWith("BluespaceDungeon", StringComparison.Ordinal)))
+            return null;
+
+        return new BluespaceEventTiming(_performanceLog, id, rule, Timing.TickPeriod);
     }
 
     protected override void Started(EntityUid uid, BluespaceErrorRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
@@ -66,10 +80,11 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         if (!_map.TryGetMap(GameTicker.DefaultMap, out var mapUid))
             return;
 
+        var timing = GetEventTiming(uid);
         var mapOrigin = new EntityCoordinates(mapUid.Value, Vector2.Zero);
 
         // Spawn on a dummy map and try to FTL if possible, otherwise dump it.
-        _map.CreateMap(out var mapId);
+        var stagingMap = _map.CreateMap(out var mapId);
 
         foreach (var group in component.Groups.Values)
         {
@@ -82,12 +97,12 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                 switch (group)
                 {
                     case BluespaceDungeonSpawnGroup dungeon:
-                        if (!TryDungeonSpawn(mapOrigin, uid, component, dungeon, i, out spawned))
+                        if (!TryDungeonSpawn(mapOrigin, uid, component, dungeon, i, timing, out spawned))
                             continue;
 
                         break;
                     case BluespaceGridSpawnGroup grid:
-                        if (!TryGridSpawn(mapOrigin, uid, mapId, grid, i, out spawned))
+                        if (!TryGridSpawn(mapOrigin, uid, mapId, grid, i, timing, out spawned))
                             continue;
 
                         break;
@@ -136,7 +151,9 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
             }
         }
 
+        var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
         _map.DeleteMap(mapId);
+        timing?.Deletion("delete_staging_map", stagingMap, deleteStart);
     }
 
     private bool TryPlaceGrid(EntityUid grid, EntityCoordinates mapOrigin, IBluespaceSpawnGroup group)
@@ -195,7 +212,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
     }
 
     private bool TryDungeonSpawn(EntityCoordinates mapOrigin, EntityUid ruleUid, BluespaceErrorRuleComponent component,
-        BluespaceDungeonSpawnGroup group, int i, out EntityUid spawned)
+        BluespaceDungeonSpawnGroup group, int i, BluespaceEventTiming? timing, out EntityUid spawned)
     {
         spawned = EntityUid.Invalid;
 
@@ -233,14 +250,15 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
             component.GridsUid.Remove(grid);
             return false;
-        });
+        }, timing);
 
         spawned = spawnedGrid.Owner;
         component.MapsUid.Add(mapId);
         return true;
     }
 
-    private bool TryGridSpawn(EntityCoordinates mapOrigin, EntityUid stationUid, MapId mapId, BluespaceGridSpawnGroup group, int i, out EntityUid spawned)
+    private bool TryGridSpawn(EntityCoordinates mapOrigin, EntityUid stationUid, MapId mapId, BluespaceGridSpawnGroup group,
+        int i, BluespaceEventTiming? timing, out EntityUid spawned)
     {
         spawned = EntityUid.Invalid;
 
@@ -258,8 +276,10 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         group.Paths.RemoveAt(index);
         group.Paths.Add(path);
 
+        var options = BluespaceEventTiming.MeasureMapLoad(timing, "load_grid", path, DeserializationOptions.Default);
+
         // Do we support maps with multiple grids?
-        if (_loader.TryLoadGridTracked(mapId, path, out var ent))
+        if (_loader.TryLoadGridTracked(mapId, path, out var ent, options))
         {
             if (!HasComp<ShuttleComponent>(ent.Value) || !TryPlaceGrid(ent.Value.Owner, mapOrigin, group))
                 return false;
@@ -285,6 +305,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         if (component.GridsUid == null)
             return;
 
+        var timing = GetEventTiming(uid);
         foreach (var componentGridUid in component.GridsUid)
         {
             if (!TryComp(componentGridUid, out TransformComponent? gridTransform))
@@ -305,6 +326,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
             if (component.DeleteGridsOnEnd)
             {
+                var cleanupStart = timing != null ? Stopwatch.GetTimestamp() : 0;
                 // Handle mobrestrictions getting deleted
                 var query = AllEntityQuery<NFSalvageMobRestrictionsComponent>();
 
@@ -359,7 +381,9 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                 // Mono end
 
                 // Deletion has to happen before grid traversal re-parents players.
+                var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
                 Del(gridUid);
+                var deleteEnd = timing != null ? Stopwatch.GetTimestamp() : 0;
 
                 foreach (var mob in playerMobs)
                 {
@@ -371,13 +395,19 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                     var reward = (int)(gridValue * rewardCoeff);
                     _bank.TrySectorDeposit(account, reward, LedgerEntryType.BluespaceReward);
                 }
+
+                timing?.GridCleanup(gridUid, cleanupStart, deleteStart, deleteEnd);
             }
         }
 
         foreach (MapId mapId in component.MapsUid)
         {
-            if (_map.MapExists(mapId))
-                _map.DeleteMap(mapId);
+            if (!_map.TryGetMap(mapId, out var mapUid))
+                continue;
+
+            var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
+            _map.DeleteMap(mapId);
+            timing?.Deletion("delete_dungeon_map", mapUid.Value, deleteStart);
         }
     }
 }

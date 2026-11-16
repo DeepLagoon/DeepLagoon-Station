@@ -1,4 +1,5 @@
 using Content.Server._DeepLagoon.Mapping;
+using Content.Server._NF.StationEvents.Events;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Construction;
@@ -166,7 +167,7 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
         }
     }
 
-    public MapId GetOrCreateTemplate(DungeonRoomPrototype proto)
+    public MapId GetOrCreateTemplate(DungeonRoomPrototype proto, BluespaceEventTiming? timing = null)
     {
         var query = AllEntityQuery<DungeonAtlasTemplateComponent>();
         DungeonAtlasTemplateComponent? comp;
@@ -180,7 +181,8 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
 
         var opts = new MapLoadOptions
         {
-            DeserializationOptions = DeserializationOptions.Default with {PauseMaps = true},
+            DeserializationOptions = BluespaceEventTiming.MeasureMapLoad(timing, "load_dungeon_atlas", proto.AtlasPath,
+                DeserializationOptions.Default with { PauseMaps = true }),
             ExpectedCategory = FileCategory.Map
         };
 
@@ -202,7 +204,8 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
         MapGridComponent grid,
         Vector2i position,
         int seed,
-        Predicate<EntityUid>? placeGrid = null)
+        Predicate<EntityUid>? placeGrid = null,
+        BluespaceEventTiming? timing = null)
     {
         var cancelToken = new CancellationTokenSource();
         var job = new DungeonJob.DungeonJob(
@@ -225,7 +228,8 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
             position,
             genID, // Frontier
             placeGrid,
-            cancelToken.Token);
+            cancelToken.Token,
+            timing);
 
         _dungeonJobs.Add(job, cancelToken);
         _dungeonJobQueue.EnqueueJob(job);

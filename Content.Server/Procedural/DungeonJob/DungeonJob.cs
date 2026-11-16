@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Content.Server._NF.StationEvents.Events;
 using Content.Server.Decals;
 using Content.Server.NPC.Components;
 using Content.Server.NPC.HTN;
@@ -21,6 +22,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
 using IDunGenLayer = Content.Shared.Procedural.IDunGenLayer;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server.Procedural.DungeonJob;
 
@@ -53,6 +55,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
     private readonly MapGridComponent _grid;
 
     private readonly Predicate<EntityUid>? _placeGrid;
+    private readonly BluespaceEventTiming? _timing;
 
     private readonly ISawmill _sawmill;
     private readonly string _genId; // Frontier: add ID
@@ -77,7 +80,8 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         Vector2i position,
         string genID, // Frontier
         Predicate<EntityUid>? placeGrid = null,
-        CancellationToken cancellation = default) : base(maxTime, cancellation)
+        CancellationToken cancellation = default,
+        BluespaceEventTiming? timing = null) : base(maxTime, cancellation)
     {
         _sawmill = sawmill;
         _entManager = entManager;
@@ -103,6 +107,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         _seed = seed;
         _position = position;
         _placeGrid = placeGrid;
+        _timing = timing;
         _genId = genID; // Frontier
     }
 
@@ -168,7 +173,9 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         {
             var oldMap = _xformQuery.Comp(_gridUid).MapUid;
             var placed = _placeGrid(_gridUid);
+            var deleteStart = _timing != null ? Stopwatch.GetTimestamp() : 0;
             _entManager.DeleteEntity(oldMap);
+            _timing?.Deletion("delete_dungeon_staging_map", oldMap ?? EntityUid.Invalid, deleteStart);
             if (!placed)
                 return dungeons;
         }

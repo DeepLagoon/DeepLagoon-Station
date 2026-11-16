@@ -1,5 +1,6 @@
 using System.Numerics;
 using Content.Shared.Decals;
+using Content.Server._NF.StationEvents.Events;
 using Content.Shared.Maps;
 using Content.Shared.Procedural;
 using Content.Shared.Random.Helpers;
@@ -7,6 +8,7 @@ using Content.Shared.Whitelist;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Utility;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server.Procedural;
 
@@ -133,10 +135,11 @@ public sealed partial class DungeonSystem
         Matrix3x2 roomTransform,
         DungeonRoomPrototype room,
         HashSet<Vector2i>? reservedTiles = null,
-        bool clearExisting = false)
+        bool clearExisting = false,
+        BluespaceEventTiming? timing = null)
     {
         // Ensure the underlying template exists.
-        var roomMap = GetOrCreateTemplate(room);
+        var roomMap = GetOrCreateTemplate(room, timing);
         var templateMapUid = _mapManager.GetMap(roomMap);
         var templateGrid = Comp<MapGridComponent>(templateMapUid);
         var roomDimensions = room.Size;
@@ -189,6 +192,10 @@ public sealed partial class DungeonSystem
         // Load entities
         // TODO: I don't think engine supports full entity copying so we do this piece of shit.
 
+#if !DEEPLAGOON_STOCK_ENGINE
+        var spawnTimings = timing != null ? new EntitySpawnTimings() : null;
+        var spawnStart = spawnTimings != null ? Stopwatch.GetTimestamp() : 0;
+#endif
         foreach (var templateEnt in _lookup.GetEntitiesIntersecting(templateMapUid, bounds, LookupFlags.Uncontained))
         {
             var templateXform = _xformQuery.GetComponent(templateEnt);
@@ -201,7 +208,14 @@ public sealed partial class DungeonSystem
             var protoId = _metaQuery.GetComponent(templateEnt).EntityPrototype?.ID;
 
             // TODO: Copy the templated entity as is with serv
-            var ent = _expeditionLoot.SpawnLoot(gridUid, protoId, new EntityCoordinates(gridUid, childPos));
+            var coordinates = new EntityCoordinates(gridUid, childPos);
+#if !DEEPLAGOON_STOCK_ENGINE
+            var ent = spawnTimings != null
+                ? _expeditionLoot.SpawnLootTimed(gridUid, protoId, coordinates, spawnTimings)
+                : _expeditionLoot.SpawnLoot(gridUid, protoId, coordinates);
+#else
+            var ent = _expeditionLoot.SpawnLoot(gridUid, protoId, coordinates);
+#endif
 
             var childXform = _xformQuery.GetComponent(ent);
             var anchored = templateXform.Anchored;
@@ -213,6 +227,11 @@ public sealed partial class DungeonSystem
             else if (!anchored && childXform.Anchored)
                 _transform.Unanchor(ent, childXform);
         }
+
+#if !DEEPLAGOON_STOCK_ENGINE
+        if (spawnTimings != null)
+            timing!.RoomEntities(room.ID, gridUid, spawnStart, spawnTimings);
+#endif
 
         // Load decals
         if (TryComp<DecalGridComponent>(templateMapUid, out var loadedDecals))
