@@ -16,10 +16,12 @@ public sealed class AntighostEmoteSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _cfg = default!;
     private FancyWindow? _window;
+    private Action<AntighostEmoteResultEvent>? _handleResult;
 
     public override void Initialize()
     {
         SubscribeNetworkEvent<AntighostEmotePromptEvent>(Open);
+        SubscribeNetworkEvent<AntighostEmoteResultEvent>(OnResult);
     }
 
     public override void Shutdown()
@@ -28,6 +30,8 @@ public sealed class AntighostEmoteSystem : EntitySystem
         base.Shutdown();
     }
 
+    private void OnResult(AntighostEmoteResultEvent result) => _handleResult?.Invoke(result);
+
     private void Open(AntighostEmotePromptEvent prompt)
     {
         _window?.Close();
@@ -35,9 +39,13 @@ public sealed class AntighostEmoteSystem : EntitySystem
         _window = window;
         var body = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 8 };
         window.ContentsContainer.AddChild(body);
+        var compose = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 8 };
+        BoxContainer? audience = null;
+        var sending = false;
         var recipient = new Label { Text = Loc.GetString("dl-antighost-recipient", ("name", prompt.Recipient)) };
         var text = new LineEdit { PlaceHolder = Loc.GetString("dl-antighost-placeholder"), HorizontalExpand = true };
         var next = new Button { Text = Loc.GetString("dl-antighost-next"), Disabled = true };
+        var status = new Label { Visible = false };
         var ask = new CheckBox
         {
             Text = Loc.GetString("dl-antighost-ask-again"),
@@ -49,21 +57,27 @@ public sealed class AntighostEmoteSystem : EntitySystem
         text.OnTextEntered += _ => Continue();
         next.OnPressed += _ => Continue();
         body.AddChild(recipient);
-        body.AddChild(text);
-        body.AddChild(ask);
-        body.AddChild(next);
+        body.AddChild(compose);
+        body.AddChild(status);
+        compose.AddChild(text);
+        compose.AddChild(ask);
+        compose.AddChild(next);
         window.OnClose += () =>
         {
             if (_window == window)
+            {
                 _window = null;
+                _handleResult = null;
+            }
             window.Dispose();
         };
+        _handleResult = FinishSend;
         window.OpenCentered();
         text.GrabKeyboardFocus();
 
         void UpdateButton()
         {
-            next.Disabled = !ValidText(text.Text);
+            next.Disabled = sending || !ValidText(text.Text);
             var saved = ask.Pressed ? 0 : _cfg.GetCVar(AntighostEmoteCVars.Audience);
             next.Text = Loc.GetString(saved switch
             {
@@ -76,7 +90,7 @@ public sealed class AntighostEmoteSystem : EntitySystem
         void Continue()
         {
             var draft = text.Text.Trim();
-            if (!ValidText(draft))
+            if (sending || !compose.Visible || !ValidText(draft))
                 return;
 
             var saved = ask.Pressed ? 0 : _cfg.GetCVar(AntighostEmoteCVars.Audience);
@@ -86,12 +100,15 @@ public sealed class AntighostEmoteSystem : EntitySystem
                 return;
             }
 
-            body.RemoveAllChildren();
-            body.AddChild(new Label { Text = Loc.GetString("dl-antighost-audience") });
+            compose.Visible = false;
+            status.Visible = false;
+            audience = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 8 };
+            body.AddChild(audience);
+            audience.AddChild(new Label { Text = Loc.GetString("dl-antighost-audience") });
             var remember = new CheckBox { Text = Loc.GetString("dl-antighost-remember") };
-            body.AddChild(remember);
+            audience.AddChild(remember);
             var buttons = new BoxContainer { SeparationOverride = 8 };
-            body.AddChild(buttons);
+            audience.AddChild(buttons);
             foreach (var (nearby, label) in new[] { (false, "dl-antighost-private"), (true, "dl-antighost-nearby") })
             {
                 var button = new Button { Text = Loc.GetString(label), HorizontalExpand = true };
@@ -110,8 +127,35 @@ public sealed class AntighostEmoteSystem : EntitySystem
 
         void Send(string draft, bool nearby)
         {
+            sending = true;
+            audience?.Orphan();
+            audience = null;
+            compose.Visible = true;
+            text.Editable = false;
+            ask.Disabled = true;
+            UpdateButton();
+            status.Text = Loc.GetString("dl-antighost-sending");
+            status.Visible = true;
             RaiseNetworkEvent(new AntighostEmoteSendEvent(prompt.RequestId, draft, nearby));
-            window.Close();
+        }
+
+        void FinishSend(AntighostEmoteResultEvent result)
+        {
+            if (!sending || result.RequestId != prompt.RequestId)
+                return;
+
+            if (result.ErrorKey == null)
+            {
+                window.Close();
+                return;
+            }
+
+            sending = false;
+            text.Editable = true;
+            ask.Disabled = false;
+            UpdateButton();
+            status.Text = Loc.GetString(result.ErrorKey);
+            text.GrabKeyboardFocus();
         }
     }
 

@@ -22,3 +22,10 @@ public sealed class AntighostEmoteSendEvent(int requestId, string text, bool inc
     public readonly string Text = text;
     public readonly bool IncludeNearby = includeNearby;
 }
+
+[Serializable, NetSerializable]
+public sealed class AntighostEmoteResultEvent(int requestId, string? errorKey = null) : EntityEventArgs
+{
+    public readonly int RequestId = requestId;
+    public readonly string? ErrorKey = errorKey;
+}

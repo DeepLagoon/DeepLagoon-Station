@@ -9,6 +9,10 @@ dl-antighost-private = Только выбранному игроку
 dl-antighost-nearby = Также игрокам рядом
 dl-antighost-message = [color=#bca9f2]Emote Antighost ·[/color] { $name } { $message }
 dl-antighost-sent = Emote Antighost отправлен. Получателей: { $count }.
-dl-antighost-unavailable = Выбранный игрок отошёл слишком далеко или больше недоступен.
+dl-antighost-unavailable = Выбранный игрок сейчас недоступен.
+dl-antighost-out-of-range = Выбранный игрок сейчас вне радиуса 5 м.
+dl-antighost-request-invalid = Снова откройте эмоут через меню игрока.
+dl-antighost-cannot-send = Сейчас отправить эмоут не удалось.
+dl-antighost-sending = Отправка…
 dl-antighost-send-private = Отправить выбранному игроку
 dl-antighost-send-nearby = Отправить выбранному игроку и игрокам рядом
