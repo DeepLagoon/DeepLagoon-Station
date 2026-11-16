@@ -14,14 +14,14 @@
 
 - type: loadout
   id: MMCKuosameLoadout
-  price: 0
+  price: 5000
   storage:
     back:
     - WeaponPistolKuosame
 
 - type: loadout
   id: MMCPistolAmmoLoadout
-  price: 0
+  price: 1000
   storage:
     back:
     - Magazine57x28mmPistolFMJ

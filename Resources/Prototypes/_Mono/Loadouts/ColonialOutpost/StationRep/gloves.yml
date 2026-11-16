@@ -1,6 +1,6 @@
 #T0
 - type: loadout
   id: StationRepClothingHandsGlovesCombat
-  price: 0
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesCombat

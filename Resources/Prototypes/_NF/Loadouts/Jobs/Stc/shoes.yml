@@ -1,5 +1,8 @@
 - type: loadout
   id: StcClothingShoesBootsLaceup
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF

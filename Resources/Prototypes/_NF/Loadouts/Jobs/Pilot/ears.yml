@@ -1,5 +1,5 @@
 - type: loadout
   id: PilotClothingHeadsetAltPilotCommon
-  price: 0
+  price: 1000
   equipment:
     ears: ClothingHeadsetAltPilotCommon

@@ -6,18 +6,27 @@
 
 - type: loadout
   id: VGClothingJumpsuitB
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitViperGroupTurtleneck
 
 - type: loadout
   id: VGClothingJumpskirtA
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpskirtOperative
 
 - type: loadout
   id: VGClothingJumpskirtB
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpskirtTacticool

@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobMdMedic
+  points: 3
   groups:
   - ContractorHead
   - ContractorNeck

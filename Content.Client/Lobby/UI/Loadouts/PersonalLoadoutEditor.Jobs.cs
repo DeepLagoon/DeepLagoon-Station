@@ -18,6 +18,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 namespace Content.Client.Lobby.UI.Loadouts;
 
@@ -27,6 +28,7 @@ public sealed partial class PersonalLoadoutEditor
     private readonly List<string> _equipmentJobs = new();
     private readonly Label _jobBalance = new();
     private readonly Label _jobCost = new();
+    private readonly Label _jobPoints = new();
     private readonly Label _jobCount = new();
     private readonly LineEdit _roleName = new() { HorizontalExpand = true };
     private readonly List<JobEntry> _jobEntries = new();
@@ -43,6 +45,7 @@ public sealed partial class PersonalLoadoutEditor
         AddChild(header);
         AddChild(_jobBalance);
         AddChild(_jobCost);
+        AddChild(_jobPoints);
         AddChild(_jobCount);
         _roleName.PlaceHolder = Loc.GetString("loadout-name-edit-label");
         _roleName.IsValid = text => text.Length <= Content.Shared.Preferences.HumanoidCharacterProfile.MaxLoadoutNameLength;
@@ -99,6 +102,9 @@ public sealed partial class PersonalLoadoutEditor
         }
         var cost = _jobRole == null ? 0 : JobCost(_jobRole);
         _jobCost.Text = Loc.GetString("frontier-loadout-cost", ("cost", BankSystemExtensions.ToSpesoString(cost)));
+        _jobPoints.Visible = _jobRole?.Points != null;
+        if (_jobRole?.Points is { } points)
+            _jobPoints.Text = Loc.GetString("dl-loadout-job-points", ("points", points), ("max", _prototypes.Index(_jobRole.Role).Points!.Value));
         _jobCount.Text = Loc.GetString("dl-loadout-job-count", ("count", _jobEntries.Count));
     }
 
@@ -109,7 +115,7 @@ public sealed partial class PersonalLoadoutEditor
         // DeepLagoon: fuzzy search; the category is applied after the text match, so the typo rule sees the whole list
         var entries = _jobEntries
             .Where(x => _slotFilter == null || FitsJobSlot(x.Item, _slotFilter))
-            .Where(x => _showUnavailable.Pressed || _jobRole.SelectedLoadouts.TryGetValue(x.Group.ID, out var selected) && selected.Any(i => i.Prototype.Id == x.Item.ID) || _jobRole.IsValid(_entities.System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>().RemovePersonalConflicts(_profile, x.Item), _session, x.Item.ID, IoCManager.Instance!, out _));
+            .Where(x => _showUnavailable.Pressed || _jobRole.SelectedLoadouts.TryGetValue(x.Group.ID, out var selected) && selected.Any(i => i.Prototype.Id == x.Item.ID) || CanSelectJob(_jobRole, x, out _));
         return FuzzySearch.Filter(entries.ToList(), _search.Text, x => JobItemName(x.Item), x => x.Item.ID)
             .Where(x => category == null || x.Category == category);
     }
@@ -126,7 +132,7 @@ public sealed partial class PersonalLoadoutEditor
                 var stored = role.SelectedLoadouts.TryGetValue(entry.Group.ID, out var choices) && choices.Any(x => x.Prototype.Id == item.ID);
                 var selected = stored && !_entities.System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>().HasUnequippedSlots(_profile, _job, item);
                 var replacementProfile = _entities.System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>().RemovePersonalConflicts(_profile, item);
-                var valid = role.IsValid(replacementProfile, _session, item.ID, IoCManager.Instance!, out var reason);
+                var valid = CanSelectJob(role, entry, out var reason);
                 if (!_showUnavailable.Pressed && !valid && !selected)
                     continue;
                 var title = JobItemName(item);
@@ -143,7 +149,9 @@ public sealed partial class PersonalLoadoutEditor
                 if (entity is { } preview)
                     body.AddChild(new TextureRect { Texture = _entities.System<SpriteSystem>().GetPrototypeIcon(preview).Default, SetSize = new Vector2(48, 48), HorizontalAlignment = HAlignment.Center, Stretch = TextureRect.StretchMode.KeepAspectCentered, MouseFilter = MouseFilterMode.Ignore });
                 body.AddChild(new RichTextLabel { Text = title, MaxWidth = 140, MinHeight = 36, MouseFilter = MouseFilterMode.Ignore });
-                body.AddChild(new Label { Text = BankSystemExtensions.ToSpesoString(item.Price), MouseFilter = MouseFilterMode.Ignore });
+                body.AddChild(new Label { Text = item.PointsCost > 0
+                    ? Loc.GetString("dl-loadout-item-cost", ("cost", item.PointsCost))
+                    : BankSystemExtensions.ToSpesoString(item.Price), MouseFilter = MouseFilterMode.Ignore });
                 button.AddChild(body);
                 button.OnPressed += _ =>
                 {
@@ -172,6 +180,22 @@ public sealed partial class PersonalLoadoutEditor
             _prototypes.TryIndex(choice.Prototype, out var item) && !system.FullyUnequipped(item, role.UnequippedSlots)
                 ? (long)Math.Max(0, item.Price)
                 : 0);
+    }
+
+    private bool CanSelectJob(RoleLoadout role, JobEntry entry, out FormattedMessage? reason)
+    {
+        var profile = _entities.System<PersonalLoadoutSystem>().RemovePersonalConflicts(_profile!, entry.Item);
+        if (!role.CanSelect(profile, _session, entry.Group.ID, entry.Item, IoCManager.Instance!, out reason))
+            return false;
+
+        if (!CanAffordJob(role, entry.Group, entry.Item))
+        {
+            reason = FormattedMessage.FromUnformatted(Loc.GetString("dl-loadout-insufficient-balance"));
+            return false;
+        }
+
+        reason = null;
+        return true;
     }
 
     private bool CanAffordJob(RoleLoadout role, LoadoutGroupPrototype group, LoadoutPrototype item)

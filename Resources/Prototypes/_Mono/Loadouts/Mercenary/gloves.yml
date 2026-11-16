@@ -1,5 +1,6 @@
 - type: loadout
   id: MercenaryClothingHandsGlovesTacticalCombatTan
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesTacticalCombatTan
 
@@ -10,16 +11,19 @@
 
 - type: loadout
   id: MercenaryClothingHandsGlovesTacticalCombatRangerGreen
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesTacticalCombatRangerGreen
 
 - type: loadout
   id: MercenaryClothingHandsGlovesTacticalCombatOlive
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesTacticalCombatOlive
 
 - type: loadout
   id: MercenaryClothingHandsGlovesTacticalCombatCoyoteBrown
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesTacticalCombatCoyoteBrown
 

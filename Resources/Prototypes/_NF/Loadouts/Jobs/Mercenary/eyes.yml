@@ -1,11 +1,17 @@
 - type: loadout
   id: MercenaryClothingEyesGlassesMercenary
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     eyes: ClothingEyesGlassesMercenary
 
 - type: loadout
   id: MercenaryClothingEyesGlassesSunglasses
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     eyes: ClothingEyesGlassesSunglasses

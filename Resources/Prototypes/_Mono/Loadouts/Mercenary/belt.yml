@@ -1,6 +1,6 @@
 - type: loadout
   id: MercenaryClothingBeltWebbingsBigBase
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigBase
 
@@ -12,55 +12,55 @@
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsBigBlack
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigBlack
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsNormalTan
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsNormalTan
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsBigTan
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigTan
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsNormalRangerGreen
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsNormalRangerGreen
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsBigRangerGreen
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigRangerGreen
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsNormalOlive
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsNormalOlive
 
 - type: loadout
   id: MercenaryClothingBeltWebbingsBigOlive
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigOlive
 
 - type: loadout
   id: MercenaryClothingBeltBandolier
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltBandolier
 
 - type: loadout
   name: "пояс службы безопасности (пустой)"
   id: MercenaryClothingBeltSecurityEmpty
-  price: 0
+  price: 1000
   equipment:
     belt: ClothingBeltSecurity

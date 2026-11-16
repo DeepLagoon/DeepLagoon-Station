@@ -12,6 +12,9 @@
 
 - type: loadout
   id: VGEyesSunglasses
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     eyes: ClothingEyesGlassesSunglasses

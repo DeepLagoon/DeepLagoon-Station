@@ -5,11 +5,13 @@
 
 - type: loadout
   id: USSPDuffel
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelUSSP
 
 - type: loadout
   id: USSPSatchel
+  price: 1000
   equipment:
     back: ClothingBackpackSatchelUSSP
 

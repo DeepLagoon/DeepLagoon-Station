@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobVGInfanteer
+  points: 3
   groups:
   - VGHead
   - VGNeck
@@ -31,6 +32,7 @@
 
 - type: roleLoadout
   id: JobVGLieutenant
+  points: 3
   groups:
   - VGHead
   - VGNeck
@@ -62,6 +64,7 @@
 
 - type: roleLoadout
   id: JobVGCommander
+  points: 3
   groups:
   - VGHead
   - VGNeck

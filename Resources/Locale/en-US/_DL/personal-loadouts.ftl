@@ -1,6 +1,7 @@
 dl-loadout-tab = Loadout
 dl-loadout-replaced = Replaced by personal equipment purchased with points.
 dl-loadout-points = Loadout points: { $points } / { $max }
+dl-loadout-job-points = Uniform points: { $points } / { $max }
 dl-loadout-show-unavailable = Show unavailable
 dl-loadout-remove-unavailable = Remove unavailable selections
 dl-loadout-search = Search loadouts…

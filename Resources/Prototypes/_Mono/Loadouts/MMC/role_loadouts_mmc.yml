@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobMMCEmployee
+  points: 3
   groups:
   - MMCEmployeeJumpsuit
   - MMCEmployeeBackpack
@@ -24,6 +25,7 @@
 
 - type: roleLoadout
   id: JobMMCSecurity
+  points: 3
   groups:
   - MMCCorpSecJumpsuit
   - MMCCorpSecGloves
@@ -54,6 +56,7 @@
 
 - type: roleLoadout
   id: JobMMCLiason
+  points: 3
   groups:
   - MMCEmployeeJumpsuit
   - MMCCorpSecGloves

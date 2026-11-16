@@ -5,7 +5,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - BriefcaseBrownFilled
 
@@ -15,7 +15,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - ToolboxEmergency
 
@@ -25,7 +25,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - ToolboxMechanical
 
@@ -34,7 +34,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - PlushieSharkGrey
 
@@ -43,7 +43,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - PlushieSharkBlue
 
@@ -52,7 +52,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - PlushieSharkPink
 
@@ -61,7 +61,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - HarmonicaInstrument
 
@@ -70,7 +70,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - SaxophoneInstrument
 
@@ -79,7 +79,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - AcousticGuitarInstrument
 
@@ -89,7 +89,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - Cane
 
@@ -98,7 +98,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - LGBTQHandyFlag
 
@@ -109,7 +109,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - PonderingOrb
 
@@ -119,7 +119,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - PlushieRGBee
 
@@ -128,7 +128,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - MysterySpaceBladeBox
 
@@ -146,7 +146,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - FlashlightUmbrella
 
@@ -155,7 +155,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - DawInstrumentFlatpack
 
@@ -183,6 +183,6 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 1000 # Mono
   inhand:
     - CrayonMagic

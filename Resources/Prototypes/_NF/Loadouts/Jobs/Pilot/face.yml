@@ -1,6 +1,6 @@
 - type: loadout
   id: PilotClothingMaskPilot
-  price: 0
+  price: 1000
   storage:
     back:
     - ClothingMaskPilot

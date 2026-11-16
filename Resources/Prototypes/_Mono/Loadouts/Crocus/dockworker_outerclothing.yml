@@ -6,6 +6,6 @@
 
 - type: loadout
   id: CrocusDockworkerOuterClothingWinterCoat
-  price: 0
+  price: 1000
   equipment:
     outerClothing: ClothingOuterWinterColorBlack

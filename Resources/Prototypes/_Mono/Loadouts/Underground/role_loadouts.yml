@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobFugitive
+  points: 3
   groups:
   - MercenaryHead
   - ContractorNeck
@@ -30,6 +31,7 @@
 
 - type: roleLoadout
   id: JobGodfather
+  points: 3
   groups:
   - MercenaryHead
   - ContractorNeck

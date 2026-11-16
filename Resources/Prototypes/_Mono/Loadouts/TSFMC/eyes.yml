@@ -24,6 +24,9 @@
 
 - type: loadout
   id: TsfmcDiagnostic
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     eyes: ClothingEyesHudDiagnostic
 

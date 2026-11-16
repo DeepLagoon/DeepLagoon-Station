@@ -1,5 +1,8 @@
 - type: loadout
   id: MMCClothingEyesHudSecurity
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     eyes: ClothingEyesHudSecurity
 

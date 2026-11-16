@@ -5,6 +5,7 @@
 
 - type: loadout
   id: PDVClothingOuterArmorBPVestMedium
+  price: 1000
   equipment:
     outerClothing: ClothingOuterArmorBPVestMedium
 
@@ -15,5 +16,6 @@
 
 - type: loadout
   id: PDVClothingOuterArmorCV67
+  price: 3500
   equipment:
     outerClothing: ClothingOuterHardsuitVizier

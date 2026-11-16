@@ -1,6 +1,6 @@
 - type: loadout
   id: PilotClothingUniformJumpsuitPilot
-  price: 0
+  price: 1000
   equipment:
     jumpsuit: ClothingUniformJumpsuitPilot
 
@@ -10,7 +10,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     jumpsuit: ClothingUniformJumpsuitMilitaryPilot
 
@@ -19,7 +19,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     jumpsuit: ClothingUniformDrakeIndustriesTrucker
 
@@ -28,7 +28,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     jumpsuit: ClothingUniformJumpsuitMilitaryContractor
 
@@ -37,6 +37,6 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     jumpsuit: ClothingUniformJumpsuitMilitaryContractorTac

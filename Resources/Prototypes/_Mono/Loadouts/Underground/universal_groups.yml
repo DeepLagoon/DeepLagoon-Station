@@ -23,7 +23,7 @@
 - type: loadoutGroup
   id: GodfatherOuterClothing
   name: loadout-group-contractor-outerclothing
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - GodfatherHardsuit
 

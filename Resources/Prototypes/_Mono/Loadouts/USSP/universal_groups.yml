@@ -50,6 +50,7 @@
 
 - type: loadoutGroup
   id: USSPOuterClothing
+  minLimit: 0
   name: loadout-group-contractor-outerclothing
   loadouts:
   - USSPClothingL10

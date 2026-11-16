@@ -33,16 +33,19 @@
 
 - type: loadout
   id: MonoSecurityGuardSecurityCarrier
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsNormalBlack
 
 - type: loadout
   id: MonoSecurityGuardSecurityCarrierLarge
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigBlack
 
 - type: loadout
   id: MonoSecurityGuardAssaultBelt
+  price: 1000
   name: "штурмовой пояс"
   equipment:
     belt: ClothingBeltAssault
@@ -64,6 +67,7 @@
 
 - type: loadout
   id: MonoSecurityGuardNeckGaiterRed
+  price: 1000
   storage:
     back:
     - ClothingMaskNeckGaiterRed
@@ -114,6 +118,9 @@
 
 - type: loadout
   id: MonoSecJumpsuitMaroon
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitMilitaryColorMaroon
 
@@ -136,10 +143,12 @@
 
 - type: loadout
   id: MonoSecurityGuardSatchel
+  price: 1000
   equipment:
     back: ClothingBackpackSatchelSecurity
 
 - type: loadout
   id: MonoSecurityGuardDuffel
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelSecurity

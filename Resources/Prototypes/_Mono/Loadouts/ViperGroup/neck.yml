@@ -6,6 +6,9 @@
 
 - type: loadout
   id: VGClothingNeckTieRed
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     neck: ClothingNeckTieRed

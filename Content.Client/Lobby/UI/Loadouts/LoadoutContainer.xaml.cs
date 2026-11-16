@@ -37,7 +37,9 @@ public sealed partial class LoadoutContainer : BoxContainer
         if (_protoManager.TryIndex(proto, out var loadProto))
         {
             // Frontier: overrideable prototype fields (description, name, icon [via entity])
-            Price.Text = "$" + loadProto.Price;
+            Price.Text = loadProto.PointsCost > 0
+                ? Loc.GetString("dl-loadout-item-cost", ("cost", loadProto.PointsCost))
+                : "$" + loadProto.Price;
 
             bool hasDescription = !string.IsNullOrEmpty(loadProto.Description);
             bool hasEntity = !string.IsNullOrEmpty(loadProto.PreviewEntity?.Id);

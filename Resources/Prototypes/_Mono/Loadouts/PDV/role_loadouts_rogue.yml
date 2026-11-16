@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobPirate
+  points: 3
   groups:
   - PDVHead
   - PDVNeck
@@ -26,6 +27,7 @@
 
 - type: roleLoadout
   id: JobPirateFirstMate
+  points: 3
   groups:
   - PDVHead
   - PDVNeck
@@ -52,6 +54,7 @@
 
 - type: roleLoadout
   id: JobPirateCaptain
+  points: 3
   groups:
   - PDVCommanderHead
   - PDVJumpsuit
@@ -77,6 +80,7 @@
 
 - type: roleLoadout
   id: JobPDVInfiltrator
+  points: 3
   groups:
   - PDVHead
   - PDVJumpsuit
@@ -101,6 +105,7 @@
 
 - type: roleLoadout
   id: JobPDVDenasvar
+  points: 3
   groups:
   - PDVHead
   - PDVNeck
@@ -172,6 +177,7 @@
 
 - type: roleLoadout
   id: JobPdvInfantry
+  points: 3
   groups:
   - PDVInfantryHead
   - PDVInfantryJumpsuit

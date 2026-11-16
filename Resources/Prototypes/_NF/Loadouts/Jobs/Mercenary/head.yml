@@ -1,29 +1,38 @@
 - type: loadout
   id: MercenaryClothingHeadHelmetMercenary
-  price: 0
+  price: 1000
   equipment:
     head: ClothingHeadHelmetMercenary
 
 - type: loadout
   id: MercenaryClothingHeadHelmetMercenaryBlack
-  price: 0
+  price: 1000
   equipment:
     head: ClothingHeadHelmetMercenaryBlack
 
 - type: loadout
   id: MercenaryClothingHeadBandMercenary
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadBandMercenary
 
 - type: loadout
   id: MercenaryClothingHeadHatBeretMercenary
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadHatBeretMercenary
 
 - type: loadout
   id: MercenaryClothingHeadHatBeretCommander
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0 # Mono
   equipment:
     head: ClothingHeadHatBeretCommander

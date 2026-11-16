@@ -4,7 +4,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckScarfStripedBlack
 
@@ -13,7 +13,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 5
+  price: 250
   equipment:
     neck: ClothingArmbandUNSA
 
@@ -22,7 +22,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckScarfStripedBlue
 
@@ -31,7 +31,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckScarfStripedBrown
 
@@ -40,7 +40,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckScarfStripedGreen
 
@@ -49,7 +49,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckTieBH
 
@@ -58,7 +58,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckTieRed
 
@@ -67,7 +67,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckTieSci
 
@@ -76,7 +76,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckLawyerbadge
 
@@ -85,7 +85,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckDrakeIndustriesBadge
 
@@ -94,7 +94,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckHeadphones
 
@@ -103,7 +103,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckNovaSharksLeatherJacket
 
@@ -112,7 +112,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCrucifix
 
@@ -121,7 +121,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: CDDogtags
 
@@ -130,7 +130,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckStethoscope
 
@@ -139,7 +139,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingOuterPoncho
 
@@ -148,7 +148,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingOuterPonchoClassic
 
@@ -158,7 +158,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakCap
 
@@ -167,7 +167,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakBlack
 
@@ -176,7 +176,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakCOG
 
@@ -185,7 +185,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallPurple
 
@@ -194,7 +194,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallPink
 
@@ -203,7 +203,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallOrange
 
@@ -212,7 +212,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallBlack
 
@@ -221,7 +221,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallRed
 
@@ -230,7 +230,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoSmallWhite
 
@@ -239,7 +239,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoArctic
 
@@ -248,7 +248,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckPonchoArctic
 
@@ -257,7 +257,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckUllimanOvercoat
 
@@ -275,7 +275,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakMiner
 
@@ -284,7 +284,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakMoth
 
@@ -293,7 +293,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckScarfChaplainStole
 
@@ -302,7 +302,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckStoleChaplain
 
@@ -311,7 +311,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakTrans
 
@@ -320,7 +320,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakAro
 
@@ -329,7 +329,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakAce
 
@@ -338,7 +338,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakBi
 
@@ -347,7 +347,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakIntersex
 
@@ -356,7 +356,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakEnby
 
@@ -365,7 +365,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakPan
 
@@ -374,7 +374,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakGay
 
@@ -383,7 +383,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakLesbian
 
@@ -392,7 +392,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: BedsheetRainbow
 
@@ -401,7 +401,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFNeutral
 
@@ -410,7 +410,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFGreen
 
@@ -419,7 +419,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFRed
 
@@ -428,7 +428,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFBlue
 
@@ -446,7 +446,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFOrange
 
@@ -455,7 +455,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckIFFPurple
 
@@ -464,7 +464,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckMantleCap
 
@@ -474,7 +474,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakCapFormal
 
@@ -483,7 +483,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakQm
 
@@ -492,7 +492,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckMantleQM
 
@@ -519,7 +519,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakRd
 
@@ -528,7 +528,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckMantleRD
 
@@ -537,7 +537,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakCe
 
@@ -546,7 +546,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckMantleCE
 
@@ -555,7 +555,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     neck: ClothingNeckCloakVoid
 
@@ -564,6 +564,6 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT3
-  price: 7500
+  price: 2500
   equipment:
     neck: ClothingNeckBling

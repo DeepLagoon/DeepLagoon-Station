@@ -1,5 +1,8 @@
 - type: loadout
   id: MercenaryClothingHeadHatBH
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadHatBH

@@ -5,25 +5,40 @@
 
 - type: loadout
   id: TsfmcUtilityCap
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatUtilityTsfmc
 
 - type: loadout
   id: TsfmcBeret
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretCommander
 
 - type: loadout
   id: TsfmcBeretEngineer
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretEngineering
 
 - type: loadout
   id: TsfmcBeretMedic
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretBrigmedic
 
 - type: loadout
   id: TsfmcBeretCommon
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretCommon

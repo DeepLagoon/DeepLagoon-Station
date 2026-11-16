@@ -12,12 +12,18 @@
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitPrivateSec
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitPrivateSec
 
 - type: loadout
   id: MercenaryClothingUniformJumpskirtPrivateSec
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpskirtPrivateSec
@@ -26,6 +32,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckMercenary
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -35,6 +43,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckMercenaryMedic
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -44,6 +54,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckMercenaryCaptain
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -53,6 +65,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckBlueMercenary
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -62,6 +76,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryMedic
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -71,6 +87,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMilitaryTurtleneckBlueMercenaryCaptain
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono
@@ -80,6 +98,8 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsitDrakeIndustriesWatchdog
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: ContractorT3
   price: 0 # Mono

@@ -1,5 +1,5 @@
 - type: loadout
   id: CrocusDockworkerGloves
-  price: 0
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesColorYellowBudget

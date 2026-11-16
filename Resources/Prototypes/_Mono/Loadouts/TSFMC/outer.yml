@@ -5,10 +5,12 @@
 
 - type: loadout
   id: TsfmcClothingOuterArmorBPVestMedium
+  price: 1000
   equipment:
     outerClothing: ClothingOuterArmorBPVestMedium
 
 - type: loadout
   id: TsfmcClothingOuterHardsuitColonel
+  price: 3500
   equipment:
     outerClothing: ClothingOuterHardsuitNfsdSheriff

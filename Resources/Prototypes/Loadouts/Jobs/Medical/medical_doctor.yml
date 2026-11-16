@@ -80,6 +80,9 @@
 
 - type: loadout
   id: MedicalDoctorJumpskirt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpskirtMedicalDoctor
 
@@ -101,16 +104,25 @@
 
 - type: loadout
   id: MedicalBlueScrubs
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: UniformScrubsColorBlue
 
 - type: loadout
   id: MedicalGreenScrubs
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: UniformScrubsColorGreen
 
 - type: loadout
   id: MedicalPurpleScrubs
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: UniformScrubsColorPurple
 
@@ -153,6 +165,7 @@
 # ID
 - type: loadout
   id: MedicalDoctorPDA
+  price: 1000
   equipment:
     id: MedicalPDA
 
@@ -167,6 +180,9 @@
 # Gloves
 - type: loadout
   id: NitrileGloves
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     gloves: ClothingHandsGlovesNitrile
 

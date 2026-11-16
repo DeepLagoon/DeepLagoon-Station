@@ -46,10 +46,8 @@
 - type: loadoutGroup
   id: PDVOuterClothingVizier
   name: loadout-group-contractor-outerclothing
-  minLimit: 1
+  minLimit: 0
   loadouts:
-  - PDVClothingOuterArmorCV67
-  fallbacks:
   - PDVClothingOuterArmorCV67
 
 - type: loadoutGroup

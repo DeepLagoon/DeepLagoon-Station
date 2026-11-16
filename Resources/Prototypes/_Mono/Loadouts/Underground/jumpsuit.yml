@@ -5,20 +5,32 @@
 
 - type: loadout
   id: GodfatherClothingJumpsuitLawyerBlue
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitLawyerBlue
 
 - type: loadout
   id: GodfatherClothingJumpsuitLawyerGood
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitLawyerGood
 
 - type: loadout
   id: GodfatherClothingJumpsuitLawyerPurple
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitLawyerPurple
 
 - type: loadout
   id: GodfatherClothingJumpsuitLawyerRed
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitLawyerRed

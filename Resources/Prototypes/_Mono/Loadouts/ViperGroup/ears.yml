@@ -6,6 +6,6 @@
 
 - type: loadout
   id: VGHeadsetAlt
-  price: 0
+  price: 1000
   equipment:
     ears: ClothingHeadsetViperAlt

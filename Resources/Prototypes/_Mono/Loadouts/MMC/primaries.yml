@@ -1,7 +1,7 @@
 - type: loadoutGroup
   id: MieyoCorpSecPrimary
   name: loadout-group-weapon
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - MMCMasamuneLoadout
   - MMCMayonakaLoadout
@@ -16,14 +16,14 @@
 
 - type: loadout
   id: MMCMasamuneLoadout
-  price: 0
+  price: 5000
   storage:
     back:
     - WeaponSubMachineGunMasamune
 
 - type: loadout
   id: MMCMayonakaLoadout
-  price: 0
+  price: 5000
   storage:
     back:
     - WeaponShotgunMayonaka

@@ -32,18 +32,18 @@
 #region Civilian modsuits.
 - type: loadout
   id: ContractorClothingModsuitCaptainPowerCell
-  price: 5000
+  price: 10000
   equipment:
     back: ClothingModsuitCaptainPowerCell
 
 - type: loadout
   id: ContractorClothingModsuitAtmostechPowerCell
-  price: 5000
+  price: 10000
   equipment:
     back: ClothingModsuitAtmostechPowerCell
     
 - type: loadout
   id: ContractorClothingModsuitEngineerPowerCell
-  price: 5000
+  price: 10000
   equipment:
     back: ClothingModsuitEngineerPowerCell

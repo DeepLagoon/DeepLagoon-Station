@@ -5,5 +5,8 @@
 
 - type: loadout
   id: USSPClothingServiceDress
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformServiceDressUSSP

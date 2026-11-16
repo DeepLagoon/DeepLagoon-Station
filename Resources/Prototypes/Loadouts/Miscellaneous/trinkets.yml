@@ -31,6 +31,7 @@
 # Toys
 - type: loadout
   id: PlushieLizard
+  price: 1000
   storage:
     back:
     - PlushieLizard
@@ -52,6 +53,7 @@
 
 - type: loadout
   id: BikeHorn
+  price: 1000
   storage:
     back:
     - BikeHorn
@@ -108,90 +110,105 @@
 # Pins
 - type: loadout
   id: ClothingNeckLGBTPin
+  price: 1000
   storage:
     back:
     - ClothingNeckLGBTPin
 
 - type: loadout
   id: ClothingNeckAllyPin
+  price: 1000
   storage:
     back:
     - ClothingNeckAllyPin
 
 - type: loadout
   id: ClothingNeckAromanticPin
+  price: 1000
   storage:
     back:
     - ClothingNeckAromanticPin
 
 - type: loadout
   id: ClothingNeckAsexualPin
+  price: 1000
   storage:
     back:
     - ClothingNeckAsexualPin
 
 - type: loadout
   id: ClothingNeckBisexualPin
+  price: 1000
   storage:
     back:
     - ClothingNeckBisexualPin
 
 - type: loadout
   id: ClothingNeckGayPin
+  price: 1000
   storage:
     back:
     - ClothingNeckGayPin
 
 - type: loadout
   id: ClothingNeckIntersexPin
+  price: 1000
   storage:
     back:
     - ClothingNeckIntersexPin
 
 - type: loadout
   id: ClothingNeckLesbianPin
+  price: 1000
   storage:
     back:
     - ClothingNeckLesbianPin
 
 - type: loadout
   id: ClothingNeckNonBinaryPin
+  price: 1000
   storage:
     back:
     - ClothingNeckNonBinaryPin
 
 - type: loadout
   id: ClothingNeckPansexualPin
+  price: 1000
   storage:
     back:
     - ClothingNeckPansexualPin
 
 - type: loadout
   id: ClothingNeckOmnisexualPin
+  price: 1000
   storage:
     back:
     - ClothingNeckOmnisexualPin
 
 - type: loadout
   id: ClothingNeckGenderqueerPin
+  price: 1000
   storage:
     back:
     - ClothingNeckGenderqueerPin
 
 - type: loadout
   id: ClothingNeckTransPin
+  price: 1000
   storage:
     back:
     - ClothingNeckTransPin
 
 - type: loadout
   id: ClothingNeckAutismPin
+  price: 1000
   storage:
     back:
     - ClothingNeckAutismPin
 
 - type: loadout
   id: ClothingNeckGoldAutismPin
+  price: 1000
   storage:
     back:
     - ClothingNeckGoldAutismPin

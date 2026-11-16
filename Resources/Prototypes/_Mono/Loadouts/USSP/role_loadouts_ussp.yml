@@ -1,5 +1,6 @@
 - type: roleLoadout
   id: JobUSSPRifleman
+  points: 3
   groups:
   - USSPHead
   - USSPJumpsuit
@@ -29,6 +30,7 @@
 
 - type: roleLoadout
   id: JobUSSPSergeant
+  points: 3
   groups:
   - USSPHeadOfficer
   - USSPJumpsuitOfficer
@@ -58,6 +60,7 @@
 
 - type: roleLoadout
   id: JobUSSPCommissar
+  points: 3
   groups:
   - USSPHeadCommissar
   - USSPJumpsuitOfficer

@@ -80,8 +80,8 @@ public sealed partial class LoadoutGroupContainer : BoxContainer
             var matchingLoadout = selected.FirstOrDefault(e => e.Prototype == loadoutProto);
             var pressed = matchingLoadout != null;
 
-            var enabled = loadout.IsValid(profile, session, loadoutProto, collection, out var reason);
-            var loadoutContainer = new LoadoutContainer(loadoutProto, !enabled, reason);
+            var enabled = loadout.CanSelect(profile, session, _groupProto.ID, loadProto, collection, out var reason);
+            var loadoutContainer = new LoadoutContainer(loadoutProto, !pressed && !enabled, reason);
             loadoutContainer.Select.Pressed = pressed;
             loadoutContainer.Text = string.IsNullOrEmpty(loadProto.Name) ? loadoutSystem.GetName(loadProto) : loadProto.Name; // Frontier: allow overriding loadout names
 
@@ -113,8 +113,8 @@ public sealed partial class LoadoutGroupContainer : BoxContainer
                 var matchingLoadout = selected.FirstOrDefault(e => e.Prototype == loadoutProto);
                 var pressed = matchingLoadout != null;
 
-                var enabled = loadout.IsValid(profile, session, loadoutProto, collection, out var reason);
-                var loadoutContainer = new LoadoutContainer(loadoutProto, !enabled, reason);
+                var enabled = loadout.CanSelect(profile, session, _groupProto.ID, loadProto, collection, out var reason);
+                var loadoutContainer = new LoadoutContainer(loadoutProto, !pressed && !enabled, reason);
                 loadoutContainer.Select.Pressed = pressed;
                 loadoutContainer.Text = string.IsNullOrEmpty(loadProto.Name) ? loadoutSystem.GetName(loadProto) : loadProto.Name; // Frontier: allow overriding loadout names
 

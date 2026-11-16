@@ -6,30 +6,45 @@
 
 - type: loadout
   id: CrocusDockworkerJumpsuitHazard
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitEngineeringHazard
 
 - type: loadout
   id: CrocusDockworkerJumpsuitEngineering
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitEngineering
 
 - type: loadout
   id: CrocusDockworkerJumpsuitBlue
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitColorBlue
 
 - type: loadout
   id: CrocusDockworkerJumpsuitTan
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitColorLightBrown
 
 - type: loadout
   id: CrocusDockworkerJumpsuitBrown
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitColorBrown

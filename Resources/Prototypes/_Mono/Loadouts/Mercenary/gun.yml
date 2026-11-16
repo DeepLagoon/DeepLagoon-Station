@@ -40,8 +40,6 @@
   - MercenaryKukriKnifeLoadout
   - MercenaryThrowingKnifeLoadout
   - MercenaryMacheteLoadout
-  fallbacks:
-  - MercenaryPollockLoadout
 
 - type: loadoutGroup
   id: MercenaryMag

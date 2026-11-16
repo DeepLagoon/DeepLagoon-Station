@@ -33,7 +33,7 @@ const EquipmentCard = ({ item, compact, act, onCustomize }) => (
       <Sprite item={item} color={item.color?.slice(0, 7) || '#ffffff'} />
       <span className="EquipmentBrowser__details">
         <strong>{item.customName || item.name}</strong>
-        <small>{item.cost} {item.jobItem ? '$' : 'очков'}</small>
+        <small>{item.cost} {item.jobItem && !item.costInPoints ? '$' : item.cost === 1 ? 'очко' : 'очков'}</small>
         {!compact && <>
           {item.donor && <small>{item.donor}</small>}
           {!item.allowed && <small>🔒 {item.reason}</small>}
@@ -79,6 +79,7 @@ export const EquipmentBrowser = memo(({data={},act,backpack,characterSlot,active
         <div><span>Счёт персонажа</span><strong>{data.balance}</strong></div>
         <div><span>Стоимость снаряжения</span><strong>{data.cost}</strong></div>
         <div><span>Очки снаряжения</span><strong>{data.points} / {data.maxPoints}</strong><progress max={Math.max(1,data.maxPoints||0)} value={data.points||0} /></div>
+        {data.maxJobPoints > 0 && <div><span>Очки формы</span><strong>{data.jobPoints} / {data.maxJobPoints}</strong><progress max={data.maxJobPoints} value={data.jobPoints} /></div>}
       </div>
       <BackpackEditor data={backpack} context={`${data.job}/${characterSlot ?? ''}`} active={active} act={act} showUnavailable={unavailable} />
       <Button.Checkbox role="checkbox" aria-checked={unavailable} checked={unavailable} onClick={() => setUnavailable(!unavailable)}>Показать недоступные</Button.Checkbox><Button onClick={()=>act('remove-unavailable')}>Убрать недоступные</Button>

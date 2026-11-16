@@ -11,6 +11,9 @@
 
 - type: loadout
   id: USSPBeret
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeret
 

@@ -39,11 +39,12 @@ public sealed class LoadoutTests
 
     private readonly Dictionary<string, EntProtoId> _expectedEquipment = new()
     {
-        ["jumpsuit"] = "ClothingUniformJumpsuitColorGrey"
+        ["jumpsuit"] = "ClothingUniformJumpsuitColorGrey",
+        ["id"] = "ContractorPDA",
     };
 
     /// <summary>
-    /// Checks that an empty loadout still spawns with default gear and not naked.
+    /// Checks that an empty loadout spawns with default clothing and the mandatory PDA.
     /// </summary>
     [Test]
     public async Task TestEmptyLoadout()

@@ -10,5 +10,8 @@
 
 - type: loadout
   id: TsfmcLatexGloves
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     gloves: ClothingHandsGlovesLatex

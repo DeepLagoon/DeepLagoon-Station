@@ -1,5 +1,6 @@
 - type: loadout
   id: CombatGloves
+  price: 1000
   equipment:
     gloves: ClothingHandsGlovesCombat
 
@@ -12,10 +13,16 @@
 
 - type: loadout
   id: ColorBlackGloves
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     gloves: ClothingHandsGlovesColorBlack
 
 - type: loadout
   id: FingerlessGloves
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     gloves: ClothingHandsGlovesFingerless

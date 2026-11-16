@@ -31,6 +31,7 @@
 
 - type: roleLoadout
   id: JobDeputy # Marine
+  points: 3
   groups:
   - TsfmcHead
   - TsfmcNeck
@@ -62,6 +63,7 @@
 
 - type: roleLoadout
   id: JobBrigmedic # Brigmedic
+  points: 3
   groups:
   - TsfmcHeadMedic
   - TsfmcNeckMedic
@@ -93,6 +95,7 @@
 
 - type: roleLoadout
   id: JobBailiff # Captain
+  points: 3
   groups:
   - TsfmcHead
   - TsfmcNeckCaptain
@@ -124,6 +127,7 @@
 
 - type: roleLoadout
   id: JobSeniorOfficer # Fireteam Leader
+  points: 3
   groups:
   - TsfmcHead
   - TsfmcNeckFTL
@@ -155,6 +159,7 @@
 
 - type: roleLoadout
   id: JobSheriff # Colonel
+  points: 3
   groups:
   - TsfmcHead
   - TsfmcNeckCommander
@@ -185,6 +190,7 @@
 
 - type: roleLoadout
   id: JobTsfEngineer # Engineer
+  points: 3
   groups:
   - TsfmcHeadEngi
   - TsfmcNeckEngi
@@ -214,6 +220,7 @@
 
 - type: roleLoadout
   id: JobTsfMarsoc
+  points: 3
   groups:
   - TsfmcBalaclava
   - NfsdBoxSurvival
@@ -260,6 +267,7 @@
 
 - type: roleLoadout
   id: JobTsfInfantry
+  points: 3
   groups:
   - TsfmcInfantryHead
   - TsfmcInfantryJumpsuit

@@ -1,12 +1,12 @@
 - type: loadout
   id: MercenaryClothingOuterVestWebMercenary
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     outerClothing: ClothingOuterVestWebMercenary
 
 - type: loadout
   id: MercenaryClothingOuterVestWebMercenaryBlack
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     outerClothing: ClothingOuterVestWebMercenaryBlack
 

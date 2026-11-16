@@ -50,26 +50,41 @@
 
 - type: loadout
   id: TsfClothingNeckColonelCloak
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckColonelCloak
 
 - type: loadout
   id: TsfClothingNeckCaptainCloak
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckCaptainCloak
 
 - type: loadout
   id: TsfClothingNeckCaptainFormal
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckFormalTSFCaptain
 
 - type: loadout  
   id: SheriffClothingNeckMantleSheriff
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckMantleSheriff
 
 - type: loadout
   id: TsfClothingNeckCloak
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckTSFCloak
 

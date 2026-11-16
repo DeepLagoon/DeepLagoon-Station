@@ -1,6 +1,7 @@
 dl-loadout-tab = Снаряжение
 dl-loadout-replaced = Заменено личным снаряжением за очки.
 dl-loadout-points = Очки снаряжения: { $points } / { $max }
+dl-loadout-job-points = Очки формы: { $points } / { $max }
 dl-loadout-show-unavailable = Показать недоступное
 dl-loadout-remove-unavailable = Убрать недоступные наборы
 dl-loadout-search = Поиск снаряжения…

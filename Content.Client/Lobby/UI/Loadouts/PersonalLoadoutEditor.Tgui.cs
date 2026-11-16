@@ -128,24 +128,21 @@ public sealed partial class PersonalLoadoutEditor
             .Array("jobItems", _jobEntries.Where(entry => _handFilter == null && (_slotFilter == null || FitsJobSlot(entry.Item, _slotFilter))).Select(entry =>
             {
                 var item = entry.Item;
-                var valid = _jobRole!.IsValid(system.RemovePersonalConflicts(_profile, item), _session, item.ID, IoCManager.Instance!, out var reason);
-                var chosen = _jobRole.SelectedLoadouts.TryGetValue(entry.Group.ID, out var choices) && choices.Any(choice => choice.Prototype.Id == item.ID)
+                var valid = CanSelectJob(_jobRole!, entry, out var availabilityReason);
+                var chosen = _jobRole!.SelectedLoadouts.TryGetValue(entry.Group.ID, out var choices) && choices.Any(choice => choice.Prototype.Id == item.ID)
                     && !system.HasUnequippedSlots(_profile, _job, item);
-                var availabilityReason = reason?.ToString();
-                if (valid && !CanAffordJob(_jobRole, entry.Group, item))
-                {
-                    valid = false;
-                    availabilityReason = Loc.GetString("dl-loadout-insufficient-balance");
-                }
                 var entity = item.PreviewEntity ?? item.DummyEntity ?? _entities.System<LoadoutSystem>().GetFirstOrNull(item);
                 var custom = _jobRole.Customizations.GetValueOrDefault(item.ID) ?? _jobRole.SelectedLoadouts.Values.SelectMany(items => items).FirstOrDefault(choice => choice.Prototype.Id == item.ID)?.Customization;
                 return new TguiData().String("id", item.ID).String("group", entry.Group.ID).String("groupName", Loc.GetString(entry.Group.Name))
                     .String("name", JobItemName(item)).String("category", entry.Category).Bool("selected", chosen).Bool("allowed", valid).Bool("canSelect", valid || chosen)
-                    .String("reason", availabilityReason).Number("cost", item.Price).Number("min", entry.Group.MinLimit).Number("max", entry.Group.MaxLimit)
+                    .String("reason", availabilityReason?.ToString()).Number("cost", item.PointsCost > 0 ? item.PointsCost : item.Price)
+                    .Bool("costInPoints", item.PointsCost > 0).Number("min", entry.Group.MinLimit).Number("max", entry.Group.MaxLimit)
                     .Bool("canPaint", true).Bool("canRename", true).Bool("canDescribe", true)
                     .String("color", custom?.Color).String("customName", custom?.Name).String("description", custom?.Description)
                     .String("iconId", entity is {} id ? "item/" + id.Id : "");
             }));
+        if (_jobRole?.Points is { } jobPoints)
+            data.Number("jobPoints", jobPoints).Number("maxJobPoints", _prototypes.Index(_jobRole.Role).Points!.Value);
         _cachedTguiState = data;
         return data;
     }
@@ -204,7 +201,7 @@ public sealed partial class PersonalLoadoutEditor
             else
             {
                 profile = _entities.System<PersonalLoadoutSystem>().RemovePersonalConflicts(profile, entry.Item);
-                if (!role.IsValid(profile, _session, id, IoCManager.Instance!, out _) || !CanAffordJob(role, entry.Group, entry.Item)) return false;
+                if (!CanSelectJob(role, entry, out _)) return false;
                 if (!stored) role.AddLoadout(entry.Group.ID, id, _prototypes);
             }
             profile = profile.WithLoadout(role);

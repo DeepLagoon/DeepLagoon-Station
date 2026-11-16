@@ -18,6 +18,9 @@
 
 - type: loadout
   id: MercenaryClothingShoesBootsJack
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
@@ -31,7 +34,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsMagMercenary
 
@@ -41,6 +44,6 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsMagSecurity

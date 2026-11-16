@@ -4,7 +4,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - AppraisalTool
 
@@ -13,7 +13,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - Pickaxe
 
@@ -22,7 +22,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - HandheldGPSBasic
 
@@ -31,7 +31,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 550
+  price: 1000
   inhand:
     - RadioHandheldNF
 
@@ -40,7 +40,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - NetworkConfigurator
 
@@ -49,7 +49,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - HandheldHealthAnalyzerUnpowered
 
@@ -58,7 +58,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - AnomalyScanner
 
@@ -67,7 +67,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - Bucket
 
@@ -76,7 +76,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 350
+  price: 1000
   inhand:
     - GeigerCounter
 
@@ -86,7 +86,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 3000
+  price: 5000
   inhand:
     - WeaponProtoKineticAccelerator
 
@@ -161,7 +161,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 500
+  price: 1000
   inhand:
     - MonkeyCubeWrapped
 
@@ -173,6 +173,6 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 500
+  price: 1000
   inhand:
     - KoboldCubeWrapped

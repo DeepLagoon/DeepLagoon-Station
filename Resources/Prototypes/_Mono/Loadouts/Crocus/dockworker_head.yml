@@ -1,17 +1,26 @@
 - type: loadout
   id: CrocusDockworkerCap
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadHatCorpsoft
 
 - type: loadout
   id: CrocusDockworkerCapAlt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadHatCargosoft
 
 - type: loadout
   id: CrocusDockworkerHardhat
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     head: ClothingHeadHatHardhatYellow

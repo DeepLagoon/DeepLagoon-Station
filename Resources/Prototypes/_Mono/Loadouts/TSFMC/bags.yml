@@ -5,20 +5,24 @@
 
 - type: loadout
   id: TsfmcClothingSatchel
+  price: 1000
   equipment:
     back: ClothingBackpackSatchelTsfmc
 
 - type: loadout
   id: TsfmcClothingDuffel
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTsfmc
 
 - type: loadout
   id: TsfmcEngiClothingModsuit2
+  price: 10000
   equipment:
     back: ClothingModsuitEngineerPowerCell
 
 - type: loadout
   id: TsfmcEngiClothingModsuit
+  price: 10000
   equipment:
     back: ClothingModsuitVoltaPowerCell

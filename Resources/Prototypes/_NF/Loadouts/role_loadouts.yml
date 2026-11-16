@@ -19,6 +19,7 @@
 # mono: give vagrants mercenary loadout options
 - type: roleLoadout
   id: JobContractor
+  points: 3
   groups:
   - MercenaryHead
   - ContractorNeck
@@ -211,6 +212,7 @@
 # Mono edit
 - type: roleLoadout
   id: JobStationRepresentative
+  points: 3
   groups:
 #  - StationRepHead
 #  - StationRepNeck
@@ -242,6 +244,7 @@
 
 - type: roleLoadout
   id: JobSecurityGuard
+  points: 3
   groups:
   # Mono Start
   - MonoSecurityGuardOuterClothing
@@ -273,6 +276,7 @@
 
 - type: roleLoadout
   id: JobDirectorOfCare
+  points: 3
   groups:
   - DocHead
   - DocNeck

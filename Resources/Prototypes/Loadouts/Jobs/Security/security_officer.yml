@@ -26,6 +26,7 @@
 # Head
 - type: loadout
   id: SecurityHelmet
+  price: 1000
   equipment:
     head: ClothingHeadHelmetBasic
 
@@ -36,6 +37,9 @@
 
 - type: loadout
   id: SecurityBeret
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretSecurity
 
@@ -89,16 +93,19 @@
 # Back
 - type: loadout
   id: SecurityBackpack
+  price: 1000
   equipment:
     back: ClothingBackpackSecurity
 
 - type: loadout
   id: SecuritySatchel
+  price: 1000
   equipment:
     back: ClothingBackpackSatchelSecurity
 
 - type: loadout
   id: SecurityDuffel
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelSecurity
 

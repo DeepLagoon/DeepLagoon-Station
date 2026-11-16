@@ -13,9 +13,12 @@
   id: StationRepBackpack
   name: loadout-group-contractor-backpack
   loadouts:
+  - StationRepClothingBackpackSecurity
   - StationRepClothingModsuitHeadOfSecurityPowerCell
-  subgroups:
-  - SecurityBackpack
+  - SecuritySatchel
+  - SecurityDuffel
+  fallbacks:
+  - StationRepClothingBackpackSecurity
 
 - type: loadoutGroup
   id: StationRepEars

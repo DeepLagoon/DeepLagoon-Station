@@ -12,7 +12,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesClothwrap
 
@@ -21,7 +21,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesClothwrapBlack
 
@@ -30,7 +30,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesTourist
 
@@ -39,7 +39,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsSalvage
 
@@ -48,7 +48,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesChef
 
@@ -57,7 +57,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorBlue
 
@@ -66,7 +66,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorOrange
 
@@ -75,7 +75,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorPurple
 
@@ -84,7 +84,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorRed
 
@@ -93,7 +93,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorBrown
 
@@ -102,7 +102,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorGreen
 
@@ -111,7 +111,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorYellow
 #T1
@@ -125,7 +125,7 @@
     proto: ShoesCapableNF
   - !type:GroupLoadoutEffect
     proto: NFNotDoc
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesColorWhite
 
@@ -137,7 +137,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsMag
 
@@ -149,7 +149,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinter
 
@@ -161,7 +161,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterAtmos
 
@@ -173,7 +173,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterHydro
 
@@ -185,7 +185,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterCap
 
@@ -197,7 +197,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterCargo
 
@@ -209,7 +209,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterChef
 
@@ -221,7 +221,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterChem
 
@@ -233,7 +233,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterEngi
 
@@ -245,7 +245,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterGenetics
 
@@ -257,7 +257,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterMiner
 
@@ -269,7 +269,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterParamedic
 
@@ -281,7 +281,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterRobo
 
@@ -293,7 +293,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterSci
 
@@ -305,7 +305,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterViro
 
@@ -317,7 +317,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsJack
 
@@ -329,7 +329,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesLeather
 
@@ -355,7 +355,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesSlippers
 
@@ -367,7 +367,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoeSlippersDuck
 
@@ -379,7 +379,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesFlippers
 
@@ -392,7 +392,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsPunkRandomized
 
@@ -405,7 +405,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesDameDane
 
@@ -417,7 +417,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWork
 
@@ -429,7 +429,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsCowboyBlack
 
@@ -441,7 +441,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsCowboyBrown
 
@@ -453,7 +453,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsCowboyWhite
 
@@ -465,7 +465,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesSnakeskinBoots
 
@@ -477,7 +477,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesHighheelBoots
 
@@ -489,7 +489,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsCowboyFancy
 
@@ -501,7 +501,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterChiefEngineer
 
@@ -525,7 +525,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterQM
 
@@ -537,7 +537,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterRD
 
@@ -549,7 +549,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterClown
 
@@ -561,7 +561,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsWinterMime
 
@@ -573,7 +573,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesClown
 
@@ -585,7 +585,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 500 # Mono
   equipment:
     shoes: ClothingShoesJester
 
@@ -597,7 +597,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesBootsPerformer
 
@@ -609,7 +609,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     shoes: ClothingShoesSkates
 
@@ -622,7 +622,7 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 7500
+  price: 2500
   equipment:
     shoes: ClothingShoesClownLarge
 
@@ -634,6 +634,6 @@
   hideEffects:
   - !type:GroupLoadoutEffect
     proto: ShoesCapableNF
-  price: 7500
+  price: 2500
   equipment:
     shoes: ClothingShoesBling

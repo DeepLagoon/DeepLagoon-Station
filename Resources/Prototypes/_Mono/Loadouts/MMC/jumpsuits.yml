@@ -6,24 +6,36 @@
 
 - type: loadout
   id: MMCFieldSuitJeans
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformMMCJeans
 
 - type: loadout
   id: MMCFieldSuitCargos
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformMMCCargos
 
 - type: loadout
   id: MMCFieldSuitWarm
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformMMCWarm
 
 - type: loadout
   id: MMCWorkSuit
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformMMCJumpsuit
@@ -36,6 +48,9 @@
 
 - type: loadout
   id: MMCOfficeSuitBlack
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitDetectiveGrey

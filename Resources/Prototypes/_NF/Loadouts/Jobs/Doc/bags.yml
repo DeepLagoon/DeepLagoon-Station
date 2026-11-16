@@ -5,15 +5,18 @@
 
 - type: loadout
   id: DocClothingBackpackDuffelMedical
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelMedical
 
 - type: loadout
   id: DocClothingBackpackSatchelMedical
+  price: 1000
   equipment:
     back: ClothingBackpackSatchelMedical
 
 - type: loadout
   id: DocClothingBackpackMessengerMedical
+  price: 1000
   equipment:
     back: ClothingBackpackMessengerMedical

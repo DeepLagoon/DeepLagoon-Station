@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared.Preferences.Loadouts.Effects;
 using Content.Shared.Roles;
 using Robust.Shared.Prototypes;
@@ -57,6 +58,10 @@ public sealed partial class LoadoutPrototype : IPrototype, IEquipmentLoadout
     /// </summary>
     [DataField]
     public int Price = 0;
+
+    public int PointsCost => Effects.OfType<PointsCostLoadoutEffect>().Sum(effect => effect.Cost);
+
+    public bool IsFree => Price <= 0 && PointsCost <= 0;
 
     /// <summary>
     /// Frontier - optional name of the loadout as it appears in the menu

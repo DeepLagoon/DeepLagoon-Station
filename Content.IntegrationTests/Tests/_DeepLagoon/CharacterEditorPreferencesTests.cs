@@ -19,6 +19,79 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class CharacterEditorPreferencesTests
 {
     [Test]
+    public async Task EquipmentPricesAndUniformBudgetInCharacterEditor()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var editor = new PersonalLoadoutEditor { TguiMode = true };
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human");
+            void Refresh(HumanoidCharacterProfile draft)
+            {
+                profile = draft;
+                editor.Refresh(draft, "Contractor", null);
+            }
+
+            JsonElement State()
+            {
+                using var document = JsonDocument.Parse(editor.CreateTguiState().ToString());
+                return document.RootElement.Clone();
+            }
+
+            JsonElement Item(string id) => State().GetProperty("jobItems").EnumerateArray()
+                .First(item => item.GetProperty("id").GetString() == id);
+
+            bool Select(string id)
+            {
+                var group = Item(id).GetProperty("group").GetString();
+                Assert.That(TguiActionData.TryParse(JsonSerializer.Serialize(new { id, group }), out var action), Is.True);
+                return editor.HandleTguiAction("job-select", action!);
+            }
+
+            try
+            {
+                editor.ProfileChanged += Refresh;
+                Refresh(profile);
+                const string uniform = "MercenaryClothingUniformJumpsuitPrivateSec";
+                const string otherUniform = "MercenaryClothingUniformJumpskirtPrivateSec";
+                const string glasses = "MercenaryClothingEyesGlassesMercenary";
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Item("ContractorClothingHeadHatGreysoft").GetProperty("cost").GetInt32(), Is.EqualTo(250));
+                    Assert.That(Item("ContractorClothingOuterHardsuitEVA").GetProperty("cost").GetInt32(), Is.EqualTo(3500));
+                    Assert.That(Item("ContractorMk32Loadout").GetProperty("cost").GetInt32(), Is.EqualTo(5000));
+                    Assert.That(Item("ContractorMk32Loadout").GetProperty("selected").GetBoolean(), Is.False);
+                    Assert.That(Item("ContractorClothingModsuitEngineerPowerCell").GetProperty("cost").GetInt32(), Is.EqualTo(10000));
+                    Assert.That(Item("MercenaryClothingUniformJumpsuitMercenary").GetProperty("cost").GetInt32(), Is.Zero);
+                    Assert.That(Item("MercenaryClothingUniformJumpsuitMercenary").GetProperty("selected").GetBoolean(), Is.True);
+                    Assert.That(Item(uniform).GetProperty("costInPoints").GetBoolean(), Is.True);
+                    Assert.That(Item(uniform).GetProperty("cost").GetInt32(), Is.EqualTo(1));
+                });
+
+                var originalPersonalPoints = State().GetProperty("points").GetInt32();
+                Assert.That(Select(uniform), Is.True);
+                Assert.That(Select("MercenaryClothingHeadBandMercenary"), Is.True);
+                Assert.That(Select("MercenaryClothingHandsGlovesMercFingerless"), Is.True);
+                Assert.That(State().GetProperty("jobPoints").GetInt32(), Is.Zero);
+                Assert.That(Select(glasses), Is.False);
+                Assert.That(Select(otherUniform), Is.True, "Replacing a choice releases its point");
+                Assert.That(State().GetProperty("jobPoints").GetInt32(), Is.Zero);
+                Assert.That(State().GetProperty("points").GetInt32(), Is.EqualTo(originalPersonalPoints));
+                Assert.That(profile.Loadouts["JobContractor"].SelectedLoadouts["MercenaryJumpsuit"].Single().Prototype.Id, Is.EqualTo(otherUniform));
+
+                editor.Refresh(profile, "CrocusDockworker", null);
+                Assert.That(State().GetProperty("jobItems").EnumerateArray()
+                    .Any(item => item.GetProperty("id").GetString() == otherUniform), Is.False);
+            }
+            finally
+            {
+                editor.Dispose();
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task EditorActionsReplaceBothCurrenciesAtomically()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

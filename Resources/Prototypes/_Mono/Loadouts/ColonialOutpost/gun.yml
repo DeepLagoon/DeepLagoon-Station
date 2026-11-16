@@ -1,12 +1,10 @@
 - type: loadoutGroup
   id: ColonialLiaisonFirearm
   name: loadout-group-weapon-civilian
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - StationRepWeaponEnergyShotgun
   - SecurityGuardIrohLoadout
-  fallbacks:
-  - StationRepWeaponEnergyShotgun
 
 - type: loadoutGroup
   id: SecurityGuardFirearm
@@ -19,17 +17,13 @@
   - SecurityGuardEnforcerLoadout
   - SecurityGuardDisablerSMGLoadout
   - SecurityGuardEnergyGunLoadout
-  fallbacks:
-  - SecurityGuardIrohLoadout
 
 - type: loadoutGroup
   id: SecurityGuardPistol
   name: loadout-group-pistol
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - SecurityGuardMk58Loadout #MK58
-  fallbacks:
-  - SecurityGuardMk58Loadout
 
 - type: loadoutGroup
   id: SecurityGuardAmmo

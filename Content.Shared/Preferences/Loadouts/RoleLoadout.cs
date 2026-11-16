@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Humanoid.Prototypes;
+using Content.Shared.Preferences.Loadouts.Effects;
 using Content.Shared.Random;
 using Robust.Shared.Collections;
 using Robust.Shared.Player;
@@ -146,6 +147,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
 
         // Reset points to recalculate.
         Points = roleProto.Points;
+        var personalLoadouts = collection.Resolve<IEntityManager>().System<PersonalLoadoutSystem>();
 
         foreach (var (group, groupLoadouts) in SelectedLoadouts)
         {
@@ -201,16 +203,22 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                     // continue; // Frontier: commented out old implementation
                 }
 
-                loadout.Customization = collection.Resolve<IEntityManager>().System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>().Sanitize(loadoutProto, loadout.Customization);
-
                 // Validate the loadout can be applied (e.g. points).
-                if (!IsValid(profile, session, loadout.Prototype, collection, out _))
+                var unequipped = UnequippedSlots.Count > 0 &&
+                    personalLoadouts.FullyUnequipped(loadoutProto, UnequippedSlots);
+                if (!ValidateSelection(profile, session, loadoutProto, collection, unequipped, out _))
                 {
                     loadouts.RemoveAt(i);
                     continue;
                 }
 
-                Apply(loadoutProto);
+                if (loadout.Customization != null)
+                    loadouts[i] = new Loadout
+                    {
+                        Prototype = loadout.Prototype,
+                        Customization = personalLoadouts.Sanitize(loadoutProto, loadout.Customization),
+                    };
+                Apply(loadoutProto, unequipped);
             }
 
             // Apply defaults if required
@@ -227,7 +235,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                         if (loadouts.Count >= groupProto.MinLimit)
                             break;
 
-                        if (!protoManager.TryIndex(protoId, out var loadoutProto))
+                        if (!protoManager.TryIndex(protoId, out var loadoutProto) || !loadoutProto.IsFree)
                             continue;
 
                         var defaultLoadout = new Loadout()
@@ -250,7 +258,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                     if (loadouts.Count >= groupProto.MinLimit)
                         break;
 
-                    if (!protoManager.TryIndex(protoId, out var loadoutProto))
+                    if (!protoManager.TryIndex(protoId, out var loadoutProto) || !loadoutProto.IsFree)
                         continue;
 
                     var defaultLoadout = new Loadout()
@@ -276,11 +284,12 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
         }
     }
 
-    private void Apply(LoadoutPrototype loadoutProto)
+    private void Apply(LoadoutPrototype loadoutProto, bool unequipped = false)
     {
         foreach (var effect in loadoutProto.Effects)
         {
-            effect.Apply(this);
+            if (!unequipped || effect is not PointsCostLoadoutEffect)
+                effect.Apply(this);
         }
     }
 
@@ -302,6 +311,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
 
         var collection = IoCManager.Instance!;
         var roleProto = protoManager.Index(Role);
+        Points = roleProto.Points;
 
         for (var i = roleProto.Groups.Count - 1; i >= 0; i--)
         {
@@ -326,7 +336,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                     if (loadouts.Count >= groupProto.MaxLimit)
                         break;
 
-                    if (!protoManager.TryIndex(protoId, out var loadoutProto))
+                    if (!protoManager.TryIndex(protoId, out var loadoutProto) || !loadoutProto.IsFree)
                         continue;
 
                     var defaultLoadout = new Loadout()
@@ -353,7 +363,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                     if (loadouts.Count >= groupProto.MinLimit)
                         break;
 
-                    if (!protoManager.TryIndex(protoId, out var loadoutProto))
+                    if (!protoManager.TryIndex(protoId, out var loadoutProto) || !loadoutProto.IsFree)
                         continue;
 
                     var defaultLoadout = new Loadout()
@@ -388,6 +398,35 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             return false;
         }
 
+        return ValidateSelection(profile, session, loadoutProto, collection, false, out reason);
+    }
+
+    public bool CanSelect(HumanoidCharacterProfile profile, ICommonSession? session, ProtoId<LoadoutGroupPrototype> group,
+        LoadoutPrototype item, IDependencyCollection collection, [NotNullWhen(false)] out FormattedMessage? reason)
+    {
+        if (item.PointsCost <= 0)
+            return IsValid(profile, session, item.ID, collection, out reason);
+
+        var prototypes = collection.Resolve<IPrototypeManager>();
+        var candidate = Clone();
+        var choices = candidate.SelectedLoadouts[group];
+        if (choices.All(choice => choice.Prototype.Id != item.ID))
+            candidate.AddLoadout(group, item.ID, prototypes);
+
+        var personalLoadouts = collection.Resolve<IEntityManager>().System<PersonalLoadoutSystem>();
+        candidate.UnequippedSlots.ExceptWith(personalLoadouts.EditableSlots(profile)
+            .Where(slot => personalLoadouts.UsesSlot(item, slot)).Select(slot => slot.Name));
+        // Validate against the budget after replacing the previous choice in this group.
+        choices.RemoveAll(choice => choice.Prototype.Id == item.ID);
+        candidate.EnsureValid(profile, session, collection);
+        return candidate.IsValid(profile, session, item.ID, collection, out reason);
+    }
+
+    private bool ValidateSelection(HumanoidCharacterProfile profile, ICommonSession? session, LoadoutPrototype loadoutProto,
+        IDependencyCollection collection, bool unequipped, [NotNullWhen(false)] out FormattedMessage? reason)
+    {
+        reason = null;
+        var protoManager = collection.Resolve<IPrototypeManager>();
         if (!protoManager.HasIndex(Role))
         {
             reason = FormattedMessage.FromUnformatted("loadouts-prototype-missing");
@@ -411,6 +450,8 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
 
         foreach (var effect in loadoutProto.Effects)
         {
+            if (unequipped && effect is PointsCostLoadoutEffect)
+                continue;
             valid = valid && effect.Validate(profile, this, session, collection, out reason);
         }
 

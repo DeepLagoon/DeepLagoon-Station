@@ -1,5 +1,6 @@
 - type: loadout
   id: TsfmcGasmask
+  price: 1000
   storage:
     back:
     - ClothingMaskGasSecurity

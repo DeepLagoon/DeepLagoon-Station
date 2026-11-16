@@ -1,54 +1,87 @@
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskBlack
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskBlack
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskGray
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskGray
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskWhite
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskWhite
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskRed
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskRed
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskGreen
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskGreen
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskBlue
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskBlue
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskPurple
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskPurple
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskYellow
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskYellow
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskTan
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskTan
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskRangerGreen
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskRangerGreen
 
 - type: loadout
   id: MercenaryClothingBalaclavaSkiMaskCoyoteBrown
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskCoyoteBrown

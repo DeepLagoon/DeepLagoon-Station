@@ -10,8 +10,6 @@
   #- ContractorArgentiLoadout
   - ContractorSvalinnLoadout
   - ContractorDoubleBarreledLoadout
-  fallbacks:
-  - ContractorMk32Loadout
 
 - type: loadoutGroup
   id: ContractorMag

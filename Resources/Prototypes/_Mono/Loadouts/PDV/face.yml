@@ -1,5 +1,6 @@
 - type: loadout
   id: PDVGasmask
+  price: 1000
   storage:
     back:
     - ClothingMaskGasSecurity

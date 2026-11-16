@@ -1,13 +1,16 @@
 #T0
 - type: loadout
   id: MercenaryClothingHandsGlovesMercFingerless
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     gloves: ClothingHandsGlovesMercFingerless
 
 - type: loadout
   id: MercenaryClothingHandsMercenaryGlovesCombat
-  price: 0
+  price: 1000
   equipment:
     gloves: ClothingHandsMercenaryGlovesCombat
 

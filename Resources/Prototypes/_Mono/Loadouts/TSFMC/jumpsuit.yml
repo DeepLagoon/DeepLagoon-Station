@@ -5,11 +5,17 @@
 
 - type: loadout
   id: TsfmcClothingJumpsuitType47D
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformTSFMCDesert
 
 - type: loadout
   id: TsfmcClothingJumpsuitType47F
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformTSFMCForest
 
@@ -20,6 +26,9 @@
 
 - type: loadout
   id: TsfmcClothingDressUniform
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformTSFMCDress
 
@@ -32,6 +41,9 @@
 
 - type: loadout
   id: TsfmcClothingJumpsuitType47DCrocus
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformTSFMCDesertCrocus
 

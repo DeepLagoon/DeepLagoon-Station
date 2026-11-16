@@ -1,17 +1,17 @@
 - type: loadout
   id: PilotClothingOuterHardsuitPilot
-  price: 0 # Mono
+  price: 3500 # Mono
   equipment:
     outerClothing: ClothingOuterHardsuitPilot
 
 - type: loadout
   id: PilotClothingOuterCoatBomber
-  price: 0
+  price: 1000
   equipment:
     outerClothing: ClothingOuterCoatBomber
 
 - type: loadout
   id: PilotClothingOuterDrakeIndustriesTruckerPuffyVest
-  price: 0 # Mono
+  price: 1000 # Mono
   equipment:
     outerClothing: ClothingOuterDrakeIndustriesTruckerPuffyVest

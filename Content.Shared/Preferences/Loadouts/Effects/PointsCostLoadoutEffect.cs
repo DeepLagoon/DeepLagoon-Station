@@ -25,9 +25,9 @@ public sealed partial class PointsCostLoadoutEffect : LoadoutEffect
             return true;
         }
 
-        if (loadout.Points <= Cost)
+        if (loadout.Points < Cost)
         {
-            reason = FormattedMessage.FromUnformatted("loadout-group-points-insufficient");
+            reason = FormattedMessage.FromUnformatted(Loc.GetString("dl-loadout-insufficient-points"));
             return false;
         }
 

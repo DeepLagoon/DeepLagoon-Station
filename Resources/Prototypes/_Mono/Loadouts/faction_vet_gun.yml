@@ -63,7 +63,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
-  price: 25000
+  price: 50000
   inhand:
   - WeaponCaseLongEnforcerRegistered
 
@@ -93,7 +93,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivTSFVet
-  price: 35000
+  price: 50000
   inhand:
   - WeaponCaseLongMR3CRegistered
 
@@ -105,7 +105,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
-  price: 37500
+  price: 50000
   inhand:
   - WeaponCaseAk502Registered
 
@@ -115,7 +115,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
-  price: 32500
+  price: 50000
   inhand:
   - WeaponCaseBigLeadyRegistered
 
@@ -125,7 +125,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivVet
-  price: 35000
+  price: 50000
   inhand:
   - WeaponCaseMalandroRegistered
 
@@ -138,7 +138,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: MonoCivRogueDefector
-  price: 25000
+  price: 50000
   inhand:
   - WeaponCaseShortAnacondaRegistered
 

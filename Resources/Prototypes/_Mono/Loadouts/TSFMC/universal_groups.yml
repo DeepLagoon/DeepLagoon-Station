@@ -26,7 +26,7 @@
   - MonoSecurityGuardSatchel
   - MonoSecurityGuardDuffel
   fallbacks:
-  - TsfmcEngiClothingModsuit
+  - TsfmcClothingBackpack
 
 - type: loadoutGroup
   id: TsfmcJumpsuit
@@ -304,10 +304,8 @@
 - type: loadoutGroup
   id: TsfmcOuterClothingColonel
   name: loadout-group-contractor-outerclothing
-  minLimit: 1
+  minLimit: 0
   loadouts:
-  - TsfmcClothingOuterHardsuitColonel
-  fallbacks:
   - TsfmcClothingOuterHardsuitColonel
 
 # armor plates

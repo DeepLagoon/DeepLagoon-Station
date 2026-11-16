@@ -12,6 +12,7 @@
 
 - type: loadout
   id: USSPFolder
+  price: 1000
   storage:
     back:
     - BoxFolderRed

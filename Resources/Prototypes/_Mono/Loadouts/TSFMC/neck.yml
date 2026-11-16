@@ -15,5 +15,8 @@
 
 - type: loadout
   id: TsfmcClothingNeckWearableCameraTSF
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckWearableCameraTSF

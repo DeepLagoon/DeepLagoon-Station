@@ -5,21 +5,33 @@
 
 - type: loadout
   id: PDVClothingNeckCloakCommander
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckCloakRogueCommander
 
 - type: loadout
   id: PDVClothingNeckCloakVizier
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckCloakVizier
 
 - type: loadout
   id: PDVClothingNeckMantleVizier
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckMantleVizier
 
 - type: loadout
   id: PDVClothingNeckCloakPdvPurple
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckCloakPdvPurple
 

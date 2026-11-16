@@ -7,6 +7,6 @@
 
 - type: loadout
   id: ContractorClothingWalletLeatherBlack
-  price: 0
+  price: 1000
   equipment:
     wallet: ClothingWalletLeatherBlack

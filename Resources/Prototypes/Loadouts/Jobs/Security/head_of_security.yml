@@ -16,43 +16,67 @@
 
 - type: loadout
   id: HeadofSecurityJumpskirt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpskirtHoS
 
 - type: loadout
   id: HeadofSecurityTurtleneck
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitHoSAlt
 
 - type: loadout
   id: HeadofSecurityTurtleneckSkirt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpskirtHoSAlt
 
 - type: loadout
   id: HeadofSecurityFormalSuit
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitHosFormal
 
 - type: loadout
   id: HeadofSecurityFormalSkirt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpskirtHosFormal
 
 # Head
 - type: loadout
   id: HeadofSecurityHead
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatHoshat
 
 - type: loadout
   id: HeadofSecurityBeret
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretHoS
 
 # Neck
 - type: loadout
   id: HeadofSecurityCloak
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckCloakHos
 
@@ -61,6 +85,8 @@
   equipment:
     neck: ClothingNeckMantleHOS
   effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   - !type:GroupLoadoutEffect
     proto: MasterHoS
 
@@ -72,10 +98,12 @@
 # OuterClothing
 - type: loadout
   id: HeadofSecurityCoat
+  price: 1000
   equipment:
     outerClothing: ClothingOuterCoatHoSTrench
 
 - type: loadout
   id: HeadofSecurityWinterCoat
+  price: 1000
   equipment:
     outerClothing: ClothingOuterWinterHoS

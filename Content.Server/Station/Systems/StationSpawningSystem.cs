@@ -172,7 +172,11 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             {
                 loadout = new RoleLoadout(jobLoadout);
                 loadout.SetDefault(profile, _actors.GetSession(entity), _prototypeManager);
-                loadout.EnsureValid(profile!, session, _dependencyCollection); // Frontier - profile must not be null, but if it was, TryGetValue above should fail
+            }
+            if (profile != null)
+            {
+                loadout = loadout.Clone();
+                loadout.EnsureValid(profile, session, _dependencyCollection);
             }
         }
 
@@ -325,6 +329,9 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                             Log.Error($"Unable to find loadout prototype for fallback {fallback}");
                             continue;
                         }
+
+                        if (!loadoutProto.IsFree)
+                            continue;
 
                         // Validate effects against the current character.
                         if (!loadout.IsValid(profile!, _actors.GetSession(entity!), fallback, _dependencyCollection, out var _))

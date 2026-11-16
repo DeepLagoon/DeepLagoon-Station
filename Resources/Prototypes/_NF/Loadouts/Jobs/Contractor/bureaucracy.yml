@@ -1,21 +1,21 @@
 #T0
 - type: loadout
   id: ContractorBoxFolderMedicalDoctor
-  price: 500
+  price: 1000
   storage:
     back:
     - BoxFolderMedicalDoctor
 
 - type: loadout
   id: ContractorBrbSign
-  price: 500
+  price: 1000
   storage:
     back:
     - BrbSign
 
 - type: loadout
   id: ContractorHandLabeler
-  price: 500
+  price: 1000
   storage:
     back:
     - HandLabeler
@@ -47,49 +47,49 @@
 
 - type: loadout
   id: ContractorRubberStampTrader
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampTrader
 
 - type: loadout
   id: ContractorRubberStampChaplain
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampChaplain
 
 - type: loadout
   id: ContractorRubberStampCaptain
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampCaptain
 
 - type: loadout
   id: ContractorRubberStampLawyer
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampLawyer
 
 - type: loadout
   id: ContractorRubberStampPsychologist
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampPsychologist
 
 - type: loadout
   id: ContractorRubberStampDoctor
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampDoctor
 
 - type: loadout
   id: ContractorRubberStampEngineer
-  price: 500
+  price: 1000
   storage:
     back:
     - RubberStampEngineer

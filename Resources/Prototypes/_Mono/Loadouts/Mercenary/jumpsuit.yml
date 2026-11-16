@@ -1,119 +1,179 @@
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCCEBasic
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitCCEBasic
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCCEBleached
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitCCEBleached
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCCEWorn
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitCCEWorn
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCCEDesert
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitCCEDesert
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitGrassland
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitGrassland
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMudland
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitMudland
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitMisko
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitMisko
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitLampartFlag
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitLampartFlag
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitLampart
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitLampart
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitSummerFloraFlag
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitSummerFloraFlag
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitSummerFlora
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitSummerFlora
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitUrbanWhite
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitUrbanWhite
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitDigitalBlack
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitDigitalBlack
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitDigitalBlue
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitDigitalBlue
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitDigitalRed
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitDigitalRed
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitCombatSuitDigitalGreenTan
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitCombatSuitDigitalGreenTan
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitBH
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitBH
 
 - type: loadout
   id: MercenaryClothingUniformJumpskirtBH
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpskirtBH
 
 - type: loadout
   id: MercenaryClothingUniformJumpsuitBHGrey
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpsuitBHGrey
 
 - type: loadout
   id: MercenaryClothingUniformJumpskirtBHGrey
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   price: 0
   equipment:
     jumpsuit: ClothingUniformJumpskirtBHGrey

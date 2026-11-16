@@ -1,9 +1,15 @@
 - type: loadout
   id: DocClothingCloakCmo
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingCloakCmo
 
 - type: loadout
   id: DocClothingNeckMantleCMO
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     neck: ClothingNeckMantleCMO

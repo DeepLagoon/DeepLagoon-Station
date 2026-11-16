@@ -3,7 +3,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT2
-  price: 0
+  price: 1000
   storage:
     back:
     - Binoculars
@@ -15,7 +15,7 @@
   effects:
   - !type:GroupLoadoutEffect
     proto: ContractorT1
-  price: 0 # Mono - 0<600. Consistency with other loadout items.
+  price: 1000
   storage:
     back:
     - TapeRecorderFilled # Mono - Other loadout items aren't useless by default.

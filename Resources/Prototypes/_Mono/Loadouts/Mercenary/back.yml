@@ -1,36 +1,42 @@
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelTan
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelTan
 
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelOlive
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelOlive
 
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelBlack
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelBlack
 
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelRangerGreen
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelRangerGreen
 
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelCoyoteBrown
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelCoyoteBrown
 
 - type: loadout
   id: MercenaryClothingBackpackDuffelTacticalDuffelWhite
+  price: 1000
   equipment:
     back: ClothingBackpackDuffelTacticalDuffelWhite
 
 - type: loadout
   id: MercenaryClothingModsuitSecurityPowerCell # Only to CC guards
-  price: 0
+  price: 10000
   equipment:
     back: ClothingModsuitSecurityPowerCell
 

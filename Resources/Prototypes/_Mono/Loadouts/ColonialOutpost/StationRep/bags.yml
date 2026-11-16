@@ -1,6 +1,11 @@
 #T0
 - type: loadout
+  id: StationRepClothingBackpackSecurity
+  equipment:
+    back: ClothingBackpackSecurity
+
+- type: loadout
   id: StationRepClothingModsuitHeadOfSecurityPowerCell
-  price: 0
+  price: 10000
   equipment:
     back: ClothingModsuitHeadOfSecurityPowerCell

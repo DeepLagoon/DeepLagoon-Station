@@ -1,12 +1,12 @@
 #T0
 - type: loadout
   id: PirateNFPouchPirate
-  price: 0
+  price: 500
   equipment:
     gloves: NFPouchPirate
 
 - type: loadout
   id: PirateNFPouchPirateCaptain
-  price: 0
+  price: 500
   equipment:
     gloves: NFPouchPirateCaptain

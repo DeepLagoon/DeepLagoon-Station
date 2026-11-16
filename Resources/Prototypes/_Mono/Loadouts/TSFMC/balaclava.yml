@@ -1,9 +1,15 @@
 - type: loadout
   id: TsfmcBalaclava
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskBlack
 
 - type: loadout
   id: TsfmcBalaclavaAlt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     balaclava: ClothingBalaclavaSkiMaskGray

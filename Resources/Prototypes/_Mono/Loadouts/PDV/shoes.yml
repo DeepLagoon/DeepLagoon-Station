@@ -5,6 +5,9 @@
 
 - type: loadout
   id: PDVJackboots
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     shoes: ClothingShoesBootsJackFilled
 

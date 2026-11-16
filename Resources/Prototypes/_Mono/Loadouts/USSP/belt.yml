@@ -6,6 +6,7 @@
 
 - type: loadout
   id: USSPCombatWebbingLarge
+  price: 1000
   name: "большой нагрудный разгрузочный жилет"
   equipment:
     belt: ClothingBeltWebbingsBigBase
@@ -13,6 +14,7 @@
 # Brigmedic
 - type: loadout
   id: USSPCombatWebbingMedical
+  price: 1000
   name: "нагрудная разгрузка (медицинская)"
   equipment:
     belt: ClothingBeltMilitaryWebbingMed

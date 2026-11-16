@@ -1,14 +1,12 @@
 - type: loadoutGroup
   id: TsfmcFirearmColonel
   name: loadout-group-weapon
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - FactionFrostLoadout
   - FactionDrozdLoadout
   - FactionRiversongLoadout
   - FactionDragonfangLoadout
-  fallbacks:
-  - FactionFrostLoadout
 
 - type: loadoutGroup
   id: TsfmcFirearmCommand
@@ -53,7 +51,7 @@
 
 - type: loadout # Lecter ammo - putting it here because other factions shouldnt be using this
   id: TSFCaselessAmmoBoxLoadout
-  price: 0
+  price: 1000
   storage:
     back:
     - BoxMagazine68x52mmFMJ

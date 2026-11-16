@@ -1,6 +1,6 @@
 
 - type: loadout
   id: ContractorClothingHeadSanabi
-  price: 0
+  price: 500
   equipment:
     head: ClothingHeadSanabi

@@ -21,22 +21,34 @@
 
 - type: loadout
   id: ChiefMedicalOfficerTurtleneckJumpsuit
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpsuitCMOTurtle
 
 - type: loadout
   id: ChiefMedicalOfficerTurtleneckJumpskirt
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     jumpsuit: ClothingUniformJumpskirtCMOTurtle
 
 # Head
 - type: loadout
   id: ChiefMedicalOfficerBeret
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadHatBeretCmo
 
 - type: loadout
   id: CMOMedicalHeadMirror
+  effects:
+  - !type:PointsCostLoadoutEffect
+    cost: 1
   equipment:
     head: ClothingHeadMirror
 

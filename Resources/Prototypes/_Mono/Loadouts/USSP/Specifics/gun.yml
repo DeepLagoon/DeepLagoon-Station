@@ -1,14 +1,12 @@
 - type: loadoutGroup
   id: UsspFirearm
   name: loadout-group-weapon
-  minLimit: 1
+  minLimit: 0
   loadouts:
   - FactionAk502Loadout
   - FactionMosinLoadout
   - FactionSvsLoadout
   - FactionDp29Loadout
-  fallbacks:
-  - FactionAk502Loadout
 
 - type: loadoutGroup
   id: UsspFirearmCommissar

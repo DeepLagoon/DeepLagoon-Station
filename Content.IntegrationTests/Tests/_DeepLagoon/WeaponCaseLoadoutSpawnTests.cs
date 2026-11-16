@@ -38,6 +38,7 @@ public sealed class WeaponCaseLoadoutSpawnTests
             var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
             var prefs = pair.Server.ResolveDependency<IServerPreferencesManager>();
             var session = pair.Server.PlayerMan.Sessions.Single();
+            Assert.That(prototypes.Index<LoadoutPrototype>(loadoutId).Price, Is.EqualTo(50_000));
             pair.Server.ResolveDependency<PlayTimeTrackingManager>().AddTimeToTracker(session, "JobPassenger", TimeSpan.FromHours(6));
             var selected = prefs.GetPreferences(session.UserId);
             var previous = (HumanoidCharacterProfile) selected.SelectedCharacter;

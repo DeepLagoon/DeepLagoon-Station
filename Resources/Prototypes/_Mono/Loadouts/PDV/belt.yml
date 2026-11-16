@@ -5,6 +5,7 @@
 
 - type: loadout
   id: PDVClothingBeltWebbingsBigBlack
+  price: 1000
   equipment:
     belt: ClothingBeltWebbingsBigBlack
 

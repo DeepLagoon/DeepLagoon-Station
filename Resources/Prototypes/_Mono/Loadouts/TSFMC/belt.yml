@@ -6,6 +6,7 @@
 
 - type: loadout
   id: TsfmcCombatWebbingLarge
+  price: 1000
   name: "большой нагрудный разгрузочный жилет"
   equipment:
     belt: ClothingBeltWebbingsBigTSFMC
@@ -27,6 +28,7 @@
 # engi (pro)
 - type: loadout
   id: TsfClothingBeltUtilityEngineeringPro
+  price: 1000
   name: "профессиональный пояс для инструментов (заполненный)"
   effects:
   - !type:GroupLoadoutEffect

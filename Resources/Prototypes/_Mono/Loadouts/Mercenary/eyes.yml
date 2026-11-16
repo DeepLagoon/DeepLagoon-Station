@@ -1,35 +1,35 @@
 - type: loadout
   id: MercenaryClothingEyesBallisticGogglesRed
-  price: 0
+  price: 1000
   equipment:
     eyes: ClothingEyesBallisticGogglesRed
 
 - type: loadout
   id: MercenaryClothingEyesBallisticGogglesGreen
-  price: 0
+  price: 1000
   equipment:
     eyes: ClothingEyesBallisticGogglesGreen
 
 - type: loadout
   id: MercenaryClothingEyesBallisticGogglesOrange
-  price: 0
+  price: 1000
   equipment:
     eyes: ClothingEyesBallisticGogglesOrange
 
 - type: loadout
   id: MercenaryClothingEyesBallisticGlassesRed
-  price: 0
+  price: 500
   equipment:
     eyes: ClothingEyesBallisticGlassesRed
 
 - type: loadout
   id: MercenaryClothingEyesBallisticGlassesGreen
-  price: 0
+  price: 500
   equipment:
     eyes: ClothingEyesBallisticGlassesGreen
 
 - type: loadout
   id: MercenaryClothingEyesBallisticGlassesOrange
-  price: 0
+  price: 500
   equipment:
     eyes: ClothingEyesBallisticGlassesOrange

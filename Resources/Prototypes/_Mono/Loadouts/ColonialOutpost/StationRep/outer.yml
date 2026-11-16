@@ -1,4 +1,5 @@
 - type: loadout
   id: StationRepClothingOuterHardsuitSecurityRed
+  price: 3500
   equipment:
     outerClothing: ClothingOuterHardsuitSecurityRed
