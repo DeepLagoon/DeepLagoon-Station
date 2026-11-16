@@ -156,7 +156,7 @@ public sealed partial class HumanoidProfileEditor
     protected override void Dispose(bool disposing)
     {
         if (disposing) _prototypeManager.PrototypesReloaded -= ReloadTguiCatalog;
-        if (disposing) { CloseColorPicker(); CloseCatalog(); }
+        if (disposing) { CloseColorPicker(); CloseCatalog(); CloseBackpackEditor(); }
         if (disposing && _tguiHost is { Parent: null })
         {
             _tguiHost.Dispose();
@@ -168,6 +168,7 @@ public sealed partial class HumanoidProfileEditor
     {
         if (_tguiHost?.Parent == null || _profileWeb == null) return;
         CloseCatalog();
+        CloseBackpackEditor();
         UpdateMarkings();
         UpdateHairPickers();
         UpdateCMarkingsHair();
@@ -230,6 +231,7 @@ public sealed partial class HumanoidProfileEditor
         CloseCatalog();
         var wasMarkings = _tguiMode == "markings";
         _tguiMode = TguiTabMode(tab);
+        if (_tguiMode != "equipment") CloseBackpackEditor();
         if (_tguiMode == "markings" && !wasMarkings)
         {
             _clothesBeforeMarkings = ShowClothes.Pressed;
@@ -327,7 +329,12 @@ public sealed partial class HumanoidProfileEditor
             data.String("headshot", preview.Image).String("headshotStatus", preview.Status);
             data.Object("gallery", GalleryState(headshotSlot));
         }
-        if (mode == "equipment") data.Object("equipment", _personalLoadoutEditor.CreateTguiState());
+        if (mode == "equipment")
+        {
+            data.Object("equipment", _personalLoadoutEditor.CreateTguiState());
+            if (_backpackEditorOpen)
+                data.Object("backpack", _personalLoadoutEditor.CreateTguiBackpack(() => _controller.LoadProfileEntity(p, JobOverride, false)));
+        }
         if (mode == "markings")
         {
             data.Object("tattooEditor", _tattooEditor.Build(PreviewDummy, p.Appearance.Tattoos, _tattooStatus).Bool("fileBusy", _tattooFileBusy));
@@ -601,7 +608,10 @@ public sealed partial class HumanoidProfileEditor
         }
         if (action.StartsWith("equipment/", StringComparison.Ordinal))
         {
-            var result = _personalLoadoutEditor.HandleTguiAction(action[10..], args);
+            var equipmentAction = action[10..];
+            var result = equipmentAction.StartsWith("backpack-", StringComparison.Ordinal)
+                ? HandleBackpackEditorAction(equipmentAction, args)
+                : _personalLoadoutEditor.HandleTguiAction(equipmentAction, args);
             PublishTguiProfile();
             return result;
         }

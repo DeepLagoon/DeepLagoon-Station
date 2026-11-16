@@ -4,7 +4,6 @@ using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Examine;
 using Content.Shared.GameTicking;
 using Content.Shared.Hands.EntitySystems;
-using Content.Shared.Inventory;
 using Content.Shared.Station;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
@@ -14,7 +13,6 @@ namespace Content.Server._DeepLagoon.Loadouts;
 public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
 {
     [Dependency] private PersonalLoadoutEquipSystem _equipment = default!;
-    [Dependency] private InventorySystem _inventory = default!;
     [Dependency] private SharedStorageSystem _storage = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
     [Dependency] private StationSpawningSystem _spawning = default!;
@@ -29,13 +27,17 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
 
     private void OnSpawned(PlayerSpawnCompleteEvent args)
     {
-        var failed = args.JobId is { } job ? _equipment.Apply(args.Mob, args.Profile, job, args.Player) : null;
+        TryComp<DeferredStartingGearComponent>(args.Mob, out var deferred);
+        var failed = args.JobId is { } job
+            ? _equipment.Apply(args.Mob, args.Profile, job, args.Player, deferredStorage: deferred?.Items)
+            : null;
         _spawning.FinishDeferredStartingGear(args.Mob);
         if (failed == null)
             return;
+        var backpack = _spawning.GetBackpackStorage(args.Mob);
         foreach (var item in failed)
         {
-            if (_inventory.TryGetSlotEntity(args.Mob, "back", out var backpack) && HasComp<StorageComponent>(backpack) && _storage.Insert(backpack.Value, item, out _, playSound: false))
+            if (backpack is { } bag && _storage.Insert(bag, item, out _, storageComp: bag.Comp, playSound: false))
                 continue;
             // Leave anything that does not fit on the floor rather than silently deleting it.
             _hands.TryPickupAnyHand(args.Mob, item, checkActionBlocker: false);
@@ -49,9 +51,15 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
     }
 }
 
+[RegisterComponent]
+public sealed partial class DeferredStartingHandGearComponent : Component
+{
+    public List<StartingGearHandItem> Items = new();
+}
 
 [RegisterComponent]
 public sealed partial class DeferredStartingGearComponent : Component
 {
     public List<StartingGearStorageItem> Items = new();
+    public IReadOnlyDictionary<string, BackpackItemPlacement>? Layout;
 }

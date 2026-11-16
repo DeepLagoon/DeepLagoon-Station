@@ -13,28 +13,29 @@ public sealed class LobbyButtonPanel : Container
 {
     public const float BackplateWidth = 302;
     public const float LargeWidth = 320;
+    public const float CompactHeight = 123;
     private readonly Texture _background;
 
     public LobbyButtonPanel()
     {
-        MinWidth = LargeWidth;
+        RectClipContent = true;
         _background = IoCManager.Resolve<IResourceCache>()
             .GetResource<RSIResource>("/Textures/_DeepLagoon/Interface/Lobby/background.rsi").RSI["background"].Frame0;
     }
 
-    private static int ScaleFor(float width) => width >= 320 ? 2 : 1;
+    private static int ScaleFor(Vector2 size) => size.X >= LargeWidth && size.Y >= CompactHeight * 2 ? 2 : 1;
 
     protected override Vector2 MeasureOverride(Vector2 availableSize)
     {
-        var scale = ScaleFor(availableSize.X);
+        var scale = ScaleFor(availableSize);
         for (var i = 0; i < ChildCount; i++)
             GetChild(i).Measure(Slot(i, scale).Size);
-        return new Vector2(160, 123) * scale;
+        return new Vector2(LargeWidth / 2, CompactHeight) * scale;
     }
 
     protected override Vector2 ArrangeOverride(Vector2 finalSize)
     {
-        var scale = ScaleFor(finalSize.X);
+        var scale = ScaleFor(finalSize);
         for (var i = 0; i < ChildCount; i++)
             GetChild(i).Arrange(Slot(i, scale));
         return finalSize;
@@ -54,7 +55,7 @@ public sealed class LobbyButtonPanel : Container
     protected override void Draw(DrawingHandleScreen handle)
     {
         base.Draw(handle);
-        var scale = ScaleFor(Width) * UIScale;
+        var scale = ScaleFor(Size) * UIScale;
         var size = _background.Size * scale;
         handle.DrawTextureRect(_background, UIBox2.FromDimensions(new Vector2((PixelWidth - size.X) / 2, 0), size));
     }

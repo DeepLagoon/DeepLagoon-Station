@@ -121,7 +121,7 @@ public sealed class LobbyArtworkTests
         await pair.Client.WaitAssertion(() =>
         {
             using var lobby = new LobbyGui();
-            var actions = lobby.FindControl<Control>("DefaultState");
+            var actions = lobby.ButtonPanel;
             Assert.That(actions.Parent, Is.SameAs(lobby.LeftSide));
             Assert.That(lobby.UtilityScroll.Parent, Is.SameAs(lobby.UtilityDrawer));
             Assert.That(lobby.MusicPlayer.Parent, Is.SameAs(lobby.LeftSide));
@@ -131,7 +131,7 @@ public sealed class LobbyArtworkTests
             Assert.That(lobby.ChatPanel.UseConsoleStyle && lobby.RoundStatusPanel.UseConsoleStyle, Is.True);
             var setup = lobby.CharacterPreview.CharacterSetupButton;
             Assert.That(lobby.ButtonPanel.Children.Any(child => child == setup.Parent), Is.True);
-            Assert.That(lobby.CharacterPreview.Parent, Is.SameAs(lobby.CenterContents));
+            Assert.That(lobby.CharacterPreview.Parent, Is.SameAs(lobby.LeftSide));
             Assert.That(lobby.ReadyButton.Label.Visible || lobby.ObserveButton.Label.Visible || setup.Label.Visible, Is.False);
             lobby.CharacterPreview.SetLoaded(false);
             Assert.That(setup.Disabled, Is.True);
@@ -223,6 +223,8 @@ public sealed class LobbyArtworkTests
                     Is.EqualTo(lobby.LeftSide.GlobalPosition.X + lobby.LeftSide.Width / 2).Within(8));
                 Assert.That(lobby.CharacterPreview.Position.Y + lobby.CharacterPreview.Height,
                     Is.LessThanOrEqualTo(lobby.ButtonPanel.Position.Y));
+                Assert.That(actions.Position.Y + actions.Height, Is.LessThanOrEqualTo(lobby.MusicPlayer.Position.Y),
+                    $"The full action tray must fit above music at viewport {size}");
                 Assert.That(lobby.UtilityDrawer.GlobalPosition.X + lobby.UtilityDrawer.Width,
                     Is.LessThan(lobby.ChatPanel.GlobalPosition.X));
                 Assert.That(lobby.ChatPanel.Height, Is.EqualTo(lobby.MainContainer.Height * 0.85f).Within(1),
@@ -231,15 +233,20 @@ public sealed class LobbyArtworkTests
                     Is.EqualTo(lobby.RightSide.Height).Within(1));
                 Assert.That(lobby.ChatPanel.Position.Y - lobby.RoundStatusPanel.Height,
                     Is.EqualTo(LobbyConsoleTheme.BlockGap).Within(1));
-                Assert.That(characterView.Size, Is.EqualTo(new Vector2(LobbyCharacterPreviewPanel.PreviewSize)),
-                    $"The character must remain large at viewport {size} and chat width {chatWidth}");
-                Assert.That(characterFrame.Width, Is.EqualTo(LobbyButtonPanel.BackplateWidth).Within(0.001f),
-                    "Character and main-button housings must have the same visible width");
-                Assert.That(characterFrame.GlobalPosition.X,
-                    Is.EqualTo(lobby.ButtonPanel.GlobalPosition.X + (lobby.ButtonPanel.Width - characterFrame.Width) / 2).Within(0.001f));
-                Assert.That(characterView.GlobalPosition.X, Is.GreaterThanOrEqualTo(characterFrame.GlobalPosition.X));
-                Assert.That(characterView.GlobalPosition.X + characterView.Width,
-                    Is.LessThanOrEqualTo(characterFrame.GlobalPosition.X + characterFrame.Width));
+                var viewBox = characterView.Parent!;
+                if (size.Y >= 1000)
+                    Assert.That(viewBox.Visible, Is.True, "A tall lobby keeps the portrait");
+                if (size.Y <= 600)
+                    Assert.That(viewBox.Visible, Is.False, "A short lobby prioritizes the action tray");
+                if (viewBox.Visible)
+                {
+                    Assert.That(characterView.Size, Is.EqualTo(new Vector2(LobbyCharacterPreviewPanel.PreviewSize)));
+                    Assert.That(characterFrame.Width, Is.EqualTo(LobbyButtonPanel.BackplateWidth).Within(0.001f));
+                    Assert.That(characterView.GlobalPosition.X, Is.GreaterThanOrEqualTo(characterFrame.GlobalPosition.X));
+                    Assert.That(characterView.GlobalPosition.X + characterView.Width,
+                        Is.LessThanOrEqualTo(characterFrame.GlobalPosition.X + characterFrame.Width));
+                }
+                var hadPortrait = viewBox.Visible;
                 var heading = lobby.CharacterPreview.FindControl<Control>("Header");
                 Assert.That(heading.HorizontalAlignment, Is.EqualTo(Control.HAlignment.Center));
                 Assert.That(popup.GlobalPosition.X,
@@ -281,7 +288,7 @@ public sealed class LobbyArtworkTests
                 lobby.MainContainer.Measure(size);
                 lobby.MainContainer.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
                 Assert.That(actions.Visible, Is.True);
-                Assert.That(characterView.Size, Is.EqualTo(new Vector2(LobbyCharacterPreviewPanel.PreviewSize)));
+                Assert.That(viewBox.Visible, Is.EqualTo(hadPortrait));
             }
 
             var cache = pair.Client.ResolveDependency<IResourceCache>();

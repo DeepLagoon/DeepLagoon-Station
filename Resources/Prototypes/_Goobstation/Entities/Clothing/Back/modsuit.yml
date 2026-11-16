@@ -156,7 +156,8 @@
       - state: equipped-BACKPACK-sealed
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleFlashlight
@@ -223,7 +224,8 @@
       - state: equipped-BACKPACK-sealed
   - type: ModControl
     capacity: 13
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleFlashlight
     - ModModuleSecurityHud
@@ -290,7 +292,8 @@
     node: headofsecurity
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleFlashlight
     - ModModuleSecurityHud
@@ -358,7 +361,8 @@
       - state: equipped-BACKPACK-sealed
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleFlashlight
     - ModModuleHealthAnalyzer
@@ -422,7 +426,8 @@
       - state: equipped-BACKPACK
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleFlashlight
@@ -487,7 +492,8 @@
       - state: equipped-BACKPACK
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleFlashlight
@@ -555,7 +561,8 @@
       - state: equipped-BACKPACK-sealed
   - type: ModControl
     capacity: 20
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleFlashlight
@@ -620,7 +627,8 @@
       - state: equipped-BACKPACK
   - type: ModControl
     capacity: 20
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorageExtended
     - ModModuleWelding
     - ModModuleFlashlight

@@ -154,21 +154,9 @@ namespace Content.Client.Lobby.UI
 
         public void SwitchState(LobbyGuiState state)
         {
-            DefaultState.Visible = false;
-
-            switch (state)
-            {
-                case LobbyGuiState.Default:
-                    DefaultState.Visible = true;
-                    RightSide.Visible = true;
-                    break;
-                case LobbyGuiState.CharacterSetup:
-                      DefaultState.Visible = true;
-                      RightSide.Visible = true;
-                      UserInterfaceManager.GetUIController<LobbyUIController>().OpenCharacterEditor();
-
-                    break;
-            }
+            RightSide.Visible = true;
+            if (state == LobbyGuiState.CharacterSetup)
+                UserInterfaceManager.GetUIController<LobbyUIController>().OpenCharacterEditor();
         }
 
         public enum LobbyGuiState : byte

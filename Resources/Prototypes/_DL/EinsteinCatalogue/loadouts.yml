@@ -2236,7 +2236,7 @@
   dummyEntity: BookRandom
   personalItems:
   - BookRandom
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -8909,7 +8909,7 @@
   dummyEntity: CardBoxBlack
   personalItems:
   - CardBoxBlack
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 3
   personalExclusive: false
   personalCustomName: true
@@ -8961,7 +8961,7 @@
   dummyEntity: BoxHug
   personalItems:
   - BoxHug
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 0
   personalExclusive: false
   personalCustomName: true
@@ -9629,7 +9629,7 @@
   dummyEntity: Lighter
   personalItems:
   - Lighter
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -9642,7 +9642,7 @@
   dummyEntity: CheapLighter
   personalItems:
   - CheapLighter
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 0
   personalExclusive: false
   personalCustomName: true
@@ -9655,7 +9655,7 @@
   dummyEntity: FlippoLighter
   personalItems:
   - FlippoLighter
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 2
   personalExclusive: false
   personalCustomName: true
@@ -9766,7 +9766,7 @@
   dummyEntity: CardBoxNanotrasen
   personalItems:
   - CardBoxNanotrasen
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 3
   personalExclusive: false
   personalCustomName: true
@@ -22554,7 +22554,7 @@
   dummyEntity: LuxuryPen
   personalItems:
   - LuxuryPen
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 2
   personalExclusive: false
   personalCustomName: true
@@ -22567,7 +22567,7 @@
   dummyEntity: PlushieArachind
   personalItems:
   - PlushieArachind
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22580,7 +22580,7 @@
   dummyEntity: PlushieArachne
   personalItems:
   - PlushieArachne
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22593,7 +22593,7 @@
   dummyEntity: PlushieCarp
   personalItems:
   - PlushieCarp
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22606,7 +22606,7 @@
   dummyEntity: PlushieHampter
   personalItems:
   - PlushieHampter
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22619,7 +22619,7 @@
   dummyEntity: PlushieHuman
   personalItems:
   - PlushieHuman
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22632,7 +22632,7 @@
   dummyEntity: PlushieLizard
   personalItems:
   - PlushieLizard
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22645,7 +22645,7 @@
   dummyEntity: PlushieMoth
   personalItems:
   - PlushieMoth
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22658,7 +22658,7 @@
   dummyEntity: PlushieRouny
   personalItems:
   - PlushieRouny
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22671,7 +22671,7 @@
   dummyEntity: PlushieShadowkin
   personalItems:
   - PlushieShadowkin
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22684,7 +22684,7 @@
   dummyEntity: PlushieSharkBlue
   personalItems:
   - PlushieSharkBlue
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22697,7 +22697,7 @@
   dummyEntity: PlushieSharkGrey
   personalItems:
   - PlushieSharkGrey
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22710,7 +22710,7 @@
   dummyEntity: PlushieSharkPink
   personalItems:
   - PlushieSharkPink
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22723,7 +22723,7 @@
   dummyEntity: PlushieSlime
   personalItems:
   - PlushieSlime
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22736,7 +22736,7 @@
   dummyEntity: PlushieVox
   personalItems:
   - PlushieVox
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true
@@ -22749,7 +22749,7 @@
   dummyEntity: PlushieVulp
   personalItems:
   - PlushieVulp
-  personalCategory: Items
+  personalCategory: Trinkets
   personalCost: 1
   personalExclusive: false
   personalCustomName: true

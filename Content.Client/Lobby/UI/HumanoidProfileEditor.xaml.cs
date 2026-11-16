@@ -222,6 +222,7 @@ namespace Content.Client.Lobby.UI
             };
             _personalLoadoutEditor.JobChanged += job =>
             {
+                CloseBackpackEditor();
                 JobOverride = job == null ? null : _prototypeManager.Index<JobPrototype>(job);
                 ReloadPreview();
             };
@@ -897,6 +898,7 @@ namespace Content.Client.Lobby.UI
         {
             CloseColorPicker();
             CloseCatalog();
+            CloseBackpackEditor();
             if (slot != CharacterSlot)
             {
                 _combineMarkings.Clear();
@@ -1319,6 +1321,7 @@ namespace Content.Client.Lobby.UI
             StopSpeechBarkPreview();
             CloseCatalog();
             CloseColorPicker();
+            CloseBackpackEditor();
             base.ExitedTree();
 
 

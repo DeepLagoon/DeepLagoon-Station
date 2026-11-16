@@ -38,3 +38,5 @@ dl-loadout-slot-armbandleft = Левая повязка
 dl-loadout-slot-helmetcover = Чехол шлема
 dl-loadout-slot-helmetattachment = Крепление шлема
 dl-loadout-incompatible-species-slots = У выбранной расы нет подходящего слота для этого снаряжения.
+dl-loadout-insufficient-balance = На счёте персонажа не хватает средств для этого снаряжения.
+dl-loadout-insufficient-points = Не хватает очков снаряжения.

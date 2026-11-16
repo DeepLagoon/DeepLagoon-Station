@@ -75,10 +75,10 @@ public sealed partial class ModSystem : EntitySystem
 
     private void OnControlMapInit(Entity<ModControlComponent> suit, ref MapInitEvent args)
     {
-        if (suit.Comp.Modules.Count > 0)
+        if (suit.Comp.Modules.Count > 0 || !TryComp<ModStartingModulesComponent>(suit, out var starting))
             return;
 
-        foreach (var prototype in suit.Comp.StartingModules)
+        foreach (var prototype in starting.Modules)
         {
             var uid = Spawn(prototype, Transform(suit).Coordinates);
             if (!TryComp<ModModuleComponent>(uid, out var module) || !Fits(suit, module) ||

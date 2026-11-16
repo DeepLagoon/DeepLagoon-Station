@@ -10,21 +10,17 @@
     xmlns:widgets="clr-namespace:Content.Client.UserInterface.Systems.Chat.Widgets">
     <lobbyUi:LobbyBackground Name="Background" Access="Public" Stretch="KeepAspectCovered" />
     <lobbyUi:LobbyColumns Name="MainContainer" Access="Public" Margin="16">
-        <BoxContainer Name="LeftSide" Access="Public" Orientation="Vertical" SeparationOverride="8" RectClipContent="True">
-            <ScrollContainer Name="DefaultState" VerticalExpand="True" HScrollEnabled="False">
-                <BoxContainer Name="CenterContents" Access="Public" Orientation="Vertical" SeparationOverride="12">
-                    <lobbyUi:LobbyCharacterPreviewPanel Name="CharacterPreview" Access="Public" />
-                    <lobbyUi:LobbyButtonPanel Name="ButtonPanel" Access="Public" HorizontalAlignment="Center">
-                        <Button Name="ReadyButton" Access="Public" ToggleMode="True" Text="{Loc 'ui-lobby-ready-up-button'}" />
-                        <cc:UICommandButton Name="ObserveButton" Access="Public" Command="observe"
-                                            Text="{Loc 'ui-lobby-observe-button'}"
-                                            WindowType="{x:Type lobbyUi:ObserveWarningWindow}" />
-                        <Control Name="CharacterSetupSlot" />
-                    </lobbyUi:LobbyButtonPanel>
-                </BoxContainer>
-            </ScrollContainer>
+        <lobbyUi:LobbyLeftPanel Name="LeftSide" Access="Public" RectClipContent="True">
+            <lobbyUi:LobbyCharacterPreviewPanel Name="CharacterPreview" Access="Public" />
+            <lobbyUi:LobbyButtonPanel Name="ButtonPanel" Access="Public" HorizontalAlignment="Center">
+                <Button Name="ReadyButton" Access="Public" ToggleMode="True" Text="{Loc 'ui-lobby-ready-up-button'}" />
+                <cc:UICommandButton Name="ObserveButton" Access="Public" Command="observe"
+                                    Text="{Loc 'ui-lobby-observe-button'}"
+                                    WindowType="{x:Type lobbyUi:ObserveWarningWindow}" />
+                <Control Name="CharacterSetupSlot" />
+            </lobbyUi:LobbyButtonPanel>
             <lobbyUi:LobbyMusicPlayer Name="MusicPlayer" Access="Public" />
-        </BoxContainer>
+        </lobbyUi:LobbyLeftPanel>
         <lobbyUi:LobbyUtilityDrawer Name="UtilityDrawer" Access="Public">
             <ScrollContainer Name="UtilityScroll" Access="Public" HScrollEnabled="False">
                 <BoxContainer Orientation="Vertical" SeparationOverride="12">

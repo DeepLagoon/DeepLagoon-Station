@@ -5,6 +5,7 @@ using Content.Shared.Inventory;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
+using Content.Shared.Station;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
 using Robust.Shared.GameStates;
@@ -38,6 +39,12 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
         if (data?.Description != null) _metadata.SetEntityDescription(item, data.Description);
         if (data?.Color != null && Color.TryFromHex(data.Color, out var color))
             PaintOutfit(item, color, new HashSet<EntityUid>());
+        if (data?.Heirloom == true)
+        {
+            EnsureComp<PersonalLoadoutVisualsComponent>(item);
+            EnsureComp<AppearanceComponent>(item);
+            _appearance.SetData(item, PersonalLoadoutVisuals.Heirloom, true);
+        }
     }
 
     private void PaintOutfit(EntityUid item, Color color, HashSet<EntityUid> painted)
@@ -58,7 +65,8 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
         }
     }
 
-    public List<EntityUid> Apply(EntityUid character, HumanoidCharacterProfile profile, string job, ICommonSession? session, bool preview = false)
+    public List<EntityUid> Apply(EntityUid character, HumanoidCharacterProfile profile, string job, ICommonSession? session,
+        bool preview = false, List<StartingGearStorageItem>? deferredStorage = null)
     {
         var failed = new List<EntityUid>();
         if (!profile.Loadouts.TryGetValue(PersonalLoadoutSystem.Role, out var saved) || !_inventory.TryGetSlots(character, out var slots))
@@ -75,9 +83,15 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
             if (remaining < cost)
                 continue;
             remaining -= cost;
-            foreach (var itemPrototype in prototype.PersonalItems)
+            for (var i = 0; i < prototype.PersonalItems.Count; i++)
             {
+                var itemPrototype = prototype.PersonalItems[i];
                 var data = _loadouts.Sanitize(prototype, selected.Customization);
+                if (deferredStorage != null && IsBackpackItem(prototype, i))
+                {
+                    deferredStorage.Add(GetBackpackItem(prototype, i, data));
+                    continue;
+                }
                 var targetSlot = data?.Slot ?? _loadouts.PersonalSlot(profile, prototype);
                 var targetSlots = slots.Where(slot => targetSlot == null || slot.Name == targetSlot).ToArray();
                 // A mandatory personal choice may be restored by validation.
@@ -87,12 +101,6 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                     continue;
                 var item = Spawn(itemPrototype, Transform(character).Coordinates);
                 Customize(item, data);
-                if (data?.Heirloom == true)
-                {
-                    EnsureComp<PersonalLoadoutVisualsComponent>(item);
-                    EnsureComp<AppearanceComponent>(item);
-                    _appearance.SetData(item, PersonalLoadoutVisuals.Heirloom, true);
-                }
                 var equipped = prototype.PersonalInhand && _hands.TryPickupAnyHand(character, item, checkActionBlocker: false);
                 if (!prototype.PersonalInhand && HasComp<ClothingComponent>(item))
                 {
@@ -133,6 +141,12 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
         }
         return failed;
     }
+
+    public bool IsBackpackItem(LoadoutPrototype loadout, int index) =>
+        !loadout.PersonalInhand && !_prototypes.Index(loadout.PersonalItems[index]).TryGetComponent<ClothingComponent>(out _);
+
+    public static StartingGearStorageItem GetBackpackItem(LoadoutPrototype loadout, int index, PersonalLoadoutCustomization? customization = null) =>
+        new("back", loadout.PersonalItems[index], customization, $"personal/{loadout.ID}/{index}/{loadout.PersonalItems[index].Id}");
 
     private void RetireReplacedItem(EntityUid previous, EntityUid replacement, List<EntityUid> overflow, bool preview)
     {

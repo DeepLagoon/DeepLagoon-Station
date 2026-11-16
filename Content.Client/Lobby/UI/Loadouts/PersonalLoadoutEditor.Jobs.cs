@@ -2,10 +2,17 @@ using Content.Client._DeepLagoon.Search; // DeepLagoon: fuzzy search
 using System.Linq;
 using System.Numerics;
 using Content.Client.UserInterface.Controls;
-using Content.Shared.Clothing;
-using Content.Shared.Roles;
-using Content.Shared.Preferences.Loadouts;
+using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared._NF.Bank;
+using Content.Shared._NF.Containers;
+using Content.Shared.Clothing;
+using Content.Shared.Preferences.Loadouts;
+using Content.Shared.Roles;
+using Content.Shared.Storage;
+using Content.Shared.Tag;
+using Content.Shared.Tools.Components;
+using Content.Shared.Weapons.Melee;
+using Content.Shared.Weapons.Ranged.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -86,12 +93,11 @@ public sealed partial class PersonalLoadoutEditor
                 {
                     if (!_prototypes.TryIndex(id, out var item) || _jobRole.IsHidden(_profile, _session, id, IoCManager.Instance!))
                         continue;
-                    _jobEntries.Add(new JobEntry(group, item, JobCategory(item)));
+                    _jobEntries.Add(new JobEntry(group, item, JobCategory(group, item)));
                 }
             }
         }
-        var cost = _jobRole?.SelectedLoadouts.Values.SelectMany(x => x).Sum(x => _prototypes.TryIndex(x.Prototype, out var item) &&
-            !_entities.System<Content.Shared._DeepLagoon.Loadouts.PersonalLoadoutSystem>().FullyUnequipped(item, _jobRole!.UnequippedSlots) ? item.Price : 0) ?? 0;
+        var cost = _jobRole == null ? 0 : JobCost(_jobRole);
         _jobCost.Text = Loc.GetString("frontier-loadout-cost", ("cost", BankSystemExtensions.ToSpesoString(cost)));
         _jobCount.Text = Loc.GetString("dl-loadout-job-count", ("count", _jobEntries.Count));
     }
@@ -159,12 +165,41 @@ public sealed partial class PersonalLoadoutEditor
         return selectedCount;
     }
 
-    private string JobCategory(LoadoutPrototype item)
+    private long JobCost(RoleLoadout role)
     {
-        var slots = item.Equipment.Keys;
-        if (slots.Count == 0 && _prototypes.TryIndex(item.StartingGear, out var gear))
-            slots = gear.Equipment.Keys;
-        return slots.FirstOrDefault() switch
+        var system = _entities.System<PersonalLoadoutSystem>();
+        return role.SelectedLoadouts.Values.SelectMany(items => items).Sum(choice =>
+            _prototypes.TryIndex(choice.Prototype, out var item) && !system.FullyUnequipped(item, role.UnequippedSlots)
+                ? (long)Math.Max(0, item.Price)
+                : 0);
+    }
+
+    private bool CanAffordJob(RoleLoadout role, LoadoutGroupPrototype group, LoadoutPrototype item)
+    {
+        if (group.MaxLimit < 1 || !role.SelectedLoadouts.TryGetValue(group.ID, out var choices))
+            return false;
+        if (item.Price <= 0)
+            return true;
+
+        var candidate = role.Clone();
+        if (choices.All(choice => choice.Prototype.Id != item.ID))
+            candidate.AddLoadout(group.ID, item.ID, _prototypes);
+
+        var system = _entities.System<PersonalLoadoutSystem>();
+        if (candidate.UnequippedSlots.Count > 0)
+            candidate.UnequippedSlots.ExceptWith(system.EditableSlots(_profile!).Where(slot => system.UsesSlot(item, slot)).Select(slot => slot.Name));
+        return JobCost(candidate) <= _profile!.BankBalance;
+    }
+
+    private string JobCategory(LoadoutGroupPrototype group, LoadoutPrototype item)
+    {
+        _prototypes.TryIndex(item.StartingGear, out var gear);
+        if (GearHasWeapon(item) || gear != null && GearHasWeapon(gear))
+            return "Weapons";
+        if (group.Name.Id is "loadout-group-trinkets" or "loadout-group-contractor-trinkets")
+            return "Trinkets";
+
+        return (item.Equipment.Keys.FirstOrDefault() ?? gear?.Equipment.Keys.FirstOrDefault()) switch
         {
             "jumpsuit" => "Uniform",
             "outerclothing" => "Outer",
@@ -178,6 +213,38 @@ public sealed partial class PersonalLoadoutEditor
             "belt" => "Belt",
             _ => "Items",
         };
+    }
+
+    private bool GearHasWeapon(IEquipmentLoadout gear)
+    {
+        return gear.Inhand.Any(IsWeapon) || gear.Storage.Values.Any(items => items?.Any(IsWeapon) == true) ||
+               gear.Equipment.Values.Any(IsWeapon);
+    }
+
+    private string PersonalCategory(LoadoutPrototype item)
+    {
+        return item.PersonalCategory == "JobsSecurityWeapons" || item.PersonalItems.Any(IsWeapon)
+            ? "Weapons"
+            : item.PersonalCategory;
+    }
+
+    private bool IsWeapon(EntProtoId id)
+    {
+        if (!_prototypes.TryIndex(id, out var entity))
+            return false;
+
+        if (entity.TryGetComponent<TagComponent>(out var tags) && _entities.System<TagSystem>().HasTag(tags, "ToySidearm"))
+            return false;
+
+        if (entity.TryGetComponent<GunComponent>(out _) || entity.TryGetComponent<WeaponCaseInsertableComponent>(out _) ||
+            entity.TryGetComponent<MeleeWeaponComponent>(out var melee) && !melee.Hidden && !entity.TryGetComponent<ToolComponent>(out _))
+            return true;
+
+        if (!entity.TryGetComponent<StorageComponent>(out _))
+            return false;
+
+        var parents = _prototypes.EnumerateAllParents<EntityPrototype>(entity.ID, includeSelf: true).Select(parent => parent.id).ToHashSet();
+        return parents.Contains("WeaponCaseLong") && !parents.Contains("WeaponCaseShortDocuments");
     }
 
     private string JobItemName(LoadoutPrototype item) => string.IsNullOrWhiteSpace(item.Name) ? _entities.System<LoadoutSystem>().GetName(item) : item.Name;

@@ -15,7 +15,8 @@
     node: civilian
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleFlashlight
@@ -195,7 +196,8 @@
     node: medical
   - type: ModControl
     capacity: 15
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleFlashlight
     - ModModuleHealthAnalyzer
@@ -377,7 +379,8 @@
     drawRate: 0.2
   - type: ModControl
     capacity: 13
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleWelding
     - ModModuleOreBag
@@ -560,7 +563,8 @@
     node: cargo
   - type: ModControl
     capacity: 10
-    startingModules:
+  - type: ModStartingModules
+    modules:
     - ModModuleStorage
     - ModModuleFlashlight
     - ModModuleGps

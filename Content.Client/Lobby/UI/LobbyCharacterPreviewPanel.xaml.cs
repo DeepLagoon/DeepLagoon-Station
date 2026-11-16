@@ -31,6 +31,7 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
         IoCManager.InjectDependencies(this);
         SetWidth = LobbyButtonPanel.BackplateWidth;
         HorizontalAlignment = HAlignment.Center;
+        RectClipContent = true;
         Frame.PanelOverride = LobbyConsolePanel.CreateFrame((LobbyButtonPanel.BackplateWidth - PreviewSize) / 2);
         Stylesheet = new Stylesheet(new StyleRule[]
         {
@@ -101,6 +102,23 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
 
     public void SetLagoonCoinBalance(long value) => LagoonCoins.Value = value < 0 ? null : value;
 
+    protected override Vector2 MeasureOverride(Vector2 availableSize)
+    {
+        var unbounded = new Vector2(availableSize.X, float.PositiveInfinity);
+        var size = base.MeasureOverride(unbounded);
+        var spriteHeight = PreviewSize + Loaded.SeparationOverride.GetValueOrDefault();
+        var fullHeight = size.Y + (ViewBox.Visible ? 0 : spriteHeight);
+        var showSprite = Loaded.Visible && fullHeight <= availableSize.Y;
+        if (ViewBox.Visible != showSprite)
+        {
+            ViewBox.Visible = showSprite;
+            VBox.InvalidateMeasure();
+            Frame.InvalidateMeasure();
+            size = base.MeasureOverride(unbounded);
+        }
+        return size.Y <= availableSize.Y ? size : Vector2.Zero;
+    }
+
     public void SetSprite(EntityUid uid)
     {
         if (_previewDummy != null)
@@ -116,8 +134,7 @@ public sealed partial class LobbyCharacterPreviewPanel : Control
         {
             OverrideDirection = Direction.South,
             Scale = new Vector2(4f, 4f),
-            // Fill normalizes species/body bounds inside a permanently large
-            // viewport. Neither metadata length nor window resizing can shrink it.
+            // Fill normalizes species/body bounds when the preview fits.
             SetSize = new Vector2(PreviewSize),
             MinSize = new Vector2(PreviewSize),
             MaxSize = new Vector2(PreviewSize),

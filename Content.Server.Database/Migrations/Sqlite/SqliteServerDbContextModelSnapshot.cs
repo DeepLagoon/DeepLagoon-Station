@@ -1336,6 +1336,10 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("unequipped_slots");
 
+                    b.Property<string>("BackpackLayout")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("backpack_layout");
+
                     b.HasKey("Id")
                         .HasName("PK_profile_role_loadout");
 

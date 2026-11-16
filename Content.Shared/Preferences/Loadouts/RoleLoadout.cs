@@ -31,6 +31,9 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
     [DataField]
     public HashSet<string> UnequippedSlots = new();
 
+    [DataField]
+    public Dictionary<string, BackpackItemPlacement> BackpackLayout = new();
+
     /// <summary>
     /// Loadout specific name.
     /// </summary>
@@ -59,6 +62,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
         weh.EntityName = EntityName;
         weh.Customizations = new(Customizations);
         weh.UnequippedSlots = new(UnequippedSlots);
+        weh.BackpackLayout = new(BackpackLayout);
 
         return weh;
     }
@@ -73,6 +77,10 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
         if (UnequippedSlots.Count > 0)
             UnequippedSlots.IntersectWith(collection.Resolve<IEntityManager>().System<PersonalLoadoutSystem>()
                 .EditableSlots(profile).Select(slot => slot.Name));
+        BackpackLayout = BackpackLayout.Where(entry => entry.Key is { Length: > 0 and <= 512 } &&
+                entry.Value.X is >= -256 and <= 256 && entry.Value.Y is >= -256 and <= 256 &&
+                entry.Value.Rotation is 0 or 90 or 180 or 270)
+            .Take(256).ToDictionary(entry => entry.Key, entry => entry.Value);
         foreach (var selected in SelectedLoadouts.Values.SelectMany(items => items))
             if (selected.Customization != null) Customizations.TryAdd(selected.Prototype.Id, selected.Customization);
         Customizations = Customizations.Where(entry => protoManager.TryIndex<LoadoutPrototype>(entry.Key, out _))
@@ -84,6 +92,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             EntityName = null;
             SelectedLoadouts.Clear();
             UnequippedSlots.Clear();
+            BackpackLayout.Clear();
             return;
         }
 
@@ -272,6 +281,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
         {
             SelectedLoadouts.Clear();
             UnequippedSlots.Clear();
+            BackpackLayout.Clear();
         }
 
         var collection = IoCManager.Instance!;
@@ -499,6 +509,8 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
 
         if (!Role.Equals(other.Role) ||
             !UnequippedSlots.SetEquals(other.UnequippedSlots) ||
+            BackpackLayout.Count != other.BackpackLayout.Count ||
+            BackpackLayout.Any(entry => !other.BackpackLayout.TryGetValue(entry.Key, out var placement) || placement != entry.Value) ||
             SelectedLoadouts.Count != other.SelectedLoadouts.Count ||
             Points != other.Points ||
             EntityName != other.EntityName || Customizations.Count != other.Customizations.Count ||

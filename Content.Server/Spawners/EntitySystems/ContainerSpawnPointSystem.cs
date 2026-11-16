@@ -73,29 +73,28 @@ public sealed partial class ContainerSpawnPointSystem : EntitySystem
 
         if (possibleContainers.Count == 0)
             return;
-        // we just need some default coords so we can spawn the player entity.
-        var baseCoords = possibleContainers[0].Comp3.Coordinates;
-
-        args.SpawnResult = _stationSpawning.SpawnPlayerMob(
-            baseCoords,
+        _random.Shuffle(possibleContainers);
+        // Place the mob before applying role gear so a rejected spawn cannot charge for a purchase.
+        args.SpawnResult = _stationSpawning.TrySpawnPlayerMob(
+            possibleContainers[0].Comp3.Coordinates,
             args.Job,
             args.HumanoidCharacterProfile,
             args.Station,
-            session: args.Session, deferStartingGear: args.DeferStartingGear);
+            entity: null,
+            session: args.Session,
+            deferStartingGear: args.DeferStartingGear,
+            place: mob =>
+            {
+                foreach (var (uid, spawnPoint, manager, xform) in possibleContainers)
+                {
+                    if (_container.TryGetContainer(uid, spawnPoint.ContainerId, out var container, manager) &&
+                        _container.Insert(mob, container, containerXform: xform))
+                    {
+                        return true;
+                    }
+                }
 
-        _random.Shuffle(possibleContainers);
-        foreach (var (uid, spawnPoint, manager, xform) in possibleContainers)
-        {
-            if (!_container.TryGetContainer(uid, spawnPoint.ContainerId, out var container, manager))
-                continue;
-
-            if (!_container.Insert(args.SpawnResult.Value, container, containerXform: xform))
-                continue;
-
-            return;
-        }
-
-        Del(args.SpawnResult);
-        args.SpawnResult = null;
+                return false;
+            });
     }
 }

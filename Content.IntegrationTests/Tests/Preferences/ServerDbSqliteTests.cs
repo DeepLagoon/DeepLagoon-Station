@@ -115,6 +115,27 @@ namespace Content.IntegrationTests.Tests.Preferences
         }
 
         [Test]
+        public async Task BackpackLayoutSurvivesDatabaseReload()
+        {
+            var pair = await PoolManager.GetServerClient();
+            var db = GetDb(pair.Server);
+            var user = NewUserId();
+            var profile = CharlieCharlieson().WithLoadout(new RoleLoadout("JobContractor"));
+            await db.InitPrefsAsync(user, profile);
+            var loaded = (HumanoidCharacterProfile)(await db.GetPlayerPreferencesAsync(user))!.Characters[0];
+            Assert.That(loaded.Loadouts["JobContractor"].BackpackLayout, Is.Empty);
+
+            var role = loaded.Loadouts["JobContractor"].Clone();
+            role.BackpackLayout["loadout/ContractorAppraisalCartridge/0/AppraisalCartridge"] = new(false, 3, 2, 90);
+            role.BackpackLayout["loadout/ContractorClothingMaskGas/0/ClothingMaskGas"] = new(true, 0, 0, 0);
+            await db.SaveCharacterSlotAsync(user, loaded.WithLoadout(role), 0);
+
+            var reloaded = (HumanoidCharacterProfile)(await db.GetPlayerPreferencesAsync(user))!.Characters[0];
+            Assert.That(reloaded.Loadouts["JobContractor"].BackpackLayout, Is.EqualTo(role.BackpackLayout));
+            await pair.CleanReturnAsync();
+        }
+
+        [Test]
         public async Task TestDeleteCharacter()
         {
             var pair = await PoolManager.GetServerClient();

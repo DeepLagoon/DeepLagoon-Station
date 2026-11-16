@@ -1,0 +1,234 @@
+.CharacterEditor .BackpackEditor__trigger {
+  margin: 0 0 10px;
+
+  > button {
+    display: block;
+  }
+}
+
+.BackpackEditor {
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    padding: 12px;
+    background: #080c13b3;
+    overflow: auto;
+  }
+
+  &__windows {
+    display: grid;
+    align-items: start;
+    gap: 12px;
+    min-width: 0;
+    width: min(100%, 580px);
+
+    &[data-catalog-open=true] {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      width: min(100%, 1050px);
+    }
+  }
+
+  &__window {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-height: calc(100vh - 24px);
+    border: 1px solid #6883a0;
+    border-radius: 6px;
+    background: var(--player-surface, #252b35);
+    box-shadow: 0 8px 26px #0009;
+
+    > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+      gap: 12px;
+      padding: 9px 12px;
+      border-bottom: 1px solid #526277;
+      background: var(--editor-control-bg, #252b35);
+      border-radius: 6px 6px 0 0;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        overflow-wrap: anywhere;
+      }
+
+      .Button { margin: 0; }
+    }
+  }
+
+  &__body {
+    min-height: 0;
+    padding: 12px;
+    overflow: auto;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    .Button { margin: 0; }
+  }
+
+  &__gridScroll {
+    overflow: auto;
+    padding: 2px;
+  }
+
+  &__grid {
+    --backpack-cell: clamp(22px, 4.1vw, 40px);
+    position: relative;
+    display: grid;
+    width: max-content;
+    grid-template-columns: repeat(var(--columns), var(--backpack-cell));
+    grid-template-rows: repeat(var(--rows), var(--backpack-cell));
+    padding: 0;
+    isolation: isolate;
+  }
+
+  .CharacterEditor &__grid &__cell {
+    margin: 0;
+    padding: 0;
+    border: 1px solid #687a90;
+    border-radius: 0;
+    background: var(--editor-control-bg, #202734);
+    box-shadow: none;
+    clip-path: none;
+    color: inherit;
+    touch-action: none;
+    cursor: pointer;
+
+    &[data-occupied=true] { background: #385168; cursor: grab; }
+    &[data-fixed=true] { background: #4a4f59; cursor: default; }
+    &[data-selected=true] { background: #5481a8; }
+    &[data-preview=valid] { background: #388459; }
+    &[data-preview=invalid] { background: #873c42; }
+    &:focus-visible { outline: 2px solid var(--editor-accent, #a7d2ff); outline-offset: -2px; }
+  }
+
+  &__placed {
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    min-width: 0;
+    min-height: 0;
+
+    .BackpackEditor__sprite {
+      width: min(100%, 64px);
+      height: min(100%, 64px);
+    }
+  }
+
+  &__sprite {
+    display: block;
+    position: relative;
+    width: 48px;
+    height: 48px;
+    pointer-events: none;
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+  }
+
+  &__hint, &__status {
+    margin: 9px 0 0;
+    line-height: 1.4;
+  }
+
+  &__status { color: var(--editor-accent, #a7d2ff); }
+  &__overflow h3 { margin: 12px 0 5px; font-size: inherit; }
+  &__overflow .Button { touch-action: none; }
+
+  &__catalog {
+    z-index: 2;
+
+    > header {
+      cursor: move;
+      touch-action: none;
+      user-select: none;
+    }
+  }
+
+  &__filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding: 10px 12px;
+
+    .EmbeddedSelect {
+      min-width: 0;
+      padding: 5px;
+      background: var(--editor-control-bg, #252b35);
+      color: var(--editor-control-text, #eee);
+      border: 1px solid #68788a;
+      border-radius: 4px;
+      font: inherit;
+    }
+  }
+
+  &__catalogScroll {
+    padding: 0 12px 12px;
+    overflow: auto;
+    min-height: min(220px, 25vh);
+    max-height: 55vh;
+
+    > p { margin: 4px 0; }
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 108px), 1fr));
+    gap: 7px;
+
+    > button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-width: 0;
+      gap: 4px;
+      min-height: 88px;
+      padding: 6px;
+      border: 1px solid #68788a;
+      border-radius: 4px;
+      color: inherit;
+      background: var(--editor-control-bg, #252b35);
+      font: inherit;
+      overflow-wrap: anywhere;
+      touch-action: none;
+      cursor: grab;
+
+      &[aria-pressed=true] { background: #3b5676; border-color: var(--editor-accent, #a7d2ff); }
+      &:disabled { opacity: .5; cursor: default; }
+    }
+  }
+}
+
+@media (max-width: 650px) {
+  .BackpackEditor {
+    &__windows[data-catalog-open=true] {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, auto) minmax(0, auto);
+
+      .BackpackEditor__window { max-height: calc((100vh - 36px) / 2); }
+    }
+    &__catalogScroll { min-height: 0; }
+    &__grid { --backpack-cell: clamp(18px, 5.8vw, 36px); }
+  }
+}

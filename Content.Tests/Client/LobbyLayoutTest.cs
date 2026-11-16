@@ -103,6 +103,46 @@ public sealed class LobbyLayoutTest : RobustUnitTest
         Assert.That(drawer.Width, Is.EqualTo(LobbyUtilityDrawer.TabWidth));
     }
 
+    [Test]
+    public void LeftSidebarReservesTheActionsBeforeThePreview()
+    {
+        using var layout = new LobbyLeftPanel();
+        var preview = new PreviewStub();
+        var actions = new ActionsStub();
+        var music = new Control { SetHeight = 188 };
+        layout.AddChild(preview);
+        layout.AddChild(actions);
+        layout.AddChild(music);
+
+        void Resize(int height)
+        {
+            var size = new Vector2(400, height);
+            layout.Measure(size);
+            layout.Arrange(UIBox2.FromDimensions(Vector2.Zero, size));
+            Assert.That(actions.Position.Y + actions.Height + 8, Is.LessThanOrEqualTo(music.Position.Y));
+            Assert.That(music.Position.Y + music.Height, Is.EqualTo(height));
+        }
+
+        Resize(1080);
+        Assert.That(preview.Height, Is.EqualTo(515));
+        Assert.That(actions.Position.Y, Is.EqualTo(527));
+        Assert.That(actions.Height, Is.EqualTo(246));
+
+        Resize(740);
+        Assert.That(preview.Height, Is.EqualTo(280));
+        Assert.That(actions.Position.Y, Is.EqualTo(292));
+        Assert.That(actions.Height, Is.EqualTo(246));
+
+        Resize(370);
+        Assert.That(preview.Height, Is.Zero);
+        Assert.That(actions.Position.Y, Is.Zero);
+        Assert.That(actions.Height, Is.EqualTo(123));
+
+        Resize(1080);
+        Assert.That(preview.Height, Is.EqualTo(515));
+        Assert.That(actions.Height, Is.EqualTo(246));
+    }
+
     [TestCase(400, 1080)]
     [TestCase(400, 720)]
     [TestCase(320, 600)]
@@ -133,5 +173,17 @@ public sealed class LobbyLayoutTest : RobustUnitTest
         public float RequestedWidth;
 
         protected override Vector2 MeasureOverride(Vector2 availableSize) => new(RequestedWidth, 0);
+    }
+
+    private sealed class PreviewStub : Control
+    {
+        protected override Vector2 MeasureOverride(Vector2 availableSize) =>
+            new(302, availableSize.Y >= 515 ? 515 : availableSize.Y >= 280 ? 280 : 0);
+    }
+
+    private sealed class ActionsStub : Control
+    {
+        protected override Vector2 MeasureOverride(Vector2 availableSize) =>
+            new(320, availableSize.Y >= 246 ? 246 : 123);
     }
 }

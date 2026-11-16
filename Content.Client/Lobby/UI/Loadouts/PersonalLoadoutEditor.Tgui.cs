@@ -87,8 +87,7 @@ public sealed partial class PersonalLoadoutEditor
         var spent = selected.Values.Sum(item => _prototypes.Index(item.Prototype).PersonalCost);
         data.String("job", _job).String("roleName", _jobRole?.EntityName).Bool("customRoleName", _roleName.Visible)
             .String("balance", BankSystemExtensions.ToSpesoString(_profile.BankBalance))
-            .String("cost", BankSystemExtensions.ToSpesoString(_jobRole?.SelectedLoadouts.Values.SelectMany(items => items)
-                .Sum(item => _prototypes.TryIndex(item.Prototype, out var proto) && !system.FullyUnequipped(proto, _jobRole!.UnequippedSlots) ? proto.Price : 0) ?? 0))
+            .String("cost", BankSystemExtensions.ToSpesoString(_jobRole == null ? 0 : JobCost(_jobRole)))
             .Number("points", Math.Max(0, system.GetPoints(_session) - spent)).Number("maxPoints", system.GetPoints(_session))
             .String("slot", _slotFilter == null ? "" : SlotLabel(_slotFilter))
             .Array("jobs", _equipmentJobs.Select(id => new TguiData().String("id", id).String("name", _prototypes.Index<JobPrototype>(id).LocalizedName)))
@@ -100,13 +99,19 @@ public sealed partial class PersonalLoadoutEditor
                 {
                     var allowed = system.CanUse(item, _profile, _job, _session, out var reason);
                     selected.TryGetValue(item.ID, out var choice);
+                    var chosen = choice != null && (_slotFilter == null || system.PersonalSlot(_profile, item, choice.Customization?.Slot) == _slotFilter.Name);
+                    if (allowed && !chosen && !CanAffordPersonal(item, role))
+                    {
+                        allowed = false;
+                        reason = Loc.GetString("dl-loadout-insufficient-points");
+                    }
                     var custom = choice?.Customization ?? role.Customizations.GetValueOrDefault(item.ID);
                     var donor = DonorCategoryOf(item);
                     var donorText = donor == DonorCategory.Boosty ? Loc.GetString("dl-loadout-donor-boosty", ("tier", item.PersonalDonorTier))
                         : donor == DonorCategory.DiscordBoost ? Loc.GetString("dl-loadout-donor-discord") : "";
                     return new TguiData().String("id", item.ID).String("name", _prototypes.Index(item.PersonalItems[0]).Name)
-                        .String("category", item.PersonalCategory).Bool("selected", choice != null && (_slotFilter == null || system.PersonalSlot(_profile, item, choice.Customization?.Slot) == _slotFilter.Name)).Bool("allowed", allowed)
-                        .Bool("canSelect", choice != null || allowed && CanAffordPersonal(item, role))
+                        .String("category", PersonalCategory(item)).Bool("selected", chosen).Bool("allowed", allowed)
+                        .Bool("canSelect", chosen || allowed)
                         .String("reason", reason).String("donor", donorText).Number("cost", item.PersonalCost)
                         .Bool("canPaint", true).Bool("canRename", true).Bool("canDescribe", true)
                         .Bool("canHeirloom", item.PersonalHeirloom).Bool("heirloom", choice?.Customization?.Heirloom ?? false)
@@ -119,11 +124,17 @@ public sealed partial class PersonalLoadoutEditor
                 var valid = _jobRole!.IsValid(system.RemovePersonalConflicts(_profile, item), _session, item.ID, IoCManager.Instance!, out var reason);
                 var chosen = _jobRole.SelectedLoadouts.TryGetValue(entry.Group.ID, out var choices) && choices.Any(choice => choice.Prototype.Id == item.ID)
                     && !system.HasUnequippedSlots(_profile, _job, item);
+                var availabilityReason = reason?.ToString();
+                if (valid && !CanAffordJob(_jobRole, entry.Group, item))
+                {
+                    valid = false;
+                    availabilityReason = Loc.GetString("dl-loadout-insufficient-balance");
+                }
                 var entity = item.PreviewEntity ?? item.DummyEntity ?? _entities.System<LoadoutSystem>().GetFirstOrNull(item);
                 var custom = _jobRole.Customizations.GetValueOrDefault(item.ID) ?? _jobRole.SelectedLoadouts.Values.SelectMany(items => items).FirstOrDefault(choice => choice.Prototype.Id == item.ID)?.Customization;
                 return new TguiData().String("id", item.ID).String("group", entry.Group.ID).String("groupName", Loc.GetString(entry.Group.Name))
                     .String("name", JobItemName(item)).String("category", entry.Category).Bool("selected", chosen).Bool("allowed", valid).Bool("canSelect", valid || chosen)
-                    .String("reason", reason?.ToString()).Number("cost", item.Price).Number("min", entry.Group.MinLimit).Number("max", entry.Group.MaxLimit)
+                    .String("reason", availabilityReason).Number("cost", item.Price).Number("min", entry.Group.MinLimit).Number("max", entry.Group.MaxLimit)
                     .Bool("canPaint", true).Bool("canRename", true).Bool("canDescribe", true)
                     .String("color", custom?.Color).String("customName", custom?.Name).String("description", custom?.Description)
                     .String("iconId", entity is {} id ? "item/" + id.Id : "");
@@ -184,7 +195,7 @@ public sealed partial class PersonalLoadoutEditor
             else
             {
                 profile = _entities.System<PersonalLoadoutSystem>().RemovePersonalConflicts(profile, entry.Item);
-                if (!role.IsValid(profile, _session, id, IoCManager.Instance!, out _)) return false;
+                if (!role.IsValid(profile, _session, id, IoCManager.Instance!, out _) || !CanAffordJob(role, entry.Group, entry.Item)) return false;
                 if (!stored) role.AddLoadout(entry.Group.ID, id, _prototypes);
             }
             profile = profile.WithLoadout(role);

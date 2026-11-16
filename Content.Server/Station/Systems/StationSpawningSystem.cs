@@ -7,6 +7,7 @@ using Content.Server.Station.Components;
 using Content.Shared.Access.Components;
 using Content.Shared.Access.Systems;
 using Content.Shared.CCVar;
+using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Clothing;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Hands.EntitySystems;
@@ -82,7 +83,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
     /// <param name="stationSpawning">Resolve pattern, the station spawning component for the station.</param>
     /// <param name="spawnPointType">Delta-V: Set desired spawn point type.</param>
     /// <param name="session">Frontier: The session associated with the character, if any.</param>
-    /// <param name="deferStartingGear">Finish storage delivery during PlayerSpawnCompleteEvent.</param>
+    /// <param name="deferStartingGear">Finish in-hand gear after placement and storage during PlayerSpawnCompleteEvent.</param>
     /// <returns>The resulting player character, if any.</returns>
     /// <exception cref="ArgumentException">Thrown when the given station is not a station.</exception>
     /// <remarks>
@@ -99,6 +100,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
 
         RaiseLocalEvent(ev);
         DebugTools.Assert(ev.SpawnResult is { Valid: true } or null);
+        if (ev.SpawnResult is { } spawned)
+            FinishDeferredInhandGear(spawned);
 
         return ev.SpawnResult;
     }
@@ -126,6 +129,19 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         ICommonSession? session = null,
         bool deferStartingGear = false) // Frontier
     {
+        return TrySpawnPlayerMob(coordinates, job, profile, station, entity, session, deferStartingGear, null)!.Value;
+    }
+
+    internal EntityUid? TrySpawnPlayerMob(
+        EntityCoordinates coordinates,
+        ProtoId<JobPrototype>? job,
+        HumanoidCharacterProfile? profile,
+        EntityUid? station,
+        EntityUid? entity,
+        ICommonSession? session,
+        bool deferStartingGear,
+        Func<EntityUid, bool>? place)
+    {
         _prototypeManager.TryIndex(job ?? string.Empty, out var prototype);
         RoleLoadout? loadout = null;
 
@@ -151,6 +167,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             DebugTools.Assert(entity is null);
             var jobEntity = Spawn(prototype.JobEntity, coordinates);
             MakeSentientCommand.MakeSentient(jobEntity, EntityManager);
+            if (!TryPlace(jobEntity))
+                return null;
             if (profile != null && TryComp<SpeechComponent>(jobEntity, out var speech))
                 speech.BarkSettings = profile.SpeechBarks.Sanitize();
 
@@ -185,6 +203,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             throw new ArgumentException($"Invalid species prototype was used: {speciesId}");
 
         entity ??= Spawn(species.Prototype, coordinates);
+        if (!TryPlace(entity.Value))
+            return null;
 
         if (_randomizeCharacters)
         {
@@ -194,6 +214,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
 
 
         var storageItems = new List<StartingGearStorageItem>();
+        var handItems = deferStartingGear ? new List<StartingGearHandItem>() : null;
         if (loadout != null)
         {
             /// Frontier: overwriting EquipRoleLoadout
@@ -260,7 +281,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                     if (loadoutProto.Price <= bankBalance && (loadoutProto.Price <= 0 || hasBalance))
                     {
                         bankBalance -= int.Max(0, loadoutProto.Price); // Treat negatives as zero.
-                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, customization: items.Customization, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
+                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, customization: items.Customization,
+                            unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems, deferredInhand: handItems);
                         equippedItems.Add(loadoutProto.ID);
 
                         // Add support for IPC encryption keys from loadout headsets
@@ -295,7 +317,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                             continue;
                         }
 
-                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
+                        EquipStartingGear(entity.Value, loadoutProto, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots,
+                            deferredStorage: storageItems, deferredInhand: handItems);
                         equippedItems.Add(fallback);
 
                         // Add support for IPC encryption keys from loadout headsets
@@ -315,7 +338,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             // and deduct loadout costs from a bank account if we have one.
             if (prototype?.StartingGear is not null)
             {
-                EquipStartingGear(entity.Value, prototype.StartingGear, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots, deferredStorage: storageItems);
+                EquipStartingGear(entity.Value, prototype.StartingGear, raiseEvent: false, unequippedSlots: loadout.UnequippedSlots,
+                    deferredStorage: storageItems, deferredInhand: handItems);
 
                 // Add support for IPC encryption keys from job starting gear headsets
                 if (HasComp<EncryptionKeyHolderComponent>(entity.Value) &&
@@ -337,11 +361,18 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             _persistence.LoadPersistentData(entity.Value, profile, session);
         // Mono end
 
+        if (handItems is { Count: > 0 })
+            EnsureComp<DeferredStartingHandGearComponent>(entity.Value).Items = handItems;
+
         // For a player joining the round, personal gear may replace these containers.
         if (deferStartingGear)
-            EnsureComp<DeferredStartingGearComponent>(entity.Value).Items = storageItems;
+        {
+            var deferred = EnsureComp<DeferredStartingGearComponent>(entity.Value);
+            deferred.Items = storageItems;
+            deferred.Layout = loadout?.BackpackLayout;
+        }
         else
-            FinishStartingGear(entity.Value, storageItems);
+            FinishStartingGear(entity.Value, storageItems, loadout?.BackpackLayout);
 
         if (profile != null)
         {
@@ -377,6 +408,25 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             SetPdaAndIdCardData(entity.Value, Name(entity.Value), prototype, station);
         _identity.QueueIdentityUpdate(entity.Value);
         return entity.Value;
+
+        bool TryPlace(EntityUid mob)
+        {
+            if (place == null || place(mob))
+                return true;
+
+            Del(mob);
+            return false;
+        }
+    }
+
+    public void FinishDeferredInhandGear(EntityUid entity)
+    {
+        if (!TryComp<DeferredStartingHandGearComponent>(entity, out var pending))
+            return;
+
+        RemComp<DeferredStartingHandGearComponent>(entity);
+        foreach (var item in pending.Items)
+            GiveStartingGearHandItem(entity, item);
     }
 
     public void FinishDeferredStartingGear(EntityUid entity)
@@ -385,13 +435,13 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             return;
 
         RemComp<DeferredStartingGearComponent>(entity);
-        FinishStartingGear(entity, pending.Items);
+        FinishStartingGear(entity, pending.Items, pending.Layout);
     }
 
-    private void FinishStartingGear(EntityUid entity, List<StartingGearStorageItem> storageItems)
+    private void FinishStartingGear(EntityUid entity, List<StartingGearStorageItem> storageItems,
+        IReadOnlyDictionary<string, BackpackItemPlacement>? layout)
     {
-        foreach (var item in storageItems)
-            GiveStartingGearStorageItem(entity, item, fallback: true);
+        FinishStartingGearStorage(entity, storageItems, layout);
 
         var ev = new StartingGearEquippedEvent(entity);
         RaiseLocalEvent(entity, ref ev);

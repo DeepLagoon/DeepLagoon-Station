@@ -13,9 +13,6 @@ public sealed partial class ModControlComponent : Component
     [DataField]
     public int Capacity = 12;
 
-    [DataField]
-    public List<EntProtoId> StartingModules = new();
-
     public Container Modules = default!;
     public EntityUid? DeployAction;
     public EntityUid? ActivateAction;

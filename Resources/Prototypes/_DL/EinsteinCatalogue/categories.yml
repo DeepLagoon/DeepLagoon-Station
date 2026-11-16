@@ -17,6 +17,12 @@
   id: Items
   root: true
 - type: personalLoadoutCategory
+  id: Weapons
+  root: true
+- type: personalLoadoutCategory
+  id: Trinkets
+  root: true
+- type: personalLoadoutCategory
   id: Jobs
   root: true
   subCategories:

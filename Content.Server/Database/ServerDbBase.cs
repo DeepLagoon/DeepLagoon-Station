@@ -245,6 +245,7 @@ namespace Content.Server.Database
                     EntityName = role.EntityName,
                     Customizations = role.Customizations == null ? new() : JsonSerializer.Deserialize<Dictionary<string, PersonalLoadoutCustomization>>(role.Customizations) ?? new(),
                     UnequippedSlots = role.UnequippedSlots == null ? new() : JsonSerializer.Deserialize<HashSet<string>>(role.UnequippedSlots) ?? new(),
+                    BackpackLayout = role.BackpackLayout == null ? new() : JsonSerializer.Deserialize<Dictionary<string, BackpackItemPlacement>>(role.BackpackLayout) ?? new(),
                 };
 
                 foreach (var group in role.Groups)
@@ -447,6 +448,7 @@ namespace Content.Server.Database
                     EntityName = loadouts.EntityName ?? string.Empty,
                     Customizations = JsonSerializer.Serialize(loadouts.Customizations),
                     UnequippedSlots = JsonSerializer.Serialize(loadouts.UnequippedSlots),
+                    BackpackLayout = loadouts.BackpackLayout.Count == 0 ? null : JsonSerializer.Serialize(loadouts.BackpackLayout),
                 };
 
                 foreach (var (group, groupLoadouts) in loadouts.SelectedLoadouts)

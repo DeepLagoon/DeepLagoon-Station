@@ -72,4 +72,41 @@ public sealed class LoadoutStorageSpawnTests
         });
         await pair.CleanReturnAsync();
     }
+
+    [Test]
+    public async Task SavedLayoutIsAppliedInTheModsuitModule()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var inventory = entities.System<InventorySystem>();
+            var spawning = entities.System<StationSpawningSystem>();
+            var role = new RoleLoadout("JobMercenary");
+            role.SelectedLoadouts["MercenaryBackpack"] = new() { new() { Prototype = "MercenaryClothingModsuitSecurityPowerCell" } };
+            role.SelectedLoadouts["MercenaryFace"] = new() { new() { Prototype = "MercenaryClothingMaskGasMercenary" } };
+            role.SelectedLoadouts["ContractorCartridge"] = new() { new() { Prototype = "ContractorAppraisalCartridge" } };
+            role.SelectedLoadouts["MercenaryPistol"] = new() { new() { Prototype = "MercenaryPollockLoadout" } };
+            role.BackpackLayout["loadout/ContractorAppraisalCartridge/0/AppraisalCartridge"] = new(true, 0, 0, 0);
+            role.BackpackLayout["loadout/MercenaryClothingMaskGasMercenary/0/ClothingMaskGasMercenary"] = new(false, 4, 2, 90);
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithLoadout(role);
+            var mob = spawning.SpawnPlayerMob(map.GridCoords, "Mercenary", profile, null, deferStartingGear: true);
+            spawning.FinishDeferredStartingGear(mob);
+
+            Assert.That(inventory.TryGetSlotEntity(mob, "back", out var suit), Is.True);
+            Assert.That(entities.HasComponent<StorageComponent>(suit!.Value), Is.False);
+            var backpack = spawning.GetBackpackStorage(mob);
+            Assert.That(backpack, Is.Not.Null);
+            var bag = backpack!.Value;
+            Assert.That(entities.GetComponent<MetaDataComponent>(bag.Owner).EntityPrototype?.ID, Is.EqualTo("ModModuleStorage"));
+            var contents = bag.Comp.StoredItems.ToDictionary(
+                entry => entities.GetComponent<MetaDataComponent>(entry.Key).EntityPrototype!.ID, entry => entry.Value);
+            Assert.That(contents.Keys, Is.EquivalentTo(new[] { "ClothingMaskGasMercenary", "WeaponPistolPollock" }));
+            var mask = contents["ClothingMaskGasMercenary"];
+            Assert.That(mask.Position, Is.EqualTo(new Robust.Shared.Maths.Vector2i(4, 2)));
+            Assert.That(mask.Rotation.Degrees, Is.EqualTo(90).Within(0.01));
+        });
+        await pair.CleanReturnAsync();
+    }
 }

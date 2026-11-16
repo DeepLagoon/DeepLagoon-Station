@@ -164,13 +164,14 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
         {
             var categories = _prototypes.EnumeratePrototypes<PersonalLoadoutCategoryPrototype>().ToDictionary(x => x.ID);
             var roots = categories.Values.Where(x => x.Root).OrderBy(x => x.ID == "Uncategorized" ? "" : x.ID).ToList();
-            _body.AddChild(MakeTabs("Root", roots, categories, filtered, role, selected, spent, new HashSet<string>()));
+            var itemCategories = filtered.ToDictionary(item => item.ID, PersonalCategory);
+            _body.AddChild(MakeTabs("Root", roots, categories, filtered, itemCategories, role, selected, spent, new HashSet<string>()));
         }
         _removeUnavailable.Disabled = !all.Any(x => selected.ContainsKey(x.ID) && !system.CanUse(x, _profile, _job, _session, out _));
         _refreshing = false;
     }
 
-    private Control MakeTabs(string name, List<PersonalLoadoutCategoryPrototype> categories, Dictionary<string, PersonalLoadoutCategoryPrototype> index, List<LoadoutPrototype> loadouts, RoleLoadout role, Dictionary<string, Loadout> selected, int spent, HashSet<string> seen)
+    private Control MakeTabs(string name, List<PersonalLoadoutCategoryPrototype> categories, Dictionary<string, PersonalLoadoutCategoryPrototype> index, List<LoadoutPrototype> loadouts, Dictionary<string, string> itemCategories, RoleLoadout role, Dictionary<string, Loadout> selected, int spent, HashSet<string> seen)
     {
         var tabs = new NeoTabContainer { Name = name, VerticalExpand = true, HorizontalExpand = true };
         foreach (var category in categories)
@@ -178,16 +179,16 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
             if (seen.Contains(category.ID))
                 continue;
             var descendants = Descendants(category, index, new HashSet<string>());
-            if (!loadouts.Any(x => descendants.Contains(x.PersonalCategory)) && !FilteredJobEntries().Any(x => descendants.Contains(x.Category)) && !(_slotFilter != null && _selectedCategories.GetValueOrDefault("Root") == category.ID))
+            if (!loadouts.Any(x => descendants.Contains(itemCategories[x.ID])) && !FilteredJobEntries().Any(x => descendants.Contains(x.Category)) && !(_slotFilter != null && _selectedCategories.GetValueOrDefault("Root") == category.ID))
                 continue;
             var content = new BoxContainer { Name = category.ID, Orientation = LayoutOrientation.Vertical, HorizontalExpand = true, VerticalExpand = true };
             var children = category.SubCategories.Where(x => index.ContainsKey(x.Id)).Select(x => index[x.Id]).ToList();
             if (children.Count == 0)
-                content.AddChild(MakeList(loadouts.Where(x => x.PersonalCategory == category.ID).ToList(), role, selected, spent, category.ID));
+                content.AddChild(MakeList(loadouts.Where(x => itemCategories[x.ID] == category.ID).ToList(), role, selected, spent, category.ID));
             else
             {
                 var nested = new HashSet<string>(seen) { category.ID };
-                content.AddChild(MakeTabs(category.ID, children, index, loadouts, role, selected, spent, nested));
+                content.AddChild(MakeTabs(category.ID, children, index, loadouts, itemCategories, role, selected, spent, nested));
             }
             var label = "loadout-category-" + category.ID;
             tabs.AddTab(content, Loc.TryGetString(label, out var localized) ? localized : category.ID);

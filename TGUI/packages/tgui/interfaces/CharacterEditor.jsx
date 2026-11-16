@@ -168,7 +168,8 @@ export const CharacterEditor = () => {
         const tooltip = document.querySelector('html > .Tooltip');
         const preview = previewTarget.current || document.querySelector('.CharacterEditor__floor');
         const a = tooltip?.getBoundingClientRect(), b = preview?.getBoundingClientRect();
-        const hidden = !!(a && b && Number(getComputedStyle(tooltip).opacity) > 0 && a.width && a.height
+        const hidden = !!document.querySelector('.BackpackEditor__backdrop') ||
+          !!(a && b && Number(getComputedStyle(tooltip).opacity) > 0 && a.width && a.height
           && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
         if (hidden !== previous) { previous = hidden; act('preview-occluded', { value: String(hidden) }); }
       });
@@ -370,7 +371,9 @@ export const CharacterEditor = () => {
     </>}
     <CharacterTraits data={data} act={act} />
     {data.mode === 'saved' && <Section title="Сохранённые предметы"><div className="CharacterEditor__tiles">{(data.savedItems||[]).map((item,i)=><div key={i}><div className="CharacterEditor__sprite">{item.images.map((image,j)=><TintedSprite key={j} image={image.url} color={image.color} />)}</div>{item.name}</div>)}</div></Section>}
-    {equipmentCache.current && <div style={{display:data.mode==='equipment'?'block':'none'}}><EquipmentBrowser data={equipmentCache.current} act={(action,payload)=>act('equipment/'+action,payload)} /></div>}
+    {equipmentCache.current && <div style={{display:data.mode==='equipment'?'block':'none'}}><EquipmentBrowser data={equipmentCache.current}
+      backpack={data.backpack} characterSlot={data.setup?.selected} active={data.mode==='equipment'}
+      act={(action,payload)=>act('equipment/'+action,payload)} /></div>}
     {data.mode === 'flavor' && <>
       <CharacterHeadshots key={data.setup?.selected} data={data} act={act} />
       {[['flavor','Описание персонажа',data.flavorText],['ooc','OOC заметки',data.oocNotes]].map(([key,label,value])=><Section key={key} title={label}><CharacterTextEditor key={data.setup?.selected} label={label} value={value||''} maxLength={data.maxFlavorLength} onChange={change(key)} /><details><summary>Предпросмотр форматирования</summary><div className="CharacterText"><CharacterText text={value}/></div></details></Section>)}
