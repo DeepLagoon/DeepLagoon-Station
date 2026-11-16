@@ -1,9 +1,16 @@
 using System.Linq;
+using System.Numerics;
+using Content.Client.Administration.UI.Tabs.AdminTab;
 using Content.Client.Chat.UI;
 using Content.Client.LateJoin;
+using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.ContentPack;
+using Robust.Shared.Input;
 using Robust.Shared.IoC;
+using Robust.Shared.Map;
+using Robust.Shared.Maths;
 using Robust.Shared.Reflection;
 using Content.Client._NF.CryoSleep; // Frontier
 
@@ -54,6 +61,39 @@ public sealed class UiControlTest
                 activator.CreateInstance(type, oneOff: true, inject: false);
             }
         });
+
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task TeleportWindowClosesFromTitleBar()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var client = pair.Client;
+        TeleportWindow window = default!;
+        await client.WaitPost(() => window = new TeleportWindow());
+
+        for (var i = 0; i < 2; i++)
+        {
+            TextureButton closeButton = default!;
+            ScreenCoordinates cursor = default;
+            await client.WaitAssertion(() =>
+            {
+                window.Open(Vector2.Zero);
+                window.Arrange(UIBox2.FromDimensions(Vector2.Zero, window.DesiredSize));
+                closeButton = window.FindControl<TextureButton>("CloseButton");
+                cursor = new ScreenCoordinates(closeButton.GlobalPixelPosition + closeButton.PixelSize / 2f,
+                    closeButton.Window?.Id ?? default);
+            });
+
+            foreach (var state in new[] { BoundKeyState.Down, BoundKeyState.Up })
+            {
+                await client.DoGuiEvent(closeButton, new GUIBoundKeyEventArgs(
+                    EngineKeyFunctions.UIClick, state, cursor, default, Vector2.Zero, Vector2.Zero));
+            }
+
+            await client.WaitAssertion(() => Assert.That(window.IsOpen, Is.False));
+        }
 
         await pair.CleanReturnAsync();
     }

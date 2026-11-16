@@ -16,8 +16,16 @@ namespace Content.Client.Administration.UI.Tabs.AdminTab
 
         protected override void EnteredTree()
         {
+            base.EnteredTree();
             SubmitButton.OnPressed += SubmitButtonOnOnPressed;
             PlayerList.OnSelectionChanged += OnListOnOnSelectionChanged;
+        }
+
+        protected override void ExitedTree()
+        {
+            SubmitButton.OnPressed -= SubmitButtonOnOnPressed;
+            PlayerList.OnSelectionChanged -= OnListOnOnSelectionChanged;
+            base.ExitedTree();
         }
 
         private void OnListOnOnSelectionChanged(PlayerInfo? obj)
