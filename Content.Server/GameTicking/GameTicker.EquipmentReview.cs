@@ -92,11 +92,14 @@ public sealed partial class GameTicker
 
         var allowed = new IsJobAllowedEvent(player, new ProtoId<JobPrototype>(review.Job));
         RaiseLocalEvent(ref allowed);
-        if (allowed.Cancelled || !CanJoinFaction(player, review.Job))
-            return false;
         var restrictions = new GetDisallowedJobsEvent(player, new HashSet<ProtoId<JobPrototype>>());
         RaiseLocalEvent(ref restrictions);
-        if (restrictions.Jobs.Contains(review.Job))
+        if (allowed.Cancelled || restrictions.Jobs.Contains(review.Job))
+        {
+            _chatManager.DispatchServerMessage(player, Loc.GetString("starting-equipment-review-unavailable"));
+            return false;
+        }
+        if (!CanJoinFaction(player, review.Job))
             return false;
 
         profile = selected;

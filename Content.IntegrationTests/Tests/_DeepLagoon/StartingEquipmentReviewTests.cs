@@ -5,14 +5,20 @@ using System.Text.Json;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.Lobby.UI;
 using Content.Server.GameTicking;
+using Content.Server.Players.PlayTimeTracking;
 using Content.Server.Station.Systems;
+using Content.Shared.CCVar;
 using Content.Shared.GameTicking;
 using Content.Shared.Preferences;
+using Content.Shared.Roles;
 using Content.Shared.Station;
 using Content.Shared.Storage;
 using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.Controls;
+using Robust.Shared.Configuration;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
@@ -33,15 +39,22 @@ public sealed class StartingEquipmentReviewTests
 
     [TestCase(false)]
     [TestCase(true)]
-    public async Task ChangedJobWaitsForApprovalAndSavesOnlyAppliedEdits(bool apply)
+    public async Task ConfirmationJoinsTheSelectedJobWithOrWithoutEquipmentChanges(bool edit)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
         var player = pair.Player!;
         var ticker = pair.Server.System<GameTicker>();
         const string role = "Mercenary";
+        var roleId = new ProtoId<JobPrototype>(role);
+        EntityUid station = default;
         await pair.Server.WaitAssertion(() =>
         {
+            pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(CCVars.GameRoleTimers, true);
+            var playtime = pair.Server.System<PlayTimeTrackingSystem>();
+            Assert.That(playtime.GetDisallowedJobs(player), Does.Contain(roleId));
+            pair.Server.ResolveDependency<PlayTimeTrackingManager>().AddTimeToOverallPlaytime(player, TimeSpan.FromHours(20));
+            Assert.That(playtime.GetDisallowedJobs(player), Does.Not.Contain(roleId));
             Assert.That(SharedGameTicker.PreferredEquipmentJob(ticker.GetPlayerProfile(player)), Is.Not.EqualTo(role));
             if (ticker.RunLevel == GameRunLevel.PreRoundLobby)
             {
@@ -51,7 +64,7 @@ public sealed class StartingEquipmentReviewTests
             Assert.That(ticker.RunLevel, Is.EqualTo(GameRunLevel.InRound));
 
             var entities = pair.Server.EntMan;
-            var station = entities.SpawnEntity("TestEquipmentReviewStation", MapCoordinates.Nullspace);
+            station = entities.SpawnEntity("TestEquipmentReviewStation", MapCoordinates.Nullspace);
             entities.System<StationSystem>().AddGridToStation(station, map.Grid);
             Assert.That(entities.System<StationJobsSystem>().TryAdjustJobSlot(station, role, 1, createSlot: true), Is.True);
             entities.SpawnEntity("SpawnPointLatejoin", map.GridCoords);
@@ -74,20 +87,28 @@ public sealed class StartingEquipmentReviewTests
             Assert.That(backpack.GetProperty("grid").GetArrayLength(), Is.GreaterThan(0));
             var kit = backpack.GetProperty("items").EnumerateArray().Single(item =>
                 item.GetProperty("iconId").GetString() == "item/BoxSurvivalMonoOxygenExtended");
-            typeof(StartingEquipmentReviewWindow).GetMethod("OnAction", fields)!.Invoke(window,
-                ["backpack-remove", JsonSerializer.Serialize(new { key = kit.GetProperty("key").GetString() })]);
-            typeof(StartingEquipmentReviewWindow).GetMethod("Finish", fields)!.Invoke(window, [apply]);
+            if (edit)
+            {
+                typeof(StartingEquipmentReviewWindow).GetMethod("OnAction", fields)!.Invoke(window,
+                    ["backpack-remove", JsonSerializer.Serialize(new { key = kit.GetProperty("key").GetString() })]);
+            }
+
+            var join = window.Contents.Children.Single().Children.OfType<Button>().Single();
+            var press = (Action<BaseButton.ButtonEventArgs>) typeof(BaseButton).GetField(nameof(BaseButton.OnPressed), fields)!.GetValue(join)!;
+            press(new BaseButton.ButtonEventArgs(join, null!));
         });
         await pair.RunTicksSync(10);
 
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(ticker.PlayerGameStatuses[player.UserId], Is.EqualTo(PlayerGameStatus.JoinedGame));
-            Assert.That(SharedStationSpawningSystem.SurvivalKitRemoved(ticker.GetPlayerProfile(player)), Is.EqualTo(apply));
+            Assert.That(pair.Server.System<StationJobsSystem>().TryGetPlayerJobs(station, player.UserId, out var jobs), Is.True);
+            Assert.That(jobs, Is.EquivalentTo(new[] { roleId }));
+            Assert.That(SharedStationSpawningSystem.SurvivalKitRemoved(ticker.GetPlayerProfile(player)), Is.EqualTo(edit));
             var bag = pair.Server.System<StationSpawningSystem>().GetBackpackStorage(player.AttachedEntity!.Value);
             Assert.That(bag, Is.Not.Null);
             Assert.That(bag!.Value.Comp.StoredItems.Keys.Any(item =>
-                pair.Server.EntMan.GetComponent<MetaDataComponent>(item).EntityPrototype?.ID == "BoxSurvivalMonoOxygenExtended"), Is.EqualTo(!apply));
+                pair.Server.EntMan.GetComponent<MetaDataComponent>(item).EntityPrototype?.ID == "BoxSurvivalMonoOxygenExtended"), Is.EqualTo(!edit));
         });
         await pair.CleanReturnAsync();
     }

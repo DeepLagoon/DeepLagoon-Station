@@ -50,14 +50,9 @@ public sealed class StartingEquipmentReviewWindow : DefaultWindow
         message.SetMessage(FormattedMessage.FromUnformatted(Loc.GetString("starting-equipment-review-message")));
         body.AddChild(message);
         body.AddChild(_panel);
-        var buttons = new BoxContainer { HorizontalAlignment = HAlignment.Right, SeparationOverride = 8 };
-        var apply = new Button { Text = Loc.GetString("starting-equipment-review-apply") };
-        var proceed = new Button { Text = Loc.GetString("starting-equipment-review-continue") };
-        apply.OnPressed += _ => Finish(apply: true);
-        proceed.OnPressed += _ => Finish(apply: false);
-        buttons.AddChild(apply);
-        buttons.AddChild(proceed);
-        body.AddChild(buttons);
+        var join = new Button { Text = Loc.GetString("starting-equipment-review-join"), HorizontalAlignment = HAlignment.Right };
+        join.OnPressed += _ => Finish();
+        body.AddChild(join);
         ContentsContainer.AddChild(body);
 
         _equipment.ProfileChanged += UpdateDraft;
@@ -79,12 +74,15 @@ public sealed class StartingEquipmentReviewWindow : DefaultWindow
         Close();
     }
 
-    private void Finish(bool apply)
+    private void Finish()
     {
+        if (_answered)
+            return;
+
         _answered = true;
         _reply(new StartingEquipmentReviewReply(_request, join: true,
-            job: apply ? Changes(LoadoutSystem.GetJobPrototype(_job.ID)) : null,
-            personal: apply ? Changes(PersonalLoadoutSystem.Role) : null));
+            job: Changes(LoadoutSystem.GetJobPrototype(_job.ID)),
+            personal: Changes(PersonalLoadoutSystem.Role)));
         Close();
     }
 
