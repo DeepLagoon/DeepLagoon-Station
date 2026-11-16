@@ -32,11 +32,38 @@ public sealed class LagoonCoinOutbox : IDisposable
 
     public bool Store(PendingLagoonCoinReward reward)
     {
-        using var command = _connection.CreateCommand();
+        using var command = CreateInsert();
+        return Insert(command, reward);
+    }
+
+    public bool[] StoreBatch(IReadOnlyList<PendingLagoonCoinReward> rewards)
+    {
+        var inserted = new bool[rewards.Count];
+        using var transaction = _connection.BeginTransaction();
+        using var command = CreateInsert();
+        command.Transaction = transaction;
+        for (var i = 0; i < rewards.Count; i++)
+            inserted[i] = Insert(command, rewards[i]);
+
+        transaction.Commit();
+        return inserted;
+    }
+
+    private SqliteCommand CreateInsert()
+    {
+        var command = _connection.CreateCommand();
         command.CommandText = "INSERT INTO rewards(user_id,operation_id,payload) VALUES($user,$key,$payload) ON CONFLICT DO NOTHING";
-        command.Parameters.AddWithValue("$user", reward.User.ToString());
-        command.Parameters.AddWithValue("$key", reward.Key);
-        command.Parameters.AddWithValue("$payload", JsonSerializer.Serialize(reward));
+        command.Parameters.Add("$user", SqliteType.Text);
+        command.Parameters.Add("$key", SqliteType.Text);
+        command.Parameters.Add("$payload", SqliteType.Text);
+        return command;
+    }
+
+    private static bool Insert(SqliteCommand command, PendingLagoonCoinReward reward)
+    {
+        command.Parameters[0].Value = reward.User.ToString();
+        command.Parameters[1].Value = reward.Key;
+        command.Parameters[2].Value = JsonSerializer.Serialize(reward);
         return command.ExecuteNonQuery() == 1;
     }
 

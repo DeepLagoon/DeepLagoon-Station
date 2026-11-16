@@ -229,25 +229,25 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     {
         var start = measure ? Stopwatch.GetTimestamp() : 0;
         var sessions = _participation.ToArray();
-        var phaseStart = measure ? Stopwatch.GetTimestamp() : 0;
-        var collectTime = Stopwatch.GetElapsedTime(start, phaseStart);
-        var outboxTime = TimeSpan.Zero;
-        var buckets = 0;
+        var rewards = new List<Reward>();
         foreach (var (session, data) in sessions)
         {
             Accumulate(session);
-            if (!measure)
-            {
-                Flush(session, data);
-                continue;
-            }
+            foreach (var (bucket, ticks) in data.Buckets)
+                rewards.Add(ParticipationReward(session, bucket, ticks));
+        }
 
-            var outboxStart = Stopwatch.GetTimestamp();
-            collectTime += Stopwatch.GetElapsedTime(phaseStart, outboxStart);
-            buckets += data.Buckets.Count;
-            Flush(session, data);
-            phaseStart = Stopwatch.GetTimestamp();
-            outboxTime += Stopwatch.GetElapsedTime(outboxStart, phaseStart);
+        var collected = measure ? Stopwatch.GetTimestamp() : 0;
+        if (rewards.Count > 0)
+        {
+            var inserted = _outbox.StoreBatch(rewards.Select(Pending).ToArray());
+            for (var i = 0; i < rewards.Count; i++)
+            {
+                if (inserted[i])
+                    _pending.Enqueue(rewards[i]);
+            }
+            foreach (var (_, data) in sessions)
+                data.Buckets.Clear();
         }
 
         if (!measure)
@@ -259,20 +259,24 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         {
             Log.Log(level,
                 "Lagoon Coin playtime checkpoint: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} outbox_ms={OutboxMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets}",
-                elapsed.TotalMilliseconds, collectTime.TotalMilliseconds, outboxTime.TotalMilliseconds,
-                _timing.TickPeriod.TotalMilliseconds, sessions.Length, buckets);
+                elapsed.TotalMilliseconds, Stopwatch.GetElapsedTime(start, collected).TotalMilliseconds,
+                Stopwatch.GetElapsedTime(collected).TotalMilliseconds, _timing.TickPeriod.TotalMilliseconds,
+                sessions.Length, rewards.Count);
         }
     }
 
     private void Flush(ICommonSession session, Participation data)
     {
         foreach (var (bucket, ticks) in data.Buckets)
-        {
-            var key = $"time:{_run}:{++_sequence}";
-            var activity = new LagoonActivity(key, ticks, bucket.Rate, bucket.Day, bucket.Round, bucket.Ready);
-            Queue(new Reward(session.UserId, key, 0, "playtime", Activity: activity));
-        }
+            Queue(ParticipationReward(session, bucket, ticks));
         data.Buckets.Clear();
+    }
+
+    private Reward ParticipationReward(ICommonSession session, ActivityBucket bucket, long ticks)
+    {
+        var key = $"time:{_run}:{++_sequence}";
+        var activity = new LagoonActivity(key, ticks, bucket.Rate, bucket.Day, bucket.Round, bucket.Ready);
+        return new Reward(session.UserId, key, 0, "playtime", Activity: activity);
     }
 
     private void OnStatusChanged(object? sender, SessionStatusEventArgs ev)

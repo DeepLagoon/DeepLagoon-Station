@@ -354,9 +354,10 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                     _transform.DetachEntity(mob.Entity.Owner, mob.Entity.Comp);
                 }
 
-                var gridValue = _pricing.AppraiseGrid(gridUid, null);
+                var injectCurrency = TryComp<CurrencyInjectionOnBluespaceErrorComponent>(uid, out var comp);
+                var gridValue = injectCurrency || component.RewardAccounts.Count != 0 ? _pricing.AppraiseGrid(gridUid) : 0;
                 // Mono: currency injections
-                if (TryComp<CurrencyInjectionOnBluespaceErrorComponent>(uid, out var comp))
+                if (comp != null)
                 {
                     var childQuery = Transform(gridUid).ChildEnumerator;
                     var requiredEntitiesFound = true;

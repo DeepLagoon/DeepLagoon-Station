@@ -101,11 +101,10 @@ public sealed partial class LinkedLifecycleGridSystem : EntitySystem
         var mobQuery = AllEntityQuery<HumanoidAppearanceComponent, BankAccountComponent, TransformComponent>();
         while (mobQuery.MoveNext(out var mobUid, out _, out _, out var xform))
         {
-            handledMindContainers.Add(mobUid);
-
             if (xform.GridUid == null || xform.MapUid == null || xform.GridUid != grid)
                 continue;
 
+            handledMindContainers.Add(mobUid);
             var (targetUid, targetXform) = GetParentToReparent(mobUid, xform);
 
             reparentEntities.Add(((targetUid, targetXform), targetXform.MapUid!.Value, _transform.GetWorldPosition(targetXform)));
@@ -117,11 +116,10 @@ public sealed partial class LinkedLifecycleGridSystem : EntitySystem
         var borgQuery = AllEntityQuery<BorgChassisComponent, ActorComponent, TransformComponent>();
         while (borgQuery.MoveNext(out var borgUid, out _, out _, out var xform))
         {
-            handledMindContainers.Add(borgUid);
-
             if (xform.GridUid == null || xform.MapUid == null || xform.GridUid != grid)
                 continue;
 
+            handledMindContainers.Add(borgUid);
             var (targetUid, targetXform) = GetParentToReparent(borgUid, xform);
 
             reparentEntities.Add(((targetUid, targetXform), targetXform.MapUid!.Value, _transform.GetWorldPosition(targetXform)));

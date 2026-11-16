@@ -37,7 +37,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     [Dependency] private ITileDefinitionManager _tiles = default!;
 
     private sealed record Preview(Guid Request, ICommonSession Session, EntityUid Ghost, EntityUid Destination,
-        EntityUid Stage, LoadResult Loaded, Box2 Bounds, TimeSpan Expires);
+        EntityUid Stage, LoadResult Loaded, Box2 Bounds, TimeSpan Expires, Dictionary<string, int> Missing);
 
     private readonly Dictionary<NetUserId, Preview> _previews = new();
 
@@ -52,6 +52,9 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     }
 
     private sealed record StoredMap(AdminMapLibraryEntry Entry, byte[] Bytes, string Hash);
+    // Keep only the most recently parsed map to bound the extra memory held alongside the library.
+    private const int MaxCachedMapBytes = 4 * 1024 * 1024;
+    private (string Hash, MappingDataNode Data)? _parsedMap;
     private readonly Dictionary<Guid, StoredMap> _library = new();
     private readonly Dictionary<(NetUserId User, Guid Request), Guid> _completedUploads = new();
     private int _libraryBytes;
@@ -124,7 +127,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         if (_completedUploads.TryGetValue((session.UserId, ev.Request), out var storedId) &&
             _library.TryGetValue(storedId, out var stored))
         {
-            StartPreview(session, ev.Request, stored.Bytes);
+            StartPreview(session, ev.Request, stored.Bytes, stored.Hash);
             return;
         }
         if (_uploads.ContainsKey(session.UserId) || _previews.ContainsKey(session.UserId) ||
@@ -181,7 +184,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             Reply(session, ev.Request, "dl-map-upload-checksum");
             return;
         }
-        if (!StartPreview(session, ev.Request, bytes))
+        if (!StartPreview(session, ev.Request, bytes, upload.Hash))
             return;
         var entry = new AdminMapLibraryEntry(Guid.NewGuid(), upload.Name, bytes.Length);
         _library.Add(entry.Id, new StoredMap(entry, bytes, upload.Hash));
@@ -189,7 +192,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         _completedUploads[(session.UserId, ev.Request)] = entry.Id;
     }
 
-    private bool StartPreview(ICommonSession session, Guid request, byte[] bytes)
+    private bool StartPreview(ICommonSession session, Guid request, byte[] bytes, string hash)
     {
         if (!CanUpload(session))
         {
@@ -204,9 +207,8 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         }
         try
         {
-            using var stream = new MemoryStream(bytes, false);
-            using var reader = new StreamReader(stream);
-            if (!TryPrepare(reader, out var stage, out var loaded, out var bounds, out var missing))
+            var data = ReadMap(bytes, hash);
+            if (data == null || !TryPrepare(data, out var stage, out var loaded, out var bounds, out var missing))
             {
                 Reply(session, request, "dl-map-upload-invalid");
                 return false;
@@ -214,10 +216,10 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             var ghost = session.AttachedEntity!.Value;
             var destination = _transform.GetMapCoordinates(ghost);
             var preview = new Preview(request, session, ghost, _maps.GetMap(destination.MapId),
-                stage, loaded!, bounds, _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds));
+                stage, loaded!, bounds, _timing.RealTime + TimeSpan.FromSeconds(AdminMapUploadLimits.TimeoutSeconds), missing);
             _previews.Add(session.UserId, preview);
             _pvs.AddSessionOverride(stage, session);
-            SendPreview(preview, missing);
+            SendPreview(preview);
             return true;
         }
         catch (Exception e)
@@ -228,14 +230,29 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         }
     }
 
-    private void SendPreview(Preview preview, Dictionary<string, int>? missing = null)
+    private MappingDataNode? ReadMap(byte[] bytes, string hash)
     {
-        // Reconstruct diagnostics when retrying a lost ready response.
-        missing ??= preview.Loaded.Entities.Where(uid => HasComp<AdminMapMissingPrototypeComponent>(uid))
-            .Select(uid => Comp<AdminMapMissingPrototypeComponent>(uid).Prototype)
-            .GroupBy(id => id).ToDictionary(group => group.Key, group => group.Count());
+        if (_parsedMap is { } cached && cached.Hash.Equals(hash, StringComparison.OrdinalIgnoreCase))
+            return cached.Data.Copy();
+
+        using var stream = new MemoryStream(bytes, writable: false);
+        using var reader = new StreamReader(stream);
+        using var documents = DataNodeParser.ParseYamlStream(reader).GetEnumerator();
+        if (!documents.MoveNext() || documents.Current.Root is not MappingDataNode data || documents.MoveNext())
+            return null;
+
+        if (bytes.Length > MaxCachedMapBytes)
+            return data;
+
+        // Compatibility rewriting and loading operate on a fresh copy. Prototypes and tiles are resolved on each request.
+        _parsedMap = (hash, data);
+        return data.Copy();
+    }
+
+    private void SendPreview(Preview preview)
+    {
         RaiseNetworkEvent(new AdminMapPlacementReadyEvent(preview.Request, GetNetEntity(preview.Stage),
-            GetNetEntity(preview.Destination), preview.Bounds, _transform.GetMapCoordinates(preview.Ghost).Position, missing), preview.Session);
+            GetNetEntity(preview.Destination), preview.Bounds, _transform.GetMapCoordinates(preview.Ghost).Position, preview.Missing), preview.Session);
     }
 
     private void OnLibraryRequest(AdminMapLibraryRequestEvent ev, EntitySessionEventArgs args)
@@ -262,12 +279,12 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
             Cleanup(preview);
         }
         if (_library.TryGetValue(ev.Id, out var stored))
-            StartPreview(args.SenderSession, ev.Request, stored.Bytes);
+            StartPreview(args.SenderSession, ev.Request, stored.Bytes, stored.Hash);
         else
             Reply(args.SenderSession, ev.Request, "dl-map-upload-library-missing");
     }
 
-    private bool TryPrepare(TextReader reader, out EntityUid staging, out LoadResult? result, out Box2 bounds,
+    private bool TryPrepare(MappingDataNode data, out EntityUid staging, out LoadResult? result, out Box2 bounds,
         out Dictionary<string, int> missing)
     {
         staging = _maps.CreateMap(out var stagingId, runMapInit: false);
@@ -279,9 +296,6 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         missing = new();
         try
         {
-            var documents = DataNodeParser.ParseYamlStream(reader).ToArray();
-            if (documents.Length != 1 || documents[0].Root is not MappingDataNode data)
-                return false;
             var migrations = new BeforeEntityReadEvent();
             RaiseLocalEvent(migrations);
             AdminMapUploadCompatibility.ReplaceMissing(data,
@@ -319,16 +333,8 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         }
         finally
         {
-            if (!success && loaded != null)
-            {
-                foreach (var uid in loaded.Entities)
-                {
-                    if (!Deleted(uid))
-                        Del(uid);
-                }
-            }
-            if (!success && !Deleted(staging))
-                Del(staging);
+            if (!success)
+                DeletePreviewEntities(staging, loaded);
         }
     }
 
@@ -397,16 +403,23 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
     private void Cleanup(Preview preview, bool deleteLoaded = true)
     {
         _pvs.RemoveSessionOverride(preview.Stage, preview.Session);
-        if (deleteLoaded)
+        DeletePreviewEntities(preview.Stage, deleteLoaded ? preview.Loaded : null);
+    }
+
+    private void DeletePreviewEntities(EntityUid stage, LoadResult? loaded)
+    {
+        if (!Deleted(stage))
+            Del(stage);
+
+        // The stage owns the preview hierarchy. Sweep any nullspace or partially moved entities separately.
+        if (loaded == null)
+            return;
+
+        foreach (var uid in loaded.Entities)
         {
-            foreach (var uid in preview.Loaded.Entities)
-            {
-                if (!Deleted(uid))
-                    Del(uid);
-            }
+            if (!Deleted(uid))
+                Del(uid);
         }
-        if (!Deleted(preview.Stage))
-            Del(preview.Stage);
     }
 
     public override void Update(float frameTime)
@@ -441,6 +454,7 @@ public sealed partial class AdminMapUploadSystem : EntitySystem
         _uploads.Clear();
         _cooldowns.Clear();
         _library.Clear();
+        _parsedMap = null;
         _completedUploads.Clear();
         _libraryBytes = 0;
     }

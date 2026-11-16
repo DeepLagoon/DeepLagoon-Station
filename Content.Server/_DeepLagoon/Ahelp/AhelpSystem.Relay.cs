@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -53,19 +54,28 @@ public sealed partial class AhelpSystem
         var reading = true;
         try
         {
-            using var payload = new MemoryStream();
-            var buffer = new byte[65536];
-            int count;
-            while ((count = await context.RequestBody.ReadAsync(buffer.AsMemory())) != 0)
+            RelayRequest? request;
+            var buffer = ArrayPool<byte>.Shared.Rent(65536);
+            try
             {
-                if (payload.Length + count > (AhelpLimits.Image + 2L) / 3 * 4 + 8192)
+                using var payload = new MemoryStream();
+                int count;
+                while ((count = await context.RequestBody.ReadAsync(buffer.AsMemory(0, 65536))) != 0)
                 {
-                    await context.RespondErrorAsync(HttpStatusCode.RequestEntityTooLarge);
-                    return true;
+                    if (payload.Length + count > (AhelpLimits.Image + 2L) / 3 * 4 + 8192)
+                    {
+                        await context.RespondErrorAsync(HttpStatusCode.RequestEntityTooLarge);
+                        return true;
+                    }
+                    payload.Write(buffer, 0, count);
                 }
-                payload.Write(buffer, 0, count);
+
+                request = JsonSerializer.Deserialize<RelayRequest>(payload.GetBuffer().AsSpan(0, (int) payload.Length), RelayJson);
             }
-            var request = JsonSerializer.Deserialize<RelayRequest>(payload.GetBuffer().AsSpan(0, (int) payload.Length), RelayJson);
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
+            }
             if (request is null || request.Text == null || request.File == null || request.Discord == null || request.Request == null ||
                 request.Text.Length > AhelpLimits.Text || request.File.Length > 250 || request.Data?.Length > AhelpLimits.Image)
             {

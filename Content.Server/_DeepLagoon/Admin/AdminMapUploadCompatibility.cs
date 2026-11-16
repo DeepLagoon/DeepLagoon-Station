@@ -18,9 +18,8 @@ public static class AdminMapUploadCompatibility
             return replacements;
 
         // Never turn a missing floor into a hole. Sort ties so registration order cannot change the result.
-        var candidates = available.Where(id => id != "Space").Distinct(StringComparer.Ordinal)
-            .OrderBy(id => id, StringComparer.Ordinal)
-            .Select(id => (Id: id, Words: TileWords(id))).ToArray();
+        (string Id, string Normalized, HashSet<string> Words)[]? candidates = null;
+        int[]? distance = null;
         foreach (var (key, value) in tilemap.Children.ToArray())
         {
             var original = ((ValueDataNode) value).Value;
@@ -29,16 +28,27 @@ public static class AdminMapUploadCompatibility
                 continue;
             if (!replacements.TryGetValue(original, out var replacement))
             {
+                candidates ??= available.Where(id => id != "Space").Distinct(StringComparer.Ordinal)
+                    .OrderBy(id => id, StringComparer.Ordinal)
+                    .Select(id => (id, id.ToLowerInvariant(), TileWords(id))).ToArray();
+                distance ??= new int[1 + candidates.Select(candidate => candidate.Normalized.Length).DefaultIfEmpty().Max()];
                 var words = TileWords(original);
+                var normalized = original.ToLowerInvariant();
                 var bestScore = double.NegativeInfinity;
                 replacement = null;
                 foreach (var candidate in candidates)
                 {
                     // Whole name words carry more weight than character resemblance, so a fork/location
                     // prefix cannot outweigh a matching material (e.g. RMCPlanetHybrisaAsphalt).
+                    var shared = 0;
+                    foreach (var word in words)
+                    {
+                        if (candidate.Words.Contains(word))
+                            shared++;
+                    }
                     var total = words.Count + candidate.Words.Count;
-                    var score = total == 0 ? 0 : 2.0 * words.Intersect(candidate.Words).Count() / total;
-                    score += 0.2 * NameSimilarity(original, candidate.Id);
+                    var score = total == 0 ? 0 : 2.0 * shared / total;
+                    score += 0.2 * NameSimilarity(normalized, candidate.Normalized, distance);
                     if (score <= bestScore)
                         continue;
                     bestScore = score;
@@ -59,11 +69,10 @@ public static class AdminMapUploadCompatibility
         .Where(word => word is not ("floor" or "tile" or "planet"))
         .ToHashSet(StringComparer.Ordinal);
 
-    private static double NameSimilarity(string left, string right)
+    private static double NameSimilarity(string left, string right, int[] row)
     {
-        left = left.ToLowerInvariant();
-        right = right.ToLowerInvariant();
-        var row = Enumerable.Range(0, right.Length + 1).ToArray();
+        for (var j = 0; j <= right.Length; j++)
+            row[j] = j;
         for (var i = 1; i <= left.Length; i++)
         {
             var diagonal = row[0];

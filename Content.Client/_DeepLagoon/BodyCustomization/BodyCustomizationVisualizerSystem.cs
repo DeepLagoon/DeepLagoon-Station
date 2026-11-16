@@ -13,6 +13,8 @@ namespace Content.Client._DeepLagoon.BodyCustomization;
 /// <summary>Directional source overlays, ordered behind the body / under or above clothing.</summary>
 public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
 {
+    private static readonly ResPath HumanBodyRsi = new("/Textures/Mobs/Species/Human/parts.rsi");
+
     [Dependency] private SpriteSystem _sprites = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private InventorySystem _inventory = default!;
@@ -27,12 +29,18 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
     public void Refresh(EntityUid uid, HumanoidAppearanceComponent humanoid, SpriteComponent sprite)
     {
         Clear(uid);
-        if (!sprite.LayerMapTryGet(HumanoidVisualLayers.Chest, out _)) return;
+        if (!sprite.LayerMapTryGet(HumanoidVisualLayers.Chest, out var torso)) return;
+        var usesHumanPalette = sprite[torso] is SpriteComponent.Layer { ActualState: { } body }
+            && body.RSI.Path == HumanBodyRsi;
         var layers = new List<string>();
         _layers[uid] = layers;
         foreach (var feature in BodyCustomizationCatalog.Sanitize(humanoid.BodyFeatures))
         {
             if (!feature.Enabled || feature.Part == "womb" || feature.Visibility == 0) continue;
+            var palette = usesHumanPalette && feature.MatchSkin && feature.Part is "butt" or "belly" or "breasts"
+                ? "human/"
+                : "";
+            var rsiPath = new ResPath($"_DeepLagoon/BodyCustomization/{palette}{feature.Part}.rsi");
             foreach (var side in BodyCustomizationCatalog.Parts[feature.Part][feature.Shape][feature.Size])
             {
                 sprite.LayerMapTryGet(HumanoidVisualLayers.Chest, out var chest);
@@ -48,7 +56,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                         if (sprite.LayerMapTryGet(previous, out var index)) insertion = Math.Max(insertion, index + 1);
                 }
                 var state = BodyCustomizationCatalog.SpriteState(feature, side, humanoid.GenitalAroused);
-                var specifier = new SpriteSpecifier.Rsi(new ResPath($"_DeepLagoon/BodyCustomization/{feature.Part}.rsi"), state);
+                var specifier = new SpriteSpecifier.Rsi(rsiPath, state);
                 var layerIndex = _sprites.AddLayer((uid, sprite), specifier, insertion);
                 var key = $"dl-body/{feature.Part}/{side}";
                 sprite.LayerMapSet(key, layerIndex);

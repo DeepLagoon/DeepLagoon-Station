@@ -59,12 +59,14 @@ public sealed class ApartmentLayoutStore : IApartmentLayoutStore
 
     public void SaveSnapshot(Guid owner, string template, ApartmentSnapshot snapshot, ApartmentSnapshot roundEnd, Guid delivery = default)
     {
+        var data = JsonSerializer.Serialize(snapshot, SnapshotJson);
+        var endData = ReferenceEquals(snapshot, roundEnd) ? data : JsonSerializer.Serialize(roundEnd, SnapshotJson);
         Execute("BEGIN IMMEDIATE");
         try
         {
             Execute("INSERT INTO apartment_snapshots VALUES($owner,$template,$data,$end) ON CONFLICT(owner,template) DO UPDATE SET data=$data,round_end_data=$end",
                 ("$owner", owner.ToString()), ("$template", template),
-                ("$data", JsonSerializer.Serialize(snapshot, SnapshotJson)), ("$end", JsonSerializer.Serialize(roundEnd, SnapshotJson)));
+                ("$data", data), ("$end", endData));
             if (delivery != Guid.Empty)
             {
                 using var command = _connection.CreateCommand();

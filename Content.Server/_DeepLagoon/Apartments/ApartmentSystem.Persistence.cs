@@ -226,7 +226,9 @@ public sealed partial class ApartmentSystem
             stage = "storage";
             serializationDone = Stopwatch.GetTimestamp();
             var snapshot = new ApartmentSnapshot { Grid = current, Layout = layout, MapFurniture = instance.MapFurniture.Values.ToList() };
-            var roundEnd = new ApartmentSnapshot { Grid = clean, Layout = layout, MapFurniture = snapshot.MapFurniture };
+            var roundEnd = ReferenceEquals(current, clean)
+                ? snapshot
+                : new ApartmentSnapshot { Grid = clean, Layout = layout, MapFurniture = snapshot.MapFurniture };
             Store.SaveSnapshot(instance.Owner.UserId, instance.Template.ID, snapshot, roundEnd, delivery);
         }
         catch (Exception exception)

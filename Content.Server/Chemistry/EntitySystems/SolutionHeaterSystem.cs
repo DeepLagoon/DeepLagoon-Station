@@ -53,8 +53,7 @@ public sealed partial class SolutionHeaterSystem : EntitySystem
 
     private void OnPowerChanged(Entity<SolutionHeaterComponent> entity, ref PowerChangedEvent args)
     {
-        var placer = Comp<ItemPlacerComponent>(entity);
-        if (args.Powered && placer.PlacedEntities.Count > 0)
+        if (args.Powered && TryComp<ItemPlacerComponent>(entity, out var placer) && placer.PlacedEntities.Count > 0)
         {
             TurnOn(entity);
         }
@@ -83,8 +82,7 @@ public sealed partial class SolutionHeaterSystem : EntitySystem
 
     private void OnItemRemoved(Entity<SolutionHeaterComponent> entity, ref ItemRemovedEvent args)
     {
-        var placer = Comp<ItemPlacerComponent>(entity);
-        if (placer.PlacedEntities.Count == 0) // Last entity was removed
+        if (!TryComp<ItemPlacerComponent>(entity, out var placer) || placer.PlacedEntities.Count == 0)
             TurnOff(entity);
     }
 

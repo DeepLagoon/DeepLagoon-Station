@@ -9,6 +9,7 @@ import argparse
 from pathlib import Path
 from PIL import Image
 from dmi_states import states as dmi_states
+from human_palette import PARTS as human_palette_parts, generate as generate_human_palette
 
 root = Path(__file__).resolve().parents[2]
 files = {
@@ -95,6 +96,8 @@ for part, filename in files.items():
             'copyright': f'tgstation / Citadel / SPLURT / BlueMoon contributors. Converted from https://github.com/BlueMoon-Labs/{source_repo}/blob/{source_revision}/{filename}.',
             'states': states}
     (directory / 'meta.json').write_text(json.dumps(meta, indent=2) + '\n', encoding='utf-8')
+    if part in human_palette_parts:
+        generate_human_palette(part)
     catalog[part] = options
     print(part, len(states), 'states', list(options))
 # Catalog is compiled into Shared so server validation never trusts client-selected paths.

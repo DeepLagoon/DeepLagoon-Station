@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation / Citadel / SPLURT / BlueMoon contributors. Converted from https://github.com/BlueMoon-Labs/MOLOT-BlueMoon-Station/blob/12a81b8c253116c4b7d835327a1abeeb95601dee/modular_splurt/icons/obj/genitals/butt_onmob.dmi. Recolored to match the Station human body palette.",
+  "states": [
+    {
+      "name": "butt_pair_0_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_1_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_2_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_3_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_4_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_5_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_6_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_7_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "butt_pair_8_0_FRONT",
+      "directions": 4,
+      "delays": [
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ],
+        [
+          0.1
+        ]
+      ]
+    }
+  ]
+}

@@ -10,12 +10,57 @@ using Content.Shared.Preferences;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Maths;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
 public sealed class BodyCustomizationEditorTests
 {
+    [Test]
+    public async Task SkinMatchingUsesTheHumanBodyPaletteInThePreview()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>();
+            lobby.OpenCharacterEditor();
+            var editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+            bool Change(string part, string field, string value) =>
+                editor.HandleTguiProfileAction("body-feature", JsonSerializer.Serialize(new { part, field, value }));
+
+            foreach (var species in new[] { "Human", "Felinid", "Vulpkanin" })
+            {
+                editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies(species), editor.CharacterSlot);
+                var preview = pair.Client.EntMan.GetComponent<SpriteComponent>(editor.PreviewDummy);
+                var chest = HumanoidVisualLayers.Chest;
+                foreach (var (part, size) in new[] { ("butt", "2"), ("belly", "2"), ("breasts", "b") })
+                {
+                    Assert.That(Change(part, "enabled", "true"), Is.True);
+                    Assert.That(Change(part, "size", size), Is.True);
+                    Assert.That(editor.HandleTguiProfileAction("skin-color", "{\"value\":\"#985629\"}"), Is.True);
+                    var key = $"dl-body/{part}/FRONT";
+                    var original = $"/Textures/_DeepLagoon/BodyCustomization/{part}.rsi";
+                    var matching = species == "Vulpkanin" ? original : $"/Textures/_DeepLagoon/BodyCustomization/human/{part}.rsi";
+                    Assert.That(preview[key].ActualRsi!.Path.ToString(), Is.EqualTo(matching));
+                    Assert.That(preview[key].Color, Is.EqualTo(preview[chest].Color));
+
+                    Assert.That(Change(part, "matchSkin", "false"), Is.True);
+                    Assert.That(Change(part, "color", "#FF3300"), Is.True);
+                    Assert.That(preview[key].ActualRsi!.Path.ToString(), Is.EqualTo(original));
+                    Assert.That(preview[key].Color, Is.EqualTo(Color.FromHex("#FF3300")));
+
+                    Assert.That(Change(part, "matchSkin", "true"), Is.True);
+                    Assert.That(preview[key].ActualRsi!.Path.ToString(), Is.EqualTo(matching));
+                    Assert.That(preview[key].Color, Is.EqualTo(preview[chest].Color));
+                }
+            }
+            ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().Close();
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task StraightLegCheckboxUpdatesDraftAndPreviewForSupportedSpecies()
     {

@@ -86,10 +86,12 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
 
     protected void CleanupEnt(EntityUid uid)
     {
-        var coord = Transform(uid).Coordinates;
-        var world = _transform.ToMapCoordinates(coord);
         if (_doLog)
+        {
+            var coord = Transform(uid).Coordinates;
+            var world = _transform.ToMapCoordinates(coord);
             Log.Info($"Cleanup deleting entity {ToPrettyString(uid)} at {coord} (world {world})");
+        }
 
         _delCount += 1;
         QueueDel(uid);

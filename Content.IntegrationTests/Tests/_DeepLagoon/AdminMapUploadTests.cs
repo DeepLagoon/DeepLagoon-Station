@@ -25,6 +25,7 @@ using Robust.Shared.Player;
 using Robust.Client.Input;
 using Robust.Client.Graphics;
 using Robust.Shared.Timing;
+using Robust.Shared.Serialization.Markdown;
 using Robust.Shared.Containers;
 using Robust.Shared.Physics.Components;
 using ClientUpload = Content.Client._DeepLagoon.Admin.AdminMapUploadSystem;
@@ -53,7 +54,8 @@ public sealed class AdminMapUploadTests
             var yaml = writer.ToString().Replace("FloorAsphalt", "RMCPlanetHybrisaAsphalt");
             entities.DeleteEntity(source);
 
-            object?[] args = [new StringReader(yaml), null, null, null, null];
+            using var reader = new StringReader(yaml);
+            object?[] args = [DataNodeParser.ParseYamlStream(reader).Single().Root, null, null, null, null];
             var prepare = typeof(ServerUpload).GetMethod("TryPrepare", BindingFlags.NonPublic | BindingFlags.Instance)!;
             Assert.That(prepare.Invoke(entities.System<ServerUpload>(), args), Is.True);
             var loaded = (Robust.Shared.EntitySerialization.LoadResult) args[2]!;

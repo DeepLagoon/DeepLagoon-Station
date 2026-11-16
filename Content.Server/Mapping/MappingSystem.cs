@@ -1,15 +1,19 @@
 using System.IO;
+using System.Threading.Tasks;
 using Content.Server.Administration;
 using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Robust.Shared.Configuration;
 using Robust.Shared.Console;
 using Robust.Shared.ContentPack;
+using Robust.Shared.EntitySerialization;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server.Mapping;
 
@@ -33,6 +37,12 @@ public sealed partial class MappingSystem : EntitySystem
     private Dictionary<EntityUid, (TimeSpan next, string fileName)> _currentlyAutosaving = new();
 
     private bool _autosaveEnabled;
+    private Task<AutosaveResult>? _pendingSave;
+    private EntityUid _savingEntity;
+    private ResPath _savingPath;
+
+    private readonly record struct AutosaveResult(ResPath Path, TimeSpan Total, TimeSpan Capture, TimeSpan Queue,
+        TimeSpan Yaml, TimeSpan Disk, long Bytes);
 
     public override void Initialize()
     {
@@ -57,12 +67,22 @@ public sealed partial class MappingSystem : EntitySystem
     {
         base.Update(frameTime);
 
-        if (!_autosaveEnabled)
+        if (_pendingSave != null)
+        {
+            if (!_pendingSave.IsCompleted)
+                return;
+
+            CompleteAutosave();
+        }
+
+        if (!_autosaveEnabled || _currentlyAutosaving.Count == 0)
             return;
 
-        foreach (var (uid, (time, name))in _currentlyAutosaving)
+        EntityUid? next = null;
+        var earliest = _timing.RealTime;
+        foreach (var (uid, (time, _)) in _currentlyAutosaving)
         {
-            if (_timing.RealTime <= time)
+            if (earliest <= time)
                 continue;
 
             if (LifeStage(uid) >= EntityLifeStage.MapInitialized)
@@ -72,18 +92,117 @@ public sealed partial class MappingSystem : EntitySystem
                 continue;
             }
 
-            _currentlyAutosaving[uid] = (CalculateNextTime(), name);
-            var saveDir = Path.Combine(_cfg.GetCVar(CCVars.AutosaveDirectory), name);
-            _resMan.UserData.CreateDir(new ResPath(saveDir).ToRootedPath());
-
-            var path = new ResPath(Path.Combine(saveDir, $"{DateTime.Now:yyyy-M-dd_HH.mm.ss}-AUTO.yml"));
-            Log.Info($"Autosaving map {name} ({uid}) to {path}. Next save in {ReadableTimeLeft(uid)} seconds.");
-
-            if (HasComp<MapComponent>(uid))
-                _loader.TrySaveMap(uid, path);
-            else
-                _loader.TrySaveGrid(uid, path);
+            earliest = time;
+            next = uid;
         }
+
+        if (next is not { } entity)
+            return;
+
+        var name = _currentlyAutosaving[entity].fileName;
+        _currentlyAutosaving[entity] = (CalculateNextTime(), name);
+        StartAutosave(entity, name);
+    }
+
+    private void StartAutosave(EntityUid entity, string name)
+    {
+        var saveDirectory = Path.Combine(_cfg.GetCVar(CCVars.AutosaveDirectory), name);
+        var directory = ResPath.FromRelativeSystemPath(saveDirectory, Path.DirectorySeparatorChar).ToRootedPath();
+        var path = directory / $"{DateTime.Now:yyyy-M-dd_HH.mm.ss}-AUTO.yml";
+        var category = HasComp<MapComponent>(entity) ? FileCategory.Map : FileCategory.Grid;
+        var start = Stopwatch.GetTimestamp();
+        try
+        {
+            var (node, actualCategory) = _loader.SerializeEntitiesRecursive([entity],
+                SerializationOptions.Default with { Category = category });
+            if (actualCategory != category)
+                throw new InvalidDataException($"Expected to save a {category}, got {actualCategory}.");
+
+            var captured = Stopwatch.GetTimestamp();
+            var storage = _resMan.UserData;
+            // The in-memory provider is used by tests and has no thread synchronization.
+            if (storage is VirtualWritableDirProvider)
+            {
+                ReportAutosave(entity, WriteAutosave(storage, path, node, start, captured));
+                return;
+            }
+
+            _savingEntity = entity;
+            _savingPath = path;
+            // Only the detached data node reaches the worker. ECS capture and serialization hooks run on the game thread.
+            _pendingSave = Task.Run(() => WriteAutosave(storage, path, node, start, captured));
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Autosave failed for {entity} to {path}: {e}");
+        }
+    }
+
+    private static AutosaveResult WriteAutosave(IWritableDirProvider storage, ResPath path, MappingDataNode node,
+        long start, long captured)
+    {
+        var yamlStart = Stopwatch.GetTimestamp();
+        using var yaml = new MemoryStream();
+        using (var writer = new StreamWriter(yaml, EncodingHelpers.UTF8, leaveOpen: true))
+            node.Write(writer);
+        var diskStart = Stopwatch.GetTimestamp();
+
+        var directory = path.Directory;
+        storage.CreateDir(directory);
+        var destination = path;
+        for (var suffix = 1; storage.Exists(destination); suffix++)
+            destination = directory / $"{path.FilenameWithoutExtension}-{suffix}.yml";
+
+        var temporary = directory / $".{Guid.NewGuid():N}.tmp";
+        try
+        {
+            using (var file = storage.Open(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                yaml.WriteTo(file);
+            storage.Rename(temporary, destination);
+        }
+        catch
+        {
+            storage.Delete(temporary);
+            throw;
+        }
+
+        var end = Stopwatch.GetTimestamp();
+        return new AutosaveResult(destination, Stopwatch.GetElapsedTime(start, end),
+            Stopwatch.GetElapsedTime(start, captured), Stopwatch.GetElapsedTime(captured, yamlStart),
+            Stopwatch.GetElapsedTime(yamlStart, diskStart),
+            Stopwatch.GetElapsedTime(diskStart, end), yaml.Length);
+    }
+
+    private void CompleteAutosave()
+    {
+        var pending = _pendingSave!;
+        _pendingSave = null;
+        try
+        {
+            ReportAutosave(_savingEntity, pending.GetAwaiter().GetResult());
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Autosave failed for {_savingEntity} to {_savingPath}: {e}");
+        }
+    }
+
+    private void ReportAutosave(EntityUid entity, AutosaveResult result)
+    {
+        var budget = _timing.TickPeriod;
+        if (result.Total < budget)
+            return;
+
+        Log.Warning(FormattableString.Invariant(
+            $"Slow map autosave: entity={entity} file={result.Path} bytes={result.Bytes} elapsed_ms={result.Total.TotalMilliseconds:F2} ecs_ms={result.Capture.TotalMilliseconds:F2} yaml_ms={result.Yaml.TotalMilliseconds:F2} disk_ms={result.Disk.TotalMilliseconds:F2} worker_queue_ms={result.Queue.TotalMilliseconds:F2} tick_budget_ms={budget.TotalMilliseconds:F2}"));
+    }
+
+    public override void Shutdown()
+    {
+        if (_pendingSave != null)
+            CompleteAutosave();
+
+        base.Shutdown();
     }
 
     private TimeSpan CalculateNextTime()
