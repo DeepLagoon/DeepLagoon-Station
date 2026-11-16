@@ -54,12 +54,9 @@
       coolingCoefficient: 0.01
     - type: IdentityBlocker
     - type: IngestionBlocker
-    - type: HideLayerClothing
-      slots:
-      - Hair
-      - Snout
-      - HeadTop
-      - HeadSide
+  - type: HideLayerClothing
+    coveredLayers: [ Hair ]
+    sealedLayers: [ Snout, HeadTop, HeadSide ]
   - type: Battery
     maxCharge: 600 #lights drain 3/s but recharge of 2 makes this 1/s. Therefore 600 is 10 minutes of light.
     startingCharge: 600
@@ -82,8 +79,9 @@
   - type: IdentityBlocker
   - type: IngestionBlocker
   - type: HideLayerClothing
+    coveredLayers: [ Hair ]
+    sealedLayers: []
     slots:
-    - Hair
     - Snout
     - HeadTop
     - HeadSide

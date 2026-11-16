@@ -16,6 +16,7 @@ public sealed partial class ModHardlightVisualSystem : EntitySystem
 
     private readonly Dictionary<ModHardlightEffect, ShaderInstance> _effects = new();
     private static readonly HumanoidVisualLayers[] BodyLayers = Enum.GetValues<HumanoidVisualLayers>();
+    private static readonly string[] BodyFeatureSides = ["FRONT", "BEHIND"];
     private float _refreshIn;
     private static readonly ProtoId<ShaderPrototype> HardlightShader = "ModHardlight";
 
@@ -76,7 +77,7 @@ public sealed partial class ModHardlightVisualSystem : EntitySystem
     {
         foreach (var layer in BodyLayers)
         {
-            var region = ModHardlightRegions.FromLayer(layer);
+            var region = ModHardlightRegions.FromBaseLayer(layer);
             if (region == ModHardlightParts.None)
                 continue;
 
@@ -85,6 +86,20 @@ public sealed partial class ModHardlightVisualSystem : EntitySystem
         }
 
         client.Current.Clear();
+        foreach (var (region, feature) in ModHardlightRegions.BodyFeatures)
+        {
+            if ((parts & region) == 0)
+                continue;
+
+            foreach (var side in BodyFeatureSides)
+            {
+                var source = $"dl-body/{feature}/{side}";
+                var key = $"mod-hardlight/feature/{source}";
+                client.Current.Add(key);
+                UpdateLayer(sprite, source, key, true, color, effect);
+            }
+        }
+
         foreach (var markings in humanoid.MarkingSet.Markings.Values)
         {
             foreach (var marking in markings)
@@ -92,7 +107,7 @@ public sealed partial class ModHardlightVisualSystem : EntitySystem
                 if (!marking.Visible || !_prototypes.TryIndex<MarkingPrototype>(marking.MarkingId, out var prototype))
                     continue;
 
-                var region = MarkingRegion(prototype);
+                var region = ModHardlightRegions.FromMarking(prototype);
                 if ((region & parts) == 0 || humanoid.PermanentlyHidden.Contains(prototype.BodyPart))
                     continue;
 
@@ -115,21 +130,6 @@ public sealed partial class ModHardlightVisualSystem : EntitySystem
         }
 
         (client.Markings, client.Current) = (client.Current, client.Markings);
-    }
-
-    private static ModHardlightParts MarkingRegion(MarkingPrototype prototype)
-    {
-        var id = prototype.ID;
-        if (id.Contains("antenna", StringComparison.OrdinalIgnoreCase))
-            return ModHardlightParts.Antennae;
-        if (id.Contains("spine", StringComparison.OrdinalIgnoreCase) || id.Contains("xenodorsal", StringComparison.OrdinalIgnoreCase))
-            return ModHardlightParts.Spines;
-        if (id.Contains("taur", StringComparison.OrdinalIgnoreCase) && prototype.BodyPart is HumanoidVisualLayers.Tail or HumanoidVisualLayers.TailExtras)
-            return ModHardlightParts.Taur;
-        if (id.Contains("horn", StringComparison.OrdinalIgnoreCase))
-            return ModHardlightParts.Horns;
-
-        return ModHardlightRegions.FromLayer(prototype.BodyPart);
     }
 
     private void UpdateLayer(SpriteComponent sprite, object source, string key, bool enabled, Color color, ModHardlightEffect effect)

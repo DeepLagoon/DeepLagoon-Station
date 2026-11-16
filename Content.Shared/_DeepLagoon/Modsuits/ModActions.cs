@@ -41,18 +41,3 @@ public enum ModRadialKey : byte
 {
     Key,
 }
-
-[Serializable, NetSerializable]
-public sealed record ModRadialChoice(int Id, string Name, SpriteSpecifier Icon, bool Selected);
-
-[Serializable, NetSerializable]
-public sealed class ModRadialState(ModRadialChoice[] choices) : BoundUserInterfaceState
-{
-    public readonly ModRadialChoice[] Choices = choices;
-}
-
-[Serializable, NetSerializable]
-public sealed class ModRadialSelection(int choice) : BoundUserInterfaceMessage
-{
-    public readonly int Choice = choice;
-}

@@ -30,7 +30,7 @@ public sealed class ModBoundUserInterface(EntityUid owner, Enum key) : BoundUser
     }
 }
 
-public sealed class ModWindow : FancyWindow
+public sealed partial class ModWindow : FancyWindow
 {
     private readonly Label _power = new();
     private readonly ProgressBar _chargeBar = new() { MinValue = 0, MaxValue = 100 };
@@ -68,7 +68,7 @@ public sealed class ModWindow : FancyWindow
     {
         Title = Loc.GetString("mod-control-title");
         MinSize = new Vector2(400, 300);
-        SetSize = new Vector2(430, 525);
+        SetSize = new Vector2(400, 525);
 
         var scroll = new ScrollContainer { VerticalExpand = true, HScrollEnabled = false };
         var body = new BoxContainer
@@ -80,14 +80,20 @@ public sealed class ModWindow : FancyWindow
         };
         scroll.AddChild(body);
         ContentsContainer.AddChild(scroll);
+        InitializeTgui(scroll);
 
         body.AddChild(_parameters);
         body.AddChild(_hardware);
         body.AddChild(_infoSection);
         body.AddChild(_moduleSection);
-        _parameters.AddChild(Section("mod-section-parameters", Row(_suitStatus, _toggleSuit),
+        _parameters.AddChild(Section("mod-section-parameters",
+            LabeledRow("mod-panel-label-status", _suitStatus, _toggleSuit),
             Collapsed("MODlink", _address, Row(_name, _rename), Row(_frequency, _setFrequency), _linkStatus, _contacts),
-            _cover, _selected, _complexity, _wearer, _hardlight));
+            LabeledRow("mod-panel-label-cover", _cover),
+            LabeledRow("mod-panel-label-selected", _selected),
+            LabeledRow("mod-panel-label-complexity", _complexity),
+            LabeledRow("mod-panel-label-wearer", _wearer),
+            _hardlight));
         _hardware.AddChild(Section("mod-section-hardware", Collapsed(Loc.GetString("mod-section-parts"), _parts),
             Collapsed(Loc.GetString("mod-section-cell"), _cell, _power, _chargeBar)));
         _infoSection.AddChild(Section("mod-section-info", _info));
@@ -109,9 +115,9 @@ public sealed class ModWindow : FancyWindow
             Loc.GetString("mod-power-charge", ("charge", state.Charge));
 
         Title = state.Control ? Loc.GetString("mod-panel-title") : "MODlink";
-        _suitStatus.Visible = state.Control;
-        _suitStatus.HorizontalExpand = true;
-        _cover.Visible = _selected.Visible = _complexity.Visible = _wearer.Visible = state.Control;
+        PublishTgui(state);
+        _suitStatus.Parent!.Visible = _cover.Parent!.Visible = _selected.Parent!.Visible =
+            _complexity.Parent!.Visible = _wearer.Parent!.Visible = state.Control;
         _infoSection.Visible = _moduleSection.Visible = _hardware.Visible = state.Control;
         _power.Visible = _chargeBar.Visible = state.Charge >= 0;
         _chargeBar.Value = state.Charge < 0 ? 0 : state.Charge;
@@ -125,12 +131,12 @@ public sealed class ModWindow : FancyWindow
         _toggleSuit.Visible = state.Control && state.WearableControls;
         _toggleSuit.Disabled = state.Busy || state.Service;
         _toggleSuit.Text = Loc.GetString(state.Active ? "mod-suit-deactivate" : "mod-suit-activate");
-        _suitStatus.Text = Loc.GetString(state.Busy ? "mod-panel-status-busy" :
-            state.Active ? "mod-panel-status-active" : "mod-panel-status-idle");
-        _cover.Text = Loc.GetString(state.Service ? "mod-panel-cover-open" : "mod-panel-cover-closed");
-        _selected.Text = Loc.GetString("mod-panel-selected", ("value", OrNone(state.Details.SelectedModule)));
-        _complexity.Text = Loc.GetString("mod-panel-complexity", ("used", state.Complexity), ("capacity", state.Capacity));
-        _wearer.Text = Loc.GetString("mod-panel-wearer", ("value", OrNone(state.Details.Wearer)));
+        _suitStatus.Text = Loc.GetString(state.Busy ? "mod-panel-label-busy" :
+            state.Active ? "mod-panel-label-active" : "mod-panel-label-idle");
+        _cover.Text = Loc.GetString(state.Service ? "mod-panel-label-open" : "mod-panel-label-closed");
+        _selected.Text = OrNone(state.Details.SelectedModule);
+        _complexity.Text = $"{state.Complexity} ({state.Capacity})";
+        _wearer.Text = OrNone(state.Details.Wearer);
         _cell.Text = string.IsNullOrEmpty(state.Details.Cell)
             ? Loc.GetString("mod-power-empty")
             : Loc.GetString("mod-panel-cell", ("value", state.Details.Cell));
@@ -302,11 +308,11 @@ public sealed class ModWindow : FancyWindow
     {
         var box = new PanelContainer
         {
-            PanelOverride = new StyleBoxFlat { BackgroundColor = Color.FromHex("#233147"),
+            PanelOverride = new StyleBoxFlat { BackgroundColor = Color.FromHex("#272729"),
                 ContentMarginTopOverride = 7, ContentMarginBottomOverride = 7,
                 ContentMarginLeftOverride = 8, ContentMarginRightOverride = 8 }
         };
-        var children = Column(new Label { Text = Loc.GetString(title), FontColorOverride = Color.FromHex("#C0DBFF") });
+        var children = Column(new Label { Text = Loc.GetString(title), FontColorOverride = Color.FromHex("#EEEEEE") });
         foreach (var child in content)
             children.AddChild(child);
         box.AddChild(children);
@@ -326,6 +332,20 @@ public sealed class ModWindow : FancyWindow
         foreach (var child in contents)
             box.AddChild(child);
         return box;
+    }
+
+    private static BoxContainer LabeledRow(LocId label, Control value, Control? action = null)
+    {
+        value.HorizontalExpand = true;
+        var row = Row(new Label
+        {
+            Text = Loc.GetString(label),
+            MinWidth = 125,
+            FontColorOverride = Color.FromHex("#AAAAAA"),
+        }, value);
+        if (action != null)
+            row.AddChild(action);
+        return row;
     }
 
     private static BoxContainer Row(params Control[] contents)

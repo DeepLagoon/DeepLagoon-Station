@@ -24,6 +24,14 @@ public sealed partial class HideLayerClothingComponent : Component
     [DataField]
     public Dictionary<HumanoidVisualLayers, SlotFlags> Layers = new();
 
+    /// <summary>Layers that this item fully covers, including on species that usually leave them visible.</summary>
+    [DataField]
+    public HashSet<HumanoidVisualLayers> CoveredLayers = new();
+
+    /// <summary>Appearance layers hidden only while a sealable item is sealed.</summary>
+    [DataField]
+    public HashSet<HumanoidVisualLayers> SealedLayers = new();
+
     /// <summary>
     /// If true, the layer will only hide when the item is in a toggled state (e.g. masks)
     /// </summary>

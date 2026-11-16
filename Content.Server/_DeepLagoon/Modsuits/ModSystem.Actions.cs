@@ -1,5 +1,6 @@
 using System.Linq;
 using Content.Shared._DeepLagoon.Modsuits;
+using Content.Shared._DeepLagoon.Radial;
 using Content.Shared._Goobstation.Clothing;
 using Content.Shared._Goobstation.Clothing.Components;
 using Content.Shared.Actions;
@@ -24,7 +25,7 @@ public sealed partial class ModSystem
     {
         SubscribeLocalEvent<ModControlComponent, ModSuitActionEvent>(OnSuitAction);
         SubscribeLocalEvent<ModControlComponent, ModDeployStepEvent>(OnDeployStep);
-        SubscribeLocalEvent<ModControlComponent, ModRadialSelection>(OnRadialSelection);
+        SubscribeLocalEvent<ModControlComponent, RadialSelection>(OnRadialSelection);
         SubscribeLocalEvent<ModModuleComponent, ModPinnedModuleEvent>(OnPinnedModule);
     }
 
@@ -79,15 +80,18 @@ public sealed partial class ModSystem
         suit.Comp.RadialMode = mode;
         var choices = GetRadialChoices(suit, user);
         if (choices.Count == 0)
+        {
+            _ui.CloseUi(suit.Owner, ModRadialKey.Key, user);
             return;
+        }
 
         _ui.TryOpenUi(suit.Owner, ModRadialKey.Key, user);
-        _ui.SetUiState(suit.Owner, ModRadialKey.Key, new ModRadialState(choices.ToArray()));
+        _ui.SetUiState(suit.Owner, ModRadialKey.Key, new AnchoredRadialState(GetNetEntity(user), GetNetEntity(user), choices.ToArray()));
     }
 
-    private List<ModRadialChoice> GetRadialChoices(Entity<ModControlComponent> suit, EntityUid user)
+    private List<RadialChoice> GetRadialChoices(Entity<ModControlComponent> suit, EntityUid user)
     {
-        var choices = new List<ModRadialChoice>();
+        var choices = new List<RadialChoice>();
         if (suit.Comp.RadialMode == ModRadialMode.Parts)
         {
             if (!TryComp<ToggleableClothingComponent>(suit, out var deployment))
@@ -125,7 +129,7 @@ public sealed partial class ModSystem
         return choices;
     }
 
-    private void OnRadialSelection(Entity<ModControlComponent> suit, ref ModRadialSelection args)
+    private void OnRadialSelection(Entity<ModControlComponent> suit, ref RadialSelection args)
     {
         var user = args.Actor;
         if (!Equals(args.UiKey, ModRadialKey.Key) || !IsWorn(suit, user) || !_blocker.CanInteract(user, suit))
@@ -144,7 +148,7 @@ public sealed partial class ModSystem
 
         if (suit.Comp.RadialMode == ModRadialMode.Parts)
         {
-            StartDeployment(suit, user, item.Value);
+            TogglePart(suit, user, item.Value);
             return;
         }
 
@@ -237,23 +241,35 @@ public sealed partial class ModSystem
                _inventory.TryGetSlotEntity(user, slot, out var equipped) && equipped == part;
     }
 
-    private void StartDeployment(Entity<ModControlComponent> suit, EntityUid user, EntityUid? part = null)
+    private void TogglePart(Entity<ModControlComponent> suit, EntityUid user, EntityUid part)
+    {
+        if (IsSuitBusy(suit) || !TryComp<ToggleableClothingComponent>(suit, out var deployment) ||
+            !GetSuitParts(deployment).Contains(part))
+            return;
+
+        var deploy = !IsPartDeployed(deployment, user, part);
+        SetPartDeployment(suit, deployment, user, part, deploy);
+        if (GetSuitParts(deployment).Any(piece => IsPartDeployed(deployment, user, piece) != deploy))
+            OpenRadial(suit, user, ModRadialMode.Parts);
+        else
+            _ui.CloseUi(suit.Owner, ModRadialKey.Key, user);
+
+        RefreshUi(suit);
+    }
+
+    private void StartDeployment(Entity<ModControlComponent> suit, EntityUid user)
     {
         if (IsSuitBusy(suit) || !IsWorn(suit, user) ||
             !TryComp<ToggleableClothingComponent>(suit, out var deployment))
             return;
 
         var parts = GetSuitParts(deployment).Where(Exists).ToArray();
-        if (parts.Length == 0 || part is {} specific && !parts.Contains(specific))
+        if (parts.Length == 0)
             return;
 
-        var deploy = part is {} selected
-            ? !IsPartDeployed(deployment, user, selected)
-            : parts.Any(piece => !IsPartDeployed(deployment, user, piece));
-
-        suit.Comp.Deployment = new ModDeployment(user, deploy, part != null,
-            new Queue<EntityUid>(part is {} single ? [single] :
-                parts.Where(piece => IsPartDeployed(deployment, user, piece) != deploy)));
+        var deploy = parts.Any(piece => !IsPartDeployed(deployment, user, piece));
+        suit.Comp.Deployment = new ModDeployment(user, deploy,
+            new Queue<EntityUid>(parts.Where(piece => IsPartDeployed(deployment, user, piece) != deploy)));
         _ui.CloseUi(suit.Owner, ModRadialKey.Key, user);
         NextDeploymentStep(suit);
     }
@@ -280,11 +296,6 @@ public sealed partial class ModSystem
         }
 
         suit.Comp.Deployment = null;
-        if (cycle.Reopen && IsWorn(suit, cycle.User) && !_ui.IsUiOpen(suit.Owner, ModRadialKey.Key, cycle.User) &&
-            TryComp<ToggleableClothingComponent>(suit, out var deployment) &&
-            GetSuitParts(deployment).Any(piece => IsPartDeployed(deployment, cycle.User, piece) != cycle.Deploy))
-            OpenRadial(suit, cycle.User, ModRadialMode.Parts);
-
         RefreshUi(suit);
     }
 
@@ -301,17 +312,22 @@ public sealed partial class ModSystem
             return;
         }
 
-        if (_deployment.SetPartDeployed(cycle.User, (suit.Owner, deployment), part, cycle.Deploy))
-        {
-            if (TryComp<SealableClothingComponent>(part, out var seal))
-                _seal.SetPartSeal((part, seal), cycle.Deploy && IsSealed(suit));
-
-            _audio.PlayPvs(DeploySound, suit.Owner);
-            RefreshHardlight(suit, cycle.User);
-            RefreshSuitActionIcons(suit);
-        }
-
+        SetPartDeployment(suit, deployment, cycle.User, part, cycle.Deploy);
         NextDeploymentStep(suit);
+    }
+
+    private void SetPartDeployment(Entity<ModControlComponent> suit, ToggleableClothingComponent deployment,
+        EntityUid user, EntityUid part, bool deploy)
+    {
+        if (!_deployment.SetPartDeployed(user, (suit.Owner, deployment), part, deploy))
+            return;
+
+        if (TryComp<SealableClothingComponent>(part, out var seal))
+            _seal.SetPartSeal((part, seal), deploy && IsSealed(suit));
+
+        _audio.PlayPvs(DeploySound, suit.Owner);
+        RefreshHardlight(suit, user);
+        RefreshSuitActionIcons(suit);
     }
 
     private void RefreshSuitActionIcons(Entity<ModControlComponent> suit)
@@ -333,7 +349,7 @@ public enum ModRadialMode : byte
     Hardlight,
 }
 
-public sealed record ModDeployment(EntityUid User, bool Deploy, bool Reopen, Queue<EntityUid> Parts)
+public sealed record ModDeployment(EntityUid User, bool Deploy, Queue<EntityUid> Parts)
 {
     public DoAfterId? Step;
 }

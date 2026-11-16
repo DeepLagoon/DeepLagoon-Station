@@ -1,4 +1,6 @@
 using Content.Shared.Clothing.Components;
+using Content.Shared._Goobstation.Clothing.Components;
+using Content.Shared._Goobstation.Clothing.Systems;
 using Content.Shared.Humanoid;
 using Content.Shared.Inventory;
 using Robust.Shared.Timing;
@@ -16,6 +18,13 @@ public sealed partial class HideLayerClothingSystem : EntitySystem
         SubscribeLocalEvent<HideLayerClothingComponent, ClothingGotUnequippedEvent>(OnHideGotUnequipped);
         SubscribeLocalEvent<HideLayerClothingComponent, ClothingGotEquippedEvent>(OnHideGotEquipped);
         SubscribeLocalEvent<HideLayerClothingComponent, ItemMaskToggledEvent>(OnHideToggled);
+        SubscribeLocalEvent<HideLayerClothingComponent, ClothingPartSealCompleteEvent>(OnSealChanged);
+    }
+
+    private void OnSealChanged(Entity<HideLayerClothingComponent> ent, ref ClothingPartSealCompleteEvent args)
+    {
+        if (ent.Comp.SealedLayers.Count != 0 && TryComp<ClothingComponent>(ent, out var clothing) && clothing.InSlot != null)
+            SetLayerVisibility((ent.Owner, ent.Comp, clothing), Transform(ent).ParentUid, hideLayers: true);
     }
 
     private void OnHideToggled(Entity<HideLayerClothingComponent> ent, ref ItemMaskToggledEvent args)
@@ -86,6 +95,22 @@ public sealed partial class HideLayerClothingSystem : EntitySystem
             {
                 if (hideable.Contains(layer))
                     _humanoid.SetLayerVisibility(humanoidEntity, layer, !hideLayers, inSlot, ref dirty);
+            }
+        }
+
+        foreach (var layer in clothing.Comp1.CoveredLayers)
+        {
+            if (clothing.Comp2.Slots.HasFlag(inSlot))
+                _humanoid.SetLayerVisibility(humanoidEntity, layer, !hideLayers, inSlot, ref dirty);
+        }
+
+        if (clothing.Comp1.SealedLayers.Count != 0)
+        {
+            var sealedLayersHidden = hideLayers && TryComp<SealableClothingComponent>(clothing, out var seal) && seal.IsSealed;
+            foreach (var layer in clothing.Comp1.SealedLayers)
+            {
+                if (hideable.Contains(layer))
+                    _humanoid.SetLayerVisibility(humanoidEntity, layer, !sealedLayersHidden, inSlot, ref dirty);
             }
         }
 

@@ -1,0 +1,4 @@
+- files: ["slice.png", "slice-focus.png", "center.png", "center-focus.png"]
+  license: "CC-BY-SA-3.0"
+  copyright: "Radial menu textures from MOLOT-BlueMoon-Station."
+  source: "https://github.com/iamasay/MOLOT-BlueMoon-Station/blob/61c36414fe7/icons/mob/radial.dmi"

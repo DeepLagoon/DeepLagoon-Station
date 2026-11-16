@@ -31,7 +31,7 @@
   - type: UserInterface
     interfaces:
       enum.ModRadialKey.Key:
-        type: ModRadialBoundUserInterface
+        type: AnchoredRadialBoundUserInterface
       enum.ModHardlightKey.Key:
         type: ModHardlightBoundUserInterface
       enum.ModUiKey.Key:
@@ -111,7 +111,7 @@
       enum.StorageUiKey.Key:
         type: StorageBoundUserInterface
       enum.ModRadialKey.Key:
-        type: ModRadialBoundUserInterface
+        type: AnchoredRadialBoundUserInterface
       enum.ModHardlightKey.Key:
         type: ModHardlightBoundUserInterface
       enum.ModUiKey.Key:

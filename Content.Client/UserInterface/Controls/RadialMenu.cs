@@ -6,6 +6,9 @@ using System.Numerics;
 using Content.Shared.Input;
 using Robust.Client.Graphics;
 using Robust.Shared.Input;
+using Robust.Client.GameObjects;
+using Robust.Client.Player;
+using Robust.Shared.Timing;
 
 namespace Content.Client.UserInterface.Controls;
 
@@ -63,6 +66,58 @@ public class RadialMenu : BaseWindow
     private readonly List<Control> _path = new();
     private string? _backButtonStyleClass;
     private string? _closeButtonStyleClass;
+    private (EntityUid Anchor, EntityUid Viewer)? _entityPosition;
+
+    /// <summary>Centers this menu on the rendered anchor for the local viewer and follows it while open.</summary>
+    public void OpenAtEntity(EntityUid anchor, EntityUid viewer)
+    {
+        if (IoCManager.Resolve<IPlayerManager>().LocalEntity != viewer)
+            return;
+
+        _entityPosition = (anchor, viewer);
+        if (!IsOpen)
+            OpenCentered();
+        PositionAtEntity(anchor, viewer);
+    }
+
+    protected override void FrameUpdate(FrameEventArgs args)
+    {
+        base.FrameUpdate(args);
+        if (_entityPosition is {} target)
+            PositionAtEntity(target.Anchor, target.Viewer);
+    }
+
+    public override void Close()
+    {
+        _entityPosition = null;
+        base.Close();
+    }
+
+    private void PositionAtEntity(EntityUid anchor, EntityUid viewer)
+    {
+        var entities = IoCManager.Resolve<IEntityManager>();
+        var eye = IoCManager.Resolve<IEyeManager>();
+        if (IoCManager.Resolve<IPlayerManager>().LocalEntity != viewer ||
+            !entities.TryGetComponent<TransformComponent>(anchor, out var transform))
+        {
+            // A state update can be delivered while the engine is opening its queued BUIs.
+            UserInterfaceManager.DeferAction(() =>
+            {
+                if (!Disposed && _entityPosition == (anchor, viewer))
+                    Close();
+            });
+            return;
+        }
+
+        if (transform.MapID != eye.CurrentMap)
+            return;
+
+        var world = entities.System<TransformSystem>().GetRenderWorldPosition((anchor, transform));
+        var center = eye.WorldToScreen(world) / UIScale - (Parent?.GlobalPosition ?? Vector2.Zero);
+        var position = center - MinSize / 2;
+        if (Position != position)
+            LayoutContainer.SetPosition(this, position);
+    }
 
     /// <summary>
     /// A free floating menu which enables the quick display of one or more radial containers
@@ -92,6 +147,7 @@ public class RadialMenu : BaseWindow
             VerticalAlignment = VAlignment.Center,
             SetSize = new Vector2(64f, 64f),
         };
+        ContextualButton.UseSourceTexture("center", new Vector2(64));
         MenuOuterAreaButton = new RadialMenuOuterAreaButton();
 
         ContextualButton.OnButtonUp += _ => ReturnToPreviousLayer();
@@ -226,6 +282,45 @@ public abstract class RadialMenuTextureButtonBase : BaseButton
         EnableAllKeybinds = true;
     }
 
+    private TextureRect? _sourceBackground;
+    private string? _sourceTexture;
+    private bool _sourceSelected;
+
+    public void UseSourceTexture(string name, Vector2 size, bool selected = false)
+    {
+        _sourceTexture = name;
+        _sourceSelected = selected;
+        if (_sourceBackground == null)
+        {
+            _sourceBackground = new TextureRect
+            {
+                HorizontalAlignment = HAlignment.Center,
+                VerticalAlignment = VAlignment.Center,
+                MouseFilter = MouseFilterMode.Ignore,
+                Stretch = TextureRect.StretchMode.Scale,
+            };
+            AddChild(_sourceBackground);
+            _sourceBackground.SetPositionFirst();
+        }
+        _sourceBackground.SetSize = size;
+        UpdateSourceTexture();
+    }
+
+    protected override void DrawModeChanged()
+    {
+        base.DrawModeChanged();
+        UpdateSourceTexture();
+    }
+
+    private void UpdateSourceTexture()
+    {
+        if (_sourceBackground == null)
+            return;
+
+        var focus = _sourceSelected || DrawMode is DrawModeEnum.Hover or DrawModeEnum.Pressed ? "-focus" : "";
+        _sourceBackground.TexturePath = $"/Textures/_DeepLagoon/Interface/Radial/{_sourceTexture}{focus}.png";
+    }
+
     /// <inheritdoc />
     protected override void KeyBindUp(GUIBoundKeyEventArgs args)
     {
@@ -305,6 +400,7 @@ public class RadialMenuTextureButton : RadialMenuTextureButtonBase
     public RadialMenuTextureButton()
     {
         EnableAllKeybinds = true;
+        UseSourceTexture("slice", new Vector2(64));
         OnButtonUp += OnClicked;
     }
 
@@ -485,6 +581,7 @@ public class RadialMenuTextureButtonWithSector : RadialMenuTextureButton, IRadia
     /// </summary>
     public RadialMenuTextureButtonWithSector()
     {
+        UseSourceTexture("slice", new Vector2(72));
     }
 
     /// <inheritdoc />

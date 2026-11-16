@@ -1,37 +1,64 @@
 using Content.Shared._DeepLagoon.Modsuits;
+using Content.Shared._DeepLagoon.Radial;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Clothing.EntitySystems;
 using Content.Shared.Humanoid;
+using Content.Shared.Humanoid.Markings;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
 namespace Content.Server._DeepLagoon.Modsuits;
 
 public sealed partial class ModSystem
 {
+    [Dependency] private IPrototypeManager _hardlightPrototypes = default!;
+
+    private ModHardlightParts PresentHardlightParts(EntityUid user) =>
+        TryComp<HumanoidAppearanceComponent>(user, out var humanoid)
+            ? ModHardlightRegions.Present(humanoid, _hardlightPrototypes)
+            : ModHardlightParts.None;
+
     private void InitializeHardlight()
     {
         SubscribeLocalEvent<ModControlComponent, ModHardlightStyleMessage>(OnHardlightStyleMessage);
     }
 
-    private void AddHardlightChoices(Entity<ModControlComponent> suit, EntityUid user, List<ModRadialChoice> choices)
+    private void AddHardlightChoices(Entity<ModControlComponent> suit, EntityUid user, List<RadialChoice> choices)
     {
-        if (!HasComp<HumanoidAppearanceComponent>(user))
-            return;
-
+        var present = PresentHardlightParts(user);
         foreach (var (part, id, _, state) in ModHardlightRegions.Options)
         {
-            var sprite = state is "helmet" or "chestplate" or "gauntlets" or "boots"
-                ? new SpriteSpecifier.Rsi(new ResPath("_DeepLagoon/Clothing/Modsuits/standard.rsi"), state)
-                : new SpriteSpecifier.Rsi(new ResPath("_DeepLagoon/Modsuits/actions.rsi"), state);
+            if ((present & part) == 0)
+                continue;
+
+            SpriteSpecifier sprite = new SpriteSpecifier.Rsi(new ResPath("_DeepLagoon/Modsuits/actions.rsi"), state);
+            if (part == ModHardlightParts.Hair && HairIcon(user) is {} hair)
+                sprite = hair;
             choices.Add(new((int) part, Loc.GetString($"mod-hardlight-part-{id}"), sprite,
                 (suit.Comp.HardlightParts & part) != 0));
         }
     }
 
+    private SpriteSpecifier? HairIcon(EntityUid user)
+    {
+        if (!TryComp<HumanoidAppearanceComponent>(user, out var humanoid) ||
+            !humanoid.MarkingSet.Markings.TryGetValue(MarkingCategories.Hair, out var markings))
+            return null;
+
+        foreach (var marking in markings)
+        {
+            if (marking.Visible && _hardlightPrototypes.TryIndex<MarkingPrototype>(marking.MarkingId, out var prototype) &&
+                prototype.Sprites.Count > 0)
+                return prototype.Sprites[0];
+        }
+
+        return null;
+    }
+
     private void SelectHardlight(Entity<ModControlComponent> suit, EntityUid user, int choice)
     {
-        if (!HasComp<HumanoidAppearanceComponent>(user) ||
-            !Array.Exists(ModHardlightRegions.Options, option => (int) option.Part == choice))
+        var present = PresentHardlightParts(user);
+        if (!Array.Exists(ModHardlightRegions.Options, option => (int) option.Part == choice && (present & option.Part) != 0))
             return;
 
         suit.Comp.HardlightParts ^= (ModHardlightParts) choice;
@@ -42,11 +69,9 @@ public sealed partial class ModSystem
 
     private void ToggleAllHardlight(Entity<ModControlComponent> suit, EntityUid user)
     {
-        if (!HasComp<HumanoidAppearanceComponent>(user))
-            return;
-
-        suit.Comp.HardlightParts = suit.Comp.HardlightParts == ModHardlightParts.None
-            ? ModHardlightParts.All
+        var present = PresentHardlightParts(user);
+        suit.Comp.HardlightParts = (suit.Comp.HardlightParts & present) == ModHardlightParts.None
+            ? present
             : ModHardlightParts.None;
         RefreshHardlightEditor(suit);
         RefreshHardlight(suit, user);
@@ -66,7 +91,7 @@ public sealed partial class ModSystem
     {
         if (_ui.IsUiOpen(suit.Owner, ModHardlightKey.Key))
             _ui.SetUiState(suit.Owner, ModHardlightKey.Key,
-                new ModHardlightState(suit.Comp.HardlightColor, suit.Comp.HardlightEffect, suit.Comp.HardlightParts));
+                new ModHardlightState(suit.Comp.HardlightColor, suit.Comp.HardlightEffect, suit.Comp.HardlightParts & ModHardlightParts.All));
     }
 
     private void OnHardlightStyleMessage(Entity<ModControlComponent> suit, ref ModHardlightStyleMessage args)
@@ -85,12 +110,13 @@ public sealed partial class ModSystem
     private void RefreshHardlight(Entity<ModControlComponent> suit, EntityUid user)
     {
         var visible = ModHardlightParts.None;
-        if (IsSealed(suit) && HasComp<HumanoidAppearanceComponent>(user) &&
+        if ((suit.Comp.HardlightParts & ModHardlightParts.All) != 0 && IsSealed(suit) &&
             TryComp<ToggleableClothingComponent>(suit, out var deployment))
         {
+            var enabled = suit.Comp.HardlightParts & PresentHardlightParts(user);
             foreach (var (part, _, slot, _) in ModHardlightRegions.Options)
             {
-                if ((suit.Comp.HardlightParts & part) == 0 ||
+                if ((enabled & part) == 0 ||
                     !_inventory.TryGetSlotEntity(user, slot, out var equipment) ||
                     !ToggleableClothingSystem.TryGetAttachedSlot(deployment, equipment.Value, out _) ||
                     !TryComp<Content.Shared._Goobstation.Clothing.Components.SealableClothingComponent>(equipment, out var seal) ||
