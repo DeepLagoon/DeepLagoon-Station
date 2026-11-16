@@ -10,13 +10,15 @@ namespace Content.Client.Shuttles.UI;
 
 public partial class ShuttleNavControl
 {
-    private const int MaxOverlappingNames = 5;
     private const float SignatureNameScale = 0.9f;
     private const float SignatureDetailScale = 0.7f;
     private static readonly Color SignatureButtonColor = Color.FromHex("#12252f");
     private static readonly Color SignatureBorderColor = Color.FromHex("#679aa9");
 
     private readonly List<RadarSignature> _signatures = new();
+    private readonly List<RadarSignature> _crowdedSignatures = new();
+    private readonly List<PlacedSignature> _placedSignatures = new();
+    private readonly List<UIBox2> _occupiedLabelBounds = new();
     private readonly List<string> _offscreenSignatures = new();
     private readonly List<bool> _assignedSignatures = new();
     private readonly List<int> _signatureOrder = new();
@@ -29,9 +31,12 @@ public partial class ShuttleNavControl
     private Label? _signaturePopupLabel;
 
     internal readonly record struct RadarSignature(EntityUid Entity, Vector2 Point, string Name, string Main,
-        string? Affiliation, string? Coordinates, string? Track, Color Color, UIBox2 Bounds);
+        string? Affiliation, string? Coordinates, string? Track, Color Color, UIBox2 Bounds, Vector2 NameSize);
 
+    private readonly record struct PlacedSignature(RadarSignature Signature, UIBox2 Bounds, bool NameOnly);
     private readonly record struct SignatureButton(EntityUid Entity, UIBox2 Bounds, int Start, int Count);
+
+    private float? SignatureViewportRadius => CircularRadar ? ScaledMinimapRadius : null;
 
     internal static bool SignatureInView(Vector2 point, Vector2 size, bool circular, float radius)
     {
@@ -75,7 +80,8 @@ public partial class ShuttleNavControl
         if (Vector2.DistanceSquared(leftBounds.TopLeft, left) < Vector2.DistanceSquared(labelBounds.TopLeft, right))
             labelBounds = leftBounds;
 
-        _signatures.Add(new RadarSignature(uid, point, name, main, affiliation, coordinates, track, color, labelBounds));
+        var nameSize = name == main ? dimensions : handle.GetDimensions(Font, name, SignatureNameScale * UIScale);
+        _signatures.Add(new RadarSignature(uid, point, name, main, affiliation, coordinates, track, color, labelBounds, nameSize));
 
         void AddDetailSize(string? detail)
         {
@@ -112,6 +118,65 @@ public partial class ShuttleNavControl
         var projection = Vector2.Dot(Vector2.Abs(direction), halfSize);
         var maxDistance = MathF.Sqrt(MathF.Max(0, projection * projection + radius * radius - halfSize.LengthSquared())) - projection;
         return UIBox2.FromDimensions(center + direction * MathF.Max(0, maxDistance) - halfSize, size);
+    }
+
+    internal static bool TryFindLabelBounds(Vector2 point, Vector2 size, float lineHeight, float markerRadius,
+        Vector2 viewport, float? radius, float scale, List<UIBox2> occupied, out UIBox2 bounds)
+    {
+        var maxPosition = Vector2.Max(Vector2.Zero, viewport - size);
+        var center = viewport / 2;
+        var halfSize = size / 2;
+        var labelMargin = new Vector2(2 * scale);
+
+        // Try each side of the marker before allowing a longer connector.
+        for (var ring = 0; ring < 2; ring++)
+        {
+            var padding = markerRadius + (3 + ring * 14) * scale;
+            for (var side = 0; side < 8; side++)
+            {
+                var offset = side switch
+                {
+                    0 => new Vector2(padding, -lineHeight / 2),
+                    1 => new Vector2(-padding - size.X, -lineHeight / 2),
+                    2 => new Vector2(-halfSize.X, -padding - size.Y),
+                    3 => new Vector2(-halfSize.X, padding),
+                    4 => new Vector2(padding, -padding - size.Y),
+                    5 => new Vector2(-padding - size.X, -padding - size.Y),
+                    6 => new Vector2(padding, padding),
+                    _ => new Vector2(-padding - size.X, padding),
+                };
+
+                var position = Vector2.Clamp(point + offset, Vector2.Zero, maxPosition);
+                var candidate = UIBox2.FromDimensions(position, size);
+                if (candidate.Right > viewport.X || candidate.Bottom > viewport.Y)
+                    continue;
+
+                var farCorner = Vector2.Abs(candidate.Center - center) + halfSize;
+                if (radius is { } limit && farCorner.LengthSquared() > limit * limit)
+                    continue;
+
+                var withMargin = new UIBox2(candidate.TopLeft - labelMargin, candidate.BottomRight + labelMargin);
+                if (LabelBoundsOccupied(withMargin, occupied))
+                    continue;
+
+                bounds = candidate;
+                return true;
+            }
+        }
+
+        bounds = default;
+        return false;
+    }
+
+    private static bool LabelBoundsOccupied(UIBox2 bounds, List<UIBox2> occupied)
+    {
+        foreach (var other in occupied)
+        {
+            if (bounds.Intersects(other))
+                return true;
+        }
+
+        return false;
     }
 
     // The signatures are sorted top to bottom. Walk the connected components so that A overlapping B
@@ -159,34 +224,82 @@ public partial class ShuttleNavControl
 
     private void DrawSignatures(DrawingHandleScreen handle)
     {
-        DrawSignatureMarkers(handle);
-        GroupOverlappingSignatures(_signatures, _assignedSignatures, _signatureOrder, _signatureGroupEnds);
-        var start = 0;
-        foreach (var end in _signatureGroupEnds)
-        {
-            var first = _signatures[_signatureOrder[start]];
-            var count = end - start;
-            if (count > MaxOverlappingNames)
-            {
-                var entity = first.Entity;
-                for (var i = start + 1; i < end; i++)
-                {
-                    var candidate = _signatures[_signatureOrder[i]].Entity;
-                    if (candidate.Id < entity.Id)
-                        entity = candidate;
-                }
-                DrawSignatureButton(handle, entity, first.Bounds.TopLeft, start, count);
-            }
-            else if (count > 1)
-                DrawCompactSignatures(handle, first.Bounds.TopLeft, start, end);
-            else
-                DrawSignatureDetails(handle, first);
+        _crowdedSignatures.Clear();
+        _placedSignatures.Clear();
 
-            start = end;
+        var markerScale = RadarBlipSize * UIScale;
+        var markerRadius = markerScale * (2f / 3f);
+        foreach (var signature in _signatures)
+        {
+            var point = signature.Point;
+            _occupiedLabelBounds.Add(new UIBox2(
+                point + new Vector2(-0.5f, -1f / 3f) * markerScale,
+                point + new Vector2(0.5f, 2f / 3f) * markerScale));
         }
 
         if (_offscreenSignatures.Count > 0)
             DrawSignatureButton(handle, EntityUid.Invalid, new Vector2(PixelSize.X / 2f, PixelSize.Y), 0, _offscreenSignatures.Count);
+
+        // Keep the placement order stable as markers move with the map.
+        _signatures.Sort(static (a, b) => a.Entity.CompareTo(b.Entity));
+        foreach (var signature in _signatures)
+        {
+            if (!PlaceLabel(signature, nameOnly: false))
+                _crowdedSignatures.Add(signature);
+        }
+
+        // Use a shorter label before falling back to the popup, once all full labels have been tried.
+        for (var i = 0; i < _crowdedSignatures.Count; i++)
+        {
+            var signature = _crowdedSignatures[i];
+            if (signature.NameSize == signature.Bounds.Size || !PlaceLabel(signature, nameOnly: true))
+                continue;
+
+            _crowdedSignatures.RemoveAt(i);
+            i--;
+        }
+
+        foreach (var placed in _placedSignatures)
+            DrawLabelConnector(handle, placed.Signature.Point, placed.Bounds, placed.Signature.Color);
+
+        DrawSignatureMarkers(handle);
+        foreach (var placed in _placedSignatures)
+            DrawSignatureDetails(handle, placed);
+
+        GroupOverlappingSignatures(_crowdedSignatures, _assignedSignatures, _signatureOrder, _signatureGroupEnds);
+        var start = 0;
+        foreach (var end in _signatureGroupEnds)
+        {
+            var first = _crowdedSignatures[_signatureOrder[start]];
+            var entity = first.Entity;
+            for (var i = start + 1; i < end; i++)
+            {
+                var candidate = _crowdedSignatures[_signatureOrder[i]].Entity;
+                if (candidate.Id < entity.Id)
+                    entity = candidate;
+            }
+
+            DrawSignatureButton(handle, entity, first.Bounds.TopLeft, start, end - start, first.Point, markerRadius);
+            start = end;
+        }
+
+        bool PlaceLabel(RadarSignature signature, bool nameOnly)
+        {
+            var size = nameOnly ? signature.NameSize : signature.Bounds.Size;
+            if (!TryFindLabelBounds(signature.Point, size, signature.NameSize.Y, markerRadius, PixelSize,
+                    SignatureViewportRadius, UIScale, _occupiedLabelBounds, out var bounds))
+                return false;
+
+            _placedSignatures.Add(new PlacedSignature(signature, bounds, nameOnly));
+            _occupiedLabelBounds.Add(bounds);
+            return true;
+        }
+    }
+
+    private static void DrawLabelConnector(DrawingHandleScreen handle, Vector2 point, UIBox2 bounds, Color color)
+    {
+        var end = Vector2.Clamp(point, bounds.TopLeft, bounds.BottomRight);
+        handle.DrawLine(point, end, color.WithAlpha(0.75f));
     }
 
     private void DrawSignatureMarkers(DrawingHandleScreen handle)
@@ -209,10 +322,15 @@ public partial class ShuttleNavControl
             DrawPrimitiveBatches(handle, DrawPrimitiveTopology.TriangleList, batch.Span, color);
     }
 
-    private void DrawSignatureDetails(DrawingHandleScreen handle, RadarSignature signature)
+    private void DrawSignatureDetails(DrawingHandleScreen handle, PlacedSignature placed)
     {
-        var position = signature.Bounds.TopLeft;
-        handle.DrawString(Font, position, signature.Main, SignatureNameScale * UIScale, signature.Color);
+        var signature = placed.Signature;
+        var position = placed.Bounds.TopLeft;
+        var title = placed.NameOnly ? signature.Name : signature.Main;
+        handle.DrawString(Font, position, title, SignatureNameScale * UIScale, signature.Color);
+        if (placed.NameOnly)
+            return;
+
         position.Y += Font.GetLineHeight(SignatureNameScale * UIScale);
         DrawDetail(signature.Affiliation);
         DrawDetail(signature.Coordinates);
@@ -228,24 +346,8 @@ public partial class ShuttleNavControl
         }
     }
 
-    private void DrawCompactSignatures(DrawingHandleScreen handle, Vector2 position, int start, int end)
-    {
-        var scale = SignatureNameScale * UIScale;
-        var lineHeight = Font.GetLineHeight(scale);
-        var width = 0f;
-        for (var i = start; i < end; i++)
-            width = MathF.Max(width, handle.GetDimensions(Font, _signatures[_signatureOrder[i]].Name, scale).X);
-
-        position = PlaceSignature(position, new Vector2(width, lineHeight * (end - start))).TopLeft;
-        for (var i = start; i < end; i++)
-        {
-            var signature = _signatures[_signatureOrder[i]];
-            handle.DrawString(Font, position, signature.Name, scale, signature.Color);
-            position.Y += lineHeight;
-        }
-    }
-
-    private void DrawSignatureButton(DrawingHandleScreen handle, EntityUid entity, Vector2 position, int start, int count)
+    private void DrawSignatureButton(DrawingHandleScreen handle, EntityUid entity, Vector2 position, int start, int count,
+        Vector2? marker = null, float markerRadius = 0)
     {
         var arrow = _signaturePopup != null && _openSignature == entity ? " ▴" : " ▾";
         var text = Loc.GetString("shuttle-radar-signatures", ("count", count)) + arrow;
@@ -255,7 +357,11 @@ public partial class ShuttleNavControl
         if (entity == EntityUid.Invalid)
             position -= new Vector2(size.X / 2, size.Y + 8 * UIScale);
 
-        var bounds = PlaceSignature(position, size);
+        if (marker is not { } point || !TryFindLabelBounds(point, size, size.Y, markerRadius, PixelSize,
+                SignatureViewportRadius, UIScale, _occupiedLabelBounds, out var bounds))
+            bounds = PlaceSignature(position, size);
+
+        _occupiedLabelBounds.Add(bounds);
         var pointer = (UserInterfaceManager.MousePositionScaled.Position - GlobalPosition) * UIScale;
         var hovered = bounds.Contains(pointer);
         handle.DrawRect(bounds, hovered ? SignatureBorderColor : SignatureButtonColor);
@@ -373,7 +479,7 @@ public partial class ShuttleNavControl
             else
             {
                 for (var i = button.Start; i < button.Start + button.Count; i++)
-                    _popupNames.Add(_signatures[_signatureOrder[i]].Name);
+                    _popupNames.Add(_crowdedSignatures[_signatureOrder[i]].Name);
             }
 
             _popupNames.Sort(StringComparer.CurrentCulture);

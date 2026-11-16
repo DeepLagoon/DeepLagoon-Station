@@ -9,6 +9,16 @@ namespace Content.Tests.Client;
 [TestFixture]
 public sealed class ShuttleDockGeometryTests
 {
+    [TestCase(0f, false)]
+    [TestCase(64f, true)]
+    [TestCase(96f, true)]
+    [TestCase(97f, false)]
+    [TestCase(512f, false)]
+    public void RadarDockLabelsRequireCloseZoom(float range, bool visible)
+    {
+        Assert.That(ShuttleNavControl.DockLabelsVisible(range), Is.EqualTo(visible));
+    }
+
     [Test]
     public void RotatedDockPreservesRectangle(
         [Values(0, 45, 90, 135, 180, 225, 270, 315)] int degrees,

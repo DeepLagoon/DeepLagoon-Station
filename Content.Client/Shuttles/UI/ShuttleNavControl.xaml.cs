@@ -71,7 +71,11 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
     public float MaximumIFFDistance { get; set; } = 3000f; // Frontier // Mono - 3000 by default to not gigaclutter
 
-    private static Color _dockLabelColor = Color.White; // Frontier
+    private const float DockLabelMaxWorldRange = 96f;
+    private const float DockMarkerScale = 0.6f;
+    private const float DockMarkerCircumradius = DockMarkerScale * 1.41421356f;
+    private readonly HashSet<string> _labeledDockNames = new();
+    private readonly List<(Vector2 Point, string Name)> _dockLabels = new();
 
     /// <summary>
     ///   If present, called for every IFF. Must determine if it should or should not be shown.
@@ -591,6 +595,8 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         _signatures.Clear();
         _offscreenSignatures.Clear();
         _signatureButtons.Clear();
+        _dockLabels.Clear();
+        _occupiedLabelBounds.Clear();
 
         // No data
         if (_coordinates == null || _rotation == null)
@@ -792,6 +798,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         #endregion
 
         DrawSignatures(handle);
+        DrawDockLabels(handle);
     }
 
     private void DrawGrids(List<Entity<MapGridComponent>> _grids, DrawingHandleScreen handle, Entity<MapGridComponent>? ourGrid, bool renderFill)
@@ -1072,61 +1079,56 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
     private void DrawDocks(DrawingHandleScreen handle, EntityUid uid, Matrix3x2 gridToView)
     {
-        if (!ShowDocks)
+        if (!ShowDocks || !_docks.TryGetValue(EntManager.GetNetEntity(uid), out var docks))
             return;
 
-        const float DockScale = 0.6f;
-        var nent = EntManager.GetNetEntity(uid);
+        var markerRadius = DockMarkerCircumradius * MinimapScale;
+        var markerExtent = new Vector2(markerRadius);
+        var viewBounds = new Box2(-markerRadius, -markerRadius, PixelSize.X + markerRadius, PixelSize.Y + markerRadius);
+        var showLabels = DockLabelsVisible(WorldRange);
+        _labeledDockNames.Clear();
 
-        const float sqrt2 = 1.41421356f;
-        const float dockRadius = DockScale * sqrt2;
-        // Worst-case bounds used to cull a dock:
-        Box2 viewBounds = new Box2(-dockRadius, -dockRadius, PixelSize.X + dockRadius, PixelSize.Y + dockRadius); // Frontier: Size<PixelSize
-        if (_docks.TryGetValue(nent, out var docks))
+        var vertices = new Vector2[4];
+        foreach (var state in docks)
         {
-            foreach (var state in docks)
-            {
-                var position = state.Coordinates.Position;
+            var position = state.Coordinates.Position;
+            var positionInView = Vector2.Transform(position, gridToView);
+            if (!viewBounds.Contains(positionInView))
+                continue;
 
-                var positionInView = Vector2.Transform(position, gridToView);
-                if (!viewBounds.Contains(positionInView))
-                {
-                    continue;
-                }
+            var color = Color.ToSrgb(state.HighlightedRadarColor);
+            vertices[0] = Vector2.Transform(position + new Vector2(-DockMarkerScale, -DockMarkerScale), gridToView);
+            vertices[1] = Vector2.Transform(position + new Vector2(DockMarkerScale, -DockMarkerScale), gridToView);
+            vertices[2] = Vector2.Transform(position + new Vector2(DockMarkerScale, DockMarkerScale), gridToView);
+            vertices[3] = Vector2.Transform(position + new Vector2(-DockMarkerScale, DockMarkerScale), gridToView);
+            handle.DrawPrimitives(DrawPrimitiveTopology.TriangleFan, vertices, color.WithAlpha(0.8f));
+            handle.DrawPrimitives(DrawPrimitiveTopology.LineStrip, vertices, color);
 
-                //var color = Color.ToSrgb(Color.Magenta); // Frontier
-                var color = Color.ToSrgb(state.HighlightedRadarColor); // Frontier
+            if (!showLabels || !SignatureInView(positionInView, PixelSize, CircularRadar, ScaledMinimapRadius))
+                continue;
 
-                var verts = new[]
-                {
-                    Vector2.Transform(position + new Vector2(-DockScale, -DockScale), gridToView),
-                    Vector2.Transform(position + new Vector2(DockScale, -DockScale), gridToView),
-                    Vector2.Transform(position + new Vector2(DockScale, DockScale), gridToView),
-                    Vector2.Transform(position + new Vector2(-DockScale, DockScale), gridToView),
-                };
+            _occupiedLabelBounds.Add(new UIBox2(positionInView - markerExtent, positionInView + markerExtent));
+            if (state.LabelName is { } name && _labeledDockNames.Add(name))
+                _dockLabels.Add((positionInView, name));
+        }
+    }
 
-                handle.DrawPrimitives(DrawPrimitiveTopology.TriangleFan, verts, color.WithAlpha(0.8f));
-                handle.DrawPrimitives(DrawPrimitiveTopology.LineStrip, verts, color);
-            }
+    internal static bool DockLabelsVisible(float worldRange) => worldRange is > 0 and <= DockLabelMaxWorldRange;
 
-            // Frontier: draw dock labels (done last to appear on top of all docks, still fights with other grids)
-            var labeled = new HashSet<string>();
-            foreach (var state in docks)
-            {
-                if (state.LabelName == null || labeled.Contains(state.LabelName))
-                    continue;
+    private void DrawDockLabels(DrawingHandleScreen handle)
+    {
+        var scale = SignatureNameScale * UIScale;
+        var markerRadius = DockMarkerCircumradius * MinimapScale;
+        foreach (var (point, name) in _dockLabels)
+        {
+            var size = handle.GetDimensions(Font, name, scale);
+            if (!TryFindLabelBounds(point, size, size.Y, markerRadius, PixelSize, SignatureViewportRadius, UIScale,
+                    _occupiedLabelBounds, out var bounds))
+                continue;
 
-                var position = state.Coordinates.Position;
-                var uiPosition = Vector2.Transform(position, gridToView);
-
-                if (!viewBounds.Contains(uiPosition))
-                    continue;
-
-                labeled.Add(state.LabelName);
-                var labelDimensions = handle.GetDimensions(Font, state.LabelName, 0.9f);
-                handle.DrawString(Font, (uiPosition / UIScale - labelDimensions / 2) * UIScale, state.LabelName, UIScale * 0.9f, _dockLabelColor);
-            }
-            // End Frontier
+            _occupiedLabelBounds.Add(bounds);
+            DrawLabelConnector(handle, point, bounds, Color.White);
+            handle.DrawString(Font, bounds.TopLeft, name, scale, Color.White);
         }
     }
 
