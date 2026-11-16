@@ -156,6 +156,7 @@ public sealed partial class ShipSteeringSystem : EntitySystem
         };
 
         args.Input = ProcessMovement(ref context, config);
+        args.Autopilot = shipUid == args.ShuttleUid && HasComp<ShuttleConsoleComponent>(ent);
     }
 
     /// <summary>

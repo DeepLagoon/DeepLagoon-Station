@@ -379,13 +379,17 @@ public sealed partial class HumanoidProfileEditor
         else if (mode == "traits")
         {
             var status = TraitSelection.Evaluate(p, _prototypeManager, _cfgManager, TraitSelection.PreferredJob(p));
-            if (includeCatalogs) data.Array("traits", _prototypeManager.EnumeratePrototypes<TraitPrototype>()
-                .Where(t => !t.Disabled).OrderBy(t => Loc.GetString(t.Name)).Select(t =>
-                    TguiTraitState(t).String("id", t.ID).String("name", Loc.GetString(t.Name))
-                        .String("description", t.Description is { } description ? Loc.GetString(description) : "")
-                        .String("category", t.Category is { } category && _prototypeManager.TryIndex(category, out var cat)
-                            ? Loc.GetString(cat.Name) : Loc.GetString("humanoid-profile-editor-traits-default-category"))
-                        .Number("points", t.Points).Number("slots", t.Slots)));
+            if (includeCatalogs)
+            {
+                data.Array("traitGroups", new[]
+                {
+                    Choice("speech", Loc.GetString("trait-category-speech")),
+                    Choice("physical", Loc.GetString("trait-category-physical")),
+                    Choice("quirks", Loc.GetString("trait-category-quirks"))
+                });
+                data.Array("traits", _prototypeManager.EnumeratePrototypes<TraitPrototype>()
+                    .Where(t => !t.Disabled).OrderBy(t => Loc.GetString(t.Name)).Select(TguiTraitData));
+            }
             else
             {
                 var traits = new TguiData();
@@ -466,6 +470,24 @@ public sealed partial class HumanoidProfileEditor
         var allowed = _requirements.IsAllowed(job, (HumanoidCharacterProfile?)_preferencesManager.Preferences?.SelectedCharacter, out var reason);
         return new TguiData().Bool("allowed", allowed).String("reason", reason?.ToString() ?? "")
             .Number("priority", (int)(Profile?.JobPriorities.GetValueOrDefault(job.ID, JobPriority.Never) ?? JobPriority.Never));
+    }
+
+    private TguiData TguiTraitData(TraitPrototype trait)
+    {
+        // These groups organize the editor; the prototype categories still govern selection.
+        var group = trait.Category?.Id switch
+        {
+            "SpeechTraits" or "LanguageTraits" => "speech",
+            "Physical" or "Disabilities" or "Visual" or "Auditory" or "Height" => "physical",
+            _ => "quirks"
+        };
+
+        return TguiTraitState(trait).String("id", trait.ID).String("name", Loc.GetString(trait.Name))
+            .String("description", trait.Description is { } description ? Loc.GetString(description) : "")
+            .String("category", trait.Category is { } category && _prototypeManager.TryIndex(category, out var cat)
+                ? Loc.GetString(cat.Name) : Loc.GetString("humanoid-profile-editor-traits-default-category"))
+            .String("group", group)
+            .Number("points", trait.Points).Number("slots", trait.Slots);
     }
 
     private TguiData TguiTraitState(TraitPrototype trait)

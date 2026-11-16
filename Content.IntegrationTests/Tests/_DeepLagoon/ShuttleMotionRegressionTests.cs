@@ -2,12 +2,14 @@ using System;
 using System.Numerics;
 using System.Collections.Generic;
 using Content.Client.Eye;
+using Content.Server._Mono.NPC.HTN;
 using Content.Server.Construction;
 using Content.Server.Mech.Systems;
 using Content.Server.Physics.Controllers;
 using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Shared.Movement.Components;
+using Content.Shared.Movement.Systems;
 using Content.Shared.Damage;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.Systems;
@@ -35,6 +37,44 @@ public sealed class ShuttleMotionRegressionTests
     requireSpace: false
     burnShape: []
 ";
+
+    [Test]
+    public async Task RadarAutopilotTracksOnlyActiveAutomaticControl()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var console = entities.SpawnEntity("ComputerShuttle", map.GridCoords);
+            var pilot = entities.SpawnEntity(null, map.GridCoords);
+            var pilotComponent = entities.AddComponent<PilotComponent>(pilot);
+            entities.System<MoverController>().AddPilot(map.Grid, pilot);
+            var steering = entities.System<ShipSteeringSystem>();
+            var physics = entities.System<SharedPhysicsSystem>();
+
+            physics.Update(1f / 30);
+            Assert.That(entities.HasComponent<ShuttleAutopilotActiveComponent>(map.Grid), Is.False);
+
+            var destination = new EntityCoordinates(map.MapUid, 300f, 0f);
+            Assert.That(steering.Steer(console, destination), Is.Not.Null);
+            physics.Update(1f / 30);
+            Assert.That(entities.HasComponent<ShuttleAutopilotActiveComponent>(map.Grid), Is.True);
+
+            pilotComponent.HeldButtons = ShuttleButtons.Brake;
+            physics.Update(1f / 30);
+            Assert.That(entities.HasComponent<ShuttleAutopilotActiveComponent>(map.Grid), Is.False);
+
+            entities.RemoveComponent<PilotComponent>(pilot);
+            physics.Update(1f / 30);
+            Assert.That(entities.HasComponent<ShuttleAutopilotActiveComponent>(map.Grid), Is.True);
+
+            steering.Stop(console);
+            physics.Update(1f / 30);
+            Assert.That(entities.HasComponent<ShuttleAutopilotActiveComponent>(map.Grid), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
 
     [Test]
     public async Task S2AndS4WeightlessSprintSpeedsFitTheLightShuttleLimit()

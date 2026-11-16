@@ -50,7 +50,7 @@ scaling fix rejects non-positive/non-finite DPI and invalid autoscale ranges.
 Engine implementations belong in `C:\old_disk\repos\RobustToolbox`. The
 Station gitlink must point to the reviewed flight-safety commit; rebuild the server
 and content against that revision. The compatibility contract remains official
-engine 292.0.1 with the launcher's signed WebView 288.1.0. Authentication, wire
+engine 292.0.2 with the launcher's signed WebView 288.1.0. Authentication, wire
 formats, loader trust, module signatures and engine identity are unchanged.
 
 An installed official client keeps its own engine binary: the UI scaling fix only

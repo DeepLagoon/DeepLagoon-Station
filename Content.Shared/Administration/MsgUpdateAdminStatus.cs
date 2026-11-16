@@ -14,6 +14,7 @@ namespace Content.Shared.Administration
         public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer)
         {
             var count = buffer.ReadVariableInt32();
+            buffer.AssertAtLeastSize((long) count * NetMessageExt.MinSizeOfString);
 
             AvailableCommands = new string[count];
 

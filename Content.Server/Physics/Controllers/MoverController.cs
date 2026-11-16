@@ -490,6 +490,7 @@ public sealed partial class MoverController : SharedMoverController
             var angularMul = 0f;
             var accelMul = 0f;
             var setMaxVel = (float?)0f;
+            var autopilotInputs = 0;
             foreach (var pilot in piloted.InputSources)
             {
                 var inputsEv = new GetShuttleInputsEvent(frameTime, uid);
@@ -500,6 +501,9 @@ public sealed partial class MoverController : SharedMoverController
                 else if (inputsEv.Input != null)
                 {
                     inputs.Add(inputsEv.Input.Value);
+                    if (inputsEv.Autopilot)
+                        autopilotInputs++;
+
                     angularMul += inputsEv.AngularMul;
                     accelMul += inputsEv.AccelMul;
                     if (setMaxVel != null && inputsEv.SetMaxVelocity != null)
@@ -518,6 +522,11 @@ public sealed partial class MoverController : SharedMoverController
 
             var count = inputs.Count;
             piloted.ActiveSources = count;
+            if (autopilotInputs > 0 && autopilotInputs == count)
+                EnsureComp<ShuttleAutopilotActiveComponent>(uid);
+            else
+                RemComp<ShuttleAutopilotActiveComponent>(uid);
+
             if (count == 0)
             {
                 _thruster.DisableLinearThrusters(shuttle);

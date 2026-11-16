@@ -34,14 +34,41 @@ window.__pushTguiDebugEvent__?.('bundleLoaded', {
 const store = configureStore();
 
 // Confirm a committed interface, then allow a paint before the native host reveals it.
-const PresentationReady = ({ presentation }) => {
+const PresentationReady = ({ interfaceName, presentation }) => {
   useLayoutEffect(() => {
     if (presentation === undefined) return;
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => sendMessage({ type: 'health/presented', payload: { presentation } }));
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [presentation]);
+    let frame;
+    let repaint;
+    const reportAfterPaint = () => {
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => sendMessage({ type: 'health/presented', payload: { presentation } }));
+      });
+    };
+    if (interfaceName === 'CharacterEditor') {
+      // The signed off-screen WebView can retain only the damaged rectangles
+      // after its initial resize. Damage the whole viewport behind the native
+      // cover, then let CEF paint the unobscured editor before revealing it.
+      repaint = document.createElement('div');
+      repaint.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(127,127,127,0.12)';
+      document.body.appendChild(repaint);
+      const repaintUntil = performance.now() + 100;
+      const finishRepaint = (now) => {
+        if (now < repaintUntil) {
+          frame = requestAnimationFrame(finishRepaint);
+          return;
+        }
+        repaint.remove();
+        reportAfterPaint();
+      };
+      frame = requestAnimationFrame(finishRepaint);
+    } else {
+      reportAfterPaint();
+    }
+    return () => {
+      cancelAnimationFrame(frame);
+      repaint?.remove();
+    };
+  }, [interfaceName, presentation]);
   return null;
 };
 
@@ -54,12 +81,13 @@ const getFindBarInstanceKey = () => {
 
 const renderApp = createRenderer(() => {
   const Component = getRoutedComponent(store);
+  const config = store.getState()?.backend?.config;
   return (
     <>
-      <InterfaceErrorBoundary key={store.getState()?.backend?.config?.interface}>
+      <InterfaceErrorBoundary key={config?.interface}>
         <Component />
       </InterfaceErrorBoundary>
-      <PresentationReady presentation={store.getState()?.backend?.config?.presentation} />
+      <PresentationReady interfaceName={config?.interface} presentation={config?.presentation} />
       <FindBar key={getFindBarInstanceKey()} />
     </>
   );

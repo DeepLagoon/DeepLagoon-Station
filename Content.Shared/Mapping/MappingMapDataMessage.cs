@@ -19,13 +19,20 @@ public sealed class MappingMapDataMessage : NetMessage
         MsgSize = buffer.LengthBytes;
 
         var uncompressedLength = buffer.ReadVariableInt32();
+        if (uncompressedLength <= 0)
+            throw new InvalidDataException("Invalid uncompressed map length.");
+
         var compressedLength = buffer.ReadVariableInt32();
-        var stream = new MemoryStream(compressedLength);
+        buffer.AssertAtLeastSize(compressedLength);
+        using var stream = new MemoryStream(compressedLength);
         buffer.ReadAlignedMemory(stream, compressedLength);
         using var decompress = new ZStdDecompressStream(stream);
-        using var decompressed = new MemoryStream(uncompressedLength);
+        // The declared length must not determine an allocation or the copy buffer size.
+        using var decompressed = new MemoryStream();
+        decompress.CopyTo(decompressed);
+        if (decompressed.Length != uncompressedLength)
+            throw new InvalidDataException("Decompressed map length differs from its header.");
 
-        decompress.CopyTo(decompressed, uncompressedLength);
         decompressed.Position = 0;
         serializer.DeserializeDirect(decompressed, out Yml);
     }

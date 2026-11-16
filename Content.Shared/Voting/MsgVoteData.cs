@@ -36,7 +36,9 @@ namespace Content.Shared.Voting
             DisplayVotes = buffer.ReadBoolean();
             TargetEntity = buffer.ReadVariableInt32();
 
-            Options = new (ushort votes, string name, ushort realvotes)[buffer.ReadByte()];
+            var count = buffer.ReadByte();
+            buffer.AssertAtLeastSize(count * (2 * sizeof(ushort) + NetMessageExt.MinSizeOfString));
+            Options = new (ushort votes, string name, ushort realVotes)[count];
             for (var i = 0; i < Options.Length; i++)
             {
                 Options[i] = (buffer.ReadUInt16(), buffer.ReadString(), buffer.ReadUInt16());

@@ -52,10 +52,105 @@
   &__job { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(150px, 1fr) auto; gap: 8px; align-items: center; padding: 5px 0; }
   &__traits { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 3px; }
   &__points { margin-bottom: 8px; progress { display: block; width: 100%; height: 6px; margin-top: 3px; accent-color: #7ac779; } }
+  &__traitTools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  &__traitTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 10px;
+    border-bottom: 1px solid #56677b;
+
+    > button {
+      flex: 1 1 auto;
+      padding: 9px 12px;
+      border: 1px solid #516378;
+      border-bottom: 3px solid transparent;
+      border-radius: 4px 4px 0 0;
+      background: #273644;
+      color: #d8e6f3;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    > button:hover, > button[aria-selected=true] { background: #344c63; }
+    > button[aria-selected=true] {
+      color: #f2f7ff;
+      border-bottom-color: var(--editor-accent, #a7d2ff);
+      font-weight: 700;
+    }
+  }
+  &__traitBody {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+    gap: 12px;
+  }
+  &__traitList {
+    display: grid;
+    gap: 4px;
+    max-height: min(64vh, 38rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 4px 0 0;
+    list-style: none;
+  }
+  &__traitTone--gain { --trait-tone: #90dfa7; }
+  &__traitTone--cost { --trait-tone: #f1a6a6; }
+  &__traitTone--neutral { --trait-tone: #b6c9de; }
+  &__traitOption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 35px;
+    padding: 6px 8px;
+    border: 1px solid #425264;
+    border-left: 3px solid var(--trait-tone);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--trait-tone) 10%, #1c252f);
+    color: #edf1f5;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover, &[aria-pressed=true] {
+      background: color-mix(in srgb, var(--trait-tone) 23%, #1c252f);
+    }
+  }
+  &__traitName { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  &__traitValue { color: var(--trait-tone); font-weight: 700; font-variant-numeric: tabular-nums; }
+  &__traitDetail {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #536375;
+    border-radius: 5px;
+    background: #202a35;
+    overflow-wrap: anywhere;
+
+    > h3 { margin: 0 0 8px; color: #f2f7ff; }
+    > .Button { margin-top: 4px; padding: 6px 12px; }
+  }
+  &__traitDescription, &__traitReason { white-space: pre-wrap; }
+  &__traitReason { color: #f1b4a0; }
+  &__traitParameters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+
+    > div { padding: 7px 10px; border: 1px solid #44566a; border-radius: 4px; background: #19222c; }
+    dt { color: #b6c9de; }
+    dd { margin: 3px 0 0; color: var(--trait-tone, #f2f7ff); font-weight: 700; }
+  }
   &__description { white-space: pre-wrap; padding: 10px; }
   &__companyImage { display: block; object-fit: contain; max-width: min(100%, 500px); max-height: 260px; margin: 10px auto; }
 }
 @container (max-width: 350px) { .CharacterEditor__job { grid-template-columns: 1fr auto; > :first-child { grid-column: 1 / -1; } } }
+@container (max-width: 660px) {
+  .CharacterEditor__traitBody { gap: 6px; }
+  .CharacterEditor__traitList { max-height: min(42vh, 18rem); }
+  .CharacterEditor__traitDetail { padding: 8px; }
+}
 
 .CharacterEditor {
   &__preview {width:260px;flex:0 0 260px;display:flex;flex-direction:column;min-height:0;}
@@ -116,6 +211,7 @@
   .Button, .Section__title {font-size:1em;}
   &__editorTabs > button {font-family:inherit;font-size:max(16px,1em);}
   button[aria-pressed=true] {border-color:var(--editor-accent);}
+  button[aria-pressed=true].CharacterEditor__traitOption { border-left-color: var(--trait-tone); }
   input:focus, textarea:focus, .Dropdown__control:focus {outline-color:var(--editor-accent);}
   small {font-size:0.9em;line-height:inherit;}
   &__close.Button {position:fixed;}

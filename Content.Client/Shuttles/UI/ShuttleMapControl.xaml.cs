@@ -430,7 +430,7 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
                 detectionLevel == DetectionLevel.PartialDetected ?
                     Loc.GetString($"shuttle-console-signature-infrared")
                     : _detection.HandleUnknownMassLabel(grid.Owner)
-                : _shuttles.GetIFFLabel(grid, self: true, component: iffComp);
+                : _shuttles.GetRadarIFFLabel(grid, self: true, component: iffComp);
 
             if (string.IsNullOrEmpty(iffText))
                 continue;

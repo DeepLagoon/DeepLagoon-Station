@@ -14,6 +14,7 @@ public record struct ShuttleInput(Vector2 Strafe, float Rotation, float Brakes);
 [ByRefEvent]
 public record struct GetShuttleInputsEvent(float FrameTime, EntityUid ShuttleUid, ShuttleInput? Input = null, bool GotInput = false)
 {
+    public bool Autopilot;
     public float AngularMul = 1f;
     public float AccelMul = 1f;
     public float? SetMaxVelocity = null;
