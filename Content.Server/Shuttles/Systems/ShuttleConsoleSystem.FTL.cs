@@ -205,9 +205,8 @@ public sealed partial class ShuttleConsoleSystem
             return;
         }
 
-        // Check for nearby grids that are above the mass threshold
-        var xform = Transform(shuttleUid.Value);
-        var bounds = xform.WorldMatrix.TransformBox(Comp<MapGridComponent>(shuttleUid.Value).LocalAABB).Enlarged(ShuttleFTLRange);
+        // Nearby powered consoles block departure at a distance based on their grid's mass.
+        var shuttleCoordinates = _transform.GetMapCoordinates(shuttleUid.Value);
         var bodyQuery = GetEntityQuery<PhysicsComponent>();
         // Keep track of docked grids to exclude them from the proximity check
         var dockedGrids = new HashSet<EntityUid>();
@@ -215,21 +214,24 @@ public sealed partial class ShuttleConsoleSystem
         // Find all docked grids by looking for DockingComponents on the shuttle
         _shuttle.GetAllDockedShuttlesIgnoringFTLLock(shuttleUid.Value, dockedGrids);
 
-        // Mono
-        foreach (var (console, consoleComp) in _lookup.GetEntitiesInRange<ShuttleConsoleComponent>(_transform.GetMapCoordinates(xform), ShuttleFTLRange))
+        foreach (var (console, _) in _lookup.GetEntitiesInRange<ShuttleConsoleComponent>(shuttleCoordinates, ShuttleFTLRange))
         {
             var consoleXform = Transform(console);
             var consGrid = consoleXform.GridUid;
             if (consGrid == null ||
                 consGrid == shuttleUid ||
+                consoleXform.MapID != shuttleCoordinates.MapId ||
                 dockedGrids.Contains(consGrid.Value) || // Skip grids that are docked to us or to the same parent grid
                 !bodyQuery.TryGetComponent(consGrid, out var body) ||
-                body.Mass < ShuttleFTLMassThreshold
-                    && (_transform.GetWorldPosition(consGrid.Value) - _transform.GetWorldPosition(consoleXform)).Length() > ShuttleFTLRange * body.Mass / ShuttleFTLMassThreshold ||
                 !this.IsPowered(console, EntityManager))
             {
                 continue;
             }
+
+            var blockingRange = ShuttleFTLRange * MathF.Min(body.Mass / ShuttleFTLMassThreshold, 1f);
+            var distanceSquared = (_transform.GetWorldPosition(consoleXform) - shuttleCoordinates.Position).LengthSquared();
+            if (distanceSquared > blockingRange * blockingRange)
+                continue;
 
             _popup.PopupEntity(Loc.GetString("shuttle-ftl-proximity"), ent.Owner, PopupType.Medium);
             _audio.PlayPvs(new SoundPathSpecifier("/Audio/Machines/custom_deny.ogg"), ent.Owner);
