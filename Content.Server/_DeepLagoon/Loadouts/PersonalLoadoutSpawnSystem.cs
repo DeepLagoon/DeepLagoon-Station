@@ -29,8 +29,10 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
     {
         TryComp<DeferredStartingGearComponent>(args.Mob, out var deferred);
         var failed = args.JobId is { } job
-            ? _equipment.Apply(args.Mob, args.Profile, job, args.Player, deferredStorage: deferred?.Items)
+            ? _equipment.Apply(args.Mob, args.Profile, job, args.Player, deferredStorage: deferred?.Items,
+                handsApplied: deferred?.HandsApplied == true, startingContainers: deferred?.Contents)
             : null;
+        _spawning.FinishDeferredInhandGear(args.Mob);
         _spawning.FinishDeferredStartingGear(args.Mob);
         if (failed == null)
             return;
@@ -55,6 +57,7 @@ public sealed partial class PersonalLoadoutSpawnSystem : EntitySystem
 public sealed partial class DeferredStartingHandGearComponent : Component
 {
     public List<StartingGearHandItem> Items = new();
+    public IReadOnlyDictionary<string, string>? Assignments;
 }
 
 [RegisterComponent]
@@ -62,4 +65,6 @@ public sealed partial class DeferredStartingGearComponent : Component
 {
     public List<StartingGearStorageItem> Items = new();
     public IReadOnlyDictionary<string, BackpackItemPlacement>? Layout;
+    public StartingContainerContents? Contents;
+    public bool HandsApplied;
 }

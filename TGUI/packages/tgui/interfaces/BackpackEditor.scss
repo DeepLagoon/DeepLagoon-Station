@@ -98,21 +98,27 @@
   .CharacterEditor &__grid &__cell {
     margin: 0;
     padding: 0;
-    border: 1px solid #687a90;
+    border: 0;
     border-radius: 0;
-    background: var(--editor-control-bg, #202734);
+    background: var(--backpack-tile) center / 100% 100% #202734;
+    image-rendering: pixelated;
     box-shadow: none;
     clip-path: none;
     color: inherit;
     touch-action: none;
     cursor: pointer;
 
-    &[data-occupied=true] { background: #385168; cursor: grab; }
-    &[data-fixed=true] { background: #4a4f59; cursor: default; }
-    &[data-selected=true] { background: #5481a8; }
-    &[data-preview=valid] { background: #388459; }
-    &[data-preview=invalid] { background: #873c42; }
+    &[data-occupied=true] { background-image: var(--backpack-piece), var(--backpack-tile); cursor: grab; }
+    &[data-fixed=true] { cursor: default; }
+    &[data-selected=true] { box-shadow: inset 0 0 0 2px #83bbfa; }
+    &[data-preview=valid] { box-shadow: inset 0 0 0 999px #38845999; }
+    &[data-preview=invalid] { box-shadow: inset 0 0 0 999px #873c4299; }
     &:focus-visible { outline: 2px solid var(--editor-accent, #a7d2ff); outline-offset: -2px; }
+  }
+
+  &__blockedCell {
+    background: var(--backpack-blocked-tile) center / 100% 100% #181e27;
+    image-rendering: pixelated;
   }
 
   &__placed {

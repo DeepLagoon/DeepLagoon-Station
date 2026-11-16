@@ -40,3 +40,6 @@ dl-loadout-slot-helmetattachment = Helmet attachment
 dl-loadout-incompatible-species-slots = The selected species has no compatible slot for this equipment.
 dl-loadout-insufficient-balance = The character cannot afford this equipment.
 dl-loadout-insufficient-points = There are not enough loadout points.
+dl-loadout-left-hand = Left hand
+dl-loadout-right-hand = Right hand
+dl-loadout-middle-hand = Middle hand

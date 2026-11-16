@@ -66,27 +66,20 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
     }
 
     public List<EntityUid> Apply(EntityUid character, HumanoidCharacterProfile profile, string job, ICommonSession? session,
-        bool preview = false, List<StartingGearStorageItem>? deferredStorage = null)
+        bool preview = false, List<StartingGearStorageItem>? deferredStorage = null,
+        bool handsApplied = false, StartingContainerContents? startingContainers = null)
     {
         var failed = new List<EntityUid>();
-        if (!profile.Loadouts.TryGetValue(PersonalLoadoutSystem.Role, out var saved) || !_inventory.TryGetSlots(character, out var slots))
+        if (!_inventory.TryGetSlots(character, out var slots))
             return failed;
-        var role = saved.Clone();
-        role.EnsureValid(profile, session, IoCManager.Instance!);
         var unequipped = _loadouts.UnequippedSlots(profile, job);
-        var remaining = _loadouts.GetPoints(session);
-        foreach (var selected in role.SelectedLoadouts.OrderBy(x => x.Key.Id).SelectMany(x => x.Value))
+        foreach (var (prototype, data) in UsableSelections(profile, job, session))
         {
-            if (!_prototypes.TryIndex(selected.Prototype, out var prototype) || prototype.PersonalItems.Count == 0 || !_loadouts.CanUse(prototype, profile, job, session, out _))
+            if (handsApplied && prototype.PersonalInhand)
                 continue;
-            var cost = Math.Max(0, prototype.PersonalCost);
-            if (remaining < cost)
-                continue;
-            remaining -= cost;
             for (var i = 0; i < prototype.PersonalItems.Count; i++)
             {
                 var itemPrototype = prototype.PersonalItems[i];
-                var data = _loadouts.Sanitize(prototype, selected.Customization);
                 if (deferredStorage != null && IsBackpackItem(prototype, i))
                 {
                     deferredStorage.Add(GetBackpackItem(prototype, i, data));
@@ -101,6 +94,11 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
                     continue;
                 var item = Spawn(itemPrototype, Transform(character).Coordinates);
                 Customize(item, data);
+                if (prototype.PersonalInhand && startingContainers != null && HasComp<StorageComponent>(item))
+                {
+                    var key = GetPersonalHandItem(prototype, i, data).Key!;
+                    EntityManager.System<SharedStationSpawningSystem>().RegisterStartingContainer(key, item, startingContainers);
+                }
                 var equipped = prototype.PersonalInhand && _hands.TryPickupAnyHand(character, item, checkActionBlocker: false);
                 if (!prototype.PersonalInhand && HasComp<ClothingComponent>(item))
                 {
@@ -142,11 +140,35 @@ public sealed partial class PersonalLoadoutEquipSystem : EntitySystem
         return failed;
     }
 
+    public IEnumerable<(LoadoutPrototype Prototype, PersonalLoadoutCustomization? Data)> UsableSelections(
+        HumanoidCharacterProfile profile, string job, ICommonSession? session)
+    {
+        if (!profile.Loadouts.TryGetValue(PersonalLoadoutSystem.Role, out var saved))
+            yield break;
+        var role = saved.Clone();
+        role.EnsureValid(profile, session, IoCManager.Instance!);
+        var remaining = _loadouts.GetPoints(session);
+        foreach (var selected in role.SelectedLoadouts.OrderBy(x => x.Key.Id).SelectMany(x => x.Value))
+        {
+            if (!_prototypes.TryIndex(selected.Prototype, out var prototype) || prototype.PersonalItems.Count == 0 ||
+                !_loadouts.CanUse(prototype, profile, job, session, out _))
+                continue;
+            var cost = Math.Max(0, prototype.PersonalCost);
+            if (remaining < cost)
+                continue;
+            remaining -= cost;
+            yield return (prototype, _loadouts.Sanitize(prototype, selected.Customization));
+        }
+    }
+
     public bool IsBackpackItem(LoadoutPrototype loadout, int index) =>
         !loadout.PersonalInhand && !_prototypes.Index(loadout.PersonalItems[index]).TryGetComponent<ClothingComponent>(out _);
 
     public static StartingGearStorageItem GetBackpackItem(LoadoutPrototype loadout, int index, PersonalLoadoutCustomization? customization = null) =>
         new("back", loadout.PersonalItems[index], customization, $"personal/{loadout.ID}/{index}/{loadout.PersonalItems[index].Id}");
+
+    public static StartingGearHandItem GetPersonalHandItem(LoadoutPrototype loadout, int index, PersonalLoadoutCustomization? customization = null) =>
+        StartingGearHandItem.Create("personal/" + loadout.ID, index, loadout.PersonalItems[index], customization);
 
     private void RetireReplacedItem(EntityUid previous, EntityUid replacement, List<EntityUid> overflow, bool preview)
     {

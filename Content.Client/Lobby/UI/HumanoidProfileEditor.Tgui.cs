@@ -105,7 +105,7 @@ public sealed partial class HumanoidProfileEditor
     private static readonly HashSet<string> CatalogFields = new()
     {
         "tabs", "speciesOptions", "sexOptions", "genderOptions", "spawnOptions", "hairOptions", "beardOptions",
-        "markingOptions", "departments", "traits", "companyOptions"
+        "markingOptions", "departments", "traits", "traitGroups", "companyOptions"
     };
     private readonly Dictionary<Control, bool> _nativeTabVisibility = new();
     private Control? _nativeSpriteParent;
@@ -313,6 +313,7 @@ public sealed partial class HumanoidProfileEditor
         data.Bool("canUsePlantigradeLegs", _prototypeManager.Index(p.Species).PlantigradeSprites != null)
             .Bool("plantigradeLegs", p.Appearance.PlantigradeLegs);
         data.Array("previewSlots", _personalLoadoutEditor.CreateTguiSlots(PreviewDummy));
+        data.Array("previewHands", _personalLoadoutEditor.CreateTguiHands());
         if (includeCatalogs) data.Array("tabs", Enumerable.Range(0, TabContainer.ChildCount)
             .Where(i => TabContainer.GetChild(i) != _nativeBody?.Parent && TabContainer.GetChild(i) != _nativeTattoos?.Parent)
             .Select(i => new TguiData().Number("id", i)
@@ -744,6 +745,9 @@ public sealed partial class HumanoidProfileEditor
                 SetPreviewRotation(_previewRotation); break;
             case "preview-slot":
                 if (!_personalLoadoutEditor.SelectTguiSlot(PreviewDummy, value)) return false;
+                break;
+            case "preview-hand":
+                if (!_personalLoadoutEditor.SelectTguiHand(value, _tguiMode == "equipment")) return false;
                 break;
             case "preview-slot-remove":
                 if (!_personalLoadoutEditor.RemoveTguiSlot(PreviewDummy, value)) return false;

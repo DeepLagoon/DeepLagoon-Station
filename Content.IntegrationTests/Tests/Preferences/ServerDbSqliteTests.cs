@@ -124,14 +124,19 @@ namespace Content.IntegrationTests.Tests.Preferences
             await db.InitPrefsAsync(user, profile);
             var loaded = (HumanoidCharacterProfile)(await db.GetPlayerPreferencesAsync(user))!.Characters[0];
             Assert.That(loaded.Loadouts["JobContractor"].BackpackLayout, Is.Empty);
+            Assert.That(loaded.Loadouts["JobContractor"].HandAssignments, Is.Empty);
 
             var role = loaded.Loadouts["JobContractor"].Clone();
             role.BackpackLayout["loadout/ContractorAppraisalCartridge/0/AppraisalCartridge"] = new(false, 3, 2, 90);
             role.BackpackLayout["loadout/ContractorClothingMaskGas/0/ClothingMaskGas"] = new(true, 0, 0, 0);
+            const string caseKey = "loadout/ContractorSpecialGunAk502/hand/0/WeaponCaseAk502Registered";
+            role.BackpackLayout[$"{caseKey}/contents/Magazine762x39mmFMJ/1"] = new(false, 3, 2, 180, caseKey);
+            role.HandAssignments[caseKey] = "body_part_slot_left hand";
             await db.SaveCharacterSlotAsync(user, loaded.WithLoadout(role), 0);
 
             var reloaded = (HumanoidCharacterProfile)(await db.GetPlayerPreferencesAsync(user))!.Characters[0];
             Assert.That(reloaded.Loadouts["JobContractor"].BackpackLayout, Is.EqualTo(role.BackpackLayout));
+            Assert.That(reloaded.Loadouts["JobContractor"].HandAssignments, Is.EqualTo(role.HandAssignments));
             await pair.CleanReturnAsync();
         }
 

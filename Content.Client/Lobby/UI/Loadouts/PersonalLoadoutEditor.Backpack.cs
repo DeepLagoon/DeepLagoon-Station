@@ -2,6 +2,7 @@ using System.Linq;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.Station;
 using Content.Shared._DeepLagoon.Loadouts;
+using Content.Shared.CCVar;
 using Content.Shared.Inventory;
 using Content.Shared.Item;
 using Content.Shared.Preferences;
@@ -11,6 +12,8 @@ using Content.Shared.Station;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
 using Robust.Shared.Map;
+using Robust.Shared.Configuration;
+using Robust.Shared.Containers;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client.Lobby.UI.Loadouts;
@@ -20,7 +23,8 @@ public sealed partial class PersonalLoadoutEditor
     private EntityUid? _backpackPreview;
     private HumanoidCharacterProfile? _backpackPreviewProfile;
     private string? _backpackPreviewJob;
-    private readonly Dictionary<string, EntityUid> _backpackPreviewItems = new();
+    private StartingContainerContents _backpackContents = new();
+    private string _boxView = "";
     private readonly List<StartingGearStorageItem> _backpackDefaults = new();
     private readonly Dictionary<string, BackpackChoice> _backpackChoices = new();
     private TguiData? _backpackState;
@@ -28,12 +32,14 @@ public sealed partial class PersonalLoadoutEditor
     private sealed record BackpackChoice(StartingGearStorageItem Item, LoadoutPrototype? Loadout, LoadoutGroupPrototype? Group,
         string Category, bool CanSelect, bool Allowed, string? Reason);
 
-    public void CloseBackpackPreview()
+    public void CloseBackpackPreview(bool keepContainer = false)
     {
         _entities.DeleteEntity(_backpackPreview);
         _backpackPreview = null;
         _backpackPreviewProfile = null;
-        _backpackPreviewItems.Clear();
+        _backpackContents = new();
+        if (!keepContainer)
+            _boxView = "";
         _backpackDefaults.Clear();
         _backpackChoices.Clear();
         _backpackState = null;
@@ -46,7 +52,7 @@ public sealed partial class PersonalLoadoutEditor
         if (_backpackState != null && ReferenceEquals(_profile, _backpackPreviewProfile) && _job == _backpackPreviewJob)
             return _backpackState;
 
-        CloseBackpackPreview();
+        CloseBackpackPreview(keepContainer: true);
         _backpackPreviewProfile = _profile;
         _backpackPreviewJob = _job;
         PrepareJobCatalog();
@@ -74,22 +80,56 @@ public sealed partial class PersonalLoadoutEditor
             AddStartingGear(jobGear, null);
 
         equipment.Apply(preview, _profile, _job, _session, preview: true, deferredStorage: _backpackDefaults);
-        var backpack = spawning.GetBackpackStorage(preview, preview: true);
-        if (backpack is not { } bag || bag.Comp.Grid.Count == 0)
-            return state.String("status", "У выбранного снаряжения нет хранилища на спине.");
+        var containers = _entities.System<SharedContainerSystem>();
+        foreach (var choice in PreviewHands(_jobRole, GetRole()).Values)
+        {
+            var item = choice.Item;
+            if (item.Key == null || !_prototypes.Index(item.Prototype).TryGetComponent<StorageComponent>(out _))
+                continue;
+            var box = _entities.SpawnEntity(item.Prototype, MapCoordinates.Nullspace);
+            if (!containers.Insert(box, containers.EnsureContainer<Container>(preview, "loadout-preview-hand-boxes"), force: true))
+            {
+                _entities.DeleteEntity(box);
+                continue;
+            }
+            equipment.Customize(box, item.Customization);
+            spawning.RegisterStartingContainer(item.Key, box, _backpackContents, preview: true);
+        }
 
         var layout = _jobRole.BackpackLayout;
-        spawning.FinishStartingGearStorage(preview, _backpackDefaults, layout, _backpackPreviewItems);
+        spawning.FinishStartingGearStorage(preview, _backpackDefaults, layout, _backpackContents, preview: true);
         BuildBackpackCatalog(equipment, layout);
-        var itemsInGrid = _backpackPreviewItems.Select(entry => BackpackPreviewItem(entry.Key, entry.Value,
-            bag.Comp.StoredItems.GetValueOrDefault(entry.Value), !bag.Comp.StoredItems.ContainsKey(entry.Value), false));
-        var trackedEntities = _backpackPreviewItems.Values.ToHashSet();
-        var fixedItems = bag.Comp.StoredItems.Where(entry => !trackedEntities.Contains(entry.Key))
+        state.Array("containers", _backpackContents.Containers
+            .Where(entry => entry.Key.Length > 0 && _entities.EntityExists(entry.Value))
+            .Select(entry => new TguiData().String("key", entry.Key)
+                .String("name", _entities.GetComponent<MetaDataComponent>(entry.Value).EntityName)));
+        if (_boxView != "" && (!_backpackContents.Containers.TryGetValue(_boxView, out var opened) || !_entities.EntityExists(opened)))
+            _boxView = "";
+        state.String("container", _boxView);
+        if (!_backpackContents.Containers.TryGetValue(_boxView, out var target) ||
+            !_entities.TryGetComponent<StorageComponent>(target, out var bag) || bag.Grid.Count == 0)
+            return state.String("status", "У выбранного снаряжения нет хранилища на спине.");
+
+        var live = _backpackContents.Items.Where(entry => _entities.EntityExists(entry.Value.Entity)).ToArray();
+        var itemsInGrid = live.Where(entry => TargetContainer(entry.Key, entry.Value.Origin, layout) == _boxView)
+            .Select(entry => BackpackPreviewItem(entry.Key, entry.Value.Entity, bag.StoredItems.GetValueOrDefault(entry.Value.Entity),
+                !bag.StoredItems.ContainsKey(entry.Value.Entity), false));
+        var trackedEntities = live.Select(entry => entry.Value.Entity).ToHashSet();
+        var fixedItems = bag.StoredItems.Where(entry => !trackedEntities.Contains(entry.Key))
             .Select(entry => BackpackPreviewItem("fixed/" + entry.Key, entry.Key, entry.Value, false, true));
-        return state.String("name", _entities.GetComponent<MetaDataComponent>(bag.Owner).EntityName)
-            .Array("grid", bag.Comp.Grid.Select(BackpackBox))
+        var tileSuffix = IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.OpaqueStorageWindow) ? "_opaque.png" : ".png";
+        return state.String("name", _entities.GetComponent<MetaDataComponent>(target).EntityName)
+            .String("tile", ThemeImage("Storage/tile_empty" + tileSuffix))
+            .String("blockedTile", ThemeImage("Storage/tile_blocked" + tileSuffix))
+            .String("pieceTile", ThemeImage("Storage/piece_center.png"))
+            .Array("grid", bag.Grid.Select(BackpackBox))
             .Array("items", itemsInGrid.Concat(fixedItems))
-            .Array("catalog", _backpackChoices.Values.Select(BackpackCatalogItem));
+            .Array("catalog", _backpackChoices.Where(choice => !_backpackContents.Items.TryGetValue(choice.Key, out var item) ||
+                    !_entities.EntityExists(item.Entity)).Select(choice => BackpackCatalogItem(choice.Value))
+                .Concat(live.Where(entry => TargetContainer(entry.Key, entry.Value.Origin, layout) != _boxView &&
+                        _boxView != entry.Key && !_boxView.StartsWith(entry.Key + "/contents/", StringComparison.Ordinal))
+                    .Select(entry => BackpackPreviewItem(entry.Key, entry.Value.Entity, default, false, false)
+                        .Bool("canSelect", true).Bool("transfer", true).String("categoryName", "Переложить из другого контейнера"))));
 
         void AddStartingGear(IEquipmentLoadout gear, PersonalLoadoutCustomization? customization)
         {
@@ -108,6 +148,9 @@ public sealed partial class PersonalLoadoutEditor
                 _entities.DeleteEntity(bag);
         }
     }
+
+    private static string TargetContainer(string key, string? origin, Dictionary<string, BackpackItemPlacement> layout) =>
+        layout.TryGetValue(key, out var placement) ? placement.Container ?? "" : origin ?? "";
 
     private void BuildBackpackCatalog(PersonalLoadoutEquipSystem equipment, Dictionary<string, BackpackItemPlacement> layout)
     {
@@ -171,6 +214,7 @@ public sealed partial class PersonalLoadoutEditor
     {
         var metadata = _entities.GetComponent<MetaDataComponent>(entity);
         return new TguiData().String("key", key).String("name", metadata.EntityName)
+            .Bool("container", _backpackContents.Containers.ContainsKey(key))
             .String("iconId", metadata.EntityPrototype is { } prototype ? "item/" + prototype.ID : null)
             .Bool("overflow", overflow).Bool("fixed", fixedItem)
             .Number("x", location.Position.X).Number("y", location.Position.Y)
@@ -183,13 +227,21 @@ public sealed partial class PersonalLoadoutEditor
 
     public bool HandleTguiBackpackAction(string action, TguiActionData args)
     {
-        if (_profile == null || _jobRole == null || _backpackPreview is not { } preview ||
+        if (_profile == null || _jobRole == null || _backpackPreview == null ||
             !ReferenceEquals(_profile, _backpackPreviewProfile) || _job != _backpackPreviewJob ||
             args.String("key") is not { } key || key.Length > 512)
             return false;
 
-        var bag = _entities.System<StationSpawningSystem>().GetBackpackStorage(preview);
-        if (bag is not { } storage)
+        if (action == "backpack-container")
+        {
+            if (key != "" && (!_backpackContents.Containers.TryGetValue(key, out var box) || !_entities.EntityExists(box)))
+                return false;
+            _boxView = key;
+            _backpackState = null;
+            return true;
+        }
+        if (!_backpackContents.Containers.TryGetValue(_boxView, out var target) ||
+            !_entities.TryGetComponent<StorageComponent>(target, out var storage))
             return false;
 
         var profile = _profile;
@@ -204,21 +256,22 @@ public sealed partial class PersonalLoadoutEditor
         {
             if (!args.TryInt("x", out var x) || !args.TryInt("y", out var y) ||
                 !args.TryInt("rotation", out var rotation) || rotation is not (0 or 90 or 180 or 270) ||
-                x is < -256 or > 256 || y is < -256 or > 256 || !storage.Comp.Grid.Any(box => box.Contains((x, y))))
+                x is < -256 or > 256 || y is < -256 or > 256 || !storage.Grid.Any(box => box.Contains((x, y))))
                 return false;
-            placement = new BackpackItemPlacement(false, x, y, rotation);
+            placement = new BackpackItemPlacement(false, x, y, rotation, _boxView == "" ? null : _boxView);
         }
 
         if (action == "backpack-add")
         {
-            if (_backpackPreviewItems.ContainsKey(key) || !_backpackChoices.TryGetValue(key, out var choice) || !choice.CanSelect)
+            if (_backpackContents.Items.TryGetValue(key, out var existing) && _entities.EntityExists(existing.Entity) ||
+                !_backpackChoices.TryGetValue(key, out var choice) || !choice.CanSelect)
                 return false;
 
             var previewItem = _entities.SpawnEntity(choice.Item.Prototype, MapCoordinates.Nullspace);
             var storageSystem = _entities.System<SharedStorageSystem>();
             var location = new ItemStorageLocation(Angle.FromDegrees(placement.Rotation), (placement.X, placement.Y));
-            var fits = storageSystem.CanInsert(storage, previewItem, out var reason, storage.Comp, ignoreStacks: true, ignoreLocation: true) &&
-                       storageSystem.ItemFitsInGridLocation(previewItem, (storage.Owner, storage.Comp), location);
+            var fits = storageSystem.CanInsert(target, previewItem, out var reason, storage, ignoreStacks: true, ignoreLocation: true) &&
+                       storageSystem.ItemFitsInGridLocation(previewItem, (target, storage), location);
             _entities.DeleteEntity(previewItem);
             if (!fits)
             {
@@ -244,9 +297,9 @@ public sealed partial class PersonalLoadoutEditor
                 }
             }
         }
-        else if (!_backpackPreviewItems.TryGetValue(key, out var item) ||
-            !remove && !_entities.System<SharedStorageSystem>().ItemFitsInGridLocation(item, (storage.Owner, storage.Comp),
-                new ItemStorageLocation(Angle.FromDegrees(placement.Rotation), (placement.X, placement.Y))))
+        else if (!_backpackContents.Items.TryGetValue(key, out var item) || !_entities.EntityExists(item.Entity) ||
+                 !remove && !CanMoveItem(item.Entity) ||
+                 remove && TargetContainer(key, item.Origin, role.BackpackLayout) != _boxView)
         {
             return false;
         }
@@ -290,6 +343,16 @@ public sealed partial class PersonalLoadoutEditor
         role.BackpackLayout[key] = placement;
         ProfileChanged?.Invoke(profile.WithLoadout(role));
         return true;
+
+        bool CanMoveItem(EntityUid moving)
+        {
+            if (_boxView == key || _boxView.StartsWith(key + "/contents/", StringComparison.Ordinal))
+                return false;
+            var system = _entities.System<SharedStorageSystem>();
+            var location = new ItemStorageLocation(Angle.FromDegrees(placement.Rotation), (placement.X, placement.Y));
+            return (storage.StoredItems.ContainsKey(moving) || system.CanInsert(target, moving, out _, storage, ignoreStacks: true, ignoreLocation: true))
+                   && system.ItemFitsInGridLocation(moving, (target, storage), location);
+        }
     }
 
     private static bool ContainsOnlyBackpackGear(IEquipmentLoadout gear) =>

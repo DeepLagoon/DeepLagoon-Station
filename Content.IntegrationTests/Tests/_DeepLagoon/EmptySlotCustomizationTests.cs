@@ -9,6 +9,7 @@ using Content.Client.Lobby.UI;
 using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Inventory;
 using Content.Shared.Preferences;
+using Content.Shared.Preferences.Loadouts;
 using Robust.Client.UserInterface;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
@@ -71,6 +72,43 @@ public sealed class EmptySlotCustomizationTests
             editor.HandleTguiProfileAction("equipment/select", JsonSerializer.Serialize(new { id = personalId }));
             editor.HandleTguiProfileAction("equipment/select", JsonSerializer.Serialize(new { id = personalId }));
             Customize("items", personalId, null, false, "jumpsuit");
+
+            using var start = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString());
+            var hands = start.RootElement.GetProperty("previewHands").EnumerateArray().ToArray();
+            Assert.That(hands, Has.Length.EqualTo(2));
+            Assert.That(hands.All(hand => hand.GetProperty("background").GetString()!.StartsWith("data:image/png;base64,")), Is.True);
+            const string guitar = "DLEELoadoutItemAcousticGuitar";
+            foreach (var hand in hands)
+            {
+                var value = hand.GetProperty("id").GetString()!;
+                Assert.That(editor.HandleTguiProfileAction("preview-hand", JsonSerializer.Serialize(new { value })), Is.True);
+                var option = Catalog("handItems", guitar);
+                var key = option.GetProperty("handKey").GetString()!;
+                Assert.That(option.GetProperty("canSelect").GetBoolean(), Is.True);
+                Assert.That(editor.HandleTguiProfileAction("equipment/hand-select", JsonSerializer.Serialize(new { key })), Is.True);
+                Assert.That(editor.Profile!.Loadouts["JobContractor"].HandAssignments[key], Is.EqualTo(value));
+                Assert.That(Catalog("handItems", guitar).GetProperty("selected").GetBoolean(), Is.True);
+            }
+
+            var role = new RoleLoadout("JobContractor");
+            role.SelectedLoadouts["ContractorBackpack"] = new() { new() { Prototype = "ContractorClothingBackpack" } };
+            role.SelectedLoadouts["ContractorBoxSurvival"] = new() { new() { Prototype = "ContractorBoxSurvivalNFOxygenExtended" } };
+            editor.SetProfile(editor.Profile!.WithLoadout(role), preferences.Preferences.SelectedCharacterIndex);
+            _ = editor.CreateTguiProfileState("equipment");
+            Assert.That(editor.HandleTguiProfileAction("equipment/job", "{\"value\":\"Contractor\"}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("equipment/backpack-open", "{}"), Is.True);
+            const string boxKey = "loadout/ContractorBoxSurvivalNFOxygenExtended/0/BoxSurvivalMonoOxygenExtended";
+            using var backpack = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString());
+            Assert.That(backpack.RootElement.GetProperty("backpack").GetProperty("containers").EnumerateArray()
+                .Any(entry => entry.GetProperty("key").GetString() == boxKey), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("equipment/backpack-container", JsonSerializer.Serialize(new { key = boxKey })), Is.True);
+            using var boxState = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString());
+            var box = boxState.RootElement.GetProperty("backpack");
+            Assert.That(box.GetProperty("container").GetString(), Is.EqualTo(boxKey));
+            var childKey = box.GetProperty("items").EnumerateArray().First().GetProperty("key").GetString()!;
+            Assert.That(childKey, Does.StartWith(boxKey + "/contents/"));
+            Assert.That(editor.HandleTguiProfileAction("equipment/backpack-remove", JsonSerializer.Serialize(new { key = childKey })), Is.True);
+            Assert.That(editor.Profile!.Loadouts["JobContractor"].BackpackLayout[childKey].Removed, Is.True);
             ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
         });
         await pair.CleanReturnAsync();

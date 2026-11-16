@@ -29,18 +29,7 @@ public sealed class CharacterHairChoicesTests
         var client = pair.Client;
         await client.WaitAssertion(() =>
         {
-            using var editor = new HumanoidProfileEditor(
-                client.ResolveDependency<IClientPreferencesManager>(),
-                client.ResolveDependency<IConfigurationManager>(),
-                client.ResolveDependency<IEntityManager>(),
-                client.ResolveDependency<IFileDialogManager>(),
-                client.ResolveDependency<ILogManager>(),
-                client.ResolveDependency<IPlayerManager>(),
-                client.ResolveDependency<IPrototypeManager>(),
-                client.ResolveDependency<IResourceCache>(),
-                client.ResolveDependency<JobRequirementsManager>(),
-                client.ResolveDependency<MarkingManager>(),
-                client.ResolveDependency<CompanyManager>());
+            using var editor = CreateEditor(client);
             editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies(species), 0);
             using var state = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
             foreach (var key in new[] { "hairOptions", "beardOptions" })
@@ -82,9 +71,10 @@ public sealed class CharacterHairChoicesTests
             }
             Assert.That(editor.HandleTguiProfileAction("name", "{\"value\":\"Optimized draft\"}"), Is.True);
             var panel = (TguiPanel)typeof(HumanoidProfileEditor).GetField("_profileWeb", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(editor)!;
-            var catalog = typeof(TguiPanel).GetField("_staticData", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(panel);
+            var staticData = typeof(TguiPanel).GetField("_staticData", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var catalog = staticData.GetValue(panel);
             Assert.That(editor.HandleTguiProfileAction("name", "{\"value\":\"Second draft\"}"), Is.True);
-            Assert.That(typeof(TguiPanel).GetField("_staticData", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(panel), Is.SameAs(catalog));
+            Assert.That(staticData.GetValue(panel), Is.SameAs(catalog));
             var draft = editor.Profile;
             using var originalState = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
             var originalTabs = originalState.RootElement.GetProperty("tabs").GetArrayLength();
@@ -106,4 +96,51 @@ public sealed class CharacterHairChoicesTests
         });
         await pair.CleanReturnAsync();
     }
+
+    [Test]
+    public async Task PublishesTraitGroupsAndCanSelectTrait()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            using var editor = CreateEditor(pair.Client);
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), 0);
+            using var initial = JsonDocument.Parse(editor.CreateTguiProfileState("appearance").ToString());
+            var traitTab = initial.RootElement.GetProperty("tabs").EnumerateArray()
+                .Single(tab => tab.GetProperty("mode").GetString() == "traits");
+            var selectTab = JsonSerializer.Serialize(new { value = traitTab.GetProperty("id").GetInt32() });
+            Assert.That(editor.HandleTguiProfileAction("select-tab", selectTab), Is.True);
+            const BindingFlags privateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(HumanoidProfileEditor).GetMethod("FlushTguiProfile", privateInstance)!.Invoke(editor, null);
+            var panel = (TguiPanel)typeof(HumanoidProfileEditor).GetField("_profileWeb", privateInstance)!.GetValue(editor)!;
+            using var catalog = JsonDocument.Parse((string)typeof(TguiPanel).GetField("_staticData", privateInstance)!.GetValue(panel)!);
+            var groups = catalog.RootElement.GetProperty("traitGroups").EnumerateArray().Select(group => group.GetProperty("id").GetString()).ToArray();
+            Assert.That(groups, Is.EquivalentTo(new[] { "speech", "physical", "quirks" }));
+
+            using var state = JsonDocument.Parse(editor.CreateTguiProfileState("traits", includeCatalogs: false).ToString());
+            var availability = state.RootElement.GetProperty("traitState");
+            var choice = catalog.RootElement.GetProperty("traits").EnumerateArray()
+                .Select(trait => trait.GetProperty("id").GetString()!)
+                .First(id => availability.GetProperty(id).GetProperty("canSelect").GetBoolean());
+            var action = JsonSerializer.Serialize(new { id = choice });
+            Assert.That(editor.HandleTguiProfileAction("trait", action), Is.True);
+            Assert.That(editor.Profile!.TraitPreferences.Any(trait => trait.Id == choice), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("trait", action), Is.True);
+            Assert.That(editor.Profile!.TraitPreferences.Any(trait => trait.Id == choice), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    private static HumanoidProfileEditor CreateEditor(Robust.UnitTesting.RobustIntegrationTest.ClientIntegrationInstance client) =>
+        new(client.ResolveDependency<IClientPreferencesManager>(),
+            client.ResolveDependency<IConfigurationManager>(),
+            client.ResolveDependency<IEntityManager>(),
+            client.ResolveDependency<IFileDialogManager>(),
+            client.ResolveDependency<ILogManager>(),
+            client.ResolveDependency<IPlayerManager>(),
+            client.ResolveDependency<IPrototypeManager>(),
+            client.ResolveDependency<IResourceCache>(),
+            client.ResolveDependency<JobRequirementsManager>(),
+            client.ResolveDependency<MarkingManager>(),
+            client.ResolveDependency<CompanyManager>());
 }

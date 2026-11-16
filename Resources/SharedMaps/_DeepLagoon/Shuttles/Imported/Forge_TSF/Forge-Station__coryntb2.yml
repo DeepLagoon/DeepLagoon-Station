@@ -1019,7 +1019,6 @@ entities:
     - type: BecomesStation
       id: coryntb2
     - type: RadiationGridResistance
-    - type: ShipShieldGridState
     - type: ShipGridLock
       locked: False
     - type: ImplicitRoof

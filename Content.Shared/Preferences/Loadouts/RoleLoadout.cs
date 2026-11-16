@@ -34,6 +34,10 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
     [DataField]
     public Dictionary<string, BackpackItemPlacement> BackpackLayout = new();
 
+    /// <summary>Starting items assigned to a named hand. An empty value omits the item.</summary>
+    [DataField]
+    public Dictionary<string, string> HandAssignments = new();
+
     /// <summary>
     /// Loadout specific name.
     /// </summary>
@@ -63,6 +67,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
         weh.Customizations = new(Customizations);
         weh.UnequippedSlots = new(UnequippedSlots);
         weh.BackpackLayout = new(BackpackLayout);
+        weh.HandAssignments = new(HandAssignments);
 
         return weh;
     }
@@ -79,8 +84,17 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
                 .EditableSlots(profile).Select(slot => slot.Name));
         BackpackLayout = BackpackLayout.Where(entry => entry.Key is { Length: > 0 and <= 512 } &&
                 entry.Value.X is >= -256 and <= 256 && entry.Value.Y is >= -256 and <= 256 &&
+                entry.Value.Container is null or { Length: > 0 and <= 512 } &&
                 entry.Value.Rotation is 0 or 90 or 180 or 270)
             .Take(256).ToDictionary(entry => entry.Key, entry => entry.Value);
+        if (HandAssignments.Count > 0)
+        {
+            var hands = collection.Resolve<IEntityManager>().System<PersonalLoadoutSystem>()
+                .StartingHands(profile).Select(hand => hand.Name).ToHashSet();
+            HandAssignments = HandAssignments.Where(entry => entry.Key is { Length: > 0 and <= 512 } &&
+                    (entry.Value == "" || hands.Contains(entry.Value)))
+                .Take(64).ToDictionary(entry => entry.Key, entry => entry.Value);
+        }
         foreach (var selected in SelectedLoadouts.Values.SelectMany(items => items))
             if (selected.Customization != null) Customizations.TryAdd(selected.Prototype.Id, selected.Customization);
         Customizations = Customizations.Where(entry => protoManager.TryIndex<LoadoutPrototype>(entry.Key, out _))
@@ -93,6 +107,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             SelectedLoadouts.Clear();
             UnequippedSlots.Clear();
             BackpackLayout.Clear();
+            HandAssignments.Clear();
             return;
         }
 
@@ -282,6 +297,7 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             SelectedLoadouts.Clear();
             UnequippedSlots.Clear();
             BackpackLayout.Clear();
+            HandAssignments.Clear();
         }
 
         var collection = IoCManager.Instance!;
@@ -511,6 +527,8 @@ public sealed partial class RoleLoadout : IEquatable<RoleLoadout>
             !UnequippedSlots.SetEquals(other.UnequippedSlots) ||
             BackpackLayout.Count != other.BackpackLayout.Count ||
             BackpackLayout.Any(entry => !other.BackpackLayout.TryGetValue(entry.Key, out var placement) || placement != entry.Value) ||
+            HandAssignments.Count != other.HandAssignments.Count ||
+            HandAssignments.Any(entry => !other.HandAssignments.TryGetValue(entry.Key, out var hand) || hand != entry.Value) ||
             SelectedLoadouts.Count != other.SelectedLoadouts.Count ||
             Points != other.Points ||
             EntityName != other.EntityName || Customizations.Count != other.Customizations.Count ||

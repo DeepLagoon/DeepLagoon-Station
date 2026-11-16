@@ -246,6 +246,7 @@ namespace Content.Server.Database
                     Customizations = role.Customizations == null ? new() : JsonSerializer.Deserialize<Dictionary<string, PersonalLoadoutCustomization>>(role.Customizations) ?? new(),
                     UnequippedSlots = role.UnequippedSlots == null ? new() : JsonSerializer.Deserialize<HashSet<string>>(role.UnequippedSlots) ?? new(),
                     BackpackLayout = role.BackpackLayout == null ? new() : JsonSerializer.Deserialize<Dictionary<string, BackpackItemPlacement>>(role.BackpackLayout) ?? new(),
+                    HandAssignments = role.HandAssignments == null ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(role.HandAssignments) ?? new(),
                 };
 
                 foreach (var group in role.Groups)
@@ -449,6 +450,7 @@ namespace Content.Server.Database
                     Customizations = JsonSerializer.Serialize(loadouts.Customizations),
                     UnequippedSlots = JsonSerializer.Serialize(loadouts.UnequippedSlots),
                     BackpackLayout = loadouts.BackpackLayout.Count == 0 ? null : JsonSerializer.Serialize(loadouts.BackpackLayout),
+                    HandAssignments = loadouts.HandAssignments.Count == 0 ? null : JsonSerializer.Serialize(loadouts.HandAssignments),
                 };
 
                 foreach (var (group, groupLoadouts) in loadouts.SelectedLoadouts)

@@ -1,10 +1,12 @@
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Administration;
 using Content.Server.Administration.Managers;
 using Content.Server.Chat.Managers;
 using Content.Server.Database;
+using Content.Server.GameTicking;
 using Content.Server.Players.RateLimiting;
 using Content.Server._DeepLagoon.Currency;
 using Content.Shared.Administration;
@@ -58,6 +60,8 @@ public sealed partial class AhelpSystem : EntitySystem
     private readonly HashSet<NetUserId> _previewJobs = new();
     private readonly HashSet<NetUserId> _working = new();
     private Lazy<AhelpStore>? _store;
+    private Task _roundCleanup = Task.CompletedTask;
+    private int _roundGeneration;
     internal bool Enabled => _config.GetCVar(CCVars.AhelpTickets);
     internal AhelpStore Store => _store!.Value;
     private TimeSpan _nextReminder;
@@ -72,11 +76,12 @@ public sealed partial class AhelpSystem : EntitySystem
         base.Initialize();
         var root = _resources.UserData.RootDir;
         var path = root == null ? ":memory:" : Path.Combine(root, "ahelp-tickets.db");
-        _store = new Lazy<AhelpStore>(() => new AhelpStore(path));
+        _store = new Lazy<AhelpStore>(() => AhelpStore.OpenForServer(path, Now));
         _rate.Register(MessageRate, new RateLimitRegistration(CCVars.AhelpRateLimitPeriod, CCVars.AhelpRateLimitCount, null));
         _rate.Register(ReadRate, new RateLimitRegistration(CCVars.AhelpRateLimitPeriod, CCVars.AhelpRateLimitCount, null));
         SubscribeNetworkEvent<AhelpRequest>(OnRequest);
         SubscribeNetworkEvent<AhelpUpload>(OnUpload);
+        SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRunLevelChanged);
         _players.PlayerStatusChanged += StatusChanged;
         RegisterRelay();
     }
@@ -88,6 +93,43 @@ public sealed partial class AhelpSystem : EntitySystem
         if (_store?.IsValueCreated == true)
             _store.Value.Dispose();
         base.Shutdown();
+    }
+
+    private void OnRunLevelChanged(GameRunLevelChangedEvent args)
+    {
+        if (!Enabled || _stopping || args.Old != GameRunLevel.InRound || args.New == GameRunLevel.InRound)
+            return;
+
+        Interlocked.Increment(ref _roundGeneration);
+        foreach (var (user, upload) in _uploads)
+        {
+            if (_players.TryGetSessionById(user, out var session))
+                Error(session, upload.Request.Operation, "closed");
+        }
+        _uploads.Clear();
+        _roundCleanup = CloseRound(_roundCleanup);
+    }
+
+    private async Task CloseRound(Task previous)
+    {
+        await previous;
+        while (!_stopping)
+        {
+            AhelpStore.Result[] closed;
+            try
+            {
+                closed = await Task.Run(() => Store.CloseOpenTickets("Раунд завершён.", Now));
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Ahelp round cleanup failed: {ex.GetType().Name}");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                continue;
+            }
+            foreach (var result in closed)
+                Publish(result, sound: false);
+            return;
+        }
     }
 
     private bool CanHelp(ICommonSession session) => _admins.GetAdminData(session)?.HasFlag(AdminFlags.Adminhelp) == true;
@@ -190,6 +232,7 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
         }
         var actor = session.UserId.UserId;
+        var round = Volatile.Read(ref _roundGeneration);
         var admin = CanHelp(session);
         var target = admin && request.Player != Guid.Empty ? request.Player : actor;
         try
@@ -233,6 +276,9 @@ public sealed partial class AhelpSystem : EntitySystem
                     return;
                 }
                 var file = bytes == null ? null : await Task.Run(() => AhelpImage.Read(request.File, bytes));
+                await _roundCleanup;
+                if (_stopping)
+                    return;
                 var authorized = CanHelp(session);
                 if (authorized != admin)
                 {
@@ -240,7 +286,7 @@ public sealed partial class AhelpSystem : EntitySystem
                     return;
                 }
                 result = await Task.Run(() => Store.Send(request.Ticket, target, targetName, actor, name, admin,
-                    request.Staff, text, origin, Now, file));
+                    request.Staff, text, origin, Now, file, currentRound: () => Volatile.Read(ref _roundGeneration) == round));
             }
             else if (admin)
             {
@@ -335,7 +381,7 @@ public sealed partial class AhelpSystem : EntitySystem
         {
             AhelpStatus.Resolved => "решён",
             AhelpStatus.Rejected => $"отклонён. {entry.Line.Text}",
-            _ => "закрыт",
+            _ => entry.Line.Author == Guid.Empty ? $"закрыт. {entry.Line.Text}" : "закрыт",
         };
         var message = $"Тикет ahelp #{entry.Ticket.Number} {outcome}";
         Reply(session, new AhelpNotice(entry.Ticket.Id, entry.Id, false, false, false, message));

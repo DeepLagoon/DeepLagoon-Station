@@ -1398,6 +1398,10 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("backpack_layout");
 
+                    b.Property<string>("HandAssignments")
+                        .HasColumnType("text")
+                        .HasColumnName("hand_assignments");
+
                     b.HasKey("Id")
                         .HasName("PK_profile_role_loadout");
 

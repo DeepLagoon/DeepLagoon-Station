@@ -268,30 +268,111 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   const open=await page.evaluate(()=>window.__sent.filter(e=>e.type==='act/color-picker-open').at(-1).payload);
   await publish('CharacterEditor',{...state,colorPickerOpen:true,colorPickerResult:{id:open.id,value:'#123456',sequence:1}});
   await page.waitForFunction(()=>window.__sent.some(e=>e.type==='act/marking-color'&&e.payload.value==='#123456'&&e.payload.index===0));
-  await page.setViewportSize({width:800,height:860});
-  const boots = { id: 'shoe', name: 'Чёрные ботинки', category: 'Shoes', allowed: true, canSelect: true, selected: false };
-  const wraps = { id: 'wrap', name: 'Тканевые бинты', category: 'Hands', allowed: true, canSelect: true, selected: true };
-  const gloves = { id: 'gloves', name: 'Рабочие перчатки', category: 'Hands', group: 'JobGloves', allowed: true, canSelect: true, selected: false };
-  const helmet = { id: 'helmet', name: 'Каска', category: 'Head', group: 'JobHead', allowed: true, canSelect: true, selected: true };
-  const equipment = { items: [boots, wraps], jobItems: [gloves, helmet], categories: [{ id: 'Hands', name: 'Руки', root: true }], jobs: [] };
-  const publishEquipment = data => publish('CharacterEditor', { ...state, mode: 'equipment', equipment: data });
+  await page.setViewportSize({width:1180,height:860});
+  await page.evaluate(() => window.update(JSON.stringify({ type: 'update', payload: {
+    replaceData: true, replaceStaticData: true, resetPartialData: true,
+    static_data: {
+      traitGroups: [{ id: 'speech', name: 'Речь' }, { id: 'quirks', name: 'Особенности' }],
+      traits: [{ id: 'quirk', name: 'Особая привычка', description: 'Описание', group: 'quirks', points: 1, slots: 1 }],
+    },
+    data: { available: true, mode: 'traits', appearance: {}, traitState: { quirk: { available: true, canSelect: true } } },
+  } })));
+  await page.getByRole('tab', { name: 'Особенности' }).click();
+  await page.getByRole('button', { name: 'Применить', exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/trait' && e.payload.id === 'quirk'));
+
+  const boots = { id: 'shoe', name: 'Чёрные ботинки', cost: 0, allowed: true, canSelect: true, selected: false };
+  const wraps = { id: 'wrap', name: 'Тканевые бинты', cost: 1, allowed: true, canSelect: true, selected: true, canPaint: true };
+  const gloves = { id: 'gloves', name: 'Рабочие перчатки', cost: 0, group: 'JobGloves', allowed: true, canSelect: true, selected: false };
+  const helmet = { id: 'helmet', name: 'Каска', cost: 0, group: 'JobHead', allowed: true, canSelect: true, selected: true };
+  const equipment = { items: [boots, wraps], jobItems: [gloves, helmet], jobs: [] };
+  const publishEquipment = data => publish('CharacterEditor', { ...state, mode: 'equipment', equipment: data,
+    previewSlots: [{ id: 'gloves', name: 'Перчатки', images: [], selected: !!data.slot }] });
   await publishEquipment(equipment);
   const equipmentSearch=page.getByRole('searchbox',{name:'Поиск снаряжения',exact:true});
   await equipmentSearch.waitFor();
-  const equipmentNames = page.locator('.EquipmentBrowser__grid article strong');
-  assert.deepEqual(await equipmentNames.allTextContents(), [helmet.name, wraps.name, gloves.name, boots.name]);
+  const equipped = page.getByRole('region', { name: 'Экипировано' });
+  const equippedNames = equipped.locator('article strong');
+  const equipmentNames = page.locator('[aria-label="Каталог снаряжения"] article strong');
+  assert.equal(await page.getByRole('navigation', { name: 'Категории снаряжения' }).count(), 0);
+  assert.deepEqual(await equippedNames.allTextContents(), [helmet.name, wraps.name]);
+  assert.deepEqual(await equipmentNames.allTextContents(), [gloves.name, boots.name]);
+  const compact = await equipped.locator('article').first().boundingBox();
+  const regular = await page.locator('[aria-label="Каталог снаряжения"] article').first().boundingBox();
+  assert.ok(compact.width <= regular.width * 0.6 && compact.height <= regular.height * 0.6);
+  await equipped.getByRole('button', { name: 'Покрасить', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Покраска предмета' }).waitFor();
+  await page.getByRole('button', { name: 'Отмена', exact: true }).click();
   await page.getByText(gloves.name, { exact: true }).click();
   await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/job-select' && e.payload.id === 'gloves'));
-  await publishEquipment({ ...equipment, jobItems: [{ ...gloves, selected: true }, { ...helmet, selected: false }] });
-  await page.waitForFunction(() => document.querySelector('.EquipmentBrowser__grid article strong')?.textContent === 'Рабочие перчатки');
-  assert.deepEqual(await equipmentNames.allTextContents(), [gloves.name, wraps.name, helmet.name, boots.name]);
-  await page.getByText('Руки', { exact: true }).click();
-  assert.deepEqual(await equipmentNames.allTextContents(), [gloves.name, wraps.name]);
-  await equipmentSearch.fill('бинты');
-  assert.deepEqual(await equipmentNames.allTextContents(), [wraps.name]);
+  const slot = page.getByRole('button', { name: 'Перчатки', exact: true });
+  await slot.click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/preview-slot' && e.payload.value === 'gloves'));
+  await publishEquipment({ ...equipment, slot: 'Перчатки', items: [], jobItems: [{ ...gloves, selected: true }] });
+  await page.getByText('Снаряжение · Перчатки', { exact: true }).waitFor();
+  assert.deepEqual(await equippedNames.allTextContents(), [gloves.name]);
+  assert.deepEqual(await equipmentNames.allTextContents(), []);
+  await slot.click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/all-slots'));
+  await publishEquipment(equipment);
+  await equipmentSearch.fill('ботинки');
+  assert.deepEqual(await equipmentNames.allTextContents(), [boots.name]);
+  assert.deepEqual(await equippedNames.allTextContents(), [helmet.name, wraps.name]);
   await equipmentSearch.fill('qwerty999');assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено');
   await equipmentSearch.fill('');
-  assert.deepEqual(await equipmentNames.allTextContents(), [gloves.name, wraps.name]);
+  assert.deepEqual(await equipmentNames.allTextContents(), [gloves.name, boots.name]);
+  const left = { id: 'left', name: 'Левая рука', selected: false };
+  const right = { id: 'right', name: 'Правая рука', selected: false };
+  const handItem = { id: 'guitar', handKey: 'personal/guitar/hand/0/Guitar',
+    name: 'Гитара', cost: 5, allowed: true, canSelect: true, selected: false };
+  await publish('CharacterEditor', { ...state, mode: 'equipment', equipment, previewHands: [left, right] });
+  await page.getByRole('button', { name: right.name, exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/preview-hand' && e.payload.value === 'right'));
+  await publish('CharacterEditor', { ...state, mode: 'equipment', previewHands: [left, { ...right, selected: true }],
+    equipment: { ...equipment, hand: right.name, handItems: [handItem] } });
+  assert.deepEqual(await equipmentNames.allTextContents(), [handItem.name]);
+  await page.getByText(handItem.name, { exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/hand-select' && e.payload.key.includes('/hand/')));
+
+  const tile = 'data:image/png;base64,' + fs.readFileSync(path.join(root, '../../Textures/Interface/Default/Storage/tile_empty.png')).toString('base64');
+  const box = (left, bottom, right, top) => ({ left, bottom, right, top });
+  const container = { key: 'survival-box', name: 'Коробка выживания' };
+  const backpack = { name: 'Рюкзак', tile, grid: [box(0, 0, 3, 2)], containers: [container],
+    items: [{ ...container, x: 3, y: 2, container: true, shape: [box(0, 0, 0, 0)] }],
+    catalog: [{ key: 'book', id: 'book', name: 'Книга', canSelect: true, shape: [box(0, 0, 1, 0)] }] };
+  await publish('CharacterEditor', { ...state, mode: 'equipment', equipment, backpack });
+  await page.getByRole('button', { name: 'Редактирование содержимого рюкзака' }).click();
+  const cell = page.getByRole('button', { name: 'Ячейка 2, 3', exact: true });
+  const item = page.getByRole('button', { name: 'Книга', exact: true });
+  assert.ok((await cell.evaluate(node => getComputedStyle(node).backgroundImage)).includes(tile));
+  const from = await item.boundingBox();
+  const to = await cell.boundingBox();
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
+  await page.mouse.click(to.x + to.width / 2, to.y + to.height / 2, { button: 'right' });
+  await page.mouse.up();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-add'
+    && e.payload.key === 'book' && e.payload.x === 1 && e.payload.y === 0 && e.payload.rotation === 90));
+  await page.getByRole('group', { name: 'Сетка рюкзака' }).getByRole('button', { name: container.name }).dblclick();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-container'
+    && e.payload.key === 'survival-box'));
+  await publish('CharacterEditor', { ...state, mode: 'equipment', equipment, backpack: {
+    ...backpack, name: container.name, container: container.key, grid: [box(0, 0, 2, 0)],
+    items: [{ key: 'pen', name: 'Ручка', x: 0, y: 0, shape: [box(0, 0, 0, 0)] }],
+    catalog: [{ key: 'book', name: 'Книга', canSelect: true, transfer: true, shape: [box(0, 0, 1, 0)] }],
+  } });
+  const nestedGrid = page.getByRole('group', { name: 'Сетка контейнера' });
+  await page.getByRole('button', { name: 'Книга', exact: true }).click();
+  await nestedGrid.getByRole('button', { name: 'Ячейка 2, 1', exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-move'
+    && e.payload.key === 'book' && e.payload.x === 1 && e.payload.y === 0));
+  await nestedGrid.getByRole('button', { name: 'Ручка', exact: true }).click();
+  await page.getByRole('button', { name: 'Убрать предмет', exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-remove' && e.payload.key === 'pen'));
+  await page.getByRole('button', { name: 'Рюкзак', exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-container' && e.payload.key === ''));
+  await page.getByRole('button', { name: 'Закрыть редактор рюкзака' }).click();
   await page.setViewportSize({width:380,height:430});await publish('CharacterColorPicker',{id:'test',title:'Цвет хвоста',value:'#ff0000',appearance:{}});
   await page.getByRole('slider',{name:'Цветовой круг',exact:true}).waitFor();
   await page.getByRole('button',{name:'HSV',exact:true}).click();

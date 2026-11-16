@@ -26,7 +26,7 @@ public sealed partial class HumanoidProfileEditor
             _backpackEditorOpen = true;
             return true;
         }
-        return _backpackEditorOpen && action is ("backpack-add" or "backpack-move" or "backpack-remove") &&
+        return _backpackEditorOpen && action is ("backpack-add" or "backpack-move" or "backpack-remove" or "backpack-container") &&
             _personalLoadoutEditor.HandleTguiBackpackAction(action, args);
     }
 }

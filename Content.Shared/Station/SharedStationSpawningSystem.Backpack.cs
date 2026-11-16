@@ -68,17 +68,25 @@ public abstract partial class SharedStationSpawningSystem
         EntityUid entity,
         List<StartingGearStorageItem> items,
         IReadOnlyDictionary<string, BackpackItemPlacement>? layout,
-        Dictionary<string, EntityUid>? previewItems = null)
+        StartingContainerContents? contents = null,
+        bool preview = false)
     {
-        var backpack = GetBackpackStorage(entity, previewItems != null);
+        contents ??= new StartingContainerContents();
+        var trackContents = preview || layout?.Count > 0;
+        if (GetBackpackStorage(entity, preview) is { } backpack)
+        {
+            if (trackContents)
+                RegisterStartingContainer("", backpack.Owner, contents, preview);
+            else
+                contents.Containers[""] = backpack.Owner;
+        }
         var equipment = EntityManager.System<PersonalLoadoutEquipSystem>();
-
-        // Reserve saved positions before filling the remaining space with defaults.
-        foreach (var item in items.OrderBy(item => item.Key == null || layout?.ContainsKey(item.Key) != true))
+        var pending = new List<(EntityUid Item, BackpackItemPlacement? Placement)>();
+        foreach (var item in items)
         {
             if (item.Slot != "back")
             {
-                if (previewItems == null)
+                if (!preview)
                     GiveStartingGearStorageItem(entity, item, fallback: true);
                 continue;
             }
@@ -87,32 +95,76 @@ public abstract partial class SharedStationSpawningSystem
                 ? placement : null;
             if (requested?.Removed == true)
                 continue;
-            if (previewItems != null && backpack == null)
-                continue;
 
             var spawned = Spawn(item.Prototype, _xformSystem.GetMapCoordinates(entity));
             equipment.Customize(spawned, item.Customization);
-            if (previewItems != null && item.Key != null)
-                previewItems.TryAdd(item.Key, spawned);
-
-            if (backpack is { } storage)
+            if (trackContents && item.Key != null)
             {
-                if (requested is { } position &&
-                    _storage.CanInsert(storage, spawned, out _, storage.Comp, ignoreStacks: true, ignoreLocation: true) &&
-                    _storage.InsertAt((storage.Owner, storage.Comp), spawned,
-                        new ItemStorageLocation(Angle.FromDegrees(position.Rotation), (position.X, position.Y)), out _,
-                        playSound: false, stackAutomatically: false))
-                    continue;
+                contents.Items.TryAdd(item.Key, (spawned, null));
+                RegisterStartingContainer(item.Key, spawned, contents, preview);
+            }
+            pending.Add((spawned, requested));
+        }
 
-                if (_storage.Insert(storage, spawned, out _, storageComp: storage.Comp, playSound: false,
-                        stackAutomatically: previewItems == null && layout?.Count is not > 0))
+        // Lift all edited box contents before restoring positions so that moving
+        // one piece into another piece's old cells also works at round start.
+        if (layout != null)
+        {
+            foreach (var (key, item) in contents.Items.ToArray())
+            {
+                if (item.Origin == null || !layout.TryGetValue(key, out var edited) ||
+                    !contents.Containers.TryGetValue(item.Origin, out var source) || !TryComp<StorageComponent>(source, out var box) ||
+                    !_containers.Remove(item.Entity, box.Container, force: true, destination: Transform(entity).Coordinates))
+                    continue;
+                pending.Add((item.Entity, edited));
+            }
+        }
+
+        foreach (var (item, placement) in pending.Where(entry => entry.Placement?.Removed == true))
+            Del(item);
+        foreach (var (item, placement) in pending.OrderBy(entry => entry.Placement == null))
+        {
+            if (placement?.Removed == true || !EntityManager.EntityExists(item))
+                continue;
+            if (contents.Containers.TryGetValue(placement?.Container ?? "", out var uid) && TryComp<StorageComponent>(uid, out var storage))
+            {
+                if (placement is { } position && _storage.CanInsert(uid, item, out _, storage, ignoreStacks: true, ignoreLocation: true) &&
+                    _storage.InsertAt((uid, storage), item, new ItemStorageLocation(Angle.FromDegrees(position.Rotation), (position.X, position.Y)),
+                        out _, playSound: false, stackAutomatically: false))
+                    continue;
+                if (placement == null && _storage.Insert(uid, item, out _, storageComp: storage, playSound: false,
+                        stackAutomatically: !preview && layout?.Count is not > 0))
                     continue;
             }
-
-            if (previewItems == null)
-                _handsSystem.TryPickupAnyHand(entity, spawned, checkActionBlocker: false);
-            else
-                _containers.Insert(spawned, _containers.EnsureContainer<Container>(entity, "loadout-preview-overflow"), force: true);
+            if (preview)
+                _containers.Insert(item, _containers.EnsureContainer<Container>(entity, "loadout-preview-overflow"), force: true);
+            else if (placement == null)
+                _handsSystem.TryPickupAnyHand(entity, item, checkActionBlocker: false);
         }
     }
+
+    public void RegisterStartingContainer(string key, EntityUid uid, StartingContainerContents contents, bool preview = false)
+    {
+        if (!TryComp<StorageComponent>(uid, out var storage) || !contents.Containers.TryAdd(key, uid))
+            return;
+        if (preview)
+            _storage.FillLoadoutPreview((uid, storage));
+        var occurrences = new Dictionary<string, int>();
+        foreach (var item in storage.Container.ContainedEntities)
+        {
+            if (!TryComp<MetaDataComponent>(item, out var metadata) || metadata.EntityPrototype is not { } prototype)
+                continue;
+            var index = occurrences.GetValueOrDefault(prototype.ID);
+            occurrences[prototype.ID] = index + 1;
+            var itemKey = $"{key}/contents/{prototype.ID}/{index}";
+            contents.Items.TryAdd(itemKey, (item, key));
+            RegisterStartingContainer(itemKey, item, contents, preview);
+        }
+    }
+}
+
+public sealed class StartingContainerContents
+{
+    public readonly Dictionary<string, EntityUid> Containers = new();
+    public readonly Dictionary<string, (EntityUid Entity, string? Origin)> Items = new();
 }

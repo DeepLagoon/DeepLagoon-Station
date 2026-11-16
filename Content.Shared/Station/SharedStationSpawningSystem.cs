@@ -182,8 +182,7 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
 
         if (deferredInhand != null)
         {
-            foreach (var prototype in startingGear.Inhand)
-                deferredInhand.Add(new StartingGearHandItem(prototype, customization));
+            deferredInhand.AddRange(GetStartingGearHandItems(startingGear, customization));
         }
         else if (_handsQuery.TryComp(entity, out var handsComponent))
         {
@@ -216,12 +215,34 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
         }
     }
 
-    protected void GiveStartingGearHandItem(EntityUid entity, StartingGearHandItem item)
+    protected void FinishStartingGearHands(EntityUid entity, List<StartingGearHandItem> items,
+        IReadOnlyDictionary<string, string>? assignments, StartingContainerContents? containers = null)
     {
-        // Join spawners may move the mob after applying its role gear. Leave overflow at the final location.
-        var spawned = Spawn(item.Prototype, _xformSystem.GetMapCoordinates(entity));
-        EntityManager.System<PersonalLoadoutEquipSystem>().Customize(spawned, item.Customization);
-        _handsSystem.TryPickupAnyHand(entity, spawned, checkActionBlocker: false, animate: false);
+        var equipment = EntityManager.System<PersonalLoadoutEquipSystem>();
+        var available = _handsSystem.EnumerateHands(entity).Where(hand => hand.IsEmpty).Select(hand => hand.Name);
+        foreach (var (item, hand) in StartingGearHandItem.Plan(items, assignments, available))
+        {
+            var spawned = Spawn(item.Prototype, _xformSystem.GetMapCoordinates(entity));
+            equipment.Customize(spawned, item.Customization);
+            if (containers != null && item.Key != null)
+                RegisterStartingContainer(item.Key, spawned, containers);
+            // An explicitly assigned item is never picked up by the other hand.
+            if (hand != null)
+                _handsSystem.TryPickup(entity, spawned, hand, checkActionBlocker: false, animate: false);
+        }
+    }
+
+    public static IEnumerable<StartingGearHandItem> GetStartingGearHandItems(
+        IEquipmentLoadout gear, PersonalLoadoutCustomization? customization = null)
+    {
+        var source = gear switch
+        {
+            LoadoutPrototype loadout => "loadout/" + loadout.ID,
+            StartingGearPrototype startingGear => "gear/" + startingGear.ID,
+            _ => null,
+        };
+        for (var i = 0; i < gear.Inhand.Count; i++)
+            yield return StartingGearHandItem.Create(source, i, gear.Inhand[i], customization);
     }
 
     protected void GiveStartingGearStorageItem(EntityUid entity, StartingGearStorageItem item, bool fallback)
@@ -241,6 +262,32 @@ public abstract partial class SharedStationSpawningSystem : EntitySystem
     }
 }
 
-public readonly record struct StartingGearHandItem(EntProtoId Prototype, PersonalLoadoutCustomization? Customization);
+public readonly record struct StartingGearHandItem(EntProtoId Prototype, PersonalLoadoutCustomization? Customization, string? Key)
+{
+    public static StartingGearHandItem Create(string? source, int index, EntProtoId item, PersonalLoadoutCustomization? custom) =>
+        new(item, custom, source == null ? null : $"{source}/hand/{index}/{item.Id}");
+
+    public static IEnumerable<(StartingGearHandItem Item, string? Hand)> Plan(
+        IEnumerable<StartingGearHandItem> items, IReadOnlyDictionary<string, string>? assignments, IEnumerable<string> hands)
+    {
+        var free = hands.ToList();
+        var automatic = new List<StartingGearHandItem>();
+        foreach (var item in items)
+        {
+            if (item.Key == null || assignments == null || !assignments.TryGetValue(item.Key, out var hand))
+                automatic.Add(item);
+            else if (!string.IsNullOrEmpty(hand))
+                yield return (item, free.Remove(hand) ? hand : null);
+        }
+
+        foreach (var item in automatic)
+        {
+            var hand = free.FirstOrDefault();
+            if (hand != null)
+                free.RemoveAt(0);
+            yield return (item, hand);
+        }
+    }
+}
 
 public readonly record struct StartingGearStorageItem(string Slot, EntProtoId Prototype, PersonalLoadoutCustomization? Customization, string? Key = null);

@@ -185,6 +185,40 @@
 }
 .CharacterEditor__previewControls {position:absolute;top:408px;left:72px;right:72px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;}
 .CharacterEditor__previewControls > .CharacterEditor__rotation {width:100%;min-width:0;flex-wrap:wrap;}
+.CharacterEditor__hands {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 17px;
+
+  > button {
+    position: relative;
+    width: 72px;
+    height: 48px;
+    padding: 0;
+    cursor: pointer;
+    border: 1px solid #49566b;
+    background: #242933;
+  }
+
+  > button[aria-pressed=true] { border-color: #83bbfa; box-shadow: inset 0 0 0 1px #83bbfa; }
+  > button img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+
+  > button[data-occupied=true] .CharacterEditor__handBackground { opacity: .45; }
+  &--compact { display: none; margin: 6px 0 10px; }
+}
+@media (max-width: 699px), (max-height: 519px) {
+  .CharacterEditor__hands--compact { display: flex; }
+}
 .CharacterEditor .CharacterEditor__previewArousal {display:block;box-sizing:border-box;width:fit-content;max-width:100%;min-width:0;margin:0 auto;padding:5px 8px;font-size:12px;line-height:1.3;white-space:normal;}
 .CharacterEditor__anatomyPreview > .CharacterEditor__previewArousal {margin-top:8px;}
 .CharacterEditor__identity {align-items:center; .Button {display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:28px;height:auto;line-height:1.3;padding:6px 10px;}}

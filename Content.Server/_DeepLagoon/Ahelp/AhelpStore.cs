@@ -27,8 +27,7 @@ public sealed class AhelpStore : IDisposable
                 number INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, player TEXT NOT NULL,
                 player_name TEXT NOT NULL, assignee TEXT, assignee_name TEXT, status INTEGER NOT NULL,
                 created INTEGER NOT NULL, queued INTEGER NOT NULL, relay INTEGER NOT NULL DEFAULT 0,
-                outcome INTEGER, reason TEXT, terminal INTEGER);
-            CREATE UNIQUE INDEX IF NOT EXISTS active_ahelp ON tickets(player) WHERE status < 3;
+                outcome INTEGER, reason TEXT, terminal INTEGER, round_closed INTEGER NOT NULL DEFAULT 0);
             CREATE TABLE IF NOT EXISTS events(
                 id INTEGER PRIMARY KEY AUTOINCREMENT, ticket TEXT NOT NULL REFERENCES tickets(id), kind TEXT NOT NULL,
                 author TEXT NOT NULL, author_name TEXT NOT NULL, text TEXT NOT NULL, staff INTEGER NOT NULL,
@@ -44,6 +43,31 @@ public sealed class AhelpStore : IDisposable
                 event INTEGER PRIMARY KEY REFERENCES events(id), retry INTEGER NOT NULL DEFAULT 0);
             """);
         schema.ExecuteNonQuery();
+        Write(() =>
+        {
+            using var column = Command("SELECT 1 FROM pragma_table_info('tickets') WHERE name='round_closed'");
+            if (column.ExecuteScalar() == null)
+                Execute("ALTER TABLE tickets ADD COLUMN round_closed INTEGER NOT NULL DEFAULT 0");
+            return Execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS active_ahelp_current ON tickets(player) WHERE status<3 AND round_closed=0;
+                DROP INDEX IF EXISTS active_ahelp;
+                """);
+        });
+    }
+
+    internal static AhelpStore OpenForServer(string path, long now)
+    {
+        var store = new AhelpStore(path);
+        try
+        {
+            store.CloseOpenTickets("Игровой сервер перезапущен.", now);
+            return store;
+        }
+        catch
+        {
+            store.Dispose();
+            throw;
+        }
     }
 
     private SqliteCommand Command(string sql, params (string Key, object? Value)[] values)
@@ -101,7 +125,7 @@ public sealed class AhelpStore : IDisposable
     private AhelpTicket? Find(Guid id, Guid player = default)
     {
         using var cmd = id == Guid.Empty
-            ? Command($"SELECT {TicketColumns} FROM tickets t WHERE t.player=$player AND t.status<3", ("$player", player.ToString()))
+            ? Command($"SELECT {TicketColumns} FROM tickets t WHERE t.player=$player AND t.status<3 AND t.round_closed=0", ("$player", player.ToString()))
             : Command($"SELECT {TicketColumns} FROM tickets t WHERE t.id=$id", ("$id", id.ToString()));
         using var rows = cmd.ExecuteReader();
         return rows.Read() ? Ticket(rows) : null;
@@ -126,11 +150,13 @@ public sealed class AhelpStore : IDisposable
     }
 
     public Result Send(Guid id, Guid player, string playerName, Guid actor, string name, bool admin, bool staff,
-        string text, string origin, long now, Attachment? file = null, bool drain = false)
+        string text, string origin, long now, Attachment? file = null, bool drain = false, Func<bool>? currentRound = null)
         => Write(() =>
         {
             if (FindEvent(origin) is { } prior)
                 return new Result("", prior);
+            if (currentRound != null && !currentRound())
+                return new Result("closed");
             var ticket = Find(id, player);
             if (ticket == null)
             {
@@ -186,24 +212,57 @@ public sealed class AhelpStore : IDisposable
             };
             if (action == AhelpAction.Reject && string.IsNullOrWhiteSpace(reason))
                 return new Result("reason_required");
-            Execute("""
-                UPDATE tickets SET status=CASE WHEN relay=1 THEN 2 ELSE $outcome END,
-                outcome=$outcome,reason=$reason,terminal=CASE WHEN relay=0 THEN $now ELSE NULL END WHERE id=$id
-                """, ("$id", id.ToString()), ("$outcome", (int) outcome), ("$reason", reason), ("$now", now));
-            var updated = Find(id)!;
-            return Add(updated, updated.Status == AhelpStatus.Closing ? "closing" : "finished", actor, name, reason, false, origin, now);
+            return Close(ticket, outcome, actor, name, reason, origin, now);
+        });
+
+    private Result Close(AhelpTicket ticket, AhelpStatus outcome, Guid actor, string name, string reason, string origin,
+        long now, bool roundClosed = false)
+    {
+        Execute("""
+            UPDATE tickets SET status=CASE WHEN relay=1 THEN 2 ELSE $outcome END,round_closed=$roundClosed,
+            outcome=$outcome,reason=$reason,terminal=CASE WHEN relay=0 THEN $now ELSE NULL END WHERE id=$id
+            """, ("$id", ticket.Id.ToString()), ("$outcome", (int) outcome), ("$roundClosed", roundClosed),
+            ("$reason", reason), ("$now", now));
+        var updated = Find(ticket.Id)!;
+        return Add(updated, updated.Status == AhelpStatus.Closing ? "closing" : "finished", actor, name, reason, false, origin, now);
+    }
+
+    internal Result[] CloseOpenTickets(string reason, long now)
+        => Write(() =>
+        {
+            var open = new List<AhelpTicket>();
+            using (var cmd = Command($"SELECT {TicketColumns} FROM tickets t WHERE t.status<2 ORDER BY t.number"))
+            using (var rows = cmd.ExecuteReader())
+            {
+                while (rows.Read())
+                    open.Add(Ticket(rows));
+            }
+            return open.Select(ticket => Close(ticket, AhelpStatus.Closed, Guid.Empty, "Система", reason,
+                $"round-close:{ticket.Id}", now, roundClosed: true)).ToArray();
         });
 
     public Result Complete(Guid id, long now)
         => Write(() =>
         {
             var ticket = Find(id);
-            if (ticket?.Status != AhelpStatus.Closing || ticket.Assignee == null)
+            if (ticket?.Status != AhelpStatus.Closing)
                 return new Result("");
+            using var cmd = Command("""
+                SELECT author,author_name,text FROM events WHERE ticket=$id AND kind='closing' ORDER BY id DESC LIMIT 1
+                """, ("$id", id.ToString()));
+            Guid actor;
+            string name;
+            string reason;
+            using (var rows = cmd.ExecuteReader())
+            {
+                if (!rows.Read())
+                    throw new InvalidOperationException("Closing ahelp ticket has no closing event");
+                actor = Guid.Parse(rows.GetString(0));
+                name = rows.GetString(1);
+                reason = rows.GetString(2);
+            }
             Execute("UPDATE tickets SET status=outcome,terminal=$now WHERE id=$id", ("$now", now), ("$id", id.ToString()));
-            using var cmd = Command("SELECT reason FROM tickets WHERE id=$id", ("$id", id.ToString()));
-            var reason = (string) cmd.ExecuteScalar()!;
-            return Add(Find(id)!, "finished", ticket.Assignee.Value, ticket.AssigneeName ?? "", reason, false, $"final:{id}", now);
+            return Add(Find(id)!, "finished", actor, name, reason, false, $"final:{id}", now);
         });
 
     public bool Reserve(Guid id)
@@ -258,7 +317,7 @@ public sealed class AhelpStore : IDisposable
             using (var cmd = Command($"""
                 SELECT {TicketColumns},EXISTS(SELECT 1 FROM events e WHERE e.ticket=t.id AND ($admin OR e.staff=0)
                 AND e.author<>$actor AND e.id>COALESCE((SELECT seen FROM reads WHERE ticket=t.id AND reader=$actor),0))
-                FROM tickets t WHERE t.status<3 AND ($admin OR t.player=$actor)
+                FROM tickets t WHERE t.status<3 AND ($admin OR t.player=$actor AND t.round_closed=0)
                 ORDER BY t.status,t.created LIMIT 500
                 """, ("$admin", admin), ("$actor", actor.ToString())))
             using (var rows = cmd.ExecuteReader())

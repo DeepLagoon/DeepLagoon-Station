@@ -18,6 +18,15 @@ import { BlueMoonPreferences } from './BlueMoonPreferences';
 import { configureNativeChatBackground, clearNativeChatBackground } from '../../tgui-panel/chat/nativeBackground';
 
 const Field = ({ label, children }) => <label className="CharacterEditor__field"><span>{label}</span>{children}</label>;
+const HandSlots = ({ hands, act, compact }) => !!hands?.length && <div
+  className={'CharacterEditor__hands' + (compact ? ' CharacterEditor__hands--compact' : '')} aria-label="Руки">
+  {hands.map(hand => <button key={hand.id} type="button" aria-label={hand.name} aria-pressed={hand.selected}
+    title={hand.item ? hand.name + ' · ' + hand.item : hand.name} data-occupied={!!hand.iconId}
+    onClick={() => act('preview-hand', { value: hand.id })}>
+    {hand.background && <img className="CharacterEditor__handBackground" src={hand.background} alt="" />}
+    {hand.iconId && <LazySprite id={hand.iconId} color={hand.color?.slice(0, 7) || '#ffffff'} />}
+  </button>)}
+</div>;
 const Select = ({ label, value, options = [], onChange, disabled }) => <Field label={label}>
   <Dropdown aria-label={label} selected={String(value ?? '')} disabled={disabled} width="100%"
     options={options.map(option => ({ value: String(option.id), displayText: option.name }))}
@@ -282,8 +291,19 @@ export const CharacterEditor = () => {
       <div className="CharacterEditor__previewControls">
         <div className="CharacterEditor__rotation"><Button onClick={()=>act('rotate',{value:-1})}>◀</Button><Button onClick={()=>act('rotate',{value:1})}>▶</Button><Button selected={data.showClothes} onClick={()=>act('clothes')}>Show</Button><PreviewBackgroundButton light={lightPreview} onToggle={togglePreviewBackground} /></div>
         <PreviewArousalButton data={data} act={act} />
+        <HandSlots hands={data.previewHands} act={act} />
       </div>
-      <div className="CharacterEditor__slots">{(data.previewSlots||[]).map((slot,index)=><button type="button" key={slot.id} title={slot.name} style={{gridColumn:index%2?3:1,gridRow:Math.floor(index/2)+1}} aria-label={slot.name} aria-pressed={slot.selected} onClick={()=>act('preview-slot',{value:slot.id})} onContextMenu={event=>{event.preventDefault();act('preview-slot-remove',{value:slot.id});}}><div className="CharacterEditor__sprite">{(slot.images.length?slot.images:[{url:slot.background,color:"#ffffff"}]).map((image,i)=><TintedSprite key={i} image={image.url} color={image.color} />)}</div></button>)}</div>
+      <div className="CharacterEditor__slots">{(data.previewSlots || []).map((slot, index) => {
+        const clearFilter = data.mode === 'equipment' && slot.selected;
+        return <button type="button" key={slot.id} title={clearFilter ? slot.name + ' · Показать всё снаряжение' : slot.name}
+          style={{ gridColumn: index % 2 ? 3 : 1, gridRow: Math.floor(index / 2) + 1 }}
+          aria-label={slot.name} aria-pressed={slot.selected}
+          onClick={() => clearFilter ? act('equipment/all-slots') : act('preview-slot', { value: slot.id })}
+          onContextMenu={event => { event.preventDefault(); act('preview-slot-remove', { value: slot.id }); }}>
+          <div className="CharacterEditor__sprite">{(slot.images.length ? slot.images : [{ url: slot.background, color: '#ffffff' }])
+            .map((image, i) => <TintedSprite key={i} image={image.url} color={image.color} />)}</div>
+        </button>;
+      })}</div>
     </aside>}
     <main className="CharacterEditor__content">
     {data.setup && <>
@@ -292,6 +312,7 @@ export const CharacterEditor = () => {
       {statsOpen&&<Section title={'Общее время: '+data.setup.overallTime}><table><thead><tr><th>Профессия</th><th>Время</th></tr></thead><tbody>{data.setup.playtimes.map(time=><tr key={time.name}><td>{time.name}</td><td>{time.time}</td></tr>)}</tbody></table></Section>}
     </>}
     <nav className="CharacterEditor__tabs CharacterEditor__editorTabs" role="tablist" aria-label="Редактор персонажа">{(data.tabs || []).map(tab=><button type="button" role="tab" aria-selected={tab.mode===data.mode} key={tab.id} onClick={()=>act('select-tab',{value:tab.id})}>{tab.name}</button>)}</nav>
+    {data.mode === 'equipment' && <HandSlots hands={data.previewHands} act={act} compact />}
     {data.mode === 'appearance' && <div className="CharacterEditor__identity">
       <Button selected={data.showClothes} onClick={()=>act('clothes')}>Одежда</Button>
       <Button onClick={()=>act('random-all')}>Случайный персонаж</Button>

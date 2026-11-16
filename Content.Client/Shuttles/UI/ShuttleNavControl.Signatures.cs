@@ -19,7 +19,7 @@ public partial class ShuttleNavControl
     private readonly List<RadarSignature> _crowdedSignatures = new();
     private readonly List<PlacedSignature> _placedSignatures = new();
     private readonly List<UIBox2> _occupiedLabelBounds = new();
-    private readonly List<string> _offscreenSignatures = new();
+    private readonly List<(Vector2 Point, string Name, Color Color)> _offscreenSignatures = new();
     private readonly List<bool> _assignedSignatures = new();
     private readonly List<int> _signatureOrder = new();
     private readonly List<int> _signatureGroupEnds = new();
@@ -52,7 +52,7 @@ public partial class ShuttleNavControl
         var name = newline < 0 ? label : label[..newline];
         if (!SignatureInView(point, PixelSize, CircularRadar, ScaledMinimapRadius))
         {
-            _offscreenSignatures.Add(name);
+            _offscreenSignatures.Add((point, name, color));
             return;
         }
 
@@ -237,7 +237,7 @@ public partial class ShuttleNavControl
                 point + new Vector2(0.5f, 2f / 3f) * markerScale));
         }
 
-        if (_offscreenSignatures.Count > 0)
+        if (!ShowIFFDetailed && _offscreenSignatures.Count > 0)
             DrawSignatureButton(handle, EntityUid.Invalid, new Vector2(PixelSize.X / 2f, PixelSize.Y), 0, _offscreenSignatures.Count);
 
         // Keep the placement order stable as markers move with the map.
@@ -283,6 +283,9 @@ public partial class ShuttleNavControl
             start = end;
         }
 
+        if (ShowIFFDetailed)
+            DrawOffscreenSignatureNames(handle);
+
         bool PlaceLabel(RadarSignature signature, bool nameOnly)
         {
             var size = nameOnly ? signature.NameSize : signature.Bounds.Size;
@@ -293,6 +296,55 @@ public partial class ShuttleNavControl
             _placedSignatures.Add(new PlacedSignature(signature, bounds, nameOnly));
             _occupiedLabelBounds.Add(bounds);
             return true;
+        }
+    }
+
+    internal static bool TryGetOffscreenSignaturePoint(Vector2 point, Vector2 viewport, float? radius, float inset,
+        out Vector2 edge)
+    {
+        var center = viewport / 2;
+        var direction = point - center;
+        if (radius is not { } limit)
+            return TryGetViewportEdgePoint(center, direction, viewport, inset, out edge, out _);
+
+        if (limit <= inset || direction.LengthSquared() <= 0.001f)
+        {
+            edge = default;
+            return false;
+        }
+
+        edge = center + Vector2.Normalize(direction) * (limit - inset);
+        return true;
+    }
+
+    private void DrawOffscreenSignatureNames(DrawingHandleScreen handle)
+    {
+        var scale = UIScale;
+        var fontScale = SignatureNameScale * scale;
+        var arrowLength = 6 * scale;
+        var viewport = (Vector2) PixelSize;
+        var radius = SignatureViewportRadius;
+        foreach (var (point, name, color) in _offscreenSignatures)
+        {
+            if (!TryGetOffscreenSignaturePoint(point, viewport, radius, 2 * scale, out var edge))
+                continue;
+
+            var tail = edge - Vector2.Normalize(point - viewport / 2) * arrowLength;
+            var arrowMargin = new Vector2(2 * scale);
+            var arrowBounds = new UIBox2(Vector2.Min(edge, tail) - arrowMargin, Vector2.Max(edge, tail) + arrowMargin);
+            _occupiedLabelBounds.Add(arrowBounds);
+
+            var size = handle.GetDimensions(Font, name, fontScale);
+            if (!TryFindLabelBounds(edge, size, size.Y, arrowLength, viewport, radius, scale, _occupiedLabelBounds, out var bounds))
+            {
+                _occupiedLabelBounds.RemoveAt(_occupiedLabelBounds.Count - 1);
+                continue;
+            }
+
+            _occupiedLabelBounds.Add(bounds);
+            DrawLabelConnector(handle, tail, bounds, color);
+            DrawArrowLine(handle, tail, edge, color, 4 * scale);
+            handle.DrawString(Font, bounds.TopLeft, name, fontScale, color);
         }
     }
 
@@ -407,8 +459,12 @@ public partial class ShuttleNavControl
 
         for (var i = _signatureButtons.Count - 1; i >= 0; i--)
         {
-            if (_signatureButtons[i].Bounds.Contains(position * UIScale))
-                return _signatureButtons[i];
+            var button = _signatureButtons[i];
+            if (ShowIFFDetailed && button.Entity == EntityUid.Invalid)
+                continue;
+
+            if (button.Bounds.Contains(position * UIScale))
+                return button;
         }
         return null;
     }
@@ -468,6 +524,12 @@ public partial class ShuttleNavControl
         if (_signaturePopupLabel == null)
             return;
 
+        if (ShowIFFDetailed && _openSignature == EntityUid.Invalid)
+        {
+            _signaturePopup?.Close();
+            return;
+        }
+
         foreach (var button in _signatureButtons)
         {
             if (button.Entity != _openSignature)
@@ -475,7 +537,10 @@ public partial class ShuttleNavControl
 
             _popupNames.Clear();
             if (button.Entity == EntityUid.Invalid)
-                _popupNames.AddRange(_offscreenSignatures);
+            {
+                foreach (var (_, name, _) in _offscreenSignatures)
+                    _popupNames.Add(name);
+            }
             else
             {
                 for (var i = button.Start; i < button.Start + button.Count; i++)

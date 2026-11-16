@@ -3114,7 +3114,6 @@ entities:
     - type: ImplicitRoof
     - type: ExplosionAirtightGrid
     - type: RadiationGridResistance
-    - type: ShipShieldGridState
     - type: ShipGridLock
       locked: False
 - proto: ActionStethoscope

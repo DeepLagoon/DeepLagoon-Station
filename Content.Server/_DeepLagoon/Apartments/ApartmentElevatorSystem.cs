@@ -5,18 +5,23 @@ using Content.Server.Doors.Systems;
 using Content.Server.Popups;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Buckle.Components;
+using Content.Shared.Chasm;
 using Content.Shared.Chat;
 using Content.Shared.Doors;
 using Content.Shared.Doors.Components;
 using Content.Shared.GameTicking;
 using Content.Shared.Ghost;
 using Content.Shared.Interaction;
+using Content.Shared.Maps;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
+using Content.Shared.Physics;
 using Robust.Server.Player;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Enums;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
+using Robust.Shared.Maths;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
@@ -26,9 +31,13 @@ namespace Content.Server._DeepLagoon.Apartments;
 [RegisterComponent]
 public sealed partial class ApartmentElevatorReservedComponent : Component;
 
+[RegisterComponent]
+public sealed partial class ApartmentElevatorExitDoorComponent : Component;
+
 public sealed partial class ApartmentElevatorSystem : EntitySystem
 {
     private const float TransferSmokeLead = .75f;
+    private static readonly TimeSpan ArrivalClearanceTimeout = TimeSpan.FromSeconds(10);
     [Dependency] private ApartmentSystem _apartments = default!;
     [Dependency] private ApartmentTravelSystem _travel = default!;
     [Dependency] private SharedInteractionSystem _interaction = default!;
@@ -39,6 +48,9 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private ChatSystem _chat = default!;
     [Dependency] private PopupSystem _popups = default!;
+    [Dependency] private SharedMapSystem _maps = default!;
+    [Dependency] private TurfSystem _turf = default!;
+    [Dependency] private EntityLookupSystem _lookup = default!;
 
     private sealed record Context(Guid Token, EntityUid Panel, EntityUid Body, TimeSpan Expires);
     private sealed record Passenger(NetUserId User, ICommonSession? Session, EntityUid Body, Vector2 Offset);
@@ -48,10 +60,14 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         public required NetUserId Owner;
         public required bool Returning;
         public required List<Passenger> Passengers;
-        public required List<EntityUid> Doors;
+        public required List<EntityUid> SourceDoors;
+        public required List<EntityUid> DestinationDoors;
         public bool BitrunReturn;
+        public bool DestinationExitOpen;
         public TimeSpan Next;
         public TimeSpan ArrivesAt;
+        public TimeSpan? ClearanceDeadline;
+        public readonly List<EntityUid> ArrivalBlockers = new();
         public readonly List<EntityUid> Audio = new();
         public int Stage;
     }
@@ -62,6 +78,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
     {
         base.Initialize();
         SubscribeLocalEvent<ApartmentElevatorComponent, ActivateInWorldEvent>(OnActivate);
+        SubscribeLocalEvent<ApartmentElevatorExitDoorComponent, BeforeDoorClosedEvent>((_, _, args) => args.Cancel());
         SubscribeNetworkEvent<ApartmentElevatorActionEvent>(OnAction);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => Cleanup());
     }
@@ -73,9 +90,12 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         var origin = Transform(panel);
         var delta = (-origin.LocalRotation).RotateVec(transform.LocalPosition - origin.LocalPosition);
         return origin.Anchored && origin.GridUid != null && transform.ParentUid == origin.GridUid &&
-            transform.GridUid == origin.GridUid && delta.X >= cabin.CabinMin.X - .45f && delta.X <= cabin.CabinMax.X + .45f &&
-            delta.Y >= cabin.CabinMin.Y - .45f && delta.Y <= cabin.CabinMax.Y + .45f;
+            transform.GridUid == origin.GridUid && InsideCabinBounds(cabin, delta);
     }
+
+    private static bool InsideCabinBounds(ApartmentElevatorComponent cabin, Vector2 offset, float margin = .45f) =>
+        offset.X >= cabin.CabinMin.X - margin && offset.X <= cabin.CabinMax.X + margin &&
+        offset.Y >= cabin.CabinMin.Y - margin && offset.Y <= cabin.CabinMax.Y + margin;
 
     private bool CanUse(ICommonSession session, EntityUid panel) => _apartments.Enabled &&
         session.Status == SessionStatus.InGame && session.AttachedEntity is { } body && Inside(body, panel) &&
@@ -202,19 +222,14 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         if (passengers.All(p => p.Session != driver)) return "Встаньте в кабину.";
         if (!returning && _apartments.Instances.TryGetValue(owner, out var home) &&
             _apartments.Visitors(home).Length + passengers.Count > home.Template.MaxVisitors) return "В квартире недостаточно мест для всех пассажиров.";
-        // Keep an occupied arrival cabin free of a second party.
-        if (CabinOccupied(targetPanel)) return "Кабина назначения занята.";
         StartTrip(source, targetPanel, owner, returning, passengers, sourceDoors, destinationDoors);
         return "Двери закрываются. Оставайтесь в кабине.";
     }
 
-    private bool CabinOccupied(EntityUid panel) => _players.Sessions.Any(session =>
-        session.AttachedEntity is { } body && !HasComp<GhostComponent>(body) && Inside(body, panel));
-
     internal string? StartBitrunReturn(EntityUid grid, List<(NetUserId User, EntityUid Body)> residents)
     {
         if (PanelOn(grid) is not { } source || FindStopPanel() is not { } destination ||
-            Busy(source) || Busy(destination) || CabinOccupied(destination) ||
+            Busy(source) || Busy(destination) ||
             CabinDoors(source) is not { } sourceDoors || CabinDoors(destination) is not { } destinationDoors)
             return "dl-apartment-bitrun-elevator-unavailable";
 
@@ -239,7 +254,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                 _ => center,
             };
             passengers.Add(new Passenger(user, session, body, offset));
-            _apartments.MoveBitrunPassenger(body, CabinCoordinates(source, offset));
+            _apartments.RelocateApartmentPassenger(body, CabinCoordinates(source, offset));
         }
 
         StartTrip(source, destination, residents[0].User, true, passengers, sourceDoors, destinationDoors, bitrunReturn: true);
@@ -257,13 +272,92 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
     {
         var trip = new Trip { Source = source, Destination = destination, SourceGrid = Transform(source).GridUid!.Value,
             DestinationGrid = Transform(destination).GridUid!.Value,
-            Owner = owner, Returning = returning, Passengers = passengers, Doors = sourceDoors.Concat(destinationDoors).Distinct().ToList(),
+            Owner = owner, Returning = returning, Passengers = passengers, SourceDoors = sourceDoors, DestinationDoors = destinationDoors,
             Next = _timing.CurTime + TimeSpan.FromSeconds(5), BitrunReturn = bitrunReturn };
         _trips.Add(trip);
         EnsureComp<ApartmentElevatorReservedComponent>(trip.SourceGrid);
         EnsureComp<ApartmentElevatorReservedComponent>(trip.DestinationGrid);
-        foreach (var door in trip.Doors) { EnsureComp<ApartmentElevatorDoorComponent>(door); _doors.TryClose(door); }
+        foreach (var door in sourceDoors) { EnsureComp<ApartmentElevatorDoorComponent>(door); _doors.TryClose(door); }
+        UpdateArrivalBlockers(trip);
+        if (!trip.DestinationExitOpen)
+            foreach (var door in destinationDoors) { EnsureComp<ApartmentElevatorDoorComponent>(door); _doors.TryClose(door); }
         foreach (var passenger in passengers) EnsureComp<ApartmentTripPendingComponent>(passenger.Body);
+    }
+
+    private void UpdateArrivalBlockers(Trip trip)
+    {
+        trip.ArrivalBlockers.Clear();
+        var panel = Transform(trip.Destination);
+        var cabin = Comp<ApartmentElevatorComponent>(trip.Destination);
+        foreach (var session in _players.Sessions)
+        {
+            if (session.AttachedEntity is not { } body || HasComp<GhostComponent>(body) ||
+                !TryComp(body, out TransformComponent? transform) || transform.GridUid != trip.DestinationGrid)
+                continue;
+
+            var position = _transform.GetRelativePosition(transform, trip.DestinationGrid);
+            var offset = (-panel.LocalRotation).RotateVec(position - panel.LocalPosition);
+            if (InsideCabinBounds(cabin, offset, .5f) ||
+                cabin.DoorOffsets.Any(door => Vector2.Abs(door - offset) is { X: <= .5f, Y: <= .5f }))
+                trip.ArrivalBlockers.Add(body);
+        }
+
+        if (trip.ArrivalBlockers.Count == 0)
+            return;
+
+        // Keep the exit open while players clear the destination and through delayed arrival.
+        if (!trip.DestinationExitOpen)
+        {
+            trip.DestinationExitOpen = true;
+            foreach (var door in trip.DestinationDoors)
+            {
+                RemComp<ApartmentElevatorDoorComponent>(door);
+                EnsureComp<ApartmentElevatorExitDoorComponent>(door);
+            }
+        }
+
+        foreach (var door in trip.DestinationDoors)
+            if (Comp<DoorComponent>(door).State is DoorState.Closed or DoorState.Closing or DoorState.Denying)
+                _doors.TryOpen(door, quiet: true);
+    }
+
+    private bool ClearArrivalCabin(Trip trip)
+    {
+        const float clearanceRadius = 3f;
+        var panel = Transform(trip.Destination);
+        var cabin = Comp<ApartmentElevatorComponent>(trip.Destination);
+        var grid = Comp<MapGridComponent>(trip.DestinationGrid);
+        var candidates = new Dictionary<EntityCoordinates, float>();
+        foreach (var offset in cabin.DoorOffsets)
+        {
+            var outward = offset - Vector2.Clamp(offset, cabin.CabinMin, cabin.CabinMax);
+            if (outward == Vector2.Zero)
+                continue;
+
+            outward = panel.LocalRotation.RotateVec(Vector2.Normalize(outward));
+            var door = CabinCoordinates(trip.Destination, offset).Position;
+            foreach (var tile in _maps.GetLocalTilesIntersecting(trip.DestinationGrid, grid, new Circle(door, clearanceRadius)))
+            {
+                var center = _turf.GetTileCenter(tile);
+                var delta = center.Position - door;
+                var distance = delta.LengthSquared();
+                if (Vector2.Dot(delta, outward) < .5f || distance > clearanceRadius * clearanceRadius ||
+                    _turf.IsSpace(tile) || _turf.IsTileBlocked(tile, CollisionGroup.MobMask) ||
+                    _maps.GetAnchoredEntities(trip.DestinationGrid, grid, tile.GridIndices).Any(HasComp<ChasmComponent>) ||
+                    _lookup.GetEntitiesInRange<MobStateComponent>(center, .45f).Any())
+                    continue;
+
+                if (!candidates.TryGetValue(center, out var previousDistance) || distance < previousDistance)
+                    candidates[center] = distance;
+            }
+        }
+
+        if (candidates.Count < trip.ArrivalBlockers.Count)
+            return false;
+
+        foreach (var (body, target) in trip.ArrivalBlockers.Zip(candidates.OrderBy(pair => pair.Value).Select(pair => pair.Key)))
+            _apartments.RelocateApartmentPassenger(body, target);
+        return true;
     }
 
     private bool Valid(Trip trip) => _apartments.Enabled && !Deleted(trip.Source) && !Deleted(trip.Destination) &&
@@ -288,9 +382,22 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         base.Update(frameTime);
         foreach (var trip in _trips.ToArray())
         {
-            if (Deleted(trip.Source) || Deleted(trip.Destination) || trip.Doors.Any(d => Deleted(d))) { Finish(trip, "Поездка отменена: лифт недоступен."); continue; }
-            if (trip.Stage < 3 && !Valid(trip)) { Finish(trip, "Поездка отменена: пассажир покинул кабину."); continue; }
-            var closed = trip.Doors.All(d => Comp<DoorComponent>(d).State == DoorState.Closed);
+            if (Deleted(trip.Source) || Deleted(trip.Destination) || !Transform(trip.Destination).Anchored ||
+                Transform(trip.Destination).GridUid != trip.DestinationGrid ||
+                trip.SourceDoors.Any(d => Deleted(d)) || trip.DestinationDoors.Any(d => Deleted(d)))
+            {
+                Finish(trip, "Поездка отменена: лифт недоступен.");
+                continue;
+            }
+
+            if (trip.Stage < 3)
+            {
+                if (!Valid(trip)) { Finish(trip, "Поездка отменена: пассажир покинул кабину."); continue; }
+                UpdateArrivalBlockers(trip);
+            }
+
+            var closed = trip.SourceDoors.All(d => Comp<DoorComponent>(d).State == DoorState.Closed) &&
+                (trip.DestinationExitOpen || trip.DestinationDoors.All(d => Comp<DoorComponent>(d).State == DoorState.Closed));
             if (trip.Stage == 0)
             {
                 if (!closed) { if (_timing.CurTime >= trip.Next) Finish(trip, "Поездка отменена: двери не закрылись."); continue; }
@@ -303,7 +410,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                     duration = _audio.GetAudioLength(sound);
                     foreach (var (_, session, body, _) in trip.Passengers)
                         if (session is { Status: SessionStatus.InGame } && session.AttachedEntity == body &&
-                            _audio.PlayEntity(sound, session, body, cabin.TravelSound.Params) is { } audio) trip.Audio.Add(audio.Entity);
+                            _audio.PlayEntity(sound, session, body, cabin.TravelSound.Params.WithLoop(true)) is { } audio) trip.Audio.Add(audio.Entity);
                 }
                 trip.ArrivesAt = _timing.CurTime + duration;
                 trip.Next = _timing.CurTime + duration / 2 - TimeSpan.FromSeconds(TransferSmokeLead);
@@ -318,6 +425,25 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
             else if (trip.Stage == 2 && _timing.CurTime >= trip.Next)
             {
                 if (!closed) { Finish(trip, "Поездка отменена: двери открыты."); continue; }
+                if (trip.ArrivalBlockers.Count > 0)
+                {
+                    trip.ClearanceDeadline ??= _timing.CurTime + ArrivalClearanceTimeout;
+                    if (_timing.CurTime < trip.ClearanceDeadline)
+                        continue;
+
+                    if (!ClearArrivalCabin(trip))
+                    {
+                        Finish(trip, "Поездка отменена: у выхода из лифта нет свободного места.");
+                        continue;
+                    }
+                }
+
+                if (trip.ClearanceDeadline != null)
+                {
+                    Smoke(trip.Source);
+                    Smoke(trip.Destination);
+                }
+
                 // All access/capacity and passenger checks have completed before touching escrow.
                 var moved = new List<Passenger>();
                 var failed = false;
@@ -356,7 +482,7 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
                 trip.Stage = 3;
                 trip.Next = trip.ArrivesAt;
             }
-            else if (trip.Stage == 3 && _timing.CurTime >= trip.Next)
+            if (trip.Stage == 3 && _timing.CurTime >= trip.Next)
             {
                 if (Comp<ApartmentElevatorComponent>(trip.Destination).ArrivalSound is { } sound) _audio.PlayPvs(sound, trip.Destination);
                 Finish(trip, "Лифт прибыл.");
@@ -376,8 +502,13 @@ public sealed partial class ApartmentElevatorSystem : EntitySystem
         _trips.Remove(trip);
         foreach (var audio in trip.Audio)
             if (!Deleted(audio)) _audio.Stop(audio);
-        foreach (var door in trip.Doors)
-            if (!Deleted(door)) { RemComp<ApartmentElevatorDoorComponent>(door); _doors.TryOpen(door); }
+        foreach (var door in trip.SourceDoors.Concat(trip.DestinationDoors))
+            if (!Deleted(door))
+            {
+                RemComp<ApartmentElevatorDoorComponent>(door);
+                RemComp<ApartmentElevatorExitDoorComponent>(door);
+                _doors.TryOpen(door);
+            }
         foreach (var grid in new[] { trip.SourceGrid, trip.DestinationGrid })
             if (!Deleted(grid)) RemComp<ApartmentElevatorReservedComponent>(grid);
         foreach (var (_, session, body, _) in trip.Passengers)

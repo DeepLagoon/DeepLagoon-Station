@@ -101,7 +101,22 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         RaiseLocalEvent(ev);
         DebugTools.Assert(ev.SpawnResult is { Valid: true } or null);
         if (ev.SpawnResult is { } spawned)
+        {
+            if (profile != null && job is { } jobId &&
+                TryComp<DeferredStartingHandGearComponent>(spawned, out var hands) && hands.Assignments?.Count > 0 &&
+                TryComp<DeferredStartingGearComponent>(spawned, out var storage))
+            {
+                var equipment = EntityManager.System<PersonalLoadoutEquipSystem>();
+                foreach (var (item, custom) in equipment.UsableSelections(profile, jobId.Id, session))
+                {
+                    if (item.PersonalInhand)
+                        for (var i = 0; i < item.PersonalItems.Count; i++)
+                            hands.Items.Add(PersonalLoadoutEquipSystem.GetPersonalHandItem(item, i, custom));
+                }
+                storage.HandsApplied = true;
+            }
             FinishDeferredInhandGear(spawned);
+        }
 
         return ev.SpawnResult;
     }
@@ -214,7 +229,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
 
 
         var storageItems = new List<StartingGearStorageItem>();
-        var handItems = deferStartingGear ? new List<StartingGearHandItem>() : null;
+        var handItems = new List<StartingGearHandItem>();
         if (loadout != null)
         {
             /// Frontier: overwriting EquipRoleLoadout
@@ -361,8 +376,15 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             _persistence.LoadPersistentData(entity.Value, profile, session);
         // Mono end
 
-        if (handItems is { Count: > 0 })
-            EnsureComp<DeferredStartingHandGearComponent>(entity.Value).Items = handItems;
+        var contents = loadout?.BackpackLayout.Count > 0 ? new StartingContainerContents() : null;
+        if (deferStartingGear && (handItems.Count > 0 || loadout?.HandAssignments.Count > 0))
+        {
+            var hands = EnsureComp<DeferredStartingHandGearComponent>(entity.Value);
+            hands.Items = handItems;
+            hands.Assignments = loadout?.HandAssignments;
+        }
+        else if (!deferStartingGear)
+            FinishStartingGearHands(entity.Value, handItems, loadout?.HandAssignments, contents);
 
         // For a player joining the round, personal gear may replace these containers.
         if (deferStartingGear)
@@ -370,9 +392,10 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             var deferred = EnsureComp<DeferredStartingGearComponent>(entity.Value);
             deferred.Items = storageItems;
             deferred.Layout = loadout?.BackpackLayout;
+            deferred.Contents = contents;
         }
         else
-            FinishStartingGear(entity.Value, storageItems, loadout?.BackpackLayout);
+            FinishStartingGear(entity.Value, storageItems, loadout?.BackpackLayout, contents);
 
         if (profile != null)
         {
@@ -425,8 +448,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             return;
 
         RemComp<DeferredStartingHandGearComponent>(entity);
-        foreach (var item in pending.Items)
-            GiveStartingGearHandItem(entity, item);
+        TryComp<DeferredStartingGearComponent>(entity, out var storage);
+        FinishStartingGearHands(entity, pending.Items, pending.Assignments, storage?.Contents);
     }
 
     public void FinishDeferredStartingGear(EntityUid entity)
@@ -435,13 +458,13 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             return;
 
         RemComp<DeferredStartingGearComponent>(entity);
-        FinishStartingGear(entity, pending.Items, pending.Layout);
+        FinishStartingGear(entity, pending.Items, pending.Layout, pending.Contents);
     }
 
     private void FinishStartingGear(EntityUid entity, List<StartingGearStorageItem> storageItems,
-        IReadOnlyDictionary<string, BackpackItemPlacement>? layout)
+        IReadOnlyDictionary<string, BackpackItemPlacement>? layout, StartingContainerContents? contents)
     {
-        FinishStartingGearStorage(entity, storageItems, layout);
+        FinishStartingGearStorage(entity, storageItems, layout, contents);
 
         var ev = new StartingGearEquippedEvent(entity);
         RaiseLocalEvent(entity, ref ev);

@@ -34,6 +34,8 @@ public sealed partial class PersonalLoadoutEditor
         var slot = FilterPreviewSlots(slots).FirstOrDefault(s => s.Name == name);
         if (slot == null) return false;
         _slotFilter = slot;
+        _handFilter = null;
+        _cachedTguiState = null;
         _pendingSlotCategory = null;
         UpdateSlotHighlights();
         SlotOpened?.Invoke();
@@ -83,6 +85,14 @@ public sealed partial class PersonalLoadoutEditor
         if (_profile == null) return data;
         PrepareJobCatalog();
         var role = GetRole();
+        if (_handFilter != null && _jobRole != null)
+        {
+            var hand = system.StartingHands(_profile).FirstOrDefault(hand => hand.Name == _handFilter);
+            if (hand.Name != null)
+                data.String("hand", HandLabel(hand.Location)).Array("handItems", CreateTguiHandChoices(_jobRole, role));
+            else
+                _handFilter = null;
+        }
         var selected = role.SelectedLoadouts.Values.SelectMany(group => group).ToDictionary(item => item.Prototype.Id);
         var spent = selected.Values.Sum(item => _prototypes.Index(item.Prototype).PersonalCost);
         data.String("job", _job).String("roleName", _jobRole?.EntityName).Bool("customRoleName", _roleName.Visible)
@@ -91,10 +101,7 @@ public sealed partial class PersonalLoadoutEditor
             .Number("points", Math.Max(0, system.GetPoints(_session) - spent)).Number("maxPoints", system.GetPoints(_session))
             .String("slot", _slotFilter == null ? "" : SlotLabel(_slotFilter))
             .Array("jobs", _equipmentJobs.Select(id => new TguiData().String("id", id).String("name", _prototypes.Index<JobPrototype>(id).LocalizedName)))
-            .Array("categories", _prototypes.EnumeratePrototypes<PersonalLoadoutCategoryPrototype>().Select(category =>
-                new TguiData().String("id", category.ID).String("name", Loc.TryGetString("loadout-category-" + category.ID, out var name) ? name : category.ID)
-                    .Array("children", category.SubCategories.Select(id => new TguiData().String("id", id.Id))).Bool("root", category.Root)))
-            .Array("items", system.Catalogue(_profile, _job, _session).Where(item => _slotFilter == null || FitsSlot(item, _slotFilter))
+            .Array("items", system.Catalogue(_profile, _job, _session).Where(item => _handFilter == null && (_slotFilter == null || FitsSlot(item, _slotFilter)))
                 .Select(item =>
                 {
                     var allowed = system.CanUse(item, _profile, _job, _session, out var reason);
@@ -118,7 +125,7 @@ public sealed partial class PersonalLoadoutEditor
                         .String("color", custom?.Color).String("customName", custom?.Name).String("description", custom?.Description)
                         .String("iconId", "item/" + item.PersonalItems[0].Id);
                 }))
-            .Array("jobItems", _jobEntries.Where(entry => _slotFilter == null || FitsJobSlot(entry.Item, _slotFilter)).Select(entry =>
+            .Array("jobItems", _jobEntries.Where(entry => _handFilter == null && (_slotFilter == null || FitsJobSlot(entry.Item, _slotFilter))).Select(entry =>
             {
                 var item = entry.Item;
                 var valid = _jobRole!.IsValid(system.RemovePersonalConflicts(_profile, item), _session, item.ID, IoCManager.Instance!, out var reason);
@@ -147,7 +154,9 @@ public sealed partial class PersonalLoadoutEditor
     {
         _cachedTguiState = null;
         if (_profile == null) return false;
-        if (action == "all-slots") { _slotFilter = null; UpdateSlotHighlights(); return true; }
+        if (action == "all-slots") { _slotFilter = null; _handFilter = null; UpdateSlotHighlights(); return true; }
+        if (action == "hand-select")
+            return args.String("key") is { } handItem && EquipTguiHand(handItem);
         if (action == "remove-unavailable") { RemoveUnavailable(); return true; }
         if (action == "job")
         {

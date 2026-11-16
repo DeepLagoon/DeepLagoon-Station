@@ -121,7 +121,7 @@ public sealed partial class ApartmentSystem
 
         // Unbuckle the group first so occupied beds are freed before anyone is moved.
         foreach (var (_, body) in residents)
-            PrepareBitrunTeleport(body);
+            PrepareApartmentTeleport(body);
 
         for (var index = 0; index < residents.Count; index++)
         {
@@ -134,13 +134,13 @@ public sealed partial class ApartmentSystem
         }
     }
 
-    internal void MoveBitrunPassenger(EntityUid body, EntityCoordinates destination)
+    internal void RelocateApartmentPassenger(EntityUid body, EntityCoordinates destination)
     {
-        PrepareBitrunTeleport(body);
+        PrepareApartmentTeleport(body);
         _transform.SetCoordinates(body, destination);
     }
 
-    private void PrepareBitrunTeleport(EntityUid body)
+    private void PrepareApartmentTeleport(EntityUid body)
     {
         _buckle.Unbuckle(body, null);
         if (TryComp<PullerComponent>(body, out var puller) && puller.Pulling is { } pulled &&

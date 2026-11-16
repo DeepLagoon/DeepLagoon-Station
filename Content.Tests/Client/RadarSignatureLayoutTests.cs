@@ -99,6 +99,17 @@ public sealed class RadarSignatureLayoutTests
         Assert.That(ShuttleNavControl.SignatureInView(new Vector2(x, y), size, circular, 116), Is.EqualTo(visible));
     }
 
+    [TestCase(false, 198f)]
+    [TestCase(true, 114f)]
+    public void OffscreenSignatureAnchorsToRadarEdgeInItsDirection(bool circular, float expectedOffset)
+    {
+        var viewport = new Vector2(400, 240);
+        var point = new Vector2(500, 120);
+
+        Assert.That(ShuttleNavControl.TryGetOffscreenSignaturePoint(point, viewport, circular ? 116 : null, 2, out var edge), Is.True);
+        Assert.That(edge, Is.EqualTo(viewport / 2 + new Vector2(expectedOffset, 0)));
+    }
+
     private static ShuttleNavControl.RadarSignature NewSignature(float x, float y) =>
         new(default, new Vector2(x, y), "ship", "ship", null, null, null, Color.White, UIBox2.FromDimensions(x, y, 60, 20),
             new Vector2(60, 20));

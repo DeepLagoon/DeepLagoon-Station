@@ -1,0 +1,32 @@
+- type: vessel
+  id: Serkesh
+  parent: BaseVessel
+  name: Серкеш
+  description: "Железный кулак Корсаров Красного Паруса. Не самый большой, не самый страшный и уж точно не самый быстрый. Собран в захолустных портах галактики по наполовину сгоревшим и наполовину утерянным чертежам Андромеды - когда как Серкеш - дитя-франкенштейн. Он некрасив, не умеет показывать фокусы, но своё дело делает. Вооружённая тяжёлым баллистическим оружием, эта тяжелобронированная машина способна обмениваться ударами с любым шаттлом на коротких и средних дистанциях."
+  price: 350000
+  category: Large
+  group: Scrap
+  shuttlePath: /SharedMaps/_DeepLagoon/Shuttles/Scrapyard/serkesh.yml
+  class:
+  - Scrapyard
+  - Frigate
+  engine:
+  - AME
+
+- type: gameMap
+  id: Serkesh
+  mapName: Серкеш
+  mapPath: /SharedMaps/_DeepLagoon/Shuttles/Scrapyard/serkesh.yml
+  minPlayers: 0
+  stations:
+    Serkesh:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Серкеш {1}'
+        nameGenerator:
+          !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [0, 0]

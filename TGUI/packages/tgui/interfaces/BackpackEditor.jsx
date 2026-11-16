@@ -76,6 +76,9 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
   const grid = data?.grid || empty;
   const items = data?.items || empty;
   const catalog = data?.catalog || empty;
+  const containers = data?.containers || empty;
+  const currentContainer = data?.container || '';
+  const openContainer = key => act('backpack-container', { key });
   const bounds = useMemo(() => boundsOf(grid), [grid]);
   const cells = useMemo(() => [...new Map([...cellsOf(grid)].map(cell => [cell.key, cell])).values()]
     .sort((a, b) => b.y - a.y || a.x - b.x), [grid]);
@@ -122,7 +125,15 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
   });
 
   function rotateSelected() {
-    setPicked(current => current && ({ ...current, rotation: rotationOf(current.rotation + 90) }));
+    const drag = gesture.current;
+    const current = drag?.selection || picked;
+    if (!current) return;
+    const rotated = { ...current, rotation: rotationOf(current.rotation + 90) };
+    if (drag) {
+      drag.selection = rotated;
+      drag.dragged = true;
+    }
+    setPicked(rotated);
   }
 
   const placement = (item, selection, cell) => {
@@ -142,7 +153,8 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
       setMessage('Предмет не помещается здесь.');
       return;
     }
-    act(selection.fromCatalog ? 'backpack-add' : 'backpack-move', { key: item.key, x, y, rotation: selection.rotation });
+    const action = selection.fromCatalog && !item.transfer ? 'backpack-add' : 'backpack-move';
+    act(action, { key: item.key, x, y, rotation: selection.rotation });
     setPicked(null);
     setHover(null);
     setMessage('');
@@ -194,7 +206,7 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
     if (!drag.dragged) return;
     skipClick.current = true;
     const cell = cellAtPointer(event);
-    if (cell) place(drag.item, picked?.key === drag.item.key ? picked : drag.selection, cell);
+    if (cell) place(drag.item, drag.selection, cell);
     else setHover(null);
   };
 
@@ -249,13 +261,29 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
   const width = bounds.right - bounds.left + 1;
   const height = bounds.top - bounds.bottom + 1;
   const dragHandlers = { onPointerMove: pointerMove, onPointerUp: pointerUp, onPointerCancel: pointerCancel };
+  const rightClick = (event, item, fromCatalog) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (gesture.current || picked) {
+      rotateSelected();
+    } else if (item && !item.fixed && (!fromCatalog || item.canSelect)) {
+      const rotated = { ...selectionFor(item, fromCatalog), rotation: rotationOf(rotationOf(item.rotation) + 90) };
+      if (fromCatalog || item.overflow) {
+        setPicked(rotated);
+        setMessage('');
+      }
+      else place(item, rotated, { x: item.x, y: item.y });
+    }
+  };
   const selectHandlers = (item, fromCatalog) => ({
     onPointerDown: event => begin(event, item, fromCatalog),
     onClick: handleClick(() => pickCard(item, fromCatalog)),
+    onContextMenu: event => rightClick(event, item, fromCatalog),
   });
+  const texture = url => url ? 'url("' + url + '")' : 'none';
 
-  return <div className="BackpackEditor__backdrop" onPointerDown={event => {
-    if (event.target === event.currentTarget) onClose();
+  return <div className="BackpackEditor__backdrop" onContextMenu={event => rightClick(event)} onPointerDown={event => {
+    if (event.button === 0 && event.target === event.currentTarget) onClose();
   }}>
     <div className="BackpackEditor__windows" data-catalog-open={catalogOpen && !!cells.length}>
       <section className="BackpackEditor__window" ref={dialog} tabIndex={-1} role="dialog"
@@ -265,12 +293,21 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
           <Button role="button" icon="times" aria-label="Закрыть редактор рюкзака" onClick={onClose} />
         </header>
         <div className="BackpackEditor__body">
+          {!!containers.length && <nav className="BackpackEditor__toolbar" aria-label="Рюкзак, коробки и кейсы">
+            <Button role="button" icon="arrow-left" aria-label="Рюкзак" aria-pressed={!currentContainer} selected={!currentContainer}
+              onClick={() => openContainer('')}>Рюкзак</Button>
+            {containers.map(container => <Button role="button" key={container.key} icon="box"
+              selected={currentContainer === container.key} onClick={() => openContainer(container.key)}>
+              {container.name}
+            </Button>)}
+          </nav>}
           {!!cells.length ? <>
             <div className="BackpackEditor__toolbar">
               <Button role="button" icon="list" selected={catalogOpen} aria-expanded={catalogOpen}
                 aria-controls={dialogId + '-catalog'} onClick={() => setCatalogOpen(!catalogOpen)}>{catalogTitle}</Button>
               <Button role="button" icon="redo" disabled={!selected} onClick={rotateSelected}>Повернуть</Button>
-              <Button role="button" icon="trash" disabled={!selected || picked.fromCatalog || selected.fixed}
+              <Button role="button" icon="trash" aria-label="Убрать предмет"
+                disabled={!selected || picked.fromCatalog || selected.fixed}
                 onClick={() => {
                   act('backpack-remove', { key: selected.key });
                   setPicked(null);
@@ -279,26 +316,33 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
                 }}>Убрать предмет</Button>
             </div>
             <div className="BackpackEditor__gridScroll">
-              <div className="BackpackEditor__grid" ref={gridNode} role="group" aria-label="Сетка рюкзака"
-                style={{ '--columns': width, '--rows': height }} onPointerLeave={() => {
+              <div className="BackpackEditor__grid" ref={gridNode} role="group"
+                aria-label={currentContainer ? 'Сетка контейнера' : 'Сетка рюкзака'}
+                style={{ '--columns': width, '--rows': height, '--backpack-tile': texture(data?.tile),
+                  '--backpack-blocked-tile': texture(data?.blockedTile), '--backpack-piece': texture(data?.pieceTile) }} onPointerLeave={() => {
                   if (!gesture.current?.dragged) setHover(null);
                 }} {...dragHandlers}>
-                {cells.map(cell => {
+                {[...cellsOf([bounds])].map(cell => {
+                  const style = { gridColumn: cell.x - bounds.left + 1, gridRow: bounds.top - cell.y + 1 };
+                  if (!cellSet.has(cell.key))
+                    return <span className="BackpackEditor__blockedCell" key={cell.key} style={style} aria-hidden="true" />;
                   const item = occupants.get(cell.key);
                   const mark = previewCells.has(cell.key) && (preview.valid ? 'valid' : 'invalid');
                   return <button type="button" className="BackpackEditor__cell" key={cell.key}
                     data-occupied={!!item} data-fixed={!!item?.fixed} data-selected={!!item && item.key === selected?.key}
                     data-preview={mark || undefined} aria-label={item?.name || 'Ячейка ' + (cell.x - bounds.left + 1) + ', ' + (bounds.top - cell.y + 1)}
-                    title={item?.name} style={{ gridColumn: cell.x - bounds.left + 1, gridRow: bounds.top - cell.y + 1 }}
+                    title={item?.container ? item.name + ' · двойное нажатие — открыть' : item?.name} style={style}
                     onPointerEnter={() => { if (!gesture.current?.dragged) setHover(cell); }}
                     onFocus={() => setHover(cell)} onPointerDown={event => begin(event, item, false, cell)}
+                    onContextMenu={event => rightClick(event, item, false)}
+                    onDoubleClick={item?.container ? () => openContainer(item.key) : undefined}
                     onClick={handleClick(() => pickCell(cell, item))} />;
                 })}
                 {placed.map(({ item, boxes }) => <div key={item.key} className="BackpackEditor__placed"
                   style={gridArea(boundsOf(boxes), bounds)}><Sprite item={item} rotation={item.rotation} /></div>)}
               </div>
             </div>
-            <p className="BackpackEditor__hint">{selected ? 'Выберите ячейку для предмета «' + selected.name + '».'
+            <p className="BackpackEditor__hint">{selected ? 'Выберите ячейку для предмета «' + selected.name + '». ПКМ — повернуть.'
               : 'Перетащите предмет в ячейку или выберите предмет, затем ячейку.'}</p>
             {!!overflow.length && <div className="BackpackEditor__overflow" {...dragHandlers}>
               <h3>Не поместилось</h3>
@@ -364,7 +408,7 @@ export function BackpackEditor({ data, context, active = true, act, showUnavaila
         <span className="Dropdown__selected-text">{title}</span>
       </button>
     </div>
-    {active && open && <BackpackWindows data={data} act={act} onClose={close}
+    {active && open && <BackpackWindows key={data?.container || ''} data={data} act={act} onClose={close}
       showUnavailable={showUnavailable} dialogId={dialogId} />}
   </>;
 }

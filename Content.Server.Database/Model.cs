@@ -572,6 +572,7 @@ namespace Content.Server.Database
         public string? Customizations { get; set; }
         public string? UnequippedSlots { get; set; }
         public string? BackpackLayout { get; set; }
+        public string? HandAssignments { get; set; }
         public int Id { get; set; }
 
         public int ProfileId { get; set; }

@@ -40,3 +40,6 @@ dl-loadout-slot-helmetattachment = Крепление шлема
 dl-loadout-incompatible-species-slots = У выбранной расы нет подходящего слота для этого снаряжения.
 dl-loadout-insufficient-balance = На счёте персонажа не хватает средств для этого снаряжения.
 dl-loadout-insufficient-points = Не хватает очков снаряжения.
+dl-loadout-left-hand = Левая рука
+dl-loadout-right-hand = Правая рука
+dl-loadout-middle-hand = Средняя рука

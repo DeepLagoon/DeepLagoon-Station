@@ -365,7 +365,7 @@ public partial class BaseShuttleControl : MapGridControl
         handle.DrawString(Font, labelPosition, label, 0.9f, color.WithAlpha(0.7f));
     }
 
-    private static void DrawArrowLine(
+    protected static void DrawArrowLine(
         DrawingHandleScreen handle,
         Vector2 start,
         Vector2 end,
@@ -383,7 +383,7 @@ public partial class BaseShuttleControl : MapGridControl
         handle.DrawLine(end, end - direction * headLength - left * (headLength * 0.45f), color);
     }
 
-    private static bool TryGetViewportEdgePoint(
+    protected static bool TryGetViewportEdgePoint(
         Vector2 origin,
         Vector2 direction,
         Vector2 viewportSize,

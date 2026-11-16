@@ -73,8 +73,9 @@ public sealed class LoadoutStorageSpawnTests
         await pair.CleanReturnAsync();
     }
 
-    [Test]
-    public async Task SavedLayoutIsAppliedInTheModsuitModule()
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task SavedLayoutIsAppliedInTheModsuitModule(bool invalidPistolPosition)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
@@ -90,6 +91,8 @@ public sealed class LoadoutStorageSpawnTests
             role.SelectedLoadouts["MercenaryPistol"] = new() { new() { Prototype = "MercenaryPollockLoadout" } };
             role.BackpackLayout["loadout/ContractorAppraisalCartridge/0/AppraisalCartridge"] = new(true, 0, 0, 0);
             role.BackpackLayout["loadout/MercenaryClothingMaskGasMercenary/0/ClothingMaskGasMercenary"] = new(false, 4, 2, 90);
+            if (invalidPistolPosition)
+                role.BackpackLayout["loadout/MercenaryPollockLoadout/0/WeaponPistolPollock"] = new(false, 40, 20, 180);
             var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithLoadout(role);
             var mob = spawning.SpawnPlayerMob(map.GridCoords, "Mercenary", profile, null, deferStartingGear: true);
             spawning.FinishDeferredStartingGear(mob);
@@ -102,7 +105,15 @@ public sealed class LoadoutStorageSpawnTests
             Assert.That(entities.GetComponent<MetaDataComponent>(bag.Owner).EntityPrototype?.ID, Is.EqualTo("ModModuleStorage"));
             var contents = bag.Comp.StoredItems.ToDictionary(
                 entry => entities.GetComponent<MetaDataComponent>(entry.Key).EntityPrototype!.ID, entry => entry.Value);
-            Assert.That(contents.Keys, Is.EquivalentTo(new[] { "ClothingMaskGasMercenary", "WeaponPistolPollock" }));
+            Assert.That(contents.Keys, Is.EquivalentTo(invalidPistolPosition
+                ? new[] { "ClothingMaskGasMercenary" }
+                : new[] { "ClothingMaskGasMercenary", "WeaponPistolPollock" }));
+            if (invalidPistolPosition)
+            {
+                var pistol = entities.EntityQuery<MetaDataComponent>().Single(meta => meta.EntityPrototype?.ID == "WeaponPistolPollock").Owner;
+                Assert.That(entities.System<SharedTransformSystem>().GetMapCoordinates(pistol), Is.EqualTo(entities.System<SharedTransformSystem>().GetMapCoordinates(mob)));
+                Assert.That(entities.System<Content.Shared.Hands.EntitySystems.SharedHandsSystem>().EnumerateHeld(mob), Does.Not.Contain(pistol));
+            }
             var mask = contents["ClothingMaskGasMercenary"];
             Assert.That(mask.Position, Is.EqualTo(new Robust.Shared.Maths.Vector2i(4, 2)));
             Assert.That(mask.Rotation.Degrees, Is.EqualTo(90).Within(0.01));

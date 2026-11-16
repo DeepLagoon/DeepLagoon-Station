@@ -5,22 +5,149 @@ using System.Numerics;
 using Content.Server.Doors.Systems;
 using Content.Server.Spawners.Components;
 using Content.Server._DeepLagoon.Apartments;
+using Content.Server._DeepLagoon.Mapping;
 using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Inventory;
 using Content.Shared.Doors;
 using Content.Shared.Doors.Components;
+using Content.Shared.Maps;
+using Content.Shared.Wall;
+using Robust.Shared.Audio.Components;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Configuration;
+using Robust.Shared.EntitySerialization.Systems;
+using Robust.Shared.Enums;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
 using Robust.Shared.Network;
+using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
 
 [TestFixture, NonParallelizable]
 public sealed class ApartmentElevatorTests
 {
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OccupiedArrivalWaitsForPlayerBeforeTransferringPassengers(bool leavesVoluntarily)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var blockerSession = await pair.Server.AddDummySession();
+        var tickRate = pair.Server.ResolveDependency<IGameTiming>().TickRate;
+        EntityUid passenger = default, blocker = default, sourceGrid = default, destinationGrid = default, door = default;
+        EntityCoordinates blockedPosition = default, outsideDoor = default;
+        EntityUid travelAudio = default;
+
+        void AssertBlockerPosition(EntityCoordinates expected)
+        {
+            var actual = pair.Server.EntMan.GetComponent<TransformComponent>(blocker).Coordinates;
+            Assert.That(actual.EntityId, Is.EqualTo(expected.EntityId));
+            Assert.That(Vector2.Distance(actual.Position, expected.Position), Is.LessThan(.01f));
+        }
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            maps.CreateMap(out var mapId);
+            Assert.That(entities.System<MapLoaderSystem>().TryLoadGridTracked(mapId,
+                new ResPath("/Maps/_DeepLagoon/Apartments/residential_stop.yml"), out var stop), Is.True);
+            destinationGrid = stop!.Value.Owner;
+            var destination = entities.EntityQuery<ApartmentElevatorComponent, TransformComponent>()
+                .Single(panel => panel.Item2.GridUid == destinationGrid);
+            var destinationPanel = destination.Item2;
+            var cabinCenter = (destination.Item1.CabinMin + destination.Item1.CabinMax) / 2;
+            var doorOffset = destination.Item1.DoorOffsets.Single();
+            var outward = Vector2.Normalize(doorOffset - cabinCenter);
+            var doorPosition = destinationPanel.LocalPosition + destinationPanel.LocalRotation.RotateVec(doorOffset);
+            outsideDoor = new EntityCoordinates(destinationGrid, doorPosition + destinationPanel.LocalRotation.RotateVec(outward));
+            door = entities.EntityQuery<DoorComponent, TransformComponent>()
+                .Single(entry => entry.Item2.GridUid == destinationGrid && entry.Item2.LocalPosition == doorPosition).Item2.Owner;
+            blockedPosition = new EntityCoordinates(destinationGrid,
+                destinationPanel.LocalPosition + destinationPanel.LocalRotation.RotateVec(cabinCenter));
+            blocker = entities.SpawnEntity("MobHuman", blockedPosition);
+            pair.Server.PlayerMan.SetStatus(blockerSession, SessionStatus.InGame);
+            pair.Server.PlayerMan.SetAttachedEntity(blockerSession, blocker);
+
+            var config = pair.Server.ResolveDependency<IConfigurationManager>();
+            config.SetCVar(ApartmentCVars.Enabled, true);
+            config.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
+            var driver = pair.Server.PlayerMan.Sessions.Single(session => session != blockerSession);
+            passenger = entities.SpawnEntity("MobHuman", outsideDoor);
+            pair.Server.PlayerMan.SetStatus(driver, SessionStatus.InGame);
+            pair.Server.PlayerMan.SetAttachedEntity(driver, passenger);
+            var apartments = entities.System<ApartmentSystem>();
+            GrantBasicApartment(apartments, driver.UserId);
+            Assert.That(apartments.Enter(driver, driver.UserId, out var error), Is.True, error);
+            sourceGrid = apartments.Instances[driver.UserId].Grid;
+            var source = entities.EntityQuery<ApartmentElevatorComponent, TransformComponent>()
+                .Single(panel => panel.Item2.GridUid == sourceGrid);
+            // The panel in the legacy template shares the wall tile.
+            entities.EnsureComponent<WallMountComponent>(source.Item2.Owner);
+            var nearPanel = new Vector2(0, source.Item1.CabinMax.Y);
+            entities.System<SharedTransformSystem>().SetCoordinates(passenger, new EntityCoordinates(sourceGrid,
+                source.Item2.LocalPosition + source.Item2.LocalRotation.RotateVec(nearPanel)));
+            Assert.That(entities.System<ApartmentElevatorSystem>()
+                .RequestRide(driver, source.Item2.Owner, 0, true), Does.Contain("Двери закрываются"));
+        });
+
+        await pair.RunTicksSync(tickRate * 13);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.GetComponent<TransformComponent>(passenger).GridUid, Is.EqualTo(sourceGrid));
+            Assert.That(entities.HasComponent<ApartmentTripPendingComponent>(passenger), Is.True);
+            AssertBlockerPosition(blockedPosition);
+            Assert.That(entities.GetComponent<DoorComponent>(door).State, Is.EqualTo(DoorState.Open));
+            var audio = entities.EntityQuery<AudioComponent, TransformComponent>()
+                .Single(entry => entry.Item2.ParentUid == passenger && entry.Item1.FileName == "/Audio/_DeepLagoon/Apartments/travel.ogg");
+            Assert.That(audio.Item1.Params.Loop, Is.True);
+            travelAudio = audio.Item2.Owner;
+            if (leavesVoluntarily)
+                entities.System<SharedTransformSystem>().SetCoordinates(blocker, outsideDoor);
+        });
+
+        await pair.RunTicksSync(leavesVoluntarily ? 2 : tickRate * 2);
+        if (!leavesVoluntarily)
+        {
+            await pair.Server.WaitAssertion(() =>
+            {
+                var entities = pair.Server.EntMan;
+                AssertBlockerPosition(blockedPosition);
+                Assert.That(entities.HasComponent<ApartmentTripPendingComponent>(passenger), Is.True);
+            });
+            await pair.RunTicksSync(tickRate * 3);
+        }
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            Assert.That(entities.GetComponent<TransformComponent>(passenger).GridUid, Is.EqualTo(destinationGrid));
+            Assert.That(entities.HasComponent<ApartmentTripPendingComponent>(passenger), Is.False);
+            Assert.That(entities.HasComponent<ApartmentElevatorExitDoorComponent>(door), Is.False);
+            Assert.That(entities.EntityExists(travelAudio), Is.False);
+            AssertBlockerPosition(outsideDoor);
+            var position = entities.GetComponent<TransformComponent>(blocker).Coordinates;
+            var tile = entities.System<SharedMapSystem>().GetTileRef(destinationGrid,
+                entities.GetComponent<MapGridComponent>(destinationGrid), position);
+            Assert.That(entities.System<TurfSystem>().IsSpace(tile), Is.False);
+            foreach (var session in pair.Server.PlayerMan.Sessions)
+                pair.Server.PlayerMan.SetAttachedEntity(session, null);
+        });
+        await pair.Server.RemoveAllDummySessions();
+        await pair.CleanReturnAsync();
+    }
+
+    private static void GrantBasicApartment(ApartmentSystem apartments, NetUserId owner)
+    {
+        var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(apartments)!;
+        store.BeginPurchase(owner.UserId, "DLApartmentBasic", 0);
+        store.Grant(owner.UserId, "DLApartmentBasic");
+    }
+
     [TestCase(false)]
     [TestCase(true)]
     public async Task KnownNumberNeedsNoInvitationAndRoundTripRestoresExactGear(bool rotated)
@@ -40,9 +167,7 @@ public sealed class ApartmentElevatorTests
             pair.Server.ResolveDependency<IConfigurationManager>().SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentBasic");
             var session = pair.Server.PlayerMan.Sessions.Single(session => !observers.Contains(session));
             var apartments = entities.System<ApartmentSystem>();
-            var store = (IApartmentLayoutStore) typeof(ApartmentSystem).GetProperty("Store", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(apartments)!;
-            store.BeginPurchase(owner.UserId, "DLApartmentBasic", 0);
-            store.Grant(owner.UserId, "DLApartmentBasic");
+            GrantBasicApartment(apartments, owner);
             var home = apartments.PrepareElevatorApartment(owner);
             // This fixture installs a one-tile cabin at a known location.
             var templatePanels = new List<EntityUid>();
