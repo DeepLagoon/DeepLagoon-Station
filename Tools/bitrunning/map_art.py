@@ -197,6 +197,7 @@ class MapArt:
         except yaml.composer.ComposerError:
             return self.native_file(path)[proto]
 
+    @cache
     def placed_components(self, proto):
         if not (entry := self.entities.get(proto)):
             return self.components(proto)
@@ -469,11 +470,14 @@ class MapArt:
         parent = "BaseItem" if portable else "PosterBase" if atom.path.startswith("/obj/structure/sign/poster/") else "BaseSign" if sign else None
         drawdepth = "SmallObjects" if portable else "WallMountedItems" if sign else "FloorObjects" if atom.path.startswith(
             ("/obj/effect/decal/", "/obj/effect/turf_decal/")) else "Objects"
+        sprite = {"type": "Sprite", "drawdepth": drawdepth, **style}
+        if sign and self.atlas(path)[2][state][1] > 1:
+            sprite.update(noRot=True, snapCardinals=False)
         self.entities[proto] = {
             "name": dm_string(source.get("name")) or atom.path.rsplit("/", 1)[-1].replace("_", " "),
             **({"parent": parent} if parent else {}),
             "components": ([{"type": "Transform", "anchored": True}] if not portable else []) + [
-                {"type": "Sprite", "drawdepth": drawdepth, **style}],
+                sprite],
         }
         if description := dm_string(source.get("desc")):
             self.entities[proto]["description"] = description
@@ -490,7 +494,7 @@ class MapArt:
             "spawner" in Path(path).stem
 
     def entity(self, atom, target, position):
-        if target.startswith(("BitrunMob", "BitrunGhost", "MobRandom")) or target in RUNTIME_APPEARANCE:
+        if target.startswith(("BitrunMob", "BitrunGhost", "MobRandom")) or target in RUNTIME_APPEARANCE or target == "CableApcExtension":
             self.manifest[atom.path]["retained runtime prototype"] += 1
             return target
         if self.is_spawner(atom.path, self.atlas_path(atom) or ""):
@@ -537,6 +541,7 @@ class MapArt:
         original = self.add(path, state)
         overrides = []
         art_layer = 0
+        directional_door = False
         light = path == "icons/obj/lighting.dmi" and "PoweredLight" in native
         wall_light = light and not state.startswith("floor")
         if "LockVisuals" in native:
@@ -600,6 +605,7 @@ class MapArt:
                 return None
             opening = self.state_candidate(records, prefix + "opening", "opening", "door_opening") or opened
             closing = self.state_candidate(records, prefix + "closing", "closing", "door_closing") or closed
+            directional_door = any(records[door_state][1] > 1 for door_state in (closed, opened, opening, closing))
             original = self.add(path, closed, states[0], variant)
             for from_state, to_state in zip((opened, opening, closing), states[1:]):
                 self.add(path, from_state, to_state, variant)
@@ -685,6 +691,11 @@ class MapArt:
         else:
             layers = [original]
         sprite_override = {"type": "Sprite", "layers": layers}
+        if "ApcVisuals" in native:
+            sprite_override["snapCardinals"] = True
+        if directional_door:
+            # The RSI already contains its cardinal orientations.
+            sprite_override.update(noRot=True, snapCardinals=False)
         if light:
             sprite_override.update(offset="0,0", noRot=False, snapCardinals=False)
             if wall_light and layers[0]["sprite"] == self.rsi(path):

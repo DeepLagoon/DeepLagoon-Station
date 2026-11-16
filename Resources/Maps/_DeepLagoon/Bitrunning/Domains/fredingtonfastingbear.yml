@@ -904,8 +904,8 @@ entities:
       - uid: 84
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 83
+            pos: 0,0
   - proto: BitrunArteda4c352a0cb
     entities:
       - uid: 223
@@ -2597,6 +2597,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 12.5,9.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [84]
       - uid: 90
         components:
           - type: Transform

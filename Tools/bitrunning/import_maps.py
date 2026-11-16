@@ -47,6 +47,8 @@ class Entity:
     link: str = ""
     sprite_offset: tuple[float, float] | None = None
     sprite_color: str = ""
+    locker: bool = False
+    wide_door: bool = False
 
 
 def git(repo, *args, **kwargs):
@@ -372,6 +374,7 @@ OBJECTS = {
     "obj/machinery/light/small": "PoweredSmallLight",
     "obj/machinery/light": "Poweredlight",
     "obj/machinery/door/airlock/wood": "Airlock",
+    "obj/machinery/door/airlock/multi_tile/glass": "AirlockGlass",
     "obj/machinery/door/airlock/glass": "AirlockGlass",
     "obj/machinery/door/airlock/external": "AirlockExternal",
     "obj/machinery/door/airlock/maintenance": "AirlockMaint",
@@ -501,6 +504,8 @@ OBJECTS = {
     "obj/item/reagent_containers/cup/bottle": "DrinkBeerBottleFull",
     "obj/item/gun/energy/laser": "WeaponLaserCarbine",
     "obj/item/gun/ballistic/automatic": "WeaponSubMachineGunDrozd",
+    "obj/item/gun/ballistic/automatic/pistol": "WeaponPistolMk58",
+    "obj/item/gun/ballistic/automatic/pistol/plasma_thrower": "WeaponSubMachineGunDrozd",
     "obj/item/gun/ballistic/shotgun": "WeaponShotgunDoubleBarreled",
     "obj/item/gun/ballistic/revolver": "WeaponRevolverInspector",
     "obj/item/gun/ballistic": "WeaponPistolMk58",
@@ -569,9 +574,13 @@ OBJECTS = {
     "obj/item/knife/combat": "CombatKnife",
     "obj/item/ammo_box/magazine/c35sol_pistol/stendo": "Magazine45_ACPPistolHighCapacityFMJ",
     "obj/item/ammo_box/magazine/c35sol_pistol": "Magazine45_ACPPistolFMJ",
-    "obj/item/ammo_box/magazine/m9mm": "MagazinePistol",
-    "obj/item/ammo_box/magazine/m7mm": "MagazineLightRifle",
-    "obj/item/ammo_box/magazine/lanca": "MagazineLightRifle",
+    "obj/item/ammo_box/magazine/m9mm": "Magazine45_ACPPistolFMJ",
+    "obj/item/ammo_box/magazine/m9mm_aps": "Magazine45_ACPPistolHighCapacityFMJ",
+    "obj/item/ammo_box/magazine/smgm45": "Magazine45_ACPSubMachineGunFMJ",
+    "obj/item/ammo_box/magazine/lanca": "Magazine45_ACPSubMachineGunFMJ",
+    "obj/item/ammo_box/magazine/miecz": "Magazine45_ACPSubMachineGunFMJ",
+    "obj/item/ammo_box/magazine/wylom": "Magazine45_ACPSubMachineGunFMJ",
+    "obj/item/ammo_box/magazine/recharge/plasma_battery": "Magazine45_ACPSubMachineGunFMJ",
     "obj/item/ammo_box/c35sol": "MagazineBoxPistol",
     "obj/item/ammo_casing/rocket": "CartridgeRocket",
     "obj/item/ammo_casing/spent": "CasingPistol",
@@ -779,6 +788,16 @@ def imported_placement(atom, entity, art):
         entity = replace(entity, rotation=str((int(direction_for(atom)) + 180) % 360))
     has_offset = any(axis in atom.fields or axis in source for axis in ("pixel_x", "pixel_y"))
     x, y = (as_int(atom.fields.get(axis, source.get(axis))) / 32 for axis in ("pixel_x", "pixel_y"))
+    if "ApcVisuals" in components:
+        # APC setDir() mounts the panel 25 pixels toward the supporting wall.
+        angle = math.radians(int(entity.rotation))
+        x, y = round(math.sin(angle)) * 25 / 32, -round(math.cos(angle)) * 25 / 32
+        has_offset = True
+    if atom.path.startswith("/obj/machinery/door/airlock/multi_tile/"):
+        # The 64px directional art starts at the bottom-left tile in every direction.
+        x, y, has_offset = x + 0.5, y + 0.5, True
+        rotation = "90" if int(entity.rotation) % 180 == 90 else "0"
+        entity = replace(entity, rotation=rotation, wide_door=True)
     if atom.path.startswith("/obj/structure/sign/") and (has_offset or atom.path.startswith("/obj/structure/sign/poster/")):
         # WhiteMoon mounts the sign on the tile reached by its authored offset.
         dx, dy = (round(value) if abs(value) > 0.5 else 0 for value in (x, y))
@@ -1002,6 +1021,8 @@ def convert(cells, key, is_domain, known, art):
                 proto = "DisposalBend"
             if proto and proto in imported_objects:
                 entity = (corpse_entity if path.startswith("obj/effect/mob_spawn/corpse/") else atom_entity)(atom, proto, pos)
+                if path.startswith("obj/structure/closet/") or path == "obj/structure/closet":
+                    entity = replace(entity, locker=True)
                 if proto == "BitrunStageButton":
                     entity = replace(entity, name="ancient_stage")
                 if entity.proto in known["noRotation"]:
@@ -1019,7 +1040,7 @@ def convert(cells, key, is_domain, known, art):
         if not fishing_spots or not rods:
             raise ValueError("Breeze Bay requires accessible shoreline and fishing rods")
         spot = min(fishing_spots, key=lambda pos: (min(abs(pos[0]-r[0]) + abs(pos[1]-r[1]) for r in rods), pos))
-        marker("BitrunFishingSpot", spot, "fishing")
+        marker("BitrunFishingSpot", spot)
 
     if is_domain:
         if not exits:
@@ -1068,6 +1089,18 @@ def convert(cells, key, is_domain, known, art):
     ):
         if path in counts:
             associations[path].add(proto)
+    # Some imported guns had no loose ammunition in their source room.
+    magazine = "Magazine45_ACPSubMachineGunFMJ"
+    supplied = {entity.position for entity in entities if entity.proto.startswith(magazine)}
+    drozd_positions = dict.fromkeys(entity.position for entity in entities
+                                   if entity.proto.startswith("WeaponSubMachineGunDrozd"))
+    for position in drozd_positions:
+        if position in supplied:
+            continue
+        atom = Atom("/obj/item/ammo_box/magazine/smgm45", {"pixel_x": "8", "pixel_y": "-8"})
+        pos = (math.floor(position[0]), math.floor(position[1]))
+        entities.append(imported_placement(atom, atom_entity(atom, magazine, pos), art))
+
     # Native noRot transforms reject authored angles even when the source counterpart rotates.
     entities = [replace(entity, rotation="0") if entity.proto in known["noRotation"] else entity
                 for entity in entities]
@@ -1078,7 +1111,7 @@ def float_pos(pos):
     return ",".join(f"{value:g}" for value in pos)
 
 
-def map_yaml(name, tiles, entities, decals):
+def map_yaml(name, tiles, entities, decals, art):
     tile_names = ["Space"] + sorted(set(tiles.values()) - {"Space"})
     ids = {name: index for index, name in enumerate(tile_names)}
     chunks = defaultdict(lambda: bytearray(TILE_BYTES.size * CHUNK_SIZE * CHUNK_SIZE))
@@ -1123,8 +1156,17 @@ def map_yaml(name, tiles, entities, decals):
 
     by_prototype = defaultdict(list)
     links = defaultdict(list)
+    lockers = {}
+    contents = defaultdict(list)
+    parents = {}
+    for uid, entity in enumerate(entities, start=2):
+        if entity.locker and "EntityStorage" in art.placed_components(entity.proto):
+            lockers.setdefault(entity.position, uid)
     for uid, entity in enumerate(entities, start=2):
         by_prototype[entity.proto].append((uid, entity))
+        if (locker := lockers.get(entity.position)) and "Item" in art.placed_components(entity.proto):
+            contents[locker].append(uid)
+            parents[uid] = locker
         if entity.link:
             links[entity.link].append(uid)
     if any(len(pair) != 2 for pair in links.values()):
@@ -1132,10 +1174,24 @@ def map_yaml(name, tiles, entities, decals):
     for proto, group in sorted(by_prototype.items()):
         rows.extend([f"  - proto: {proto}", "    entities:"])
         for uid, entity in group:
+            parent = parents.get(uid, 1)
+            pos = entity.position if parent == 1 else (0, 0)
             rows.extend([f"      - uid: {uid}", "        components:", "          - type: Transform",
-                         "            parent: 1", f"            pos: {float_pos(entity.position)}"])
-            if entity.rotation != "0":
+                         f"            parent: {parent}", f"            pos: {float_pos(pos)}"])
+            if entity.rotation != "0" and parent == 1:
                 rows.append(f"            rot: {entity.rotation}")
+            if uid in contents:
+                rows.extend(["          - type: ContainerContainer", "            containers:",
+                             "              entity_storage: !type:Container",
+                             f"                ents: {contents[uid]}"])
+            if entity.wide_door:
+                fixture = art.placed_components(entity.proto)["Fixtures"]["fixtures"]["fix1"]
+                rows.extend(["          - type: Fixtures", "            fixtures:", "              fix1:",
+                             "                shape: !type:PhysShapeAabb",
+                             "                  bounds: -0.49,-0.49,1.49,0.49",
+                             f"                density: {fixture['density']}",
+                             f"                mask: {json.dumps(fixture['mask'])}",
+                             f"                layer: {json.dumps(fixture['layer'])}"])
             if entity.sprite_offset is not None or entity.sprite_color:
                 rows.append("          - type: Sprite")
                 if entity.sprite_offset is not None:
@@ -1201,7 +1257,7 @@ def main():
             "decals": len(decals),
             "markers": dict(sorted(Counter(e.proto for e in entities if e.proto in MARKERS or e.proto in {"BitrunStageButton", "BitrunFishingSpot", "BitrunRitualAltar"}).items())),
         }
-        produced[output] = map_yaml(name, tiles, entities, decals)
+        produced[output] = map_yaml(name, tiles, entities, decals, art)
     for path, count in sorted(source_counts.items()):
         targets = sorted(source_associations.get(path, ()))
         if not targets and path.startswith(("/area", "/obj/effect/baseturf_helper", "/obj/modular_map_")):

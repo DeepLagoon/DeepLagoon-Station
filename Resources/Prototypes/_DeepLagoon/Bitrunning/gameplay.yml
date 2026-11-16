@@ -308,7 +308,6 @@
   name: island combatant
   categories: [ HideSpawnMenu ]
   components:
-  - type: BitrunIslandCombatant
   - type: Loadout
     prototypes: [ BitrunIslandGear ]
 

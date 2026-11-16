@@ -1,7 +1,7 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 1067
+  entityCount: 1068
 maps: []
 grids: [1]
 orphans: [1]
@@ -4361,20 +4361,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 22.5,3.5
-  - proto: BitrunArt6afdb3486067
-    entities:
-      - uid: 463
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,15.5
-  - proto: BitrunArt6afdb3486067Placementcc6631f1cc70
-    entities:
-      - uid: 464
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,15.5
   - proto: BitrunArt7220771ea8f3Placement3099557906bd
     entities:
       - uid: 151
@@ -5159,6 +5145,27 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,25.5
+  - proto: Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713
+    entities:
+      - uid: 463
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,15.5
+  - proto: Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713Placementcc6631f1cc70
+    entities:
+      - uid: 464
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,15.5
+  - proto: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
+    entities:
+      - uid: 1068
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,16.5
   - proto: MedicalBedBitrunArt783ef7032a11
     entities:
       - uid: 140

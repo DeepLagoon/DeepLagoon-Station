@@ -5,8 +5,11 @@ using Content.Client.Lock.Visualizers;
 using Content.Client.Storage.Visualizers;
 using Content.Server._DeepLagoon.Bitrunning;
 using Content.Server._DeepLagoon.Mapping;
+using Content.Server.Storage.Components;
+using Content.Server.Storage.EntitySystems;
 using Content.Shared._DeepLagoon.Bitrunning;
 using Content.Shared._DeepLagoon.Mapping;
+using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Doors.Components;
 using Content.Shared.Doors.Systems;
 using Content.Shared.Light.Components;
@@ -14,6 +17,7 @@ using Content.Shared.Lock;
 using Content.Shared.Physics;
 using Content.Shared.Storage;
 using Robust.Client.GameObjects;
+using Robust.Shared.Containers;
 using Robust.Shared.ContentPack;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.GameObjects;
@@ -21,6 +25,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
@@ -96,6 +101,23 @@ public sealed class BitrunMapLoadingTests
                 Assert.That(sprites.LayerGetRsiState(plant, 0).Name, Is.Not.EqualTo("random_plant"));
                 entities.DeleteEntity(plant);
             }
+
+            var cable = Spawn(prototypes.Single(p => p.ID == "CableApcExtension"));
+            var cableRsi = sprites.LayerGetEffectiveRsi(cable, 0)!;
+            for (var mask = 0; mask < 16; mask++)
+                Assert.That(cableRsi.TryGetState($"lvcable_{mask}", out _), Is.True);
+            entities.DeleteEntity(cable);
+
+            var apc = Spawn(prototypes.Single(p => p.ID.StartsWith("APCBasicBitrunArt") && p.ID.Contains("Placement")));
+            Assert.That(apc.Comp.SnapCardinals, Is.True);
+            Assert.That(apc.Comp.Offset, Is.EqualTo(new Vector2(0, 25f / 32f)));
+            entities.DeleteEntity(apc);
+
+            var wideDoor = Spawn(prototypes.First(p => p.ID.StartsWith("AirlockBitrunArt3fd11e64d8afPlacement")));
+            Assert.That(wideDoor.Comp.NoRotation, Is.True);
+            Assert.That(wideDoor.Comp.SnapCardinals, Is.False);
+            sprites.GetLocalBounds(wideDoor);
+            entities.DeleteEntity(wideDoor);
         });
         await pair.CleanReturnAsync();
     }
@@ -205,6 +227,7 @@ public sealed class BitrunMapLoadingTests
                             Assert.That(attackers.Intersect(defenders), Is.Empty, file.ToString());
                         });
                     }
+
                 }
                 finally
                 {
@@ -213,6 +236,51 @@ public sealed class BitrunMapLoadingTests
             }
         });
         await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task AncientMilsimImportsCrateContentsTwoTileDoorAndCompatibleMagazine()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var map = entities.System<SharedMapSystem>().CreateMap(out var mapId);
+            var loader = entities.System<MapLoaderSystem>();
+            Assert.That(loader.TryLoadGridTracked(mapId,
+                new("/Maps/_DeepLagoon/Bitrunning/Domains/skyrat_ancientmilsim.yml"), out var loaded), Is.True);
+            AssertAncientMilsimImport(entities, loaded!.Value.Owner);
+            entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    private static void AssertAncientMilsimImport(IEntityManager entities, EntityUid grid)
+    {
+        var xform = entities.System<SharedTransformSystem>();
+        var crates = FindMarkers<ContainerManagerComponent>(entities, grid);
+        var crate = crates.Single(uid => entities.GetComponent<TransformComponent>(uid).LocalPosition == new Vector2(36.5f, 34.5f)
+                                         && entities.HasComponent<EntityStorageComponent>(uid));
+        var stored = entities.System<SharedContainerSystem>().GetContainer(crate, "entity_storage").ContainedEntities.ToArray();
+        Assert.That(stored, Has.Length.EqualTo(2));
+        entities.System<EntityStorageSystem>().OpenStorage(crate);
+        Assert.That(stored.All(uid => entities.GetComponent<TransformComponent>(uid).ParentUid == grid), Is.True);
+
+        var door = FindMarkers<DoorComponent>(entities, grid).Single(uid =>
+            entities.GetComponent<TransformComponent>(uid).LocalPosition == new Vector2(14.5f, 20.5f));
+        var bounds = entities.System<SharedPhysicsSystem>().GetWorldAABB(door);
+        Assert.That(bounds.Contains(xform.GetWorldPosition(door) + Vector2.UnitY), Is.True,
+            $"Door at {xform.GetWorldPosition(door)} with local rotation {entities.GetComponent<TransformComponent>(door).LocalRotation.Degrees} has bounds {bounds}.");
+        Assert.That(bounds.Contains(xform.GetWorldPosition(door) + Vector2.UnitX), Is.False);
+
+        var native = FindMarkers<MetaDataComponent>(entities, grid);
+        var drozd = native.First(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID
+            .StartsWith("WeaponSubMachineGunDrozdBitrunArt") == true);
+        var magazine = native.First(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID
+            .StartsWith("Magazine45_ACPSubMachineGunFMJBitrunArt") == true);
+        var slots = entities.System<ItemSlotsSystem>();
+        Assert.That(slots.TryEject(drozd, "gun_magazine", null, out _), Is.True);
+        Assert.That(slots.TryInsert(drozd, "gun_magazine", magazine, null), Is.True);
     }
 
     private static bool HasMarker<T>(IEntityManager entities, EntityUid grid)

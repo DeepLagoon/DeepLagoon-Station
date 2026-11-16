@@ -523,18 +523,18 @@ entities:
       - uid: 303
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 304
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 305
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
   - proto: BitrunAvatarSpawn
     entities:
       - uid: 4524
@@ -8269,18 +8269,18 @@ entities:
       - uid: 300
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 301
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 302
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
   - proto: CrateGenericSteelBitrunArtb64f761ca0ee
     entities:
       - uid: 296
@@ -8288,6 +8288,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 35.5,4.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [297, 298, 299, 300, 301, 302, 303, 304, 305]
   - proto: DrinkGlassBitrunArt1cdb566200e0Placementb1e2dd7b4520
     entities:
       - uid: 308
@@ -22763,18 +22767,18 @@ entities:
       - uid: 297
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 298
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
       - uid: 299
         components:
           - type: Transform
-            parent: 1
-            pos: 35.5,4.5
+            parent: 296
+            pos: 0,0
   - proto: PickaxeBitrunArt8c461045ea8b
     entities:
       - uid: 1031

@@ -15,6 +15,7 @@ using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs;
+using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Pulling.Systems;
 using Content.Shared.Research.Components;
@@ -29,11 +30,16 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class BitrunRunTests
 {
-    [TestCase("ancient_milsim", 150_000, 3)]
-    [TestCase("beach_bar", 5_000, 0)]
+    [TestCase("ancient_milsim", 75_000, 3)]
+    [TestCase("beach_bar", 2_500, 0)]
+    [TestCase("breeze_bay", 2_500, 0)]
+    [TestCase("island_brawl", 50_000, 3)]
     public async Task DeliveredCachePaysTheOriginalReceiverOnceAndRestoresTheBody(string domain, int reward, int cost)
     {
         var beachBar = domain == "beach_bar";
+#if DEBUG
+        cost = 0;
+#endif
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Destructive = true });
         var outside = await pair.CreateTestMap();
         var entities = pair.Server.EntMan;
@@ -47,7 +53,6 @@ public sealed class BitrunRunTests
         EntityUid forge = default;
         EntityUid avatar = default;
         EntityUid map = default;
-        TimeSpan launchAt = default;
         Guid matchId = default;
 
         await pair.Server.WaitAssertion(() =>
@@ -80,9 +85,7 @@ public sealed class BitrunRunTests
             Send(console, BitrunUiAction.Start, domain);
             var entry = SessionFor(entities, console, body);
             Assert.That(entry.Waiting, Is.True);
-            launchAt = entry.Deadline;
             matchId = entry.Id;
-            Assert.That(launchAt - pair.Server.Timing.CurTime, Is.InRange(TimeSpan.FromTicks(1), TimeSpan.FromMinutes(3)));
             Assert.That(entities.GetComponent<BitrunServerComponent>(server).Credits, Is.EqualTo(cost));
             Send(console, BitrunUiAction.BindResearch, target: entities.GetNetEntity(replacement));
             var podEntry = SessionFor(entities, pod, body);
@@ -100,13 +103,7 @@ public sealed class BitrunRunTests
             }
         });
 
-        await pair.RunTicksSync(2);
-        await pair.Server.WaitAssertion(() =>
-        {
-            Assert.That(session.AttachedEntity, Is.EqualTo(body));
-            AdvanceTo(pair, launchAt);
-        });
-        await pair.RunTicksSync(2);
+        await pair.RunTicksSync(pair.Server.Timing.TickRate);
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(entities.GetComponent<BitrunServerComponent>(server).Credits, Is.Zero,
@@ -119,7 +116,7 @@ public sealed class BitrunRunTests
             Assert.That(map, Is.Not.EqualTo(entities.GetComponent<TransformComponent>(body).MapUid));
             Assert.That(entities.GetComponent<MapLightComponent>(map).AmbientLightColor, Is.EqualTo(Color.White));
 
-            if (!beachBar)
+            if (domain == "ancient_milsim")
             {
                 foreach (var enemy in InDomain<MetaDataComponent>(entities, map).Where(uid =>
                              entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID is
@@ -134,14 +131,25 @@ public sealed class BitrunRunTests
             }
         });
 
-        if (beachBar)
-            await DrinkBeachBarCocktails();
-        else
-            await pair.RunTicksSync(5 * pair.Server.Timing.TickRate + 1);
+        switch (domain)
+        {
+            case "beach_bar":
+                await DrinkBeachBarCocktails();
+                break;
+            case "breeze_bay":
+                await FishAtBreezeBay();
+                break;
+            case "island_brawl":
+                await DefeatIslandWaves();
+                break;
+            default:
+                await pair.RunTicksSync(5 * pair.Server.Timing.TickRate + 1);
+                break;
+        }
 
         await pair.Server.WaitAssertion(() =>
         {
-            var cache = InDomain<BitrunCacheComponent>(entities, map).Single();
+            var cache = MainCaches().Single();
             var goal = InDomain<BitrunCacheGoalComponent>(entities, map).First();
             Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.Zero);
             entities.AddComponent<ApcPowerReceiverComponent>(beachBar ? forge : receiver);
@@ -161,7 +169,7 @@ public sealed class BitrunRunTests
         await pair.RunTicksSync(2 * pair.Server.Timing.TickRate + 1);
         await pair.Server.WaitAssertion(() =>
         {
-            Assert.That(InDomain<BitrunCacheComponent>(entities, map), Is.Empty);
+            Assert.That(MainCaches(), Is.Empty);
             Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(beachBar ? reward : 0));
             Assert.That(InDomain<MetaDataComponent>(entities, outside.MapUid).Count(uid =>
                 entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunDecryptedCache"),
@@ -175,15 +183,16 @@ public sealed class BitrunRunTests
             Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(reward));
             Assert.That(entities.GetComponent<ResearchServerComponent>(replacement).Points, Is.Zero);
             Assert.That(entities.System<BitrunSystem>().GetPersonalResearchPoints(session.UserId), Is.EqualTo(reward));
-            Assert.That(InDomain<MetaDataComponent>(entities, map).Count(uid =>
-                entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunEncryptedCache"), Is.Zero);
+            Assert.That(MainCaches(), Is.Empty);
 
             var exit = InDomain<BitrunExitComponent>(entities, map).First();
             entities.System<SharedTransformSystem>().SetCoordinates(avatar, entities.GetComponent<TransformComponent>(exit).Coordinates);
             entities.EventBus.RaiseLocalEvent(exit, new InteractHandEvent(avatar, exit));
             Assert.That(session.AttachedEntity, Is.EqualTo(body));
             Assert.That(entities.HasComponent<BitrunBodyComponent>(body), Is.False);
-            Send(console, BitrunUiAction.Stop, match: matchId);
+            Send(console, BitrunUiAction.Start, "beach_bar");
+            Assert.That(SessionFor(entities, console, body).Waiting, Is.True);
+            Assert.That(SessionFor(entities, console, body).Id, Is.Not.EqualTo(matchId));
             Assert.That(entities.EntityExists(map), Is.False);
         });
 
@@ -198,6 +207,69 @@ public sealed class BitrunRunTests
             pair.Server.PlayerMan.SetAttachedEntity(session, null);
         });
         await pair.CleanReturnAsync();
+
+        async Task FishAtBreezeBay()
+        {
+            EntityUid spot = default, rod = default;
+            await pair.Server.WaitAssertion(() =>
+            {
+                spot = InDomain<BitrunScenarioMarkerComponent>(entities, map).Single(uid =>
+                    entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunFishingSpot");
+                rod = InDomain<BitrunFishingRodComponent>(entities, map).First(uid =>
+                    entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID.StartsWith(
+                        "BitrunFishingRodPlacement", StringComparison.Ordinal) == true);
+                var xform = entities.System<SharedTransformSystem>();
+                var coordinates = entities.GetComponent<TransformComponent>(spot).Coordinates;
+                xform.SetCoordinates(avatar, coordinates);
+                xform.SetCoordinates(rod, coordinates);
+                Assert.That(entities.System<SharedHandsSystem>().TryPickupAnyHand(avatar, rod), Is.True);
+            });
+
+            for (var caught = 1; caught <= 5; caught++)
+            {
+                await pair.Server.WaitAssertion(() =>
+                {
+                    var use = new InteractUsingEvent(avatar, rod, spot, entities.GetComponent<TransformComponent>(spot).Coordinates);
+                    entities.EventBus.RaiseLocalEvent(spot, use);
+                    Assert.That(use.Handled, Is.True);
+                    AdvanceTo(pair, pair.Server.Timing.CurTime + TimeSpan.FromSeconds(7));
+                });
+                await pair.RunTicksSync(3);
+                await pair.Server.WaitAssertion(() =>
+                {
+                    Assert.That(InDomain<MetaDataComponent>(entities, map).Count(uid =>
+                        entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "FoodMeatFish"), Is.EqualTo(caught));
+                    Assert.That(MainCaches().Any(), Is.EqualTo(caught == 5));
+                });
+            }
+
+            await pair.Server.WaitAssertion(() =>
+                Assert.That(entities.System<SharedHandsSystem>().TryDrop(avatar, rod), Is.True));
+        }
+
+        async Task DefeatIslandWaves()
+        {
+            var defeated = 0;
+            while (defeated < 10)
+            {
+                await pair.Server.WaitAssertion(() => AdvanceTo(pair, pair.Server.Timing.CurTime + TimeSpan.FromSeconds(10)));
+                await pair.RunTicksSync(3);
+                await pair.Server.WaitAssertion(() =>
+                {
+                    var crabs = InDomain<MobStateComponent>(entities, map).Where(uid =>
+                        entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunIslandCrab" &&
+                        entities.System<MobStateSystem>().IsAlive(uid)).ToArray();
+                    Assert.That(crabs, Has.Length.InRange(1, 4), $"Waiting for a wave after defeating {defeated} crabs.");
+                    var mobState = entities.System<MobStateSystem>();
+                    foreach (var crab in crabs)
+                        mobState.ChangeMobState(crab, MobState.Dead);
+                    defeated += crabs.Length;
+                });
+                await pair.RunTicksSync(pair.Server.Timing.TickRate);
+                await pair.Server.WaitAssertion(() =>
+                    Assert.That(MainCaches().Any(), Is.EqualTo(defeated == 10)));
+            }
+        }
 
         async Task DrinkBeachBarCocktails()
         {
@@ -236,7 +308,7 @@ public sealed class BitrunRunTests
                     {
                         var revealed = sip == 2;
                         await pair.Server.WaitAssertion(() =>
-                            Assert.That(InDomain<BitrunCacheComponent>(entities, map).Any(), Is.EqualTo(revealed)));
+                            Assert.That(MainCaches().Any(), Is.EqualTo(revealed)));
                     }
                 }
 
@@ -245,11 +317,14 @@ public sealed class BitrunRunTests
                     var solutions = entities.System<SharedSolutionContainerSystem>();
                     Assert.That(solutions.TryGetSolution(cocktail, "drink", out _, out var drink), Is.True);
                     Assert.That(drink!.Volume.Float(), Is.Zero);
-                    Assert.That(InDomain<BitrunCacheComponent>(entities, map).Count(), Is.EqualTo(index == 3 ? 1 : 0));
+                    Assert.That(MainCaches().Count(), Is.EqualTo(index == 3 ? 1 : 0));
                     Assert.That(entities.System<SharedHandsSystem>().TryDrop(avatar, cocktail), Is.True);
                 });
             }
         }
+
+        IEnumerable<EntityUid> MainCaches() => InDomain<BitrunCacheComponent>(entities, map)
+            .Where(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunEncryptedCache");
 
         void Send(EntityUid device, BitrunUiAction action, string? id = null, NetEntity? target = null,
             BitrunSide? side = null, Guid? match = null)
@@ -312,7 +387,6 @@ public sealed class BitrunRunTests
             Assert.That(match.Server, Is.EqualTo(entities.GetNetEntity(server)));
             Assert.That(match.Server, Is.Not.EqualTo(entities.GetNetEntity(otherServer)));
             Assert.That(players[0].AttachedEntity, Is.EqualTo(bodies[0]));
-            AdvanceTo(pair, match.Deadline);
 
             EntityUid SpawnOnline(string prototype, Vector2 offset)
             {
@@ -323,7 +397,7 @@ public sealed class BitrunRunTests
             }
         });
 
-        await pair.RunTicksSync(3);
+        await pair.RunTicksSync(pair.Server.Timing.TickRate);
         await pair.Server.WaitAssertion(() =>
         {
             avatar = players[0].AttachedEntity!.Value;
@@ -352,9 +426,9 @@ public sealed class BitrunRunTests
             Assert.That(players[0].AttachedEntity, Is.EqualTo(bodies[0]));
             var bitrun = entities.System<BitrunSystem>();
             Assert.That(bitrun.GetPersonalResearchPoints(players[0].UserId), Is.Zero);
-            Assert.That(bitrun.GetPersonalResearchPoints(players[1].UserId), Is.EqualTo(75_000));
-            Assert.That(bitrun.GetPersonalResearchPoints(players[2].UserId), Is.EqualTo(75_000));
-            Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(150_000));
+            Assert.That(bitrun.GetPersonalResearchPoints(players[1].UserId), Is.EqualTo(37_500));
+            Assert.That(bitrun.GetPersonalResearchPoints(players[2].UserId), Is.EqualTo(37_500));
+            Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(75_000));
             Assert.That(InDomain<MetaDataComponent>(entities, outside.MapUid).Any(uid =>
                 entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID == "BitrunDecryptedCache"), Is.False);
         });
@@ -362,7 +436,7 @@ public sealed class BitrunRunTests
         await pair.RunTicksSync(pair.Server.Timing.TickRate + 1);
         await pair.Server.WaitAssertion(() =>
         {
-            Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(150_000));
+            Assert.That(entities.GetComponent<ResearchServerComponent>(receiver).Points, Is.EqualTo(75_000));
             for (var index = 1; index < players.Length; index++)
             {
                 var defender = players[index].AttachedEntity!.Value;

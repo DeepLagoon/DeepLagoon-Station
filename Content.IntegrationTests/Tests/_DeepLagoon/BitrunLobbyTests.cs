@@ -16,7 +16,7 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class BitrunLobbyTests
 {
     [Test]
-    public async Task EmptyLobbyUsesTheNextSlotAndDeletingAQueuedPodReleasesItsOccupant()
+    public async Task LobbyStartsOnFirstAttackerAndDeletingAQueuedPodReleasesItsOccupant()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Destructive = true });
         var outside = await pair.CreateTestMap();
@@ -26,7 +26,7 @@ public sealed class BitrunLobbyTests
         EntityUid pod = default;
         EntityUid console = default;
         EntityUid server = default;
-        BitrunSessionEntry firstSlot = null!;
+        BitrunSessionEntry lobby = null!;
 
         await pair.Server.WaitAssertion(() =>
         {
@@ -49,22 +49,18 @@ public sealed class BitrunLobbyTests
 
             Send(console, new BitrunUiMessage(BitrunUiAction.BindResearch, target: entities.GetNetEntity(receiver)));
             Send(console, new BitrunUiMessage(BitrunUiAction.Start, "ancient_milsim"));
-            firstSlot = ReadSession(console);
-            Assert.That(firstSlot.Waiting, Is.True);
-
-            var timing = pair.Server.Timing;
-            timing.TimeBase = (firstSlot.Deadline, timing.CurTick);
+            lobby = ReadSession(console);
+            Assert.That(lobby.Waiting, Is.True);
         });
 
-        await pair.RunTicksSync(3);
+        await pair.RunTicksSync(pair.Server.Timing.TickRate);
         await pair.Server.WaitAssertion(() =>
         {
             var nextSlot = ReadSession(console);
             Assert.Multiple(() =>
             {
                 Assert.That(nextSlot.Waiting, Is.True);
-                Assert.That(nextSlot.Id, Is.EqualTo(firstSlot.Id));
-                Assert.That(nextSlot.Deadline - firstSlot.Deadline, Is.EqualTo(TimeSpan.FromMinutes(3)));
+                Assert.That(nextSlot.Id, Is.EqualTo(lobby.Id));
                 Assert.That(entities.GetComponent<BitrunServerComponent>(server).Credits, Is.EqualTo(3));
             });
 
@@ -101,14 +97,7 @@ public sealed class BitrunLobbyTests
             Send(pod, new BitrunUiMessage(BitrunUiAction.Enter, target: nextSlot.Server, side: BitrunSide.Attackers,
                 session: nextSlot.Id));
             Assert.That(ReadSession(console).Attackers, Is.EqualTo(1));
-            pair.Server.CfgMan.SetCVar(BitrunCVars.LobbyIntervalSeconds, 15);
-            var debugSlot = ReadSession(console);
-            Assert.Multiple(() =>
-            {
-                Assert.That(debugSlot.Deadline - pair.Server.Timing.CurTime, Is.EqualTo(TimeSpan.FromSeconds(15)));
-                Assert.That(debugSlot.Id, Is.EqualTo(nextSlot.Id));
-                Assert.That(debugSlot.Attackers, Is.EqualTo(1));
-            });
+            var podCoordinates = entities.GetComponent<TransformComponent>(pod).Coordinates;
             entities.DeleteEntity(pod);
             Assert.Multiple(() =>
             {
@@ -118,6 +107,19 @@ public sealed class BitrunLobbyTests
                 Assert.That(ReadSession(console).Attackers, Is.Zero);
             });
 
+            pod = SpawnOnline("BitrunNetpod", podCoordinates);
+            Send(pod, new BitrunUiMessage(BitrunUiAction.Enter, target: nextSlot.Server, side: BitrunSide.Attackers,
+                session: nextSlot.Id));
+        });
+
+        await pair.RunTicksSync(pair.Server.Timing.TickRate);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var avatar = player.AttachedEntity!.Value;
+            Assert.That(avatar, Is.Not.EqualTo(body));
+            Assert.That(ReadSession(console).Waiting, Is.False);
+            entities.EventBus.RaiseLocalEvent(avatar, new BitrunDisconnectEvent());
+            Send(console, new BitrunUiMessage(BitrunUiAction.Stop, session: lobby.Id));
             pair.Server.PlayerMan.SetAttachedEntity(player, null);
         });
         await pair.CleanReturnAsync();

@@ -1,7 +1,7 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 85
+  entityCount: 87
 maps: []
 grids: [1]
 orphans: [1]
@@ -71,7 +71,7 @@ entities:
                   "9": 5,3
   - proto: AirlockExternalBitrunArt7071c1427123
     entities:
-      - uid: 73
+      - uid: 74
         components:
           - type: Transform
             parent: 1
@@ -125,11 +125,11 @@ entities:
       - uid: 24
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,1.5
+            parent: 22
+            pos: 0,0
   - proto: BitrunArt52b63f7ea0d0
     entities:
-      - uid: 74
+      - uid: 75
         components:
           - type: Transform
             parent: 1
@@ -155,43 +155,50 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,2.5
-  - proto: BitrunAvatarSpawn
+  - proto: BitrunArtb2aeb068f1fa
     entities:
-      - uid: 79
+      - uid: 49
         components:
           - type: Transform
-            parent: 1
-            pos: 2.5,1.5
+            parent: 43
+            pos: 0,0
+  - proto: BitrunAvatarSpawn
+    entities:
       - uid: 80
         components:
           - type: Transform
             parent: 1
-            pos: 3.5,1.5
+            pos: 2.5,1.5
       - uid: 81
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,1.5
+      - uid: 82
         components:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
   - proto: BitrunCacheGoal
     entities:
-      - uid: 82
+      - uid: 83
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
   - proto: BitrunExit
     entities:
-      - uid: 83
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,1.5
       - uid: 84
         components:
           - type: Transform
             parent: 1
-            pos: 3.5,1.5
+            pos: 2.5,1.5
       - uid: 85
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,1.5
+      - uid: 86
         components:
           - type: Transform
             parent: 1
@@ -201,21 +208,21 @@ entities:
       - uid: 45
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,2.5
+            parent: 43
+            pos: 0,0
       - uid: 46
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,2.5
+            parent: 43
+            pos: 0,0
       - uid: 47
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,2.5
+            parent: 43
+            pos: 0,0
   - proto: ClosetO2FilledBitrunArtdaba4904fb42
     entities:
-      - uid: 67
+      - uid: 68
         components:
           - type: Transform
             parent: 1
@@ -227,16 +234,28 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,1.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [23, 24, 25, 87]
       - uid: 43
         components:
           - type: Transform
             parent: 1
             pos: 5.5,2.5
-      - uid: 57
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [44, 45, 46, 47, 48, 49]
+      - uid: 58
         components:
           - type: Transform
             parent: 1
             pos: 3.5,3.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [55, 56, 57, 59, 60]
   - proto: ClothingEyesGlassesMesonBitrunArt4a1aa74f8e73
     entities:
       - uid: 18
@@ -273,17 +292,17 @@ entities:
       - uid: 48
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,2.5
+            parent: 43
+            pos: 0,0
   - proto: ExtinguisherCabinetBitrunArt813774e00736Placement4cf9d9996ab2
     entities:
-      - uid: 65
+      - uid: 66
         components:
           - type: Transform
             parent: 1
             pos: 2.5,4.5
             rot: 180
-      - uid: 66
+      - uid: 67
         components:
           - type: Transform
             parent: 1
@@ -342,30 +361,37 @@ entities:
           - type: Transform
             parent: 1
             pos: 0.5,2.5
-      - uid: 50
+      - uid: 51
         components:
           - type: Transform
             parent: 1
             pos: 6.5,2.5
-      - uid: 71
+      - uid: 72
         components:
           - type: Transform
             parent: 1
             pos: 1.5,5.5
-      - uid: 77
+      - uid: 78
         components:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
+  - proto: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
+    entities:
+      - uid: 87
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
   - proto: PoweredlightBitrunArtc99cdcd3ba4ePlacement42ae6e72884d
     entities:
-      - uid: 53
+      - uid: 54
         components:
           - type: Transform
             parent: 1
             pos: 1.5,3.5
             rot: 90
-      - uid: 60
+      - uid: 61
         components:
           - type: Transform
             parent: 1
@@ -373,7 +399,7 @@ entities:
             rot: 270
   - proto: RailingBitrunArt78760ec387e4
     entities:
-      - uid: 61
+      - uid: 62
         components:
           - type: Transform
             parent: 1
@@ -410,17 +436,17 @@ entities:
           - type: Transform
             parent: 1
             pos: 0.5,2.5
-      - uid: 49
+      - uid: 50
         components:
           - type: Transform
             parent: 1
             pos: 6.5,2.5
-      - uid: 70
+      - uid: 71
         components:
           - type: Transform
             parent: 1
             pos: 1.5,5.5
-      - uid: 76
+      - uid: 77
         components:
           - type: Transform
             parent: 1
@@ -439,12 +465,12 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,2.5
-      - uid: 52
+      - uid: 53
         components:
           - type: Transform
             parent: 1
             pos: 1.5,3.5
-      - uid: 64
+      - uid: 65
         components:
           - type: Transform
             parent: 1
@@ -483,97 +509,97 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,0.5
-      - uid: 51
+      - uid: 52
         components:
           - type: Transform
             parent: 1
             pos: 0.5,3.5
-      - uid: 62
-        components:
-          - type: Transform
-            parent: 1
-            pos: 6.5,3.5
       - uid: 63
         components:
           - type: Transform
             parent: 1
-            pos: 0.5,4.5
-      - uid: 68
+            pos: 6.5,3.5
+      - uid: 64
         components:
           - type: Transform
             parent: 1
-            pos: 6.5,4.5
+            pos: 0.5,4.5
       - uid: 69
         components:
           - type: Transform
             parent: 1
+            pos: 6.5,4.5
+      - uid: 70
+        components:
+          - type: Transform
+            parent: 1
             pos: 0.5,5.5
-      - uid: 72
+      - uid: 73
         components:
           - type: Transform
             parent: 1
             pos: 2.5,5.5
-      - uid: 75
+      - uid: 76
         components:
           - type: Transform
             parent: 1
             pos: 4.5,5.5
-      - uid: 78
+      - uid: 79
         components:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
   - proto: WeaponCrusherBitrunArt2816746f1f3d
     entities:
-      - uid: 58
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,3.5
       - uid: 59
         components:
           - type: Transform
-            parent: 1
-            pos: 3.5,3.5
+            parent: 58
+            pos: 0,0
+      - uid: 60
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
   - proto: WeaponPistolMk58BitrunArtee70c986c39b
     entities:
       - uid: 25
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,1.5
+            parent: 22
+            pos: 0,0
   - proto: WeaponPistolMk58BitrunArtf42dd74573d3Placementfd060a62351e
     entities:
       - uid: 44
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,2.5
+            parent: 43
+            pos: 0,0
   - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacement20f57c0b0f1a
-    entities:
-      - uid: 55
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,3.5
-  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementd5a645cb4dca
     entities:
       - uid: 56
         components:
           - type: Transform
-            parent: 1
-            pos: 3.5,3.5
-  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementf9866b1ca3d9
+            parent: 58
+            pos: 0,0
+  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementd5a645cb4dca
     entities:
-      - uid: 54
+      - uid: 57
         components:
           - type: Transform
-            parent: 1
-            pos: 3.5,3.5
+            parent: 58
+            pos: 0,0
+  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementf9866b1ca3d9
+    entities:
+      - uid: 55
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
   - proto: WeaponSubMachineGunDrozdBitrunArtf456b3bc7564
     entities:
       - uid: 23
         components:
           - type: Transform
-            parent: 1
-            pos: 5.5,1.5
+            parent: 22
+            pos: 0,0

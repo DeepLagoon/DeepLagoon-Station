@@ -400,8 +400,8 @@ entities:
       - uid: 821
         components:
           - type: Transform
-            parent: 1
-            pos: 17.5,25.5
+            parent: 819
+            pos: 0,0
   - proto: BitrunArt0b5d47f6a3fd
     entities:
       - uid: 650
@@ -619,18 +619,18 @@ entities:
       - uid: 169
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,6.5
+            parent: 168
+            pos: 0,0
       - uid: 170
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,6.5
+            parent: 168
+            pos: 0,0
       - uid: 171
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,6.5
+            parent: 168
+            pos: 0,0
   - proto: BitrunArt865fa0a1429aPlacement42ae6e72884d
     entities:
       - uid: 837
@@ -662,8 +662,8 @@ entities:
       - uid: 656
         components:
           - type: Transform
-            parent: 1
-            pos: 15.5,20.5
+            parent: 655
+            pos: 0,0
   - proto: BitrunArta3b3d8523354
     entities:
       - uid: 509
@@ -754,15 +754,15 @@ entities:
       - uid: 722
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,22.5
+            parent: 720
+            pos: 0,0
   - proto: BitrunArtd7d05f856d8ePlacement41e93efb1bfc
     entities:
       - uid: 723
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,22.5
+            parent: 720
+            pos: 0,0
   - proto: BitrunArtd9ad66f7a739Placementf29337740fdc
     entities:
       - uid: 618
@@ -2430,7 +2430,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 26.5,30.5
-  - proto: CableApcExtensionBitrunArt705c0773762f
+  - proto: CableApcExtension
     entities:
       - uid: 208
         components:
@@ -3022,6 +3022,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,15.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [472]
       - uid: 844
         components:
           - type: Transform
@@ -3098,6 +3102,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 12.5,6.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [169, 170, 171]
       - uid: 206
         components:
           - type: Transform
@@ -3108,11 +3116,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 15.5,20.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [656]
       - uid: 720
         components:
           - type: Transform
             parent: 1
             pos: 14.5,22.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [721, 722, 723]
       - uid: 851
         components:
           - type: Transform
@@ -3891,6 +3907,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,25.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [820, 821]
   - proto: MedicalBedBitrunArt783ef7032a11
     entities:
       - uid: 357
@@ -3908,8 +3928,8 @@ entities:
       - uid: 472
         components:
           - type: Transform
-            parent: 1
-            pos: 17.5,15.5
+            parent: 471
+            pos: 0,0
       - uid: 793
         components:
           - type: Transform
@@ -4192,8 +4212,8 @@ entities:
       - uid: 721
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,22.5
+            parent: 720
+            pos: 0,0
   - proto: ShardGlassBitrunArta8fdc7e93d98
     entities:
       - uid: 565
@@ -5473,8 +5493,8 @@ entities:
       - uid: 820
         components:
           - type: Transform
-            parent: 1
-            pos: 17.5,25.5
+            parent: 819
+            pos: 0,0
   - proto: WeaponRevolverInspectorBitrunArt3c2c3385009c
     entities:
       - uid: 550

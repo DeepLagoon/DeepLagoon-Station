@@ -151,6 +151,7 @@
   parent: BaseItem
   categories: [ HideSpawnMenu ]
   components:
+  - type: BitrunFishingRod
   - type: Sprite
     sprite: _DeepLagoon/Bitrunning/fishing_rod.rsi
     state: fishing_rod
@@ -166,8 +167,8 @@
 
 - type: entity
   id: BitrunFishingSpot
-  name: fishing spot
-  description: The fish are biting here.
+  name: fishing sign
+  description: Use a fishing rod on this sign to cast from the shore.
   categories: [ HideSpawnMenu ]
   components:
   - type: Transform
@@ -175,10 +176,27 @@
   - type: Clickable
   - type: InteractionOutline
   - type: Sprite
-    drawdepth: FloorObjects
-    sprite: _DeepLagoon/Bitrunning/effects.rsi
-    state: goal
+    sprite: Objects/Decoration/mines.rsi
+    state: sign_left
   - type: BitrunScenarioMarker
+
+- type: entity
+  id: BitrunIslandCrab
+  parent: MobCrab
+  name: hostile island crab
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: HTN
+    rootTask:
+      task: SimpleHostileCompound
+  - type: NpcFactionMember
+    factions: [SimpleHostile]
+  - type: MeleeWeapon
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 8
 
 - type: entity
   id: BitrunHuntAnimal

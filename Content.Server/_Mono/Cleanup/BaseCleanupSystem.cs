@@ -1,6 +1,7 @@
 using Content.Shared._Mono.CCVar;
 using Robust.Shared.Configuration;
 using Robust.Shared.Timing;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._Mono.Cleanup;
 
@@ -35,19 +36,23 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        var remaining = int.MaxValue;
+        UpdatePeriodicCleanup(frameTime, ref remaining, long.MaxValue);
+    }
 
-        // delete one queued entity per update
+    protected void UpdatePeriodicCleanup(float frameTime, ref int remaining, long deadline)
+    {
         if (_checkQueue.Count != 0)
         {
             _cleanupAccumulator += TimeSpan.FromSeconds(frameTime);
-            while (_cleanupAccumulator > _cleanupDeferDuration)
+            while (remaining > 0 && _checkQueue.Count != 0 && _cleanupAccumulator > _cleanupDeferDuration &&
+                   (deadline == long.MaxValue || Stopwatch.GetTimestamp() < deadline))
             {
+                remaining--;
                 _cleanupAccumulator -= _cleanupDeferDuration;
 
-                if (_checkQueue.Count == 0)
-                    return;
                 var uid = _checkQueue.Dequeue();
-                if (TerminatingOrDeleted(uid))
+                if (TerminatingOrDeleted(uid) || EntityManager.IsQueuedForDeletion(uid))
                     continue;
 
                 if (!ShouldEntityCleanup(uid))
@@ -84,8 +89,11 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
         Log.Debug($"Ran cleanup queue, found: {_checkQueue.Count}, deleting over {_cleanupDeferDuration}");
     }
 
-    protected void CleanupEnt(EntityUid uid)
+    protected bool CleanupEnt(EntityUid uid)
     {
+        if (!EntityManager.TryQueueDeleteEntity(uid))
+            return false;
+
         if (_doLog)
         {
             var coord = Transform(uid).Coordinates;
@@ -94,7 +102,7 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
         }
 
         _delCount += 1;
-        QueueDel(uid);
+        return true;
     }
 
     protected abstract bool ShouldEntityCleanup(EntityUid uid);

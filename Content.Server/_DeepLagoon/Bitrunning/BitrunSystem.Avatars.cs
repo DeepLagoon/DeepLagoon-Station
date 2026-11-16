@@ -265,9 +265,6 @@ public sealed partial class BitrunSystem
             return;
         }
 
-        if (link.Side == BitrunSide.Attackers && _mobState.IsDead(avatar) && run.Domain.Objective == BitrunObjective.Island)
-            AdvanceObjective(run, 1);
-
         if (!CanJoinSession(link.Pod, run.Server) || !HasComp<BitrunBodyComponent>(link.Body) ||
             !IsSeated(link.Pod, link.Body) || Transform(avatar).MapUid != run.Map ||
             !_mobState.IsAlive(link.Body) || !_mobState.IsAlive(avatar))

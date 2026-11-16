@@ -257,8 +257,8 @@ entities:
       - uid: 326
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
   - proto: BitrunArtd4e09c034829
     entities:
       - uid: 387
@@ -271,42 +271,42 @@ entities:
       - uid: 403
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
   - proto: BitrunArtf4eb83d16b89
     entities:
       - uid: 331
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
       - uid: 332
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
       - uid: 333
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
   - proto: BitrunArtfa2a92a5031a
     entities:
       - uid: 327
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
       - uid: 328
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
       - uid: 329
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,14.5
+            parent: 330
+            pos: 0,0
   - proto: BitrunAvatarSpawn
     entities:
       - uid: 457
@@ -388,8 +388,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 13.5,12.5
-          - type: MetaData
-            name: "fishing"
   - proto: BitrunScenarioMarker
     entities:
       - uid: 321
@@ -961,6 +959,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 18.5,19.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [394, 395, 396, 397, 398, 399, 400, 401, 402, 403]
           - type: MetaData
             name: "Cooler"
   - proto: CrateGenericSteelBitrunArtf8451a33dd0b
@@ -970,58 +972,62 @@ entities:
           - type: Transform
             parent: 1
             pos: 14.5,14.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [326, 327, 328, 329, 331, 332, 333]
   - proto: DrinkGlassBitrunArt3f87a0b739a8
     entities:
       - uid: 400
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
       - uid: 401
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
       - uid: 402
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
   - proto: DrinkGlassBitrunArt4bface929db6
     entities:
       - uid: 395
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
       - uid: 396
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
   - proto: DrinkGlassBitrunArtcddb5b7f395c
     entities:
       - uid: 397
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
           - type: MetaData
             name: "Masterbrand Beer"
             desc: "Beer advertised to be the best in space."
       - uid: 398
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
           - type: MetaData
             name: "Masterbrand Beer"
             desc: "Beer advertised to be the best in space."
       - uid: 399
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
           - type: MetaData
             name: "Masterbrand Beer"
             desc: "Beer advertised to be the best in space."
@@ -1030,8 +1036,8 @@ entities:
       - uid: 394
         components:
           - type: Transform
-            parent: 1
-            pos: 18.5,19.5
+            parent: 393
+            pos: 0,0
   - proto: FloorWaterEntityBitrunArt0536ede43d69
     entities:
       - uid: 28

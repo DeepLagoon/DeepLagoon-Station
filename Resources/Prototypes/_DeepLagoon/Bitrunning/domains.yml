@@ -6,7 +6,7 @@
   difficulty: 2
   cost: 2
   credits: 5
-  reward: 75000
+  reward: 37500
   loot:
   - SheetSteel
   - IngotSilver
@@ -20,7 +20,7 @@
   difficulty: 2
   cost: 2
   credits: 5
-  reward: 75000
+  reward: 37500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -38,7 +38,7 @@
   difficulty: 0
   cost: 0
   credits: 1
-  reward: 5000
+  reward: 2500
   objective: Drinks
   objectiveCount: 20
   loot:
@@ -52,7 +52,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -69,7 +69,7 @@
   difficulty: 0
   cost: 0
   credits: 3
-  reward: 5000
+  reward: 2500
   objective: Fishing
   objectiveCount: 5
   loot:
@@ -83,7 +83,7 @@
   difficulty: 2
   cost: 2
   credits: 5
-  reward: 75000
+  reward: 37500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -101,7 +101,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   gear: ClownGear
   restrictLoadout: true
   loot:
@@ -116,7 +116,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -133,7 +133,7 @@
   difficulty: 2
   cost: 2
   credits: 5
-  reward: 75000
+  reward: 37500
   loot:
   - SheetSteel
   - IngotSilver
@@ -147,7 +147,7 @@
   difficulty: 0
   cost: 0
   credits: 1
-  reward: 5000
+  reward: 2500
   loot:
   - SheetSteel
 
@@ -159,7 +159,7 @@
   difficulty: 0
   cost: 0
   credits: 1
-  reward: 5000
+  reward: 2500
   objective: Hunt
   objectiveCount: 3
   loot:
@@ -173,7 +173,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   objective: Ritual
   objectiveCount: 10
   gear: BitrunExplorerGear
@@ -190,7 +190,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -207,7 +207,7 @@
   difficulty: 3
   cost: 3
   credits: 10
-  reward: 100000
+  reward: 50000
   objective: Island
   objectiveCount: 10
   gear: BitrunSecurityGear
@@ -226,7 +226,7 @@
   difficulty: 3
   cost: 3
   credits: 10
-  reward: 100000
+  reward: 50000
   gear: BitrunSecurityGear
   restrictLoadout: true
   loot:
@@ -243,7 +243,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   loot:
   - SheetSteel
   - SheetGlass
@@ -256,7 +256,7 @@
   difficulty: 2
   cost: 2
   credits: 5
-  reward: 75000
+  reward: 37500
   loot:
   - SheetSteel
   - IngotSilver
@@ -270,7 +270,7 @@
   difficulty: 2
   cost: 1
   credits: 10
-  reward: 75000
+  reward: 37500
   gear: BitrunExplorerGear
   restrictLoadout: true
   echoVision: true
@@ -287,7 +287,7 @@
   difficulty: 2
   cost: 2
   credits: 10
-  reward: 75000
+  reward: 37500
   gear: BitrunExplorerGear
   restrictLoadout: true
   echoVision: true
@@ -304,7 +304,7 @@
   difficulty: 4
   cost: 3
   credits: 50
-  reward: 150000
+  reward: 75000
   objective: Stages
   objectiveCount: 1
   gear: BitrunSecurityGear
@@ -324,7 +324,7 @@
   difficulty: 1
   cost: 1
   credits: 5
-  reward: 25000
+  reward: 12500
   loot:
   - SheetSteel
   - SheetGlass
@@ -337,7 +337,7 @@
   difficulty: 3
   cost: 3
   credits: 10
-  reward: 100000
+  reward: 50000
   loot:
   - SheetSteel
   - SheetPlasma
@@ -352,7 +352,7 @@
   difficulty: 0
   cost: 20
   credits: 20
-  reward: 5000
+  reward: 2500
   loot:
   - SheetSteel
 
@@ -364,7 +364,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   objective: Boss
   objectiveCount: 1
   gear: BitrunExplorerGear
@@ -381,7 +381,7 @@
   difficulty: 1
   cost: 1
   credits: 3
-  reward: 25000
+  reward: 12500
   loot:
   - SheetSteel
   - SheetGlass

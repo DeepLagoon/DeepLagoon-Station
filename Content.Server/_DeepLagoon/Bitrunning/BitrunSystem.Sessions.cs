@@ -5,8 +5,8 @@ using Content.Server.Tiles;
 using Content.Shared._DeepLagoon.Bitrunning;
 using Content.Shared.Chasm;
 using Content.Shared.Maps;
+using Content.Shared.Movement.Components;
 using Content.Shared.Physics;
-using Robust.Shared.Configuration;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Network;
@@ -22,16 +22,12 @@ public sealed partial class BitrunSystem
     private static readonly BitrunSide[] Teams = [BitrunSide.Attackers, BitrunSide.Defenders];
 
     [Dependency] private TurfSystem _turf = default!;
-    [Dependency] private IConfigurationManager _configuration = default!;
 
     private readonly Dictionary<EntityUid, Lobby> _lobbies = new();
     private readonly Dictionary<EntityUid, Lobby> _queuedPods = new();
     private readonly Dictionary<NetUserId, EntityUid> _queuedUsers = new();
-    private TimeSpan _lobbyEpoch;
-    private TimeSpan _lobbyInterval;
 
-    private sealed class Lobby(EntityUid server, EntityUid receiver, BitrunDomainPrototype domain,
-        TimeSpan startAt, bool random)
+    private sealed class Lobby(EntityUid server, EntityUid receiver, BitrunDomainPrototype domain, bool random)
     {
         public readonly Guid Id = Guid.NewGuid();
         public readonly EntityUid Server = server;
@@ -39,7 +35,6 @@ public sealed partial class BitrunSystem
         public readonly BitrunDomainPrototype Domain = domain;
         public readonly bool Random = random;
         public readonly Dictionary<NetUserId, QueuedPlayer> Queued = new();
-        public TimeSpan StartAt = startAt;
     }
 
     private sealed record QueuedPlayer(EntityUid Body, EntityUid Pod, BitrunSide Side);
@@ -51,23 +46,20 @@ public sealed partial class BitrunSystem
         public bool Defeated;
     }
 
-    private TimeSpan NextLobbyStart()
-    {
-        var elapsed = _timing.CurTime - _lobbyEpoch;
-        return _lobbyEpoch + _lobbyInterval * (elapsed.Ticks / _lobbyInterval.Ticks + 1);
-    }
-
-    private void OnLobbyIntervalChanged(int seconds)
-    {
-        _lobbyInterval = TimeSpan.FromSeconds(Math.Max(1, seconds));
-        _lobbyEpoch = _timing.CurTime;
-        foreach (var lobby in _lobbies.Values)
-            lobby.StartAt = _lobbyEpoch + _lobbyInterval;
-    }
+#if DEBUG
+    internal static int DomainCost(BitrunDomainPrototype domain) => 0;
+    private static bool IsSelectableDomain(BitrunDomainPrototype domain) => true;
+#else
+    internal static int DomainCost(BitrunDomainPrototype domain) => domain.Cost;
+    private static bool IsSelectableDomain(BitrunDomainPrototype domain) => !domain.TestOnly;
+#endif
 
     private bool CanScheduleRun(EntityUid server, BitrunServerComponent machine, BitrunDomainPrototype domain, EntityUid receiver) =>
-        _ticker.RunLevel != GameRunLevel.PostRound && !_runs.ContainsKey(server) && IsOnline(server) &&
-        Transform(server).Anchored && CanUseResearch(server, receiver) && domain.Cost >= 0 && machine.Credits >= domain.Cost;
+        _ticker.RunLevel != GameRunLevel.PostRound && CanStartNextRun(server) && IsOnline(server) &&
+        Transform(server).Anchored && CanUseResearch(server, receiver) && domain.Cost >= 0 && machine.Credits >= DomainCost(domain);
+
+    private bool CanStartNextRun(EntityUid server) =>
+        !_runs.TryGetValue(server, out var run) || run.Completed;
 
     private bool TryScheduleRun(EntityUid server, BitrunServerComponent machine, BitrunDomainPrototype domain,
         EntityUid receiver, bool random)
@@ -75,7 +67,10 @@ public sealed partial class BitrunSystem
         if (_lobbies.ContainsKey(server) || !CanScheduleRun(server, machine, domain, receiver))
             return false;
 
-        _lobbies.Add(server, new Lobby(server, receiver, domain, NextLobbyStart(), random));
+        if (_runs.TryGetValue(server, out var completed))
+            Finish(completed);
+
+        _lobbies.Add(server, new Lobby(server, receiver, domain, random));
         _results.Remove(server);
         return true;
     }
@@ -169,14 +164,8 @@ public sealed partial class BitrunSystem
                 RemoveEnrollment(lobby, user, player, releaseBody: true);
         }
 
-        if (_timing.CurTime < lobby.StartAt)
-            return;
-
         if (!lobby.Queued.Values.Any(player => player.Side == BitrunSide.Attackers))
-        {
-            lobby.StartAt = NextLobbyStart();
             return;
-        }
 
         if (!TryLaunch(lobby.Server, server, lobby.Domain, lobby.Receiver, lobby.Random, lobby.Id))
         {
@@ -206,7 +195,7 @@ public sealed partial class BitrunSystem
             }
         }
 
-        server.Credits -= lobby.Domain.Cost;
+        server.Credits -= DomainCost(lobby.Domain);
         try
         {
             MaybeSpawnGlitch(run);
@@ -261,7 +250,7 @@ public sealed partial class BitrunSystem
     private float DistanceToAnchors(EntityCoordinates coords, EntityCoordinates[] anchors) =>
         anchors.Min(anchor => coords.TryDistance(EntityManager, anchor, out var distance) ? distance : float.MaxValue);
 
-    private bool IsSpawnClear(TileRef tile, MapGridComponent grid)
+    private bool IsSpawnClear(TileRef tile, MapGridComponent grid, bool avoidWater = false)
     {
         if (_turf.IsTileBlocked(tile, CollisionGroup.MobMask))
             return false;
@@ -269,6 +258,7 @@ public sealed partial class BitrunSystem
         foreach (var entity in _maps.GetAnchoredEntities(tile.GridUid, grid, tile.GridIndices))
         {
             if (HasComp<ChasmComponent>(entity) || HasComp<TileEntityEffectComponent>(entity) || HasComp<LandMineComponent>(entity) ||
+                avoidWater && HasComp<FloorOccluderComponent>(entity) ||
                 TryComp<FixturesComponent>(entity, out var fixtures) &&
                 fixtures.Fixtures.Values.Any(fixture => fixture.Hard && (fixture.CollisionLayer & (int) CollisionGroup.MobMask) != 0))
                 return false;

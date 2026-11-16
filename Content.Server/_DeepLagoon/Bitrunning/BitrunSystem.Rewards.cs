@@ -19,7 +19,7 @@ public sealed partial class BitrunCacheComponent : Component
 
 public sealed partial class BitrunSystem
 {
-    private const int MaxReward = 150_000;
+    private const int MaxReward = 75_000;
 
     [Dependency] private ISharedPlayerManager _rewardPlayers = default!;
 

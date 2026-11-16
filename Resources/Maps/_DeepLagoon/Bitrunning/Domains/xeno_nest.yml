@@ -7182,6 +7182,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 28.5,5.5
+  - proto: WeaponPistolMk58BitrunArt0565cbdc72d8
+    entities:
+      - uid: 1238
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,33.5
   - proto: WeaponProtoKineticAccelerator
     entities:
       - uid: 1373
@@ -7199,13 +7206,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 30.5,3.5
-  - proto: WeaponSubMachineGunDrozdBitrunArtbbf9ee8c02a0
-    entities:
-      - uid: 1238
-        components:
-          - type: Transform
-            parent: 1
-            pos: 8.5,33.5
   - proto: WindowReinforcedDirectionalBitrunArt681de416b197Placement42ae6e72884d
     entities:
       - uid: 48

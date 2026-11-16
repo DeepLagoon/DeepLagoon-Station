@@ -19,6 +19,7 @@ from pathlib import Path
 import re
 import signal
 import sqlite3
+import subprocess
 import sys
 import threading
 import time
@@ -166,6 +167,7 @@ class Settings:
     state_file: Path
     poll_seconds: int = 300
     max_pages: int = 100
+    notice_command: tuple[str, ...] = ()
 
     @classmethod
     def load(cls, path):
@@ -190,9 +192,13 @@ class Settings:
             poll, pages = data.get("poll_seconds", 300), data.get("max_pages", 100)
             if type(poll) is not int or not 60 <= poll <= 3600 or type(pages) is not int or not 1 <= pages <= 1000:
                 raise ValueError()
+            command = data.get("notice_command", [])
+            if (not isinstance(command, list) or any(not isinstance(arg, str) or not arg or "\0" in arg for arg in command)
+                    or (command and not Path(command[0]).is_absolute())):
+                raise ValueError()
             return cls(data["blog"], positive_id(data["owner_id"]), int(utc(data["start_at"]).timestamp()),
                        discord_id(data["actor_discord_id"]), levels, bindings,
-                       data["account_url"].rstrip("/"), *paths, poll, pages)
+                       data["account_url"].rstrip("/"), *paths, poll, pages, tuple(command))
         except (KeyError, TypeError, ValueError):
             raise ServiceError("invalid_settings") from None
 
@@ -208,14 +214,20 @@ class Boosty:
     def __init__(self, settings, http):
         self.settings, self.http = settings, http
         self.unsaved = None
+        self.refresh_rejection = None
 
     def refresh(self, auth):
         if not auth.get("refresh_token") or not auth.get("device_id"):
             raise ServiceError("boosty_login_required")
-        result = self.http.request("POST", API + "/oauth/token/", {
-            "Content-Type": "application/x-www-form-urlencoded"},
-            urllib.parse.urlencode(dict(device_id=auth["device_id"], device_os="web",
-                                       grant_type="refresh_token", refresh_token=auth["refresh_token"])).encode())
+        try:
+            result = self.http.request("POST", API + "/oauth/token/", {
+                "Content-Type": "application/x-www-form-urlencoded"},
+                urllib.parse.urlencode(dict(device_id=auth["device_id"], device_os="web",
+                                           grant_type="refresh_token", refresh_token=auth["refresh_token"])).encode())
+        except HttpError as error:
+            if error.status in (400, 401, 403):
+                self.refresh_rejection = error.status
+            raise
         if not all(isinstance(result.get(k), str) and result[k] for k in ("access_token", "refresh_token")):
             raise ServiceError("invalid_refresh_response")
         seconds = result.get("expires_in")
@@ -418,6 +430,45 @@ class Accounts:
             raise ServiceError("account_upgrade_required")
 
 
+def update_discord_alerts(store, command, scan_ok, scan_error, refresh_rejection):
+    row = store.db.execute("SELECT value FROM metadata WHERE key='discord_alerts'").fetchone()
+    previous = json.loads(row[0]) if row else dict(failures=0, auth_alerted=False, pending=[])
+    state = {**previous, "pending": previous["pending"].copy()}
+
+    if refresh_rejection is not None and not state["auth_alerted"]:
+        state["auth_alerted"] = True
+        state["pending"].append(dict(event_key=f"boosty:{uuid.uuid4().hex}", message=(
+            f"Boosty отклонил обновление токена (HTTP {refresh_rejection}). "
+            "Войдите в аккаунт автора заново и обновите сессию сервиса начисления LC.")))
+    elif scan_ok and refresh_rejection is None:
+        state["auth_alerted"] = False
+
+    if scan_ok:
+        state["failures"] = 0
+    elif scan_error is not None:
+        state["failures"] = min(2, state["failures"] + 1)
+        if previous["failures"] == 1 and not state["auth_alerted"]:
+            state["pending"].append(dict(event_key=f"boosty:{uuid.uuid4().hex}", message=(
+                f"Опрос платежей Boosty дважды подряд завершился ошибкой ({scan_error}). "
+                "Проверьте журнал службы `deeplagoon-boosty.service`.")))
+
+    if state != previous:
+        with store.db:
+            store.db.execute("INSERT OR REPLACE INTO metadata VALUES('discord_alerts',?)", (canonical(state),))
+
+    while state["pending"]:
+        try:
+            subprocess.run(command, input=canonical(state["pending"][0]).encode(),
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=12)
+        except (OSError, subprocess.SubprocessError) as error:
+            LOG.warning("discord_alert_enqueue_failed type=%s", type(error).__name__)
+            return
+        # The Discord outbox also deduplicates this key if acknowledgement is lost.
+        del state["pending"][0]
+        with store.db:
+            store.db.execute("UPDATE metadata SET value=? WHERE key='discord_alerts'", (canonical(state),))
+
+
 def request_id(key):
     # Reserved synthetic unsigned IDs, above real Discord snowflakes' signed range.
     return str(10**19 + int(key[:16], 16) % 10**18)
@@ -611,6 +662,8 @@ def run(config, once=False, probe=False):
         try:
             last_error = None
             while not stopped.is_set():
+                count = scan_error = None
+                boosty.refresh_rejection = None
                 try:
                     # Reload ONLY the same accounting identity; added bindings are picked up.
                     current = Settings.load(config)
@@ -618,8 +671,6 @@ def run(config, once=False, probe=False):
                         raise ServiceError("state_configuration_conflict")
                     settings = current
                     accounts.ready()
-                    count = None
-                    scan_error = None
                     try:
                         count = scan(settings, boosty, store, int(time.time()))
                     except ServiceError as error:
@@ -646,6 +697,13 @@ def run(config, once=False, probe=False):
                     if str(error) != last_error:
                         LOG.error("scan_failed reason=%s", error)
                         last_error = str(error)
+                finally:
+                    if settings.notice_command and not (once or probe):
+                        try:
+                            update_discord_alerts(store, settings.notice_command, count is not None,
+                                                  scan_error, boosty.refresh_rejection)
+                        except sqlite3.Error as error:
+                            LOG.warning("discord_alert_state_failed type=%s", type(error).__name__)
                 stopped.wait(settings.poll_seconds)
         finally:
             store.close()

@@ -684,8 +684,8 @@ entities:
       - uid: 919
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,36.5
+            parent: 917
+            pos: 0,0
   - proto: BitrunArt7bf68862d893Placement1dbb443a9160
     entities:
       - uid: 819
@@ -766,29 +766,29 @@ entities:
       - uid: 161
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArta92d9517b329Placement34b0858f4006
     entities:
       - uid: 162
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArta92d9517b329Placementc9f99f619fe8
     entities:
       - uid: 163
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArtb239bd6a731dPlacementd7bdb1e78ffe
     entities:
       - uid: 166
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArtcbe0d5a41205Placementd7bdb1e78ffe
     entities:
       - uid: 763
@@ -829,8 +829,8 @@ entities:
       - uid: 918
         components:
           - type: Transform
-            parent: 1
-            pos: 14.5,36.5
+            parent: 917
+            pos: 0,0
   - proto: BitrunArtf231bc5bebf0Placementf6ba417d3677
     entities:
       - uid: 927
@@ -857,15 +857,15 @@ entities:
       - uid: 164
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArtff15a7a84b1dPlacementa4405cddde0c
     entities:
       - uid: 165
         components:
           - type: Transform
-            parent: 1
-            pos: 12.5,9.5
+            parent: 167
+            pos: 0,0
   - proto: BitrunArtff338464f0ff
     entities:
       - uid: 991
@@ -2001,11 +2001,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 12.5,9.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [161, 162, 163, 164, 165, 166]
       - uid: 917
         components:
           - type: Transform
             parent: 1
             pos: 14.5,36.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [918, 919]
   - proto: ComfyChairBitrunArt44fc7d63cb51
     entities:
       - uid: 965

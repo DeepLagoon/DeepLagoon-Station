@@ -21,6 +21,7 @@ using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Dynamics;
 using Robust.Shared.Physics.Events;
+using Robust.Shared.Timing;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using System.Numerics;
@@ -33,6 +34,13 @@ namespace Content.Server.Shuttles.Systems;
 // shuttle impact damage ported from Goobstation (AGPLv3) with agreement of all coders involved
 public sealed partial class ShuttleSystem
 {
+    private static readonly TimeSpan ImpactTimingLogInterval = TimeSpan.FromSeconds(5);
+    private GameTick _impactTick;
+    private int _impactEvents;
+    private int _impactPoints;
+    private long _impactElapsed;
+    private TimeSpan _nextImpactTimingLog;
+
     [Dependency] private SpaceCleanupSystem _sweep = default!;
 
     private bool _enabled;
@@ -120,6 +128,41 @@ public sealed partial class ShuttleSystem
         )
             return;
 
+        ReportImpactTiming();
+        _impactTick = _gameTiming.CurTick;
+        _impactEvents++;
+        _impactPoints += args.PointCount;
+        var start = System.Diagnostics.Stopwatch.GetTimestamp();
+        try
+        {
+            ProcessShuttleImpact(ourGrid, otherGrid, ref args);
+        }
+        finally
+        {
+            _impactElapsed += System.Diagnostics.Stopwatch.GetTimestamp() - start;
+        }
+    }
+
+    private void ReportImpactTiming()
+    {
+        if (_impactEvents == 0 || _impactTick == _gameTiming.CurTick)
+            return;
+
+        var elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(0, _impactElapsed);
+        if (elapsed >= _gameTiming.TickPeriod / 4 && _gameTiming.RealTime >= _nextImpactTimingLog)
+        {
+            _nextImpactTimingLog = _gameTiming.RealTime + ImpactTimingLogInterval;
+            Log.Warning(FormattableString.Invariant(
+                $"Shuttle collision tick: tick={_impactTick.Value} elapsed_ms={elapsed.TotalMilliseconds:F2} events={_impactEvents} points={_impactPoints} includes_grid_splits=true"));
+        }
+
+        _impactEvents = 0;
+        _impactPoints = 0;
+        _impactElapsed = 0;
+    }
+
+    private void ProcessShuttleImpact(MapGridComponent ourGrid, MapGridComponent otherGrid, ref StartCollideEvent args)
+    {
         var ourBody = args.OurBody;
         var otherBody = args.OtherBody;
 

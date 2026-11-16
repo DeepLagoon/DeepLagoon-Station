@@ -8,7 +8,7 @@
         35,
         35
       ],
-      "entities": 1066,
+      "entities": 1067,
       "decals": 6,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -25,7 +25,7 @@
         35,
         46
       ],
-      "entities": 812,
+      "entities": 814,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -59,7 +59,7 @@
         35,
         46
       ],
-      "entities": 859,
+      "entities": 861,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -94,7 +94,7 @@
         55,
         56
       ],
-      "entities": 1568,
+      "entities": 1570,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -127,7 +127,7 @@
         45,
         46
       ],
-      "entities": 558,
+      "entities": 560,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -210,7 +210,7 @@
         25,
         38
       ],
-      "entities": 440,
+      "entities": 442,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -295,7 +295,7 @@
         29,
         26
       ],
-      "entities": 332,
+      "entities": 333,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -328,7 +328,7 @@
         52,
         56
       ],
-      "entities": 1737,
+      "entities": 1753,
       "decals": 70,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -362,7 +362,7 @@
         52,
         56
       ],
-      "entities": 1059,
+      "entities": 1061,
       "decals": 46,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -411,7 +411,7 @@
         33,
         37
       ],
-      "entities": 496,
+      "entities": 498,
       "decals": 192,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -535,7 +535,7 @@
         7,
         6
       ],
-      "entities": 84,
+      "entities": 86,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -610,7 +610,7 @@
         7,
         6
       ],
-      "entities": 117,
+      "entities": 120,
       "decals": 44,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -2783,43 +2783,43 @@
     "/obj/item/ammo_box/magazine/lanca": {
       "occurrences": 10,
       "targets": [
-        "unmapped entity (MagazineLightRifle unavailable)"
+        "Magazine45_ACPSubMachineGunFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/m7mm": {
       "occurrences": 2,
       "targets": [
-        "unmapped entity (MagazineLightRifle unavailable)"
+        "BitrunArtb2aeb068f1fa"
       ]
     },
     "/obj/item/ammo_box/magazine/m9mm": {
       "occurrences": 8,
       "targets": [
-        "MagazinePistol"
+        "Magazine45_ACPPistolFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/m9mm_aps": {
       "occurrences": 2,
       "targets": [
-        "BitrunArt5252e1978b39"
+        "Magazine45_ACPPistolHighCapacityFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/miecz": {
       "occurrences": 3,
       "targets": [
-        "BitrunArt9d2a920405b9"
+        "Magazine45_ACPSubMachineGunFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/recharge/plasma_battery": {
       "occurrences": 2,
       "targets": [
-        "BitrunArtd50c00294f11"
+        "Magazine45_ACPSubMachineGunFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/smgm45": {
       "occurrences": 5,
       "targets": [
-        "BitrunArt6afdb3486067"
+        "Magazine45_ACPSubMachineGunFMJ"
       ]
     },
     "/obj/item/ammo_box/magazine/sniper_rounds": {
@@ -2837,7 +2837,7 @@
     "/obj/item/ammo_box/magazine/wylom": {
       "occurrences": 2,
       "targets": [
-        "BitrunArtee24d41e7fd1"
+        "Magazine45_ACPSubMachineGunFMJ"
       ]
     },
     "/obj/item/ammo_box/speedloader/c38": {
@@ -4209,13 +4209,13 @@
     "/obj/item/gun/ballistic/automatic/pistol": {
       "occurrences": 7,
       "targets": [
-        "WeaponSubMachineGunDrozd"
+        "WeaponPistolMk58"
       ]
     },
     "/obj/item/gun/ballistic/automatic/pistol/aps": {
       "occurrences": 1,
       "targets": [
-        "WeaponSubMachineGunDrozd"
+        "WeaponPistolMk58"
       ]
     },
     "/obj/item/gun/ballistic/automatic/pistol/plasma_thrower": {
@@ -4227,7 +4227,7 @@
     "/obj/item/gun/ballistic/automatic/pistol/sol": {
       "occurrences": 3,
       "targets": [
-        "WeaponSubMachineGunDrozd"
+        "WeaponPistolMk58"
       ]
     },
     "/obj/item/gun/ballistic/automatic/sol_smg": {
@@ -7162,7 +7162,7 @@
     "/obj/machinery/door/airlock/multi_tile/glass": {
       "occurrences": 5,
       "targets": [
-        "Airlock"
+        "AirlockGlass"
       ]
     },
     "/obj/machinery/door/airlock/multi_tile/metal": {

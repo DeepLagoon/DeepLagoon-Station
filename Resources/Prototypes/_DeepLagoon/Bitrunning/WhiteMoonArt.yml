@@ -1092,6 +1092,16 @@
       - enum.ApcVisualLayers.Environment
       visible: false
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/apc_2e48416f2102.rsi
+    snapCardinals: true
+- type: entity
+  id: APCBasicBitrunArtfbb5c11f0190Placementb9aa172280e6
+  categories:
+  - HideSpawnMenu
+  parent: APCBasicBitrunArtfbb5c11f0190
+  localizationId: ent-APCBasic
+  components:
+  - type: Sprite
+    offset: 0,0.78125
 - type: entity
   id: AirlockAssemblyEngineeringBitrunArt24b5cec848c4
   categories:
@@ -1234,6 +1244,8 @@
       shader: unshaded
       visible: false
       map: *id008
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: AirlockBitrunArt3fd11e64d8af
   categories:
@@ -1275,6 +1287,17 @@
       shader: unshaded
       visible: false
       map: *id008
+    noRot: true
+    snapCardinals: false
+- type: entity
+  id: AirlockBitrunArt3fd11e64d8afPlacementa03491a7c7a6
+  categories:
+  - HideSpawnMenu
+  parent: AirlockBitrunArt3fd11e64d8af
+  localizationId: ent-Airlock
+  components:
+  - type: Sprite
+    offset: 0.5,0.5
 - type: entity
   id: AirlockBitrunArt58efe3a95823
   categories:
@@ -1502,47 +1525,6 @@
     - state: closed
       map: *id001
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/centcom_d0625159f689.rsi
-    - state: closed_unlit
-      shader: unshaded
-      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
-      map: *id002
-      visible: true
-    - state: welded
-      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
-      map: *id003
-    - state: bolted_unlit
-      shader: unshaded
-      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
-      map: *id004
-    - state: emergency_unlit
-      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
-      map: *id005
-      shader: unshaded
-    - state: panel_open
-      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
-      map: *id006
-    - state: electrified_ai
-      sprite: Interface/Misc/ai_hud.rsi
-      shader: unshaded
-      visible: false
-      map: *id007
-    - state: electrified
-      sprite: Effects/electricity.rsi
-      shader: unshaded
-      visible: false
-      map: *id008
-- type: entity
-  id: AirlockBitrunArt87197788ecb8
-  categories:
-  - HideSpawnMenu
-  parent: Airlock
-  localizationId: ent-Airlock
-  components:
-  - type: Sprite
-    layers:
-    - state: closed
-      map: *id001
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_f5920d55789f.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1990,6 +1972,58 @@
       shader: unshaded
       visible: false
       map: *id008
+- type: entity
+  id: AirlockGlassBitrunArta1f3dfe2f4bc
+  categories:
+  - HideSpawnMenu
+  parent: AirlockGlass
+  localizationId: ent-AirlockGlass
+  components:
+  - type: Sprite
+    layers:
+    - state: closed
+      map: *id001
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_23611e266181.rsi
+    - state: closed_unlit
+      shader: unshaded
+      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
+      map: *id002
+      visible: true
+    - state: welded
+      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
+      map: *id003
+    - state: bolted_unlit
+      shader: unshaded
+      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
+      map: *id004
+    - state: emergency_unlit
+      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
+      map: *id005
+      shader: unshaded
+    - state: panel_open
+      sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
+      map: *id006
+    - state: electrified_ai
+      sprite: Interface/Misc/ai_hud.rsi
+      shader: unshaded
+      visible: false
+      map: *id007
+    - state: electrified
+      sprite: Effects/electricity.rsi
+      shader: unshaded
+      visible: false
+      map: *id008
+    noRot: true
+    snapCardinals: false
+- type: entity
+  id: AirlockGlassBitrunArta1f3dfe2f4bcPlacementa03491a7c7a6
+  categories:
+  - HideSpawnMenu
+  parent: AirlockGlassBitrunArta1f3dfe2f4bc
+  localizationId: ent-AirlockGlass
+  components:
+  - type: Sprite
+    offset: 0.5,0.5
 - type: entity
   id: AirlockMaintBitrunArtca3c57225053
   categories:
@@ -4263,6 +4297,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_med
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the Medbay is.
 - type: entity
   id: BitrunArt22fb73e8c30ePlacementd6725c559b48
@@ -6406,6 +6442,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_evac
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the escape shuttle dock is.
 - type: entity
   id: BitrunArt5093cd0ef894
@@ -6571,18 +6609,6 @@
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/meat_66af18c01e62.rsi
     state: rawcutlet
   description: A raw meat cutlet.
-- type: entity
-  id: BitrunArt5252e1978b39
-  categories:
-  - HideSpawnMenu
-  name: stechkin pistol magazine (9mm)
-  parent: BaseItem
-  components:
-  - type: Sprite
-    drawdepth: SmallObjects
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
-    state: 9mmaps-15
-  description: A 9mm handgun magazine, suitable for the Stechkin APS machine pistol.
 - type: entity
   id: BitrunArt525fc44dce4c
   categories:
@@ -7587,26 +7613,6 @@
   - type: Sprite
     offset: 0,0.1875
 - type: entity
-  id: BitrunArt6afdb3486067
-  categories:
-  - HideSpawnMenu
-  name: .460 Ceres SMG magazine
-  parent: BaseItem
-  components:
-  - type: Sprite
-    drawdepth: SmallObjects
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
-    state: c20r45
-  description: A magazine chambered for .460 meant to fit in submachine guns.
-- type: entity
-  id: BitrunArt6afdb3486067Placementcc6631f1cc70
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArt6afdb3486067
-  components:
-  - type: Sprite
-    offset: 0.28125,0.09375
-- type: entity
   id: BitrunArt6b29759e872f
   categories:
   - HideSpawnMenu
@@ -7862,6 +7868,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_sci
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the Science department is.
 - type: entity
   id: BitrunArt6e0c83d4e5adPlacement1702b4cf174e
@@ -8978,6 +8986,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_sec
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the Security department is.
 - type: entity
   id: BitrunArt80b42e3d6da5Placementd6725c559b48
@@ -10430,42 +10440,6 @@
     state: side
   description: A segment of broken flooring.
 - type: entity
-  id: BitrunArt9d2a920405b9
-  categories:
-  - HideSpawnMenu
-  name: \improper Miecz submachinegun magazine
-  parent: BaseItem
-  components:
-  - type: Sprite
-    drawdepth: SmallObjects
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
-    state: miecz_mag
-  description: A standard size magazine for Miecz submachineguns, holds eighteen rounds.
-- type: entity
-  id: BitrunArt9d2a920405b9Placement61c3299f9eca
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArt9d2a920405b9
-  components:
-  - type: Sprite
-    offset: -0.15625,-0.28125
-- type: entity
-  id: BitrunArt9d2a920405b9Placementd146756d358e
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArt9d2a920405b9
-  components:
-  - type: Sprite
-    offset: 0,-0.28125
-- type: entity
-  id: BitrunArt9d2a920405b9Placementfcc7e9b86aca
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArt9d2a920405b9
-  components:
-  - type: Sprite
-    offset: 0.15625,-0.28125
-- type: entity
   id: BitrunArt9d6ca2664a95
   categories:
   - HideSpawnMenu
@@ -11527,6 +11501,18 @@
   - type: Sprite
     offset: 0.25,-0.15625
 - type: entity
+  id: BitrunArtb2aeb068f1fa
+  categories:
+  - HideSpawnMenu
+  name: box magazine (7mm)
+  parent: BaseItem
+  components:
+  - type: Sprite
+    drawdepth: SmallObjects
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+    state: a7mm
+  description: A sizeable 7mm box magazine, suitable for the L6 SAW.
+- type: entity
   id: BitrunArtb2bb817c7d08
   categories:
   - HideSpawnMenu
@@ -11562,6 +11548,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_med
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the Medbay is.
 - type: entity
   id: BitrunArtb2e8f99025acPlacement9cf968d46881
@@ -11682,6 +11670,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_dorms
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the dormitories are.
 - type: entity
   id: BitrunArtb57a7a7d411dPlacementd35e240c0c72
@@ -12885,6 +12875,8 @@
     drawdepth: WallMountedItems
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/signs_279622596488.rsi
     state: direction_eng
+    noRot: true
+    snapCardinals: false
   description: A direction sign, pointing out which way the Engineering department is.
 - type: entity
   id: BitrunArtd077e5bb9d1a
@@ -13206,34 +13198,6 @@
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/library_fa37ce5c293e.rsi
     state: bookDetective
   description: Crack it open, inhale the musk of its pages, and learn something new.
-- type: entity
-  id: BitrunArtd50c00294f11
-  categories:
-  - HideSpawnMenu
-  name: plasma power pack
-  parent: BaseItem
-  components:
-  - type: Sprite
-    drawdepth: SmallObjects
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
-    state: plasma_battery
-  description: A detachable battery that serves as a power source for plasma projectors.
-- type: entity
-  id: BitrunArtd50c00294f11Placement5c3ee0b2d8f5
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArtd50c00294f11
-  components:
-  - type: Sprite
-    offset: -0.09375,-0.4375
-- type: entity
-  id: BitrunArtd50c00294f11Placement9d964688a1ba
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArtd50c00294f11
-  components:
-  - type: Sprite
-    offset: 0.25,-0.375
 - type: entity
   id: BitrunArtd5238a23cddb
   categories:
@@ -14457,34 +14421,6 @@
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/shoes_7ffc17d0bcb7.rsi
     state: cookflops
   description: All this talk of antags, greytiding, and griefing... I just wanna grill for god's sake!
-- type: entity
-  id: BitrunArtee24d41e7fd1
-  categories:
-  - HideSpawnMenu
-  name: anti-materiel magazine (.60 Strela)
-  parent: BaseItem
-  components:
-  - type: Sprite
-    drawdepth: SmallObjects
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
-    state: wylom_mag
-  description: A magazine of rounds, they look like error signs... this should probably be reported somewhere.
-- type: entity
-  id: BitrunArtee24d41e7fd1Placement26bb0da4cd14
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArtee24d41e7fd1
-  components:
-  - type: Sprite
-    offset: 0.125,0.125
-- type: entity
-  id: BitrunArtee24d41e7fd1Placement66653112db20
-  categories:
-  - HideSpawnMenu
-  parent: BitrunArtee24d41e7fd1
-  components:
-  - type: Sprite
-    offset: -0.25,0.125
 - type: entity
   id: BitrunArtee406c60335e
   categories:
@@ -16133,20 +16069,6 @@
   components:
   - type: Sprite
     offset: 0.3125,0.125
-- type: entity
-  id: CableApcExtensionBitrunArt705c0773762f
-  categories:
-  - HideSpawnMenu
-  parent: CableApcExtension
-  localizationId: ent-CableApcExtension
-  components:
-  - type: Sprite
-    layers:
-    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/layer_cable_7ed836b960ce.rsi
-      state: l2-1-2-4-8-node
-  - type: Icon
-    sprite: _DeepLagoon/Bitrunning/WhiteMoon/layer_cable_7ed836b960ce.rsi
-    state: l2-1-2-4-8-node
 - type: entity
   id: CannonBallBitrunArt58fdfa9847fc
   categories:
@@ -20099,6 +20021,8 @@
       - enum.ElectrifiedLayers.Sparks
       shader: unshaded
       visible: false
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: FenceMetalStraightBitrunArted6bce90ba58
   categories:
@@ -22911,11 +22835,41 @@
   - type: Sprite
     layers:
     - state: pistol_35_standard
-      map:
+      map: &id071
       - enum.GunVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_93a0888ab774.rsi
     - state: mag-1
-      map:
+      map: &id072
+      - enum.GunVisualLayers.Mag
+- type: entity
+  id: Magazine45_ACPPistolFMJBitrunArt4d6f874d0b68
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPPistolFMJ
+  localizationId: ent-Magazine45_ACPPistolFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: 9x19p
+      map: *id071
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/magazine_fac6c3f484db.rsi
+    - state: mag-1
+      map: *id072
+- type: entity
+  id: Magazine45_ACPPistolHighCapacityFMJBitrunArt5066cdad68e4
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPPistolHighCapacityFMJ
+  localizationId: ent-Magazine45_ACPPistolHighCapacityFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: 9mmaps-15
+      map: &id073
+      - enum.GunVisualLayers.Base
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+    - state: mag-1
+      map: &id074
       - enum.GunVisualLayers.Mag
 - type: entity
   id: Magazine45_ACPPistolHighCapacityFMJBitrunArt94ae10a1ae10
@@ -22927,28 +22881,172 @@
   - type: Sprite
     layers:
     - state: pistol_35_stended
-      map:
-      - enum.GunVisualLayers.Base
+      map: *id073
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_93a0888ab774.rsi
     - state: mag-1
-      map:
-      - enum.GunVisualLayers.Mag
+      map: *id074
 - type: entity
-  id: MagazinePistolBitrunArt35a31bbd5283
+  id: Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55
   categories:
   - HideSpawnMenu
-  parent: MagazinePistol
-  localizationId: ent-MagazinePistol
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
   components:
   - type: Sprite
     layers:
-    - state: 9x19p
-      map:
+    - state: plasma_battery
+      map: &id075
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/magazine_fac6c3f484db.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
     - state: mag-1
-      map:
+      map: &id076
       - enum.GunVisualLayers.Mag
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55Placement5c3ee0b2d8f5
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: -0.09375,-0.4375
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55Placement9d964688a1ba
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.25,-0.375
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtaa6bae624db5
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: lanca_mag
+      map: *id075
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+    - state: mag-1
+      map: *id076
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtaa6bae624db5Placement26bb0da4cd14
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArtaa6bae624db5
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.125,0.125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: wylom_mag
+      map: *id075
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+    - state: mag-1
+      map: *id076
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68Placement26bb0da4cd14
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.125,0.125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68Placement66653112db20
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: -0.25,0.125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: c20r45
+      map: *id075
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+    - state: mag-1
+      map: *id076
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713Placementcc6631f1cc70
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.28125,0.09375
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bb
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    layers:
+    - state: miecz_mag
+      map: *id075
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+    - state: mag-1
+      map: *id076
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacement61c3299f9eca
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bb
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: -0.15625,-0.28125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacementd146756d358e
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bb
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0,-0.28125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacementfcc7e9b86aca
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bb
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.15625,-0.28125
+- type: entity
+  id: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
+  categories:
+  - HideSpawnMenu
+  parent: Magazine45_ACPSubMachineGunFMJ
+  localizationId: ent-Magazine45_ACPSubMachineGunFMJ
+  components:
+  - type: Sprite
+    offset: 0.25,-0.25
 - type: entity
   id: MaterialBluespaceBitrunArt4ad8b654a738
   categories:
@@ -22972,7 +23070,7 @@
   - type: Sprite
     layers:
     - state: sheet-diamond
-      map: &id071
+      map: &id077
       - base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/stack_objects_11e8eeda0c47.rsi
 - type: entity
@@ -22994,7 +23092,7 @@
   - type: Sprite
     layers:
     - state: diamond
-      map: *id071
+      map: *id077
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ore_331dbc80d251.rsi
 - type: entity
   id: MaterialWoodPlankBitrunArt3c6615e0b1d8
@@ -23424,7 +23522,7 @@
   components:
   - type: Sprite
     layers:
-    - map: &id072
+    - map: &id078
       - enum.DamageStateVisualLayers.Base
       - movement
       state: crab
@@ -23438,7 +23536,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id072
+    - map: *id078
       state: crab
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/animal_1aa3a128d995.rsi
 - type: entity
@@ -23525,89 +23623,89 @@
   components:
   - type: Sprite
     layers:
-    - map: &id073
+    - map: &id079
       - enum.HumanoidVisualLayers.Chest
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/simple_human_5de653b363dc.rsi
       state: base
-    - map: &id074
-      - enum.HumanoidVisualLayers.Head
-    - map: &id075
-      - enum.HumanoidVisualLayers.Snout
-    - map: &id076
-      - enum.HumanoidVisualLayers.Eyes
-    - map: &id077
-      - enum.HumanoidVisualLayers.RArm
-    - map: &id078
-      - enum.HumanoidVisualLayers.LArm
-    - map: &id079
-      - enum.HumanoidVisualLayers.RLeg
     - map: &id080
-      - enum.HumanoidVisualLayers.LLeg
+      - enum.HumanoidVisualLayers.Head
     - map: &id081
-      - jumpsuit
+      - enum.HumanoidVisualLayers.Snout
     - map: &id082
-      - enum.HumanoidVisualLayers.LFoot
+      - enum.HumanoidVisualLayers.Eyes
     - map: &id083
-      - enum.HumanoidVisualLayers.RFoot
+      - enum.HumanoidVisualLayers.RArm
     - map: &id084
-      - enum.HumanoidVisualLayers.LHand
+      - enum.HumanoidVisualLayers.LArm
     - map: &id085
-      - enum.HumanoidVisualLayers.RHand
+      - enum.HumanoidVisualLayers.RLeg
     - map: &id086
-      - gloves
+      - enum.HumanoidVisualLayers.LLeg
     - map: &id087
-      - shoes
+      - jumpsuit
     - map: &id088
-      - ears
+      - enum.HumanoidVisualLayers.LFoot
     - map: &id089
-      - id
+      - enum.HumanoidVisualLayers.RFoot
     - map: &id090
-      - outerClothing
+      - enum.HumanoidVisualLayers.LHand
     - map: &id091
-      - eyes
+      - enum.HumanoidVisualLayers.RHand
     - map: &id092
-      - belt
+      - gloves
     - map: &id093
-      - back
+      - shoes
     - map: &id094
-      - neck
+      - ears
     - map: &id095
-      - neck2
+      - id
     - map: &id096
-      - neck3
+      - outerClothing
     - map: &id097
-      - enum.HumanoidVisualLayers.FacialHair
+      - eyes
     - map: &id098
-      - enum.HumanoidVisualLayers.Hair
+      - belt
     - map: &id099
-      - enum.HumanoidVisualLayers.HeadSide
+      - back
     - map: &id100
-      - enum.HumanoidVisualLayers.HeadTop
+      - neck
     - map: &id101
-      - enum.HumanoidVisualLayers.Tail
+      - neck2
     - map: &id102
-      - enum.HumanoidVisualLayers.Wings
+      - neck3
     - map: &id103
-      - balaclava
+      - enum.HumanoidVisualLayers.FacialHair
     - map: &id104
-      - mask
+      - enum.HumanoidVisualLayers.Hair
     - map: &id105
-      - head
+      - enum.HumanoidVisualLayers.HeadSide
     - map: &id106
-      - helmetcover
+      - enum.HumanoidVisualLayers.HeadTop
     - map: &id107
-      - helmetattachment
+      - enum.HumanoidVisualLayers.Tail
     - map: &id108
-      - pocket1
+      - enum.HumanoidVisualLayers.Wings
     - map: &id109
-      - pocket2
+      - balaclava
     - map: &id110
+      - mask
+    - map: &id111
+      - head
+    - map: &id112
+      - helmetcover
+    - map: &id113
+      - helmetattachment
+    - map: &id114
+      - pocket1
+    - map: &id115
+      - pocket2
+    - map: &id116
       - enum.HumanoidVisualLayers.Handcuffs
       color: '#ffffff'
       sprite: Objects/Misc/handcuffs.rsi
       state: body-overlay-2
       visible: false
-    - map: &id111
+    - map: &id117
       - clownedon
       sprite: Effects/creampie.rsi
       state: creampie_human
@@ -23624,15 +23722,9 @@
   components:
   - type: Sprite
     layers:
-    - map: *id073
+    - map: *id079
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/simple_human_5de653b363dc.rsi
       state: base
-    - map: *id074
-    - map: *id075
-    - map: *id076
-    - map: *id077
-    - map: *id078
-    - map: *id079
     - map: *id080
     - map: *id081
     - map: *id082
@@ -23664,11 +23756,17 @@
     - map: *id108
     - map: *id109
     - map: *id110
+    - map: *id111
+    - map: *id112
+    - map: *id113
+    - map: *id114
+    - map: *id115
+    - map: *id116
       color: '#ffffff'
       sprite: Objects/Misc/handcuffs.rsi
       state: body-overlay-2
       visible: false
-    - map: *id111
+    - map: *id117
       sprite: Effects/creampie.rsi
       state: creampie_human
       visible: false
@@ -23700,17 +23798,17 @@
   - type: Sprite
     layers:
     - state: door_closed
-      map: &id112
+      map: &id118
       - enum.MorgueVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/doormorgue_3938c93dc798.rsi
     - state: morgue_tray
       offset: 0, -1
       visible: false
-      map: &id113
+      map: &id119
       - enum.StorageVisualLayers.Door
     - state: morgue_nomob_light
       visible: false
-      map: &id114
+      map: &id120
       - enum.MorgueVisualLayers.Light
       shader: unshaded
 - type: entity
@@ -23723,15 +23821,15 @@
   - type: Sprite
     layers:
     - state: morgue1
-      map: *id112
+      map: *id118
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/morgue_1d816ee2e8b7.rsi
     - state: morgue_tray
       offset: 0, -1
       visible: false
-      map: *id113
+      map: *id119
     - state: morgue_nomob_light
       visible: false
-      map: *id114
+      map: *id120
       shader: unshaded
 - type: entity
   id: MultitoolBitrunArt408c9b722156
@@ -23773,11 +23871,11 @@
   components:
   - type: Sprite
     layers:
-    - map: &id115
+    - map: &id121
       - enum.DamageStateVisualLayers.Base
       state: bear
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/animal_e2efa0a084c8.rsi
-    - map: &id116
+    - map: &id122
       - enum.DamageStateVisualLayers.BaseUnshaded
       state: glow
       shader: unshaded
@@ -23790,10 +23888,10 @@
   components:
   - type: Sprite
     layers:
-    - map: *id115
+    - map: *id121
       state: bear
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/animal_24c67ed53cff.rsi
-    - map: *id116
+    - map: *id122
       state: glow
       shader: unshaded
 - type: entity
@@ -23805,10 +23903,10 @@
   components:
   - type: Sprite
     layers:
-    - map: *id115
+    - map: *id121
       state: bear
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/animal_8a1239e23a93.rsi
-    - map: *id116
+    - map: *id122
       state: glow
       shader: unshaded
 - type: entity
@@ -23820,10 +23918,10 @@
   components:
   - type: Sprite
     layers:
-    - map: *id115
+    - map: *id121
       state: bear
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/animal_bc039a527401.rsi
-    - map: *id116
+    - map: *id122
       state: glow
       shader: unshaded
 - type: entity
@@ -23964,11 +24062,11 @@
     - state: paperslip
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/bureaucracy_bc6989736ddc.rsi
     - state: paper_words
-      map: &id117
+      map: &id123
       - enum.PaperVisualLayers.Writing
       visible: false
     - state: paper_stamp-generic
-      map: &id118
+      map: &id124
       - enum.PaperVisualLayers.Stamp
       visible: false
 - type: entity
@@ -23992,10 +24090,10 @@
     - state: scrap_bloodied
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/bureaucracy_bc6989736ddc.rsi
     - state: paper_words
-      map: *id117
+      map: *id123
       visible: false
     - state: paper_stamp-generic
-      map: *id118
+      map: *id124
       visible: false
 - type: entity
   id: PaperBitrunArta3ab1440751a
@@ -24009,10 +24107,10 @@
     - state: paper
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/bureaucracy_bc6989736ddc.rsi
     - state: paper_words
-      map: *id117
+      map: *id123
       visible: false
     - state: paper_stamp-generic
-      map: *id118
+      map: *id124
       visible: false
 - type: entity
   id: PaperBitrunArta3ab1440751aPlacement77aaa4c202ea
@@ -24035,10 +24133,10 @@
     - state: paper
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/costume_552939c82862.rsi
     - state: paper_words
-      map: *id117
+      map: *id123
       visible: false
     - state: paper_stamp-generic
-      map: *id118
+      map: *id124
       visible: false
 - type: entity
   id: PaperBitrunArtd754936762dcPlacement82e4ce5a008c
@@ -24061,10 +24159,10 @@
     - state: scrap
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/bureaucracy_bc6989736ddc.rsi
     - state: paper_words
-      map: *id117
+      map: *id123
       visible: false
     - state: paper_stamp-generic
-      map: *id118
+      map: *id124
       visible: false
 - type: entity
   id: PartRodMetalBitrunArt8b9ecd764da2
@@ -24469,7 +24567,7 @@
       Burned: burned
   - type: Sprite
     layers:
-    - map: &id119
+    - map: &id125
       - enum.PoweredLightLayers.Base
       state: bulb
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_49c7cf2c4cf6.rsi
@@ -24504,7 +24602,7 @@
     hasLampOnSpawn: LightBulbBroken
   - type: Sprite
     layers:
-    - map: *id119
+    - map: *id125
       state: bulb-broken
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_c4fba42ddd5c.rsi
     offset: 0,0
@@ -24540,7 +24638,7 @@
     hasLampOnSpawn: LightBulb
   - type: Sprite
     layers:
-    - map: *id119
+    - map: *id125
       state: floor
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_d61436e24799.rsi
     offset: 0,0
@@ -24563,7 +24661,7 @@
       Burned: burned
   - type: Sprite
     layers:
-    - map: *id119
+    - map: *id125
       state: tube
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_7ee552aa9100.rsi
     offset: 0,0
@@ -24597,7 +24695,7 @@
     hasLampOnSpawn: null
   - type: Sprite
     layers:
-    - map: *id119
+    - map: *id125
       state: tube-empty
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_7971b8239edd.rsi
     offset: 0,0
@@ -24631,7 +24729,7 @@
     hasLampOnSpawn: LightTubeBroken
   - type: Sprite
     layers:
-    - map: *id119
+    - map: *id125
       state: tube-broken
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/lighting_033e97940a56.rsi
     offset: 0,0
@@ -24961,7 +25059,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_f7f3670defca.rsi
       state: medium
-      map: &id120
+      map: &id126
       - enum.DamageStateVisualLayers.Base
 - type: entity
   id: ShardGlassBitrunArt07f48180a24fPlacement9f35cc981872
@@ -25010,7 +25108,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_a9c156c5e4f0.rsi
       state: large
-      map: *id120
+      map: *id126
 - type: entity
   id: ShardGlassBitrunArt35c206ad7475
   categories:
@@ -25022,7 +25120,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_6c96bafeda23.rsi
       state: tiny
-      map: *id120
+      map: *id126
 - type: entity
   id: ShardGlassBitrunArt548885f49779
   categories:
@@ -25034,7 +25132,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_8a505f8b04a1.rsi
       state: plastitaniumlarge
-      map: *id120
+      map: *id126
 - type: entity
   id: ShardGlassBitrunArt548885f49779Placement51d487ddf5c2
   categories:
@@ -25055,7 +25153,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_f6981e20cc3a.rsi
       state: plastitaniumtiny
-      map: *id120
+      map: *id126
 - type: entity
   id: ShardGlassBitrunArta1741ccd8ca5
   categories:
@@ -25067,7 +25165,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_adef525e3ee2.rsi
       state: titaniumlarge
-      map: *id120
+      map: *id126
 - type: entity
   id: ShardGlassBitrunArta8fdc7e93d98
   categories:
@@ -25079,7 +25177,7 @@
     layers:
     - sprite: _DeepLagoon/Bitrunning/WhiteMoon/debris_ddd852883b98.rsi
       state: plasmalarge
-      map: *id120
+      map: *id126
 - type: entity
   id: SheetGlassBitrunArt0c01e9832d97
   categories:
@@ -25162,9 +25260,11 @@
   - type: Sprite
     layers:
     - state: closed
-      map: &id121
+      map: &id127
       - enum.DoorVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_0d8e63d028b6.rsi
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: ShuttersNormalOpenBitrunArt4ebc274fa320
   categories:
@@ -25175,8 +25275,10 @@
   - type: Sprite
     layers:
     - state: closed
-      map: *id121
+      map: *id127
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_781925adf115.rsi
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: ShuttersWindowBitrunArt7546c08dc0fe
   categories:
@@ -25190,6 +25292,8 @@
       map:
       - enum.DoorVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_window_9a871b7bdb9c.rsi
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: ShuttleWindowBitrunArtae2a3612f2f4
   categories:
@@ -25418,7 +25522,7 @@
     layers:
     - state: sink
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/watercloset_378d1b8f0f0a.rsi
-    - map: &id122
+    - map: &id128
       - enum.SolutionContainerLayers.Fill
       state: sink-fill-1
       visible: false
@@ -25433,7 +25537,7 @@
     layers:
     - state: sink_alt
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/watercloset_378d1b8f0f0a.rsi
-    - map: *id122
+    - map: *id128
       state: sink-fill-1
       visible: false
 - type: entity
@@ -25474,7 +25578,7 @@
   - type: Sprite
     layers:
     - state: coin
-      map: &id123
+      map: &id129
       - base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/economy_9a713e3783cd.rsi
 - type: entity
@@ -25496,7 +25600,7 @@
   - type: Sprite
     layers:
     - state: coin_valid
-      map: *id123
+      map: *id129
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/economy_bfd0a92f0273.rsi
 - type: entity
   id: SpaceHeaterBitrunArtfd32e65cf8e7
@@ -25533,7 +25637,7 @@
       enum.WiresVisuals.MaintenancePanelState: *id022
   - type: Sprite
     layers:
-    - map: &id124
+    - map: &id130
       - computerLayerBody
       state: arcade
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/computer_467da344d87d.rsi
@@ -25542,7 +25646,7 @@
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/computer_467da344d87d.rsi
       state: fighters
       visible: false
-    - map: &id125
+    - map: &id131
       - enum.WiresVisualLayers.MaintenancePanel
       state: panel
       visible: false
@@ -25568,7 +25672,7 @@
       enum.WiresVisuals.MaintenancePanelState: *id022
   - type: Sprite
     layers:
-    - map: *id124
+    - map: *id130
       state: arcade
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/computer_7d8152f3aa14.rsi
     - map:
@@ -25576,7 +25680,7 @@
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/computer_7d8152f3aa14.rsi
       state: invaders
       visible: false
-    - map: *id125
+    - map: *id131
       state: panel
       visible: false
   - type: Icon
@@ -25952,16 +26056,16 @@
   - type: Sprite
     layers:
     - state: propulsion
-      map: &id126
+      map: &id132
       - enum.ThrusterVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shuttle_a4f5b39275f3.rsi
     - state: thrust
-      map: &id127
+      map: &id133
       - enum.ThrusterVisualLayers.ThrustOn
       shader: unshaded
       visible: false
     - state: thrust_burn_unshaded
-      map: &id128
+      map: &id134
       - enum.ThrusterVisualLayers.ThrustingUnshaded
       shader: unshaded
       visible: false
@@ -25976,14 +26080,14 @@
   - type: Sprite
     layers:
     - state: heater
-      map: *id126
+      map: *id132
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shuttle_a4f5b39275f3.rsi
     - state: thrust
-      map: *id127
+      map: *id133
       shader: unshaded
       visible: false
     - state: thrust_burn_unshaded
-      map: *id128
+      map: *id134
       shader: unshaded
       visible: false
       offset: 0, 1
@@ -26066,7 +26170,7 @@
   components:
   - type: Sprite
     layers:
-    - map: &id129
+    - map: &id135
       - base
       state: teal
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_dacf03b78fb4.rsi
@@ -26115,7 +26219,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: infiltrator_case
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/case_439654a29b1f.rsi
 - type: entity
@@ -26127,7 +26231,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: ammobox
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_18c013c36365.rsi
 - type: entity
@@ -26139,7 +26243,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: syndicate
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_7b462dae23b7.rsi
 - type: entity
@@ -26151,7 +26255,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: blue
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_10da1871028f.rsi
 - type: entity
@@ -26199,7 +26303,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: yellow
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_4c21cb8509d7.rsi
 - type: entity
@@ -26238,7 +26342,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: toolbox_blue_old
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_f9c1ae1ca30d.rsi
 - type: entity
@@ -26250,7 +26354,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: red
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_f69b2ddf51f0.rsi
 - type: entity
@@ -26271,7 +26375,7 @@
   components:
   - type: Sprite
     layers:
-    - map: *id129
+    - map: *id135
       state: toolbox_default
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_d4c0f9f08710.rsi
 - type: entity
@@ -26451,7 +26555,7 @@
       shader: unshaded
       visible: false
     - state: panel2
-      map: &id130
+      map: &id136
       - enum.WiresVisualLayers.MaintenancePanel
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/vending_cc5b9a6d45b5.rsi
 - type: entity
@@ -26481,7 +26585,7 @@
       shader: unshaded
       visible: false
     - state: panel2
-      map: *id130
+      map: *id136
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/vending_02bb18036e1d.rsi
 - type: entity
   id: VendingMachineColaBitrunArteb226feaa73e
@@ -26510,7 +26614,7 @@
       shader: unshaded
       visible: false
     - state: panel2
-      map: *id130
+      map: *id136
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/vending_d2f79edffb53.rsi
 - type: entity
   id: VendingMachineDinnerwareBitrunArtc34169605935
@@ -26840,16 +26944,16 @@
     layers:
     - state: smoothrocks-0
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/smoothrocks_14a2e3fedd9b.rsi
-    - map: &id131
+    - map: &id137
       - enum.EdgeLayer.South
       state: rock_south
-    - map: &id132
+    - map: &id138
       - enum.EdgeLayer.East
       state: rock_east
-    - map: &id133
+    - map: &id139
       - enum.EdgeLayer.North
       state: rock_north
-    - map: &id134
+    - map: &id140
       - enum.EdgeLayer.West
       state: rock_west
   - type: Icon
@@ -26866,13 +26970,13 @@
     layers:
     - state: red_wall-0
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/red_wall_3427894b01dd.rsi
-    - map: *id131
+    - map: *id137
       state: rock_south
-    - map: *id132
+    - map: *id138
       state: rock_east
-    - map: *id133
+    - map: *id139
       state: rock_north
-    - map: *id134
+    - map: *id140
       state: rock_west
   - type: Icon
     sprite: _DeepLagoon/Bitrunning/WhiteMoon/red_wall_3427894b01dd.rsi
@@ -27043,7 +27147,7 @@
       enum.WiresVisuals.MaintenancePanelState: *id022
   - type: Sprite
     layers:
-    - map: &id135
+    - map: &id141
       - computerLayerBody
       state: telescreen
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/wallmounts_9f5e2106fd8b.rsi
@@ -27075,7 +27179,7 @@
       enum.WiresVisuals.MaintenancePanelState: *id022
   - type: Sprite
     layers:
-    - map: *id135
+    - map: *id141
       state: entertainment_frame
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/status_display_40f6dac41276.rsi
     - map:
@@ -27232,11 +27336,11 @@
   - type: Sprite
     layers:
     - state: laser
-      map: &id136
+      map: &id142
       - enum.GunVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/energy_3262aae32e03.rsi
     - state: mag-unshaded-4
-      map: &id137
+      map: &id143
       - enum.GunVisualLayers.MagUnshaded
       shader: unshaded
 - type: entity
@@ -27303,10 +27407,10 @@
   - type: Sprite
     layers:
     - state: hellgun
-      map: *id136
+      map: *id142
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/energy_3262aae32e03.rsi
     - state: mag-unshaded-4
-      map: *id137
+      map: *id143
       shader: unshaded
 - type: entity
   id: WeaponLaserCarbineBitrunArt36558bf902edPlacement84f2993fd725
@@ -27327,10 +27431,10 @@
   - type: Sprite
     layers:
     - state: xray
-      map: *id136
+      map: *id142
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/energy_3262aae32e03.rsi
     - state: mag-unshaded-4
-      map: *id137
+      map: *id143
       shader: unshaded
 - type: entity
   id: WeaponLaserCarbineBitrunArta0a7d8fc6a1b
@@ -27342,10 +27446,10 @@
   - type: Sprite
     layers:
     - state: musket
-      map: *id136
+      map: *id142
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/energy_3262aae32e03.rsi
     - state: mag-unshaded-4
-      map: *id137
+      map: *id143
       shader: unshaded
 - type: entity
   id: WeaponLaserCarbineBitrunArta0a7d8fc6a1bPlacement153e267383dc
@@ -27384,11 +27488,32 @@
   - type: Sprite
     layers:
     - state: retro
-      map: *id136
+      map: *id142
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/energy_3262aae32e03.rsi
     - state: mag-unshaded-4
-      map: *id137
+      map: *id143
       shader: unshaded
+- type: entity
+  id: WeaponPistolMk58BitrunArt0565cbdc72d8
+  categories:
+  - HideSpawnMenu
+  parent: WeaponPistolMk58
+  localizationId: ent-WeaponPistolMk58
+  components:
+  - type: Sprite
+    layers:
+    - state: pistol
+      map: &id144
+      - enum.GunVisualLayers.Base
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_db2ee44db7ae.rsi
+    - state: mag-0
+      map: &id145
+      - enum.GunVisualLayers.Mag
+    - map: &id146
+      - gripAttachment
+    - map: &id147
+      - barrelAttachment
+      offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArt57e632eb5570
   categories:
@@ -27399,16 +27524,12 @@
   - type: Sprite
     layers:
     - state: sakhno
-      map: &id138
-      - enum.GunVisualLayers.Base
+      map: *id144
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/wide_guns_c607b855272b.rsi
     - state: mag-0
-      map: &id139
-      - enum.GunVisualLayers.Mag
-    - map: &id140
-      - gripAttachment
-    - map: &id141
-      - barrelAttachment
+      map: *id145
+    - map: *id146
+    - map: *id147
       offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArt57e632eb5570Placement544caafdba78
@@ -27438,6 +27559,23 @@
   - type: Sprite
     offset: -0.25,0
 - type: entity
+  id: WeaponPistolMk58BitrunArt5d8143478f7b
+  categories:
+  - HideSpawnMenu
+  parent: WeaponPistolMk58
+  localizationId: ent-WeaponPistolMk58
+  components:
+  - type: Sprite
+    layers:
+    - state: wespe
+      map: *id144
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_601f760737d0.rsi
+    - state: mag-0
+      map: *id145
+    - map: *id146
+    - map: *id147
+      offset: 0.5620, 0
+- type: entity
   id: WeaponPistolMk58BitrunArt7471dae606d1
   categories:
   - HideSpawnMenu
@@ -27447,12 +27585,12 @@
   - type: Sprite
     layers:
     - state: lionhunter
-      map: *id138
+      map: *id144
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/wide_guns_644a5ae2d002.rsi
     - state: mag-0
-      map: *id139
-    - map: *id140
-    - map: *id141
+      map: *id145
+    - map: *id146
+    - map: *id147
       offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArt7471dae606d1Placementfd060a62351e
@@ -27464,6 +27602,23 @@
   - type: Sprite
     offset: -0.25,0
 - type: entity
+  id: WeaponPistolMk58BitrunArt8059707db307
+  categories:
+  - HideSpawnMenu
+  parent: WeaponPistolMk58
+  localizationId: ent-WeaponPistolMk58
+  components:
+  - type: Sprite
+    layers:
+    - state: aps
+      map: *id144
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_a44a689a774f.rsi
+    - state: mag-0
+      map: *id145
+    - map: *id146
+    - map: *id147
+      offset: 0.5620, 0
+- type: entity
   id: WeaponPistolMk58BitrunArtee70c986c39b
   categories:
   - HideSpawnMenu
@@ -27473,12 +27628,12 @@
   - type: Sprite
     layers:
     - state: sniper
-      map: *id138
+      map: *id144
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_c173463fa07e.rsi
     - state: mag-0
-      map: *id139
-    - map: *id140
-    - map: *id141
+      map: *id145
+    - map: *id146
+    - map: *id147
       offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArtf28eb12a8430
@@ -27490,12 +27645,12 @@
   - type: Sprite
     layers:
     - state: sakhno_tactifucked
-      map: *id138
+      map: *id144
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/wide_guns_405f2125d6e4.rsi
     - state: mag-0
-      map: *id139
-    - map: *id140
-    - map: *id141
+      map: *id145
+    - map: *id146
+    - map: *id147
       offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArtf28eb12a8430Placementfd060a62351e
@@ -27516,12 +27671,12 @@
   - type: Sprite
     layers:
     - state: rocketlauncher
-      map: *id138
+      map: *id144
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/wide_guns_76d59b5180f5.rsi
     - state: mag-0
-      map: *id139
-    - map: *id140
-    - map: *id141
+      map: *id145
+    - map: *id146
+    - map: *id147
       offset: 0.5620, 0
 - type: entity
   id: WeaponPistolMk58BitrunArtf42dd74573d3Placementfd060a62351e
@@ -27711,7 +27866,7 @@
   - type: Sprite
     layers:
     - state: gshell
-      map: &id142
+      map: &id148
       - enum.GunVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
 - type: entity
@@ -27724,7 +27879,7 @@
   - type: Sprite
     layers:
     - state: riotshotgun
-      map: *id142
+      map: *id148
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_e9f71cc61aea.rsi
 - type: entity
   id: WeaponShotgunDoubleBarreledBitrunArt3f99ea0420f3Placement96029cbc2c63
@@ -27745,7 +27900,7 @@
   - type: Sprite
     layers:
     - state: shotgun
-      map: *id142
+      map: *id148
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_e9f71cc61aea.rsi
 - type: entity
   id: WeaponShotgunDoubleBarreledBitrunArt94a8bfb9e388Placement716abd1ba6ed
@@ -27766,15 +27921,15 @@
   - type: Sprite
     layers:
     - state: wylom
-      map: &id143
+      map: &id149
       - enum.GunVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_64_774eac3699c9.rsi
     - state: mag-0
-      map: &id144
+      map: &id150
       - enum.GunVisualLayers.Mag
-    - map: &id145
+    - map: &id151
       - gripAttachment
-    - map: &id146
+    - map: &id152
       - barrelAttachment
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArt04670b8e1dcfPlacemente21fb80ab7eb
@@ -27795,12 +27950,12 @@
   - type: Sprite
     layers:
     - state: lanca
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_4b097e0504af.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArt4e46ae179a47Placementd5d63ae114fb
   categories:
@@ -27829,12 +27984,12 @@
   - type: Sprite
     layers:
     - state: c20r
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_627f419e10a4.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArt5dc82737dc26Placement4fa62177fee0
   categories:
@@ -27863,12 +28018,12 @@
   - type: Sprite
     layers:
     - state: miecz
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_681a3ad35f60.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArt811b23a9ede7Placementfd060a62351e
   categories:
@@ -27879,22 +28034,6 @@
   - type: Sprite
     offset: -0.25,0
 - type: entity
-  id: WeaponSubMachineGunDrozdBitrunArt962740767f5e
-  categories:
-  - HideSpawnMenu
-  parent: WeaponSubMachineGunDrozd
-  localizationId: ent-WeaponSubMachineGunDrozd
-  components:
-  - type: Sprite
-    layers:
-    - state: wespe
-      map: *id143
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_7e2d93c7e232.rsi
-    - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
-- type: entity
   id: WeaponSubMachineGunDrozdBitrunArta0e46dff6a0f
   categories:
   - HideSpawnMenu
@@ -27904,44 +28043,12 @@
   - type: Sprite
     layers:
     - state: miniuzi
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_9aa8386a6bcf.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
-- type: entity
-  id: WeaponSubMachineGunDrozdBitrunArtbbf9ee8c02a0
-  categories:
-  - HideSpawnMenu
-  parent: WeaponSubMachineGunDrozd
-  localizationId: ent-WeaponSubMachineGunDrozd
-  components:
-  - type: Sprite
-    layers:
-    - state: pistol
-      map: *id143
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_16494117d08f.rsi
-    - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
-- type: entity
-  id: WeaponSubMachineGunDrozdBitrunArtca287753f060
-  categories:
-  - HideSpawnMenu
-  parent: WeaponSubMachineGunDrozd
-  localizationId: ent-WeaponSubMachineGunDrozd
-  components:
-  - type: Sprite
-    layers:
-    - state: aps
-      map: *id143
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_f045c2a124d1.rsi
-    - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArtccfab54e2b9a
   categories:
@@ -27952,12 +28059,12 @@
   - type: Sprite
     layers:
     - state: slonce
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_32_2210d28b312c.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArteaf3c7b17560
   categories:
@@ -27968,12 +28075,12 @@
   - type: Sprite
     layers:
     - state: sindano
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_f332cdaae835.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponSubMachineGunDrozdBitrunArtf456b3bc7564
   categories:
@@ -27984,12 +28091,12 @@
   - type: Sprite
     layers:
     - state: l6
-      map: *id143
+      map: *id149
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_d2a1e200a8ac.rsi
     - state: mag-0
-      map: *id144
-    - map: *id145
-    - map: *id146
+      map: *id150
+    - map: *id151
+    - map: *id152
 - type: entity
   id: WeaponTurretSyndicateBitrunArta708233a17ce
   categories:
@@ -28013,7 +28120,7 @@
     - state: fuel
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/chemical_tanks_d237127bd8e2.rsi
     - state: fueltank-2-1
-      map: &id147
+      map: &id153
       - enum.SolutionContainerLayers.Fill
       visible: false
 - type: entity
@@ -28028,7 +28135,7 @@
     - state: fuel_high
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/chemical_tanks_d237127bd8e2.rsi
     - state: fueltank-2-1
-      map: *id147
+      map: *id153
       visible: false
 - type: entity
   id: WindoorBitrunArt148f1c837fb4
@@ -28040,40 +28147,42 @@
   - type: Sprite
     layers:
     - state: closed
-      map: &id148
+      map: &id154
       - enum.DoorVisualLayers.Base
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/directwindow_aebccebc8df7.rsi
     - state: closed_unlit
       shader: unshaded
-      map: &id149
+      map: &id155
       - enum.DoorVisualLayers.BaseUnlit
       visible: false
     - state: welded
-      map: &id150
+      map: &id156
       - enum.WeldableLayers.BaseWelded
     - state: bolted_unlit
       shader: unshaded
-      map: &id151
+      map: &id157
       - enum.DoorVisualLayers.BaseBolted
     - state: emergency_unlit
       shader: unshaded
-      map: &id152
+      map: &id158
       - enum.DoorVisualLayers.BaseEmergencyAccess
     - state: panel_open
-      map: &id153
+      map: &id159
       - enum.WiresVisualLayers.MaintenancePanel
     - state: electrified_ai
       sprite: Interface/Misc/ai_hud.rsi
       shader: unshaded
       visible: false
-      map: &id154
+      map: &id160
       - enum.ElectrifiedLayers.HUD
     - state: electrified
       sprite: Effects/electricity.rsi
       shader: unshaded
       visible: false
-      map: &id155
+      map: &id161
       - enum.ElectrifiedLayers.Sparks
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: WindoorBitrunArt148f1c837fb4Placement42ae6e72884d
   categories:
@@ -28093,32 +28202,34 @@
   - type: Sprite
     layers:
     - state: closed
-      map: *id148
+      map: *id154
       sprite: _DeepLagoon/Bitrunning/WhiteMoon/directwindow_4478c76b049c.rsi
     - state: closed_unlit
       shader: unshaded
-      map: *id149
+      map: *id155
       visible: false
     - state: welded
-      map: *id150
+      map: *id156
     - state: bolted_unlit
       shader: unshaded
-      map: *id151
+      map: *id157
     - state: emergency_unlit
       shader: unshaded
-      map: *id152
+      map: *id158
     - state: panel_open
-      map: *id153
+      map: *id159
     - state: electrified_ai
       sprite: Interface/Misc/ai_hud.rsi
       shader: unshaded
       visible: false
-      map: *id154
+      map: *id160
     - state: electrified
       sprite: Effects/electricity.rsi
       shader: unshaded
       visible: false
-      map: *id155
+      map: *id161
+    noRot: true
+    snapCardinals: false
 - type: entity
   id: WindoorBitrunArt36b6dfa8b2ecPlacement42ae6e72884d
   categories:

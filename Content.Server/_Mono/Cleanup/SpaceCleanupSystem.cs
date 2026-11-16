@@ -1,7 +1,9 @@
+using System.Numerics;
 using Content.Server.Cargo.Systems;
 using Content.Server.NPC.HTN;
 using Content.Server.Shuttles.Components;
 using Content.Shared._Mono.CCVar;
+using Content.Shared.GameTicking;
 using Content.Shared.Mind.Components;
 using Content.Shared.Physics;
 using Robust.Shared.Configuration;
@@ -13,6 +15,7 @@ using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
 using System.Reflection;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._Mono.Cleanup;
 
@@ -43,12 +46,29 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
     private EntityQuery<MindContainerComponent> _mindQuery;
     private EntityQuery<PhysicsComponent> _physQuery;
 
-    private List<(EntityCoordinates Coord, TimeSpan Time, float Radius, float Aggression)> _sweepQueue = new();
-    private HashSet<Entity<PhysicsComponent>> _sweepEnts = new();
+    private const int MaxCandidatesPerTick = 64;
+    private const int MaxPeriodicCandidatesPerTick = 16;
+    private const int MaxSweepLookupsPerTick = 4;
+    private static readonly long WorkBudget = Stopwatch.Frequency / 500; // 2 ms between operations.
+    private static readonly TimeSpan TimingLogInterval = TimeSpan.FromSeconds(5);
+
+    private readonly record struct Sweep(EntityCoordinates Coordinates, float Radius, float Aggression);
+
+    private readonly PriorityQueue<Sweep, (TimeSpan Due, long Sequence)> _sweepQueue = new();
+    private long _sweepSequence;
+    private readonly HashSet<Entity<PhysicsComponent>> _sweepEnts = new();
+    private HashSet<Entity<PhysicsComponent>>.Enumerator _sweepCandidates;
+    private int _remainingSweepCandidates;
+    private float _activeAggression;
+    private GameTick _sweepLookupTick;
+    private MapId _sweepMap;
+    private Box2 _sweepBounds;
+    private TimeSpan _nextTimingLog;
 
     public override void Initialize()
     {
         base.Initialize();
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundCleanup);
 
         // this queries over literally everything with PhysicsComponent so has to have big interval
         _cleanupInterval = TimeSpan.FromSeconds(600);
@@ -148,34 +168,99 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
         return false;
     }
 
-    public void QueueSweep(EntityCoordinates coordinates, TimeSpan time, float radius, float aggression)
+    public void QueueSweep(EntityCoordinates coordinates, TimeSpan delay, float radius, float aggression)
     {
-        _sweepQueue.Add((coordinates, time, radius, aggression));
+        _sweepQueue.Enqueue(new Sweep(coordinates, radius, aggression), (_timing.CurTime + delay, _sweepSequence++));
     }
 
     public override void Update(float frameTime)
     {
-        base.Update(frameTime);
+        var start = Stopwatch.GetTimestamp();
+        var deadline = start + WorkBudget;
+        var periodicRemaining = MaxPeriodicCandidatesPerTick;
+        UpdatePeriodicCleanup(frameTime, ref periodicRemaining, start + WorkBudget / 2);
+        var periodicChecked = MaxPeriodicCandidatesPerTick - periodicRemaining;
+        var sweepStart = Stopwatch.GetTimestamp();
 
-        for (int i = _sweepQueue.Count - 1; i >= 0; i--)
+        var remaining = MaxCandidatesPerTick - periodicChecked;
+        var lookups = 0;
+        var candidates = 0;
+        var skippedQueued = 0;
+        var queued = 0;
+        while (remaining > 0 && Stopwatch.GetTimestamp() < deadline)
         {
-            var (coord, time, radius, aggression) = _sweepQueue[i];
-
-            if (_timing.CurTime < time)
-                continue;
-
-            _sweepQueue.RemoveAt(i);
-            if (!coord.IsValid(EntityManager))
-                continue;
-
-            _sweepEnts.Clear();
-            _lookup.GetEntitiesInRange(_transform.ToMapCoordinates(coord), radius, _sweepEnts, LookupFlags.Dynamic | LookupFlags.Approximate | LookupFlags.Sundries);
-
-            foreach (var (uid, body) in _sweepEnts)
+            if (_remainingSweepCandidates == 0)
             {
-                if (ShouldEntityCleanup(uid, aggression))
-                    CleanupEnt(uid);
+                if (lookups >= MaxSweepLookupsPerTick || !_sweepQueue.TryPeek(out _, out var priority) ||
+                    priority.Due > _timing.CurTime)
+                    break;
+
+                lookups++;
+                BeginSweep(_sweepQueue.Dequeue());
+                continue;
             }
+
+            _sweepCandidates.MoveNext();
+            var (uid, _) = _sweepCandidates.Current;
+            _remainingSweepCandidates--;
+            candidates++;
+            remaining--;
+
+            if (EntityManager.IsQueuedForDeletion(uid))
+            {
+                skippedQueued++;
+                continue;
+            }
+
+            if (TerminatingOrDeleted(uid) || !_physQuery.HasComp(uid))
+                continue;
+
+            // Candidates may have moved since the lookup if this sweep was resumed on another tick.
+            if (_sweepLookupTick != _timing.CurTick)
+            {
+                var transform = Transform(uid);
+                if (transform.MapID != _sweepMap || !_sweepBounds.Intersects(_lookup.GetWorldAABB(uid, transform)))
+                    continue;
+            }
+
+            if (ShouldEntityCleanup(uid, _activeAggression) && CleanupEnt(uid))
+                queued++;
         }
+
+        var end = Stopwatch.GetTimestamp();
+        if ((end < deadline && remaining != 0 && lookups < MaxSweepLookupsPerTick) ||
+            _nextTimingLog > _timing.RealTime)
+            return;
+
+        _nextTimingLog = _timing.RealTime + TimingLogInterval;
+        Log.Warning(FormattableString.Invariant(
+            $"Space cleanup tick: tick={_timing.CurTick.Value} elapsed_ms={Stopwatch.GetElapsedTime(start, end).TotalMilliseconds:F2} periodic_ms={Stopwatch.GetElapsedTime(start, sweepStart).TotalMilliseconds:F2} sweep_ms={Stopwatch.GetElapsedTime(sweepStart, end).TotalMilliseconds:F2} periodic_checked={periodicChecked} lookups={lookups} candidates={candidates} skipped_queued={skippedQueued} queued={queued} pending_sweeps={_sweepQueue.Count} pending_candidates={_remainingSweepCandidates}"));
+    }
+
+    private void BeginSweep(Sweep sweep)
+    {
+        if (!sweep.Coordinates.IsValid(EntityManager))
+            return;
+
+        var center = _transform.ToMapCoordinates(sweep.Coordinates);
+        _sweepMap = center.MapId;
+        _sweepBounds = Box2.CenteredAround(center.Position, new Vector2(sweep.Radius * 2));
+        _sweepLookupTick = _timing.CurTick;
+        _activeAggression = sweep.Aggression;
+        _sweepEnts.Clear();
+        _lookup.GetEntitiesInRange(center, sweep.Radius, _sweepEnts,
+            LookupFlags.Dynamic | LookupFlags.Approximate | LookupFlags.Sundries);
+        _sweepCandidates = _sweepEnts.GetEnumerator();
+        _remainingSweepCandidates = _sweepEnts.Count;
+    }
+
+    private void OnRoundCleanup(RoundRestartCleanupEvent _)
+    {
+        _sweepQueue.Clear();
+        _sweepCandidates = default;
+        _sweepEnts.Clear();
+        _remainingSweepCandidates = 0;
+        _sweepSequence = 0;
+        _nextTimingLog = TimeSpan.Zero;
     }
 }

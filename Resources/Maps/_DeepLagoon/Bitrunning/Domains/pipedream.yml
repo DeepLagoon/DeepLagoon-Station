@@ -2327,6 +2327,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 2.5,15.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [235, 236]
   - proto: CrateGenericSteelBitrunArtef78f2373e03
     entities:
       - uid: 242
@@ -3070,13 +3074,13 @@ entities:
       - uid: 236
         components:
           - type: Transform
-            parent: 1
-            pos: 2.5,15.5
+            parent: 234
+            pos: 0,0
       - uid: 250
         components:
           - type: Transform
-            parent: 1
-            pos: 2.5,16.5
+            parent: 252
+            pos: 0,0
       - uid: 327
         components:
           - type: Transform
@@ -3102,15 +3106,15 @@ entities:
       - uid: 251
         components:
           - type: Transform
-            parent: 1
-            pos: 2.5,16.5
+            parent: 252
+            pos: 0,0
   - proto: FoodPacketChipsTrashBitrunArtcf76a9cae515
     entities:
       - uid: 235
         components:
           - type: Transform
-            parent: 1
-            pos: 2.5,15.5
+            parent: 234
+            pos: 0,0
   - proto: GrilleBitrunArt55b67fc37f21
     entities:
       - uid: 39
@@ -3269,6 +3273,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 2.5,16.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [250, 251]
   - proto: LockerSteelBitrunArtc86d78215887
     entities:
       - uid: 775
@@ -3276,6 +3284,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 25.5,36.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [776, 777, 778]
   - proto: MobCatSpaceBitrunArtb87477dcfdd1
     entities:
       - uid: 582
@@ -5378,18 +5390,18 @@ entities:
       - uid: 776
         components:
           - type: Transform
-            parent: 1
-            pos: 25.5,36.5
+            parent: 775
+            pos: 0,0
       - uid: 777
         components:
           - type: Transform
-            parent: 1
-            pos: 25.5,36.5
+            parent: 775
+            pos: 0,0
       - uid: 778
         components:
           - type: Transform
-            parent: 1
-            pos: 25.5,36.5
+            parent: 775
+            pos: 0,0
   - proto: WeaponShotgunDoubleBarreledBitrunArt94a8bfb9e388
     entities:
       - uid: 773

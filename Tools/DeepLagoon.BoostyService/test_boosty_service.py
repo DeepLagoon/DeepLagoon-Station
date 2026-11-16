@@ -2,6 +2,8 @@
 from dataclasses import replace
 from datetime import datetime, timezone
 import json
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,7 +12,7 @@ import uuid
 
 from boosty_service import (Accounts, Boosty, HttpError, PaidEvent, ServiceError, Settings, Store,
                             acknowledgement, atomic_json, canonical, deliver, exclusive, import_auth,
-                            paid_event, prepare, request_id, run, scan)
+                            paid_event, prepare, request_id, run, scan, update_discord_alerts)
 
 TARGET, ACTOR = "1554164947804487771", "1554164947804487770"
 UID = str(uuid.uuid4())
@@ -211,12 +213,16 @@ class Tests(unittest.TestCase):
         config = root / "config.json"
         atomic_json(config, data)
         self.assertEqual(Settings.load(config).start_at, NOW)
+        self.assertEqual(Settings.load(config).notice_command, ())
         for changes in [dict(account_url="http://evil.example"), dict(account_url="http://user:pass@127.0.0.1"),
                         dict(bindings={"1234": TARGET, "5678": TARGET}), dict(levels={"4125182": True}),
-                        dict(auth_file="relative"), dict(start_at="2026-11-03T18:00:00")]:
+                        dict(auth_file="relative"), dict(start_at="2026-11-03T18:00:00"),
+                        dict(notice_command="notifier"), dict(notice_command=["relative"])]:
             atomic_json(config, {**data, **changes})
             with self.subTest(changes=changes), self.assertRaises(ServiceError):
                 Settings.load(config)
+        atomic_json(config, {**data, "notice_command": [sys.executable, "notifier.py"]})
+        self.assertEqual(Settings.load(config).notice_command, (sys.executable, "notifier.py"))
 
     def test_auth_refresh_is_persisted_before_read_and_not_repeated_after_write_failure(self):
         atomic_json(self.settings.auth_file, dict(access_token="old", refresh_token="refresh",
@@ -247,6 +253,69 @@ class Tests(unittest.TestCase):
             import_auth(self.settings.auth_file, path)
         self.assertEqual(json.loads(self.settings.auth_file.read_text())["expires_at"], 1793728800)
         self.assertNotIn("refresh", str(output.call_args))
+
+    def test_discord_alert_after_two_failed_scans_and_again_after_recovery(self):
+        with patch("boosty_service.subprocess.run") as send:
+            def failed(status):
+                update_discord_alerts(self.store, ("notifier",), False, HttpError(status), None)
+
+            failed(503)
+            send.assert_not_called()
+            self.store.close()
+            self.store = Store(self.settings)
+            failed(502)
+            self.assertIn("http_502", json.loads(send.call_args.kwargs["input"])["message"])
+            failed(503)
+            self.assertEqual(send.call_count, 1)
+            update_discord_alerts(self.store, ("notifier",), True, None, None)
+            failed(503)
+            self.assertEqual(send.call_count, 1)
+            failed(503)
+            self.assertEqual(send.call_count, 2)
+
+    def test_discord_alert_for_rejected_refresh_is_immediate_and_retries_same_key(self):
+        atomic_json(self.settings.auth_file, dict(access_token="old", refresh_token="private",
+                                                device_id="device", expires_at=1))
+        http = unittest.mock.Mock()
+        http.request.side_effect = HttpError(400)
+        provider = Boosty(self.settings, http)
+        with self.assertRaises(HttpError) as failure:
+            provider.get("/v1/blog/iamasay")
+        self.assertEqual(provider.refresh_rejection, 400)
+        with patch("boosty_service.subprocess.run", side_effect=[subprocess.CalledProcessError(1, []), None]) as send:
+            update_discord_alerts(self.store, ("notifier",), False, failure.exception, provider.refresh_rejection)
+            alert = json.loads(send.call_args.kwargs["input"])
+            self.assertIn("HTTP 400", alert["message"])
+            self.assertNotIn("private", alert["message"])
+            update_discord_alerts(self.store, ("notifier",), False, failure.exception, provider.refresh_rejection)
+            self.assertEqual(json.loads(send.call_args.kwargs["input"]), alert)
+            update_discord_alerts(self.store, ("notifier",), False, failure.exception, provider.refresh_rejection)
+            self.assertEqual(send.call_count, 2)
+
+    def test_refresh_transport_error_is_not_a_rejection(self):
+        http = unittest.mock.Mock()
+        http.request.side_effect = HttpError(503)
+        provider = Boosty(self.settings, http)
+        with self.assertRaises(HttpError):
+            provider.refresh(dict(refresh_token="token", device_id="device"))
+        self.assertIsNone(provider.refresh_rejection)
+
+    def test_worker_counts_failed_scans_but_not_account_readiness_failures(self):
+        settings = replace(self.settings, notice_command=("notifier",))
+        provider = Boosty(settings, None)
+        provider.events = unittest.mock.Mock(side_effect=[HttpError(503), HttpError(503), []])
+        self.accounts.ready = unittest.mock.Mock(side_effect=[HttpError(503), None, None, None])
+        with patch("boosty_service.Settings.load", return_value=settings), \
+             patch("boosty_service.Boosty", return_value=provider), \
+             patch("boosty_service.Accounts", return_value=self.accounts), \
+             patch("boosty_service.threading.Event") as stop, \
+             patch("boosty_service.signal.signal"), \
+             patch("boosty_service.subprocess.run") as send:
+            stop.return_value.is_set.side_effect = [False] * 4 + [True]
+            run("unused")
+        send.assert_called_once()
+        row = self.store.db.execute("SELECT value FROM metadata WHERE key='discord_alerts'").fetchone()
+        self.assertEqual(json.loads(row[0]), dict(failures=0, auth_alerted=False, pending=[]))
 
     def test_process_lock_excludes_second_queue_owner(self):
         with exclusive(self.settings.state_file):

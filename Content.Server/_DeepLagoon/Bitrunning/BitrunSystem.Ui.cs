@@ -78,7 +78,7 @@ public sealed partial class BitrunSystem
         if (random)
         {
             var available = _prototypes.EnumeratePrototypes<BitrunDomainPrototype>()
-                .Where(p => !p.TestOnly && p.Cost is > 0 and < 20 && p.Cost <= machine.Credits).ToArray();
+                .Where(p => !p.TestOnly && p.Cost is > 0 and < 20 && DomainCost(p) <= machine.Credits).ToArray();
             domain = available.Length > 0 ? _random.Pick(available) : null;
         }
         else
@@ -86,7 +86,7 @@ public sealed partial class BitrunSystem
             domain = id != null && _prototypes.TryIndex<BitrunDomainPrototype>(id, out var selected) ? selected : null;
         }
 
-        if (domain is not { TestOnly: false } || !TryScheduleRun(server, machine, domain, receiver, random))
+        if (domain == null || !IsSelectableDomain(domain) || !TryScheduleRun(server, machine, domain, receiver, random))
             _results[server] = Loc.GetString("bitrun-start-failed");
     }
 
@@ -121,11 +121,11 @@ public sealed partial class BitrunSystem
             Mode = BitrunUiMode.Console,
             Status = Loc.GetString("bitrun-no-server"),
             Domains = _prototypes.EnumeratePrototypes<BitrunDomainPrototype>()
-                .Where(domain => !domain.TestOnly)
+                .Where(IsSelectableDomain)
                 .OrderBy(domain => domain.Difficulty)
                 .ThenBy(domain => domain.ID)
                 .Select(domain => new BitrunDomainEntry(domain.ID, Loc.GetString(domain.Name),
-                    Loc.GetString(domain.Description), domain.Difficulty, domain.Cost, domain.Reward))
+                    Loc.GetString(domain.Description), domain.Difficulty, DomainCost(domain), domain.Reward))
                 .ToArray(),
             ResearchServers = GetResearchEntries(uid),
         };
@@ -135,7 +135,7 @@ public sealed partial class BitrunSystem
         if (FindEquipment<BitrunServerComponent>(uid, 1.01f) is { } server)
         {
             state.Credits = Comp<BitrunServerComponent>(server).Credits;
-            state.CanStart = hasReceiver && !_lobbies.ContainsKey(server) && !_runs.ContainsKey(server);
+            state.CanStart = hasReceiver && !_lobbies.ContainsKey(server) && CanStartNextRun(server);
             if (_lobbies.TryGetValue(server, out var lobby))
             {
                 state.DomainId = lobby.Domain.ID;
@@ -288,7 +288,7 @@ public sealed partial class BitrunSystem
     }
 
     private BitrunSessionEntry GetSessionEntry(EntityUid server, Lobby lobby) =>
-        new(lobby.Id, GetNetEntity(server), Loc.GetString(lobby.Domain.Name), true, lobby.StartAt,
+        new(lobby.Id, GetNetEntity(server), Loc.GetString(lobby.Domain.Name), true, TimeSpan.Zero,
             lobby.Queued.Values.Count(player => player.Side == BitrunSide.Attackers),
             lobby.Queued.Values.Count(player => player.Side == BitrunSide.Defenders),
             CanEnroll(lobby, BitrunSide.Attackers), CanEnroll(lobby, BitrunSide.Defenders));

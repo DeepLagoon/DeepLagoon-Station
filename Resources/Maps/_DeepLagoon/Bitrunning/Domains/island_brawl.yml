@@ -2489,8 +2489,8 @@ entities:
       - uid: 4494
         components:
           - type: Transform
-            parent: 1
-            pos: 11.5,69.5
+            parent: 4493
+            pos: 0,0
   - proto: BitrunArt07f5cc9a83bb
     entities:
       - uid: 2233
@@ -2550,22 +2550,22 @@ entities:
       - uid: 2683
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
   - proto: BitrunArt0ce671c8e66ePlacement381fb2c23a28
     entities:
       - uid: 2682
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
   - proto: BitrunArt0ce671c8e66ePlacementfe3f4d0202cc
     entities:
       - uid: 2681
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
   - proto: BitrunArt0f32d85e3c8a
     entities:
       - uid: 2013
@@ -2599,40 +2599,40 @@ entities:
       - uid: 1687
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1688
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1689
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1690
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1691
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
   - proto: BitrunArt1c67b8f4672a
     entities:
       - uid: 1682
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1683
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
   - proto: BitrunArt1d9aab35d489Placemente34789304d5f
     entities:
       - uid: 4292
@@ -2659,8 +2659,8 @@ entities:
       - uid: 4190
         components:
           - type: Transform
-            parent: 1
-            pos: 22.5,63.5
+            parent: 4188
+            pos: 0,0
   - proto: BitrunArt281bf2a5f25ePlacement3ee50fd2e7b6
     entities:
       - uid: 2980
@@ -2722,13 +2722,13 @@ entities:
       - uid: 1685
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1686
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
   - proto: BitrunArt35de4320332fPlacement7b4edcc41b93
     entities:
       - uid: 1830
@@ -2756,18 +2756,18 @@ entities:
       - uid: 1791
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
       - uid: 1792
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
       - uid: 1793
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
   - proto: BitrunArt37142b6b35e2Placementb7d853644b0d
     entities:
       - uid: 1490
@@ -2780,8 +2780,8 @@ entities:
       - uid: 3954
         components:
           - type: Transform
-            parent: 1
-            pos: 16.5,59.5
+            parent: 3953
+            pos: 0,0
   - proto: BitrunArt3991fd877aecPlacement67735f927658
     entities:
       - uid: 4016
@@ -2925,13 +2925,13 @@ entities:
       - uid: 1794
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
       - uid: 1795
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
   - proto: BitrunArt4b4910025db1
     entities:
       - uid: 4397
@@ -2945,8 +2945,8 @@ entities:
       - uid: 4504
         components:
           - type: Transform
-            parent: 1
-            pos: 19.5,69.5
+            parent: 4503
+            pos: 0,0
   - proto: BitrunArt50e0594be710Placement42ae6e72884d
     entities:
       - uid: 3478
@@ -2981,8 +2981,8 @@ entities:
       - uid: 4499
         components:
           - type: Transform
-            parent: 1
-            pos: 15.5,69.5
+            parent: 4498
+            pos: 0,0
   - proto: BitrunArt52acbe738a60Placement11614957a6ea
     entities:
       - uid: 2120
@@ -3030,8 +3030,8 @@ entities:
       - uid: 4500
         components:
           - type: Transform
-            parent: 1
-            pos: 15.5,69.5
+            parent: 4498
+            pos: 0,0
   - proto: BitrunArt553548d76d8dPlacement3227c2beccd3
     entities:
       - uid: 2808
@@ -3093,8 +3093,8 @@ entities:
       - uid: 4049
         components:
           - type: Transform
-            parent: 1
-            pos: 11.5,61.5
+            parent: 4048
+            pos: 0,0
   - proto: BitrunArt5b3ece75acaaPlacement42ae6e72884d
     entities:
       - uid: 3848
@@ -3131,13 +3131,13 @@ entities:
       - uid: 1796
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
       - uid: 1797
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
   - proto: BitrunArt637b55091122Placement67735f927658
     entities:
       - uid: 4011
@@ -3223,8 +3223,8 @@ entities:
       - uid: 1684
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
   - proto: BitrunArt6dbcb41fa7bdPlacement381fb2c23a28
     entities:
       - uid: 2642
@@ -3265,18 +3265,18 @@ entities:
       - uid: 1261
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1262
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1263
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
   - proto: BitrunArt72bf7236f1b0Placement3d90da569742
     entities:
       - uid: 4461
@@ -3434,8 +3434,8 @@ entities:
       - uid: 3264
         components:
           - type: Transform
-            parent: 1
-            pos: 10.5,51.5
+            parent: 3262
+            pos: 0,0
   - proto: BitrunArt8617449b6437Placementb61e517f8a5c
     entities:
       - uid: 2659
@@ -3469,8 +3469,8 @@ entities:
       - uid: 3840
         components:
           - type: Transform
-            parent: 1
-            pos: 10.5,57.5
+            parent: 3838
+            pos: 0,0
   - proto: BitrunArt888f2f0056b5Placement3227c2beccd3
     entities:
       - uid: 1420
@@ -3518,8 +3518,8 @@ entities:
       - uid: 1474
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,23.5
+            parent: 1470
+            pos: 0,0
   - proto: BitrunArt905d81397e21
     entities:
       - uid: 1163
@@ -3549,18 +3549,18 @@ entities:
       - uid: 1258
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1259
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1260
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
   - proto: BitrunArt92ea0fc99c4aPlacement42ae6e72884d
     entities:
       - uid: 3180
@@ -3641,8 +3641,8 @@ entities:
       - uid: 1473
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,23.5
+            parent: 1470
+            pos: 0,0
   - proto: BitrunArta021a9386a0cPlacement716abd1ba6ed
     entities:
       - uid: 3465
@@ -3667,8 +3667,8 @@ entities:
       - uid: 3263
         components:
           - type: Transform
-            parent: 1
-            pos: 10.5,51.5
+            parent: 3262
+            pos: 0,0
   - proto: BitrunArta1ee96ecc37bPlacement49fdf7a9db36
     entities:
       - uid: 1417
@@ -4020,20 +4020,20 @@ entities:
       - uid: 1680
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
       - uid: 1681
         components:
           - type: Transform
-            parent: 1
-            pos: 50.5,26.5
+            parent: 1679
+            pos: 0,0
   - proto: BitrunArtc0cf945650ba
     entities:
       - uid: 1472
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,23.5
+            parent: 1470
+            pos: 0,0
   - proto: BitrunArtc47820ffea2cPlacement13872d96e8ba
     entities:
       - uid: 2986
@@ -4046,8 +4046,8 @@ entities:
       - uid: 3271
         components:
           - type: Transform
-            parent: 1
-            pos: 16.5,51.5
+            parent: 3270
+            pos: 0,0
   - proto: BitrunArtcc0ef0b16ba0Placement3227c2beccd3
     entities:
       - uid: 4405
@@ -4157,8 +4157,8 @@ entities:
       - uid: 4505
         components:
           - type: Transform
-            parent: 1
-            pos: 19.5,69.5
+            parent: 4503
+            pos: 0,0
   - proto: BitrunArtd4e09c034829
     entities:
       - uid: 1220
@@ -4176,8 +4176,8 @@ entities:
       - uid: 2687
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
   - proto: BitrunArtd5238a23cddbPlacement53d884170ec3
     entities:
       - uid: 1431
@@ -4218,27 +4218,27 @@ entities:
       - uid: 1471
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,23.5
+            parent: 1470
+            pos: 0,0
   - proto: BitrunArteab567f26124
     entities:
       - uid: 3279
         components:
           - type: Transform
-            parent: 1
-            pos: 22.5,51.5
+            parent: 3278
+            pos: 0,0
   - proto: BitrunArted3c0d89b5da
     entities:
       - uid: 2688
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
       - uid: 3839
         components:
           - type: Transform
-            parent: 1
-            pos: 10.5,57.5
+            parent: 3838
+            pos: 0,0
   - proto: BitrunArtef4ca8e0baeaPlacement8cd8d7544374
     entities:
       - uid: 4531
@@ -4277,18 +4277,18 @@ entities:
       - uid: 1255
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1256
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1257
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
   - proto: BitrunArtf7c908ab0e24Placementbb9c701458b2
     entities:
       - uid: 3857
@@ -4301,8 +4301,8 @@ entities:
       - uid: 3964
         components:
           - type: Transform
-            parent: 1
-            pos: 22.5,59.5
+            parent: 3962
+            pos: 0,0
   - proto: BitrunArtfa9868f5ac57
     entities:
       - uid: 1444
@@ -4313,18 +4313,18 @@ entities:
       - uid: 2684
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
       - uid: 2685
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
       - uid: 2686
         components:
           - type: Transform
-            parent: 1
-            pos: 79.5,44.5
+            parent: 2680
+            pos: 0,0
   - proto: BitrunArtfa9868f5ac57Placement3fc9a0bdfead
     entities:
       - uid: 1916
@@ -8084,11 +8084,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 79.5,44.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [2681, 2682, 2683, 2684, 2685, 2686, 2687, 2688]
       - uid: 4349
         components:
           - type: Transform
             parent: 1
             pos: 34.5,66.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4350]
           - type: MetaData
             name: "Holding Cell Storage"
   - proto: ClosetSteelBaseBitrunArtcb0d341fe1f2
@@ -8255,13 +8263,13 @@ entities:
       - uid: 1264
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
       - uid: 1265
         components:
           - type: Transform
-            parent: 1
-            pos: 53.5,18.5
+            parent: 1254
+            pos: 0,0
   - proto: ComputerTabletopCommsBitrunArt373b95792aa1
     entities:
       - uid: 1805
@@ -8291,6 +8299,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 53.5,18.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1255, 1256, 1257, 1258, 1259, 1260, 1261, 1262, 1263, 1264, 1265]
   - proto: CrateGenericSteelBitrunArt49537162290f
     entities:
       - uid: 1790
@@ -8298,6 +8310,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 41.5,28.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1791, 1792, 1793, 1794, 1795, 1796, 1797, 1798]
   - proto: CrateGenericSteelBitrunArt9d2ca20b4d9a
     entities:
       - uid: 4642
@@ -8322,11 +8338,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 30.5,24.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1534, 1535]
       - uid: 1788
         components:
           - type: Transform
             parent: 1
             pos: 40.5,28.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1789]
       - uid: 3477
         components:
           - type: Transform
@@ -8337,6 +8361,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 31.5,55.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3662, 3663]
       - uid: 4054
         components:
           - type: Transform
@@ -8352,6 +8380,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 32.5,69.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4537, 4538]
   - proto: CrateGenericSteelBitrunArtc16b9be07449
     entities:
       - uid: 3392
@@ -8371,13 +8403,17 @@ entities:
           - type: Transform
             parent: 1
             pos: 30.5,23.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1471, 1472, 1473, 1474]
   - proto: CutlassBitrunArtba2b45a76244
     entities:
       - uid: 4182
         components:
           - type: Transform
-            parent: 1
-            pos: 16.5,63.5
+            parent: 4180
+            pos: 0,0
           - type: MetaData
             name: "foam cutlass"
             desc: "A piratey, foam sword used by kids to train themselves in the business of \"negotiating\" the transfer of treasure."
@@ -8761,8 +8797,8 @@ entities:
       - uid: 1534
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,24.5
+            parent: 1533
+            pos: 0,0
   - proto: FlashlightLanternBitrunArteade87c34b91Placement4f327ff389bb
     entities:
       - uid: 1379
@@ -22922,8 +22958,8 @@ entities:
       - uid: 1798
         components:
           - type: Transform
-            parent: 1
-            pos: 41.5,28.5
+            parent: 1790
+            pos: 0,0
   - proto: FoodBananaBitrunArt9a1e3556b610Placement84f2993fd725
     entities:
       - uid: 3185
@@ -22957,30 +22993,30 @@ entities:
       - uid: 3663
         components:
           - type: Transform
-            parent: 1
-            pos: 31.5,55.5
+            parent: 3661
+            pos: 0,0
       - uid: 4537
         components:
           - type: Transform
-            parent: 1
-            pos: 32.5,69.5
+            parent: 4536
+            pos: 0,0
       - uid: 4538
         components:
           - type: Transform
-            parent: 1
-            pos: 32.5,69.5
+            parent: 4536
+            pos: 0,0
   - proto: FoodPacketChipsTrashBitrunArt24a1cf1757b9
     entities:
       - uid: 1535
         components:
           - type: Transform
-            parent: 1
-            pos: 30.5,24.5
+            parent: 1533
+            pos: 0,0
       - uid: 1789
         components:
           - type: Transform
-            parent: 1
-            pos: 40.5,28.5
+            parent: 1788
+            pos: 0,0
   - proto: FoodPacketChipsTrashBitrunArt24a1cf1757b9Placement59d1470465e2
     entities:
       - uid: 4689
@@ -23343,61 +23379,109 @@ entities:
           - type: Transform
             parent: 1
             pos: 10.5,51.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3263, 3264]
       - uid: 3270
         components:
           - type: Transform
             parent: 1
             pos: 16.5,51.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3271]
       - uid: 3278
         components:
           - type: Transform
             parent: 1
             pos: 22.5,51.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3279]
       - uid: 3838
         components:
           - type: Transform
             parent: 1
             pos: 10.5,57.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3839, 3840]
       - uid: 3953
         components:
           - type: Transform
             parent: 1
             pos: 16.5,59.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3954]
       - uid: 3962
         components:
           - type: Transform
             parent: 1
             pos: 22.5,59.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [3964]
       - uid: 4048
         components:
           - type: Transform
             parent: 1
             pos: 11.5,61.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4049]
       - uid: 4180
         components:
           - type: Transform
             parent: 1
             pos: 16.5,63.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4182]
       - uid: 4188
         components:
           - type: Transform
             parent: 1
             pos: 22.5,63.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4190]
       - uid: 4493
         components:
           - type: Transform
             parent: 1
             pos: 11.5,69.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4494]
       - uid: 4498
         components:
           - type: Transform
             parent: 1
             pos: 15.5,69.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4499, 4500]
       - uid: 4503
         components:
           - type: Transform
             parent: 1
             pos: 19.5,69.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [4504, 4505]
   - proto: LockerSteelBitrunArtab32fe4c5c82
     entities:
       - uid: 1679
@@ -23405,6 +23489,10 @@ entities:
           - type: Transform
             parent: 1
             pos: 50.5,26.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [1680, 1681, 1682, 1683, 1684, 1685, 1686, 1687, 1688, 1689, 1690, 1691]
   - proto: LockerSteelBitrunArtbf5c54e70266
     entities:
       - uid: 2235
@@ -24548,8 +24636,8 @@ entities:
       - uid: 3662
         components:
           - type: Transform
-            parent: 1
-            pos: 31.5,55.5
+            parent: 3661
+            pos: 0,0
       - uid: 3668
         components:
           - type: Transform
@@ -25056,8 +25144,8 @@ entities:
       - uid: 4350
         components:
           - type: Transform
-            parent: 1
-            pos: 34.5,66.5
+            parent: 4349
+            pos: 0,0
   - proto: ToiletEmptyBitrunArt6fd869c409afPlacementd6725c559b48
     entities:
       - uid: 2164

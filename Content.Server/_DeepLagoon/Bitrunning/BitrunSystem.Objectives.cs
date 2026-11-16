@@ -1,30 +1,33 @@
 using System.Linq;
 using Content.Server.Nutrition.EntitySystems;
-using Content.Server.Ghost.Roles.Events;
 using Content.Shared._DeepLagoon.Bitrunning;
 using Content.Shared.DoAfter;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
+using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Random;
 
 namespace Content.Server._DeepLagoon.Bitrunning;
 
 [RegisterComponent]
-public sealed partial class BitrunIslandCombatantComponent : Component;
+public sealed partial class BitrunFishingRodComponent : Component;
 
 public sealed partial class BitrunSystem
 {
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
+    private static readonly TimeSpan IslandWaveDelay = TimeSpan.FromSeconds(8);
 
     private void InitializeObjectives()
     {
         SubscribeLocalEvent<BitrunScenarioMarkerComponent, InteractHandEvent>(OnScenarioInteract);
+        SubscribeLocalEvent<BitrunScenarioMarkerComponent, InteractUsingEvent>(OnScenarioUse);
         SubscribeLocalEvent<BitrunScenarioMarkerComponent, BitrunScenarioDoAfterEvent>(OnScenarioDoAfter);
         SubscribeLocalEvent<BitrunPodComponent, BitrunEjectDoAfterEvent>(OnEjectDoAfter);
         SubscribeLocalEvent<BitrunAvatarComponent, DrinkConsumedEvent>(OnDrinkConsumed);
-        SubscribeLocalEvent<BitrunIslandCombatantComponent, GhostRoleSpawnerUsedEvent>(OnIslandCombatantSpawned);
     }
 
     private void ConfigureObjectives(Run run)
@@ -43,6 +46,10 @@ public sealed partial class BitrunSystem
 
             case BitrunObjective.Hunt:
                 run.Targets.UnionWith(mobs.Where(uid => MetaData(uid).EntityPrototype?.ID == "BitrunHuntAnimal"));
+                break;
+
+            case BitrunObjective.Island:
+                run.IslandWaveAt = run.Started + IslandWaveDelay;
                 break;
 
             case BitrunObjective.Stages:
@@ -74,6 +81,8 @@ public sealed partial class BitrunSystem
 
             if (run.Domain.Objective == BitrunObjective.Boss && run.Targets.Count == 0)
                 SpawnCache(run);
+            else if (run.Domain.Objective == BitrunObjective.Island && run.Targets.Count == 0 && run.Cache == null)
+                PollIslandWave(run);
         }
 
         if (run.Domain.Objective == BitrunObjective.Stages && run.StageOpened &&
@@ -117,11 +126,55 @@ public sealed partial class BitrunSystem
         }
     }
 
-    private void OnIslandCombatantSpawned(EntityUid uid, BitrunIslandCombatantComponent component, GhostRoleSpawnerUsedEvent args)
+    private void PollIslandWave(Run run)
     {
-        if (Transform(uid).MapUid is { } map && _domains.TryGetValue(map, out var run) &&
-            run.Domain.Objective == BitrunObjective.Island)
-            run.Targets.Add(uid);
+        run.IslandWaveAt ??= _timing.CurTime + IslandWaveDelay;
+        if (_timing.CurTime < run.IslandWaveAt)
+            return;
+
+        var attacker = run.Avatars.FirstOrDefault(uid => Comp<BitrunAvatarComponent>(uid).Side == BitrunSide.Attackers);
+        if (!attacker.Valid || Transform(attacker).GridUid is not { } gridUid ||
+            !TryComp<MapGridComponent>(gridUid, out var grid))
+            return;
+
+        const float waveRange = 9f;
+        var center = new Circle(_transform.GetWorldPosition(attacker), waveRange);
+        var attackerCoordinates = Transform(attacker).Coordinates;
+        var candidates = new List<EntityCoordinates>();
+        var nearby = new List<EntityCoordinates>();
+        foreach (var tile in _maps.GetTilesIntersecting(gridUid, grid, center))
+        {
+            if (_turf.IsSpace(tile) || !IsSpawnClear(tile, grid, avoidWater: true))
+                continue;
+
+            var coords = _maps.GridTileToLocal(gridUid, grid, tile.GridIndices);
+            if (!coords.TryDistance(EntityManager, attackerCoordinates, out var distance) || distance < 2f)
+                continue;
+
+            nearby.Add(coords);
+            if (_interaction.InRangeUnobstructed(attacker, coords, waveRange))
+                candidates.Add(coords);
+        }
+
+        if (candidates.Count == 0)
+            candidates = nearby.Count > 0 ? nearby : run.AttackerSpawns
+                .Where(coords => coords.TryDistance(EntityManager, attackerCoordinates, out var distance) && distance >= 1f)
+                .ToList();
+
+        var count = Math.Min(4, run.Domain.ObjectiveCount - run.ObjectiveProgress);
+        for (var index = 0; index < count && candidates.Count > 0; index++)
+        {
+            var coords = _random.PickAndTake(candidates);
+            var crab = Spawn("BitrunIslandCrab", coords);
+            EnsureComp<BitrunVirtualEntityComponent>(crab).Domain = run.Map;
+            run.Targets.Add(crab);
+        }
+
+        if (run.Targets.Count == 0)
+            return;
+
+        run.IslandWaveAt = null;
+        NotifyAvatars(run, Loc.GetString("bitrun-island-wave", ("count", run.Targets.Count)));
     }
 
     private void OnDrinkConsumed(EntityUid uid, BitrunAvatarComponent link, DrinkConsumedEvent args)
@@ -158,25 +211,41 @@ public sealed partial class BitrunSystem
             return;
         }
 
-        var fishing = run.Domain.Objective == BitrunObjective.Fishing && markerName == "fishing";
-        var stage = run.Domain.Objective == BitrunObjective.Stages && markerName == "ancient_stage";
-        if (!fishing && !stage || run.UsedScenarios.Contains(uid))
-            return;
-
-        if (fishing && !HasFishingRod(args.User))
+        if (run.Domain.Objective == BitrunObjective.Fishing && IsFishingSpot(uid))
         {
             args.Handled = true;
             _popup.PopupEntity(Loc.GetString("bitrun-fishing-rod"), uid, args.User);
             return;
         }
 
+        if (run.Domain.Objective != BitrunObjective.Stages || markerName != "ancient_stage" || run.UsedScenarios.Contains(uid))
+            return;
+
         args.Handled = _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User,
-            TimeSpan.FromSeconds(fishing ? 6 : 3), new BitrunScenarioDoAfterEvent(), uid, target: uid)
+            TimeSpan.FromSeconds(3), new BitrunScenarioDoAfterEvent(), uid, target: uid)
         {
             BreakOnMove = true,
             BreakOnDamage = true,
             NeedHand = true,
         });
+    }
+
+    private void OnScenarioUse(EntityUid uid, BitrunScenarioMarkerComponent component, InteractUsingEvent args)
+    {
+        if (args.Handled || !HasComp<BitrunFishingRodComponent>(args.Used) || !IsFishingSpot(uid) ||
+            !TryGetAttackObjective(uid, args.User, out var run) || run.Domain.Objective != BitrunObjective.Fishing ||
+            run.Cache != null || !_hands.IsHolding(args.User, args.Used))
+            return;
+
+        args.Handled = _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User,
+            TimeSpan.FromSeconds(6), new BitrunScenarioDoAfterEvent(), uid, target: uid, used: args.Used)
+        {
+            BreakOnMove = true,
+            BreakOnDamage = true,
+            NeedHand = true,
+        });
+        if (args.Handled)
+            _popup.PopupEntity(Loc.GetString("bitrun-fishing-cast"), uid, args.User);
     }
 
     private void OnScenarioDoAfter(EntityUid uid, BitrunScenarioMarkerComponent component, ref BitrunScenarioDoAfterEvent args)
@@ -187,10 +256,11 @@ public sealed partial class BitrunSystem
         args.Handled = true;
         if (run.Domain.Objective == BitrunObjective.Fishing)
         {
-            if (HasFishingRod(args.User))
+            if (run.Cache == null && args.Used is { } rod && _hands.IsHolding(args.User, rod))
             {
                 var fish = Spawn("FoodMeatFish", Transform(args.User).Coordinates);
                 _hands.TryPickupAnyHand(args.User, fish);
+                _popup.PopupEntity(Loc.GetString("bitrun-fishing-caught"), uid, args.User);
                 AdvanceObjective(run, 1);
             }
             return;
@@ -220,8 +290,7 @@ public sealed partial class BitrunSystem
             AdvanceObjective(run, 1);
     }
 
-    private bool HasFishingRod(EntityUid user) =>
-        _hands.EnumerateHeld(user).Any(item => MetaData(item).EntityPrototype?.ID == "BitrunFishingRod");
+    private bool IsFishingSpot(EntityUid uid) => MetaData(uid).EntityPrototype?.ID == "BitrunFishingSpot";
 
     private bool TryGetAttackObjective(EntityUid marker, EntityUid user, out Run run) =>
         TryGetObjective(marker, user, out run) && !run.Completed &&

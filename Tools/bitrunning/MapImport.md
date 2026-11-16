@@ -9,6 +9,8 @@ Every generated map records its source path, digest and dimensions. The manifest
 
 The importer joins the domains to their authored safehouses using the modular anchor and connector. For a safehouse with no connector the anchor goes at the lower-left cell. Transparent template cells retain their original floor. The exported safehouse files are standalone grids for mapping and verification. Virtual grids keep their disconnected floor islands together, with grid splitting disabled.
 
+Items mapped on a closet or crate tile are serialized in its entity storage. Power cables use the native sprites required by the cable visualizer. APC panels use the WhiteMoon wall offset, and wide airlocks use directional frames and a fixture that spans both tiles. Imported Drozd weapons have compatible spare magazines on their tiles.
+
 The grids preserve the main routes and scenario locations using native DeepLagoon assets. Specific adaptations include a linked gateway for the bluespace peel in Clown Planet, EVA supplies for Syndicate Assault and Vaporwave, destructible resin and mining tools in Xeno Nest, and a catwalk to the Blood Drunk Miner fight. The glacier uses passable stair tiles and hazardous cliff edges in the single-level grid. Ancient Milsim retains its yellow and blue keycard doors. Psyker Zombies has native firearm supply crates at its mystery box locations, and Pipedream uses native straight and bent disposal pipes. Dark areas and scenario progression are configured by the bitrunning runtime.
 
 ## WhiteMoon textures

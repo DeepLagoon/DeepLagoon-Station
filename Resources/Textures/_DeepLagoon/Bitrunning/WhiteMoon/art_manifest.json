@@ -9153,17 +9153,6 @@
         }
       ]
     },
-    "_DeepLagoon/Bitrunning/WhiteMoon/layer_cable_7ed836b960ce.rsi": {
-      "source": "icons/obj/pipes_n_cables/layer_cable.dmi",
-      "states": [
-        {
-          "dmi": "l2-1-2-4-8-node",
-          "rsi": "l2-1-2-4-8-node",
-          "directions": 1,
-          "frames": 1
-        }
-      ]
-    },
     "_DeepLagoon/Bitrunning/WhiteMoon/manifold_cfda88b9513b.rsi": {
       "source": "icons/obj/pipes_n_cables/manifold.dmi",
       "states": [
@@ -14366,6 +14355,12 @@
           "frames": 1
         },
         {
+          "dmi": "a7mm",
+          "rsi": "a7mm",
+          "directions": 1,
+          "frames": 1
+        },
+        {
           "dmi": "c20r45",
           "rsi": "c20r45",
           "directions": 1,
@@ -17891,7 +17886,7 @@
         }
       ]
     },
-    "_DeepLagoon/Bitrunning/WhiteMoon/glass_f5920d55789f.rsi": {
+    "_DeepLagoon/Bitrunning/WhiteMoon/glass_23611e266181.rsi": {
       "source": "modular_skyrat/modules/aesthetics/airlock/icons/airlocks/multi_tile/glass.dmi",
       "states": [
         {
@@ -19045,6 +19040,29 @@
         }
       ]
     },
+    "_DeepLagoon/Bitrunning/WhiteMoon/guns_db2ee44db7ae.rsi": {
+      "source": "modular_skyrat/modules/aesthetics/guns/icons/guns.dmi",
+      "states": [
+        {
+          "dmi": "pistol",
+          "rsi": "base",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "pistol_bolt_locked",
+          "rsi": "bolt-open",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "pistol",
+          "rsi": "pistol",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
     "_DeepLagoon/Bitrunning/WhiteMoon/guns_627f419e10a4.rsi": {
       "source": "modular_skyrat/modules/aesthetics/guns/icons/guns.dmi",
       "states": [
@@ -19068,30 +19086,7 @@
         }
       ]
     },
-    "_DeepLagoon/Bitrunning/WhiteMoon/guns_16494117d08f.rsi": {
-      "source": "modular_skyrat/modules/aesthetics/guns/icons/guns.dmi",
-      "states": [
-        {
-          "dmi": "pistol",
-          "rsi": "base",
-          "directions": 1,
-          "frames": 1
-        },
-        {
-          "dmi": "pistol_bolt_locked",
-          "rsi": "bolt-open",
-          "directions": 1,
-          "frames": 1
-        },
-        {
-          "dmi": "pistol",
-          "rsi": "pistol",
-          "directions": 1,
-          "frames": 1
-        }
-      ]
-    },
-    "_DeepLagoon/Bitrunning/WhiteMoon/guns_f045c2a124d1.rsi": {
+    "_DeepLagoon/Bitrunning/WhiteMoon/guns_a44a689a774f.rsi": {
       "source": "modular_skyrat/modules/aesthetics/guns/icons/guns.dmi",
       "states": [
         {
@@ -20319,6 +20314,12 @@
           "frames": 1
         },
         {
+          "dmi": "lanca_mag",
+          "rsi": "lanca_mag",
+          "directions": 1,
+          "frames": 1
+        },
+        {
           "dmi": "miecz_mag",
           "rsi": "miecz_mag",
           "directions": 1,
@@ -20486,7 +20487,7 @@
         }
       ]
     },
-    "_DeepLagoon/Bitrunning/WhiteMoon/guns32x_7e2d93c7e232.rsi": {
+    "_DeepLagoon/Bitrunning/WhiteMoon/guns32x_601f760737d0.rsi": {
       "source": "modular_skyrat/modules/modular_weapons/icons/obj/company_and_or_faction_based/trappiste_fabriek/guns32x.dmi",
       "states": [
         {
@@ -22702,9 +22703,30 @@
       },
       "remaining": {}
     },
+    "/obj/item/ammo_box/magazine/lanca": {
+      "appearances": [
+        "Magazine45_ACPSubMachineGunFMJBitrunArtaa6bae624db5",
+        "Magazine45_ACPSubMachineGunFMJBitrunArtaa6bae624db5Placement26bb0da4cd14"
+      ],
+      "applied": {
+        "entity": 10
+      },
+      "remaining": {}
+    },
+    "/obj/item/ammo_box/magazine/m7mm": {
+      "appearances": [
+        "BitrunArtb2aeb068f1fa"
+      ],
+      "applied": {
+        "decorative entity": 8
+      },
+      "remaining": {
+        "restored original art; no native gameplay mapping": 8
+      }
+    },
     "/obj/item/ammo_box/magazine/m9mm": {
       "appearances": [
-        "MagazinePistolBitrunArt35a31bbd5283"
+        "Magazine45_ACPPistolFMJBitrunArt4d6f874d0b68"
       ],
       "applied": {
         "entity": 8
@@ -22713,53 +22735,46 @@
     },
     "/obj/item/ammo_box/magazine/m9mm_aps": {
       "appearances": [
-        "BitrunArt5252e1978b39"
+        "Magazine45_ACPPistolHighCapacityFMJBitrunArt5066cdad68e4"
       ],
       "applied": {
-        "decorative entity": 2
+        "entity": 2
       },
-      "remaining": {
-        "restored original art; no native gameplay mapping": 2
-      }
+      "remaining": {}
     },
     "/obj/item/ammo_box/magazine/miecz": {
       "appearances": [
-        "BitrunArt9d2a920405b9",
-        "BitrunArt9d2a920405b9Placement61c3299f9eca",
-        "BitrunArt9d2a920405b9Placementd146756d358e",
-        "BitrunArt9d2a920405b9Placementfcc7e9b86aca"
+        "Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bb",
+        "Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacement61c3299f9eca",
+        "Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacementd146756d358e",
+        "Magazine45_ACPSubMachineGunFMJBitrunArte0d4d16150bbPlacementfcc7e9b86aca"
       ],
       "applied": {
-        "decorative entity": 3
+        "entity": 3
       },
-      "remaining": {
-        "restored original art; no native gameplay mapping": 3
-      }
+      "remaining": {}
     },
     "/obj/item/ammo_box/magazine/recharge/plasma_battery": {
       "appearances": [
-        "BitrunArtd50c00294f11",
-        "BitrunArtd50c00294f11Placement5c3ee0b2d8f5",
-        "BitrunArtd50c00294f11Placement9d964688a1ba"
+        "Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55",
+        "Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55Placement5c3ee0b2d8f5",
+        "Magazine45_ACPSubMachineGunFMJBitrunArt6d5b0c83ef55Placement9d964688a1ba"
       ],
       "applied": {
-        "decorative entity": 2
+        "entity": 2
       },
-      "remaining": {
-        "restored original art; no native gameplay mapping": 2
-      }
+      "remaining": {}
     },
     "/obj/item/ammo_box/magazine/smgm45": {
       "appearances": [
-        "BitrunArt6afdb3486067",
-        "BitrunArt6afdb3486067Placementcc6631f1cc70"
+        "Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713",
+        "Magazine45_ACPSubMachineGunFMJBitrunArtd3ee8d386713Placementcc6631f1cc70",
+        "Magazine45_ACPSubMachineGunFMJPlacement9204d19db554"
       ],
       "applied": {
-        "decorative entity": 5
+        "entity": 5
       },
-      "remaining": {
-        "restored original art; no native gameplay mapping": 5
-      }
+      "remaining": {}
     },
     "/obj/item/ammo_box/magazine/sniper_rounds": {
       "appearances": [
@@ -22785,16 +22800,14 @@
     },
     "/obj/item/ammo_box/magazine/wylom": {
       "appearances": [
-        "BitrunArtee24d41e7fd1",
-        "BitrunArtee24d41e7fd1Placement26bb0da4cd14",
-        "BitrunArtee24d41e7fd1Placement66653112db20"
+        "Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68",
+        "Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68Placement26bb0da4cd14",
+        "Magazine45_ACPSubMachineGunFMJBitrunArtb873e273fe68Placement66653112db20"
       ],
       "applied": {
-        "decorative entity": 2
+        "entity": 2
       },
-      "remaining": {
-        "restored original art; no native gameplay mapping": 2
-      }
+      "remaining": {}
     },
     "/obj/item/ammo_box/speedloader/c38": {
       "appearances": [
@@ -25296,7 +25309,7 @@
     },
     "/obj/item/gun/ballistic/automatic/pistol": {
       "appearances": [
-        "WeaponSubMachineGunDrozdBitrunArtbbf9ee8c02a0"
+        "WeaponPistolMk58BitrunArt0565cbdc72d8"
       ],
       "applied": {
         "entity": 7
@@ -25305,7 +25318,7 @@
     },
     "/obj/item/gun/ballistic/automatic/pistol/aps": {
       "appearances": [
-        "WeaponSubMachineGunDrozdBitrunArtca287753f060"
+        "WeaponPistolMk58BitrunArt8059707db307"
       ],
       "applied": {
         "entity": 1
@@ -25323,7 +25336,7 @@
     },
     "/obj/item/gun/ballistic/automatic/pistol/sol": {
       "appearances": [
-        "WeaponSubMachineGunDrozdBitrunArt962740767f5e"
+        "WeaponPistolMk58BitrunArt5d8143478f7b"
       ],
       "applied": {
         "entity": 6
@@ -30532,7 +30545,8 @@
     },
     "/obj/machinery/door/airlock/multi_tile/glass": {
       "appearances": [
-        "AirlockBitrunArt87197788ecb8"
+        "AirlockGlassBitrunArta1f3dfe2f4bc",
+        "AirlockGlassBitrunArta1f3dfe2f4bcPlacementa03491a7c7a6"
       ],
       "applied": {
         "entity": 5
@@ -30541,7 +30555,8 @@
     },
     "/obj/machinery/door/airlock/multi_tile/metal": {
       "appearances": [
-        "AirlockBitrunArt3fd11e64d8af"
+        "AirlockBitrunArt3fd11e64d8af",
+        "AirlockBitrunArt3fd11e64d8afPlacementa03491a7c7a6"
       ],
       "applied": {
         "entity": 2
@@ -31649,7 +31664,8 @@
     },
     "/obj/machinery/power/apc/auto_name/directional/north": {
       "appearances": [
-        "APCBasicBitrunArtfbb5c11f0190"
+        "APCBasicBitrunArtfbb5c11f0190",
+        "APCBasicBitrunArtfbb5c11f0190Placementb9aa172280e6"
       ],
       "applied": {
         "entity": 1
@@ -32784,11 +32800,9 @@
       }
     },
     "/obj/structure/cable": {
-      "appearances": [
-        "CableApcExtensionBitrunArt705c0773762f"
-      ],
+      "appearances": [],
       "applied": {
-        "entity": 148
+        "retained runtime prototype": 148
       },
       "remaining": {}
     },

@@ -60,28 +60,14 @@ public sealed partial class BitrunSystem : EntitySystem
         InitializeObjectives();
         InitializeGlitches();
         InitializeRewards();
-        _configuration.OnValueChanged(BitrunCVars.LobbyIntervalSeconds, OnLobbyIntervalChanged, invokeImmediately: true);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => ResetRound());
         SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRoundLevelChanged);
         SubscribeLocalEvent<EntParentChangedMessage>(OnVirtualMapChanged);
         SubscribeLocalEvent<BitrunServerComponent, EntityTerminatingEvent>(OnServerTerminating, before: [typeof(MindSystem)]);
     }
 
-    public override void Shutdown()
-    {
-        _configuration.UnsubValueChanged(BitrunCVars.LobbyIntervalSeconds, OnLobbyIntervalChanged);
-        base.Shutdown();
-    }
-
     private void OnRoundLevelChanged(GameRunLevelChangedEvent args)
     {
-        if (args.New == GameRunLevel.InRound)
-        {
-            _lobbyEpoch = _timing.CurTime;
-            foreach (var lobby in _lobbies.Values)
-                lobby.StartAt = NextLobbyStart();
-        }
-
         if (args.New != GameRunLevel.PostRound)
             return;
 
@@ -106,7 +92,6 @@ public sealed partial class BitrunSystem : EntitySystem
         _personalCredits.Clear();
         _personalResearchPoints.Clear();
         _nextPoll = TimeSpan.Zero;
-        _lobbyEpoch = _timing.CurTime;
     }
 
     public override void Update(float frameTime)
@@ -390,6 +375,7 @@ public sealed partial class BitrunSystem : EntitySystem
         public readonly HashSet<EntityUid> Curiosities = new();
         public EntityUid? Cache;
         public int ObjectiveProgress;
+        public TimeSpan? IslandWaveAt;
         public bool StageOpened;
         public bool Completed;
         public TimeSpan? StopAt;

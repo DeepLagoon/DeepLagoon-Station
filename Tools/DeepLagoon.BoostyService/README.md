@@ -107,6 +107,17 @@ lock. `retry` preserves the original body and cannot create a replacement grant.
 `health` is concurrent/read-only and fails on stale scans or unresolved payments.
 The `.health.json` contains only timestamps, counts and mode; no credentials.
 
+The optional `notice_command` array configures Discord alerts in `run` mode.
+Set it to an absolute executable followed by its arguments. On a host with
+DeepLagoon Control, use
+`["/usr/bin/python3", "/home/ss14/ss14/control-agent/notice_queue.py", "<Discord DM channel ID>"]`.
+The DM channel belongs to the bot and its recipient. The command reads a JSON
+object containing `event_key` and `message` on standard input and returns success
+after the notification is queued. The worker alerts after two consecutive scan
+failures or when Boosty rejects a token refresh. An authentication alert
+suppresses the generic scan alert for the same outage. A successful scan rearms
+the threshold, and Control retries Discord delivery independently.
+
 ## Linux installation without touching the round
 
 On hosts where an existing service account already has the AccountService coin
