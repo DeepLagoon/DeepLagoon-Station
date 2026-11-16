@@ -16,6 +16,7 @@ public sealed partial class ApartmentFurnitureIdentityComponent : Component
     [DataField] public string Id = "";
     [DataField] public string Furniture = "";
     [DataField] public bool Stored;
+    [DataField] public bool PlacedWithPurchase;
     [DataField] public int StoredRotation;
 }
 

@@ -213,7 +213,7 @@ public sealed partial class NativeInterfacePanel : BoxContainer
         if (_data.Bool("atHome"))
         {
             Button(_body, "Вернуться на остановку", () => Send("return"), !pending);
-            if (_data.Bool("canManage")) { Button(_body, "Обустройство квартиры", () => Send("edit"), !pending); Button(_body, "Шаблоны квартир", () => Send("shop"), !pending); }
+            if (_data.Bool("canManage")) { Button(_body, "Обустройство квартиры", () => Send("edit"), !pending); Button(_body, "Магазин квартир и предметов", () => Send("shop"), !pending); }
         }
         else
         {

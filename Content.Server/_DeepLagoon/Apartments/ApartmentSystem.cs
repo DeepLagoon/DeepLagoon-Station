@@ -379,7 +379,7 @@ public sealed partial class ApartmentSystem : EntitySystem
                 {
                     if (!item.SameAs(mapped.Baseline)) MoveMapFurniture(instance, item);
                 }
-                else instance.Furniture[item.Id] = SpawnFurniture(item, grid);
+                else instance.Furniture[item.Id] = SpawnFurniture(item, grid, delta.PurchasedPlacements.Contains(item.Id));
             foreach (var id in delta.Removed)
                 if (instance.Furniture.TryGetValue(id, out var removed) && Exists(removed)) StoreFurniture(instance, removed);
             if (template.ID == BitrunApartment)
@@ -414,13 +414,14 @@ public sealed partial class ApartmentSystem : EntitySystem
         throw new InvalidOperationException("No free apartment position found.");
     }
 
-    private EntityUid SpawnFurniture(ApartmentPlacement item, EntityUid parent)
+    private EntityUid SpawnFurniture(ApartmentPlacement item, EntityUid parent, bool purchased)
     {
         var definition = _prototypes.Index<ApartmentFurniturePrototype>(item.Furniture);
         var entity = Spawn(definition.Entity, new EntityCoordinates(parent, new Vector2(item.X + .5f, item.Y + .5f)));
         var identity = EnsureComp<ApartmentFurnitureIdentityComponent>(entity);
         identity.Id = item.Id;
         identity.Furniture = item.Furniture;
+        identity.PlacedWithPurchase = purchased;
         // Prototype furniture cannot heal, be disassembled or dragged outside the editor.
         RemComp<ConstructionComponent>(entity);
         RemComp<HealOnBuckleComponent>(entity);
@@ -597,19 +598,29 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (_lastApply.TryGetValue(session.UserId, out var last) && _timing.RealTime - last < TimeSpan.FromMilliseconds(500)) return "Подождите перед повторным сохранением.";
         _lastApply[session.UserId] = _timing.RealTime;
         var account = _economy.Cached(session.UserId);
-        if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance),
-                stock: id => FurnitureCapacity(id, account)) is { } error) return error;
+        var legacy = LegacyFurniture(instance);
         // Hidden instances retain their state and consume the same finite stock as placed ones.
         var physicalStock = instance.Furniture.Values.Where(Exists)
             .Select(entity => TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) ? Catalog(instance, identity.Furniture) : null)
             .OfType<ApartmentFurniturePrototype>().Where(item => !item.ExistingOnly).GroupBy(item => item.StockKey)
             .ToDictionary(group => group.Key, group => group.Count());
+        var capacities = new Dictionary<string, int>();
+        int Capacity(string id)
+        {
+            if (capacities.TryGetValue(id, out var count)) return count;
+            count = account == null ? physicalStock.GetValueOrDefault(id) : FurnitureCapacity(id, account, legacy.GetValueOrDefault(id));
+            capacities.Add(id, count);
+            return count;
+        }
+        if (ApartmentLayout.Validate(instance.Template, layout, id => Catalog(instance, id), CaptureRoom(instance), MapBaseline(instance),
+                stock: Capacity) is { } error) return error;
         foreach (var placement in layout.Where(p => !instance.Furniture.TryGetValue(p.Id, out var known) || !Exists(known)))
         {
             var definition = Catalog(instance, placement.Furniture)!;
             if (definition.ExistingOnly) continue;
+            var capacity = Capacity(definition.StockKey);
             physicalStock[definition.StockKey] = physicalStock.GetValueOrDefault(definition.StockKey) + 1;
-            if (physicalStock[definition.StockKey] > FurnitureCapacity(definition.StockKey, account))
+            if (!definition.IsForSale || physicalStock[definition.StockKey] > capacity)
                 return "Запас уже находится в хранилище. Разместите сохранённый предмет из хранилища.";
         }
         var old = CurrentLayout(instance).ToDictionary(p => p.Id);
@@ -634,7 +645,8 @@ public sealed partial class ApartmentSystem : EntitySystem
                 return "Посетитель сидит на мебели. Попросите его встать.";
             var pos = Transform(participant.Body).LocalPosition;
             var cell = new Vector2i((int) MathF.Floor(pos.X), (int) MathF.Floor(pos.Y));
-            if (touched.Any(p => ApartmentLayout.Cells(p, Catalog(instance, p.Furniture)!).Contains(cell))) return "Посетитель находится на месте новой мебели.";
+            if (touched.Any(p => Catalog(instance, p.Furniture) is { Layer: not "FloorFinish" } definition &&
+                    ApartmentLayout.Cells(p, definition).Contains(cell))) return "Посетитель находится на месте новой мебели.";
         }
         var prepared = new Dictionary<string, EntityUid>();
         var delta = ApartmentLayout.Diff(instance.Template, layout, revision + 1, MapBaseline(instance));
@@ -642,7 +654,11 @@ public sealed partial class ApartmentSystem : EntitySystem
         var committed = false;
         try
         {
-            foreach (var p in touched.Where(p => !instance.Furniture.TryGetValue(p.Id, out var entity) || !Exists(entity))) prepared[p.Id] = SpawnFurniture(p, _sleepMap);
+            foreach (var p in touched.Where(p => !instance.Furniture.TryGetValue(p.Id, out var entity) || !Exists(entity)))
+                prepared[p.Id] = SpawnFurniture(p, _sleepMap, purchased: true);
+            delta.PurchasedPlacements.UnionWith(layout.Where(p => prepared.ContainsKey(p.Id) ||
+                instance.Furniture.TryGetValue(p.Id, out var entity) &&
+                TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) && identity.PlacedWithPurchase).Select(p => p.Id));
             if (!Store.Save(session.UserId.UserId, delta, revision)) return "Сохранение изменилось. Откройте квартиру заново.";
             committed = true;
         }

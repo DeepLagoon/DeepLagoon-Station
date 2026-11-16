@@ -6,10 +6,10 @@ namespace Content.Shared._DeepLagoon.Apartments;
 public static class ApartmentFurnitureStock
 {
     public static int Capacity(ApartmentFurniturePrototype product, IEnumerable<ApartmentFurniturePrototype> variants,
-        IReadOnlyDictionary<string, int> purchased, IReadOnlySet<string> legacy)
+        IReadOnlyDictionary<string, int> purchased, IReadOnlySet<string> legacy, int legacyPlacements = 0)
     {
-        long count = product.Price == 0 ? product.MaxCount : 0;
-        count += variants.Where(item => item.Price > 0 && legacy.Contains(item.ID)).Sum(item => (long) item.MaxCount);
+        long count = product.LegacyFree ? Math.Min(product.MaxCount, legacyPlacements) : 0;
+        count += variants.Where(item => !item.LegacyFree && legacy.Contains(item.ID)).Sum(item => (long) item.MaxCount);
         count += purchased.GetValueOrDefault(product.ID);
         return (int) Math.Clamp(count, 0, int.MaxValue);
     }

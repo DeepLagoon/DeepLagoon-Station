@@ -14,11 +14,12 @@ test('household catalogue covers every agreed category with functional inherited
   assert.equal(new Set(furniture.map(item => item.id)).size, furniture.length);
   assert.deepEqual([...new Set(furniture.map(item => item.category))].sort(), [
     'Уборка и покраска', 'Инструменты', 'Мебель', 'Освещение', 'Декор и растения',
-    'Кухня и посуда', 'Хранение', 'Сантехника', 'Электроника', 'Торговые автоматы',
+    'Кухня и посуда', 'Хранение', 'Сантехника', 'Электроника', 'Торговые автоматы', 'Лампочки и трубки', 'Ковры',
   ].sort());
   for (const item of furniture) {
     assert.ok(entities.get(item.entity)?.parent);
     assert.ok(item.maxCount >= 1 && item.maxCount <= 400);
+    assert.ok(item.price >= 1 && item.price <= 500);
     assert.ok(entities.get(item.entity).components.some(component => component.type === 'NoDeconstruct'));
   }
 });
@@ -34,10 +35,10 @@ test('mandatory cleaning supplies are portable and vending machines retain their
   for (const item of vendors) assert.equal(entities.get(item.entity).components.find(component => component.type === 'ApcPowerReceiver')?.needsPower, false);
 });
 
-test('every map template includes household catalogue and both locales name every entry', () => {
-  const templates = yaml.load(fs.readFileSync(path.join(directory, 'templates.yml'), 'utf8'));
-  for (const template of templates.filter(entry => entry.type === 'apartmentTemplate')) {
-    for (const item of furniture) assert.ok(template.catalog.includes(item.id), template.id + ': ' + item.id);
+test('map templates use the shared assortment and both locales name every household entry', () => {
+  for (const name of ['templates.yml', 'apartments.yml', 'bitrun.yml']) {
+    const text = fs.readFileSync(path.join(directory, name), 'utf8');
+    assert.doesNotMatch(text, /^  catalog:/m);
   }
   for (const locale of ['ru-RU', 'en-US']) {
     const text = fs.readFileSync(path.join(root, `Resources/Locale/${locale}/_DeepLagoon/apartment-utilities.ftl`), 'utf8');

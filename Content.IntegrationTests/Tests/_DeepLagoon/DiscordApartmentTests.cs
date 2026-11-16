@@ -28,7 +28,6 @@ public sealed class DiscordApartmentTests
   height: 16
   arrival: '4,8'
   reservedCells: ['3,12', '4,12', '5,12', '3,13', '4,13', '5,13', '3,14', '4,14', '5,14', '4,10', '4,11']
-  catalog: [DLAptChair]
 - type: apartmentTemplate
   id: DiscordApartmentBrokenTest
   name: dl-apartment-basic

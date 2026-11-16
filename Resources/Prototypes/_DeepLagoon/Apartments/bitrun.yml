@@ -11,7 +11,6 @@
   reservedCells: ["7,11", "8,11", "9,11", "7,12", "8,12", "9,12", "7,13", "8,13", "9,13", "8,10", "8,9"]
   maxFurniture: 400
   maxVisitors: 4
-  catalog: [DLAptSofa, DLAptChair, DLAptTable, DLAptBed, DLAptPlant, DLAptAtmosphere, DLAptTrash]
 
 - type: entity
   id: DLApartmentBitrunInteriorWall

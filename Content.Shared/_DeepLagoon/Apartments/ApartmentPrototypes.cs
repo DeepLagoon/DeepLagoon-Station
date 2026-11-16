@@ -27,6 +27,9 @@ public sealed partial class ApartmentFurniturePrototype : IPrototype
     [DataField] public string Product = "";
     public string StockKey => Product.Length == 0 ? ID : Product;
     [DataField] public long Price;
+    /// <summary>Preserves initial stock only for objects already placed or stored before the model became paid.</summary>
+    [DataField] public bool LegacyFree;
+    public bool IsForSale => !ExistingOnly && Price is >= 1 and <= 500 && MaxCount is >= 1 and <= ApartmentLayout.SafetyLimit;
     [DataField] public string Category = "Мебель";
     [DataField] public string Layer = "Furniture";
     [DataField] public bool BlocksMovement = true;
@@ -57,7 +60,6 @@ public sealed partial class ApartmentTemplatePrototype : IPrototype
     [DataField] public int MaxFurniture = ApartmentLayout.SafetyLimit;
     [DataField] public int MaxVisitors = 4;
     [DataField] public Vector2i Arrival = new(1, 1);
-    [DataField] public List<ProtoId<ApartmentFurniturePrototype>> Catalog = new();
     [DataField] public List<ApartmentPlacement> Furniture = new();
 }
 
@@ -86,4 +88,5 @@ public sealed class ApartmentDelta
     public List<string> Removed { get; set; } = new();
     public List<ApartmentPlacement> Changed { get; set; } = new();
     public List<ApartmentPlacement> Added { get; set; } = new();
+    public HashSet<string> PurchasedPlacements { get; set; } = new();
 }

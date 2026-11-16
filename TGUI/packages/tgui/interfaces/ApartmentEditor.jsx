@@ -204,7 +204,7 @@ export const ApartmentEditor = () => {
             const width = item.rotation % 2 ? def.height : def.width, height = item.rotation % 2 ? def.width : def.height;
             return <div key={item.id} data-placement={item.id} title={displayErrors[item.id] || def.name}
               className={`ApartmentEditor__ghost ${selected === item.id ? 'selected' : ''} ${displayErrors[item.id] ? 'invalid' : ''} ${brush && item.id === hover?.id ? 'hover' : ''}`}
-              style={{ zIndex: index + 1, left: `${(item.x - originX) / data.width * 100}%`, top: `${(originY + data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
+              style={{ zIndex: def.layer === 'FloorFinish' ? 1 : index + 3, left: `${(item.x - originX) / data.width * 100}%`, top: `${(originY + data.height - item.y - height) / data.height * 100}%`, width: `${width / data.width * 100}%`, height: `${height / data.height * 100}%` }}>
               <span style={{ width: cellSize, height: cellSize, transform: `rotate(${def.noRotation || def.images?.some(image => image.worldAligned) ? 0 : -item.rotation * 90}deg)` }}><PlanSprite images={def.images} /></span>
             </div>;
           })}
@@ -218,7 +218,7 @@ export const ApartmentEditor = () => {
         {data.status && <p className={data.success ? 'ApartmentEditor__hint' : 'ApartmentEditor__error'}>{data.status}</p>}
       </main>
     </div>
-    <footer><button disabled={commerceBusy || pending || dirty} onClick={() => act('shop')}>Шаблоны квартир</button><button disabled={commerceBusy || pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
+    <footer><button disabled={commerceBusy || pending || dirty} onClick={() => act('shop')}>Магазин квартир и предметов</button><button disabled={commerceBusy || pending || !dirty} onClick={() => { change(copyLayout(data.layout)); setBrush(null); setHover(null); }}>Сбросить изменения</button>
       <button disabled={commerceBusy || pending || !valid || !dirty || before || !!brush} className="primary" onClick={() => { setPending(true); sendApartmentLayout(act, 'apply', draft); }}>{pending ? 'Сохранение…' : 'Применить'}</button>
       <button disabled={commerceBusy || pending} onClick={() => dirty ? setConfirmClose('exit') : act('exit')}>{data.lobby ? 'Закрыть обустройство' : 'Вернуться из квартиры'}</button></footer>
     {context && <div className="ApartmentEditor__contextVeil" onPointerDown={() => setContext(null)} onContextMenu={event => { event.preventDefault(); setContext(null); }}>

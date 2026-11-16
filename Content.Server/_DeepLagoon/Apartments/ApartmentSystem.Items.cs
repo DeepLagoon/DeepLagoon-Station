@@ -22,7 +22,7 @@ public sealed partial class ApartmentSystem
     }
 
     private List<ApartmentShopEntry> ShopItems() => _prototypes.EnumeratePrototypes<ApartmentItemPrototype>()
-        .Where(p => p.Price >= 0).OrderBy(p => p.Category).ThenBy(p => p.Price).ThenBy(p => p.ID)
+        .Where(p => p.Price is >= 1 and <= 500).OrderBy(p => p.Category).ThenBy(p => p.Price).ThenBy(p => p.ID)
         .Select(p => new ApartmentShopEntry { Id = p.ID, Entity = p.Entity, Name = _prototypes.Index(p.Entity).Name,
             Category = p.Category, Price = p.Price }).ToList();
 
@@ -37,7 +37,7 @@ public sealed partial class ApartmentSystem
         else
         {
             if (ev.Order == Guid.Empty || !_prototypes.TryIndex<ApartmentItemPrototype>(ev.Template, out var item) ||
-                item.Price < 0 || ev.UnitPrice != item.Price)
+                item.Price is < 1 or > 500 || ev.UnitPrice != item.Price)
             { PublishShop(session, "Цена изменилась или предмет недоступен. Проверьте каталог."); return; }
             order = Store.BeginItemOrder(session.UserId.UserId, ev.Order, item.ID, item.Price);
         }

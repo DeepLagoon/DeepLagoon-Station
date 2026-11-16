@@ -8,8 +8,11 @@ using Content.Client._DeepLagoon.Apartments;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.IconSmoothing;
 using Content.Server._DeepLagoon.Apartments;
+using Content.Server._DeepLagoon.Currency;
+using Content.Server.Database;
 using Content.Shared._DeepLagoon.Apartments;
 using Robust.Client.GameObjects;
+using Robust.Shared.Asynchronous;
 using Robust.Shared.Configuration;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
@@ -86,6 +89,17 @@ public sealed class ApartmentRoomSceneTests
             // This geometry fixture deliberately keeps the legacy map as a free test template.
             pair.Server.ResolveDependency<Robust.Shared.Prototypes.IPrototypeManager>().Index<ApartmentTemplatePrototype>("DLApartmentBasic").ExistingOnly = false;
             var player = pair.Server.PlayerMan.Sessions.Single();
+            var taskManager = pair.Server.ResolveDependency<ITaskManager>();
+            taskManager.BlockWaitOnTask(entities.System<LagoonCoinSystem>().Grant(player.UserId, 30, "apartment-room-fixture", null));
+            var database = pair.Server.ResolveDependency<IServerDbManager>();
+            taskManager.BlockWaitOnTask(database.PurchaseEconomyAsync(player.UserId, new LagoonEconomyPurchase(
+                "apartment-room-chair", "furniture-pack", "DLAptChair", 20, 0, 1, 4, 20)));
+            var purchase = database.PurchaseEconomyAsync(player.UserId, new LagoonEconomyPurchase(
+                "apartment-room-floor", "furniture-pack", "DLAptFloorFloorWood", 10, 0, 1, 12, 10));
+            taskManager.BlockWaitOnTask(purchase);
+#pragma warning disable RA0004
+            entities.System<LagoonEconomySystem>().Remember(player, purchase.Result);
+#pragma warning restore RA0004
             body = entities.SpawnEntity("MobHuman", outside.GridCoords);
             pair.Server.PlayerMan.SetAttachedEntity(player, body);
             var system = entities.System<ApartmentSystem>();
@@ -126,7 +140,8 @@ public sealed class ApartmentRoomSceneTests
             var json = (string) typeof(TguiPanel).GetField("_data", flags)!.GetValue(window.Panel)!;
             var preview = NativeUiData.Parse(json);
             Assert.That(preview.Object("scene").Array("objects").Count(), Is.EqualTo(scene.Objects.Count));
-            Assert.That(preview.Array("catalog").All(item => item.Array("images").Any()), Is.True, "Every furniture entry needs an actual game sprite.");
+            Assert.That(preview.Array("catalog").All(item => item.Array("images").Any(image =>
+                image.String("url").StartsWith("data:image/png;base64,"))), Is.True, "Every furniture entry needs an actual game sprite.");
             var tiles = preview.Object("scene").Array("tiles").ToArray();
             Assert.That(tiles.Length, Is.EqualTo(scene.Tiles.Count));
             Assert.That(tiles.All(tile => tile.String("url").StartsWith("data:image/png;base64,")), Is.True,
@@ -163,17 +178,22 @@ public sealed class ApartmentRoomSceneTests
             var original = layout.Single(item => item.Id == mappedId);
             original.X = first.X; original.Y = first.Y; original.Rotation = 0;
             layout.Add(new ApartmentPlacement { Id = "added_scene_chair", Furniture = "DLAptChair", X = second.X, Y = second.Y });
+            layout.Add(new ApartmentPlacement { Id = "added_scene_floor", Furniture = "DLAptFloorFloorWood", X = second.X, Y = second.Y });
             Assert.That(system.Apply(player, token, 0, layout), Is.Null);
             Assert.That(system.Instances[player.UserId].Furniture[mappedId], Is.EqualTo(mappedEntity));
             Assert.That(stash.ContainedEntities, Does.Contain(keepsake));
             Assert.That(entities.GetComponent<TransformComponent>(keepsake).ParentUid, Is.EqualTo(mappedEntity));
             Assert.That(entities.GetComponent<TransformComponent>(mappedEntity).LocalPosition, Is.EqualTo(new Vector2(first.X + .5f, first.Y + .5f)));
             Assert.That(system.Instances[player.UserId].Delta.Changed.Single().Id, Is.EqualTo(mappedId));
-            Assert.That(system.Instances[player.UserId].Delta.Added.Single().Id, Is.EqualTo("added_scene_chair"));
+            Assert.That(system.Instances[player.UserId].Delta.Added.Select(item => item.Id),
+                Is.EquivalentTo(new[] { "added_scene_chair", "added_scene_floor" }));
             var chair = system.Instances[player.UserId].Furniture["added_scene_chair"];
             var transform = entities.System<SharedTransformSystem>();
             transform.SetCoordinates(chair, new EntityCoordinates(grid, new Vector2(second.X + .5f, second.Y + .5f)));
             transform.AnchorEntity(chair);
+            var floor = system.Instances[player.UserId].Furniture["added_scene_floor"];
+            Assert.That(entities.GetComponent<TransformComponent>(floor).GridUid, Is.EqualTo(grid));
+            Assert.That(entities.HasComponent<ApartmentFloorFinishComponent>(floor), Is.True);
             Assert.That(system.OpenEditor(player), Is.True);
         });
         await pair.RunTicksSync(30);
@@ -182,10 +202,13 @@ public sealed class ApartmentRoomSceneTests
             var editor = pair.Client.EntMan.System<ApartmentEditorSystem>();
             Assert.That(editor.Draft.Single(item => item.Id == "added_scene_chair").X, Is.EqualTo(second.X));
             Assert.That(editor.Draft.Single(item => item.Id == "added_scene_chair").Y, Is.EqualTo(second.Y));
+            Assert.That(editor.Draft.Single(item => item.Id == "added_scene_floor").X, Is.EqualTo(second.X));
+            Assert.That(editor.Draft.Single(item => item.Id == "added_scene_floor").Y, Is.EqualTo(second.Y));
             var state = (ApartmentEditorEvent) typeof(ApartmentEditorSystem).GetField("_state", flags)!.GetValue(editor)!;
             token = state.Token;
             layout = state.Layout.Select(item => item.Copy()).ToList();
             Assert.That(state.Scene!.Objects.Any(item => item.Id == "e:" + state.Entities["added_scene_chair"]), Is.False);
+            Assert.That(state.Scene!.Objects.Any(item => item.Id == "e:" + state.Entities["added_scene_floor"]), Is.False);
         });
         await Task.Delay(600);
         await pair.Server.WaitAssertion(() =>
@@ -201,6 +224,7 @@ public sealed class ApartmentRoomSceneTests
             Assert.That(restored.LocalPosition, Is.EqualTo(new Vector2(first.X + .5f, first.Y + .5f)));
             Assert.That(restored.LocalRotation.Degrees, Is.EqualTo(0).Within(.01));
             Assert.That(entities.GetComponent<MetaDataComponent>(reloaded.Furniture[mappedId]).EntityPrototype!.ID, Is.EqualTo("PottedPlant2"));
+            Assert.That(entities.HasComponent<ApartmentFloorFinishComponent>(reloaded.Furniture["added_scene_floor"]), Is.True);
             entities.DeleteEntity(reloaded.Grid);
             pair.Server.PlayerMan.SetAttachedEntity(player, null);
             entities.DeleteEntity(body);

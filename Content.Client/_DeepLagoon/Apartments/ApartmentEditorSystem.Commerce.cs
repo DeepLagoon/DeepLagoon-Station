@@ -44,23 +44,7 @@ public sealed partial class ApartmentEditorSystem
         if (model.ExistingOnly) return 1;
         if (_commerce?.Products.FirstOrDefault(item => item.Id == model.StockKey) is { } product) return product.Stock;
         if (!_prototypes.TryIndex<ApartmentFurniturePrototype>(model.StockKey, out var root)) return 0;
-        return ApartmentFurnitureStock.Capacity(root,
-            _prototypes.EnumeratePrototypes<ApartmentFurniturePrototype>().Where(item => item.StockKey == root.ID),
-            new Dictionary<string, int>(), (_state?.OwnedFurniture ?? []).ToHashSet());
-    }
-
-    private IEnumerable<ApartmentProduct> InitialProducts()
-    {
-        if (Template == null) return [];
-        return Template.Catalog.Select(id => Catalog(id.ToString())).OfType<ApartmentFurniturePrototype>()
-            .Where(item => !item.ExistingOnly && item.Price >= 0).GroupBy(item => item.StockKey)
-            .Select(group =>
-            {
-                var root = Catalog(group.Key)!;
-                return new ApartmentProduct { Id = root.ID, Name = Loc.GetString(root.Name), Category = root.Category,
-                    PackSize = root.MaxCount, Price = root.Price == 0 ? 0 : -1, Stock = ProductStock(root),
-                    Variants = group.OrderBy(item => item.ID == root.ID ? 0 : 1).ThenBy(item => item.ID).Select(item => item.ID).ToArray() };
-            });
+        return _state?.Layout.Concat(_state.Stored).Count(item => Catalog(item.Furniture)?.StockKey == root.ID) ?? 0;
     }
 
     private void AddCommerceData(TguiData data)
@@ -70,7 +54,7 @@ public sealed partial class ApartmentEditorSystem
             .String("commerceOrder", _commerceResult?.Order.ToString() ?? "")
             .Bool("commerceSuccess", _commerceResult?.Success ?? false).Bool("commerceCompleted", _commerceResult?.Completed ?? true)
             .String("commerceMessage", _commerceResult?.Message ?? "")
-            .Array("products", (_commerce?.Products.AsEnumerable() ?? InitialProducts()).Select(item => new TguiData()
+            .Array("products", (_commerce?.Products ?? []).Select(item => new TguiData()
                 .String("id", item.Id).String("name", item.Name).String("category", item.Category).Number("price", item.Price)
                 .Number("packSize", item.PackSize).Number("stock", item.Stock)
                 .Array("variants", item.Variants.Select(id => new TguiData().String("id", id)))));
@@ -81,7 +65,7 @@ public sealed partial class ApartmentEditorSystem
         if (_state == null || !TguiActionData.TryParse(payload, out var fields, 1024) ||
             !Guid.TryParse(fields!.String("order"), out var order) || order == Guid.Empty ||
             !int.TryParse(fields.String("quantity"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity) || quantity < 1 ||
-            !long.TryParse(fields.String("unitPrice"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var price) || price < 0 ||
+            !long.TryParse(fields.String("unitPrice"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var price) || price is < 1 or > 500 ||
             fields.String("product") is not { Length: > 0 and <= 128 } product) return;
         RaiseNetworkEvent(new ApartmentFurniturePurchaseEvent(_state.Token, order, product, quantity, price));
     }

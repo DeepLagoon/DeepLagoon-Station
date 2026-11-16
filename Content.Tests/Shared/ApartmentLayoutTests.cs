@@ -30,6 +30,28 @@ public sealed class ApartmentLayoutTests
     }
 
     [Test]
+    public void FloorFinishFitsUnderFurnitureAndRejectsTwoFinishesInOneCell()
+    {
+        var template = Template();
+        var scene = new ApartmentRoomScene { Width = 8, Height = 8 };
+        foreach (var x in new[] { 1, 2, 3 })
+            scene.Tiles.Add(new Content.Shared._DeepLagoon.Mapping.GridEditorItem { X = x, Y = 1 });
+        scene.Occupied.Add(new Vector2i(3, 1));
+
+        var floor = new ApartmentFurniturePrototype { ID = "floor", Layer = "FloorFinish", BlocksMovement = false, AllowsOverlap = true };
+        ApartmentFurniturePrototype? Definitions(string id) => id == floor.ID ? floor : Catalog(id);
+        var layout = new[]
+        {
+            new ApartmentPlacement { Id = "one", Furniture = "floor", X = 2, Y = 1 },
+            new ApartmentPlacement { Id = "two", Furniture = "floor", X = 3, Y = 1 },
+            new ApartmentPlacement { Id = "chair", Furniture = "chair", X = 2, Y = 1 },
+        };
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, scene), Is.Null);
+        layout[1].X = 2;
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, scene), Does.Contain("одно напольное покрытие"));
+    }
+
+    [Test]
     public void MappedFurnitureMovesOrStoresWithoutCloningTheOriginal()
     {
         var template = Template();
@@ -58,7 +80,7 @@ public sealed class ApartmentLayoutTests
 
     private static ApartmentTemplatePrototype Template() => new()
     {
-        ID = "test", Width = 8, Height = 8, Catalog = new() { "chair", "table" },
+        ID = "test", Width = 8, Height = 8,
         Furniture = new() { new() { Id = "base_chair", Furniture = "chair", X = 4, Y = 4 } },
     };
     private static ApartmentFurniturePrototype? Catalog(string id) => id switch

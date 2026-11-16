@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Linq;
 using Content.Shared._DeepLagoon.Apartments;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -34,10 +35,14 @@ public sealed class ApartmentPreviewOverlay : Overlay
         var valid = ApartmentLayout.Validate(_editor.Template, _editor.Draft, Catalog, _editor.RoomScene, _editor.MapBaseline, stock: _editor.FurnitureStockFor) == null;
         var handle = args.WorldHandle;
         handle.SetTransform(_transform.GetRenderWorldMatrix(grid));
-        foreach (var p in _editor.Draft)
+        foreach (var p in _editor.Draft.OrderBy(p => Catalog(p.Furniture)?.Layer == "FloorFinish" ? 0 : 1))
         {
             if (Catalog(p.Furniture) is not { } definition) continue;
-            var texture = _sprites.Frame0(_prototypes.Index(definition.Entity));
+            var prototype = _prototypes.Index(definition.Entity);
+            var texture = prototype.TryGetComponent<ApartmentFloorFinishComponent>(out var finish)
+                ? _entities.System<ApartmentFloorFinishSystem>().Texture(finish)
+                : _sprites.Frame0(prototype);
+            if (texture == null) continue;
             var center = new Vector2(p.X + .5f, p.Y + .5f);
             var size = new Vector2(texture.Width, texture.Height) / 32;
             var box = new Box2Rotated(Box2.CenteredAround(center, size), Angle.FromDegrees(p.Rotation * 90), center);

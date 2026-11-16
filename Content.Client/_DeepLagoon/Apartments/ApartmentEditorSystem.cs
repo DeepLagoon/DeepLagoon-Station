@@ -111,7 +111,8 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
             .Array("reservedCells", Template.ReservedCells.Select(cell => new TguiData().Number("x", cell.X).Number("y", cell.Y)))
             .Array("layout", _state.Layout.Select(PlacementData))
             .Array("stored", _state.Stored.Select(PlacementData))
-            .Array("catalog", Template.Catalog.Select(id => Catalog(id)!).Where(item => item.Price >= 0).Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
+            .Array("catalog", _prototypes.EnumeratePrototypes<ApartmentFurniturePrototype>().Where(item => item.IsForSale)
+                .Concat(_state.MapFurniture.Select(item => item.Definition())).Select(item =>
             {
                 var mapped = _state.MapFurniture.FirstOrDefault(entry => entry.Baseline.Furniture == item.ID);
                 var entry = new TguiData().String("id", item.ID).String("name", item.ExistingOnly ? item.Name : Loc.GetString(item.Name))
@@ -123,6 +124,9 @@ public sealed partial class ApartmentEditorSystem : EntitySystem
                 var smoothed = mapped != null && prototype.TryGetComponent<Content.Client.IconSmoothing.IconSmoothComponent>(out _);
                 var images = smoothed ? walls.Images(MapObject(mapped!)).ToList() : _state.Entities.TryGetValue(mapped?.Baseline.Id ?? "", out var net)
                     ? _images.MapEntity(GetEntity(net)).ToList() : new List<TguiData>();
+                if (prototype.TryGetComponent<ApartmentFloorFinishComponent>(out var finish) &&
+                    _prototypes.Index(finish.Tile).Sprite is { } tileSprite)
+                    images.Add(new TguiData().String("url", _images.TileFrame(tileSprite)).Number("width", 32).Number("height", 32));
                 entry.Array("images", images.Count > 0 ? images : _images.MapItem(item.Entity))
                     .Bool("noRotation", sprite?.NoRotation ?? false).Number("drawDepth", sprite?.DrawDepth ?? 0);
                 return entry;

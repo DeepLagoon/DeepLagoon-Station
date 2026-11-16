@@ -25,25 +25,36 @@ public sealed partial class ApartmentSystem
     private IEnumerable<ApartmentFurniturePrototype> ProductVariants(string product) =>
         _prototypes.EnumeratePrototypes<ApartmentFurniturePrototype>().Where(item => !item.ExistingOnly && item.StockKey == product);
 
-    private int FurnitureCapacity(string product, LagoonEconomySnapshot? account)
+    private Dictionary<string, int> LegacyFurniture(Instance instance) => instance.Furniture.Values
+        .Select(uid => TryComp<ApartmentFurnitureIdentityComponent>(uid, out var identity) && !identity.PlacedWithPurchase
+            ? Catalog(identity.Furniture)
+            : null)
+        .OfType<ApartmentFurniturePrototype>()
+        .GroupBy(item => item.StockKey)
+        .ToDictionary(group => group.Key, group => group.Count());
+
+    private int FurnitureCapacity(string product, LagoonEconomySnapshot? account, int legacyPlacements)
     {
         if (Catalog(product) is not { } model || model.StockKey != model.ID) return 0;
         return ApartmentFurnitureStock.Capacity(model, ProductVariants(product),
-            account?.State.FurnitureStock ?? new Dictionary<string, int>(), account?.State.Furniture ?? new HashSet<string>());
+            account?.State.FurnitureStock ?? new Dictionary<string, int>(), account?.State.Furniture ?? new HashSet<string>(),
+            legacyPlacements);
     }
 
     private List<ApartmentProduct> FurnitureProducts(Instance instance, LagoonEconomySnapshot account)
     {
         var tier = Math.Max(account.State.ExternalTier, account.State.PassTicks > 0 ? account.State.PassTier : 0);
-        return instance.Template.Catalog.Select(id => Catalog(id.ToString())).OfType<ApartmentFurniturePrototype>()
-            .Where(item => !item.ExistingOnly && item.Price >= 0).GroupBy(item => item.StockKey)
+        var legacy = LegacyFurniture(instance);
+        return _prototypes.EnumeratePrototypes<ApartmentFurniturePrototype>()
+            .Where(item => item.IsForSale).GroupBy(item => item.StockKey)
             .Select(group =>
             {
                 var product = Catalog(group.Key);
-                if (product == null || product.StockKey != product.ID || product.Price < 0 || product.MaxCount is < 1 or > ApartmentLayout.SafetyLimit)
+                if (product == null || !product.IsForSale || product.StockKey != product.ID)
                     return null;
                 return new ApartmentProduct { Id = product.ID, Name = Loc.GetString(product.Name), Category = product.Category,
-                    PackSize = product.MaxCount, Stock = FurnitureCapacity(product.ID, account),
+                    PackSize = product.MaxCount, Stock = ApartmentFurnitureStock.Capacity(product, group,
+                        account.State.FurnitureStock, account.State.Furniture, legacy.GetValueOrDefault(product.ID)),
                     Price = LagoonEconomyRules.DecorPrice(product.Price, tier),
                     Variants = group.OrderBy(item => item.ID == product.ID ? 0 : 1).ThenBy(item => item.ID).Select(item => item.ID).ToArray() };
             }).OfType<ApartmentProduct>().OrderBy(item => item.Category).ThenBy(item => item.Price).ThenBy(item => item.Id).ToList();
@@ -86,14 +97,13 @@ public sealed partial class ApartmentSystem
     private async void OnFurniturePurchase(ApartmentFurniturePurchaseEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
-        var instance = CommerceEditor(session, ev.Token);
-        if (instance == null || ev.Order == Guid.Empty || ev.Product is not { Length: > 0 and <= 128 } || ev.Quantity < 1 || ev.UnitPrice < 0) return;
+        if (CommerceEditor(session, ev.Token) == null || ev.Order == Guid.Empty ||
+            ev.Product is not { Length: > 0 and <= 128 } || ev.Quantity < 1 || ev.UnitPrice is < 1 or > 500) return;
         if (!_furnitureBusy.Add(session.UserId)) return;
         try
         {
             var product = Catalog(ev.Product);
-            if (product == null || product.StockKey != product.ID || product.Price < 0 || product.MaxCount is < 1 or > ApartmentLayout.SafetyLimit ||
-                !instance.Template.Catalog.Any(id => Catalog(id.ToString())?.StockKey == product.ID))
+            if (product == null || !product.IsForSale || product.StockKey != product.ID)
                 throw new ArgumentException("Этот набор отсутствует в каталоге квартиры.");
             var purchase = new LagoonEconomyPurchase("furniture-pack:" + session.UserId.UserId.ToString("N") + ":" + ev.Order.ToString("N"),
                 "furniture-pack", product.ID, product.Price, _economy.ExternalTier(session), ev.Quantity, product.MaxCount, ev.UnitPrice);

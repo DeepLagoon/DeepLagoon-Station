@@ -70,6 +70,13 @@ public sealed class ApartmentCommerceTests
             token = state.GetProperty("token").GetGuid();
             var products = state.GetProperty("products").EnumerateArray().ToArray();
             Assert.That(products.Select(item => item.GetProperty("id").GetString()), Is.Unique);
+            Assert.That(products.All(item => item.GetProperty("price").GetInt64() is >= 1 and <= 500), Is.True);
+            Assert.That(products.Select(item => item.GetProperty("id").GetString()), Is.SupersetOf(new[]
+            {
+                "DLAptPartitionWallSolid", "DLAptFloorFloorWood", "DLAptFloorFloorSteel",
+                "DLAptUtilityCarpetSBlue", "DLAptUtilityLedLightBulb", "DLAptUtilityLightTubeCrystalCyan",
+            }));
+            Assert.That(products.Single(item => item.GetProperty("id").GetString() == "DLAptSofa").GetProperty("stock").GetInt32(), Is.Zero);
             Assert.That(products.Single(item => item.GetProperty("id").GetString() == "DLAptSofa").GetProperty("variants").GetArrayLength(), Is.EqualTo(4));
             Buy("DLAptDecor006", 2, 35);
         });

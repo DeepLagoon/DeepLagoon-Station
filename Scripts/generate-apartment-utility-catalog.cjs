@@ -6,8 +6,8 @@ const groups = {
   'Уборка и покраска': ['MopItem', 'AdvMopItem', 'Bucket', 'RagItem', 'SprayPainter', 'SprayBottle', 'SprayBottleWater', 'SprayBottleSpaceCleaner', 'MegaSprayBottle', 'Soap', 'SoapNT', 'SoapDeluxe', 'SoapHomemade', 'TrashBag', 'TrashBagBlue', 'WetFloorSign', 'Plunger'],
   'Инструменты': ['Screwdriver', 'Wrench', 'Crowbar', 'CrowbarRed', 'CrowbarGreen', 'CrowbarOrange', 'CrowbarYellow', 'Wirecutter', 'Multitool', 'Welder', 'WelderMini', 'PowerDrill', 'Shovel', 'ToolboxMechanical', 'ToolboxElectrical', 'ToolboxEmergency', 'ToolboxArtistic', 'HandLabeler', 'LightReplacer', 'FireExtinguisher'],
   'Мебель': ['Chair', 'ChairBlack', 'ChairWood', 'ChairOfficeLight', 'ChairOfficeDark', 'ChairFolding', 'Stool', 'StoolBar', 'ComfyChair', 'SteelBench', 'WoodenBench', 'BenchComfy', 'BenchRedComfy', 'BenchBlueComfy', 'Bed', 'DogBed', 'Mattress', 'PsychBed', 'Table', 'TableWood', 'TableGlass', 'TableReinforced', 'TableCounterMetal', 'TableCounterWood', 'TableCarpet'],
-  'Освещение': ['Lamp', 'LampGold', 'Lantern', 'FlashlightLantern', 'LightBulb', 'LightBulbLed', 'LightTube', 'LightTubeLed', 'GlowstickRed', 'GlowstickPurple', 'GlowstickYellow', 'GlowstickBlue'],
-  'Декор и растения': ['PottedPlant0', 'PottedPlant1', 'PottedPlant2', 'PottedPlant3', 'PottedPlant4', 'PottedPlant5', 'PottedPlant6', 'PottedPlant7', 'PottedPlant8', 'PottedPlant9', 'PottedPlant10', 'PottedPlant11', 'PottedPlant12', 'PottedPlant13', 'PottedPlant14', 'PottedPlant15', 'Carpet', 'CarpetBlack', 'CarpetPink', 'CarpetBlue', 'CarpetGreen', 'CarpetOrange', 'CarpetPurple', 'CarpetCyan', 'CarpetWhite', 'CurtainsBlack', 'CurtainsBlue', 'CurtainsCyan', 'CurtainsGreen', 'CurtainsOrange', 'CurtainsPink', 'CurtainsPurple', 'CurtainsRed', 'CurtainsWhite'],
+  'Освещение': ['Lamp', 'LampGold', 'Lantern', 'FlashlightLantern', 'GlowstickRed', 'GlowstickPurple', 'GlowstickYellow', 'GlowstickBlue'],
+  'Декор и растения': ['PottedPlant0', 'PottedPlant1', 'PottedPlant2', 'PottedPlant3', 'PottedPlant4', 'PottedPlant5', 'PottedPlant6', 'PottedPlant7', 'PottedPlant8', 'PottedPlant9', 'PottedPlant10', 'PottedPlant11', 'PottedPlant12', 'PottedPlant13', 'PottedPlant14', 'PottedPlant15', 'CurtainsBlack', 'CurtainsBlue', 'CurtainsCyan', 'CurtainsGreen', 'CurtainsOrange', 'CurtainsPink', 'CurtainsPurple', 'CurtainsRed', 'CurtainsWhite'],
   'Кухня и посуда': ['KitchenMicrowave', 'KitchenReagentGrinder', 'KitchenElectricGrill', 'KitchenElectricGrillLarge', 'KitchenDeepFryer', 'KitchenAssembler', 'DrinkMug', 'DrinkMugBlack', 'DrinkMugRed', 'DrinkMugBlue', 'DrinkMugGreen', 'DrinkGlass', 'FoodPlate', 'FoodPlateSmall', 'FoodPlatePlastic', 'FoodPlateSmallPlastic', 'FoodBowlBig', 'FoodBowlFancy', 'Fork', 'Spoon', 'KitchenKnife', 'RollingPin', 'Tray'],
   'Хранение': ['Bookshelf', 'Rack', 'RackBlack', 'CrateGenericSteel', 'CratePlastic', 'CrateWood', 'CrateFreezer', 'CrateTrashCart', 'WardrobeBlue', 'WardrobePink', 'WardrobeBlack', 'WardrobeGreen', 'WardrobeYellow', 'WardrobeWhite', 'WardrobeGrey', 'WardrobeMixed', 'ClosetTool', 'ClosetJanitor', 'ClosetChef', 'filingCabinet', 'filingCabinetTall', 'filingCabinetDrawer', 'PaperBin', 'BigBox'],
   'Сантехника': ['Sink', 'SinkWide', 'SinkStemless', 'ToiletEmpty', 'ToiletGoldenEmpty', 'WaterCooler', 'WaterTank', 'WaterTankHighCapacity'],
@@ -43,16 +43,39 @@ function has(id, component, seen = new Set()) {
   return new RegExp('^  - type: ' + component + '\\s*$', 'm').test(entity.block) || entity.parents.some(parent => has(parent, component, seen));
 }
 function englishName(id) { const entity = entities.get(id); return entity?.name?.replace(/^['\"]|['\"]$/g, '') || entity?.parents.map(englishName).find(Boolean) || id; }
+function inherits(id, base) {
+  return id === base || entities.get(id)?.parents.some(parent => inherits(parent, base));
+}
+const legacyFree = new Set([...Object.values(groups).flat(), 'LightBulb', 'LightTube',
+  'Carpet', 'CarpetBlack', 'CarpetPink', 'CarpetBlue', 'CarpetGreen', 'CarpetOrange', 'CarpetPurple', 'CarpetCyan', 'CarpetWhite']);
+groups['Лампочки и трубки'] = [...entities].filter(([id, entry]) =>
+  !entry.abstract && has(id, 'Item') && has(id, 'LightBulb') && !id.startsWith('DLApt')).map(([id]) => id).sort();
+groups['Ковры'] = [...entities].filter(([id, entry]) =>
+  !entry.abstract && inherits(id, 'CarpetBase') && !id.startsWith('DLApt')).map(([id]) => id).sort();
+const categoryPrices = {
+  'Уборка и покраска': 25, 'Инструменты': 45, 'Мебель': 50, 'Освещение': 28,
+  'Декор и растения': 18, 'Кухня и посуда': 12, 'Хранение': 55, 'Сантехника': 95,
+  'Электроника': 90, 'Торговые автоматы': 450, 'Лампочки и трубки': 8, 'Ковры': 15,
+};
+const priceOverrides = {
+  LightBulbBroken: 1, LightTubeBroken: 1, MopItem: 20, AdvMopItem: 75, SprayPainter: 40,
+  LightReplacer: 65, PowerDrill: 95, Multitool: 65, KitchenMicrowave: 140, KitchenReagentGrinder: 160,
+  KitchenElectricGrill: 180, KitchenDeepFryer: 200, KitchenAssembler: 250, CrateFreezer: 95, WaterTankHighCapacity: 160,
+  Jukebox: 200, BlockGameArcade: 180, SpaceVillainArcade: 220,
+  VendingMachineYouTool: 500, VendingMachineChefvend: 500, VendingMachineJaniDrobe: 500,
+};
 const generated = [], ids = [], unavailable = [];
 for (const [category, candidates] of Object.entries(groups)) for (const base of candidates) {
   if (!entities.has(base) || entities.get(base).abstract) { unavailable.push(base); continue; }
   const id = 'DLAptUtility' + base, entity = id + 'Entity', portable = has(base, 'Item');
-  const wall = has(base, 'WallMount'), key = 'dl-apt-utility-' + base.toLowerCase();
+  const wall = has(base, 'WallMount'), carpet = category === 'Ковры', key = 'dl-apt-utility-' + base.toLowerCase();
   const components = [{ type: 'NoDeconstruct' }];
   if (has(base, 'ApcPowerReceiver')) components.push({ type: 'ApcPowerReceiver', needsPower: false });
   generated.push({ type: 'entity', id: entity, parent: base, categories: ['HideSpawnMenu'], components });
-  generated.push({ type: 'apartmentFurniture', id, name: key, entity, category, price: 0, maxCount: category === 'Торговые автоматы' ? 2 : 8,
-    blocksMovement: !portable && !has(base, 'Strap') && !wall, allowsOverlap: portable || wall, ...(wall ? { layer: 'Wall' } : {}) });
+  generated.push({ type: 'apartmentFurniture', id, name: key, entity, category, price: priceOverrides[base] ?? categoryPrices[category],
+    ...(legacyFree.has(base) ? { legacyFree: true } : {}), maxCount: category === 'Торговые автоматы' ? 2 : 8,
+    blocksMovement: !portable && !has(base, 'Strap') && !wall && !carpet, allowsOverlap: portable || wall || carpet,
+    ...(wall ? { layer: 'Wall' } : carpet ? { layer: 'Floor' } : {}) });
   ids.push({ id, base, category, key });
 }
 assert(ids.length >= 150, 'Household catalogue unexpectedly small');
@@ -60,9 +83,4 @@ for (const required of ['MopItem','Bucket','RagItem','SprayPainter','Screwdriver
 const dump = value => yaml.dump(value, { noRefs: true, lineWidth: 120 });
 fs.writeFileSync(path.join(root, 'Resources/Prototypes/_DeepLagoon/Apartments/utility-catalog.generated.yml'), '# Generated by Scripts/generate-apartment-utility-catalog.cjs. Functional household objects.\n' + dump(generated));
 for (const language of ['ru-RU', 'en-US']) fs.writeFileSync(path.join(root, `Resources/Locale/${language}/_DeepLagoon/apartment-utilities.ftl`), ids.map(item => language === 'ru-RU' ? `${item.key} = { ent-${item.base} }` : `${item.key} = ${englishName(item.base)}`).join('\n') + '\n');
-for (const name of ['templates.yml', 'apartments.yml']) {
- const file = path.join(root, 'Resources/Prototypes/_DeepLagoon/Apartments', name);
- const text = fs.readFileSync(file, 'utf8').replace(/^  catalog: \[([^\]]*)\]/gm, (_, old) => '  catalog: [' + [...new Set([...old.split(',').map(s => s.trim()).filter(id => id && !id.startsWith('DLAptUtility')), ...ids.map(item => item.id)])].join(', ') + ']');
- fs.writeFileSync(file, text);
-}
 console.log(JSON.stringify({ added: ids.length, categories: Object.fromEntries(Object.keys(groups).map(category => [category, ids.filter(item => item.category === category).length])), unavailable }));

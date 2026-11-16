@@ -11,7 +11,8 @@
   name: dl-apt-utility-mopitem
   entity: DLAptUtilityMopItemEntity
   category: Уборка и покраска
-  price: 0
+  price: 20
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -27,7 +28,8 @@
   name: dl-apt-utility-advmopitem
   entity: DLAptUtilityAdvMopItemEntity
   category: Уборка и покраска
-  price: 0
+  price: 75
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -43,7 +45,8 @@
   name: dl-apt-utility-bucket
   entity: DLAptUtilityBucketEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -59,7 +62,8 @@
   name: dl-apt-utility-ragitem
   entity: DLAptUtilityRagItemEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -75,7 +79,8 @@
   name: dl-apt-utility-spraypainter
   entity: DLAptUtilitySprayPainterEntity
   category: Уборка и покраска
-  price: 0
+  price: 40
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -91,7 +96,8 @@
   name: dl-apt-utility-spraybottle
   entity: DLAptUtilitySprayBottleEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -107,7 +113,8 @@
   name: dl-apt-utility-spraybottlewater
   entity: DLAptUtilitySprayBottleWaterEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -123,7 +130,8 @@
   name: dl-apt-utility-spraybottlespacecleaner
   entity: DLAptUtilitySprayBottleSpaceCleanerEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -139,7 +147,8 @@
   name: dl-apt-utility-megaspraybottle
   entity: DLAptUtilityMegaSprayBottleEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -155,7 +164,8 @@
   name: dl-apt-utility-soap
   entity: DLAptUtilitySoapEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -171,7 +181,8 @@
   name: dl-apt-utility-soapnt
   entity: DLAptUtilitySoapNTEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -187,7 +198,8 @@
   name: dl-apt-utility-soapdeluxe
   entity: DLAptUtilitySoapDeluxeEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -203,7 +215,8 @@
   name: dl-apt-utility-soaphomemade
   entity: DLAptUtilitySoapHomemadeEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -219,7 +232,8 @@
   name: dl-apt-utility-trashbag
   entity: DLAptUtilityTrashBagEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -235,7 +249,8 @@
   name: dl-apt-utility-trashbagblue
   entity: DLAptUtilityTrashBagBlueEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -251,7 +266,8 @@
   name: dl-apt-utility-wetfloorsign
   entity: DLAptUtilityWetFloorSignEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -267,7 +283,8 @@
   name: dl-apt-utility-plunger
   entity: DLAptUtilityPlungerEntity
   category: Уборка и покраска
-  price: 0
+  price: 25
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -283,7 +300,8 @@
   name: dl-apt-utility-screwdriver
   entity: DLAptUtilityScrewdriverEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -299,7 +317,8 @@
   name: dl-apt-utility-wrench
   entity: DLAptUtilityWrenchEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -315,7 +334,8 @@
   name: dl-apt-utility-crowbar
   entity: DLAptUtilityCrowbarEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -331,7 +351,8 @@
   name: dl-apt-utility-crowbarred
   entity: DLAptUtilityCrowbarRedEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -347,7 +368,8 @@
   name: dl-apt-utility-crowbargreen
   entity: DLAptUtilityCrowbarGreenEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -363,7 +385,8 @@
   name: dl-apt-utility-crowbarorange
   entity: DLAptUtilityCrowbarOrangeEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -379,7 +402,8 @@
   name: dl-apt-utility-crowbaryellow
   entity: DLAptUtilityCrowbarYellowEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -395,7 +419,8 @@
   name: dl-apt-utility-wirecutter
   entity: DLAptUtilityWirecutterEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -411,7 +436,8 @@
   name: dl-apt-utility-multitool
   entity: DLAptUtilityMultitoolEntity
   category: Инструменты
-  price: 0
+  price: 65
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -427,7 +453,8 @@
   name: dl-apt-utility-welder
   entity: DLAptUtilityWelderEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -443,7 +470,8 @@
   name: dl-apt-utility-weldermini
   entity: DLAptUtilityWelderMiniEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -459,7 +487,8 @@
   name: dl-apt-utility-powerdrill
   entity: DLAptUtilityPowerDrillEntity
   category: Инструменты
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -475,7 +504,8 @@
   name: dl-apt-utility-shovel
   entity: DLAptUtilityShovelEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -491,7 +521,8 @@
   name: dl-apt-utility-toolboxmechanical
   entity: DLAptUtilityToolboxMechanicalEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -507,7 +538,8 @@
   name: dl-apt-utility-toolboxelectrical
   entity: DLAptUtilityToolboxElectricalEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -523,7 +555,8 @@
   name: dl-apt-utility-toolboxemergency
   entity: DLAptUtilityToolboxEmergencyEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -539,7 +572,8 @@
   name: dl-apt-utility-toolboxartistic
   entity: DLAptUtilityToolboxArtisticEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -555,7 +589,8 @@
   name: dl-apt-utility-handlabeler
   entity: DLAptUtilityHandLabelerEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -571,7 +606,8 @@
   name: dl-apt-utility-lightreplacer
   entity: DLAptUtilityLightReplacerEntity
   category: Инструменты
-  price: 0
+  price: 65
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -587,7 +623,8 @@
   name: dl-apt-utility-fireextinguisher
   entity: DLAptUtilityFireExtinguisherEntity
   category: Инструменты
-  price: 0
+  price: 45
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -603,7 +640,8 @@
   name: dl-apt-utility-chair
   entity: DLAptUtilityChairEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -619,7 +657,8 @@
   name: dl-apt-utility-chairblack
   entity: DLAptUtilityChairBlackEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -635,7 +674,8 @@
   name: dl-apt-utility-chairwood
   entity: DLAptUtilityChairWoodEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -651,7 +691,8 @@
   name: dl-apt-utility-chairofficelight
   entity: DLAptUtilityChairOfficeLightEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -667,7 +708,8 @@
   name: dl-apt-utility-chairofficedark
   entity: DLAptUtilityChairOfficeDarkEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -683,7 +725,8 @@
   name: dl-apt-utility-chairfolding
   entity: DLAptUtilityChairFoldingEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -699,7 +742,8 @@
   name: dl-apt-utility-stool
   entity: DLAptUtilityStoolEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -715,7 +759,8 @@
   name: dl-apt-utility-stoolbar
   entity: DLAptUtilityStoolBarEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -731,7 +776,8 @@
   name: dl-apt-utility-comfychair
   entity: DLAptUtilityComfyChairEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -747,7 +793,8 @@
   name: dl-apt-utility-steelbench
   entity: DLAptUtilitySteelBenchEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -763,7 +810,8 @@
   name: dl-apt-utility-woodenbench
   entity: DLAptUtilityWoodenBenchEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -779,7 +827,8 @@
   name: dl-apt-utility-benchcomfy
   entity: DLAptUtilityBenchComfyEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -795,7 +844,8 @@
   name: dl-apt-utility-benchredcomfy
   entity: DLAptUtilityBenchRedComfyEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -811,7 +861,8 @@
   name: dl-apt-utility-benchbluecomfy
   entity: DLAptUtilityBenchBlueComfyEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -827,7 +878,8 @@
   name: dl-apt-utility-bed
   entity: DLAptUtilityBedEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -843,7 +895,8 @@
   name: dl-apt-utility-dogbed
   entity: DLAptUtilityDogBedEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -859,7 +912,8 @@
   name: dl-apt-utility-mattress
   entity: DLAptUtilityMattressEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -875,7 +929,8 @@
   name: dl-apt-utility-psychbed
   entity: DLAptUtilityPsychBedEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -891,7 +946,8 @@
   name: dl-apt-utility-table
   entity: DLAptUtilityTableEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -907,7 +963,8 @@
   name: dl-apt-utility-tablewood
   entity: DLAptUtilityTableWoodEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -923,7 +980,8 @@
   name: dl-apt-utility-tableglass
   entity: DLAptUtilityTableGlassEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -939,7 +997,8 @@
   name: dl-apt-utility-tablereinforced
   entity: DLAptUtilityTableReinforcedEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -955,7 +1014,8 @@
   name: dl-apt-utility-tablecountermetal
   entity: DLAptUtilityTableCounterMetalEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -971,7 +1031,8 @@
   name: dl-apt-utility-tablecounterwood
   entity: DLAptUtilityTableCounterWoodEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -987,7 +1048,8 @@
   name: dl-apt-utility-tablecarpet
   entity: DLAptUtilityTableCarpetEntity
   category: Мебель
-  price: 0
+  price: 50
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1003,7 +1065,8 @@
   name: dl-apt-utility-lamp
   entity: DLAptUtilityLampEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1019,7 +1082,8 @@
   name: dl-apt-utility-lampgold
   entity: DLAptUtilityLampGoldEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1035,7 +1099,8 @@
   name: dl-apt-utility-lantern
   entity: DLAptUtilityLanternEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1051,39 +1116,8 @@
   name: dl-apt-utility-flashlightlantern
   entity: DLAptUtilityFlashlightLanternEntity
   category: Освещение
-  price: 0
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-- type: entity
-  id: DLAptUtilityLightBulbEntity
-  parent: LightBulb
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityLightBulb
-  name: dl-apt-utility-lightbulb
-  entity: DLAptUtilityLightBulbEntity
-  category: Освещение
-  price: 0
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-- type: entity
-  id: DLAptUtilityLightTubeEntity
-  parent: LightTube
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityLightTube
-  name: dl-apt-utility-lighttube
-  entity: DLAptUtilityLightTubeEntity
-  category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1099,7 +1133,8 @@
   name: dl-apt-utility-glowstickred
   entity: DLAptUtilityGlowstickRedEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1115,7 +1150,8 @@
   name: dl-apt-utility-glowstickpurple
   entity: DLAptUtilityGlowstickPurpleEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1131,7 +1167,8 @@
   name: dl-apt-utility-glowstickyellow
   entity: DLAptUtilityGlowstickYellowEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1147,7 +1184,8 @@
   name: dl-apt-utility-glowstickblue
   entity: DLAptUtilityGlowstickBlueEntity
   category: Освещение
-  price: 0
+  price: 28
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1163,7 +1201,8 @@
   name: dl-apt-utility-pottedplant0
   entity: DLAptUtilityPottedPlant0Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1179,7 +1218,8 @@
   name: dl-apt-utility-pottedplant1
   entity: DLAptUtilityPottedPlant1Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1195,7 +1235,8 @@
   name: dl-apt-utility-pottedplant2
   entity: DLAptUtilityPottedPlant2Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1211,7 +1252,8 @@
   name: dl-apt-utility-pottedplant3
   entity: DLAptUtilityPottedPlant3Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1227,7 +1269,8 @@
   name: dl-apt-utility-pottedplant4
   entity: DLAptUtilityPottedPlant4Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1243,7 +1286,8 @@
   name: dl-apt-utility-pottedplant5
   entity: DLAptUtilityPottedPlant5Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1259,7 +1303,8 @@
   name: dl-apt-utility-pottedplant6
   entity: DLAptUtilityPottedPlant6Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1275,7 +1320,8 @@
   name: dl-apt-utility-pottedplant7
   entity: DLAptUtilityPottedPlant7Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1291,7 +1337,8 @@
   name: dl-apt-utility-pottedplant8
   entity: DLAptUtilityPottedPlant8Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1307,7 +1354,8 @@
   name: dl-apt-utility-pottedplant10
   entity: DLAptUtilityPottedPlant10Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1323,7 +1371,8 @@
   name: dl-apt-utility-pottedplant11
   entity: DLAptUtilityPottedPlant11Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1339,7 +1388,8 @@
   name: dl-apt-utility-pottedplant12
   entity: DLAptUtilityPottedPlant12Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1355,7 +1405,8 @@
   name: dl-apt-utility-pottedplant13
   entity: DLAptUtilityPottedPlant13Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1371,7 +1422,8 @@
   name: dl-apt-utility-pottedplant14
   entity: DLAptUtilityPottedPlant14Entity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1387,151 +1439,8 @@
   name: dl-apt-utility-pottedplant15
   entity: DLAptUtilityPottedPlant15Entity
   category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetEntity
-  parent: Carpet
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpet
-  name: dl-apt-utility-carpet
-  entity: DLAptUtilityCarpetEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetBlackEntity
-  parent: CarpetBlack
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlack
-  name: dl-apt-utility-carpetblack
-  entity: DLAptUtilityCarpetBlackEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetPinkEntity
-  parent: CarpetPink
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetPink
-  name: dl-apt-utility-carpetpink
-  entity: DLAptUtilityCarpetPinkEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetBlueEntity
-  parent: CarpetBlue
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlue
-  name: dl-apt-utility-carpetblue
-  entity: DLAptUtilityCarpetBlueEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetGreenEntity
-  parent: CarpetGreen
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetGreen
-  name: dl-apt-utility-carpetgreen
-  entity: DLAptUtilityCarpetGreenEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetOrangeEntity
-  parent: CarpetOrange
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetOrange
-  name: dl-apt-utility-carpetorange
-  entity: DLAptUtilityCarpetOrangeEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetPurpleEntity
-  parent: CarpetPurple
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetPurple
-  name: dl-apt-utility-carpetpurple
-  entity: DLAptUtilityCarpetPurpleEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetCyanEntity
-  parent: CarpetCyan
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetCyan
-  name: dl-apt-utility-carpetcyan
-  entity: DLAptUtilityCarpetCyanEntity
-  category: Декор и растения
-  price: 0
-  maxCount: 8
-  blocksMovement: true
-  allowsOverlap: false
-- type: entity
-  id: DLAptUtilityCarpetWhiteEntity
-  parent: CarpetWhite
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetWhite
-  name: dl-apt-utility-carpetwhite
-  entity: DLAptUtilityCarpetWhiteEntity
-  category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1547,7 +1456,8 @@
   name: dl-apt-utility-curtainsblack
   entity: DLAptUtilityCurtainsBlackEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1564,7 +1474,8 @@
   name: dl-apt-utility-curtainsblue
   entity: DLAptUtilityCurtainsBlueEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1581,7 +1492,8 @@
   name: dl-apt-utility-curtainscyan
   entity: DLAptUtilityCurtainsCyanEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1598,7 +1510,8 @@
   name: dl-apt-utility-curtainsgreen
   entity: DLAptUtilityCurtainsGreenEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1615,7 +1528,8 @@
   name: dl-apt-utility-curtainsorange
   entity: DLAptUtilityCurtainsOrangeEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1632,7 +1546,8 @@
   name: dl-apt-utility-curtainspink
   entity: DLAptUtilityCurtainsPinkEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1649,7 +1564,8 @@
   name: dl-apt-utility-curtainspurple
   entity: DLAptUtilityCurtainsPurpleEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1666,7 +1582,8 @@
   name: dl-apt-utility-curtainsred
   entity: DLAptUtilityCurtainsRedEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1683,7 +1600,8 @@
   name: dl-apt-utility-curtainswhite
   entity: DLAptUtilityCurtainsWhiteEntity
   category: Декор и растения
-  price: 0
+  price: 18
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1702,7 +1620,8 @@
   name: dl-apt-utility-kitchenmicrowave
   entity: DLAptUtilityKitchenMicrowaveEntity
   category: Кухня и посуда
-  price: 0
+  price: 140
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1720,7 +1639,8 @@
   name: dl-apt-utility-kitchenreagentgrinder
   entity: DLAptUtilityKitchenReagentGrinderEntity
   category: Кухня и посуда
-  price: 0
+  price: 160
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1738,7 +1658,8 @@
   name: dl-apt-utility-kitchenelectricgrill
   entity: DLAptUtilityKitchenElectricGrillEntity
   category: Кухня и посуда
-  price: 0
+  price: 180
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1756,7 +1677,8 @@
   name: dl-apt-utility-kitchendeepfryer
   entity: DLAptUtilityKitchenDeepFryerEntity
   category: Кухня и посуда
-  price: 0
+  price: 200
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -1774,7 +1696,8 @@
   name: dl-apt-utility-kitchenassembler
   entity: DLAptUtilityKitchenAssemblerEntity
   category: Кухня и посуда
-  price: 0
+  price: 250
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1790,7 +1713,8 @@
   name: dl-apt-utility-drinkmug
   entity: DLAptUtilityDrinkMugEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1806,7 +1730,8 @@
   name: dl-apt-utility-drinkmugblack
   entity: DLAptUtilityDrinkMugBlackEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1822,7 +1747,8 @@
   name: dl-apt-utility-drinkmugred
   entity: DLAptUtilityDrinkMugRedEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1838,7 +1764,8 @@
   name: dl-apt-utility-drinkmugblue
   entity: DLAptUtilityDrinkMugBlueEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1854,7 +1781,8 @@
   name: dl-apt-utility-drinkmuggreen
   entity: DLAptUtilityDrinkMugGreenEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1870,7 +1798,8 @@
   name: dl-apt-utility-drinkglass
   entity: DLAptUtilityDrinkGlassEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1886,7 +1815,8 @@
   name: dl-apt-utility-foodplate
   entity: DLAptUtilityFoodPlateEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1902,7 +1832,8 @@
   name: dl-apt-utility-foodplatesmall
   entity: DLAptUtilityFoodPlateSmallEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1918,7 +1849,8 @@
   name: dl-apt-utility-foodplateplastic
   entity: DLAptUtilityFoodPlatePlasticEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1934,7 +1866,8 @@
   name: dl-apt-utility-foodplatesmallplastic
   entity: DLAptUtilityFoodPlateSmallPlasticEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1950,7 +1883,8 @@
   name: dl-apt-utility-foodbowlbig
   entity: DLAptUtilityFoodBowlBigEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1966,7 +1900,8 @@
   name: dl-apt-utility-foodbowlfancy
   entity: DLAptUtilityFoodBowlFancyEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1982,7 +1917,8 @@
   name: dl-apt-utility-fork
   entity: DLAptUtilityForkEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -1998,7 +1934,8 @@
   name: dl-apt-utility-spoon
   entity: DLAptUtilitySpoonEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2014,7 +1951,8 @@
   name: dl-apt-utility-kitchenknife
   entity: DLAptUtilityKitchenKnifeEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2030,7 +1968,8 @@
   name: dl-apt-utility-rollingpin
   entity: DLAptUtilityRollingPinEntity
   category: Кухня и посуда
-  price: 0
+  price: 12
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2046,7 +1985,8 @@
   name: dl-apt-utility-bookshelf
   entity: DLAptUtilityBookshelfEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2062,7 +2002,8 @@
   name: dl-apt-utility-rack
   entity: DLAptUtilityRackEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2078,7 +2019,8 @@
   name: dl-apt-utility-rackblack
   entity: DLAptUtilityRackBlackEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2094,7 +2036,8 @@
   name: dl-apt-utility-crategenericsteel
   entity: DLAptUtilityCrateGenericSteelEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2110,7 +2053,8 @@
   name: dl-apt-utility-crateplastic
   entity: DLAptUtilityCratePlasticEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2126,7 +2070,8 @@
   name: dl-apt-utility-cratewood
   entity: DLAptUtilityCrateWoodEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2142,7 +2087,8 @@
   name: dl-apt-utility-cratefreezer
   entity: DLAptUtilityCrateFreezerEntity
   category: Хранение
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2158,7 +2104,8 @@
   name: dl-apt-utility-cratetrashcart
   entity: DLAptUtilityCrateTrashCartEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2174,7 +2121,8 @@
   name: dl-apt-utility-wardrobeblue
   entity: DLAptUtilityWardrobeBlueEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2190,7 +2138,8 @@
   name: dl-apt-utility-wardrobepink
   entity: DLAptUtilityWardrobePinkEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2206,7 +2155,8 @@
   name: dl-apt-utility-wardrobeblack
   entity: DLAptUtilityWardrobeBlackEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2222,7 +2172,8 @@
   name: dl-apt-utility-wardrobegreen
   entity: DLAptUtilityWardrobeGreenEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2238,7 +2189,8 @@
   name: dl-apt-utility-wardrobeyellow
   entity: DLAptUtilityWardrobeYellowEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2254,7 +2206,8 @@
   name: dl-apt-utility-wardrobewhite
   entity: DLAptUtilityWardrobeWhiteEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2270,7 +2223,8 @@
   name: dl-apt-utility-wardrobegrey
   entity: DLAptUtilityWardrobeGreyEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2286,7 +2240,8 @@
   name: dl-apt-utility-wardrobemixed
   entity: DLAptUtilityWardrobeMixedEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2302,7 +2257,8 @@
   name: dl-apt-utility-closettool
   entity: DLAptUtilityClosetToolEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2318,7 +2274,8 @@
   name: dl-apt-utility-closetjanitor
   entity: DLAptUtilityClosetJanitorEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2334,7 +2291,8 @@
   name: dl-apt-utility-closetchef
   entity: DLAptUtilityClosetChefEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2350,7 +2308,8 @@
   name: dl-apt-utility-filingcabinet
   entity: DLAptUtilityfilingCabinetEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2366,7 +2325,8 @@
   name: dl-apt-utility-filingcabinettall
   entity: DLAptUtilityfilingCabinetTallEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2382,7 +2342,8 @@
   name: dl-apt-utility-filingcabinetdrawer
   entity: DLAptUtilityfilingCabinetDrawerEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2398,7 +2359,8 @@
   name: dl-apt-utility-paperbin
   entity: DLAptUtilityPaperBinEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2414,7 +2376,8 @@
   name: dl-apt-utility-bigbox
   entity: DLAptUtilityBigBoxEntity
   category: Хранение
-  price: 0
+  price: 55
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2430,7 +2393,8 @@
   name: dl-apt-utility-sink
   entity: DLAptUtilitySinkEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2446,7 +2410,8 @@
   name: dl-apt-utility-sinkwide
   entity: DLAptUtilitySinkWideEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2462,7 +2427,8 @@
   name: dl-apt-utility-sinkstemless
   entity: DLAptUtilitySinkStemlessEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2480,7 +2446,8 @@
   name: dl-apt-utility-toiletempty
   entity: DLAptUtilityToiletEmptyEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -2498,7 +2465,8 @@
   name: dl-apt-utility-toiletgoldenempty
   entity: DLAptUtilityToiletGoldenEmptyEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: false
@@ -2514,7 +2482,8 @@
   name: dl-apt-utility-watercooler
   entity: DLAptUtilityWaterCoolerEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2530,7 +2499,8 @@
   name: dl-apt-utility-watertank
   entity: DLAptUtilityWaterTankEntity
   category: Сантехника
-  price: 0
+  price: 95
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2546,7 +2516,8 @@
   name: dl-apt-utility-watertankhighcapacity
   entity: DLAptUtilityWaterTankHighCapacityEntity
   category: Сантехника
-  price: 0
+  price: 160
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2564,7 +2535,8 @@
   name: dl-apt-utility-computertelevision
   entity: DLAptUtilityComputerTelevisionEntity
   category: Электроника
-  price: 0
+  price: 90
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2582,7 +2554,8 @@
   name: dl-apt-utility-jukebox
   entity: DLAptUtilityJukeboxEntity
   category: Электроника
-  price: 0
+  price: 200
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2600,7 +2573,8 @@
   name: dl-apt-utility-blockgamearcade
   entity: DLAptUtilityBlockGameArcadeEntity
   category: Электроника
-  price: 0
+  price: 180
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2618,7 +2592,8 @@
   name: dl-apt-utility-spacevillainarcade
   entity: DLAptUtilitySpaceVillainArcadeEntity
   category: Электроника
-  price: 0
+  price: 220
+  legacyFree: true
   maxCount: 8
   blocksMovement: true
   allowsOverlap: false
@@ -2636,7 +2611,8 @@
   name: dl-apt-utility-intercomcommon
   entity: DLAptUtilityIntercomCommonEntity
   category: Электроника
-  price: 0
+  price: 90
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2653,7 +2629,8 @@
   name: dl-apt-utility-radiohandheld
   entity: DLAptUtilityRadioHandheldEntity
   category: Электроника
-  price: 0
+  price: 90
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2669,7 +2646,8 @@
   name: dl-apt-utility-handheldgpsbasic
   entity: DLAptUtilityHandheldGPSBasicEntity
   category: Электроника
-  price: 0
+  price: 90
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2685,7 +2663,8 @@
   name: dl-apt-utility-remotesignaller
   entity: DLAptUtilityRemoteSignallerEntity
   category: Электроника
-  price: 0
+  price: 90
+  legacyFree: true
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -2703,7 +2682,8 @@
   name: dl-apt-utility-vendingmachinecoffee
   entity: DLAptUtilityVendingMachineCoffeeEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2721,7 +2701,8 @@
   name: dl-apt-utility-vendingmachinecola
   entity: DLAptUtilityVendingMachineColaEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2739,7 +2720,8 @@
   name: dl-apt-utility-vendingmachinecolablack
   entity: DLAptUtilityVendingMachineColaBlackEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2757,7 +2739,8 @@
   name: dl-apt-utility-vendingmachinecolared
   entity: DLAptUtilityVendingMachineColaRedEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2775,7 +2758,8 @@
   name: dl-apt-utility-vendingmachinespaceup
   entity: DLAptUtilityVendingMachineSpaceUpEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2793,7 +2777,8 @@
   name: dl-apt-utility-vendingmachinesoda
   entity: DLAptUtilityVendingMachineSodaEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2811,7 +2796,8 @@
   name: dl-apt-utility-vendingmachinestarkist
   entity: DLAptUtilityVendingMachineStarkistEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2829,7 +2815,8 @@
   name: dl-apt-utility-vendingmachineshamblersjuice
   entity: DLAptUtilityVendingMachineShamblersJuiceEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2847,7 +2834,8 @@
   name: dl-apt-utility-vendingmachinepwrgame
   entity: DLAptUtilityVendingMachinePwrGameEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2865,7 +2853,8 @@
   name: dl-apt-utility-vendingmachinedrgibb
   entity: DLAptUtilityVendingMachineDrGibbEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2883,7 +2872,8 @@
   name: dl-apt-utility-vendingmachinesmite
   entity: DLAptUtilityVendingMachineSmiteEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2901,7 +2891,8 @@
   name: dl-apt-utility-vendingmachinesnack
   entity: DLAptUtilityVendingMachineSnackEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2919,7 +2910,8 @@
   name: dl-apt-utility-vendingmachinesnackblue
   entity: DLAptUtilityVendingMachineSnackBlueEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2937,7 +2929,8 @@
   name: dl-apt-utility-vendingmachinesnackorange
   entity: DLAptUtilityVendingMachineSnackOrangeEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2955,7 +2948,8 @@
   name: dl-apt-utility-vendingmachinesnackgreen
   entity: DLAptUtilityVendingMachineSnackGreenEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2973,7 +2967,8 @@
   name: dl-apt-utility-vendingmachinesnackteal
   entity: DLAptUtilityVendingMachineSnackTealEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -2991,7 +2986,8 @@
   name: dl-apt-utility-vendingmachinecondiments
   entity: DLAptUtilityVendingMachineCondimentsEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3009,7 +3005,8 @@
   name: dl-apt-utility-vendingmachinedinnerware
   entity: DLAptUtilityVendingMachineDinnerwareEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3027,7 +3024,8 @@
   name: dl-apt-utility-vendingmachinechefvend
   entity: DLAptUtilityVendingMachineChefvendEntity
   category: Торговые автоматы
-  price: 0
+  price: 500
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3045,7 +3043,8 @@
   name: dl-apt-utility-vendingmachinedonut
   entity: DLAptUtilityVendingMachineDonutEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3063,7 +3062,8 @@
   name: dl-apt-utility-vendingmachinegames
   entity: DLAptUtilityVendingMachineGamesEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3081,7 +3081,8 @@
   name: dl-apt-utility-vendingmachineyoutool
   entity: DLAptUtilityVendingMachineYouToolEntity
   category: Торговые автоматы
-  price: 0
+  price: 500
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3099,7 +3100,8 @@
   name: dl-apt-utility-vendingmachineclothing
   entity: DLAptUtilityVendingMachineClothingEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3117,7 +3119,8 @@
   name: dl-apt-utility-vendingmachinejanidrobe
   entity: DLAptUtilityVendingMachineJaniDrobeEntity
   category: Торговые автоматы
-  price: 0
+  price: 500
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3135,7 +3138,8 @@
   name: dl-apt-utility-vendingmachinepottedplantvend
   entity: DLAptUtilityVendingMachinePottedPlantVendEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
@@ -3153,7 +3157,1025 @@
   name: dl-apt-utility-vendingmachineautotunevend
   entity: DLAptUtilityVendingMachineAutoTuneVendEntity
   category: Торговые автоматы
-  price: 0
+  price: 450
+  legacyFree: true
   maxCount: 2
   blocksMovement: true
   allowsOverlap: false
+- type: entity
+  id: DLAptUtilityDimLightBulbEntity
+  parent: DimLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityDimLightBulb
+  name: dl-apt-utility-dimlightbulb
+  entity: DLAptUtilityDimLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityExteriorLightBulbEntity
+  parent: ExteriorLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityExteriorLightBulb
+  name: dl-apt-utility-exteriorlightbulb
+  entity: DLAptUtilityExteriorLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityExteriorLightTubeEntity
+  parent: ExteriorLightTube
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityExteriorLightTube
+  name: dl-apt-utility-exteriorlighttube
+  entity: DLAptUtilityExteriorLightTubeEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLedLightBulbEntity
+  parent: LedLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLedLightBulb
+  name: dl-apt-utility-ledlightbulb
+  entity: DLAptUtilityLedLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLedLightTubeEntity
+  parent: LedLightTube
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLedLightTube
+  name: dl-apt-utility-ledlighttube
+  entity: DLAptUtilityLedLightTubeEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbEntity
+  parent: LightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulb
+  name: dl-apt-utility-lightbulb
+  entity: DLAptUtilityLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbBrokenEntity
+  parent: LightBulbBroken
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbBroken
+  name: dl-apt-utility-lightbulbbroken
+  entity: DLAptUtilityLightBulbBrokenEntity
+  category: Лампочки и трубки
+  price: 1
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Entity
+  parent: LightBulbBrokenBitrunArt2472c41e9c33
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33
+  name: dl-apt-utility-lightbulbbrokenbitrunart2472c41e9c33
+  entity: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Entity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3dEntity
+  parent: LightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3d
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3d
+  name: dl-apt-utility-lightbulbbrokenbitrunart2472c41e9c33placement4a65a90c3e3d
+  entity: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3dEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalBlueEntity
+  parent: LightBulbCrystalBlue
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalBlue
+  name: dl-apt-utility-lightbulbcrystalblue
+  entity: DLAptUtilityLightBulbCrystalBlueEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalCyanEntity
+  parent: LightBulbCrystalCyan
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalCyan
+  name: dl-apt-utility-lightbulbcrystalcyan
+  entity: DLAptUtilityLightBulbCrystalCyanEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalGreenEntity
+  parent: LightBulbCrystalGreen
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalGreen
+  name: dl-apt-utility-lightbulbcrystalgreen
+  entity: DLAptUtilityLightBulbCrystalGreenEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalOrangeEntity
+  parent: LightBulbCrystalOrange
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalOrange
+  name: dl-apt-utility-lightbulbcrystalorange
+  entity: DLAptUtilityLightBulbCrystalOrangeEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalPinkEntity
+  parent: LightBulbCrystalPink
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalPink
+  name: dl-apt-utility-lightbulbcrystalpink
+  entity: DLAptUtilityLightBulbCrystalPinkEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbCrystalRedEntity
+  parent: LightBulbCrystalRed
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbCrystalRed
+  name: dl-apt-utility-lightbulbcrystalred
+  entity: DLAptUtilityLightBulbCrystalRedEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightBulbOldEntity
+  parent: LightBulbOld
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightBulbOld
+  name: dl-apt-utility-lightbulbold
+  entity: DLAptUtilityLightBulbOldEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeEntity
+  parent: LightTube
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTube
+  name: dl-apt-utility-lighttube
+  entity: DLAptUtilityLightTubeEntity
+  category: Лампочки и трубки
+  price: 8
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeBrokenEntity
+  parent: LightTubeBroken
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeBroken
+  name: dl-apt-utility-lighttubebroken
+  entity: DLAptUtilityLightTubeBrokenEntity
+  category: Лампочки и трубки
+  price: 1
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeBrokenBitrunArted54fae8211bEntity
+  parent: LightTubeBrokenBitrunArted54fae8211b
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeBrokenBitrunArted54fae8211b
+  name: dl-apt-utility-lighttubebrokenbitrunarted54fae8211b
+  entity: DLAptUtilityLightTubeBrokenBitrunArted54fae8211bEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalBlackEntity
+  parent: LightTubeCrystalBlack
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalBlack
+  name: dl-apt-utility-lighttubecrystalblack
+  entity: DLAptUtilityLightTubeCrystalBlackEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalBlueEntity
+  parent: LightTubeCrystalBlue
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalBlue
+  name: dl-apt-utility-lighttubecrystalblue
+  entity: DLAptUtilityLightTubeCrystalBlueEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalCyanEntity
+  parent: LightTubeCrystalCyan
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalCyan
+  name: dl-apt-utility-lighttubecrystalcyan
+  entity: DLAptUtilityLightTubeCrystalCyanEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalGreenEntity
+  parent: LightTubeCrystalGreen
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalGreen
+  name: dl-apt-utility-lighttubecrystalgreen
+  entity: DLAptUtilityLightTubeCrystalGreenEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalOrangeEntity
+  parent: LightTubeCrystalOrange
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalOrange
+  name: dl-apt-utility-lighttubecrystalorange
+  entity: DLAptUtilityLightTubeCrystalOrangeEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalPinkEntity
+  parent: LightTubeCrystalPink
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalPink
+  name: dl-apt-utility-lighttubecrystalpink
+  entity: DLAptUtilityLightTubeCrystalPinkEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeCrystalRedEntity
+  parent: LightTubeCrystalRed
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeCrystalRed
+  name: dl-apt-utility-lighttubecrystalred
+  entity: DLAptUtilityLightTubeCrystalRedEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityLightTubeOldEntity
+  parent: LightTubeOld
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityLightTubeOld
+  name: dl-apt-utility-lighttubeold
+  entity: DLAptUtilityLightTubeOldEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityServiceLightBulbEntity
+  parent: ServiceLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityServiceLightBulb
+  name: dl-apt-utility-servicelightbulb
+  entity: DLAptUtilityServiceLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilitySodiumLightBulbEntity
+  parent: SodiumLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilitySodiumLightBulb
+  name: dl-apt-utility-sodiumlightbulb
+  entity: DLAptUtilitySodiumLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilitySodiumLightTubeEntity
+  parent: SodiumLightTube
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilitySodiumLightTube
+  name: dl-apt-utility-sodiumlighttube
+  entity: DLAptUtilitySodiumLightTubeEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityWarmLightBulbEntity
+  parent: WarmLightBulb
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityWarmLightBulb
+  name: dl-apt-utility-warmlightbulb
+  entity: DLAptUtilityWarmLightBulbEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityCarpetEntity
+  parent: Carpet
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpet
+  name: dl-apt-utility-carpet
+  entity: DLAptUtilityCarpetEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBitrunArt1e0202ad1c13Entity
+  parent: CarpetBitrunArt1e0202ad1c13
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBitrunArt1e0202ad1c13
+  name: dl-apt-utility-carpetbitrunart1e0202ad1c13
+  entity: DLAptUtilityCarpetBitrunArt1e0202ad1c13Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBitrunArt7fb631ef22a9Entity
+  parent: CarpetBitrunArt7fb631ef22a9
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBitrunArt7fb631ef22a9
+  name: dl-apt-utility-carpetbitrunart7fb631ef22a9
+  entity: DLAptUtilityCarpetBitrunArt7fb631ef22a9Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlackEntity
+  parent: CarpetBlack
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlack
+  name: dl-apt-utility-carpetblack
+  entity: DLAptUtilityCarpetBlackEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlackBitrunArtb08f196b221aEntity
+  parent: CarpetBlackBitrunArtb08f196b221a
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlackBitrunArtb08f196b221a
+  name: dl-apt-utility-carpetblackbitrunartb08f196b221a
+  entity: DLAptUtilityCarpetBlackBitrunArtb08f196b221aEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueEntity
+  parent: CarpetBlue
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlue
+  name: dl-apt-utility-carpetblue
+  entity: DLAptUtilityCarpetBlueEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt001ff06ce051Entity
+  parent: CarpetBlueBitrunArt001ff06ce051
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt001ff06ce051
+  name: dl-apt-utility-carpetbluebitrunart001ff06ce051
+  entity: DLAptUtilityCarpetBlueBitrunArt001ff06ce051Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt20d1f7623aadEntity
+  parent: CarpetBlueBitrunArt20d1f7623aad
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt20d1f7623aad
+  name: dl-apt-utility-carpetbluebitrunart20d1f7623aad
+  entity: DLAptUtilityCarpetBlueBitrunArt20d1f7623aadEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt21beb807e445Entity
+  parent: CarpetBlueBitrunArt21beb807e445
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt21beb807e445
+  name: dl-apt-utility-carpetbluebitrunart21beb807e445
+  entity: DLAptUtilityCarpetBlueBitrunArt21beb807e445Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt285f2fb5627eEntity
+  parent: CarpetBlueBitrunArt285f2fb5627e
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt285f2fb5627e
+  name: dl-apt-utility-carpetbluebitrunart285f2fb5627e
+  entity: DLAptUtilityCarpetBlueBitrunArt285f2fb5627eEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt38240a2db7dcEntity
+  parent: CarpetBlueBitrunArt38240a2db7dc
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt38240a2db7dc
+  name: dl-apt-utility-carpetbluebitrunart38240a2db7dc
+  entity: DLAptUtilityCarpetBlueBitrunArt38240a2db7dcEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6Entity
+  parent: CarpetBlueBitrunArt3c098c4b93a6
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6
+  name: dl-apt-utility-carpetbluebitrunart3c098c4b93a6
+  entity: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700acEntity
+  parent: CarpetBlueBitrunArt4bf4b7a700ac
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700ac
+  name: dl-apt-utility-carpetbluebitrunart4bf4b7a700ac
+  entity: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700acEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt5960439d98eeEntity
+  parent: CarpetBlueBitrunArt5960439d98ee
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt5960439d98ee
+  name: dl-apt-utility-carpetbluebitrunart5960439d98ee
+  entity: DLAptUtilityCarpetBlueBitrunArt5960439d98eeEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt840163e44a74Entity
+  parent: CarpetBlueBitrunArt840163e44a74
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt840163e44a74
+  name: dl-apt-utility-carpetbluebitrunart840163e44a74
+  entity: DLAptUtilityCarpetBlueBitrunArt840163e44a74Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20Entity
+  parent: CarpetBlueBitrunArt90d6c0e85b20
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20
+  name: dl-apt-utility-carpetbluebitrunart90d6c0e85b20
+  entity: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArtc42340b18973Entity
+  parent: CarpetBlueBitrunArtc42340b18973
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArtc42340b18973
+  name: dl-apt-utility-carpetbluebitrunartc42340b18973
+  entity: DLAptUtilityCarpetBlueBitrunArtc42340b18973Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArtce2264015648Entity
+  parent: CarpetBlueBitrunArtce2264015648
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArtce2264015648
+  name: dl-apt-utility-carpetbluebitrunartce2264015648
+  entity: DLAptUtilityCarpetBlueBitrunArtce2264015648Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetBlueBitrunArte3107f5213fdEntity
+  parent: CarpetBlueBitrunArte3107f5213fd
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetBlueBitrunArte3107f5213fd
+  name: dl-apt-utility-carpetbluebitrunarte3107f5213fd
+  entity: DLAptUtilityCarpetBlueBitrunArte3107f5213fdEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetCyanEntity
+  parent: CarpetCyan
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetCyan
+  name: dl-apt-utility-carpetcyan
+  entity: DLAptUtilityCarpetCyanEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetCyanBitrunArtffc47b617db1Entity
+  parent: CarpetCyanBitrunArtffc47b617db1
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetCyanBitrunArtffc47b617db1
+  name: dl-apt-utility-carpetcyanbitrunartffc47b617db1
+  entity: DLAptUtilityCarpetCyanBitrunArtffc47b617db1Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetGreenEntity
+  parent: CarpetGreen
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetGreen
+  name: dl-apt-utility-carpetgreen
+  entity: DLAptUtilityCarpetGreenEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16Entity
+  parent: CarpetGreenBitrunArtff3f64ecec16
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16
+  name: dl-apt-utility-carpetgreenbitrunartff3f64ecec16
+  entity: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetOrangeEntity
+  parent: CarpetOrange
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetOrange
+  name: dl-apt-utility-carpetorange
+  entity: DLAptUtilityCarpetOrangeEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetOrangeBitrunArta920aaf887cfEntity
+  parent: CarpetOrangeBitrunArta920aaf887cf
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetOrangeBitrunArta920aaf887cf
+  name: dl-apt-utility-carpetorangebitrunarta920aaf887cf
+  entity: DLAptUtilityCarpetOrangeBitrunArta920aaf887cfEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetPinkEntity
+  parent: CarpetPink
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetPink
+  name: dl-apt-utility-carpetpink
+  entity: DLAptUtilityCarpetPinkEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetPurpleEntity
+  parent: CarpetPurple
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetPurple
+  name: dl-apt-utility-carpetpurple
+  entity: DLAptUtilityCarpetPurpleEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69Entity
+  parent: CarpetPurpleBitrunArt4c8cc20e0d69
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69
+  name: dl-apt-utility-carpetpurplebitrunart4c8cc20e0d69
+  entity: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetSBlueEntity
+  parent: CarpetSBlue
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetSBlue
+  name: dl-apt-utility-carpetsblue
+  entity: DLAptUtilityCarpetSBlueEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityCarpetWhiteEntity
+  parent: CarpetWhite
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityCarpetWhite
+  name: dl-apt-utility-carpetwhite
+  entity: DLAptUtilityCarpetWhiteEntity
+  category: Ковры
+  price: 15
+  legacyFree: true
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor

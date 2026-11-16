@@ -6,11 +6,13 @@ namespace Content.Client._DeepLagoon.WebUI;
 
 public sealed partial class NativeApartmentEditor
 {
+    private const int CommercePageSize = 40;
     private readonly Label _wallet = new() { FontColorOverride = Color.FromHex("#FFC76B") };
     private readonly BoxContainer _commerceRows = NativeInterfacePanel.Column();
     private LineEdit _commerceSearch = default!;
     private TguiData? _nativePurchase;
     private string _nativeOrder = "";
+    private int _commercePage;
 
     private void InitializeCommerce()
     {
@@ -18,7 +20,11 @@ public sealed partial class NativeApartmentEditor
         NativeInterfacePanel.Text(wallet, "Баланс:"); wallet.AddChild(_wallet);
         var search = NativeInterfacePanel.Row(); AddChild(search);
         _commerceSearch = NativeInterfacePanel.Field(search, "Поиск по каталогу");
-        _commerceSearch.OnTextChanged += _ => RenderCommerce();
+        _commerceSearch.OnTextChanged += _ =>
+        {
+            _commercePage = 0;
+            RenderCommerce();
+        };
         var scroll = new ScrollContainer { MaxHeight = 260, HorizontalExpand = true, HScrollEnabled = false };
         scroll.AddChild(_commerceRows); AddChild(scroll);
     }
@@ -47,9 +53,21 @@ public sealed partial class NativeApartmentEditor
             NativeInterfacePanel.Button(_commerceRows, "Повторить загрузку", () => Send("refreshCommerce"));
             return;
         }
-        foreach (var product in _state.Array("products").Where(item => item.String("name").Contains(_commerceSearch.Text, StringComparison.CurrentCultureIgnoreCase)))
+        var products = _state.Array("products").Where(item =>
+            (item.String("name") + " " + item.String("category")).Contains(_commerceSearch.Text, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+        var lastPage = Math.Max(0, (products.Length - 1) / CommercePageSize);
+        _commercePage = Math.Min(_commercePage, lastPage);
+        if (lastPage > 0)
         {
-            if (!long.TryParse(product.String("price"), out var price) || price < 0) continue;
+            var pages = NativeInterfacePanel.Row();
+            _commerceRows.AddChild(pages);
+            NativeInterfacePanel.Button(pages, "Назад", () => { _commercePage--; RenderCommerce(); }, _commercePage > 0);
+            NativeInterfacePanel.Text(pages, $"{_commercePage + 1} / {lastPage + 1}");
+            NativeInterfacePanel.Button(pages, "Далее", () => { _commercePage++; RenderCommerce(); }, _commercePage < lastPage);
+        }
+        foreach (var product in products.Skip(_commercePage * CommercePageSize).Take(CommercePageSize))
+        {
+            if (!long.TryParse(product.String("price"), out var price) || price is < 1 or > 500) continue;
             var box = NativeInterfacePanel.Column(); _commerceRows.AddChild(box);
             NativeInterfacePanel.Text(box, product.String("name") + " · запас " + product.String("stock") + " · " + product.String("packSize") + " шт. за " + price + " LC");
             if (product.Array("variants").Count() > 1) NativeInterfacePanel.Text(box, "Все секции вместе, запас общий. Выберите секцию в списке размещения.");

@@ -163,7 +163,24 @@ const data = JSON.parse(fs.readFileSync(process.env.APARTMENT_EDITOR_SNAPSHOT ||
     await page.getByRole('button', { name: 'Отменить', exact: true }).click();
     assert.equal(await page.locator('.ApartmentEditor footer .primary').isDisabled(), true);
     await page.getByRole('button', { name: 'Все', exact: true }).click();
-    await page.locator('[data-place="DLAptChair"]').click();
+    const search = page.getByRole('searchbox', { name: 'Поиск предметов' });
+    const floor = data.products?.find(item => item.id === 'DLAptFloorFloorWood');
+    if (floor) {
+      await search.fill(floor.name);
+      const purchase = page.locator('[data-buy="DLAptFloorFloorWood"]');
+      assert.match(await purchase.innerText(), /LC/);
+      if (await purchase.isEnabled()) {
+        await purchase.click();
+        const dialog = page.getByRole('dialog', { name: 'Покупка набора мебели' });
+        assert.match(await dialog.innerText(), new RegExp(`${floor.price} LC`));
+        await dialog.getByRole('button', { name: 'Отмена', exact: true }).click();
+      }
+    }
+    const chair = data.catalog.find(item => item.id === 'DLAptChair' && item.maxCount > 0)
+      || data.catalog.find(item => item.id === 'DLAptDecor006' && item.maxCount > 0);
+    assert.ok(chair, 'The fixture must include a purchased chair.');
+    await search.fill(chair.name);
+    await page.locator(`[data-place="${chair.id}"]`).click();
     await page.locator(`[data-cell="${free[1].x},${free[1].y}"]`).click();
     assert.equal(await page.locator('.ApartmentEditor__ghost:not(.hover)').count(), data.layout.length + 1);
     const obstacle = data.scene.occupied.find(cell => !reserved.has(`${cell.x},${cell.y}`) && (cell.x !== data.arrivalX || cell.y !== data.arrivalY));

@@ -1,12 +1,9 @@
 import { EmbeddedSelect } from '../components/EmbeddedSelect';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-const variantsFor = (product, catalog) => (product.variants || [{ id: product.id }])
-  .map(variant => catalog.find(item => item.id === variant.id)).filter(Boolean);
-const stockUsed = (product, draft, catalog) => draft.filter(placement => {
-  const item = catalog.find(entry => entry.id === placement.furniture);
-  return item && !item.existingOnly && (item.product || item.id) === product.id;
-}).length;
+const pageSize = 48;
+const variantsFor = (product, definitions) => (product.variants || [{ id: product.id }])
+  .map(variant => definitions.get(variant.id)).filter(Boolean);
 const priceText = price => `${price.toLocaleString('ru-RU')} LC`;
 
 export const ApartmentBalance = ({ data }) => {
@@ -19,21 +16,33 @@ export const ApartmentBalance = ({ data }) => {
 
 export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected, before, pending, choose, selectExisting, act, Sprite, onPurchaseBusy, storedItems = [], chooseStored }) => {
   const [query, setQuery] = useState(''), [category, setCategory] = useState('all'), [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(0);
   const [active, setActive] = useState(null), [purchase, setPurchase] = useState(null), [quantity, setQuantity] = useState('1');
   const [transaction, setTransaction] = useState(null), [waiting, setWaiting] = useState(false), [error, setError] = useState('');
   const request = useRef(null), sending = useRef(false);
   const catalog = room.catalog;
+  const definitions = useMemo(() => new Map(catalog.map(item => [item.id, item])), [catalog]);
   const products = data.products || catalog.filter(item => !item.existingOnly).map(item => ({
-    id: item.id, name: item.name, category: item.category || 'Мебель', price: item.price || 0,
+    id: item.id, name: item.name, category: item.category || 'Мебель', price: item.price ?? -1,
     packSize: item.maxCount, stock: item.maxCount, variants: [{ id: item.id }],
   }));
   const ready = data.commerceReady === true;
-  const used = product => stockUsed(product, draft, catalog);
+  const countProducts = placements => {
+    const counts = new Map();
+    for (const placement of placements) {
+      const item = definitions.get(placement.furniture);
+      if (!item || item.existingOnly) continue;
+      const key = item.product || item.id;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  };
+  const placed = countProducts(draft), stored = countProducts(storedItems);
   const product = products.find(item => item.id === purchase);
   const unitPrice = transaction?.unitPrice ?? product?.price ?? -1;
   const packs = Number(quantity), total = packs * unitPrice;
   const validQuantity = Number.isInteger(packs) && packs >= 1 && packs <= 2147483647 && product && product.stock + product.packSize * packs <= 2147483647;
-  const validTotal = validQuantity && Number.isSafeInteger(total) && unitPrice >= 0;
+  const validTotal = validQuantity && Number.isSafeInteger(total) && unitPrice >= 1 && unitPrice <= 500;
   let affordable = false, remaining = '—';
   try {
     const balance = BigInt(transaction?.balanceBefore || data.balanceText || String(data.balance ?? -1));
@@ -43,6 +52,7 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
   useEffect(() => {
     request.current = null; sending.current = false; setTransaction(null); setWaiting(false); setPurchase(null); setError('');
   }, [data.token]);
+  useEffect(() => setPage(0), [category, filter, query]);
   useEffect(() => { onPurchaseBusy(!!transaction); return () => onPurchaseBusy(false); }, [transaction, onPurchaseBusy]);
   useEffect(() => {
     if (!transaction || data.commerceOrder !== transaction.order) return;
@@ -66,9 +76,11 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
     act('buyFurniture', { order: intent.order, product: intent.product, quantity: intent.quantity, unitPrice: intent.unitPrice });
   };
   const visible = products.filter(item => (category === 'all' || item.category === category)
-    && (item.name + ' ' + variantsFor(item, catalog).map(variant => variant.name).join(' ')).toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru'))
+    && (item.name + ' ' + variantsFor(item, definitions).map(variant => variant.name).join(' ')).toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru'))
     && (filter === 'all' || (filter === 'owned') === (item.stock > 0)));
   const original = catalog.filter(item => item.existingOnly && item.name.toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru')));
+  const lastPage = Math.max(0, Math.ceil(visible.length / pageSize) - 1);
+  const currentPage = Math.min(page, lastPage);
   return <>
     <aside className="ApartmentEditor__catalog">
       <div className="ApartmentEditor__catalogHead"><h3>Каталог обустройства</h3><input aria-label="Поиск предметов" type="search" value={query} placeholder="Найти предмет…" onFocus={() => act('focus')} onChange={event => setQuery(event.target.value)} />
@@ -80,26 +92,32 @@ export const ApartmentFurnishingCatalog = ({ data, room, draft, brush, selected,
         {filter === 'storage' ? storedItems.filter(item => {
           const def = catalog.find(entry => entry.id === item.furniture);
           return def && (category === 'all' || def.category === category) && def.name.toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru'));
-        }).map(item => { const def = catalog.find(entry => entry.id === item.furniture); return <button key={item.id} data-stored={item.id} disabled={before || pending || !!transaction} onClick={() => chooseStored(item)}><Sprite images={def.images} /><span>{def.name} · Разместить</span></button>; }) : filter === 'original' ? original.map(item => <button key={item.id} data-existing={item.id} className={selected === item.placementId ? 'selected' : ''} disabled={before || pending || !!transaction} onClick={() => selectExisting(item.placementId)}><Sprite images={item.images} /><span>{item.name}</span></button>) : visible.map(item => {
-          const variants = variantsFor(item, catalog), count = used(item), available = item.stock - count;
+        }).map(item => { const def = definitions.get(item.furniture); return <button key={item.id} data-stored={item.id} disabled={before || pending || !!transaction} onClick={() => chooseStored(item)}><Sprite images={def.images} /><span>{def.name} · Разместить</span></button>; }) : filter === 'original' ? original.map(item => <button key={item.id} data-existing={item.id} className={selected === item.placementId ? 'selected' : ''} disabled={before || pending || !!transaction} onClick={() => selectExisting(item.placementId)}><Sprite images={item.images} /><span>{item.name}</span></button>) : visible.slice(currentPage * pageSize, (currentPage + 1) * pageSize).map(item => {
+          const variants = variantsFor(item, definitions), count = placed.get(item.id) || 0;
+          const storedCount = stored.get(item.id) || 0, available = item.stock - count - storedCount;
           const canPlace = !before && !pending && !transaction && available > 0;
-          const canBuy = ready && !pending && !transaction && item.price >= 0 && data.balance >= item.price;
+          const canBuy = ready && !pending && !transaction && item.price >= 1 && item.price <= 500 && data.balance >= item.price;
           const thumbnail = variants.length >= 3 ? [variants[1], variants[0], variants[2]] : variants;
           return <article key={item.id} data-product={item.id} className={variants.some(variant => variant.id === brush) || active === item.id ? 'selected' : ''}>
             <button className="ApartmentEditor__productArt" aria-label={`Выбрать ${item.name}`} onClick={() => setActive(active === item.id ? null : item.id)}>{thumbnail.map(variant => <Sprite key={variant.id} images={variant.images} />)}</button>
             <div className="ApartmentEditor__productBody"><strong>{item.name}</strong>{variants.length > 1 && <small>Все секции вместе · общий запас</small>}<small>{item.stock > 0 ? `На плане: ${count} / ${item.stock}` : `${item.packSize} шт. в наборе`}</small>
-              <button data-place={item.id} disabled={!canPlace} className="place" onClick={() => { setActive(item.id); choose(variants[0].id); }}>{item.stock > 0 ? available > 0 ? 'Разместить' : 'Весь запас размещён' : 'Модель не открыта'}</button>
-              <button data-buy={item.id} className={item.stock > 0 ? 'expand' : 'buy'} disabled={!canBuy} onClick={() => openPurchase(item)}>{item.price < 0 ? 'Загрузка цены…' : item.stock > 0 ? `Ещё +${item.packSize} · ${item.price ? priceText(item.price) : 'бесплатно'}` : `Открыть · ${priceText(item.price)}`}</button>
+              <button data-place={item.id} disabled={!canPlace || !variants.length} className="place" onClick={() => { setActive(item.id); choose(variants[0].id); }}>{item.stock > 0 ? available > 0 ? 'Разместить' : storedCount ? 'Есть в хранилище' : 'Весь запас размещён' : 'Модель не открыта'}</button>
+              <button data-buy={item.id} className={item.stock > 0 ? 'expand' : 'buy'} disabled={!canBuy} onClick={() => openPurchase(item)}>{item.price < 1 ? 'Загрузка цены…' : item.stock > 0 ? `Ещё +${item.packSize} · ${priceText(item.price)}` : `Открыть · ${priceText(item.price)}`}</button>
               {active === item.id && variants.length > 1 && <div className="ApartmentEditor__variants" aria-label="Секции дивана">{variants.map((variant, index) => <button key={variant.id} data-variant={variant.id} disabled={!canPlace} aria-pressed={brush === variant.id} onClick={() => choose(variant.id)}><Sprite images={variant.images} />{variants.length === 4 ? ['Средняя', 'Левая', 'Правая', 'Угловая'][index] : variant.name}</button>)}</div>}
             </div>
           </article>;
         })}
-        {filter !== 'original' && filter !== 'storage' && !visible.length && <p>Предметы не найдены.</p>}
+        {filter !== 'original' && filter !== 'storage' && ready && !visible.length && <p>Предметы не найдены.</p>}
       </div>
+      {filter !== 'original' && filter !== 'storage' && lastPage > 0 && <nav className="ApartmentEditor__filters" aria-label="Страницы каталога">
+        <button disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Назад</button>
+        <span>{currentPage + 1} / {lastPage + 1}</span>
+        <button disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)}>Далее</button>
+      </nav>}
     </aside>
     {product && <div className="ApartmentEditor__veil"><div className="ApartmentEditor__purchase" role="dialog" aria-label="Покупка набора мебели"><h3>{product.stock > 0 ? 'Увеличить запас' : 'Открыть модель'}</h3>
-      <div className="ApartmentEditor__purchaseProduct"><div>{variantsFor(product, catalog).slice(0, 3).map(variant => <Sprite key={variant.id} images={variant.images} />)}</div><strong>{product.name}</strong></div>
-      {variantsFor(product, catalog).length > 1 && <p>Все секции входят в покупку и расходуют общий запас.</p>}
+      <div className="ApartmentEditor__purchaseProduct"><div>{variantsFor(product, definitions).slice(0, 3).map(variant => <Sprite key={variant.id} images={variant.images} />)}</div><strong>{product.name}</strong></div>
+      {variantsFor(product, definitions).length > 1 && <p>Все секции входят в покупку и расходуют общий запас.</p>}
       <label>Количество наборов<input aria-label="Количество наборов" type="number" min="1" max="2147483647" step="1" value={quantity} disabled={!!transaction} onFocus={() => act('focus')} onChange={event => setQuantity(event.target.value)} /></label>
       <p>{product.packSize} экземпляров за {unitPrice >= 0 ? priceText(unitPrice) : '—'} в каждом наборе.</p>
       <dl><dt>Запас модели</dt><dd>{transaction?.stockBefore ?? product.stock} → {validQuantity && Number.isSafeInteger((transaction?.stockBefore ?? product.stock) + product.packSize * packs) ? (transaction?.stockBefore ?? product.stock) + product.packSize * packs : '—'} шт.</dd><dt>К оплате</dt><dd className="amount">{validTotal ? priceText(total) : '—'}</dd><dt>Баланс после покупки</dt><dd>{remaining.toLocaleString('ru-RU')} LC</dd></dl>

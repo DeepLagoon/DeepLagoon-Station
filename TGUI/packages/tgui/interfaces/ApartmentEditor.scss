@@ -28,7 +28,7 @@ body:has(.ApartmentEditor) { zoom: 1 !important; }
   &__tile > img { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; }
   &__tile > span { z-index: 1; pointer-events: none; }
   &__tile.void { background: transparent; border-color: transparent; }
-  &__fixture { position: absolute; pointer-events: none; background: #3e5260; color: #b5c5cb; overflow: hidden; font-size: 9px; text-align: center; }
+  &__fixture { position: absolute; z-index: 2; pointer-events: none; background: #3e5260; color: #b5c5cb; overflow: hidden; font-size: 9px; text-align: center; }
   &__fixture > span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
   &__fixture.sprite { background: transparent; overflow: visible; }
   &__fixture.door { background: #377b83; border: 1px solid #78aab0; box-sizing: border-box; }

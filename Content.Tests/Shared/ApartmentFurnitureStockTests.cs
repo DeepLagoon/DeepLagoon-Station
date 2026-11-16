@@ -15,14 +15,17 @@ public sealed class ApartmentFurnitureStockTests
         var left = new ApartmentFurniturePrototype { ID = "left", Product = "sofa", MaxCount = 8, Price = 95 };
         Assert.That(ApartmentFurnitureStock.Capacity(sofa, new[] { sofa, left }, new Dictionary<string, int> { ["sofa"] = 8 },
             new HashSet<string> { "sofa", "left" }), Is.EqualTo(24));
-        sofa.Price = 0; sofa.MaxCount = 4;
-        Assert.That(ApartmentFurnitureStock.Capacity(sofa, new[] { sofa, left }, new Dictionary<string, int>(), new HashSet<string> { "left" }), Is.EqualTo(12));
+        sofa.LegacyFree = true;
+        sofa.MaxCount = 4;
+        Assert.That(ApartmentFurnitureStock.Capacity(sofa, new[] { sofa, left }, new Dictionary<string, int>(), new HashSet<string> { "left" }), Is.EqualTo(8));
+        Assert.That(ApartmentFurnitureStock.Capacity(sofa, new[] { sofa, left }, new Dictionary<string, int> { ["sofa"] = 4 },
+            new HashSet<string>(), legacyPlacements: 2), Is.EqualTo(6));
     }
 
     [Test]
     public void SofaSectionsConsumeOneSharedStockAndLoadingDoesNotDependOnAnOnlineWalletCache()
     {
-        var template = new ApartmentTemplatePrototype { Width = 32, Height = 32, Catalog = new() { "left", "right" } };
+        var template = new ApartmentTemplatePrototype { Width = 32, Height = 32 };
         ApartmentFurniturePrototype Definition(string id) => new() { ID = id, Product = "sofa", MaxCount = 8, AllowsOverlap = true, BlocksMovement = false };
         var layout = Enumerable.Range(0, 9).Select(i => new ApartmentPlacement { Id = "piece"+i, Furniture = i % 2 == 0 ? "left" : "right", X = 3, Y = 3 }).ToArray();
         Assert.That(ApartmentLayout.Validate(template, layout, Definition, stock: _ => 8), Does.Contain("экземпляров"));
@@ -33,7 +36,7 @@ public sealed class ApartmentFurnitureStockTests
     [Test]
     public void OldSmallTemplateLimitIsIgnoredButTheExceptionalFourHundredObjectLimitIsEnforced()
     {
-        var template = new ApartmentTemplatePrototype { Width = 32, Height = 32, MaxFurniture = 1, Catalog = new() { "rug" } };
+        var template = new ApartmentTemplatePrototype { Width = 32, Height = 32, MaxFurniture = 1 };
         ApartmentFurniturePrototype Definition(string id) => new() { ID = id, MaxCount = 500, AllowsOverlap = true, BlocksMovement = false };
         var layout = Enumerable.Range(0, 400).Select(i => new ApartmentPlacement { Id = "rug"+i, Furniture = "rug", X = 3, Y = 3 }).ToArray();
         Assert.That(ApartmentLayout.Validate(template, layout, Definition), Is.Null);
