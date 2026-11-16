@@ -1,14 +1,18 @@
 using System.Linq;
+using System.Numerics;
 using Content.Client._DeepLagoon.Speech;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.Chat.UI;
+using Content.Shared._DeepLagoon.DiscordLink;
 using Content.Shared._DeepLagoon.Speech;
+using Content.Shared.Chat.TypingIndicator;
 using Content.Shared.Speech;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
+using Robust.Shared.Maths;
 
 namespace Content.Client.Lobby.UI;
 
@@ -21,8 +25,14 @@ public sealed partial class HumanoidProfileEditor
         [SpeechBubbleStyle.Default, SpeechBubbleStyle.Blue, SpeechBubbleStyle.Green, SpeechBubbleStyle.Amber, SpeechBubbleStyle.Violet];
     private OptionButton? _speechBarkVoice;
     private OptionButton? _speechBubbleStyle;
+    private BoxContainer? _speechBubbleRow;
+    private Label? _speechBubbleSupporter;
+    private OptionButton? _typingIndicator;
+    private TypingIndicatorPrototype[] _typingIndicators = [];
     private CheckBox? _legacySpeech;
     private DefaultWindow? _speechBubblePreview;
+    private DefaultWindow? _typingIndicatorPreview;
+    private EntityUid? _typingIndicatorPreviewEntity;
     private readonly List<(Slider Slider, Label Value)> _speechBarkSliders = new();
     private bool _updatingSpeechBarks;
 
@@ -30,6 +40,10 @@ public sealed partial class HumanoidProfileEditor
     {
         _speechBarkVoices = _prototypeManager.EnumeratePrototypes<SpeechBarkVoicePrototype>()
             .Where(voice => !voice.Hidden).OrderBy(voice => voice.Name).ToArray();
+        _typingIndicators = _prototypeManager.EnumeratePrototypes<TypingIndicatorPrototype>()
+            .Where(indicator => indicator.CharacterEditorName != null)
+            .OrderBy(indicator => indicator.ID != SharedTypingIndicatorSystem.InitialIndicatorId.Id)
+            .ThenBy(indicator => Loc.GetString(indicator.CharacterEditorName!.Value)).ToArray();
 
         var content = new BoxContainer
         {
@@ -38,7 +52,21 @@ public sealed partial class HumanoidProfileEditor
             Margin = new Thickness(8),
             SeparationOverride = 6,
         };
+        var typingRow = new BoxContainer { SeparationOverride = 8 };
+        typingRow.AddChild(new Label { Text = Loc.GetString("speech-typing-indicator-style") });
+        var typingStyle = new OptionButton { HorizontalExpand = true };
+        _typingIndicator = typingStyle;
+        for (var i = 0; i < _typingIndicators.Length; i++)
+            typingStyle.AddItem(Loc.GetString(_typingIndicators[i].CharacterEditorName!.Value), i);
+        typingStyle.OnItemSelected += args => ChangeTypingIndicator(_typingIndicators[args.Id].ID);
+        typingRow.AddChild(typingStyle);
+        var typingPreview = new Button { Text = Loc.GetString("speech-typing-indicator-preview") };
+        typingPreview.OnPressed += _ => OpenTypingIndicatorPreview();
+        typingRow.AddChild(typingPreview);
+        content.AddChild(typingRow);
+
         var bubbleRow = new BoxContainer { SeparationOverride = 8 };
+        _speechBubbleRow = bubbleRow;
         bubbleRow.AddChild(new Label { Text = Loc.GetString("speech-bubble-style") });
         var bubbleButton = new OptionButton { HorizontalExpand = true };
         _speechBubbleStyle = bubbleButton;
@@ -50,6 +78,8 @@ public sealed partial class HumanoidProfileEditor
         bubblePreview.OnPressed += _ => OpenSpeechBubblePreview();
         bubbleRow.AddChild(bubblePreview);
         content.AddChild(bubbleRow);
+        _speechBubbleSupporter = new Label { Text = Loc.GetString("speech-bubble-supporter") };
+        content.AddChild(_speechBubbleSupporter);
 
         var legacySpeech = new CheckBox { Text = Loc.GetString("speech-bark-use-species") };
         _legacySpeech = legacySpeech;
@@ -102,6 +132,7 @@ public sealed partial class HumanoidProfileEditor
             {
                 StopSpeechBarkPreview();
                 CloseSpeechBubblePreview();
+                CloseTypingIndicatorPreview();
             }
         };
         UpdateSpeechBarkControls();
@@ -127,6 +158,13 @@ public sealed partial class HumanoidProfileEditor
             .String("preview", Loc.GetString("speech-bark-preview"))
             .String("random", Loc.GetString("speech-bark-random"))
             .String("reset", Loc.GetString("speech-bark-reset"))
+            .String("typingLabel", Loc.GetString("speech-typing-indicator-style"))
+            .String("typingPreview", Loc.GetString("speech-typing-indicator-preview"))
+            .String("typingIndicator", settings.TypingIndicator)
+            .Array("typingIndicators", _typingIndicators.Select(indicator => new TguiData()
+                .String("id", indicator.ID).String("name", Loc.GetString(indicator.CharacterEditorName!.Value))))
+            .Bool("canCustomizeBubble", CanCustomizeSpeechBubble())
+            .String("bubbleSupporter", Loc.GetString("speech-bubble-supporter"))
             .String("bubbleLabel", Loc.GetString("speech-bubble-style"))
             .String("bubblePreview", Loc.GetString("speech-bubble-preview"))
             .Number("bubbleStyle", (int) settings.BubbleStyle)
@@ -155,7 +193,13 @@ public sealed partial class HumanoidProfileEditor
         var selected = settings.Voice == voice.ID ? Array.FindIndex(_speechBarkVoices, entry => entry.ID == voice.ID) + 1 : 0;
         _speechBarkVoice.SelectId(selected);
         _speechBarkVoice.Disabled = settings.UseSpeciesSpeech;
-        _speechBubbleStyle?.SelectId((int) settings.BubbleStyle);
+        var bubbleAccess = CanCustomizeSpeechBubble();
+        if (_speechBubbleRow != null) _speechBubbleRow.Visible = bubbleAccess;
+        if (_speechBubbleSupporter != null) _speechBubbleSupporter.Visible = !bubbleAccess;
+        if (bubbleAccess) _speechBubbleStyle?.SelectId((int) settings.BubbleStyle);
+        else CloseSpeechBubblePreview();
+        if (_typingIndicators.Length > 0)
+            _typingIndicator?.SelectId(Math.Max(0, Array.FindIndex(_typingIndicators, item => item.ID == settings.TypingIndicator)));
         if (_legacySpeech != null)
             _legacySpeech.Pressed = settings.UseSpeciesSpeech;
 
@@ -278,6 +322,7 @@ public sealed partial class HumanoidProfileEditor
         {
             UseSpeciesSpeech = Profile.SpeechBarks.UseSpeciesSpeech,
             BubbleStyle = Profile.SpeechBarks.BubbleStyle,
+            TypingIndicator = Profile.SpeechBarks.TypingIndicator,
         });
     }
 
@@ -293,7 +338,7 @@ public sealed partial class HumanoidProfileEditor
 
     private bool ChangeSpeechBubbleStyle(int style)
     {
-        if (Profile == null || style != (int) (SpeechBubbleStyle) style ||
+        if (Profile == null || !CanCustomizeSpeechBubble() || style != (int) (SpeechBubbleStyle) style ||
             !SpeechBubbleStyles.Contains((SpeechBubbleStyle) style))
             return false;
 
@@ -305,9 +350,12 @@ public sealed partial class HumanoidProfileEditor
     private static string SpeechBubbleStyleName(SpeechBubbleStyle style) =>
         Loc.GetString("speech-bubble-" + style.ToString().ToLowerInvariant());
 
+    private bool CanCustomizeSpeechBubble() =>
+        _entManager.System<SharedDiscordBoostSystem>().CanCustomizeSpeechBubble(_playerManager.LocalSession);
+
     private void OpenSpeechBubblePreview()
     {
-        if (Profile == null)
+        if (Profile == null || !CanCustomizeSpeechBubble())
             return;
 
         if (_speechBubblePreview is { } existing)
@@ -336,6 +384,52 @@ public sealed partial class HumanoidProfileEditor
     }
 
     private void CloseSpeechBubblePreview() => _speechBubblePreview?.Close();
+
+    private bool ChangeTypingIndicator(string id)
+    {
+        if (Profile == null || !SharedTypingIndicatorSystem.IsCharacterIndicator(_prototypeManager, id))
+            return false;
+
+        ApplySpeechBarks(Profile.SpeechBarks with { TypingIndicator = id });
+        if (_typingIndicatorPreviewEntity is { } entity)
+            _entManager.System<SharedTypingIndicatorSystem>().ApplyCharacterIndicator(entity, id);
+        return true;
+    }
+
+    private void OpenTypingIndicatorPreview()
+    {
+        if (Profile == null)
+            return;
+        if (_typingIndicatorPreview is { } existing)
+        {
+            existing.MoveToFront();
+            return;
+        }
+
+        var entity = _controller.LoadProfileEntity(Profile, JobOverride, ShowClothes.Pressed);
+        var typing = _entManager.System<SharedTypingIndicatorSystem>();
+        typing.ApplyCharacterIndicator(entity, Profile.SpeechBarks.TypingIndicator);
+        typing.SetTypingIndicatorState(entity, TypingIndicatorState.Typing);
+        var portrait = new SpriteView
+        {
+            MinSize = new Vector2(195, 155), Scale = new Vector2(3), OverrideDirection = Direction.South,
+        };
+        portrait.SetEntity(entity);
+        var window = new DefaultWindow { Title = Loc.GetString("speech-typing-indicator-preview"), MinWidth = 240 };
+        window.Contents.AddChild(portrait);
+        _typingIndicatorPreview = window;
+        _typingIndicatorPreviewEntity = entity;
+        window.OnClose += () =>
+        {
+            _typingIndicatorPreview = null;
+            _typingIndicatorPreviewEntity = null;
+            _entManager.DeleteEntity(entity);
+            window.Dispose();
+        };
+        window.OpenCentered();
+    }
+
+    private void CloseTypingIndicatorPreview() => _typingIndicatorPreview?.Close();
 
     private static string SpeechBarkValue(string field, int value) => field == "speed"
         ? value.ToString()

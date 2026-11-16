@@ -70,10 +70,15 @@ const SpeechBarkEditor = ({ settings, voices, act }) => {
   const change = (field, value) => act('speech-bark-change', { field, value: Number(value) });
   return <Section title={settings.title}>
     <div className="CharacterEditor__bubbleSettings">
+      <Select label={settings.typingLabel} value={settings.typingIndicator} options={settings.typingIndicators || []}
+        onChange={value => act('speech-typing-select', { value })} />
+      <Button role="button" icon="comment" onClick={() => act('speech-typing-preview')}>{settings.typingPreview}</Button>
+    </div>
+    {settings.canCustomizeBubble ? <div className="CharacterEditor__bubbleSettings">
       <Select label={settings.bubbleLabel} value={settings.bubbleStyle} options={settings.bubbleStyles}
         onChange={value => act('speech-bubble-select', { value })} />
       <Button role="button" icon="comment" onClick={() => act('speech-bubble-preview')}>{settings.bubblePreview}</Button>
-    </div>
+    </div> : <p>{settings.bubbleSupporter}</p>}
     <label className="CharacterEditor__voiceToggle">
       <input type="checkbox" checked={!!settings.useSpecies}
         onChange={event => act('speech-bark-use-species', { value: event.target.checked })} />

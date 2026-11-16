@@ -1,5 +1,6 @@
 - type: typingIndicator
   id: default
+  characterEditorName: speech-typing-indicator-default
   spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
   typingState: normal
   idleState: normal-idle
@@ -12,6 +13,7 @@
 
 - type: typingIndicator
   id: robot
+  characterEditorName: speech-typing-indicator-robot
   typingState: robot0
   idleState: robot3
 
@@ -33,6 +35,7 @@
 
 - type: typingIndicator
   id: holo
+  characterEditorName: speech-typing-indicator-holo
   typingState: holo0
   idleState: holo3
   offset: 0, 0.0625
@@ -45,12 +48,14 @@
 
 - type: typingIndicator
   id: moth
+  characterEditorName: speech-typing-indicator-moth
   typingState: moth0
   idleState: moth3
   offset: 0, 0.125
 
 - type: typingIndicator
   id: spider
+  characterEditorName: speech-typing-indicator-spider
   typingState: spider0
   idleState: spider3
   offset: 0, 0.125
@@ -63,12 +68,14 @@
 
 - type: typingIndicator
   id: lizard
+  characterEditorName: speech-typing-indicator-lizard
   typingState: lizard0
   idleState: lizard3
   offset: 0, 0.0625
 
 - type: typingIndicator
   id: slime
+  characterEditorName: speech-typing-indicator-slime
   typingState: slime0
   idleState: slime3
   offset: 0, 0.125
@@ -81,6 +88,7 @@
 
 - type: typingIndicator
   id: diona
+  characterEditorName: speech-typing-indicator-diona
   typingState: diona0
   idleState: diona3
   offset: 0, 0.125

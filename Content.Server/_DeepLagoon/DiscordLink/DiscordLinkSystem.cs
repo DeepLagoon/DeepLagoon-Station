@@ -96,6 +96,8 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         {
             if (session.Status != SessionStatus.InGame)
                 continue;
+            if (session.AttachedEntity is { } entity)
+                EntityManager.System<Content.Shared.Speech.SpeechSystem>().RefreshCharacterBubble(entity);
             var remaining = HasActiveBoost(session) ? _store!.BoostRemaining(session.UserId.UserId) : 0;
             var (tier, boostyExpiresAt) = GetBoostyStatus(session, timestamp);
             var spark = HasSpark(session);

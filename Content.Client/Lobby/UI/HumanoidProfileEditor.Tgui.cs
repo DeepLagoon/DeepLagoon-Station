@@ -43,6 +43,7 @@ public sealed partial class HumanoidProfileEditor
         }
     }
     private int _publishedSupporterBonus = -1;
+    private bool _publishedSpeechBubbleAccess;
     private float _tguiRefresh;
     private bool _tguiPublishPending;
     private static TguiSpriteImages _tguiImages => TguiSpriteImages.Shared;
@@ -258,10 +259,14 @@ public sealed partial class HumanoidProfileEditor
             FlushTguiProfile();
         }
         _tguiRefresh -= args.DeltaSeconds;
-        if (_tguiRefresh > 0 || _profileWeb == null || !_profileWeb.VisibleInTree) return;
+        if (_tguiRefresh > 0) return;
         _tguiRefresh = 0.2f;
+        var bubbleAccess = CanCustomizeSpeechBubble();
+        if (_speechBubbleRow is { } row && row.Visible != bubbleAccess)
+            UpdateSpeechBarkControls();
+        if (_profileWeb == null || !_profileWeb.VisibleInTree) return;
         var bonus = _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetLoadoutPointBonus(_playerManager.LocalSession);
-        if (!ReferenceEquals(Profile, _publishedTguiProfile) || IsDirty != _publishedTguiDirty || ShowClothes.Pressed != _publishedTguiClothes || bonus != _publishedSupporterBonus || _requirements.TattoosBanned != _publishedTattoosBanned)
+        if (!ReferenceEquals(Profile, _publishedTguiProfile) || IsDirty != _publishedTguiDirty || ShowClothes.Pressed != _publishedTguiClothes || bonus != _publishedSupporterBonus || bubbleAccess != _publishedSpeechBubbleAccess || _requirements.TattoosBanned != _publishedTattoosBanned)
             PublishTguiProfile();
     }
 
@@ -279,6 +284,7 @@ public sealed partial class HumanoidProfileEditor
         _publishedTattoosBanned = _requirements.TattoosBanned;
         _publishedTguiClothes = ShowClothes.Pressed;
         _publishedSupporterBonus = _entManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().GetLoadoutPointBonus(_playerManager.LocalSession);
+        _publishedSpeechBubbleAccess = CanCustomizeSpeechBubble();
         if (_tguiMode != "native")
         {
             var catalogKey = $"{_tguiMode}|{Profile?.Species.Id}|{Profile?.Sex}|{Profile?.UnrestrictedMarkings}|{TabContainer.ChildCount}|{_publishedSupporterBonus}|{IoCManager.Resolve<ILocalizationManager>().DefaultCulture?.Name}";
@@ -631,8 +637,14 @@ public sealed partial class HumanoidProfileEditor
                     return false;
                 break;
             case "speech-bubble-preview":
-                if (_tguiMode != "voice") return false;
+                if (_tguiMode != "voice" || !CanCustomizeSpeechBubble()) return false;
                 OpenSpeechBubblePreview(); break;
+            case "speech-typing-select":
+                if (_tguiMode != "voice" || value == null || !ChangeTypingIndicator(value)) return false;
+                break;
+            case "speech-typing-preview":
+                if (_tguiMode != "voice") return false;
+                OpenTypingIndicatorPreview(); break;
             case "speech-bark-use-species":
                 if (_tguiMode != "voice" || !bool.TryParse(value, out var useSpecies) || !ChangeSpeciesSpeech(useSpecies))
                     return false;

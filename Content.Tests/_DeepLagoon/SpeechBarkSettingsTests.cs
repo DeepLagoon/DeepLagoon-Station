@@ -26,6 +26,7 @@ public sealed class SpeechBarkSettingsTests
         {
             Voice = new string('x', 100), PitchPercent = -900, Speed = 200, Pause = 0, VariancePercent = 400,
             UseSpeciesSpeech = true, BubbleStyle = (SpeechBubbleStyle) byte.MaxValue,
+            TypingIndicator = new string('x', 100),
         };
         var edited = profile.WithSpeechBarks(voice);
         Assert.Multiple(() =>
@@ -37,6 +38,7 @@ public sealed class SpeechBarkSettingsTests
             Assert.That(edited.SpeechBarks.VariancePercent, Is.EqualTo(100));
             Assert.That(edited.SpeechBarks.UseSpeciesSpeech, Is.True);
             Assert.That(edited.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Default));
+            Assert.That(edited.SpeechBarks.TypingIndicator, Is.EqualTo("default"));
             Assert.That(edited.WithName("Test").SpeechBarks, Is.EqualTo(edited.SpeechBarks));
             Assert.That(profile.MemberwiseEquals(edited), Is.False);
             Assert.That(profile.SpeechBarks, Is.EqualTo(new SpeechBarkSettings()));
@@ -65,6 +67,7 @@ public sealed class SpeechBarkSettingsTests
         {
             Voice = "bottalk2", PitchPercent = 75, Speed = 3, Pause = 142, VariancePercent = 37,
             UseSpeciesSpeech = true, BubbleStyle = SpeechBubbleStyle.Green,
+            TypingIndicator = "moth",
         };
         await database.SaveCharacterSlotAsync(user, profile.WithSpeechBarks(voice), 0);
         await database.SaveCharacterSlotAsync(user, profile, 1);
@@ -79,7 +82,7 @@ public sealed class SpeechBarkSettingsTests
         var upgraded = await database.GetPlayerPreferencesAsync(user);
         Assert.That(((HumanoidCharacterProfile) upgraded!.Characters[1]).SpeechBarks, Is.EqualTo(voice with
         {
-            UseSpeciesSpeech = false, BubbleStyle = SpeechBubbleStyle.Default,
+            UseSpeciesSpeech = false, BubbleStyle = SpeechBubbleStyle.Default, TypingIndicator = "default",
         }));
     }
 

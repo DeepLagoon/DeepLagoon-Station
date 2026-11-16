@@ -43,23 +43,11 @@ public sealed partial class TypingIndicatorVisualizerSystem : VisualizerSystem<T
             return;
         }
 
-        var currentTypingIndicator = component.TypingIndicatorPrototype;
-
-        var evt = new BeforeShowTypingIndicatorEvent();
-
-        if (TryComp<InventoryComponent>(uid, out var inventoryComp))
-            _inventory.RelayEvent((uid, inventoryComp), ref evt);
-
-        var overrideIndicator = evt.GetMostRecentIndicator();
-
-        if (overrideIndicator != null)
-            currentTypingIndicator = overrideIndicator.Value;
-
-        currentTypingIndicator = state switch
+        var currentTypingIndicator = state switch
         {
-            TypingIndicatorState.EmoteIdle or TypingIndicatorState.EmoteTyping => "DeepLagoonEmote",
-            TypingIndicatorState.LoocIdle or TypingIndicatorState.LoocTyping => "DeepLagoonLooc",
-            _ => currentTypingIndicator,
+            TypingIndicatorState.EmoteIdle or TypingIndicatorState.EmoteTyping => new ProtoId<TypingIndicatorPrototype>("DeepLagoonEmote"),
+            TypingIndicatorState.LoocIdle or TypingIndicatorState.LoocTyping => new ProtoId<TypingIndicatorPrototype>("DeepLagoonLooc"),
+            _ => GetSpeechIndicator(uid, component),
         };
 
         if (!_prototypeManager.TryIndex(currentTypingIndicator, out var proto))
@@ -77,5 +65,16 @@ public sealed partial class TypingIndicatorVisualizerSystem : VisualizerSystem<T
         SpriteSystem.LayerSetAutoAnimated((uid, args.Sprite), layer, state.IsTyping());
         if (state.IsIdle())
             SpriteSystem.LayerSetAnimationTime((uid, args.Sprite), layer, 0);
+    }
+
+    private ProtoId<TypingIndicatorPrototype> GetSpeechIndicator(EntityUid uid, TypingIndicatorComponent component)
+    {
+        if (AppearanceSystem.TryGetData<string>(uid, TypingIndicatorVisuals.CharacterPrototype, out var preferred))
+            return new ProtoId<TypingIndicatorPrototype>(preferred);
+
+        var evt = new BeforeShowTypingIndicatorEvent();
+        if (TryComp<InventoryComponent>(uid, out var inventory))
+            _inventory.RelayEvent((uid, inventory), ref evt);
+        return evt.GetMostRecentIndicator() ?? component.TypingIndicatorPrototype;
     }
 }

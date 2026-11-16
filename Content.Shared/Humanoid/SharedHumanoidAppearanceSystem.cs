@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Content.Shared.CCVar;
+using Content.Shared.Chat.TypingIndicator;
 using Content.Shared.Decals;
 using Content.Shared.DetailExaminable;
 using Content.Shared.Examine;
@@ -178,6 +179,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         targetHumanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(sourceHumanoid.BodyFeatures);
         targetHumanoid.GenitalAroused = sourceHumanoid.GenitalAroused;
         targetHumanoid.PlantigradeLegs = sourceHumanoid.PlantigradeLegs;
+        EntityManager.System<SharedTypingIndicatorSystem>().CopyCharacterIndicator(source, target);
         if (TryComp<SpeechComponent>(source, out var sourceSpeech) && TryComp<SpeechComponent>(target, out var targetSpeech))
             EntityManager.System<SpeechSystem>().CopyCharacterSpeech((source, sourceSpeech), (target, targetSpeech));
 
@@ -419,6 +421,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         humanoid.Tattoos = Content.Shared._DeepLagoon.Tattoos.Tattoo.Sanitize(profile.Appearance.Tattoos);
         humanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(profile.Appearance.BodyFeatures);
         humanoid.PlantigradeLegs = profile.Appearance.PlantigradeLegs && _proto.Index(profile.Species).PlantigradeSprites != null;
+        EntityManager.System<SharedTypingIndicatorSystem>().ApplyCharacterIndicator(uid, profile.SpeechBarks.TypingIndicator);
         if (TryComp<SpeechComponent>(uid, out var speech))
         {
             var speciesEntity = _proto.Index(_proto.Index(profile.Species).Prototype);

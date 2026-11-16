@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Content.Shared._Mono.Company;
 using Content.Shared._NF.Bank;
 using Content.Shared.CCVar;
+using Content.Shared.Chat.TypingIndicator;
 using Content.Shared.GameTicking;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Prototypes;
@@ -581,6 +582,8 @@ namespace Content.Shared.Preferences
             SpeechBarks = SpeechBarks.Sanitize();
             var configManager = collection.Resolve<IConfigurationManager>();
             var prototypeManager = collection.Resolve<IPrototypeManager>();
+            if (!SharedTypingIndicatorSystem.IsCharacterIndicator(prototypeManager, SpeechBarks.TypingIndicator))
+                SpeechBarks.TypingIndicator = SharedTypingIndicatorSystem.InitialIndicatorId.Id;
             if (SpeechBarks.Voice.Length != 0)
             {
                 if (!prototypeManager.TryIndex<Content.Shared._DeepLagoon.Speech.SpeechBarkVoicePrototype>(SpeechBarks.Voice, out var voice) || voice.Hidden)

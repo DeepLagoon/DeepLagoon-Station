@@ -19,8 +19,23 @@
     overflow: auto;
 
     &[data-review=true] {
+      --editor-control-text: #fff;
       align-items: start;
       background: var(--editor-control-bg, #1b2028);
+      color: var(--editor-control-text);
+      color-scheme: dark;
+
+      .BackpackEditor__filters > input {
+        min-width: 0;
+        padding: 5px;
+        background: var(--editor-control-bg, #1b2028);
+        color: inherit;
+        border: 1px solid #68788a;
+        border-radius: 4px;
+        font: inherit;
+
+        &::placeholder { color: #c6cfda; opacity: 1; }
+      }
     }
   }
 

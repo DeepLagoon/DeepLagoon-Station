@@ -116,6 +116,12 @@ namespace Content.Server.Preferences.Managers
             // Mono
             if (!authoritative && profile is HumanoidCharacterProfile humanoid)
             {
+                if (!_entityManager.System<Content.Shared._DeepLagoon.DiscordLink.SharedDiscordBoostSystem>().CanCustomizeSpeechBubble(session))
+                {
+                    var bubble = curPrefs.Characters.TryGetValue(slot, out var saved) && saved is HumanoidCharacterProfile old
+                        ? old.SpeechBarks.BubbleStyle : Content.Shared._DeepLagoon.Speech.SpeechBubbleStyle.Default;
+                    humanoid = humanoid.WithSpeechBarks(humanoid.SpeechBarks with { BubbleStyle = bubble });
+                }
                 if (_entityManager.System<Content.Server._DeepLagoon.Tattoos.TattooArtworkSystem>().IsBanned(userId))
                 {
                     var appearance = humanoid.Appearance.Clone();

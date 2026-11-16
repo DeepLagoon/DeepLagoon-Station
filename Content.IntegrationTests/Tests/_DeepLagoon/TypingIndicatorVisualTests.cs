@@ -45,6 +45,18 @@ public sealed class TypingIndicatorVisualTests
                 Assert.That(sprite[layer].RsiState, Is.EqualTo(defaultState));
                 entities.DeleteEntity(item);
             }
+
+            var typing = entities.System<SharedTypingIndicatorSystem>();
+            typing.ApplyCharacterIndicator(uid, "moth");
+            appearance.FrameUpdate(0);
+            var securityHeadset = entities.SpawnEntity("ClothingHeadsetSecurity", MapCoordinates.Nullspace);
+            Assert.That(inventory.TryEquip(uid, securityHeadset, "ears", silent: true, force: true), Is.True);
+            appearance.FrameUpdate(0);
+            Assert.That(sprite[sprite.LayerMapGet(TypingIndicatorLayers.Base)].RsiState.Name, Is.EqualTo("moth3"));
+            Assert.That(inventory.TryUnequip(uid, "ears", out _, silent: true, force: true, reparent: false), Is.True);
+            appearance.FrameUpdate(0);
+            Assert.That(sprite[sprite.LayerMapGet(TypingIndicatorLayers.Base)].RsiState.Name, Is.EqualTo("moth3"));
+            entities.DeleteEntity(securityHeadset);
             entities.DeleteEntity(uid);
         });
         await pair.CleanReturnAsync();

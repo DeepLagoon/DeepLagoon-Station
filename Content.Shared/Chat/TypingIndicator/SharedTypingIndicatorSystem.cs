@@ -18,11 +18,29 @@ public abstract partial class SharedTypingIndicatorSystem : EntitySystem
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     /// <summary>
     ///     Default ID of <see cref="TypingIndicatorPrototype"/>
     /// </summary>
     public static readonly ProtoId<TypingIndicatorPrototype> InitialIndicatorId = "default";
+
+    public static bool IsCharacterIndicator(IPrototypeManager prototypes, string id) =>
+        prototypes.TryIndex<TypingIndicatorPrototype>(id, out var prototype) && prototype.CharacterEditorName != null;
+
+    public void ApplyCharacterIndicator(EntityUid uid, string id)
+    {
+        EnsureComp<TypingIndicatorComponent>(uid);
+        var appearance = EnsureComp<AppearanceComponent>(uid);
+        _appearance.SetData(uid, TypingIndicatorVisuals.CharacterPrototype,
+            IsCharacterIndicator(_prototypes, id) ? id : InitialIndicatorId.Id, appearance);
+    }
+
+    public void CopyCharacterIndicator(EntityUid source, EntityUid target)
+    {
+        if (_appearance.TryGetData<string>(source, TypingIndicatorVisuals.CharacterPrototype, out var preferred))
+            ApplyCharacterIndicator(target, preferred);
+    }
 
     public override void Initialize()
     {
@@ -93,7 +111,7 @@ public abstract partial class SharedTypingIndicatorSystem : EntitySystem
         SetTypingIndicatorState(uid.Value, ev.State);
     }
 
-    private void SetTypingIndicatorState(EntityUid uid, TypingIndicatorState state, AppearanceComponent? appearance = null)
+    public void SetTypingIndicatorState(EntityUid uid, TypingIndicatorState state, AppearanceComponent? appearance = null)
     {
         if (!Resolve(uid, ref appearance, false))
             return;

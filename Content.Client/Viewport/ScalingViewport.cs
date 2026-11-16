@@ -37,6 +37,8 @@ namespace Content.Client.Viewport
 
         private readonly List<CopyPixelsDelegate<Rgba32>> _queuedScreenshots = new();
 
+        private bool IsMainViewport => ReferenceEquals(_eyeManager.MainViewport, this);
+
         // Fire edit start
         public ShaderInstance? Shader;
         // Fire edit end
@@ -156,14 +158,31 @@ namespace Content.Client.Viewport
             _inputManager.ViewportKeyEvent(this, args);
         }
 
+        protected override void FrameUpdate(FrameEventArgs args)
+        {
+            base.FrameUpdate(args);
+
+            if (IsMainViewport || !VisibleInTree || _eye == null || ViewportSize.X <= 0 || ViewportSize.Y <= 0 ||
+                PixelSize.X <= 0 || PixelSize.Y <= 0)
+            {
+                return;
+            }
+
+            // Render auxiliary cameras before UI clipping is applied in screen coordinates.
+            EnsureViewportCreated();
+            _viewport!.AutomaticRender = true;
+        }
+
         protected override void Draw(IRenderHandle handle)
         {
+            if (!IsMainViewport && (_eye == null || _viewport is not { AutomaticRender: true }))
+                return;
+
             EnsureViewportCreated();
 
             DebugTools.AssertNotNull(_viewport);
 
-            // Auxiliary viewports use their own camera, independent of the player's Z-levels.
-            if (!ReferenceEquals(_eyeManager.MainViewport, this) || !TryRenderZLevels(handle, _viewport!))
+            if (IsMainViewport && !TryRenderZLevels(handle, _viewport!))
                 _viewport!.Render();
 
             if (_queuedScreenshots.Count != 0)
@@ -280,6 +299,20 @@ namespace Content.Client.Viewport
             base.Resized();
 
             InvalidateViewport();
+        }
+
+        protected override void VisibilityChanged(bool newVisible)
+        {
+            base.VisibilityChanged(newVisible);
+
+            if (!VisibleInTree && _viewport != null)
+                _viewport.AutomaticRender = false;
+        }
+
+        protected override void ExitedTree()
+        {
+            InvalidateViewport();
+            base.ExitedTree();
         }
 
         private void InvalidateViewport()

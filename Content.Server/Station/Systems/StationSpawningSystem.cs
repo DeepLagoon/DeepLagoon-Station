@@ -188,8 +188,13 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             MakeSentientCommand.MakeSentient(jobEntity, EntityManager);
             if (!TryPlace(jobEntity))
                 return null;
-            if (profile != null && TryComp<SpeechComponent>(jobEntity, out var speech))
-                EntityManager.System<SpeechSystem>().ApplyCharacterSpeech((jobEntity, speech), profile.SpeechBarks, speech.SpeechSounds);
+            if (profile != null)
+            {
+                EntityManager.System<Content.Shared.Chat.TypingIndicator.SharedTypingIndicatorSystem>()
+                    .ApplyCharacterIndicator(jobEntity, profile.SpeechBarks.TypingIndicator);
+                if (TryComp<SpeechComponent>(jobEntity, out var speech))
+                    EntityManager.System<SpeechSystem>().ApplyCharacterSpeech((jobEntity, speech), profile.SpeechBarks, speech.SpeechSounds);
+            }
 
             // Make sure custom names get handled, what is gameticker control flow whoopy.
             if (loadout != null)

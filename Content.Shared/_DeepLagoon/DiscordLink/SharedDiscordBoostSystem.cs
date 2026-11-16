@@ -28,6 +28,7 @@ public abstract partial class SharedDiscordBoostSystem : EntitySystem
     public int GetProductTier(ICommonSession? session) => Math.Max(GetPurchasedProductTier(session),
         Content.Shared.Database.LagoonEconomyRules.ProductTier(GetBoostyTier(session), HasSpark(session), HasActiveBoost(session)));
     public bool HasOocColorAccess(ICommonSession? session) => GetProductTier(session) > 0;
+    public bool CanCustomizeSpeechBubble(ICommonSession? session) => GetProductTier(session) >= 2;
 
     // An active Discord boost grants the Impulse feature level; higher levels take precedence.
     public static int LoadoutPointBonus(bool discordBooster, int boostyTier)

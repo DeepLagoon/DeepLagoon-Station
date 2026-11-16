@@ -13,6 +13,8 @@ public sealed partial class TypingIndicatorPrototype : IPrototype
     [IdDataField]
     public string ID { get; private set; } = default!;
 
+    [DataField] public LocId? CharacterEditorName;
+
     [DataField("spritePath")]
     public ResPath SpritePath = new("/Textures/Effects/speech.rsi");
 

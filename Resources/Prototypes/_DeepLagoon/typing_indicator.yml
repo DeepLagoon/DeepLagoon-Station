@@ -72,6 +72,7 @@
 
 - type: typingIndicator
   id: DeepLagoonFreelance
+  characterEditorName: speech-typing-indicator-violet
   spritePath: /Textures/_DeepLagoon/Effects/typing.rsi
   offset: 0, 0.0625
   typingState: normal

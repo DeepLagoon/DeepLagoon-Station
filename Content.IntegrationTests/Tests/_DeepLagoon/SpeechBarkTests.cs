@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using Content.Client.Lobby;
 using Content.Client.Lobby.UI;
 using Content.Server.Chat.Systems;
+using Content.Server.Database;
+using Content.Server.Preferences.Managers;
+using Content.Server._DeepLagoon.Currency;
+using Content.Server._DeepLagoon.DiscordLink;
 using Content.Shared._DeepLagoon.Speech;
 using Content.Shared._EinsteinEngines.Language;
 using Content.Shared.CCVar;
@@ -20,6 +24,9 @@ using Robust.Shared.Audio.Components;
 using Robust.Shared.Configuration;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Player;
+using Robust.Client.GameObjects;
+using Content.Shared.Chat.TypingIndicator;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.CustomControls;
 using ClientBarks = Content.Client._DeepLagoon.Speech.SpeechBarkSystem;
@@ -131,7 +138,7 @@ public sealed class SpeechBarkTests
             Assert.That(events[3].Pitches, Is.All.InRange(0.7f, 0.9f));
             var entities = pair.Client.EntMan;
             Assert.That(entities.GetComponent<SpeechComponent>(entities.GetEntity(netSpeaker)).BubbleStyle,
-                Is.EqualTo(SpeechBubbleStyle.Green));
+                Is.EqualTo(SpeechBubbleStyle.Default));
         });
         await pair.Client.WaitAssertion(() =>
         {
@@ -223,13 +230,32 @@ public sealed class SpeechBarkTests
     public async Task CharacterEditorAppliesVoicePreferencesAndShowsLiveBubblePreview()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+        HumanoidProfileEditor editor = null!;
+        var draft = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithSpeechBarks(new SpeechBarkSettings
+        {
+            BubbleStyle = SpeechBubbleStyle.Green,
+            TypingIndicator = "moth",
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var player = pair.Player!;
+            SetTestPass(pair.Server.EntMan, player, 1);
+            var preferences = pair.Server.ResolveDependency<IServerPreferencesManager>();
+            var slot = preferences.GetPreferences(player.UserId).SelectedCharacterIndex;
+            preferences.SetProfile(player.UserId, slot, draft, authoritative: false, persist: false).GetAwaiter().GetResult();
+            var saved = (HumanoidCharacterProfile) preferences.GetPreferences(player.UserId).SelectedCharacter;
+            Assert.That(saved.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Default));
+            Assert.That(saved.SpeechBarks.TypingIndicator, Is.EqualTo("moth"));
+        });
+        await pair.RunTicksSync(5);
         await pair.Client.WaitAssertion(() =>
         {
             var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
             var lobby = ui.GetUIController<LobbyUIController>();
             lobby.OpenCharacterEditor();
-            const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-            var editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", fields)!.GetValue(lobby)!;
+            editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", fields)!.GetValue(lobby)!;
             var prefs = pair.Client.ResolveDependency<IClientPreferencesManager>().Preferences!;
             editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), prefs.SelectedCharacterIndex);
             using var state = JsonDocument.Parse(editor.CreateTguiProfileState("voice").ToString());
@@ -237,6 +263,21 @@ public sealed class SpeechBarkTests
                 .Single(tab => tab.GetProperty("mode").GetString() == "voice").GetProperty("id").GetInt32();
             Assert.That(editor.HandleTguiProfileAction("select-tab", JsonSerializer.Serialize(new { value = voiceTab })), Is.True);
             Assert.That(editor.HandleTguiProfileAction("speech-bark-use-species", "{\"value\":true}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":2}"), Is.False);
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-preview", "{}"), Is.False);
+            Assert.That(editor.HandleTguiProfileAction("speech-typing-select", "{\"value\":\"DeepLagoonLooc\"}"), Is.False);
+            Assert.That(editor.HandleTguiProfileAction("speech-typing-select", "{\"value\":\"moth\"}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("speech-typing-preview", "{}"), Is.True);
+            var typingEntity = (EntityUid) typeof(HumanoidProfileEditor).GetField("_typingIndicatorPreviewEntity", fields)!.GetValue(editor)!;
+            var appearance = pair.Client.EntMan.System<AppearanceSystem>();
+            Assert.That(appearance.TryGetData<string>(typingEntity, TypingIndicatorVisuals.CharacterPrototype, out var indicator), Is.True);
+            Assert.That(indicator, Is.EqualTo("moth"));
+        });
+        await pair.Server.WaitAssertion(() => SetTestPass(pair.Server.EntMan, pair.Player!, 2));
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
             Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":257}"), Is.False);
             Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":2}"), Is.True);
             Assert.That(editor.HandleTguiProfileAction("speech-bubble-preview", "{}"), Is.True);
@@ -251,12 +292,40 @@ public sealed class SpeechBarkTests
             Assert.That(editor.HandleTguiProfileAction("speech-bark-reset", "{}"), Is.True);
             Assert.That(editor.Profile!.SpeechBarks.UseSpeciesSpeech, Is.True);
             Assert.That(editor.Profile.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Violet));
+            Assert.That(editor.Profile.SpeechBarks.TypingIndicator, Is.EqualTo("moth"));
 
             Assert.That(editor.HandleTguiProfileAction("select-tab", "{\"value\":0}"), Is.True);
             Assert.That(previewField.GetValue(editor), Is.Null);
+            Assert.That(typeof(HumanoidProfileEditor).GetField("_typingIndicatorPreview", fields)!.GetValue(editor), Is.Null);
             ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
         });
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var player = pair.Player!;
+            var entities = pair.Server.EntMan;
+            var preferences = pair.Server.ResolveDependency<IServerPreferencesManager>();
+            var slot = preferences.GetPreferences(player.UserId).SelectedCharacterIndex;
+            preferences.SetProfile(player.UserId, slot, draft, authoritative: false, persist: false).GetAwaiter().GetResult();
+            var profile = (HumanoidCharacterProfile) preferences.GetPreferences(player.UserId).SelectedCharacter;
+            Assert.That(profile.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Green));
+            var character = entities.SpawnEntity("MobHuman", map.GridCoords);
+            entities.System<SharedHumanoidAppearanceSystem>().LoadProfile(character, profile);
+            pair.Server.PlayerMan.SetAttachedEntity(player, character);
+            var speech = entities.GetComponent<SpeechComponent>(character);
+            Assert.That(speech.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Green));
+            SetTestPass(entities, player, 1);
+            Assert.That(speech.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Default));
+        });
         await pair.CleanReturnAsync();
+    }
+
+    private static void SetTestPass(IEntityManager entities, ICommonSession player, int tier)
+    {
+        entities.System<LagoonEconomySystem>().Remember(player,
+            new LagoonEconomySnapshot(0, new LagoonEconomyState { Revision = long.MaxValue, PassTier = tier, PassTicks = TimeSpan.FromHours(1).Ticks }));
+        typeof(DiscordLinkSystem).GetMethod("PublishBoosts", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(entities.System<DiscordLinkSystem>(), null);
     }
 
     private sealed class BarkRecorder : EntitySystem

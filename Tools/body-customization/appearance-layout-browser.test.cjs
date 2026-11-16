@@ -390,7 +390,8 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   await page.getByRole('button', { name: 'Рюкзак', exact: true }).click();
   await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-container' && e.payload.key === ''));
   await page.getByRole('button', { name: 'Закрыть редактор рюкзака' }).click();
-  await publish('BackpackReview', { backpack: { ...backpack, containers: [], items: [
+  await publish('BackpackReview', { backpack: { ...backpack, containers: [],
+    catalog: [{ ...backpack.catalog[0], cost: 350, jobItem: true }], items: [
     { key: 'wide', name: 'Широкий предмет', x: 0, y: 0, shape: [box(0, 0, 1, 0)] },
     { key: 'small', name: 'Соседний предмет', x: 2, y: 0, shape: [box(0, 0, 0, 0)] },
   ] } });
@@ -399,16 +400,39 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   assert.equal(await wide.first().evaluate(node => getComputedStyle(node, '::after').borderRightWidth), '0px');
   assert.equal(await wide.last().evaluate(node => getComputedStyle(node, '::after').borderRightWidth), '1px');
   assert.equal(await small.evaluate(node => getComputedStyle(node, '::after').borderLeftWidth), '1px');
-  assert.ok(await page.getByRole('dialog', { name: 'Каталог предметов' }).isVisible());
+  const reviewCatalog = page.getByRole('dialog', { name: 'Каталог предметов' });
+  assert.ok(await reviewCatalog.isVisible());
+  for (const label of [page.getByRole('heading', { name: 'Рюкзак', exact: true }),
+    reviewCatalog.getByRole('heading'), reviewCatalog.getByText('Книга', { exact: true }),
+    reviewCatalog.getByText('350 $', { exact: true }), page.locator('.BackpackEditor__hint')]) {
+    assert.equal(await label.evaluate(node => getComputedStyle(node).color), 'rgb(255, 255, 255)');
+  }
+  const reviewSearch = reviewCatalog.getByRole('searchbox');
+  await reviewSearch.fill('Книга');
+  assert.deepEqual(await reviewSearch.evaluate(node => {
+    const { color, backgroundColor } = getComputedStyle(node);
+    return [color, backgroundColor];
+  }), ['rgb(255, 255, 255)', 'rgb(27, 32, 40)']);
   const voice = {
     title: 'Голос', bubbleLabel: 'Стиль пузыря речи', bubblePreview: 'Предпросмотр пузыря речи',
+    canCustomizeBubble: true, bubbleSupporter: 'Настройка пузыря речи доступна с уровня «Импульс».',
     bubbleStyle: 0, bubbleStyles: [{ id: 0, name: 'По умолчанию' }, { id: 2, name: 'Зелёный' }],
+    typingLabel: 'Стиль индикатора печати', typingPreview: 'Предпросмотр индикатора печати',
+    typingIndicator: 'default', typingIndicators: [{ id: 'default', name: 'Обычный' }, { id: 'moth', name: 'Моль' }],
     useSpeciesLabel: 'Отключить барки и использовать голос расы', useSpecies: false,
     search: 'Поиск голоса', timbreLabel: 'Тембр', voice: '',
     preview: 'Прослушать голос', random: 'Случайный голос', reset: 'Сбросить голос',
     parameters: [{ id: 'speed', label: 'Шаг речи', display: '4', min: 1, max: 8, value: 4 }],
   };
   await page.setViewportSize({ width: 780, height: 650 });
+  await publish('CharacterEditor', { ...state, mode: 'voice', speechBarks: { ...voice, canCustomizeBubble: false } });
+  await page.getByText(voice.bubbleSupporter, { exact: true }).waitFor();
+  assert.equal(await page.getByLabel(voice.bubbleLabel, { exact: true }).count(), 0);
+  await page.getByLabel(voice.typingLabel, { exact: true }).click();
+  await page.getByText('Моль', { exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/speech-typing-select' && e.payload.value === 'moth'));
+  await page.getByRole('button', { name: voice.typingPreview }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/speech-typing-preview'));
   await publish('CharacterEditor', { ...state, mode: 'voice', speechBarks: voice });
   const voiceRow = page.locator('.CharacterEditor__voiceParameter');
   const slider = page.getByRole('slider', { name: 'Шаг речи', exact: true });

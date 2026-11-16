@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Reflection;
 using Content.Client.Tabletop.UI;
 using Content.Client.Viewport;
-using Content.Shared._CE.ZLevels.Core.Components;
 using Content.Shared.Input;
 using Content.Shared.Tabletop.Components;
 using Content.Shared.Tabletop.Events;
@@ -104,7 +103,7 @@ public sealed class TabletopChessTest : InteractionTest
                 var eye = viewport.Eye!;
                 Assert.That(eye.Position.MapId, Is.Not.EqualTo(MapId).And.Not.EqualTo(Robust.Shared.Map.MapId.Nullspace));
                 Assert.That(viewport, Is.Not.SameAs(Client.ResolveDependency<IEyeManager>().MainViewport));
-                AssertChessCameraRenders(viewport);
+                AssertChessCameraRendersBeforeUi(viewport);
 
                 var viewBounds = Box2.CenteredAround(eye.Position.Position, (Vector2) viewport.ViewportSize / EyeManager.PixelsPerMeter);
                 var sprites = CEntMan.System<SpriteTreeSystem>().QueryAabb(eye.Position.MapId, viewBounds);
@@ -164,37 +163,35 @@ public sealed class TabletopChessTest : InteractionTest
         return table;
     }
 
-    private void AssertChessCameraRenders(ScalingViewport viewport)
+    private static void AssertChessCameraRendersBeforeUi(ScalingViewport viewport)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var field = typeof(ScalingViewport).GetField("_viewport", flags)!;
-        var original = field.GetValue(viewport);
+        var original = (IClydeViewport) field.GetValue(viewport)!;
+        Assert.That(original.AutomaticRender, Is.True);
+        Assert.That(original.Eye, Is.SameAs(viewport.Eye));
+
         var draw = typeof(ScalingViewport).GetMethod("Draw", flags | BindingFlags.DeclaredOnly)!;
         var clydeViewport = new Mock<IClydeViewport>();
         var texture = new Mock<Texture>(Vector2i.One).Object;
         var target = new Mock<IRenderTexture>();
         target.SetupGet(t => t.Texture).Returns(texture);
+        clydeViewport.SetupGet(v => v.AutomaticRender).Returns(true);
         clydeViewport.SetupGet(v => v.Size).Returns(viewport.ViewportSize);
         clydeViewport.SetupGet(v => v.RenderTarget).Returns(target.Object);
         clydeViewport.SetupProperty(v => v.Eye, viewport.Eye);
-        clydeViewport.Setup(v => v.Render()).Callback(() => Assert.That(clydeViewport.Object.Eye, Is.SameAs(viewport.Eye)));
         var handle = new Mock<IRenderHandle>();
         handle.SetupGet(h => h.DrawingHandleScreen).Returns(new Mock<DrawingHandleScreen>(texture).Object);
 
-        // An airborne player makes the Z renderer build an eye on the player map, exposing the regression.
-        Assert.That(CEntMan.HasComponent<CEZLevelViewerComponent>(CPlayer), Is.True);
-        var height = CEntMan.AddComponent<CEZPhysicsComponent>(CPlayer);
-        height.LocalPosition = 0.5f;
         field.SetValue(viewport, clydeViewport.Object);
         try
         {
             draw.Invoke(viewport, [handle.Object]);
-            clydeViewport.Verify(v => v.Render(), Times.Once);
+            clydeViewport.Verify(v => v.Render(), Times.Never);
         }
         finally
         {
             field.SetValue(viewport, original);
-            CEntMan.RemoveComponent<CEZPhysicsComponent>(CPlayer);
         }
     }
 }

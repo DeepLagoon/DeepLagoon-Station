@@ -18,6 +18,7 @@ public sealed partial record SpeechBarkSettings
     [DataField] public int Pause { get; set; } = 100;
     [DataField] public bool UseSpeciesSpeech { get; set; }
     [DataField] public SpeechBubbleStyle BubbleStyle { get; set; }
+    [DataField] public string TypingIndicator { get; set; } = "default";
 
     public SpeechBarkSettings Sanitize() => this with
     {
@@ -28,6 +29,7 @@ public sealed partial record SpeechBarkSettings
         Pause = Math.Clamp(Pause, MinPause, MaxPause),
         BubbleStyle = BubbleStyle is SpeechBubbleStyle.Blue or SpeechBubbleStyle.Green or SpeechBubbleStyle.Amber or
             SpeechBubbleStyle.Violet ? BubbleStyle : SpeechBubbleStyle.Default,
+        TypingIndicator = TypingIndicator is { Length: > 0 and <= 64 } ? TypingIndicator : "default",
     };
 
     public SpeechBarkSettings ForVoice(SpeechBarkVoicePrototype voice) => this with
