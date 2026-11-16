@@ -12,7 +12,7 @@
   components:
   - type: InstantAction
     icon:
-      sprite: Clothing/Eyes/Goggles/nightvision.rsi
+      sprite: _White/Clothing/Eyes/Goggles/nightvision.rsi
       state: icon
     event: !type:ToggleNightVisionEvent
 
