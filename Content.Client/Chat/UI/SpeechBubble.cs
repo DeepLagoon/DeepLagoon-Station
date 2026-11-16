@@ -1,6 +1,7 @@
 using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Client.Chat.Managers;
+using Content.Shared._DeepLagoon.Speech;
 using Content.Shared.CCVar;
 using Content.Shared.Chat;
 using Content.Shared.Speech;
@@ -95,7 +96,9 @@ namespace Content.Client.Chat.UI
             // Use text clipping so new messages don't overlap old ones being pushed up.
             RectClipContent = true;
 
-            var bubble = BuildBubble(message, speechStyleClass, fontColor, showSpeaker);
+            var style = _entityManager.TryGetComponent<SpeechComponent>(senderEntity, out var speech)
+                ? speech.BubbleStyle : SpeechBubbleStyle.Default;
+            var bubble = BuildBubble(message, speechStyleClass, fontColor, showSpeaker, style);
 
             AddChild(bubble);
 
@@ -107,7 +110,8 @@ namespace Content.Client.Chat.UI
             _deathTime = _timing.RealTime + TotalTime;
         }
 
-        protected abstract Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker);
+        protected abstract Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker,
+            SpeechBubbleStyle style);
 
         protected override void FrameUpdate(FrameEventArgs args)
         {
@@ -187,7 +191,7 @@ namespace Content.Client.Chat.UI
             }
         }
 
-        protected FormattedMessage FormatSpeech(string message, Color? fontColor = null)
+        protected static FormattedMessage FormatSpeech(string message, Color? fontColor = null)
         {
             var msg = new FormattedMessage();
             if (fontColor != null)
@@ -196,7 +200,7 @@ namespace Content.Client.Chat.UI
             return msg;
         }
 
-        protected FormattedMessage ExtractAndFormatSpeechSubstring(ChatMessage message, string tag, Color? fontColor = null)
+        protected static FormattedMessage ExtractAndFormatSpeechSubstring(ChatMessage message, string tag, Color? fontColor = null)
         {
             return FormatSpeech(SharedChatSystem.GetStringInsideTag(message, tag), fontColor);
         }
@@ -210,7 +214,8 @@ namespace Content.Client.Chat.UI
         {
         }
 
-        protected override Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker)
+        protected override Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker,
+            SpeechBubbleStyle style)
         {
             var label = new RichTextLabel
             {
@@ -238,9 +243,23 @@ namespace Content.Client.Chat.UI
         {
         }
 
-        protected override Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker)
+        protected override Control BuildBubble(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker,
+            SpeechBubbleStyle style) => BuildContent(message, speechStyleClass, fontColor, showSpeaker, style, ConfigManager);
+
+        internal static Control BuildPreview(string name, string phrase, SpeechBubbleStyle style, bool whisper = false)
         {
-            if (!ConfigManager.GetCVar(CCVars.ChatEnableFancyBubbles))
+            var speaker = FormattedMessage.EscapeText(name);
+            var text = FormattedMessage.EscapeText(phrase);
+            var message = new ChatMessage(whisper ? ChatChannel.Whisper : ChatChannel.Local, phrase,
+                $"[BubbleHeader]{speaker}[/BubbleHeader] [BubbleContent]{text}[/BubbleContent]", NetEntity.Invalid, null);
+            return BuildContent(message, whisper ? "whisperBox" : "sayBox", null, true, style,
+                IoCManager.Resolve<IConfigurationManager>());
+        }
+
+        private static Control BuildContent(ChatMessage message, string speechStyleClass, Color? fontColor, bool showSpeaker,
+            SpeechBubbleStyle style, IConfigurationManager configuration)
+        {
+            if (!configuration.GetCVar(CCVars.ChatEnableFancyBubbles))
             {
                 var label = new RichTextLabel
                 {
@@ -253,14 +272,15 @@ namespace Content.Client.Chat.UI
                 {
                     StyleClasses = { "speechBox", speechStyleClass },
                     Children = { label },
-                    ModulateSelfOverride = Color.White.WithAlpha(ConfigManager.GetCVar(CCVars.SpeechBubbleBackgroundOpacity)),
+                    ModulateSelfOverride = Color.White.WithAlpha(configuration.GetCVar(CCVars.SpeechBubbleBackgroundOpacity)),
                 };
+                ApplyStyle(unfanciedPanel, style);
                 return unfanciedPanel;
             }
 
             var bubbleContent = new RichTextLabel
             {
-                ModulateSelfOverride = Color.White.WithAlpha(ConfigManager.GetCVar(CCVars.SpeechBubbleTextOpacity)),
+                ModulateSelfOverride = Color.White.WithAlpha(configuration.GetCVar(CCVars.SpeechBubbleTextOpacity)),
                 MaxWidth = SpeechMaxWidth,
                 Margin = new Thickness(2, showSpeaker ? 6 : 2, 2, 2),
                 StyleClasses = { "bubbleContent" },
@@ -274,18 +294,19 @@ namespace Content.Client.Chat.UI
             {
                 StyleClasses = { "speechBox", speechStyleClass },
                 Children = { bubbleContent },
-                ModulateSelfOverride = Color.White.WithAlpha(ConfigManager.GetCVar(CCVars.SpeechBubbleBackgroundOpacity)),
+                ModulateSelfOverride = Color.White.WithAlpha(configuration.GetCVar(CCVars.SpeechBubbleBackgroundOpacity)),
                 HorizontalAlignment = HAlignment.Center,
                 VerticalAlignment = VAlignment.Bottom,
                 Margin = new Thickness(4, showSpeaker ? 14 : 2, 4, 2)
             };
+            ApplyStyle(mainPanel, style);
 
             if (!showSpeaker)
                 return mainPanel;
 
             var bubbleHeader = new RichTextLabel
             {
-                ModulateSelfOverride = Color.White.WithAlpha(ConfigManager.GetCVar(CCVars.SpeechBubbleSpeakerOpacity)),
+                ModulateSelfOverride = Color.White.WithAlpha(configuration.GetCVar(CCVars.SpeechBubbleSpeakerOpacity)),
                 Margin = new Thickness(1, 1, 1, 1),
             };
             bubbleHeader.SetMessage(ExtractAndFormatSpeechSubstring(message, "BubbleHeader", fontColor));
@@ -294,10 +315,11 @@ namespace Content.Client.Chat.UI
             {
                 StyleClasses = { "speechBox", speechStyleClass },
                 Children = { bubbleHeader },
-                ModulateSelfOverride = Color.White.WithAlpha(ConfigManager.GetCVar(CCVars.ChatFancyNameBackground) ? ConfigManager.GetCVar(CCVars.SpeechBubbleBackgroundOpacity) : 0f),
+                ModulateSelfOverride = Color.White.WithAlpha(configuration.GetCVar(CCVars.ChatFancyNameBackground) ? configuration.GetCVar(CCVars.SpeechBubbleBackgroundOpacity) : 0f),
                 HorizontalAlignment = HAlignment.Center,
                 VerticalAlignment = VAlignment.Top
             };
+            ApplyStyle(headerPanel, style);
 
             var panel = new PanelContainer
             {
@@ -305,6 +327,29 @@ namespace Content.Client.Chat.UI
             };
 
             return panel;
+        }
+
+        private static void ApplyStyle(PanelContainer panel, SpeechBubbleStyle style)
+        {
+            var (background, border) = style switch
+            {
+                SpeechBubbleStyle.Blue => ("#172d46", "#6da3d1"),
+                SpeechBubbleStyle.Green => ("#153929", "#74b697"),
+                SpeechBubbleStyle.Amber => ("#3b2817", "#cba265"),
+                SpeechBubbleStyle.Violet => ("#322344", "#a891ce"),
+                _ => (null, null),
+            };
+            if (background == null || border == null)
+                return;
+
+            var box = new StyleBoxFlat(Color.FromHex(background))
+            {
+                BorderColor = Color.FromHex(border),
+                BorderThickness = new Thickness(1),
+            };
+            box.SetContentMarginOverride(StyleBox.Margin.Horizontal, 7);
+            box.SetContentMarginOverride(StyleBox.Margin.Vertical, 2);
+            panel.PanelOverride = box;
         }
     }
 }

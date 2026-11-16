@@ -51,6 +51,7 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
     private CharacterSetupGui? _characterSetup;
     private CharacterEditorWindow? _editorWindow;
     private HumanoidProfileEditor? _profileEditor;
+    private StartingEquipmentReviewWindow? _equipmentReview;
     private CharacterSetupGuiSavePanel? _savePanel;
 
     /// <summary>
@@ -183,6 +184,7 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
 
     public void OnStateExited(LobbyState state)
     {
+        CloseEquipmentReview();
         PreviewPanel?.SetLoaded(false);
         _savePanel?.Dispose();
         _savePanel = null;
@@ -211,6 +213,29 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
         if (_editorWindow is { IsOpen: true }) { _editorWindow.MoveToFront(); return; }
         ReloadCharacterSetup();
         _editorWindow?.ShowEditor();
+    }
+
+    public void OpenEquipmentReview(StartingEquipmentReviewEvent review, Action<StartingEquipmentReviewReply> reply)
+    {
+        CloseEquipmentReview();
+        if (_preferencesManager.Preferences is not { } preferences ||
+            preferences.SelectedCharacterIndex != review.CharacterSlot || preferences.SelectedCharacter is not HumanoidCharacterProfile profile ||
+            !_prototypeManager.TryIndex<JobPrototype>(review.Job, out var job))
+        {
+            reply(new StartingEquipmentReviewReply(review.Request, join: false));
+            return;
+        }
+
+        _equipmentReview = new StartingEquipmentReviewWindow(review, profile, job, _playerManager.LocalSession,
+            draft => LoadProfileEntity(draft, job, false), reply);
+        _equipmentReview.OpenCentered();
+    }
+
+    public void CloseEquipmentReview()
+    {
+        if (_equipmentReview is { Disposed: false } window)
+            window.Dismiss();
+        _equipmentReview = null;
     }
 
     /// <summary>
@@ -426,9 +451,7 @@ public sealed partial class LobbyUIController : UIController, IOnStateEntered<Lo
     /// </summary>
     public JobPrototype GetPreferredJob(HumanoidCharacterProfile profile)
     {
-        var highPriorityJob = profile.JobPriorities.FirstOrDefault(p => p.Value == JobPriority.High).Key;
-        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract (what is resharper smoking?)
-        return _prototypeManager.Index<JobPrototype>(highPriorityJob.Id ?? SharedGameTicker.FallbackOverflowJob);
+        return _prototypeManager.Index<JobPrototype>(SharedGameTicker.PreferredEquipmentJob(profile));
     }
 
     public void GiveDummyLoadout(EntityUid uid, RoleLoadout? roleLoadout)

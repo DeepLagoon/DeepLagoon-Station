@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Shared.Preferences;
 using Content.Shared.Roles;
 using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
@@ -17,6 +18,8 @@ namespace Content.Shared.GameTicking
 {
     public abstract partial class SharedGameTicker : EntitySystem
     {
+        public static string PreferredEquipmentJob(HumanoidCharacterProfile profile) =>
+            profile.JobPriorities.FirstOrDefault(priority => priority.Value == JobPriority.High).Key.Id ?? FallbackOverflowJob;
         [Dependency] private IReplayRecordingManager _replay = default!;
         [Dependency] private IGameTiming _gameTiming = default!;
 

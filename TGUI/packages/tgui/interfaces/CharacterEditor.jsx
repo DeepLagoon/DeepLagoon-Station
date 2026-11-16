@@ -41,7 +41,7 @@ const DraftInput = ({ label, value, onCommit, type = 'text', min, max, maxLength
 };
 const ColorEditor = ColorSquare;
 const SizeSlider = ({ label, value, onChange, vertical = false, min = 0.8,
-  max = 1.2, step = 0.01, className = 'CharacterEditor__sizeSlider' }) => {
+  max = 1.2, step = 0.01, disabled = false, className = 'CharacterEditor__sizeSlider' }) => {
   const [local, setLocal] = useState(value);
   const dragging = useRef(false);
   const [send, flush] = useThrottledChange(onChange);
@@ -58,7 +58,7 @@ const SizeSlider = ({ label, value, onChange, vertical = false, min = 0.8,
     };
   }, [flush]);
   return <input className={className} aria-label={label} aria-orientation={vertical ? 'vertical' : 'horizontal'}
-      type="range" min={min} max={max} step={step} value={local}
+      type="range" min={min} max={max} step={step} value={local} disabled={disabled}
       onPointerDown={() => { dragging.current = true; }} onBlur={flush}
       onChange={event => { const next = Number(event.target.value); setLocal(next); send(next); }} />;
 };
@@ -69,19 +69,31 @@ const SpeechBarkEditor = ({ settings, voices, act }) => {
     || (voice.name + ' ' + voice.id).toLowerCase().includes(filterText));
   const change = (field, value) => act('speech-bark-change', { field, value: Number(value) });
   return <Section title={settings.title}>
-    <p>{settings.description}</p>
-    <Field label={settings.search}><input aria-label={settings.search} value={query}
+    <div className="CharacterEditor__bubbleSettings">
+      <Select label={settings.bubbleLabel} value={settings.bubbleStyle} options={settings.bubbleStyles}
+        onChange={value => act('speech-bubble-select', { value })} />
+      <Button role="button" icon="comment" onClick={() => act('speech-bubble-preview')}>{settings.bubblePreview}</Button>
+    </div>
+    <label className="CharacterEditor__voiceToggle">
+      <input type="checkbox" checked={!!settings.useSpecies}
+        onChange={event => act('speech-bark-use-species', { value: event.target.checked })} />
+      <span>{settings.useSpeciesLabel}</span>
+    </label>
+    {!settings.useSpecies && <p>{settings.description}</p>}
+    <Field label={settings.search}><input aria-label={settings.search} value={query} disabled={settings.useSpecies}
       onChange={event => setQuery(event.target.value)} /></Field>
     <Select label={settings.timbreLabel} value={settings.voice} options={options}
-      onChange={value => act('speech-bark-select', { value })} />
-    {settings.parameters.map(parameter => <Field key={parameter.id}
-      label={parameter.label + ' · ' + parameter.display}>
+      disabled={settings.useSpecies} onChange={value => act('speech-bark-select', { value })} />
+    {settings.parameters.map(parameter => <label key={parameter.id} className="CharacterEditor__voiceParameter">
+      <span>{parameter.label}</span>
       <SizeSlider label={parameter.label} value={parameter.value} min={parameter.min} max={parameter.max}
-        step={1} className="CharacterEditor__voiceSlider" onChange={value => change(parameter.id, value)} />
-    </Field>)}
+        step={1} disabled={settings.useSpecies} className="CharacterEditor__voiceSlider"
+        onChange={value => change(parameter.id, value)} />
+      <span>{parameter.display}</span>
+    </label>)}
     <div className="CharacterEditor__buttons">
       <Button icon="play" onClick={() => act('speech-bark-preview')}>{settings.preview}</Button>
-      <Button onClick={() => act('speech-bark-random')}>{settings.random}</Button>
+      <Button disabled={settings.useSpecies} onClick={() => act('speech-bark-random')}>{settings.random}</Button>
       <Button onClick={() => act('speech-bark-reset')}>{settings.reset}</Button>
     </div>
   </Section>;

@@ -9,6 +9,7 @@ const title = 'Редактирование содержимого рюкзак�
 const catalogTitle = 'Каталог предметов';
 const empty = [];
 const cellKey = (x, y) => x + '/' + y;
+const neighbors = [['left', -1, 0], ['right', 1, 0], ['top', 0, 1], ['bottom', 0, -1]];
 
 const boundsOf = boxes => ({
   left: Math.min(...boxes.map(box => box.left)),
@@ -59,7 +60,7 @@ const Sprite = ({ item, rotation = 0 }) => (
 
 const rotationOf = value => ((value || 0) % 360 + 360) % 360;
 
-function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
+export function BackpackWindows({ data, act, onClose, showUnavailable, dialogId, review = false }) {
   const [picked, setPicked] = useState(null);
   const [hover, setHover] = useState(null);
   const [message, setMessage] = useState('');
@@ -112,7 +113,7 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
           setHover(null);
           setMessage('');
         } else {
-          onClose();
+          onClose?.();
         }
       }
       if (selected && event.code === 'KeyR' && !event.target.closest?.('input, select, textarea')) {
@@ -282,15 +283,15 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
   });
   const texture = url => url ? 'url("' + url + '")' : 'none';
 
-  return <div className="BackpackEditor__backdrop" onContextMenu={event => rightClick(event)} onPointerDown={event => {
-    if (event.button === 0 && event.target === event.currentTarget) onClose();
+  return <div className="BackpackEditor__backdrop" data-review={review} onContextMenu={event => rightClick(event)} onPointerDown={event => {
+    if (event.button === 0 && event.target === event.currentTarget) onClose?.();
   }}>
     <div className="BackpackEditor__windows" data-catalog-open={catalogOpen && !!cells.length}>
       <section className="BackpackEditor__window" ref={dialog} tabIndex={-1} role="dialog"
         aria-labelledby={dialogId + '-title'} id={dialogId}>
         <header>
           <h2 id={dialogId + '-title'}>{data?.name || 'Содержимое рюкзака'}</h2>
-          <Button role="button" icon="times" aria-label="Закрыть редактор рюкзака" onClick={onClose} />
+          {!review && <Button role="button" icon="times" aria-label="Закрыть редактор рюкзака" onClick={onClose} />}
         </header>
         <div className="BackpackEditor__body">
           {!!containers.length && <nav className="BackpackEditor__toolbar" aria-label="Рюкзак, коробки и кейсы">
@@ -327,9 +328,12 @@ function BackpackWindows({ data, act, onClose, showUnavailable, dialogId }) {
                   if (!cellSet.has(cell.key))
                     return <span className="BackpackEditor__blockedCell" key={cell.key} style={style} aria-hidden="true" />;
                   const item = occupants.get(cell.key);
+                  const edges = item && neighbors.filter(([, dx, dy]) =>
+                    occupants.get(cellKey(cell.x + dx, cell.y + dy)) !== item).map(([side]) => side).join(' ');
                   const mark = previewCells.has(cell.key) && (preview.valid ? 'valid' : 'invalid');
                   return <button type="button" className="BackpackEditor__cell" key={cell.key}
                     data-occupied={!!item} data-fixed={!!item?.fixed} data-selected={!!item && item.key === selected?.key}
+                    data-edges={edges || undefined}
                     data-preview={mark || undefined} aria-label={item?.name || 'Ячейка ' + (cell.x - bounds.left + 1) + ', ' + (bounds.top - cell.y + 1)}
                     title={item?.container ? item.name + ' · двойное нажатие — открыть' : item?.name} style={style}
                     onPointerEnter={() => { if (!gesture.current?.dragged) setHover(cell); }}

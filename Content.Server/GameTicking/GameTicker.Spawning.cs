@@ -123,7 +123,7 @@ namespace Content.Server.GameTicking
 
             // Allow rules to add roles to players who have been spawned in. (For example, on-station traitors)
             RaiseLocalEvent(new RulePlayerJobsAssignedEvent(
-                assignedJobs.Keys.Select(x => _playerManager.GetSessionById(x)).ToArray(),
+                assignedJobs.Keys.Where(x => !_startingEquipmentReviews.ContainsKey(x)).Select(x => _playerManager.GetSessionById(x)).ToArray(),
                 profiles,
                 force));
         }
@@ -220,6 +220,16 @@ namespace Content.Server.GameTicking
             }
 
             var jobPrototype = _prototypeManager.Index<JobPrototype>(jobId);
+            if (!silent && RequestStartingEquipmentReview(player, character, station, jobPrototype, lateJoin))
+                return;
+
+            CompletePlayerSpawn(player, character, station, jobPrototype, lateJoin, silent);
+        }
+
+        private void CompletePlayerSpawn(ICommonSession player, HumanoidCharacterProfile character, EntityUid station,
+            JobPrototype jobPrototype, bool lateJoin, bool silent)
+        {
+            var jobId = jobPrototype.ID;
 
             // Delta-V: Add AlwaysUseSpawner.
             var spawnPointType = SpawnPointType.Unset;
@@ -352,6 +362,13 @@ namespace Content.Server.GameTicking
 
             if (!_userDb.IsLoadComplete(player))
                 return;
+            if (!CanJoinFaction(player, jobId))
+                return;
+            SpawnPlayer(player, station, jobId, silent: silent);
+        }
+
+        private bool CanJoinFaction(ICommonSession player, string? jobId)
+        {
             // Mono/BF14 start
             if (jobId != null)
             {
@@ -367,12 +384,12 @@ namespace Content.Server.GameTicking
                     if (faction != null && factionTracking.IsFactionOverpopulated(faction, this))
                     {
                         _chatManager.DispatchServerMessage(player, Loc.GetString("autobalance-team-full"));
-                        return;
+                        return false;
                     }
                 }
             }
             // Mono/BF14 end
-            SpawnPlayer(player, station, jobId, silent: silent);
+            return true;
         }
 
         /// <summary>

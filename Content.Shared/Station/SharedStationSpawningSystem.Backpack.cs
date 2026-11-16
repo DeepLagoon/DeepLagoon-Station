@@ -1,16 +1,38 @@
 using System.Linq;
 using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared._DeepLagoon.Modsuits;
+using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
 using Content.Shared.Roles;
 using Content.Shared.Storage;
 using Robust.Shared.Containers;
+using Robust.Shared.Prototypes;
 
 namespace Content.Shared.Station;
 
 public abstract partial class SharedStationSpawningSystem
 {
     [Dependency] private SharedContainerSystem _containers = default!;
+
+    public const string DefaultSurvivalKit = "default/survival-kit";
+
+    public static bool IsStartingSurvivalKit(StartingGearStorageItem item) => item.Slot == "back" && item.Prototype.Id is
+        "BoxSurvivalMonoOxygenExtended" or "BoxSurvivalMonoNitrogenExtended" or "BoxSurvivalMonoVaporExtended";
+
+    public static bool SurvivalKitRemoved(HumanoidCharacterProfile profile) =>
+        profile.Loadouts.TryGetValue(PersonalLoadoutSystem.Role, out var personal) &&
+        personal.BackpackLayout.GetValueOrDefault(DefaultSurvivalKit).Removed;
+
+    public static bool IsBackpackLoadout(LoadoutPrototype item, IPrototypeManager prototypes)
+    {
+        prototypes.TryIndex(item.StartingGear, out var gear);
+        return item.Components.Count == 0 && ContainsOnlyBackpackGear(item) &&
+            (gear == null || ContainsOnlyBackpackGear(gear)) &&
+            (item.Storage.Count > 0 || gear?.Storage.Count > 0);
+    }
+
+    private static bool ContainsOnlyBackpackGear(IEquipmentLoadout gear) =>
+        gear.Equipment.Count == 0 && gear.Inhand.Count == 0 && gear.Storage.Keys.All(slot => slot == "back");
 
     public static IEnumerable<StartingGearStorageItem> GetStartingGearStorageItems(
         IEquipmentLoadout gear,
@@ -69,7 +91,8 @@ public abstract partial class SharedStationSpawningSystem
         List<StartingGearStorageItem> items,
         IReadOnlyDictionary<string, BackpackItemPlacement>? layout,
         StartingContainerContents? contents = null,
-        bool preview = false)
+        bool preview = false,
+        HumanoidCharacterProfile? profile = null)
     {
         contents ??= new StartingContainerContents();
         var trackContents = preview || layout?.Count > 0;
@@ -80,6 +103,9 @@ public abstract partial class SharedStationSpawningSystem
             else
                 contents.Containers[""] = backpack.Owner;
         }
+        if (profile != null && contents.Containers.ContainsKey(""))
+            EnsureSurvivalKit(items, profile);
+        var skipKit = profile != null && (SurvivalKitRemoved(profile) || !contents.Containers.ContainsKey(""));
         var equipment = EntityManager.System<PersonalLoadoutEquipSystem>();
         var pending = new List<(EntityUid Item, BackpackItemPlacement? Placement)>();
         foreach (var item in items)
@@ -93,7 +119,7 @@ public abstract partial class SharedStationSpawningSystem
 
             BackpackItemPlacement? requested = item.Key != null && layout != null && layout.TryGetValue(item.Key, out var placement)
                 ? placement : null;
-            if (requested?.Removed == true)
+            if (requested?.Removed == true || skipKit && IsStartingSurvivalKit(item))
                 continue;
 
             var spawned = Spawn(item.Prototype, _xformSystem.GetMapCoordinates(entity));
@@ -141,6 +167,26 @@ public abstract partial class SharedStationSpawningSystem
             else if (placement == null)
                 _handsSystem.TryPickupAnyHand(entity, item, checkActionBlocker: false);
         }
+    }
+
+    private static void EnsureSurvivalKit(List<StartingGearStorageItem> items, HumanoidCharacterProfile profile)
+    {
+        var existing = items.FindIndex(IsStartingSurvivalKit);
+        if (existing >= 0)
+        {
+            var selected = items[existing];
+            items.RemoveAt(existing);
+            items.Insert(0, selected);
+            return;
+        }
+
+        var prototype = profile.Species.Id switch
+        {
+            "SlimePerson" or "Vox" => "BoxSurvivalMonoNitrogenExtended",
+            "Feroxi" => "BoxSurvivalMonoVaporExtended",
+            _ => "BoxSurvivalMonoOxygenExtended",
+        };
+        items.Insert(0, new StartingGearStorageItem("back", prototype, null, DefaultSurvivalKit));
     }
 
     public void RegisterStartingContainer(string key, EntityUid uid, StartingContainerContents contents, bool preview = false)

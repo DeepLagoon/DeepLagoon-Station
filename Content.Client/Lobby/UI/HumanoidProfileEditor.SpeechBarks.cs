@@ -1,10 +1,12 @@
 using System.Linq;
 using Content.Client._DeepLagoon.Speech;
 using Content.Client._DeepLagoon.WebUI;
+using Content.Client.Chat.UI;
 using Content.Shared._DeepLagoon.Speech;
 using Content.Shared.Speech;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 
@@ -15,7 +17,12 @@ public sealed partial class HumanoidProfileEditor
     private static readonly string[] SpeechBarkParameters = ["speed", "pitch", "variance", "pause"];
     private readonly ScrollContainer _speechBarkTab = new();
     private SpeechBarkVoicePrototype[] _speechBarkVoices = [];
+    private static readonly SpeechBubbleStyle[] SpeechBubbleStyles =
+        [SpeechBubbleStyle.Default, SpeechBubbleStyle.Blue, SpeechBubbleStyle.Green, SpeechBubbleStyle.Amber, SpeechBubbleStyle.Violet];
     private OptionButton? _speechBarkVoice;
+    private OptionButton? _speechBubbleStyle;
+    private CheckBox? _legacySpeech;
+    private DefaultWindow? _speechBubblePreview;
     private readonly List<(Slider Slider, Label Value)> _speechBarkSliders = new();
     private bool _updatingSpeechBarks;
 
@@ -31,6 +38,24 @@ public sealed partial class HumanoidProfileEditor
             Margin = new Thickness(8),
             SeparationOverride = 6,
         };
+        var bubbleRow = new BoxContainer { SeparationOverride = 8 };
+        bubbleRow.AddChild(new Label { Text = Loc.GetString("speech-bubble-style") });
+        var bubbleButton = new OptionButton { HorizontalExpand = true };
+        _speechBubbleStyle = bubbleButton;
+        foreach (var style in SpeechBubbleStyles)
+            bubbleButton.AddItem(SpeechBubbleStyleName(style), (int) style);
+        bubbleButton.OnItemSelected += args => ChangeSpeechBubbleStyle(args.Id);
+        bubbleRow.AddChild(bubbleButton);
+        var bubblePreview = new Button { Text = Loc.GetString("speech-bubble-preview") };
+        bubblePreview.OnPressed += _ => OpenSpeechBubblePreview();
+        bubbleRow.AddChild(bubblePreview);
+        content.AddChild(bubbleRow);
+
+        var legacySpeech = new CheckBox { Text = Loc.GetString("speech-bark-use-species") };
+        _legacySpeech = legacySpeech;
+        legacySpeech.OnToggled += args => ChangeSpeciesSpeech(args.Pressed);
+        content.AddChild(legacySpeech);
+
         content.AddChild(new Label { Text = Loc.GetString("speech-bark-timbre") });
         var voiceButton = new OptionButton { HorizontalExpand = true };
         _speechBarkVoice = voiceButton;
@@ -44,7 +69,7 @@ public sealed partial class HumanoidProfileEditor
         {
             var row = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Horizontal, SeparationOverride = 8 };
             row.AddChild(new Label { Text = Loc.GetString("speech-bark-" + field), MinWidth = 145 });
-            var slider = new Slider { HorizontalExpand = true, Rounded = true };
+            var slider = new Slider { HorizontalExpand = true, MaxWidth = 280, Rounded = true };
             var value = new Label { MinWidth = 56 };
             row.AddChild(slider);
             row.AddChild(value);
@@ -74,7 +99,10 @@ public sealed partial class HumanoidProfileEditor
         TabContainer.OnTabChanged += tab =>
         {
             if (TabContainer.GetChild(tab) != _speechBarkTab)
+            {
                 StopSpeechBarkPreview();
+                CloseSpeechBubblePreview();
+            }
         };
         UpdateSpeechBarkControls();
     }
@@ -99,6 +127,13 @@ public sealed partial class HumanoidProfileEditor
             .String("preview", Loc.GetString("speech-bark-preview"))
             .String("random", Loc.GetString("speech-bark-random"))
             .String("reset", Loc.GetString("speech-bark-reset"))
+            .String("bubbleLabel", Loc.GetString("speech-bubble-style"))
+            .String("bubblePreview", Loc.GetString("speech-bubble-preview"))
+            .Number("bubbleStyle", (int) settings.BubbleStyle)
+            .Array("bubbleStyles", SpeechBubbleStyles.Select(style => new TguiData()
+                .Number("id", (int) style).String("name", SpeechBubbleStyleName(style))))
+            .String("useSpeciesLabel", Loc.GetString("speech-bark-use-species"))
+            .Bool("useSpecies", settings.UseSpeciesSpeech)
             .String("voice", settings.Voice == voice.ID ? voice.ID : "")
             .Array("parameters", SpeechBarkParameters.Select(field =>
             {
@@ -119,6 +154,10 @@ public sealed partial class HumanoidProfileEditor
         settings = settings.ForVoice(voice);
         var selected = settings.Voice == voice.ID ? Array.FindIndex(_speechBarkVoices, entry => entry.ID == voice.ID) + 1 : 0;
         _speechBarkVoice.SelectId(selected);
+        _speechBarkVoice.Disabled = settings.UseSpeciesSpeech;
+        _speechBubbleStyle?.SelectId((int) settings.BubbleStyle);
+        if (_legacySpeech != null)
+            _legacySpeech.Pressed = settings.UseSpeciesSpeech;
 
         _updatingSpeechBarks = true;
         try
@@ -132,6 +171,7 @@ public sealed partial class HumanoidProfileEditor
                 slider.MaxValue = max;
                 slider.MinValue = min;
                 slider.SetValueWithoutEvent(value);
+                slider.Disabled = settings.UseSpeciesSpeech;
                 label.Text = SpeechBarkValue(field, value);
             }
         }
@@ -199,7 +239,7 @@ public sealed partial class HumanoidProfileEditor
         SetDirty();
     }
 
-    private ProtoId<SpeechBarkVoicePrototype>? GetDefaultSpeechBarkVoice()
+    private SpeechComponent? GetSpeciesSpeech()
     {
         if (Profile == null)
             return null;
@@ -207,14 +247,23 @@ public sealed partial class HumanoidProfileEditor
         var species = _prototypeManager.Index(Profile.Species);
         var mob = _prototypeManager.Index(species.Prototype);
         return mob.TryGetComponent<SpeechComponent>(out var speech, _entManager.ComponentFactory)
-            ? speech.BarkVoice
+            ? speech
             : null;
     }
 
+    private ProtoId<SpeechBarkVoicePrototype>? GetDefaultSpeechBarkVoice() => GetSpeciesSpeech()?.BarkVoice;
+
     private void PreviewSpeechBarks()
     {
-        if (Profile != null)
-            _entManager.System<SpeechBarkSystem>().Preview(Profile.SpeechBarks, GetDefaultSpeechBarkVoice());
+        if (Profile == null)
+            return;
+
+        var system = _entManager.System<SpeechBarkSystem>();
+        var speciesSpeech = GetSpeciesSpeech();
+        if (!Profile.SpeechBarks.UseSpeciesSpeech)
+            system.Preview(Profile.SpeechBarks, speciesSpeech?.BarkVoice);
+        else if (speciesSpeech?.SpeechSounds is { } sounds && _prototypeManager.TryIndex(sounds, out var sound))
+            system.PreviewSpecies(sound.AskSound, speciesSpeech.AudioParams);
     }
 
     private void StopSpeechBarkPreview() => _entManager.System<SpeechBarkSystem>().StopPreview();
@@ -222,8 +271,71 @@ public sealed partial class HumanoidProfileEditor
     private void ResetSpeechBarks()
     {
         StopSpeechBarkPreview();
-        ApplySpeechBarks(new SpeechBarkSettings());
+        if (Profile == null)
+            return;
+
+        ApplySpeechBarks(new SpeechBarkSettings
+        {
+            UseSpeciesSpeech = Profile.SpeechBarks.UseSpeciesSpeech,
+            BubbleStyle = Profile.SpeechBarks.BubbleStyle,
+        });
     }
+
+    private bool ChangeSpeciesSpeech(bool enabled)
+    {
+        if (Profile == null)
+            return false;
+
+        StopSpeechBarkPreview();
+        ApplySpeechBarks(Profile.SpeechBarks with { UseSpeciesSpeech = enabled });
+        return true;
+    }
+
+    private bool ChangeSpeechBubbleStyle(int style)
+    {
+        if (Profile == null || style != (int) (SpeechBubbleStyle) style ||
+            !SpeechBubbleStyles.Contains((SpeechBubbleStyle) style))
+            return false;
+
+        ApplySpeechBarks(Profile.SpeechBarks with { BubbleStyle = (SpeechBubbleStyle) style });
+        UpdateSpeechBubblePreview();
+        return true;
+    }
+
+    private static string SpeechBubbleStyleName(SpeechBubbleStyle style) =>
+        Loc.GetString("speech-bubble-" + style.ToString().ToLowerInvariant());
+
+    private void OpenSpeechBubblePreview()
+    {
+        if (Profile == null)
+            return;
+
+        if (_speechBubblePreview is { } existing)
+        {
+            existing.MoveToFront();
+            return;
+        }
+
+        var window = new DefaultWindow { Title = Loc.GetString("speech-bubble-preview"), MinWidth = 300 };
+        _speechBubblePreview = window;
+        window.OnClose += () => { _speechBubblePreview = null; window.Dispose(); };
+        UpdateSpeechBubblePreview();
+        window.OpenCentered();
+    }
+
+    private void UpdateSpeechBubblePreview()
+    {
+        if (_speechBubblePreview is not { } window || Profile == null)
+            return;
+
+        window.Contents.DisposeAllChildren();
+        var samples = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 12, Margin = new Thickness(10) };
+        samples.AddChild(FancyTextSpeechBubble.BuildPreview(Profile.Name, Loc.GetString("speech-bark-preview-phrase"), Profile.SpeechBarks.BubbleStyle));
+        samples.AddChild(FancyTextSpeechBubble.BuildPreview(Profile.Name, Loc.GetString("speech-bubble-preview-whisper"), Profile.SpeechBarks.BubbleStyle, whisper: true));
+        window.Contents.AddChild(samples);
+    }
+
+    private void CloseSpeechBubblePreview() => _speechBubblePreview?.Close();
 
     private static string SpeechBarkValue(string field, int value) => field == "speed"
         ? value.ToString()

@@ -3547,6 +3547,7 @@
   id: BlueMoonFrillsAquaticHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_aquatic_headside.rsi
     state: m_frills_aqua_adj_base_0
@@ -3554,6 +3555,7 @@
   id: BlueMoonFrillsSimpleHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_simple_headside.rsi
     state: m_frills_simple_adj_base_0
@@ -3561,6 +3563,7 @@
   id: BlueMoonFrillsShortHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_short_headside.rsi
     state: m_frills_short_adj_base_0
@@ -4443,6 +4446,7 @@
   id: BlueMoonAntennaTvantennaeHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_tvantennae_headtop.rsi
     state: m_ipc_antenna_tvantennae_adj_base_0
@@ -5015,6 +5019,7 @@
   id: BlueMoonAntennaSynthlizHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5024,6 +5029,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_curledHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5053,6 +5059,7 @@
   id: BlueMoonAntennaSynthlizSynth_shortHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5062,6 +5069,7 @@
   id: BlueMoonAntennaSynthlizSynth_sharpHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5071,6 +5079,7 @@
   id: BlueMoonAntennaSynthlizSynth_sharplightHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5082,6 +5091,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_thickHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -5091,6 +5101,7 @@
   id: BlueMoonAntennaSynthlizSynth_thicklightHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -16933,6 +16944,7 @@
   id: BlueMoonHornsScolo_antennaeHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/horns_scolo_antennae_headtop.rsi
     state: m_horns_scolo_antennae_horns_base_0
@@ -17554,6 +17566,7 @@
   id: BlueMoonFrillsCobraslimHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_cobraslim_headside.rsi
     state: m_frills_cobraslim_adj_primary_0
@@ -17563,6 +17576,7 @@
   id: BlueMoonFrillsFullHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_full_headside.rsi
     state: m_frills_full_adj_base_0
@@ -17570,6 +17584,7 @@
   id: BlueMoonFrillsLongHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_long_headside.rsi
     state: m_frills_long_adj_base_0
@@ -17577,6 +17592,7 @@
   id: BlueMoonFrillsSplitHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_split_headside.rsi
     state: m_frills_split_adj_base_0
@@ -18680,7 +18696,7 @@
   id: BlueMoonEarsMam_earsFaceantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_faceant_headside.rsi
     state: m_ears_faceant_adj_primary_0
@@ -18688,7 +18704,7 @@
   id: BlueMoonEarsMam_earsFaceant2HeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_faceant2_headside.rsi
     state: m_ears_faceant2_adj_primary_0
@@ -18696,7 +18712,7 @@
   id: BlueMoonEarsMam_earsMothHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_moth_headside.rsi
     state: m_ears_moth_adj_secondary_0
@@ -18704,7 +18720,7 @@
   id: BlueMoonEarsMam_earsPlumeantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_plumeant_headside.rsi
     state: m_ears_plumeant_adj_primary_0
@@ -18712,7 +18728,7 @@
   id: BlueMoonEarsMam_earsRoundantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_roundant_headside.rsi
     state: m_ears_roundant_adj_primary_0
@@ -18720,7 +18736,7 @@
   id: BlueMoonEarsMam_earsThinantHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
-  editorType: Ears
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/ears_mam_ears_thinant_headside.rsi
     state: m_ears_thinant_adj_primary_0
@@ -18868,6 +18884,7 @@
   id: BlueMoonFrillsCobrahood_altHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_cobrahood_alt_headside.rsi
     state: m_frills_cobrahood_adj_primary_0
@@ -18875,6 +18892,7 @@
   id: BlueMoonFrillsCobrahood_alttwoHeadSide
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/frills_cobrahood_alttwo_headside.rsi
     state: m_frills_cobrahood_alt_adj_primary_0
@@ -20328,6 +20346,7 @@
   id: BlueMoonAntennaSynthlizSynth_antennaelightHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synth_antennaelight_headtop.rsi
     state: m_ipc_antenna_synth_antennaelight_adj_primary_0
@@ -20337,6 +20356,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_antennaeoverHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_antennaeover_headtop.rsi
     state: m_ipc_antenna_synth_antennaeover_adj_tertiary_0
@@ -20344,6 +20364,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_curledoverHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_curledover_headtop.rsi
     state: m_ipc_antenna_synth_curledover_adj_tertiary_0
@@ -20351,6 +20372,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_thickoverHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_thickover_headtop.rsi
     state: m_ipc_antenna_synth_thickover_adj_tertiary_0
@@ -20358,6 +20380,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_shortoverHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_shortover_headtop.rsi
     state: m_ipc_antenna_synth_shortover_adj_tertiary_0
@@ -20365,6 +20388,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_sharpoverHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_sharpover_headtop.rsi
     state: m_ipc_antenna_synth_sharpover_adj_tertiary_0
@@ -20388,6 +20412,7 @@
   id: BlueMoonAntennaSynthlizSynthliz_antennaquadHeadTop
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   sprites:
   - sprite: _DeepLagoon/Customization/BlueMoon/antenna_synthliz_synthliz_antennaquad_headtop.rsi
     state: m_ipc_antenna_synth_antennaquad_adj_primary_0

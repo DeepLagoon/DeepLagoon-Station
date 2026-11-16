@@ -65,6 +65,8 @@ namespace Content.Client.GameTicking.Managers
             SubscribeNetworkEvent<RequestWindowAttentionEvent>(OnAttentionRequest);
             SubscribeNetworkEvent<TickerLateJoinStatusEvent>(LateJoinStatus);
             SubscribeNetworkEvent<TickerJobsAvailableEvent>(UpdateJobsAvailable);
+            SubscribeNetworkEvent<StartingEquipmentReviewEvent>(review => _userInterfaceManager.GetUIController<LobbyUIController>()
+                .OpenEquipmentReview(review, reply => RaiseNetworkEvent(reply)));
 
             _admin.AdminStatusUpdated += OnAdminUpdated;
             OnAdminUpdated();
@@ -106,6 +108,7 @@ namespace Content.Client.GameTicking.Managers
 
         private void JoinLobby(TickerJoinLobbyEvent message)
         {
+            _userInterfaceManager.GetUIController<LobbyUIController>().CloseEquipmentReview();
             _stateManager.RequestStateChange<LobbyState>();
         }
 
@@ -146,6 +149,7 @@ namespace Content.Client.GameTicking.Managers
 
         private void RoundEnd(RoundEndMessageEvent message)
         {
+            _userInterfaceManager.GetUIController<LobbyUIController>().CloseEquipmentReview();
             // Force an update in the event of this song being the same as the last.
             RestartSound = message.RestartSound;
 

@@ -71,9 +71,7 @@ public sealed partial class MarkingSet
             return;
         }
 
-        Points = MarkingPoints.CloneMarkingPointDictionary(points.Points);
-        if (unrestricted)
-            foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray()) Points.Remove(category);
+        InitializePoints(points, unrestricted);
 
         foreach (var marking in markings)
         {
@@ -120,9 +118,26 @@ public sealed partial class MarkingSet
             return;
         }
 
-        Points = MarkingPoints.CloneMarkingPointDictionary(points.Points);
+        InitializePoints(points, unrestricted);
+    }
+
+    private static bool IsHeadAccessoryCategory(MarkingCategories category) =>
+        category is MarkingCategories.HeadTop or MarkingCategories.HeadSide;
+
+    private void InitializePoints(MarkingPointsPrototype prototype, bool unrestricted)
+    {
+        Points = MarkingPoints.CloneMarkingPointDictionary(prototype.Points);
+        // Each supported head slot can layer several accessories in the character editor.
+        const int headAccessoryMinimum = 4;
+        foreach (var (category, points) in Points)
+        {
+            if (points.Points > 0 && IsHeadAccessoryCategory(category))
+                points.Points = Math.Max(points.Points, headAccessoryMinimum);
+        }
+
         if (unrestricted)
-            foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray()) Points.Remove(category);
+            foreach (var category in Points.Where(pair => pair.Value.Points == 0).Select(pair => pair.Key).ToArray())
+                Points.Remove(category);
     }
 
     /// <summary>
@@ -283,9 +298,7 @@ public sealed partial class MarkingSet
             while (points.Points > 0 && index < points.DefaultMarkings.Count) // Mono: Change || to &&
             {
                 if (markingManager.Markings.TryGetValue(points.DefaultMarkings[index], out var prototype)
-                    && !(prototype.EditorExclusive && Markings.TryGetValue(category, out var existing)
-                        && existing.Any(marking => markingManager.TryGetMarking(marking, out var selected)
-                            && selected.BodyPart == prototype.BodyPart)))
+                    && !HasReplacementForDefault(category, prototype, markingManager))
                 {
                     var colors = MarkingColoring.GetMarkingLayerColors(
                             prototype,
@@ -301,6 +314,22 @@ public sealed partial class MarkingSet
                 index++;
             }
         }
+    }
+
+    private bool HasReplacementForDefault(MarkingCategories category, MarkingPrototype prototype, MarkingManager markingManager)
+    {
+        if (IsHeadAccessoryCategory(category))
+        {
+            // Antennae and ears can share an underlying layer while occupying different editor slots.
+            var type = prototype.FilterType;
+            return Markings.Where(entry => IsHeadAccessoryCategory(entry.Key)).SelectMany(entry => entry.Value)
+                .Any(marking => markingManager.TryGetMarking(marking, out var selected) && selected.FilterType == type &&
+                    (type is MarkingEditorType.Ears or MarkingEditorType.Antennae || selected.BodyPart == prototype.BodyPart));
+        }
+
+        return prototype.EditorExclusive && Markings.TryGetValue(category, out var existing) &&
+            existing.Any(marking => markingManager.TryGetMarking(marking, out var selected) &&
+                selected.BodyPart == prototype.BodyPart);
     }
 
     /// <summary>

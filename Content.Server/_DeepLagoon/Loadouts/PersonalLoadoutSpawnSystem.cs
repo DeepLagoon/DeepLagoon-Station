@@ -4,6 +4,7 @@ using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Examine;
 using Content.Shared.GameTicking;
 using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Preferences;
 using Content.Shared.Station;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
@@ -66,5 +67,6 @@ public sealed partial class DeferredStartingGearComponent : Component
     public List<StartingGearStorageItem> Items = new();
     public IReadOnlyDictionary<string, BackpackItemPlacement>? Layout;
     public StartingContainerContents? Contents;
+    public HumanoidCharacterProfile? Profile;
     public bool HandsApplied;
 }

@@ -17,6 +17,11 @@
     padding: 12px;
     background: #080c13b3;
     overflow: auto;
+
+    &[data-review=true] {
+      align-items: start;
+      background: var(--editor-control-bg, #1b2028);
+    }
   }
 
   &__windows {
@@ -95,7 +100,8 @@
     isolation: isolate;
   }
 
-  .CharacterEditor &__grid &__cell {
+  &__grid &__cell, .CharacterEditor &__grid &__cell {
+    position: relative;
     margin: 0;
     padding: 0;
     border: 0;
@@ -109,6 +115,17 @@
     cursor: pointer;
 
     &[data-occupied=true] { background-image: var(--backpack-piece), var(--backpack-tile); cursor: grab; }
+    &[data-edges]::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 0 solid #c2d3e4;
+      pointer-events: none;
+    }
+    &[data-edges~=top]::after { border-top-width: 1px; }
+    &[data-edges~=right]::after { border-right-width: 1px; }
+    &[data-edges~=bottom]::after { border-bottom-width: 1px; }
+    &[data-edges~=left]::after { border-left-width: 1px; }
     &[data-fixed=true] { cursor: default; }
     &[data-selected=true] { box-shadow: inset 0 0 0 2px #83bbfa; }
     &[data-preview=valid] { box-shadow: inset 0 0 0 999px #38845999; }

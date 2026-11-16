@@ -3,6 +3,7 @@
   id: MothAntennasDefault
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -12,6 +13,7 @@
   id: MothAntennasCharred
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -21,6 +23,7 @@
   id: MothAntennasDbushy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -30,6 +33,7 @@
   id: MothAntennasDcurvy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -39,6 +43,7 @@
   id: MothAntennasDfan
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -48,6 +53,7 @@
   id: MothAntennasDpointy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -57,6 +63,7 @@
   id: MothAntennasFeathery
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -66,6 +73,7 @@
   id: MothAntennasFirewatch
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -75,6 +83,7 @@
   id: MothAntennasGray
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -84,6 +93,7 @@
   id: MothAntennasJungle
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -93,6 +103,7 @@
   id: MothAntennasMoffra
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -102,6 +113,7 @@
   id: MothAntennasOakworm
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -111,6 +123,7 @@
   id: MothAntennasPlasmafire
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -120,6 +133,7 @@
   id: MothAntennasMaple
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -129,6 +143,7 @@
   id: MothAntennasRoyal
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -138,6 +153,7 @@
   id: MothAntennasStriped
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -147,6 +163,7 @@
   id: MothAntennasWhitefly
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -156,6 +173,7 @@
   id: MothAntennasWitchwing
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi
@@ -165,6 +183,7 @@
   id: MothAntennasUnderwing
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Moth]
   sprites:
   - sprite: Mobs/Customization/Moth/moth_antennas.rsi

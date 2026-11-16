@@ -1497,6 +1497,7 @@
   id: SynthAccessoryHorn
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1507,6 +1508,7 @@
   id: SynthAccessoryHornLights
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1517,6 +1519,7 @@
   id: SynthAccessoryHornquadrato
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1527,6 +1530,7 @@
   id: SynthAccessoryHorns
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1537,6 +1541,7 @@
   id: SynthAccessoryHornsLights
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1547,6 +1552,7 @@
   id: SynthAccessoryHornsquadrato
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction:
   - Synth
   sprites:
@@ -1557,6 +1563,7 @@
   id: SynthAccessoryShort
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -1567,6 +1574,7 @@
   id: SynthAccessoryAntennaSimple
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:
@@ -1577,6 +1585,7 @@
   id: SynthAccessorySimpleLights
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorType: Antennae
   speciesRestriction:
   - Synth
   sprites:

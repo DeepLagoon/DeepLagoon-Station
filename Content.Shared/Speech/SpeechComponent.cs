@@ -23,6 +23,10 @@ namespace Content.Shared.Speech
 
         [DataField, ViewVariables(VVAccess.ReadWrite)] public ProtoId<SpeechBarkVoicePrototype>? BarkVoice;
         [DataField] public SpeechBarkSettings BarkSettings = new();
+        [DataField, AutoNetworkedField] public SpeechBubbleStyle BubbleStyle;
+        [DataField] public bool HasCharacterSpeech;
+        [DataField] public ProtoId<SpeechSoundsPrototype>? CharacterSpeechSounds;
+        public ProtoId<SpeechSoundsPrototype>? EffectiveSpeechSounds => HasCharacterSpeech ? CharacterSpeechSounds : SpeechSounds;
 
         /// <summary>
         ///     What speech verb prototype should be used by default for displaying this entity's messages?

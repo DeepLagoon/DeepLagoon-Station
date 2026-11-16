@@ -189,7 +189,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             if (!TryPlace(jobEntity))
                 return null;
             if (profile != null && TryComp<SpeechComponent>(jobEntity, out var speech))
-                speech.BarkSettings = profile.SpeechBarks.Sanitize();
+                EntityManager.System<SpeechSystem>().ApplyCharacterSpeech((jobEntity, speech), profile.SpeechBarks, speech.SpeechSounds);
 
             // Make sure custom names get handled, what is gameticker control flow whoopy.
             if (loadout != null)
@@ -400,9 +400,10 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             deferred.Items = storageItems;
             deferred.Layout = loadout?.BackpackLayout;
             deferred.Contents = contents;
+            deferred.Profile = profile;
         }
         else
-            FinishStartingGear(entity.Value, storageItems, loadout?.BackpackLayout, contents);
+            FinishStartingGear(entity.Value, storageItems, loadout?.BackpackLayout, contents, profile);
 
         if (profile != null)
         {
@@ -465,13 +466,13 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             return;
 
         RemComp<DeferredStartingGearComponent>(entity);
-        FinishStartingGear(entity, pending.Items, pending.Layout, pending.Contents);
+        FinishStartingGear(entity, pending.Items, pending.Layout, pending.Contents, pending.Profile);
     }
 
     private void FinishStartingGear(EntityUid entity, List<StartingGearStorageItem> storageItems,
-        IReadOnlyDictionary<string, BackpackItemPlacement>? layout, StartingContainerContents? contents)
+        IReadOnlyDictionary<string, BackpackItemPlacement>? layout, StartingContainerContents? contents, HumanoidCharacterProfile? profile)
     {
-        FinishStartingGearStorage(entity, storageItems, layout, contents);
+        FinishStartingGearStorage(entity, storageItems, layout, contents, profile: profile);
 
         var ev = new StartingGearEquippedEvent(entity);
         RaiseLocalEvent(entity, ref ev);

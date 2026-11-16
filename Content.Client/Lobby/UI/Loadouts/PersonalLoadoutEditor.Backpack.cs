@@ -97,7 +97,7 @@ public sealed partial class PersonalLoadoutEditor
         }
 
         var layout = _jobRole.BackpackLayout;
-        spawning.FinishStartingGearStorage(preview, _backpackDefaults, layout, _backpackContents, preview: true);
+        spawning.FinishStartingGearStorage(preview, _backpackDefaults, layout, _backpackContents, preview: true, profile: _profile);
         BuildBackpackCatalog(equipment, layout);
         state.Array("containers", _backpackContents.Containers
             .Where(entry => entry.Key.Length > 0 && _entities.EntityExists(entry.Value))
@@ -160,7 +160,7 @@ public sealed partial class PersonalLoadoutEditor
         {
             var item = entry.Item;
             _prototypes.TryIndex(item.StartingGear, out var gear);
-            if (!ContainsOnlyBackpackGear(item) || item.Components.Count > 0 || gear != null && !ContainsOnlyBackpackGear(gear))
+            if (!SharedStationSpawningSystem.IsBackpackLoadout(item, _prototypes))
                 continue;
             var allowed = role.IsValid(profile, _session, item.ID, IoCManager.Instance!, out var reason);
             var canSelect = allowed && CanAffordJob(role, entry.Group, item);
@@ -186,7 +186,8 @@ public sealed partial class PersonalLoadoutEditor
 
         foreach (var item in _backpackDefaults)
         {
-            if (item.Key != null && layout.TryGetValue(item.Key, out var placement) && placement.Removed)
+            if (item.Key != null && (layout.TryGetValue(item.Key, out var placement) && placement.Removed ||
+                SharedStationSpawningSystem.IsStartingSurvivalKit(item) && SharedStationSpawningSystem.SurvivalKitRemoved(profile)))
                 Add(item, null, null, "Items", true, true, null);
         }
 
@@ -304,6 +305,23 @@ public sealed partial class PersonalLoadoutEditor
             return false;
         }
 
+        if (_backpackDefaults.Any(item => item.Key == key && SharedStationSpawningSystem.IsStartingSurvivalKit(item)) &&
+            (remove || action == "backpack-add"))
+        {
+            var personal = profile.Loadouts.TryGetValue(PersonalLoadoutSystem.Role, out var stored)
+                ? stored.Clone() : new RoleLoadout(PersonalLoadoutSystem.Role);
+            if (remove)
+                personal.BackpackLayout[SharedStationSpawningSystem.DefaultSurvivalKit] = placement;
+            else
+                personal.BackpackLayout.Remove(SharedStationSpawningSystem.DefaultSurvivalKit);
+            if (remove)
+                role.BackpackLayout.Remove(key);
+            else
+                role.BackpackLayout[key] = placement;
+            ProfileChanged?.Invoke(profile.WithLoadout(personal).WithLoadout(role));
+            return true;
+        }
+
         // Deselect an optional choice once all of its items have been removed.
         if (remove && _backpackChoices.TryGetValue(key, out var removed) && removed.Loadout is { } removedLoadout &&
             _backpackChoices.Values.Where(choice => choice.Loadout == removedLoadout && choice.Group == removed.Group)
@@ -354,7 +372,4 @@ public sealed partial class PersonalLoadoutEditor
                    && system.ItemFitsInGridLocation(moving, (target, storage), location);
         }
     }
-
-    private static bool ContainsOnlyBackpackGear(IEquipmentLoadout gear) =>
-        gear.Equipment.Count == 0 && gear.Inhand.Count == 0 && gear.Storage.Keys.All(slot => slot == "back");
 }

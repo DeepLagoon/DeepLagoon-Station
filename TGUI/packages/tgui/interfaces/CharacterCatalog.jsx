@@ -13,6 +13,7 @@ const markingTypes = [
   { id: 'Tail', name: 'Хвост' },
   { id: 'Snout', name: 'Морды' },
   { id: 'Ears', name: 'Уши' },
+  { id: 'Antennae', name: 'Антенны' },
   { id: 'Wings', name: 'Крылья' },
 ];
 
@@ -26,19 +27,19 @@ export const CharacterCatalog = () => {
   const markings = data.kind === 'markings', beard = data.kind === 'beard';
   const title = markings ? 'Каталог особенностей' : beard ? 'Все бороды и усы' : 'Все причёски';
   const options = markings ? (data.markingOptions || []) : data[beard ? 'beardOptions' : 'hairOptions'] || [];
-  const categories = [...new Set(options.map(option => option.category))].filter(Boolean);
-  const activeCategory = categories.includes(category) ? category : '';
-  const combinationCategory = options.find(option => option.category === activeCategory)?.combinationCategory;
   const races = useMemo(() => [...new Map(options.flatMap(option => option.races || []).map(item => [item.id, item])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, 'ru')), [options]);
   const raceRestricted = markings && !!data.markingSpeciesRestricted;
   const activeRace = !raceRestricted && races.some(item => item.id === race) ? race : '';
   const types = useMemo(() => markingTypes.filter(item => options.some(option => option.typeId === item.id)), [options]);
   const activeType = types.some(item => item.id === type) ? type : '';
-  const filtered = useMemo(() => fuzzyFilter(options.filter(option => !markings ||
-    ((!activeCategory || option.category === activeCategory) && (!activeRace || option.races?.some(item => item.id === activeRace))
-      && (!activeType || option.typeId === activeType))), query,
-    option => option.name + ' ' + option.id), [options, query, markings, activeCategory, activeRace, activeType]);
+  const available = useMemo(() => fuzzyFilter(options.filter(option => !markings ||
+    ((!activeRace || option.races?.some(item => item.id === activeRace)) && (!activeType || option.typeId === activeType))), query,
+    option => option.name + ' ' + option.id), [options, query, markings, activeRace, activeType]);
+  const categories = [...new Set(available.map(option => option.category))].filter(Boolean);
+  const activeCategory = categories.includes(category) ? category : '';
+  const combinationCategory = available.find(option => option.category === activeCategory)?.combinationCategory;
+  const filtered = activeCategory ? available.filter(option => option.category === activeCategory) : available;
   const key = beard ? 'beard' : 'hair';
   const color = data[key + 'Locked'] ? data.skinColor : data[key + 'Color'];
   useEffect(() => { setQuery(''); setCategory(''); setRace(''); setType(''); setFilterOpen(false); }, [data.kind]);

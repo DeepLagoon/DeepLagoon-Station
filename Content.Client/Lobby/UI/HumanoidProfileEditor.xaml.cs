@@ -906,6 +906,7 @@ namespace Content.Client.Lobby.UI
             }
             if (slot != CharacterSlot || profile == null) CloseHeadshotLibrary();
             StopSpeechBarkPreview();
+            CloseSpeechBubblePreview();
             Profile = profile?.Clone();
             if (Profile != null)
                 Profile.Appearance.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.SanitizeForEditor(Profile.Appearance.BodyFeatures);
@@ -1319,6 +1320,7 @@ namespace Content.Client.Lobby.UI
         protected override void ExitedTree()
         {
             StopSpeechBarkPreview();
+            CloseSpeechBubblePreview();
             CloseCatalog();
             CloseColorPicker();
             CloseBackpackEditor();

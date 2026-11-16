@@ -10,6 +10,7 @@ using Content.Shared._DeepLagoon.Loadouts;
 using Content.Shared.Inventory;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
+using Content.Shared.Station;
 using Robust.Client.UserInterface;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
@@ -42,6 +43,7 @@ public sealed class EmptySlotCustomizationTests
                 using var document = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString());
                 return document.RootElement.GetProperty("equipment").GetProperty(list).EnumerateArray().Single(item => item.GetProperty("id").GetString() == id).Clone();
             }
+
             void Customize(string list, string id, string? group, bool paid, string slot)
             {
                 Assert.That(inventory.TryGetSlotEntity(editor.PreviewDummy, slot, out _), Is.False, "The target slot must start empty");
@@ -90,6 +92,20 @@ public sealed class EmptySlotCustomizationTests
                 Assert.That(Catalog("handItems", guitar).GetProperty("selected").GetBoolean(), Is.True);
             }
 
+            var utilityItems = new[] { "ContractorAppraisalTool", "ContractorPickaxe" };
+            for (var i = 0; i < hands.Length; i++)
+            {
+                var value = hands[i].GetProperty("id").GetString()!;
+                Assert.That(editor.HandleTguiProfileAction("preview-hand", JsonSerializer.Serialize(new { value })), Is.True);
+                var option = Catalog("handItems", utilityItems[i]);
+                Assert.That(option.GetProperty("canSelect").GetBoolean(), Is.True);
+                var key = option.GetProperty("handKey").GetString()!;
+                Assert.That(editor.HandleTguiProfileAction("equipment/hand-select", JsonSerializer.Serialize(new { key })), Is.True);
+            }
+            var utilities = editor.Profile!.Loadouts["JobContractor"];
+            Assert.That(utilities.SelectedLoadouts["ContractorUtility"].Select(item => item.Prototype.Id), Is.EquivalentTo(utilityItems));
+            Assert.That(utilities.HandAssignments.Values.Where(hand => hand.Length != 0).Distinct().Count(), Is.EqualTo(2));
+
             var role = new RoleLoadout("JobContractor");
             role.SelectedLoadouts["ContractorBackpack"] = new() { new() { Prototype = "ContractorClothingBackpack" } };
             role.SelectedLoadouts["ContractorBoxSurvival"] = new() { new() { Prototype = "ContractorBoxSurvivalNFOxygenExtended" } };
@@ -109,6 +125,14 @@ public sealed class EmptySlotCustomizationTests
             Assert.That(childKey, Does.StartWith(boxKey + "/contents/"));
             Assert.That(editor.HandleTguiProfileAction("equipment/backpack-remove", JsonSerializer.Serialize(new { key = childKey })), Is.True);
             Assert.That(editor.Profile!.Loadouts["JobContractor"].BackpackLayout[childKey].Removed, Is.True);
+            _ = editor.CreateTguiProfileState("equipment");
+            Assert.That(editor.HandleTguiProfileAction("equipment/backpack-container", "{\"key\":\"\"}"), Is.True);
+            _ = editor.CreateTguiProfileState("equipment");
+            Assert.That(editor.HandleTguiProfileAction("equipment/backpack-remove", JsonSerializer.Serialize(new { key = boxKey })), Is.True);
+            Assert.That(SharedStationSpawningSystem.SurvivalKitRemoved(editor.Profile!), Is.True);
+            using var removedBox = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString());
+            Assert.That(removedBox.RootElement.GetProperty("backpack").GetProperty("containers").EnumerateArray()
+                .Any(entry => entry.GetProperty("key").GetString() == boxKey), Is.False);
             ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
         });
         await pair.CleanReturnAsync();

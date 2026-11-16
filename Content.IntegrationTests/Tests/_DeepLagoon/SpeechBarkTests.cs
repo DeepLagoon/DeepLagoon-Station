@@ -3,7 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Content.Client.Lobby;
+using Content.Client.Lobby.UI;
 using Content.Server.Chat.Systems;
 using Content.Shared._DeepLagoon.Speech;
 using Content.Shared._EinsteinEngines.Language;
@@ -16,6 +20,8 @@ using Robust.Shared.Audio.Components;
 using Robust.Shared.Configuration;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Prototypes;
+using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.CustomControls;
 using ClientBarks = Content.Client._DeepLagoon.Speech.SpeechBarkSystem;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
@@ -98,7 +104,11 @@ public sealed class SpeechBarkTests
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan;
-            var voice = new SpeechBarkSettings { Voice = "chirp", PitchPercent = 80, Speed = 3, Pause = 150, VariancePercent = 20 };
+            var voice = new SpeechBarkSettings
+            {
+                Voice = "chirp", PitchPercent = 80, Speed = 3, Pause = 150, VariancePercent = 20,
+                BubbleStyle = SpeechBubbleStyle.Green,
+            };
             var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithSpeechBarks(voice);
             entities.System<SharedHumanoidAppearanceSystem>().LoadProfile(speaker, profile);
             Assert.That(entities.GetComponent<SpeechComponent>(speaker).BarkSettings, Is.EqualTo(voice));
@@ -119,6 +129,9 @@ public sealed class SpeechBarkTests
             Assert.That(events[3].Offsets, Is.EqualTo(new ushort[] { 0, 102, 384 }));
             Assert.That(events[3].Voice.Id, Is.EqualTo("chirp"));
             Assert.That(events[3].Pitches, Is.All.InRange(0.7f, 0.9f));
+            var entities = pair.Client.EntMan;
+            Assert.That(entities.GetComponent<SpeechComponent>(entities.GetEntity(netSpeaker)).BubbleStyle,
+                Is.EqualTo(SpeechBubbleStyle.Green));
         });
         await pair.Client.WaitAssertion(() =>
         {
@@ -141,7 +154,29 @@ public sealed class SpeechBarkTests
         await Speak(InGameICChatType.Speak, "Синтезированный голос.");
         await pair.Client.WaitAssertion(() =>
         {
-            Assert.That(events, Has.Count.EqualTo(4));
+            Assert.That(events, Has.Count.EqualTo(5));
+            Assert.That(events[4].Voice.Id, Is.EqualTo("chirp"));
+        });
+
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var speech = entities.GetComponent<SpeechComponent>(speaker);
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human")
+                .WithSpeechBarks(speech.BarkSettings with { UseSpeciesSpeech = true });
+            entities.System<SharedHumanoidAppearanceSystem>().LoadProfile(speaker, profile);
+            Assert.That(speech.SpeechSounds?.Id, Is.EqualTo("Pai"));
+            var species = pair.Server.ResolveDependency<IPrototypeManager>().Index<EntityPrototype>("MobHuman");
+            Assert.That(species.TryGetComponent<SpeechComponent>(out var speciesSpeech, entities.ComponentFactory), Is.True);
+            Assert.That(speech.EffectiveSpeechSounds, Is.EqualTo(speciesSpeech!.SpeechSounds));
+            speech.LastTimeSoundPlayed = TimeSpan.Zero;
+        });
+        await Speak(InGameICChatType.Speak, "Голос расы.");
+        await pair.Server.WaitAssertion(() => Assert.That(pair.Server.EntMan.GetComponent<SpeechComponent>(speaker).LastTimeSoundPlayed,
+            Is.GreaterThan(TimeSpan.Zero)));
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(events, Has.Count.EqualTo(5));
             pair.Client.EntMan.System<BarkRecorder>().Enabled = false;
         });
         await pair.CleanReturnAsync();
@@ -182,6 +217,46 @@ public sealed class SpeechBarkTests
             });
             await pair.RunTicksSync(6);
         }
+    }
+
+    [Test]
+    public async Task CharacterEditorAppliesVoicePreferencesAndShowsLiveBubblePreview()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>();
+            lobby.OpenCharacterEditor();
+            const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+            var editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", fields)!.GetValue(lobby)!;
+            var prefs = pair.Client.ResolveDependency<IClientPreferencesManager>().Preferences!;
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), prefs.SelectedCharacterIndex);
+            using var state = JsonDocument.Parse(editor.CreateTguiProfileState("voice").ToString());
+            var voiceTab = state.RootElement.GetProperty("tabs").EnumerateArray()
+                .Single(tab => tab.GetProperty("mode").GetString() == "voice").GetProperty("id").GetInt32();
+            Assert.That(editor.HandleTguiProfileAction("select-tab", JsonSerializer.Serialize(new { value = voiceTab })), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("speech-bark-use-species", "{\"value\":true}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":257}"), Is.False);
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":2}"), Is.True);
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-preview", "{}"), Is.True);
+
+            var previewField = typeof(HumanoidProfileEditor).GetField("_speechBubblePreview", fields)!;
+            var window = (DefaultWindow) previewField.GetValue(editor)!;
+            Assert.That(window.IsOpen, Is.True);
+            var firstSample = window.Contents.Children.Single().Children.First();
+            Assert.That(editor.HandleTguiProfileAction("speech-bubble-select", "{\"value\":4}"), Is.True);
+            Assert.That(window.Contents.Children.Single().Children.First(), Is.Not.SameAs(firstSample));
+            Assert.That(editor.Profile!.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Violet));
+            Assert.That(editor.HandleTguiProfileAction("speech-bark-reset", "{}"), Is.True);
+            Assert.That(editor.Profile!.SpeechBarks.UseSpeciesSpeech, Is.True);
+            Assert.That(editor.Profile.SpeechBarks.BubbleStyle, Is.EqualTo(SpeechBubbleStyle.Violet));
+
+            Assert.That(editor.HandleTguiProfileAction("select-tab", "{\"value\":0}"), Is.True);
+            Assert.That(previewField.GetValue(editor), Is.Null);
+            ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
+        });
+        await pair.CleanReturnAsync();
     }
 
     private sealed class BarkRecorder : EntitySystem

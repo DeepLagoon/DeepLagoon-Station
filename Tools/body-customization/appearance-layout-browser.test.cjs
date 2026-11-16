@@ -140,8 +140,8 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    if(process.env.CATALOG_FILTER_SCREENSHOT&&width===420)await page.screenshot({path:process.env.CATALOG_FILTER_SCREENSHOT});
    await search.fill('кошачий');assert.equal(await page.locator('[data-marking-option]').count(),1);
    await search.fill('торс');assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено');
-   await search.fill('');await nav.getByRole('button',{name:'Грудь',exact:true}).click();
-   assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено','Race and body-part filters intersect');
+   await search.fill('');
+   assert.equal(await nav.getByRole('button',{name:'Грудь',exact:true}).count(),0,'Categories without results are hidden by the race filter');
    await nav.getByRole('button',{name:'Все',exact:true}).click();
    await race.click();await page.getByRole('option',{name:'Арирал',exact:true}).click();
    assert.equal(await page.locator('[data-marking-option]').count(),1,'Shared racial elements appear in each assigned race');
@@ -164,8 +164,9 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    option('Лисий хвост','Tail','Хвост',vulp,'Tail'),option('Кошачий хвост','Tail','Хвост',cat,'Tail'),
    option('Полосы хвоста','TailExtras','Дополнения хвоста',cat,'Tail'),
    option('Лисья морда','Snout','Морда',vulp,'Snout'),option('Кошачья морда','Snout','Морда',cat,'Snout'),
-   option('Уши сверху','HeadTop','Голова (верх)',cat,'Ears'),option('Уши сбоку','HeadSide','Голова (бок)',cat,'Ears'),
+   option('Уши сверху','HeadTop','Голова (верх)',cat,'Ears'),option('Уши сбоку','HeadSide','Голова (верх)',cat,'Ears'),
    option('Специальные уши','Special','Специальное',cat,'Ears'),option('Крылья виверны','Chest','Крылья',cat,'Wings'),
+   option('Тонкие антенны','HeadSide','Антенны',cat,'Antennae'),
    option('Рога','HeadTop','Голова (верх)'),option('Жабры','HeadSide','Голова (бок)'),option('Экран синтетика','HeadSide','Голова (бок)'),
   ];
   for(const width of [1280,800,480,420]){
@@ -178,13 +179,19 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    const type=page.getByRole('combobox',{name:'Тип элемента',exact:true});
    const race=page.getByRole('combobox',{name:'Расовая категория',exact:true});
    const choose=async(control,name)=>{await control.click();await page.getByRole('option',{name,exact:true}).click();};
-   for(const [name,count] of [['Хвост',3],['Морды',2],['Уши',3],['Крылья',1]]){
+   for(const [name,count] of [['Хвост',3],['Морды',2],['Уши',3],['Крылья',1],['Антенны',1]]){
     await choose(type,name);assert.equal(await page.locator('[data-marking-option]').count(),count,`${name} uses explicit type metadata at ${width}`);
    }
+   assert.deepEqual(await nav.getByRole('button').allTextContents(),['Все','Антенны'],'Only the category available for the chosen type appears');
+   await nav.getByRole('button',{name:'Антенны',exact:true}).click();
+   assert.equal(await page.getByRole('button',{name:'Тонкие антенны',exact:true}).count(),1);
+   await nav.getByRole('button',{name:'Все',exact:true}).click();
    await choose(type,'Морды');await choose(race,'Вульпканин');
    assert.equal(await page.locator('[data-marking-option]').count(),1,'Race and type filters intersect');
    const search=page.getByRole('searchbox',{name:'Поиск: Каталог особенностей'});
-   await search.fill('кошачья');assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено');await search.fill('');
+   await search.fill('кошачья');assert.equal(await page.getByRole('status').innerText(),'Ничего не найдено');
+   assert.deepEqual(await nav.getByRole('button').allTextContents(),['Все'],'Categories without search matches are hidden');
+   await search.fill('');
    await choose(type,'Все типы');assert.equal(await page.locator('[data-marking-option]').count(),2,'All types preserves the selected race');
    await choose(type,'Хвост');await choose(race,'Все расы');
    await nav.getByRole('button',{name:'Дополнения хвоста',exact:true}).click();
@@ -192,6 +199,10 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    await nav.getByRole('button',{name:'Все',exact:true}).click();
    await filter.click();assert.equal(await page.locator('[data-marking-option]').count(),3,'Closing filters preserves the type');await filter.click();
    await choose(type,'Уши');
+   assert.equal(await nav.getByRole('button',{name:'Голова (бок)',exact:true}).count(),0);
+   await nav.getByRole('button',{name:'Голова (верх)',exact:true}).click();
+   assert.equal(await page.locator('[data-marking-option]').count(),2,'Both ears use the top category and keep their render positions');
+   await nav.getByRole('button',{name:'Все',exact:true}).click();
    assert.deepEqual(await page.locator('[data-marking-option]').evaluateAll(nodes=>nodes.map(node=>node.dataset.markingOption).sort()),
     ['Уши сверху','Уши сбоку','Специальные уши'].sort(),'Head render layers do not classify horns, gills or screens as ears');
    assert.equal(await page.locator('.CharacterEditor').evaluate(e=>e.scrollWidth>e.clientWidth),false,`Type filter overflow at ${width}`);
@@ -204,8 +215,8 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
    await publish('CharacterCatalog',catalogue);await choose(type,'Уши');
    await publish('CharacterCatalog',{...catalogue,markingOptions:typeOptions.filter(option=>option.typeId!=='Ears')});
    await page.waitForFunction(()=>document.querySelector('[aria-label="Тип элемента"]').textContent.includes('Все типы'));
-   assert.equal(await page.locator('[data-marking-option]').count(),9,'Unavailable types clear their stale selection');
-   await publish('CharacterCatalog',catalogue);assert.equal(await page.locator('[data-marking-option]').count(),12);
+   assert.equal(await page.locator('[data-marking-option]').count(),10,'Unavailable types clear their stale selection');
+   await publish('CharacterCatalog',catalogue);assert.equal(await page.locator('[data-marking-option]').count(),13);
    await filter.click();
   }
   const restrictedCatalogue={...state,kind:'markings',species:'Vulpkanin',speciesName:'Вульпканин',markingSpeciesRestricted:true};
@@ -300,6 +311,12 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   const compact = await equipped.locator('article').first().boundingBox();
   const regular = await page.locator('[aria-label="Каталог снаряжения"] article').first().boundingBox();
   assert.ok(compact.width <= regular.width * 0.6 && compact.height <= regular.height * 0.6);
+  const equippedToggle = equipped.getByRole('button', { name: 'Экипировано', exact: true });
+  await equippedToggle.click();
+  assert.equal(await equippedToggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await equipped.locator('article').first().isVisible(), false);
+  await equippedToggle.press('Enter');
+  assert.equal(await equipped.locator('article').first().isVisible(), true);
   await equipped.getByRole('button', { name: 'Покрасить', exact: true }).click();
   await page.getByRole('dialog', { name: 'Покраска предмета' }).waitFor();
   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
@@ -373,6 +390,41 @@ const root = path.resolve(__dirname, '../../Resources/Web/DeepLagoon');
   await page.getByRole('button', { name: 'Рюкзак', exact: true }).click();
   await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/equipment/backpack-container' && e.payload.key === ''));
   await page.getByRole('button', { name: 'Закрыть редактор рюкзака' }).click();
+  await publish('BackpackReview', { backpack: { ...backpack, containers: [], items: [
+    { key: 'wide', name: 'Широкий предмет', x: 0, y: 0, shape: [box(0, 0, 1, 0)] },
+    { key: 'small', name: 'Соседний предмет', x: 2, y: 0, shape: [box(0, 0, 0, 0)] },
+  ] } });
+  const wide = page.getByRole('button', { name: 'Широкий предмет', exact: true });
+  const small = page.getByRole('button', { name: 'Соседний предмет', exact: true });
+  assert.equal(await wide.first().evaluate(node => getComputedStyle(node, '::after').borderRightWidth), '0px');
+  assert.equal(await wide.last().evaluate(node => getComputedStyle(node, '::after').borderRightWidth), '1px');
+  assert.equal(await small.evaluate(node => getComputedStyle(node, '::after').borderLeftWidth), '1px');
+  assert.ok(await page.getByRole('dialog', { name: 'Каталог предметов' }).isVisible());
+  const voice = {
+    title: 'Голос', bubbleLabel: 'Стиль пузыря речи', bubblePreview: 'Предпросмотр пузыря речи',
+    bubbleStyle: 0, bubbleStyles: [{ id: 0, name: 'По умолчанию' }, { id: 2, name: 'Зелёный' }],
+    useSpeciesLabel: 'Отключить барки и использовать голос расы', useSpecies: false,
+    search: 'Поиск голоса', timbreLabel: 'Тембр', voice: '',
+    preview: 'Прослушать голос', random: 'Случайный голос', reset: 'Сбросить голос',
+    parameters: [{ id: 'speed', label: 'Шаг речи', display: '4', min: 1, max: 8, value: 4 }],
+  };
+  await page.setViewportSize({ width: 780, height: 650 });
+  await publish('CharacterEditor', { ...state, mode: 'voice', speechBarks: voice });
+  const voiceRow = page.locator('.CharacterEditor__voiceParameter');
+  const slider = page.getByRole('slider', { name: 'Шаг речи', exact: true });
+  const rangeBounds = await slider.boundingBox();
+  const voiceLabel = await voiceRow.getByText('Шаг речи', { exact: true }).boundingBox();
+  assert.ok(rangeBounds.width <= 280 && rangeBounds.x > voiceLabel.x + voiceLabel.width - 1);
+  assert.ok(Math.abs((rangeBounds.y + rangeBounds.height / 2) - (voiceLabel.y + voiceLabel.height / 2)) < 2);
+  await page.getByLabel('Стиль пузыря речи', { exact: true }).click();
+  await page.getByText('Зелёный', { exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/speech-bubble-select' && e.payload.value === '2'));
+  await page.getByRole('button', { name: 'Предпросмотр пузыря речи' }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/speech-bubble-preview'));
+  await page.getByLabel(voice.useSpeciesLabel, { exact: true }).click();
+  await page.waitForFunction(() => window.__sent.some(e => e.type === 'act/speech-bark-use-species' && e.payload.value === true));
+  await publish('CharacterEditor', { ...state, mode: 'voice', speechBarks: { ...voice, useSpecies: true } });
+  assert.ok(await slider.isDisabled());
   await page.setViewportSize({width:380,height:430});await publish('CharacterColorPicker',{id:'test',title:'Цвет хвоста',value:'#ff0000',appearance:{}});
   await page.getByRole('slider',{name:'Цветовой круг',exact:true}).waitFor();
   await page.getByRole('button',{name:'HSV',exact:true}).click();

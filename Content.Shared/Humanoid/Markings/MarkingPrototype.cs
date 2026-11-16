@@ -10,6 +10,7 @@ namespace Content.Shared.Humanoid.Markings
         Snout,
         Ears,
         Wings,
+        Antennae,
     }
 
     [Prototype]
@@ -34,6 +35,10 @@ namespace Content.Shared.Humanoid.Markings
 
         [DataField]
         public MarkingEditorType? EditorType { get; private set; }
+
+        /// <summary>Category displayed in the character editor.</summary>
+        [DataField]
+        public MarkingCategories? EditorCategory { get; private set; }
 
         public MarkingEditorType? FilterType => EditorType ?? MarkingCategory switch
         {

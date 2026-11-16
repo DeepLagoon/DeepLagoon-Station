@@ -179,7 +179,7 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         targetHumanoid.GenitalAroused = sourceHumanoid.GenitalAroused;
         targetHumanoid.PlantigradeLegs = sourceHumanoid.PlantigradeLegs;
         if (TryComp<SpeechComponent>(source, out var sourceSpeech) && TryComp<SpeechComponent>(target, out var targetSpeech))
-            targetSpeech.BarkSettings = sourceSpeech.BarkSettings.Sanitize();
+            EntityManager.System<SpeechSystem>().CopyCharacterSpeech((source, sourceSpeech), (target, targetSpeech));
 
         targetHumanoid.Gender = sourceHumanoid.Gender;
         if (TryComp<GrammarComponent>(target, out var grammar))
@@ -420,7 +420,12 @@ public abstract partial class SharedHumanoidAppearanceSystem : EntitySystem
         humanoid.BodyFeatures = Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationCatalog.Sanitize(profile.Appearance.BodyFeatures);
         humanoid.PlantigradeLegs = profile.Appearance.PlantigradeLegs && _proto.Index(profile.Species).PlantigradeSprites != null;
         if (TryComp<SpeechComponent>(uid, out var speech))
-            speech.BarkSettings = profile.SpeechBarks.Sanitize();
+        {
+            var speciesEntity = _proto.Index(_proto.Index(profile.Species).Prototype);
+            var sounds = speciesEntity.TryGetComponent<SpeechComponent>(out var speciesSpeech, EntityManager.ComponentFactory)
+                ? speciesSpeech.SpeechSounds : null;
+            EntityManager.System<SpeechSystem>().ApplyCharacterSpeech((uid, speech), profile.SpeechBarks, sounds);
+        }
 
         SetSkinColor(uid, profile.Appearance.SkinColor, false);
 

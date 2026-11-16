@@ -33,6 +33,7 @@
     h3 { margin: 0 0 8px; font-size: 1rem; }
   }
   &__grid--equipped {
+    &[hidden] { display: none; }
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
     article > button {
       min-height: 86px;

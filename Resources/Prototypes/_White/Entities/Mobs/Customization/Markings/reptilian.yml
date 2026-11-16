@@ -12,6 +12,7 @@
   id: LizardHeadCobraHood
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction: [Reptilian]
   sprites:
   - sprite: _White/Mobs/Customization/reptilian_parts.rsi

@@ -3,6 +3,7 @@
   id: ChitinidAntennasDefault
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -12,6 +13,7 @@
   id: ChitinidAntennasCurly
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -21,6 +23,7 @@
   id: ChitinidAntennasGray
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -30,6 +33,7 @@
   id: ChitinidAntennasSlick
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -39,6 +43,7 @@
   id: ChitinidAntennasLong
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -48,6 +53,7 @@
   id: ChitinidAntennasBee
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -57,6 +63,7 @@
   id: ChitinidAntennasShort
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -66,6 +73,7 @@
   id: ChitinidAntennasFirefly
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -77,6 +85,7 @@
   id: ChitinidAntennasRadar
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi
@@ -86,6 +95,7 @@
   id: ChitinidAntennasSpeed
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [Chitinid]
   sprites:
   - sprite: _DV/Mobs/Customization/Chitinid/chitinid_antennas.rsi

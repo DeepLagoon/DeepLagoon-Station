@@ -3,6 +3,7 @@
   id: MothAntennasClassicAspen
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -18,6 +19,7 @@
   id: MothAntennasClassicBrown
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -33,6 +35,7 @@
   id: MothAntennasClassicDeathshead
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -48,6 +51,7 @@
   id: MothAntennasClassicFeathery
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -63,6 +67,7 @@
   id: MothAntennasClassicFirewatch
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -78,6 +83,7 @@
   id: MothAntennasClassicGothic
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -93,6 +99,7 @@
   id: MothAntennasClassicJungle
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -108,6 +115,7 @@
   id: MothAntennasClassicLovers
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -123,6 +131,7 @@
   id: MothAntennasClassicMint
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -138,6 +147,7 @@
   id: MothAntennasClassicMoffra
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -153,6 +163,7 @@
   id: MothAntennasClassicMoonfly
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -168,6 +179,7 @@
   id: MothAntennasClassicOakworm
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -183,6 +195,7 @@
   id: MothAntennasClassicPlain
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -198,6 +211,7 @@
   id: MothAntennasClassicPlasmafire
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -213,6 +227,7 @@
   id: MothAntennasClassicPoison
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -228,6 +243,7 @@
   id: MothAntennasClassicReddish
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -243,6 +259,7 @@
   id: MothAntennasClassicRegal
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -258,6 +275,7 @@
   id: MothAntennasClassicRosy
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -273,6 +291,7 @@
   id: MothAntennasClassicRoyal
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -288,6 +307,7 @@
   id: MothAntennasClassicSnow
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -303,6 +323,7 @@
   id: MothAntennasClassicWhitefly
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:
@@ -318,6 +339,7 @@
   id: MothAntennasClassicWitchking
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:

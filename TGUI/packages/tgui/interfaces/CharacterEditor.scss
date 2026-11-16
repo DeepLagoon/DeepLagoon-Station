@@ -31,7 +31,24 @@
   &--identity { padding: 4px; .Section { margin: 5px 0; } }
   &__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 8px; margin-bottom: 15px; }
   &__field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; min-width: 0; }
-  &__voiceSlider { width: 100%; }
+  &__bubbleSettings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 8px;
+    margin-bottom: 8px;
+    .CharacterEditor__field { flex: 0 1 260px; margin-bottom: 0; }
+  }
+  &__voiceToggle { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  &__voiceParameter {
+    display: grid;
+    grid-template-columns: minmax(0, 10rem) minmax(55px, 17rem) 3.5em;
+    align-items: center;
+    gap: 8px;
+    margin: 0.45em 0;
+    > :last-child { text-align: end; font-variant-numeric: tabular-nums; }
+  }
+  &__voiceSlider { width: 100%; min-width: 0; margin: 0; }
   &__rangeValue { text-align: center; }
   &__hair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 8px; margin: 15px 0;
     > .Section { min-width: 0; }

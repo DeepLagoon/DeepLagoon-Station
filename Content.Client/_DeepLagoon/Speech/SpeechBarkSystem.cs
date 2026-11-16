@@ -32,6 +32,7 @@ public sealed partial class SpeechBarkSystem : EntitySystem
     private readonly Filter _local = Filter.Local();
     private float _gain;
     private Playback? _preview;
+    private EntityUid? _legacyPreview;
 
     public override void Initialize()
     {
@@ -83,6 +84,15 @@ public sealed partial class SpeechBarkSystem : EntitySystem
         if (_preview != null)
             Stop(_preview);
         _preview = null;
+        if (_legacyPreview is { } legacy && HasComp<AudioComponent>(legacy))
+            _audio.Stop(legacy);
+        _legacyPreview = null;
+    }
+
+    public void PreviewSpecies(SoundSpecifier? sound, AudioParams parameters)
+    {
+        StopPreview();
+        _legacyPreview = _audio.PlayGlobal(sound, _local, false, parameters)?.Entity;
     }
 
     public override void FrameUpdate(float frameTime)

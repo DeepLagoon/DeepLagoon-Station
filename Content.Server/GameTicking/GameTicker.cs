@@ -86,6 +86,7 @@ namespace Content.Server.GameTicking
             InitializeStatusShell();
             InitializeCVars();
             InitializePlayer();
+            SubscribeNetworkEvent<StartingEquipmentReviewReply>(OnStartingEquipmentReviewReply);
             InitializeLobbyBackground();
             InitializeGamePreset();
             DebugTools.Assert(_prototypeManager.Index<JobPrototype>(FallbackOverflowJob).Name == FallbackOverflowJobName,

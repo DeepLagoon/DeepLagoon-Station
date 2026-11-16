@@ -537,6 +537,7 @@
   id: MothGlowAntenna
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   speciesRestriction: [ Moth ]
   forcedColoring: false
   followSkinColor: false

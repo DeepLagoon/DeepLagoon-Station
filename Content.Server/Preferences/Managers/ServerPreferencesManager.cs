@@ -248,17 +248,23 @@ namespace Content.Server.Preferences.Managers
 
             prefsData.PrefsLoaded = true;
 
-            var msg = new MsgPreferencesAndSettings();
-            msg.Preferences = prefsData.Prefs;
-            msg.Settings = new GameSettings
-            {
-                MaxCharacterSlots = CharacterSlotLimit(session.UserId)
-            };
-            _netManager.ServerSendMessage(msg, session.Channel);
+            SendPreferences(session);
 
             // Frontier: notify other entities that your player data is loaded.
             if (session.AttachedEntity != null)
                 _entityManager.EventBus.RaiseLocalEvent(session.AttachedEntity.Value, new PreferencesLoadedEvent(session, prefsData.Prefs));
+        }
+
+        public void SendPreferences(ICommonSession session)
+        {
+            if (!TryGetCachedPreferences(session.UserId, out var preferences))
+                return;
+            var message = new MsgPreferencesAndSettings
+            {
+                Preferences = preferences,
+                Settings = new GameSettings { MaxCharacterSlots = CharacterSlotLimit(session.UserId) }
+            };
+            _netManager.ServerSendMessage(message, session.Channel);
         }
 
         public void OnClientDisconnected(ICommonSession session)

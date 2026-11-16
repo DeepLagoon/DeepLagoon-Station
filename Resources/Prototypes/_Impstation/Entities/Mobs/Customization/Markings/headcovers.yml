@@ -97,6 +97,7 @@
   id: TichelSimpleLizard
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction: [Reptilian]
   sprites:
   - sprite: _Impstation/Mobs/Customization/headcovers.rsi
@@ -106,6 +107,7 @@
   id: TichelFashionableLizard
   bodyPart: HeadSide
   markingCategory: HeadSide
+  editorCategory: HeadTop
   speciesRestriction: [Reptilian]
   sprites:
   - sprite: _Impstation/Mobs/Customization/headcovers.rsi

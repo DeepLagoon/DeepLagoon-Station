@@ -757,9 +757,10 @@
   - ContractorClothingEyesEyepatchHudMedical
 
 - type: loadoutGroup
-  id: ContractorUtility # Right Hand - 1 only
+  id: ContractorUtility
   name: loadout-group-contractor-utility
   minLimit: 0
+  maxLimit: 2
   loadouts:
   - ContractorAppraisalTool
   - ContractorPickaxe

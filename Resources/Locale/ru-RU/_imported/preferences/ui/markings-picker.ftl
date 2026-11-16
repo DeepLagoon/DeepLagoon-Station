@@ -35,6 +35,7 @@ markings-category-FacialHair = Лицевая растительность
 markings-category-Head = Голова
 
 markings-category-HeadTop = Голова (верх)
+markings-category-Antennae = Антенны
 
 markings-category-HeadSide = Голова (бок)
 

@@ -16,6 +16,8 @@ public sealed partial record SpeechBarkSettings
     [DataField] public int PitchPercent { get; set; } = 100;
     [DataField] public int VariancePercent { get; set; } = 20;
     [DataField] public int Pause { get; set; } = 100;
+    [DataField] public bool UseSpeciesSpeech { get; set; }
+    [DataField] public SpeechBubbleStyle BubbleStyle { get; set; }
 
     public SpeechBarkSettings Sanitize() => this with
     {
@@ -24,6 +26,8 @@ public sealed partial record SpeechBarkSettings
         PitchPercent = Math.Clamp(PitchPercent, 1, 400),
         VariancePercent = Math.Clamp(VariancePercent, 0, 100),
         Pause = Math.Clamp(Pause, MinPause, MaxPause),
+        BubbleStyle = BubbleStyle is SpeechBubbleStyle.Blue or SpeechBubbleStyle.Green or SpeechBubbleStyle.Amber or
+            SpeechBubbleStyle.Violet ? BubbleStyle : SpeechBubbleStyle.Default,
     };
 
     public SpeechBarkSettings ForVoice(SpeechBarkVoicePrototype voice) => this with
@@ -50,4 +54,14 @@ public sealed partial record SpeechBarkSettings
 
         return pitches;
     }
+}
+
+[Serializable, NetSerializable]
+public enum SpeechBubbleStyle : byte
+{
+    Default,
+    Blue,
+    Green,
+    Amber,
+    Violet,
 }

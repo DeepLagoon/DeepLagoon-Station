@@ -137,6 +137,7 @@ namespace Content.Server.GameTicking
 
                 case SessionStatus.Disconnected:
                 {
+                    _startingEquipmentReviews.Remove(session.UserId);
                     _chatManager.SendAdminAnnouncement(Loc.GetString("player-leave-message", ("name", args.Session.Name)));
                     if (mindId != null)
                     {
@@ -204,6 +205,7 @@ namespace Content.Server.GameTicking
                 _chatManager.DispatchServerMessage(session, Loc.GetString("game-ticker-player-join-game-message"));
 
             _playerGameStatuses[session.UserId] = PlayerGameStatus.JoinedGame;
+            _startingEquipmentReviews.Remove(session.UserId);
             _db.AddRoundPlayers(RoundId, session.UserId);
 
             if (_adminManager.HasAdminFlag(session, AdminFlags.Admin))

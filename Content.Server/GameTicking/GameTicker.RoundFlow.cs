@@ -1060,6 +1060,7 @@ namespace Content.Server.GameTicking
 
             DisallowLateJoin = false;
             _playerGameStatuses.Clear();
+            _startingEquipmentReviews.Clear();
             foreach (var session in _playerManager.Sessions)
             {
                 _playerGameStatuses[session.UserId] = LobbyEnabled || !DiscordAdmission.CanEnterRound(session) ? PlayerGameStatus.NotReadyToPlay : PlayerGameStatus.ReadyToPlay;

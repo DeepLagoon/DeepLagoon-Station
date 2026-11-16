@@ -62,6 +62,8 @@ export const EquipmentBrowser = memo(({data={},act,backpack,characterSlot,active
 
   const [unavailable, setUnavailable] = useState(false);
   const [modal, setModal] = useState(null);
+  const [equippedExpanded, setEquippedExpanded] = useState(true);
+  const equippedId = useId();
   const catalog = useMemo(() => data.handItems || [
     ...(data.jobItems || []).map(item => ({ ...item, jobItem: true })),
     ...(data.items || []),
@@ -92,8 +94,11 @@ export const EquipmentBrowser = memo(({data={},act,backpack,characterSlot,active
       </div>
     </div>
     {!!equipped.length && <section className="EquipmentBrowser__equipped" aria-label="Экипировано">
-      <h3>Экипировано</h3>
-      <div className="EquipmentBrowser__grid EquipmentBrowser__grid--equipped">
+      <h3><Button role="button" aria-label="Экипировано" aria-expanded={equippedExpanded} aria-controls={equippedId}
+        icon={equippedExpanded ? 'chevron-down' : 'chevron-right'} onClick={() => setEquippedExpanded(!equippedExpanded)}>
+        Экипировано
+      </Button></h3>
+      <div id={equippedId} className="EquipmentBrowser__grid EquipmentBrowser__grid--equipped" hidden={!equippedExpanded}>
         {equipped.map(item => <EquipmentCard key={equipmentKey(item)} item={item} compact act={act} onCustomize={setModal} />)}
       </div>
     </section>}

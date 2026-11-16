@@ -2,6 +2,7 @@
   id: MothAntennasNone
   bodyPart: HeadTop
   markingCategory: HeadTop
+  editorType: Antennae
   forcedColoring: true
   speciesRestriction: [Moth]
   coloring:

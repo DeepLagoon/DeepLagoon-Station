@@ -18,12 +18,12 @@ public sealed partial class SpeechBarkSystem : EntitySystem
     {
         if (!language.SpeechOverride.RequireSpeech ||
             !TryComp<SpeechComponent>(source, out var speech) ||
-            !speech.Enabled || speech.SpeechSounds == null ||
+            !speech.Enabled || speech.EffectiveSpeechSounds == null || speech.BarkSettings.UseSpeciesSpeech ||
             (speech.BarkVoice == null && !HasComp<HumanoidAppearanceComponent>(source)))
             return false;
 
-        // Equipment and traits that replace the species' voice keep their own sound.
-        return MetaData(source).EntityPrototype is { } prototype &&
+        // Equipped voice effects do not take precedence over a character's profile.
+        return speech.HasCharacterSpeech || MetaData(source).EntityPrototype is { } prototype &&
             prototype.TryGetComponent<SpeechComponent>(out var defaultSpeech, EntityManager.ComponentFactory) &&
             speech.SpeechSounds == defaultSpeech.SpeechSounds;
     }

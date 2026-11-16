@@ -626,6 +626,17 @@ public sealed partial class HumanoidProfileEditor
                 if (!bool.TryParse(value, out var straightLegs) || !SetPlantigradeLegs(straightLegs)) return false;
                 break;
             case "body-feature": return HandleBodyCustomizationAction(args);
+            case "speech-bubble-select":
+                if (_tguiMode != "voice" || !args.TryInt("value", out var bubbleStyle) || !ChangeSpeechBubbleStyle(bubbleStyle))
+                    return false;
+                break;
+            case "speech-bubble-preview":
+                if (_tguiMode != "voice") return false;
+                OpenSpeechBubblePreview(); break;
+            case "speech-bark-use-species":
+                if (_tguiMode != "voice" || !bool.TryParse(value, out var useSpecies) || !ChangeSpeciesSpeech(useSpecies))
+                    return false;
+                break;
             case "speech-bark-select":
                 if (_tguiMode != "voice" || args.String("value") is not { } barkVoice || !ChangeSpeechBarkVoice(barkVoice))
                     return false;

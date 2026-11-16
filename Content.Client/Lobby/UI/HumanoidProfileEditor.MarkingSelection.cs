@@ -21,8 +21,18 @@ public sealed partial class HumanoidProfileEditor
         _ => "",
     };
 
-    private string MarkingCategoryKey(MarkingPrototype prototype) => LimbCategory(prototype.BodyPart) is { Length: > 0 } limb ? limb
-        : _markingManager.IsCommon(prototype) ? "common" : prototype.MarkingCategory.ToString();
+    private string MarkingCategoryKey(MarkingPrototype prototype)
+    {
+        if (prototype.FilterType == MarkingEditorType.Antennae)
+            return nameof(MarkingEditorType.Antennae);
+        if (prototype.EditorCategory is { } category)
+            return category.ToString();
+        if (prototype.MarkingCategory == MarkingCategories.HeadSide && prototype.FilterType == MarkingEditorType.Ears)
+            return nameof(MarkingCategories.HeadTop);
+        if (LimbCategory(prototype.BodyPart) is { Length: > 0 } limb)
+            return limb;
+        return _markingManager.IsCommon(prototype) ? "common" : prototype.MarkingCategory.ToString();
+    }
 
     private string MarkingCategoryName(MarkingPrototype prototype) => Loc.GetString("markings-category-" + MarkingCategoryKey(prototype));
 
@@ -83,7 +93,7 @@ public sealed partial class HumanoidProfileEditor
         var occupied = new HashSet<HumanoidVisualLayers>();
         var selected = Profile.Appearance.Markings.OrderByDescending(marking => marking.DrawOrder)
             .Where(marking => !_markingManager.TryGetMarking(marking, out var prototype) || MarkingCategoryKey(prototype) != category
-                || occupied.Add(prototype.BodyPart)).ToList();
+                || occupied.Add(MarkingSelectionSlot(prototype, category))).ToList();
         var set = new MarkingSet(selected, _prototypeManager.Index(Profile.Species).MarkingPoints,
             _markingManager, _prototypeManager, Profile.UnrestrictedMarkings);
         OnMarkingChange(set);
@@ -113,10 +123,10 @@ public sealed partial class HumanoidProfileEditor
         list.RemoveAll(marking => defaults.Contains(marking.MarkingId) && _markingManager.TryGetMarking(marking, out var existing)
             && bundle.Any(part => part.IsBodyReplacement && part.BodyPart == existing.BodyPart));
 
-        if (!_combineMarkings.Contains(MarkingCategoryKey(selected)))
+        var category = MarkingCategoryKey(selected);
+        if (!_combineMarkings.Contains(category))
             list.RemoveAll(marking => _markingManager.TryGetMarking(marking, out var existing)
-                && bundle.Any(part => part.BodyPart == existing.BodyPart &&
-                    MarkingCategoryKey(part) == MarkingCategoryKey(existing)));
+                && bundle.Any(part => SharesMarkingSelectionSlot(part, existing)));
         else if (bundle.All(part => list.Any(marking => marking.MarkingId == part.ID)))
             return false;
 
@@ -145,6 +155,17 @@ public sealed partial class HumanoidProfileEditor
         }
         return true;
     }
+
+    private bool SharesMarkingSelectionSlot(MarkingPrototype first, MarkingPrototype second)
+    {
+        var category = MarkingCategoryKey(first);
+        return category == MarkingCategoryKey(second) &&
+            MarkingSelectionSlot(first, category) == MarkingSelectionSlot(second, category);
+    }
+
+    private static HumanoidVisualLayers MarkingSelectionSlot(MarkingPrototype prototype, string category) =>
+        category is nameof(MarkingCategories.HeadTop) or nameof(MarkingCategories.HeadSide) or nameof(MarkingEditorType.Antennae)
+            ? HumanoidVisualLayers.Head : prototype.BodyPart;
 
     private int NormalizeTguiMarkingOrder(List<Marking> list)
     {

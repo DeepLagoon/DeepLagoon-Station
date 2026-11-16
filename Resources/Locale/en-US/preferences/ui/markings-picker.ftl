@@ -19,6 +19,7 @@ markings-category-Hair = Hair
 markings-category-FacialHair = Facial Hair
 markings-category-Head = Head
 markings-category-HeadTop = Head (Top)
+markings-category-Antennae = Antennae
 markings-category-HeadSide = Head (Side)
 markings-category-Snout = Snout
 markings-category-Chest = Chest

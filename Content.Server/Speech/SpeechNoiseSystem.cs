@@ -26,12 +26,12 @@ namespace Content.Server.Speech
 
         public SoundSpecifier? GetSpeechSound(Entity<SpeechComponent> ent, string message)
         {
-            if (ent.Comp.SpeechSounds == null)
+            if (ent.Comp.EffectiveSpeechSounds is not { } sounds || message.Length == 0)
                 return null;
 
             // Play speech sound
             SoundSpecifier? contextSound;
-            var prototype = _protoManager.Index<SpeechSoundsPrototype>(ent.Comp.SpeechSounds);
+            var prototype = _protoManager.Index(sounds);
 
             // Different sounds for ask/exclaim based on last character
             contextSound = message[^1] switch
@@ -60,7 +60,7 @@ namespace Content.Server.Speech
 
         private void OnEntitySpoke(EntityUid uid, SpeechComponent component, EntitySpokeEvent args)
         {
-            if (component.SpeechSounds == null || args.SpeechBarks || !args.Language.SpeechOverride.RequireSpeech)
+            if (args.SpeechBarks || !args.Language.SpeechOverride.RequireSpeech)
                 return;
 
             var currentTime = _gameTiming.CurTime;
@@ -71,6 +71,8 @@ namespace Content.Server.Speech
                 return;
 
             var sound = GetSpeechSound((uid, component), args.Message);
+            if (sound == null)
+                return;
             component.LastTimeSoundPlayed = currentTime;
             _audio.PlayPvs(sound, uid);
         }
