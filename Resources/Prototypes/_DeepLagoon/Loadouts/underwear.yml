@@ -1,0 +1,5798 @@
+- type: loadout
+  id: DLUnderwearClothingUnderBottomGrey
+  dummyEntity: ClothingUnderBottomGrey
+  personalItems:
+  - ClothingUnderBottomGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSecurity
+  dummyEntity: ClothingUnderBottomSecurity
+  personalItems:
+  - ClothingUnderBottomSecurity
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydoll
+  dummyEntity: ClothingUnderBottomBabydoll
+  personalItems:
+  - ClothingUnderBottomBabydoll
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxers
+  dummyEntity: ClothingUnderBottomBoxers
+  personalItems:
+  - ClothingUnderBottomBoxers
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomChast
+  dummyEntity: ClothingUnderBottomChast
+  personalItems:
+  - ClothingUnderBottomChast
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomChastCage
+  dummyEntity: ClothingUnderBottomChastCage
+  personalItems:
+  - ClothingUnderBottomChastCage
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomDeath
+  dummyEntity: ClothingUnderBottomDeath
+  personalItems:
+  - ClothingUnderBottomDeath
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFAssblastusa
+  dummyEntity: ClothingUnderBottomFAssblastusa
+  personalItems:
+  - ClothingUnderBottomFAssblastusa
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefs
+  dummyEntity: ClothingUnderBottomFBriefs
+  personalItems:
+  - ClothingUnderBottomFBriefs
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCommie
+  dummyEntity: ClothingUnderBottomFCommie
+  personalItems:
+  - ClothingUnderBottomFCommie
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFishnet
+  dummyEntity: ClothingUnderBottomFishnet
+  personalItems:
+  - ClothingUnderBottomFishnet
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFKinky
+  dummyEntity: ClothingUnderBottomFKinky
+  personalItems:
+  - ClothingUnderBottomFKinky
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomHearts
+  dummyEntity: ClothingUnderBottomHearts
+  personalItems:
+  - ClothingUnderBottomHearts
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLace
+  dummyEntity: ClothingUnderBottomLace
+  personalItems:
+  - ClothingUnderBottomLace
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLatex
+  dummyEntity: ClothingUnderBottomLatex
+  personalItems:
+  - ClothingUnderBottomLatex
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizard
+  dummyEntity: ClothingUnderBottomLizard
+  personalItems:
+  - ClothingUnderBottomLizard
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankiny
+  dummyEntity: ClothingUnderBottomMankiny
+  personalItems:
+  - ClothingUnderBottomMankiny
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMAssblastusa
+  dummyEntity: ClothingUnderBottomMAssblastusa
+  personalItems:
+  - ClothingUnderBottomMAssblastusa
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefs
+  dummyEntity: ClothingUnderBottomMBriefs
+  personalItems:
+  - ClothingUnderBottomMBriefs
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCommie
+  dummyEntity: ClothingUnderBottomMCommie
+  personalItems:
+  - ClothingUnderBottomMCommie
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMKinky
+  dummyEntity: ClothingUnderBottomMKinky
+  personalItems:
+  - ClothingUnderBottomMKinky
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomNekoBlack
+  dummyEntity: ClothingUnderBottomNekoBlack
+  personalItems:
+  - ClothingUnderBottomNekoBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomNekoWhite
+  dummyEntity: ClothingUnderBottomNekoWhite
+  personalItems:
+  - ClothingUnderBottomNekoWhite
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomNinja
+  dummyEntity: ClothingUnderBottomNinja
+  personalItems:
+  - ClothingUnderBottomNinja
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPanties
+  dummyEntity: ClothingUnderBottomPanties
+  personalItems:
+  - ClothingUnderBottomPanties
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSport
+  dummyEntity: ClothingUnderBottomSport
+  personalItems:
+  - ClothingUnderBottomSport
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomStripe
+  dummyEntity: ClothingUnderBottomStripe
+  personalItems:
+  - ClothingUnderBottomStripe
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomStrippedPanties
+  dummyEntity: ClothingUnderBottomStrippedPanties
+  personalItems:
+  - ClothingUnderBottomStrippedPanties
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalter
+  dummyEntity: ClothingUnderBottomSwimHalter
+  personalItems:
+  - ClothingUnderBottomSwimHalter
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePiece
+  dummyEntity: ClothingUnderBottomSwimOnePiece
+  personalItems:
+  - ClothingUnderBottomSwimOnePiece
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStrapless
+  dummyEntity: ClothingUnderBottomSwimStrapless
+  personalItems:
+  - ClothingUnderBottomSwimStrapless
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripe
+  dummyEntity: ClothingUnderBottomSwimStripe
+  personalItems:
+  - ClothingUnderBottomSwimStripe
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomTacticool
+  dummyEntity: ClothingUnderBottomTacticool
+  personalItems:
+  - ClothingUnderBottomTacticool
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThong
+  dummyEntity: ClothingUnderBottomThong
+  personalItems:
+  - ClothingUnderBottomThong
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBso
+  dummyEntity: ClothingUnderBottomFBso
+  personalItems:
+  - ClothingUnderBottomFBso
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBso
+  dummyEntity: ClothingUnderBottomMBso
+  personalItems:
+  - ClothingUnderBottomMBso
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCaptain
+  dummyEntity: ClothingUnderBottomFCaptain
+  personalItems:
+  - ClothingUnderBottomFCaptain
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCaptain
+  dummyEntity: ClothingUnderBottomMCaptain
+  personalItems:
+  - ClothingUnderBottomMCaptain
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCaptainS
+  dummyEntity: ClothingUnderBottomFCaptainS
+  personalItems:
+  - ClothingUnderBottomFCaptainS
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCaptainS
+  dummyEntity: ClothingUnderBottomMCaptainS
+  personalItems:
+  - ClothingUnderBottomMCaptainS
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCaptainW
+  dummyEntity: ClothingUnderBottomFCaptainW
+  personalItems:
+  - ClothingUnderBottomFCaptainW
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCaptainW
+  dummyEntity: ClothingUnderBottomMCaptainW
+  personalItems:
+  - ClothingUnderBottomMCaptainW
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCe
+  dummyEntity: ClothingUnderBottomFCe
+  personalItems:
+  - ClothingUnderBottomFCe
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCe
+  dummyEntity: ClothingUnderBottomMCe
+  personalItems:
+  - ClothingUnderBottomMCe
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFCmo
+  dummyEntity: ClothingUnderBottomFCmo
+  personalItems:
+  - ClothingUnderBottomFCmo
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMCmo
+  dummyEntity: ClothingUnderBottomMCmo
+  personalItems:
+  - ClothingUnderBottomMCmo
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFHop
+  dummyEntity: ClothingUnderBottomFHop
+  personalItems:
+  - ClothingUnderBottomFHop
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMHop
+  dummyEntity: ClothingUnderBottomMHop
+  personalItems:
+  - ClothingUnderBottomMHop
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFHos
+  dummyEntity: ClothingUnderBottomFHos
+  personalItems:
+  - ClothingUnderBottomFHos
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMHos
+  dummyEntity: ClothingUnderBottomMHos
+  personalItems:
+  - ClothingUnderBottomMHos
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFQm
+  dummyEntity: ClothingUnderBottomFQm
+  personalItems:
+  - ClothingUnderBottomFQm
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMQm
+  dummyEntity: ClothingUnderBottomMQm
+  personalItems:
+  - ClothingUnderBottomMQm
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFRd
+  dummyEntity: ClothingUnderBottomFRd
+  personalItems:
+  - ClothingUnderBottomFRd
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMRd
+  dummyEntity: ClothingUnderBottomMRd
+  personalItems:
+  - ClothingUnderBottomMRd
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimBlack
+  dummyEntity: ClothingUniformSwimBlack
+  personalItems:
+  - ClothingUniformSwimBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimBlue
+  dummyEntity: ClothingUniformSwimBlue
+  personalItems:
+  - ClothingUniformSwimBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimDarkGreen
+  dummyEntity: ClothingUniformSwimDarkGreen
+  personalItems:
+  - ClothingUniformSwimDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimGreen
+  dummyEntity: ClothingUniformSwimGreen
+  personalItems:
+  - ClothingUniformSwimGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimPurple
+  dummyEntity: ClothingUniformSwimPurple
+  personalItems:
+  - ClothingUniformSwimPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUniformSwimRed
+  dummyEntity: ClothingUniformSwimRed
+  personalItems:
+  - ClothingUniformSwimRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksAssblastusaKnee
+  dummyEntity: ClothingUnderSocksAssblastusaKnee
+  personalItems:
+  - ClothingUnderSocksAssblastusaKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksAssblastusaThigh
+  dummyEntity: ClothingUnderSocksAssblastusaThigh
+  personalItems:
+  - ClothingUnderSocksAssblastusaThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBeeKnee
+  dummyEntity: ClothingUnderSocksBeeKnee
+  personalItems:
+  - ClothingUnderSocksBeeKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBlackKnee
+  dummyEntity: ClothingUnderSocksBlackKnee
+  personalItems:
+  - ClothingUnderSocksBlackKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBlackNorm
+  dummyEntity: ClothingUnderSocksBlackNorm
+  personalItems:
+  - ClothingUnderSocksBlackNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBlackShort
+  dummyEntity: ClothingUnderSocksBlackShort
+  personalItems:
+  - ClothingUnderSocksBlackShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBlackThigh
+  dummyEntity: ClothingUnderSocksBlackThigh
+  personalItems:
+  - ClothingUnderSocksBlackThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksBlue
+  dummyEntity: ClothingUnderSocksBlue
+  personalItems:
+  - ClothingUnderSocksBlue
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCommieKnee
+  dummyEntity: ClothingUnderSocksCommieKnee
+  personalItems:
+  - ClothingUnderSocksCommieKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCommieThigh
+  dummyEntity: ClothingUnderSocksCommieThigh
+  personalItems:
+  - ClothingUnderSocksCommieThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCyan
+  dummyEntity: ClothingUnderSocksCyan
+  personalItems:
+  - ClothingUnderSocksCyan
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksFishnet
+  dummyEntity: ClothingUnderSocksFishnet
+  personalItems:
+  - ClothingUnderSocksFishnet
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksFishnetKnee
+  dummyEntity: ClothingUnderSocksFishnetKnee
+  personalItems:
+  - ClothingUnderSocksFishnetKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksFishnetThigh
+  dummyEntity: ClothingUnderSocksFishnetThigh
+  personalItems:
+  - ClothingUnderSocksFishnetThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksGreen
+  dummyEntity: ClothingUnderSocksGreen
+  personalItems:
+  - ClothingUnderSocksGreen
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksOrange
+  dummyEntity: ClothingUnderSocksOrange
+  personalItems:
+  - ClothingUnderSocksOrange
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksPantyhose
+  dummyEntity: ClothingUnderSocksPantyhose
+  personalItems:
+  - ClothingUnderSocksPantyhose
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksPink
+  dummyEntity: ClothingUnderSocksPink
+  personalItems:
+  - ClothingUnderSocksPink
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksPurple
+  dummyEntity: ClothingUnderSocksPurple
+  personalItems:
+  - ClothingUnderSocksPurple
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRainbowKnee
+  dummyEntity: ClothingUnderSocksRainbowKnee
+  personalItems:
+  - ClothingUnderSocksRainbowKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRainbowThigh
+  dummyEntity: ClothingUnderSocksRainbowThigh
+  personalItems:
+  - ClothingUnderSocksRainbowThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksStripedKnee
+  dummyEntity: ClothingUnderSocksStripedKnee
+  personalItems:
+  - ClothingUnderSocksStripedKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksStripedThigh
+  dummyEntity: ClothingUnderSocksStripedThigh
+  personalItems:
+  - ClothingUnderSocksStripedThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksThinKnee
+  dummyEntity: ClothingUnderSocksThinKnee
+  personalItems:
+  - ClothingUnderSocksThinKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksThinThigh
+  dummyEntity: ClothingUnderSocksThinThigh
+  personalItems:
+  - ClothingUnderSocksThinThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksWhiteKnee
+  dummyEntity: ClothingUnderSocksWhiteKnee
+  personalItems:
+  - ClothingUnderSocksWhiteKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksWhiteNorm
+  dummyEntity: ClothingUnderSocksWhiteNorm
+  personalItems:
+  - ClothingUnderSocksWhiteNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksWhiteShort
+  dummyEntity: ClothingUnderSocksWhiteShort
+  personalItems:
+  - ClothingUnderSocksWhiteShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksWhiteThigh
+  dummyEntity: ClothingUnderSocksWhiteThigh
+  personalItems:
+  - ClothingUnderSocksWhiteThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksYellow
+  dummyEntity: ClothingUnderSocksYellow
+  personalItems:
+  - ClothingUnderSocksYellow
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCapKnee
+  dummyEntity: ClothingUnderSocksCapKnee
+  personalItems:
+  - ClothingUnderSocksCapKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCapNorm
+  dummyEntity: ClothingUnderSocksCapNorm
+  personalItems:
+  - ClothingUnderSocksCapNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCapShort
+  dummyEntity: ClothingUnderSocksCapShort
+  personalItems:
+  - ClothingUnderSocksCapShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCapThigh
+  dummyEntity: ClothingUnderSocksCapThigh
+  personalItems:
+  - ClothingUnderSocksCapThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCeKnee
+  dummyEntity: ClothingUnderSocksCeKnee
+  personalItems:
+  - ClothingUnderSocksCeKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCeNorm
+  dummyEntity: ClothingUnderSocksCeNorm
+  personalItems:
+  - ClothingUnderSocksCeNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCeShort
+  dummyEntity: ClothingUnderSocksCeShort
+  personalItems:
+  - ClothingUnderSocksCeShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCeThigh
+  dummyEntity: ClothingUnderSocksCeThigh
+  personalItems:
+  - ClothingUnderSocksCeThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCmoKnee
+  dummyEntity: ClothingUnderSocksCmoKnee
+  personalItems:
+  - ClothingUnderSocksCmoKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCmoNorm
+  dummyEntity: ClothingUnderSocksCmoNorm
+  personalItems:
+  - ClothingUnderSocksCmoNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCmoShort
+  dummyEntity: ClothingUnderSocksCmoShort
+  personalItems:
+  - ClothingUnderSocksCmoShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksCmoThigh
+  dummyEntity: ClothingUnderSocksCmoThigh
+  personalItems:
+  - ClothingUnderSocksCmoThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHopKnee
+  dummyEntity: ClothingUnderSocksHopKnee
+  personalItems:
+  - ClothingUnderSocksHopKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHopNorm
+  dummyEntity: ClothingUnderSocksHopNorm
+  personalItems:
+  - ClothingUnderSocksHopNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHopShort
+  dummyEntity: ClothingUnderSocksHopShort
+  personalItems:
+  - ClothingUnderSocksHopShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHopThigh
+  dummyEntity: ClothingUnderSocksHopThigh
+  personalItems:
+  - ClothingUnderSocksHopThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHosKnee
+  dummyEntity: ClothingUnderSocksHosKnee
+  personalItems:
+  - ClothingUnderSocksHosKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHosNorm
+  dummyEntity: ClothingUnderSocksHosNorm
+  personalItems:
+  - ClothingUnderSocksHosNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHosShort
+  dummyEntity: ClothingUnderSocksHosShort
+  personalItems:
+  - ClothingUnderSocksHosShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksHosThigh
+  dummyEntity: ClothingUnderSocksHosThigh
+  personalItems:
+  - ClothingUnderSocksHosThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksQmKnee
+  dummyEntity: ClothingUnderSocksQmKnee
+  personalItems:
+  - ClothingUnderSocksQmKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksQmNorm
+  dummyEntity: ClothingUnderSocksQmNorm
+  personalItems:
+  - ClothingUnderSocksQmNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksQmShort
+  dummyEntity: ClothingUnderSocksQmShort
+  personalItems:
+  - ClothingUnderSocksQmShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksQmThigh
+  dummyEntity: ClothingUnderSocksQmThigh
+  personalItems:
+  - ClothingUnderSocksQmThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRdKnee
+  dummyEntity: ClothingUnderSocksRdKnee
+  personalItems:
+  - ClothingUnderSocksRdKnee
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRdNorm
+  dummyEntity: ClothingUnderSocksRdNorm
+  personalItems:
+  - ClothingUnderSocksRdNorm
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRdShort
+  dummyEntity: ClothingUnderSocksRdShort
+  personalItems:
+  - ClothingUnderSocksRdShort
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderSocksRdThigh
+  dummyEntity: ClothingUnderSocksRdThigh
+  personalItems:
+  - ClothingUnderSocksRdThigh
+  personalCategory: UnderwearSocks
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraGrey
+  dummyEntity: ClothingUnderTopBraGrey
+  personalItems:
+  - ClothingUnderTopBraGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSecurity
+  dummyEntity: ClothingUnderTopBraSecurity
+  personalItems:
+  - ClothingUnderTopBraSecurity
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraAssblastusa
+  dummyEntity: ClothingUnderTopBraAssblastusa
+  personalItems:
+  - ClothingUnderTopBraAssblastusa
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikini
+  dummyEntity: ClothingUnderTopBikini
+  personalItems:
+  - ClothingUnderTopBikini
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraChast
+  dummyEntity: ClothingUnderTopBraChast
+  personalItems:
+  - ClothingUnderTopBraChast
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraLatex
+  dummyEntity: ClothingUnderTopBraLatex
+  personalItems:
+  - ClothingUnderTopBraLatex
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStripped
+  dummyEntity: ClothingUnderTopBraStripped
+  personalItems:
+  - ClothingUnderTopBraStripped
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCommie
+  dummyEntity: ClothingUnderTopBraCommie
+  personalItems:
+  - ClothingUnderTopBraCommie
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorset
+  dummyEntity: ClothingUnderTopCorset
+  personalItems:
+  - ClothingUnderTopCorset
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnet
+  dummyEntity: ClothingUnderTopBraFishnet
+  personalItems:
+  - ClothingUnderTopBraFishnet
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraKinky
+  dummyEntity: ClothingUnderTopBraKinky
+  personalItems:
+  - ClothingUnderTopBraKinky
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraLace
+  dummyEntity: ClothingUnderTopBraLace
+  personalItems:
+  - ClothingUnderTopBraLace
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraLizard
+  dummyEntity: ClothingUnderTopBraLizard
+  personalItems:
+  - ClothingUnderTopBraLizard
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoBlack
+  dummyEntity: ClothingUnderTopBraNekoBlack
+  personalItems:
+  - ClothingUnderTopBraNekoBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoWhite
+  dummyEntity: ClothingUnderTopBraNekoWhite
+  personalItems:
+  - ClothingUnderTopBraNekoWhite
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraPasties
+  dummyEntity: ClothingUnderTopBraPasties
+  personalItems:
+  - ClothingUnderTopBraPasties
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSport
+  dummyEntity: ClothingUnderTopBraSport
+  personalItems:
+  - ClothingUnderTopBraSport
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStrapless
+  dummyEntity: ClothingUnderTopBraStrapless
+  personalItems:
+  - ClothingUnderTopBraStrapless
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThong
+  dummyEntity: ClothingUnderTopBraThong
+  personalItems:
+  - ClothingUnderTopBraThong
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraBso
+  dummyEntity: ClothingUnderTopBraBso
+  personalItems:
+  - ClothingUnderTopBraBso
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCap
+  dummyEntity: ClothingUnderTopBraCap
+  personalItems:
+  - ClothingUnderTopBraCap
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCapS
+  dummyEntity: ClothingUnderTopBraCapS
+  personalItems:
+  - ClothingUnderTopBraCapS
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCapW
+  dummyEntity: ClothingUnderTopBraCapW
+  personalItems:
+  - ClothingUnderTopBraCapW
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCe
+  dummyEntity: ClothingUnderTopBraCe
+  personalItems:
+  - ClothingUnderTopBraCe
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraCmo
+  dummyEntity: ClothingUnderTopBraCmo
+  personalItems:
+  - ClothingUnderTopBraCmo
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraHop
+  dummyEntity: ClothingUnderTopBraHop
+  personalItems:
+  - ClothingUnderTopBraHop
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraHos
+  dummyEntity: ClothingUnderTopBraHos
+  personalItems:
+  - ClothingUnderTopBraHos
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraQm
+  dummyEntity: ClothingUnderTopBraQm
+  personalItems:
+  - ClothingUnderTopBraQm
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraRd
+  dummyEntity: ClothingUnderTopBraRd
+  personalItems:
+  - ClothingUnderTopBraRd
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersBlack
+  dummyEntity: ClothingUnderBottomBoxersBlack
+  personalItems:
+  - ClothingUnderBottomBoxersBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsBlack
+  dummyEntity: ClothingUnderBottomFBriefsBlack
+  personalItems:
+  - ClothingUnderBottomFBriefsBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsBlack
+  dummyEntity: ClothingUnderBottomMBriefsBlack
+  personalItems:
+  - ClothingUnderBottomMBriefsBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportBlack
+  dummyEntity: ClothingUnderBottomSportBlack
+  personalItems:
+  - ClothingUnderBottomSportBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongBlack
+  dummyEntity: ClothingUnderBottomThongBlack
+  personalItems:
+  - ClothingUnderBottomThongBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesBlack
+  dummyEntity: ClothingUnderBottomPantiesBlack
+  personalItems:
+  - ClothingUnderBottomPantiesBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollBlack
+  dummyEntity: ClothingUnderBottomBabydollBlack
+  personalItems:
+  - ClothingUnderBottomBabydollBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardBlack
+  dummyEntity: ClothingUnderBottomLizardBlack
+  personalItems:
+  - ClothingUnderBottomLizardBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyBlack
+  dummyEntity: ClothingUnderBottomMankinyBlack
+  personalItems:
+  - ClothingUnderBottomMankinyBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeBlack
+  dummyEntity: ClothingUnderBottomSwimStripeBlack
+  personalItems:
+  - ClothingUnderBottomSwimStripeBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterBlack
+  dummyEntity: ClothingUnderBottomSwimHalterBlack
+  personalItems:
+  - ClothingUnderBottomSwimHalterBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceBlack
+  dummyEntity: ClothingUnderBottomSwimOnePieceBlack
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessBlack
+  dummyEntity: ClothingUnderBottomSwimStraplessBlack
+  personalItems:
+  - ClothingUnderBottomSwimStraplessBlack
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetBlack
+  dummyEntity: ClothingUnderTopCorsetBlack
+  personalItems:
+  - ClothingUnderTopCorsetBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportBlack
+  dummyEntity: ClothingUnderTopBraSportBlack
+  personalItems:
+  - ClothingUnderTopBraSportBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetBlack
+  dummyEntity: ClothingUnderTopBraFishnetBlack
+  personalItems:
+  - ClothingUnderTopBraFishnetBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessBlack
+  dummyEntity: ClothingUnderTopBraStraplessBlack
+  personalItems:
+  - ClothingUnderTopBraStraplessBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongBlack
+  dummyEntity: ClothingUnderTopBraThongBlack
+  personalItems:
+  - ClothingUnderTopBraThongBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniBlack
+  dummyEntity: ClothingUnderTopBikiniBlack
+  personalItems:
+  - ClothingUnderTopBikiniBlack
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersBlue
+  dummyEntity: ClothingUnderBottomBoxersBlue
+  personalItems:
+  - ClothingUnderBottomBoxersBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsBlue
+  dummyEntity: ClothingUnderBottomFBriefsBlue
+  personalItems:
+  - ClothingUnderBottomFBriefsBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsBlue
+  dummyEntity: ClothingUnderBottomMBriefsBlue
+  personalItems:
+  - ClothingUnderBottomMBriefsBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportBlue
+  dummyEntity: ClothingUnderBottomSportBlue
+  personalItems:
+  - ClothingUnderBottomSportBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongBlue
+  dummyEntity: ClothingUnderBottomThongBlue
+  personalItems:
+  - ClothingUnderBottomThongBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesBlue
+  dummyEntity: ClothingUnderBottomPantiesBlue
+  personalItems:
+  - ClothingUnderBottomPantiesBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollBlue
+  dummyEntity: ClothingUnderBottomBabydollBlue
+  personalItems:
+  - ClothingUnderBottomBabydollBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardBlue
+  dummyEntity: ClothingUnderBottomLizardBlue
+  personalItems:
+  - ClothingUnderBottomLizardBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyBlue
+  dummyEntity: ClothingUnderBottomMankinyBlue
+  personalItems:
+  - ClothingUnderBottomMankinyBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeBlue
+  dummyEntity: ClothingUnderBottomSwimStripeBlue
+  personalItems:
+  - ClothingUnderBottomSwimStripeBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterBlue
+  dummyEntity: ClothingUnderBottomSwimHalterBlue
+  personalItems:
+  - ClothingUnderBottomSwimHalterBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceBlue
+  dummyEntity: ClothingUnderBottomSwimOnePieceBlue
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessBlue
+  dummyEntity: ClothingUnderBottomSwimStraplessBlue
+  personalItems:
+  - ClothingUnderBottomSwimStraplessBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetBlue
+  dummyEntity: ClothingUnderTopCorsetBlue
+  personalItems:
+  - ClothingUnderTopCorsetBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportBlue
+  dummyEntity: ClothingUnderTopBraSportBlue
+  personalItems:
+  - ClothingUnderTopBraSportBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoBlue
+  dummyEntity: ClothingUnderTopBraNekoBlue
+  personalItems:
+  - ClothingUnderTopBraNekoBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetBlue
+  dummyEntity: ClothingUnderTopBraFishnetBlue
+  personalItems:
+  - ClothingUnderTopBraFishnetBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessBlue
+  dummyEntity: ClothingUnderTopBraStraplessBlue
+  personalItems:
+  - ClothingUnderTopBraStraplessBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongBlue
+  dummyEntity: ClothingUnderTopBraThongBlue
+  personalItems:
+  - ClothingUnderTopBraThongBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniBlue
+  dummyEntity: ClothingUnderTopBikiniBlue
+  personalItems:
+  - ClothingUnderTopBikiniBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersBrown
+  dummyEntity: ClothingUnderBottomBoxersBrown
+  personalItems:
+  - ClothingUnderBottomBoxersBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsBrown
+  dummyEntity: ClothingUnderBottomFBriefsBrown
+  personalItems:
+  - ClothingUnderBottomFBriefsBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsBrown
+  dummyEntity: ClothingUnderBottomMBriefsBrown
+  personalItems:
+  - ClothingUnderBottomMBriefsBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportBrown
+  dummyEntity: ClothingUnderBottomSportBrown
+  personalItems:
+  - ClothingUnderBottomSportBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongBrown
+  dummyEntity: ClothingUnderBottomThongBrown
+  personalItems:
+  - ClothingUnderBottomThongBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesBrown
+  dummyEntity: ClothingUnderBottomPantiesBrown
+  personalItems:
+  - ClothingUnderBottomPantiesBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollBrown
+  dummyEntity: ClothingUnderBottomBabydollBrown
+  personalItems:
+  - ClothingUnderBottomBabydollBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardBrown
+  dummyEntity: ClothingUnderBottomLizardBrown
+  personalItems:
+  - ClothingUnderBottomLizardBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyBrown
+  dummyEntity: ClothingUnderBottomMankinyBrown
+  personalItems:
+  - ClothingUnderBottomMankinyBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeBrown
+  dummyEntity: ClothingUnderBottomSwimStripeBrown
+  personalItems:
+  - ClothingUnderBottomSwimStripeBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterBrown
+  dummyEntity: ClothingUnderBottomSwimHalterBrown
+  personalItems:
+  - ClothingUnderBottomSwimHalterBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceBrown
+  dummyEntity: ClothingUnderBottomSwimOnePieceBrown
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessBrown
+  dummyEntity: ClothingUnderBottomSwimStraplessBrown
+  personalItems:
+  - ClothingUnderBottomSwimStraplessBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetBrown
+  dummyEntity: ClothingUnderTopCorsetBrown
+  personalItems:
+  - ClothingUnderTopCorsetBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportBrown
+  dummyEntity: ClothingUnderTopBraSportBrown
+  personalItems:
+  - ClothingUnderTopBraSportBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoBrown
+  dummyEntity: ClothingUnderTopBraNekoBrown
+  personalItems:
+  - ClothingUnderTopBraNekoBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetBrown
+  dummyEntity: ClothingUnderTopBraFishnetBrown
+  personalItems:
+  - ClothingUnderTopBraFishnetBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessBrown
+  dummyEntity: ClothingUnderTopBraStraplessBrown
+  personalItems:
+  - ClothingUnderTopBraStraplessBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongBrown
+  dummyEntity: ClothingUnderTopBraThongBrown
+  personalItems:
+  - ClothingUnderTopBraThongBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniBrown
+  dummyEntity: ClothingUnderTopBikiniBrown
+  personalItems:
+  - ClothingUnderTopBikiniBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersDarkBlue
+  dummyEntity: ClothingUnderBottomBoxersDarkBlue
+  personalItems:
+  - ClothingUnderBottomBoxersDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsDarkBlue
+  dummyEntity: ClothingUnderBottomFBriefsDarkBlue
+  personalItems:
+  - ClothingUnderBottomFBriefsDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsDarkBlue
+  dummyEntity: ClothingUnderBottomMBriefsDarkBlue
+  personalItems:
+  - ClothingUnderBottomMBriefsDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportDarkBlue
+  dummyEntity: ClothingUnderBottomSportDarkBlue
+  personalItems:
+  - ClothingUnderBottomSportDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongDarkBlue
+  dummyEntity: ClothingUnderBottomThongDarkBlue
+  personalItems:
+  - ClothingUnderBottomThongDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesDarkBlue
+  dummyEntity: ClothingUnderBottomPantiesDarkBlue
+  personalItems:
+  - ClothingUnderBottomPantiesDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollDarkBlue
+  dummyEntity: ClothingUnderBottomBabydollDarkBlue
+  personalItems:
+  - ClothingUnderBottomBabydollDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardDarkBlue
+  dummyEntity: ClothingUnderBottomLizardDarkBlue
+  personalItems:
+  - ClothingUnderBottomLizardDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyDarkBlue
+  dummyEntity: ClothingUnderBottomMankinyDarkBlue
+  personalItems:
+  - ClothingUnderBottomMankinyDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeDarkBlue
+  dummyEntity: ClothingUnderBottomSwimStripeDarkBlue
+  personalItems:
+  - ClothingUnderBottomSwimStripeDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterDarkBlue
+  dummyEntity: ClothingUnderBottomSwimHalterDarkBlue
+  personalItems:
+  - ClothingUnderBottomSwimHalterDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceDarkBlue
+  dummyEntity: ClothingUnderBottomSwimOnePieceDarkBlue
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessDarkBlue
+  dummyEntity: ClothingUnderBottomSwimStraplessDarkBlue
+  personalItems:
+  - ClothingUnderBottomSwimStraplessDarkBlue
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetDarkBlue
+  dummyEntity: ClothingUnderTopCorsetDarkBlue
+  personalItems:
+  - ClothingUnderTopCorsetDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportDarkBlue
+  dummyEntity: ClothingUnderTopBraSportDarkBlue
+  personalItems:
+  - ClothingUnderTopBraSportDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoDarkBlue
+  dummyEntity: ClothingUnderTopBraNekoDarkBlue
+  personalItems:
+  - ClothingUnderTopBraNekoDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetDarkBlue
+  dummyEntity: ClothingUnderTopBraFishnetDarkBlue
+  personalItems:
+  - ClothingUnderTopBraFishnetDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessDarkBlue
+  dummyEntity: ClothingUnderTopBraStraplessDarkBlue
+  personalItems:
+  - ClothingUnderTopBraStraplessDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongDarkBlue
+  dummyEntity: ClothingUnderTopBraThongDarkBlue
+  personalItems:
+  - ClothingUnderTopBraThongDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniDarkBlue
+  dummyEntity: ClothingUnderTopBikiniDarkBlue
+  personalItems:
+  - ClothingUnderTopBikiniDarkBlue
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersDarkGreen
+  dummyEntity: ClothingUnderBottomBoxersDarkGreen
+  personalItems:
+  - ClothingUnderBottomBoxersDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsDarkGreen
+  dummyEntity: ClothingUnderBottomFBriefsDarkGreen
+  personalItems:
+  - ClothingUnderBottomFBriefsDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsDarkGreen
+  dummyEntity: ClothingUnderBottomMBriefsDarkGreen
+  personalItems:
+  - ClothingUnderBottomMBriefsDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportDarkGreen
+  dummyEntity: ClothingUnderBottomSportDarkGreen
+  personalItems:
+  - ClothingUnderBottomSportDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongDarkGreen
+  dummyEntity: ClothingUnderBottomThongDarkGreen
+  personalItems:
+  - ClothingUnderBottomThongDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesDarkGreen
+  dummyEntity: ClothingUnderBottomPantiesDarkGreen
+  personalItems:
+  - ClothingUnderBottomPantiesDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollDarkGreen
+  dummyEntity: ClothingUnderBottomBabydollDarkGreen
+  personalItems:
+  - ClothingUnderBottomBabydollDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardDarkGreen
+  dummyEntity: ClothingUnderBottomLizardDarkGreen
+  personalItems:
+  - ClothingUnderBottomLizardDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyDarkGreen
+  dummyEntity: ClothingUnderBottomMankinyDarkGreen
+  personalItems:
+  - ClothingUnderBottomMankinyDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeDarkGreen
+  dummyEntity: ClothingUnderBottomSwimStripeDarkGreen
+  personalItems:
+  - ClothingUnderBottomSwimStripeDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterDarkGreen
+  dummyEntity: ClothingUnderBottomSwimHalterDarkGreen
+  personalItems:
+  - ClothingUnderBottomSwimHalterDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceDarkGreen
+  dummyEntity: ClothingUnderBottomSwimOnePieceDarkGreen
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessDarkGreen
+  dummyEntity: ClothingUnderBottomSwimStraplessDarkGreen
+  personalItems:
+  - ClothingUnderBottomSwimStraplessDarkGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetDarkGreen
+  dummyEntity: ClothingUnderTopCorsetDarkGreen
+  personalItems:
+  - ClothingUnderTopCorsetDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportDarkGreen
+  dummyEntity: ClothingUnderTopBraSportDarkGreen
+  personalItems:
+  - ClothingUnderTopBraSportDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoDarkGreen
+  dummyEntity: ClothingUnderTopBraNekoDarkGreen
+  personalItems:
+  - ClothingUnderTopBraNekoDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetDarkGreen
+  dummyEntity: ClothingUnderTopBraFishnetDarkGreen
+  personalItems:
+  - ClothingUnderTopBraFishnetDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessDarkGreen
+  dummyEntity: ClothingUnderTopBraStraplessDarkGreen
+  personalItems:
+  - ClothingUnderTopBraStraplessDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongDarkGreen
+  dummyEntity: ClothingUnderTopBraThongDarkGreen
+  personalItems:
+  - ClothingUnderTopBraThongDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniDarkGreen
+  dummyEntity: ClothingUnderTopBikiniDarkGreen
+  personalItems:
+  - ClothingUnderTopBikiniDarkGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersGreen
+  dummyEntity: ClothingUnderBottomBoxersGreen
+  personalItems:
+  - ClothingUnderBottomBoxersGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsGreen
+  dummyEntity: ClothingUnderBottomFBriefsGreen
+  personalItems:
+  - ClothingUnderBottomFBriefsGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsGreen
+  dummyEntity: ClothingUnderBottomMBriefsGreen
+  personalItems:
+  - ClothingUnderBottomMBriefsGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportGreen
+  dummyEntity: ClothingUnderBottomSportGreen
+  personalItems:
+  - ClothingUnderBottomSportGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongGreen
+  dummyEntity: ClothingUnderBottomThongGreen
+  personalItems:
+  - ClothingUnderBottomThongGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesGreen
+  dummyEntity: ClothingUnderBottomPantiesGreen
+  personalItems:
+  - ClothingUnderBottomPantiesGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollGreen
+  dummyEntity: ClothingUnderBottomBabydollGreen
+  personalItems:
+  - ClothingUnderBottomBabydollGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardGreen
+  dummyEntity: ClothingUnderBottomLizardGreen
+  personalItems:
+  - ClothingUnderBottomLizardGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyGreen
+  dummyEntity: ClothingUnderBottomMankinyGreen
+  personalItems:
+  - ClothingUnderBottomMankinyGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeGreen
+  dummyEntity: ClothingUnderBottomSwimStripeGreen
+  personalItems:
+  - ClothingUnderBottomSwimStripeGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterGreen
+  dummyEntity: ClothingUnderBottomSwimHalterGreen
+  personalItems:
+  - ClothingUnderBottomSwimHalterGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceGreen
+  dummyEntity: ClothingUnderBottomSwimOnePieceGreen
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessGreen
+  dummyEntity: ClothingUnderBottomSwimStraplessGreen
+  personalItems:
+  - ClothingUnderBottomSwimStraplessGreen
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetGreen
+  dummyEntity: ClothingUnderTopCorsetGreen
+  personalItems:
+  - ClothingUnderTopCorsetGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportGreen
+  dummyEntity: ClothingUnderTopBraSportGreen
+  personalItems:
+  - ClothingUnderTopBraSportGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoGreen
+  dummyEntity: ClothingUnderTopBraNekoGreen
+  personalItems:
+  - ClothingUnderTopBraNekoGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetGreen
+  dummyEntity: ClothingUnderTopBraFishnetGreen
+  personalItems:
+  - ClothingUnderTopBraFishnetGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessGreen
+  dummyEntity: ClothingUnderTopBraStraplessGreen
+  personalItems:
+  - ClothingUnderTopBraStraplessGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongGreen
+  dummyEntity: ClothingUnderTopBraThongGreen
+  personalItems:
+  - ClothingUnderTopBraThongGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniGreen
+  dummyEntity: ClothingUnderTopBikiniGreen
+  personalItems:
+  - ClothingUnderTopBikiniGreen
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersGrey
+  dummyEntity: ClothingUnderBottomBoxersGrey
+  personalItems:
+  - ClothingUnderBottomBoxersGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsGrey
+  dummyEntity: ClothingUnderBottomFBriefsGrey
+  personalItems:
+  - ClothingUnderBottomFBriefsGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsGrey
+  dummyEntity: ClothingUnderBottomMBriefsGrey
+  personalItems:
+  - ClothingUnderBottomMBriefsGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportGrey
+  dummyEntity: ClothingUnderBottomSportGrey
+  personalItems:
+  - ClothingUnderBottomSportGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongGrey
+  dummyEntity: ClothingUnderBottomThongGrey
+  personalItems:
+  - ClothingUnderBottomThongGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesGrey
+  dummyEntity: ClothingUnderBottomPantiesGrey
+  personalItems:
+  - ClothingUnderBottomPantiesGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollGrey
+  dummyEntity: ClothingUnderBottomBabydollGrey
+  personalItems:
+  - ClothingUnderBottomBabydollGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardGrey
+  dummyEntity: ClothingUnderBottomLizardGrey
+  personalItems:
+  - ClothingUnderBottomLizardGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyGrey
+  dummyEntity: ClothingUnderBottomMankinyGrey
+  personalItems:
+  - ClothingUnderBottomMankinyGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeGrey
+  dummyEntity: ClothingUnderBottomSwimStripeGrey
+  personalItems:
+  - ClothingUnderBottomSwimStripeGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterGrey
+  dummyEntity: ClothingUnderBottomSwimHalterGrey
+  personalItems:
+  - ClothingUnderBottomSwimHalterGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceGrey
+  dummyEntity: ClothingUnderBottomSwimOnePieceGrey
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessGrey
+  dummyEntity: ClothingUnderBottomSwimStraplessGrey
+  personalItems:
+  - ClothingUnderBottomSwimStraplessGrey
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetGrey
+  dummyEntity: ClothingUnderTopCorsetGrey
+  personalItems:
+  - ClothingUnderTopCorsetGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportGrey
+  dummyEntity: ClothingUnderTopBraSportGrey
+  personalItems:
+  - ClothingUnderTopBraSportGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoGrey
+  dummyEntity: ClothingUnderTopBraNekoGrey
+  personalItems:
+  - ClothingUnderTopBraNekoGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetGrey
+  dummyEntity: ClothingUnderTopBraFishnetGrey
+  personalItems:
+  - ClothingUnderTopBraFishnetGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessGrey
+  dummyEntity: ClothingUnderTopBraStraplessGrey
+  personalItems:
+  - ClothingUnderTopBraStraplessGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongGrey
+  dummyEntity: ClothingUnderTopBraThongGrey
+  personalItems:
+  - ClothingUnderTopBraThongGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniGrey
+  dummyEntity: ClothingUnderTopBikiniGrey
+  personalItems:
+  - ClothingUnderTopBikiniGrey
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersLightBrown
+  dummyEntity: ClothingUnderBottomBoxersLightBrown
+  personalItems:
+  - ClothingUnderBottomBoxersLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsLightBrown
+  dummyEntity: ClothingUnderBottomFBriefsLightBrown
+  personalItems:
+  - ClothingUnderBottomFBriefsLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsLightBrown
+  dummyEntity: ClothingUnderBottomMBriefsLightBrown
+  personalItems:
+  - ClothingUnderBottomMBriefsLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportLightBrown
+  dummyEntity: ClothingUnderBottomSportLightBrown
+  personalItems:
+  - ClothingUnderBottomSportLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongLightBrown
+  dummyEntity: ClothingUnderBottomThongLightBrown
+  personalItems:
+  - ClothingUnderBottomThongLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesLightBrown
+  dummyEntity: ClothingUnderBottomPantiesLightBrown
+  personalItems:
+  - ClothingUnderBottomPantiesLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollLightBrown
+  dummyEntity: ClothingUnderBottomBabydollLightBrown
+  personalItems:
+  - ClothingUnderBottomBabydollLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardLightBrown
+  dummyEntity: ClothingUnderBottomLizardLightBrown
+  personalItems:
+  - ClothingUnderBottomLizardLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyLightBrown
+  dummyEntity: ClothingUnderBottomMankinyLightBrown
+  personalItems:
+  - ClothingUnderBottomMankinyLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeLightBrown
+  dummyEntity: ClothingUnderBottomSwimStripeLightBrown
+  personalItems:
+  - ClothingUnderBottomSwimStripeLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterLightBrown
+  dummyEntity: ClothingUnderBottomSwimHalterLightBrown
+  personalItems:
+  - ClothingUnderBottomSwimHalterLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceLightBrown
+  dummyEntity: ClothingUnderBottomSwimOnePieceLightBrown
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessLightBrown
+  dummyEntity: ClothingUnderBottomSwimStraplessLightBrown
+  personalItems:
+  - ClothingUnderBottomSwimStraplessLightBrown
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetLightBrown
+  dummyEntity: ClothingUnderTopCorsetLightBrown
+  personalItems:
+  - ClothingUnderTopCorsetLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportLightBrown
+  dummyEntity: ClothingUnderTopBraSportLightBrown
+  personalItems:
+  - ClothingUnderTopBraSportLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoLightBrown
+  dummyEntity: ClothingUnderTopBraNekoLightBrown
+  personalItems:
+  - ClothingUnderTopBraNekoLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetLightBrown
+  dummyEntity: ClothingUnderTopBraFishnetLightBrown
+  personalItems:
+  - ClothingUnderTopBraFishnetLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessLightBrown
+  dummyEntity: ClothingUnderTopBraStraplessLightBrown
+  personalItems:
+  - ClothingUnderTopBraStraplessLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongLightBrown
+  dummyEntity: ClothingUnderTopBraThongLightBrown
+  personalItems:
+  - ClothingUnderTopBraThongLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniLightBrown
+  dummyEntity: ClothingUnderTopBikiniLightBrown
+  personalItems:
+  - ClothingUnderTopBikiniLightBrown
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersMaroon
+  dummyEntity: ClothingUnderBottomBoxersMaroon
+  personalItems:
+  - ClothingUnderBottomBoxersMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsMaroon
+  dummyEntity: ClothingUnderBottomFBriefsMaroon
+  personalItems:
+  - ClothingUnderBottomFBriefsMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsMaroon
+  dummyEntity: ClothingUnderBottomMBriefsMaroon
+  personalItems:
+  - ClothingUnderBottomMBriefsMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportMaroon
+  dummyEntity: ClothingUnderBottomSportMaroon
+  personalItems:
+  - ClothingUnderBottomSportMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongMaroon
+  dummyEntity: ClothingUnderBottomThongMaroon
+  personalItems:
+  - ClothingUnderBottomThongMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesMaroon
+  dummyEntity: ClothingUnderBottomPantiesMaroon
+  personalItems:
+  - ClothingUnderBottomPantiesMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollMaroon
+  dummyEntity: ClothingUnderBottomBabydollMaroon
+  personalItems:
+  - ClothingUnderBottomBabydollMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardMaroon
+  dummyEntity: ClothingUnderBottomLizardMaroon
+  personalItems:
+  - ClothingUnderBottomLizardMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyMaroon
+  dummyEntity: ClothingUnderBottomMankinyMaroon
+  personalItems:
+  - ClothingUnderBottomMankinyMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeMaroon
+  dummyEntity: ClothingUnderBottomSwimStripeMaroon
+  personalItems:
+  - ClothingUnderBottomSwimStripeMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterMaroon
+  dummyEntity: ClothingUnderBottomSwimHalterMaroon
+  personalItems:
+  - ClothingUnderBottomSwimHalterMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceMaroon
+  dummyEntity: ClothingUnderBottomSwimOnePieceMaroon
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessMaroon
+  dummyEntity: ClothingUnderBottomSwimStraplessMaroon
+  personalItems:
+  - ClothingUnderBottomSwimStraplessMaroon
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetMaroon
+  dummyEntity: ClothingUnderTopCorsetMaroon
+  personalItems:
+  - ClothingUnderTopCorsetMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportMaroon
+  dummyEntity: ClothingUnderTopBraSportMaroon
+  personalItems:
+  - ClothingUnderTopBraSportMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoMaroon
+  dummyEntity: ClothingUnderTopBraNekoMaroon
+  personalItems:
+  - ClothingUnderTopBraNekoMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetMaroon
+  dummyEntity: ClothingUnderTopBraFishnetMaroon
+  personalItems:
+  - ClothingUnderTopBraFishnetMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessMaroon
+  dummyEntity: ClothingUnderTopBraStraplessMaroon
+  personalItems:
+  - ClothingUnderTopBraStraplessMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongMaroon
+  dummyEntity: ClothingUnderTopBraThongMaroon
+  personalItems:
+  - ClothingUnderTopBraThongMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniMaroon
+  dummyEntity: ClothingUnderTopBikiniMaroon
+  personalItems:
+  - ClothingUnderTopBikiniMaroon
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersOrange
+  dummyEntity: ClothingUnderBottomBoxersOrange
+  personalItems:
+  - ClothingUnderBottomBoxersOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsOrange
+  dummyEntity: ClothingUnderBottomFBriefsOrange
+  personalItems:
+  - ClothingUnderBottomFBriefsOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsOrange
+  dummyEntity: ClothingUnderBottomMBriefsOrange
+  personalItems:
+  - ClothingUnderBottomMBriefsOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportOrange
+  dummyEntity: ClothingUnderBottomSportOrange
+  personalItems:
+  - ClothingUnderBottomSportOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongOrange
+  dummyEntity: ClothingUnderBottomThongOrange
+  personalItems:
+  - ClothingUnderBottomThongOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesOrange
+  dummyEntity: ClothingUnderBottomPantiesOrange
+  personalItems:
+  - ClothingUnderBottomPantiesOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollOrange
+  dummyEntity: ClothingUnderBottomBabydollOrange
+  personalItems:
+  - ClothingUnderBottomBabydollOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardOrange
+  dummyEntity: ClothingUnderBottomLizardOrange
+  personalItems:
+  - ClothingUnderBottomLizardOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyOrange
+  dummyEntity: ClothingUnderBottomMankinyOrange
+  personalItems:
+  - ClothingUnderBottomMankinyOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeOrange
+  dummyEntity: ClothingUnderBottomSwimStripeOrange
+  personalItems:
+  - ClothingUnderBottomSwimStripeOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterOrange
+  dummyEntity: ClothingUnderBottomSwimHalterOrange
+  personalItems:
+  - ClothingUnderBottomSwimHalterOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceOrange
+  dummyEntity: ClothingUnderBottomSwimOnePieceOrange
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessOrange
+  dummyEntity: ClothingUnderBottomSwimStraplessOrange
+  personalItems:
+  - ClothingUnderBottomSwimStraplessOrange
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetOrange
+  dummyEntity: ClothingUnderTopCorsetOrange
+  personalItems:
+  - ClothingUnderTopCorsetOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportOrange
+  dummyEntity: ClothingUnderTopBraSportOrange
+  personalItems:
+  - ClothingUnderTopBraSportOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoOrange
+  dummyEntity: ClothingUnderTopBraNekoOrange
+  personalItems:
+  - ClothingUnderTopBraNekoOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetOrange
+  dummyEntity: ClothingUnderTopBraFishnetOrange
+  personalItems:
+  - ClothingUnderTopBraFishnetOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessOrange
+  dummyEntity: ClothingUnderTopBraStraplessOrange
+  personalItems:
+  - ClothingUnderTopBraStraplessOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongOrange
+  dummyEntity: ClothingUnderTopBraThongOrange
+  personalItems:
+  - ClothingUnderTopBraThongOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniOrange
+  dummyEntity: ClothingUnderTopBikiniOrange
+  personalItems:
+  - ClothingUnderTopBikiniOrange
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersPink
+  dummyEntity: ClothingUnderBottomBoxersPink
+  personalItems:
+  - ClothingUnderBottomBoxersPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsPink
+  dummyEntity: ClothingUnderBottomFBriefsPink
+  personalItems:
+  - ClothingUnderBottomFBriefsPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsPink
+  dummyEntity: ClothingUnderBottomMBriefsPink
+  personalItems:
+  - ClothingUnderBottomMBriefsPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportPink
+  dummyEntity: ClothingUnderBottomSportPink
+  personalItems:
+  - ClothingUnderBottomSportPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongPink
+  dummyEntity: ClothingUnderBottomThongPink
+  personalItems:
+  - ClothingUnderBottomThongPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesPink
+  dummyEntity: ClothingUnderBottomPantiesPink
+  personalItems:
+  - ClothingUnderBottomPantiesPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollPink
+  dummyEntity: ClothingUnderBottomBabydollPink
+  personalItems:
+  - ClothingUnderBottomBabydollPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardPink
+  dummyEntity: ClothingUnderBottomLizardPink
+  personalItems:
+  - ClothingUnderBottomLizardPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyPink
+  dummyEntity: ClothingUnderBottomMankinyPink
+  personalItems:
+  - ClothingUnderBottomMankinyPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripePink
+  dummyEntity: ClothingUnderBottomSwimStripePink
+  personalItems:
+  - ClothingUnderBottomSwimStripePink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterPink
+  dummyEntity: ClothingUnderBottomSwimHalterPink
+  personalItems:
+  - ClothingUnderBottomSwimHalterPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePiecePink
+  dummyEntity: ClothingUnderBottomSwimOnePiecePink
+  personalItems:
+  - ClothingUnderBottomSwimOnePiecePink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessPink
+  dummyEntity: ClothingUnderBottomSwimStraplessPink
+  personalItems:
+  - ClothingUnderBottomSwimStraplessPink
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetPink
+  dummyEntity: ClothingUnderTopCorsetPink
+  personalItems:
+  - ClothingUnderTopCorsetPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportPink
+  dummyEntity: ClothingUnderTopBraSportPink
+  personalItems:
+  - ClothingUnderTopBraSportPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoPink
+  dummyEntity: ClothingUnderTopBraNekoPink
+  personalItems:
+  - ClothingUnderTopBraNekoPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetPink
+  dummyEntity: ClothingUnderTopBraFishnetPink
+  personalItems:
+  - ClothingUnderTopBraFishnetPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessPink
+  dummyEntity: ClothingUnderTopBraStraplessPink
+  personalItems:
+  - ClothingUnderTopBraStraplessPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongPink
+  dummyEntity: ClothingUnderTopBraThongPink
+  personalItems:
+  - ClothingUnderTopBraThongPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniPink
+  dummyEntity: ClothingUnderTopBikiniPink
+  personalItems:
+  - ClothingUnderTopBikiniPink
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersPurple
+  dummyEntity: ClothingUnderBottomBoxersPurple
+  personalItems:
+  - ClothingUnderBottomBoxersPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsPurple
+  dummyEntity: ClothingUnderBottomFBriefsPurple
+  personalItems:
+  - ClothingUnderBottomFBriefsPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsPurple
+  dummyEntity: ClothingUnderBottomMBriefsPurple
+  personalItems:
+  - ClothingUnderBottomMBriefsPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportPurple
+  dummyEntity: ClothingUnderBottomSportPurple
+  personalItems:
+  - ClothingUnderBottomSportPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongPurple
+  dummyEntity: ClothingUnderBottomThongPurple
+  personalItems:
+  - ClothingUnderBottomThongPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesPurple
+  dummyEntity: ClothingUnderBottomPantiesPurple
+  personalItems:
+  - ClothingUnderBottomPantiesPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollPurple
+  dummyEntity: ClothingUnderBottomBabydollPurple
+  personalItems:
+  - ClothingUnderBottomBabydollPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardPurple
+  dummyEntity: ClothingUnderBottomLizardPurple
+  personalItems:
+  - ClothingUnderBottomLizardPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyPurple
+  dummyEntity: ClothingUnderBottomMankinyPurple
+  personalItems:
+  - ClothingUnderBottomMankinyPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripePurple
+  dummyEntity: ClothingUnderBottomSwimStripePurple
+  personalItems:
+  - ClothingUnderBottomSwimStripePurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterPurple
+  dummyEntity: ClothingUnderBottomSwimHalterPurple
+  personalItems:
+  - ClothingUnderBottomSwimHalterPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePiecePurple
+  dummyEntity: ClothingUnderBottomSwimOnePiecePurple
+  personalItems:
+  - ClothingUnderBottomSwimOnePiecePurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessPurple
+  dummyEntity: ClothingUnderBottomSwimStraplessPurple
+  personalItems:
+  - ClothingUnderBottomSwimStraplessPurple
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetPurple
+  dummyEntity: ClothingUnderTopCorsetPurple
+  personalItems:
+  - ClothingUnderTopCorsetPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportPurple
+  dummyEntity: ClothingUnderTopBraSportPurple
+  personalItems:
+  - ClothingUnderTopBraSportPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoPurple
+  dummyEntity: ClothingUnderTopBraNekoPurple
+  personalItems:
+  - ClothingUnderTopBraNekoPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetPurple
+  dummyEntity: ClothingUnderTopBraFishnetPurple
+  personalItems:
+  - ClothingUnderTopBraFishnetPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessPurple
+  dummyEntity: ClothingUnderTopBraStraplessPurple
+  personalItems:
+  - ClothingUnderTopBraStraplessPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongPurple
+  dummyEntity: ClothingUnderTopBraThongPurple
+  personalItems:
+  - ClothingUnderTopBraThongPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniPurple
+  dummyEntity: ClothingUnderTopBikiniPurple
+  personalItems:
+  - ClothingUnderTopBikiniPurple
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersRed
+  dummyEntity: ClothingUnderBottomBoxersRed
+  personalItems:
+  - ClothingUnderBottomBoxersRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsRed
+  dummyEntity: ClothingUnderBottomFBriefsRed
+  personalItems:
+  - ClothingUnderBottomFBriefsRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsRed
+  dummyEntity: ClothingUnderBottomMBriefsRed
+  personalItems:
+  - ClothingUnderBottomMBriefsRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportRed
+  dummyEntity: ClothingUnderBottomSportRed
+  personalItems:
+  - ClothingUnderBottomSportRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongRed
+  dummyEntity: ClothingUnderBottomThongRed
+  personalItems:
+  - ClothingUnderBottomThongRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesRed
+  dummyEntity: ClothingUnderBottomPantiesRed
+  personalItems:
+  - ClothingUnderBottomPantiesRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollRed
+  dummyEntity: ClothingUnderBottomBabydollRed
+  personalItems:
+  - ClothingUnderBottomBabydollRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardRed
+  dummyEntity: ClothingUnderBottomLizardRed
+  personalItems:
+  - ClothingUnderBottomLizardRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyRed
+  dummyEntity: ClothingUnderBottomMankinyRed
+  personalItems:
+  - ClothingUnderBottomMankinyRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeRed
+  dummyEntity: ClothingUnderBottomSwimStripeRed
+  personalItems:
+  - ClothingUnderBottomSwimStripeRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterRed
+  dummyEntity: ClothingUnderBottomSwimHalterRed
+  personalItems:
+  - ClothingUnderBottomSwimHalterRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceRed
+  dummyEntity: ClothingUnderBottomSwimOnePieceRed
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessRed
+  dummyEntity: ClothingUnderBottomSwimStraplessRed
+  personalItems:
+  - ClothingUnderBottomSwimStraplessRed
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetRed
+  dummyEntity: ClothingUnderTopCorsetRed
+  personalItems:
+  - ClothingUnderTopCorsetRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportRed
+  dummyEntity: ClothingUnderTopBraSportRed
+  personalItems:
+  - ClothingUnderTopBraSportRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoRed
+  dummyEntity: ClothingUnderTopBraNekoRed
+  personalItems:
+  - ClothingUnderTopBraNekoRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetRed
+  dummyEntity: ClothingUnderTopBraFishnetRed
+  personalItems:
+  - ClothingUnderTopBraFishnetRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessRed
+  dummyEntity: ClothingUnderTopBraStraplessRed
+  personalItems:
+  - ClothingUnderTopBraStraplessRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongRed
+  dummyEntity: ClothingUnderTopBraThongRed
+  personalItems:
+  - ClothingUnderTopBraThongRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniRed
+  dummyEntity: ClothingUnderTopBikiniRed
+  personalItems:
+  - ClothingUnderTopBikiniRed
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersTeal
+  dummyEntity: ClothingUnderBottomBoxersTeal
+  personalItems:
+  - ClothingUnderBottomBoxersTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsTeal
+  dummyEntity: ClothingUnderBottomFBriefsTeal
+  personalItems:
+  - ClothingUnderBottomFBriefsTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsTeal
+  dummyEntity: ClothingUnderBottomMBriefsTeal
+  personalItems:
+  - ClothingUnderBottomMBriefsTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportTeal
+  dummyEntity: ClothingUnderBottomSportTeal
+  personalItems:
+  - ClothingUnderBottomSportTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongTeal
+  dummyEntity: ClothingUnderBottomThongTeal
+  personalItems:
+  - ClothingUnderBottomThongTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesTeal
+  dummyEntity: ClothingUnderBottomPantiesTeal
+  personalItems:
+  - ClothingUnderBottomPantiesTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollTeal
+  dummyEntity: ClothingUnderBottomBabydollTeal
+  personalItems:
+  - ClothingUnderBottomBabydollTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardTeal
+  dummyEntity: ClothingUnderBottomLizardTeal
+  personalItems:
+  - ClothingUnderBottomLizardTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyTeal
+  dummyEntity: ClothingUnderBottomMankinyTeal
+  personalItems:
+  - ClothingUnderBottomMankinyTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeTeal
+  dummyEntity: ClothingUnderBottomSwimStripeTeal
+  personalItems:
+  - ClothingUnderBottomSwimStripeTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterTeal
+  dummyEntity: ClothingUnderBottomSwimHalterTeal
+  personalItems:
+  - ClothingUnderBottomSwimHalterTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceTeal
+  dummyEntity: ClothingUnderBottomSwimOnePieceTeal
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessTeal
+  dummyEntity: ClothingUnderBottomSwimStraplessTeal
+  personalItems:
+  - ClothingUnderBottomSwimStraplessTeal
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetTeal
+  dummyEntity: ClothingUnderTopCorsetTeal
+  personalItems:
+  - ClothingUnderTopCorsetTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportTeal
+  dummyEntity: ClothingUnderTopBraSportTeal
+  personalItems:
+  - ClothingUnderTopBraSportTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoTeal
+  dummyEntity: ClothingUnderTopBraNekoTeal
+  personalItems:
+  - ClothingUnderTopBraNekoTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetTeal
+  dummyEntity: ClothingUnderTopBraFishnetTeal
+  personalItems:
+  - ClothingUnderTopBraFishnetTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessTeal
+  dummyEntity: ClothingUnderTopBraStraplessTeal
+  personalItems:
+  - ClothingUnderTopBraStraplessTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongTeal
+  dummyEntity: ClothingUnderTopBraThongTeal
+  personalItems:
+  - ClothingUnderTopBraThongTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniTeal
+  dummyEntity: ClothingUnderTopBikiniTeal
+  personalItems:
+  - ClothingUnderTopBikiniTeal
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBoxersYellow
+  dummyEntity: ClothingUnderBottomBoxersYellow
+  personalItems:
+  - ClothingUnderBottomBoxersYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomFBriefsYellow
+  dummyEntity: ClothingUnderBottomFBriefsYellow
+  personalItems:
+  - ClothingUnderBottomFBriefsYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMBriefsYellow
+  dummyEntity: ClothingUnderBottomMBriefsYellow
+  personalItems:
+  - ClothingUnderBottomMBriefsYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSportYellow
+  dummyEntity: ClothingUnderBottomSportYellow
+  personalItems:
+  - ClothingUnderBottomSportYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomThongYellow
+  dummyEntity: ClothingUnderBottomThongYellow
+  personalItems:
+  - ClothingUnderBottomThongYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomPantiesYellow
+  dummyEntity: ClothingUnderBottomPantiesYellow
+  personalItems:
+  - ClothingUnderBottomPantiesYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomBabydollYellow
+  dummyEntity: ClothingUnderBottomBabydollYellow
+  personalItems:
+  - ClothingUnderBottomBabydollYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomLizardYellow
+  dummyEntity: ClothingUnderBottomLizardYellow
+  personalItems:
+  - ClothingUnderBottomLizardYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomMankinyYellow
+  dummyEntity: ClothingUnderBottomMankinyYellow
+  personalItems:
+  - ClothingUnderBottomMankinyYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStripeYellow
+  dummyEntity: ClothingUnderBottomSwimStripeYellow
+  personalItems:
+  - ClothingUnderBottomSwimStripeYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimHalterYellow
+  dummyEntity: ClothingUnderBottomSwimHalterYellow
+  personalItems:
+  - ClothingUnderBottomSwimHalterYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimOnePieceYellow
+  dummyEntity: ClothingUnderBottomSwimOnePieceYellow
+  personalItems:
+  - ClothingUnderBottomSwimOnePieceYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderBottomSwimStraplessYellow
+  dummyEntity: ClothingUnderBottomSwimStraplessYellow
+  personalItems:
+  - ClothingUnderBottomSwimStraplessYellow
+  personalCategory: UnderwearBottom
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopCorsetYellow
+  dummyEntity: ClothingUnderTopCorsetYellow
+  personalItems:
+  - ClothingUnderTopCorsetYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraSportYellow
+  dummyEntity: ClothingUnderTopBraSportYellow
+  personalItems:
+  - ClothingUnderTopBraSportYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraNekoYellow
+  dummyEntity: ClothingUnderTopBraNekoYellow
+  personalItems:
+  - ClothingUnderTopBraNekoYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraFishnetYellow
+  dummyEntity: ClothingUnderTopBraFishnetYellow
+  personalItems:
+  - ClothingUnderTopBraFishnetYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraStraplessYellow
+  dummyEntity: ClothingUnderTopBraStraplessYellow
+  personalItems:
+  - ClothingUnderTopBraStraplessYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBraThongYellow
+  dummyEntity: ClothingUnderTopBraThongYellow
+  personalItems:
+  - ClothingUnderTopBraThongYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []
+- type: loadout
+  id: DLUnderwearClothingUnderTopBikiniYellow
+  dummyEntity: ClothingUnderTopBikiniYellow
+  personalItems:
+  - ClothingUnderTopBikiniYellow
+  personalCategory: UnderwearTop
+  personalCost: 0
+  personalExclusive: true # one garment per underwear slot
+  personalCustomName: true
+  personalCustomDescription: true
+  personalCustomColor: false
+  personalHeirloom: false
+  personalRequirements: []

@@ -48,6 +48,72 @@ public sealed class CharacterEditorWindowTests
     }
 
     [Test]
+    public async Task PreviewSlotsExposeUnderwearAndFocusTheMatchingCatalogueCategory()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            pair.Client.ResolveDependency<Robust.Shared.Configuration.IConfigurationManager>()
+                .SetCVar(Content.Shared.CCVar.CCVars.PersonalLoadoutsEnabled, true);
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>();
+            lobby.OpenCharacterEditor();
+            var window = ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single();
+            var editor = (HumanoidProfileEditor)typeof(LobbyUIController).GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+
+            // The editor's slot column must offer the new underwear slots with their own icons.
+            using (var state = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString()))
+            {
+                var slots = state.RootElement.GetProperty("previewSlots").EnumerateArray()
+                    .Select(slot => slot.GetProperty("id").GetString()).ToArray();
+                var missing = new[] { "underwearbottom", "underweartop", "socks" }.Where(id => !slots.Contains(id)).ToArray();
+                Assert.That(missing, Is.Empty, $"editor slots: {string.Join(',', slots)}");
+                Assert.That(state.RootElement.GetProperty("previewSlots").EnumerateArray()
+                    .Where(slot => slot.GetProperty("id").GetString() is "underwearbottom" or "underweartop" or "socks")
+                    .All(slot => slot.GetProperty("background").GetString() is { Length: > 0 }), Is.True,
+                    "each underwear slot needs its own strip icon");
+            }
+
+            // Clicking a slot in the editor must focus the catalogue category that fits it.
+            Assert.That(editor.HandleTguiProfileAction("preview-slot", "{\"value\":\"underwearbottom\"}"), Is.True);
+            int focus;
+            using (var state = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString()))
+            {
+                var equipment = state.RootElement.GetProperty("equipment");
+                Assert.That(equipment.GetProperty("slotCategory").GetString(), Is.EqualTo("UnderwearBottom"));
+                focus = equipment.GetProperty("slotFocus").GetInt32();
+                Assert.That(focus, Is.GreaterThanOrEqualTo(1), "a slot click must ask the browser to focus its category");
+                var items = equipment.GetProperty("items").EnumerateArray().ToArray();
+                Assert.That(items, Is.Not.Empty, "the underwear slot must offer garments");
+                Assert.That(items.Select(item => item.GetProperty("category").GetString()), Is.All.EqualTo("UnderwearBottom"));
+            }
+
+            // Selecting one of them must resolve its personal group and reach the preview dummy.
+            const string bottom = "DLUnderwearClothingUnderBottomGrey";
+            Assert.That(editor.HandleTguiProfileAction("equipment/select", JsonSerializer.Serialize(new { id = bottom })), Is.True);
+            var entities = pair.Client.ResolveDependency<Robust.Shared.GameObjects.IEntityManager>();
+            var inventory = entities.System<Content.Shared.Inventory.InventorySystem>();
+            Assert.That(inventory.TryGetSlotEntity(editor.PreviewDummy, "underwearbottom", out var worn), Is.True);
+            Assert.That(entities.GetComponent<Robust.Shared.GameObjects.MetaDataComponent>(worn!.Value).EntityPrototype!.ID,
+                Is.EqualTo("ClothingUnderBottomGrey"));
+
+            Assert.That(editor.HandleTguiProfileAction("preview-slot", "{\"value\":\"socks\"}"), Is.True);
+            using (var state = JsonDocument.Parse(editor.CreateTguiProfileState("equipment").ToString()))
+            {
+                var equipment = state.RootElement.GetProperty("equipment");
+                Assert.That(equipment.GetProperty("slotCategory").GetString(), Is.EqualTo("UnderwearSocks"));
+                Assert.That(equipment.GetProperty("slotFocus").GetInt32(), Is.GreaterThan(focus));
+                Assert.That(equipment.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("category").GetString()),
+                    Is.All.EqualTo("UnderwearSocks"));
+            }
+
+            editor.ResetToDefault();
+            window.CloseConfirmed();
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task FloatingEditorKeepsDraftAndIsolatesAppearanceFromChat()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

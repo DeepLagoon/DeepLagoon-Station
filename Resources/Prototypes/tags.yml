@@ -36,6 +36,11 @@
 - type: Tag
   id: Arrow
 
+# DeepLagoon start
+- type: Tag
+  id: ArmorPlateFragment
+# DeepLagoon end
+
 - type: Tag
   id: ArtifactFragment
 

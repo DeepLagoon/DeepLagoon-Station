@@ -1,0 +1,661 @@
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomGrey
+  name: grey pants
+  description: "The only and irreplaceable underpants that are always with you."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/grey.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/grey.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSecurity
+  name: security pants
+  description: "Standard security briefs. Provide freedom of movement during chases and arrests."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/security.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/security.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomBabydoll
+  name: nightie
+  description: "This exquisite transparent nightgown, made of light and delicate material, emphasizes the figure and creates a romantic image. Its thin straps and elegant details add sexiness and sophistication, ideal for cozy evenings."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/babydoll.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/babydoll.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomBoxers
+  name: boxers
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/boxers.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/boxers.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomChast
+  name: chastity belt
+  description: "Its adjustable design ensures comfortable wearing and secure fixation, creating an intriguing atmosphere and control in the relationship."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/chastbelt.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/chastbelt.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomChastCage
+  name: chastity cage
+  description: "A specialized device designed to lock the male genital organ, ensuring physical and symbolic fidelity."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/chastcage.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/chastcage.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomDeath
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/death.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/death.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFAssblastusa
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fassblastusa.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fassblastusa.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFBriefs
+  name: briefs
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fbriefs.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fbriefs.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCommie
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fcommie.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fcommie.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFishnet
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fishnet.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fishnet.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFKinky
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fkinky.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/fkinky.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomHearts
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/hearts.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/hearts.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomLace
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/lace.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/lace.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomLatex
+  name: latex pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/latex.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/latex.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomLizard
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/lizarded.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/lizarded.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMankiny
+  name: man thong
+  description: "Made of soft and stretchy material, they provide excellent support and comfort, and the modern design makes them an attractive wardrobe item."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mankiny.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mankiny.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMAssblastusa
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/massblastusa.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/massblastusa.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMBriefs
+  name: briefs
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mbriefs.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mbriefs.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCommie
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mcommie.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mcommie.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMKinky
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mkinky.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/mkinky.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomNekoBlack
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/nekoblack.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/nekoblack.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomNekoWhite
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/nekowhite.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/nekowhite.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomNinja
+  name: fundosi
+  description: "Traditional Japanese underwear that combines comfort and style. Made of soft and breathable material, they provide freedom of movement and are great for both everyday wear and sports, giving the image a special twist."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/ninja.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/ninja.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomPanties
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/panties.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/panties.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSport
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/sport.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/sport.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomStripe
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/stripe.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/stripe.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomStrippedPanties
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/strippedpanties.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/strippedpanties.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSwimHalter
+  name: swimsuit
+  description: "This bathing suit combines style and comfort, perfect for relaxing on the beach or by the pool. The elegant design emphasizes the figure, and the high-quality material provides reliable support and quick drying, allowing you to enjoy summer days to the fullest."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimhalter.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimhalter.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSwimOnePiece
+  name: swimsuit
+  description: "This bathing suit combines style and comfort, perfect for relaxing on the beach or by the pool. The elegant design emphasizes the figure, and the high-quality material provides reliable support and quick drying, allowing you to enjoy summer days to the fullest."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimonepiece.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimonepiece.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSwimStrapless
+  name: swimsuit
+  description: "This bathing suit combines style and comfort, perfect for relaxing on the beach or by the pool. The elegant design emphasizes the figure, and the high-quality material provides reliable support and quick drying, allowing you to enjoy summer days to the fullest."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimstrapless.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimstrapless.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomSwimStripe
+  name: swimsuit
+  description: "This bathing suit combines style and comfort, perfect for relaxing on the beach or by the pool. The elegant design emphasizes the figure, and the high-quality material provides reliable support and quick drying, allowing you to enjoy summer days to the fullest."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimstripe.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swimstripe.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomTacticool
+  name: pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/tacticool.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/tacticool.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomThong
+  name: thong
+  description: "Sexy and minimalistic underwear that emphasizes shapes and provides maximum freedom of movement. Made of soft material, they are ideal for wearing under tight-fitting clothes, adding confidence and romance to every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/thong.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/thong.rsi
+
+### Heads
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFBso
+  name: blue shield pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fbso.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fbso.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMBso
+  name: blue shield pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mbso.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mbso.rsi
+## Capitan
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCaptain
+  name: captain pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCaptain
+  name: captain pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCaptainS
+  name: sherif pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain_green.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain_green.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCaptainS
+  name: sherif pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain_green.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain_green.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCaptainW
+  name: white captain pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain_white.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcaptain_white.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCaptainW
+  name: white captain pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain_white.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcaptain_white.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCe
+  name: chief engineer pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fce.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fce.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCe
+  name: chief engineer pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mce.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mce.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFCmo
+  name: chief medical officer pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcmo.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fcmo.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMCmo
+  name: chief medical officer pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcmo.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mcmo.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFHop
+  name: head of personnel pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fhop.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fhop.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMHop
+  name: head of personnel pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mhop.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mhop.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFHos
+  name: head of security pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fhos.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fhos.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMHos
+  name: head of security pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mhos.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mhos.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFQm
+  name: quartermaster pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fqm.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/fqm.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMQm
+  name: quartermaster pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mqm.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mqm.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomFRd
+  name: research director pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/frd.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/frd.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUnderBottomMRd
+  name: research director pants
+  description: "These comfortable briefs made of soft and breathable material provide excellent comfort for every day."
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mrd.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/Head/mrd.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimBlack
+  name: black swimsuit
+  description: A stylish black swimsuit for the beach or pool.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_black.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_black.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimBlue
+  name: blue swimsuit
+  description: A bright blue swimsuit perfect for summer days.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_blue.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_blue.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimDarkGreen
+  name: dark green swimsuit
+  description: A dark green swimsuit with a classic look.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_dark_green.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_dark_green.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimGreen
+  name: green swimsuit
+  description: A vibrant green swimsuit for the bold.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_green.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_green.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimPurple
+  name: purple swimsuit
+  description: A beautiful purple swimsuit with elegant design.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_purp.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_purp.rsi
+
+- type: entity
+  parent: ClothingUnderBottomBase
+  id: ClothingUniformSwimRed
+  name: red swimsuit
+  description: A stunning red swimsuit that catches the eye.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_red.rsi
+  - type: Clothing
+    sprite: _DeepLagoon/Clothing/Under/Bottom/swim_red.rsi

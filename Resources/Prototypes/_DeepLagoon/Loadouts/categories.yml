@@ -1,0 +1,15 @@
+# DeepLagoon start - character underwear (ported from Corvax-Wega)
+- type: personalLoadoutCategory
+  id: Underwear
+  root: true
+  subCategories:
+  - UnderwearBottom
+  - UnderwearTop
+  - UnderwearSocks
+- type: personalLoadoutCategory
+  id: UnderwearBottom
+- type: personalLoadoutCategory
+  id: UnderwearTop
+- type: personalLoadoutCategory
+  id: UnderwearSocks
+# DeepLagoon end

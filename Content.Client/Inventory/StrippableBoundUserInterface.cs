@@ -42,6 +42,14 @@ namespace Content.Client.Inventory
         [ViewVariables]
         private const int ButtonSeparation = 4;
 
+        // DeepLagoon start - strip window sized from the real slot layout
+        [ViewVariables]
+        private int _handCount;
+
+        [ViewVariables]
+        private Vector2i _inventoryDimensions;
+        // DeepLagoon end
+
         [ViewVariables]
         public const string HiddenPocketEntityId = "StrippingHiddenEntity";
 
@@ -94,6 +102,10 @@ namespace Content.Client.Inventory
                 return;
 
             _strippingMenu.ClearButtons();
+            // DeepLagoon start - strip window sized from the real slot layout
+            _handCount = 0;
+            _inventoryDimensions = Vector2i.Zero;
+            // DeepLagoon end
 
             if (EntMan.TryGetComponent<InventoryComponent>(Owner, out var inv))
             {
@@ -153,9 +165,16 @@ namespace Content.Client.Inventory
             // TODO allow windows to resize based on content's desired size
 
             // for now: shit-code
-            // this breaks for drones (too many hands, lots of empty vertical space), and looks shit for monkeys and the like.
-            // but the window is realizable, so eh.
-            _strippingMenu.SetSize = new Vector2(300, snare?.IsEnsnared == true ? 550 : 530);
+            // calculate the window size manually
+            // +20 horizontally and vertically from the ContentsContainer margin
+            // +16 vertically from the BoxContainer margin
+            // +27 vertically from the window header
+            // DeepLagoon: derive the size from the actual slot grid, otherwise added rows
+            // (armbands, wallet, underwear) get clipped by a hardcoded height.
+            var width = Math.Max(300, Math.Max(_handCount, _inventoryDimensions.X + 1) * (SlotControl.DefaultButtonSize + ButtonSeparation) + 20);
+            var height = Math.Max(200, (_inventoryDimensions.Y + (_handCount > 0 ? 2 : 1)) * (SlotControl.DefaultButtonSize + ButtonSeparation) + 53);
+            height += 25 * _strippingMenu.SnareContainer.ChildCount;
+            _strippingMenu.SetSize = new Vector2(width, height);
         }
 
         private void AddHandButton(Hand hand)
@@ -174,6 +193,9 @@ namespace Content.Client.Inventory
             // Goobstation: use virtual entity if hidden
             UpdateEntityIcon(button, EntMan.HasComponent<StripMenuHiddenComponent>(hand.HeldEntity) ? _virtualHiddenEntity : hand.HeldEntity);
             // End Goobstation
+            // DeepLagoon start - strip window sized from the real slot layout
+            _handCount++;
+            // DeepLagoon end
             _strippingMenu!.HandsContainer.AddChild(button);
         }
 
@@ -228,6 +250,11 @@ namespace Content.Client.Inventory
             UpdateEntityIcon(button, entity);
 
             LayoutContainer.SetPosition(button, slotDef.StrippingWindowPos * (SlotControl.DefaultButtonSize + ButtonSeparation));
+
+            // DeepLagoon start - remember how far the stripping grid reaches
+            _inventoryDimensions = new Vector2i(Math.Max(_inventoryDimensions.X, slotDef.StrippingWindowPos.X),
+                Math.Max(_inventoryDimensions.Y, slotDef.StrippingWindowPos.Y));
+            // DeepLagoon end
         }
 
         private void UpdateEntityIcon(SlotControl button, EntityUid? entity)

@@ -376,20 +376,7 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
                 if (args.Function != EngineKeyFunctions.UIClick)
                     return;
                 _slotFilter = slot;
-                _pendingSlotCategory = slot.Name.ToLowerInvariant() switch
-                {
-                    "jumpsuit" => "Uniform",
-                    "outerclothing" => "Outer",
-                    "shoes" => "Shoes",
-                    "gloves" => "Hands",
-                    "head" or "ears" or "helmetcover" or "helmetattachment" => "Head",
-                    "eyes" => "Eyes",
-                    "mask" or "balaclava" => "Mask",
-                    "neck" or "armbandright" or "armbandleft" => "Neck",
-                    "back" => "Backpacks",
-                    "belt" => "Belt",
-                    _ => "Items",
-                };
+                _pendingSlotCategory = SlotCategory(slot.Name);
                 _search.Text = string.Empty;
                 UpdateSlotHighlights();
                 Rebuild();
@@ -408,6 +395,33 @@ public sealed partial class PersonalLoadoutEditor : BoxContainer
     {
         foreach (var (name, button) in _slotButtons)
             button.Highlight = _slotFilter?.Name == name;
+    }
+
+    /// <summary>
+    /// DeepLagoon: catalogue category that should open for a slot, shared by the
+    /// native slot panel and the WebUI/TGUI slot list.
+    /// </summary>
+    private static string SlotCategory(string slotName)
+    {
+        return slotName.ToLowerInvariant() switch
+        {
+            "jumpsuit" => "Uniform",
+            "outerclothing" => "Outer",
+            "shoes" => "Shoes",
+            "gloves" => "Hands",
+            "head" or "ears" or "helmetcover" or "helmetattachment" => "Head",
+            "eyes" => "Eyes",
+            "mask" or "balaclava" => "Mask",
+            "neck" or "armbandright" or "armbandleft" => "Neck",
+            "back" => "Backpacks",
+            "belt" => "Belt",
+            // DeepLagoon start - character underwear slots
+            "underwearbottom" => "UnderwearBottom",
+            "underweartop" => "UnderwearTop",
+            "socks" => "UnderwearSocks",
+            // DeepLagoon end
+            _ => "Items",
+        };
     }
 
     private bool FitsSlot(LoadoutPrototype loadout, SlotDefinition slot)

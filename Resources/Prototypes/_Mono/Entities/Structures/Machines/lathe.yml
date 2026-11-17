@@ -343,6 +343,7 @@
   - type: EntityStorage
     capacity: 50
     isCollidableWhenOpen: true
+  - type: OreSiloClient
 
 - type: entity
   id: IndustrialPressEconomyElectronics
@@ -585,6 +586,10 @@
       - RawMaterial
       - Ingot
       - Ore # for scrap crates
+      # DeepLagoon start
+      - ArmorPlateFragment # composite armor plate fragments for ArmorPlate2Alt / ArmorPlate4StartAlt
+      # DeepLagoon end
+  - type: OreSiloClient
 
 - type: entity
   id: IndustrialFurnaceEconomyCompact
@@ -720,6 +725,7 @@
     - MonoTradeCratesPrecisionAssembler
     dynamicPacks:
     - MonoTradeCratesPrecisionAssemblerMMC
+  - type: OreSiloClient
 
 - type: entity
   id: PrecisionAssemblerEconomyCompact

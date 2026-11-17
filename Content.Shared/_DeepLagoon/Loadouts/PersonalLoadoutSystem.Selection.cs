@@ -135,7 +135,11 @@ public sealed partial class PersonalLoadoutSystem
         {
             "Hands" => "gloves", "Shoes" => "shoes", "Head" => "head", "Eyes" => "eyes",
             "Mask" => "mask", "Neck" => "neck", "Uniform" => "jumpsuit", "Outer" => "outerClothing",
-            "Backpacks" => "back", "Belt" => "belt", _ => null,
+            "Backpacks" => "back", "Belt" => "belt",
+            // DeepLagoon start - character underwear slots
+            "UnderwearBottom" => "underwearbottom", "UnderwearTop" => "underweartop", "UnderwearSocks" => "socks",
+            // DeepLagoon end
+            _ => null,
         };
         return slots.FirstOrDefault(slot => slot.Name == preferred)?.Name ?? slots.FirstOrDefault()?.Name;
     }

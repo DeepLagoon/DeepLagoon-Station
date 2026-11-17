@@ -35,8 +35,11 @@ public sealed partial class PersonalLoadoutEditor
         if (slot == null) return false;
         _slotFilter = slot;
         _handFilter = null;
+        // DeepLagoon: clicking a slot also pre-selects the catalogue category that fits it.
+        _pendingSlotCategory = SlotCategory(slot.Name);
+        // DeepLagoon: bumped on every slot click so the WebUI re-focuses the matching category.
+        _slotFocus++;
         _cachedTguiState = null;
-        _pendingSlotCategory = null;
         UpdateSlotHighlights();
         SlotOpened?.Invoke();
         return true;
@@ -71,6 +74,8 @@ public sealed partial class PersonalLoadoutEditor
     private SlotDefinition? _cachedTguiSlot;
     private TguiData? _cachedTguiState;
     private int _cachedTguiPoints;
+    // DeepLagoon: bumped on every slot click so the WebUI re-focuses the matching category.
+    private int _slotFocus;
 
     public TguiData CreateTguiState()
     {
@@ -100,6 +105,7 @@ public sealed partial class PersonalLoadoutEditor
             .String("cost", BankSystemExtensions.ToSpesoString(_jobRole == null ? 0 : JobCost(_jobRole)))
             .Number("points", Math.Max(0, system.GetPoints(_session) - spent)).Number("maxPoints", system.GetPoints(_session))
             .String("slot", _slotFilter == null ? "" : SlotLabel(_slotFilter))
+            .String("slotCategory", _pendingSlotCategory ?? "").Number("slotFocus", _slotFocus)
             .Array("jobs", _equipmentJobs.Select(id => new TguiData().String("id", id).String("name", _prototypes.Index<JobPrototype>(id).LocalizedName)))
             .Array("items", system.Catalogue(_profile, _job, _session).Where(item => _handFilter == null && (_slotFilter == null || FitsSlot(item, _slotFilter)))
                 .Select(item =>
