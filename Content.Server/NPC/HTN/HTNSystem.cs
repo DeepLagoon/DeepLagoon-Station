@@ -49,6 +49,7 @@ public sealed partial class HTNSystem : EntitySystem
         SubscribeLocalEvent<HTNComponent, MapInitEvent>(_npc.OnNPCMapInit);
         SubscribeLocalEvent<HTNComponent, PlayerAttachedEvent>(_npc.OnPlayerNPCAttach);
         SubscribeLocalEvent<HTNComponent, PlayerDetachedEvent>(_npc.OnPlayerNPCDetach);
+        SubscribeLocalEvent<HTNComponent, ComponentStartup>(OnHTNStartup);
         SubscribeLocalEvent<HTNComponent, ComponentShutdown>(OnHTNShutdown);
         SubscribeNetworkEvent<RequestHTNMessage>(OnHTNMessage);
         SubscribeLocalEvent<PrototypesReloadedEventArgs>(OnPrototypeLoad);
@@ -137,6 +138,12 @@ public sealed partial class HTNSystem : EntitySystem
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    private void OnHTNStartup(EntityUid uid, HTNComponent component, ComponentStartup args)
+    {
+        // Restored post-map-init entities start their components without another MapInit event.
+        component.Blackboard.SetValue(NPCBlackboard.Owner, uid);
     }
 
     private void OnHTNShutdown(EntityUid uid, HTNComponent component, ComponentShutdown args)

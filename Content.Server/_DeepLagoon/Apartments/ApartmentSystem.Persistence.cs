@@ -87,25 +87,29 @@ public sealed partial class ApartmentSystem
             var children = Transform(uid).ChildEnumerator;
             while (children.MoveNext(out var child)) Exclude(child);
         }
-        foreach (var visit in _visits.Values) Exclude(visit.Body);
         foreach (var visit in _visits.Values)
+        {
+            Exclude(visit.Body);
             foreach (var gear in visit.Gear) Exclude(gear.Item);
+        }
         var minds = EntityQueryEnumerator<MindComponent>();
         while (minds.MoveNext(out var uid, out _)) Exclude(uid);
         var actors = EntityQueryEnumerator<ActorComponent>();
         while (actors.MoveNext(out var uid, out _)) Exclude(uid);
+        var exclusionByEntity = new Dictionary<EntityUid, bool>();
         bool Excluded(EntityUid uid)
         {
-            while (uid.IsValid() && uid != instance.Grid)
-            {
-                if (excluded.Contains(uid) || HasComp<ApartmentChameleonGearComponent>(uid) || HasComp<ActorComponent>(uid) ||
-                    TryComp<MindContainerComponent>(uid, out var mind) && mind.Mind != null) return true;
-                if (!TryComp<TransformComponent>(uid, out var transform)) return true;
-                if (!transform.ParentUid.IsValid())
-                    return HasComp<MapComponent>(uid) || HasComp<MapGridComponent>(uid);
-                uid = transform.ParentUid;
-            }
-            return uid != instance.Grid;
+            if (uid == instance.Grid)
+                return false;
+            if (exclusionByEntity.TryGetValue(uid, out var cached))
+                return cached;
+
+            var result = !uid.IsValid() || excluded.Contains(uid) || HasComp<ApartmentChameleonGearComponent>(uid) ||
+                HasComp<ActorComponent>(uid) || TryComp<MindContainerComponent>(uid, out var mind) && mind.Mind != null ||
+                !TryComp<TransformComponent>(uid, out var transform) ||
+                (transform.ParentUid.IsValid() ? Excluded(transform.ParentUid) : HasComp<MapComponent>(uid) || HasComp<MapGridComponent>(uid));
+            exclusionByEntity.Add(uid, result);
+            return result;
         }
         HashSet<EntityUid> roots = [instance.Grid];
         RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(instance.Grid).MapID], FileCategory.Grid));
@@ -117,7 +121,10 @@ public sealed partial class ApartmentSystem
         serializer.OnIsSerializeable += (Entity<MetaDataComponent> entity, ref bool serializable) => serializable &= !Excluded(entity.Owner);
         foreach (var (id, entity) in instance.Furniture)
             if (Exists(entity)) EnsureComp<ApartmentFurnitureIdentityComponent>(entity).Id = id;
-        serializer.SerializeEntityRecursive(roots);
+        if (roots.Count == 1 && roots.Contains(instance.Grid))
+            serializer.SerializeEntityRecursive(instance.Grid);
+        else
+            serializer.SerializeEntityRecursive(roots);
 
         var entityWalkDone = Stopwatch.GetTimestamp();
         stage = "snapshot_build";

@@ -176,7 +176,8 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
     public override async Task<(bool Valid, Dictionary<string, object>? Effects)> Plan(NPCBlackboard blackboard,
         CancellationToken cancelToken)
     {
-        if (!blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var targetCoordinates, _entManager))
+        if (!TryGetOwner(blackboard, out _) ||
+            !blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var targetCoordinates, _entManager))
         {
             return (false, null);
         }
@@ -195,11 +196,10 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
 
         // Need to remove the planning value for execution.
         blackboard.Remove<EntityCoordinates>(NPCBlackboard.OwnerCoordinates);
-        if (!blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var targetCoordinates, _entManager))
+        if (!TryGetOwner(blackboard, out var uid) ||
+            !blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var targetCoordinates, _entManager))
             return;
         Angle? targetAngle = blackboard.TryGetValue<Angle>(AngleKey, out var keyAngle, _entManager) ? keyAngle : null;
-
-        var uid = blackboard.GetValue<EntityUid>(NPCBlackboard.Owner);
 
         var comp = _steering.Steer(uid, targetCoordinates);
 
@@ -228,9 +228,8 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
 
     public override HTNOperatorStatus Update(NPCBlackboard blackboard, float frameTime)
     {
-        var owner = blackboard.GetValue<EntityUid>(NPCBlackboard.Owner);
-
-        if (!_entManager.TryGetComponent<ShipSteererComponent>(owner, out var steerer)
+        if (!TryGetOwner(blackboard, out var owner)
+            || !_entManager.TryGetComponent<ShipSteererComponent>(owner, out var steerer)
             || !blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var target, _entManager)
             || !_entManager.TryGetComponent<TransformComponent>(owner, out var xform)
             // also fail if we're anchorable but are unanchored and require to be anchored
@@ -281,7 +280,9 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
             blackboard.Remove<Angle>(AngleKey);
         }
 
-        var uid = blackboard.GetValue<EntityUid>(NPCBlackboard.Owner);
+        if (!TryGetOwner(blackboard, out var uid))
+            return;
+
         _steering.Stop(uid);
         if (!_raisedEvent)
         {
@@ -296,6 +297,10 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
 
         ConditionalShutdown(blackboard);
     }
+
+    private bool TryGetOwner(NPCBlackboard blackboard, out EntityUid owner)
+        => blackboard.TryGetValue(NPCBlackboard.Owner, out owner, _entManager) &&
+           owner.IsValid() && !_entManager.Deleted(owner);
 }
 
 public record struct SteeringDoneEvent();

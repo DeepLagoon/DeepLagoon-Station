@@ -17,7 +17,10 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
     protected bool _doDebug;
     protected bool _doLog;
 
-    private Queue<EntityUid> _checkQueue = new();
+    private readonly LinkedList<EntityUid> _candidates = new();
+    private readonly Dictionary<EntityUid, LinkedListNode<EntityUid>> _candidateNodes = new();
+    private LinkedListNode<EntityUid>? _nextCandidate;
+    private LinkedListNode<EntityUid>? _lastCandidate;
 
     private TimeSpan _nextCleanup = TimeSpan.Zero;
     private int _delCount = 0;
@@ -31,6 +34,35 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
 
         Subs.CVar(_cfg, MonoCVars.CleanupDebug, val => _doDebug = val, true);
         Subs.CVar(_cfg, MonoCVars.CleanupLog, val => _doLog = val, true);
+        EntityManager.ComponentAdded += OnCandidateAdded;
+        EntityManager.ComponentRemoved += OnCandidateRemoved;
+    }
+
+    public override void Shutdown()
+    {
+        EntityManager.ComponentAdded -= OnCandidateAdded;
+        EntityManager.ComponentRemoved -= OnCandidateRemoved;
+        base.Shutdown();
+    }
+
+    private void OnCandidateAdded(AddedComponentEventArgs args)
+    {
+        if (args.BaseArgs.Component is TComp)
+            _candidateNodes.Add(args.BaseArgs.Owner, _candidates.AddLast(args.BaseArgs.Owner));
+    }
+
+    private void OnCandidateRemoved(RemovedComponentEventArgs args)
+    {
+        if (args.BaseArgs.Component is not TComp || !_candidateNodes.Remove(args.BaseArgs.Owner, out var node))
+            return;
+
+        if (node == _nextCandidate)
+            _nextCandidate = node == _lastCandidate ? null : node.Next;
+
+        if (node == _lastCandidate)
+            _lastCandidate = _nextCandidate == null ? null : node.Previous;
+
+        _candidates.Remove(node);
     }
 
     public override void Update(float frameTime)
@@ -42,17 +74,22 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
 
     protected void UpdatePeriodicCleanup(float frameTime, ref int remaining, long deadline)
     {
-        if (_checkQueue.Count != 0)
+        if (_nextCandidate != null)
         {
             _cleanupAccumulator += TimeSpan.FromSeconds(frameTime);
-            while (remaining > 0 && _checkQueue.Count != 0 && _cleanupAccumulator > _cleanupDeferDuration &&
+            while (remaining > 0 && _nextCandidate is { } candidate && _cleanupAccumulator > _cleanupDeferDuration &&
                    (deadline == long.MaxValue || Stopwatch.GetTimestamp() < deadline))
             {
                 remaining--;
                 _cleanupAccumulator -= _cleanupDeferDuration;
 
-                var uid = _checkQueue.Dequeue();
-                if (TerminatingOrDeleted(uid) || EntityManager.IsQueuedForDeletion(uid))
+                _nextCandidate = candidate == _lastCandidate ? null : candidate.Next;
+                if (_nextCandidate == null)
+                    _lastCandidate = null;
+
+                var uid = candidate.Value;
+                if (!TryComp<MetaDataComponent>(uid, out var metadata) || metadata.EntityPaused ||
+                    metadata.EntityLifeStage >= EntityLifeStage.Terminating || EntityManager.IsQueuedForDeletion(uid))
                     continue;
 
                 if (!ShouldEntityCleanup(uid))
@@ -76,17 +113,14 @@ public abstract partial class BaseCleanupSystem<TComp> : EntitySystem
         var interval = !_doDebug ? _cleanupInterval : _debugCleanupInterval;
         _nextCleanup = curTime + interval;
 
-        _checkQueue.Clear();
-        // queue the next batch
-        var query = EntityQueryEnumerator<TComp>();
-        while (query.MoveNext(out var uid, out _))
-        {
-            _checkQueue.Enqueue(uid);
-        }
-        if (_checkQueue.Count != 0)
-            _cleanupDeferDuration = interval * 0.9 / _checkQueue.Count;
+        // Bound this pass to the current tail. Entities created during a pass are visited next time.
+        _nextCandidate = _candidates.First;
+        _lastCandidate = _candidates.Last;
+        _cleanupAccumulator = TimeSpan.Zero;
+        if (_candidates.Count != 0)
+            _cleanupDeferDuration = interval * 0.9 / _candidates.Count;
 
-        Log.Debug($"Ran cleanup queue, found: {_checkQueue.Count}, deleting over {_cleanupDeferDuration}");
+        Log.Debug($"Started cleanup pass over {_candidates.Count} candidates, check interval {_cleanupDeferDuration}");
     }
 
     protected bool CleanupEnt(EntityUid uid)

@@ -1,3 +1,4 @@
+using System.Numerics;
 using Content.Server.Pinpointer;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Materials.OreSilo;
@@ -22,11 +23,12 @@ public sealed partial class OreSiloSystem : SharedOreSiloSystem
     private readonly HashSet<EntityUid> _silosToRemove = new();
 
     // Mono
-    private readonly List<Entity<OreSiloClientComponent>> _silos = new();
+    private readonly List<(EntityUid? Grid, Vector2 Position, EntityUid Silo)> _silos = new();
 
     // Mono
     private float _updateAccumulator = 0f;
     private float _updateInterval = 1f;
+    private bool _reportedInvalidSilo;
 
     protected override void UpdateOreSiloUi(Entity<OreSiloComponent> ent)
     {
@@ -101,8 +103,25 @@ public sealed partial class OreSiloSystem : SharedOreSiloSystem
         var clientQuery = EntityQueryEnumerator<OreSiloClientComponent>();
         while (clientQuery.MoveNext(out var uid, out var siloComp))
         {
-            _silos.Add((uid, siloComp));
+            if (siloComp.Silo is not { } silo)
+                continue;
+
+            if (!silo.IsValid())
+            {
+                if (!_reportedInvalidSilo)
+                {
+                    _reportedInvalidSilo = true;
+                    Log.Warning($"Ignoring invalid silo link {silo} on {ToPrettyString(uid)} while preloading PVS.");
+                }
+                continue;
+            }
+
+            var transform = Transform(uid);
+            _silos.Add((transform.GridUid, transform.LocalPosition, silo));
         }
+
+        if (_silos.Count == 0)
+            return;
 
         var actorQuery = EntityQueryEnumerator<ActorComponent>();
         while (actorQuery.MoveNext(out var actorUid, out var actorComp))
@@ -112,23 +131,19 @@ public sealed partial class OreSiloSystem : SharedOreSiloSystem
 
             var actorXform = Transform(actorUid);
 
-            foreach (var (uid, clientComp) in _silos)
+            foreach (var (grid, position, silo) in _silos)
             {
-                if (clientComp.Silo == null)
-                    continue;
-
-                var clientXform = Transform(uid);
                 // We limit it to same-grid checks only for peak perf
-                if (actorXform.GridUid != clientXform.GridUid)
+                if (actorXform.GridUid != grid)
                     continue;
 
-                if ((actorXform.LocalPosition - clientXform.LocalPosition).LengthSquared() <= OreSiloPreloadRangeSquared)
+                if (Vector2.DistanceSquared(actorXform.LocalPosition, position) <= OreSiloPreloadRangeSquared)
                 {
-                    _silosToAdd.Add(clientComp.Silo.Value);
+                    _silosToAdd.Add(silo);
                 }
                 else
                 {
-                    _silosToRemove.Add(clientComp.Silo.Value);
+                    _silosToRemove.Add(silo);
                 }
             }
 

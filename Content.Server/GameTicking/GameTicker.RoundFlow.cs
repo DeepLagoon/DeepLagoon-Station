@@ -31,6 +31,7 @@ using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
+using Stopwatch = System.Diagnostics.Stopwatch;
 // Goob Station - End of Round Screen
 using Content.Shared._Goobstation.LastWords;
 using Content.Shared.Damage;
@@ -383,6 +384,7 @@ namespace Content.Server.GameTicking
 
             DebugTools.Assert(RunLevel == GameRunLevel.PreRoundLobby);
             _sawmill.Info("Starting round!");
+            var start = Stopwatch.GetTimestamp();
 
             SendServerMessage(Loc.GetString("game-ticker-start-round"));
 
@@ -417,9 +419,11 @@ namespace Content.Server.GameTicking
             }
 
             DebugTools.AssertEqual(readyPlayers.Count, ReadyPlayerCount());
+            var readyDone = Stopwatch.GetTimestamp();
 
             // Just in case it hasn't been loaded previously we'll try loading it.
             LoadMaps();
+            var mapsDone = Stopwatch.GetTimestamp();
 
             // map has been selected so update the lobby info text
             // applies to players who didn't ready up
@@ -439,11 +443,14 @@ namespace Content.Server.GameTicking
                 _startingRound = false;
                 return;
             }
+            var rulesDone = Stopwatch.GetTimestamp();
 
             // MapInitialize *before* spawning players, our codebase is too shit to do it afterwards...
             _map.InitializeMap(DefaultMap);
+            var mapInitDone = Stopwatch.GetTimestamp();
 
             SpawnPlayers(readyPlayers, readyPlayerProfiles, force);
+            var spawnDone = Stopwatch.GetTimestamp();
 
             _roundStartDateTime = DateTime.UtcNow;
             RunLevel = GameRunLevel.InRound;
@@ -456,6 +463,15 @@ namespace Content.Server.GameTicking
             UpdateInfoText();
             RaiseLocalEvent(new RoundStartedEvent(RoundId));
             SendRoundStartedDiscordMessage();
+            var done = Stopwatch.GetTimestamp();
+            if (Stopwatch.GetElapsedTime(start, done) >= _gameTiming.TickPeriod)
+            {
+                _sawmill.Warning(
+                    $"Slow round start: round={RoundId} players={readyPlayers.Count} elapsed_ms={Stopwatch.GetElapsedTime(start, done).TotalMilliseconds:F2} " +
+                    $"ready_ms={Stopwatch.GetElapsedTime(start, readyDone).TotalMilliseconds:F2} maps_ms={Stopwatch.GetElapsedTime(readyDone, mapsDone).TotalMilliseconds:F2} " +
+                    $"rules_ms={Stopwatch.GetElapsedTime(mapsDone, rulesDone).TotalMilliseconds:F2} map_init_ms={Stopwatch.GetElapsedTime(rulesDone, mapInitDone).TotalMilliseconds:F2} " +
+                    $"spawn_ms={Stopwatch.GetElapsedTime(mapInitDone, spawnDone).TotalMilliseconds:F2} finish_ms={Stopwatch.GetElapsedTime(spawnDone, done).TotalMilliseconds:F2}");
+            }
 
 #if EXCEPTION_TOLERANCE
             }

@@ -4,6 +4,7 @@ using Content.Shared.Ghost.Roles;
 using System.Linq;
 using Content.Shared.Ghost;
 using Robust.Server.GameStates;
+using Robust.Shared.Log;
 
 namespace Content.Server.Ghost.Roles.UI
 {
@@ -12,6 +13,7 @@ namespace Content.Server.Ghost.Roles.UI
         private readonly GhostRoleSystem _ghostRoleSystem;
         private readonly IEntityManager _entities = IoCManager.Resolve<IEntityManager>();
         private readonly HashSet<EntityUid> _previews = new();
+        private static bool _reportedInvalidPreview;
 
         public GhostRolesEui()
         {
@@ -21,8 +23,7 @@ namespace Content.Server.Ghost.Roles.UI
         public override GhostRolesEuiState GetNewState()
         {
             var roles = _ghostRoleSystem.GetGhostRolesInfo(Player);
-            var available = roles.Where(role => role.PreviewEntity != null)
-                .Select(role => _entities.GetEntity(role.PreviewEntity!.Value)).ToHashSet();
+            var available = ResolvePreviews(roles);
             SetPreviews(_previews.Where(available.Contains).ToHashSet());
             return new(roles);
         }
@@ -39,9 +40,8 @@ namespace Content.Server.Ghost.Roles.UI
                         return;
                     var identifiers = request.Identifiers.ToHashSet();
                     // Never accept entity IDs supplied by a browser. Resolve only currently offered roles.
-                    var wanted = _ghostRoleSystem.GetGhostRolesInfo(Player)
-                        .Where(role => identifiers.Contains(role.Identifier) && role.PreviewEntity != null)
-                        .Select(role => _entities.GetEntity(role.PreviewEntity!.Value)).ToHashSet();
+                    var wanted = ResolvePreviews(_ghostRoleSystem.GetGhostRolesInfo(Player)
+                        .Where(role => identifiers.Contains(role.Identifier)));
                     SetPreviews(wanted);
                     break;
                 case RequestGhostRoleMessage req:
@@ -62,6 +62,26 @@ namespace Content.Server.Ghost.Roles.UI
             base.Closed();
 
             _ghostRoleSystem.CloseEui(Player);
+        }
+
+        private HashSet<EntityUid> ResolvePreviews(IEnumerable<GhostRoleInfo> roles)
+        {
+            var previews = new HashSet<EntityUid>();
+            foreach (var role in roles)
+            {
+                if (role.PreviewEntity is not { } netEntity)
+                    continue;
+
+                if (_entities.TryGetEntity(netEntity, out var uid) && uid.Value.IsValid())
+                    previews.Add(uid.Value);
+                else if (!_reportedInvalidPreview)
+                {
+                    _reportedInvalidPreview = true;
+                    Logger.WarningS("ghost.roles", $"Ignored unresolved ghost role preview entity {netEntity} in a PVS subscription.");
+                }
+            }
+
+            return previews;
         }
 
         private void SetPreviews(HashSet<EntityUid> wanted)

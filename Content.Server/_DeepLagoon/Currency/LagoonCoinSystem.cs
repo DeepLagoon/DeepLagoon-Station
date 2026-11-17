@@ -52,7 +52,9 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private readonly HashSet<NetUserId> _spawned = new();
     private readonly HashSet<NetUserId> _readyCandidates = new();
     private string _rewardRound = "";
-    private sealed record ActivityBucket(string Day, int Rate, string Round, bool Ready);
+    private DateTime _bucketDate;
+    private string _bucketDay = "";
+    private readonly record struct ActivityBucket(string Day, int Rate, string Round, bool Ready);
     private readonly Dictionary<ICommonSession, Participation> _participation = new();
     private readonly Queue<Reward> _pending = new();
     private readonly Dictionary<NetUserId, TimeSpan> _requests = new();
@@ -179,9 +181,11 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        var now = _timing.RealTime;
+        var utcNow = DateTime.UtcNow;
         foreach (var session in _players.Sessions)
-            Accumulate(session);
-        if (_timing.RealTime >= _nextSave)
+            Accumulate(session, now, utcNow);
+        if (now >= _nextSave)
         {
             _nextSave = _timing.RealTime + TimeSpan.FromMinutes(1);
             FlushParticipation(measure: true);
@@ -191,19 +195,28 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     }
 
     private void Accumulate(ICommonSession session)
+        => Accumulate(session, _timing.RealTime, DateTime.UtcNow);
+
+    private void Accumulate(ICommonSession session, TimeSpan now, DateTime utcNow)
     {
-        var now = _timing.RealTime;
         if (!_participation.TryGetValue(session, out var data))
             _participation[session] = data = new Participation { Last = now };
         var elapsed = Math.Max(0, (now - data.Last).Ticks);
         if (data.Active)
         {
-            var start = DateTime.UtcNow.AddTicks(-elapsed);
+            var start = utcNow.AddTicks(-elapsed);
+            var ready = _readyCandidates.Contains(session.UserId);
             while (elapsed > 0)
             {
-                var boundary = start.AddHours(3).Date.AddDays(1).AddHours(-3);
+                var day = start.AddHours(3).Date;
+                var boundary = day.AddDays(1).AddHours(-3);
                 var ticks = Math.Min(elapsed, Math.Max(1, (boundary - start).Ticks));
-                var bucket = new ActivityBucket(LagoonEconomyRules.MoscowDay(start), data.Rate, _rewardRound, _readyCandidates.Contains(session.UserId));
+                if (day != _bucketDate)
+                {
+                    _bucketDate = day;
+                    _bucketDay = LagoonEconomyRules.MoscowDay(start);
+                }
+                var bucket = new ActivityBucket(_bucketDay, data.Rate, _rewardRound, ready);
                 data.Buckets[bucket] = checked(data.Buckets.GetValueOrDefault(bucket) + ticks);
                 start = start.AddTicks(ticks);
                 elapsed -= ticks;
@@ -313,6 +326,14 @@ public sealed partial class LagoonCoinSystem : EntitySystem
             var count = _pending.Count;
             while (count-- > 0 && _pending.TryDequeue(out var reward))
             {
+                if (reward.Activity is { } activity &&
+                    AccountEconomyOperations.ValidateActivity(activity, out _) is { } invalidField)
+                {
+                    // Keep the original receipt in the durable outbox for inspection or recovery.
+                    Log.Warning($"Lagoon Coin reward {reward.Key} kept in the outbox: invalid activity field {invalidField}.");
+                    continue;
+                }
+
                 try
                 {
                     await _walletOperations.WaitAsync();

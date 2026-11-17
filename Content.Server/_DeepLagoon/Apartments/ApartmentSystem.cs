@@ -629,10 +629,15 @@ public sealed partial class ApartmentSystem : EntitySystem
                 TryComp<ApartmentFurnitureIdentityComponent>(known, out var identity) && identity.Furniture != p.Furniture))
             return "Нельзя подменить тип существующей мебели. Сначала удалите старый предмет.";
         var touched = layout.Where(p => !old.TryGetValue(p.Id, out var previous) || !p.SameAs(previous)).ToList();
+        if (touched.Count == 0 && layout.Count == old.Count && instance.RetrySaveAt == TimeSpan.Zero)
+            return null;
+
+        var layoutIds = layout.Select(placement => placement.Id).ToHashSet();
+        var touchedIds = touched.Select(placement => placement.Id).ToHashSet();
         if (layout.Any(p => instance.Furniture.TryGetValue(p.Id, out var entity) && Exists(entity) && Transform(entity).ParentUid != instance.Grid))
             return "Перед перестановкой достаньте предмет из контейнера и положите на пол.";
         if (instance.Furniture.Any(pair => Exists(pair.Value) &&
-                (touched.Any(p => p.Id == pair.Key) || old.ContainsKey(pair.Key) && layout.All(p => p.Id != pair.Key)) &&
+                (touchedIds.Contains(pair.Key) || old.ContainsKey(pair.Key) && !layoutIds.Contains(pair.Key)) &&
                 ApartmentEntities(pair.Value).Prepend(pair.Value).Any(entity => HasComp<ActorComponent>(entity) ||
                     HasComp<Content.Shared.Mobs.Components.MobStateComponent>(entity))))
             return "Перед уборкой или перестановкой освободите мебель от живых существ.";
@@ -674,7 +679,7 @@ public sealed partial class ApartmentSystem : EntitySystem
                 foreach (var entity in prepared.Values) if (Exists(entity)) Del(entity);
         }
         foreach (var (id, entity) in instance.Furniture.ToArray())
-            if (old.ContainsKey(id) && layout.All(p => p.Id != id) || !Exists(entity))
+            if (old.ContainsKey(id) && !layoutIds.Contains(id) || !Exists(entity))
             {
                 if (Exists(entity)) StoreFurniture(instance, entity);
                 else instance.Furniture.Remove(id);

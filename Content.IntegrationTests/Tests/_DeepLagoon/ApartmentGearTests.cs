@@ -51,12 +51,6 @@ public sealed class ApartmentGearTests
             var inventory = e.System<InventorySystem>();
             var containers = e.System<SharedContainerSystem>();
             var cleanup = e.System<SpaceCleanupSystem>();
-            var queue = (Queue<EntityUid>) typeof(BaseCleanupSystem<PhysicsComponent>)
-                .GetField("_checkQueue", Private)!.GetValue(cleanup)!;
-            queue.Clear();
-            // Hold the pre-entry queue until after both disconnect/reconnect events.
-            typeof(BaseCleanupSystem<PhysicsComponent>).GetField("_cleanupDeferDuration", Private)!.SetValue(cleanup, TimeSpan.FromDays(1));
-
             for (var i = 0; i < 2; i++)
             {
                 bodies[i] = e.SpawnEntity("MobHuman", map.GridCoords);
@@ -72,10 +66,10 @@ public sealed class ApartmentGearTests
                 Assert.That(containers.Insert(contents[i], e.GetComponent<StorageComponent>(bags[i]).Container), Is.True);
                 Assert.That(e.System<SharedHandsSystem>().TryPickupAnyHand(bodies[i], held[i]), Is.True);
                 hands[i] = e.GetComponent<HandsComponent>(bodies[i]).Hands.Single(h => h.Value.HeldEntity == held[i]).Key;
-                // A cleanup pass can queue an equipped item before apartment entry.
-                foreach (var item in new[] { uniforms[i], ids[i], bags[i], contents[i], held[i] }) queue.Enqueue(item);
             }
 
+            // Hold the current candidate pass until after the disconnect/reconnect events.
+            SetCleanupRange(cleanup, uniforms[0], held[1], TimeSpan.FromDays(1));
             for (var i = 0; i < 2; i++)
                 Assert.That(apartments.Enter(sessions[i], sessions[0].UserId, out var message), Is.True, message);
         });
@@ -100,8 +94,6 @@ public sealed class ApartmentGearTests
             var apartments = e.System<ApartmentSystem>();
             var containers = e.System<SharedContainerSystem>();
             var cleanup = e.System<SpaceCleanupSystem>();
-            var queue = (Queue<EntityUid>) typeof(BaseCleanupSystem<PhysicsComponent>)
-                .GetField("_checkQueue", Private)!.GetValue(cleanup)!;
             var home = apartments.Instances[sessions[0].UserId];
             pair.Server.PlayerMan.SetAttachedEntity(sessions[1], bodies[1]);
             apartments.RefreshActivity(home);
@@ -120,12 +112,17 @@ public sealed class ApartmentGearTests
                 escrows[i] = storage.Owner;
             }
             Assert.That(escrows[0], Is.Not.EqualTo(escrows[1]), "Each player needs independent escrow.");
-            // Reproduce the former storage location and prove cleanup is active.
+            // A paused stray used to be deletable if captured before its map froze.
             var sleepMap = (EntityUid) typeof(ApartmentSystem).GetField("_sleepMap", Private)!.GetValue(apartments)!;
-            looseControl = e.SpawnEntity("ClothingUniformJumpsuitColorBlue", new EntityCoordinates(sleepMap, 0, 0));
-            Assert.That(shouldClean.Invoke(cleanup, [looseControl]), Is.True, "Loose gear on the sleep map was eligible for deletion.");
-            queue.Enqueue(looseControl);
-            typeof(BaseCleanupSystem<PhysicsComponent>).GetField("_cleanupDeferDuration", Private)!.SetValue(cleanup, TimeSpan.Zero);
+            var pausedControl = e.SpawnEntity("ClothingUniformJumpsuitColorBlue", new EntityCoordinates(sleepMap, 0, 0));
+            SetCleanupRange(cleanup, pausedControl, pausedControl, TimeSpan.Zero);
+            cleanup.Update(.1f);
+            Assert.That(e.IsQueuedForDeletion(pausedControl), Is.False);
+
+            var openMap = e.System<SharedMapSystem>().CreateMap(out _);
+            looseControl = e.SpawnEntity("ClothingUniformJumpsuitColorBlue", new EntityCoordinates(openMap, 0, 0));
+            Assert.That(shouldClean.Invoke(cleanup, [looseControl]), Is.True, "Loose gear on an active map is eligible for deletion.");
+            SetCleanupRange(cleanup, looseControl, looseControl, TimeSpan.Zero);
             cleanup.Update(.1f);
         });
         await pair.RunTicksSync(5);
@@ -167,5 +164,14 @@ public sealed class ApartmentGearTests
             }
         });
         await pair.CleanReturnAsync();
+    }
+
+    private static void SetCleanupRange(SpaceCleanupSystem cleanup, EntityUid first, EntityUid last, TimeSpan interval)
+    {
+        var cleanupType = typeof(BaseCleanupSystem<PhysicsComponent>);
+        var nodes = (Dictionary<EntityUid, LinkedListNode<EntityUid>>) cleanupType.GetField("_candidateNodes", Private)!.GetValue(cleanup)!;
+        cleanupType.GetField("_nextCandidate", Private)!.SetValue(cleanup, nodes[first]);
+        cleanupType.GetField("_lastCandidate", Private)!.SetValue(cleanup, nodes[last]);
+        cleanupType.GetField("_cleanupDeferDuration", Private)!.SetValue(cleanup, interval);
     }
 }

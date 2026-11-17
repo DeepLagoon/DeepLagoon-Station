@@ -32,6 +32,37 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class LagoonCoinIntegrationTests
 {
     [Test]
+    public async Task DelayedParticipationOverOneHourUsesTheOriginalReceiptOnce()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true, Destructive = true });
+        var preferences = pair.Server.ResolveDependency<IServerPreferencesManager>();
+        var player = pair.Player!;
+        await PoolManager.WaitUntil(pair.Server, () => preferences.TryGetCachedPreferences(player.UserId, out _), 600);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var server = pair.Server;
+            var session = server.PlayerMan.Sessions.Single();
+            var database = server.ResolveDependency<IServerDbManager>();
+            var tasks = server.ResolveDependency<ITaskManager>();
+            var before = database.GetEconomyAsync(session.UserId, 0);
+            tasks.BlockWaitOnTask(before);
+            var activity = new LagoonActivity("time:delayed-checkpoint:1", TimeSpan.FromMinutes(90).Ticks, 2,
+                LagoonEconomyRules.MoscowDay(DateTime.UtcNow), "209", false);
+
+            var first = database.RecordActivityAsync(session.UserId, activity);
+            tasks.BlockWaitOnTask(first);
+            var originalBalance = before.GetAwaiter().GetResult().Balance;
+            var creditedBalance = first.GetAwaiter().GetResult().Balance;
+            Assert.That(creditedBalance - originalBalance, Is.EqualTo(3 + LagoonEconomyRules.DailyReward));
+
+            var retry = database.RecordActivityAsync(session.UserId, activity);
+            tasks.BlockWaitOnTask(retry);
+            Assert.That(retry.GetAwaiter().GetResult().Balance, Is.EqualTo(creditedBalance));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task FactionRolesAddTwoCoinsToTheSupporterRateAndPersistIt()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings

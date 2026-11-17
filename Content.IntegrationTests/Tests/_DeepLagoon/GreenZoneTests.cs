@@ -63,6 +63,8 @@ public sealed class GreenZoneTests
         var maps = server.System<SharedMapSystem>();
         var transforms = server.System<SharedTransformSystem>();
         var eventGrids = new List<Entity<TransformComponent>>();
+        EntityUid dungeonRule = default;
+        EntityUid dungeonGrid = default;
         var center = new Vector2(1500f, 300f);
 
         await server.WaitAssertion(() =>
@@ -80,6 +82,11 @@ public sealed class GreenZoneTests
                 Assert.That(ticker.StartGameRule(rule), Is.True, id);
                 var grids = entities.GetComponent<BluespaceErrorRuleComponent>(rule).GridsUid;
                 Assert.That(grids, Has.Count.EqualTo(count), id);
+                if (id == "GreenZoneTestDungeonEvent")
+                {
+                    dungeonRule = rule;
+                    dungeonGrid = grids.Single();
+                }
                 foreach (var grid in grids)
                     eventGrids.Add((grid, entities.GetComponent<TransformComponent>(grid)));
             }
@@ -96,6 +103,8 @@ public sealed class GreenZoneTests
                 Assert.That(position.MapId, Is.EqualTo(ticker.DefaultMap));
                 Assert.That(Vector2.Distance(position.Position, center), Is.GreaterThanOrEqualTo(4000f));
             }
+            Assert.That(ticker.EndGameRule(dungeonRule), Is.True);
+            Assert.That(entities.Deleted(dungeonGrid), Is.True);
         });
         await pair.CleanReturnAsync();
     }

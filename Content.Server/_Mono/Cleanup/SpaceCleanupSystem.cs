@@ -14,7 +14,6 @@ using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
-using System.Reflection;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._Mono.Cleanup;
@@ -28,8 +27,10 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private IGameTiming _timing = default!;
-    private object _manifold = default!;
-    private MethodInfo _testOverlap = default!;
+    private delegate bool TestOverlap(IPhysShape shapeA, int indexA, PhysShapeCircle shapeB, int indexB,
+        in Transform transformA, in Transform transformB, bool ignoreShapeSkin);
+
+    private TestOverlap? _testOverlap;
     [Dependency] private PricingSystem _pricing = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private SharedPhysicsSystem _physics = default!;
@@ -87,10 +88,10 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
         var manifoldType = typeof(SharedMapSystem).Assembly.GetType("Robust.Shared.Physics.Collision.IManifoldManager");
         if (manifoldType != null)
         {
-            _manifold = IoCManager.ResolveType(manifoldType);
             var testOverlapMethod = manifoldType.GetMethod("TestOverlap");
             if (testOverlapMethod != null)
-                _testOverlap = testOverlapMethod.MakeGenericMethod(typeof(IPhysShape), typeof(PhysShapeCircle));
+                _testOverlap = testOverlapMethod.MakeGenericMethod(typeof(IPhysShape), typeof(PhysShapeCircle))
+                    .CreateDelegate<TestOverlap>(IoCManager.ResolveType(manifoldType));
         }
     }
 
@@ -108,11 +109,11 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
         var price = 0f;
 
         return !_gridQuery.HasComp(uid)
-            && (xform.ParentUid == xform.MapUid // don't delete if on grid
-                || (isStuck |= GetWallStuck((uid, xform)))) // or wall-stuck
             && !_htnQuery.HasComp(uid) // handled by MobCleanupSystem
             && !_immuneQuery.HasComp(uid) // handled by GridCleanupSystem
             && !_mindQuery.HasComp(uid) // no deleting anything that can have a mind - should be handled by MobCleanupSystem anyway
+            && (xform.ParentUid == xform.MapUid // don't delete if on grid
+                || (isStuck |= GetWallStuck((uid, xform)))) // or wall-stuck
             && (price = (float)_pricing.GetPrice(uid)) <= _maxPrice
             && (isStuck
                 || !_cleanup.HasNearbyGrids(xform.Coordinates, _maxGridDistance * aggression * MathF.Sqrt(price / _maxPrice))
@@ -161,7 +162,7 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
             var xf = _physics.GetLocalPhysicsTransform(anch, xform);
             var shape = fix.Shape;
 
-            if ((bool?)_testOverlap.Invoke(_manifold, [shape, 0, shapeB, 0, xf, xfB, false]) ?? false)
+            if (_testOverlap?.Invoke(shape, 0, shapeB, 0, in xf, in xfB, false) == true)
                 return true;
         }
 

@@ -82,6 +82,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
         var timing = GetEventTiming(uid);
         var mapOrigin = new EntityCoordinates(mapUid.Value, Vector2.Zero);
+        var needsStartingValue = HasComp<CurrencyInjectionOnBluespaceErrorComponent>(uid);
 
         // Spawn on a dummy map and try to FTL if possible, otherwise dump it.
         var stagingMap = _map.CreateMap(out var mapId);
@@ -144,7 +145,8 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                 EntityManager.AddComponents(spawned, group.AddComponents);
 
                 component.GridsUid.Add(spawned);
-                component.StartingValue += _pricing.AppraiseGrid(spawned);
+                if (needsStartingValue)
+                    component.StartingValue += _pricing.AppraiseGrid(spawned);
 
                 if (component.ExtendIfPopulated && group is BluespaceGridSpawnGroup)
                     _autoExtend.AutoExtend(uid, spawned);
@@ -311,18 +313,18 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
             if (!TryComp(componentGridUid, out TransformComponent? gridTransform))
             {
                 Log.Error("bluespace error objective was missing transform component");
-                return;
+                continue;
             }
 
             if (gridTransform.GridUid is not EntityUid gridUid)
             {
                 Log.Error("bluespace error has no associated grid?");
-                return;
+                continue;
             }
 
             // don't delete it if claimed
             if (TryComp<ClaimableGridComponent>(componentGridUid, out var claimable) && claimable.Claimed)
-                return;
+                continue;
 
             if (component.DeleteGridsOnEnd)
             {

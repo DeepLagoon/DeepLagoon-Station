@@ -92,11 +92,8 @@ public static partial class AccountEconomyOperations
     }
     public static async Task<LagoonCoinResult> Activity(ServerDbContext db, Guid user, LagoonActivity activity, DateTime now, CancellationToken cancel = default, Action? beforeCommit = null)
     {
-        if (activity.Ticks <= 0 || activity.Ticks > TimeSpan.FromHours(1).Ticks ||
-            activity.Rate is < LagoonEconomyRules.BaseHourlyRate or > LagoonEconomyRules.MaximumHourlyRate ||
-            !DateTime.TryParseExact(activity.Day, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None, out var day) || activity.Round.Length > 80)
-            throw new ArgumentException("Invalid activity.");
+        if (ValidateActivity(activity, out var day) is { } invalidField)
+            throw new ArgumentException($"Invalid activity field: {invalidField}.", nameof(activity));
         await using var tx = await db.Database.BeginTransactionAsync(cancel);
         await AccountCurrencyOperations.LockAccount(db, user, cancel);
         var (wallet, record, state) = await Load(db, user, now, cancel);
@@ -145,6 +142,22 @@ public static partial class AccountEconomyOperations
         await db.SaveChangesAsync(cancel);
         beforeCommit?.Invoke(); await tx.CommitAsync(cancel);
         return new(wallet.LagoonCoins, coins, true);
+    }
+
+    public static string? ValidateActivity(LagoonActivity activity, out DateTime day)
+    {
+        day = default;
+        // Participation buckets are split at midnight in Moscow, including delayed checkpoints.
+        if (activity.Ticks is <= 0 or > TimeSpan.TicksPerDay)
+            return nameof(activity.Ticks);
+        if (activity.Rate is < LagoonEconomyRules.BaseHourlyRate or > LagoonEconomyRules.MaximumHourlyRate)
+            return nameof(activity.Rate);
+        if (!DateTime.TryParseExact(activity.Day, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out day) || day < DateTime.MinValue.AddDays(35))
+            return nameof(activity.Day);
+        if (activity.Round == null || activity.Round.Length > 80)
+            return nameof(activity.Round);
+        return null;
     }
     public static async Task<LagoonEconomySnapshot> Purchase(ServerDbContext db, Guid user, LagoonEconomyPurchase purchase, DateTime now, CancellationToken cancel = default, Action? beforeCommit = null)
     {
