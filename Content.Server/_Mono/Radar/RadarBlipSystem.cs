@@ -1,10 +1,15 @@
 using System.Numerics;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server._Mono.Projectiles.TargetGuided;
 using Content.Server._Mono.Projectiles.TargetSeeking;
 using Content.Shared._Mono.Radar;
 using Content.Shared.Projectiles;
 using Content.Shared.Shuttles.Components;
 using Robust.Shared.Map;
+using Robust.Server.Player;
+using Robust.Shared.Enums;
+using Robust.Shared.Player;
+using Robust.Shared.Timing;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
 
@@ -14,6 +19,17 @@ public sealed partial class RadarBlipSystem : EntitySystem
 {
     [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
+    [Dependency] private SharedUserInterfaceSystem _ui = default!;
+    [Dependency] private OrbitalDebrisSystem _debris = default!;
+    [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private IPlayerManager _players = default!;
+    private readonly Dictionary<ICommonSession, TimeSpan> _nextRequest = new();
+    private static readonly BlipConfig DebrisContact = new()
+    {
+        Bounds = new Box2(-3f, -3f, 3f, 3f),
+        Color = Color.Orange,
+        Shape = RadarBlipShape.Diamond,
+    };
 
     // Pooled collections to avoid per-request heap churn
     private readonly List<BlipNetData> _tempBlipsCache = new();
@@ -28,14 +44,44 @@ public sealed partial class RadarBlipSystem : EntitySystem
         base.Initialize();
         SubscribeNetworkEvent<RequestBlipsEvent>(OnBlipsRequested);
         SubscribeLocalEvent<RadarBlipComponent, ComponentShutdown>(OnBlipShutdown);
+        _players.PlayerStatusChanged += OnPlayerStatusChanged;
+    }
+
+    public override void Shutdown()
+    {
+        _players.PlayerStatusChanged -= OnPlayerStatusChanged;
+        _nextRequest.Clear();
+        base.Shutdown();
+    }
+
+    private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs args)
+    {
+        if (args.NewStatus != SessionStatus.InGame) _nextRequest.Remove(args.Session);
     }
 
     private void OnBlipsRequested(RequestBlipsEvent ev, EntitySessionEventArgs args)
     {
+        // Discard repeated requests before entity resolution or UI lookup.
+        if (_nextRequest.TryGetValue(args.SenderSession, out var next) && _timing.CurTime < next) return;
         if (!TryGetEntity(ev.Radar, out var radarUid)
             || !TryComp<RadarConsoleComponent>(radarUid, out var radar)
+            || args.SenderSession.Status != SessionStatus.InGame
+            || args.SenderSession.AttachedEntity is not { } actor
+            || !TryComp<UserInterfaceUserComponent>(actor, out var uiUser)
+            || !uiUser.OpenInterfaces.TryGetValue(radarUid.Value, out var openKeys)
         )
             return;
+
+        // Contacts must not turn arbitrary console IDs into a remote space/player-position probe.
+        var hasOpenUi = false;
+        foreach (var key in openKeys)
+        {
+            if (!_ui.IsUiOpen(radarUid.Value, key, actor)) continue;
+            hasOpenUi = true;
+            break;
+        }
+        if (!hasOpenUi) return;
+        _nextRequest[args.SenderSession] = _timing.CurTime + TimeSpan.FromMilliseconds(250);
 
         var sourcesEv = new GetRadarSourcesEvent();
         RaiseLocalEvent(radarUid.Value, ref sourcesEv);
@@ -132,6 +178,9 @@ public sealed partial class RadarBlipSystem : EntitySystem
                             configIdx,
                             gridConfigIdx));
         }
+
+        if (_debris.ActiveCount > 0)
+            _debris.AppendRadarContacts(sources, component, _tempBlipsCache, GetOrAddConfig(DebrisContact));
 
         var missileQuery = EntityQueryEnumerator<TargetSeekingComponent, RadarBlipComponent, TransformComponent>();
         while (missileQuery.MoveNext(out var missile, out var seeker, out var missileBlip, out var missileBlipXform))

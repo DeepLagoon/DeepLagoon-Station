@@ -44,6 +44,7 @@ public sealed partial class OrbitalDebrisSystem
             foreach (var pile in _piles.Values)
                 if (pile.Map == observer.Map && pile.SiteId == site.Id) { exists = true; break; }
             if (exists) continue;
+            if (!SpawnTrajectoryClear(observer.Map, site.Position, MathF.Sqrt(13f), site.Position, 0f, 0f)) continue;
             var grid = _maps.CreateGridEntity(Comp<Robust.Shared.Map.Components.MapComponent>(observer.Map).MapId);
             _transform.SetWorldPosition(grid, site.Position);
             var state = new Pile { Map = observer.Map, Anchor = site.Position, SiteId = site.Id,
@@ -72,6 +73,7 @@ public sealed partial class OrbitalDebrisSystem
             shuttles.AddIFFFlag(grid, IFFFlags.AlwaysShowColor);
             EntityManager.System<MetaDataSystem>().SetEntityName(grid, navigation.SiteName(site));
             _piles.Add(grid, state);
+            _trafficTime = TimeSpan.MinValue;
             sites.LiveGrids[site.Id] = grid;
             return true;
         }

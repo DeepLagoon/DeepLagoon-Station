@@ -35,10 +35,15 @@ public sealed partial class DetectionSystem : EntitySystem
         if (!Resolve(grid, ref grid.Comp))
             return DetectionLevel.Undetected;
 
-        if (TryComp<IFFComponent>(grid, out var iff) && (iff.Flags & IFFFlags.LocalRadarOnly) != 0
-            && (!Transform(grid).Coordinates.TryDistance(EntityManager, Transform(byUid).Coordinates, out var localDistance)
-                || localDistance > SharedRadarConsoleSystem.DefaultMaxRange))
-            return DetectionLevel.Undetected;
+        if (TryComp<IFFComponent>(grid, out var iff) && (iff.Flags & IFFFlags.LocalRadarOnly) != 0)
+        {
+            // Ambient obstacles have private, range-filtered radar contacts before their grid enters PVS.
+            // Keep those contacts visible when the physical grid arrives, regardless of its heat or small size.
+            var localRange = TryComp<RadarConsoleComponent>(byUid, out var radar)
+                ? MathF.Max(0f, radar.MaxRange) : SharedRadarConsoleSystem.DefaultMaxRange;
+            return Transform(grid).Coordinates.TryDistance(EntityManager, Transform(byUid).Coordinates, out var localDistance)
+                && localDistance <= localRange ? DetectionLevel.Detected : DetectionLevel.Undetected;
+        }
 
         var comp = EnsureComp<DetectionRangeMultiplierComponent>(byUid);
 

@@ -33,7 +33,8 @@ public sealed partial class OrbitalDebrisSystem
 
     private void LimitDebrisVisibility(EntityUid grid)
     {
-        // Grids are force-sent by default. Ambient grids only need the normal spatial PVS.
+        // Only nearby players receive the physical grid through spatial PVS. Distant local radar contacts
+        // use RadarBlipSystem's targeted reports, without global replication of grids or their contents.
         _pvsOverrides.RemoveForceSend(grid);
         EntityManager.System<SharedShuttleSystem>().AddIFFFlag(grid, IFFFlags.LocalRadarOnly);
     }
@@ -84,7 +85,7 @@ public sealed partial class OrbitalDebrisSystem
         return false;
     }
 
-    private EntityUid? SpawnDerelict(EntityUid map, Vector2 position, Vector2 anchor, uint seed, string region, int slot)
+    private EntityUid? SpawnDerelict(EntityUid map, Vector2 position, Vector2 anchor, uint seed, string region, int slot, float direction)
     {
         // Mapping is heavier than a scrap pile: at most one load attempt per five seconds globally.
         _nextDerelictLoad = _timing.CurTime + TimeSpan.FromSeconds(5);
@@ -100,7 +101,7 @@ public sealed partial class OrbitalDebrisSystem
         var environment = Comp<SpaceEnvironmentComponent>(map);
         var random = new SectorRandom(seed);
         var state = new Pile { Map = map, Anchor = anchor, Radius = MathF.Max(1, Vector2.Distance(position, anchor)),
-            Speed = random.Range(2f, 6f), Direction = random.Index(2) == 0 ? -1 : 1,
+            Speed = random.Range(2f, 6f), Direction = direction,
             Center = center, HalfExtent = MathF.Max(8, extent), LastSeen = _timing.CurTime };
         var tiles = _maps.GetAllTiles(uid, grid);
         while (tiles.MoveNext()) state.Tiles.Add(tiles.Current.GridIndices, tiles.Current.Tile);
@@ -117,6 +118,7 @@ public sealed partial class OrbitalDebrisSystem
         if (!HasComp<ShuttleComponent>(uid) || state.Tiles.Count > 256 || extent > 32 || descendants.Count > 768
             || !CanAddAt(map, position, state.HalfExtent)
             || _observers.Exists(view => Visible(view, map, position, state.HalfExtent - 28f))
+            || !SpawnTrajectoryClear(map, position, extent, anchor, state.Speed, state.Direction, uid)
             || !EntityManager.System<SectorSystem>().Store.TryRecordDerelict(environment.Campaign, environment.Definition.Id, region, slot))
         {
             QueueDel(uid);
@@ -138,6 +140,7 @@ public sealed partial class OrbitalDebrisSystem
         _physics.SetAngularVelocity(uid, 0, body: body);
         SetEncounterIdentity(uid, false, true, seed);
         _piles.Add(uid, state);
+        _trafficTime = TimeSpan.MinValue;
         return uid;
     }
 

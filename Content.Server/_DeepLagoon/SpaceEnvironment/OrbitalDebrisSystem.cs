@@ -63,6 +63,15 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
 
     public override void Shutdown()
     {
+        _traffic.Clear();
+        _gridFootprints.Clear();
+        _trafficTime = TimeSpan.MinValue;
+        _radarObservers.Clear();
+        _radarContactsByMap.Clear();
+        _reportedRadarContacts.Clear();
+        _emptyRadarMaps.Clear();
+        _radarSnapshotTime = TimeSpan.MinValue;
+        _nextRadarSnapshot = TimeSpan.MinValue;
         _piles.Clear();
         _cooldowns.Clear();
         _looseLoot.Clear();
@@ -188,7 +197,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             if (!OrbitClear(observer.Map, anchor, Vector2.Distance(position, anchor))) continue;
             var cell = (observer.Map, new Vector2i((int) MathF.Floor(position.X / 32), (int) MathF.Floor(position.Y / 32)));
             if (_cooldowns.ContainsKey(cell) || _cooldowns.Count >= 4096) continue;
-            var spawned = SpawnPile(observer.Map, position, anchor, seed);
+            var spawned = SpawnPile(observer.Map, position, anchor, seed, plan);
             if (spawned is not { } uid) continue;
             var pile = _piles[uid];
             pile.Sponsor = viewer.Session;
@@ -220,7 +229,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
     }
 
     /// <summary>Native scrap walls on standard plating, with bounded field-specific size and contents.</summary>
-    public EntityUid? SpawnPile(EntityUid map, Vector2 position, Vector2 anchor, uint seed)
+    public EntityUid? SpawnPile(EntityUid map, Vector2 position, Vector2 anchor, uint seed, EncounterPlan? encounter = null)
     {
         if (!TryComp<MapComponent>(map, out var mapComponent) || !float.IsFinite(position.X) || !float.IsFinite(position.Y)
             || !float.IsFinite(anchor.X) || !float.IsFinite(anchor.Y)) return null;
@@ -230,19 +239,25 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         foreach (var pile in _piles.Values) if (pile.Map == map) count++;
         if (count >= MapLimit) return null;
         var random = new SectorRandom(seed);
+        var speed = random.Range(2f, 6f);
+        var direction = random.Index(2) == 0 ? -1f : 1f;
+        if (encounter is { } plan) direction = plan.Direction;
         var habitat = TryComp<SpaceEnvironmentComponent>(map, out var environment)
             ? Habitat(environment.Definition, position) : new SpaceJunkHabitat(SpaceJunkHabitatKind.OpenSpace, 1, 4, 16, OpenSpaceInterval, false);
         if (TryFindDerelict(map, position, out var region, out var slot))
-            return SpawnDerelict(map, position, anchor, seed, region, slot);
+            return SpawnDerelict(map, position, anchor, seed, region, slot, direction);
         var blue = habitat.Kind == SpaceJunkHabitatKind.AsteroidField
             && SectorRandom.Derive(seed, "blue-wreck") % 3 == 0;
         var chromite = habitat.Kind == SpaceJunkHabitatKind.PlasmaStream;
+        var width = 1 + random.Index(habitat.MaxExtent);
+        var height = 1 + random.Index(habitat.MaxExtent);
+        // Generated tiles use positive indices, so bound their whole footprint about the orbital/grid origin.
+        var extent = new Vector2(width, height).Length();
+        if (!SpawnTrajectoryClear(map, position, extent, anchor, speed, direction)) return null;
         var grid = _maps.CreateGridEntity(mapComponent.MapId);
         _transform.SetWorldPosition(grid, position);
         var state = new Pile { Map = map, Anchor = anchor, Radius = MathF.Max(1f, Vector2.Distance(position, anchor)),
-            Speed = random.Range(2f, 6f), Direction = random.Index(2) == 0 ? -1f : 1f, LastSeen = _timing.CurTime };
-        var width = 1 + random.Index(habitat.MaxExtent);
-        var height = 1 + random.Index(habitat.MaxExtent);
+            Speed = speed, Direction = direction, HalfExtent = MathF.Max(8f, extent), LastSeen = _timing.CurTime };
         var floor = new Tile(_tiles[chromite ? "FloorChromite" : SupportTile].TileId);
         var cells = new List<(Vector2i GridIndices, Tile Tile)>();
         foreach (var index in JunkShape(width, height, habitat.TileBudget, ref random))
@@ -290,6 +305,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
             EntityManager.System<MetaDataSystem>().SetEntityName(grid, Loc.GetString("space-environment-chromite"));
         }
         _piles.Add(grid, state);
+        _trafficTime = TimeSpan.MinValue;
         return grid;
     }
 
@@ -299,6 +315,8 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
     private void Release(EntityUid uid)
     {
         _piles.Remove(uid);
+        // A released ambient grid is now ordinary traffic and must protect subsequent spawn attempts.
+        _trafficTime = TimeSpan.MinValue;
         _lootSnapshot.Clear();
         foreach (var (item, home) in _looseLoot)
             if (home == uid && (!TryComp<TransformComponent>(item, out var transform)
@@ -326,6 +344,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
     public void ForgetMap(EntityUid map)
     {
         ForgetDerelictFields(map);
+        _radarContactsByMap.Remove(map);
         Snapshot();
         foreach (var uid in _snapshot) if (_piles[uid].Map == map) _piles.Remove(uid);
         foreach (var viewer in _viewers.Values)

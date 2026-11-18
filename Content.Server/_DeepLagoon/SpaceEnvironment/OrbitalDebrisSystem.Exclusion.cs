@@ -95,10 +95,12 @@ public sealed partial class OrbitalDebrisSystem
 
     private bool NearGrid(EntityUid map, Vector2 position)
     {
-        var query = EntityQueryEnumerator<MapGridComponent, TransformComponent>();
-        while (query.MoveNext(out _, out var grid, out var transform))
-            if (transform.MapUid == map && Vector2.Distance(position, _transform.GetWorldPosition(transform))
-                < grid.LocalAABB.Size.Length() + 16f) return true;
+        RefreshTraffic();
+        foreach (var grid in _gridFootprints)
+        {
+            if (grid.Map == map && Vector2.DistanceSquared(position, grid.Center) <= grid.ClearanceSquared
+                && !TerminatingOrDeleted(grid.Uid)) return true;
+        }
         return false;
     }
 }
