@@ -176,6 +176,7 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
     public override async Task<(bool Valid, Dictionary<string, object>? Effects)> Plan(NPCBlackboard blackboard,
         CancellationToken cancelToken)
     {
+        EnsureInitialized();
         if (!TryGetOwner(blackboard, out _) ||
             !blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var targetCoordinates, _entManager))
         {
@@ -191,6 +192,7 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
     public override void Startup(NPCBlackboard blackboard)
     {
         base.Startup(blackboard);
+        EnsureInitialized();
 
         _raisedEvent = false;
 
@@ -228,6 +230,7 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
 
     public override HTNOperatorStatus Update(NPCBlackboard blackboard, float frameTime)
     {
+        EnsureInitialized();
         if (!TryGetOwner(blackboard, out var owner)
             || !_entManager.TryGetComponent<ShipSteererComponent>(owner, out var steerer)
             || !blackboard.TryGetValue<EntityCoordinates>(TargetKey, out var target, _entManager)
@@ -267,6 +270,7 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
 
     public void ConditionalShutdown(NPCBlackboard blackboard)
     {
+        EnsureInitialized();
         // Cleanup the blackboard and remove steering.
         if (blackboard.TryGetValue<CancellationTokenSource>(MovementCancelToken, out var cancelToken, _entManager))
         {
@@ -301,6 +305,13 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
     private bool TryGetOwner(NPCBlackboard blackboard, out EntityUid owner)
         => blackboard.TryGetValue(NPCBlackboard.Owner, out owner, _entManager) &&
            owner.IsValid() && !_entManager.Deleted(owner);
+
+    private void EnsureInitialized()
+    {
+        // Runtime-loaded/copied operators may first execute after the prototype initialization pass.
+        if (_entManager == null || _power == null || _steering == null)
+            Initialize(IoCManager.Resolve<IEntitySystemManager>());
+    }
 }
 
 public record struct SteeringDoneEvent();

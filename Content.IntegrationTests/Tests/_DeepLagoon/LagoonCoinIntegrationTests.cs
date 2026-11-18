@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Reflection;
 using Content.Client._DeepLagoon.Currency;
+using Content.Server.Afk.Events;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;
@@ -23,6 +24,7 @@ using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Asynchronous;
 using Robust.Shared.Network;
+using Robust.Shared.Enums;
 using ServerWallet = Content.Server._DeepLagoon.Currency.LagoonCoinSystem;
 using ClientWallet = Content.Client._DeepLagoon.Currency.LagoonCoinSystem;
 
@@ -31,6 +33,67 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class LagoonCoinIntegrationTests
 {
+    [Test]
+    public async Task DisconnectedSessionStaysRemovedAndFinalParticipationIsCommittedOnce()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        var server = pair.Server;
+        var session = await server.AddDummySession("coin_disconnect_regression");
+        var preferences = server.ResolveDependency<IServerPreferencesManager>();
+        await PoolManager.WaitUntil(server, () => session.Status == SessionStatus.InGame &&
+            preferences.TryGetCachedPreferences(session.UserId, out _), 600);
+        var wallet = server.System<ServerWallet>();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+        await server.WaitAssertion(() =>
+        {
+            server.PlayerMan.SetAttachedEntity(session, server.EntMan.SpawnEntity("MobHuman", map.GridCoords));
+            var entries = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
+            var data = entries[session]!;
+            data.GetType().GetField("Active")!.SetValue(data, true);
+            data.GetType().GetField("Last")!.SetValue(data, server.ResolveDependency<IGameTiming>().RealTime - TimeSpan.FromMinutes(10));
+        });
+
+        await server.RemoveDummySession(session);
+        await server.WaitAssertion(() =>
+        {
+            var entries = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
+            Assert.That(entries.Contains(session), Is.False, "Detach after disconnect must not reinsert the session.");
+            var afk = new AFKEvent(session);
+            server.EntMan.EventBus.RaiseEvent(EventSource.Local, ref afk);
+            var unAfk = new UnAFKEvent(session);
+            server.EntMan.EventBus.RaiseEvent(EventSource.Local, ref unAfk);
+            typeof(ServerWallet).GetMethod("Accumulate", flags, [typeof(Robust.Shared.Player.ICommonSession)])!
+                .Invoke(wallet, [session]);
+            Assert.That(entries.Contains(session), Is.False, "Late events must keep the disconnected session absent.");
+
+            wallet.Update(0);
+            var tasks = server.ResolveDependency<ITaskManager>();
+            AwaitRewards(tasks, wallet);
+            var state = server.ResolveDependency<IServerDbManager>().GetEconomyAsync(session.UserId, 0);
+            tasks.BlockWaitOnTask(state);
+            var played = state.GetAwaiter().GetResult().State.PlayedTicks;
+            Assert.That(played, Is.InRange(TimeSpan.FromMinutes(10).Ticks, TimeSpan.FromMinutes(11).Ticks));
+            wallet.Update(0);
+            AwaitRewards(tasks, wallet);
+            var repeated = server.ResolveDependency<IServerDbManager>().GetEconomyAsync(session.UserId, 0);
+            tasks.BlockWaitOnTask(repeated);
+            Assert.That(repeated.GetAwaiter().GetResult().State.PlayedTicks, Is.EqualTo(played));
+        });
+        var reconnected = await server.AddDummySession("coin_disconnect_regression");
+        await PoolManager.WaitUntil(server, () => reconnected.Status == SessionStatus.InGame, 600);
+        await server.WaitAssertion(() =>
+        {
+            server.PlayerMan.SetAttachedEntity(reconnected, server.EntMan.SpawnEntity("MobHuman", map.GridCoords));
+            var entries = (IDictionary) typeof(ServerWallet).GetField("_participation", flags)!.GetValue(wallet)!;
+            Assert.That(entries.Contains(session), Is.False);
+            Assert.That(entries.Contains(reconnected), Is.True, "A new session can resume participation.");
+        });
+        await server.RemoveDummySession(reconnected);
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task DelayedParticipationOverOneHourUsesTheOriginalReceiptOnce()
     {

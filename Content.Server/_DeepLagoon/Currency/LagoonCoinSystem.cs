@@ -98,12 +98,14 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         SubscribeLocalEvent<PlayerDetachedEvent>(ev =>
         {
             Accumulate(ev.Player);
-            _participation[ev.Player].Active = false;
+            if (_participation.TryGetValue(ev.Player, out var data))
+                data.Active = false;
         });
         SubscribeLocalEvent<PlayerJoinedLobbyEvent>(ev =>
         {
             Accumulate(ev.PlayerSession);
-            _participation[ev.PlayerSession].Active = false;
+            if (_participation.TryGetValue(ev.PlayerSession, out var data))
+                data.Active = false;
         });
         SubscribeLocalEvent<MobStateChangedEvent>(ev =>
         {
@@ -200,7 +202,12 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private void Accumulate(ICommonSession session, TimeSpan now, DateTime utcNow)
     {
         if (!_participation.TryGetValue(session, out var data))
+        {
+            if (session.Status == SessionStatus.Disconnected)
+                return;
+
             _participation[session] = data = new Participation { Last = now };
+        }
         var elapsed = Math.Max(0, (now - data.Last).Ticks);
         if (data.Active)
         {
@@ -271,10 +278,10 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         if (Log.IsLogLevelEnabled(level))
         {
             Log.Log(level,
-                "Lagoon Coin playtime checkpoint: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} outbox_ms={OutboxMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets}",
+                "Lagoon Coin playtime checkpoint: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} outbox_ms={OutboxMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets} connected={Connected}",
                 elapsed.TotalMilliseconds, Stopwatch.GetElapsedTime(start, collected).TotalMilliseconds,
                 Stopwatch.GetElapsedTime(collected).TotalMilliseconds, _timing.TickPeriod.TotalMilliseconds,
-                sessions.Length, rewards.Count);
+                sessions.Length, rewards.Count, _players.PlayerCount);
         }
     }
 
@@ -305,7 +312,8 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private void OnAfk(ref AFKEvent ev)
     {
         Accumulate(ev.Session);
-        _participation[ev.Session].Active = false;
+        if (_participation.TryGetValue(ev.Session, out var data))
+            data.Active = false;
     }
     private void OnUnAfk(ref UnAFKEvent ev) => Accumulate(ev.Session);
 
