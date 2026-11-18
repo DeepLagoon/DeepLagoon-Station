@@ -22,6 +22,24 @@ DeepLagoon Station это форк [Monolith-Station](https://github.com/Monolit
 
 > - Git
 > - .NET SDK 10.0
+> - Python 3.10 или новее
+> - Node.js 22.13 или новее (в CI используется Node.js 24)
+
+Все задачи сборки и конфигурации запуска VS Code, включая варианты без сборки,
+автоматически проверяют среду перед запуском. Та же проверка подключена к скриптам
+в `Scripts/bat` и `Scripts/sh`. Если Node.js отсутствует или устарел, скрипт остановится
+с инструкцией по установке; после установки перезапустите VS Code.
+
+Если нужная версия pnpm (11.25.0) недоступна, скрипт устанавливает её через npm
+локально в `.local/codex/development-environment/pnpm`, без глобальной установки.
+Затем он инициализирует подмодули и при отсутствии официального тега движка,
+указанного в `ENGINE-COMPATIBILITY.json`, загружает его из `space-wizards/RobustToolbox`.
+При подготовленной среде повторная загрузка pnpm и тега не требуется.
+При ошибке подготовки сборка или запуск не продолжается.
+
+Проверку можно запустить отдельно задачей VS Code `prepare development`, скриптом
+`Scripts/bat/prepareDevelopment.bat` на Windows или
+`sh Scripts/sh/prepareDevelopment.sh` на Linux/macOS.
 
 ### Windows
 

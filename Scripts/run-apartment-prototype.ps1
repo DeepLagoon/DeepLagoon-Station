@@ -1,5 +1,10 @@
 param([switch]$Build)
 $ErrorActionPreference = 'Stop'
+$apartmentPreparation = Join-Path $PSScriptRoot 'prepare-development.ps1'
+if (!$Build) {
+    & $apartmentPreparation
+    if ($LASTEXITCODE -ne 0) { throw 'Development environment preparation failed.' }
+}
 $apartmentRepo = Split-Path -Parent $PSScriptRoot
 $apartmentData = Join-Path $apartmentRepo 'bin\ApartmentPrototypeData'
 $apartmentExe = Join-Path $apartmentRepo 'bin\Content.Server\Content.Server.exe'
@@ -7,9 +12,9 @@ $apartmentConfig = Join-Path $PSScriptRoot 'apartment-prototype.toml'
 if ($Build) {
     Push-Location $apartmentRepo
     try {
-        dotnet build Content.Server/Content.Server.csproj
+        & $apartmentPreparation dotnet build Content.Server/Content.Server.csproj
         if ($LASTEXITCODE -ne 0) { throw 'Server build failed.' }
-        dotnet build Content.Client/Content.Client.csproj
+        & $apartmentPreparation dotnet build Content.Client/Content.Client.csproj
         if ($LASTEXITCODE -ne 0) { throw 'Client build failed.' }
     } finally { Pop-Location }
 }

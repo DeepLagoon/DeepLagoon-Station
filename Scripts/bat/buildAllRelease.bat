@@ -1,7 +1,5 @@
 @echo off
-cd ../../
-
-call git submodule update --init --recursive
-call dotnet build -c Release
-
+call "%~dp0prepareDevelopment.bat" dotnet build -c Release %*
+set "developmentExitCode=%errorlevel%"
 pause
+exit /b %developmentExitCode%

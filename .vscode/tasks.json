@@ -1,16 +1,38 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
-            "command": "dotnet",
-            "type": "shell",
+            "label": "prepare development",
+            "problemMatcher": [],
+            "type": "process",
+            "command": "sh",
             "args": [
+                "${workspaceFolder}/Scripts/sh/prepareDevelopment.sh"
+            ],
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/Scripts/prepare-development.ps1"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "build",
+            "command": "sh",
+            "type": "process",
+            "args": [
+                "${workspaceFolder}/Scripts/sh/prepareDevelopment.sh",
+                "dotnet",
                 "build",
-                "/property:GenerateFullPaths=true", // Ask dotnet build to generate full paths for file names.
-                "/consoleloggerparameters:'ForceNoAlign;NoSummary'" // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:ForceNoAlign;NoSummary"
             ],
             "group": {
                 "kind": "build",
@@ -19,18 +41,37 @@
             "presentation": {
                 "reveal": "silent"
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/Scripts/prepare-development.ps1",
+                    "dotnet",
+                    "build",
+                    "/property:GenerateFullPaths=true",
+                    "/consoleloggerparameters:ForceNoAlign;NoSummary"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         },
         {
             "label": "build - Tools",
-            "command": "dotnet",
-            "type": "shell",
+            "command": "sh",
+            "type": "process",
             "args": [
+                "${workspaceFolder}/Scripts/sh/prepareDevelopment.sh",
+                "dotnet",
                 "build",
                 "--configuration",
                 "Tools",
-                "/property:GenerateFullPaths=true", // Ask dotnet build to generate full paths for file names.
-                "/consoleloggerparameters:'ForceNoAlign;NoSummary'", // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:ForceNoAlign;NoSummary"
             ],
             "group": {
                 "kind": "build",
@@ -39,18 +80,39 @@
             "presentation": {
                 "reveal": "silent"
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/Scripts/prepare-development.ps1",
+                    "dotnet",
+                    "build",
+                    "--configuration",
+                    "Tools",
+                    "/property:GenerateFullPaths=true",
+                    "/consoleloggerparameters:ForceNoAlign;NoSummary"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         },
         {
             "label": "build - Release",
-            "command": "dotnet",
-            "type": "shell",
+            "command": "sh",
+            "type": "process",
             "args": [
+                "${workspaceFolder}/Scripts/sh/prepareDevelopment.sh",
+                "dotnet",
                 "build",
                 "--configuration",
                 "Release",
-                "/property:GenerateFullPaths=true", // Ask dotnet build to generate full paths for file names.
-                "/consoleloggerparameters:'ForceNoAlign;NoSummary'", // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:ForceNoAlign;NoSummary"
             ],
             "group": {
                 "kind": "build",
@@ -59,19 +121,58 @@
             "presentation": {
                 "reveal": "silent"
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/Scripts/prepare-development.ps1",
+                    "dotnet",
+                    "build",
+                    "--configuration",
+                    "Release",
+                    "/property:GenerateFullPaths=true",
+                    "/consoleloggerparameters:ForceNoAlign;NoSummary"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         },
         {
             "label": "build-yaml-linter",
-            "command": "dotnet",
+            "command": "sh",
             "type": "process",
             "args": [
+                "${workspaceFolder}/Scripts/sh/prepareDevelopment.sh",
+                "dotnet",
                 "build",
                 "${workspaceFolder}/Content.YAMLLinter/Content.YAMLLinter.csproj",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:'ForceNoAlign;NoSummary'"
+                "/consoleloggerparameters:ForceNoAlign;NoSummary"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/Scripts/prepare-development.ps1",
+                    "dotnet",
+                    "build",
+                    "${workspaceFolder}/Content.YAMLLinter/Content.YAMLLinter.csproj",
+                    "/property:GenerateFullPaths=true",
+                    "/consoleloggerparameters:ForceNoAlign;NoSummary"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         }
     ]
 }

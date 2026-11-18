@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
-
-git submodule update --init --recursive
+set -eu
+exec sh "$(dirname -- "$0")/prepareDevelopment.sh" "$@"

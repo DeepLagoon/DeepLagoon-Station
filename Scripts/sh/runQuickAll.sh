@@ -1,11 +1,6 @@
 #!/usr/bin/env sh
-
-# make sure to start from script dir
-if [ "$(dirname $0)" != "." ]; then
-    cd "$(dirname $0)"
-fi
-
-sh -e runQuickServer.sh &
-sh -e runQuickClient.sh
-
-exit
+set -eu
+development_scripts=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+sh "$development_scripts/prepareDevelopment.sh"
+sh "$development_scripts/runQuickServer.sh" "$@" &
+sh "$development_scripts/runQuickClient.sh" "$@"

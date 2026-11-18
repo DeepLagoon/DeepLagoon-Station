@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -11,7 +8,8 @@
             "program": "${workspaceFolder}/bin/Content.Client/Content.Client.dll",
             "args": [],
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "preLaunchTask": "prepare development"
         },
         {
             "name": "Client - Tools",
@@ -40,7 +38,8 @@
             "program": "${workspaceFolder}/bin/Content.Client/Content.Client.dll",
             "args": "--cvar display.compat=true",
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "preLaunchTask": "prepare development"
         },
         {
             "name": "Client (Diagnostic: no CEF, 60 FPS)",
@@ -48,13 +47,18 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/Content.Client/Content.Client.dll",
             "args": [
-                "--cvar", "web.headless=true",
-                "--cvar", "ui.vanilla_chat=true",
-                "--cvar", "display.vsync=false",
-                "--cvar", "display.max_fps=60"
+                "--cvar",
+                "web.headless=true",
+                "--cvar",
+                "ui.vanilla_chat=true",
+                "--cvar",
+                "display.vsync=false",
+                "--cvar",
+                "display.max_fps=60"
             ],
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "preLaunchTask": "prepare development"
         },
         {
             "name": "Server",
@@ -63,7 +67,8 @@
             "program": "${workspaceFolder}/bin/Content.Server/Content.Server.dll",
             "args": [],
             "console": "integratedTerminal",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "preLaunchTask": "prepare development"
         },
         {
             "name": "Server - Tools",
@@ -71,7 +76,7 @@
             "request": "launch",
             "preLaunchTask": "build - Tools",
             "program": "${workspaceFolder}/bin/Content.Server/Content.Server.dll",
-            "args": [""],
+            "args": [],
             "console": "integratedTerminal",
             "stopAtEntry": false
         },
@@ -81,7 +86,7 @@
             "request": "launch",
             "preLaunchTask": "build - Release",
             "program": "${workspaceFolder}/bin/Content.Server/Content.Server.dll",
-            "args": [""],
+            "args": [],
             "console": "integratedTerminal",
             "stopAtEntry": false
         },
@@ -94,7 +99,7 @@
             "cwd": "${workspaceFolder}/Content.YAMLLinter",
             "console": "internalConsole",
             "stopAtEntry": false
-        },
+        }
     ],
     "compounds": [
         {

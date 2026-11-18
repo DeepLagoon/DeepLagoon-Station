@@ -1,6 +1,5 @@
 @echo off
-cd ../../
-
-call dotnet run --project Content.Client --no-build %*
-
+call "%~dp0prepareDevelopment.bat" dotnet run --project Content.Client --no-build %*
+set "developmentExitCode=%errorlevel%"
 pause
+exit /b %developmentExitCode%
