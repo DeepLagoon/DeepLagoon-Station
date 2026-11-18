@@ -140,7 +140,8 @@
   },
   "molot-lewd-mountface": {
     "userArousalGain": 6,
-    "targetArousalGain": 0
+    "targetArousalGain": 0,
+    "targetBodyPart": "butt"
   },
   "molot-lewd-mount": {
     "userArousalGain": 12,
@@ -239,11 +240,13 @@
   },
   "molot-lewd-do-breastsmother": {
     "userArousalGain": 0,
-    "targetArousalGain": 0
+    "targetArousalGain": 0,
+    "userBodyPart": "breasts"
   },
   "molot-lewd-slap-breasts": {
     "userArousalGain": 0,
-    "targetArousalGain": 0
+    "targetArousalGain": 0,
+    "targetBodyPart": "breasts"
   },
   "molot-highfive": {
     "userArousalGain": 0,
@@ -295,11 +298,13 @@
   },
   "molot-lewd-grope-ass": {
     "userArousalGain": 0,
-    "targetArousalGain": 0
+    "targetArousalGain": 0,
+    "targetBodyPart": "butt"
   },
   "molot-lewd-slap": {
     "userArousalGain": 0,
-    "targetArousalGain": 0
+    "targetArousalGain": 0,
+    "targetBodyPart": "butt"
   },
   "molot-pat": {
     "userArousalGain": 0,

@@ -31,6 +31,8 @@
         type: StorageBoundUserInterface
   - type: UseDelay
     delay: 0.5
+  - type: InteractionPanelCoverage
+    covers: [penis, vagina, anus, testicles, butt]
 
 - type: entity
   parent: Clothing
@@ -62,3 +64,5 @@
     quickEquip: false
     slots:
     - underweartop
+  - type: InteractionPanelCoverage
+    covers: [breasts]

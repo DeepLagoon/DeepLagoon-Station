@@ -28,6 +28,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
     [Dependency] private BodyCustomizationSystem _bodyCustomization = default!;
     [Dependency] private INetConfigurationManager _cfg = default!;
     [Dependency] private ChatSystem _chatSystem = default!;
+    [Dependency] private InteractionPanelCoverageSystem _coverage = default!;
     private TimeSpan _nextRefresh;
     private TimeSpan _lastRefresh;
     private InteractionPanelArousalPrototype Settings => _prototypes.Index<InteractionPanelArousalPrototype>(new ProtoId<InteractionPanelArousalPrototype>("InteractionPanelArousal"));
@@ -111,7 +112,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
         var arousal = EnsureComp<InteractionPanelArousalComponent>(target);
         SyncPreferences(target, arousal);
         RefreshMaximum(target, arousal);
-        if (arousal.NeverAroused || amount > 0 && IsChastened(target, bodyPart)) return;
+        if (arousal.NeverAroused || amount > 0 && (IsChastened(target, bodyPart) || _coverage.IsCovered(target, bodyPart))) return;
         if (rawLimit is { } limit)
         {
             if (arousal.Current < limit) arousal.Current = Math.Max(0, arousal.Current + amount);
@@ -160,7 +161,7 @@ public sealed partial class InteractionPanelArousalSystem : EntitySystem
 
     private void UpdateBodyArousal(EntityUid uid, InteractionPanelArousalComponent arousal)
     {
-        if (!EroticEffectsAllowed(uid) || arousal.NeverAroused || IsChastened(uid, "penis")) _bodyCustomization.SetGenitalArousal(uid, false);
+        if (!EroticEffectsAllowed(uid) || arousal.NeverAroused || IsChastened(uid, "penis") || _coverage.IsCovered(uid, "penis")) _bodyCustomization.SetGenitalArousal(uid, false);
         else if (arousal.PermanentArousal) _bodyCustomization.SetGenitalArousal(uid, true);
         else _bodyCustomization.UpdateGenitalArousal(uid, arousal.Current, arousal.Maximum);
     }

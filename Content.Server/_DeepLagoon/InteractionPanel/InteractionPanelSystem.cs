@@ -31,6 +31,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
     [Dependency] private AudioSystem _audio = default!;
     [Dependency] private IChatManager _chat = default!;
     [Dependency] private InteractionPanelArousalSystem _arousal = default!;
+    [Dependency] private InteractionPanelCoverageSystem _coverage = default!;
     [Dependency] private Content.Server._DeepLagoon.LustWish.LustWishPortalSystem _portals = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IRobustRandom _random = default!;
@@ -69,6 +70,7 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         SubscribeLocalEvent<InteractionPanelArousalComponent, BlueMoonClimaxDoAfterEvent>(OnClimaxDoAfter);
         SubscribeLocalEvent<InteractionPanelArousalComponent, ComponentShutdown>((uid, _, _) => { _nextManualClimax.Remove(uid); });
         SubscribeLocalEvent<HumanoidAppearanceComponent, Content.Shared._DeepLagoon.BodyCustomization.BodyCustomizationChangedEvent>(OnBodyChanged);
+        SubscribeLocalEvent<InteractionPanelPreferencesComponent, InteractionPanelCoverageChangedEvent>((uid, _, _) => RefreshAvailability(uid));
         SubscribeLocalEvent<HumanoidAppearanceComponent, SexChangedEvent>((uid, _, _) => RefreshAvailability(uid));
     }
 
@@ -113,7 +115,12 @@ public sealed partial class InteractionPanelSystem : EntitySystem
         (!action.RequiresRecovered || !TryComp<InteractionPanelArousalComponent>(user, out var arousal) || arousal.RecoveryUntil <= _timing.CurTime) &&
         (action.Category == InteractionPanelCategory.Neutral ||
             Consent(user, InteractionPanelCategory.Erotic) != InteractionPanelConsent.No && Consent(user, action.Category) != InteractionPanelConsent.No) &&
+        !Covered(user, target, action) &&
         action.Supports(user == target, HasComp<HumanoidAppearanceComponent>(target)) && action.SupportsSexTraits(BodySexTraits(user), BodySexTraits(target));
+
+    private bool Covered(EntityUid user, EntityUid target, InteractionPanelActionDefinition action) =>
+        _coverage.IsCovered(user, action.UserBodyPart) || _coverage.IsCovered(target, action.TargetBodyPart) ||
+        _coverage.IsCovered(user, action.UserFluidDestination) || _coverage.IsCovered(target, action.TargetFluidDestination);
 
     private void OnVerbs(EntityUid uid, InteractionPanelPreferencesComponent component, GetVerbsEvent<InteractionVerb> args)
     {

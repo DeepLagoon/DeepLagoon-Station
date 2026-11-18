@@ -118,6 +118,11 @@
       - map: [ "enum.HumanoidVisualLayers.LArm" ]
       - map: [ "enum.HumanoidVisualLayers.RLeg" ]
       - map: [ "enum.HumanoidVisualLayers.LLeg" ]
+      # DeepLagoon start
+      - map: ["socks"]
+      - map: ["underwearbottom"]
+      - map: ["underweartop"]
+      # DeepLagoon end
       - map: [ "jumpsuit" ]
       - map: [ "balaclava" ]
       - map: [ "enum.HumanoidVisualLayers.LHand" ]
