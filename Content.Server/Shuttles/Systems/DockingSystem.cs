@@ -36,9 +36,6 @@ namespace Content.Server.Shuttles.Systems
         private EntityQuery<PhysicsComponent> _physicsQuery;
         private EntityQuery<TransformComponent> _xformQuery;
 
-        private readonly HashSet<Entity<DockingComponent>> _dockingSet = new();
-        private readonly HashSet<Entity<DockingComponent, DoorBoltComponent>> _dockingBoltSet = new();
-
         public override void Initialize()
         {
             base.Initialize();
@@ -47,6 +44,9 @@ namespace Content.Server.Shuttles.Systems
             _xformQuery = GetEntityQuery<TransformComponent>();
 
             SubscribeLocalEvent<DockingComponent, ComponentStartup>(OnStartup);
+            SubscribeLocalEvent<DockingComponent, ComponentAdd>(OnDockIndexAdded);
+            SubscribeLocalEvent<DockingComponent, ComponentRemove>(OnDockIndexRemoved);
+            SubscribeLocalEvent<DockingComponent, EntParentChangedMessage>(OnDockIndexParentChanged);
             SubscribeLocalEvent<DockingComponent, ComponentShutdown>(OnShutdown);
             SubscribeLocalEvent<DockingComponent, AnchorStateChangedEvent>(OnAnchorChange);
             SubscribeLocalEvent<DockingComponent, BeforeDoorAutoCloseEvent>(OnAutoClose);
@@ -70,10 +70,7 @@ namespace Content.Server.Shuttles.Systems
         // Mono
         public void RedockDocks(EntityUid gridUid)
         {
-            _dockingSet.Clear();
-            _lookup.GetChildEntities(gridUid, _dockingSet);
-
-            foreach (var dock in _dockingSet)
+            foreach (var dock in GetDocks(gridUid))
             {
                 if (dock.Comp.DockedWith is not { } with || !TryComp<DockingComponent>(with, out var otherDock))
                     continue;
@@ -84,13 +81,12 @@ namespace Content.Server.Shuttles.Systems
 
         public void SetDockBolts(EntityUid gridUid, bool enabled)
         {
-            _dockingBoltSet.Clear();
-            _lookup.GetChildEntities(gridUid, _dockingBoltSet);
-
-            foreach (var entity in _dockingBoltSet)
+            foreach (var dock in GetDocks(gridUid))
             {
-                _doorSystem.TryClose(entity);
-                _doorSystem.SetBoltsDown((entity.Owner, entity.Comp2), enabled);
+                if (!TryComp<DoorBoltComponent>(dock.Owner, out var bolts))
+                    continue;
+                _doorSystem.TryClose(dock.Owner);
+                _doorSystem.SetBoltsDown((dock.Owner, bolts), enabled);
             }
         }
 
@@ -165,6 +161,7 @@ namespace Content.Server.Shuttles.Systems
 
         private void OnStartup(Entity<DockingComponent> entity, ref ComponentStartup args)
         {
+            _dockIndexDirty = true;
             var uid = entity.Owner;
             var component = entity.Comp;
 

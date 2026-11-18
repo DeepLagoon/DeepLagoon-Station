@@ -232,9 +232,35 @@ namespace Content.Shared.Stacks
             if (!Resolve(uid, ref stack, ref xform, false))
                 return false;
 
+            return MergeToContacts(uid, stack, xform, new HashSet<Entity<StackComponent>>());
+        }
+
+        /// <summary>
+        /// Merge using caller-owned lookup storage. The buffer is cleared on entry and exit, including
+        /// exceptions, and must not be shared by overlapping calls.
+        /// </summary>
+        public bool TryMergeToContacts(EntityUid uid, StackComponent? stack, TransformComponent? xform,
+            HashSet<Entity<StackComponent>> scratch)
+        {
+            scratch.Clear();
+            if (!Resolve(uid, ref stack, ref xform, false))
+                return false;
+
+            try
+            {
+                return MergeToContacts(uid, stack, xform, scratch);
+            }
+            finally
+            {
+                scratch.Clear();
+            }
+        }
+
+        private bool MergeToContacts(EntityUid uid, StackComponent stack, TransformComponent xform,
+            HashSet<Entity<StackComponent>> intersecting)
+        {
             var map = xform.MapID;
             var bounds = _physics.GetWorldAABB(uid);
-            var intersecting = new HashSet<Entity<StackComponent>>();
             _entityLookup.GetEntitiesIntersecting(map, bounds, intersecting, LookupFlags.Dynamic | LookupFlags.Sundries);
 
             var merged = false;

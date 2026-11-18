@@ -38,7 +38,6 @@ public abstract partial class SharedMoverController : VirtualController
 {
     [Dependency] private   IConfigurationManager _configManager = default!;
     [Dependency] protected IGameTiming Timing = default!;
-    private SharedMapSystem _mapManager => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private   ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private   ActionBlockerSystem _blocker = default!;
     [Dependency] private   EntityLookupSystem _lookup = default!;
@@ -46,7 +45,7 @@ public abstract partial class SharedMoverController : VirtualController
     [Dependency] private   MobStateSystem _mobState = default!;
     [Dependency] private   SharedAudioSystem _audio = default!;
     [Dependency] private   SharedContainerSystem _container = default!;
-    private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    [Dependency] private SharedMapSystem _mapSystem = default!;
     [Dependency] private   SharedGravitySystem _gravity = default!;
     [Dependency] private   SharedTransformSystem _transform = default!;
     [Dependency] private   TagSystem _tags = default!;
@@ -436,6 +435,9 @@ public abstract partial class SharedMoverController : VirtualController
 
     public void LerpRotation(EntityUid uid, InputMoverComponent mover, float frameTime)
     {
+        if (mover.RelativeRotation == mover.TargetRelativeRotation)
+            return;
+
         var angleDiff = Angle.ShortestDistance(mover.RelativeRotation, mover.TargetRelativeRotation);
 
         // if we've just traversed then lerp to our target rotation.
@@ -694,6 +696,11 @@ public abstract partial class SharedMoverController : VirtualController
         var (walkDir, sprintDir) = GetVelocityInput(mover);
 
         var total = walkDir * walkSpeed + sprintDir * sprintSpeed;
+
+        // GetVelocityInput must still run to consume this tick's sub-tick input.
+        // Idle movers do not need a parent transform lookup or a vector rotation.
+        if (total == Vector2.Zero)
+            return Vector2.Zero;
 
         var parentRotation = GetParentGridAngle(mover);
         var wishDir = _relativeMovement ? parentRotation.RotateVec(total) : total;

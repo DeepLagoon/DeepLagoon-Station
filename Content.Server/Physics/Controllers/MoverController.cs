@@ -18,6 +18,7 @@ using DependencyAttribute = Robust.Shared.IoC.DependencyAttribute;
 using Robust.Shared.Map.Components;
 
 using DroneConsoleComponent = Content.Server.Shuttles.DroneConsoleComponent;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server.Physics.Controllers;
 
@@ -198,6 +199,8 @@ public sealed partial class MoverController : SharedMoverController
 
     public override void UpdateBeforeSolve(bool prediction, float frameTime)
     {
+        var measure = BeginMovementTiming();
+        var started = measure ? Stopwatch.GetTimestamp() : 0;
         base.UpdateBeforeSolve(prediction, frameTime);
 
         // We use _seenMovers here as well as in UpdateMoverStatusвЂ”this means we
@@ -210,7 +213,11 @@ public sealed partial class MoverController : SharedMoverController
         var inputQueryEnumerator = AllEntityQuery<ActiveInputMoverComponent, InputMoverComponent>();
         while (inputQueryEnumerator.MoveNext(out var uid, out var activeComp, out var moverComp))
         {
-            if (IsPaused(uid) && !_ghostQuery.HasComp(uid)) // Frontier: Skip processing paused entities. Ghosts are excepted for mapping reasons
+            var meta = MetaData(uid);
+            if (meta.EntityLifeStage >= EntityLifeStage.Terminating || EntityManager.IsQueuedForDeletion(uid))
+                continue;
+
+            if (meta.EntityPaused && !_ghostQuery.HasComp(uid)) // Frontier: Skip processing paused entities. Ghosts are excepted for mapping reasons
                 continue; // Frontier
 
             // Brains can gain a mind or a movement relay during play. Keep the mover and recheck it on every pass.
@@ -231,6 +238,7 @@ public sealed partial class MoverController : SharedMoverController
         }
 
         ActiveMoverGauge.Set(_moversToUpdate.Count);
+        var collected = measure ? Stopwatch.GetTimestamp() : 0;
 
         BeginParallelMovement(_moversToUpdate.Count);
         foreach (var ent in _moversToUpdate)
@@ -238,10 +246,17 @@ public sealed partial class MoverController : SharedMoverController
             HandleMobMovement(ent, frameTime);
         }
 
-        CompleteParallelMovement();
+        var prepared = measure ? Stopwatch.GetTimestamp() : 0;
+        var parallelCount = _movementSteps.Count >= ParallelMovementThreshold ? _movementSteps.Count : 0;
+        CompleteParallelMovement(measure, out var calculateTicks, out var applyTicks);
+        var moved = measure ? Stopwatch.GetTimestamp() : 0;
         HandleShuttlePilot(frameTime);
+        var pilots = measure ? Stopwatch.GetTimestamp() : 0;
 
         HandleShuttleMovement(frameTime);
+        if (measure)
+            RecordMovementTiming(started, collected, prepared, moved, pilots, Stopwatch.GetTimestamp(),
+                calculateTicks, applyTicks, _moversToUpdate.Count, parallelCount);
         return;
 
         // When we insert a chain of relay sources we have to flip its ordering

@@ -530,9 +530,10 @@ public sealed partial class ShuttleSystem
         if (!dockedShuttles.Add(shuttleUid))
             return;  // Already processed this shuttle
 
-        var docks = _dockSystem.GetDocks(shuttleUid);
-        foreach (var dock in docks)
+        var docks = _dockSystem.GetDockPorts(shuttleUid);
+        for (var i = 0; i < docks.Count; i++)
         {
+            var dock = docks[i];
             if (!TryComp<DockingComponent>(dock, out var dockComp) || dockComp.Docked == false)
                 continue;
             if (dockComp.DockedWith == null)

@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Numerics;
 using Content.Server.GameTicking;
 using Content.Server.Spawners.Components;
@@ -19,6 +18,7 @@ namespace Content.Server.Spawners.EntitySystems
         [Dependency] private EntityTableSystem _entityTable = default!;
         [Dependency] private IPrototypeManager _prototypes = default!;
         [Dependency] private Content.Server._DeepLagoon.Salvage.ExpeditionLootSystem _expeditionLoot = default!;
+        private readonly List<EntProtoId> _filteredRare = new(4);
 
         public override void Initialize()
         {
@@ -113,35 +113,70 @@ namespace Content.Server.Spawners.EntitySystems
 
         private void Spawn(EntityUid uid, RandomSpawnerComponent component)
         {
+            SpawnRandom(uid, component, Transform(uid).Coordinates);
+        }
+
+        /// <summary>
+        /// Resolve a disposable random marker without creating the marker entity. True means the prototype
+        /// was handled; a null result is a valid empty roll. Returns the actual output for mining/stack events.
+        /// </summary>
+        public bool TrySpawnRandom(EntityUid source, EntProtoId prototype, EntityCoordinates coordinates, out EntityUid? spawned)
+        {
+            spawned = null;
+            if (!_prototypes.TryIndex(prototype, out var entity)
+                || !entity.TryGetComponent<RandomSpawnerComponent>(out var spawner, EntityManager.ComponentFactory)
+                || !spawner.DeleteSpawnerAfterSpawn) return false;
+            // Preserve the origin/caps a fresh marker at the destination would have acquired. The miner
+            // itself may have retained a different origin after parking or travel between expeditions.
+            _expeditionLoot.TryGetSpawnOrigin(coordinates, out var origin);
+            spawned = SpawnRandom(source, spawner, coordinates, origin);
+            return true;
+        }
+
+        private EntityUid? SpawnRandom(EntityUid uid, RandomSpawnerComponent component, EntityCoordinates coordinates)
+        {
+            _expeditionLoot.TryGetOrigin(uid, out var origin);
+            return SpawnRandom(uid, component, coordinates, origin);
+        }
+
+        private EntityUid? SpawnRandom(EntityUid uid, RandomSpawnerComponent component, EntityCoordinates coordinates,
+            Content.Server._DeepLagoon.Salvage.ExpeditionLootOriginComponent? origin)
+        {
             // Do not reroll a capped T3 marker through its T4 -> T3 replacement forever.
-            var rare = _expeditionLoot.TryGetOrigin(uid, out var origin)
-                ? component.RarePrototypes.Where(id => _expeditionLoot.GetTier(id) <= origin.MaximumTier).ToList()
-                : component.RarePrototypes;
+            IReadOnlyList<EntProtoId> rare = component.RarePrototypes;
+            if (origin != null)
+            {
+                _filteredRare.Clear();
+                foreach (var id in component.RarePrototypes)
+                    if (_expeditionLoot.GetTier(id) <= origin.MaximumTier) _filteredRare.Add(id);
+                rare = _filteredRare;
+            }
             if (rare.Count > 0 && (component.RareChance == 1.0f || _robustRandom.Prob(component.RareChance)))
             {
-                _expeditionLoot.SpawnLoot(uid, _robustRandom.Pick(rare), Transform(uid).Coordinates);
-                return;
+                // Finish selection before spawning: a nested random marker can reuse the same buffer.
+                var selected = _robustRandom.Pick(rare);
+                return _expeditionLoot.SpawnResolvedLoot(selected, coordinates, origin);
             }
 
             if (component.Chance != 1.0f && !_robustRandom.Prob(component.Chance))
-                return;
+                return null;
 
             if (component.Prototypes.Count == 0)
             {
                 Log.Warning($"Prototype list in RandomSpawnerComponent is empty! Entity: {ToPrettyString(uid)}");
-                return;
+                return null;
             }
 
             if (Deleted(uid))
-                return;
+                return null;
 
             var offset = component.Offset;
             var xOffset = _robustRandom.NextFloat(-offset, offset);
             var yOffset = _robustRandom.NextFloat(-offset, offset);
 
-            var coordinates = Transform(uid).Coordinates.Offset(new Vector2(xOffset, yOffset));
+            coordinates = coordinates.Offset(new Vector2(xOffset, yOffset));
 
-            _expeditionLoot.SpawnLoot(uid, _robustRandom.Pick(component.Prototypes), coordinates);
+            return _expeditionLoot.SpawnResolvedLoot(_robustRandom.Pick(component.Prototypes), coordinates, origin);
         }
 
         private void Spawn(Entity<EntityTableSpawnerComponent> ent)

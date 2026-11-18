@@ -27,7 +27,10 @@ public sealed partial class AdvertiseSystem : EntitySystem
 
     public override void Initialize()
     {
+        base.Initialize();
         SubscribeLocalEvent<AdvertiseComponent, MapInitEvent>(OnMapInit);
+        SubscribeLocalEvent<AdvertiseComponent, EntityPausedEvent>(OnPaused);
+        SubscribeLocalEvent<AdvertiseComponent, EntityUnpausedEvent>(OnUnpaused);
 
         SubscribeLocalEvent<ApcPowerReceiverComponent, AttemptAdvertiseEvent>(OnPowerReceiverAttemptAdvertiseEvent);
         SubscribeLocalEvent<VendingMachineComponent, AttemptAdvertiseEvent>(OnVendingAttemptAdvertiseEvent);
@@ -39,11 +42,46 @@ public sealed partial class AdvertiseSystem : EntitySystem
     // Mono - ComponentInit component modifications is a nono, back to mapInit with a check
     private void OnMapInit(EntityUid uid, AdvertiseComponent advert, MapInitEvent args)
     {
-        if (advert.NextAdvertisementTime == TimeSpan.Zero)
+        if (advert.AdvertisementInitialized) return;
+        advert.AdvertisementInitialized = true;
+        if (advert.PausedAdvertisementDelay is {} remaining)
+        {
+            advert.NextAdvertisementTime = _gameTiming.CurTime + remaining;
+            _advertQueue.Enqueue(uid, advert.NextAdvertisementTime);
+        }
+        else if (advert.NextAdvertisementTime == TimeSpan.Zero)
         {
             var prewarm = advert.Prewarm;
             RandomizeNextAdvertTime(uid, advert, prewarm);
         }
+        else
+        {
+            _advertQueue.Enqueue(uid, advert.NextAdvertisementTime);
+        }
+        advert.PausedAdvertisementDelay = IsPaused(uid)
+            ? RemainingDelay(advert) : null;
+    }
+
+    private TimeSpan RemainingDelay(AdvertiseComponent advert)
+    {
+        var remaining = advert.NextAdvertisementTime - _gameTiming.CurTime;
+        return remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
+    }
+
+    private void OnPaused(Entity<AdvertiseComponent> ent, ref EntityPausedEvent args)
+    {
+        if (ent.Comp.AdvertisementInitialized)
+            ent.Comp.PausedAdvertisementDelay = RemainingDelay(ent.Comp);
+    }
+
+    private void OnUnpaused(Entity<AdvertiseComponent> ent, ref EntityUnpausedEvent args)
+    {
+        if (!ent.Comp.AdvertisementInitialized) return;
+        // Preserve the remaining delay, rather than advertising immediately or catching up.
+        ent.Comp.NextAdvertisementTime = ent.Comp.PausedAdvertisementDelay is {} remaining
+            ? _gameTiming.CurTime + remaining : ent.Comp.NextAdvertisementTime + args.PausedTime;
+        ent.Comp.PausedAdvertisementDelay = null;
+        _advertQueue.Enqueue(ent.Owner, ent.Comp.NextAdvertisementTime);
     }
 
     private void RandomizeNextAdvertTime(EntityUid uid, AdvertiseComponent advert, bool prewarm = false)
@@ -64,7 +102,7 @@ public sealed partial class AdvertiseSystem : EntitySystem
 
     public void SayAdvertisement(EntityUid uid, AdvertiseComponent? advert = null)
     {
-        if (!Resolve(uid, ref advert))
+        if (!Resolve(uid, ref advert) || IsPaused(uid) || EntityManager.IsQueuedForDeletion(uid))
             return;
 
         var attemptEvent = new AttemptAdvertiseEvent(uid);
@@ -89,18 +127,13 @@ public sealed partial class AdvertiseSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        var i = 0;
-        while (true)
+        // Stale entries from deletion, rescheduling or unpausing are discarded within a fixed budget.
+        var budget = Math.Min(_advertQueue.Count, 256);
+        while (budget-- > 0)
         {
-            i++;
             if (!_advertQueue.TryPeek(out var uid, out var time))
                 break;
-
-            // failsafe - something went wrong (evil admeme setting advertise delay to negative?) but don't freeze the server
-            if (i > _advertQueue.Count)
-                break;
-                                                                                                     // seems like it has changed
-            if (TerminatingOrDeleted(uid) || !TryComp<AdvertiseComponent>(uid, out var advertise) || advertise.NextAdvertisementTime != time)
+            if (TerminatingOrDeleted(uid) || EntityManager.IsQueuedForDeletion(uid) || !TryComp<AdvertiseComponent>(uid, out var advertise) || advertise.NextAdvertisementTime != time)
             {
                 _advertQueue.Dequeue();
                 continue;
@@ -111,9 +144,20 @@ public sealed partial class AdvertiseSystem : EntitySystem
                 break;
 
             _advertQueue.Dequeue();
+            // A custom priority queue bypasses ECS paused-query filtering. Do not spawn speech
+            // or Audio on sleeping maps; OnUnpaused re-enqueues the shifted deadline.
+            if (IsPaused(uid))
+                continue;
             SayAdvertisement(uid, advertise);
             RandomizeNextAdvertTime(uid, advertise);
         }
+    }
+
+    public override void Shutdown()
+    {
+        _advertQueue.Clear();
+        _cachedDatasets.Clear();
+        base.Shutdown();
     }
 
 

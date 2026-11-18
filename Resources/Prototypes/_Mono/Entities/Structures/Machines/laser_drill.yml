@@ -6,6 +6,7 @@
   components:
   - type: ItemMiner
     proto: SpawnLootOres15
+    resolveRandomSpawner: true
     interval: 10
     needApcPower: false
   - type: Sprite

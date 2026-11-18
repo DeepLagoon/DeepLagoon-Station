@@ -434,10 +434,8 @@ public sealed partial class DockingSystem
 
     public List<Entity<DockingComponent>> GetDocks(EntityUid uid)
     {
-        _dockingSet.Clear();
-        _lookup.GetChildEntities(uid, _dockingSet);
-
-        return _dockingSet.ToList();
+        // Callers retain and sometimes modify their own snapshots.
+        return new List<Entity<DockingComponent>>(GetDockPorts(uid));
     }
 
     /// <summary>
