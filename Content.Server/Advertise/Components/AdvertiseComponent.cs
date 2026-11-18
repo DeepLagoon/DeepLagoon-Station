@@ -45,4 +45,11 @@ public sealed partial class AdvertiseComponent : Component
     [Access(typeof(AdvertiseSystem))] // Mono - you really don't want to change this outside of AdvertiseSystem
     public TimeSpan NextAdvertisementTime { get; set; } = TimeSpan.Zero;
 
+    // Runtime scheduling state; saved advertisements are re-enqueued at MapInit.
+    internal bool AdvertisementInitialized;
+
+    /// <summary>Remaining advertisement delay on a paused map, including apartment save/load.</summary>
+    [DataField]
+    public TimeSpan? PausedAdvertisementDelay;
+
 }

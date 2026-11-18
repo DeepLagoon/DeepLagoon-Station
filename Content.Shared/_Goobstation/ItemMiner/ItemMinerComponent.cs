@@ -1,6 +1,7 @@
 using Content.Shared.Random;
 using Robust.Shared.Audio;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using System;
 
 namespace Content.Shared._Goobstation.ItemMiner;
@@ -14,8 +15,23 @@ public sealed partial class ItemMinerComponent : Component
     /// <summary>
     /// Time for next item to be generated at.
     /// </summary>
-    [DataField, AutoPausedField]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
     public TimeSpan NextAt;
+
+    /// <summary>Distinguishes old absolute deadlines from saved remaining-time offsets.</summary>
+    [DataField]
+    public int TimerVersion;
+
+    /// <summary>
+    /// Payouts earned while active but deferred by the shared work budget. Saved independently of the
+    /// deadline so throttling, pausing and unloading do not discard legitimate production.
+    /// </summary>
+    [DataField]
+    public long PendingPayouts;
+
+    /// <summary>Resolve a disposable RandomSpawner directly and operate on its actual output.</summary>
+    [DataField]
+    public bool ResolveRandomSpawner;
 
     /// <summary>
     /// Prototype to spawn.

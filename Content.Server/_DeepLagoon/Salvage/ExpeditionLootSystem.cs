@@ -34,6 +34,7 @@ public sealed class ExpeditionLootSystem : EntitySystem
     [Dependency] private IPrototypeManager _prototypes = default!;
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedStationSpawningSystem _station = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
 
     private static readonly string[] WeaponMarkerPrefixes =
     {
@@ -122,6 +123,46 @@ public sealed class ExpeditionLootSystem : EntitySystem
         }
         origin = default!;
         return false;
+    }
+
+    /// <summary>Provenance a fresh marker would acquire here, without inheriting the miner's stored origin.</summary>
+    public bool TryGetSpawnOrigin(EntityCoordinates coordinates, out ExpeditionLootOriginComponent origin)
+    {
+        if (_spawnOrigin != null)
+        {
+            origin = _spawnOrigin;
+            return true;
+        }
+        if (_transform.GetMap(coordinates) is { } map && _transform.GetGrid(coordinates) == map
+            && TryComp<SalvageExpeditionComponent>(map, out var expedition))
+        {
+            origin = new ExpeditionLootOriginComponent
+            {
+                Difficulty = expedition.Difficulty,
+                MaximumTier = MaximumTier(expedition.Difficulty),
+                Expedition = map,
+            };
+            return true;
+        }
+        origin = default!;
+        return false;
+    }
+
+    /// <summary>Spawn with already resolved provenance; null deliberately uses native destination inference.</summary>
+    public EntityUid SpawnResolvedLoot(EntProtoId id, EntityCoordinates coordinates, ExpeditionLootOriginComponent? origin)
+    {
+        if (origin == null) return Spawn(id, coordinates);
+        // Keep this common mining/marker path free of a capturing delegate/display-class allocation.
+        var previous = _spawnOrigin;
+        _spawnOrigin = origin;
+        try
+        {
+            return Spawn(ResolvePrototype(id, origin.MaximumTier), coordinates);
+        }
+        finally
+        {
+            _spawnOrigin = previous;
+        }
     }
 
     private void OnInitialized(Entity<MetaDataComponent> entity)

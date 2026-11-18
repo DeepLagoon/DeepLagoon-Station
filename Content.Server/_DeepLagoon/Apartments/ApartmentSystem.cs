@@ -102,6 +102,9 @@ public sealed partial class ApartmentSystem : EntitySystem
     private readonly Dictionary<NetUserId, ApartmentGuestAccess> _guestAccess = new();
     private readonly Dictionary<NetUserId, string> _templates = new();
     private readonly Dictionary<NetUserId, Visit> _visits = new();
+    // Deleted bodies no longer occupy an apartment, but their independent escrow
+    // must survive until the same player has a living replacement body.
+    private readonly Dictionary<NetUserId, Visit> _pendingGearReturns = new();
     private readonly Dictionary<NetUserId, Guid> _editors = new();
     private readonly Dictionary<NetUserId, TimeSpan> _lastApply = new();
     private IApartmentLayoutStore? _store;
@@ -213,11 +216,13 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         message = "";
         if (!Enabled) { message = "Прототип отключён: cvar deeplagoon.apartments_enabled true"; return false; }
-        if (_visits.ContainsKey(session.UserId)) { message = "Вы уже находитесь в квартире."; return false; }
         if (session.AttachedEntity is not { } body || !TryComp<MobStateComponent>(body, out var mob) || mob.CurrentState != MobState.Alive)
         { message = "Для посещения нужен живой персонаж."; return false; }
         if (TryComp<BuckleComponent>(body, out var buckle) && buckle.Buckled)
         { message = "Сначала встаньте с сиденья."; return false; }
+        ReleaseDeletedVisit(session.UserId);
+        if (_visits.ContainsKey(session.UserId)) { message = "Вы уже находитесь в квартире."; return false; }
+        RestorePendingGear(session.UserId, body);
         templateId ??= _config.GetCVar(ApartmentCVars.DefaultTemplate);
         EnsureMaps();
         try { RefreshSelectedInstance(owner); }
@@ -232,7 +237,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             _guestAccess[owner] = instance.Guests;
             _templates[owner] = instance.Template.ID;
         }
-        if (_visits.Values.Count(v => v.Apartment == instance) >= instance.Template.MaxVisitors)
+        if (_visits.Values.Count(v => v.Apartment == instance && !Deleted(v.Body)) >= instance.Template.MaxVisitors)
         { message = "В квартире больше нет мест."; return false; }
         if (returnPoint is { } returnCoordinates && !returnCoordinates.IsValid(EntityManager))
         { message = "Точка возвращения недоступна."; return false; }
@@ -438,11 +443,11 @@ public sealed partial class ApartmentSystem : EntitySystem
     public bool TryGetVisit(NetUserId user, out Instance instance, out EntityUid body)
     {
         instance = default!; body = default;
-        if (!_visits.TryGetValue(user, out var visit)) return false;
+        if (!_visits.TryGetValue(user, out var visit) || Deleted(visit.Body)) return false;
         instance = visit.Apartment; body = visit.Body; return true;
     }
 
-    public NetUserId[] Visitors(Instance instance) => _visits.Where(p => p.Value.Apartment == instance).Select(p => p.Key).ToArray();
+    public NetUserId[] Visitors(Instance instance) => _visits.Where(p => p.Value.Apartment == instance && !Deleted(p.Value.Body)).Select(p => p.Key).ToArray();
     public bool UsesResidentialTransit(NetUserId user) => _visits.TryGetValue(user, out var visit) && visit.ResidentialTransit;
     public bool SetReturnPoint(NetUserId user, EntityCoordinates point)
     {
@@ -516,18 +521,42 @@ public sealed partial class ApartmentSystem : EntitySystem
         }
     }
 
-    private void RestoreGear(Visit visit)
+    private void ReleaseDeletedVisit(NetUserId user)
     {
+        if (!_visits.TryGetValue(user, out var visit) || !Deleted(visit.Body))
+            return;
+
+        RemoveChameleonGear(visit);
+        _pendingGearReturns.Add(user, visit);
+        _visits.Remove(user);
+        _editors.Remove(user);
+        RefreshActivity(visit.Apartment);
+        Log.Info($"Released apartment visit for {user} after body {visit.Body} was deleted; gear retained in escrow.");
+    }
+
+    private void RestorePendingGear(NetUserId user, EntityUid body)
+    {
+        if (!_pendingGearReturns.TryGetValue(user, out var visit))
+            return;
+
+        RestoreGear(visit, body);
+        _pendingGearReturns.Remove(user);
+        Log.Info($"Returned apartment escrow for {user} to replacement body {body}.");
+    }
+
+    private void RestoreGear(Visit visit, EntityUid? replacementBody = null)
+    {
+        var body = replacementBody ?? visit.Body;
         RemoveChameleonGear(visit);
         foreach (var (item, slot, hand) in visit.Gear)
         {
             if (!Exists(item)) continue;
             if (visit.Escrow is { } escrow && escrow.Contains(item))
-                _containers.Remove(item, escrow, force: true, destination: Transform(visit.Body).Coordinates);
+                _containers.Remove(item, escrow, force: true, destination: Transform(body).Coordinates);
             else
-                _transform.SetCoordinates(item, Transform(visit.Body).Coordinates);
-            if (slot != null) _inventory.TryEquip(visit.Body, item, slot, silent: true, force: true);
-            else _hands.TryPickup(visit.Body, item, hand, checkActionBlocker: false, animate: false);
+                _transform.SetCoordinates(item, Transform(body).Coordinates);
+            if (slot != null) _inventory.TryEquip(body, item, slot, silent: true, force: true);
+            else _hands.TryPickup(body, item, hand, checkActionBlocker: false, animate: false);
         }
         visit.Gear.Clear();
         if (visit.Escrow is { } storage && Exists(storage.Owner)) Del(storage.Owner);
@@ -749,8 +778,21 @@ public sealed partial class ApartmentSystem : EntitySystem
         RemoveEscapedChameleonGear();
         ContainResidents();
         var now = _timing.RealTime;
-        if (now < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0) return;
+        if (now < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0 && _pendingGearReturns.Count == 0) return;
         _nextUpdate = now + TimeSpan.FromSeconds(1);
+        foreach (var user in _visits.Keys.ToArray())
+            ReleaseDeletedVisit(user);
+        foreach (var user in _pendingGearReturns.Keys.ToArray())
+        {
+            if (!_players.TryGetSessionById(user, out var session) || session.Status != SessionStatus.InGame ||
+                session.AttachedEntity is not { } body || Deleted(body) || EntityManager.IsQueuedForDeletion(body) ||
+                HasComp<Content.Shared.Ghost.GhostComponent>(body) || HasComp<ApartmentResidentComponent>(body) ||
+                HasComp<ApartmentTripPendingComponent>(body) ||
+                !TryComp<MobStateComponent>(body, out var mob) || mob.CurrentState != MobState.Alive)
+                continue;
+
+            RestorePendingGear(user, body);
+        }
         Instance? checkpoint = null;
         Instance? unload = null;
         var emptyTimeout = TimeSpan.FromSeconds(Math.Max(1, _config.GetCVar(ApartmentCVars.EmptyTimeout)));
@@ -796,6 +838,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             if (Exists(visit.Body) && visit.Return.IsValid(EntityManager))
             { _transform.SetCoordinates(visit.Body, visit.Return); RemComp<ApartmentResidentComponent>(visit.Body); RestoreGear(visit); }
         _escapedChameleonGear.Clear();
+        _pendingGearReturns.Clear();
         _commerceRequests.Clear();
         _lastShopPreview.Clear();
         _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
