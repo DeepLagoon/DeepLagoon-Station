@@ -6,11 +6,14 @@ using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.CustomControls;
+using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.Client.UserInterface.Systems.Storage.Controls;
 
 public sealed class ItemGridPiece : Control, IEntityControl
 {
+    [Dependency] private readonly IGameTiming _timing = default!;
     private readonly IEntityManager _entityManager;
     private readonly StorageUIController _storageController;
 
@@ -50,6 +53,7 @@ public sealed class ItemGridPiece : Control, IEntityControl
 
     public ItemGridPiece(Entity<ItemComponent> entity, ItemStorageLocation location,  IEntityManager entityManager)
     {
+
         IoCManager.InjectDependencies(this);
 
         _entityManager = entityManager;
@@ -170,7 +174,17 @@ public sealed class ItemGridPiece : Control, IEntityControl
         if (itemComponent.StoredSprite is { } storageSprite)
         {
             var scale = 2 * UIScale;
-            var sprite = _entityManager.System<SpriteSystem>().Frame0(storageSprite);
+            var spriteSystem = _entityManager.System<SpriteSystem>();
+
+            var animatedSprite = storageSprite is SpriteSpecifier.Rsi rsi
+                ? new SpriteSpecifier.Rsi(
+                    new ResPath("/Textures") / rsi.RsiPath,
+                    rsi.RsiState)
+                : storageSprite;
+
+            var sprite = spriteSystem.GetFrame(
+                animatedSprite,
+                _timing.RealTime);
             var center = GlobalPixelPosition + PixelPosition + iconPosition;
             handle.SetTransform(center, iconRotation);
             var halfSize = sprite.Size * scale / 2;
