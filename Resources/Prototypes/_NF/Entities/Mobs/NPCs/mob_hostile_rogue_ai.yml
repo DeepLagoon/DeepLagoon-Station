@@ -1072,14 +1072,23 @@
     layers:
     - sprite: Mobs/Silicon/onestar.rsi
       state: onestar_boss
+      map: [ "enum.DamageStateVisualLayers.Base" ]
     - sprite: Mobs/Silicon/onestar.rsi
       state: onestar_boss_screen
+      map: [ "enum.DamageStateVisualLayers.BaseUnshaded" ]
       shader: unshaded
   - type: DamageStateVisuals
-    rotate: true
+    states:
+      Alive:
+        Base: onestar_boss
+        BaseUnshaded: onestar_boss_screen
+      Critical:
+        Base: onestar_boss_unpowered
+      Dead:
+        Base: onestar_boss_wrecked
   - type: RotationVisuals
-    defaultRotation: 90
-    horizontalRotation: 90
+    defaultRotation: 0
+    horizontalRotation: 0
   - type: MobThresholds
     thresholds:
       0: Alive
