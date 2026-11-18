@@ -24,8 +24,9 @@ public sealed partial class InteractionPanelCoverageSystem : EntitySystem
 
     public bool IsCovered(EntityUid uid, string? part)
     {
-        if (part == null || !TryComp<HumanoidAppearanceComponent>(uid, out _)) return false;
+        if (part == null || !TryComp<HumanoidAppearanceComponent>(uid, out var humanoid)) return false;
         part = Normalize(part);
+        if (IsExposed(humanoid, part)) return false;
         if (!TryComp<InventoryComponent>(uid, out var inventory)) return false;
         var slots = _inventory.GetSlotEnumerator((uid, inventory));
         while (slots.NextItem(out var item, out _))
@@ -33,6 +34,9 @@ public sealed partial class InteractionPanelCoverageSystem : EntitySystem
                 return true;
         return false;
     }
+
+    private static bool IsExposed(HumanoidAppearanceComponent humanoid, string part) =>
+        humanoid.BodyFeatures.Any(f => f.Part == part && f.Enabled && f.Visibility == 2 && f.ShowThroughClothing);
 
     public static string Normalize(string part) => part switch
     {
