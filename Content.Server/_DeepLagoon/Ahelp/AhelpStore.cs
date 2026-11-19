@@ -9,6 +9,7 @@ public sealed class AhelpStore : IDisposable
     public sealed record Entry(long Id, AhelpTicket Ticket, string Kind, AhelpLine Line, string Origin);
     public sealed record Attachment(string Name, string Mime, byte[] Bytes);
     public sealed record Result(string Error, Entry? Event = null, bool Applied = false);
+    public sealed record RelayState(string Round, Entry[] Events, Guid[] Tickets);
 
     private const string TicketColumns = "t.id,t.number,t.player,t.player_name,t.assignee,t.assignee_name,t.status,t.created";
     private const string EventColumns = "e.id,e.kind,e.author,e.author_name,e.text,e.staff,e.created,e.file,e.mime,e.origin";
@@ -41,6 +42,9 @@ public sealed class AhelpStore : IDisposable
                 event INTEGER PRIMARY KEY REFERENCES events(id), done INTEGER NOT NULL, retry INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS relay_media(
                 event INTEGER PRIMARY KEY REFERENCES events(id), retry INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE IF NOT EXISTS ahelp_state(name TEXT PRIMARY KEY,value TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS pending_rewards(event INTEGER PRIMARY KEY,ticket TEXT NOT NULL,
+                number INTEGER NOT NULL,author TEXT NOT NULL);
             """);
         schema.ExecuteNonQuery();
         Write(() =>
@@ -55,18 +59,52 @@ public sealed class AhelpStore : IDisposable
         });
     }
 
-    internal static AhelpStore OpenForServer(string path, long now)
+    internal static AhelpStore OpenForServer(string path, long now, string? round = null)
     {
         var store = new AhelpStore(path);
         try
         {
-            store.CloseOpenTickets("Игровой сервер перезапущен.", now);
+            store.ResetRound(round ?? Guid.NewGuid().ToString("N"));
             return store;
         }
         catch
         {
             store.Dispose();
             throw;
+        }
+    }
+
+    public void ResetRound(string round) => Write(() =>
+    {
+        // Earned LC rewards survive independently of the deleted conversations.
+        Execute("""
+            INSERT OR IGNORE INTO pending_rewards(event,ticket,number,author)
+            SELECT e.id,e.ticket,t.number,e.author FROM events e JOIN tickets t ON t.id=e.ticket
+            WHERE e.rewarded=0 AND (e.kind='finished' AND t.status=3 OR e.kind='closing' AND t.status=2 AND t.outcome=3);
+            DELETE FROM reads;
+            DELETE FROM relay_media;
+            DELETE FROM relay_delivery;
+            DELETE FROM events;
+            DELETE FROM tickets;
+            INSERT INTO ahelp_state(name,value) VALUES('round',$round)
+            ON CONFLICT(name) DO UPDATE SET value=excluded.value;
+            """, ("$round", round));
+        return true;
+    });
+
+    public RelayState RelayBatch(bool media, long now)
+    {
+        lock (_lock)
+        {
+            using var round = Command("SELECT value FROM ahelp_state WHERE name='round'");
+            var epoch = round.ExecuteScalar() as string ?? "";
+            var tickets = new List<Guid>();
+            using (var command = Command("SELECT id FROM tickets WHERE status<3"))
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read()) tickets.Add(Guid.Parse(reader.GetString(0)));
+            }
+            return new RelayState(epoch, media ? PendingMedia(now) : Pending(now), tickets.ToArray());
         }
     }
 
@@ -136,6 +174,11 @@ public sealed class AhelpStore : IDisposable
         lock (_lock) return Find(id);
     }
 
+    public Entry? GetEvent(string origin)
+    {
+        lock (_lock) return FindEvent(origin);
+    }
+
     private Result Add(AhelpTicket ticket, string kind, Guid actor, string name, string text, bool staff,
         string origin, long now, Attachment? file = null)
     {
@@ -175,10 +218,42 @@ public sealed class AhelpStore : IDisposable
 
             if (ticket.Status >= AhelpStatus.Closing && (!drain || ticket.Status != AhelpStatus.Closing))
                 return new Result("closed");
+            if (admin && actor != ticket.Player && ticket.Status == AhelpStatus.New)
+            {
+                Execute("UPDATE tickets SET status=1,assignee=$actor,assignee_name=$name WHERE id=$id",
+                    ("$actor", actor.ToString()), ("$name", name), ("$id", ticket.Id.ToString()));
+                ticket = Find(ticket.Id)!;
+                Add(ticket, "claimed", actor, name, "", false, origin + ":claim", now);
+            }
             if (staff ? !admin : actor != ticket.Player && (!admin || actor != ticket.Assignee))
-                return new Result("forbidden");
+                return new Result(admin && !staff && ticket.Assignee != null ? "assigned_to_other" : "forbidden");
             return Add(ticket, "message", actor, name, text, staff, origin, now, file);
         });
+
+    public Result CompleteAttachment(string origin, Attachment? attachment)
+        => Write(() =>
+        {
+            var entry = FindEvent(origin);
+            if (entry == null)
+                return new Result("missing");
+            var retry = entry.Line.Mime == AhelpLimits.Failed && attachment != null;
+            if (entry.Line.Mime != AhelpLimits.Loading && !retry)
+                return new Result("", entry);
+            Execute("UPDATE events SET file=$file,mime=$mime,data=$data WHERE id=$id",
+                ("$id", entry.Id), ("$file", attachment?.Name ?? entry.Line.File),
+                ("$mime", attachment?.Mime ?? AhelpLimits.Failed), ("$data", attachment?.Bytes));
+            if (retry && entry.Ticket.Status < AhelpStatus.Closing && !origin.StartsWith("discord:", StringComparison.Ordinal))
+                Execute("INSERT OR IGNORE INTO relay_media(event) VALUES($id)", ("$id", entry.Id));
+            return new Result("", FindEvent(origin), true);
+        });
+
+    public Result[] ExpireAttachments(long cutoff)
+        => Write(() => ReadEvents("e.mime=$mime AND e.created<=$cutoff", ("$mime", AhelpLimits.Loading), ("$cutoff", cutoff))
+            .Select(entry =>
+            {
+                Execute("UPDATE events SET mime=$mime,data=NULL WHERE id=$id", ("$id", entry.Id), ("$mime", AhelpLimits.Failed));
+                return new Result("", FindEvent(entry.Origin), true);
+            }).ToArray());
 
     public Result Change(Guid id, Guid actor, string name, AhelpAction action, string reason, string origin, long now)
         => Write(() =>
@@ -360,7 +435,7 @@ public sealed class AhelpStore : IDisposable
         {
             using var cmd = Command("""
                 SELECT e.file,e.mime,e.data FROM events e JOIN tickets t ON e.ticket=t.id
-                WHERE e.id=$id AND e.data IS NOT NULL AND ($relay OR t.status<3)
+                WHERE e.id=$id AND e.data IS NOT NULL AND length(e.data)>0 AND ($relay OR t.status<3)
                 AND ($admin OR t.player=$actor AND e.staff=0)
                 """, ("$id", id), ("$actor", actor.ToString()), ("$admin", admin), ("$relay", relay));
             using var rows = cmd.ExecuteReader();
@@ -396,9 +471,9 @@ public sealed class AhelpStore : IDisposable
     {
         lock (_lock)
             return ReadEvents("""
-                e.id IN (SELECT event FROM relay_media WHERE retry<=$now)
+                e.id IN (SELECT event FROM relay_media WHERE retry<=$now) AND e.mime!=$loading
                 ORDER BY e.id LIMIT 20
-                """, ("$now", now));
+                """, ("$now", now), ("$loading", AhelpLimits.Loading));
     }
 
     public bool QueueMedia(long id) => Write(() =>
@@ -437,7 +512,16 @@ public sealed class AhelpStore : IDisposable
     public Entry[] Rewards()
     {
         lock (_lock)
-            return ReadEvents("e.kind='finished' AND t.status=3 AND e.rewarded=0 ORDER BY e.id LIMIT 10");
+        {
+            var entries = ReadEvents("e.kind='finished' AND t.status=3 AND e.rewarded=0 ORDER BY e.id LIMIT 10").ToList();
+            using var command = Command("SELECT event,ticket,number,author FROM pending_rewards ORDER BY event LIMIT 10");
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+                entries.Add(new Entry(reader.GetInt64(0), new AhelpTicket(Guid.Parse(reader.GetString(1)), reader.GetInt64(2),
+                    Guid.Empty, "", null, null, AhelpStatus.Resolved, 0), "finished",
+                    new AhelpLine(reader.GetInt64(0), Guid.Parse(reader.GetString(3)), "", "", false, 0), ""));
+            return entries.ToArray();
+        }
     }
 
     public Entry[] History(long number, long before)
@@ -450,7 +534,10 @@ public sealed class AhelpStore : IDisposable
     public void MarkReward(long id)
     {
         lock (_lock)
+        {
             Execute("UPDATE events SET rewarded=1 WHERE id=$id", ("$id", id));
+            Execute("DELETE FROM pending_rewards WHERE event=$id", ("$id", id));
+        }
     }
 
     public Entry[] Results(Guid player)

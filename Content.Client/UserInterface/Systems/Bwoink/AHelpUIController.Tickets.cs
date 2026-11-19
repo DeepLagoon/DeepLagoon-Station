@@ -11,7 +11,19 @@ public sealed partial class AHelpUIController
 {
     private readonly HashSet<long> _seenTicketNotices = new();
     private AhelpWindow? _ticketWindow;
+    private string _ticketRound = "";
     private bool TicketMode => _config.GetCVar(CCVars.AhelpTickets);
+
+    private void OnTicketRoundSnapshot(AhelpSnapshot snapshot)
+    {
+        if (snapshot.Round.Length == 0 || snapshot.Round == _ticketRound) return;
+        if (_ticketRound.Length > 0 || snapshot.Operation == Guid.Empty && snapshot.Error.Length == 0 && snapshot.Tickets.Length == 0)
+        {
+            _seenTicketNotices.Clear();
+            UnreadAHelpRead();
+        }
+        _ticketRound = snapshot.Round;
+    }
 
     private void OpenTicketWindow(NetUserId? player = null)
     {

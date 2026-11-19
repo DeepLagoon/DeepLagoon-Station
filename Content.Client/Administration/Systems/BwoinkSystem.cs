@@ -16,6 +16,7 @@ namespace Content.Client.Administration.Systems
         public event Action<AhelpNotice>? TicketNotice;
         public event Action<AhelpSnapshot>? TicketSnapshot;
         public event Action<AhelpDownload>? TicketDownload;
+        public event Action<AhelpTeleportState>? TicketTeleportState;
         private (TimeSpan Timestamp, bool Typing) _lastTypingUpdateSent;
 
         public override void Initialize()
@@ -24,10 +25,12 @@ namespace Content.Client.Administration.Systems
             SubscribeNetworkEvent<AhelpNotice>(notice => TicketNotice?.Invoke(notice));
             SubscribeNetworkEvent<AhelpSnapshot>(snapshot => TicketSnapshot?.Invoke(snapshot));
             SubscribeNetworkEvent<AhelpDownload>(download => TicketDownload?.Invoke(download));
+            SubscribeNetworkEvent<AhelpTeleportState>(state => TicketTeleportState?.Invoke(state));
         }
 
         public void SendTicket(AhelpRequest request) => RaiseNetworkEvent(request);
         public void SendTicketChunk(AhelpUpload chunk) => RaiseNetworkEvent(chunk);
+        public void SendTeleport(AhelpTeleportRequest request) => RaiseNetworkEvent(request);
 
         protected override void OnBwoinkTextMessage(BwoinkTextMessage message, EntitySessionEventArgs eventArgs)
         {

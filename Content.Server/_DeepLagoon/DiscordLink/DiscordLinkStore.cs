@@ -133,6 +133,20 @@ public sealed class DiscordLinkStore : IDisposable
         return command.ExecuteScalar() as string;
     }
 
+    internal Guid[] AhelpUserIds(string discord)
+    {
+        using var command = Command("""
+            SELECT ss14_uid FROM discord_links WHERE discord_id=$discord
+            UNION
+            SELECT a.official_uid FROM discord_account_aliases a
+            JOIN discord_links l ON l.ss14_uid=a.canonical_uid WHERE l.discord_id=$discord
+            """, ("$discord", discord));
+        using var reader = command.ExecuteReader();
+        var ids = new List<Guid>();
+        while (reader.Read()) ids.Add(Guid.Parse(reader.GetString(0)));
+        return ids.ToArray();
+    }
+
     // A short renewable lease prevents permanent privileges after bot outages.
     public void SetBoost(string discordId, bool active)
     {

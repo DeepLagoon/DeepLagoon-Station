@@ -49,7 +49,6 @@ export const AhelpTicket = () => {
     setPasting(false);
   }, [data.ticket]);
   useEffect(() => () => { generation.current++; }, []);
-  useEffect(() => { setDraft(''); }, [data.sent]);
   useEffect(() => {
     if (!data.focusComposer || !data.writable) return;
     const focus = () => composer.current?.focus({ preventScroll: true });
@@ -89,7 +88,7 @@ export const AhelpTicket = () => {
         .find((item) => item.kind === 'file' && item.type.startsWith('image/'))?.getAsFile();
     if (!file) return;
     event.preventDefault();
-    if (!data.writable || data.busy || pasting) return;
+    if (!data.writable || pasting) return;
     if (!file.size || file.size > 20 * 1024 * 1024) {
       setError('Максимальный размер изображения — 20 МиБ.');
       return;
@@ -105,7 +104,7 @@ export const AhelpTicket = () => {
         reader.readAsDataURL(file);
       });
       if (batch !== generation.current) return;
-      act('paste-start', { name: file.name || 'clipboard-image' });
+      act('paste-start', { name: file.name || 'clipboard-image', round: data.round });
       for (let offset = 0; offset < encoded.length; offset += 6000) {
         if (batch !== generation.current) return;
         act('paste-chunk', { data: encoded.slice(offset, offset + 6000) });
@@ -122,9 +121,12 @@ export const AhelpTicket = () => {
   };
 
   const send = () => {
-    if (data.writable && !data.busy && !pasting && draft.trim()) act('send', { text: draft });
+    if (data.writable && draft.trim()) {
+      act('send', { text: draft, round: data.round });
+      setDraft('');
+    }
   };
-  const disabled = !data.writable || data.busy || pasting;
+  const disabled = !data.writable;
 
   return (
     <section className="AhelpTicket" onClick={() => {
@@ -136,19 +138,30 @@ export const AhelpTicket = () => {
             {data.older && <button type="button" onClick={() => act('older')}>Ранние сообщения</button>}
             {lines.map((line) => (
               <article key={line.id} className={line.staff ? 'AhelpTicket__staff' : undefined}>
-                <header><strong>{line.author}</strong> <time>{line.at}</time>{line.staff && ' · для администраторов'}</header>
+                <header><strong style={{ color: line.color }}>{line.author}</strong> <time>{line.at}</time>{line.staff && ' · для администраторов'}</header>
                 {line.text && <div className="AhelpTicket__text">{line.text}</div>}
                 {line.file && (
                   <div className="AhelpTicket__attachment">
-                    {data.previewId === line.id && data.preview
-                      ? <img src={data.preview} alt={line.file} />
+                    {line.failed ? <div role="status">Не удалось загрузить медиа.</div>
+                      : line.loading || (!thumbnails.has(line.id) && !line.previewUnavailable && data.previewId !== line.id)
+                        ? <div className="AhelpTicket__loading" role="status"><span className="AhelpTicket__spinner" />Загрузка медиа…</div>
+                        : data.previewId === line.id && data.preview
+                      ? line.mime?.startsWith('video/') ? <video controls preload="metadata" src={data.preview} />
+                        : line.mime?.startsWith('audio/') ? <audio controls preload="metadata" src={data.preview} />
+                          : <img src={data.preview} alt={line.file} />
                       : thumbnails.has(line.id) && <Thumbnail thumbnail={thumbnails.get(line.id)} name={line.file} />}
-                    <button type="button" onClick={() => act('view', { id: line.id })}>{line.file}</button>
-                    <button type="button" onClick={() => act('save', { id: line.id })}>Сохранить</button>
+                    <button type="button" disabled={line.loading || line.failed} onClick={() => act('view', { id: line.id })}>{line.file}</button>
+                    <button type="button" disabled={line.loading || line.failed} onClick={() => act('save', { id: line.id })}>Сохранить</button>
                   </div>
                 )}
               </article>
             ))}
+            {(data.pending || []).map((pending) => <article key={pending.id}>
+              {pending.text && <div className="AhelpTicket__text">{pending.text}</div>}
+              {pending.file && <div>{pending.file}</div>}
+              {pending.error ? <div role="status">{pending.error} <button type="button" onClick={() => act('retry-send', { id: pending.id })}>Повторить</button></div>
+                : <div className="AhelpTicket__loading" role="status"><span className="AhelpTicket__spinner" />{pending.file ? 'Загрузка медиа…' : 'Отправка…'}</div>}
+            </article>)}
           </div>
         </div>
         {showLatest && <button type="button" className="AhelpTicket__latest" onClick={jumpToLatest}>
@@ -164,7 +177,7 @@ export const AhelpTicket = () => {
             event.preventDefault();
             if (!event.repeat) send();
           }} />
-        <button type="button" aria-label="Прикрепить файл" disabled={disabled} onClick={() => act('file')}>Файл</button>
+        <button type="button" aria-label="Прикрепить файл" disabled={disabled} onClick={() => act('file', { round: data.round })}>Файл</button>
         <button type="submit" disabled={disabled || !draft.trim()}>Отправить</button>
         {data.retry && <button type="button" disabled={data.busy || pasting} onClick={() => act('retry')}>Повторить</button>}
       </form>

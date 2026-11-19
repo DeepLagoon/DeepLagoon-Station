@@ -12,6 +12,7 @@ using Content.Server._DeepLagoon.Currency;
 using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Content.Shared.Chat;
+using Content.Shared.GameTicking;
 using Content.Shared.Players.RateLimiting;
 using Content.Shared._DeepLagoon.Ahelp;
 using Robust.Server.Player;
@@ -48,6 +49,7 @@ public sealed partial class AhelpSystem : EntitySystem
         public readonly bool[] Received = new bool[(request.Size + AhelpLimits.Chunk - 1) / AhelpLimits.Chunk];
         public readonly TimeSpan Expires = expires;
         public int Count;
+        public Task Reservation = Task.CompletedTask;
     }
 
     private sealed record Download(long Id, byte[] Bytes, bool Admin, bool Preview = false)
@@ -55,13 +57,15 @@ public sealed partial class AhelpSystem : EntitySystem
         public int Offset;
     }
 
-    private readonly Dictionary<NetUserId, Upload> _uploads = new();
+    private readonly Dictionary<(NetUserId User, Guid Operation), Upload> _uploads = new();
     private readonly Dictionary<NetUserId, Download> _downloads = new();
     private readonly HashSet<NetUserId> _previewJobs = new();
-    private readonly HashSet<NetUserId> _working = new();
+    private readonly HashSet<(NetUserId User, Guid Operation)> _working = new();
+    private readonly SemaphoreSlim _uploadEncoders = new(2);
     private Lazy<AhelpStore>? _store;
     private Task _roundCleanup = Task.CompletedTask;
     private int _roundGeneration;
+    private string _roundEpoch = Guid.NewGuid().ToString("N");
     internal bool Enabled => _config.GetCVar(CCVars.AhelpTickets);
     internal AhelpStore Store => _store!.Value;
     private TimeSpan _nextReminder;
@@ -76,12 +80,13 @@ public sealed partial class AhelpSystem : EntitySystem
         base.Initialize();
         var root = _resources.UserData.RootDir;
         var path = root == null ? ":memory:" : Path.Combine(root, "ahelp-tickets.db");
-        _store = new Lazy<AhelpStore>(() => AhelpStore.OpenForServer(path, Now));
+        _store = new Lazy<AhelpStore>(() => AhelpStore.OpenForServer(path, Now, _roundEpoch));
         _rate.Register(MessageRate, new RateLimitRegistration(CCVars.AhelpRateLimitPeriod, CCVars.AhelpRateLimitCount, null));
         _rate.Register(ReadRate, new RateLimitRegistration(CCVars.AhelpRateLimitPeriod, CCVars.AhelpRateLimitCount, null));
         SubscribeNetworkEvent<AhelpRequest>(OnRequest);
         SubscribeNetworkEvent<AhelpUpload>(OnUpload);
         SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRunLevelChanged);
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => BeginRoundReset());
         _players.PlayerStatusChanged += StatusChanged;
         RegisterRelay();
     }
@@ -101,13 +106,43 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
 
         Interlocked.Increment(ref _roundGeneration);
-        foreach (var (user, upload) in _uploads)
+        foreach (var (key, upload) in _uploads)
         {
-            if (_players.TryGetSessionById(user, out var session))
+            if (_players.TryGetSessionById(key.User, out var session))
                 Error(session, upload.Request.Operation, "closed");
         }
         _uploads.Clear();
         _roundCleanup = CloseRound(_roundCleanup);
+    }
+
+    private void BeginRoundReset()
+    {
+        if (!Enabled || _stopping) return;
+        Interlocked.Increment(ref _roundGeneration);
+        _roundEpoch = Guid.NewGuid().ToString("N");
+        _uploads.Clear();
+        _downloads.Clear();
+        _roundCleanup = ResetRound(_roundCleanup, _roundEpoch);
+    }
+
+    private async Task ResetRound(Task previous, string epoch)
+    {
+        await previous;
+        while (!_stopping)
+        {
+            try { await Task.Run(() => Store.ResetRound(epoch)); }
+            catch (Exception ex)
+            {
+                Log.Error($"Ahelp round reset failed: {ex.GetType().Name}");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                continue;
+            }
+            NotifyRelay();
+            foreach (var session in _players.Sessions)
+                Reply(session, new AhelpSnapshot(true, [], null, [], 0));
+            Log.Info("Ahelp conversations and attachments cleared for the new round.");
+            return;
+        }
     }
 
     private async Task CloseRound(Task previous)
@@ -150,7 +185,8 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
         if (args.NewStatus == SessionStatus.Disconnected)
         {
-            _uploads.Remove(session.UserId);
+            foreach (var key in _uploads.Keys.Where(key => key.User == session.UserId).ToArray())
+                _uploads.Remove(key);
             _downloads.Remove(session.UserId);
         }
 
@@ -180,6 +216,11 @@ public sealed partial class AhelpSystem : EntitySystem
             request.Size is < 0 or > AhelpLimits.Image)
             return;
         var mutation = request.Action is not (AhelpAction.Read or AhelpAction.Attachment or AhelpAction.Preview);
+        if (mutation && request.Round != _roundEpoch)
+        {
+            Error(session, request.Operation, "round_changed");
+            return;
+        }
         if (_rate.CountAction(session, mutation ? MessageRate : ReadRate) != RateLimitStatus.Allowed)
         {
             if (mutation) Error(session, request.Operation, "rate_limited");
@@ -194,12 +235,18 @@ public sealed partial class AhelpSystem : EntitySystem
         }
         if (request.Action == AhelpAction.Send && request.Size > 0)
         {
-            if (_uploads.Count >= 6 && !_uploads.ContainsKey(session.UserId) || _working.Contains(session.UserId))
+            var key = (session.UserId, request.Operation);
+            if (_uploads.ContainsKey(key))
+                return;
+            if (_uploads.Count >= 12 || _uploads.Keys.Count(key => key.User == session.UserId) >= 3)
             {
                 Error(session, request.Operation, "busy");
                 return;
             }
-            _uploads[session.UserId] = new Upload(request, _timing.RealTime + TimeSpan.FromMinutes(2));
+            var upload = new Upload(request, _timing.RealTime + TimeSpan.FromMinutes(2));
+            _uploads[key] = upload;
+            upload.Reservation = Handle(session, request, reserve: true);
+            await upload.Reservation;
             return;
         }
 
@@ -209,7 +256,8 @@ public sealed partial class AhelpSystem : EntitySystem
     private async void OnUpload(AhelpUpload chunk, EntitySessionEventArgs args)
     {
         var user = args.SenderSession.UserId;
-        if (!Enabled || !_uploads.TryGetValue(user, out var upload) || upload.Request.Operation != chunk.Operation ||
+        var key = (user, chunk.Operation);
+        if (!Enabled || !_uploads.TryGetValue(key, out var upload) ||
             chunk.Offset < 0 || chunk.Offset >= upload.Bytes.Length || chunk.Offset % AhelpLimits.Chunk != 0 ||
             chunk.Bytes.Length != Math.Min(upload.Bytes.Length - chunk.Offset, AhelpLimits.Chunk))
             return;
@@ -220,13 +268,28 @@ public sealed partial class AhelpSystem : EntitySystem
         upload.Received[index] = true;
         if (++upload.Count != upload.Received.Length)
             return;
-        _uploads.Remove(user);
-        await Handle(args.SenderSession, upload.Request, upload.Bytes);
+        try
+        {
+            await upload.Reservation;
+            AhelpStore.Attachment image;
+            await _uploadEncoders.WaitAsync();
+            try { image = await Task.Run(() => AhelpImage.Read(upload.Request.File, upload.Bytes)); }
+            finally { _uploadEncoders.Release(); }
+            Publish(await Task.Run(() => Store.CompleteAttachment($"game:{user.UserId}:{chunk.Operation}", image)), sound: false);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"Ahelp upload {chunk.Operation} failed: {ex.GetType().Name}");
+            Publish(await Task.Run(() => Store.CompleteAttachment($"game:{user.UserId}:{chunk.Operation}", null)), sound: false);
+            Error(args.SenderSession, chunk.Operation, "invalid_image");
+        }
+        finally { _uploads.Remove(key); }
     }
 
-    private async Task Handle(ICommonSession session, AhelpRequest request, byte[]? bytes = null)
+    private async Task Handle(ICommonSession session, AhelpRequest request, byte[]? bytes = null, bool reserve = false)
     {
-        if (!_working.Add(session.UserId))
+        var key = (session.UserId, request.Operation);
+        if (_working.Count(key => key.User == session.UserId) >= 12 || !_working.Add(key))
         {
             Error(session, request.Operation, "busy");
             return;
@@ -237,11 +300,17 @@ public sealed partial class AhelpSystem : EntitySystem
         var target = admin && request.Player != Guid.Empty ? request.Player : actor;
         try
         {
+            await _roundCleanup;
+            if (round != Volatile.Read(ref _roundGeneration))
+            {
+                Error(session, request.Operation, "round_changed");
+                return;
+            }
             if (request.Action == AhelpAction.Read)
             {
                 var snapshot = await Task.Run(() => Store.Read(actor, admin, request.Ticket, request.Player, request.Before,
                     operation: request.Operation));
-                if (CanHelp(session) == admin) Reply(session, snapshot);
+                if (round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin) Reply(session, snapshot);
                 return;
             }
             if (request.Action == AhelpAction.Attachment)
@@ -252,7 +321,7 @@ public sealed partial class AhelpSystem : EntitySystem
                     return;
                 }
                 var file = await Task.Run(() => Store.ReadAttachment(request.Attachment, actor, admin, false));
-                if (file != null && CanHelp(session) == admin)
+                if (file != null && round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin)
                     _downloads[session.UserId] = new Download(request.Attachment, file.Bytes, admin);
                 else
                     Error(session, request.Operation, "forbidden");
@@ -265,7 +334,7 @@ public sealed partial class AhelpSystem : EntitySystem
             AhelpStore.Result result;
             if (request.Action == AhelpAction.Send)
             {
-                if (text.Length == 0 && bytes == null)
+                if (text.Length == 0 && bytes == null && !reserve)
                     return;
                 var targetName = target == actor ? name :
                     _players.TryGetSessionById(new NetUserId(target), out var player) ? player.Name :
@@ -275,7 +344,8 @@ public sealed partial class AhelpSystem : EntitySystem
                     Error(session, request.Operation, "missing");
                     return;
                 }
-                var file = bytes == null ? null : await Task.Run(() => AhelpImage.Read(request.File, bytes));
+                var file = reserve ? new AhelpStore.Attachment(request.File, AhelpLimits.Loading, []) :
+                    bytes == null ? null : await Task.Run(() => AhelpImage.Read(request.File, bytes));
                 await _roundCleanup;
                 if (_stopping)
                     return;
@@ -297,10 +367,11 @@ public sealed partial class AhelpSystem : EntitySystem
                 result = new AhelpStore.Result("forbidden");
             }
 
+            if (round != Volatile.Read(ref _roundGeneration)) return;
             Publish(result, request.Sound);
             var selected = result.Event?.Ticket.Id ?? request.Ticket;
             var state = await Task.Run(() => Store.Read(actor, admin, selected, target, 0, result.Error, request.Operation));
-            if (CanHelp(session) == admin) Reply(session, state);
+            if (round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin) Reply(session, state);
         }
         catch (Exception ex)
         {
@@ -308,11 +379,12 @@ public sealed partial class AhelpSystem : EntitySystem
                 Log.Error($"Ahelp action failed: {ex.GetType().Name}");
             Error(session, request.Operation, bytes == null ? "unavailable" : "invalid_image");
         }
-        finally { _working.Remove(session.UserId); }
+        finally { _working.Remove(key); }
     }
 
     private async Task SendPreview(ICommonSession session, long id)
     {
+        var round = Volatile.Read(ref _roundGeneration);
         var user = session.UserId;
         if (_downloads.Count >= 6 || _downloads.ContainsKey(user) || _previewJobs.Count >= 3 || !_previewJobs.Add(user))
         {
@@ -324,7 +396,7 @@ public sealed partial class AhelpSystem : EntitySystem
             var admin = CanHelp(session);
             var preview = await Task.Run(() => Store.ReadAttachment(id, user.UserId, admin, false) is { } file
                 ? AhelpImage.Preview(file) : null);
-            if (preview == null || !session.Channel.IsConnected || CanHelp(session) != admin ||
+            if (preview == null || round != Volatile.Read(ref _roundGeneration) || !session.Channel.IsConnected || CanHelp(session) != admin ||
                 !_downloads.TryAdd(user, new Download(id, preview, admin, Preview: true)))
                 Reply(session, new AhelpDownload(id, 0, 0, [], preview: true));
         }
@@ -338,6 +410,9 @@ public sealed partial class AhelpSystem : EntitySystem
 
     private void Reply(ICommonSession session, EntityEventArgs message)
     {
+        if (message is AhelpSnapshot snapshot)
+            message = new AhelpSnapshot(snapshot.Enabled, snapshot.Tickets, snapshot.Selected, snapshot.Lines,
+                snapshot.Before, snapshot.Error, snapshot.Operation, _roundEpoch);
         if (!_stopping && session.Status is SessionStatus.InGame or SessionStatus.Connected)
             RaiseNetworkEvent(message, session.Channel);
     }
@@ -410,11 +485,11 @@ public sealed partial class AhelpSystem : EntitySystem
         if (_maintaining || _timing.RealTime < _nextMaintenance)
             return;
         _nextMaintenance = _timing.RealTime + TimeSpan.FromSeconds(5);
-        foreach (var (user, upload) in _uploads.ToArray())
+        foreach (var (key, upload) in _uploads.ToArray())
         {
             if (_timing.RealTime < upload.Expires) continue;
-            _uploads.Remove(user);
-            if (_players.TryGetSessionById(user, out var session))
+            _uploads.Remove(key);
+            if (_players.TryGetSessionById(key.User, out var session))
                 Error(session, upload.Request.Operation, "upload_expired");
         }
         Maintain();
@@ -425,6 +500,8 @@ public sealed partial class AhelpSystem : EntitySystem
         _maintaining = true;
         try
         {
+            foreach (var expired in await Task.Run(() => Store.ExpireAttachments(Now - 120)))
+                Publish(expired, sound: false);
             var cutoff = Now - Math.Max(1, _config.GetCVar(CCVars.AhelpReminderSeconds));
             var admins = _admins.ActiveAdmins.Where(CanHelp).ToArray();
             if (admins.Length != 0 && _timing.RealTime >= _nextReminder &&

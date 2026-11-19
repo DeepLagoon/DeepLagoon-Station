@@ -110,6 +110,7 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
         _bwoinkSystem = system;
         _bwoinkSystem.OnBwoinkTextMessageRecieved += ReceivedBwoink;
         _bwoinkSystem.TicketNotice += OnTicketNotice;
+        _bwoinkSystem.TicketSnapshot += OnTicketRoundSnapshot;
 
         CommandBinds.Builder
             .Bind(ContentKeyFunctions.OpenAHelp,
@@ -124,8 +125,11 @@ public sealed partial class AHelpUIController: UIController, IOnSystemChanged<Bw
         DebugTools.Assert(_bwoinkSystem != null);
         _bwoinkSystem!.OnBwoinkTextMessageRecieved -= ReceivedBwoink;
         _bwoinkSystem.TicketNotice -= OnTicketNotice;
+        _bwoinkSystem.TicketSnapshot -= OnTicketRoundSnapshot;
         _ticketWindow?.Dispose();
         _seenTicketNotices.Clear();
+        _ticketRound = "";
+        UnreadAHelpRead();
         _bwoinkSystem = null;
     }
 

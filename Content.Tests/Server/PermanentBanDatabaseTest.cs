@@ -60,7 +60,9 @@ public sealed class PermanentBanDatabaseTest
 
         Assert.That(store.FindDiscordId(canonical), Is.EqualTo(discordId));
         Assert.That(store.FindDiscordId(official), Is.EqualTo(discordId));
+        Assert.That(store.AhelpUserIds(discordId), Is.EquivalentTo(new[] { canonical, official }));
         store.Unlink(discordId, canonical);
         Assert.That(store.FindDiscordId(official), Is.Null);
+        Assert.That(store.AhelpUserIds(discordId), Is.Empty);
     }
 }

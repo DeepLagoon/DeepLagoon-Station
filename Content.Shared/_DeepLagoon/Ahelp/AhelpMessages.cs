@@ -9,6 +9,8 @@ public static class AhelpLimits
     public const int Chunk = 32 * 1024;
     public const int Preview = 256 * 1024;
     public const int Page = 30;
+    public const string Loading = "application/x-ahelp-loading";
+    public const string Failed = "application/x-ahelp-failed";
 }
 
 [Serializable, NetSerializable]
@@ -28,7 +30,7 @@ public sealed record AhelpLine(long Id, Guid Author, string AuthorName, string T
 [Serializable, NetSerializable]
 public sealed class AhelpRequest(AhelpAction action, Guid ticket, Guid player = default, Guid operation = default,
     string text = "", bool staff = false, bool sound = true, string file = "", int size = 0,
-    long before = 0, long attachment = 0) : EntityEventArgs
+    long before = 0, long attachment = 0, string round = "") : EntityEventArgs
 {
     public readonly AhelpAction Action = action;
     public readonly Guid Ticket = ticket;
@@ -41,6 +43,7 @@ public sealed class AhelpRequest(AhelpAction action, Guid ticket, Guid player = 
     public readonly int Size = size;
     public readonly long Before = before;
     public readonly long Attachment = attachment;
+    public readonly string Round = round;
 }
 
 [Serializable, NetSerializable]
@@ -63,7 +66,7 @@ public sealed class AhelpDownload(long attachment, int offset, int size, byte[] 
 
 [Serializable, NetSerializable]
 public sealed class AhelpSnapshot(bool enabled, AhelpTicket[] tickets, AhelpTicket? selected,
-    AhelpLine[] lines, long before, string error = "", Guid operation = default) : EntityEventArgs
+    AhelpLine[] lines, long before, string error = "", Guid operation = default, string round = "") : EntityEventArgs
 {
     public readonly bool Enabled = enabled;
     public readonly AhelpTicket[] Tickets = tickets;
@@ -72,6 +75,7 @@ public sealed class AhelpSnapshot(bool enabled, AhelpTicket[] tickets, AhelpTick
     public readonly long Before = before;
     public readonly string Error = error;
     public readonly Guid Operation = operation;
+    public readonly string Round = round;
 }
 
 [Serializable, NetSerializable]

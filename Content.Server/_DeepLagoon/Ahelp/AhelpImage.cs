@@ -196,7 +196,17 @@ internal static class AhelpImage
             if (brand.SequenceEqual("heic"u8) || brand.SequenceEqual("heix"u8) || brand.SequenceEqual("hevc"u8) ||
                 brand.SequenceEqual("hevx"u8) || brand.SequenceEqual("mif1"u8) || brand.SequenceEqual("msf1"u8))
                 return ("image/heic", "heic");
+            if (brand.SequenceEqual("M4A "u8)) return ("audio/mp4", "m4a");
+            if (brand.SequenceEqual("isom"u8) || brand.SequenceEqual("iso2"u8) || brand.SequenceEqual("mp41"u8) ||
+                brand.SequenceEqual("mp42"u8) || brand.SequenceEqual("M4V "u8)) return ("video/mp4", "mp4");
         }
+        if (data.Length >= 16 && data.StartsWith(new byte[] { 0x1a, 0x45, 0xdf, 0xa3 }) && name.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+            return ("video/webm", "webm");
+        if (data.Length >= 12 && data.StartsWith("RIFF"u8) && data.Slice(8, 4).SequenceEqual("WAVE"u8)) return ("audio/wav", "wav");
+        if (data.Length >= 16 && data.StartsWith("OggS"u8)) return ("audio/ogg", "ogg");
+        if (data.Length >= 16 && data.StartsWith("fLaC"u8)) return ("audio/flac", "flac");
+        if (data.Length >= 16 && (data.StartsWith("ID3"u8) || data[0] == 0xff && (data[1] & 0xe0) == 0xe0) &&
+            name.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return ("audio/mpeg", "mp3");
         if (data.StartsWith("8BPS"u8)) return ("image/vnd.adobe.photoshop", "psd");
         if (data.StartsWith(new byte[] { 0, 0, 1, 0 })) return ("image/x-icon", "ico");
         if (data.StartsWith(new byte[] { 0xff, 0x0a }) || data.StartsWith(new byte[] { 0, 0, 0, 12, 74, 88, 76, 32, 13, 10, 135, 10 }))

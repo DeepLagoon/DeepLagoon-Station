@@ -30,4 +30,6 @@ public sealed partial class DiscordLinkSystem
 
     internal string? AhelpDiscordId(Guid uid)
         => AhelpLinks()?.FindDiscordId(uid);
+
+    internal Guid[] AhelpUserIds(string discord) => AhelpLinks()?.AhelpUserIds(discord) ?? [];
 }

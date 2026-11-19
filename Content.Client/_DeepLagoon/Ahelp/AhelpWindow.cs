@@ -31,6 +31,11 @@ public sealed class AhelpWindow : FancyWindow
         public GameTick Tick;
     }
 
+    private sealed record Pending(AhelpRequest Request, byte[]? Data, TimeSpan Deadline)
+    {
+        public string Error = "";
+    }
+
     private readonly BwoinkSystem _network;
     private readonly IClientAdminManager _admin = IoCManager.Resolve<IClientAdminManager>();
     private readonly IClientConsoleHost _console = IoCManager.Resolve<IClientConsoleHost>();
@@ -41,17 +46,19 @@ public sealed class AhelpWindow : FancyWindow
     private readonly Guid _actor;
     private readonly bool _isAdmin;
     private readonly BoxContainer _body = new() { VerticalExpand = true, HorizontalExpand = true, SeparationOverride = 8 };
-    private readonly BoxContainer _sidebar = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 235, SeparationOverride = 5 };
+    private readonly BoxContainer _sidebar = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 235, MaxWidth = 235, SeparationOverride = 5 };
     private readonly BoxContainer _rows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 3 };
     private readonly BoxContainer _thread = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, HorizontalExpand = true, SeparationOverride = 5 };
+    private readonly BoxContainer _navigation = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 190, MaxWidth = 190, SeparationOverride = 8 };
     private readonly BoxContainer _toolbar = new() { SeparationOverride = 3 };
     private readonly BoxContainer _playerActions = new() { SeparationOverride = 3 };
+    private readonly Button _follow;
     private readonly BoxContainer _native = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, VerticalExpand = true, Visible = false, SeparationOverride = 6 };
-    private readonly BoxContainer _nativeLines = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 6 };
-    private readonly TicketHistoryScroll _nativeHistory = new() { VerticalExpand = true };
+    private readonly BoxContainer _nativeLines = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, HorizontalExpand = true, SeparationOverride = 6 };
+    private readonly TicketHistoryScroll _nativeHistory = new() { VerticalExpand = true, HScrollEnabled = false };
     private readonly VScrollBar _nativeScroll;
-    private readonly Label _header = new() { FontColorOverride = Color.FromHex("#C0DBFF") };
-    private readonly Label _status = new();
+    private readonly PlainTextLabel _header = new();
+    private readonly PlainTextLabel _status = new();
     private readonly LineEdit _draft = new() { HorizontalExpand = true, PlaceHolder = "Сообщение" };
     private readonly LineEdit _reason = new() { PlaceHolder = "Причина отклонения", HorizontalExpand = true, Visible = false };
     private readonly LineEdit _search = new() { PlaceHolder = "Поиск" };
@@ -84,9 +91,11 @@ public sealed class AhelpWindow : FancyWindow
     private long _before;
     private int _filter;
     private bool _disposed;
-    private Upload? _upload;
+    private readonly Dictionary<Guid, Upload> _uploads = new();
+    private readonly Dictionary<Guid, Pending> _pending = new();
     private StringBuilder? _paste;
-    private (Guid Ticket, Guid Player) _pasteTarget;
+    private (Guid Ticket, Guid Player, string Round) _pasteTarget;
+    private string _round = "";
     private string _pasteFile = "";
     private long _downloadId;
     private byte[]? _download;
@@ -100,6 +109,9 @@ public sealed class AhelpWindow : FancyWindow
     private string _preview = "";
     private long _previewId;
     private int _sent;
+    private AhelpTeleportState? _navigationState;
+    private Guid _navigationTarget;
+    private TimeSpan _nextNavigation;
     private IClydeWindow? _desktop;
     private WindowRoot? _desktopRoot;
     public event Action? TicketClosed;
@@ -110,12 +122,12 @@ public sealed class AhelpWindow : FancyWindow
         _actor = actor;
         _isAdmin = admin;
         Title = "Ahelp";
-        MinSize = new Vector2(admin ? 780 : 510, 450);
-        SetSize = new Vector2(admin ? 950 : 640, 600);
-        ContentsContainer.AddChild(Panel("#181F29", _body, 8));
+        MinSize = new Vector2(admin ? 980 : 510, 450);
+        SetSize = new Vector2(admin ? 1150 : 640, 600);
+        ContentsContainer.AddChild(Panel("#242424", _body, 8));
         if (admin)
         {
-            _body.AddChild(Panel("#222B39", _sidebar, 6));
+            _body.AddChild(Panel("#242424", _sidebar, 6));
             var filters = new BoxContainer { SeparationOverride = 3 };
             foreach (var (label, index) in new[] { ("Новые", 0), ("Мои", 1), ("В работе", 2), ("Игроки", 3) })
                 filters.AddChild(Button(label, () => { _filter = index; PopulateQueue(); }));
@@ -125,9 +137,14 @@ public sealed class AhelpWindow : FancyWindow
             _sidebar.AddChild(new ScrollContainer { VerticalExpand = true, Children = { _rows } });
         }
         _body.AddChild(_thread);
-        _thread.AddChild(Panel("#2A384B", _header, 7));
+        if (admin)
+            _body.AddChild(Panel("#292929", _navigation, 6));
+        _thread.AddChild(Panel("#292929", _header, 7));
         _thread.AddChild(_toolbar);
         _thread.AddChild(_playerActions);
+        _follow = Button("Следовать", () => _console.ExecuteCommand($"followuser \"{_selected?.Player ?? _target}\""));
+        _follow.HorizontalExpand = true;
+        _thread.AddChild(_follow);
         _thread.AddChild(_reason);
         _reason.OnTextEntered += _ =>
         {
@@ -152,11 +169,11 @@ public sealed class AhelpWindow : FancyWindow
         _nativeLatest.VerticalAlignment = VAlignment.Bottom;
         _nativeLatest.Margin = new Thickness(0, 0, 16, 7);
         _nativeLatest.Visible = false;
-        var timeline = Panel("#151C25", _nativeHistory, 5);
+        var timeline = Panel("#242424", _nativeHistory, 5);
         timeline.AddChild(_nativeLatest);
         _native.AddChild(timeline);
         _nativeHistory.OnScrolled += UpdateLatestButton;
-        _native.AddChild(Panel("#273346", new BoxContainer
+        _native.AddChild(Panel("#292929", new BoxContainer
         {
             SeparationOverride = 5,
             Children = { _draft, _nativeFile, _nativeSend }
@@ -177,6 +194,7 @@ public sealed class AhelpWindow : FancyWindow
         _network.TicketSnapshot += OnState;
         _network.TicketNotice += OnNotice;
         _network.TicketDownload += OnDownload;
+        _network.TicketTeleportState += OnTeleportState;
         OnClose += () => { if (_desktop == null) Dispose(); };
         Render();
     }
@@ -305,9 +323,9 @@ public sealed class AhelpWindow : FancyWindow
         }
     }
 
-    private bool CanWrite => _selected == null ? !_isAdmin || _target != Guid.Empty :
+    private bool CanWrite => _round.Length > 0 && (_selected == null ? !_isAdmin || _target != Guid.Empty :
         _selected.Status < AhelpStatus.Closing &&
-        (_isAdmin && _staff.Pressed || _selected.Player == _actor || _selected.Assignee == _actor);
+        (_isAdmin && (_staff.Pressed || _selected.Status == AhelpStatus.New) || _selected.Player == _actor || _selected.Assignee == _actor));
 
     private void Render()
     {
@@ -320,6 +338,9 @@ public sealed class AhelpWindow : FancyWindow
         _toolbar.DisposeAllChildren();
         _playerActions.DisposeAllChildren();
         _confirmations.Clear();
+        RenderNavigation();
+        _follow.Visible = _isAdmin;
+        _follow.Disabled = !_admin.CanCommand("follow") || (_selected?.Player ?? _target) == Guid.Empty;
         if (_isAdmin)
         {
             if (_desktop == null)
@@ -350,20 +371,16 @@ public sealed class AhelpWindow : FancyWindow
     {
         _nativeOlder.Visible = _before > 0;
         _draft.Editable = CanWrite;
-        _nativeFile.Disabled = _nativeSend.Disabled = !CanWrite || _operation != Guid.Empty;
+        _nativeFile.Disabled = _nativeSend.Disabled = !CanWrite;
         var follow = _nativeScroll.IsAtEnd;
         _nativeLines.DisposeAllChildren();
         foreach (var line in _lines.Values)
         {
-            var card = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 4 };
-            card.AddChild(new Label
-            {
-                Text = $"{line.AuthorName}  ·  {Clock(line.At)}{(line.Staff ? "  ·  для администраторов" : "")}",
-                FontColorOverride = Color.FromHex(line.Staff ? "#E7C38A" : "#BFD6F2"),
-            });
+            var card = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, HorizontalExpand = true, SeparationOverride = 4 };
+            card.AddChild(WrappedText($"{line.AuthorName}  ·  {Clock(line.At)}{(line.Staff ? "  ·  для администраторов" : "")}", LineColor(line)));
             if (line.Text.Length > 0)
             {
-                var label = new RichTextLabel();
+                var label = new RichTextLabel { HorizontalExpand = true };
                 var message = new FormattedMessage();
                 message.AddText(line.Text);
                 label.SetMessage(message);
@@ -371,13 +388,28 @@ public sealed class AhelpWindow : FancyWindow
             }
             if (line.File != null)
             {
-                if (GetThumbnail(line.Id) is { } thumbnail)
+                if (line.Mime == AhelpLimits.Loading)
+                    card.AddChild(new LoadingLabel(_timing, "Загрузка медиа…"));
+                else if (line.Mime == AhelpLimits.Failed)
+                    card.AddChild(new Label { Text = "Не удалось загрузить медиа.", FontColorOverride = Color.Orange });
+                else if (GetThumbnail(line.Id) is { } thumbnail)
                     card.AddChild(thumbnail.CreateControl());
-                var save = Button("Сохранить · " + line.File, () => RequestFile(line.Id, true));
-                save.HorizontalAlignment = HAlignment.Left;
+                else if (line.Mime?.StartsWith("image/", StringComparison.Ordinal) == true && !_thumbnailUnavailable.Contains(line.Id))
+                    card.AddChild(new LoadingLabel(_timing, "Загрузка медиа…"));
+                card.AddChild(WrappedText(line.File));
+                var save = Button("Сохранить", () => RequestFile(line.Id, true), line.Mime is AhelpLimits.Loading or AhelpLimits.Failed);
                 card.AddChild(save);
             }
-            _nativeLines.AddChild(Panel(line.Staff ? "#3B3329" : line.Author == _actor ? "#26394D" : "#222D3D", card, 7));
+            _nativeLines.AddChild(Panel("#242424", card, 3));
+        }
+        foreach (var pending in CurrentPending())
+        {
+            var row = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical };
+            row.AddChild(WrappedText(pending.Request.Text + (pending.Request.File.Length > 0 ? " · " + pending.Request.File : "")));
+            row.AddChild(WrappedText(pending.Error.Length == 0 ? "◌ Отправка…" : Error(pending.Error)));
+            if (pending.Error.Length > 0)
+                row.AddChild(Button("Повторить", () => Start(pending.Request, pending.Data)));
+            _nativeLines.AddChild(row);
         }
         if (_lines.Count == 0)
             _nativeLines.AddChild(new Label { Text = "Сообщений пока нет", FontColorOverride = Color.FromHex("#A0B1C6") });
@@ -400,6 +432,12 @@ public sealed class AhelpWindow : FancyWindow
 
     internal sealed class TicketHistoryScroll : ScrollContainer
     {
+        public TicketHistoryScroll()
+        {
+            HScrollEnabled = false;
+            HorizontalExpand = true;
+        }
+
         public bool JumpPending { get; private set; }
 
         public void FollowLatest()
@@ -423,16 +461,107 @@ public sealed class AhelpWindow : FancyWindow
         }
     }
 
+    private sealed class PlainTextLabel : RichTextLabel
+    {
+        public PlainTextLabel() => HorizontalExpand = true;
+        public new string Text
+        {
+            set
+            {
+                var message = new FormattedMessage();
+                message.AddText(value);
+                SetMessage(message);
+            }
+        }
+    }
+
+    private sealed class LoadingLabel(IGameTiming timing, string caption) : Label
+    {
+        private static readonly string[] Frames = ["◐", "◓", "◑", "◒"];
+        protected override void FrameUpdate(FrameEventArgs args)
+        {
+            base.FrameUpdate(args);
+            Text = Frames[(int) (timing.RealTime.TotalSeconds * 8) % Frames.Length] + " " + caption;
+        }
+    }
+
     private void RenderWebHistory()
     {
         _web.SetIncrementalState("AhelpTicket", new TguiData().Bool("writable", CanWrite)
             .Bool("focusComposer", !_isAdmin).Bool("busy", _operation != Guid.Empty).Bool("older", _before > 0).Number("sent", _sent)
             .Bool("retry", _operation == Guid.Empty && _retryRequest is { } retry && retry.Ticket == _ticket && retry.Player == _target)
-            .String("ticket", _ticket + "/" + _target).String("preview", _preview).Number("previewId", _previewId)
+            .String("round", _round)
+            .String("ticket", (_isAdmin ? _target.ToString() : "self") + "/" + _round).String("preview", _preview).Number("previewId", _previewId)
             .Array("thumbnails", _thumbnails.Select(entry => entry.Value.ToWeb(entry.Key)))
+            .Array("pending", CurrentPending().Select(pending => new TguiData().String("id", pending.Request.Operation.ToString())
+                .String("text", pending.Request.Text).String("file", pending.Request.File).String("error", pending.Error.Length == 0 ? "" : Error(pending.Error))))
             .Array("lines", _lines.Values.Select(line => new TguiData().Number("id", line.Id).String("at", Clock(line.At))
-                .String("author", line.AuthorName).String("text", line.Text).String("file", line.File).Bool("staff", line.Staff))));
+                .String("author", line.AuthorName).String("color", LineColor(line).ToHex()).String("text", line.Text).String("file", line.File)
+                .Bool("loading", line.Mime == AhelpLimits.Loading).Bool("failed", line.Mime == AhelpLimits.Failed)
+                .String("mime", line.Mime).Bool("previewUnavailable", _thumbnailUnavailable.Contains(line.Id) ||
+                    line.Mime != null && !line.Mime.StartsWith("image/", StringComparison.Ordinal)).Bool("staff", line.Staff))));
     }
+
+    private IEnumerable<Pending> CurrentPending() => _pending.Values.Where(pending =>
+        pending.Request.Action == AhelpAction.Send && pending.Request.Player == _target &&
+        (pending.Request.Ticket == _ticket || pending.Request.Ticket == Guid.Empty));
+
+    internal static RichTextLabel WrappedText(string text, Color? color = null)
+    {
+        var label = new RichTextLabel { HorizontalExpand = true };
+        var message = new FormattedMessage();
+        message.AddText(text);
+        label.SetMessage(message, color);
+        return label;
+    }
+
+    private void OnTeleportState(AhelpTeleportState state)
+    {
+        if (state.Player != (_selected?.Player ?? _target)) return;
+        _navigationState = state;
+        if (state.Result.Length > 0) _status.Text = state.Result;
+        RenderNavigation();
+    }
+
+    private void RenderNavigation()
+    {
+        if (!_isAdmin) return;
+        var target = _selected?.Player ?? _target;
+        if (_navigationTarget != target)
+        {
+            _navigationTarget = target;
+            _navigationState = null;
+            _nextNavigation = TimeSpan.Zero;
+        }
+        _navigation.DisposeAllChildren();
+        _navigation.AddChild(WrappedText("Телепортация"));
+        if (target == Guid.Empty)
+        {
+            _navigation.AddChild(WrappedText("Выберите игрока."));
+            return;
+        }
+        foreach (var (kind, title, error) in new[]
+        {
+            ("ship", "Телепортироваться на корабль игрока", _navigationState?.ShipError),
+            ("body", "Телепортироваться на тело игрока", _navigationState?.BodyError),
+            ("ghost", "Телепортироваться на призрак игрока", _navigationState?.GhostError),
+        })
+        {
+            if (error != "")
+            {
+                _navigation.AddChild(WrappedText((kind == "ship" ? "Корабль: " : kind == "body" ? "Тело: " : "Призрак: ") +
+                    (error ?? "Проверка целей…"), Color.Gray));
+                continue;
+            }
+            var button = Button("", () => _network.SendTeleport(new AhelpTeleportRequest(target, kind)));
+            button.HorizontalExpand = true;
+            button.AddChild(WrappedText(title));
+            _navigation.AddChild(button);
+        }
+    }
+
+    private Color LineColor(AhelpLine line) => line.Author == Guid.Empty ? Color.Gray :
+        line.Author == (_selected?.Player ?? _actor) ? Color.White : line.Staff ? Color.Purple : Color.Red;
 
     private AhelpThumbnail? GetThumbnail(long id)
     {
@@ -490,11 +619,6 @@ public sealed class AhelpWindow : FancyWindow
             };
             row.AddChild(control);
         }
-        if (_admin.CanCommand("follow") && player.AttachedEntity is { } entity)
-        {
-            var entities = IoCManager.Resolve<IEntityManager>();
-            row.AddChild(Button("Следить", () => _console.ExecuteCommand($"follow \"{entities.GetNetEntity(entity)}\"")));
-        }
     }
 
     private static string Clock(long time) => DateTimeOffset.FromUnixTimeSeconds(time).ToLocalTime().ToString("HH:mm:ss");
@@ -517,8 +641,27 @@ public sealed class AhelpWindow : FancyWindow
 
     private void OnState(AhelpSnapshot state)
     {
+        var changedRound = _round.Length > 0 && state.Round.Length > 0 && state.Round != _round;
+        if (state.Round.Length > 0) _round = state.Round;
+        if (changedRound)
+        {
+            ResetThread();
+            _ticket = _target = _operation = default;
+            _uploads.Clear();
+            _pending.Clear();
+            _pinned.Clear();
+            _tickets = [];
+            _retryRequest = null;
+            _retryBytes = null;
+            _paste = null;
+            _draft.Clear();
+            _navigationState = null;
+            _nextRead = TimeSpan.Zero;
+            _refresh = true;
+        }
         var read = _readId != Guid.Empty && state.Operation == _readId;
-        if (state.Operation != Guid.Empty && state.Operation != _operation && !read)
+        _pending.TryGetValue(state.Operation, out var pending);
+        if (!changedRound && state.Operation != Guid.Empty && pending == null && state.Operation != _operation && !read)
             return;
         if (read)
         {
@@ -528,30 +671,39 @@ public sealed class AhelpWindow : FancyWindow
         if (state.Error.Length != 0)
         {
             _status.Text = Error(state.Error);
+            if (pending != null)
+            {
+                pending.Error = state.Error;
+                _uploads.Remove(state.Operation);
+            }
             if (state.Operation == _operation)
             {
                 _operation = default;
-                _upload = null;
-                Render();
             }
+            Render();
             if (_ticket != Guid.Empty)
                 _refresh = true;
             return;
         }
         if (!read && state.Operation != Guid.Empty)
         {
-            if (_retryRequest?.Action == AhelpAction.Send && _retryBytes == null)
+            _pending.Remove(state.Operation);
+            if (_operation == state.Operation)
             {
-                _sent++;
-                _draft.Clear();
+                _operation = default;
+                _retryRequest = null;
+                _retryBytes = null;
             }
-            _operation = default;
-            _retryRequest = null;
-            _retryBytes = null;
-            _upload = null;
             _status.Text = "";
         }
         _tickets = state.Tickets;
+        if (pending != null && (pending.Request.Player != _target ||
+            pending.Request.Ticket != Guid.Empty && pending.Request.Ticket != _ticket))
+        {
+            _refresh = true;
+            Render();
+            return;
+        }
         if (state.Selected != null || !_older)
         {
             var selectedId = state.Selected?.Id ?? Guid.Empty;
@@ -573,7 +725,11 @@ public sealed class AhelpWindow : FancyWindow
         }
         _older = false;
         foreach (var line in state.Lines)
+        {
+            if (_lines.TryGetValue(line.Id, out var previous) && previous.Mime != line.Mime)
+                _thumbnailUnavailable.Remove(line.Id);
             _lines[line.Id] = line;
+        }
         Render();
     }
 
@@ -581,11 +737,13 @@ public sealed class AhelpWindow : FancyWindow
     {
         "rate_limited" => "Слишком много запросов.",
         "already_claimed" => "Тикет уже взят.",
+        "assigned_to_other" => "Тикет уже закреплён за другим администратором.",
         "not_claimed" => "Тикет уже изменился.",
         "forbidden" => "Действие недоступно.",
         "reason_required" => "Укажите причину.",
         "invalid_image" => "Изображение повреждено или превышает лимит.",
         "closed" => "Тикет завершается.",
+        "round_changed" => "Раунд сменился. Старые обращения и отправки очищены.",
         _ => "Не удалось выполнить действие. Обновите панель или повторите отправку.",
     };
 
@@ -595,46 +753,60 @@ public sealed class AhelpWindow : FancyWindow
         _older = _reading = true;
         _readId = Guid.NewGuid();
         _deadline = _timing.RealTime + TimeSpan.FromSeconds(5);
-        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, before: _before));
+        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, before: _before, round: _round));
     }
 
     private void SendDraft() => Mutate(AhelpAction.Send, _draft.Text);
 
     private void Mutate(AhelpAction action, string text = "", string file = "", byte[]? data = null)
     {
-        if (_operation != Guid.Empty || _reading || text.Length > AhelpLimits.Text ||
+        if (action != AhelpAction.Send && _operation != Guid.Empty || text.Length > AhelpLimits.Text ||
             action == AhelpAction.Send && (!CanWrite || (data == null && string.IsNullOrWhiteSpace(text))))
             return;
+        if (data != null && (_uploads.Count >= 3 || _pending.Values.Count(pending => pending.Data != null) >= 3))
+        {
+            _status.Text = "Дождитесь отправки одного из вложений.";
+            return;
+        }
+        _readId = default;
+        _reading = _older = false;
         var same = _retryRequest is { } prior && prior.Action == action && prior.Ticket == _ticket &&
             prior.Player == _target && prior.Text == text && prior.File == file && ReferenceEquals(data, _retryBytes);
         var id = same ? _retryRequest!.Operation : Guid.NewGuid();
         var request = new AhelpRequest(action, _ticket, _target, id, text, _isAdmin && _staff.Pressed,
-            !_isAdmin || _sound.Pressed, file, data?.Length ?? 0);
-        _retryRequest = request;
-        _retryBytes = data;
+            !_isAdmin || _sound.Pressed, file, data?.Length ?? 0, round: _round);
+        if (action != AhelpAction.Send)
+        {
+            _retryRequest = request;
+            _retryBytes = data;
+        }
+        else
+        {
+            _sent++;
+            if (data == null) _draft.Clear();
+        }
         Start(request, data);
     }
 
     private void Start(AhelpRequest request, byte[]? data)
     {
-        _operation = request.Operation;
-        _status.Text = data == null ? "Отправка…" : "Загрузка изображения…";
-        _deadline = _timing.RealTime + TimeSpan.FromSeconds(data == null ? 12 : 110);
-        if (data != null) _upload = new Upload(request, data) { Tick = _timing.CurTick };
+        if (request.Action != AhelpAction.Send) _operation = request.Operation;
+        _pending[request.Operation] = new Pending(request, data, _timing.RealTime + TimeSpan.FromSeconds(12));
+        if (data != null) _uploads[request.Operation] = new Upload(request, data) { Tick = _timing.CurTick };
         _network.SendTicket(request);
         Render();
     }
 
     private async void ChooseFile()
     {
-        if (!CanWrite || _operation != Guid.Empty)
+        if (!CanWrite)
             return;
-        var target = (_ticket, _target);
+        (Guid Ticket, Guid Player, string Round) target = (_ticket, _target, _round);
         try
         {
             var (stream, name) = await _files.GetFileAndName(new FileDialogFilters(new FileDialogFilters.Group(
                 "png", "jpg", "jpeg", "gif", "webp", "apng", "bmp", "tif", "tiff", "avif", "heic", "heif", "svg", "ico",
-                "jxl", "psd", "tga", "qoi")), FileAccess.Read);
+                "jxl", "psd", "tga", "qoi", "mp4", "webm", "m4a", "mp3", "wav", "ogg", "flac")), FileAccess.Read);
             if (stream == null) return;
             await using var input = stream;
             using var memory = new MemoryStream();
@@ -645,7 +817,7 @@ public sealed class AhelpWindow : FancyWindow
                 if (memory.Length + count > AhelpLimits.Image) throw new InvalidDataException();
                 memory.Write(buffer, 0, count);
             }
-            if (!_disposed && target == (_ticket, _target) && memory.Length > 0)
+            if (!_disposed && target.Round == _round && target.Player == _target && (target.Ticket == _ticket || target.Ticket == Guid.Empty) && memory.Length > 0)
             {
                 name ??= "image";
                 var start = Math.Max(name.LastIndexOf('/'), name.LastIndexOf('\\')) + 1;
@@ -661,18 +833,21 @@ public sealed class AhelpWindow : FancyWindow
             return;
         switch (action)
         {
-            case "send": Mutate(AhelpAction.Send, args.String("text") ?? ""); break;
-            case "file": ChooseFile(); break;
+            case "send" when args.String("round") == _round: Mutate(AhelpAction.Send, args.String("text") ?? ""); break;
+            case "file" when args.String("round") == _round: ChooseFile(); break;
             case "older": Older(); break;
             case "retry" when _operation == Guid.Empty && _retryRequest is { } request &&
                               request.Ticket == _ticket && request.Player == _target:
                 Start(request, _retryBytes);
                 break;
+            case "retry-send" when Guid.TryParse(args.String("id"), out var retryId) && _pending.TryGetValue(retryId, out var pending):
+                Start(pending.Request, pending.Data);
+                break;
             case "view" when long.TryParse(args.String("id"), out var view): RequestFile(view, false); break;
             case "save" when long.TryParse(args.String("id"), out var save): RequestFile(save, true); break;
-            case "paste-start" when CanWrite && _operation == Guid.Empty:
+            case "paste-start" when CanWrite && args.String("round") == _round:
                 _paste = new StringBuilder();
-                _pasteTarget = (_ticket, _target);
+                _pasteTarget = (_ticket, _target, _round);
                 _pasteFile = args.String("name") ?? "image";
                 break;
             case "paste-chunk" when _paste != null:
@@ -685,7 +860,7 @@ public sealed class AhelpWindow : FancyWindow
             case "paste-end" when _paste != null:
                 try
                 {
-                    if (_pasteTarget == (_ticket, _target))
+                    if (_pasteTarget.Round == _round && _pasteTarget.Player == _target && (_pasteTarget.Ticket == _ticket || _pasteTarget.Ticket == Guid.Empty))
                         Mutate(AhelpAction.Send, file: _pasteFile, data: Convert.FromBase64String(_paste.ToString()));
                 }
                 catch (Exception) { _status.Text = Error("invalid_image"); }
@@ -696,7 +871,7 @@ public sealed class AhelpWindow : FancyWindow
 
     private void RequestFile(long id, bool save)
     {
-        if (!_lines.TryGetValue(id, out var line) || line.File == null)
+        if (!_lines.TryGetValue(id, out var line) || line.File == null || line.Mime is AhelpLimits.Loading or AhelpLimits.Failed)
             return;
         _requestedFile = (id, save);
     }
@@ -768,7 +943,8 @@ public sealed class AhelpWindow : FancyWindow
         }
         _status.Text = "";
         if (!_lines.TryGetValue(chunk.Attachment, out var line)) return;
-        if (_save || _native.Visible || line.Mime is not ("image/png" or "image/jpeg" or "image/gif" or "image/webp" or "image/avif"))
+        var playable = line.Mime?.StartsWith("video/", StringComparison.Ordinal) == true || line.Mime?.StartsWith("audio/", StringComparison.Ordinal) == true;
+        if (_save || _native.Visible || !playable && line.Mime is not ("image/png" or "image/jpeg" or "image/gif" or "image/webp" or "image/avif"))
         {
             Save(line.File ?? "image", bytes);
             return;
@@ -786,7 +962,7 @@ public sealed class AhelpWindow : FancyWindow
             else _status.Text = Error("unavailable");
             ResetDownload();
         }
-        if (_downloadId != 0 || _operation != Guid.Empty || _reading)
+        if (_downloadId != 0)
             return;
         if (_requestedFile is { } request)
         {
@@ -797,7 +973,7 @@ public sealed class AhelpWindow : FancyWindow
         }
         if (_timing.RealTime < _nextThumbnail)
             return;
-        var next = _lines.Values.Reverse().Where(line => line.File != null).Take(12)
+        var next = _lines.Values.Reverse().Where(line => line.File != null && line.Mime?.StartsWith("image/", StringComparison.Ordinal) == true).Take(12)
             .FirstOrDefault(line => !_thumbnails.ContainsKey(line.Id) && !_thumbnailUnavailable.Contains(line.Id));
         if (next == null)
             return;
@@ -829,27 +1005,39 @@ public sealed class AhelpWindow : FancyWindow
     private void Tick()
     {
         if (_disposed) return;
-        if (_upload is { } upload && _timing.CurTick > upload.Tick)
+        if (_isAdmin && (_selected?.Player ?? _target) is var navigation && navigation != Guid.Empty && _timing.RealTime >= _nextNavigation)
         {
+            _nextNavigation = _timing.RealTime + TimeSpan.FromSeconds(1);
+            _network.SendTeleport(new AhelpTeleportRequest(navigation));
+        }
+        foreach (var (id, upload) in _uploads.ToArray())
+        {
+            if (_timing.CurTick <= upload.Tick) continue;
             upload.Tick = _timing.CurTick;
             var end = Math.Min(upload.Offset + AhelpLimits.Chunk, upload.Data.Length);
             _network.SendTicketChunk(new AhelpUpload(upload.Request.Operation, upload.Offset, upload.Data[upload.Offset..end]));
             upload.Offset = end;
-            _status.Text = $"Загрузка изображения… {100L * end / upload.Data.Length}%";
-            if (end == upload.Data.Length) _upload = null;
+            if (end == upload.Data.Length) _uploads.Remove(id);
         }
-        if ((_operation != Guid.Empty || _reading) && _timing.RealTime >= _deadline)
+        var expired = false;
+        foreach (var pending in _pending.Values)
         {
-            _operation = default;
-            _upload = null;
+            if (pending.Error.Length != 0 || _timing.RealTime < pending.Deadline) continue;
+            pending.Error = "unavailable";
+            if (_operation == pending.Request.Operation) _operation = default;
+            expired = true;
+        }
+        if (expired) Render();
+        if (_reading && _timing.RealTime >= _deadline)
+        {
             _reading = _older = false;
             _readId = default;
             _status.Text = Error("unavailable");
             Render();
         }
-        if (!_refresh || _reading || _operation != Guid.Empty || _timing.RealTime < _nextRead)
+        TickDownloads();
+        if (!_refresh || _reading || _timing.RealTime < _nextRead)
         {
-            TickDownloads();
             return;
         }
         _refresh = false;
@@ -857,7 +1045,7 @@ public sealed class AhelpWindow : FancyWindow
         _readId = Guid.NewGuid();
         _nextRead = _timing.RealTime + TimeSpan.FromMilliseconds(300);
         _deadline = _timing.RealTime + TimeSpan.FromSeconds(5);
-        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId));
+        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, round: _round));
     }
 
     private sealed class DetachedBody(Action tick) : Control
@@ -875,7 +1063,7 @@ public sealed class AhelpWindow : FancyWindow
         var clyde = IoCManager.Resolve<IClyde>();
         _desktop = clyde.CreateWindow(new WindowCreateParameters
         {
-            Title = "Ahelp", Width = 950, Height = 600, Monitor = clyde.EnumerateMonitors().First()
+            Title = "Ahelp", Width = 1150, Height = 600, Monitor = clyde.EnumerateMonitors().First()
         });
         _desktop.DisposeOnClose = true;
         _desktop.RequestClosed += _ => Dispose();
@@ -898,6 +1086,7 @@ public sealed class AhelpWindow : FancyWindow
             _network.TicketSnapshot -= OnState;
             _network.TicketNotice -= OnNotice;
             _network.TicketDownload -= OnDownload;
+            _network.TicketTeleportState -= OnTeleportState;
             _desktopRoot?.Dispose();
             _desktop?.Dispose();
             TicketClosed?.Invoke();

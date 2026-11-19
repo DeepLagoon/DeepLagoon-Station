@@ -29,7 +29,7 @@ public sealed partial class AhelpSystem
 
     private sealed record RelayRequest(string Action, Guid Ticket = default, long Event = 0, string Discord = "",
         string Request = "", bool AdminRole = false, bool Staff = false, string Text = "", string File = "",
-        byte[]? Data = null, bool Drain = false, bool Wait = false);
+        byte[]? Data = null, bool Drain = false, bool Wait = false, string Media = "");
 
     private void RegisterRelay() => _status.AddHandler(HandleRelay);
 
@@ -95,7 +95,12 @@ public sealed partial class AhelpSystem
                     await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
                     return true;
                 }
-                try { result = new { events = await WaitForRelayEvents(media, request.Wait), mediaQueue = true }; }
+                try
+                {
+                    var batch = await WaitForRelayEvents(media, request.Wait);
+                    result = new { events = batch.Events, round = batch.Round, activeTickets = batch.Tickets,
+                        mediaQueue = true, mediaPlaceholders = true };
+                }
                 finally { if (request.Wait) slot.Release(); }
             }
             else if (request.Action == "discord-image" && request.Event > 0)
@@ -139,18 +144,19 @@ public sealed partial class AhelpSystem
             new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)).TrySetResult();
     }
 
-    private async Task<AhelpStore.Entry[]> WaitForRelayEvents(bool media, bool wait)
+    private async Task<AhelpStore.RelayState> WaitForRelayEvents(bool media, bool wait)
     {
         // Observe the signal before reading so an insert between the two cannot be missed.
         var signal = Volatile.Read(ref _relayChanged).Task;
-        AhelpStore.Entry[] Pending() => media ? Store.PendingMedia(Now) : Store.Pending(Now);
-        var events = await Task.Run(Pending);
-        if (!wait || events.Length > 0)
+        await _roundCleanup;
+        var events = await Task.Run(() => Store.RelayBatch(media, Now));
+        if (!wait || events.Events.Length > 0)
             return events;
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(media ? 1 : 4));
         try { await signal.WaitAsync(timeout.Token); }
         catch (OperationCanceledException) { }
-        return await Task.Run(Pending);
+        await _roundCleanup;
+        return await Task.Run(() => Store.RelayBatch(media, Now));
     }
 
     private Task<object> RelayOnMainThread(Func<Task<object>> action)
@@ -166,6 +172,10 @@ public sealed partial class AhelpSystem
 
     private async Task<object> Relay(RelayRequest request)
     {
+        var generation = Volatile.Read(ref _roundGeneration);
+        await _roundCleanup;
+        if (generation != Volatile.Read(ref _roundGeneration))
+            return new { error = "round_changed" };
         switch (request.Action)
         {
             case "ack" when request.Event > 0:
@@ -209,20 +219,55 @@ public sealed partial class AhelpSystem
         if (identity == null)
             return new { error = "not_linked" };
         var (uid, name) = identity.Value;
-        if (_identity.AhelpDiscordId(ticket.Player) == request.Discord)
+        var authorIdentity = _identity.AhelpDiscordId(ticket.Player) == request.Discord;
+        var assigneeIdentity = ticket.Assignee is { } assigned && _identity.AhelpDiscordId(assigned) == request.Discord;
+        if (authorIdentity)
             uid = ticket.Player;
-        else if (ticket.Assignee is { } assigned && _identity.AhelpDiscordId(assigned) == request.Discord)
-            uid = assigned;
+        else if (assigneeIdentity)
+            uid = ticket.Assignee!.Value;
         var admin = request.AdminRole && await CanHelpOffline(uid);
+        if (request.AdminRole && !admin)
+        {
+            foreach (var candidate in _identity.AhelpUserIds(request.Discord))
+            {
+                if (!await CanHelpOffline(candidate)) continue;
+                if (!authorIdentity && !assigneeIdentity) uid = candidate;
+                admin = true;
+                break;
+            }
+        }
+        if (request.AdminRole && !admin && uid != ticket.Player)
+            return new { error = "not_staff" };
         AhelpStore.Result result;
         var origin = $"discord:{discord}:{operation}";
         if (request.Action == "send")
         {
             var text = request.Text.Trim();
-            if (text.Length == 0 && request.Data == null)
+            if (request.Media is not ("" or "loading" or "ready" or "failed"))
+                return new { error = "invalid_request" };
+            if (request.Media is "ready" or "failed")
+            {
+                // A completion may only replace a reservation made by this Discord account.
+                var pending = await Task.Run(() => Store.GetEvent(origin));
+                if (pending == null || pending.Ticket.Id != ticket.Id ||
+                    pending.Line.Mime != AhelpLimits.Loading && pending.Line.Mime != AhelpLimits.Failed)
+                    return new { error = pending == null ? "missing" : "", ticket };
+                AhelpStore.Attachment? completed = null;
+                if (request.Media == "ready" && request.Data != null)
+                {
+                    try { completed = await Task.Run(() => AhelpImage.Read(request.File, request.Data)); }
+                    catch (Exception ex) { Log.Debug($"Rejected Discord ahelp image: {ex.GetType().Name}"); }
+                }
+                result = await Task.Run(() => Store.CompleteAttachment(origin, completed));
+                if (generation != Volatile.Read(ref _roundGeneration)) return new { error = "round_changed" };
+                Publish(result, sound: false);
+                return new { error = request.Media == "ready" && completed == null ? "invalid_image" : result.Error, ticket };
+            }
+            if (text.Length == 0 && request.Data == null && request.Media != "loading")
                 return new { error = "invalid_request" };
             AhelpStore.Attachment? image;
-            try { image = request.Data == null ? null : await Task.Run(() => AhelpImage.Read(request.File, request.Data)); }
+            try { image = request.Media == "loading" ? new AhelpStore.Attachment(request.File, AhelpLimits.Loading, []) :
+                request.Data == null ? null : await Task.Run(() => AhelpImage.Read(request.File, request.Data)); }
             catch (Exception ex)
             {
                 Log.Debug($"Rejected Discord ahelp image: {ex.GetType().Name}");
@@ -247,7 +292,10 @@ public sealed partial class AhelpSystem
                 return new { error = "invalid_request" };
             result = await Task.Run(() => Store.Change(ticket.Id, uid, name, action.Value, request.Text.Trim(), origin, Now));
         }
+        if (generation != Volatile.Read(ref _roundGeneration)) return new { error = "round_changed" };
         Publish(result);
+        if (result.Error.Length > 0)
+            Log.Warning($"Ahelp Discord action={request.Action} ticket={ticket.Number} request={operation} rejected: {result.Error}");
         var updated = await Task.Run(() => Store.Get(request.Ticket));
         return new { error = result.Error, ticket = updated };
     }
