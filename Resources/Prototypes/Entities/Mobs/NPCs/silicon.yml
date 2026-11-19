@@ -351,6 +351,9 @@
   - type: HTN
     rootTask:
       task: CleanbotCompound
+  # DeepLagoon start
+  - type: CleanbotLightReplacer
+  # DeepLagoon end
   - type: DrainableSolution
     solution: drainBuffer
   - type: InteractionPopup
