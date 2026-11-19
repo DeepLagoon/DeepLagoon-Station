@@ -1,4 +1,5 @@
 using Content.Server.Shuttles.Components;
+using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server._NF.Shuttles.Components;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared._Mono;
@@ -42,6 +43,7 @@ public sealed partial class ShuttleSystem
     private TimeSpan _nextImpactTimingLog;
 
     [Dependency] private SpaceCleanupSystem _sweep = default!;
+    [Dependency] private GreenZoneSystem _greenZones = default!;
 
     private bool _enabled;
     private float _minimumImpactInertia;
@@ -209,8 +211,8 @@ public sealed partial class ShuttleSystem
             var audioParams = AudioParams.Default.WithVariation(SharedContentAudioSystem.DefaultVariation).WithVolume(volume);
             _audio.PlayPvs(_shuttleImpactSound, coordinates, audioParams);
 
-            // if we're not enabled, stop after playing sound
-            if (!_enabled)
+            // Keep physical contact and sound, but protect both grids from impacts inside a green zone.
+            if (!_enabled || _greenZones.Contains(new MapCoordinates(worldPoint, ourXform.MapID)))
                 continue;
 
 

@@ -4,11 +4,13 @@ using System.Numerics;
 using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server._NF.StationEvents.Components;
 using Content.Server.GameTicking;
+using Content.Server.Shuttles.Components;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Systems;
 using Content.Shared._Mono.ShipGuns;
 using Content.Shared._Mono.Ships.Components;
 using Content.Shared.GameTicking.Components;
+using Content.Shared.Damage;
 using Content.Shared.Projectiles;
 using Content.Shared.Maps;
 using Content.Shared.Shuttles.Components;
@@ -19,6 +21,8 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
+using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
@@ -26,6 +30,76 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class GreenZoneTests
 {
+    [TestCase(100f, 0f, 2000f, false, true)]
+    [TestCase(400f, 0f, 2000f, false, true)]
+    [TestCase(100f, -9f, 10f, false, true)]
+    [TestCase(100f, 2500f, 2000f, false, false)]
+    [TestCase(100f, 0f, 0f, false, false)]
+    [TestCase(100f, 0f, 2000f, true, false)]
+    public async Task GreenZonePreventsHullAndTileImpactDamage(
+        float speed, float zoneX, float radius, bool otherMap, bool protectedImpact)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var maps = entities.System<SharedMapSystem>();
+            var transforms = entities.System<SharedTransformSystem>();
+            var physics = entities.System<SharedPhysicsSystem>();
+            for (var x = 0; x < 12; x++)
+            for (var y = 0; y < 6; y++)
+                maps.SetTile(map.Grid, new Vector2i(x, y), new Tile(1));
+            entities.System<ShuttleSystem>().Disable(map.Grid);
+            entities.AddComponent<VesselComponent>(map.Grid);
+
+            var hull = new List<EntityUid>();
+            for (var y = 0; y < 6; y++)
+                hull.Add(entities.SpawnEntity("WallShuttle", new EntityCoordinates(map.Grid, 0.5f, y + 0.5f)));
+
+            // An unowned grid must receive the same protection as a registered vessel.
+            var debris = maps.CreateGridEntity(map.MapId);
+            maps.SetTile(debris, Vector2i.Zero, new Tile(1));
+            transforms.SetLocalPosition(debris, new Vector2(-2, 2));
+            hull.Add(entities.SpawnEntity("WallShuttle", new EntityCoordinates(debris, 0.5f, 0.5f)));
+            foreach (var wall in hull)
+                entities.System<DamageableSystem>().SetDamageModifierSetId(wall, null);
+            entities.GetComponent<ShuttleComponent>(debris).Enabled = false;
+
+            var zoneMapId = map.MapId;
+            if (otherMap)
+                maps.CreateMap(out zoneMapId);
+            var zone = maps.CreateGridEntity(zoneMapId);
+            maps.SetTile(zone, Vector2i.Zero, new Tile(1));
+            // Keep the zone's source grid away from the two colliding hulls.
+            transforms.SetLocalPosition(zone, new Vector2(zoneX - 0.5f, radius == 10f ? 2f : 100f));
+            entities.AddComponent<GreenZoneComponent>(zone).Radius = radius;
+
+            // The small-zone case deliberately has the large ship's center outside:
+            // protection follows the actual hull contact rather than the grid origin.
+            var zones = entities.System<GreenZoneSystem>();
+            Assert.That(zones.Contains(new MapCoordinates(new Vector2(0f, 2.5f), map.MapId)),
+                Is.EqualTo(protectedImpact));
+            physics.SetLinearVelocity(debris, new Vector2(speed, 0));
+            physics.Update(1f / 30);
+            physics.Update(1f / 30);
+
+            bool Damaged(EntityUid wall) => !entities.EntityExists(wall) ||
+                entities.GetComponent<DamageableComponent>(wall).TotalDamage > 0;
+            if (protectedImpact)
+            {
+                Assert.That(hull.Any(Damaged), Is.False, "Neither hull may take impact damage inside the green zone");
+                Assert.That(maps.GetAllTiles(map.Grid, map.Grid.Comp).Count(), Is.EqualTo(72));
+                Assert.That(maps.GetAllTiles(debris, debris.Comp).Count(), Is.EqualTo(1));
+            }
+            else
+            {
+                Assert.That(hull.Any(Damaged), Is.True, "Impacts outside an active green zone must still damage hulls");
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [TestPrototypes]
     private const string Prototypes = """
         - type: dungeonConfig
