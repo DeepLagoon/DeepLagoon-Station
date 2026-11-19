@@ -78,13 +78,22 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
             (ftlComp.LinkedShuttle.HasValue || ftlComp.SafeExpeditionReturn))
             return;
 
+        // Docking already validated the arrival pose. Moving only this grid would
+        // pull it away from its ports while leaving the station and joints behind.
+        // Check physical ports: FTL travel groups exclude grids with their FTL lock off.
+        foreach (var port in _dockingSystem.GetDockPorts(shuttle))
+        {
+            if (port.Comp.Docked)
+                return;
+        }
+
         // Get all docked ships to this shuttle to ignore them in collision checks
         var dockedShips = new HashSet<EntityUid>();
         _shuttle.GetAllDockedShuttles(shuttle, dockedShips);
 
         // Check for nearby ships
         var shuttlePosition = _transform.GetWorldPosition(shuttle);
-        var shuttleAABB = grid.LocalAABB.Translated(shuttlePosition);
+        var shuttleAABB = _transform.GetWorldMatrix(shuttle).TransformBox(grid.LocalAABB);
         var range = shuttleAABB.MaxDimension + CollisionCheckRange;
 
         // Find nearby grids
@@ -140,7 +149,7 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
         nearbyGrids.Sort((a, b) => a.Distance.CompareTo(b.Distance));
 
         // Try to find a safe position away from other ships
-        var newPosition = FindSafePosition(shuttle, mapId, shuttlePosition, shuttleAABB.Size.X, dockedShips);
+        var newPosition = FindSafePosition(shuttle, mapId, shuttlePosition, dockedShips);
 
         if (newPosition != shuttlePosition)
         {
@@ -159,10 +168,9 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
     /// <param name="shuttle">The shuttle entity to reposition</param>
     /// <param name="mapId">The map ID where the shuttle is located</param>
     /// <param name="originalPosition">The original position of the shuttle</param>
-    /// <param name="shipSize">The approximate size of the shuttle</param>
     /// <param name="dockedShips">Ships docked to this shuttle to ignore in collision checks</param>
     /// <returns>A new safe position, or the original position if no safe position could be found</returns>
-    private Vector2 FindSafePosition(EntityUid shuttle, MapId mapId, Vector2 originalPosition, float shipSize, HashSet<EntityUid> dockedShips)
+    private Vector2 FindSafePosition(EntityUid shuttle, MapId mapId, Vector2 originalPosition, HashSet<EntityUid> dockedShips)
     {
         // Try a few random directions at increasing distances
         for (int attempt = 0; attempt < MaxRepositionAttempts; attempt++)
@@ -177,18 +185,21 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
             var testPosition = originalPosition + offset;
 
             // Check if this position is clear
-            if (IsPositionClear(shuttle, mapId, testPosition, shipSize, dockedShips))
+            if (IsPositionClear(shuttle, mapId, testPosition, dockedShips))
             {
                 return testPosition;
             }
         }
 
-        // If all attempts failed, try one more time with a much larger distance
+        // Check the last resort too: a random teleport can put the ship inside a station.
         var lastResortDistance = MinimumSafeDistance + (MaxRepositionAttempts * 30f);
         var lastResortAngle = _random.NextAngle();
         var lastResortOffset = lastResortAngle.ToVec() * lastResortDistance;
 
-        return originalPosition + lastResortOffset;
+        var lastResortPosition = originalPosition + lastResortOffset;
+        return IsPositionClear(shuttle, mapId, lastResortPosition, dockedShips)
+            ? lastResortPosition
+            : originalPosition;
     }
 
     /// <summary>
@@ -197,18 +208,16 @@ public sealed partial class FTLAntiCollisionSystem : EntitySystem
     /// <param name="shuttle">The shuttle entity to check for</param>
     /// <param name="mapId">The map ID where the shuttle is located</param>
     /// <param name="position">The position to check</param>
-    /// <param name="shipSize">The approximate size of the shuttle</param>
     /// <param name="dockedShips">Ships docked to this shuttle to ignore in collision checks</param>
     /// <returns>True if the position is clear, false otherwise</returns>
-    private bool IsPositionClear(EntityUid shuttle, MapId mapId, Vector2 position, float shipSize, HashSet<EntityUid> dockedShips)
+    private bool IsPositionClear(EntityUid shuttle, MapId mapId, Vector2 position, HashSet<EntityUid> dockedShips)
     {
-        // Buffer around the ship
-        var checkSize = shipSize + MinimumSafeDistance;
+        // Test the whole rotated hull, including maps whose origin is far from its center.
+        var bounds = _transform.GetWorldMatrix(shuttle).TransformBox(_gridQuery.GetComponent(shuttle).LocalAABB)
+            .Translated(position - _transform.GetWorldPosition(shuttle)).Enlarged(MinimumSafeDistance);
 
         // Check for grids in the area
-        foreach (var otherGrid in _mapManager.FindGridsIntersecting(mapId, new Box2(
-            position - new Vector2(checkSize, checkSize),
-            position + new Vector2(checkSize, checkSize))))
+        foreach (var otherGrid in _mapManager.FindGridsIntersecting(mapId, bounds))
         {
             // Skip self
             if (otherGrid.Owner == shuttle)

@@ -8,6 +8,10 @@ namespace Content.Shared._Goobstation.ItemMiner;
 [ByRefEvent]
 public record struct ItemMinerCheckEvent(EntProtoId Proto, bool Cancelled = false);
 
+/// <summary>Allows a miner to deliver its output without spawning an entity.</summary>
+[ByRefEvent]
+public record struct ItemMinerProduceEvent(bool Handled = false);
+
 /// <summary>
 /// Raised on an item miner when it mines an item.
 /// Note that the item miner will attempt to merge the mined entity into nearby stacks AFTER firing this event unless NoStack is set.

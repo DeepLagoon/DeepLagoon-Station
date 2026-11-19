@@ -181,6 +181,10 @@ public sealed partial class ItemMinerSystem : EntitySystem
             _frame.Attempts++;
             if (miner.SpawnChance < 1f && !_gambling.Prob(miner.SpawnChance)) continue;
 
+            var produce = new ItemMinerProduceEvent();
+            RaiseLocalEvent(uid, ref produce);
+            if (produce.Handled) continue;
+
             var spawnStart = Stopwatch.GetTimestamp();
             var coords = Transform(uid).Coordinates;
             EntityUid? mined;

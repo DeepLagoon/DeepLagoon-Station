@@ -4,6 +4,9 @@ using Content.Server.Shuttles.Components;
 
 namespace Content.Server.Shuttles.Systems;
 
+/// <summary>A docking port was removed or moved to another parent.</summary>
+public sealed class DockingPortsChangedEvent : EntityEventArgs;
+
 public sealed partial class DockingSystem
 {
     private readonly Dictionary<EntityUid, List<Entity<DockingComponent>>> _docksByParent = new();
@@ -11,8 +14,14 @@ public sealed partial class DockingSystem
     private bool _dockIndexDirty = true;
 
     private void OnDockIndexAdded(Entity<DockingComponent> ent, ref ComponentAdd args) => _dockIndexDirty = true;
-    private void OnDockIndexRemoved(Entity<DockingComponent> ent, ref ComponentRemove args) => _dockIndexDirty = true;
-    private void OnDockIndexParentChanged(Entity<DockingComponent> ent, ref EntParentChangedMessage args) => _dockIndexDirty = true;
+    private void OnDockIndexRemoved(Entity<DockingComponent> ent, ref ComponentRemove args) => DockPortsChanged();
+    private void OnDockIndexParentChanged(Entity<DockingComponent> ent, ref EntParentChangedMessage args) => DockPortsChanged();
+
+    private void DockPortsChanged()
+    {
+        _dockIndexDirty = true;
+        RaiseLocalEvent(new DockingPortsChangedEvent());
+    }
 
     /// <summary>
     /// Immediate-child ports, including paused ports, matching GetChildEntities.

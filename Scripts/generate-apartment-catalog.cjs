@@ -85,6 +85,17 @@ function entityInherits(id, bases, seen = new Set()) {
   seen.add(id);
   return [].concat(entities.get(id)?.parent || []).some(parent => entityInherits(parent, bases, seen));
 }
+function entityLabel(id) {
+  const definition = entities.get(id);
+  if (!definition) return {};
+  if (definition.name) return { text: definition.name, key: definition.localizationId || 'ent-' + id };
+  if (definition.localizationId) return { text: [].concat(definition.parent || []).map(entityLabel).find(value => value.text)?.text,
+    key: definition.localizationId };
+  return [].concat(definition.parent || []).map(entityLabel).find(value => value.text) || {};
+}
+function materialBase(id) {
+  return id.startsWith('BitrunMap') ? materialBase([].concat(entities.get(id)?.parent || [])[0] || '') : id;
+}
 const wallBases = new Set(['BaseWall', 'BaseWallDiagonal', 'WallRock']);
 const wallParts = new Set(['Sprite', 'Icon', 'IconSmooth', 'Occluder', 'Fixtures']);
 const wallStyles = new Set();
@@ -108,12 +119,14 @@ for (const [base, definition] of [...entities].sort(wallOrder)) {
   const style = JSON.stringify([parts, tags, noRotation]);
   if (wallStyles.has(style)) continue;
   wallStyles.add(style);
-  const name = finishName(id, 'ent-' + base, definition.name || base.replace(/([a-z])([A-Z])/g, '$1 $2'));
-  finishes.push({ type: 'entity', id: entity, parent: 'BaseStructure', name: definition.name || base, categories: ['HideSpawnMenu'], components: [
+  const label = entityLabel(base);
+  const name = finishName(id, label.key || 'ent-' + base, label.text || base.replace(/([a-z])([A-Z])/g, '$1 $2'));
+  finishes.push({ type: 'entity', id: entity, parent: 'BaseStructure', name: label.text || base, categories: ['HideSpawnMenu'], components: [
     { type: 'Transform', anchored: true, noLocalRotation: noRotation }, { type: 'Physics', bodyType: 'Static' },
     { type: 'Tag', tags }, ...parts, { type: 'NoDeconstruct' },
   ] });
-  const price = /Nanolaminate|Capital|Indestructible|Vault/.test(base) ? 180 : /Reinforced|Plastitanium|Gold|Plasma|Uranium|Xenoborg/.test(base) ? 100 : 45;
+  const material = materialBase(base);
+  const price = /Nanolaminate|Capital|Indestructible|Vault/.test(material) ? 180 : /Reinforced|Plastitanium|Gold|Plasma|Uranium|Xenoborg/.test(material) ? 100 : 45;
   finishes.push({ type: 'apartmentFurniture', id, name, entity, category: 'Стены', price, maxCount: 8, canRotate: !noRotation });
 }
 
@@ -125,11 +138,13 @@ for (const [tile, definition] of [...tiles].sort(([a], [b]) => a.localeCompare(b
   if (definition.abstract || !tileField(definition, 'sprite')) continue;
   const inherited = tileField(definition, 'name');
   const id = 'DLAptFloor' + tile, entity = id + 'Entity';
-  const fallback = tile.replace(/([a-z])([A-Z])/g, '$1 $2');
-  const suffix = !definition.name && inherited ? fallback : undefined;
+  const imported = tile.startsWith('BitrunMapTile');
+  const fallback = imported ? 'virtual floor' : tile.replace(/([a-z])([A-Z])/g, '$1 $2');
+  const suffix = !imported && !definition.name && inherited ? fallback : undefined;
   const name = finishName(id, inherited, fallback, suffix);
-  const carpet = /carpet/i.test(tile);
-  const price = /reinforc|circuit|glass|uranium|plasma|gold/i.test(tile) ? 35 : carpet ? 15 : 10;
+  // Imported floor art keeps its uniform catalogue price independently of its ID.
+  const carpet = !imported && /carpet/i.test(tile);
+  const price = imported ? 10 : /reinforc|circuit|glass|uranium|plasma|gold/i.test(tile) ? 35 : carpet ? 15 : 10;
   finishes.push({ type: 'entity', id: entity, name: fallback, categories: ['HideSpawnMenu'], components: [
     { type: 'Transform', anchored: true }, { type: 'Physics', bodyType: 'Static', canCollide: false }, { type: 'Fixtures', fixtures: {} },
     { type: 'Sprite', drawdepth: 'BelowFloor', texture: 'Tiles/plating.png' }, { type: 'ApartmentFloorFinish', tile },

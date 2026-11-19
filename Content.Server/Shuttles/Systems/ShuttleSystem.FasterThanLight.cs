@@ -73,7 +73,7 @@ public sealed partial class ShuttleSystem
     private const float Buffer = 100f;
 
     /// <summary>
-    /// How many times we try to proximity warp close to something before falling back to map-wideAABB.
+    /// How many times we try to find a free proximity arrival before refusing the position.
     /// </summary>
     private const int FTLProximityIterations = 15; // Frontier: 5<15
 
@@ -434,8 +434,17 @@ public sealed partial class ShuttleSystem
         }
         else if (TryGetFTLProximity(shuttleUid, new EntityCoordinates(target, Vector2.Zero), out var coords, out var targAngle))
         {
-            hyperspace.TargetCoordinates = coords;
-            hyperspace.TargetAngle = targAngle;
+            // Keep the destination grid even if its docks are temporarily unavailable.
+            // Map-relative coordinates would bypass docking and collision checks on arrival.
+            var dockingTarget = HasComp<MapGridComponent>(target) && !HasComp<MapComponent>(target);
+            hyperspace.TargetCoordinates = dockingTarget ? _transform.WithEntityId(coords, target) : coords;
+            hyperspace.TargetAngle = dockingTarget ? targAngle - _transform.GetWorldRotation(target) : targAngle;
+        }
+        else if (HasComp<MapGridComponent>(target) && !HasComp<MapComponent>(target))
+        {
+            // No safe point yet. Arrival will retry rather than use an unchecked position.
+            hyperspace.TargetCoordinates = new EntityCoordinates(target, Vector2.Zero);
+            hyperspace.TargetAngle = Angle.Zero;
         }
         else
         {
@@ -736,6 +745,20 @@ public sealed partial class ShuttleSystem
             return;
         }
 
+        DockingConfig? arrivalDock = null;
+        var arrivalAngle = comp.TargetAngle;
+        if (Exists(target.EntityId) && HasComp<MapGridComponent>(target.EntityId) && !HasComp<MapComponent>(target.EntityId))
+        {
+            arrivalDock = _dockSystem.GetDockingConfigAt(uid, target.EntityId, target, arrivalAngle, fallback: false)
+                          ?? _dockSystem.GetDockingConfig(uid, target.EntityId, comp.PriorityTag?.Id);
+            if (arrivalDock == null && !TryGetFTLProximity(uid, new EntityCoordinates(target.EntityId, Vector2.Zero), out target, out arrivalAngle))
+            {
+                // Keep passengers in hyperspace until a safe arrival is possible.
+                comp.StateTime = StartEndTime.FromCurTime(_gameTiming, 5f);
+                return;
+            }
+        }
+
         var xform = _xformQuery.GetComponent(uid);
         var body = _physicsQuery.GetComponent(uid);
         DoTheDinosaur(xform);
@@ -788,29 +811,17 @@ public sealed partial class ShuttleSystem
             TryFTLProximity(uid, _mapSystem.GetMap(mapId));
         }
         // Docking FTL
-        else if (HasComp<MapGridComponent>(target.EntityId) && !HasComp<MapComponent>(target.EntityId))
+        else if (arrivalDock != null)
         {
-            var config = _dockSystem.GetDockingConfigAt(uid, target.EntityId, target, comp.TargetAngle);
-            var mapCoordinates = _transform.ToMapCoordinates(target);
-
-            // Couldn't dock somehow so just fallback to regular position FTL.
-            if (config == null)
-            {
-                TryFTLProximity(uid, target.EntityId);
-            }
-            else
-            {
-                FTLDock((uid, xform), config);
-            }
-
-            mapId = mapCoordinates.MapId;
+            mapId = _transform.GetMapId(arrivalDock.Coordinates);
+            FTLDock((uid, xform), arrivalDock);
         }
         // Position ftl
         else
         {
             // TODO: This should now use tryftlproximity
             mapId = _transform.GetMapId(target);
-            _transform.SetCoordinates(uid, xform, target, rotation: comp.TargetAngle.Reduced());
+            _transform.SetCoordinates(uid, xform, target, rotation: arrivalAngle.Reduced());
         }
 
         var handledShuttles = new HashSet<EntityUid>();
@@ -1249,6 +1260,7 @@ public sealed partial class ShuttleSystem
         {
             grids.Clear();
             _mapManager.FindGridsIntersecting(targetXform.MapID, targetAABB, ref grids);
+            grids.RemoveAll(grid => grid.Owner == shuttleUid);
             if (grids.Count == 0)
                 break;
 
@@ -1296,6 +1308,13 @@ public sealed partial class ShuttleSystem
             iteration++;
         }
         // End Frontier
+
+        // The last iteration can still have moved into another grid. Never return
+        // an unchecked point when the bounded search is exhausted.
+        grids.Clear();
+        _mapManager.FindGridsIntersecting(targetXform.MapID, targetAABB, ref grids);
+        if (grids.Any(grid => grid.Owner != shuttleUid))
+            return false;
 
         // Now we have a targetAABB. This has already been expanded to account for our fat ass.
         Vector2 spawnPos;
@@ -1352,7 +1371,7 @@ public sealed partial class ShuttleSystem
         var transform = new Transform(spawnPos, angle);
         spawnPos = Robust.Shared.Physics.Transform.Mul(transform, offset);
 
-        coordinates = new EntityCoordinates(targetXform.MapUid.Value, spawnPos - offset);
+        coordinates = new EntityCoordinates(targetXform.MapUid.Value, spawnPos);
         return true;
     }
 

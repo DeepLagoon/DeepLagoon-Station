@@ -1,0 +1,12 @@
+dl-laser-drill-title = Лазерный бур
+dl-laser-drill-resource = Добываемый ресурс
+dl-laser-drill-select = Выберите ресурс
+dl-laser-drill-silo = Хранилище материалов: { $silo }
+dl-laser-drill-no-silo = не подключено
+dl-laser-drill-link-hint = Подключите бур в меню хранилища материалов.
+dl-laser-drill-status-NoResource = Остановлен: выберите ресурс.
+dl-laser-drill-status-NoSilo = Остановлен: нет подключения к хранилищу.
+dl-laser-drill-status-SiloUnavailable = Остановлен: хранилище недоступно или без питания.
+dl-laser-drill-status-StorageFull = Остановлен: хранилище не принимает выбранный ресурс.
+dl-laser-drill-status-Disabled = Остановлен: проверьте питание, крепление и место установки.
+dl-laser-drill-status-Mining = Добыча: ресурс поступает прямо в хранилище.

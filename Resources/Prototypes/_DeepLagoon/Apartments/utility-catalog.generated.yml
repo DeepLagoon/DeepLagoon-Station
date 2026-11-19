@@ -3163,6 +3163,54 @@
   blocksMovement: true
   allowsOverlap: false
 - type: entity
+  id: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffset0Point468750Entity
+  parent: BitrunMapItemLightBulbBrokenSpriteOffset0Point468750
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffset0Point468750
+  name: dl-apt-utility-bitrunmapitemlightbulbbrokenspriteoffset0point468750
+  entity: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffset0Point468750Entity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffsetDefaultEntity
+  parent: BitrunMapItemLightBulbBrokenSpriteOffsetDefault
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffsetDefault
+  name: dl-apt-utility-bitrunmapitemlightbulbbrokenspriteoffsetdefault
+  entity: DLAptUtilityBitrunMapItemLightBulbBrokenSpriteOffsetDefaultEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
+  id: DLAptUtilityBitrunMapItemLightTubeBrokenEntity
+  parent: BitrunMapItemLightTubeBroken
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapItemLightTubeBroken
+  name: dl-apt-utility-bitrunmapitemlighttubebroken
+  entity: DLAptUtilityBitrunMapItemLightTubeBrokenEntity
+  category: Лампочки и трубки
+  price: 8
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+- type: entity
   id: DLAptUtilityDimLightBulbEntity
   parent: DimLightBulb
   categories:
@@ -3272,38 +3320,6 @@
   entity: DLAptUtilityLightBulbBrokenEntity
   category: Лампочки и трубки
   price: 1
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-- type: entity
-  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Entity
-  parent: LightBulbBrokenBitrunArt2472c41e9c33
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33
-  name: dl-apt-utility-lightbulbbrokenbitrunart2472c41e9c33
-  entity: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Entity
-  category: Лампочки и трубки
-  price: 8
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-- type: entity
-  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3dEntity
-  parent: LightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3d
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3d
-  name: dl-apt-utility-lightbulbbrokenbitrunart2472c41e9c33placement4a65a90c3e3d
-  entity: DLAptUtilityLightBulbBrokenBitrunArt2472c41e9c33Placement4a65a90c3e3dEntity
-  category: Лампочки и трубки
-  price: 8
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -3449,22 +3465,6 @@
   entity: DLAptUtilityLightTubeBrokenEntity
   category: Лампочки и трубки
   price: 1
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-- type: entity
-  id: DLAptUtilityLightTubeBrokenBitrunArted54fae8211bEntity
-  parent: LightTubeBrokenBitrunArted54fae8211b
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityLightTubeBrokenBitrunArted54fae8211b
-  name: dl-apt-utility-lighttubebrokenbitrunarted54fae8211b
-  entity: DLAptUtilityLightTubeBrokenBitrunArted54fae8211bEntity
-  category: Лампочки и трубки
-  price: 8
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -3661,6 +3661,346 @@
   blocksMovement: false
   allowsOverlap: true
 - type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetEntity
+  parent: BitrunMapOpenFloorCarpet
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpet
+  name: dl-apt-utility-bitrunmapopenfloorcarpet
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetBlueEntity
+  parent: BitrunMapOpenFloorCarpetBlue
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetBlue
+  name: dl-apt-utility-bitrunmapopenfloorcarpetblue
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetBlueEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetCyanEntity
+  parent: BitrunMapOpenFloorCarpetCyan
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetCyan
+  name: dl-apt-utility-bitrunmapopenfloorcarpetcyan
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetCyanEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetGreenEntity
+  parent: BitrunMapOpenFloorCarpetGreen
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetGreen
+  name: dl-apt-utility-bitrunmapopenfloorcarpetgreen
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetGreenEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetOrangeEntity
+  parent: BitrunMapOpenFloorCarpetOrange
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetOrange
+  name: dl-apt-utility-bitrunmapopenfloorcarpetorange
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetOrangeEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetPurpleEntity
+  parent: BitrunMapOpenFloorCarpetPurple
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetPurple
+  name: dl-apt-utility-bitrunmapopenfloorcarpetpurple
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetPurpleEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRedEntity
+  parent: BitrunMapOpenFloorCarpetRed
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRed
+  name: dl-apt-utility-bitrunmapopenfloorcarpetred
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRedEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblackEntity
+  parent: BitrunMapOpenFloorCarpetRoyalblack
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblack
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblack
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblackEntity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus110Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus110
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus110
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus110
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus110Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus12Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus12
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus12
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus12
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus12Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus137Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus137
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus137
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus137
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus137Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus157Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus157
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus157
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus157
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus157Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus203Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus203
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus203
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus203
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus203Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus207Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus207
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus207
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus207
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus207Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus21Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus21
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus21
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus21
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus21Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus255Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus255
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus255
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus255
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus255Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus38Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus38
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus38
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus38
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus38Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus55Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus55
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus55
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus55
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus55Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus63Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus63
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus63
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus63
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus63Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus74Entity
+  parent: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus74
+  categories:
+    - HideSpawnMenu
+  components:
+    - type: NoDeconstruct
+- type: apartmentFurniture
+  id: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus74
+  name: dl-apt-utility-bitrunmapopenfloorcarpetroyalblueiconstatecarpetroyalblueminus74
+  entity: DLAptUtilityBitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus74Entity
+  category: Ковры
+  price: 15
+  maxCount: 8
+  blocksMovement: false
+  allowsOverlap: true
+  layer: Floor
+- type: entity
   id: DLAptUtilityCarpetEntity
   parent: Carpet
   categories:
@@ -3674,40 +4014,6 @@
   category: Ковры
   price: 15
   legacyFree: true
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBitrunArt1e0202ad1c13Entity
-  parent: CarpetBitrunArt1e0202ad1c13
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBitrunArt1e0202ad1c13
-  name: dl-apt-utility-carpetbitrunart1e0202ad1c13
-  entity: DLAptUtilityCarpetBitrunArt1e0202ad1c13Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBitrunArt7fb631ef22a9Entity
-  parent: CarpetBitrunArt7fb631ef22a9
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBitrunArt7fb631ef22a9
-  name: dl-apt-utility-carpetbitrunart7fb631ef22a9
-  entity: DLAptUtilityCarpetBitrunArt7fb631ef22a9Entity
-  category: Ковры
-  price: 15
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -3731,23 +4037,6 @@
   allowsOverlap: true
   layer: Floor
 - type: entity
-  id: DLAptUtilityCarpetBlackBitrunArtb08f196b221aEntity
-  parent: CarpetBlackBitrunArtb08f196b221a
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlackBitrunArtb08f196b221a
-  name: dl-apt-utility-carpetblackbitrunartb08f196b221a
-  entity: DLAptUtilityCarpetBlackBitrunArtb08f196b221aEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
   id: DLAptUtilityCarpetBlueEntity
   parent: CarpetBlue
   categories:
@@ -3761,227 +4050,6 @@
   category: Ковры
   price: 15
   legacyFree: true
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt001ff06ce051Entity
-  parent: CarpetBlueBitrunArt001ff06ce051
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt001ff06ce051
-  name: dl-apt-utility-carpetbluebitrunart001ff06ce051
-  entity: DLAptUtilityCarpetBlueBitrunArt001ff06ce051Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt20d1f7623aadEntity
-  parent: CarpetBlueBitrunArt20d1f7623aad
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt20d1f7623aad
-  name: dl-apt-utility-carpetbluebitrunart20d1f7623aad
-  entity: DLAptUtilityCarpetBlueBitrunArt20d1f7623aadEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt21beb807e445Entity
-  parent: CarpetBlueBitrunArt21beb807e445
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt21beb807e445
-  name: dl-apt-utility-carpetbluebitrunart21beb807e445
-  entity: DLAptUtilityCarpetBlueBitrunArt21beb807e445Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt285f2fb5627eEntity
-  parent: CarpetBlueBitrunArt285f2fb5627e
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt285f2fb5627e
-  name: dl-apt-utility-carpetbluebitrunart285f2fb5627e
-  entity: DLAptUtilityCarpetBlueBitrunArt285f2fb5627eEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt38240a2db7dcEntity
-  parent: CarpetBlueBitrunArt38240a2db7dc
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt38240a2db7dc
-  name: dl-apt-utility-carpetbluebitrunart38240a2db7dc
-  entity: DLAptUtilityCarpetBlueBitrunArt38240a2db7dcEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6Entity
-  parent: CarpetBlueBitrunArt3c098c4b93a6
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6
-  name: dl-apt-utility-carpetbluebitrunart3c098c4b93a6
-  entity: DLAptUtilityCarpetBlueBitrunArt3c098c4b93a6Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700acEntity
-  parent: CarpetBlueBitrunArt4bf4b7a700ac
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700ac
-  name: dl-apt-utility-carpetbluebitrunart4bf4b7a700ac
-  entity: DLAptUtilityCarpetBlueBitrunArt4bf4b7a700acEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt5960439d98eeEntity
-  parent: CarpetBlueBitrunArt5960439d98ee
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt5960439d98ee
-  name: dl-apt-utility-carpetbluebitrunart5960439d98ee
-  entity: DLAptUtilityCarpetBlueBitrunArt5960439d98eeEntity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt840163e44a74Entity
-  parent: CarpetBlueBitrunArt840163e44a74
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt840163e44a74
-  name: dl-apt-utility-carpetbluebitrunart840163e44a74
-  entity: DLAptUtilityCarpetBlueBitrunArt840163e44a74Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20Entity
-  parent: CarpetBlueBitrunArt90d6c0e85b20
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20
-  name: dl-apt-utility-carpetbluebitrunart90d6c0e85b20
-  entity: DLAptUtilityCarpetBlueBitrunArt90d6c0e85b20Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArtc42340b18973Entity
-  parent: CarpetBlueBitrunArtc42340b18973
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArtc42340b18973
-  name: dl-apt-utility-carpetbluebitrunartc42340b18973
-  entity: DLAptUtilityCarpetBlueBitrunArtc42340b18973Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArtce2264015648Entity
-  parent: CarpetBlueBitrunArtce2264015648
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArtce2264015648
-  name: dl-apt-utility-carpetbluebitrunartce2264015648
-  entity: DLAptUtilityCarpetBlueBitrunArtce2264015648Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetBlueBitrunArte3107f5213fdEntity
-  parent: CarpetBlueBitrunArte3107f5213fd
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetBlueBitrunArte3107f5213fd
-  name: dl-apt-utility-carpetbluebitrunarte3107f5213fd
-  entity: DLAptUtilityCarpetBlueBitrunArte3107f5213fdEntity
-  category: Ковры
-  price: 15
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -4005,23 +4073,6 @@
   allowsOverlap: true
   layer: Floor
 - type: entity
-  id: DLAptUtilityCarpetCyanBitrunArtffc47b617db1Entity
-  parent: CarpetCyanBitrunArtffc47b617db1
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetCyanBitrunArtffc47b617db1
-  name: dl-apt-utility-carpetcyanbitrunartffc47b617db1
-  entity: DLAptUtilityCarpetCyanBitrunArtffc47b617db1Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
   id: DLAptUtilityCarpetGreenEntity
   parent: CarpetGreen
   categories:
@@ -4040,23 +4091,6 @@
   allowsOverlap: true
   layer: Floor
 - type: entity
-  id: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16Entity
-  parent: CarpetGreenBitrunArtff3f64ecec16
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16
-  name: dl-apt-utility-carpetgreenbitrunartff3f64ecec16
-  entity: DLAptUtilityCarpetGreenBitrunArtff3f64ecec16Entity
-  category: Ковры
-  price: 15
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
   id: DLAptUtilityCarpetOrangeEntity
   parent: CarpetOrange
   categories:
@@ -4070,23 +4104,6 @@
   category: Ковры
   price: 15
   legacyFree: true
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetOrangeBitrunArta920aaf887cfEntity
-  parent: CarpetOrangeBitrunArta920aaf887cf
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetOrangeBitrunArta920aaf887cf
-  name: dl-apt-utility-carpetorangebitrunarta920aaf887cf
-  entity: DLAptUtilityCarpetOrangeBitrunArta920aaf887cfEntity
-  category: Ковры
-  price: 15
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true
@@ -4123,23 +4140,6 @@
   category: Ковры
   price: 15
   legacyFree: true
-  maxCount: 8
-  blocksMovement: false
-  allowsOverlap: true
-  layer: Floor
-- type: entity
-  id: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69Entity
-  parent: CarpetPurpleBitrunArt4c8cc20e0d69
-  categories:
-    - HideSpawnMenu
-  components:
-    - type: NoDeconstruct
-- type: apartmentFurniture
-  id: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69
-  name: dl-apt-utility-carpetpurplebitrunart4c8cc20e0d69
-  entity: DLAptUtilityCarpetPurpleBitrunArt4c8cc20e0d69Entity
-  category: Ковры
-  price: 15
   maxCount: 8
   blocksMovement: false
   allowsOverlap: true

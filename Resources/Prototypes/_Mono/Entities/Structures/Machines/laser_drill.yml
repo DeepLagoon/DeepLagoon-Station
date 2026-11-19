@@ -4,6 +4,27 @@
   parent: BaseMachine
   abstract: true
   components:
+  - type: LaserDrill
+    materials:
+      RawIron: 1500
+      RawGold: 1500
+      RawPlasma: 1500
+      RawSilver: 1500
+      RawQuartz: 1500
+      RawUranium: 1500
+      Coal: 1500
+      LithiumOre: 1500
+      CopperOre: 1500
+      RawBananium: 100
+      RawDiamond: 100
+      RawBluespace: 100
+  - type: OreSiloClient
+  - type: ActivatableUI
+    key: enum.LaserDrillUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.LaserDrillUiKey.Key:
+        type: LaserDrillBoundUserInterface
   - type: ItemMiner
     proto: SpawnLootOres15
     resolveRandomSpawner: true
@@ -60,7 +81,7 @@
   id: LaserDrill
   name: automated laser drill
   parent: LaserDrillBase
-  description: A large automated drill that digs up random materials when powered with 50 kW of HV. Only works on expedition planets.
+  description: An automated drill that delivers a selected raw material directly to a linked material silo. Requires 50 kW of HV power and an expedition planet. Connect it using the silo's menu.
   components:
   - type: PlanetMiner
     requireExpedition: true
@@ -70,7 +91,7 @@
   id: StationLaserDrill
   name: advanced automated laser drill
   parent: LaserDrillBase
-  description: A large bluespace automated drill that digs up random materials when powered with 150 kW of HV. Now works in space! You can just make out a scratched off logo starting with an embossed 'N' on the side.
+  description: An advanced drill that delivers a selected raw material directly to a linked material silo, even in space. Requires 150 kW of HV power. Connect it using the silo's menu.
   components:
   - type: Anchorable
     flags: None # 1984

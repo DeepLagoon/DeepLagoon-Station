@@ -49,17 +49,21 @@ public abstract partial class SharedOreSiloSystem : EntitySystem
         }
         else // add client
         {
-            if (!CanTransmitMaterials((ent, ent), client))
+            if (clientComp.Silo != null || !CanTransmitMaterials((ent, ent), client))
                 return;
 
-            var clientMats = _materialStorage.GetStoredMaterials(client, true);
-            var inverseMats = new Dictionary<string, int>();
-            foreach (var (mat, amount) in clientMats)
+            // Producers can link without having a local material buffer of their own.
+            if (HasComp<MaterialStorageComponent>(client))
             {
-                inverseMats.Add(mat, -amount);
+                var clientMats = _materialStorage.GetStoredMaterials(client, true);
+                var inverseMats = new Dictionary<string, int>();
+                foreach (var (mat, amount) in clientMats)
+                {
+                    inverseMats.Add(mat, -amount);
+                }
+                _materialStorage.TryChangeMaterialAmount(client, inverseMats, localOnly: true);
+                _materialStorage.TryChangeMaterialAmount(ent.Owner, clientMats);
             }
-            _materialStorage.TryChangeMaterialAmount(client, inverseMats, localOnly: true);
-            _materialStorage.TryChangeMaterialAmount(ent.Owner, clientMats);
 
             ent.Comp.Clients.Add(client);
             Dirty(ent);
@@ -143,6 +147,14 @@ public abstract partial class SharedOreSiloSystem : EntitySystem
         silo.Clients.Remove(ent);
         Dirty(ent.Comp.Silo.Value, silo);
         UpdateOreSiloUi((ent.Comp.Silo.Value, silo));
+    }
+
+    /// <summary>
+    /// Whether this silo owns the client's connection.
+    /// </summary>
+    public bool IsLinkedTo(Entity<OreSiloComponent?> silo, EntityUid client)
+    {
+        return Resolve(silo, ref silo.Comp, false) && silo.Comp.Clients.Contains(client);
     }
 
     /// <summary>

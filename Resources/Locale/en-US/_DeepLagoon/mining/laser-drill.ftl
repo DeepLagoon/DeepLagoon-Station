@@ -1,0 +1,12 @@
+dl-laser-drill-title = Laser drill
+dl-laser-drill-resource = Resource to mine
+dl-laser-drill-select = Select a resource
+dl-laser-drill-silo = Material silo: { $silo }
+dl-laser-drill-no-silo = not connected
+dl-laser-drill-link-hint = Connect this drill using the material silo's menu.
+dl-laser-drill-status-NoResource = Stopped: select a resource.
+dl-laser-drill-status-NoSilo = Stopped: no material silo connected.
+dl-laser-drill-status-SiloUnavailable = Stopped: silo unavailable or unpowered.
+dl-laser-drill-status-StorageFull = Stopped: silo cannot accept the selected resource.
+dl-laser-drill-status-Disabled = Stopped: check power, anchoring and installation site.
+dl-laser-drill-status-Mining = Mining directly into the material silo.

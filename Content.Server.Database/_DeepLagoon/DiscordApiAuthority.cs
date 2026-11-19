@@ -14,10 +14,10 @@ public static class DiscordApiAuthority
         var host = discordRole == "1554164947804487770";
         var head = kind == "mapper" ? discordRole == "1555959349615263804" : discordRole == "1554887617831764060";
         if (!host && !head) return false;
-        if (operation != "staff_add" || host) return true;
-        if (kind is "admin" or "mapper") return applicationId == null;
-        // Trial can be granted manually outside an application, or on acceptance.
-        if (applicationId == null) return true;
+        // The bot exposes explicit add_* commands for direct grants. The application
+        // flow separately validates the application and submits its ID for trial admin.
+        if (operation != "staff_add" || host || applicationId == null) return true;
+        if (kind is "admin" or "mapper") return false;
         return applicationId is { Length: >= 15 and <= 20 } && applicationId.All(char.IsAsciiDigit) &&
                ulong.TryParse(applicationId, out var id) && id > 0;
     }

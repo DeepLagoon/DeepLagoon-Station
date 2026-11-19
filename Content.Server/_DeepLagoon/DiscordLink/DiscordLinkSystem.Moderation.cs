@@ -11,6 +11,8 @@ using Content.Shared.Administration.Notes;
 using Content.Shared.Database;
 using Content.Shared.CCVar;
 using Content.Shared.Roles;
+using Content.Server.Players.PlayTimeTracking;
+using Content.Shared.Players.PlayTimeTracking;
 using Robust.Server.ServerStatus;
 using Robust.Shared.Enums;
 using Robust.Shared.Network;
@@ -118,6 +120,7 @@ public sealed partial class DiscordLinkSystem
             "staff_status" when request.Kind == "mapper" => "MAPPING",
             "staff_add" or "staff_remove" or "staff_status" or "admin_flags" or "staff_flags" => "PERMISSIONS",
             "apartment_catalog" or "apartment_grant" => "HOST",
+            "playtime_roles" or "playtime_adjust" => "MODERATOR",
             _ => "HOST",
         };
         var staffAuthority = DiscordApiAuthority.CanManageStaff(actingAdmin, request.Operation,
@@ -127,6 +130,45 @@ public sealed partial class DiscordLinkSystem
             return new ApiResult(HttpStatusCode.Forbidden, new { error = "permissions_denied" });
         if (request.Operation == "ban_permissions")
             return new ApiResult(HttpStatusCode.OK, new { can_mass_ban = DiscordApiAuthority.Has(actingAdmin, "MASSBAN") });
+        if (request.Operation == "playtime_roles")
+            return new ApiResult(HttpStatusCode.OK, new { rows = _prototypes.EnumeratePrototypes<PlayTimeTrackerPrototype>()
+                .Select(p => p.ID).Where(id => id != PlayTimeTrackingShared.TrackerOverall && id != PlayTimeTrackingShared.TrackerAdmin)
+                .OrderBy(id => id).ToArray() });
+        if (request.Operation == "playtime_adjust")
+        {
+            if (request.PlayTimeChanges is not { Length: > 0 and <= 64 } changes ||
+                request.RequestId is not { Length: >= 15 and <= 20 } requestId || !requestId.All(char.IsAsciiDigit) ||
+                changes.Any(c => c == null || string.IsNullOrWhiteSpace(c.Tracker) || c.Tracker.Length > 128 ||
+                                 c.Minutes is < -525600 or > 525600 || c.Minutes == 0))
+                return ModerationError("invalid_request");
+            var validated = new Dictionary<string, TimeSpan>();
+            foreach (var change in changes)
+            {
+                if (change.Tracker != PlayTimeTrackingShared.TrackerOverall &&
+                    !_prototypes.TryIndex<PlayTimeTrackerPrototype>(change.Tracker, out _))
+                    return ModerationError("invalid_request");
+                if (validated.ContainsKey(change.Tracker)) return ModerationError("invalid_request");
+                validated[change.Tracker] = TimeSpan.FromMinutes(change.Minutes);
+            }
+            if (await _database.GetPlayerRecordByUserId(uid) == null)
+                return ModerationError("player_not_in_slot");
+            var previousTimes = (await _database.GetPlayTimes(uid.UserId)).ToDictionary(p => p.Tracker, p => p.TimeSpent);
+            if (_players.TryGetSessionById(uid, out var playing) && _playTime.TryGetTrackerTimes(playing, out var liveTimes))
+            {
+                _playTime.FlushTracker(playing);
+                previousTimes = liveTimes;
+            }
+            if (validated.Any(change => previousTimes.GetValueOrDefault(change.Key) + change.Value < TimeSpan.Zero))
+                return ModerationError("playtime_negative");
+            // A reservation is deliberately retained on failure: the timer store and
+            // link store are separate databases, so an interrupted write is unknown.
+            // Never replay the same adjustment after a timeout or process restart.
+            if (_store?.ReserveApiCooldown("playtime-transfer:" + requestId, int.MaxValue) != true)
+                return ModerationError("playtime_request_used");
+            await _playTime.UpdateTrackerTimesAsync(uid, validated, overwrite: false);
+            Log.Info($"Discord playtime transfer: request={requestId} target={uid} actor={actor} changes={JsonSerializer.Serialize(changes)}");
+            return new ApiResult(HttpStatusCode.OK, new { ok = true, uid = uid.ToString() });
+        }
         if (request.Operation == "player_info")
         {
             if (!DiscordApiAuthority.Has(actingAdmin, "BAN"))
@@ -145,7 +187,7 @@ public sealed partial class DiscordLinkSystem
         if (request.Operation == "staff_status")
         {
             var rank = admin?.AdminRankId is {} rankId ? await _database.GetAdminRankAsync(rankId) : null;
-            var kind = rank?.Name switch { "Game Admin" => "admin", "Discord Trial Admin" => "trial", "Discord Mapper" => "mapper", _ => ManagedKind(admin) };
+            var kind = rank?.Name switch { "Game Admin" => "admin", "Trial Admin" or "Discord Trial Admin" => "trial", "Discord Mapper" => "mapper", _ => ManagedKind(admin) };
             return new ApiResult(HttpStatusCode.OK, new { kind, uid = uid.ToString() });
         }
         if (request.Operation == "jobs")
@@ -265,6 +307,18 @@ public sealed partial class DiscordLinkSystem
         if (_store?.ReserveApiCooldown("staff-write", 60) != true)
             return new ApiResult(HttpStatusCode.TooManyRequests, new { error = "rate_limited" });
         var current = ManagedKind(admin);
+        var (_, ranks) = await _database.GetAllAdminAndRanksAsync();
+        if (current == null && admin?.AdminRankId is {} existingRankId)
+        {
+            var existingName = ranks.SingleOrDefault(r => r.Id == existingRankId)?.Name;
+            current = existingName switch
+            {
+                "Trial Admin" or "Discord Trial Admin" => "trial",
+                "Game Admin" => "admin",
+                "Discord Mapper" => "mapper",
+                _ => null,
+            };
+        }
         // Narrow commands must not overwrite an unrelated rank, suspension or individual flags.
         if (admin != null && (current == null || admin.Suspended || admin.Flags.Count > 0))
             return ModerationError("staff_conflict");
@@ -276,7 +330,6 @@ public sealed partial class DiscordLinkSystem
         }
         else
         {
-            var (_, ranks) = await _database.GetAllAdminAndRanksAsync();
             AdminRank? rank;
             if (request.Kind == "admin")
             {
@@ -285,20 +338,20 @@ public sealed partial class DiscordLinkSystem
             }
             else
             {
-                var name = request.Kind == "trial" ? "Discord Trial Admin" : "Discord Mapper";
+                var name = request.Kind == "trial" ? "Trial Admin" : "Discord Mapper";
+                rank = ranks.SingleOrDefault(r => r.Name == name);
                 var flags = AdminFlags.Admin | AdminFlags.Adminchat | AdminFlags.Adminhelp | AdminFlags.AdminWho |
                             AdminFlags.Debug | AdminFlags.Mapping | AdminFlags.Moderator | AdminFlags.Server |
                             AdminFlags.Spawn | AdminFlags.Stealth | AdminFlags.ViewNotes;
-                if (request.Kind == "trial")
+                if (request.Kind == "trial" && rank == null)
                 {
                     var baseRank = ranks.SingleOrDefault(r => r.Name == "Game Admin");
                     if (baseRank == null) return ModerationError("game_admin_rank_missing");
                     flags = AdminFlagsHelper.NamesToFlags(baseRank.Flags.Select(f => f.Flag)) &
                             ~(AdminFlags.Debug | AdminFlags.Permissions);
                 }
-                rank = ranks.SingleOrDefault(r => r.Name == name);
                 var expectedFlags = AdminFlagsHelper.FlagsToNames(flags).ToHashSet();
-                if (rank != null && !expectedFlags.SetEquals(rank.Flags.Select(f => f.Flag)))
+                if (rank != null && request.Kind != "trial" && !expectedFlags.SetEquals(rank.Flags.Select(f => f.Flag)))
                 {
                     // Upgrade only the old bot-created mapping-only rank; preserve custom ranks.
                     if (request.Kind != "mapper" || !rank.Flags.Select(f => f.Flag).ToHashSet().SetEquals(new[] { "MAPPING" }))
@@ -370,5 +423,7 @@ public sealed partial class DiscordLinkSystem
         string? Message = null, uint Minutes = 0, string Severity = "Medium", string? Job = null,
         int Id = 0, bool Secret = false, string? Kind = null, string? ActorName = null,
         string? Flag = null, string? Mode = null, string? Template = null,
-        string? ActorStaffRole = null, string? StaffApplicationId = null, string[]? Uids = null);
+        string? ActorStaffRole = null, string? StaffApplicationId = null, string[]? Uids = null,
+        PlayTimeChange[]? PlayTimeChanges = null, string? RequestId = null);
+    private sealed record PlayTimeChange(string Tracker, int Minutes);
 }

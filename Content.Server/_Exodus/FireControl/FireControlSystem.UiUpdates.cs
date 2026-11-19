@@ -42,8 +42,7 @@ public sealed partial class FireControlSystem
         SubscribeLocalEvent<FireControllableComponent, EntInsertedIntoContainerMessage>(OnControllableAmmoInserted);
         SubscribeLocalEvent<FireControllableComponent, EntRemovedFromContainerMessage>(OnControllableAmmoRemoved);
 
-        SubscribeLocalEvent<DockingComponent, ComponentRemove>(OnDockingPortRemoved);
-        SubscribeLocalEvent<DockingComponent, EntParentChangedMessage>(OnDockingPortParentChanged);
+        SubscribeLocalEvent<Content.Server.Shuttles.Systems.DockingPortsChangedEvent>(OnDockingPortsChanged);
         SubscribeLocalEvent<DockingComponent, EntityRenamedEvent>(OnDockingPortRenamed);
 
         SubscribeLocalEvent<DockEvent>(OnDockChanged);
@@ -144,12 +143,7 @@ public sealed partial class FireControlSystem
         QueueServerUiUpdate(ent.Comp.ControllingServer);
     }
 
-    private void OnDockingPortRemoved(Entity<DockingComponent> ent, ref ComponentRemove args)
-    {
-        QueueAllConsoleUiUpdates();
-    }
-
-    private void OnDockingPortParentChanged(Entity<DockingComponent> ent, ref EntParentChangedMessage args)
+    private void OnDockingPortsChanged(Content.Server.Shuttles.Systems.DockingPortsChangedEvent args)
     {
         QueueAllConsoleUiUpdates();
     }
