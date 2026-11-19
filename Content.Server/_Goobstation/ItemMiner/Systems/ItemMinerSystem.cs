@@ -8,6 +8,7 @@ using Robust.Shared.Audio.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._Goobstation.ItemMiner;
 

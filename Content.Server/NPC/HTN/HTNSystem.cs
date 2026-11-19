@@ -102,6 +102,66 @@ public sealed partial class HTNSystem : EntitySystem
         OnLoad();
     }
 
+    // DeepLagoon start
+    public (int Npcs, int Restored) ReloadAll()
+    {
+        OnLoad();
+
+        var npcs = 0;
+        var query = AllEntityQuery<HTNComponent>();
+
+        while (query.MoveNext(out var uid, out var comp))
+        {
+            npcs++;
+            RestartNpc(uid, comp);
+        }
+
+        return (npcs, RestoreMissingComponents());
+    }
+
+    private int RestoreMissingComponents()
+    {
+        var restored = 0;
+        var query = AllEntityQuery<MetaDataComponent>();
+
+        while (query.MoveNext(out var uid, out var meta))
+        {
+            if (HasComp<HTNComponent>(uid) ||
+                HasComp<ActorComponent>(uid) ||
+                meta.EntityPrototype is not { } prototype ||
+                LifeStage(uid) >= EntityLifeStage.Terminating)
+            {
+                continue;
+            }
+
+            if (!prototype.TryComp<HTNComponent>(out var template, Factory))
+                continue;
+
+            var registry = new ComponentRegistry
+            {
+                { CompName.Get<HTNComponent>(Factory).Name, new EntityPrototype.ComponentRegistryEntry(template) },
+            };
+
+            EntityManager.AddComponents(uid, registry, removeExisting: false);
+
+            if (!TryComp<HTNComponent>(uid, out var comp))
+                continue;
+
+            comp.Blackboard.SetValue(NPCBlackboard.Owner, uid);
+            RestartNpc(uid, comp);
+            restored++;
+        }
+
+        return restored;
+    }
+
+    private void RestartNpc(EntityUid uid, HTNComponent comp)
+    {
+        _npc.WakeNPC(uid, comp);
+        Replan(comp);
+    }
+    // DeepLagoon end
+
     private void UpdateCompound(HTNCompoundPrototype compound)
     {
         for (var i = 0; i < compound.Branches.Count; i++)
