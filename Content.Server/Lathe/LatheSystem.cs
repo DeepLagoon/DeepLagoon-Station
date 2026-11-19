@@ -41,7 +41,6 @@ using Content.Server.Storage.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.Utility; // Frontier
 using System.Numerics;
-using System.Numerics;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics;
 
